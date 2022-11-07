@@ -38,6 +38,7 @@ library(ackwards)
   component structures by Goldberg’s bass-ackwards method. *Journal of
   Research in Personality, 41*(4), 745–752. <https://doi.org/10/bcz8wd>
 
-- Forbes, M. K. (2020). Improving hierarchical models of individual
-  differences: An extension of Goldberg’s bass-ackwards method. *OSF
-  Preprints.* <https://doi.org/10.31219/osf.io/ksxwv>
+- Forbes, M. K. (2022). Improving hierarchical models of individual
+  differences: An extension of Goldberg’s bass-ackwards method.
+  *Psychological Methods.* Advanced online publication.
+  <https://doi.org/10.1037/met0000546>
