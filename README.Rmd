@@ -31,11 +31,11 @@ devtools::install_github("jmgirard/ackwards")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+Work in progress on the extended bass-ackwards technique:
 
 ```{r example}
 library(ackwards)
-## basic example code
+xba_psych(r = forbes, nfactors = 10, fm = "minres")
 ```
 
 ## References

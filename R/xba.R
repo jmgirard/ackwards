@@ -26,7 +26,7 @@ xba_psych <- function(r, nfactors, fm = "minres", rotate = "varimax",
     fm,
     choices = c(
       "minres", "uls", "ols", "wls", "gls", "pa", "ml", "minchi", "minrank",
-      "old.min", "alpha"
+      "old.min", "alpha", "pca"
     )
   )
   rotate <- match.arg(
@@ -51,14 +51,24 @@ xba_psych <- function(r, nfactors, fm = "minres", rotate = "varimax",
   # Loop through number of factors from 1 to nfactors
   for (i in seq_along(fits)) {
     # Fit a factor analytic model to r with i factors and save results in fits
-    fits[[i]] <- psych::fa(
-      r = r,
-      nfactors = i,
-      fm = fm,
-      rotate = rotate,
-      scores = scores,
-      ...
-    )
+    if (fm == "pca") {
+      fits[[i]] <- psych::pca(
+        r = r,
+        nfactors = i,
+        rotate = rotate,
+        ...
+      )
+    } else {
+      fits[[i]] <- psych::fa(
+        r = r,
+        nfactors = i,
+        fm = fm,
+        rotate = rotate,
+        scores = scores,
+        ...
+      )
+    }
+
     # Rename the factors in loadings and weights as A1, B1:B2, C1:C3, etc.
     fnames <- paste0(LETTERS[[i]], 1:i)
     colnames(fits[[i]]$loadings) <- fnames
