@@ -218,7 +218,6 @@ xba_lavaan <- function(data, nfactors, rotate = "varimax", ...) {
       method = "Forbes",
       engine = "lavaan",
       models = fits,
-      weights = weights,
       fscores = fscores,
       congruences = congs
     )

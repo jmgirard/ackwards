@@ -35,7 +35,8 @@ Work in progress on the extended bass-ackwards technique:
 
 ```{r example}
 library(ackwards)
-wba(r = cor(skiers), nfactors = 3)
+x <- wba(r = cor(skiers), nfactors = 3)
+print(x, digits = 3, cut = 0.3)
 ```
 
 ## References

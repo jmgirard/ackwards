@@ -11,8 +11,8 @@
 
 \item{digits}{A}
 
-\item{cut}{Loadings below this magnitude will not be displayed
-(default = `.3`).}
+\item{cut}{A double indicating which magnitude of loadings to display or
+`NULL` to display all loadings (default = `.3`).}
 
 \item{...}{Ignored for now.}
 }

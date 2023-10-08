@@ -27,11 +27,12 @@ new_bar <- function(correlations = list(),
 #'
 #' @param x An object of class "ackwards_bar" from `wba()` or `xba()`.
 #' @param digits A
-#' @param cut Loadings below this magnitude will not be displayed
-#'   (default = `.3`).
+#' @param cut A double indicating which magnitude of loadings to display or
+#'   `NULL` to display all loadings (default = `.3`).
 #' @param ... Ignored for now.
 #'
 #' @return Prints and returns x
+#' @export print.ackwards_bar
 #' @export
 #'
 #' @examples
@@ -42,12 +43,14 @@ print.ackwards_bar <- function(x, digits = 3, cut = .3, ...) {
   stopifnot(is.numeric(digits))
   stopifnot(length(digits) == 1)
   stopifnot(floor(digits) == ceiling(digits))
-  stopifnot(is.numeric(cut))
-  stopifnot(length(cut) == 1)
+  stopifnot(is.null(cut) || is.numeric(cut))
+  stopifnot(is.null(cut) || is.finite(cut))
+  stopifnot(is.null(cut) || length(cut) == 1)
+  stopifnot(is.null(cut) || cut >= 0)
 
   # Print header
   cat(
-    "\nBass-Ackwards Analysis\n",
+    "Bass-Ackwards Analysis\n",
     paste0("  Method = ", x$details$method),
     paste0("  Engine = ", x$details$engine),
     sep = "\n"
@@ -69,7 +72,9 @@ print.ackwards_bar <- function(x, digits = 3, cut = .3, ...) {
 
   for (i in 1:length(x$loadings)) {
     load_i <- round(x$loadings[[i]], digits)
-    load_i[abs(load_i) < cut] <- NA
+    if (!is.null(cut)) {
+      load_i[abs(load_i) < cut] <- NA
+    }
     print.default(
       load_i,
       print.gap = 3L,
@@ -77,8 +82,9 @@ print.ackwards_bar <- function(x, digits = 3, cut = .3, ...) {
     )
     cat("\n")
   }
-  cat(paste0(". = Loading magnitude less than ", cut, "\n\n"))
+  if (!is.null(cut)) {
+    cat(paste0(". = Loading magnitude less than ", cut, "\n\n"))
+  }
 
-  x
-
+  invisible(x)
 }
