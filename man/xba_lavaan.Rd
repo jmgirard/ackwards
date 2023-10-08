@@ -7,7 +7,7 @@
 xba_lavaan(data, nfactors, rotate = "varimax", ...)
 }
 \arguments{
-\item{data}{A data frame containing the raw data (observations-by-variables).}
+\item{data}{A data frame or matrix containing the raw data.}
 
 \item{nfactors}{The maximum number of factors to estimate.}
 

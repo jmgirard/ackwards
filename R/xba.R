@@ -98,7 +98,7 @@ xba_psych <- function(data = NULL, r = NULL, nfactors, fm = "minres",
     }
 
     # Rename the factors in loadings and weights as A1, B1:B2, C1:C3, etc.
-    fnames <- paste0(LETTERS[[i]], 1:i)
+    fnames <- make_seq_names(i)
     colnames(loadings[[i]]) <- fnames
     colnames(weights[[i]]) <- fnames
     if (!is.null(data)) {
@@ -189,7 +189,7 @@ xba_lavaan <- function(data, nfactors, rotate = "varimax", ...) {
     fscores[[i]] <- ten_berge_lavaan(fits[[i]])
 
     # Rename the factors in loadings and weights as A1, B1:B2, C1:C3, etc.
-    fnames <- paste0(LETTERS[[i]], 1:i)
+    fnames <- make_seq_names(i)
     colnames(loadings[[i]]) <- fnames
     colnames(fscores[[i]]) <- fnames
 

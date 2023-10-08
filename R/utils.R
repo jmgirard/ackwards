@@ -28,6 +28,11 @@ calc_ten_berge <- function(X, Lambda, Phi, i.means, i.sds) {
   scores
 }
 
+make_seq_names <- function(level) {
+  stopifnot(level <= 26)
+  paste0(LETTERS[[i]], 1:i)
+}
+
 # lavaan utilities --------------------------------------------------------
 
 # Adapted from seminr package

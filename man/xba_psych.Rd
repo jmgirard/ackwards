@@ -5,7 +5,8 @@
 \title{Extended Bass-Ackwards Analysis using psych}
 \usage{
 xba_psych(
-  r,
+  data = NULL,
+  r = NULL,
   nfactors,
   fm = "minres",
   rotate = "varimax",
@@ -14,6 +15,8 @@ xba_psych(
 )
 }
 \arguments{
+\item{data}{A data frame or matrix containing the raw data.}
+
 \item{r}{A correlation matrix (either as a matrix or data frame).}
 
 \item{nfactors}{The maximum number of factors to estimate.}
@@ -33,5 +36,5 @@ A list object with the basic results
 Extended Bass-Ackwards Analysis using psych
 }
 \examples{
-xba_psych(forbes, 10)
+xba_psych(r = forbes, 10)
 }
