@@ -24,14 +24,14 @@ wba <- function(r, nfactors, eps = 1e-15) {
   # Extract raw eigenvalues
   eval <- sdr$values
 
-  # Extract raw eigenvectors
+  # Extract raw eigenvectors (W)
   evec <- sdr$vectors
 
   # Flip the signs of eigenvectors that sum negative
   evec <- evec %*% diag(sign(colSums(evec)))
 
-  # TODO: Give this line a description (???)
-  P <- evec %*% diag(sqrt(eval))
+  # Calculate the unrotated PCA loadings
+  pcl <- evec %*% diag(sqrt(eval))
 
   # Preallocate list objects
   correlations <- vector(mode = "list", length = nfactors)
@@ -41,12 +41,12 @@ wba <- function(r, nfactors, eps = 1e-15) {
   # Loop through number of factors to get loadings and rotations
   for (i in 1:nfactors) {
     if (i == 1) {
-      # If one factor, just take unrotated solution from P[, i]
-      loadings[[i]] <- P[, i, drop = FALSE]
+      # If one factor, just take unrotated solution from pcl[, i]
+      loadings[[i]] <- pcl[, i, drop = FALSE]
       rotations[[i]] <- diag(1)
     } else {
-      # If more than one factor, get varimax solution on P[, 1:i]
-      vout <- stats::varimax(P[, 1:i], normalize = TRUE, eps = eps)
+      # If more than one factor, get varimax solution on pcl[, 1:i]
+      vout <- stats::varimax(pcl[, 1:i], normalize = TRUE, eps = eps)
       loadings[[i]] <- vout$loadings[1:nvar, ]
       rotations[[i]] <- vout$rotmat
     }
