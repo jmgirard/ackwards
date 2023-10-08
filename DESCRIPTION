@@ -10,6 +10,7 @@ License: CC BY 4.0
 URL: https://github.com/jmgirard/ackwards
 BugReports: https://github.com/jmgirard/ackwards/issues
 Imports: 
+    lavaan,
     psych
 Suggests: 
     spelling,
