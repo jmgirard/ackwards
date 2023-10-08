@@ -56,7 +56,7 @@ wba <- function(r, nfactors, eps = 1e-15) {
 
   # Loop through number of factors to get cross-level correlations
   for (i in 2:nfactors) {
-    # TODO: Give this line a description (???)
+    # Create selection matrix
     S <- cbind(diag(i - 1), matrix(0, i - 1, 1))
 
     # Base correlation on rotations and S

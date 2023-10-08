@@ -30,7 +30,7 @@ calc_ten_berge <- function(X, Lambda, Phi, i.means, i.sds) {
 
 make_seq_names <- function(level) {
   stopifnot(level <= 26)
-  paste0(LETTERS[[i]], 1:i)
+  paste0(LETTERS[[level]], 1:level)
 }
 
 # lavaan utilities --------------------------------------------------------
