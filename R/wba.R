@@ -71,10 +71,15 @@ wba <- function(r, nfactors, eps = 1e-15) {
   }
 
   # Create and return list object
-  list(
+  new_bar(
     correlations = correlations,
     loadings = loadings,
-    rotations = rotations,
-    details = list(eigenvalues = eval, eigenvectors = evec)
+    details = list(
+      method = "Waller",
+      engine = "eigen",
+      eigenvalues = eval,
+      eigenvectors = evec,
+      rotations = rotations
+    )
   )
 }

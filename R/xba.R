@@ -128,18 +128,18 @@ xba_psych <- function(data = NULL, r = NULL, nfactors, fm = "minres",
     }
   }
 
-  # Save results to output list
-  out <- list(
-    models = fits,
-    loadings = loadings,
-    weights = weights,
-    fscores = fscores,
+  new_bar(
     correlations = corrs,
-    congruences = congs
+    loadings = loadings,
+    details = list(
+      method = "Forbes",
+      engine = "psych",
+      models = fits,
+      weights = weights,
+      fscores = fscores,
+      congruences = congs
+    )
   )
-
-  # Return output list
-  out
 }
 
 #' Extended Bass-Ackwards Analysis using lavaan
@@ -211,18 +211,18 @@ xba_lavaan <- function(data, nfactors, rotate = "varimax", ...) {
     }
   }
 
-  # Save results to output list
-  out <- list(
-    models = fits,
-    loadings = loadings,
-    weights = weights,
-    fscores = fscores,
+  new_bar(
     correlations = corrs,
-    congruences = congs
+    loadings = loadings,
+    details = list(
+      method = "Forbes",
+      engine = "lavaan",
+      models = fits,
+      weights = weights,
+      fscores = fscores,
+      congruences = congs
+    )
   )
-
-  # Return output list
-  out
 
 }
 
