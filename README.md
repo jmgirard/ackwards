@@ -65,44 +65,6 @@ print(x, digits = 3, cut = 0.3)
 #> powder   0.997        .    .
 #> 
 #> . = Loading magnitude less than 0.3
-#> Bass-Ackwards Analysis
-#> 
-#>   Method = Waller
-#>   Engine = eigen
-#> 
-#> Cross-Level Correlations
-#> 
-#>          A1
-#> B1    0.904
-#> B2   -0.427
-#> 
-#>          B1      B2
-#> C1    1.000   0.000
-#> C2    0.000   1.000
-#> C3   -0.021   0.003
-#> 
-#> 
-#> Factor Loadings
-#> 
-#>              A1
-#> cost     -0.500
-#> lift      0.357
-#> depth     0.891
-#> powder    0.919
-#> 
-#>             B1       B2
-#> cost         .    0.988
-#> lift         .   -0.989
-#> depth    0.997        .
-#> powder   0.998        .
-#> 
-#>             C1       C2   C3
-#> cost         .    0.987    .
-#> lift         .   -0.989    .
-#> depth    0.998        .    .
-#> powder   0.997        .    .
-#> 
-#> . = Loading magnitude less than 0.3
 ```
 
 ## References
