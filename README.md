@@ -21,7 +21,7 @@ devtools::install_github("jmgirard/ackwards")
 
 ## Example
 
-Work in progress on the extended bass-ackwards technique:
+Waller’s (2007) general method:
 
 ``` r
 library(ackwards)
