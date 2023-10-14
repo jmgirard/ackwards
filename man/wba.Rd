@@ -4,15 +4,15 @@
 \alias{wba}
 \title{Waller's Bass-Ackwards Analysis using PCA}
 \usage{
-wba(r, nfactors, eps = 1e-15)
+wba(r, nfactors, rotate = "varimax")
 }
 \arguments{
 \item{r}{A square correlation matrix.}
 
 \item{nfactors}{The maximum number of factors (i.e., PCs) to estimate).}
 
-\item{eps}{The tolerance for stopping varimax; the relative change in the sum
-of singular values (default = `1e-15`).}
+\item{rotate}{A string containing the method for PCA rotation: either varimax
+(orthogonal) or promax (oblique). (default = `"varimax"`).}
 }
 \value{
 A list object containing basic results

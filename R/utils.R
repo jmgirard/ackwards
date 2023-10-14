@@ -33,6 +33,16 @@ make_seq_names <- function(level) {
   paste0(LETTERS[[level]], 1:level)
 }
 
+validate_nfactors <- function(nfactors) {
+  stopifnot(length(nfactors) == 1)
+  stopifnot(is.integerish(nfactors))
+  stopifnot(nfactors > 0)
+}
+
+is.integerish <- function(x) {
+  is.numeric(x) & (x %% 1 == 0)
+}
+
 # lavaan utilities --------------------------------------------------------
 
 # Adapted from seminr package

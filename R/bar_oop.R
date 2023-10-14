@@ -56,17 +56,6 @@ print.ackwards_bar <- function(x, digits = 3, cut = .3, ...) {
     sep = "\n"
   )
 
-  # Print cross-level correlations
-  cat("\nCross-Level Correlations\n\n")
-
-  for (i in 2:length(x$correlations)) {
-    print.default(
-      round(x$correlations[[i]], digits),
-      print.gap = 3L
-    )
-    cat("\n")
-  }
-
   # Print factor loadings
   cat("\nFactor Loadings\n\n")
 
@@ -84,6 +73,17 @@ print.ackwards_bar <- function(x, digits = 3, cut = .3, ...) {
   }
   if (!is.null(cut)) {
     cat(paste0(". = Loading magnitude less than ", cut, "\n\n"))
+  }
+
+  # Print cross-level correlations
+  cat("\nCross-Level Correlations\n\n")
+
+  for (i in 2:length(x$correlations)) {
+    print.default(
+      round(x$correlations[[i]][[i - 1]], digits = digits),
+      print.gap = 3L
+    )
+    cat("\n")
   }
 
   invisible(x)

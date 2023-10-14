@@ -35,7 +35,8 @@ Waller's (2007) general method:
 
 ```{r example}
 library(ackwards)
-x <- wba(r = cor(skiers), nfactors = 3)
+r <- cor(skiers, method = "pearson")
+x <- wba(r = r, nfactors = 3)
 print(x, digits = 3, cut = 0.3)
 ```
 

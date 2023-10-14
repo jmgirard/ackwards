@@ -2,15 +2,18 @@
 #'
 #' @param r A square correlation matrix.
 #' @param nfactors The maximum number of factors (i.e., PCs) to estimate).
-#' @param eps The tolerance for stopping varimax; the relative change in the sum
-#'   of singular values (default = `1e-15`).
+#' @param rotate A string containing the method for PCA rotation: either varimax
+#'   (orthogonal) or promax (oblique). (default = `"varimax"`).
 #'
 #' @return A list object containing basic results
 #' @export
 #'
 #' @examples
 #' wba(cor(skiers), nfactors = 3)
-wba <- function(r, nfactors, eps = 1e-15) {
+wba <- function(r, nfactors, rotate = "varimax") {
+
+  validate_nfactors(nfactors)
+  rotate <- match.arg(rotate, choices = c("varimax", "promax"))
 
   # Get or create variable names
   varnames <- rownames(r, do.NULL = FALSE, prefix = "x")
@@ -23,6 +26,7 @@ wba <- function(r, nfactors, eps = 1e-15) {
 
   # Extract raw eigenvalues
   eval <- sdr$values
+  eval[eval < 0] <- 0 # TODO: Check this is legit
 
   # Extract raw eigenvectors (W)
   evec <- sdr$vectors
@@ -34,7 +38,7 @@ wba <- function(r, nfactors, eps = 1e-15) {
   pcl <- evec %*% diag(sqrt(eval))
 
   # Preallocate list objects
-  correlations <- vector(mode = "list", length = nfactors)
+  correlations <- rep(list(vector("list", length = nfactors)), times = nfactors)
   rotations <- vector(mode = "list", length = nfactors)
   loadings <- vector(mode = "list", length = nfactors)
 
@@ -43,31 +47,33 @@ wba <- function(r, nfactors, eps = 1e-15) {
     if (i == 1) {
       # If one factor, just take unrotated solution from pcl[, i]
       loadings[[i]] <- pcl[, i, drop = FALSE]
-      rotations[[i]] <- diag(1)
+      correlations[[i]][[i]] <- matrix(1, 1, 1)
     } else {
-      # If more than one factor, get varimax solution on pcl[, 1:i]
-      vout <- stats::varimax(pcl[, 1:i], normalize = TRUE, eps = eps)
+      # If more than one factor, get rotated solution on pcl[, 1:i]
+      if (rotate == "varimax") {
+        vout <- stats::varimax(pcl[, 1:i], normalize = TRUE, eps = 1e-15)
+        correlations[[i]][[i]] <- diag(i)
+      } else if (rotate == "promax") {
+        vout <- psych::Promax(pcl[, 1:i])
+        correlations[[i]][[i]] <- vout$Phi
+      }
       loadings[[i]] <- vout$loadings[1:nvar, ]
       rotations[[i]] <- vout$rotmat
     }
     rownames(loadings[[i]]) <- varnames
     colnames(loadings[[i]]) <- make_seq_names(i)
+    rownames(correlations[[i]][[i]]) <- make_seq_names(i)
+    colnames(correlations[[i]][[i]]) <- make_seq_names(i)
   }
 
   # Loop through number of factors to get cross-level correlations
-  for (i in 2:nfactors) {
-    # Create selection matrix
-    S <- cbind(diag(i - 1), matrix(0, i - 1, 1))
-
-    # Base correlation on rotations and S
-    correlations[[i]] <- t(rotations[[i - 1]]) %*% S %*% rotations[[i]]
-
-    # Add sequential names
-    rownames(correlations[[i]]) <- colnames(loadings[[i - 1]])
-    colnames(correlations[[i]]) <- colnames(loadings[[i]])
-
-    # Transpose for pyramid output
-    correlations[[i]] <- t(correlations[[i]])
+  for (i in 1:nfactors) {
+    for (j in 1:nfactors) {
+      if (i != j) {
+      correlations[[i]][[j]] <-
+        get_clr_waller(i, j, rotations, loadings, rotate)
+      }
+    }
   }
 
   # Create and return list object
@@ -77,9 +83,42 @@ wba <- function(r, nfactors, eps = 1e-15) {
     details = list(
       method = "Waller",
       engine = "eigen",
+      rotation = rotate,
       eigenvalues = eval,
       eigenvectors = evec,
       rotations = rotations
     )
   )
+}
+
+# Calculate cross-level correlations using Wallers' methods
+get_clr_waller <- function(i, j, rotations, loadings, rotate) {
+
+  lo <- min(i, j)
+  hi <- max(i, j)
+
+  if (i != j) {
+    if (lo == 1) {
+      # Pull correlations from rotation matrix
+      out <- rotations[[hi]][1, , drop = FALSE]
+    } else {
+      S <- cbind(diag(lo), matrix(0, lo, 1))
+      if (rotate == "varimax") {
+        # Calculate correlations for orthogonal factors
+        out <- t(rotations[[lo]]) %*% S %*% rotations[[hi]]
+      } else if (rotate == "promax") {
+        # Calculate correlations for oblique factors
+        out <- solve(rotations[[lo]]) %*% S %*% solve(t(rotations[[hi]]))
+      }
+    }
+  }
+
+  rownames(out) <- colnames(loadings[[lo]])
+  colnames(out) <- colnames(loadings[[hi]])
+
+  if (j > i) {
+    out <- t(out)
+  }
+
+  out
 }

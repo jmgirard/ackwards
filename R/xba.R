@@ -225,3 +225,69 @@ xba_lavaan <- function(data, nfactors, rotate = "varimax", ...) {
 
 }
 
+
+
+
+ChaseCorrPaths <- function (comp.corr, component = "levelnum") #This function is called on below, not used alone. It calculates the paths of correlations >.9
+{
+  chased_levels <- vector() #initializing empty objects that are populated below
+  chased_to_level <- vector()
+  chased_to <- list()
+  sub_revcomp.corr <- list()
+  for (i in (length(comp.corr):1))
+  {
+    if (component %in% colnames(comp.corr[[i]]))
+      #if the component we're interested is in the matrix
+      chased_levels[[i]] <-
+        (max(comp.corr[[i]][, component]) >= .9) #tell me if the maximum component correlation for the relevant column is >=.9
+  }
+  revcomp.corr <-
+    rev(comp.corr) #reverse order of comp.corr to work from the bottom up
+  component_level <-
+    (length(chased_levels[!is.na(chased_levels)]) + 1) #level of current component (calculated as number of upward comparison matrices +1)
+  chased_levels <-
+    rev(chased_levels) #reverses order, so looking at lowest levels of hierarchy first
+
+  if (any(chased_levels, na.rm = TRUE))
+  {
+    chased_levels <-
+      (which.min(chased_levels)) - 1 #counts number of consecutive true values before first false
+  }
+  else {
+    chased_levels <- 0
+  }
+
+  chased_to_level <- (component_level - chased_levels)
+
+  if (chased_levels == 0)
+  {
+    chased_to <- "null"
+  } #if no trues
+  else {
+    #isolate block of matrices in revcomp.corr relevant to component
+    #end range
+    end_comp.corr <- ((component_level * (component_level - 1) / 2))
+    #start range
+    start_comp.corr <- (end_comp.corr - (component_level - 2))
+
+    sub_comp.corr <-
+      comp.corr[start_comp.corr:end_comp.corr] #subset of matrices
+
+    chased_to <-
+      rownames(as.data.frame(which.max(sub_comp.corr[[chased_to_level]][, component]))) #name of component chased to
+
+  }
+  if ((component == "b1") &
+      (max(comp.corr[[1]][, "b1"]) >= .9))
+    #need to calculate the b->a level separately
+  {
+    chased_to <- "a1"
+  }
+  if ((component == "b2") & (max(comp.corr[[1]][, "b2"]) >= .9))
+  {
+    chased_to <- "a1"
+  }
+  result <- list(component, chased_to)
+  result <- paste(result, sep = " ", collapse = "--")
+  return(result)
+}

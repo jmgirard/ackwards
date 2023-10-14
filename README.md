@@ -25,24 +25,13 @@ Waller’s (2007) general method:
 
 ``` r
 library(ackwards)
-x <- wba(r = cor(skiers), nfactors = 3)
+r <- cor(skiers, method = "pearson")
+x <- wba(r = r, nfactors = 3)
 print(x, digits = 3, cut = 0.3)
 #> Bass-Ackwards Analysis
 #> 
 #>   Method = Waller
 #>   Engine = eigen
-#> 
-#> Cross-Level Correlations
-#> 
-#>          A1
-#> B1    0.904
-#> B2   -0.427
-#> 
-#>          B1      B2
-#> C1    1.000   0.000
-#> C2    0.000   1.000
-#> C3   -0.021   0.003
-#> 
 #> 
 #> Factor Loadings
 #> 
@@ -65,6 +54,16 @@ print(x, digits = 3, cut = 0.3)
 #> powder   0.997        .    .
 #> 
 #> . = Loading magnitude less than 0.3
+#> 
+#> 
+#> Cross-Level Correlations
+#> 
+#>         B1       B2
+#> A1   0.904   -0.427
+#> 
+#>      C1   C2       C3
+#> B1    1    0   -0.021
+#> B2    0    1    0.003
 ```
 
 ## References
