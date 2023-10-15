@@ -40,7 +40,8 @@ validate_nfactors <- function(nfactors) {
 }
 
 is.integerish <- function(x) {
-  is.numeric(x) & (x %% 1 == 0)
+  if (!is.numeric(x)) return(FALSE)
+  (x %% 1 == 0)
 }
 
 # lavaan utilities --------------------------------------------------------
