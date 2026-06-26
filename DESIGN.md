@@ -1,0 +1,371 @@
+# DESIGN.md — Bass-Ackwards Hierarchical Structural Analysis (R package)
+
+> Working design brief. Carry this into the repo as the seed for implementation.
+> It records what we've settled, the contracts to implement, and recommended defaults.
+> §14 logs the resolved decisions and the few small calls left for build time.
+
+Package name: **`ackwards`** (distinctive, searchable, nods to the method's own name; avoids
+colliding with `psych::bassAckward()`). Confirm with `available::available("ackwards")` before
+committing. Main call: `ackwards::ackwards()`.
+
+---
+
+## 1. Purpose
+
+Implement Goldberg's (2006) bass-ackwards method and its modern descendants: extract a
+series of factor/component solutions from 1 to `k`, then characterize the hierarchy by the
+correlations between factor/component scores at adjacent (and, for extensions, all) levels.
+The package provides multiple extraction engines, principled tooling for choosing `k`,
+sign/lineage-aware naming, tidy outputs, and attractive console + graphical reporting.
+
+## 2. Scope & positioning
+
+**Prior art.** `psych::bassAckward()` (Revelle) already implements the core loop for PCA and
+EFA with rotation and `tenBerge` scores. We do **not** reimplement factor extraction numerics;
+we wrap established engines and add what `psych` does not.
+
+**Our contribution.**
+- A first-class **ESEM engine** (lavaan), bringing the Mplus psychopathology/HiTOP workflow
+  into R — per-level fit indices and SEs, ordinal/Likert support — which `psych::bassAckward`
+  does not provide. (Kim & Eaton 2015; Forbush et al. 2024 are the reference workflows.)
+- Proper **ordinal/Likert handling** (polychoric basis, ordinal estimators).
+- The **Forbes (2023) extended method** (redundancy + artefact pruning, all-levels correlations).
+- A clean, tidy, serializable **result object** with `print`/`summary`/`tidy`/`glance`/`autoplot`.
+- A **lineage-aligned layered diagram** rather than a misleading tree.
+
+**Honesty caveat to state in docs and `print`.** A bass-ackwards result is a *series of linked
+solutions*, not a fitted hierarchical model. The "hierarchy" is descriptive/emergent (edges are
+score correlations), not a higher-order SEM. `psych`'s own docs make this point; we should too.
+
+## 3. Design philosophy & priorities
+
+These are the project's standing priorities (owner-stated) and the recommended stance on each.
+
+- **Manageable dependencies.** Lean `Imports`; everything heavy or engine-specific in `Suggests`
+  behind `rlang::check_installed()` guards. Installing for the PCA path must not pull in the SEM
+  or plotting stacks. (See §12.)
+- **Best practices.** testthat 3e, roxygen2, pkgdown, CI (`R CMD check`, lintr/styler), semantic
+  versioning, snapshot tests against `psych` for the PCA path, a vignette reproducing a published
+  structure.
+- **Attractive outputs.** `{cli}` for all console output (`print`, `summary`, progress, warnings);
+  `{ggraph}`/`{ggplot2}` for diagrams. Visuals and pretty printing are a feature, not an afterthought.
+- **Efficiency / Rcpp.** *Recommendation: do not reach for Rcpp initially.* The heavy compute
+  (eigen/ML/WLSMV, polychoric estimation) already lives in compiled code inside lavaan/psych/BLAS.
+  The bass-ackwards-specific work is small matrix products (`W'RW`, where items `p` is modest and
+  factors `k` is small) and small assignment/pruning steps — none are bottlenecks. The realistic
+  hotspot is **many bootstrap/permutation resamples** for stability/CIs; address that first with
+  `{future}` parallelism over replicates, and only consider Rcpp if profiling proves a remaining
+  C-level bottleneck. Measure before optimizing.
+- **Safe, reproducible, and *loud* defaults.** (See §9.) The guiding rule: when the package makes
+  a consequential automatic choice (correlation basis, `k`, rotation), it **announces it via cli**
+  so the user who never reads an argument still sees what happened.
+
+## 4. Engines
+
+Three engines, all first-class, behind one user-facing function (`ackwards()`) that dispatches.
+Rotation is exposed through one unified Crawford-Ferguson interface across engines: `cfT`
+(orthogonal; default, reproduces varimax) and `cfQ` (oblique) with a single `kappa` knob.
+
+| Engine | Extraction | Typical use | Notes |
+|---|---|---|---|
+| `"pca"` | principal components | original Goldberg; Forbes extension | fastest, no Heywood, never fails to converge; Waller algebra exact |
+| `"efa"` | exploratory factor analysis | factor-model rationale, continuous data | `psych::fa` / `stats::factanal` style |
+| `"esem"` | EFA estimated in SEM framework (lavaan) | clinical/HiTOP workflow, ordinal data, downstream SEM linking | per-level fit + SEs; can fail to converge at deeper levels |
+
+**Engine interface (contract).** Every engine, for each level `k = 1..K`, returns a standardized
+per-level object:
+
+```r
+level <- list(
+  k         = <int>,
+  loadings  = <p x k matrix>,         # pattern matrix, item x factor
+  variance  = <named numeric>,        # per-factor + cumulative variance explained
+  fit       = <named numeric>,        # fit indices / eigenvalues; SEs where available
+  converged = <logical>,              # FALSE allowed; never fatal (see §13)
+  factor_cor= <k x k matrix>,         # within-level factor correlations (I for orthogonal)
+  labels    = <character[k]>,         # default m{k}f{j}; user-overridable
+  scoring   = <scoring descriptor>    # see §5
+)
+```
+
+A level that fails to converge is **recorded, warned about, and skipped**, never thrown. The
+hierarchy is built up to the deepest converged level.
+
+## 5. Scoring descriptor + `compute_edges()` (the centerpiece)
+
+The between-level edges are computed through **one shared code path** that uses exact algebra when
+it can and falls back to materialized scores when it must. This unifies result semantics across
+engines without forcing the expensive computation everywhere.
+
+### 5.1 Why the algebra generalizes
+
+For any scoring scheme where scores are a **linear** map of the standardized observed variables,
+`S = Z W`, the between-level score correlations are exactly:
+
+```
+cor(S_a, S_b) = D_a^{-1/2} (W_a' R W_b) D_b^{-1/2}
+           where  R   = input correlation matrix (pearson or polychoric)
+                  D_x = diag(W_x' R W_x)   # score variances; NOT assumed 1
+```
+
+No scores need to be materialized — only `R` and the weight matrices. Waller (2007) derived this
+for orthogonal components, but the identity holds for **any linear `W`**, which includes regression
+(Thurstone, `W = R^{-1} Λ`), Bartlett, and tenBerge scores. So the standard PCA *and* EFA/ESEM
+(regression-scored) paths are all algebra-eligible.
+
+**Standardization is the trap.** Component/factor scores are not unit-variance in general (Bartlett
+and oblique scores especially). Always divide by the real score SDs from `sqrt(diag(W'RW))`.
+Assuming unit variance silently corrupts the correlations.
+
+### 5.2 Scoring descriptor (returned per level by each engine)
+
+```r
+scoring <- list(
+  linear    = TRUE,                # are scores a fixed linear map S = Z W?
+  method    = "tenBerge",          # "components" | "regression" | "bartlett" | "tenBerge" | "EAP" | ...
+  basis     = "pearson",           # "pearson" | "polychoric" | "spearman"
+  weights   = W,                   # p x k score-coefficient matrix; NULL if !linear
+  score_var = v                    # length-k vector = diag(W'RW); NULL if !linear
+)
+```
+
+### 5.3 `compute_edges()` contract
+
+```r
+compute_edges(levels, R,
+              method = c("auto", "algebra", "scores"),
+              pairs  = c("adjacent", "all"),   # "all" for Forbes extension
+              data   = NULL,
+              align  = TRUE,
+              use    = "pairwise") {
+
+  for (each pair (a, b) in chosen pairs) {
+
+    algebra_ok <- levels[[a]]$scoring$linear &&
+                  levels[[b]]$scoring$linear && !is.null(R)
+
+    if (method == "algebra" || (method == "auto" && algebra_ok)) {
+      Wa <- levels[[a]]$scoring$weights
+      Wb <- levels[[b]]$scoring$weights
+      C  <- crossprod(Wa, R %*% Wb)                       # W_a' R W_b
+      sa <- sqrt(diag(crossprod(Wa, R %*% Wa)))           # score SDs
+      sb <- sqrt(diag(crossprod(Wb, R %*% Wb)))
+      E  <- sweep(sweep(C, 1, sa, "/"), 2, sb, "/")       # standardize
+    } else {
+      stopifnot(!is.null(data))                           # nonlinear/EAP or method="scores"
+      Sa <- score(levels[[a]], data); Sb <- score(levels[[b]], data)
+      E  <- cor(Sa, Sb, use = use)
+    }
+
+    if (align) E <- align_signs(E, lineage)               # see §7
+    edges[[pair]] <- E
+  }
+  # return: list of (k_a x k_b) matrices  +  tidy edge tibble (from, to, r, is_primary, above_cut)
+}
+```
+
+**Two situations force the `scores` route:**
+1. **Nonlinear scoring** — EAP/MAP/ML scores from a *categorical/ordinal* ESEM. (If the ordinal
+   ESEM instead uses regression scores off polychoric loadings, it stays linear → algebra on the
+   polychoric `R`.)
+2. **User wants empirical, sample-realized correlations** (including FIML/missing-data realities)
+   rather than the model-implied quantity. Under missingness these differ; document which one
+   "the edge" represents (default: model-consistent / algebra where eligible).
+
+### 5.4 Built-in cross-check (correctness oracle)
+
+For a linear engine, algebra and materialized-scores must agree within sampling error. Keep the
+`scores` route available even where `algebra` is the default, and add a test asserting
+`max(abs(E_algebra - E_scores)) < tol` on a known dataset. This catches weight-convention,
+standardization, sign, and column-ordering bugs cheaply.
+
+## 6. Result object (S3) & storage rule
+
+S3, not R6/S4 — matches `psych`/`lavaan`/broom conventions and serializes cleanly.
+
+```r
+structure(list(
+  call, method, rotation, cor_type, n_obs, k_max, seed, pkg_version,
+  levels  = <list indexed by k; each is the §4 level object>,
+  edges   = <list of adjacent (and optionally all-pairs) correlation matrices
+             + tidy edge tibble>,
+  lineage = <primary-parent matching: ordering + sign anchors; kept SEPARATE from IDs>,
+  scores  = NULL,        # opt-in (large n; privacy); accessor recomputes on demand
+  fits    = NULL,        # opt-in raw engine objects (keep_fits = TRUE)
+  r       = <p x p input correlation matrix>,   # cheap; kept so scores/edges recomputable
+  data    = NULL,        # opt-in raw data
+  meta    = <suggest_k output, timestamps, convergence summary, chosen defaults>
+), class = "ackwards")
+```
+
+**Storage rule.** *Light tidy core always; heavy artifacts opt-in.*
+- **Always:** loadings, variance, fit/convergence, weight matrices, within-level correlations,
+  edges, lineage, the `p x p` input `R`, meta. This is enough for diagram + interpretation and is
+  small and shareable.
+- **Opt-in:** factor `scores` (O(n × Σk); also a privacy/sharing liability), raw `fits`
+  (lavaan fits can be large), raw `data`. Defaults: `scores = FALSE`, `keep_fits = FALSE`,
+  keep `R = TRUE`.
+
+This directly answers the "giant list of fitted models vs. just loadings/scores/correlations"
+question: neither — a structured light core, with the heavy bits nullable and recomputable.
+
+## 7. Naming & sign conventions
+
+- **IDs:** models numbered by factor count (`m1`…`mK`); factors within a model `m{k}f{j}`.
+- **Deterministic within-level order = primary-parent (recursive), variance tiebreak.** Sort
+  factors within a level by (primary parent's position in the level above, then descending variance).
+  The single top factor and any ties fall back to variance. This places each child under its parent
+  so splits read cleanly; the `f{j}` ID order follows this layout order so tables and plots agree.
+  Limitation: ordering reduces but can't eliminate crossings (a child with a strong *secondary*
+  parent elsewhere still throws a crossing edge); the layout's barycenter step (§11) refines
+  x-position continuously beyond the discrete order.
+- **Lineage lives in `edges`/`lineage`, never in the ID.** A child can have multiple strong
+  parents (the point of the method), so don't encode parentage into `m{k}f{j}` — it breaks when the
+  structure isn't a clean tree.
+- **Matching:** assign each factor its primary parent via max-weight bipartite matching
+  (`clue::solve_LSAP` on `|r|`; supplement with Tucker congruence where scores are unavailable).
+- **Sign alignment — anchor to the primary parent, NOT "all positive."** Sign is one DoF per
+  factor; you cannot make every cross-level correlation positive. Rule: anchor `m1f1` to a defined
+  orientation (positive sum of loadings, or a substantive marker item), then orient each factor so
+  its correlation with its **primary parent** is positive, propagating top-down. Document that
+  non-primary edges may legitimately be negative.
+
+## 8. Suggesting k
+
+`suggest_k()` returns **several criteria and a recommended range**, never a single number:
+parallel analysis (Horn), Empirical Kaiser Criterion, MAP (Velicer), and EGA (`{EGAnet}`).
+For Likert/ordinal data, compute these on the **polychoric** matrix when `cor = "polychoric"` is
+set (basis follows the same choice as the main call). Report that `k` is a maximum
+*depth*; users often deliberately set it a level or two past the consensus to watch factors
+fragment. Note the overextraction/non-replicability caution (Forbes 2023).
+
+## 9. Defaults (high-stakes — users will not override these)
+
+Principle: **safe, robust, reproducible, and self-disclosing.** Every consequential auto-choice is
+announced via cli and documented in roxygen with its rationale.
+
+| Decision | Default | Rationale |
+|---|---|---|
+| `method` (engine) | `"pca"` | original method; fastest; never fails to converge; algebra-exact. Docs steer to `efa`/`esem` when a measurement-model rationale exists. |
+| `rotation` | **`cfT` (orthogonal CF, ≈ varimax) across all engines**; `cfQ` (oblique) as documented option | Orthogonal within-level keeps cross-level edges clean and communicable (a parent's variance partitions cleanly among orthogonal children; no correlation-by-proxy) without flattening the cross-level correlations that are the actual output; matches original Goldberg; keeps Waller algebra exact; reduces Heywood risk. Oblique is theoretically apt when within-level construct correlations matter — documented tradeoff. |
+| `cor` (basis) | **`"pearson"`** (matches `psych`/`lavaan`); ordinal opt-in via `cor = "polychoric"` | No silent basis-switching (it can change the structure and break comparison to published work). Instead, **detect likely-ordinal columns and emit a suppressible cli warning** pointing to the polychoric option — loud *advice*, not silent action. |
+| `scores` (method) | **`"tenBerge"`** on the active basis (pearson or polychoric) for factor engines; `"components"` for PCA; `"EAP"` opt-in only | tenBerge preserves factor correlations (the property bass-ackwards cares about) and stays linear → algebra-eligible. For ordinal ESEM, tenBerge-on-polychoric gives the clean model-implied edge; EAP's shrinkage attenuates cross-level correlations, so it's an opt-in (triggers the scores route + raw-data requirement), not the default. |
+| `edge_method` | `"auto"` | algebra when linear, scores otherwise. |
+| `pairs` | `"adjacent"` | classic Goldberg; `"all"` switched on with the Forbes extension. |
+| `extension` (Forbes pruning) | **off** | pruning is an interpretive choice with thresholds; turning it on silently would change results. Opt-in with documented thresholds (|r| ≥ .9, congruence > .95). |
+| sign `align` | `TRUE` | unaligned signs make output unreadable. |
+| `keep_fits` / `scores`(store) | `FALSE` / `FALSE` | memory + privacy. |
+| `k` | required (or `k = "suggest"`) | force a deliberate choice; don't silently pick. |
+| `seed` | `NULL` but captured | stochastic engines (rotation starts, ML) need reproducibility; encourage setting. |
+
+### Documentation standard (owner priority)
+
+- Every default above is documented in roxygen with **why**, not just **what**.
+- An `@details` section explains the algebra-vs-scores edge computation in plain language, and
+  when a user would prefer `edge_method = "scores"`.
+- Runnable `@examples` for each exported function; a vignette reproduces a published structure
+  (e.g., a `psych::bfi` bass-ackwards) end to end.
+- `@seealso` cross-links engines, `suggest_k()`, and the plotting/printing methods.
+
+## 10. Console & tidy representations
+
+- **`print.ackwards`** — compact cli "card": call, engine, rotation, cor basis, `n`, level
+  range, per-level convergence, deepest usable level, count of edges above the show-cut. No matrix
+  dumps. States the "series of linked solutions, not a fitted hierarchy" caveat once.
+- **`summary.ackwards`** — per-level variance explained and fit indices (ESEM); a readable
+  lineage list (`m1f1 → m2f1, m2f2 → …`); flagged redundant/artefact components when the extension
+  is on.
+- **broom-style tidiers:**
+  - `tidy(x, what = "edges")` *(default)* — one row per directed edge `(from m_k f_i, to m_{k+1}
+    f_j, r, is_primary, above_cut)`. This is the graph edge list and the primary plotting input.
+  - `tidy(x, what = "loadings")` — long format `(level, factor, item, loading)`, sign-aligned;
+    feeds loading heatmaps.
+  - `tidy(x, what = "variance")` — per-factor variance by level.
+  - `glance(x)` — one row of model-level meta (engine, k_max, n, deepest converged, cor basis).
+  - `as_tibble(x)` → `tidy(x, "edges")`.
+
+## 11. Visualization
+
+Split **layout** (light, core) from **rendering** (optional, Suggests). This keeps the dependency
+footprint sane and lets users plot the layout however they like.
+
+- **`ba_layout(x)` (core, no heavy deps).** Returns tidy nodes `(id, level, x, y, label)` and edges.
+  The structure is a **layered DAG**, not a tree (multiple parents allowed), so do **not** use a
+  tree layout. Compute `y = -level`; compute `x` with a **barycenter/median heuristic anchored on
+  the primary-parent lineage** (Sugiyama-style crossing reduction): anchor `m1f1` centrally, then
+  position each child near its primary parent's `x`, spreading siblings to avoid overlap. This
+  produces the "boxes horizontally aligned by lineage" look the owner wants, and a pyramid is just
+  this layout drawn top-down (1 node widening downward).
+- **`autoplot.ackwards()` / `plot()` (Suggests: ggraph/ggplot2/igraph/tidygraph).** Renders the
+  layered diagram from `ba_layout()` + the edge tibble. Edge encodings: color by **sign**,
+  width/alpha by **|r|**; draw **solid** above a "strong" cut and **dashed** between the show-cut
+  and strong-cut (a real convention — strong between-level correlations solid, weaker primary
+  associations dashed). Nodes labeled `m{k}f{j}`, optionally with substantive labels and top-loading
+  items. Pyramid vs. tree-ish orientation as an option.
+- **Forbes extension rendering (more complex — phase it).** Keep the same layout; **annotate**
+  rather than re-layout: fade/strike pruned (redundant/artefact) nodes, and allow **skip-level**
+  edges (longer curves) since the extension correlates *all* levels, not just adjacent. Default to
+  showing only above-cut edges to control clutter. Treat as a later milestone; ship the clean
+  adjacent-level Goldberg diagram first.
+
+## 12. Dependencies
+
+| Tier | Packages | Purpose |
+|---|---|---|
+| Imports (lean) | `stats`, `methods`, `cli`, `rlang` | core, console output, guards |
+| Suggests — engines | `psych` and/or `GPArotation`, `lavaan` | EFA/PCA/rotations (incl. CF family); ESEM |
+| Suggests — ordinal | polychoric source (e.g. `psych`) | Likert basis |
+| Suggests — suggest_k | `EGAnet`, `paran` | dimensionality criteria |
+| Suggests — matching | `clue` | Hungarian assignment (no compilation) |
+| Suggests — viz | `ggraph`, `ggplot2`, `igraph`, `tidygraph` | diagrams |
+| Suggests — perf | `future`, `future.apply` | parallel bootstrap (if/when added) |
+
+Gate every Suggests use with `rlang::check_installed()` and a helpful cli message naming the engine
+that needs it. **No Rcpp dependency planned** (see §3).
+
+## 13. Testing & infrastructure
+
+- testthat 3e; snapshot tests of the **PCA path against `psych::bassAckward()`** on `psych::bfi`
+  to prove numerical agreement on the original method.
+- The §5.4 **algebra-vs-scores cross-check** as a standing test for every linear engine.
+- Per-level **convergence handling** tested: a deliberately hard level must warn + skip, not error,
+  and the result must still build to the deepest converged level.
+- Sign-alignment and lineage-matching tested on a constructed case with a known multi-parent child.
+- roxygen2 docs, pkgdown site, CI (`R CMD check`, lintr/styler), a reproduction vignette.
+
+## 14. Decisions resolved & remaining
+
+**Resolved (this design round):**
+1. Rotation default → **orthogonal CF (`cfT`, ≈ varimax) across all engines**; oblique (`cfQ`) a
+   documented option. Cleaner, more communicable cross-level structure; Goldberg-faithful.
+2. Correlation basis → **`pearson` default, `polychoric` opt-in**, with an ordinal-detection cli
+   **warning** (no silent switching).
+3. Within-level order → **primary-parent (recursive), variance tiebreak**; `f{j}` IDs follow it.
+4. Ordinal ESEM scoring → **tenBerge on polychoric (linear → algebra)** as default; **EAP opt-in**.
+   Default Likert path does **not** need `data` at edge time.
+5. Package name → **`ackwards`** (verify via `available::available("ackwards")`).
+
+**Remaining small calls (safe to make during build):**
+- Ordinal-detection heuristic thresholds for the warning (max distinct levels; integer check).
+- CF `kappa` exposure: fixed varimax-equivalent default vs. user-tunable.
+- `tenBerge`-on-polychoric edge cases when the polychoric matrix is non-positive-definite
+  (smoothing policy; warn).
+
+## 15. Suggested milestones
+
+1. **Core + PCA engine + algebra `compute_edges` + object + `print`/`tidy`/`glance`**, validated
+   against `psych::bassAckward`.
+2. **`ba_layout()` + `autoplot()`** (clean adjacent-level diagram) + `suggest_k()`.
+3. **EFA engine**, scores route, algebra-vs-scores cross-check.
+4. **ESEM engine (lavaan)** + ordinal/polychoric path + per-level fit in the object.
+5. **Forbes extension** (pruning + all-levels edges) + annotated rendering.
+
+---
+
+### Key references
+- Goldberg, L. R. (2006). Doing it all bass-ackwards. *J. Research in Personality*, 40(4), 347–358.
+- Waller, N. (2007). A general method for computing hierarchical component structures... *JRP*, 41(4), 745–752.
+- Kim, H., & Eaton, N. R. (2015). The hierarchical structure of common mental disorders. *J. Abnormal Psychology*, 124(4), 1064–1078.
+- Forbush, K. T., et al. (2024). Integrating "Lumpers" vs "Splitters"... *Clinical Psychological Science*, 12(4), 625–643.
+- Forbes, M. K. (2023). Improving hierarchical models of individual differences: An extension of Goldberg's bass-ackward method. *Psychological Methods*.
+- Revelle, W. `psych::bassAckward()` documentation.
