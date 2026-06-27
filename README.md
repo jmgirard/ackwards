@@ -3,6 +3,14 @@
 
 # ackwards
 
+[![R-CMD-check](https://github.com/jmgirard/ackwards/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jmgirard/ackwards/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/jmgirard/ackwards/branch/master/graph/badge.svg)](https://app.codecov.io/gh/jmgirard/ackwards?branch=master)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![License: CC BY
+4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+
 > Bass-ackwards hierarchical structural analysis in R
 
 **ackwards** implements Goldberg’s (2006) bass-ackwards method and its
@@ -47,10 +55,10 @@ bfi <- na.omit(psych::bfi[, 1:25])
 sk  <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations)...
 #> Parallel analysis suggests that the number of factors =  NA  and the number of components =  5
-#> ✔ Running parallel analysis (20 iterations)... [154ms]
+#> ✔ Running parallel analysis (20 iterations)... [163ms]
 #> 
 #> ℹ Running MAP (Velicer)...
-#> ✔ Running MAP (Velicer)... [52ms]
+#> ✔ Running MAP (Velicer)... [53ms]
 #> 
 sk
 #> 
@@ -177,10 +185,10 @@ names(scored)[26:40]
 
 | Vignette | Topic |
 |----|----|
-| [Introduction](vignettes/ackwards-intro.Rmd) | Full PCA walkthrough: `suggest_k` → `ackwards` → inspect → plot → score |
-| Engines & rotation *(coming soon)* | When to choose EFA or ESEM over PCA |
-| Ordinal data *(coming soon)* | Polychoric correlations and WLSMV estimation |
-| Forbes extension *(coming soon)* | Skip-level edges, redundancy pruning, `pairs = "all"` |
+| [Introduction](https://jmgirard.github.io/ackwards/articles/ackwards-intro.html) | Full PCA walkthrough: `suggest_k` → `ackwards` → inspect → plot → score |
+| [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA; convergence and loading comparison |
+| [Ordinal data](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html) | Polychoric correlations, attenuation bias, and WLSMV estimation |
+| [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = "all"` |
 
 ## Citation
 

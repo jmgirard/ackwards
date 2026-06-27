@@ -115,10 +115,10 @@ names(scored)[26:40]
 
 | Vignette | Topic |
 |----------|-------|
-| [Introduction](vignettes/ackwards-intro.Rmd) | Full PCA walkthrough: `suggest_k` → `ackwards` → inspect → plot → score |
-| Engines & rotation *(coming soon)* | When to choose EFA or ESEM over PCA |
-| Ordinal data *(coming soon)* | Polychoric correlations and WLSMV estimation |
-| Forbes extension *(coming soon)* | Skip-level edges, redundancy pruning, `pairs = "all"` |
+| [Introduction](https://jmgirard.github.io/ackwards/articles/ackwards-intro.html) | Full PCA walkthrough: `suggest_k` → `ackwards` → inspect → plot → score |
+| [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA; convergence and loading comparison |
+| [Ordinal data](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html) | Polychoric correlations, attenuation bias, and WLSMV estimation |
+| [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = "all"` |
 
 ## Citation
 
