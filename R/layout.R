@@ -10,9 +10,10 @@
 #'
 #' 2. **Bottom-up pass** -- assigns actual x coordinates. The deepest level
 #'    (level k) is spread evenly; every upper-level factor is placed at the
-#'    |r|-weighted mean x of its *children* in the level below. This ensures
-#'    parents sit directly above (or between) their children rather than merely
-#'    near them.
+#'    simple mean x of its **primary** children: a factor with one primary child
+#'    lands directly above it; a factor with two primary children lands exactly
+#'    halfway between them. Falls back to |r|-weighted mean of all children for
+#'    factors with no primary children. Spreading resolves any remaining overlaps.
 #'
 #' After both passes the layout is shifted so that the single level-1 node is
 #' always at x = 0.
@@ -76,8 +77,12 @@ ba_layout <- function(x, min_sep = 1.0) {
 
   # --- Pass 2: Bottom-up -- assign x coordinates ----------------------------
   # The deepest level is evenly spread; every upper-level factor is placed at
-  # the |r|-weighted mean of its children's x positions so parents sit directly
-  # above (or centred between) their children.
+  # the simple mean x of its *primary* children so that:
+  #   - a factor with one primary child sits directly above it, and
+  #   - a factor with multiple primary children sits exactly halfway between them.
+  # Falls back to |r|-weighted mean of all children for factors with no primary
+  # children (can occur when matching assigns all level-k+1 factors elsewhere).
+  # Spreading is applied afterward only to resolve overlaps.
   node_x        <- vector("list", K)
   names(node_x) <- as.character(seq_len(K))
 
@@ -90,18 +95,27 @@ ba_layout <- function(x, min_sep = 1.0) {
     labs_K
   )
 
-  # Levels K-1 down to 1: barycenter of children, then spread to prevent overlap
+  # Levels K-1 down to 1
   for (k in seq(K - 1L, 1L)) {
     labs_k  <- levels_lst[[as.character(k)]]$labels
     x_below <- node_x[[as.character(k + 1L)]]
 
-    ep <- tidy_edges[
+    primary_ep <- tidy_edges[
+      tidy_edges$level_from == k & tidy_edges$level_to == k + 1L &
+        !is.na(tidy_edges$is_primary) & tidy_edges$is_primary, ,
+      drop = FALSE
+    ]
+    all_ep <- tidy_edges[
       tidy_edges$level_from == k & tidy_edges$level_to == k + 1L, ,
       drop = FALSE
     ]
 
     bary <- vapply(labs_k, function(lab) {
-      ce <- ep[ep$from == lab, , drop = FALSE]   # edges to children
+      # Ideal: simple mean of primary children -- gives exact alignment
+      pc <- primary_ep[primary_ep$from == lab, , drop = FALSE]
+      if (nrow(pc) > 0L) return(mean(x_below[pc$to]))
+      # Fallback for orphaned parents: |r|-weighted mean of all children
+      ce <- all_ep[all_ep$from == lab, , drop = FALSE]
       w  <- abs(ce$r)
       if (nrow(ce) == 0L || sum(w) == 0) return(mean(x_below))
       sum(w * x_below[ce$to]) / sum(w)
