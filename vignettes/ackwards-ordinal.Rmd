@@ -1,0 +1,215 @@
+---
+title: "Ordinal Data: Polychoric Correlations and WLSMV"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Ordinal Data: Polychoric Correlations and WLSMV}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  fig.width = 7,
+  fig.height = 4.5
+)
+has_lavaan <- requireNamespace("lavaan", quietly = TRUE)
+```
+
+Most psychological scales use ordinal response formats — Likert-type items with
+4, 5, 6, or 7 response options. Treating these as continuous and computing
+Pearson correlations between them is ubiquitous in practice, but it introduces
+systematic bias that can distort both loadings and the between-level edges that
+bass-ackwards analysis depends on. This vignette explains the problem and how
+`ackwards` addresses it.
+
+## Why Pearson underestimates for ordinal items
+
+When a continuous latent trait is sliced into a small number of ordered
+categories, the observed correlation between two items is always lower than the
+correlation between their underlying latent variables. The more coarse the
+rating scale, the larger the attenuation. For a 5-point scale, Pearson
+correlations can be 10–20% lower than the true latent correlations; for a
+2-point (binary) scale, the underestimate can exceed 30%.
+
+This matters for bass-ackwards analysis because:
+
+1. **Loadings are attenuated.** Factors appear weaker than they are.
+2. **Between-level edges are attenuated.** The hierarchy looks flatter —
+   factors that should be nearly perfectly correlated across levels may appear
+   only moderately correlated.
+3. **The number of factors is underestimated.** Attenuation compresses the
+   eigenvalue spectrum, so selection criteria (parallel analysis, MAP) may
+   suggest fewer factors than truly exist.
+
+## The polychoric solution
+
+A **polychoric correlation** between two ordinal items estimates the Pearson
+correlation that *would* exist between their underlying continuous latent
+variables, if those variables had been measured without discretization. It does
+this by fitting a bivariate normal model with thresholds at each category
+boundary.
+
+Setting `cor = "polychoric"` in `ackwards()` replaces step 1 of the pipeline —
+computing the item correlation matrix `R` — with a polychoric matrix. All
+downstream computation (factor extraction, rotation, tenBerge scoring,
+between-level algebra) then operates on that polychoric `R`.
+
+## Automatic detection
+
+`ackwards()` checks for ordinal-looking data using a simple heuristic: if any
+column is integer-valued with ≤ 7 distinct levels, the data is flagged and a
+warning is issued when `cor = "pearson"` (the default).
+
+```{r data}
+library(ackwards)
+bfi <- na.omit(psych::bfi[, 1:25])
+```
+
+```{r detect}
+# The warning fires with the default Pearson basis
+x_pearson <- ackwards(bfi, k = 5)
+```
+
+The warning is ackwards reminding you to make an active choice. Specifying
+`cor = "polychoric"` acknowledges the data type and suppresses it:
+
+```{r polychoric-silent}
+x_poly <- ackwards(bfi, k = 5, cor = "polychoric")
+```
+
+## Seeing the difference
+
+### Correlation matrices
+
+The most direct way to see the impact of the basis is to compare the
+correlation matrices directly.
+
+```{r r-compare}
+# Pearson R (stored in x$r)
+round(x_pearson$r[1:5, 1:5], 2)
+```
+
+```{r r-compare2}
+# Polychoric R
+round(x_poly$r[1:5, 1:5], 2)
+```
+
+The polychoric correlations are consistently higher — sometimes substantially
+so. The `N1`–`N2` pair, for instance, goes from roughly 0.59 (Pearson) to 0.73
+(polychoric): a difference large enough to shift loadings and change
+eigenvalues.
+
+### Loadings
+
+```{r load-compare}
+l_pear <- tidy(x_pearson, what = "loadings")
+l_poly <- tidy(x_poly,    what = "loadings")
+l_pear$basis <- "pearson"
+l_poly$basis <- "polychoric"
+
+# k = 5 loadings for Neuroticism items
+both <- rbind(l_pear, l_poly)
+both5_N <- both[both$level == 5 & substr(both$item, 1, 1) == "N", ]
+both5_N[order(both5_N$factor, both5_N$item),
+        c("basis", "factor", "item", "loading")]
+```
+
+Polychoric loadings for the Neuroticism items are noticeably higher — the latent
+structure is sharper when the attenuating effect of coarse categories is
+removed.
+
+### Between-level edges
+
+```{r edge-compare}
+e_pear <- tidy(x_pearson, what = "edges")
+e_poly <- tidy(x_poly,    what = "edges")
+
+primary_pear <- e_pear[e_pear$is_primary, c("from", "to", "r")]
+primary_poly <- e_poly[e_poly$is_primary, c("from", "to", "r")]
+
+primary_pear$basis <- "pearson"
+primary_poly$basis <- "polychoric"
+
+both_e <- rbind(primary_pear, primary_poly)
+both_e[order(both_e$to, both_e$basis), ]
+```
+
+The edges are broadly similar in sign and rank order — the hierarchy is the
+same — but polychoric edges are stronger. Factors that represent genuinely stable
+dimensions show near-perfect correlations with their counterparts at adjacent
+levels when the true latent structure is properly recovered.
+
+## WLSMV for ESEM with ordinal items
+
+When `method = "esem"` and `cor = "polychoric"` are combined, `ackwards()`
+automatically switches the lavaan estimator to **WLSMV** (diagonally weighted
+least squares, mean- and variance-adjusted). This is the standard estimator for
+structural equation models with categorical or ordinal indicators, and is the
+same method used by Mplus by default.
+
+```{r esem-check, echo = FALSE, results = "asis"}
+if (!has_lavaan) {
+  cat(
+    "> **Note:** The ESEM examples below require the **lavaan** package,",
+    "which is not currently installed. Install it with",
+    "`install.packages(\"lavaan\")` to run these chunks.\n"
+  )
+}
+```
+
+```{r esem-wlsmv, eval = has_lavaan}
+x_esem <- ackwards(bfi, k = 3, method = "esem", cor = "polychoric")
+x_esem
+```
+
+The WLSMV fit indices (CFI, RMSEA, SRMR) are now computed on a model that
+respects the ordinal measurement level. They will typically look better than
+Pearson-based fit indices on the same data, reflecting both the better model
+specification and the different reference distribution WLSMV uses.
+
+```{r esem-fit, eval = has_lavaan}
+tidy(x_esem, what = "fit")
+```
+
+## Practical guidance: when to use polychoric
+
+| Scale characteristics | Recommendation |
+|-----------------------|---------------|
+| Continuous or many categories (> 7) | `cor = "pearson"` (default) |
+| 5–7 ordered categories (typical Likert) | `cor = "polychoric"` — recommended |
+| 3–4 categories | `cor = "polychoric"` — strongly recommended |
+| Binary (2 categories) | `cor = "polychoric"` — essential; consider tetrachoric specifically |
+
+Polychoric estimation requires fitting a bivariate normal model for every item
+pair. With p items that is p(p−1)/2 pairs — about 300 for a 25-item scale.
+Computation is usually fast (seconds), but scales as O(p²) and can be slow for
+very large item pools.
+
+> **A note on score computation.** When `cor = "polychoric"`, the weight
+> matrices stored in the object are derived from the polychoric `R`. Materializing
+> factor scores via `augment()` applies those weights to Pearson-standardized raw
+> data (`scale(data)`). The resulting scores are calibrated to have
+> *model-implied* unit variance, not empirically unit variance. For downstream
+> analysis this distinction rarely matters — the scores are still well-scaled —
+> but it is why `augment()` issues a warning when `cor != "pearson"`. The
+> between-level edges from `tidy(what = "edges")` are always exact because they
+> come from the algebra, not materialized scores.
+
+## References
+
+Pearson, K. (1900). Mathematical contributions to the theory of evolution. VII.
+On the correlation of characters not quantitatively measurable. *Philosophical
+Transactions of the Royal Society of London, Series A*, *195*, 1–47.
+
+Olsson, U. (1979). Maximum likelihood estimation of the polychoric correlation
+coefficient. *Psychometrika*, *44*(4), 443–460.
+
+Muthén, B. O. (1984). A general structural equation model with dichotomous,
+ordered categorical, and continuous latent variable indicators.
+*Psychometrika*, *49*(1), 115–132.
+
+Flora, D. B., & Curran, P. J. (2004). An empirical evaluation of alternative
+methods of estimation for confirmatory factor analysis with ordinal data.
+*Psychological Methods*, *9*(4), 466–491.
