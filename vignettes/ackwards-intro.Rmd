@@ -114,7 +114,7 @@ Because BFI items are ordinal, we use `cor = "polychoric"`. This computes
 polychoric correlations between items before factor extraction, giving a more
 accurate representation of the latent structure.
 
-```{r fit, warning = FALSE}
+```{r fit}
 x <- ackwards(bfi, k = 5, cor = "polychoric")
 ```
 
@@ -241,7 +241,7 @@ continuous summary of a latent dimension.
 matrices and appends them to your data frame. The score columns are named
 `.m{k}f{j}` to distinguish them from the original variables.
 
-```{r augment, warning = FALSE}
+```{r augment}
 scored <- augment(x, data = bfi)
 dim(scored)         # 25 original items + 15 score columns (1+2+3+4+5)
 names(scored)[26:40]
@@ -258,7 +258,7 @@ If you need scores repeatedly (e.g., in a cross-validation loop), store them at
 fit time with `scores = TRUE` to avoid re-applying the weight matrices on every
 call:
 
-```{r scores-stored, warning = FALSE}
+```{r scores-stored}
 x2 <- ackwards(bfi, k = 5, cor = "polychoric", scores = TRUE)
 scored2 <- augment(x2)   # uses stored matrices — no recomputation
 identical(round(scored2$.m5f1, 8), round(scored$.m5f1, 8))
@@ -272,13 +272,13 @@ be nearly uncorrelated with each other — a consequence of orthogonal rotation 
 while scores across levels should be highly correlated along the primary-parent
 lineage:
 
-```{r downstream, warning = FALSE}
+```{r downstream}
 # Within-level correlations at k = 5: should be near zero (orthogonal rotation)
 k5 <- scored[, grep("^\\.m5", names(scored))]
 round(cor(k5), 2)
 ```
 
-```{r downstream2, warning = FALSE}
+```{r downstream2}
 # Cross-level: m4f1 is the primary parent of m5f2 and m5f4 (from the edge table)
 round(cor(scored[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]), 2)
 ```

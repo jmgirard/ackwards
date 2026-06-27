@@ -51,7 +51,7 @@ Because BFI items are recorded on a 6-point ordinal scale, we set
 `suggest_k()` runs parallel analysis and Velicer's MAP criterion to help you
 choose an upper bound for the hierarchy depth.
 
-```{r suggest, warning = FALSE}
+```{r suggest}
 library(ackwards)
 
 bfi <- na.omit(psych::bfi[, 1:25])
@@ -67,7 +67,7 @@ instrument.
 `ackwards()` fits factor models at every level from 1 to k and computes the
 between-level factor-score correlations that define the hierarchy.
 
-```{r fit, warning = FALSE}
+```{r fit}
 x <- ackwards(bfi, k = 5, cor = "polychoric")
 x
 ```
