@@ -38,12 +38,23 @@
 #'   \item{k_parallel}{Recommended k from parallel analysis.}
 #'   \item{k_map}{Recommended k from MAP.}
 #'   \item{criteria}{Data frame with one row per k: `k`, `map` value,
-#'     `pa_above_chance` (logical).}
+#'     `pa_suggested` (logical; `TRUE` if k is within the parallel-analysis threshold).}
 #'   \item{k_max, n_obs, n_vars, cor}{Metadata.}
+#'
+#' @section A note on overextraction:
+#' Parallel analysis in particular tends to recommend more factors than replicate
+#' across independent samples, especially with correlated items (Forbes, 2023).
+#' Treat these criteria as a starting range for exploration, not a definitive
+#' stopping rule. Setting `k` in [ackwards()] one or two levels above the
+#' consensus is intentional -- watching factors fragment is part of the method.
 #'
 #' @seealso [ackwards()]
 #'
 #' @references
+#' Forbes, M. K. (2023). Improving hierarchical models of individual
+#'   differences: An extension of Goldberg's bass-ackward method.
+#'   *Psychological Methods*. \doi{10.1037/met0000578}
+#'
 #' Horn, J. L. (1965). A rationale and test for the number of factors in factor
 #'   analysis. *Psychometrika*, 30, 179--185.
 #'
@@ -185,6 +196,12 @@ print.suggest_k <- function(x, ...) {
     cli::col_grey(
       "Note: k in ackwards() is a maximum depth. Consider setting k one \\
        or two levels above the consensus to observe factor fragmentation."
+    )
+  )
+  cli::cli_text(
+    cli::col_grey(
+      "Caution: parallel analysis tends to overextract; many suggested \\
+       structures do not replicate (Forbes, 2023). Treat this as a range."
     )
   )
 

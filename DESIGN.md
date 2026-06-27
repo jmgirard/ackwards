@@ -291,11 +291,18 @@ footprint sane and lets users plot the layout however they like.
 
 - **`ba_layout(x)` (core, no heavy deps).** Returns tidy nodes `(id, level, x, y, label)` and edges.
   The structure is a **layered DAG**, not a tree (multiple parents allowed), so do **not** use a
-  tree layout. Compute `y = -level`; compute `x` with a **barycenter/median heuristic anchored on
-  the primary-parent lineage** (Sugiyama-style crossing reduction): anchor `m1f1` centrally, then
-  position each child near its primary parent's `x`, spreading siblings to avoid overlap. This
-  produces the "boxes horizontally aligned by lineage" look the owner wants, and a pyramid is just
-  this layout drawn top-down (1 node widening downward).
+  tree layout. Compute `y = -level`; compute `x` with a **two-pass barycenter algorithm**
+  (Sugiyama-style crossing reduction):
+  1. **Top-down pass** -- determines left-to-right *order* at each level. Each factor's rank is the
+     |r|-weighted mean of its parents' ranks, grouping siblings that share a parent and minimising
+     crossings.
+  2. **Bottom-up pass** -- assigns actual x coordinates. The deepest level (level k) is evenly
+     spaced; every upper-level factor is placed at the **simple mean x of its primary children**:
+     a factor with one primary child lands directly above it; a factor with multiple primary children
+     lands exactly halfway between them. Falls back to |r|-weighted mean of all children for factors
+     with no primary children. Spreading enforces `min_sep` between adjacent nodes only when needed.
+     The level-1 node is shifted to `x = 0` after both passes.
+  This produces the "boxes aligned to their primary-child structure" look the owner wants.
 - **`autoplot.ackwards()` / `plot()` (Suggests: ggraph/ggplot2/igraph/tidygraph).** Renders the
   layered diagram from `ba_layout()` + the edge tibble. Edge encodings: color by **sign**,
   width/alpha by **|r|**; draw **solid** above a "strong" cut and **dashed** between the show-cut

@@ -21,4 +21,6 @@ This generic is defined in \pkg{ackwards} so that \code{\link[=autoplot.ackwards
 available without requiring \code{library(ggplot2)}. When \pkg{ggplot2} is also
 loaded its own \code{autoplot} generic takes over in the search path, but S3
 dispatch still finds \code{autoplot.ackwards} correctly via either route.
+Defining our own generic is intentional -- it avoids putting ggplot2 in
+Imports while keeping the \code{autoplot(x)} ergonomic without a \code{library()} call.
 }

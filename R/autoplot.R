@@ -7,6 +7,8 @@
 #' available without requiring `library(ggplot2)`. When \pkg{ggplot2} is also
 #' loaded its own `autoplot` generic takes over in the search path, but S3
 #' dispatch still finds `autoplot.ackwards` correctly via either route.
+#' Defining our own generic is intentional -- it avoids putting ggplot2 in
+#' Imports while keeping the `autoplot(x)` ergonomic without a `library()` call.
 #'
 #' @param object An object to visualise.
 #' @param ... Additional arguments passed to methods.
@@ -62,6 +64,13 @@ autoplot.ackwards <- function(
     min_sep     = 1.0,
     ...) {
   rlang::check_installed("ggplot2", reason = "for autoplot.ackwards()")
+
+  if (min_sep < node_width) {
+    cli::cli_warn(
+      "{.arg min_sep} ({min_sep}) is less than {.arg node_width} ({node_width}); \\
+       adjacent boxes may overlap."
+    )
+  }
 
   cut_show <- cut_show %||% object$meta$cut_show %||% 0.3
 

@@ -30,9 +30,10 @@ parents' ranks in the level above, so siblings that share a parent are
 grouped together.
 \item \strong{Bottom-up pass} -- assigns actual x coordinates. The deepest level
 (level k) is spread evenly; every upper-level factor is placed at the
-|r|-weighted mean x of its \emph{children} in the level below. This ensures
-parents sit directly above (or between) their children rather than merely
-near them.
+simple mean x of its \strong{primary} children: a factor with one primary child
+lands directly above it; a factor with two primary children lands exactly
+halfway between them. Falls back to |r|-weighted mean of all children for
+factors with no primary children. Spreading resolves any remaining overlaps.
 }
 
 After both passes the layout is shifted so that the single level-1 node is
