@@ -20,11 +20,11 @@ pca_levels <- function(R, k_max, rotation) {
   # Map our rotation label to psych's rotate argument.
   # "cfT" (orthogonal CF ≈ varimax) maps to "varimax" for M1 via psych::pca().
   psych_rotate <- switch(rotation,
-    cfT  = "varimax",
-    cfQ  = {
-      rlang::check_installed("GPArotation", reason = "for oblique CF rotation")
-      "oblimin"  # placeholder; cfQ path added in later milestone
-    }
+    cfT = "varimax",
+    cfQ = cli::cli_abort(
+      "rotation = {.val cfQ} is not yet implemented for the PCA engine. \\
+       Oblique CF rotation is planned for a future milestone."
+    )
   )
 
   for (k in seq_len(k_max)) {

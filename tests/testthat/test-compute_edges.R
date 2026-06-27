@@ -1,7 +1,6 @@
-test_that("algebra and scores paths agree for PCA engine", {
+test_that("algebra and scores paths agree for PCA engine on all adjacent pairs", {
   skip_if_not_installed("psych")
 
-  # Small dataset with known structure (no external dependency needed)
   set.seed(42)
   n <- 150
   f1 <- rnorm(n); f2 <- rnorm(n)
@@ -15,20 +14,25 @@ test_that("algebra and scores paths agree for PCA engine", {
   )
   R <- cor(data)
 
-  suppressWarnings(x <- ackwards(data, k = 3))
+  suppressWarnings(x <- ackwards(data, k = 4))
 
-  E_algebra <- x$edges$matrices[["1:2"]]
-
-  E_scores <- compute_edges(
+  E_scores_all <- compute_edges(
     levels  = x$levels,
     R       = R,
     method  = "scores",
     pairs   = "adjacent",
     data    = data,
     align   = FALSE
-  )$matrices[["1:2"]]
+  )$matrices
 
-  expect_lt(max(abs(abs(E_algebra) - abs(E_scores))), 1e-6)
+  for (key in names(x$edges$matrices)) {
+    E_alg <- x$edges$matrices[[key]]
+    E_sc  <- E_scores_all[[key]]
+    expect_lt(
+      max(abs(abs(E_alg) - abs(E_sc))), 1e-6,
+      label = paste("algebra vs scores for pair", key)
+    )
+  }
 })
 
 test_that("compute_edges errors when algebra forced but R missing", {

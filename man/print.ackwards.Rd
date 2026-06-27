@@ -4,13 +4,10 @@
 \alias{print.ackwards}
 \title{Print an ackwards object}
 \usage{
-\method{print}{ackwards}(x, cut_show = 0.3, ...)
+\method{print}{ackwards}(x, ...)
 }
 \arguments{
 \item{x}{An \code{ackwards} object.}
-
-\item{cut_show}{Edges with \verb{|r| >= cut_show} are counted in the footer.
-Defaults to \code{0.3}.}
 
 \item{...}{Ignored.}
 }

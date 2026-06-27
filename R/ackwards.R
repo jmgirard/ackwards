@@ -91,8 +91,8 @@ ackwards <- function(
   rotation <- rlang::arg_match(rotation, c("cfT", "cfQ"))
   cor      <- rlang::arg_match(cor,      c("pearson", "spearman"))
 
-  if (!is.numeric(k) || length(k) != 1L || k < 1L || k != as.integer(k)) {
-    cli::cli_abort("{.arg k} must be a positive integer.")
+  if (!is.numeric(k) || length(k) != 1L || k < 2L || k != as.integer(k)) {
+    cli::cli_abort("{.arg k} must be an integer >= 2 (need at least two levels for a hierarchy).")
   }
   k <- as.integer(k)
 
@@ -122,6 +122,28 @@ ackwards <- function(
       ),
       .frequency = "once",
       .frequency_id = "ackwards_ordinal_warning"
+    )
+  }
+
+  # --- Warn on not-yet-implemented opt-in storage (Invariant 6) ---------------
+  if (isTRUE(scores)) {
+    cli::cli_warn(
+      c(
+        "!" = "{.arg scores = TRUE} is not yet implemented; scores will be {.code NULL}.",
+        "i" = "Score storage is planned for a future release."
+      ),
+      .frequency = "once",
+      .frequency_id = "ackwards_scores_unimplemented"
+    )
+  }
+  if (isTRUE(keep_fits)) {
+    cli::cli_warn(
+      c(
+        "!" = "{.arg keep_fits = TRUE} is not yet implemented; fits will be {.code NULL}.",
+        "i" = "Raw fit storage is planned for a future release."
+      ),
+      .frequency = "once",
+      .frequency_id = "ackwards_keep_fits_unimplemented"
     )
   }
 
@@ -173,26 +195,18 @@ ackwards <- function(
     edge_matrices <- raw_edges$matrices
   }
 
-  # --- Rebuild tidy edge tibble with aligned matrices -------------------------
-  edges_obj <- compute_edges(
-    levels   = levels_list,
-    R        = R,
-    method   = "auto",
-    pairs    = "adjacent",
-    align    = FALSE,    # already aligned above
-    cut_show = cut_show
+  # --- Assemble aligned edge object -------------------------------------------
+  edges_obj <- list(
+    matrices = edge_matrices,
+    tidy     = fill_primary(.rebuild_tidy(edge_matrices, cut_show), lineage, levels_list)
   )
-  # Overwrite matrices with the aligned versions
-  edges_obj$matrices <- edge_matrices
-  # Rebuild tidy from aligned matrices
-  edges_obj$tidy <- .rebuild_tidy(edge_matrices, cut_show)
-  edges_obj$tidy <- fill_primary(edges_obj$tidy, lineage, levels_list)
 
   # --- Meta -------------------------------------------------------------------
   meta <- list(
-    converged_levels = vapply(levels_list, `[[`, logical(1L), "converged"),
+    converged_levels  = vapply(levels_list, `[[`, logical(1L), "converged"),
     deepest_converged = max(which(vapply(levels_list, `[[`, logical(1L), "converged"))),
     kappa             = kappa,
+    cut_show          = cut_show,
     ordinal_warned    = detect_ordinal(as.data.frame(data_mat))
   )
 

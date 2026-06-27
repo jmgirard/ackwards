@@ -18,7 +18,8 @@ Imports:
     cli,
     generics,
     rlang,
-    stats
+    stats,
+    utils
 Suggests:
     clue,
     GPArotation,

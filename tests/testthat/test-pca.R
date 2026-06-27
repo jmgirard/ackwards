@@ -63,15 +63,50 @@ test_that("levels have correct structure and label formats", {
 test_that("ackwards() errors informatively on bad inputs", {
   skip_if_not_installed("psych")
   d <- psych::bfi[, 1:5]
-  expect_error(ackwards(d, k = 0),     "positive integer")
+  expect_error(ackwards(d, k = 0),     "integer >= 2")
+  expect_error(ackwards(d, k = 1),     "integer >= 2")
   expect_error(ackwards(d, k = 100),   "cannot exceed")
-  expect_error(ackwards(d, k = 1.5),   "positive integer")
+  expect_error(ackwards(d, k = 1.5),   "integer >= 2")
   expect_error(ackwards(list(), k = 2), "data frame")
+})
+
+test_that("rotation = 'cfQ' errors with a clear message for PCA engine", {
+  skip_if_not_installed("psych")
+  d <- psych::bfi[, 1:5]
+  expect_error(ackwards(d, k = 2, rotation = "cfQ"), "not yet implemented")
+})
+
+test_that("scores = TRUE warns that storage is not yet implemented", {
+  skip_if_not_installed("psych")
+  expect_warning(
+    ackwards(psych::bfi[, 1:25], k = 2, scores = TRUE),
+    "not yet implemented"
+  )
+})
+
+test_that("keep_fits = TRUE warns that storage is not yet implemented", {
+  skip_if_not_installed("psych")
+  expect_warning(
+    ackwards(psych::bfi[, 1:25], k = 2, keep_fits = TRUE),
+    "not yet implemented"
+  )
+})
+
+test_that("meta$cut_show stores the cut_show value", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 2, cut_show = 0.4))
+  expect_equal(x$meta$cut_show, 0.4)
 })
 
 test_that("detect_ordinal() flags bfi columns", {
   skip_if_not_installed("psych")
   expect_true(ackwards:::detect_ordinal(psych::bfi[, 1:25]))
+})
+
+test_that("detect_ordinal() returns FALSE for continuous data", {
+  set.seed(1)
+  d <- data.frame(matrix(rnorm(500), 100, 5))
+  expect_false(ackwards:::detect_ordinal(d))
 })
 
 test_that("meta$ordinal_warned is TRUE for bfi data", {

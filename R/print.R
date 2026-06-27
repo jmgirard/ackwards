@@ -4,16 +4,16 @@
 #' No matrix dumps -- use [tidy.ackwards()] to access values programmatically.
 #'
 #' @param x An `ackwards` object.
-#' @param cut_show Edges with `|r| >= cut_show` are counted in the footer.
-#'   Defaults to `0.3`.
 #' @param ... Ignored.
 #'
 #' @return `x` invisibly.
 #'
 #' @seealso [tidy.ackwards()], [glance.ackwards()]
 #'
+#' @importFrom rlang `%||%`
 #' @export
-print.ackwards <- function(x, cut_show = 0.3, ...) {
+print.ackwards <- function(x, ...) {
+  cut_show <- x$meta$cut_show %||% 0.3
   cli::cli_h1("Bass-Ackwards Analysis ({.pkg ackwards})")
 
   # --- Call / settings --------------------------------------------------------
