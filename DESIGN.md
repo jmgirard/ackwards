@@ -379,9 +379,16 @@ that needs it. **No Rcpp dependency planned** (see §3).
 15. ESEM ordinal estimator → **WLSMV** default; ULSMV a documented option.
 16. `loadings_se` → added to the §4 level contract (p×k matrix, NULL for PCA/EFA).
 
-**Remaining (M4 build-time):**
-- `tenBerge`-on-polychoric edge cases when the polychoric matrix is non-positive-definite
-  (smoothing policy: warn + apply `Matrix::nearPD` or `psych`'s smoothing).
+**Completed in M4 (in addition to items 11–16 above):**
+- NPD polychoric matrices: warn + smooth via `psych::cor.smooth()` (implemented).
+- Convergence truncation tested for the ESEM engine (k=4+ on p=6 triggers lavaan error → warn + truncate → object builds to k_eff=3).
+- Algebra-vs-scores cross-check documented as Pearson/continuous paths only; polychoric ESEM edges (algebra uses lavaan polychoric R; scores route uses Pearson standardization) diverge by design and are excluded from the oracle.
+
+**Known limitations / deferred to future milestones:**
+- `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe now (orthogonal rotation → `factor_cor = I`; permutation of I is I). When `cfQ`/oblique rotation is implemented, `factor_cor` must be reordered by `ord` to match column ordering of `loadings`. Guard comment is in `engine_esem.R`.
+- Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (see above).
+- `cor = "spearman"` + `method = "esem"` is semantically inconsistent (lavaan fits Pearson ML on raw data while edges use Spearman R); currently accepted without warning.
+- ESEM engine does not detect or warn on improper/Heywood solutions (lavaan negative residual variances), unlike the EFA engine which warns explicitly.
 
 ## 15. Suggested milestones
 

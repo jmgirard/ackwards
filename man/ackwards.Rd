@@ -29,8 +29,8 @@ always \code{nrow(data)}; under missingness the effective per-correlation N may
 be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.}
 
 \item{k}{Maximum number of factors/components. Required; use
-\code{suggest_k()} (future release) if uncertain. Sets the depth of the
-hierarchy: levels 1 through \code{k} are all extracted.}
+\code{\link[=suggest_k]{suggest_k()}} if uncertain. Sets the depth of the hierarchy: levels
+1 through \code{k} are all extracted.}
 
 \item{method}{Extraction engine: \code{"pca"} (default), \code{"efa"}, or \code{"esem"}.
 \code{"esem"} uses \code{\link[lavaan:efa]{lavaan::efa()}} with rotation-aware SEs and per-level fit
@@ -60,8 +60,8 @@ deep levels), or \code{"pa"} (principal axis). Ignored for \code{method = "pca"}
 
 \item{estimator}{Estimation method for the ESEM engine. \code{NULL} (default)
 auto-selects: \code{"WLSMV"} when \code{cor = "polychoric"}, \code{"ML"} otherwise.
-Pass explicitly to override (e.g., \code{estimator = "ULSMV"}). Ignored for
-PCA and EFA engines.}
+Pass explicitly to override: \code{"ULSMV"} (unweighted WLS), \code{"MLR"}
+(robust ML). Ignored for PCA and EFA engines.}
 
 \item{align}{Logical; sign-align factors to primary-parent lineage?
 Default \code{TRUE}.}
@@ -99,7 +99,7 @@ within-level factors uncorrelated, so cross-level edges reflect only the
 hierarchical signal, not within-level factor covariance. Matches Goldberg.
 \item \strong{\code{cor = "pearson"}} — no silent basis switching. If your items look
 ordinal (≤ 7 distinct integer values), a cli warning will suggest
-\code{cor = "polychoric"} (available in a later release).
+\code{cor = "polychoric"}, which is available for all three engines.
 \item \strong{\code{align = TRUE}} — unaligned signs make the output unreadable. Anchor:
 m1f1 is oriented toward the positive manifold; each subsequent factor is
 flipped so its edge to its primary parent is positive.

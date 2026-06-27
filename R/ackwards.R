@@ -13,7 +13,7 @@
 #'   hierarchical signal, not within-level factor covariance. Matches Goldberg.
 #' * **`cor = "pearson"`** — no silent basis switching. If your items look
 #'   ordinal (≤ 7 distinct integer values), a cli warning will suggest
-#'   `cor = "polychoric"` (available in a later release).
+#'   `cor = "polychoric"`, which is available for all three engines.
 #' * **`align = TRUE`** — unaligned signs make the output unreadable. Anchor:
 #'   m1f1 is oriented toward the positive manifold; each subsequent factor is
 #'   flipped so its edge to its primary parent is positive.
@@ -27,8 +27,8 @@
 #'   always `nrow(data)`; under missingness the effective per-correlation N may
 #'   be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.
 #' @param k Maximum number of factors/components. Required; use
-#'   `suggest_k()` (future release) if uncertain. Sets the depth of the
-#'   hierarchy: levels 1 through `k` are all extracted.
+#'   [suggest_k()] if uncertain. Sets the depth of the hierarchy: levels
+#'   1 through `k` are all extracted.
 #' @param method Extraction engine: `"pca"` (default), `"efa"`, or `"esem"`.
 #'   `"esem"` uses [lavaan::efa()] with rotation-aware SEs and per-level fit
 #'   indices; recommended for the clinical/HiTOP workflow (Kim & Eaton, 2015;
@@ -52,8 +52,8 @@
 #'   ordinal-looking columns are detected and `cor` is not `"polychoric"`.
 #' @param estimator Estimation method for the ESEM engine. `NULL` (default)
 #'   auto-selects: `"WLSMV"` when `cor = "polychoric"`, `"ML"` otherwise.
-#'   Pass explicitly to override (e.g., `estimator = "ULSMV"`). Ignored for
-#'   PCA and EFA engines.
+#'   Pass explicitly to override: `"ULSMV"` (unweighted WLS), `"MLR"`
+#'   (robust ML). Ignored for PCA and EFA engines.
 #' @param align Logical; sign-align factors to primary-parent lineage?
 #'   Default `TRUE`.
 #' @param scores Logical; store factor scores in the result? Default `FALSE`
@@ -244,9 +244,9 @@ ackwards <- function(
   if (k_eff < 2L) {
     cli::cli_abort(
       c(
-        "!" = "EFA failed to build at least 2 converged levels \\
+        "!" = "{toupper(method)} failed to build at least 2 converged levels \\
                (k_eff = {k_eff}; at least 2 are required for a hierarchy).",
-        "i" = "Try {.arg fm = 'minres'}, fewer factors, or check your data for \\
+        "i" = "Try fewer factors, or check your data for \\
                perfect multicollinearity or near-singular correlation."
       )
     )

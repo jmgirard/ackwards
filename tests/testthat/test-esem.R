@@ -143,7 +143,10 @@ test_that("ESEM algebra and scores paths agree (algebra-vs-scores cross-check)",
   d <- .make_esem_data()
   suppressWarnings(x <- ackwards(d, k = 3, method = "esem"))
 
-  # Use the R stored in the result (lavaan's R for continuous = pearson cor)
+  # Scope: continuous (Pearson) paths only. For polychoric ESEM the algebra side
+  # uses lavaan's polychoric R while the scores route applies Pearson
+  # standardization to the raw ordinal data — they diverge by design and the
+  # cross-check oracle (DESIGN.md §5.4) does not apply there.
   E_scores <- compute_edges(
     levels  = x$levels,
     R       = x$r,
@@ -161,6 +164,35 @@ test_that("ESEM algebra and scores paths agree (algebra-vs-scores cross-check)",
       label = paste("ESEM algebra vs scores for pair", key)
     )
   }
+})
+
+# ── Convergence truncation ────────────────────────────────────────────────────
+
+test_that("ESEM warns and truncates when deep levels fail to converge", {
+  skip_if_not_installed("lavaan")
+  # With 6 variables, lavaan::efa() errors for k >= 4 ("maximum number of
+  # factors is 3"). Requesting k = 5 exercises the warn-and-truncate path.
+  d <- .make_esem_data()
+  warn_msgs <- character(0L)
+  withCallingHandlers(
+    x <- ackwards(d, k = 5, method = "esem"),
+    warning = function(w) {
+      warn_msgs <<- c(warn_msgs, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+
+  # Engine emits a truncation warning and ackwards() emits a hierarchy warning
+  expect_true(any(grepl("ESEM failed", warn_msgs)),
+              info = "engine-level warning for failed levels")
+  expect_true(any(grepl("[Tt]runcated|truncated|did not converge", warn_msgs)),
+              info = "ackwards-level hierarchy truncation warning")
+
+  # Object still builds to deepest converged level (k_eff = 3)
+  expect_s3_class(x, "ackwards")
+  validate_ackwards(x)
+  expect_equal(x$k_max, 3L)
+  expect_true(all(vapply(x$levels, `[[`, logical(1), "converged")))
 })
 
 # ── tidy / glance / print ─────────────────────────────────────────────────────

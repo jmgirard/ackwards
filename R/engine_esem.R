@@ -106,7 +106,9 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
 
     # Extract correlation matrix from lavaan once (same across levels).
     # For WLSMV + ordered: sampstat$cov IS the polychoric correlation matrix.
-    # For ML + continuous: sampstat$cov is the sample covariance; cov2cor() converts.
+    # For ML + continuous: r_lv was already set from R_external before the loop,
+    # so this block only executes for the polychoric path (cor_type == "polychoric").
+    # The cov2cor branch is retained for completeness but is not currently reachable.
     if (is.null(r_lv)) {
       r_lv <- tryCatch({
         sstat <- lavaan::lavInspect(fit, "sampstat")
@@ -148,7 +150,11 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
 
     labels_k <- make_labels(k)
 
-    # Sort factors by descending variance explained (consistent with PCA/EFA convention)
+    # Sort factors by descending variance explained (consistent with PCA/EFA convention).
+    # NOTE: factor_cor is extracted independently below and does NOT apply ord.
+    # For orthogonal rotation (factor_cor = I) this is safe. When cfQ / oblique
+    # rotation lands, factor_cor must also be permuted by ord to stay consistent
+    # with the column ordering of L.
     var_unsorted <- colSums(L^2) / p
     ord  <- order(var_unsorted, decreasing = TRUE)
     L    <- L[, ord, drop = FALSE]

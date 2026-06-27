@@ -19,32 +19,14 @@ rationale, contracts, object spec, and resolved defaults are in `DESIGN.md`.
 - **M2 (done):** `ba_layout()` + `autoplot()` (adjacent-level diagram) + `suggest_k()`.
 - **M3 (done):** EFA engine (`psych::fa()`, tenBerge weights, algebra path) + materialized-scores
   route + algebra-vs-scores cross-check tests.
+- **M4 (done):** ESEM engine (`lavaan::efa()`, WLSMV, tenBerge weights, rotation-aware SEs,
+  per-level fit indices) + `cor = "polychoric"` for all engines + `loadings_se` in level contract
+  + convergence truncation tested + `estimator` argument.
 
-## Current focus — Milestone 4
+## Current focus — Milestone 5
 
-**Scope:** ESEM engine (`lavaan::efa()`) + `cor = "polychoric"` as a general basis for all engines
-+ per-level fit indices and `loadings_se` in the result object.
-
-**Key design decisions locked for M4 (see `DESIGN.md` §14):**
-- Engine: `lavaan::efa()` — EFA-in-SEM, not full ESEM with structural paths. Value-add over M3 EFA
-  is WLSMV ordinal estimation, rotation-aware SEs, and per-level fit indices.
-- Scoring: self-compute tenBerge weights from lavaan's estimated loadings + latent correlation
-  matrix (lavaan's `lavPredict` has no tenBerge → compute via `.tenBerge_weights()` as in EFA).
-- EAP scoring: deferred; opt-in triggers a `cli_abort("not yet implemented")`.
-- Polychoric basis: general — available to PCA and EFA engines too (compute `R` via
-  `psych::polychoric()` in `ackwards()`, feed to engine; ESEM uses lavaan's own latent `R`).
-- Ordinal estimator default: **WLSMV** (lavaan `estimator = "WLSMV"`, `ordered = TRUE`).
-- CF kappa: **κ = 1/p** (varimax-equivalent; Crawford & Ferguson 1970); now fixed from the
-  erroneous 1/(2p) default.
-
-**Acceptance criteria:**
-- `ackwards(data, k = 5, method = "esem", cor = "polychoric")` returns a valid `ackwards` object
-  with per-level fit indices and `loadings_se`.
-- `cor = "polychoric"` works for `method = "pca"` and `method = "efa"` too.
-- Algebra-vs-scores cross-check passes for the ESEM engine (tenBerge, linear path).
-- Convergence failures warn + truncate (Invariant 7); non-convergence at k warns, skips, object
-  builds to deepest converged level.
-- `devtools::check()` is clean (0 errors, 0 warnings; notes triaged).
+**Scope:** Forbes extension — redundancy/artefact pruning, all-levels edges, annotated rendering.
+See `DESIGN.md` §15.5.
 
 If a step needs a design decision not covered in `DESIGN.md`, **stop and ask** rather than guessing.
 
