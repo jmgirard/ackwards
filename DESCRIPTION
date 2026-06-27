@@ -21,6 +21,7 @@ Imports:
     stats,
     utils
 Suggests:
+    covr,
     ggplot2,
     GPArotation,
     knitr,

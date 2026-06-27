@@ -1,0 +1,52 @@
+url: https://jmgirard.github.io/ackwards/
+
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left:  [intro, articles, reference, news]
+    right: [search, github]
+
+articles:
+  - title: Getting started
+    navbar: ~
+    contents:
+      - ackwards-intro
+  - title: Deep dives
+    navbar: Deep dives
+    contents:
+      - ackwards-engines
+      - ackwards-ordinal
+      - ackwards-forbes
+
+reference:
+  - title: Fit the model
+    desc: >
+      The main modelling function and a helper for choosing k.
+    contents:
+      - ackwards
+      - suggest_k
+
+  - title: Extract results
+    desc: >
+      Tidy, glance, augment, and print methods for ackwards objects.
+    contents:
+      - tidy.ackwards
+      - glance.ackwards
+      - augment.ackwards
+      - print.ackwards
+
+  - title: Visualize
+    desc: >
+      Diagram and layout helpers for the bass-ackwards hierarchy.
+    contents:
+      - autoplot.ackwards
+      - ba_layout
+
+  - title: Re-exported generics
+    desc: >
+      Generics re-exported from the generics package so they work
+      after `library(ackwards)` without also loading broom.
+    contents:
+      - reexports
