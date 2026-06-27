@@ -1,0 +1,234 @@
+# Bass-ackwards hierarchical structural analysis
+
+Extracts factor/component solutions at levels 1 through `k`, then
+characterises the hierarchy by computing between-level factor-score
+correlations. The "hierarchy" is descriptive: edges are score
+correlations, not a fitted higher-order SEM.
+
+## Usage
+
+``` r
+ackwards(
+  data,
+  k,
+  method = "pca",
+  rotation = "cfT",
+  kappa = NULL,
+  cor = "pearson",
+  fm = "minres",
+  estimator = NULL,
+  align = TRUE,
+  scores = FALSE,
+  keep_fits = FALSE,
+  seed = NULL,
+  pairs = "adjacent",
+  prune = "none",
+  redundancy_r = 0.9,
+  redundancy_phi = NULL,
+  cut_show = 0.3,
+  ...
+)
+```
+
+## Arguments
+
+- data:
+
+  A data frame or numeric matrix of observed variables (items in
+  columns, observations in rows). Missing values are handled via
+  pairwise deletion when computing `R`. Note: `n_obs` passed to the EFA
+  engine is always `nrow(data)`; under missingness the effective
+  per-correlation N may be smaller, making chi-square / RMSEA / p-value
+  slightly anti-conservative.
+
+- k:
+
+  Maximum number of factors/components. Required; use
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  if uncertain. Sets the depth of the hierarchy: levels 1 through `k`
+  are all extracted.
+
+- method:
+
+  Extraction engine: `"pca"` (default), `"efa"`, or `"esem"`. `"esem"`
+  uses [`lavaan::efa()`](https://rdrr.io/pkg/lavaan/man/efa.html) with
+  rotation-aware SEs and per-level fit indices; recommended for the
+  clinical/HiTOP workflow (Kim & Eaton, 2015; Forbush et al., 2024).
+  Requires lavaan \>= 0.6-13.
+
+- rotation:
+
+  Rotation family. Only `"cfT"` (orthogonal Crawford-Ferguson, default,
+  ≈ varimax) is supported. Oblique rotation (`"cfQ"`) is not available:
+  oblique within-level factor correlations confound the between-level
+  score correlations that are the method's core output (Goldberg, 2006;
+  Kim & Eaton, 2015). See DESIGN.md §9.
+
+- kappa:
+
+  CF rotation kappa parameter. `NULL` (default) uses `1 / p` where `p`
+  is the number of variables — the value that reproduces varimax for
+  orthogonal rotation (Crawford & Ferguson, 1970; Browne, 2001; Kim &
+  Eaton, 2015).
+
+- cor:
+
+  Correlation basis: `"pearson"` (default), `"spearman"`, or
+  `"polychoric"`. For PCA/EFA, `"polychoric"` computes a polychoric
+  correlation matrix via
+  [`psych::polychoric()`](https://rdrr.io/pkg/psych/man/tetrachor.html)
+  (requires psych). For ESEM, it triggers WLSMV estimation via lavaan. A
+  cli warning is emitted when ordinal-looking columns are detected and
+  `cor` is not `"polychoric"`.
+
+- fm:
+
+  Factor extraction method passed to
+  [`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html); only used when
+  `method = "efa"`. One of `"minres"` (default, robust OLS), `"ml"`
+  (maximum likelihood, gives chi-square fit but converges less reliably
+  at deep levels), or `"pa"` (principal axis). Ignored for
+  `method = "pca"`.
+
+- estimator:
+
+  Estimation method for the ESEM engine. `NULL` (default) auto-selects:
+  `"WLSMV"` when `cor = "polychoric"`, `"ML"` otherwise. Pass explicitly
+  to override: `"ULSMV"` (unweighted WLS), `"MLR"` (robust ML). Ignored
+  for PCA and EFA engines.
+
+- align:
+
+  Logical; sign-align factors to primary-parent lineage? Default `TRUE`.
+
+- scores:
+
+  Logical; store factor scores in the result? Default `FALSE`
+  (recomputable via
+  [`augment.ackwards()`](https://jmgirard.github.io/ackwards/reference/augment.ackwards.md)).
+  When `TRUE`, per-observation scores are stored in `x$scores` as a
+  named list of `n × k_j` matrices, one per level, standardized by real
+  score SDs (see
+  [`augment.ackwards()`](https://jmgirard.github.io/ackwards/reference/augment.ackwards.md)).
+
+- keep_fits:
+
+  Logical; store raw engine fit objects? Default `FALSE`. When `TRUE`,
+  the per-level fit objects (psych or lavaan) are stored in `x$fits` as
+  a named list indexed by level.
+
+- seed:
+
+  Integer seed for stochastic engines (not used by PCA but captured for
+  reproducibility metadata). Default `NULL`.
+
+- pairs:
+
+  Which level pairs to compute edges for: `"adjacent"` (default, classic
+  Goldberg — only consecutive levels) or `"all"` (Forbes extension —
+  every pair of levels). `"all"` reveals associations that span multiple
+  levels and is required for redundancy pruning. Setting `prune` to
+  anything other than `"none"` automatically upgrades this to `"all"`
+  with a message.
+
+- prune:
+
+  Character vector controlling Forbes-extension pruning. Default
+  `"none"` (no pruning). Options:
+
+  - `"redundant"` — identify chains of factors connected by
+    primary-parent links with `|r| >= redundancy_r` (and optionally
+    `phi > redundancy_phi`). Applies Forbes's (2023) retention rule:
+    keep the bottom node when the chain reaches level `k` (most
+    specific); keep the top node otherwise. Pruning is *flag-only*:
+    flagged nodes stay in the object with `pruned = TRUE` and
+    `prune_reason = "redundant"` in `x$prune$nodes`.
+
+  - `"artefact"` — compute Tucker's congruence coefficient (φ) for all
+    cross-level factor pairs and store in `x$prune$phi` for researcher
+    inspection. No factors are auto-flagged; artefact identification
+    requires judgment (Forbes, 2023; Wicherts et al., 2016).
+
+- redundancy_r:
+
+  Scalar in `(0, 1]`. Adjacent primary-parent `|r|` threshold for
+  redundancy chains. Default `0.9` (Forbes, 2023).
+
+- redundancy_phi:
+
+  Scalar in `(0, 1]` or `NULL` (default). If non-`NULL`, Tucker's φ must
+  *also* exceed this threshold for a link to be included in a redundancy
+  chain (conjunctive with `redundancy_r`). `NULL` means only
+  `redundancy_r` is used. Recommended: `0.95` (Lorenzo-Seva & ten Berge,
+  2006).
+
+- cut_show:
+
+  Edges with `|r| >= cut_show` are flagged `above_cut` in
+  [`tidy()`](https://generics.r-lib.org/reference/tidy.html) output.
+  Default `0.3`.
+
+- ...:
+
+  Reserved for future arguments.
+
+## Value
+
+An object of class `"ackwards"`. See
+[`print.ackwards()`](https://jmgirard.github.io/ackwards/reference/print.ackwards.md),
+[`tidy.ackwards()`](https://jmgirard.github.io/ackwards/reference/tidy.ackwards.md),
+[`glance.ackwards()`](https://jmgirard.github.io/ackwards/reference/glance.ackwards.md),
+and
+[`augment.ackwards()`](https://jmgirard.github.io/ackwards/reference/augment.ackwards.md)
+for output methods.
+
+## Defaults and why
+
+- **`method = "pca"`** — the original Goldberg (2006) method; fastest;
+  never fails to converge; the Waller (2007) algebra is exact for
+  components.
+
+- **`rotation = "cfT"`** — orthogonal Crawford-Ferguson (≈ varimax)
+  keeps within-level factors uncorrelated, so cross-level edges reflect
+  only the hierarchical signal, not within-level factor covariance.
+  Matches Goldberg.
+
+- **`cor = "pearson"`** — no silent basis switching. If your items look
+  ordinal (≤ 7 distinct integer values), a cli warning will suggest
+  `cor = "polychoric"`, which is available for all three engines.
+
+- **`align = TRUE`** — unaligned signs make the output unreadable.
+  Anchor: m1f1 is oriented toward the positive manifold; each subsequent
+  factor is flipped so its edge to its primary parent is positive.
+
+- **`scores = FALSE` / `keep_fits = FALSE`** — memory and privacy.
+  Scores are O(n × Σk) and often sensitive; raw engine fits can be
+  large. Both are recomputable from the stored `r` matrix.
+
+## References
+
+Goldberg, L. R. (2006). Doing it all bass-ackwards. *Journal of Research
+in Personality*, 40(4), 347–358.
+[doi:10.1016/j.jrp.2006.01.001](https://doi.org/10.1016/j.jrp.2006.01.001)
+
+Waller, N. G. (2007). A general method for computing hierarchical
+component structures by Goldberg's bass-ackwards method. *Journal of
+Research in Personality*, 41(4), 745–752.
+[doi:10.1016/j.jrp.2006.08.005](https://doi.org/10.1016/j.jrp.2006.08.005)
+
+## See also
+
+[`print.ackwards()`](https://jmgirard.github.io/ackwards/reference/print.ackwards.md),
+[`tidy.ackwards()`](https://jmgirard.github.io/ackwards/reference/tidy.ackwards.md),
+[`glance.ackwards()`](https://jmgirard.github.io/ackwards/reference/glance.ackwards.md)
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+x <- ackwards(psych::bfi[, 1:25], k = 5)
+print(x)
+tidy(x)
+glance(x)
+} # }
+```
