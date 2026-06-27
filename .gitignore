@@ -35,3 +35,4 @@ tests/testthat/testthat-problems.rds
 
 # RStudio project (generated per-machine)
 *.Rproj
+docs
