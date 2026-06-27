@@ -50,7 +50,8 @@ efa_levels <- function(R, k_max, rotation, fm, n_obs, cor_type = "pearson") {
     # Convergence failure detected via psych warning messages
     converge_fail <- any(grepl(
       "did not converge|failed to converge|no convergence|not converge",
-      warn_msgs, ignore.case = TRUE
+      warn_msgs,
+      ignore.case = TRUE
     ))
     if (converge_fail) {
       cli::cli_warn(
@@ -64,7 +65,7 @@ efa_levels <- function(R, k_max, rotation, fm, n_obs, cor_type = "pearson") {
 
     # Heywood case: warn but do NOT truncate (convergence is data, not an error)
     heywood <- any(fit$uniquenesses < 0, na.rm = TRUE) ||
-               any(fit$communalities > 1, na.rm = TRUE)
+      any(fit$communalities > 1, na.rm = TRUE)
     if (heywood) {
       cli::cli_warn(
         c(
@@ -74,7 +75,7 @@ efa_levels <- function(R, k_max, rotation, fm, n_obs, cor_type = "pearson") {
       )
     }
 
-    L_rot  <- unclass(fit$loadings)
+    L_rot <- unclass(fit$loadings)
     labels_k <- make_labels(k)
 
     # Positive manifold anchor for k = 1 (matches PCA engine behaviour)
@@ -91,7 +92,7 @@ efa_levels <- function(R, k_max, rotation, fm, n_obs, cor_type = "pearson") {
     W <- tryCatch(
       .tenBerge_weights(R, L_rot),
       error = function(e) {
-        weight_method <<- "regression"   # honest label on fallback (Invariant 6)
+        weight_method <<- "regression" # honest label on fallback (Invariant 6)
         cli::cli_warn(
           c(
             "!" = "tenBerge weights failed at k = {k}: {conditionMessage(e)}",
@@ -121,29 +122,29 @@ efa_levels <- function(R, k_max, rotation, fm, n_obs, cor_type = "pearson") {
     # fit$chi/dof/PVAL/TLI/BIC are plain scalars; fit$RMSEA is a named vector.
     fit_info <- setNames(
       c(
-        if (!is.null(fit$chi))   unname(fit$chi)[[1L]]             else NA_real_,
-        if (!is.null(fit$dof))   unname(fit$dof)[[1L]]             else NA_real_,
-        if (!is.null(fit$PVAL))  unname(fit$PVAL)[[1L]]            else NA_real_,
-        if (!is.null(fit$RMSEA)) unname(fit$RMSEA["RMSEA"])[[1L]]  else NA_real_,
-        if (!is.null(fit$TLI))   unname(fit$TLI)[[1L]]             else NA_real_,
-        if (!is.null(fit$BIC))   unname(fit$BIC)[[1L]]             else NA_real_
+        if (!is.null(fit$chi)) unname(fit$chi)[[1L]] else NA_real_,
+        if (!is.null(fit$dof)) unname(fit$dof)[[1L]] else NA_real_,
+        if (!is.null(fit$PVAL)) unname(fit$PVAL)[[1L]] else NA_real_,
+        if (!is.null(fit$RMSEA)) unname(fit$RMSEA["RMSEA"])[[1L]] else NA_real_,
+        if (!is.null(fit$TLI)) unname(fit$TLI)[[1L]] else NA_real_,
+        if (!is.null(fit$BIC)) unname(fit$BIC)[[1L]] else NA_real_
       ),
       c("chi", "dof", "p_value", "RMSEA", "TLI", "BIC")
     )
 
     result[[as.character(k)]] <- list(
-      k           = k,
-      loadings    = L_rot,
-      loadings_se = NULL,      # EFA (psych::fa) does not produce rotation-aware SEs
-      variance    = variance,
-      fit        = fit_info,
-      converged  = TRUE,
-      factor_cor = diag(k),        # orthogonal: I_k
-      labels     = labels_k,
-      scoring    = list(
+      k = k,
+      loadings = L_rot,
+      loadings_se = NULL, # EFA (psych::fa) does not produce rotation-aware SEs
+      variance = variance,
+      fit = fit_info,
+      converged = TRUE,
+      factor_cor = diag(k), # orthogonal: I_k
+      labels = labels_k,
+      scoring = list(
         linear    = TRUE,
-        method    = weight_method,   # "tenBerge" normally; "regression" on fallback
-        basis     = cor_type,        # reflects actual R basis, not assumed "pearson"
+        method    = weight_method, # "tenBerge" normally; "regression" on fallback
+        basis     = cor_type, # reflects actual R basis, not assumed "pearson"
         weights   = W,
         score_var = score_var
       )
@@ -162,13 +163,13 @@ efa_levels <- function(R, k_max, rotation, fm, n_obs, cor_type = "pearson") {
 # the D standardization in compute_edges() divides by 1 but is still applied
 # for numerical safety and to satisfy Invariant 1.
 .tenBerge_weights <- function(R, L) {
-  Ri <- solve(R)               # p x p
-  A  <- Ri %*% L               # p x k: R^{-1} L
-  B  <- crossprod(L, A)        # k x k: L' R^{-1} L  (symmetric PD for full-rank L)
+  Ri <- solve(R) # p x p
+  A <- Ri %*% L # p x k: R^{-1} L
+  B <- crossprod(L, A) # k x k: L' R^{-1} L  (symmetric PD for full-rank L)
 
   # Matrix inverse square root of B via spectral decomposition
-  eig  <- eigen(B, symmetric = TRUE)
-  vals <- pmax(eig$values, .Machine$double.eps)   # guard against tiny negatives
+  eig <- eigen(B, symmetric = TRUE)
+  vals <- pmax(eig$values, .Machine$double.eps) # guard against tiny negatives
   Binvsqrt <- eig$vectors %*%
     diag(1 / sqrt(vals), nrow = length(vals)) %*%
     t(eig$vectors)

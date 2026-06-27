@@ -17,6 +17,10 @@ ackwards(
   scores = FALSE,
   keep_fits = FALSE,
   seed = NULL,
+  pairs = "adjacent",
+  prune = "none",
+  redundancy_r = 0.9,
+  redundancy_phi = NULL,
   cut_show = 0.3,
   ...
 )
@@ -73,6 +77,35 @@ Default \code{TRUE}.}
 
 \item{seed}{Integer seed for stochastic engines (not used by PCA but
 captured for reproducibility metadata). Default \code{NULL}.}
+
+\item{pairs}{Which level pairs to compute edges for: \code{"adjacent"} (default,
+classic Goldberg — only consecutive levels) or \code{"all"} (Forbes extension —
+every pair of levels). \code{"all"} reveals associations that span multiple
+levels and is required for redundancy pruning. Setting \code{prune} to anything
+other than \code{"none"} automatically upgrades this to \code{"all"} with a message.}
+
+\item{prune}{Character vector controlling Forbes-extension pruning. Default
+\code{"none"} (no pruning). Options:
+\itemize{
+\item \code{"redundant"} — identify chains of factors connected by primary-parent
+links with \verb{|r| >= redundancy_r} (and optionally \code{phi > redundancy_phi}).
+Applies Forbes's (2023) retention rule: keep the bottom node when the
+chain reaches level \code{k} (most specific); keep the top node otherwise.
+Pruning is \emph{flag-only}: flagged nodes stay in the object with
+\code{pruned = TRUE} and \code{prune_reason = "redundant"} in \code{x$prune$nodes}.
+\item \code{"artefact"} — compute Tucker's congruence coefficient (φ) for all
+cross-level factor pairs and store in \code{x$prune$phi} for researcher
+inspection. No factors are auto-flagged; artefact identification requires
+judgment (Forbes, 2023; Wicherts et al., 2016).
+}}
+
+\item{redundancy_r}{Scalar in \verb{(0, 1]}. Adjacent primary-parent \verb{|r|}
+threshold for redundancy chains. Default \code{0.9} (Forbes, 2023).}
+
+\item{redundancy_phi}{Scalar in \verb{(0, 1]} or \code{NULL} (default). If non-\code{NULL},
+Tucker's φ must \emph{also} exceed this threshold for a link to be included in
+a redundancy chain (conjunctive with \code{redundancy_r}). \code{NULL} means only
+\code{redundancy_r} is used. Recommended: \code{0.95} (Lorenzo-Seva & ten Berge, 2006).}
 
 \item{cut_show}{Edges with \verb{|r| >= cut_show} are flagged \code{above_cut} in
 \code{tidy()} output. Default \code{0.3}.}

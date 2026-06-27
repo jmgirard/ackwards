@@ -85,8 +85,8 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L, ...) {
   n <- nrow(data_mat)
 
   if (is.null(k_max)) k_max <- min(p - 1L, 8L)
-  k_max    <- as.integer(k_max)
-  n_iter   <- as.integer(n_iter)
+  k_max <- as.integer(k_max)
+  n_iter <- as.integer(n_iter)
 
   if (k_max < 1L || k_max >= p) {
     cli::cli_abort(
@@ -120,15 +120,15 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L, ...) {
     plot   = FALSE
   )
   map_vals <- vss_out$map[seq_len(k_max)]
-  k_map    <- which.min(map_vals)
+  k_map <- which.min(map_vals)
 
   cli::cli_progress_done()
 
   # --- Build criteria table ---------------------------------------------------
   # pa_suggested: TRUE if k is within the parallel-analysis threshold
   criteria <- data.frame(
-    k            = seq_len(k_max),
-    map          = map_vals,
+    k = seq_len(k_max),
+    map = map_vals,
     pa_suggested = seq_len(k_max) <= k_parallel,
     stringsAsFactors = FALSE
   )
@@ -165,8 +165,8 @@ print.suggest_k <- function(x, ...) {
 
   cli::cli_h2("Criteria (k = 1\u2013{x$k_max})")
 
-  cr      <- x$criteria
-  pa_sym  <- ifelse(cr$pa_suggested, cli::col_green(cli::symbol$tick), cli::col_grey("-"))
+  cr <- x$criteria
+  pa_sym <- ifelse(cr$pa_suggested, cli::col_green(cli::symbol$tick), cli::col_grey("-"))
   map_fmt <- formatC(cr$map, digits = 4, format = "f")
 
   for (i in seq_len(nrow(cr))) {

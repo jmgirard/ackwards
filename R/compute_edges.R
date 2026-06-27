@@ -38,16 +38,17 @@
 #'
 #' @keywords internal
 compute_edges <- function(
-    levels,
-    R,
-    method  = c("auto", "algebra", "scores"),
-    pairs   = c("adjacent", "all"),
-    data    = NULL,
-    align   = TRUE,
-    use     = "pairwise.complete.obs",
-    cut_show = 0.3) {
+  levels,
+  R,
+  method = c("auto", "algebra", "scores"),
+  pairs = c("adjacent", "all"),
+  data = NULL,
+  align = TRUE,
+  use = "pairwise.complete.obs",
+  cut_show = 0.3
+) {
   method <- match.arg(method)
-  pairs  <- match.arg(pairs)
+  pairs <- match.arg(pairs)
 
   K <- length(levels)
   ks <- as.integer(names(levels))
@@ -76,7 +77,7 @@ compute_edges <- function(
       !is.null(R)
 
     use_algebra <- switch(method,
-      auto    = algebra_ok,
+      auto = algebra_ok,
       algebra = {
         if (!algebra_ok) {
           cli::cli_abort(
@@ -85,26 +86,26 @@ compute_edges <- function(
         }
         TRUE
       },
-      scores  = FALSE
+      scores = FALSE
     )
 
     if (use_algebra) {
       Wa <- la$scoring$weights
       Wb <- lb$scoring$weights
-      C  <- crossprod(Wa, R %*% Wb)
+      C <- crossprod(Wa, R %*% Wb)
       sa <- sqrt(diag(crossprod(Wa, R %*% Wa)))
       sb <- sqrt(diag(crossprod(Wb, R %*% Wb)))
-      E  <- sweep(sweep(C, 1L, sa, "/"), 2L, sb, "/")
+      E <- sweep(sweep(C, 1L, sa, "/"), 2L, sb, "/")
     } else {
       if (is.null(data)) {
         cli::cli_abort(
           "Scores path requires {.arg data}; none supplied for pair {ka}:{kb}."
         )
       }
-      Z  <- scale(data)
+      Z <- scale(data)
       Sa <- Z %*% la$scoring$weights
       Sb <- Z %*% lb$scoring$weights
-      E  <- stats::cor(Sa, Sb, use = use)
+      E <- stats::cor(Sa, Sb, use = use)
     }
 
     rownames(E) <- la$labels
@@ -117,19 +118,19 @@ compute_edges <- function(
     parts <- strsplit(key, ":", fixed = TRUE)[[1L]]
     ka <- as.integer(parts[1L])
     kb <- as.integer(parts[2L])
-    E  <- matrices[[key]]
+    E <- matrices[[key]]
     from_labs <- rownames(E)
-    to_labs   <- colnames(E)
+    to_labs <- colnames(E)
     do.call(rbind, lapply(seq_along(from_labs), function(i) {
       do.call(rbind, lapply(seq_along(to_labs), function(j) {
         data.frame(
-          from       = from_labs[i],
-          to         = to_labs[j],
+          from = from_labs[i],
+          to = to_labs[j],
           level_from = ka,
-          level_to   = kb,
-          r          = E[i, j],
-          is_primary = NA,          # filled after lineage matching
-          above_cut  = abs(E[i, j]) >= cut_show,
+          level_to = kb,
+          r = E[i, j],
+          is_primary = NA, # filled after lineage matching
+          above_cut = abs(E[i, j]) >= cut_show,
           stringsAsFactors = FALSE
         )
       }))
@@ -153,7 +154,7 @@ fill_primary <- function(tidy, lineage, levels) {
     lb_labs <- levels[[as.character(k)]]$labels
     for (j in seq_along(lb_labs)) {
       primary_from <- la_labs[parents[j]]
-      primary_to   <- lb_labs[j]
+      primary_to <- lb_labs[j]
       mask <- tidy$from == primary_from & tidy$to == primary_to
       tidy$is_primary[mask] <- TRUE
       # Mark non-primary edges in the same column

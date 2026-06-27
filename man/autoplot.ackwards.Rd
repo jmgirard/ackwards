@@ -14,6 +14,9 @@
   node_width = 0.8,
   node_height = 0.4,
   min_sep = 1,
+  show_skip = NULL,
+  curvature = 0.2,
+  color_pruned = "grey80",
   ...
 )
 
@@ -39,6 +42,18 @@ separating "notable" from "strong" associations. Default \code{0.5}.}
 
 \item{min_sep}{Minimum horizontal separation between nodes; passed to
 \code{\link[=ba_layout]{ba_layout()}}. Default \code{1.0}.}
+
+\item{show_skip}{Whether to draw skip-level (non-adjacent) edges. \code{NULL}
+(default) auto-detects: \code{TRUE} when the object was run with
+\code{pairs = "all"}, \code{FALSE} otherwise. Skip-level edges are drawn as curved
+lines to distinguish them from the adjacent straight arrows.}
+
+\item{curvature}{Curvature of skip-level edge arcs. Passed to
+\code{\link[ggplot2:geom_curve]{ggplot2::geom_curve()}}. Positive values curve right; default \code{0.2}.}
+
+\item{color_pruned}{Fill colour for nodes flagged as pruned/redundant.
+Default \code{"grey80"}. Only applied when the object carries pruning
+annotations (\code{x$prune} is non-\code{NULL}).}
 
 \item{...}{Ignored.}
 

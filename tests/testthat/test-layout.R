@@ -24,7 +24,8 @@ test_that("ba_layout() nodes have correct structure and counts", {
   # One node per level per factor
   for (k in 1:4) {
     expect_equal(sum(nodes$level == k), k,
-                 info = paste("level", k, "has", k, "nodes"))
+      info = paste("level", k, "has", k, "nodes")
+    )
   }
 })
 
@@ -49,7 +50,7 @@ test_that("ba_layout() respects min_sep between nodes at same level", {
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 5))
 
   for (sep in c(0.5, 1.0, 1.5)) {
-    lay   <- ba_layout(x, min_sep = sep)
+    lay <- ba_layout(x, min_sep = sep)
     nodes <- lay$nodes
     for (k in 2:5) {
       xs <- sort(nodes$x[nodes$level == k])
@@ -79,7 +80,7 @@ test_that("ba_layout() errors on non-ackwards input", {
 test_that("ba_layout() places each parent at mean x of its primary children", {
   skip_if_not_installed("psych")
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 5))
-  lay   <- ba_layout(x)
+  lay <- ba_layout(x)
   nodes <- lay$nodes
   edges <- lay$edges
 
@@ -92,9 +93,9 @@ test_that("ba_layout() places each parent at mean x of its primary children", {
   primary_edges <- edges[!is.na(edges$is_primary) & edges$is_primary, ]
 
   for (parent_id in unique(primary_edges$from)) {
-    child_ids  <- primary_edges$to[primary_edges$from == parent_id]
-    ideal_x    <- mean(nx[child_ids])
-    actual_x   <- nx[[parent_id]]
+    child_ids <- primary_edges$to[primary_edges$from == parent_id]
+    ideal_x <- mean(nx[child_ids])
+    actual_x <- nx[[parent_id]]
     # Alignment is exact when no spreading is needed; after spreading it may
     # differ, so assert within 1 * min_sep (default).
     expect_lte(
@@ -122,7 +123,7 @@ test_that(".spread_positions() enforces min_sep, preserves order, and recentres"
 
   # Colliding input: three positions bunched at 0
   bary <- c(0, 0, 0)
-  out  <- spread(bary, min_sep = 1.0)
+  out <- spread(bary, min_sep = 1.0)
   expect_equal(length(out), 3L)
   # All gaps should be >= min_sep
   expect_true(all(diff(sort(out)) >= 1.0 - 1e-9))
@@ -131,12 +132,12 @@ test_that(".spread_positions() enforces min_sep, preserves order, and recentres"
 
   # Already-separated input: should be unchanged (no spreading needed)
   bary2 <- c(-2, 0, 2)
-  out2  <- spread(bary2, min_sep = 1.0)
+  out2 <- spread(bary2, min_sep = 1.0)
   expect_equal(out2, bary2, tolerance = 1e-9)
 
   # Order preservation: largest bary stays largest
   bary3 <- c(1, 3, 2)
-  out3  <- spread(bary3, min_sep = 0.5)
+  out3 <- spread(bary3, min_sep = 0.5)
   expect_equal(order(out3), order(bary3))
 
   # Single element: returned as-is
@@ -189,4 +190,49 @@ test_that("plot.ackwards() runs without error and returns x invisibly", {
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
   expect_no_error(plot(x))
   expect_invisible(plot(x))
+})
+
+test_that("autoplot.ackwards() renders skip-level edges with pairs='all'", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 4, pairs = "all"))
+  p <- expect_no_error(ggplot2::autoplot(x))
+  expect_s3_class(p, "ggplot")
+  # show_skip defaults to TRUE when meta$pairs == "all"
+  expect_no_error(ggplot2::autoplot(x, show_skip = FALSE))
+  expect_no_error(ggplot2::autoplot(x, show_skip = TRUE, curvature = 0.3))
+})
+
+test_that("autoplot.ackwards() fades pruned nodes", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  set.seed(42)
+  n <- 500
+  g <- rnorm(n)
+  s1 <- rnorm(n)
+  s2 <- rnorm(n)
+  data <- data.frame(
+    x1 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x2 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x3 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x4 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x5 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
+  )
+  x <- suppressWarnings(suppressMessages(
+    ackwards(data, k = 4, prune = "redundant", redundancy_r = 0.9)
+  ))
+  p <- expect_no_error(ggplot2::autoplot(x))
+  expect_s3_class(p, "ggplot")
+  # Custom prune colour
+  expect_no_error(ggplot2::autoplot(x, color_pruned = "pink"))
+})
+
+test_that("autoplot.ackwards() handles objects with prune=NULL (no pruning)", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  expect_null(x$prune)
+  p <- expect_no_error(ggplot2::autoplot(x))
+  expect_s3_class(p, "ggplot")
 })

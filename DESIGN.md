@@ -384,11 +384,22 @@ that needs it. **No Rcpp dependency planned** (see §3).
 - Convergence truncation tested for the ESEM engine (k=4+ on p=6 triggers lavaan error → warn + truncate → object builds to k_eff=3).
 - Algebra-vs-scores cross-check documented as Pearson/continuous paths only; polychoric ESEM edges (algebra uses lavaan polychoric R; scores route uses Pearson standardization) diverge by design and are excluded from the oracle.
 
+**Resolved for M5 (Forbes extension):**
+17. API → two orthogonal args: `pairs = c("adjacent","all")` and `prune = c("none","redundant","artefact")` (char vector; default `"none"`). `prune != "none"` auto-upgrades `pairs` to `"all"` with a loud `cli_inform()` (chains need all-levels edges to assess).
+18. Prune action → **flag-only, never remove.** Adds `pruned`/`prune_reason` annotation columns to the edge/node tidy structures; the object retains all levels (preserves Invariant 5 and the algebra-vs-scores oracle). Pruning is interpretive relabeling, **not** re-estimation — say so in `print`/docs (extends the §2 honesty caveat).
+19. Redundancy → faithful to Forbes (2023): score-correlation chains `|r| ≥ .9` (default, tunable), retention rule = keep the bottom node if the chain reaches level k (most-specific, best-defined), else keep the topmost node (broadest manifestation). Tucker's φ (`> .95`, Lorenzo-Seva & ten Berge 2006) computed on aligned loadings as an **optional conjunctive** criterion. φ formula `Σaᵢbᵢ / sqrt(Σaᵢ² · Σbᵢ²)`; base R, no new dependency.
+20. **Additive enrichments over the paper** (default output still matches Forbes's examples): always *report* both `r` and `φ` for every redundancy candidate (report-first, flag-second — borderline cases like the paper's own `.89`/`.93` alcohol component stay visible); report endpoint `r` (direct, from all-levels edges) alongside the chain and flag where they disagree (correlation is non-transitive: a clean adjacent chain neither implies nor is implied by endpoint identity — the chain answers "perpetuates at every level," endpoint `r` answers "same construct").
+21. Artefact → **never auto-flagged.** `prune = "artefact"` surfaces φ for inspection; removal is a documented researcher judgment (Forbes is explicit this introduces researcher DoF / confirmation bias; cf. Wicherts et al. 2016).
+
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe now (orthogonal rotation → `factor_cor = I`; permutation of I is I). When `cfQ`/oblique rotation is implemented, `factor_cor` must be reordered by `ord` to match column ordering of `loadings`. Guard comment is in `engine_esem.R`.
 - Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (see above).
 - `cor = "spearman"` + `method = "esem"` is semantically inconsistent (lavaan fits Pearson ML on raw data while edges use Spearman R); currently accepted without warning.
 - ESEM engine does not detect or warn on improper/Heywood solutions (lavaan negative residual variances), unlike the EFA engine which warns explicitly.
+- **Forbes-extension improvements deferred past M5** (the published method has weaker spots worth strengthening later; M5 ships the faithful method + the §14.20 reporting enrichments):
+  - *Structural artefact signals.* Beyond congruence, artefacts have detectable structural signatures — the split-then-merge pattern (indicators split at level k then reunite under a different parent at k+1; Forbes Fig. 2), factors with `< 3` primary-loading items, and orphaned/non-replicating factors. Surface these as diagnostics rather than relying on φ alone.
+  - *Factor-score-indeterminacy caveat for EFA/ESEM redundancy.* Score-correlation-based redundancy is exact for PCA (Waller algebra) but inherits factor-score indeterminacy for EFA/ESEM; φ (loading-based) is the more stable criterion there. Consider making φ the default for non-PCA engines.
+  - *Selection bias in the "strongest" edge.* Plotting the max correlation across many all-levels pairs capitalizes on chance (85 → 1,320 correlations as levels grow). Add bootstrap CIs / SEs on edges (reuse the `loadings_se` infrastructure) so the strongest-edge claim is inferentially honest.
 
 ## 15. Suggested milestones
 

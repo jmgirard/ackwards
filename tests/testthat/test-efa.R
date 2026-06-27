@@ -19,7 +19,7 @@ test_that("ackwards() with method = 'efa' returns a valid ackwards object", {
 
   for (i in 1:4) {
     E <- x$edges$matrices[[paste0(i, ":", i + 1)]]
-    expect_equal(nrow(E), i,     info = paste("rows of", i, ":", i + 1))
+    expect_equal(nrow(E), i, info = paste("rows of", i, ":", i + 1))
     expect_equal(ncol(E), i + 1, info = paste("cols of", i, ":", i + 1))
     expect_true(all(abs(E) <= 1 + 1e-9), info = "correlations in [-1, 1]")
   }
@@ -31,8 +31,8 @@ test_that("EFA levels use tenBerge scoring (linear, method = 'tenBerge')", {
 
   for (ki in seq_len(x$k_max)) {
     sc <- x$levels[[as.character(ki)]]$scoring
-    expect_true(isTRUE(sc$linear),         info = paste("level", ki, "linear"))
-    expect_equal(sc$method, "tenBerge",    info = paste("level", ki, "method"))
+    expect_true(isTRUE(sc$linear), info = paste("level", ki, "linear"))
+    expect_equal(sc$method, "tenBerge", info = paste("level", ki, "method"))
     expect_equal(dim(sc$weights), c(25L, ki), info = paste("level", ki, "weight dims"))
     # tenBerge weights yield unit-variance scores: diag(W'RW) ≈ 1
     sv <- sc$score_var
@@ -45,7 +45,8 @@ test_that("EFA algebra and scores paths agree (algebra-vs-scores cross-check)", 
 
   set.seed(42)
   n <- 200
-  f1 <- rnorm(n); f2 <- rnorm(n)
+  f1 <- rnorm(n)
+  f2 <- rnorm(n)
   data <- data.frame(
     x1 = f1 + 0.3 * rnorm(n),
     x2 = f1 + 0.3 * rnorm(n),
@@ -69,7 +70,7 @@ test_that("EFA algebra and scores paths agree (algebra-vs-scores cross-check)", 
 
   for (key in names(x$edges$matrices)) {
     E_alg <- x$edges$matrices[[key]]
-    E_sc  <- E_scores[[key]]
+    E_sc <- E_scores[[key]]
     expect_lt(
       max(abs(abs(E_alg) - abs(E_sc))), 1e-6,
       label = paste("EFA algebra vs scores for pair", key)
@@ -84,7 +85,8 @@ test_that("EFA factor_cor is identity (orthogonal rotation)", {
   for (ki in seq_len(x$k_max)) {
     Phi <- x$levels[[as.character(ki)]]$factor_cor
     expect_equal(Phi, diag(ki),
-                 info = paste("factor_cor is I at level", ki))
+      info = paste("factor_cor is I at level", ki)
+    )
   }
 })
 
@@ -110,7 +112,7 @@ test_that("print, tidy, glance work for EFA objects", {
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3, method = "efa"))
 
   expect_no_error(print(x))
-  expect_s3_class(generics::tidy(x),   "data.frame")
+  expect_s3_class(generics::tidy(x), "data.frame")
   expect_s3_class(generics::glance(x), "data.frame")
   expect_equal(nrow(generics::glance(x)), 1L)
 })
@@ -135,7 +137,7 @@ test_that("meta$k_requested stores original k even when not truncated", {
   skip_if_not_installed("psych")
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 4, method = "efa"))
   expect_equal(x$meta$k_requested, 4L)
-  expect_equal(x$k_max, 4L)          # no truncation on well-formed data
+  expect_equal(x$k_max, 4L) # no truncation on well-formed data
 })
 
 test_that("ackwards errors informatively when all EFA levels fail (k_eff < 2)", {
@@ -144,27 +146,33 @@ test_that("ackwards errors informatively when all EFA levels fail (k_eff < 2)", 
   # fm = "ml" errors on this with "L-BFGS-B needs finite values of 'fn'",
   # which causes efa_levels to return 0 levels → k_eff < 2 guard fires.
   set.seed(42)
-  x1 <- rnorm(100); x2 <- rnorm(100); x3 <- rnorm(100)
+  x1 <- rnorm(100)
+  x2 <- rnorm(100)
+  x3 <- rnorm(100)
   d_sing <- data.frame(x1 = x1, x2 = x2, x3 = x3, x4 = x1 + x2 + x3)
 
   expect_error(
     suppressWarnings(ackwards(d_sing, k = 3, method = "efa", fm = "ml")),
-    regexp = "at least 2"   # from our k_eff < 2 guard
+    regexp = "at least 2" # from our k_eff < 2 guard
   )
 })
 
 test_that("EFA rotation = 'cfQ' errors with clear message", {
   skip_if_not_installed("psych")
   d <- psych::bfi[, 1:5]
-  expect_error(ackwards(d, k = 2, method = "efa", rotation = "cfQ"),
-               "not yet implemented")
+  expect_error(
+    ackwards(d, k = 2, method = "efa", rotation = "cfQ"),
+    "not yet implemented"
+  )
 })
 
 test_that("fm argument is validated", {
   skip_if_not_installed("psych")
   d <- psych::bfi[, 1:5]
-  expect_error(ackwards(d, k = 2, method = "efa", fm = "bad_fm"),
-               "fm")
+  expect_error(
+    ackwards(d, k = 2, method = "efa", fm = "bad_fm"),
+    "fm"
+  )
 })
 
 test_that("EFA edge correlations match psych::bassAckward(fm='minres') within tolerance", {
@@ -182,8 +190,8 @@ test_that("EFA edge correlations match psych::bassAckward(fm='minres') within to
   # 1×1 diagonal. Levels 2:3 and 3:4 agree to machine precision; 1:2 does not.
   for (i in 2:3) {
     psych_mat <- t(ba$bass.ack[[i + 1L]])
-    our_mat   <- x$edges$matrices[[paste0(i, ":", i + 1L)]]
-    max_diff  <- max(abs(abs(psych_mat) - abs(our_mat)))
+    our_mat <- x$edges$matrices[[paste0(i, ":", i + 1L)]]
+    max_diff <- max(abs(abs(psych_mat) - abs(our_mat)))
     expect_lt(max_diff, 1e-4, label = paste("EFA oracle level", i, "->", i + 1))
   }
 })
@@ -191,7 +199,9 @@ test_that("EFA edge correlations match psych::bassAckward(fm='minres') within to
 test_that("fm = 'ml' produces a valid object and passes algebra-vs-scores", {
   skip_if_not_installed("psych")
   set.seed(42)
-  n <- 200; f1 <- rnorm(n); f2 <- rnorm(n)
+  n <- 200
+  f1 <- rnorm(n)
+  f2 <- rnorm(n)
   d <- data.frame(
     x1 = f1 + 0.3 * rnorm(n), x2 = f1 + 0.3 * rnorm(n),
     x3 = f2 + 0.3 * rnorm(n), x4 = f2 + 0.3 * rnorm(n)
@@ -200,18 +210,23 @@ test_that("fm = 'ml' produces a valid object and passes algebra-vs-scores", {
   expect_s3_class(x, "ackwards")
   validate_ackwards(x)
   # Cross-check: algebra vs scores
-  E_sc <- compute_edges(x$levels, R = cor(d), method = "scores",
-                        pairs = "adjacent", data = d, align = FALSE)$matrices
+  E_sc <- compute_edges(x$levels,
+    R = cor(d), method = "scores",
+    pairs = "adjacent", data = d, align = FALSE
+  )$matrices
   for (key in names(x$edges$matrices)) {
     expect_lt(max(abs(abs(x$edges$matrices[[key]]) - abs(E_sc[[key]]))), 1e-4,
-              label = paste("ml cross-check", key))
+      label = paste("ml cross-check", key)
+    )
   }
 })
 
 test_that("fm = 'pa' produces a valid object and passes algebra-vs-scores", {
   skip_if_not_installed("psych")
   set.seed(42)
-  n <- 200; f1 <- rnorm(n); f2 <- rnorm(n)
+  n <- 200
+  f1 <- rnorm(n)
+  f2 <- rnorm(n)
   d <- data.frame(
     x1 = f1 + 0.3 * rnorm(n), x2 = f1 + 0.3 * rnorm(n),
     x3 = f2 + 0.3 * rnorm(n), x4 = f2 + 0.3 * rnorm(n)
@@ -219,11 +234,14 @@ test_that("fm = 'pa' produces a valid object and passes algebra-vs-scores", {
   suppressWarnings(x <- ackwards(d, k = 3L, method = "efa", fm = "pa"))
   expect_s3_class(x, "ackwards")
   validate_ackwards(x)
-  E_sc <- compute_edges(x$levels, R = cor(d), method = "scores",
-                        pairs = "adjacent", data = d, align = FALSE)$matrices
+  E_sc <- compute_edges(x$levels,
+    R = cor(d), method = "scores",
+    pairs = "adjacent", data = d, align = FALSE
+  )$matrices
   for (key in names(x$edges$matrices)) {
     expect_lt(max(abs(abs(x$edges$matrices[[key]]) - abs(E_sc[[key]]))), 1e-4,
-              label = paste("pa cross-check", key))
+      label = paste("pa cross-check", key)
+    )
   }
 })
 
@@ -257,5 +275,5 @@ test_that("tidy(x, what = 'fit') returns one row per level with named indices", 
   suppressWarnings(xp <- ackwards(psych::bfi[, 1:25], k = 3L, method = "pca"))
   td_pca <- generics::tidy(xp, what = "fit")
   expect_s3_class(td_pca, "data.frame")
-  expect_equal(nrow(td_pca), 1L + 2L + 3L)   # 1+2+3 eigenvalues across 3 levels
+  expect_equal(nrow(td_pca), 1L + 2L + 3L) # 1+2+3 eigenvalues across 3 levels
 })

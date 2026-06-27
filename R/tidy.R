@@ -39,13 +39,13 @@ tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit"), .
 .tidy_loadings <- function(x) {
   rows <- lapply(names(x$levels), function(ki) {
     lev <- x$levels[[ki]]
-    L   <- lev$loadings
-    k   <- as.integer(ki)
+    L <- lev$loadings
+    k <- as.integer(ki)
     do.call(rbind, lapply(seq_len(ncol(L)), function(j) {
       data.frame(
-        level   = k,
-        factor  = colnames(L)[j],
-        item    = rownames(L),
+        level = k,
+        factor = colnames(L)[j],
+        item = rownames(L),
         loading = L[, j],
         stringsAsFactors = FALSE
       )
@@ -59,12 +59,12 @@ tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit"), .
 .tidy_fit <- function(x) {
   rows <- lapply(names(x$levels), function(ki) {
     lev <- x$levels[[ki]]
-    k   <- as.integer(ki)
-    fv  <- lev$fit
+    k <- as.integer(ki)
+    fv <- lev$fit
     data.frame(
-      level  = k,
-      index  = names(fv),
-      value  = unname(fv),
+      level = k,
+      index = names(fv),
+      value = unname(fv),
       stringsAsFactors = FALSE
     )
   })
@@ -76,14 +76,14 @@ tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit"), .
 .tidy_variance <- function(x) {
   rows <- lapply(names(x$levels), function(ki) {
     lev <- x$levels[[ki]]
-    k   <- as.integer(ki)
+    k <- as.integer(ki)
     fac_labels <- lev$labels
-    var_vals   <- lev$variance[fac_labels]
-    cum_val    <- lev$variance["cumulative"]
+    var_vals <- lev$variance[fac_labels]
+    cum_val <- lev$variance["cumulative"]
     data.frame(
-      level          = k,
-      factor         = fac_labels,
-      variance_pct   = round(var_vals * 100, 2),
+      level = k,
+      factor = fac_labels,
+      variance_pct = round(var_vals * 100, 2),
       cumulative_pct = round(
         cumsum(var_vals) * 100, 2
       ),

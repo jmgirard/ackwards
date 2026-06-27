@@ -7,10 +7,10 @@ test_that("suggest_k() returns a suggest_k object with expected fields", {
     sk,
     c("k_parallel", "k_map", "criteria", "k_max", "n_obs", "n_vars", "cor")
   )
-  expect_equal(sk$k_max,   4L)
-  expect_equal(sk$n_obs,  2800L)
-  expect_equal(sk$n_vars,   25L)
-  expect_equal(sk$cor,   "pearson")
+  expect_equal(sk$k_max, 4L)
+  expect_equal(sk$n_obs, 2800L)
+  expect_equal(sk$n_vars, 25L)
+  expect_equal(sk$cor, "pearson")
 })
 
 test_that("suggest_k() criteria table has correct structure and row count", {
@@ -45,9 +45,9 @@ test_that("suggest_k() k_parallel is capped at k_max", {
 
 test_that("suggest_k() errors on bad inputs", {
   skip_if_not_installed("psych")
-  expect_error(suggest_k(list()),                         "data frame")
+  expect_error(suggest_k(list()), "data frame")
   expect_error(suggest_k(psych::bfi[, 1:5], k_max = 100), "k_max")
-  expect_error(suggest_k(psych::bfi[, 1:5], k_max = 0),   "k_max")
+  expect_error(suggest_k(psych::bfi[, 1:5], k_max = 0), "k_max")
 })
 
 test_that("print.suggest_k() runs without error and returns x invisibly", {

@@ -61,6 +61,29 @@
 #' @param keep_fits Logical; store raw engine fit objects? Default `FALSE`.
 #' @param seed Integer seed for stochastic engines (not used by PCA but
 #'   captured for reproducibility metadata). Default `NULL`.
+#' @param pairs Which level pairs to compute edges for: `"adjacent"` (default,
+#'   classic Goldberg — only consecutive levels) or `"all"` (Forbes extension —
+#'   every pair of levels). `"all"` reveals associations that span multiple
+#'   levels and is required for redundancy pruning. Setting `prune` to anything
+#'   other than `"none"` automatically upgrades this to `"all"` with a message.
+#' @param prune Character vector controlling Forbes-extension pruning. Default
+#'   `"none"` (no pruning). Options:
+#'   * `"redundant"` — identify chains of factors connected by primary-parent
+#'     links with `|r| >= redundancy_r` (and optionally `phi > redundancy_phi`).
+#'     Applies Forbes's (2023) retention rule: keep the bottom node when the
+#'     chain reaches level `k` (most specific); keep the top node otherwise.
+#'     Pruning is *flag-only*: flagged nodes stay in the object with
+#'     `pruned = TRUE` and `prune_reason = "redundant"` in `x$prune$nodes`.
+#'   * `"artefact"` — compute Tucker's congruence coefficient (φ) for all
+#'     cross-level factor pairs and store in `x$prune$phi` for researcher
+#'     inspection. No factors are auto-flagged; artefact identification requires
+#'     judgment (Forbes, 2023; Wicherts et al., 2016).
+#' @param redundancy_r Scalar in `(0, 1]`. Adjacent primary-parent `|r|`
+#'   threshold for redundancy chains. Default `0.9` (Forbes, 2023).
+#' @param redundancy_phi Scalar in `(0, 1]` or `NULL` (default). If non-`NULL`,
+#'   Tucker's φ must *also* exceed this threshold for a link to be included in
+#'   a redundancy chain (conjunctive with `redundancy_r`). `NULL` means only
+#'   `redundancy_r` is used. Recommended: `0.95` (Lorenzo-Seva & ten Berge, 2006).
 #' @param cut_show Edges with `|r| >= cut_show` are flagged `above_cut` in
 #'   `tidy()` output. Default `0.3`.
 #' @param ... Reserved for future arguments.
@@ -88,29 +111,59 @@
 #'
 #' @export
 ackwards <- function(
-    data,
-    k,
-    method    = "pca",
-    rotation  = "cfT",
-    kappa     = NULL,
-    cor       = "pearson",
-    fm        = "minres",
-    estimator = NULL,
-    align     = TRUE,
-    scores    = FALSE,
-    keep_fits = FALSE,
-    seed      = NULL,
-    cut_show  = 0.3,
-    ...) {
+  data,
+  k,
+  method = "pca",
+  rotation = "cfT",
+  kappa = NULL,
+  cor = "pearson",
+  fm = "minres",
+  estimator = NULL,
+  align = TRUE,
+  scores = FALSE,
+  keep_fits = FALSE,
+  seed = NULL,
+  pairs = "adjacent",
+  prune = "none",
+  redundancy_r = 0.9,
+  redundancy_phi = NULL,
+  cut_show = 0.3,
+  ...
+) {
   cl <- match.call()
 
   # --- Input validation -------------------------------------------------------
-  method   <- rlang::arg_match(method,   c("pca", "efa", "esem"))
+  method <- rlang::arg_match(method, c("pca", "efa", "esem"))
   rotation <- rlang::arg_match(rotation, c("cfT", "cfQ"))
-  fm       <- rlang::arg_match(fm,       c("minres", "ml", "pa"))
-  cor      <- rlang::arg_match(cor,      c("pearson", "spearman", "polychoric"))
+  fm <- rlang::arg_match(fm, c("minres", "ml", "pa"))
+  cor <- rlang::arg_match(cor, c("pearson", "spearman", "polychoric"))
   if (!is.null(estimator)) {
     estimator <- rlang::arg_match(estimator, c("ML", "MLR", "WLSMV", "ULSMV"))
+  }
+  pairs <- rlang::arg_match(pairs, c("adjacent", "all"))
+  prune <- rlang::arg_match(prune, c("none", "redundant", "artefact"),
+    multiple = TRUE
+  )
+
+  if (!is.numeric(redundancy_r) || length(redundancy_r) != 1L ||
+    redundancy_r <= 0 || redundancy_r > 1) {
+    cli::cli_abort("{.arg redundancy_r} must be a single number in (0, 1].")
+  }
+  if (!is.null(redundancy_phi) &&
+    (!is.numeric(redundancy_phi) || length(redundancy_phi) != 1L ||
+      redundancy_phi <= 0 || redundancy_phi > 1)) {
+    cli::cli_abort("{.arg redundancy_phi} must be a single number in (0, 1] or {.code NULL}.")
+  }
+
+  # Auto-upgrade pairs to "all" when pruning is requested (chains need all-levels
+  # edges for the endpoint-r enrichment; artefact phi is most informative across
+  # all pairs). Invariant 6: announce the upgrade rather than switching silently.
+  if (!identical(prune, "none") && pairs == "adjacent") {
+    pairs <- "all"
+    cli::cli_inform(c(
+      "i" = "{.arg pairs} upgraded to {.val all}: pruning requires all-levels \\
+             edges to assess redundancy chains and artefact relationships."
+    ))
   }
 
   if (!is.numeric(k) || length(k) != 1L || k < 2L || k != as.integer(k)) {
@@ -126,7 +179,7 @@ ackwards <- function(
     cli::cli_abort("{.arg data} must contain only numeric columns.")
   }
 
-  p     <- ncol(data_mat)
+  p <- ncol(data_mat)
   n_obs <- nrow(data_mat)
 
   if (k > p) {
@@ -193,11 +246,13 @@ ackwards <- function(
     } else {
       "ML"
     }
-    esem_out    <- esem_levels(data_mat, k_max = k, rotation = rotation,
-                               estimator = estimator_eff, cor_type = cor,
-                               n_obs = n_obs, R_external = R_ext)
+    esem_out <- esem_levels(data_mat,
+      k_max = k, rotation = rotation,
+      estimator = estimator_eff, cor_type = cor,
+      n_obs = n_obs, R_external = R_ext
+    )
     levels_list <- esem_out$levels
-    R           <- esem_out$r_lv
+    R <- esem_out$r_lv
     if (is.null(R)) R <- R_ext
     if (is.null(R)) {
       R <- stats::cor(data_mat, method = "pearson", use = "pairwise.complete.obs")
@@ -208,13 +263,15 @@ ackwards <- function(
       rlang::check_installed("psych", reason = "for polychoric correlations")
       poly_out <- tryCatch(
         psych::polychoric(data_mat),
-        error = function(e) cli::cli_abort(
-          c(
-            "!" = "{.fn psych::polychoric} failed: {conditionMessage(e)}",
-            "i" = "Check that your data contains integer-like columns with few \\
+        error = function(e) {
+          cli::cli_abort(
+            c(
+              "!" = "{.fn psych::polychoric} failed: {conditionMessage(e)}",
+              "i" = "Check that your data contains integer-like columns with few \\
                    distinct values, or use {.code cor = \"pearson\"}."
+            )
           )
-        )
+        }
       )
       R <- poly_out$rho
       # Guard against non-positive-definite polychoric matrices (DESIGN.md §14 remaining)
@@ -234,8 +291,10 @@ ackwards <- function(
     }
     levels_list <- switch(method,
       pca = pca_levels(R, k_max = k, rotation = rotation, cor_type = cor),
-      efa = efa_levels(R, k_max = k, rotation = rotation, fm = fm, n_obs = n_obs,
-                       cor_type = cor)
+      efa = efa_levels(R,
+        k_max = k, rotation = rotation, fm = fm, n_obs = n_obs,
+        cor_type = cor
+      )
     )
   }
 
@@ -262,13 +321,14 @@ ackwards <- function(
   }
 
   # --- Lineage matching -------------------------------------------------------
-  # Build lineage before sign alignment (matching is on |r|, sign-invariant)
-  raw_edges <- compute_edges(
-    levels  = levels_list,
-    R       = R,
-    method  = "auto",
-    pairs   = "adjacent",
-    align   = FALSE,
+  # Always adjacent: lineage and sign alignment are defined by parent-child
+  # relationships between consecutive levels.
+  raw_edges_adj <- compute_edges(
+    levels   = levels_list,
+    R        = R,
+    method   = "auto",
+    pairs    = "adjacent",
+    align    = FALSE,
     cut_show = cut_show
   )
 
@@ -276,50 +336,65 @@ ackwards <- function(
   names(lineage) <- as.character(seq_len(k_eff))
   for (ki in seq_len(k_eff - 1L) + 1L) {
     key <- paste0(ki - 1L, ":", ki)
-    lineage[[as.character(ki)]] <- match_parents(raw_edges$matrices[[key]])
+    lineage[[as.character(ki)]] <- match_parents(raw_edges_adj$matrices[[key]])
   }
 
   # --- Sign alignment (DESIGN.md §7) -----------------------------------------
   if (align && k_eff >= 1L) {
     loadings_list <- lapply(levels_list, `[[`, "loadings")
-    aligned <- align_signs(loadings_list, raw_edges$matrices, lineage)
+    aligned <- align_signs(loadings_list, raw_edges_adj$matrices, lineage)
     for (ki in seq_len(k_eff)) {
       levels_list[[as.character(ki)]]$loadings <- aligned$loadings[[ki]]
       # Flip weights consistently with loadings
       levels_list[[as.character(ki)]]$scoring$weights <-
-        flip_weights(levels_list[[as.character(ki)]]$scoring$weights,
-                     aligned$signs[[ki]])
+        flip_weights(
+          levels_list[[as.character(ki)]]$scoring$weights,
+          aligned$signs[[ki]]
+        )
     }
-    edge_matrices <- aligned$edges
-  } else {
-    edge_matrices <- raw_edges$matrices
   }
+
+  # --- Final edge set (adjacent or all-levels Forbes extension) ---------------
+  # Recompute using aligned levels_list so skip-level edges inherit correct signs.
+  # Adjacent-pair matrices match aligned$edges exactly; recomputing is safe.
+  final_edges <- compute_edges(
+    levels   = levels_list,
+    R        = R,
+    method   = "auto",
+    pairs    = pairs,
+    align    = FALSE,
+    cut_show = cut_show
+  )
 
   # --- Assemble aligned edge object -------------------------------------------
   edges_obj <- list(
-    matrices = edge_matrices,
-    tidy     = fill_primary(.rebuild_tidy(edge_matrices, cut_show), lineage, levels_list)
+    matrices = final_edges$matrices,
+    tidy     = fill_primary(final_edges$tidy, lineage, levels_list)
   )
 
   # --- Meta -------------------------------------------------------------------
   conv <- vapply(levels_list, `[[`, logical(1L), "converged")
   meta <- list(
-    k_requested       = k,        # what the user asked for (may exceed k_eff)
+    k_requested       = k, # what the user asked for (may exceed k_eff)
     converged_levels  = conv,
     deepest_converged = max(which(conv)),
     kappa             = kappa,
+    pairs             = pairs,
+    prune             = prune,
+    redundancy_r      = redundancy_r,
+    redundancy_phi    = redundancy_phi,
     cut_show          = cut_show,
     ordinal_warned    = detect_ordinal(as.data.frame(data_mat))
   )
 
   # --- Assemble result --------------------------------------------------------
-  new_ackwards(
+  x <- new_ackwards(
     call        = cl,
     method      = method,
     rotation    = rotation,
     cor_type    = cor,
     n_obs       = n_obs,
-    k_max       = k_eff,          # effective depth (may be < k if truncated)
+    k_max       = k_eff, # effective depth (may be < k if truncated)
     seed        = seed,
     pkg_version = utils::packageVersion("ackwards"),
     levels      = levels_list,
@@ -331,12 +406,22 @@ ackwards <- function(
     data        = NULL,
     meta        = meta
   )
+
+  # --- Forbes pruning (flag-only, never removes levels) -----------------------
+  # Pruning is applied post-assembly so .apply_pruning() can read the final
+  # aligned edges directly from the object.
+  if (!identical(prune, "none")) {
+    x$prune <- .apply_pruning(x, prune, redundancy_r, redundancy_phi)
+  }
+
+  x
 }
 
 # S3 constructor — validates structure and attaches class
 new_ackwards <- function(
-    call, method, rotation, cor_type, n_obs, k_max, seed, pkg_version,
-    levels, edges, lineage, scores, fits, r, data, meta) {
+  call, method, rotation, cor_type, n_obs, k_max, seed, pkg_version,
+  levels, edges, lineage, scores, fits, r, data, meta
+) {
   structure(
     list(
       call        = call,
@@ -354,37 +439,9 @@ new_ackwards <- function(
       fits        = fits,
       r           = r,
       data        = data,
-      meta        = meta
+      meta        = meta,
+      prune       = NULL # populated by .apply_pruning() when prune != "none"
     ),
     class = "ackwards"
   )
-}
-
-# Rebuild a tidy edge data frame from a named list of aligned edge matrices.
-.rebuild_tidy <- function(matrices, cut_show = 0.3) {
-  rows <- lapply(names(matrices), function(key) {
-    parts <- strsplit(key, ":", fixed = TRUE)[[1L]]
-    ka <- as.integer(parts[1L])
-    kb <- as.integer(parts[2L])
-    E  <- matrices[[key]]
-    from_labs <- rownames(E)
-    to_labs   <- colnames(E)
-    do.call(rbind, lapply(seq_along(from_labs), function(i) {
-      do.call(rbind, lapply(seq_along(to_labs), function(j) {
-        data.frame(
-          from       = from_labs[i],
-          to         = to_labs[j],
-          level_from = ka,
-          level_to   = kb,
-          r          = E[i, j],
-          is_primary = NA,
-          above_cut  = abs(E[i, j]) >= cut_show,
-          stringsAsFactors = FALSE
-        )
-      }))
-    }))
-  })
-  tidy <- do.call(rbind, rows)
-  rownames(tidy) <- NULL
-  tidy
 }

@@ -1,5 +1,43 @@
 # ackwards 0.0.0.9000 (dev)
 
+## Milestone 5 — Forbes (2023) extension
+
+* Added `pairs = "all"` to `ackwards()`: computes between-level factor-score
+  correlations for *every* pair of levels, not just adjacent ones. Reveals
+  associations that span multiple levels and is required for redundancy pruning.
+  Default remains `"adjacent"` (classic Goldberg). Adjacent-level edges are
+  identical between the two modes.
+* Added `prune = "redundant"` to `ackwards()`: identifies chains of factors
+  connected by adjacent primary-parent links with `|r| >= redundancy_r` (default
+  0.9) and applies Forbes's (2023) retention rule — keep the bottom node when the
+  chain reaches level `k` (most specific, best-defined), else keep the top node
+  (broadest manifestation). Pruning is *flag-only*: flagged nodes are retained in
+  the object with `pruned = TRUE` / `prune_reason = "redundant"` in
+  `x$prune$nodes`; nothing is removed.
+* Added `prune = "artefact"` to `ackwards()`: computes Tucker's congruence
+  coefficient (φ) for all cross-level factor pairs and stores results in
+  `x$prune$phi` for researcher inspection. No factors are auto-flagged; artefact
+  identification requires researcher judgment (Forbes, 2023).
+* Added `redundancy_phi` argument (default `NULL`): when non-`NULL`, Tucker's φ
+  must also exceed the threshold for a primary-parent link to qualify as a
+  redundancy chain link (conjunctive with `redundancy_r`).
+* Additive enrichments over the published method: redundancy chains report both
+  `r` and `phi` per link (report-first / flag-second so borderline cases stay
+  visible), plus a direct *endpoint* `r` from the all-levels edge matrix with a
+  flag when it disagrees with the chain criterion (correlation is non-transitive;
+  a clean adjacent chain is neither necessary nor sufficient for endpoint identity).
+* Setting `prune` to anything other than `"none"` automatically upgrades `pairs`
+  to `"all"` with a `cli_inform()` message (Invariant 6).
+* `autoplot.ackwards()` now renders skip-level edges as curved arcs
+  (`ggplot2::geom_curve()`; curvature tunable via `curvature` arg) when
+  `pairs = "all"`. Pruned (redundant) nodes are displayed with a distinct fill
+  (`color_pruned`, default `"grey80"`). Both features degrade gracefully when
+  not applicable.
+* New meta fields: `meta$pairs`, `meta$prune`, `meta$redundancy_r`,
+  `meta$redundancy_phi`.
+
+## Previous milestones
+
 * Added ESEM engine (`method = "esem"`) using `lavaan::efa()` (requires lavaan
   >= 0.6-13) with WLSMV ordinal estimation, rotation-aware SEs in `loadings_se`,
   and per-level fit indices (CFI, TLI, RMSEA, SRMR). Self-computed tenBerge

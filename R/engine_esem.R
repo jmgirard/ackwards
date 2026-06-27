@@ -36,7 +36,7 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
     )
   }
 
-  p          <- ncol(data)
+  p <- ncol(data)
   item_names <- colnames(data)
 
   # cfT ≈ varimax (CF with κ = 1/p); cfQ not yet implemented for ESEM
@@ -52,11 +52,11 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
   ordered_cols <- if (cor_type == "polychoric") item_names else NULL
 
   result <- list()
-  r_lv   <- R_external   # set externally for continuous; extracted from lavaan for polychoric
+  r_lv <- R_external # set externally for continuous; extracted from lavaan for polychoric
 
   for (k in seq_len(k_max)) {
     # No rotation needed for a single factor
-    rotate_k  <- if (k == 1L) "none" else lav_rotation
+    rotate_k <- if (k == 1L) "none" else lav_rotation
     warn_msgs <- character(0L)
 
     # lavaan::efa() returns an efaList; extract the single lavaan fit object.
@@ -110,10 +110,13 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
     # so this block only executes for the polychoric path (cor_type == "polychoric").
     # The cov2cor branch is retained for completeness but is not currently reachable.
     if (is.null(r_lv)) {
-      r_lv <- tryCatch({
-        sstat <- lavaan::lavInspect(fit, "sampstat")
-        if (cor_type == "polychoric") sstat$cov else cov2cor(sstat$cov)
-      }, error = function(e) NULL)
+      r_lv <- tryCatch(
+        {
+          sstat <- lavaan::lavInspect(fit, "sampstat")
+          if (cor_type == "polychoric") sstat$cov else cov2cor(sstat$cov)
+        },
+        error = function(e) NULL
+      )
     }
     if (is.null(r_lv)) {
       r_lv <- stats::cor(data, method = "pearson", use = "pairwise.complete.obs")
@@ -135,16 +138,16 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
       break
     }
 
-    load_rows   <- std_sol[std_sol$op == "=~", , drop = FALSE]
-    factors_lav <- unique(load_rows$lhs)   # lavaan's internal factor names
+    load_rows <- std_sol[std_sol$op == "=~", , drop = FALSE]
+    factors_lav <- unique(load_rows$lhs) # lavaan's internal factor names
 
     # Build p × k loading and SE matrices indexed by item_names
-    L    <- matrix(0,        p, k, dimnames = list(item_names, factors_lav))
+    L <- matrix(0, p, k, dimnames = list(item_names, factors_lav))
     L_se <- matrix(NA_real_, p, k, dimnames = list(item_names, factors_lav))
 
     for (fj in seq_along(factors_lav)) {
       frows <- load_rows[load_rows$lhs == factors_lav[fj], , drop = FALSE]
-      L[frows$rhs, fj]    <- frows$est.std
+      L[frows$rhs, fj] <- frows$est.std
       L_se[frows$rhs, fj] <- if ("se" %in% names(frows)) frows$se else NA_real_
     }
 
@@ -156,10 +159,10 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
     # rotation lands, factor_cor must also be permuted by ord to stay consistent
     # with the column ordering of L.
     var_unsorted <- colSums(L^2) / p
-    ord  <- order(var_unsorted, decreasing = TRUE)
-    L    <- L[, ord, drop = FALSE]
+    ord <- order(var_unsorted, decreasing = TRUE)
+    L <- L[, ord, drop = FALSE]
     L_se <- L_se[, ord, drop = FALSE]
-    colnames(L)    <- labels_k
+    colnames(L) <- labels_k
     colnames(L_se) <- labels_k
 
     # Positive manifold anchor for k = 1 (matches PCA/EFA engine behaviour)
@@ -181,13 +184,16 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
             "i" = "Falling back to regression (Thurstone) weights."
           )
         )
-        tryCatch({
-          Ri    <- solve(r_lv)
-          W_reg <- Ri %*% L
-          colnames(W_reg) <- labels_k
-          rownames(W_reg) <- item_names
-          W_reg
-        }, error = function(e2) NULL)
+        tryCatch(
+          {
+            Ri <- solve(r_lv)
+            W_reg <- Ri %*% L
+            colnames(W_reg) <- labels_k
+            rownames(W_reg) <- item_names
+            W_reg
+          },
+          error = function(e2) NULL
+        )
       }
     )
     if (is.null(W)) {
@@ -218,8 +224,10 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
         c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr")
       ),
       error = function(e) {
-        setNames(rep(NA_real_, 7L),
-                 c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr"))
+        setNames(
+          rep(NA_real_, 7L),
+          c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr")
+        )
       }
     )
     fit_info <- setNames(
@@ -228,27 +236,30 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
     )
 
     # Within-level factor correlations (identity for orthogonal rotation)
-    factor_cor <- tryCatch({
-      Phi <- lavaan::lavInspect(fit, "cor.lv")
-      if (is.matrix(Phi) && nrow(Phi) == k) {
-        rownames(Phi) <- labels_k
-        colnames(Phi) <- labels_k
-        Phi
-      } else {
-        diag(k)
-      }
-    }, error = function(e) diag(k))
+    factor_cor <- tryCatch(
+      {
+        Phi <- lavaan::lavInspect(fit, "cor.lv")
+        if (is.matrix(Phi) && nrow(Phi) == k) {
+          rownames(Phi) <- labels_k
+          colnames(Phi) <- labels_k
+          Phi
+        } else {
+          diag(k)
+        }
+      },
+      error = function(e) diag(k)
+    )
 
     result[[as.character(k)]] <- list(
-      k           = k,
-      loadings    = L,
+      k = k,
+      loadings = L,
       loadings_se = L_se,
-      variance    = variance,
-      fit         = fit_info,
-      converged   = TRUE,
-      factor_cor  = factor_cor,
-      labels      = labels_k,
-      scoring     = list(
+      variance = variance,
+      fit = fit_info,
+      converged = TRUE,
+      factor_cor = factor_cor,
+      labels = labels_k,
+      scoring = list(
         linear    = TRUE,
         method    = weight_method,
         basis     = cor_type,

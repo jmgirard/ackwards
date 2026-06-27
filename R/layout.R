@@ -42,19 +42,19 @@ ba_layout <- function(x, min_sep = 1.0) {
     cli::cli_abort("{.arg x} must be an {.cls ackwards} object.")
   }
 
-  K          <- x$k_max
+  K <- x$k_max
   levels_lst <- x$levels
   tidy_edges <- x$edges$tidy
 
   # --- Pass 1: Top-down -- determine ordinal order at each level --------------
   # For each level k, rank factors by the |r|-weighted mean of their parents'
   # ranks. This groups siblings together and minimises crossings.
-  ordinals        <- vector("list", K)
+  ordinals <- vector("list", K)
   names(ordinals) <- as.character(seq_len(K))
   ordinals[["1"]] <- stats::setNames(1L, levels_lst[["1"]]$labels)
 
   for (k in seq(2L, K)) {
-    labs_k      <- levels_lst[[as.character(k)]]$labels
+    labs_k <- levels_lst[[as.character(k)]]$labels
     parent_ords <- ordinals[[as.character(k - 1L)]]
 
     ep <- tidy_edges[
@@ -64,8 +64,10 @@ ba_layout <- function(x, min_sep = 1.0) {
 
     bary <- vapply(labs_k, function(lab) {
       pe <- ep[ep$to == lab, , drop = FALSE]
-      w  <- abs(pe$r)
-      if (nrow(pe) == 0L || sum(w) == 0) return(mean(as.numeric(parent_ords)))
+      w <- abs(pe$r)
+      if (nrow(pe) == 0L || sum(w) == 0) {
+        return(mean(as.numeric(parent_ords)))
+      }
       sum(w * parent_ords[pe$from]) / sum(w)
     }, numeric(1L))
 
@@ -83,13 +85,13 @@ ba_layout <- function(x, min_sep = 1.0) {
   # Falls back to |r|-weighted mean of all children for factors with no primary
   # children (can occur when matching assigns all level-k+1 factors elsewhere).
   # Spreading is applied afterward only to resolve overlaps.
-  node_x        <- vector("list", K)
+  node_x <- vector("list", K)
   names(node_x) <- as.character(seq_len(K))
 
   # Level K: evenly spaced by ordinal rank, centred at 0
-  labs_K  <- levels_lst[[as.character(K)]]$labels
-  ords_K  <- ordinals[[as.character(K)]]
-  center  <- (K + 1) / 2
+  labs_K <- levels_lst[[as.character(K)]]$labels
+  ords_K <- ordinals[[as.character(K)]]
+  center <- (K + 1) / 2
   node_x[[as.character(K)]] <- stats::setNames(
     (ords_K[labs_K] - center) * min_sep,
     labs_K
@@ -97,7 +99,7 @@ ba_layout <- function(x, min_sep = 1.0) {
 
   # Levels K-1 down to 1
   for (k in seq(K - 1L, 1L)) {
-    labs_k  <- levels_lst[[as.character(k)]]$labels
+    labs_k <- levels_lst[[as.character(k)]]$labels
     x_below <- node_x[[as.character(k + 1L)]]
 
     primary_ep <- tidy_edges[
@@ -113,11 +115,15 @@ ba_layout <- function(x, min_sep = 1.0) {
     bary <- vapply(labs_k, function(lab) {
       # Ideal: simple mean of primary children -- gives exact alignment
       pc <- primary_ep[primary_ep$from == lab, , drop = FALSE]
-      if (nrow(pc) > 0L) return(mean(x_below[pc$to]))
+      if (nrow(pc) > 0L) {
+        return(mean(x_below[pc$to]))
+      }
       # Fallback for orphaned parents: |r|-weighted mean of all children
       ce <- all_ep[all_ep$from == lab, , drop = FALSE]
-      w  <- abs(ce$r)
-      if (nrow(ce) == 0L || sum(w) == 0) return(mean(x_below))
+      w <- abs(ce$r)
+      if (nrow(ce) == 0L || sum(w) == 0) {
+        return(mean(x_below))
+      }
       sum(w * x_below[ce$to]) / sum(w)
     }, numeric(1L))
 
@@ -134,15 +140,15 @@ ba_layout <- function(x, min_sep = 1.0) {
   # --- Build nodes data frame -------------------------------------------------
   nodes <- do.call(rbind, lapply(seq_len(K), function(k) {
     labs <- levels_lst[[as.character(k)]]$labels
-    xs   <- node_x[[as.character(k)]]
+    xs <- node_x[[as.character(k)]]
     data.frame(
-      id             = labs,
-      level          = k,
-      x              = xs[labs],
-      y              = -k,
-      label          = labs,
+      id = labs,
+      level = k,
+      x = xs[labs],
+      y = -k,
+      label = labs,
       stringsAsFactors = FALSE,
-      row.names      = NULL
+      row.names = NULL
     )
   }))
 
@@ -153,11 +159,13 @@ ba_layout <- function(x, min_sep = 1.0) {
 # Re-centres the spread positions around the original barycenter mean.
 .spread_positions <- function(bary, min_sep) {
   n <- length(bary)
-  if (n == 1L) return(bary)
+  if (n == 1L) {
+    return(bary)
+  }
 
   bary_mean <- mean(bary)
   ord <- order(bary)
-  p   <- bary[ord]
+  p <- bary[ord]
 
   # Forward pass: push right to enforce min_sep
   for (i in seq(2L, n)) {
@@ -167,7 +175,7 @@ ba_layout <- function(x, min_sep = 1.0) {
   # Re-centre so the group doesn't drift from its natural barycenter
   p <- p - mean(p) + bary_mean
 
-  result      <- numeric(n)
+  result <- numeric(n)
   result[ord] <- p
   result
 }

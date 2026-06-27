@@ -43,8 +43,10 @@ test_that("glance.ackwards returns a one-row data frame with expected columns", 
   gl <- generics::glance(x)
   expect_s3_class(gl, "data.frame")
   expect_equal(nrow(gl), 1L)
-  expect_true(all(c("method", "rotation", "cor_type", "k_max", "n_obs",
-                    "deepest_converged", "n_edges") %in% names(gl)))
+  expect_true(all(c(
+    "method", "rotation", "cor_type", "k_max", "n_obs",
+    "deepest_converged", "n_edges"
+  ) %in% names(gl)))
   expect_equal(gl$k_max, 3L)
   expect_equal(gl$n_obs, 2800L)
   expect_equal(gl$n_edges, 8L)
