@@ -98,14 +98,16 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L, ...) {
 
   # --- Parallel analysis (Horn) -----------------------------------------------
   cli::cli_progress_step("Running parallel analysis ({n_iter} iterations)...")
-  pa <- psych::fa.parallel(
-    R,
-    n.obs  = n,
-    fa     = "pc",
-    n.iter = n_iter,
-    plot   = FALSE,
-    quant  = 0.95
-  )
+  invisible(utils::capture.output(
+    pa <- psych::fa.parallel(
+      R,
+      n.obs  = n,
+      fa     = "pc",
+      n.iter = n_iter,
+      plot   = FALSE,
+      quant  = 0.95
+    )
+  ))
   # Cap at k_max in case pa reports more components than we tested
   k_parallel <- min(pa$ncomp, k_max)
 
