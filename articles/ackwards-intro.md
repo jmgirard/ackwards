@@ -80,11 +80,10 @@ runs two established selection criteria:
 
 sk <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations)...
-#> Parallel analysis suggests that the number of factors =  NA  and the number of components =  5
-#> ✔ Running parallel analysis (20 iterations)... [119ms]
+#> ✔ Running parallel analysis (20 iterations)... [116ms]
 #> 
 #> ℹ Running MAP (Velicer)...
-#> ✔ Running MAP (Velicer)... [124ms]
+#> ✔ Running MAP (Velicer)... [126ms]
 #> 
 sk
 #> 
