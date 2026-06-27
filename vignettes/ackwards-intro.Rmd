@@ -1,0 +1,327 @@
+---
+title: "Introduction to Bass-Ackwards Analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to Bass-Ackwards Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  fig.width = 7,
+  fig.height = 4.5
+)
+```
+
+## The problem: which factor solution is right?
+
+Anyone who has applied factor analysis faces the same dilemma: how many factors
+should you extract? Parallel analysis might say 5; the scree plot might suggest
+3; a reviewer might insist on 1. Each solution seems to describe the data
+differently, and it is tempting to treat them as competing answers to the same
+question.
+
+Goldberg (2006) reframed this problem: the different solutions are not competing
+— they are complementary. A 1-factor solution captures the broadest shared
+variance in the data, the dimension along which all variables correlate. A
+5-factor solution captures narrower, more specific dimensions. These two levels
+of resolution describe the same underlying structure from different vantage
+points, just as a satellite image and a street map describe the same city.
+
+The **bass-ackwards method** makes this relationship explicit. It fits factor
+models at every level from 1 up to k, and then computes the correlations between
+factor *scores* across adjacent levels. Those correlations show you:
+
+- **Which narrow factor inherits from which broad factor** — the lineage of
+  each dimension as you move from coarse to fine resolution.
+- **Where a factor splits** — a single broad factor that correlates strongly
+  with two narrower factors is fragmenting into sub-dimensions.
+- **Where a factor is stable** — a factor that correlates ~1.0 with its
+  counterpart at the adjacent level is essentially the same construct appearing
+  at two resolutions.
+
+The result is a **hierarchy map** — a visual and numerical account of how
+the factor structure of your data builds from broad to narrow.
+
+> *Note: This is a descriptive, data-driven hierarchy, not a confirmatory
+> hierarchical model like Schmid–Leiman or higher-order SEM. The between-level
+> correlations are score correlations (or their algebraic equivalents), not
+> model parameters. See `vignette("engines")` for when to use EFA or ESEM
+> instead of PCA.*
+
+## Data
+
+We use the 25-item Big Five Inventory from the `psych` package (`psych::bfi`).
+The items measure five personality traits — Agreeableness (A1–A5),
+Conscientiousness (C1–C5), Extraversion (E1–E5), Neuroticism (N1–N5), and
+Openness (O1–O5) — each on a 6-point Likert scale, in 2,800 participants.
+
+```{r data}
+library(ackwards)
+
+bfi <- na.omit(psych::bfi[, 1:25])
+dim(bfi)
+```
+
+We drop 364 cases with any missing item, leaving n = 2,436. In a real analysis
+you might use pairwise deletion or multiple imputation; `na.omit()` is
+sufficient for this illustration.
+
+## Step 1: How many factors? `suggest_k()`
+
+Before fitting the hierarchy, it helps to have a sense of the plausible range
+of k. `suggest_k()` runs two established selection criteria:
+
+- **Parallel analysis** (Horn, 1965): compares observed eigenvalues against
+  those from random data of the same size and suggests retaining factors whose
+  observed eigenvalues exceed the parallel-analysis threshold.
+- **Velicer's MAP criterion** (Velicer, 1976): examines the average
+  off-diagonal partial correlation after successive factors are extracted;
+  suggests the k at which this average is minimized.
+
+```{r suggest_k}
+sk <- suggest_k(bfi)
+sk
+```
+
+> **What is that warning?** `suggest_k()` detected that the BFI items look
+> ordinal (integer-valued, ≤ 7 distinct values). By default it still uses
+> Pearson correlations, which can underestimate factor loadings for ordinal
+> items. When you move to `ackwards()`, you can address this with
+> `cor = "polychoric"` — we will do that next.
+
+Both criteria agree: k = 5. This matches the instrument design (Big Five) and
+gives us a clear target. The note at the bottom reminds us that k in
+`ackwards()` is an *upper bound* — the hierarchy covers every level from 1 to
+k, so setting k one or two levels higher than the consensus is often
+informative.
+
+## Step 2: Fit the hierarchy `ackwards()`
+
+Now fit the bass-ackwards hierarchy. The most important arguments are:
+
+| Argument | What it controls | Default |
+|----------|-----------------|---------|
+| `k` | Maximum depth of the hierarchy | *(required)* |
+| `method` | Extraction engine: `"pca"`, `"efa"`, or `"esem"` | `"pca"` |
+| `cor` | Correlation type: `"pearson"`, `"spearman"`, `"polychoric"` | `"pearson"` |
+| `rotation` | Rotation criterion (orthogonal CF ≈ varimax) | `"cfT"` |
+
+Because BFI items are ordinal, we use `cor = "polychoric"`. This computes
+polychoric correlations between items before factor extraction, giving a more
+accurate representation of the latent structure.
+
+```{r fit, warning = FALSE}
+x <- ackwards(bfi, k = 5, cor = "polychoric")
+```
+
+No warning this time — specifying `cor = "polychoric"` tells `ackwards()` that
+you have already thought about the measurement scale.
+
+## Step 3: Summarize the result
+
+### High-level summary
+
+`print()` gives a quick overview:
+
+```{r print}
+x
+```
+
+The "Levels" section confirms that all five models converged, and reports the
+cumulative variance explained at each level. Notice that the jump from k = 1 to
+k = 2 is large (22.9% → 34.7%), while later jumps are smaller — characteristic
+of data with a strong general factor and several specific dimensions.
+
+The "Edges" section reports how many of the 40 possible between-level
+connections exceed the display threshold of |r| ≥ 0.3. The 40 comes from
+summing across all adjacent pairs: 1×2 + 2×3 + 3×4 + 4×5 = 2 + 6 + 12 + 20 =
+40.
+
+`glance()` returns the same information as a one-row data frame, convenient for
+comparisons across models:
+
+```{r glance}
+glance(x)
+```
+
+## Step 4: Visualize the hierarchy `autoplot()`
+
+The hierarchy diagram is the centerpiece of the method. Each column represents
+one level (k = 1 on the left, k = 5 on the right). Arrows connect each factor
+to its **primary parent** — the factor at the level above with which it has the
+strongest correlation (|r|). Arrow thickness is proportional to |r|; color shows
+direction (blue = positive, orange = negative by default); solid arrows indicate
+strong connections (|r| ≥ 0.6), dashed arrows show moderate ones (|r| ≥ 0.3).
+
+```{r autoplot, fig.width = 8, fig.height = 5, warning = FALSE}
+autoplot(x)
+```
+
+Reading this diagram from left to right tells the story of the Big Five:
+
+- **k = 1**: One broad factor. Given the polychoric basis, this captures shared
+  variance across all 25 items.
+- **k = 2**: The broad factor splits into two: one that will become
+  Extraversion/Agreeableness/Conscientiousness and one that will become
+  Neuroticism/Openness.
+- **k = 3**: Three factors emerge, with Neuroticism separating out.
+- **k = 4**: Agreeableness and Extraversion begin to differentiate.
+- **k = 5**: The canonical Big Five appear.
+
+The factors are labeled `m{k}f{j}` (level k, factor j). These stable IDs are
+used throughout the object, so `m5f1` at k = 5 refers to the same factor in
+the loadings, the edge table, the factor scores, and the diagram.
+
+### Adjusting the diagram
+
+```{r autoplot-custom, fig.width = 8, fig.height = 5, warning = FALSE}
+# Show only strong connections; relabel the k = 5 factors
+autoplot(x, cut_show = 0.5, cut_strong = 0.7)
+```
+
+See `?autoplot.ackwards` for the full argument list.
+
+## Step 5: Dig into the factors `tidy()`
+
+`tidy()` extracts any component of the result as a tidy data frame. The `what`
+argument controls what is returned.
+
+### Factor loadings
+
+```{r tidy-loadings}
+loadings_df <- tidy(x, what = "loadings")
+head(loadings_df)
+```
+
+Each row is one item at one level for one factor. You can filter to a specific
+level to see what items define each factor. Here are the strongest-loading items
+at k = 5:
+
+```{r top-loadings}
+lv5 <- loadings_df[loadings_df$level == 5, ]
+lv5 <- lv5[order(-abs(lv5$loading)), ]
+lv5[!duplicated(lv5$factor), c("factor", "item", "loading")]
+```
+
+### Between-level edges
+
+```{r tidy-edges}
+edges <- tidy(x, what = "edges")
+# Primary-parent edges sorted by strength
+primary <- edges[edges$is_primary, c("from", "to", "r")]
+primary[order(-abs(primary$r)), ]
+```
+
+`is_primary` marks the strongest-connecting edge for each factor (its primary
+parent). The r values close to 1.0 indicate factors that are nearly identical
+across adjacent levels — a sign of a stable, replicable dimension. Smaller
+values indicate where the structure is reorganizing.
+
+### Variance explained
+
+```{r tidy-variance}
+tidy(x, what = "variance")
+```
+
+Each row is one factor at one level. `variance_pct` is the percentage of total
+item variance explained by that factor; `cumulative_pct` accumulates within a
+level.
+
+## Step 6: Score observations `augment()`
+
+Factor scores place every observation on each factor at every level. They are
+useful for regression, clustering, or any downstream analysis where you want a
+continuous summary of a latent dimension.
+
+`augment(x, data = bfi)` computes scores on the fly from the stored weight
+matrices and appends them to your data frame. The score columns are named
+`.m{k}f{j}` to distinguish them from the original variables.
+
+```{r augment, warning = FALSE}
+scored <- augment(x, data = bfi)
+dim(scored)         # 25 original items + 15 score columns (1+2+3+4+5)
+names(scored)[26:40]
+```
+
+Scores are standardized so that the **model-implied** variance is 1 — meaning
+the scaling comes from the polychoric correlation matrix, not from the raw data.
+In practice the empirical standard deviations will be close to but not exactly 1
+when a non-Pearson basis is used; see `?augment.ackwards` for details. For pure
+PCA on Pearson correlations the model-implied and empirical variances agree
+exactly.
+
+If you need scores repeatedly (e.g., in a cross-validation loop), store them at
+fit time with `scores = TRUE` to avoid re-applying the weight matrices on every
+call:
+
+```{r scores-stored, warning = FALSE}
+x2 <- ackwards(bfi, k = 5, cor = "polychoric", scores = TRUE)
+scored2 <- augment(x2)   # uses stored matrices — no recomputation
+identical(round(scored2$.m5f1, 8), round(scored$.m5f1, 8))
+```
+
+### Using scores for downstream analysis
+
+Because `augment()` returns a plain data frame, the scores slot directly into
+any standard R workflow. As a quick illustration, the k = 5 factor scores should
+be nearly uncorrelated with each other — a consequence of orthogonal rotation —
+while scores across levels should be highly correlated along the primary-parent
+lineage:
+
+```{r downstream, warning = FALSE}
+# Within-level correlations at k = 5: should be near zero (orthogonal rotation)
+k5 <- scored[, grep("^\\.m5", names(scored))]
+round(cor(k5), 2)
+```
+
+```{r downstream2, warning = FALSE}
+# Cross-level: m4f1 is the primary parent of m5f2 and m5f4 (from the edge table)
+round(cor(scored[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]), 2)
+```
+
+The cross-level block confirms lineage: `.m4f1` correlates strongly with
+`.m5f2` and `.m5f4` (the k = 5 factors it spawned) and near-zero with `.m5f1`
+(which descends from a different k = 4 factor). This is a sanity check you can
+run on any result — strong parent–child correlations should appear exactly where
+the `tidy(what = "edges")` table says they should.
+
+## Summary
+
+The bass-ackwards workflow in **ackwards** has six steps:
+
+1. **`suggest_k(data)`** — identify a plausible range for the hierarchy depth.
+2. **`ackwards(data, k, cor = ...)`** — fit the full hierarchy of factor models.
+3. **`print(x)` / `glance(x)`** — check that all levels converged and read the
+   top-level summary.
+4. **`autoplot(x)`** — visualize the hierarchy as a lineage diagram.
+5. **`tidy(x, what = ...)`** — extract loadings, edges, or variance in a form
+   ready for tables or further analysis.
+6. **`augment(x, data = ...)`** — generate factor scores for downstream use.
+
+## Next steps
+
+| Topic | Vignette |
+|-------|---------|
+| When PCA is not enough: comparing EFA and ESEM engines | `vignette("ackwards-engines")` |
+| Ordinal data: polychoric correlations and WLSMV estimation | `vignette("ackwards-ordinal")` |
+| Skip-level connections and pruning with the Forbes extension | `vignette("ackwards-forbes")` |
+
+## References
+
+Goldberg, L. R. (2006). Doing it all bass-ackwards: The development of
+hierarchical factor structures from the top down. *Journal of Research in
+Personality*, *40*(4), 347–358. https://doi.org/10.1016/j.jrp.2006.01.001
+
+Waller, N. G. (2007). A general method for computing hierarchical component
+structures by *Bass-Ackward* factor analysis. *Journal of Research in
+Personality*, *41*(4), 745–752. https://doi.org/10.1016/j.jrp.2006.08.005
+
+Horn, J. L. (1965). A rationale and test for the number of factors in factor
+analysis. *Psychometrika*, *30*(2), 179–185.
+
+Velicer, W. F. (1976). Determining the number of components from the matrix of
+partial correlations. *Psychometrika*, *41*(3), 321–327.

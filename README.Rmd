@@ -1,0 +1,129 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file. -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  fig.path  = "man/figures/README-",
+  out.width = "100%",
+  fig.width = 8,
+  fig.height = 5
+)
+```
+
+# ackwards
+
+> Bass-ackwards hierarchical structural analysis in R
+
+**ackwards** implements Goldberg's (2006) bass-ackwards method and its modern
+extensions for mapping the hierarchical structure of multivariate data.
+
+The core insight is simple: instead of asking *how many* factors best describe
+your data, ask *how the solutions at different levels of resolution are related
+to one another*. A 1-factor solution captures the broadest shared variance; a
+5-factor solution captures narrower, more specific dimensions. Bass-ackwards
+analysis traces how broad factors split into narrow ones — and which narrow
+factors are redundant re-combinations of broader ones.
+
+The package supports three extraction engines (PCA, EFA, ESEM), polychoric
+correlations for ordinal data, and Forbes's (2023) extension that reveals
+skip-level connections and flags redundant or artefactual factors.
+
+## Installation
+
+```{r install, eval = FALSE}
+# install.packages("pak")
+pak::pak("jmgirard/ackwards")
+```
+
+## Quick start
+
+We use the 25-item Big Five Inventory (`psych::bfi`) as a running example.
+Because BFI items are recorded on a 6-point ordinal scale, we set
+`cor = "polychoric"`.
+
+### Step 1 — Suggest a range of k
+
+`suggest_k()` runs parallel analysis and Velicer's MAP criterion to help you
+choose an upper bound for the hierarchy depth.
+
+```{r suggest, message = FALSE}
+library(ackwards)
+
+bfi <- na.omit(psych::bfi[, 1:25])
+sk  <- suppressWarnings(suggest_k(bfi))
+sk
+```
+
+Both criteria agree: k = 5 fits the known Big Five structure of this
+instrument.
+
+### Step 2 — Fit the hierarchy
+
+`ackwards()` fits factor models at every level from 1 to k and computes the
+between-level factor-score correlations that define the hierarchy.
+
+```{r fit, message = FALSE, warning = FALSE}
+x <- ackwards(bfi, k = 5, cor = "polychoric")
+x
+```
+
+### Step 3 — Visualize
+
+`autoplot()` draws the hierarchical diagram. Each column is a level (k = 1 at
+left, k = 5 at right); arrows show which narrow factors inherit from which
+broad factor. Solid arrows indicate strong connections (|r| ≥ 0.6 by default);
+dashed arrows show weaker ones.
+
+```{r plot, message = FALSE, warning = FALSE, dev = "png", dpi = 150}
+autoplot(x)
+```
+
+The five-factor level cleanly splits into the Big Five. The single broad factor
+at k = 1 (roughly *general positive character*) differentiates first into
+positive vs. negative affect (k = 2), then into successively narrower traits.
+
+### Step 4 — Inspect and score
+
+`tidy()` extracts any part of the object into a tidy data frame; `augment()`
+appends factor scores to your data for downstream analysis.
+
+```{r tidy}
+# Five strongest adjacent-level edges
+edges <- tidy(x, what = "edges")
+edges <- edges[order(-abs(edges$r)), ]
+head(edges[edges$is_primary, c("from", "to", "r")], 8)
+```
+
+```{r augment}
+# Append scores for all 5 levels to the original data frame
+scored <- augment(x, data = bfi)
+dim(scored)   # original 25 items + 1+2+3+4+5 = 15 score columns
+names(scored)[26:40]
+```
+
+## Learn more
+
+| Vignette | Topic |
+|----------|-------|
+| [Introduction](vignettes/ackwards-intro.Rmd) | Full PCA walkthrough: `suggest_k` → `ackwards` → inspect → plot → score |
+| Engines & rotation *(coming soon)* | When to choose EFA or ESEM over PCA |
+| Ordinal data *(coming soon)* | Polychoric correlations and WLSMV estimation |
+| Forbes extension *(coming soon)* | Skip-level edges, redundancy pruning, `pairs = "all"` |
+
+## Citation
+
+If you use **ackwards** in your research, please cite both the method and the
+package:
+
+Goldberg, L. R. (2006). Doing it all bass-ackwards: The development of
+hierarchical factor structures from the top down. *Journal of Research in
+Personality*, *40*(4), 347–358. https://doi.org/10.1016/j.jrp.2006.01.001
+
+```{r citation, eval = FALSE}
+citation("ackwards")
+```
