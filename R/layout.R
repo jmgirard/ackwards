@@ -1,20 +1,25 @@
 #' Compute a layered layout for a bass-ackwards diagram
 #'
 #' Returns tidy node coordinates and the edge table needed to render a
-#' bass-ackwards diagram. The layout is a **layered DAG** (not a tree): level
-#' 1 (one factor) sits at the top; level k (k factors) at the bottom. Horizontal
-#' positions are computed with a barycenter heuristic so that each factor is
-#' placed near the weighted average x-position of its parents in the level above,
-#' with weights proportional to |r|. Siblings that would overlap are spread
-#' symmetrically while preserving their order.
+#' bass-ackwards diagram. The layout uses a two-pass barycenter algorithm:
 #'
-#' The returned coordinates have no inherent unit. Pass the result to
-#' [autoplot.ackwards()] for rendering, or use `$nodes` and `$edges` directly
-#' with any graphics system.
+#' 1. **Top-down pass** -- determines the left-to-right *order* of factors at
+#'    each level. Each factor's ordinal rank is the |r|-weighted mean of its
+#'    parents' ranks in the level above, so siblings that share a parent are
+#'    grouped together.
+#'
+#' 2. **Bottom-up pass** -- assigns actual x coordinates. The deepest level
+#'    (level k) is spread evenly; every upper-level factor is placed at the
+#'    |r|-weighted mean x of its *children* in the level below. This ensures
+#'    parents sit directly above (or between) their children rather than merely
+#'    near them.
+#'
+#' After both passes the layout is shifted so that the single level-1 node is
+#' always at x = 0.
 #'
 #' @param x An `ackwards` object.
 #' @param min_sep Minimum horizontal separation between adjacent nodes at the
-#'   same level. Default `1.0`.
+#'   same level. Default `1.0`. Increase for wider diagrams.
 #'
 #' @return A list with two data frames:
 #'   \item{nodes}{One row per factor: `id`, `level`, `x`, `y`, `label`.
@@ -40,30 +45,66 @@ ba_layout <- function(x, min_sep = 1.0) {
   levels_lst <- x$levels
   tidy_edges <- x$edges$tidy
 
-  # Accumulate x-positions as a named numeric per level
-  node_x <- vector("list", K)
-  names(node_x) <- as.character(seq_len(K))
-
-  # Level 1: single node anchored at x = 0
-  node_x[["1"]] <- stats::setNames(0, levels_lst[["1"]]$labels)
+  # --- Pass 1: Top-down -- determine ordinal order at each level --------------
+  # For each level k, rank factors by the |r|-weighted mean of their parents'
+  # ranks. This groups siblings together and minimises crossings.
+  ordinals        <- vector("list", K)
+  names(ordinals) <- as.character(seq_len(K))
+  ordinals[["1"]] <- stats::setNames(1L, levels_lst[["1"]]$labels)
 
   for (k in seq(2L, K)) {
-    labs_k   <- levels_lst[[as.character(k)]]$labels
-    x_km1    <- node_x[[as.character(k - 1L)]]
+    labs_k      <- levels_lst[[as.character(k)]]$labels
+    parent_ords <- ordinals[[as.character(k - 1L)]]
 
-    # Edges from level k-1 to level k
     ep <- tidy_edges[
       tidy_edges$level_from == k - 1L & tidy_edges$level_to == k, ,
       drop = FALSE
     ]
 
-    # Barycenter: weighted-mean x of parents, weights = |r|
     bary <- vapply(labs_k, function(lab) {
       pe <- ep[ep$to == lab, , drop = FALSE]
-      if (nrow(pe) == 0L) return(mean(x_km1))
-      w <- abs(pe$r)
-      if (sum(w) == 0) return(mean(x_km1))
-      sum(w * x_km1[pe$from]) / sum(w)
+      w  <- abs(pe$r)
+      if (nrow(pe) == 0L || sum(w) == 0) return(mean(as.numeric(parent_ords)))
+      sum(w * parent_ords[pe$from]) / sum(w)
+    }, numeric(1L))
+
+    ordinals[[as.character(k)]] <- stats::setNames(
+      rank(bary, ties.method = "first"),
+      labs_k
+    )
+  }
+
+  # --- Pass 2: Bottom-up -- assign x coordinates ----------------------------
+  # The deepest level is evenly spread; every upper-level factor is placed at
+  # the |r|-weighted mean of its children's x positions so parents sit directly
+  # above (or centred between) their children.
+  node_x        <- vector("list", K)
+  names(node_x) <- as.character(seq_len(K))
+
+  # Level K: evenly spaced by ordinal rank, centred at 0
+  labs_K  <- levels_lst[[as.character(K)]]$labels
+  ords_K  <- ordinals[[as.character(K)]]
+  center  <- (K + 1) / 2
+  node_x[[as.character(K)]] <- stats::setNames(
+    (ords_K[labs_K] - center) * min_sep,
+    labs_K
+  )
+
+  # Levels K-1 down to 1: barycenter of children, then spread to prevent overlap
+  for (k in seq(K - 1L, 1L)) {
+    labs_k  <- levels_lst[[as.character(k)]]$labels
+    x_below <- node_x[[as.character(k + 1L)]]
+
+    ep <- tidy_edges[
+      tidy_edges$level_from == k & tidy_edges$level_to == k + 1L, ,
+      drop = FALSE
+    ]
+
+    bary <- vapply(labs_k, function(lab) {
+      ce <- ep[ep$from == lab, , drop = FALSE]   # edges to children
+      w  <- abs(ce$r)
+      if (nrow(ce) == 0L || sum(w) == 0) return(mean(x_below))
+      sum(w * x_below[ce$to]) / sum(w)
     }, numeric(1L))
 
     node_x[[as.character(k)]] <- stats::setNames(
@@ -72,7 +113,11 @@ ba_layout <- function(x, min_sep = 1.0) {
     )
   }
 
-  # Build nodes data frame
+  # --- Global shift: level-1 node is always at x = 0 -------------------------
+  offset <- node_x[["1"]][[1L]]
+  node_x <- lapply(node_x, function(xs) xs - offset)
+
+  # --- Build nodes data frame -------------------------------------------------
   nodes <- do.call(rbind, lapply(seq_len(K), function(k) {
     labs <- levels_lst[[as.character(k)]]$labels
     xs   <- node_x[[as.character(k)]]
@@ -100,15 +145,15 @@ ba_layout <- function(x, min_sep = 1.0) {
   ord <- order(bary)
   p   <- bary[ord]
 
-  # Forward pass: push right if too close
+  # Forward pass: push right to enforce min_sep
   for (i in seq(2L, n)) {
     if (p[i] - p[i - 1L] < min_sep) p[i] <- p[i - 1L] + min_sep
   }
 
-  # Re-centre around the original weighted mean so parents stay central
+  # Re-centre so the group doesn't drift from its natural barycenter
   p <- p - mean(p) + bary_mean
 
-  result       <- numeric(n)
-  result[ord]  <- p
+  result      <- numeric(n)
+  result[ord] <- p
   result
 }

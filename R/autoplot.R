@@ -1,3 +1,19 @@
+#' @title autoplot generic
+#'
+#' @description
+#' Create ggplot2-based visualisations from model objects.
+#'
+#' This generic is defined in \pkg{ackwards} so that [autoplot.ackwards()] is
+#' available without requiring `library(ggplot2)`. When \pkg{ggplot2} is also
+#' loaded its own `autoplot` generic takes over in the search path, but S3
+#' dispatch still finds `autoplot.ackwards` correctly via either route.
+#'
+#' @param object An object to visualise.
+#' @param ... Additional arguments passed to methods.
+#' @return A `ggplot` object.
+#' @export
+autoplot <- function(object, ...) UseMethod("autoplot")
+
 #' Plot a bass-ackwards diagram
 #'
 #' Renders the layered bass-ackwards hierarchy as a ggplot2 diagram. Factors
@@ -34,7 +50,7 @@
 #' }
 #'
 #' @importFrom rlang .data `%||%`
-#' @exportS3Method ggplot2::autoplot
+#' @export
 autoplot.ackwards <- function(
     object,
     cut_show    = NULL,

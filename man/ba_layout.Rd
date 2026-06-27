@@ -10,7 +10,7 @@ ba_layout(x, min_sep = 1)
 \item{x}{An \code{ackwards} object.}
 
 \item{min_sep}{Minimum horizontal separation between adjacent nodes at the
-same level. Default \code{1.0}.}
+same level. Default \code{1.0}. Increase for wider diagrams.}
 }
 \value{
 A list with two data frames:
@@ -20,17 +20,23 @@ A list with two data frames:
 }
 \description{
 Returns tidy node coordinates and the edge table needed to render a
-bass-ackwards diagram. The layout is a \strong{layered DAG} (not a tree): level
-1 (one factor) sits at the top; level k (k factors) at the bottom. Horizontal
-positions are computed with a barycenter heuristic so that each factor is
-placed near the weighted average x-position of its parents in the level above,
-with weights proportional to |r|. Siblings that would overlap are spread
-symmetrically while preserving their order.
+bass-ackwards diagram. The layout uses a two-pass barycenter algorithm:
 }
 \details{
-The returned coordinates have no inherent unit. Pass the result to
-\code{\link[=autoplot.ackwards]{autoplot.ackwards()}} for rendering, or use \verb{$nodes} and \verb{$edges} directly
-with any graphics system.
+\enumerate{
+\item \strong{Top-down pass} -- determines the left-to-right \emph{order} of factors at
+each level. Each factor's ordinal rank is the |r|-weighted mean of its
+parents' ranks in the level above, so siblings that share a parent are
+grouped together.
+\item \strong{Bottom-up pass} -- assigns actual x coordinates. The deepest level
+(level k) is spread evenly; every upper-level factor is placed at the
+|r|-weighted mean x of its \emph{children} in the level below. This ensures
+parents sit directly above (or between) their children rather than merely
+near them.
+}
+
+After both passes the layout is shifted so that the single level-1 node is
+always at x = 0.
 }
 \examples{
 \dontrun{
