@@ -132,9 +132,10 @@ efa_levels <- function(R, k_max, rotation, fm, n_obs, cor_type = "pearson") {
     )
 
     result[[as.character(k)]] <- list(
-      k          = k,
-      loadings   = L_rot,
-      variance   = variance,
+      k           = k,
+      loadings    = L_rot,
+      loadings_se = NULL,      # EFA (psych::fa) does not produce rotation-aware SEs
+      variance    = variance,
       fit        = fit_info,
       converged  = TRUE,
       factor_cor = diag(k),        # orthogonal: I_k

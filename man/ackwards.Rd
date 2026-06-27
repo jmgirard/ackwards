@@ -12,6 +12,7 @@ ackwards(
   kappa = NULL,
   cor = "pearson",
   fm = "minres",
+  estimator = NULL,
   align = TRUE,
   scores = FALSE,
   keep_fits = FALSE,
@@ -31,8 +32,10 @@ be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.}
 \code{suggest_k()} (future release) if uncertain. Sets the depth of the
 hierarchy: levels 1 through \code{k} are all extracted.}
 
-\item{method}{Extraction engine: \code{"pca"} (default) or \code{"efa"}.
-\code{"esem"} is planned for a later milestone.}
+\item{method}{Extraction engine: \code{"pca"} (default), \code{"efa"}, or \code{"esem"}.
+\code{"esem"} uses \code{\link[lavaan:efa]{lavaan::efa()}} with rotation-aware SEs and per-level fit
+indices; recommended for the clinical/HiTOP workflow (Kim & Eaton, 2015;
+Forbush et al., 2024). Requires lavaan >= 0.6-13.}
 
 \item{rotation}{Rotation family: \code{"cfT"} (orthogonal CF, default) or
 \code{"cfQ"} (oblique CF). Oblique is theoretically appropriate when
@@ -40,16 +43,25 @@ within-level construct correlations matter, but complicates cross-level
 edge interpretation. See DESIGN.md §9.}
 
 \item{kappa}{CF rotation kappa parameter. \code{NULL} (default) uses
-\code{1 / (2 * p)} where \code{p} is the number of variables — the value that
-reproduces varimax for orthogonal rotation.}
+\code{1 / p} where \code{p} is the number of variables — the value that
+reproduces varimax for orthogonal rotation (Crawford & Ferguson, 1970;
+Browne, 2001; Kim & Eaton, 2015).}
 
-\item{cor}{Correlation basis: \code{"pearson"} (default) or \code{"spearman"}. A
-\code{"polychoric"} option is planned.}
+\item{cor}{Correlation basis: \code{"pearson"} (default), \code{"spearman"}, or
+\code{"polychoric"}. For PCA/EFA, \code{"polychoric"} computes a polychoric
+correlation matrix via \code{psych::polychoric()} (requires psych). For ESEM,
+it triggers WLSMV estimation via lavaan. A cli warning is emitted when
+ordinal-looking columns are detected and \code{cor} is not \code{"polychoric"}.}
 
 \item{fm}{Factor extraction method passed to \code{\link[psych:fa]{psych::fa()}}; only used when
 \code{method = "efa"}. One of \code{"minres"} (default, robust OLS), \code{"ml"}
 (maximum likelihood, gives chi-square fit but converges less reliably at
 deep levels), or \code{"pa"} (principal axis). Ignored for \code{method = "pca"}.}
+
+\item{estimator}{Estimation method for the ESEM engine. \code{NULL} (default)
+auto-selects: \code{"WLSMV"} when \code{cor = "polychoric"}, \code{"ML"} otherwise.
+Pass explicitly to override (e.g., \code{estimator = "ULSMV"}). Ignored for
+PCA and EFA engines.}
 
 \item{align}{Logical; sign-align factors to primary-parent lineage?
 Default \code{TRUE}.}

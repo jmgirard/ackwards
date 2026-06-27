@@ -66,9 +66,10 @@ pca_levels <- function(R, k_max, rotation, cor_type = "pearson") {
     fit_info <- setNames(eig, paste0("eigenvalue.", make_labels(k)))
 
     result[[as.character(k)]] <- list(
-      k          = k,
-      loadings   = L_rot,
-      variance   = variance,
+      k           = k,
+      loadings    = L_rot,
+      loadings_se = NULL,      # PCA does not produce rotation-aware SEs
+      variance    = variance,
       fit        = fit_info,
       converged  = TRUE,
       factor_cor = diag(k),    # orthogonal: identity

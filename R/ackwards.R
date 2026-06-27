@@ -29,8 +29,10 @@
 #' @param k Maximum number of factors/components. Required; use
 #'   `suggest_k()` (future release) if uncertain. Sets the depth of the
 #'   hierarchy: levels 1 through `k` are all extracted.
-#' @param method Extraction engine: `"pca"` (default) or `"efa"`.
-#'   `"esem"` is planned for a later milestone.
+#' @param method Extraction engine: `"pca"` (default), `"efa"`, or `"esem"`.
+#'   `"esem"` uses [lavaan::efa()] with rotation-aware SEs and per-level fit
+#'   indices; recommended for the clinical/HiTOP workflow (Kim & Eaton, 2015;
+#'   Forbush et al., 2024). Requires lavaan >= 0.6-13.
 #' @param rotation Rotation family: `"cfT"` (orthogonal CF, default) or
 #'   `"cfQ"` (oblique CF). Oblique is theoretically appropriate when
 #'   within-level construct correlations matter, but complicates cross-level
@@ -43,8 +45,15 @@
 #'   `1 / p` where `p` is the number of variables — the value that
 #'   reproduces varimax for orthogonal rotation (Crawford & Ferguson, 1970;
 #'   Browne, 2001; Kim & Eaton, 2015).
-#' @param cor Correlation basis: `"pearson"` (default) or `"spearman"`. A
-#'   `"polychoric"` option is planned.
+#' @param cor Correlation basis: `"pearson"` (default), `"spearman"`, or
+#'   `"polychoric"`. For PCA/EFA, `"polychoric"` computes a polychoric
+#'   correlation matrix via `psych::polychoric()` (requires psych). For ESEM,
+#'   it triggers WLSMV estimation via lavaan. A cli warning is emitted when
+#'   ordinal-looking columns are detected and `cor` is not `"polychoric"`.
+#' @param estimator Estimation method for the ESEM engine. `NULL` (default)
+#'   auto-selects: `"WLSMV"` when `cor = "polychoric"`, `"ML"` otherwise.
+#'   Pass explicitly to override (e.g., `estimator = "ULSMV"`). Ignored for
+#'   PCA and EFA engines.
 #' @param align Logical; sign-align factors to primary-parent lineage?
 #'   Default `TRUE`.
 #' @param scores Logical; store factor scores in the result? Default `FALSE`
@@ -86,6 +95,7 @@ ackwards <- function(
     kappa     = NULL,
     cor       = "pearson",
     fm        = "minres",
+    estimator = NULL,
     align     = TRUE,
     scores    = FALSE,
     keep_fits = FALSE,
@@ -95,10 +105,13 @@ ackwards <- function(
   cl <- match.call()
 
   # --- Input validation -------------------------------------------------------
-  method   <- rlang::arg_match(method,   c("pca", "efa"))
+  method   <- rlang::arg_match(method,   c("pca", "efa", "esem"))
   rotation <- rlang::arg_match(rotation, c("cfT", "cfQ"))
   fm       <- rlang::arg_match(fm,       c("minres", "ml", "pa"))
-  cor      <- rlang::arg_match(cor,      c("pearson", "spearman"))
+  cor      <- rlang::arg_match(cor,      c("pearson", "spearman", "polychoric"))
+  if (!is.null(estimator)) {
+    estimator <- rlang::arg_match(estimator, c("ML", "MLR", "WLSMV", "ULSMV"))
+  }
 
   if (!is.numeric(k) || length(k) != 1L || k < 2L || k != as.integer(k)) {
     cli::cli_abort("{.arg k} must be an integer >= 2 (need at least two levels for a hierarchy).")
@@ -121,13 +134,14 @@ ackwards <- function(
   }
 
   # --- Ordinal-detection warning (DESIGN.md §9, Invariant 6) -----------------
-  if (detect_ordinal(as.data.frame(data_mat))) {
+  # Only warn when the user has NOT already opted into the polychoric basis.
+  if (detect_ordinal(as.data.frame(data_mat)) && cor != "polychoric") {
     cli::cli_warn(
       c(
         "!" = "One or more columns look like ordinal/Likert items \\
                ({cli::symbol$ellipsis} {.val <= 7} distinct integer values).",
-        "i" = "Results use a Pearson basis. Consider {.code cor = \"polychoric\"} \\
-               for ordinal data (available in a future release)."
+        "i" = "Results use a {.val {cor}} basis. Consider \\
+               {.code cor = \"polychoric\"} for ordinal data."
       ),
       .frequency = "once",
       .frequency_id = "ackwards_ordinal_warning"
@@ -162,17 +176,70 @@ ackwards <- function(
   # --- Seed capture -----------------------------------------------------------
   if (!is.null(seed)) set.seed(seed)
 
-  # --- Compute correlation matrix ---------------------------------------------
-  R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
+  # --- Compute correlation matrix + extract levels ----------------------------
+  # ESEM: lavaan owns R computation for polychoric (WLSMV uses its own polychoric
+  # matrix internally); for continuous paths we pre-compute R and pass it through.
+  # PCA/EFA: always compute R here and pass to the engine.
+  if (method == "esem") {
+    R_ext <- if (cor != "polychoric") {
+      stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
+    } else {
+      NULL
+    }
+    estimator_eff <- if (!is.null(estimator)) {
+      estimator
+    } else if (cor == "polychoric") {
+      "WLSMV"
+    } else {
+      "ML"
+    }
+    esem_out    <- esem_levels(data_mat, k_max = k, rotation = rotation,
+                               estimator = estimator_eff, cor_type = cor,
+                               n_obs = n_obs, R_external = R_ext)
+    levels_list <- esem_out$levels
+    R           <- esem_out$r_lv
+    if (is.null(R)) R <- R_ext
+    if (is.null(R)) {
+      R <- stats::cor(data_mat, method = "pearson", use = "pairwise.complete.obs")
+    }
+  } else {
+    # PCA / EFA: compute R then dispatch
+    if (cor == "polychoric") {
+      rlang::check_installed("psych", reason = "for polychoric correlations")
+      poly_out <- tryCatch(
+        psych::polychoric(data_mat),
+        error = function(e) cli::cli_abort(
+          c(
+            "!" = "{.fn psych::polychoric} failed: {conditionMessage(e)}",
+            "i" = "Check that your data contains integer-like columns with few \\
+                   distinct values, or use {.code cor = \"pearson\"}."
+          )
+        )
+      )
+      R <- poly_out$rho
+      # Guard against non-positive-definite polychoric matrices (DESIGN.md §14 remaining)
+      min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
+      if (min_eig <= 0) {
+        cli::cli_warn(
+          c(
+            "!" = "Polychoric correlation matrix is not positive definite \\
+                   (min eigenvalue = {round(min_eig, 4)}).",
+            "i" = "Applying smoothing via {.fn psych::cor.smooth}."
+          )
+        )
+        R <- psych::cor.smooth(R)
+      }
+    } else {
+      R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
+    }
+    levels_list <- switch(method,
+      pca = pca_levels(R, k_max = k, rotation = rotation, cor_type = cor),
+      efa = efa_levels(R, k_max = k, rotation = rotation, fm = fm, n_obs = n_obs,
+                       cor_type = cor)
+    )
+  }
 
-  # --- Extract levels ---------------------------------------------------------
-  levels_list <- switch(method,
-    pca = pca_levels(R, k_max = k, rotation = rotation, cor_type = cor),
-    efa = efa_levels(R, k_max = k, rotation = rotation, fm = fm, n_obs = n_obs,
-                     cor_type = cor)
-  )
-
-  # --- Handle convergence truncation (EFA only in M3; PCA never truncates) ---
+  # --- Handle convergence truncation (PCA never truncates; EFA/ESEM may) -----
   k_eff <- length(levels_list)
   if (k_eff < 2L) {
     cli::cli_abort(

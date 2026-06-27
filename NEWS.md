@@ -1,5 +1,20 @@
 # ackwards 0.0.0.9000 (dev)
 
+* Added ESEM engine (`method = "esem"`) using `lavaan::efa()` (requires lavaan
+  >= 0.6-13) with WLSMV ordinal estimation, rotation-aware SEs in `loadings_se`,
+  and per-level fit indices (CFI, TLI, RMSEA, SRMR). Self-computed tenBerge
+  weights keep `compute_edges()` on the algebra path for ESEM as for EFA.
+* Added `cor = "polychoric"` as a general basis option for all three engines.
+  PCA/EFA use `psych::polychoric()` with NPD smoothing; ESEM uses lavaan's own
+  polychoric matrix (extracted from WLSMV sampstat) to ensure consistency with
+  the fitted model.
+* Added `estimator` argument for the ESEM engine (`NULL` auto-selects `"WLSMV"`
+  for `cor = "polychoric"`, `"ML"` otherwise; user-overridable).
+* Added `loadings_se` field to the §4 level contract (p × k matrix; `NULL` for
+  PCA and EFA engines that do not produce rotation-aware SEs).
+* Updated ordinal-detection warning: no longer fires when `cor = "polychoric"`
+  is already set; message updated to remove "future release" language.
+
 * Added EFA engine (`method = "efa"`) using `psych::fa()` with tenBerge scoring weights,
   keeping the W'RW algebra path in `compute_edges()`. Convergence failures truncate the
   hierarchy at the deepest converged level (warn + valid object). Heywood cases warn but
