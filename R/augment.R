@@ -1,3 +1,7 @@
+#' @importFrom generics augment
+#' @export
+generics::augment
+
 #' Augment data with factor scores from an ackwards object
 #'
 #' Appends per-observation factor scores for every level to a data frame.
@@ -40,11 +44,32 @@
 #' scores_df2 <- augment(x2)
 #' }
 #'
-#' @importFrom generics augment
 #' @export
 augment.ackwards <- function(x, data = NULL, ...) {
   scores_list <- if (!is.null(data)) {
-    .compute_scores(x$levels, as.matrix(data))
+    data_mat <- as.matrix(data)
+    W_ref <- x$levels[[1L]]$scoring$weights
+    p_expected <- nrow(W_ref)
+    vars_expected <- rownames(W_ref)
+    if (!is.null(vars_expected) && !is.null(colnames(data_mat))) {
+      missing_vars <- setdiff(vars_expected, colnames(data_mat))
+      if (length(missing_vars) > 0L) {
+        cli::cli_abort(c(
+          "!" = "{.arg data} is missing {length(missing_vars)} variable{?s} \\
+                 that the model was fit on.",
+          "x" = "Missing: {.val {missing_vars}}"
+        ))
+      }
+      data_mat <- data_mat[, vars_expected, drop = FALSE]
+    } else if (ncol(data_mat) != p_expected) {
+      cli::cli_abort(c(
+        "!" = "{.arg data} has {ncol(data_mat)} column{?s} but the model \\
+               was fit on {p_expected}.",
+        "i" = "Supply a data frame with the same {p_expected} variables \\
+               used at fit time (or with matching column names)."
+      ))
+    }
+    .compute_scores(x$levels, data_mat)
   } else if (!is.null(x$scores)) {
     x$scores
   } else {

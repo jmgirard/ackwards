@@ -191,3 +191,110 @@ test_that("tidy(x, what='scores') errors informatively when no scores stored", {
   x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k = 2))
   expect_error(tidy(x, what = "scores"), "not stored")
 })
+
+# ── B1: Engine coverage for scores and keep_fits ──────────────────────────────
+
+test_that("EFA scores = TRUE stores correctly shaped matrices", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  d <- as.data.frame(matrix(rnorm(300 * 6), 300, 6))
+  x <- suppressWarnings(ackwards(d, k = 3, method = "efa", scores = TRUE))
+  expect_false(is.null(x$scores))
+  expect_named(x$scores, c("1", "2", "3"))
+  for (ki in 1:3) {
+    expect_equal(nrow(x$scores[[as.character(ki)]]), 300L,
+      label = paste("EFA score nrow at level", ki)
+    )
+    expect_equal(ncol(x$scores[[as.character(ki)]]), ki,
+      label = paste("EFA score ncol at level", ki)
+    )
+  }
+})
+
+test_that("EFA keep_fits = TRUE stores psych objects for all levels", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  d <- as.data.frame(matrix(rnorm(300 * 6), 300, 6))
+  x <- suppressWarnings(ackwards(d, k = 2, method = "efa", keep_fits = TRUE))
+  expect_false(is.null(x$fits))
+  expect_named(x$fits, c("1", "2"))
+  for (ki in names(x$fits)) {
+    expect_true(inherits(x$fits[[ki]], "psych"),
+      label = paste("EFA psych object at level", ki)
+    )
+  }
+})
+
+test_that("ESEM scores = TRUE stores correctly shaped matrices", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x <- ackwards(d, k = 3, method = "esem", scores = TRUE))
+  expect_false(is.null(x$scores))
+  expect_named(x$scores, c("1", "2", "3"))
+  for (ki in 1:3) {
+    expect_equal(nrow(x$scores[[as.character(ki)]]), nrow(d),
+      label = paste("ESEM score nrow at level", ki)
+    )
+    expect_equal(ncol(x$scores[[as.character(ki)]]), ki,
+      label = paste("ESEM score ncol at level", ki)
+    )
+  }
+})
+
+test_that("ESEM keep_fits = TRUE stores lavaan objects for all levels", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x <- ackwards(d, k = 2, method = "esem", keep_fits = TRUE))
+  expect_false(is.null(x$fits))
+  expect_named(x$fits, c("1", "2"))
+  for (ki in names(x$fits)) {
+    expect_true(inherits(x$fits[[ki]], "lavaan"),
+      label = paste("ESEM lavaan object at level", ki)
+    )
+  }
+})
+
+# ── B3: Truncation — scores only cover converged levels ───────────────────────
+
+test_that("scores = TRUE only covers converged levels when model is truncated", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  # 6 variables → lavaan::efa() can only fit k <= 3; k = 5 triggers truncation
+  suppressWarnings(x <- ackwards(d, k = 5, method = "esem", scores = TRUE))
+  expect_equal(x$k_max, 3L)
+  expect_false(is.null(x$scores))
+  expect_named(x$scores, c("1", "2", "3"))
+  expect_false("4" %in% names(x$scores))
+  expect_false("5" %in% names(x$scores))
+})
+
+# ── B5: augment() column validation ──────────────────────────────────────────
+
+test_that("augment(x, data) errors when data has wrong column count (unnamed)", {
+  skip_if_not_installed("psych")
+  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k = 2))
+  # Use a plain matrix (no colnames) with wrong column count → dimension path
+  d_wrong <- matrix(rnorm(100 * 5), 100, 5)
+  expect_error(augment(x, data = d_wrong), "5.*column|column.*5")
+})
+
+test_that("augment(x, data) errors when named data is missing expected columns", {
+  skip_if_not_installed("psych")
+  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k = 2))
+  # Supply only 20 of the 25 named BFI columns
+  d_missing <- psych::bfi[1:50, 1:20]
+  expect_error(augment(x, data = d_missing), "[Mm]issing")
+})
+
+test_that("augment(x, data) works when data has extra named columns (supersets)", {
+  skip_if_not_installed("psych")
+  bfi_items <- psych::bfi[1:50, 1:25]
+  x <- suppressWarnings(ackwards(bfi_items, k = 2))
+  # Add an extra column not in the model
+  d_extra <- cbind(bfi_items, extra = rnorm(50))
+  out <- augment(x, data = d_extra)
+  expect_s3_class(out, "data.frame")
+  expect_equal(nrow(out), 50L)
+  expect_true("extra" %in% names(out))
+  expect_true(".m1f1" %in% names(out))
+})

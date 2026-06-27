@@ -83,7 +83,26 @@ flip_weights <- function(W, sign_vec) {
 # S_k = Z W_k, then each column divided by sqrt(score_var_k) (Invariant 1:
 # standardize by real score SDs, never assume unit variance).
 # Returns a named list (by level character key) of n × k_j matrices.
+#
+# Pearson basis: scale() gives Pearson z-scores, so W'RW computed on the
+# Pearson R matches and empirical score variance = model-implied = 1.
+# Non-Pearson basis (polychoric, Spearman): scale() still uses Pearson
+# standardization, but score_var comes from the non-Pearson R. Empirical score
+# SDs will differ from 1.0; a warning is issued to alert the user.
 .compute_scores <- function(levels_list, data_mat) {
+  bases <- unique(vapply(levels_list, function(lev) lev$scoring$basis, character(1L)))
+  if (!all(bases == "pearson")) {
+    non_pearson <- bases[bases != "pearson"]
+    cli::cli_warn(c(
+      "!" = "Factor scores are standardized using model-implied SDs from a \\
+             {.val {non_pearson}} correlation matrix.",
+      "i" = "The raw projection uses {.code scale(data)} (Pearson z-scores), \\
+             but {.code score_var} comes from the {.val {non_pearson}} R.",
+      "i" = "Empirical score SDs will differ from 1.0. \\
+             For non-Pearson analyses, between-level edges from \\
+             {.fn tidy} are the authoritative associations."
+    ))
+  }
   Z <- scale(data_mat)
   scores <- lapply(names(levels_list), function(ki) {
     lev <- levels_list[[ki]]

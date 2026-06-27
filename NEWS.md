@@ -1,5 +1,21 @@
 # ackwards 0.0.0.9000 (dev)
 
+## Milestone 6 post-review fixes
+
+* `augment(x, data=)` now validates column names/count before projecting.
+  Named data: errors if any model variable is missing; silently subsets extra
+  columns (so passing the full dataset works when the model used a subset).
+  Unnamed data (bare matrix): errors if column count doesn't match.
+* `.compute_scores()` now warns when the scoring basis is non-Pearson
+  (polychoric/Spearman): empirical score SDs will differ from 1.0 because
+  the raw projection uses Pearson z-scores while `score_var` comes from the
+  model's non-Pearson R (Invariant 6).
+* `tidy()`, `glance()`, and `augment()` are now re-exported from `generics`
+  so they work after `library(ackwards)` without also loading `broom` or
+  `generics` (consistent with `autoplot()`).
+* Tests added: EFA/ESEM scores+fits coverage (B1), scores truncation for
+  k_eff < k (B3), three augment column-validation tests (B5). 526 total.
+
 ## Milestone 6 — Storage materialization + cfQ cleanup
 
 * `scores = TRUE` in `ackwards()` now stores factor scores in `x$scores` as a

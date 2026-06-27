@@ -1,3 +1,11 @@
+#' @importFrom generics tidy
+#' @export
+generics::tidy
+
+#' @importFrom generics glance
+#' @export
+generics::glance
+
 #' Tidy an ackwards object into a long data frame
 #'
 #' Returns structured data from an `ackwards` object in tidy format. The
@@ -27,7 +35,6 @@
 #'
 #' @seealso [glance.ackwards()], [print.ackwards()]
 #'
-#' @importFrom generics tidy
 #' @export
 tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit", "nodes", "scores"), ...) {
   what <- match.arg(what)
@@ -154,7 +161,6 @@ tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit", "n
 #'
 #' @seealso [tidy.ackwards()], [print.ackwards()]
 #'
-#' @importFrom generics glance
 #' @export
 glance.ackwards <- function(x, ...) {
   data.frame(
