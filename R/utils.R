@@ -78,6 +78,27 @@ flip_weights <- function(W, sign_vec) {
   sweep(W, 2, sign_vec, "*")
 }
 
+# Materialize per-observation factor scores for all levels.
+# Z = scale(data_mat): standardizes observed items by their sample mean/SD.
+# S_k = Z W_k, then each column divided by sqrt(score_var_k) (Invariant 1:
+# standardize by real score SDs, never assume unit variance).
+# Returns a named list (by level character key) of n × k_j matrices.
+.compute_scores <- function(levels_list, data_mat) {
+  Z <- scale(data_mat)
+  scores <- lapply(names(levels_list), function(ki) {
+    lev <- levels_list[[ki]]
+    W <- lev$scoring$weights
+    score_var <- lev$scoring$score_var
+    S <- Z %*% W
+    S <- sweep(S, 2, sqrt(score_var), "/")
+    colnames(S) <- lev$labels
+    rownames(S) <- rownames(data_mat)
+    S
+  })
+  names(scores) <- names(levels_list)
+  scores
+}
+
 # Validate that x is a well-formed ackwards object (used in tests).
 validate_ackwards <- function(x) {
   required <- c(

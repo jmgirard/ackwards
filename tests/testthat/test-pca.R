@@ -71,26 +71,28 @@ test_that("ackwards() errors informatively on bad inputs", {
   expect_error(ackwards(list(), k = 2), "data frame")
 })
 
-test_that("rotation = 'cfQ' errors with a clear message for PCA engine", {
+test_that("rotation = 'cfQ' errors as unsupported", {
   skip_if_not_installed("psych")
   d <- psych::bfi[, 1:5]
-  expect_error(ackwards(d, k = 2, rotation = "cfQ"), "not yet implemented")
+  expect_error(ackwards(d, k = 2, rotation = "cfQ"), "not supported")
 })
 
-test_that("scores = TRUE warns that storage is not yet implemented", {
+test_that("scores = TRUE stores a named list of score matrices", {
   skip_if_not_installed("psych")
-  expect_warning(
-    ackwards(psych::bfi[, 1:25], k = 2, scores = TRUE),
-    "not yet implemented"
-  )
+  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k = 2, scores = TRUE))
+  expect_false(is.null(x$scores))
+  expect_named(x$scores, c("1", "2"))
+  expect_equal(nrow(x$scores[["1"]]), nrow(psych::bfi))
+  expect_equal(ncol(x$scores[["1"]]), 1L)
+  expect_equal(ncol(x$scores[["2"]]), 2L)
 })
 
-test_that("keep_fits = TRUE warns that storage is not yet implemented", {
+test_that("keep_fits = TRUE stores a named list of raw fit objects", {
   skip_if_not_installed("psych")
-  expect_warning(
-    ackwards(psych::bfi[, 1:25], k = 2, keep_fits = TRUE),
-    "not yet implemented"
-  )
+  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k = 2, keep_fits = TRUE))
+  expect_false(is.null(x$fits))
+  expect_named(x$fits, c("1", "2"))
+  expect_true(inherits(x$fits[["1"]], "psych"))
 })
 
 test_that("meta$cut_show stores the cut_show value", {

@@ -6,20 +6,23 @@
 # compute_edges() on the algebra path. Convergence failures truncate the
 # hierarchy at the last successful level; Heywood cases warn but continue.
 
-efa_levels <- function(R, k_max, rotation, fm, n_obs, cor_type = "pearson") {
+efa_levels <- function(R, k_max, rotation, fm, n_obs, cor_type = "pearson",
+                       keep_fits = FALSE) {
   rlang::check_installed("psych", reason = "for the EFA engine")
 
   p <- nrow(R)
 
+  # cfT (orthogonal CF ≈ varimax) is the only supported rotation.
   psych_rotate <- switch(rotation,
     cfT = "varimax",
-    cfQ = cli::cli_abort(
-      "rotation = {.val cfQ} is not yet implemented for the EFA engine. \\
-       Oblique CF rotation is planned for a future milestone."
+    cli::cli_abort(
+      "rotation = {.val {rotation}} is not supported. \\
+       Only {.val cfT} (orthogonal CF) is available."
     )
   )
 
   result <- list()
+  fits_list <- if (keep_fits) list() else NULL
 
   for (k in seq_len(k_max)) {
     rotate_k <- if (k == 1L) "none" else psych_rotate
@@ -149,9 +152,10 @@ efa_levels <- function(R, k_max, rotation, fm, n_obs, cor_type = "pearson") {
         score_var = score_var
       )
     )
+    if (keep_fits) fits_list[[as.character(k)]] <- fit
   }
 
-  result
+  list(levels = result, fits = fits_list)
 }
 
 # Compute tenBerge factor-score weights from a correlation matrix R and a

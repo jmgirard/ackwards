@@ -1,5 +1,31 @@
 # ackwards 0.0.0.9000 (dev)
 
+## Milestone 6 — Storage materialization + cfQ cleanup
+
+* `scores = TRUE` in `ackwards()` now stores factor scores in `x$scores` as a
+  named list of `n x k_j` matrices (one per level), standardized by real score
+  SDs via `sqrt(diag(W'RW))` (Invariant 1 — never assume unit variance).
+  Column names match the `m{k}f{j}` factor labels used throughout the object.
+* Added `augment.ackwards()` (broom generic): appends score columns (`.m{k}f{j}`)
+  to a supplied data frame by applying the stored weight matrices to new or
+  training data. When `data = NULL`, uses pre-stored scores (requires
+  `scores = TRUE` at fit time). Gives an informative error if neither is
+  available.
+* `keep_fits = TRUE` in `ackwards()` now stores the raw per-level engine fit
+  objects (psych or lavaan) in `x$fits` as a named list indexed by level.
+* Added `tidy(x, what = "scores")`: long-format per-observation scores with
+  columns `obs`, `level`, `factor`, `score` (requires `scores = TRUE` at fit
+  time; for on-the-fly computation use `augment()`).
+* `rotation = "cfQ"` (oblique) is now documented as **unsupported** (not
+  "not yet implemented") across all engines. Oblique rotation confounds the
+  between-level score correlations that are the method's core output (Goldberg,
+  2006; Kim & Eaton, 2015). Only `cfT` (orthogonal CF, approx. varimax) is
+  available. `ackwards()` now errors immediately with a clear message rather
+  than forwarding to the engine.
+* All three engines (`pca_levels`, `efa_levels`, `esem_levels`) now return
+  `list(levels = ..., fits = ...)` consistently, matching the pre-existing ESEM
+  convention. `keep_fits = FALSE` (default) keeps `fits = NULL`.
+
 ## Milestone 5 — Forbes (2023) extension
 
 * Added `pairs = "all"` to `ackwards()`: computes between-level factor-score

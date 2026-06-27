@@ -15,17 +15,18 @@
 # Arguments:
 #   data       — numeric matrix, items in columns (raw data, NOT a correlation matrix)
 #   k_max      — maximum number of factors to extract
-#   rotation   — "cfT" (→ lavaan "varimax") or "cfQ" (errors; not yet implemented)
+#   rotation   — "cfT" (→ lavaan "varimax"); only supported rotation
 #   estimator  — "ML", "WLSMV", "ULSMV", etc.; passed directly to lavaan::efa()
 #   cor_type   — "pearson", "spearman", or "polychoric"; controls ordered= argument
 #   n_obs      — number of observations (for record-keeping only; lavaan uses data)
 #   R_external — pre-computed correlation matrix for tenBerge weights (used for
 #                continuous paths); NULL for polychoric (lavaan's R is extracted)
+#   keep_fits  — retain raw lavaan fit objects per level in the returned fits list
 #
-# Returns list(levels = <named list>, r_lv = <p x p matrix>)
+# Returns list(levels = <named list>, r_lv = <p x p matrix>, fits = <list | NULL>)
 
 esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
-                        R_external = NULL) {
+                        R_external = NULL, keep_fits = FALSE) {
   rlang::check_installed("lavaan", reason = "for the ESEM engine")
   if (!exists("efa", envir = asNamespace("lavaan"), inherits = FALSE)) {
     cli::cli_abort(
@@ -39,12 +40,12 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
   p <- ncol(data)
   item_names <- colnames(data)
 
-  # cfT ≈ varimax (CF with κ = 1/p); cfQ not yet implemented for ESEM
+  # cfT (≈ varimax) is the only supported rotation; cfQ is caught in ackwards().
   lav_rotation <- switch(rotation,
     cfT = "varimax",
-    cfQ = cli::cli_abort(
-      "rotation = {.val cfQ} is not yet implemented for the ESEM engine. \\
-       Oblique CF rotation is planned for a future milestone."
+    cli::cli_abort(
+      "rotation = {.val {rotation}} is not supported. \\
+       Only {.val cfT} (orthogonal CF) is available."
     )
   )
 
@@ -52,6 +53,7 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
   ordered_cols <- if (cor_type == "polychoric") item_names else NULL
 
   result <- list()
+  fits_list <- if (keep_fits) list() else NULL
   r_lv <- R_external # set externally for continuous; extracted from lavaan for polychoric
 
   for (k in seq_len(k_max)) {
@@ -267,7 +269,8 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
         score_var = score_var
       )
     )
+    if (keep_fits) fits_list[[as.character(k)]] <- fit
   }
 
-  list(levels = result, r_lv = r_lv)
+  list(levels = result, r_lv = r_lv, fits = fits_list)
 }

@@ -41,10 +41,11 @@ be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.}
 indices; recommended for the clinical/HiTOP workflow (Kim & Eaton, 2015;
 Forbush et al., 2024). Requires lavaan >= 0.6-13.}
 
-\item{rotation}{Rotation family: \code{"cfT"} (orthogonal CF, default) or
-\code{"cfQ"} (oblique CF). Oblique is theoretically appropriate when
-within-level construct correlations matter, but complicates cross-level
-edge interpretation. See DESIGN.md §9.}
+\item{rotation}{Rotation family. Only \code{"cfT"} (orthogonal Crawford-Ferguson,
+default, ≈ varimax) is supported. Oblique rotation (\code{"cfQ"}) is not
+available: oblique within-level factor correlations confound the
+between-level score correlations that are the method's core output
+(Goldberg, 2006; Kim & Eaton, 2015). See DESIGN.md §9.}
 
 \item{kappa}{CF rotation kappa parameter. \code{NULL} (default) uses
 \code{1 / p} where \code{p} is the number of variables — the value that
@@ -71,9 +72,13 @@ Pass explicitly to override: \code{"ULSMV"} (unweighted WLS), \code{"MLR"}
 Default \code{TRUE}.}
 
 \item{scores}{Logical; store factor scores in the result? Default \code{FALSE}
-(recomputable from \code{r} and the weight matrices).}
+(recomputable via \code{\link[=augment.ackwards]{augment.ackwards()}}). When \code{TRUE}, per-observation
+scores are stored in \code{x$scores} as a named list of \verb{n × k_j} matrices,
+one per level, standardized by real score SDs (see \code{\link[=augment.ackwards]{augment.ackwards()}}).}
 
-\item{keep_fits}{Logical; store raw engine fit objects? Default \code{FALSE}.}
+\item{keep_fits}{Logical; store raw engine fit objects? Default \code{FALSE}.
+When \code{TRUE}, the per-level fit objects (psych or lavaan) are stored in
+\code{x$fits} as a named list indexed by level.}
 
 \item{seed}{Integer seed for stochastic engines (not used by PCA but
 captured for reproducibility metadata). Default \code{NULL}.}
@@ -114,7 +119,8 @@ a redundancy chain (conjunctive with \code{redundancy_r}). \code{NULL} means onl
 }
 \value{
 An object of class \code{"ackwards"}. See \code{\link[=print.ackwards]{print.ackwards()}},
-\code{\link[=tidy.ackwards]{tidy.ackwards()}}, and \code{\link[=glance.ackwards]{glance.ackwards()}} for output methods.
+\code{\link[=tidy.ackwards]{tidy.ackwards()}}, \code{\link[=glance.ackwards]{glance.ackwards()}}, and \code{\link[=augment.ackwards]{augment.ackwards()}} for
+output methods.
 }
 \description{
 Extracts factor/component solutions at levels 1 through \code{k}, then

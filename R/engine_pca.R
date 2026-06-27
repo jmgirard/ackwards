@@ -1,29 +1,28 @@
 # PCA engine -- internal, not exported
 #' @importFrom stats setNames
 #
-# Uses psych::pca() (varimax rotation by default), which is the same function
-# psych::bassAckward() uses internally. This ensures our PCA path matches
+# Uses psych::pca() (varimax rotation), which is the same function
+# psych::bassAckward() uses internally — ensures our PCA path matches
 # psych's reference implementation within floating-point tolerance.
 #
-# For later milestones, cfQ (oblique) will use GPArotation::cfQ directly.
-#
-# Returns a list indexed by k (as character), each element matching the
-# DESIGN.md §4 level contract.
+# Returns list(levels = <named list per §4 contract>, fits = <named list | NULL>)
 
-pca_levels <- function(R, k_max, rotation, cor_type = "pearson") {
+pca_levels <- function(R, k_max, rotation, cor_type = "pearson", keep_fits = FALSE) {
   rlang::check_installed("psych", reason = "for the PCA engine")
 
   p <- nrow(R)
   result <- vector("list", k_max)
   names(result) <- as.character(seq_len(k_max))
+  fits_list <- if (keep_fits) vector("list", k_max) else NULL
+  if (keep_fits) names(fits_list) <- as.character(seq_len(k_max))
 
-  # Map our rotation label to psych's rotate argument.
-  # "cfT" (orthogonal CF ≈ varimax) maps to "varimax" for M1 via psych::pca().
+  # cfT (orthogonal CF ≈ varimax) is the only supported rotation.
+  # cfQ is caught before reaching here by ackwards(); this switch is a safety net.
   psych_rotate <- switch(rotation,
     cfT = "varimax",
-    cfQ = cli::cli_abort(
-      "rotation = {.val cfQ} is not yet implemented for the PCA engine. \\
-       Oblique CF rotation is planned for a future milestone."
+    cli::cli_abort(
+      "rotation = {.val {rotation}} is not supported. \\
+       Only {.val cfT} (orthogonal CF) is available."
     )
   )
 
@@ -82,7 +81,8 @@ pca_levels <- function(R, k_max, rotation, cor_type = "pearson") {
         score_var = score_var
       )
     )
+    if (keep_fits) fits_list[[as.character(k)]] <- fit
   }
 
-  result
+  list(levels = result, fits = fits_list)
 }

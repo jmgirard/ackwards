@@ -157,12 +157,12 @@ test_that("ackwards errors informatively when all EFA levels fail (k_eff < 2)", 
   )
 })
 
-test_that("EFA rotation = 'cfQ' errors with clear message", {
+test_that("EFA rotation = 'cfQ' errors as unsupported", {
   skip_if_not_installed("psych")
   d <- psych::bfi[, 1:5]
   expect_error(
     ackwards(d, k = 2, method = "efa", rotation = "cfQ"),
-    "not yet implemented"
+    "not supported"
   )
 })
 

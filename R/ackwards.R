@@ -33,10 +33,11 @@
 #'   `"esem"` uses [lavaan::efa()] with rotation-aware SEs and per-level fit
 #'   indices; recommended for the clinical/HiTOP workflow (Kim & Eaton, 2015;
 #'   Forbush et al., 2024). Requires lavaan >= 0.6-13.
-#' @param rotation Rotation family: `"cfT"` (orthogonal CF, default) or
-#'   `"cfQ"` (oblique CF). Oblique is theoretically appropriate when
-#'   within-level construct correlations matter, but complicates cross-level
-#'   edge interpretation. See DESIGN.md §9.
+#' @param rotation Rotation family. Only `"cfT"` (orthogonal Crawford-Ferguson,
+#'   default, ≈ varimax) is supported. Oblique rotation (`"cfQ"`) is not
+#'   available: oblique within-level factor correlations confound the
+#'   between-level score correlations that are the method's core output
+#'   (Goldberg, 2006; Kim & Eaton, 2015). See DESIGN.md §9.
 #' @param fm Factor extraction method passed to [psych::fa()]; only used when
 #'   `method = "efa"`. One of `"minres"` (default, robust OLS), `"ml"`
 #'   (maximum likelihood, gives chi-square fit but converges less reliably at
@@ -57,8 +58,12 @@
 #' @param align Logical; sign-align factors to primary-parent lineage?
 #'   Default `TRUE`.
 #' @param scores Logical; store factor scores in the result? Default `FALSE`
-#'   (recomputable from `r` and the weight matrices).
+#'   (recomputable via [augment.ackwards()]). When `TRUE`, per-observation
+#'   scores are stored in `x$scores` as a named list of `n × k_j` matrices,
+#'   one per level, standardized by real score SDs (see [augment.ackwards()]).
 #' @param keep_fits Logical; store raw engine fit objects? Default `FALSE`.
+#'   When `TRUE`, the per-level fit objects (psych or lavaan) are stored in
+#'   `x$fits` as a named list indexed by level.
 #' @param seed Integer seed for stochastic engines (not used by PCA but
 #'   captured for reproducibility metadata). Default `NULL`.
 #' @param pairs Which level pairs to compute edges for: `"adjacent"` (default,
@@ -89,7 +94,8 @@
 #' @param ... Reserved for future arguments.
 #'
 #' @return An object of class `"ackwards"`. See [print.ackwards()],
-#'   [tidy.ackwards()], and [glance.ackwards()] for output methods.
+#'   [tidy.ackwards()], [glance.ackwards()], and [augment.ackwards()] for
+#'   output methods.
 #'
 #' @seealso [print.ackwards()], [tidy.ackwards()], [glance.ackwards()]
 #'
@@ -135,6 +141,14 @@ ackwards <- function(
   # --- Input validation -------------------------------------------------------
   method <- rlang::arg_match(method, c("pca", "efa", "esem"))
   rotation <- rlang::arg_match(rotation, c("cfT", "cfQ"))
+  if (rotation == "cfQ") {
+    cli::cli_abort(c(
+      "!" = "rotation = {.val cfQ} (oblique) is not supported.",
+      "i" = "Oblique rotation confounds the between-level score correlations \\
+             that are the method's core output (see DESIGN.md s9).",
+      "i" = "Only {.val cfT} (orthogonal CF, approx. varimax) is available."
+    ))
+  }
   fm <- rlang::arg_match(fm, c("minres", "ml", "pa"))
   cor <- rlang::arg_match(cor, c("pearson", "spearman", "polychoric"))
   if (!is.null(estimator)) {
@@ -201,29 +215,7 @@ ackwards <- function(
     )
   }
 
-  # --- Warn on not-yet-implemented opt-in storage (Invariant 6) ---------------
-  if (isTRUE(scores)) {
-    cli::cli_warn(
-      c(
-        "!" = "{.arg scores = TRUE} is not yet implemented; scores will be {.code NULL}.",
-        "i" = "Score storage is planned for a future release."
-      ),
-      .frequency = "once",
-      .frequency_id = "ackwards_scores_unimplemented"
-    )
-  }
-  if (isTRUE(keep_fits)) {
-    cli::cli_warn(
-      c(
-        "!" = "{.arg keep_fits = TRUE} is not yet implemented; fits will be {.code NULL}.",
-        "i" = "Raw fit storage is planned for a future release."
-      ),
-      .frequency = "once",
-      .frequency_id = "ackwards_keep_fits_unimplemented"
-    )
-  }
-
-  # --- kappa (stored in meta for future cfT/cfQ path; not used in M1 PCA) ----
+  # --- kappa ------------------------------------------------------------------
   if (is.null(kappa)) kappa <- 1 / p
 
   # --- Seed capture -----------------------------------------------------------
@@ -249,9 +241,10 @@ ackwards <- function(
     esem_out <- esem_levels(data_mat,
       k_max = k, rotation = rotation,
       estimator = estimator_eff, cor_type = cor,
-      n_obs = n_obs, R_external = R_ext
+      n_obs = n_obs, R_external = R_ext, keep_fits = keep_fits
     )
     levels_list <- esem_out$levels
+    fits_stored <- esem_out$fits
     R <- esem_out$r_lv
     if (is.null(R)) R <- R_ext
     if (is.null(R)) {
@@ -289,13 +282,18 @@ ackwards <- function(
     } else {
       R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
     }
-    levels_list <- switch(method,
-      pca = pca_levels(R, k_max = k, rotation = rotation, cor_type = cor),
+    engine_out <- switch(method,
+      pca = pca_levels(R,
+        k_max = k, rotation = rotation, cor_type = cor,
+        keep_fits = keep_fits
+      ),
       efa = efa_levels(R,
         k_max = k, rotation = rotation, fm = fm, n_obs = n_obs,
-        cor_type = cor
+        cor_type = cor, keep_fits = keep_fits
       )
     )
+    levels_list <- engine_out$levels
+    fits_stored <- engine_out$fits
   }
 
   # --- Handle convergence truncation (PCA never truncates; EFA/ESEM may) -----
@@ -406,6 +404,15 @@ ackwards <- function(
     data        = NULL,
     meta        = meta
   )
+
+  # --- Opt-in storage (scores and raw fits) -----------------------------------
+  # Scores use the sign-aligned levels_list so column orientations match loadings.
+  if (isTRUE(scores)) {
+    x$scores <- .compute_scores(levels_list, data_mat)
+  }
+  if (isTRUE(keep_fits)) {
+    x$fits <- fits_stored
+  }
 
   # --- Forbes pruning (flag-only, never removes levels) -----------------------
   # Pruning is applied post-assembly so .apply_pruning() can read the final

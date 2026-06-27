@@ -18,6 +18,9 @@
 #'     when the object was created). One row per factor across all levels:
 #'     `id`, `level`, `pruned`, `prune_reason`. Returns an empty data frame with
 #'     the same columns when no pruning was applied.
+#'   * `"scores"` — long-format per-observation factor scores (requires
+#'     `scores = TRUE` at fit time or use [augment.ackwards()] for on-the-fly
+#'     computation). Columns: `obs` (row index), `level`, `factor`, `score`.
 #' @param ... Ignored.
 #'
 #' @return A data frame (class `data.frame`).
@@ -26,14 +29,15 @@
 #'
 #' @importFrom generics tidy
 #' @export
-tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit", "nodes"), ...) {
+tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit", "nodes", "scores"), ...) {
   what <- match.arg(what)
   switch(what,
     edges    = .tidy_edges(x),
     loadings = .tidy_loadings(x),
     variance = .tidy_variance(x),
     fit      = .tidy_fit(x),
-    nodes    = .tidy_nodes(x)
+    nodes    = .tidy_nodes(x),
+    scores   = .tidy_scores(x)
   )
 }
 
@@ -52,6 +56,32 @@ tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit", "n
     prune_reason = character(0L),
     stringsAsFactors = FALSE
   )
+}
+
+.tidy_scores <- function(x) {
+  if (is.null(x$scores)) {
+    cli::cli_abort(c(
+      "!" = "Factor scores are not stored in this {.cls ackwards} object.",
+      "i" = "Refit with {.code scores = TRUE}, or use {.fn augment} to \\
+             compute scores on the fly: {.code augment(x, data = your_data)}."
+    ))
+  }
+  rows <- lapply(names(x$scores), function(ki) {
+    S <- x$scores[[ki]]
+    k <- as.integer(ki)
+    do.call(rbind, lapply(seq_len(ncol(S)), function(j) {
+      data.frame(
+        obs = seq_len(nrow(S)),
+        level = k,
+        factor = colnames(S)[j],
+        score = S[, j],
+        stringsAsFactors = FALSE
+      )
+    }))
+  })
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
+  out
 }
 
 .tidy_loadings <- function(x) {
