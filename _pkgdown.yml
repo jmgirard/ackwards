@@ -3,6 +3,16 @@ url: https://jmgirard.github.io/ackwards/
 template:
   bootstrap: 5
 
+home:
+  strip_header: false
+  links:
+    - text: Report a bug
+      href: https://github.com/jmgirard/ackwards/issues
+
+# Exclude internal working documents from the site
+news:
+  releases: []
+
 navbar:
   structure:
     left:  [intro, articles, reference, news]
@@ -27,6 +37,7 @@ reference:
     contents:
       - ackwards
       - suggest_k
+      - print.suggest_k
 
   - title: Extract results
     desc: >
@@ -41,6 +52,7 @@ reference:
     desc: >
       Diagram and layout helpers for the bass-ackwards hierarchy.
     contents:
+      - autoplot
       - autoplot.ackwards
       - ba_layout
 

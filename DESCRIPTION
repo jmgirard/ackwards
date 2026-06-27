@@ -31,6 +31,6 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-URL: https://github.com/jmgirard/ackwards
+URL: https://jmgirard.github.io/ackwards/, https://github.com/jmgirard/ackwards
 BugReports: https://github.com/jmgirard/ackwards/issues
 Config/roxygen2/version: 8.0.0
