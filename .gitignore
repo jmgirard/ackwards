@@ -1,0 +1,35 @@
+# R artifacts
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+.Rproj.user/
+
+# devtools / roxygen / pkgdown build outputs
+/doc/
+/Meta/
+/inst/doc/
+/docs/
+src/*.o
+src/*.so
+src/*.dll
+
+# R CMD check / CI scratch
+*.Rcheck/
+/vignettes/*.html
+/vignettes/*.pdf
+
+# testthat artefacts
+tests/testthat/Rplots.pdf
+
+# Package bundle
+*.tar.gz
+*.tgz
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# RStudio project (generated per-machine)
+*.Rproj
