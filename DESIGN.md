@@ -196,7 +196,9 @@ structure(list(
   fits    = NULL,        # opt-in raw engine objects (keep_fits = TRUE)
   r       = <p x p input correlation matrix>,   # cheap; kept so scores/edges recomputable
   data    = NULL,        # opt-in raw data
-  meta    = <suggest_k output, timestamps, convergence summary, chosen defaults>
+  meta    = <suggest_k output, timestamps, convergence summary, chosen defaults>,
+  prune   = NULL         # Forbes extension: node flags + chain table + phi table;
+                         # populated by .apply_pruning() when prune != "none"
 ), class = "ackwards")
 ```
 
@@ -224,8 +226,12 @@ question: neither — a structured light core, with the heavy bits nullable and 
 - **Lineage lives in `edges`/`lineage`, never in the ID.** A child can have multiple strong
   parents (the point of the method), so don't encode parentage into `m{k}f{j}` — it breaks when the
   structure isn't a clean tree.
-- **Matching:** assign each factor its primary parent via max-weight bipartite matching
-  (`clue::solve_LSAP` on `|r|`; supplement with Tucker congruence where scores are unavailable).
+- **Matching:** assign each factor its primary parent via **greedy per-column argmax** on `|r|`
+  (i.e. `apply(abs(E), 2, which.max)`). Multiple children sharing the same parent is normal and
+  expected — adjacent levels always have n_b = n_a + 1 (level k has k factors vs k−1 above), so
+  by pigeonhole at least two children share a parent. A bijection (LSAP/Hungarian) is therefore
+  ill-posed and was removed. Tucker's φ serves as a supplementary congruence criterion for
+  `redundancy_phi` filtering (Forbes extension, §14.19) but is not used for matching itself.
 - **Sign alignment — anchor to the primary parent, NOT "all positive."** Sign is one DoF per
   factor; you cannot make every cross-level correlation positive. Rule: anchor `m1f1` to a defined
   orientation (positive sum of loadings, or a substantive marker item), then orient each factor so
@@ -326,7 +332,7 @@ footprint sane and lets users plot the layout however they like.
 | Suggests — engines | `psych` and/or `GPArotation`, `lavaan` | EFA/PCA/rotations (incl. CF family); ESEM |
 | Suggests — ordinal | polychoric source (e.g. `psych`) | Likert basis |
 | Suggests — suggest_k | `EGAnet`, `paran` | dimensionality criteria |
-| Suggests — matching | `clue` | Hungarian assignment (no compilation) |
+| ~~Suggests — matching~~ | ~~`clue`~~ | ~~Hungarian assignment~~ — removed; greedy argmax (§7) requires no dep |
 | Suggests — viz | `ggraph`, `ggplot2`, `igraph`, `tidygraph` | diagrams |
 | Suggests — perf | `future`, `future.apply` | parallel bootstrap (if/when added) |
 

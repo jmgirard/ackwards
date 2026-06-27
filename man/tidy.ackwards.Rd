@@ -4,7 +4,7 @@
 \alias{tidy.ackwards}
 \title{Tidy an ackwards object into a long data frame}
 \usage{
-\method{tidy}{ackwards}(x, what = c("edges", "loadings", "variance", "fit"), ...)
+\method{tidy}{ackwards}(x, what = c("edges", "loadings", "variance", "fit", "nodes"), ...)
 }
 \arguments{
 \item{x}{An \code{ackwards} object.}
@@ -20,6 +20,10 @@
 \item \code{"fit"} — one row per fit index × level: \code{level}, \code{index}, \code{value}.
 For PCA objects the indices are eigenvalues; for EFA objects they are
 \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, \code{BIC}.
+\item \code{"nodes"} — Forbes-extension pruning annotations (requires \code{prune != "none"}
+when the object was created). One row per factor across all levels:
+\code{id}, \code{level}, \code{pruned}, \code{prune_reason}. Returns an empty data frame with
+the same columns when no pruning was applied.
 }}
 
 \item{...}{Ignored.}

@@ -52,12 +52,14 @@
     labs_b <- colnames(Lb)
     do.call(rbind, lapply(seq_along(labs_a), function(i) {
       do.call(rbind, lapply(seq_along(labs_b), function(j) {
+        phi_val <- .tucker_phi(La[, i], Lb[, j])
         data.frame(
           from = labs_a[i],
           to = labs_b[j],
           level_from = ka,
           level_to = kb,
-          phi = .tucker_phi(La[, i], Lb[, j]),
+          phi = phi_val,
+          abs_phi = abs(phi_val),
           stringsAsFactors = FALSE
         )
       }))
@@ -130,28 +132,33 @@
   # --- Find chain roots (from_label not appearing as any to_label) -------------
   root_labels <- setdiff(unique(sl$from_label), unique(sl$to_label))
 
-  # --- Trace each chain downward -----------------------------------------------
-  chains_raw <- lapply(root_labels, function(root) {
-    ch <- root
-    current <- root
-    repeat {
-      nxt <- sl$to_label[sl$from_label == current]
-      if (length(nxt) == 0L) break
-      current <- nxt[1L]
-      ch <- c(ch, current)
+  # --- Enumerate all root-to-leaf paths via DFS --------------------------------
+  # A root with multiple strong-link children (sibling redundancies) spawns one
+  # chain per branch — each is analysed independently. DFS also handles diamonds
+  # (a node reachable from two roots) without special-casing.
+  chains_raw <- list()
+  for (root in root_labels) {
+    stack <- list(root)
+    while (length(stack) > 0L) {
+      path <- stack[[length(stack)]]
+      stack <- stack[-length(stack)]
+      last <- path[length(path)]
+      children <- sl$to_label[sl$from_label == last]
+      if (length(children) == 0L) {
+        if (length(path) >= 2L) chains_raw <- c(chains_raw, list(path))
+      } else {
+        for (child in children) {
+          stack <- c(stack, list(c(path, child)))
+        }
+      }
     }
-    ch
-  })
-  chains_raw <- Filter(function(ch) length(ch) >= 2L, chains_raw)
+  }
   if (length(chains_raw) == 0L) {
     return(list(node_flags = NULL, chains = NULL))
   }
 
-  # --- Build output: chain detail df + node flags ------------------------------
-  chain_rows <- vector("list", length(chains_raw))
-  node_flag_rows <- list()
-
-  for (i in seq_along(chains_raw)) {
+  # --- Per-chain metadata: retain label + link stats + endpoint r --------------
+  chain_metas <- lapply(seq_along(chains_raw), function(i) {
     ch <- chains_raw[[i]]
     ch_levels <- label_to_level[ch]
 
@@ -162,7 +169,6 @@
       ch[1L] # chain ends mid-hierarchy → keep top (broadest)
     }
 
-    # Per-link r and phi
     r_vals <- vapply(seq_along(ch), function(idx) {
       if (idx == 1L) {
         return(NA_real_)
@@ -196,37 +202,51 @@
       }
     }
 
+    list(
+      ch = ch, ch_levels = ch_levels, retain_label = retain_label,
+      r_vals = r_vals, phi_vals = phi_vals,
+      endpoint_r = endpoint_r, endpoint_r_agrees = endpoint_r_agrees
+    )
+  })
+
+  # --- Global retain set -------------------------------------------------------
+  # A node retained in ANY chain is never pruned. This prevents contradictions
+  # when sibling branches or diamonds produce conflicting per-chain decisions
+  # (e.g. a shared root is retained by one branch but would be flagged by another).
+  retain_any <- unique(vapply(chain_metas, `[[`, character(1L), "retain_label"))
+
+  # --- Build output data frames ------------------------------------------------
+  chain_rows <- vector("list", length(chain_metas))
+  for (i in seq_along(chain_metas)) {
+    cm <- chain_metas[[i]]
     chain_rows[[i]] <- data.frame(
       chain_id          = i,
-      id                = ch,
-      level             = ch_levels,
-      r_to_prev         = r_vals,
-      phi_to_prev       = phi_vals,
-      retain            = ch == retain_label,
-      endpoint_r        = endpoint_r,
-      endpoint_r_agrees = endpoint_r_agrees,
+      id                = cm$ch,
+      level             = cm$ch_levels,
+      r_to_prev         = cm$r_vals,
+      phi_to_prev       = cm$phi_vals,
+      retain            = cm$ch == cm$retain_label,
+      endpoint_r        = cm$endpoint_r,
+      endpoint_r_agrees = cm$endpoint_r_agrees,
       stringsAsFactors  = FALSE
     )
-
-    # Flag non-retained nodes in the chain
-    for (j in seq_along(ch)) {
-      if (ch[j] != retain_label) {
-        node_flag_rows <- c(node_flag_rows, list(data.frame(
-          id = ch[j],
-          level = ch_levels[j],
-          pruned = TRUE,
-          prune_reason = "redundant",
-          stringsAsFactors = FALSE
-        )))
-      }
-    }
   }
 
   chains_df <- do.call(rbind, chain_rows)
   rownames(chains_df) <- NULL
 
-  node_flags_df <- if (length(node_flag_rows) > 0L) {
-    out <- do.call(rbind, node_flag_rows)
+  # Flagged = appears in some chain but never the retained node in any chain
+  all_chained <- unique(unlist(lapply(chain_metas, `[[`, "ch")))
+  flagged_ids <- setdiff(all_chained, retain_any)
+
+  node_flags_df <- if (length(flagged_ids) > 0L) {
+    out <- data.frame(
+      id = flagged_ids,
+      level = label_to_level[flagged_ids],
+      pruned = TRUE,
+      prune_reason = "redundant",
+      stringsAsFactors = FALSE
+    )
     rownames(out) <- NULL
     out
   } else {

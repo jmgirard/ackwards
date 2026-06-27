@@ -177,8 +177,10 @@ test_that("match_parents: non-square (n_b > n_a) assigns correct greedy parents"
   # Level k-1 has 2 factors (rows), level k has 3 factors (cols).
   # Col 1 and 2 both peak at row 1; col 3 peaks at row 2.
   E <- matrix(
-    c(0.9, 0.8, 0.1,
-      0.1, 0.2, 0.7),
+    c(
+      0.9, 0.8, 0.1,
+      0.1, 0.2, 0.7
+    ),
     nrow = 2
   )
   result <- ackwards:::match_parents(E)
@@ -189,9 +191,11 @@ test_that("match_parents: non-square (n_b > n_a) assigns correct greedy parents"
 
 test_that("match_parents: square case assigns correct parents", {
   E <- matrix(
-    c(0.9, 0.1, 0.1,
+    c(
+      0.9, 0.1, 0.1,
       0.2, 0.8, 0.2,
-      0.1, 0.2, 0.7),
+      0.1, 0.2, 0.7
+    ),
     nrow = 3, byrow = TRUE
   )
   result <- ackwards:::match_parents(E)
@@ -208,7 +212,7 @@ test_that("ackwards() parent indices are always within bounds (regression: LSAP 
   # Verify every lineage index is in bounds for its level
   for (ki in seq(2L, x$k_max)) {
     parents <- x$lineage[[as.character(ki)]]
-    n_parents <- ki - 1L  # nrow of edge matrix for level ki-1 → ki
+    n_parents <- ki - 1L # nrow of edge matrix for level ki-1 → ki
     expect_true(
       all(parents >= 1L & parents <= n_parents),
       label = paste("lineage indices in bounds at level", ki)

@@ -14,6 +14,10 @@
 #'   * `"fit"` — one row per fit index × level: `level`, `index`, `value`.
 #'     For PCA objects the indices are eigenvalues; for EFA objects they are
 #'     `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`.
+#'   * `"nodes"` — Forbes-extension pruning annotations (requires `prune != "none"`
+#'     when the object was created). One row per factor across all levels:
+#'     `id`, `level`, `pruned`, `prune_reason`. Returns an empty data frame with
+#'     the same columns when no pruning was applied.
 #' @param ... Ignored.
 #'
 #' @return A data frame (class `data.frame`).
@@ -22,18 +26,32 @@
 #'
 #' @importFrom generics tidy
 #' @export
-tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit"), ...) {
+tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit", "nodes"), ...) {
   what <- match.arg(what)
   switch(what,
     edges    = .tidy_edges(x),
     loadings = .tidy_loadings(x),
     variance = .tidy_variance(x),
-    fit      = .tidy_fit(x)
+    fit      = .tidy_fit(x),
+    nodes    = .tidy_nodes(x)
   )
 }
 
 .tidy_edges <- function(x) {
   x$edges$tidy
+}
+
+.tidy_nodes <- function(x) {
+  if (!is.null(x$prune) && !is.null(x$prune$nodes)) {
+    return(x$prune$nodes)
+  }
+  data.frame(
+    id = character(0L),
+    level = integer(0L),
+    pruned = logical(0L),
+    prune_reason = character(0L),
+    stringsAsFactors = FALSE
+  )
 }
 
 .tidy_loadings <- function(x) {

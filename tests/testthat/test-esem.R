@@ -1,28 +1,4 @@
-# Shared small simulated dataset used across ESEM tests (fast, controlled structure)
-.make_esem_data <- function(seed = 42, n = 200) {
-  set.seed(seed)
-  f1 <- rnorm(n)
-  f2 <- rnorm(n)
-  data.frame(
-    x1 = f1 + 0.4 * rnorm(n), x2 = f1 + 0.4 * rnorm(n),
-    x3 = f1 + 0.4 * rnorm(n), x4 = f2 + 0.4 * rnorm(n),
-    x5 = f2 + 0.4 * rnorm(n), x6 = f2 + 0.4 * rnorm(n)
-  )
-}
-
-# Small 5-point ordinal dataset for polychoric tests
-.make_ordinal_data <- function(seed = 42, n = 300) {
-  set.seed(seed)
-  f1 <- rnorm(n)
-  f2 <- rnorm(n)
-  d <- data.frame(
-    x1 = f1 + 0.4 * rnorm(n), x2 = f1 + 0.4 * rnorm(n),
-    x3 = f1 + 0.4 * rnorm(n), x4 = f2 + 0.4 * rnorm(n),
-    x5 = f2 + 0.4 * rnorm(n), x6 = f2 + 0.4 * rnorm(n)
-  )
-  breaks <- c(-Inf, -1, -0.5, 0.5, 1, Inf)
-  as.data.frame(lapply(d, function(x) as.integer(cut(x, breaks))))
-}
+# (Shared helpers .make_esem_data() and .make_ordinal_data() live in helper-data.R)
 
 # ── Basic ESEM validity ────────────────────────────────────────────────────────
 

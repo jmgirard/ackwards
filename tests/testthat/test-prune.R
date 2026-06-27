@@ -221,3 +221,145 @@ test_that("invalid redundancy_r and redundancy_phi are rejected", {
     "redundancy_phi"
   )
 })
+
+# --- A3: tidy(what = "nodes") ------------------------------------------------
+
+test_that("tidy(x, what='nodes') returns prune$nodes when pruning was applied", {
+  skip_if_not_installed("psych")
+  set.seed(42)
+  n <- 500L
+  g <- rnorm(n)
+  s1 <- rnorm(n)
+  s2 <- rnorm(n)
+  data <- data.frame(
+    x1 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x2 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x3 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x4 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x5 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
+  )
+  x <- suppressWarnings(suppressMessages(
+    ackwards(data, k = 4, prune = "redundant")
+  ))
+
+  nodes <- tidy(x, what = "nodes")
+  expect_s3_class(nodes, "data.frame")
+  expect_true(all(c("id", "level", "pruned", "prune_reason") %in% names(nodes)))
+  expect_equal(nrow(nodes), sum(seq_len(x$k_max)))
+  expect_equal(nodes, x$prune$nodes)
+})
+
+test_that("tidy(x, what='nodes') returns empty frame with correct columns when no pruning", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  expect_null(x$prune)
+
+  nodes <- tidy(x, what = "nodes")
+  expect_s3_class(nodes, "data.frame")
+  expect_equal(nrow(nodes), 0L)
+  expect_true(all(c("id", "level", "pruned", "prune_reason") %in% names(nodes)))
+})
+
+# --- A2: print() pruning section -----------------------------------------------
+
+test_that("print.ackwards() executes without error when pruning annotations are present", {
+  # cli output cannot be reliably captured via capture.output() in non-interactive
+  # test sessions — the Pruning section and relabeling caveat are verified visually.
+  # This test guards against regressions that would make print() error or not
+  # return x invisibly (consistent with the convention in test-print.R).
+  skip_if_not_installed("psych")
+  set.seed(42)
+  n <- 500L
+  g <- rnorm(n)
+  s1 <- rnorm(n)
+  s2 <- rnorm(n)
+  data <- data.frame(
+    x1 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x2 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x3 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x4 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x5 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
+  )
+  x <- suppressWarnings(suppressMessages(
+    ackwards(data, k = 4, prune = "redundant")
+  ))
+  expect_no_error(print(x))
+  expect_invisible(print(x))
+  # Pruning slot populated confirms the section has content to show
+  expect_false(is.null(x$prune))
+  expect_true(any(x$prune$nodes$pruned))
+})
+
+# --- B1: sibling redundancy tracing ------------------------------------------
+
+test_that("B1 regression: parent with 2 strong-link children produces 2 chains", {
+  # Construct a minimal mock ackwards-like object: k=2, level 1 has 1 factor
+  # (m1f1), level 2 has 2 factors (m2f1, m2f2), both with |r| >= 0.9 to m1f1.
+  # Old (buggy) code only followed the first child; DFS finds both branches.
+  mock_L1 <- matrix(rep(0.9, 6),
+    ncol = 1,
+    dimnames = list(paste0("x", 1:6), "m1f1")
+  )
+  mock_L2 <- matrix(
+    c(
+      0.9, 0.9, 0.9, 0.1, 0.1, 0.1,
+      0.1, 0.1, 0.1, 0.9, 0.9, 0.9
+    ),
+    ncol = 2, dimnames = list(paste0("x", 1:6), c("m2f1", "m2f2"))
+  )
+  E_1_2 <- matrix(c(0.95, 0.93),
+    nrow = 1,
+    dimnames = list("m1f1", c("m2f1", "m2f2"))
+  )
+
+  mock_x <- list(
+    k_max = 2L,
+    levels = list(
+      "1" = list(labels = "m1f1", loadings = mock_L1),
+      "2" = list(labels = c("m2f1", "m2f2"), loadings = mock_L2)
+    ),
+    lineage = list("1" = NULL, "2" = c(1L, 1L)),
+    edges = list(matrices = list("1:2" = E_1_2))
+  )
+
+  res <- ackwards:::.find_redundant_chains(mock_x, threshold_r = 0.90, threshold_phi = NULL)
+
+  # Both strong links must produce separate chains
+  expect_equal(length(unique(res$chains$chain_id)), 2L)
+  expect_true("m2f1" %in% res$chains$id)
+  expect_true("m2f2" %in% res$chains$id)
+
+  # m1f1 flagged exactly once (it's the shared root, not retained in either chain)
+  expect_equal(sum(res$node_flags$id == "m1f1"), 1L)
+  expect_true(res$node_flags$pruned[res$node_flags$id == "m1f1"])
+
+  # Both m2f1 and m2f2 are retained (chain reaches k_max = 2)
+  expect_false("m2f1" %in% res$node_flags$id)
+  expect_false("m2f2" %in% res$node_flags$id)
+})
+
+# --- B4: pruning under convergence truncation --------------------------------
+
+test_that("B4: prune works correctly when hierarchy is truncated (k_eff < k_requested)", {
+  skip_if_not_installed("lavaan")
+  # 6-variable data: lavaan::efa() errors at k >= 4; requesting k=5 → k_eff=3
+  d <- .make_esem_data()
+
+  x <- suppressWarnings(suppressMessages(
+    ackwards(d, k = 5, method = "esem", prune = "redundant")
+  ))
+
+  expect_equal(x$k_max, 3L)
+  expect_false(is.null(x$prune))
+
+  # Retention rule must use k_eff (3), never a non-existent level 4 or 5
+  if (!is.null(x$prune$chains)) {
+    retained_levels <- x$prune$chains$level[x$prune$chains$retain]
+    expect_true(all(retained_levels <= 3L))
+  }
+
+  # All node flags reference existing levels
+  expect_true(all(x$prune$nodes$level <= 3L))
+})

@@ -35,6 +35,21 @@
   not applicable.
 * New meta fields: `meta$pairs`, `meta$prune`, `meta$redundancy_r`,
   `meta$redundancy_phi`.
+* `print.ackwards()` now shows a **Pruning** section when `prune != "none"`:
+  flagged-node count per rule, and an explicit caveat that pruning is
+  interpretive relabeling, not re-estimation.
+* `tidy(x, what = "nodes")` exposes the Forbes pruning node-annotation table
+  (`id`, `level`, `pruned`, `prune_reason`). Returns an empty frame with the
+  same columns when no pruning was applied (safe to call unconditionally).
+* `x$prune$phi` now includes an `abs_phi` column alongside `phi` to aid
+  artefact screening when sign alignment is ambiguous for non-primary
+  cross-level factor pairs.
+* **Bug fix:** `match_parents()` previously used `clue::solve_LSAP` (bipartite
+  bijection), which is ill-posed for bass-ackwards hierarchies — adjacent levels
+  always have more children than parents, so the padding row returned indices
+  beyond `nrow(E)`. Replaced with greedy per-column argmax
+  (`apply(abs(E), 2, which.max)`), which is correct for many-to-one
+  parent assignment. `clue` removed from `Suggests`.
 
 ## Previous milestones
 

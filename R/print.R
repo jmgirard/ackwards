@@ -48,6 +48,39 @@ print.ackwards <- function(x, ...) {
     "{n_above} of {n_edges_total} edges have |r| {cli::symbol$geq} {cut_show}"
   )
 
+  # --- Pruning summary (Forbes extension; DESIGN.md s14.18) -------------------
+  if (!is.null(x$prune)) {
+    cli::cli_h2("Pruning")
+    rules <- x$prune$rules
+    if ("redundant" %in% rules) {
+      n_flagged <- sum(x$prune$nodes$pruned)
+      r_thr <- x$prune$redundancy_r
+      phi_note <- if (!is.null(x$prune$redundancy_phi)) {
+        paste0(", phi > ", x$prune$redundancy_phi)
+      } else {
+        ""
+      }
+      cli::cli_text(
+        "  Redundancy (|r| {cli::symbol$geq} {r_thr}{phi_note}): \\
+         {n_flagged} node{?s} flagged"
+      )
+    }
+    if ("artefact" %in% rules) {
+      n_phi <- if (!is.null(x$prune$phi)) nrow(x$prune$phi) else 0L
+      cli::cli_text(
+        "  Artefact: Tucker's phi computed for {n_phi} cross-level factor pair{?s}"
+      )
+    }
+    cli::cli_rule()
+    cli::cli_text(
+      cli::col_grey(
+        "Note: Pruning is interpretive relabeling, not re-estimation. \\
+         Flagged nodes remain in the object; all edges are preserved. \\
+         Inspect with {.code x$prune$nodes} and {.code tidy(x, what = \"nodes\")}."
+      )
+    )
+  }
+
   # --- Caveat (DESIGN.md section 2) ------------------------------------------
   cli::cli_rule()
   cli::cli_text(
