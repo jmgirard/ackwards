@@ -21,7 +21,6 @@ Imports:
     stats,
     utils
 Suggests:
-    clue,
     ggplot2,
     GPArotation,
     lavaan (>= 0.6-13),

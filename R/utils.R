@@ -18,24 +18,14 @@ detect_ordinal <- function(data, max_levels = 7L) {
   any(cols)
 }
 
-# Bipartite matching: assign each factor in level b its primary parent in level a.
-# Returns an integer vector of length ncol(E): parent index in level a for each
-# factor in level b.
-# Uses clue::solve_LSAP when available; falls back to greedy which.max.
+# Primary-parent assignment: for each factor in level b, find the factor in level a
+# with the highest |r|. Returns an integer vector of length ncol(E).
+# Each child picks its argmax parent independently; multiple children can (and do)
+# share a parent — that is normal and expected in the bass-ackwards hierarchy.
+# LSAP (bijection) is wrong here: adjacent levels always have n_b = n_a + 1, so
+# a bijection would need a padding row that can return an index > nrow(E).
 match_parents <- function(E) {
-  abs_E <- abs(E)
-  n_a <- nrow(abs_E)
-  n_b <- ncol(abs_E)
-  if (rlang::is_installed("clue")) {
-    # solve_LSAP minimises cost; negate for maximisation
-    pad <- max(n_a, n_b)
-    cost <- matrix(0, pad, pad)
-    cost[seq_len(n_a), seq_len(n_b)] <- -abs_E
-    assignment <- as.integer(clue::solve_LSAP(cost))
-    assignment[seq_len(n_b)]
-  } else {
-    apply(abs_E, 2, which.max)
-  }
+  apply(abs(E), 2, which.max)
 }
 
 # Sign-align a list of per-level loadings matrices and a corresponding list of
@@ -69,7 +59,7 @@ align_signs <- function(loadings_list, edges_list, lineage) {
     # Edge matrix between level k-1 and level k (rows = k-1, cols = k)
     key <- paste0(k - 1L, ":", k)
     E <- edges_list[[key]]
-    parents <- lineage[[k]]  # parent index in level k-1 for each factor in level k
+    parents <- lineage[[k]] # parent index in level k-1 for each factor in level k
     # Flip factor j in level k if its correlation with its primary parent is negative
     sk <- integer(ncol(E))
     for (j in seq_len(ncol(E))) {
@@ -93,7 +83,7 @@ validate_ackwards <- function(x) {
   required <- c(
     "call", "method", "rotation", "cor_type", "n_obs", "k_max",
     "seed", "pkg_version", "levels", "edges", "lineage",
-    "scores", "fits", "r", "data", "meta"
+    "scores", "fits", "r", "data", "meta", "prune"
   )
   missing <- setdiff(required, names(x))
   if (length(missing) > 0) {
