@@ -44,9 +44,43 @@ you choose an upper bound for the hierarchy depth.
 library(ackwards)
 
 bfi <- na.omit(psych::bfi[, 1:25])
-sk  <- suppressWarnings(suggest_k(bfi))
+sk  <- suggest_k(bfi)
+#> ℹ Running parallel analysis (20 iterations)...
 #> Parallel analysis suggests that the number of factors =  NA  and the number of components =  5
+#> ✔ Running parallel analysis (20 iterations)... [154ms]
+#> 
+#> ℹ Running MAP (Velicer)...
+#> ✔ Running MAP (Velicer)... [52ms]
+#> 
 sk
+#> 
+#> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
+#> Variables: 25
+#> n: 2,436
+#> Basis: pearson
+#> Tested k: 1–8
+#> 
+#> ── Criteria (k = 1–8) ──
+#> 
+#> ✔ k = 1: MAP = 0.0249 | PA suggested
+#> ✔ k = 2: MAP = 0.0189 | PA suggested
+#> ✔ k = 3: MAP = 0.0175 | PA suggested
+#> ✔ k = 4: MAP = 0.0157 | PA suggested
+#> ✔ k = 5: MAP = 0.0146 | PA suggested
+#> - k = 6: MAP = 0.0160 | PA not suggested
+#> - k = 7: MAP = 0.0194 | PA not suggested
+#> - k = 8: MAP = 0.0222 | PA not suggested
+#> 
+#> ── Recommendations ──
+#> 
+#> • Parallel analysis: k ≤ 5
+#> • MAP (Velicer): k = 5
+#> Consensus: k = 5
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: k in ackwards() is a maximum depth. Consider setting k one or two levels
+#> above the consensus to observe factor fragmentation.
+#> Caution: parallel analysis tends to overextract; many suggested structures do
+#> not replicate (Forbes, 2023). Treat this as a range.
 ```
 
 Both criteria agree: k = 5 fits the known Big Five structure of this
@@ -60,6 +94,28 @@ the between-level factor-score correlations that define the hierarchy.
 ``` r
 x <- ackwards(bfi, k = 5, cor = "polychoric")
 x
+#> 
+#> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
+#> Engine: pca
+#> Rotation: cfT
+#> Basis: polychoric
+#> n: 2,436
+#> k (max): 5
+#> 
+#> ── Levels ──
+#> 
+#> ✔ k = 1: 1 factor, 22.9% variance
+#> ✔ k = 2: 2 factors, 34.7% variance
+#> ✔ k = 3: 3 factors, 43.9% variance
+#> ✔ k = 4: 4 factors, 51.8% variance
+#> ✔ k = 5: 5 factors, 58.3% variance
+#> 
+#> ── Edges ──
+#> 
+#> 14 of 40 edges have |r| ≥ 0.3
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: This is a series of linked solutions, not a fitted hierarchical model.
+#> Cross-level edges are descriptive score correlations.
 ```
 
 ### Step 3 — Visualize
