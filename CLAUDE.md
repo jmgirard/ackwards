@@ -28,10 +28,13 @@ rationale, contracts, object spec, and resolved defaults are in `DESIGN.md`.
 
 ## Current focus — Milestone 6
 
-**Scope:** Factor-score materialization. Implement `scores = TRUE` storage (per-level `n × k`
-matrices, standardized by real score SDs per Inv. 1) and `augment.ackwards()` accessor (appends
-score columns; recomputes from weights + R when scores not kept). Add `tidy(what = "scores")` for
-long format. Scope to linear engines; EAP deferred. See `DESIGN.md` §15.6.
+**Scope:** Storage materialization + cfQ cleanup. See `DESIGN.md` §15.6.
+1. `scores = TRUE` storage (per-level `n × k` matrices, standardized by real score SDs per Inv. 1)
+   + `augment.ackwards()` accessor (appends score columns; recomputes from weights + R when not
+   kept) + `tidy(what = "scores")`. Linear engines only; EAP deferred.
+2. `keep_fits = TRUE` storage — retain per-level raw engine objects in `$fits` (same plumbing).
+3. cfQ cleanup — orthogonal-only is resolved (§9, §14.1); make `cfQ` error as *unsupported*
+   (not "not yet implemented") consistently across engines and docs.
 
 After M6: README.Rmd → intro vignette → pkgdown → vignettes (engines, ordinal, Forbes).
 See `DESIGN.md` §15.7.
@@ -61,7 +64,8 @@ refactor.
 
 ## Resolved defaults (see `DESIGN.md` §9, §14)
 
-Orthogonal CF (`cfT`, κ = 1/p, ≈ varimax) rotation · `cor = "pearson"` with ordinal-detection
+Orthogonal CF (`cfT`, κ = 1/p, ≈ varimax) rotation — **only supported rotation; `cfQ`/oblique is
+out of scope** (it confounds the cross-level signal) · `cor = "pearson"` with ordinal-detection
 warning · `tenBerge` scoring (on the active basis) · WLSMV estimator for ordinal ESEM ·
 Forbes extension **off** · `k` required · sign `align = TRUE` · `scores`/`keep_fits` stored =
 `FALSE`. Don't change these silently.

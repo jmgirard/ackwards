@@ -255,7 +255,7 @@ announced via cli and documented in roxygen with its rationale.
 | Decision | Default | Rationale |
 |---|---|---|
 | `method` (engine) | `"pca"` | original method; fastest; never fails to converge; algebra-exact. Docs steer to `efa`/`esem` when a measurement-model rationale exists. |
-| `rotation` | **`cfT` (orthogonal CF, κ = 1/p, ≈ varimax) across all engines**; `cfQ` (oblique) as documented option | **Only orthogonal rotations produce interpretable between-level factor score correlations** in the bass-ackwards method (Goldberg 2006; Kim & Eaton 2015): oblique within-level correlations confound the cross-level signal. κ = 1/p is the Crawford-Ferguson varimax-equivalent (Crawford & Ferguson 1970; Browne 2001). `cfQ` offered for completeness with a documented caution. |
+| `rotation` | **`cfT` (orthogonal CF, κ = 1/p, ≈ varimax) — the only supported rotation** | **Only orthogonal rotations produce interpretable between-level factor score correlations** in the bass-ackwards method (Goldberg 2006; Kim & Eaton 2015): oblique within-level correlations confound the cross-level signal — the package's core deliverable. κ = 1/p is the Crawford-Ferguson varimax-equivalent (Crawford & Ferguson 1970; Browne 2001). **`cfQ` (oblique) is out of scope** (resolved 2026-06): supporting it would invite users to compute the one quantity the method cannot interpret. `rotation` is retained as an argument only to surface a clear error if `cfQ` is requested. |
 | `estimator` (ESEM only) | **`"WLSMV"`** for `cor = "polychoric"`; `"ML"` otherwise | WLSMV (mean-and-variance-adjusted WLS) is the standard limited-information ordinal estimator (matches Kim & Eaton 2015; Forbush et al. 2024); gives correct fit indices for categorical indicators without full-information ML cost. |
 | `cor` (basis) | **`"pearson"`** (matches `psych`/`lavaan`); ordinal opt-in via `cor = "polychoric"` | No silent basis-switching (it can change the structure and break comparison to published work). Instead, **detect likely-ordinal columns and emit a suppressible cli warning** pointing to the polychoric option — loud *advice*, not silent action. |
 | `scores` (method) | **`"tenBerge"`** on the active basis (pearson or polychoric) for factor engines; `"components"` for PCA; `"EAP"` opt-in only | tenBerge preserves factor correlations (the property bass-ackwards cares about) and stays linear → algebra-eligible. For ordinal ESEM, tenBerge-on-polychoric gives the clean model-implied edge; EAP's shrinkage attenuates cross-level correlations, so it's an opt-in (triggers the scores route + raw-data requirement), not the default. |
@@ -352,8 +352,9 @@ that needs it. **No Rcpp dependency planned** (see §3).
 ## 14. Decisions resolved & remaining
 
 **Resolved (design round):**
-1. Rotation default → **orthogonal CF (`cfT`, ≈ varimax) across all engines**; oblique (`cfQ`) a
-   documented option. Cleaner, more communicable cross-level structure; Goldberg-faithful.
+1. Rotation → **orthogonal CF (`cfT`, ≈ varimax) across all engines, only supported rotation**;
+   oblique (`cfQ`) is **out of scope** (resolved 2026-06 — it confounds the cross-level signal that
+   is the method's whole point). Cleaner, more communicable cross-level structure; Goldberg-faithful.
 2. Correlation basis → **`pearson` default, `polychoric` opt-in**, with an ordinal-detection cli
    **warning** (no silent switching).
 3. Within-level order → **primary-parent (recursive), variance tiebreak**; `f{j}` IDs follow it.
@@ -398,7 +399,7 @@ that needs it. **No Rcpp dependency planned** (see §3).
 21. Artefact → **never auto-flagged.** `prune = "artefact"` surfaces φ for inspection; removal is a documented researcher judgment (Forbes is explicit this introduces researcher DoF / confirmation bias; cf. Wicherts et al. 2016).
 
 **Known limitations / deferred to future milestones:**
-- `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe now (orthogonal rotation → `factor_cor = I`; permutation of I is I). When `cfQ`/oblique rotation is implemented, `factor_cor` must be reordered by `ord` to match column ordering of `loadings`. Guard comment is in `engine_esem.R`.
+- `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and `cfQ`/oblique is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.
 - Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (see above).
 - `cor = "spearman"` + `method = "esem"` is semantically inconsistent (lavaan fits Pearson ML on raw data while edges use Spearman R); currently accepted without warning.
 - ESEM engine does not detect or warn on improper/Heywood solutions (lavaan negative residual variances), unlike the EFA engine which warns explicitly.
@@ -415,12 +416,17 @@ that needs it. **No Rcpp dependency planned** (see §3).
 3. **EFA engine**, scores route, algebra-vs-scores cross-check. *(done)*
 4. **ESEM engine (lavaan)** + ordinal/polychoric path + per-level fit in the object. *(done)*
 5. **Forbes extension** (pruning + all-levels edges) + annotated rendering. *(done)*
-6. **Factor-score materialization** — implement `scores = TRUE` storage and `augment.ackwards()`
-   accessor. Store per-level `n × k` score matrices (standardized by real score SDs per Inv. 1)
-   in the `$scores` slot. `augment()` appends score columns to supplied data and recomputes
-   from stored weights + R when scores were not kept (Inv. 3). Add `tidy(what = "scores")`
-   for long-format per-observation output. Verify algebra-vs-materialized agreement (Inv. 2).
-   Scope to linear engines (tenBerge/components) for now; EAP deferred.
+6. **Storage materialization + cfQ cleanup** —
+   (a) `scores = TRUE` storage + `augment.ackwards()` accessor: store per-level `n × k` score
+   matrices (standardized by real score SDs per Inv. 1) in the `$scores` slot; `augment()`
+   appends score columns to supplied data and recomputes from stored weights + R when scores
+   were not kept (Inv. 3); add `tidy(what = "scores")` for long format; verify
+   algebra-vs-materialized agreement (Inv. 2). Linear engines only (tenBerge/components); EAP deferred.
+   (b) `keep_fits = TRUE` storage: retain per-level raw engine objects in the `$fits` slot
+   (same fit-time plumbing/warning block as scores).
+   (c) cfQ cleanup: orthogonal-only is now the resolved design (§9, §14.1) — make `cfQ` error
+   cleanly and consistently as unsupported (not "not yet implemented"); remove the
+   half-promise from all engine messages and docs.
 7. **Documentation** — README.Rmd (storefront + hero example on `bfi`), intro vignette
    (PCA happy path from `suggest_k()` through `augment()`), pkgdown site, then targeted
    vignettes: (a) engines & rotations (PCA/EFA/ESEM comparison), (b) ordinal & non-normal
