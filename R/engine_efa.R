@@ -6,7 +6,7 @@
 # compute_edges() on the algebra path. Convergence failures truncate the
 # hierarchy at the last successful level; Heywood cases warn but continue.
 
-efa_levels <- function(R, k_max, rotation, fm, n_obs) {
+efa_levels <- function(R, k_max, rotation, fm, n_obs, cor_type = "pearson") {
   rlang::check_installed("psych", reason = "for the EFA engine")
 
   p <- nrow(R)
@@ -87,9 +87,11 @@ efa_levels <- function(R, k_max, rotation, fm, n_obs) {
     # tenBerge weights: W = R^{-1} L (L' R^{-1} L)^{-1/2}
     # These make scores exactly uncorrelated with unit variance for orthogonal
     # factors, keeping the algebra path in compute_edges() valid.
+    weight_method <- "tenBerge"
     W <- tryCatch(
       .tenBerge_weights(R, L_rot),
       error = function(e) {
+        weight_method <<- "regression"   # honest label on fallback (Invariant 6)
         cli::cli_warn(
           c(
             "!" = "tenBerge weights failed at k = {k}: {conditionMessage(e)}",
@@ -139,8 +141,8 @@ efa_levels <- function(R, k_max, rotation, fm, n_obs) {
       labels     = labels_k,
       scoring    = list(
         linear    = TRUE,
-        method    = "tenBerge",
-        basis     = "pearson",
+        method    = weight_method,   # "tenBerge" normally; "regression" on fallback
+        basis     = cor_type,        # reflects actual R basis, not assumed "pearson"
         weights   = W,
         score_var = score_var
       )

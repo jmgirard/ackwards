@@ -23,7 +23,9 @@
 #'
 #' @param data A data frame or numeric matrix of observed variables (items in
 #'   columns, observations in rows). Missing values are handled via pairwise
-#'   deletion when computing `R`.
+#'   deletion when computing `R`. Note: `n_obs` passed to the EFA engine is
+#'   always `nrow(data)`; under missingness the effective per-correlation N may
+#'   be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.
 #' @param k Maximum number of factors/components. Required; use
 #'   `suggest_k()` (future release) if uncertain. Sets the depth of the
 #'   hierarchy: levels 1 through `k` are all extracted.
@@ -164,8 +166,9 @@ ackwards <- function(
 
   # --- Extract levels ---------------------------------------------------------
   levels_list <- switch(method,
-    pca = pca_levels(R, k_max = k, rotation = rotation),
-    efa = efa_levels(R, k_max = k, rotation = rotation, fm = fm, n_obs = n_obs)
+    pca = pca_levels(R, k_max = k, rotation = rotation, cor_type = cor),
+    efa = efa_levels(R, k_max = k, rotation = rotation, fm = fm, n_obs = n_obs,
+                     cor_type = cor)
   )
 
   # --- Handle convergence truncation (EFA only in M3; PCA never truncates) ---

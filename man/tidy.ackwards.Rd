@@ -4,7 +4,7 @@
 \alias{tidy.ackwards}
 \title{Tidy an ackwards object into a long data frame}
 \usage{
-\method{tidy}{ackwards}(x, what = c("edges", "loadings", "variance"), ...)
+\method{tidy}{ackwards}(x, what = c("edges", "loadings", "variance", "fit"), ...)
 }
 \arguments{
 \item{x}{An \code{ackwards} object.}
@@ -17,6 +17,9 @@
 \code{level}, \code{factor}, \code{item}, \code{loading}.
 \item \code{"variance"} — one row per factor × level:
 \code{level}, \code{factor}, \code{variance_pct}, \code{cumulative_pct}.
+\item \code{"fit"} — one row per fit index × level: \code{level}, \code{index}, \code{value}.
+For PCA objects the indices are eigenvalues; for EFA objects they are
+\code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, \code{BIC}.
 }}
 
 \item{...}{Ignored.}

@@ -11,6 +11,9 @@
 #'     `level`, `factor`, `item`, `loading`.
 #'   * `"variance"` — one row per factor × level:
 #'     `level`, `factor`, `variance_pct`, `cumulative_pct`.
+#'   * `"fit"` — one row per fit index × level: `level`, `index`, `value`.
+#'     For PCA objects the indices are eigenvalues; for EFA objects they are
+#'     `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`.
 #' @param ... Ignored.
 #'
 #' @return A data frame (class `data.frame`).
@@ -19,12 +22,13 @@
 #'
 #' @importFrom generics tidy
 #' @export
-tidy.ackwards <- function(x, what = c("edges", "loadings", "variance"), ...) {
+tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit"), ...) {
   what <- match.arg(what)
   switch(what,
     edges    = .tidy_edges(x),
     loadings = .tidy_loadings(x),
-    variance = .tidy_variance(x)
+    variance = .tidy_variance(x),
+    fit      = .tidy_fit(x)
   )
 }
 
@@ -46,6 +50,23 @@ tidy.ackwards <- function(x, what = c("edges", "loadings", "variance"), ...) {
         stringsAsFactors = FALSE
       )
     }))
+  })
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
+  out
+}
+
+.tidy_fit <- function(x) {
+  rows <- lapply(names(x$levels), function(ki) {
+    lev <- x$levels[[ki]]
+    k   <- as.integer(ki)
+    fv  <- lev$fit
+    data.frame(
+      level  = k,
+      index  = names(fv),
+      value  = unname(fv),
+      stringsAsFactors = FALSE
+    )
   })
   out <- do.call(rbind, rows)
   rownames(out) <- NULL

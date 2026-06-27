@@ -23,7 +23,9 @@ ackwards(
 \arguments{
 \item{data}{A data frame or numeric matrix of observed variables (items in
 columns, observations in rows). Missing values are handled via pairwise
-deletion when computing \code{R}.}
+deletion when computing \code{R}. Note: \code{n_obs} passed to the EFA engine is
+always \code{nrow(data)}; under missingness the effective per-correlation N may
+be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.}
 
 \item{k}{Maximum number of factors/components. Required; use
 \code{suggest_k()} (future release) if uncertain. Sets the depth of the

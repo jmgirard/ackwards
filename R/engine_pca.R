@@ -10,7 +10,7 @@
 # Returns a list indexed by k (as character), each element matching the
 # DESIGN.md §4 level contract.
 
-pca_levels <- function(R, k_max, rotation) {
+pca_levels <- function(R, k_max, rotation, cor_type = "pearson") {
   rlang::check_installed("psych", reason = "for the PCA engine")
 
   p <- nrow(R)
@@ -76,7 +76,7 @@ pca_levels <- function(R, k_max, rotation) {
       scoring    = list(
         linear    = TRUE,
         method    = "components",
-        basis     = "pearson",
+        basis     = cor_type,
         weights   = W,
         score_var = score_var
       )
