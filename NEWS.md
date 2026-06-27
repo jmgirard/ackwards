@@ -3,3 +3,11 @@
 * Added `ackwards()` implementing Goldberg's (2006) bass-ackwards method with a PCA engine.
 * Added `compute_edges()` computing between-level factor-score correlations via W'RW algebra.
 * Added `print.ackwards()`, `tidy.ackwards()`, and `glance.ackwards()` for output.
+* Added `ba_layout()` computing a Sugiyama-style barycenter layout for bass-ackwards diagrams.
+* Added `autoplot.ackwards()` and `plot.ackwards()` for ggplot2-based hierarchy diagrams
+  (requires ggplot2; edges coloured by sign, scaled by |r|, solid/dashed by strength).
+* Added `suggest_k()` with parallel analysis and MAP (Velicer) criteria to guide choice of `k`.
+* Fixed: `rotation = "cfQ"` now errors immediately rather than silently running oblimin.
+* Fixed: `scores = TRUE` / `keep_fits = TRUE` now warn that storage is not yet implemented.
+* Fixed: `print.ackwards()` cut threshold now reads from the stored object rather than a param.
+* Fixed: `k = 1` now errors; at least two levels are required for a hierarchy.
