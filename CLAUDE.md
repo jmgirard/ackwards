@@ -22,11 +22,19 @@ rationale, contracts, object spec, and resolved defaults are in `DESIGN.md`.
 - **M4 (done):** ESEM engine (`lavaan::efa()`, WLSMV, tenBerge weights, rotation-aware SEs,
   per-level fit indices) + `cor = "polychoric"` for all engines + `loadings_se` in level contract
   + convergence truncation tested + `estimator` argument.
+- **M5 (done):** Forbes extension — `pairs = "all"`, `prune = "redundant"/"artefact"`, Tucker's φ
+  chains (DFS enumeration, global retain set), annotated `autoplot()` (skip-level arcs, pruned
+  fill), `tidy(what = "nodes")`, `augment.ackwards()` print caveat.
 
-## Current focus — Milestone 5
+## Current focus — Milestone 6
 
-**Scope:** Forbes extension — redundancy/artefact pruning, all-levels edges, annotated rendering.
-See `DESIGN.md` §15.5.
+**Scope:** Factor-score materialization. Implement `scores = TRUE` storage (per-level `n × k`
+matrices, standardized by real score SDs per Inv. 1) and `augment.ackwards()` accessor (appends
+score columns; recomputes from weights + R when scores not kept). Add `tidy(what = "scores")` for
+long format. Scope to linear engines; EAP deferred. See `DESIGN.md` §15.6.
+
+After M6: README.Rmd → intro vignette → pkgdown → vignettes (engines, ordinal, Forbes).
+See `DESIGN.md` §15.7.
 
 If a step needs a design decision not covered in `DESIGN.md`, **stop and ask** rather than guessing.
 
@@ -108,5 +116,6 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
 
 ## Out of scope for now
 
-The **Forbes extension** (redundancy/artefact pruning, all-levels edges, annotated rendering) is
-the remaining milestone (`DESIGN.md` §15.5). Don't build it unless asked.
+- **EAP scoring** for ordinal ESEM — deferred past M6; linear tenBerge scores cover the common case.
+- **Oblique rotation full support** — `cfQ` is offered but edge-correlation interpretation is documented as limited; no plans to change the default.
+- **Higher-order SEM / Schmid-Leiman** — out of scope per §2; `ackwards` is correlation-based, not SEM-based.

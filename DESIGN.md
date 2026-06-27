@@ -410,11 +410,22 @@ that needs it. **No Rcpp dependency planned** (see §3).
 ## 15. Suggested milestones
 
 1. **Core + PCA engine + algebra `compute_edges` + object + `print`/`tidy`/`glance`**, validated
-   against `psych::bassAckward`.
-2. **`ba_layout()` + `autoplot()`** (clean adjacent-level diagram) + `suggest_k()`.
-3. **EFA engine**, scores route, algebra-vs-scores cross-check.
-4. **ESEM engine (lavaan)** + ordinal/polychoric path + per-level fit in the object.
-5. **Forbes extension** (pruning + all-levels edges) + annotated rendering.
+   against `psych::bassAckward`. *(done)*
+2. **`ba_layout()` + `autoplot()`** (clean adjacent-level diagram) + `suggest_k()`. *(done)*
+3. **EFA engine**, scores route, algebra-vs-scores cross-check. *(done)*
+4. **ESEM engine (lavaan)** + ordinal/polychoric path + per-level fit in the object. *(done)*
+5. **Forbes extension** (pruning + all-levels edges) + annotated rendering. *(done)*
+6. **Factor-score materialization** — implement `scores = TRUE` storage and `augment.ackwards()`
+   accessor. Store per-level `n × k` score matrices (standardized by real score SDs per Inv. 1)
+   in the `$scores` slot. `augment()` appends score columns to supplied data and recomputes
+   from stored weights + R when scores were not kept (Inv. 3). Add `tidy(what = "scores")`
+   for long-format per-observation output. Verify algebra-vs-materialized agreement (Inv. 2).
+   Scope to linear engines (tenBerge/components) for now; EAP deferred.
+7. **Documentation** — README.Rmd (storefront + hero example on `bfi`), intro vignette
+   (PCA happy path from `suggest_k()` through `augment()`), pkgdown site, then targeted
+   vignettes: (a) engines & rotations (PCA/EFA/ESEM comparison), (b) ordinal & non-normal
+   data (`cor = "polychoric"`, WLSMV), (c) Forbes extension (`pairs = "all"`, pruning,
+   annotated plot).
 
 ---
 
