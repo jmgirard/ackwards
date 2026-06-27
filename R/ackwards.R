@@ -27,12 +27,16 @@
 #' @param k Maximum number of factors/components. Required; use
 #'   `suggest_k()` (future release) if uncertain. Sets the depth of the
 #'   hierarchy: levels 1 through `k` are all extracted.
-#' @param method Extraction engine: `"pca"` (default). `"efa"` and `"esem"`
-#'   are planned for later milestones.
+#' @param method Extraction engine: `"pca"` (default) or `"efa"`.
+#'   `"esem"` is planned for a later milestone.
 #' @param rotation Rotation family: `"cfT"` (orthogonal CF, default) or
 #'   `"cfQ"` (oblique CF). Oblique is theoretically appropriate when
 #'   within-level construct correlations matter, but complicates cross-level
 #'   edge interpretation. See DESIGN.md §9.
+#' @param fm Factor extraction method passed to [psych::fa()]; only used when
+#'   `method = "efa"`. One of `"minres"` (default, robust OLS), `"ml"`
+#'   (maximum likelihood, gives chi-square fit but converges less reliably at
+#'   deep levels), or `"pa"` (principal axis). Ignored for `method = "pca"`.
 #' @param kappa CF rotation kappa parameter. `NULL` (default) uses
 #'   `1 / (2 * p)` where `p` is the number of variables — the value that
 #'   reproduces varimax for orthogonal rotation.
@@ -78,6 +82,7 @@ ackwards <- function(
     rotation  = "cfT",
     kappa     = NULL,
     cor       = "pearson",
+    fm        = "minres",
     align     = TRUE,
     scores    = FALSE,
     keep_fits = FALSE,
@@ -87,8 +92,9 @@ ackwards <- function(
   cl <- match.call()
 
   # --- Input validation -------------------------------------------------------
-  method   <- rlang::arg_match(method,   c("pca"))
+  method   <- rlang::arg_match(method,   c("pca", "efa"))
   rotation <- rlang::arg_match(rotation, c("cfT", "cfQ"))
+  fm       <- rlang::arg_match(fm,       c("minres", "ml", "pa"))
   cor      <- rlang::arg_match(cor,      c("pearson", "spearman"))
 
   if (!is.numeric(k) || length(k) != 1L || k < 2L || k != as.integer(k)) {
@@ -158,8 +164,31 @@ ackwards <- function(
 
   # --- Extract levels ---------------------------------------------------------
   levels_list <- switch(method,
-    pca = pca_levels(R, k_max = k, rotation = rotation)
+    pca = pca_levels(R, k_max = k, rotation = rotation),
+    efa = efa_levels(R, k_max = k, rotation = rotation, fm = fm, n_obs = n_obs)
   )
+
+  # --- Handle convergence truncation (EFA only in M3; PCA never truncates) ---
+  k_eff <- length(levels_list)
+  if (k_eff < 2L) {
+    cli::cli_abort(
+      c(
+        "!" = "EFA failed to build at least 2 converged levels \\
+               (k_eff = {k_eff}; at least 2 are required for a hierarchy).",
+        "i" = "Try {.arg fm = 'minres'}, fewer factors, or check your data for \\
+               perfect multicollinearity or near-singular correlation."
+      )
+    )
+  }
+  if (k_eff < k) {
+    cli::cli_warn(
+      c(
+        "!" = "Hierarchy truncated: {k - k_eff} level{?s} did not converge \\
+               (requested k = {k}, built k = {k_eff}).",
+        "i" = "Set {.arg k = {k_eff}} to suppress this message."
+      )
+    )
+  }
 
   # --- Lineage matching -------------------------------------------------------
   # Build lineage before sign alignment (matching is on |r|, sign-invariant)
@@ -172,18 +201,18 @@ ackwards <- function(
     cut_show = cut_show
   )
 
-  lineage <- vector("list", k)
-  names(lineage) <- as.character(seq_len(k))
-  for (ki in seq_len(k - 1L) + 1L) {
+  lineage <- vector("list", k_eff)
+  names(lineage) <- as.character(seq_len(k_eff))
+  for (ki in seq_len(k_eff - 1L) + 1L) {
     key <- paste0(ki - 1L, ":", ki)
     lineage[[as.character(ki)]] <- match_parents(raw_edges$matrices[[key]])
   }
 
   # --- Sign alignment (DESIGN.md §7) -----------------------------------------
-  if (align && k >= 1L) {
+  if (align && k_eff >= 1L) {
     loadings_list <- lapply(levels_list, `[[`, "loadings")
     aligned <- align_signs(loadings_list, raw_edges$matrices, lineage)
-    for (ki in seq_len(k)) {
+    for (ki in seq_len(k_eff)) {
       levels_list[[as.character(ki)]]$loadings <- aligned$loadings[[ki]]
       # Flip weights consistently with loadings
       levels_list[[as.character(ki)]]$scoring$weights <-
@@ -202,9 +231,11 @@ ackwards <- function(
   )
 
   # --- Meta -------------------------------------------------------------------
+  conv <- vapply(levels_list, `[[`, logical(1L), "converged")
   meta <- list(
-    converged_levels  = vapply(levels_list, `[[`, logical(1L), "converged"),
-    deepest_converged = max(which(vapply(levels_list, `[[`, logical(1L), "converged"))),
+    k_requested       = k,        # what the user asked for (may exceed k_eff)
+    converged_levels  = conv,
+    deepest_converged = max(which(conv)),
     kappa             = kappa,
     cut_show          = cut_show,
     ordinal_warned    = detect_ordinal(as.data.frame(data_mat))
@@ -217,7 +248,7 @@ ackwards <- function(
     rotation    = rotation,
     cor_type    = cor,
     n_obs       = n_obs,
-    k_max       = k,
+    k_max       = k_eff,          # effective depth (may be < k if truncated)
     seed        = seed,
     pkg_version = utils::packageVersion("ackwards"),
     levels      = levels_list,

@@ -11,6 +11,7 @@ ackwards(
   rotation = "cfT",
   kappa = NULL,
   cor = "pearson",
+  fm = "minres",
   align = TRUE,
   scores = FALSE,
   keep_fits = FALSE,
@@ -28,8 +29,8 @@ deletion when computing \code{R}.}
 \code{suggest_k()} (future release) if uncertain. Sets the depth of the
 hierarchy: levels 1 through \code{k} are all extracted.}
 
-\item{method}{Extraction engine: \code{"pca"} (default). \code{"efa"} and \code{"esem"}
-are planned for later milestones.}
+\item{method}{Extraction engine: \code{"pca"} (default) or \code{"efa"}.
+\code{"esem"} is planned for a later milestone.}
 
 \item{rotation}{Rotation family: \code{"cfT"} (orthogonal CF, default) or
 \code{"cfQ"} (oblique CF). Oblique is theoretically appropriate when
@@ -42,6 +43,11 @@ reproduces varimax for orthogonal rotation.}
 
 \item{cor}{Correlation basis: \code{"pearson"} (default) or \code{"spearman"}. A
 \code{"polychoric"} option is planned.}
+
+\item{fm}{Factor extraction method passed to \code{\link[psych:fa]{psych::fa()}}; only used when
+\code{method = "efa"}. One of \code{"minres"} (default, robust OLS), \code{"ml"}
+(maximum likelihood, gives chi-square fit but converges less reliably at
+deep levels), or \code{"pa"} (principal axis). Ignored for \code{method = "pca"}.}
 
 \item{align}{Logical; sign-align factors to primary-parent lineage?
 Default \code{TRUE}.}

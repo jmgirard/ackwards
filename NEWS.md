@@ -1,5 +1,10 @@
-# ackwards 0.0.0.9000
+# ackwards 0.0.0.9000 (dev)
 
+* Added EFA engine (`method = "efa"`) using `psych::fa()` with tenBerge scoring weights,
+  keeping the W'RW algebra path in `compute_edges()`. Convergence failures truncate the
+  hierarchy at the deepest converged level (warn + valid object). Heywood cases warn but
+  do not truncate. Orthogonal rotation only for now; `fm` controls extraction method
+  (`"minres"` default, `"ml"`, `"pa"`).
 * Added `ackwards()` implementing Goldberg's (2006) bass-ackwards method with a PCA engine.
 * Added `compute_edges()` computing between-level factor-score correlations via W'RW algebra.
 * Added `print.ackwards()`, `tidy.ackwards()`, and `glance.ackwards()` for output.
