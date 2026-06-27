@@ -12,19 +12,38 @@ descendants (PCA / EFA / ESEM engines) for hierarchical structural analysis. Ext
 1..k factors, then characterize the hierarchy via between-level factor-score correlations. Full
 rationale, contracts, object spec, and resolved defaults are in `DESIGN.md`.
 
-## Current focus — Milestone 1
+## Completed milestones
 
-Build the core path only; do not start later engines until this is green.
+- **M1 (done):** PCA engine + algebra `compute_edges()` + result object + `print`/`tidy`/`glance`,
+  validated against `psych::bassAckward()`.
+- **M2 (done):** `ba_layout()` + `autoplot()` (adjacent-level diagram) + `suggest_k()`.
+- **M3 (done):** EFA engine (`psych::fa()`, tenBerge weights, algebra path) + materialized-scores
+  route + algebra-vs-scores cross-check tests.
 
-**Scope:** package skeleton → PCA engine → algebra `compute_edges()` → result object →
-`print` / `tidy` / `glance`.
+## Current focus — Milestone 4
+
+**Scope:** ESEM engine (`lavaan::efa()`) + `cor = "polychoric"` as a general basis for all engines
++ per-level fit indices and `loadings_se` in the result object.
+
+**Key design decisions locked for M4 (see `DESIGN.md` §14):**
+- Engine: `lavaan::efa()` — EFA-in-SEM, not full ESEM with structural paths. Value-add over M3 EFA
+  is WLSMV ordinal estimation, rotation-aware SEs, and per-level fit indices.
+- Scoring: self-compute tenBerge weights from lavaan's estimated loadings + latent correlation
+  matrix (lavaan's `lavPredict` has no tenBerge → compute via `.tenBerge_weights()` as in EFA).
+- EAP scoring: deferred; opt-in triggers a `cli_abort("not yet implemented")`.
+- Polychoric basis: general — available to PCA and EFA engines too (compute `R` via
+  `psych::polychoric()` in `ackwards()`, feed to engine; ESEM uses lavaan's own latent `R`).
+- Ordinal estimator default: **WLSMV** (lavaan `estimator = "WLSMV"`, `ordered = TRUE`).
+- CF kappa: **κ = 1/p** (varimax-equivalent; Crawford & Ferguson 1970); now fixed from the
+  erroneous 1/(2p) default.
 
 **Acceptance criteria:**
-- `ackwards(psych::bfi[1:25], k = 5, method = "pca")` returns a valid `ackwards` object.
-- PCA cross-level correlations **match `psych::bassAckward()`** on the same data within tolerance
-  (snapshot test).
-- The algebra-vs-scores cross-check test passes for the PCA engine.
-- `print`, `tidy(what=...)`, `glance` implemented with cli formatting.
+- `ackwards(data, k = 5, method = "esem", cor = "polychoric")` returns a valid `ackwards` object
+  with per-level fit indices and `loadings_se`.
+- `cor = "polychoric"` works for `method = "pca"` and `method = "efa"` too.
+- Algebra-vs-scores cross-check passes for the ESEM engine (tenBerge, linear path).
+- Convergence failures warn + truncate (Invariant 7); non-convergence at k warns, skips, object
+  builds to deepest converged level.
 - `devtools::check()` is clean (0 errors, 0 warnings; notes triaged).
 
 If a step needs a design decision not covered in `DESIGN.md`, **stop and ask** rather than guessing.
@@ -52,9 +71,10 @@ refactor.
 
 ## Resolved defaults (see `DESIGN.md` §9, §14)
 
-Orthogonal CF (`cfT`, ≈ varimax) rotation · `cor = "pearson"` with ordinal-detection warning ·
-`tenBerge` scoring (on the active basis) · Forbes extension **off** · `k` required ·
-sign `align = TRUE` · `scores`/`keep_fits` stored = `FALSE`. Don't change these silently.
+Orthogonal CF (`cfT`, κ = 1/p, ≈ varimax) rotation · `cor = "pearson"` with ordinal-detection
+warning · `tenBerge` scoring (on the active basis) · WLSMV estimator for ordinal ESEM ·
+Forbes extension **off** · `k` required · sign `align = TRUE` · `scores`/`keep_fits` stored =
+`FALSE`. Don't change these silently.
 
 ## Dependencies (see `DESIGN.md` §12)
 
@@ -106,6 +126,5 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
 
 ## Out of scope for now
 
-ESEM/EFA engines, ordinal/polychoric path, Forbes extension, and visualization
-(`ba_layout`/`autoplot`) are **later milestones** (`DESIGN.md` §15). Don't build ahead of Milestone 1
-unless asked.
+The **Forbes extension** (redundancy/artefact pruning, all-levels edges, annotated rendering) is
+the remaining milestone (`DESIGN.md` §15.5). Don't build it unless asked.

@@ -22,3 +22,6 @@
 * Fixed: `scores = TRUE` / `keep_fits = TRUE` now warn that storage is not yet implemented.
 * Fixed: `print.ackwards()` cut threshold now reads from the stored object rather than a param.
 * Fixed: `k = 1` now errors; at least two levels are required for a hierarchy.
+* Fixed: `kappa` default corrected from `1 / (2 * p)` to `1 / p`, which is the
+  varimax-equivalent Crawford-Ferguson value (Crawford & Ferguson, 1970; Browne, 2001;
+  Kim & Eaton, 2015). The previous value (equamax-adjacent) was silently wrong.

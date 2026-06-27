@@ -77,14 +77,16 @@ per-level object:
 
 ```r
 level <- list(
-  k         = <int>,
-  loadings  = <p x k matrix>,         # pattern matrix, item x factor
-  variance  = <named numeric>,        # per-factor + cumulative variance explained
-  fit       = <named numeric>,        # fit indices / eigenvalues; SEs where available
-  converged = <logical>,              # FALSE allowed; never fatal (see §13)
-  factor_cor= <k x k matrix>,         # within-level factor correlations (I for orthogonal)
-  labels    = <character[k]>,         # default m{k}f{j}; user-overridable
-  scoring   = <scoring descriptor>    # see §5
+  k           = <int>,
+  loadings    = <p x k matrix>,       # pattern matrix, item x factor
+  loadings_se = <p x k matrix | NULL>,# rotation-aware SEs; NULL for PCA/EFA; populated by ESEM
+  variance    = <named numeric>,      # per-factor + cumulative variance explained
+  fit         = <named numeric>,      # scalar fit indices / eigenvalues (chi, df, CFI, TLI,
+                                      # RMSEA, SRMR for ESEM; eigenvalues for PCA)
+  converged   = <logical>,            # FALSE allowed; never fatal (see §13)
+  factor_cor  = <k x k matrix>,       # within-level factor correlations (I for orthogonal)
+  labels      = <character[k]>,       # default m{k}f{j}; user-overridable
+  scoring     = <scoring descriptor>  # see §5
 )
 ```
 
@@ -247,7 +249,8 @@ announced via cli and documented in roxygen with its rationale.
 | Decision | Default | Rationale |
 |---|---|---|
 | `method` (engine) | `"pca"` | original method; fastest; never fails to converge; algebra-exact. Docs steer to `efa`/`esem` when a measurement-model rationale exists. |
-| `rotation` | **`cfT` (orthogonal CF, ≈ varimax) across all engines**; `cfQ` (oblique) as documented option | Orthogonal within-level keeps cross-level edges clean and communicable (a parent's variance partitions cleanly among orthogonal children; no correlation-by-proxy) without flattening the cross-level correlations that are the actual output; matches original Goldberg; keeps Waller algebra exact; reduces Heywood risk. Oblique is theoretically apt when within-level construct correlations matter — documented tradeoff. |
+| `rotation` | **`cfT` (orthogonal CF, κ = 1/p, ≈ varimax) across all engines**; `cfQ` (oblique) as documented option | **Only orthogonal rotations produce interpretable between-level factor score correlations** in the bass-ackwards method (Goldberg 2006; Kim & Eaton 2015): oblique within-level correlations confound the cross-level signal. κ = 1/p is the Crawford-Ferguson varimax-equivalent (Crawford & Ferguson 1970; Browne 2001). `cfQ` offered for completeness with a documented caution. |
+| `estimator` (ESEM only) | **`"WLSMV"`** for `cor = "polychoric"`; `"ML"` otherwise | WLSMV (mean-and-variance-adjusted WLS) is the standard limited-information ordinal estimator (matches Kim & Eaton 2015; Forbush et al. 2024); gives correct fit indices for categorical indicators without full-information ML cost. |
 | `cor` (basis) | **`"pearson"`** (matches `psych`/`lavaan`); ordinal opt-in via `cor = "polychoric"` | No silent basis-switching (it can change the structure and break comparison to published work). Instead, **detect likely-ordinal columns and emit a suppressible cli warning** pointing to the polychoric option — loud *advice*, not silent action. |
 | `scores` (method) | **`"tenBerge"`** on the active basis (pearson or polychoric) for factor engines; `"components"` for PCA; `"EAP"` opt-in only | tenBerge preserves factor correlations (the property bass-ackwards cares about) and stays linear → algebra-eligible. For ordinal ESEM, tenBerge-on-polychoric gives the clean model-implied edge; EAP's shrinkage attenuates cross-level correlations, so it's an opt-in (triggers the scores route + raw-data requirement), not the default. |
 | `edge_method` | `"auto"` | algebra when linear, scores otherwise. |
@@ -342,7 +345,7 @@ that needs it. **No Rcpp dependency planned** (see §3).
 
 ## 14. Decisions resolved & remaining
 
-**Resolved (this design round):**
+**Resolved (design round):**
 1. Rotation default → **orthogonal CF (`cfT`, ≈ varimax) across all engines**; oblique (`cfQ`) a
    documented option. Cleaner, more communicable cross-level structure; Goldberg-faithful.
 2. Correlation basis → **`pearson` default, `polychoric` opt-in**, with an ordinal-detection cli
@@ -352,11 +355,33 @@ that needs it. **No Rcpp dependency planned** (see §3).
    Default Likert path does **not** need `data` at edge time.
 5. Package name → **`ackwards`** (verify via `available::available("ackwards")`).
 
-**Remaining small calls (safe to make during build):**
-- Ordinal-detection heuristic thresholds for the warning (max distinct levels; integer check).
-- CF `kappa` exposure: fixed varimax-equivalent default vs. user-tunable.
+**Resolved during build (M1–M3):**
+6. Ordinal-detection heuristic: **≤ 7 distinct integer values** triggers the warning.
+7. CF `kappa`: **κ = 1/p** (varimax-equivalent; Crawford & Ferguson 1970), user-tunable via the
+   `kappa` argument. *Note: the initial implementation incorrectly used 1/(2p); fixed before M4.*
+8. `cor = "spearman"` added alongside `"pearson"` as a non-polychoric rank-based option.
+9. `fm` argument exposed for EFA engine (`"minres"` default, `"ml"`, `"pa"`).
+10. `cut_show` argument exposed (default 0.3) to control which edges are flagged `above_cut`.
+
+**Resolved for M4:**
+11. ESEM engine → **`lavaan::efa()`** (EFA-in-SEM, not full ESEM with structural paths). Gives
+    per-level fit indices + rotation-aware SEs + WLSMV ordinal estimation. Does **not** require
+    full ESEM block syntax; the bass-ackwards levels are independent EFA solutions.
+12. ESEM scoring → self-compute tenBerge weights from lavaan's estimated loadings `Λ` and latent
+    correlation matrix `R` via the existing `.tenBerge_weights(R, Λ)`. `lavPredict()` is not used
+    for the default path (it lacks tenBerge); it is the eventual hook for EAP opt-in.
+13. EAP scoring → **deferred**; an EAP request returns `cli_abort("not yet implemented")`. The
+    scores-route seam in `compute_edges()` is preserved for when EAP lands.
+14. `cor = "polychoric"` → **general basis** for all engines (not ESEM-only). PCA/EFA compute `R`
+    via `psych::polychoric()` in `ackwards()` then feed it to the engine as usual. ESEM uses
+    lavaan's own latent correlation matrix as `R` for edges (do not mix psych-polychoric `R` with
+    lavaan-WLSMV loadings).
+15. ESEM ordinal estimator → **WLSMV** default; ULSMV a documented option.
+16. `loadings_se` → added to the §4 level contract (p×k matrix, NULL for PCA/EFA).
+
+**Remaining (M4 build-time):**
 - `tenBerge`-on-polychoric edge cases when the polychoric matrix is non-positive-definite
-  (smoothing policy; warn).
+  (smoothing policy: warn + apply `Matrix::nearPD` or `psych`'s smoothing).
 
 ## 15. Suggested milestones
 
@@ -375,4 +400,7 @@ that needs it. **No Rcpp dependency planned** (see §3).
 - Kim, H., & Eaton, N. R. (2015). The hierarchical structure of common mental disorders. *J. Abnormal Psychology*, 124(4), 1064–1078.
 - Forbush, K. T., et al. (2024). Integrating "Lumpers" vs "Splitters"... *Clinical Psychological Science*, 12(4), 625–643.
 - Forbes, M. K. (2023). Improving hierarchical models of individual differences: An extension of Goldberg's bass-ackward method. *Psychological Methods*.
+- Asparouhov, T., & Muthén, B. (2009). Exploratory structural equation modeling. *Structural Equation Modeling*, 16(3), 397–438.
+- Crawford, C. B., & Ferguson, G. A. (1970). A general rotation criterion and its use in orthogonal rotation. *Psychometrika*, 35(3), 321–332.
+- Browne, M. W. (2001). An overview of analytic rotation in exploratory factor analysis. *Multivariate Behavioral Research*, 36(1), 111–150.
 - Revelle, W. `psych::bassAckward()` documentation.

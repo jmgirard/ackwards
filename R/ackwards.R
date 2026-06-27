@@ -40,8 +40,9 @@
 #'   (maximum likelihood, gives chi-square fit but converges less reliably at
 #'   deep levels), or `"pa"` (principal axis). Ignored for `method = "pca"`.
 #' @param kappa CF rotation kappa parameter. `NULL` (default) uses
-#'   `1 / (2 * p)` where `p` is the number of variables — the value that
-#'   reproduces varimax for orthogonal rotation.
+#'   `1 / p` where `p` is the number of variables — the value that
+#'   reproduces varimax for orthogonal rotation (Crawford & Ferguson, 1970;
+#'   Browne, 2001; Kim & Eaton, 2015).
 #' @param cor Correlation basis: `"pearson"` (default) or `"spearman"`. A
 #'   `"polychoric"` option is planned.
 #' @param align Logical; sign-align factors to primary-parent lineage?
@@ -156,7 +157,7 @@ ackwards <- function(
   }
 
   # --- kappa (stored in meta for future cfT/cfQ path; not used in M1 PCA) ----
-  if (is.null(kappa)) kappa <- 1 / (2 * p)
+  if (is.null(kappa)) kappa <- 1 / p
 
   # --- Seed capture -----------------------------------------------------------
   if (!is.null(seed)) set.seed(seed)
