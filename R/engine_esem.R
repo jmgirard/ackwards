@@ -10,14 +10,14 @@
 # Key additions over the EFA engine:
 #   - loadings_se: rotation-aware delta-method SEs from lavaan's standardized solution
 #   - fit: CFI, TLI, RMSEA, SRMR from lavaan::fitMeasures()
-#   - Polychoric basis: for cor_type = "polychoric", ordered variables trigger WLSMV
+#   - Polychoric basis: for cor = "polychoric", ordered variables trigger WLSMV
 #
 # Arguments:
 #   data       — numeric matrix, items in columns (raw data, NOT a correlation matrix)
 #   k_max      — maximum number of factors to extract
 #   rotation   — always "varimax" (orthogonal; the only supported rotation)
 #   estimator  — "ML", "WLSMV", "ULSMV", etc.; passed directly to lavaan::efa()
-#   cor_type   — "pearson", "spearman", or "polychoric"; controls ordered= argument
+#   cor   — "pearson", "spearman", or "polychoric"; controls ordered= argument
 #   n_obs      — number of observations (for record-keeping only; lavaan uses data)
 #   R_external — pre-computed correlation matrix for tenBerge weights (used for
 #                continuous paths); NULL for polychoric (lavaan's R is extracted)
@@ -25,7 +25,7 @@
 #
 # Returns list(levels = <named list>, r_lv = <p x p matrix>, fits = <list | NULL>)
 
-esem_levels <- function(data, k_max, estimator, cor_type, n_obs,
+esem_levels <- function(data, k_max, estimator, cor, n_obs,
                         R_external = NULL, keep_fits = FALSE) {
   rlang::check_installed("lavaan", reason = "for the ESEM engine")
   if (!exists("efa", envir = asNamespace("lavaan"), inherits = FALSE)) {
@@ -41,7 +41,7 @@ esem_levels <- function(data, k_max, estimator, cor_type, n_obs,
   item_names <- colnames(data)
 
   # For polychoric/WLSMV: treat all columns as ordered categorical
-  ordered_cols <- if (cor_type == "polychoric") item_names else NULL
+  ordered_cols <- if (cor == "polychoric") item_names else NULL
 
   result <- list()
   fits_list <- if (keep_fits) list() else NULL
@@ -124,13 +124,13 @@ esem_levels <- function(data, k_max, estimator, cor_type, n_obs,
     # Extract correlation matrix from lavaan once (same across levels).
     # For WLSMV + ordered: sampstat$cov IS the polychoric correlation matrix.
     # For ML + continuous: r_lv was already set from R_external before the loop,
-    # so this block only executes for the polychoric path (cor_type == "polychoric").
+    # so this block only executes for the polychoric path (cor == "polychoric").
     # The cov2cor branch is retained for completeness but is not currently reachable.
     if (is.null(r_lv)) {
       r_lv <- tryCatch(
         {
           sstat <- lavaan::lavInspect(fit, "sampstat")
-          if (cor_type == "polychoric") sstat$cov else cov2cor(sstat$cov)
+          if (cor == "polychoric") sstat$cov else cov2cor(sstat$cov)
         },
         error = function(e) NULL
       )
@@ -279,7 +279,7 @@ esem_levels <- function(data, k_max, estimator, cor_type, n_obs,
       scoring = list(
         linear    = TRUE,
         method    = weight_method,
-        basis     = cor_type,
+        basis     = cor,
         weights   = W,
         score_var = score_var
       )

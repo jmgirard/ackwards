@@ -56,7 +56,7 @@ match_parents <- function(E) {
 #
 # Returns: list(loadings = ..., edges = ..., signs = ...) where signs is a list
 # of ±1 vectors (one per level) recording the flip applied.
-align_signs <- function(loadings_list, edges_list, lineage) {
+.align_signs <- function(loadings_list, edges_list, lineage) {
   K <- length(loadings_list)
   signs <- vector("list", K)
 

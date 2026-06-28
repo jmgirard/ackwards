@@ -71,7 +71,7 @@ test_that("ackwards() errors informatively on bad inputs", {
   expect_error(ackwards(list(), k_max = 2), "data frame")
 })
 
-test_that("keep_keep_scores = TRUE stores a named list of score matrices", {
+test_that("keep_scores = TRUE stores a named list of score matrices", {
   skip_if_not_installed("psych")
   x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 2, keep_scores = TRUE))
   expect_false(is.null(x$scores))

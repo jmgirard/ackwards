@@ -1,9 +1,9 @@
 # tests/testthat/test-scores.R
 # M6: scores storage, keep_fits, augment.ackwards(), tidy(what="scores")
 
-# ── keep_keep_scores = FALSE (default) ──────────────────────────────────────────────────
+# ── keep_scores = FALSE (default) ──────────────────────────────────────────────────
 
-test_that("keep_keep_scores = FALSE (default) leaves x$scores as NULL", {
+test_that("keep_scores = FALSE (default) leaves x$scores as NULL", {
   skip_if_not_installed("psych")
   x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 3))
   expect_null(x$scores)
@@ -11,7 +11,7 @@ test_that("keep_keep_scores = FALSE (default) leaves x$scores as NULL", {
 
 # ── keep_scores = TRUE: storage ────────────────────────────────────────────────────
 
-test_that("keep_keep_scores = TRUE stores list of n × k_j matrices with correct dims", {
+test_that("keep_scores = TRUE stores list of n × k_j matrices with correct dims", {
   skip_if_not_installed("psych")
   n <- nrow(psych::bfi)
   x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 3, keep_scores = TRUE))
@@ -184,7 +184,7 @@ test_that("tidy(x, what='scores') errors informatively when no scores stored", {
 
 # ── B1: Engine coverage for scores and keep_fits ──────────────────────────────
 
-test_that("EFA keep_keep_scores = TRUE stores correctly shaped matrices", {
+test_that("EFA keep_scores = TRUE stores correctly shaped matrices", {
   skip_if_not_installed("psych")
   set.seed(1)
   d <- as.data.frame(matrix(rnorm(300 * 6), 300, 6))
@@ -215,7 +215,7 @@ test_that("EFA keep_fits = TRUE stores psych objects for all levels", {
   }
 })
 
-test_that("ESEM keep_keep_scores = TRUE stores correctly shaped matrices", {
+test_that("ESEM keep_scores = TRUE stores correctly shaped matrices", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem", keep_scores = TRUE))
@@ -246,7 +246,7 @@ test_that("ESEM keep_fits = TRUE stores lavaan objects for all levels", {
 
 # ── B3: Truncation — scores only cover converged levels ───────────────────────
 
-test_that("keep_keep_scores = TRUE only covers converged levels when model is truncated", {
+test_that("keep_scores = TRUE only covers converged levels when model is truncated", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   # 6 variables → lavaan::efa() can only fit k <= 3; k = 5 triggers truncation
@@ -320,7 +320,7 @@ test_that("augment(x, data) produces NA scores for rows with missing values", {
   expect_true(is.na(out$.m1f1[5L]))
 })
 
-test_that("keep_keep_scores = TRUE warns when training data has missing rows", {
+test_that("keep_scores = TRUE warns when training data has missing rows", {
   skip_if_not_installed("psych")
   set.seed(42)
   d <- as.data.frame(matrix(rnorm(200L * 10L), 200L, 10L))
@@ -328,7 +328,7 @@ test_that("keep_keep_scores = TRUE warns when training data has missing rows", {
   expect_warning(ackwards(d, k_max = 2L, keep_scores = TRUE), "missing")
 })
 
-test_that("keep_keep_scores = TRUE produces NA scores for rows with missing values", {
+test_that("keep_scores = TRUE produces NA scores for rows with missing values", {
   skip_if_not_installed("psych")
   set.seed(42)
   d <- as.data.frame(matrix(rnorm(200L * 10L), 200L, 10L))

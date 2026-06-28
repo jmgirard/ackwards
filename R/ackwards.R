@@ -240,7 +240,7 @@ ackwards <- function(
       "ML"
     }
     esem_out <- esem_levels(data_mat,
-      k_max = k_max, estimator = estimator_eff, cor_type = cor,
+      k_max = k_max, estimator = estimator_eff, cor = cor,
       n_obs = n_obs, R_external = R_ext, keep_fits = keep_fits
     )
     levels_list <- esem_out$levels
@@ -284,12 +284,12 @@ ackwards <- function(
     }
     engine_out <- switch(engine,
       pca = pca_levels(R,
-        k_max = k_max, cor_type = cor,
+        k_max = k_max, cor = cor,
         keep_fits = keep_fits
       ),
       efa = efa_levels(R,
         k_max = k_max, fm = fm, n_obs = n_obs,
-        cor_type = cor, keep_fits = keep_fits
+        cor = cor, keep_fits = keep_fits
       )
     )
     levels_list <- engine_out$levels
@@ -340,7 +340,7 @@ ackwards <- function(
   # --- Sign alignment (DESIGN.md §7) -----------------------------------------
   if (align_signs && k_eff >= 1L) {
     loadings_list <- lapply(levels_list, `[[`, "loadings")
-    aligned <- align_signs(loadings_list, raw_edges_adj$matrices, lineage)
+    aligned <- .align_signs(loadings_list, raw_edges_adj$matrices, lineage)
     for (ki in seq_len(k_eff)) {
       levels_list[[as.character(ki)]]$loadings <- aligned$loadings[[ki]]
       # Flip weights consistently with loadings

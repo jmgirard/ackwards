@@ -6,7 +6,7 @@
 # compute_edges() on the algebra path. Convergence failures truncate the
 # hierarchy at the last successful level; Heywood cases warn but continue.
 
-efa_levels <- function(R, k_max, fm, n_obs, cor_type = "pearson",
+efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
                        keep_fits = FALSE) {
   rlang::check_installed("psych", reason = "for the EFA engine")
 
@@ -137,7 +137,7 @@ efa_levels <- function(R, k_max, fm, n_obs, cor_type = "pearson",
       scoring = list(
         linear    = TRUE,
         method    = weight_method, # "tenBerge" normally; "regression" on fallback
-        basis     = cor_type, # reflects actual R basis, not assumed "pearson"
+        basis     = cor, # reflects actual R basis, not assumed "pearson"
         weights   = W,
         score_var = score_var
       )
