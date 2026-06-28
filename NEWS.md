@@ -1,5 +1,24 @@
 # ackwards 0.0.0.9000 (dev)
 
+## Milestone 14 — Dedicated `suggest_k()` vignette
+
+* New vignette `vignette("ackwards-suggest-k")` — "Choosing k: How Many
+  Factors?" — a narrative/educational companion to the `suggest_k()` reference
+  page. Covers all five criteria with pros/cons and bias direction, engine-to-
+  criterion pairing (PA-FA for efa/esem; PA-PC for pca), all four arguments
+  including the ordinal→Pearson caveat and the PA non-reproducibility note, and
+  a worked k-selection for the BFI. Listed first in the pkgdown "Deep dives"
+  section. (#M14)
+
+* Intro vignette (`vignette("ackwards-intro")`) Step 1 trimmed to the default
+  `suggest_k()` call plus a pointer to the new vignette; criteria prose moved
+  there. (#M14)
+
+* README corrected: `suggest_k()` description updated from "parallel analysis
+  and Velicer's MAP criterion" to the accurate five-criteria description;
+  "Both criteria agree" prose updated to "The criteria converge"; new vignette
+  added to the "Learn more" table. (#M14)
+
 ## Milestone 13 — Rotation honesty: remove dead `kappa` argument
 
 * The `kappa` argument to `ackwards()` has been removed. It was accepted and

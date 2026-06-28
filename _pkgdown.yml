@@ -25,6 +25,7 @@ articles:
 - title: Deep dives
   navbar: Deep dives
   contents:
+  - ackwards-suggest-k
   - ackwards-engines
   - ackwards-ordinal
   - ackwards-forbes

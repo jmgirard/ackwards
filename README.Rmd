@@ -53,8 +53,9 @@ Because BFI items are recorded on a 6-point ordinal scale, we set
 
 ### Step 1 — Suggest a range of k
 
-`suggest_k()` runs parallel analysis and Velicer's MAP criterion to help you
-choose an upper bound for the hierarchy depth.
+`suggest_k()` runs five complementary criteria — two forms of parallel analysis
+(PC and FA basis), MAP, VSS, and optionally Comparison Data — to help you choose
+an upper bound for the hierarchy depth.
 
 ```{r suggest}
 library(ackwards)
@@ -64,8 +65,8 @@ sk <- suggest_k(bfi)
 sk
 ```
 
-Both criteria agree: k = 5 fits the known Big Five structure of this
-instrument.
+The criteria converge on a consensus range that covers k = 5, consistent with
+the known Big Five structure of this instrument.
 
 ### Step 2 — Fit the hierarchy
 
@@ -116,6 +117,7 @@ names(scored)[26:40]
 | Vignette | Topic |
 |----------|-------|
 | [Introduction](https://jmgirard.github.io/ackwards/articles/ackwards-intro.html) | Full PCA walkthrough: `suggest_k` → `ackwards` → inspect → plot → score |
+| [Choosing k](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.html) | Five criteria explained: pros/cons, bias direction, engine pairing |
 | [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA; convergence and loading comparison |
 | [Ordinal data](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html) | Polychoric correlations, attenuation bias, and WLSMV estimation |
 | [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = "all"` |

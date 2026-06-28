@@ -72,38 +72,24 @@ sufficient for this illustration.
 
 ## Step 1: How many factors? `suggest_k()`
 
-Before fitting the hierarchy, it helps to have a sense of the plausible range
-of k. `suggest_k()` runs five complementary selection criteria — two forms of
-parallel analysis, MAP, VSS, and (optionally) Comparison Data:
-
-- **PA-PC / PA-FA** (Horn, 1965): compares observed PC or FA eigenvalues
-  against those from random data of the same size. PA-PC tends to overextract;
-  PA-FA is more conservative and the better match for EFA/ESEM engines.
-- **MAP** (Velicer, 1976): examines the average off-diagonal partial
-  correlation after successive factors are extracted; suggests the k at which
-  this average is minimized. Usually conservative.
-- **VSS-1 / VSS-2** (Revelle & Rocklin, 1979): finds the k maximising the
-  fit of a very-simple-structure loading pattern at complexities 1 and 2.
-- **CD** (Ruscio & Roche, 2012): resamples from the observed item distributions
-  to generate comparison eigenvalue profiles. Available only when the
-  `EFAtools` package is installed.
+Before fitting the hierarchy, get a sense of the plausible range of k.
+`suggest_k()` runs five complementary selection criteria and reports a consensus
+range:
 
 ```{r suggest_k}
 sk <- suggest_k(bfi, seed = 42)
 sk
 ```
 
-No single criterion is definitive. Look at the consensus range — if all five
-criteria point to the same k (or a tight range), that is strong evidence.
-The note at the bottom reminds us that k in `ackwards()` is an *upper bound*
-— setting k one or two levels above the consensus to watch factors fragment is
-intentional and informative.
-
-A quick diagnostic plot shows the full picture:
-
 ```{r suggest_k_plot, fig.width=6, fig.height=7}
 autoplot(sk)
 ```
+
+No single criterion is decisive — look at where they converge. k in `ackwards()`
+is an *upper bound*; setting k one or two levels above the consensus to watch
+factors fragment is intentional and informative. For a full explanation of each
+criterion, its bias direction, and how to match it to your engine, see
+`vignette("ackwards-suggest-k")`.
 
 ## Step 2: Fit the hierarchy `ackwards()`
 
@@ -317,6 +303,7 @@ The bass-ackwards workflow in **ackwards** has six steps:
 
 | Topic | Vignette |
 |-------|---------|
+| Choosing k: the five criteria in depth, pros/cons, and best practices | `vignette("ackwards-suggest-k")` |
 | When PCA is not enough: comparing EFA and ESEM engines | `vignette("ackwards-engines")` |
 | Ordinal data: polychoric correlations and WLSMV estimation | `vignette("ackwards-ordinal")` |
 | Skip-level connections and pruning with the Forbes extension | `vignette("ackwards-forbes")` |

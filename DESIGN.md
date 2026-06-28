@@ -260,7 +260,8 @@ Report that `k` is a maximum *depth*; users often deliberately set it a level or
 consensus to watch factors fragment. Note the overextraction/non-replicability caution (Forbes 2023).
 Add a `seed` argument for reproducibility of the **CD step only** — `psych::fa.parallel()` does not
 respond reliably to `set.seed()`, so PA simulation results will vary across calls regardless of
-`seed`.
+`seed`. See `vignette("ackwards-suggest-k")` for a narrative/educational treatment of all five
+criteria including pros/cons, bias direction, and engine-to-criterion pairing (M14).
 
 ## 9. Defaults (high-stakes — users will not override these)
 
@@ -688,6 +689,17 @@ that needs it. **No Rcpp dependency planned** (see §3).
     `rotation` or `kappa` as user args implied quartimax/equamax were reasonable alternatives
     (they are not). CF(κ=1/p) ≡ varimax (Crawford & Ferguson 1970; Browne 2001); no reference
     paper varies kappa.
+
+14. **Dedicated `suggest_k()` vignette** *(done)* — documentation-only milestone. New vignette
+    `vignette("ackwards-suggest-k")` ("Choosing k: How Many Factors?") is the narrative/educational
+    companion to the `?suggest_k` reference page. Covers: why k is a maximum depth (not a
+    true-structure claim); all five criteria with pros/cons, bias direction, and when each is the
+    right lens; a compact comparison table; how to read the `print` and `autoplot` output; engine-
+    to-criterion best-practice pairing; all four arguments (`cor`, `n_iter`, `seed`, `k_max`)
+    including the ordinal→Pearson caveat and the PA non-reproducibility note; a worked BFI
+    recommendation. Listed first in the pkgdown "Deep dives" nav. Intro vignette Step-1 trimmed
+    to default call + pointer. README stale two-criteria description updated to five criteria.
+    **Cross-references §8.** See `vignette("ackwards-suggest-k")`.
 
 ---
 
