@@ -206,16 +206,6 @@ test_that("tidy(x, what = 'fit') returns 7 indices per level for ESEM", {
   expect_equal(sort(unique(td$level)), 1:3)
 })
 
-# ── Rotation guard ────────────────────────────────────────────────────────────
-
-test_that("ESEM rotation = 'cfQ' errors as unsupported", {
-  skip_if_not_installed("lavaan")
-  d <- .make_esem_data()
-  expect_error(
-    suppressWarnings(ackwards(d, k = 2, method = "esem", rotation = "cfQ")),
-    "not supported"
-  )
-})
 
 # ── estimator argument ────────────────────────────────────────────────────────
 

@@ -7,7 +7,7 @@
 #
 # Returns list(levels = <named list per §4 contract>, fits = <named list | NULL>)
 
-pca_levels <- function(R, k_max, rotation, cor_type = "pearson", keep_fits = FALSE) {
+pca_levels <- function(R, k_max, cor_type = "pearson", keep_fits = FALSE) {
   rlang::check_installed("psych", reason = "for the PCA engine")
 
   p <- nrow(R)
@@ -15,16 +15,6 @@ pca_levels <- function(R, k_max, rotation, cor_type = "pearson", keep_fits = FAL
   names(result) <- as.character(seq_len(k_max))
   fits_list <- if (keep_fits) vector("list", k_max) else NULL
   if (keep_fits) names(fits_list) <- as.character(seq_len(k_max))
-
-  # cfT (orthogonal CF ≈ varimax) is the only supported rotation.
-  # cfQ is caught before reaching here by ackwards(); this switch is a safety net.
-  psych_rotate <- switch(rotation,
-    cfT = "varimax",
-    cli::cli_abort(
-      "rotation = {.val {rotation}} is not supported. \\
-       Only {.val cfT} (orthogonal CF) is available."
-    )
-  )
 
   for (k in seq_len(k_max)) {
     if (k == 1L) {
@@ -37,7 +27,7 @@ pca_levels <- function(R, k_max, rotation, cor_type = "pearson", keep_fits = FAL
         fit$weights <- -fit$weights
       }
     } else {
-      fit <- psych::pca(R, nfactors = k, rotate = psych_rotate)
+      fit <- psych::pca(R, nfactors = k, rotate = "varimax")
       L_rot <- unclass(fit$loadings)
     }
 

@@ -114,7 +114,6 @@ Now fit the bass-ackwards hierarchy. The most important arguments are:
 | `k` | Maximum depth of the hierarchy | *(required)* |
 | `method` | Extraction engine: `"pca"`, `"efa"`, or `"esem"` | `"pca"` |
 | `cor` | Correlation type: `"pearson"`, `"spearman"`, `"polychoric"` | `"pearson"` |
-| `rotation` | Rotation criterion (orthogonal CF ≈ varimax) | `"cfT"` |
 
 Because BFI items are ordinal, we use `cor = "polychoric"`. This computes
 polychoric correlations between items before factor extraction, giving a more

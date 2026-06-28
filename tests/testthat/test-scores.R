@@ -1,15 +1,5 @@
 # tests/testthat/test-scores.R
-# M6: scores storage, keep_fits, augment.ackwards(), tidy(what="scores"), cfQ
-
-# ── cfQ unsupported (all engines) ─────────────────────────────────────────────
-
-test_that("cfQ errors before any engine runs (no engine-specific message)", {
-  skip_if_not_installed("psych")
-  d <- as.data.frame(matrix(rnorm(300), 100, 6))
-  # Error fires at ackwards() validation, not inside the engine
-  expect_error(ackwards(d, k = 2, rotation = "cfQ"), "not supported")
-  expect_error(ackwards(d, k = 2, method = "efa", rotation = "cfQ"), "not supported")
-})
+# M6: scores storage, keep_fits, augment.ackwards(), tidy(what="scores")
 
 # ── scores = FALSE (default) ──────────────────────────────────────────────────
 
@@ -50,7 +40,7 @@ test_that("PCA tenBerge scores are approximately unit variance (Inv. 1)", {
   set.seed(42)
   data <- as.data.frame(matrix(rnorm(600), 200, 6))
   x <- suppressWarnings(ackwards(data, k = 3, scores = TRUE))
-  # For orthogonal cfT scores, SD ≈ 1 (tenBerge: W'RW = I exactly)
+  # For orthogonal (varimax) scores, SD ≈ 1 (tenBerge: W'RW = I exactly)
   for (ki in names(x$scores)) {
     sds <- apply(x$scores[[ki]], 2, sd, na.rm = TRUE)
     expect_true(all(abs(sds - 1) < 0.05),

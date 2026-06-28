@@ -15,7 +15,7 @@
 # Arguments:
 #   data       — numeric matrix, items in columns (raw data, NOT a correlation matrix)
 #   k_max      — maximum number of factors to extract
-#   rotation   — "cfT" (→ lavaan "varimax"); only supported rotation
+#   rotation   — always "varimax" (orthogonal; the only supported rotation)
 #   estimator  — "ML", "WLSMV", "ULSMV", etc.; passed directly to lavaan::efa()
 #   cor_type   — "pearson", "spearman", or "polychoric"; controls ordered= argument
 #   n_obs      — number of observations (for record-keeping only; lavaan uses data)
@@ -25,7 +25,7 @@
 #
 # Returns list(levels = <named list>, r_lv = <p x p matrix>, fits = <list | NULL>)
 
-esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
+esem_levels <- function(data, k_max, estimator, cor_type, n_obs,
                         R_external = NULL, keep_fits = FALSE) {
   rlang::check_installed("lavaan", reason = "for the ESEM engine")
   if (!exists("efa", envir = asNamespace("lavaan"), inherits = FALSE)) {
@@ -40,15 +40,6 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
   p <- ncol(data)
   item_names <- colnames(data)
 
-  # cfT (≈ varimax) is the only supported rotation; cfQ is caught in ackwards().
-  lav_rotation <- switch(rotation,
-    cfT = "varimax",
-    cli::cli_abort(
-      "rotation = {.val {rotation}} is not supported. \\
-       Only {.val cfT} (orthogonal CF) is available."
-    )
-  )
-
   # For polychoric/WLSMV: treat all columns as ordered categorical
   ordered_cols <- if (cor_type == "polychoric") item_names else NULL
 
@@ -58,7 +49,7 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
 
   for (k in seq_len(k_max)) {
     # No rotation needed for a single factor
-    rotate_k <- if (k == 1L) "none" else lav_rotation
+    rotate_k <- if (k == 1L) "none" else "varimax"
     warn_msgs <- character(0L)
 
     # lavaan::efa() returns an efaList; extract the single lavaan fit object.
@@ -181,8 +172,8 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
 
     # Sort factors by descending variance explained (consistent with PCA/EFA convention).
     # NOTE: factor_cor is extracted independently below and does NOT apply ord.
-    # For orthogonal rotation (factor_cor = I) this is safe. When cfQ / oblique
-    # rotation lands, factor_cor must also be permuted by ord to stay consistent
+    # For orthogonal rotation (factor_cor = I) this is safe. If oblique
+    # rotation were ever added, factor_cor must also be permuted by ord to stay consistent
     # with the column ordering of L.
     var_unsorted <- colSums(L^2) / p
     ord <- order(var_unsorted, decreasing = TRUE)

@@ -104,7 +104,7 @@ x
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
 #> Engine: pca
-#> Rotation: cfT
+#> Rotation: varimax
 #> Basis: polychoric
 #> n: 2,436
 #> k (max): 5

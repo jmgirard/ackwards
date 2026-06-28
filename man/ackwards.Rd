@@ -8,8 +8,6 @@ ackwards(
   data,
   k,
   method = "pca",
-  rotation = "cfT",
-  kappa = NULL,
   cor = "pearson",
   fm = "minres",
   estimator = NULL,
@@ -40,17 +38,6 @@ be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.}
 \code{"esem"} uses \code{\link[lavaan:efa]{lavaan::efa()}} with rotation-aware SEs and per-level fit
 indices; recommended for the clinical/HiTOP workflow (Kim & Eaton, 2015;
 Forbush et al., 2024). Requires lavaan >= 0.6-13.}
-
-\item{rotation}{Rotation family. Only \code{"cfT"} (orthogonal Crawford-Ferguson,
-default, ≈ varimax) is supported. Oblique rotation (\code{"cfQ"}) is not
-available: oblique within-level factor correlations confound the
-between-level score correlations that are the method's core output
-(Goldberg, 2006; Kim & Eaton, 2015). See DESIGN.md §9.}
-
-\item{kappa}{CF rotation kappa parameter. \code{NULL} (default) uses
-\code{1 / p} where \code{p} is the number of variables — the value that
-reproduces varimax for orthogonal rotation (Crawford & Ferguson, 1970;
-Browne, 2001; Kim & Eaton, 2015).}
 
 \item{cor}{Correlation basis: \code{"pearson"} (default), \code{"spearman"}, or
 \code{"polychoric"}. For PCA/EFA, \code{"polychoric"} computes a polychoric
@@ -133,9 +120,13 @@ not a fitted higher-order SEM.
 \itemize{
 \item \strong{\code{method = "pca"}} — the original Goldberg (2006) method; fastest; never
 fails to converge; the Waller (2007) algebra is exact for components.
-\item \strong{\code{rotation = "cfT"}} — orthogonal Crawford-Ferguson (≈ varimax) keeps
-within-level factors uncorrelated, so cross-level edges reflect only the
-hierarchical signal, not within-level factor covariance. Matches Goldberg.
+\item \strong{\code{rotation = "varimax"}} — the \verb{T'=T^-1} property of orthogonal
+rotation enables the closed-form \verb{W'RW} edge algebra and keeps
+within-level factors uncorrelated so cross-level edges reflect only the
+hierarchical signal. Matches Goldberg (2006), Kim & Eaton (2015), and
+Forbush et al. (2024). Varimax is the only supported rotation; oblique
+rotation would confound the between-level signal that is the method's
+core output.
 \item \strong{\code{cor = "pearson"}} — no silent basis switching. If your items look
 ordinal (≤ 7 distinct integer values), a cli warning will suggest
 \code{cor = "polychoric"}, which is available for all three engines.

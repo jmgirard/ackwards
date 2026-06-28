@@ -63,8 +63,8 @@ These are the project's standing priorities (owner-stated) and the recommended s
 ## 4. Engines
 
 Three engines, all first-class, behind one user-facing function (`ackwards()`) that dispatches.
-Rotation is exposed through one unified Crawford-Ferguson interface across engines: `cfT`
-(orthogonal; default, reproduces varimax) and `cfQ` (oblique) with a single `kappa` knob.
+Rotation is a single fixed choice across all engines: **varimax** (orthogonal; the `T'=T^-1`
+property enables the closed-form W'RW algebra). Oblique rotation is out of scope — see §9 and §14.1.
 
 | Engine | Extraction | Typical use | Notes |
 |---|---|---|---|
@@ -270,7 +270,7 @@ announced via cli and documented in roxygen with its rationale.
 | Decision | Default | Rationale |
 |---|---|---|
 | `method` (engine) | `"pca"` | original method; fastest; never fails to converge; algebra-exact. Docs steer to `efa`/`esem` when a measurement-model rationale exists. |
-| `rotation` | **`cfT` (orthogonal CF, κ = 1/p, ≈ varimax) — the only supported rotation** | **Only orthogonal rotations produce interpretable between-level factor score correlations** in the bass-ackwards method (Goldberg 2006; Kim & Eaton 2015): oblique within-level correlations confound the cross-level signal — the package's core deliverable. κ = 1/p is the Crawford-Ferguson varimax-equivalent (Crawford & Ferguson 1970; Browne 2001). **`cfQ` (oblique) is out of scope** (resolved 2026-06): supporting it would invite users to compute the one quantity the method cannot interpret. `rotation` is retained as an argument only to surface a clear error if `cfQ` is requested. |
+| `rotation` | **varimax — the only supported rotation; not a user argument** | **Only orthogonal rotation produces interpretable between-level factor score correlations** in the bass-ackwards method (Goldberg 2006; Kim & Eaton 2015): T'T = I so T' = T^-1, enabling closed-form W'RW algebra (Waller 2007) without materialising scores. CF(κ = 1/p) ≡ varimax (Crawford & Ferguson 1970; Browne 2001) — no reference paper varies κ. Oblique rotation is out of scope (resolved 2026-06, M13): it confounds the cross-level signal that is the method's whole point. `rotation` was removed as a user argument in M13 (varimax hardcoded internally). |
 | `estimator` (ESEM only) | **`"WLSMV"`** for `cor = "polychoric"`; `"ML"` otherwise | WLSMV (mean-and-variance-adjusted WLS) is the standard limited-information ordinal estimator (matches Kim & Eaton 2015; Forbush et al. 2024); gives correct fit indices for categorical indicators without full-information ML cost. |
 | `cor` (basis) | **`"pearson"`** (matches `psych`/`lavaan`); ordinal opt-in via `cor = "polychoric"` | No silent basis-switching (it can change the structure and break comparison to published work). Instead, **detect likely-ordinal columns and emit a suppressible cli warning** pointing to the polychoric option — loud *advice*, not silent action. |
 | `scores` (method) | **`"tenBerge"`** on the active basis (pearson or polychoric) for factor engines; `"components"` for PCA; `"EAP"` opt-in only | tenBerge preserves factor correlations (the property bass-ackwards cares about) and stays linear → algebra-eligible. For ordinal ESEM, tenBerge-on-polychoric gives the clean model-implied edge; EAP's shrinkage attenuates cross-level correlations, so it's an opt-in (triggers the scores route + raw-data requirement), not the default. |
@@ -372,9 +372,9 @@ that needs it. **No Rcpp dependency planned** (see §3).
 ## 14. Decisions resolved & remaining
 
 **Resolved (design round):**
-1. Rotation → **orthogonal CF (`cfT`, ≈ varimax) across all engines, only supported rotation**;
-   oblique (`cfQ`) is **out of scope** (resolved 2026-06 — it confounds the cross-level signal that
-   is the method's whole point). Cleaner, more communicable cross-level structure; Goldberg-faithful.
+1. Rotation → **varimax (orthogonal) across all engines, hardcoded internal constant since M13**;
+   oblique rotation is **out of scope** (resolved 2026-06 — it confounds the cross-level signal that
+   is the method's whole point). `rotation` removed as a user argument in M13.
 2. Correlation basis → **`pearson` default, `polychoric` opt-in**, with an ordinal-detection cli
    **warning** (no silent switching).
 3. Within-level order → **primary-parent (recursive), variance tiebreak**; `f{j}` IDs follow it.
@@ -384,8 +384,10 @@ that needs it. **No Rcpp dependency planned** (see §3).
 
 **Resolved during build (M1–M3):**
 6. Ordinal-detection heuristic: **≤ 7 distinct integer values** triggers the warning.
-7. CF `kappa`: **κ = 1/p** (varimax-equivalent; Crawford & Ferguson 1970), user-tunable via the
-   `kappa` argument. *Note: the initial implementation incorrectly used 1/(2p); fixed before M4.*
+7. CF `kappa`: **κ = 1/p** (varimax-equivalent; Crawford & Ferguson 1970). The `kappa` argument
+   was accepted and stored but never wired to any engine — all engines hardcoded `cfT → "varimax"`.
+   Removed entirely in M13: CF(κ=1/p) ≡ varimax; the literature never varies kappa; exposing it
+   implied quartimax/equamax were reasonable alternatives (they are not for this method).
 8. `cor = "spearman"` added alongside `"pearson"` as a non-polychoric rank-based option.
 9. `fm` argument exposed for EFA engine (`"minres"` default, `"ml"`, `"pa"`).
 10. `cut_show` argument exposed (default 0.3) to control which edges are flagged `above_cut`.
@@ -419,7 +421,7 @@ that needs it. **No Rcpp dependency planned** (see §3).
 21. Artefact → **never auto-flagged.** `prune = "artefact"` surfaces φ for inspection; removal is a documented researcher judgment (Forbes is explicit this introduces researcher DoF / confirmation bias; cf. Wicherts et al. 2016).
 
 **Known limitations / deferred to future milestones:**
-- `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and `cfQ`/oblique is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.
+- `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.
 - Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (see above).
 - `cor = "spearman"` + `method = "esem"` is semantically inconsistent (lavaan fits Pearson ML on raw data while edges use Spearman R); currently accepted without warning.
 - ESEM engine does not detect or warn on improper/Heywood solutions (lavaan negative residual variances), unlike the EFA engine which warns explicitly.
@@ -678,6 +680,14 @@ that needs it. **No Rcpp dependency planned** (see §3).
 
     DoD: criterion + plot tests (CD skipped when `EFAtools` absent); `suggest_k`/visualization
     vignette coverage; `@examples`; NEWS.md.
+
+13. **Rotation honesty** *(done)* — removed dead `kappa` argument and `rotation` user argument
+    from `ackwards()`; renamed "cfT" → "varimax" throughout all three engine internals, result
+    object, print output, README, and docs. **Amends §4, §9, §14.1, §14.7.** Rationale: only one
+    rotation is valid for this method (orthogonality is required for the W'RW algebra); exposing
+    `rotation` or `kappa` as user args implied quartimax/equamax were reasonable alternatives
+    (they are not). CF(κ=1/p) ≡ varimax (Crawford & Ferguson 1970; Browne 2001); no reference
+    paper varies kappa.
 
 ---
 

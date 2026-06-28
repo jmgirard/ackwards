@@ -1,5 +1,24 @@
 # ackwards 0.0.0.9000 (dev)
 
+## Milestone 13 — Rotation honesty: remove dead `kappa` argument
+
+* The `kappa` argument to `ackwards()` has been removed. It was accepted and
+  stored in `x$meta` but was never passed to any of the three engines — all
+  engines already hardcoded `cfT → "varimax"`. Crawford-Ferguson with κ = 1/p
+  is numerically identical to varimax (Crawford & Ferguson, 1970; Browne, 2001),
+  and no reference paper (Goldberg 2006; Kim & Eaton 2015; Forbush et al. 2024)
+  varies kappa. Exposing it implied quartimax/equamax were reasonable alternatives
+  for this method; they are not. (#M13)
+
+* The `rotation` argument to `ackwards()` has been removed. Varimax is the only
+  valid rotation for this method, so exposing it as a choice was misleading.
+  "cfT" (Crawford-Ferguson family name) has been renamed to "varimax" everywhere:
+  the result object's `$rotation` field, `print()` output, and all engine
+  internals. The `@section Defaults` explains why orthogonal rotation is
+  load-bearing (T'T = I so T' = T^-1, enabling closed-form W'RW algebra) and
+  that varimax is what Goldberg (2006), Kim & Eaton (2015), and Forbush et al.
+  (2024) all used. (#M13)
+
 ## Milestone 12 — Best-practice `suggest_k()` expansion
 
 * `suggest_k()` now runs five complementary criteria instead of two. New

@@ -56,6 +56,11 @@ default output must reproduce Forbes's examples exactly.
   `cd_available`, expanded `criteria` table); redesigned `print.suggest_k()` multi-criterion table;
   new `autoplot.suggest_k()` three-panel ggplot2 diagnostic (scree/PA + MAP + VSS); `EFAtools` added
   to Suggests; DESIGN.md §8 and §12 updated.
+- **M13 (done):** Rotation honesty — removed dead `kappa` argument; removed `rotation` argument
+  entirely (only varimax is valid; exposed as a user arg it implied quartimax/equamax were options);
+  renamed "cfT" → "varimax" throughout all three engine internals, the result object, print output,
+  README, and docs; `@section Defaults` explains T′=T⁻¹ → W′RW algebra + varimax = what all
+  reference papers used; DESIGN.md §4, §9, §14.1, §14.7 updated.
 
 ## Current focus
 
@@ -86,8 +91,8 @@ refactor.
 
 ## Resolved defaults (see `DESIGN.md` §9, §14)
 
-Orthogonal CF (`cfT`, κ = 1/p, ≈ varimax) rotation — **only supported rotation; `cfQ`/oblique is
-out of scope** (it confounds the cross-level signal) · `cor = "pearson"` with ordinal-detection
+**Varimax** (orthogonal) rotation — hardcoded internal constant since M13; no `rotation` argument;
+oblique rotation **out of scope** (it confounds the cross-level signal) · `cor = "pearson"` with ordinal-detection
 warning · `tenBerge` scoring (on the active basis) · WLSMV estimator for ordinal ESEM ·
 Forbes extension **off** · `k` required · sign `align = TRUE` · `scores`/`keep_fits` stored =
 `FALSE`. Don't change these silently.
@@ -151,7 +156,7 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
 ## Out of scope for now
 
 - **EAP scoring** for ordinal ESEM — deferred; linear tenBerge scores cover the common case.
-- **Oblique rotation** — `cfQ` hard-errors as unsupported (confounds cross-level signal). No plans to add it.
+- **Oblique rotation** — varimax is hardcoded; no `rotation` argument; oblique confounds the cross-level signal. No plans to add it.
 - **Higher-order SEM / Schmid-Leiman** — out of scope per §2; `ackwards` is correlation-based, not SEM-based.
 - **M5 deferred improvements** — structural artefact signals (split-then-merge, <3-item factors,
   orphans), φ as default for non-PCA redundancy, bootstrap CIs on skip-level edges. Logged in

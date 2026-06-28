@@ -6,26 +6,16 @@
 # compute_edges() on the algebra path. Convergence failures truncate the
 # hierarchy at the last successful level; Heywood cases warn but continue.
 
-efa_levels <- function(R, k_max, rotation, fm, n_obs, cor_type = "pearson",
+efa_levels <- function(R, k_max, fm, n_obs, cor_type = "pearson",
                        keep_fits = FALSE) {
   rlang::check_installed("psych", reason = "for the EFA engine")
 
   p <- nrow(R)
-
-  # cfT (orthogonal CF ≈ varimax) is the only supported rotation.
-  psych_rotate <- switch(rotation,
-    cfT = "varimax",
-    cli::cli_abort(
-      "rotation = {.val {rotation}} is not supported. \\
-       Only {.val cfT} (orthogonal CF) is available."
-    )
-  )
-
   result <- list()
   fits_list <- if (keep_fits) list() else NULL
 
   for (k in seq_len(k_max)) {
-    rotate_k <- if (k == 1L) "none" else psych_rotate
+    rotate_k <- if (k == 1L) "none" else "varimax"
 
     # Run psych::fa(), intercepting convergence warnings so we can act on them
     warn_msgs <- character(0L)

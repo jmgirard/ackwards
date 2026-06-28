@@ -8,9 +8,13 @@
 #' @section Defaults and why:
 #' * **`method = "pca"`** — the original Goldberg (2006) method; fastest; never
 #'   fails to converge; the Waller (2007) algebra is exact for components.
-#' * **`rotation = "cfT"`** — orthogonal Crawford-Ferguson (≈ varimax) keeps
-#'   within-level factors uncorrelated, so cross-level edges reflect only the
-#'   hierarchical signal, not within-level factor covariance. Matches Goldberg.
+#' * **`rotation = "varimax"`** — the `T'=T^-1` property of orthogonal
+#'   rotation enables the closed-form `W'RW` edge algebra and keeps
+#'   within-level factors uncorrelated so cross-level edges reflect only the
+#'   hierarchical signal. Matches Goldberg (2006), Kim & Eaton (2015), and
+#'   Forbush et al. (2024). Varimax is the only supported rotation; oblique
+#'   rotation would confound the between-level signal that is the method's
+#'   core output.
 #' * **`cor = "pearson"`** — no silent basis switching. If your items look
 #'   ordinal (≤ 7 distinct integer values), a cli warning will suggest
 #'   `cor = "polychoric"`, which is available for all three engines.
@@ -33,19 +37,10 @@
 #'   `"esem"` uses [lavaan::efa()] with rotation-aware SEs and per-level fit
 #'   indices; recommended for the clinical/HiTOP workflow (Kim & Eaton, 2015;
 #'   Forbush et al., 2024). Requires lavaan >= 0.6-13.
-#' @param rotation Rotation family. Only `"cfT"` (orthogonal Crawford-Ferguson,
-#'   default, ≈ varimax) is supported. Oblique rotation (`"cfQ"`) is not
-#'   available: oblique within-level factor correlations confound the
-#'   between-level score correlations that are the method's core output
-#'   (Goldberg, 2006; Kim & Eaton, 2015). See DESIGN.md §9.
 #' @param fm Factor extraction method passed to [psych::fa()]; only used when
 #'   `method = "efa"`. One of `"minres"` (default, robust OLS), `"ml"`
 #'   (maximum likelihood, gives chi-square fit but converges less reliably at
 #'   deep levels), or `"pa"` (principal axis). Ignored for `method = "pca"`.
-#' @param kappa CF rotation kappa parameter. `NULL` (default) uses
-#'   `1 / p` where `p` is the number of variables — the value that
-#'   reproduces varimax for orthogonal rotation (Crawford & Ferguson, 1970;
-#'   Browne, 2001; Kim & Eaton, 2015).
 #' @param cor Correlation basis: `"pearson"` (default), `"spearman"`, or
 #'   `"polychoric"`. For PCA/EFA, `"polychoric"` computes a polychoric
 #'   correlation matrix via `psych::polychoric()` (requires psych). For ESEM,
@@ -120,8 +115,6 @@ ackwards <- function(
   data,
   k,
   method = "pca",
-  rotation = "cfT",
-  kappa = NULL,
   cor = "pearson",
   fm = "minres",
   estimator = NULL,
@@ -140,15 +133,6 @@ ackwards <- function(
 
   # --- Input validation -------------------------------------------------------
   method <- rlang::arg_match(method, c("pca", "efa", "esem"))
-  rotation <- rlang::arg_match(rotation, c("cfT", "cfQ"))
-  if (rotation == "cfQ") {
-    cli::cli_abort(c(
-      "!" = "rotation = {.val cfQ} (oblique) is not supported.",
-      "i" = "Oblique rotation confounds the between-level score correlations \\
-             that are the method's core output (see DESIGN.md s9).",
-      "i" = "Only {.val cfT} (orthogonal CF, approx. varimax) is available."
-    ))
-  }
   fm <- rlang::arg_match(fm, c("minres", "ml", "pa"))
   cor <- rlang::arg_match(cor, c("pearson", "spearman", "polychoric"))
   if (!is.null(estimator)) {
@@ -234,9 +218,6 @@ ackwards <- function(
     )
   }
 
-  # --- kappa ------------------------------------------------------------------
-  if (is.null(kappa)) kappa <- 1 / p
-
   # --- Seed capture -----------------------------------------------------------
   if (!is.null(seed)) set.seed(seed)
 
@@ -258,8 +239,7 @@ ackwards <- function(
       "ML"
     }
     esem_out <- esem_levels(data_mat,
-      k_max = k, rotation = rotation,
-      estimator = estimator_eff, cor_type = cor,
+      k_max = k, estimator = estimator_eff, cor_type = cor,
       n_obs = n_obs, R_external = R_ext, keep_fits = keep_fits
     )
     levels_list <- esem_out$levels
@@ -303,11 +283,11 @@ ackwards <- function(
     }
     engine_out <- switch(method,
       pca = pca_levels(R,
-        k_max = k, rotation = rotation, cor_type = cor,
+        k_max = k, cor_type = cor,
         keep_fits = keep_fits
       ),
       efa = efa_levels(R,
-        k_max = k, rotation = rotation, fm = fm, n_obs = n_obs,
+        k_max = k, fm = fm, n_obs = n_obs,
         cor_type = cor, keep_fits = keep_fits
       )
     )
@@ -395,7 +375,6 @@ ackwards <- function(
     k_requested       = k, # what the user asked for (may exceed k_eff)
     converged_levels  = conv,
     deepest_converged = max(which(conv)),
-    kappa             = kappa,
     pairs             = pairs,
     prune             = prune,
     redundancy_r      = redundancy_r,
@@ -408,7 +387,6 @@ ackwards <- function(
   x <- new_ackwards(
     call        = cl,
     method      = method,
-    rotation    = rotation,
     cor_type    = cor,
     n_obs       = n_obs,
     k_max       = k_eff, # effective depth (may be < k if truncated)
@@ -445,14 +423,14 @@ ackwards <- function(
 
 # S3 constructor — validates structure and attaches class
 new_ackwards <- function(
-  call, method, rotation, cor_type, n_obs, k_max, seed, pkg_version,
+  call, method, cor_type, n_obs, k_max, seed, pkg_version,
   levels, edges, lineage, scores, fits, r, data, meta
 ) {
   structure(
     list(
       call        = call,
       method      = method,
-      rotation    = rotation,
+      rotation    = "varimax",
       cor_type    = cor_type,
       n_obs       = n_obs,
       k_max       = k_max,

@@ -71,12 +71,6 @@ test_that("ackwards() errors informatively on bad inputs", {
   expect_error(ackwards(list(), k = 2), "data frame")
 })
 
-test_that("rotation = 'cfQ' errors as unsupported", {
-  skip_if_not_installed("psych")
-  d <- psych::bfi[, 1:5]
-  expect_error(ackwards(d, k = 2, rotation = "cfQ"), "not supported")
-})
-
 test_that("scores = TRUE stores a named list of score matrices", {
   skip_if_not_installed("psych")
   x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k = 2, scores = TRUE))
@@ -116,4 +110,14 @@ test_that("meta$ordinal_warned is TRUE for bfi data", {
   skip_if_not_installed("psych")
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 2))
   expect_true(x$meta$ordinal_warned)
+})
+
+test_that("kappa is not a parameter of ackwards() (M13: removed dead arg)", {
+  expect_false("kappa" %in% names(formals(ackwards)))
+})
+
+test_that("ackwards() meta does not store kappa (M13: removed)", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 2))
+  expect_false("kappa" %in% names(x$meta))
 })
