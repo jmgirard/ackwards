@@ -7,6 +7,12 @@ allowed-tools: Read, Grep, Glob, Bash
 argument-hint: [milestone-number]
 ---
 
+0. Confirm $ARGUMENTS appears in CLAUDE.md's "## Completed milestones" section (e.g., look
+   for "M$ARGUMENTS (done)"). If it does not appear there, stop and flag: either the milestone
+   has not been implemented yet (run /implement-milestone first) or the number is wrong. Do
+   NOT check "## Current focus" — /implement-milestone clears that section on completion, so
+   a successfully implemented milestone will never appear there.
+
 # Post-Milestone Review: Milestone $ARGUMENTS
 
 This is a **read-only audit**. Do not edit, create, or fix any files — report only.
