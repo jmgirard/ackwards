@@ -1,10 +1,12 @@
 ---
 name: implement-milestone
-description: Switches to Sonnet and implements the milestone plan already established in this conversation, following CLAUDE.md's dev workflow and definition of done. Use right after planning a milestone (typically with Opus) in this same session.
-model: sonnet
+description: Implements the milestone plan already established in this conversation, following CLAUDE.md's dev workflow and definition of done. Use right after planning a milestone in this same session.
 disable-model-invocation: true
-argument-hint: [milestone-number]
+argument-hint: "[milestone-number]"
 ---
+
+0. Confirm $ARGUMENTS matches the milestone number recorded in CLAUDE.md's "## Current focus"
+   section. If it doesn't match, stop and flag the mismatch rather than proceeding.
 
 # Implement Milestone $ARGUMENTS
 

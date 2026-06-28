@@ -1,10 +1,9 @@
 ---
 name: post-milestone-review
 description: Read-only conformance audit of a completed milestone against CLAUDE.md acceptance criteria/invariants and the DESIGN.md contracts. Use after finishing a milestone, before starting the next.
-model: opus
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash
-argument-hint: [milestone-number]
+argument-hint: "[milestone-number]"
 ---
 
 0. Confirm $ARGUMENTS appears in CLAUDE.md's "## Completed milestones" section (e.g., look
