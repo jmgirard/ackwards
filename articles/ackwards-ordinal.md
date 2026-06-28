@@ -252,7 +252,7 @@ x_esem
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
 #> Engine: esem
-#> Rotation: cfT
+#> Rotation: varimax
 #> Basis: polychoric
 #> n: 2,436
 #> k (max): 3

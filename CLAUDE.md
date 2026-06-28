@@ -80,17 +80,31 @@ exactly.
   `FALSE` everywhere); Forbes vignette updated to two-figure (labeled +
   unlabeled) treatment; `.lintr` added to `.Rbuildignore` (R CMD check
   fully clean: 0 errors, 0 warnings, 0 notes).
+- **M12 (done):** Best-practice `suggest_k` — PA-FA added alongside
+  PA-PC (`psych::fa.parallel(fa = "both")`); VSS-1/VSS-2 surfaced from
+  existing [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html)
+  call; Comparison Data (CD) added via
+  [`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html) gated by
+  [`rlang::is_installed()`](https://rlang.r-lib.org/reference/is_installed.html)
+  (skips gracefully when absent); new `seed` arg; enriched `suggest_k`
+  object (`k_parallel_pc`, `k_parallel_fa`, `k_vss1`, `k_vss2`, `k_cd`,
+  `cd_available`, expanded `criteria` table); redesigned
+  [`print.suggest_k()`](https://jmgirard.github.io/ackwards/reference/print.suggest_k.md)
+  multi-criterion table; new
+  [`autoplot.suggest_k()`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md)
+  three-panel ggplot2 diagnostic (scree/PA + MAP + VSS); `EFAtools`
+  added to Suggests; DESIGN.md §8 and §12 updated.
+- **M13 (done):** Rotation honesty — removed dead `kappa` argument;
+  removed `rotation` argument entirely (only varimax is valid; exposed
+  as a user arg it implied quartimax/equamax were options); renamed
+  “cfT” → “varimax” throughout all three engine internals, the result
+  object, print output, README, and docs; `@section Defaults` explains
+  T′=T⁻¹ → W′RW algebra + varimax = what all reference papers used;
+  DESIGN.md §4, §9, §14.1, §14.7 updated.
 
-## Current focus — M12 (best-practice `suggest_k`)
+## Current focus
 
-Next up, planned in `DESIGN.md` §15.12:
-
-- **M12 (current):** best-practice `suggest_k` — add Comparison Data
-  (CD, via `EFAtools` gated by `check_installed()`), FA-eigenvalue PA,
-  and VSS-1/2; enrich the object with eigenvalues; new
-  `autoplot.suggest_k()` scree/parallel plot; redesigned multi-criterion
-  `print`. **Amends §8 and §12** (adds `EFAtools` to Suggests; EGA stays
-  out of scope) — flag before landing.
+No milestone in progress. See `DESIGN.md` §15 for candidate next steps.
 
 If a step needs a design decision not covered in `DESIGN.md`, **stop and
 ask** rather than guessing.
@@ -126,12 +140,13 @@ a design decision, not a refactor.
 
 ## Resolved defaults (see `DESIGN.md` §9, §14)
 
-Orthogonal CF (`cfT`, κ = 1/p, ≈ varimax) rotation — **only supported
-rotation; `cfQ`/oblique is out of scope** (it confounds the cross-level
-signal) · `cor = "pearson"` with ordinal-detection warning · `tenBerge`
-scoring (on the active basis) · WLSMV estimator for ordinal ESEM ·
-Forbes extension **off** · `k` required · sign `align = TRUE` ·
-`scores`/`keep_fits` stored = `FALSE`. Don’t change these silently.
+**Varimax** (orthogonal) rotation — hardcoded internal constant since
+M13; no `rotation` argument; oblique rotation **out of scope** (it
+confounds the cross-level signal) · `cor = "pearson"` with
+ordinal-detection warning · `tenBerge` scoring (on the active basis) ·
+WLSMV estimator for ordinal ESEM · Forbes extension **off** · `k`
+required · sign `align = TRUE` · `scores`/`keep_fits` stored = `FALSE`.
+Don’t change these silently.
 
 ## Dependencies (see `DESIGN.md` §12)
 
@@ -143,14 +158,16 @@ testing/docs infrastructure) goes in `Suggests`, gated by
 first; the heavy compute already lives in compiled deps (§3).
 
 Current `Imports`: `cli`, `generics`, `rlang`, `stats`, `utils`. Current
-`Suggests`: `covr`, `ggplot2`, `GPArotation`, `knitr`,
+`Suggests`: `covr`, `EFAtools`, `ggplot2`, `GPArotation`, `knitr`,
 `lavaan (>= 0.6-13)`, `psych`, `rmarkdown`, `testthat (>= 3.0.0)`.
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-uses
-[`psych::fa.parallel`](https://rdrr.io/pkg/psych/man/fa.parallel.html)
-and [`psych::vss`](https://rdrr.io/pkg/psych/man/VSS.html) (no separate
-`EGAnet`/`paran` dep). Visualization uses `ggplot2` directly (no
-`ggraph`/`igraph`/ `tidygraph`). `methods` is **not** imported (no
+uses `psych::fa.parallel(fa="both")` +
+[`psych::vss`](https://rdrr.io/pkg/psych/man/VSS.html) (PA-PC, PA-FA,
+MAP, VSS-1/2) and optionally
+[`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html) (gated by
+[`rlang::is_installed()`](https://rlang.r-lib.org/reference/is_installed.html));
+no separate `EGAnet`/`paran` dep. Visualization uses `ggplot2` directly
+(no `ggraph`/`igraph`/`tidygraph`). `methods` is **not** imported (no
 `methods::` usage). `clue` was removed in M5.
 
 ## Dev workflow
@@ -206,8 +223,8 @@ default, runnable `@examples`, `@seealso` cross-links).
 
 - **EAP scoring** for ordinal ESEM — deferred; linear tenBerge scores
   cover the common case.
-- **Oblique rotation** — `cfQ` hard-errors as unsupported (confounds
-  cross-level signal). No plans to add it.
+- **Oblique rotation** — varimax is hardcoded; no `rotation` argument;
+  oblique confounds the cross-level signal. No plans to add it.
 - **Higher-order SEM / Schmid-Leiman** — out of scope per §2; `ackwards`
   is correlation-based, not SEM-based.
 - **M5 deferred improvements** — structural artefact signals

@@ -302,3 +302,46 @@ autoplot(x,
 For the pruned-factor variant of this figure (nodes omitted, spanning
 arrows) see
 [`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md).
+
+------------------------------------------------------------------------
+
+## Diagnostic scree / criteria plot: `autoplot.suggest_k()`
+
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+returns a multi-criterion object that has its own
+[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+method. It produces a three-panel ggplot2 diagnostic:
+
+- **Scree / Parallel Analysis** — observed PC eigenvalues vs. the PA-PC
+  and PA-FA simulated thresholds (95th percentile from random data).
+- **MAP (minimize)** — Velicer’s MAP criterion; a star marks the optimal
+  k.
+- **VSS (maximize)** — VSS-1 and VSS-2 fit curves; stars mark each
+  optimum.
+
+If `EFAtools` is installed and
+[`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html) ran
+successfully, a dotted vertical line in the MAP panel indicates the
+CD-suggested k.
+
+``` r
+
+sk <- suggest_k(bfi, seed = 42)
+#> ℹ Running parallel analysis (20 iterations, PC + FA)...
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [325ms]
+#> 
+#> ℹ Running MAP and VSS...
+#> ✔ Running MAP and VSS... [184ms]
+#> 
+#> ℹ Running Comparison Data (CD)...
+#> ✔ Running Comparison Data (CD)... [18.9s]
+#> 
+autoplot(sk)
+```
+
+![](ackwards-visualization_files/figure-html/suggest_k_plot-1.png)
+
+Star-shaped markers (shape 8) identify the recommended k for each
+criterion. Use the consensus range across all panels — if they converge
+on the same k, that is strong evidence; if they spread over 2–3 values,
+fit the hierarchy at a few depths and compare interpretability.

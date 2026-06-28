@@ -1,14 +1,14 @@
 # Suggest a maximum number of factors for bass-ackwards analysis
 
-Runs two complementary criteria and reports their recommendations.
-Neither alone is definitive; the goal is a consensus range to inform
-your choice of `k` in
+Runs five complementary selection criteria and reports their
+recommendations. No single criterion is definitive; the goal is a
+consensus range to inform your choice of `k` in
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
 
 ## Usage
 
 ``` r
-suggest_k(data, k_max = NULL, cor = "pearson", n_iter = 20L, ...)
+suggest_k(data, k_max = NULL, cor = "pearson", n_iter = 20L, seed = NULL, ...)
 ```
 
 ## Arguments
@@ -35,27 +35,63 @@ suggest_k(data, k_max = NULL, cor = "pearson", n_iter = 20L, ...)
   Reduce to `5` for fast/exploratory runs; increase to `100+` for
   publication.
 
+- seed:
+
+  Integer seed passed to
+  [`set.seed()`](https://rdrr.io/r/base/Random.html) before the
+  Comparison Data (CD) step. `NULL` (default) uses the current RNG
+  state. **Note:** the parallel-analysis step uses
+  [`psych::fa.parallel()`](https://rdrr.io/pkg/psych/man/fa.parallel.html),
+  which does not respond reliably to
+  [`set.seed()`](https://rdrr.io/r/base/Random.html) – PA simulation
+  results will vary across calls regardless of `seed`.
+
 - ...:
 
   Reserved for future arguments.
 
 ## Value
 
-An object of class `"suggest_k"`. Print it for a formatted summary. The
-list contains:
+An object of class `"suggest_k"`. Print it for a formatted summary; call
+[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+on it for a diagnostic scree/criteria plot. The list contains:
 
-- k_parallel:
+- k_parallel_pc:
 
-  Recommended k from parallel analysis.
+  Recommended k from PC-based parallel analysis.
+
+- k_parallel_fa:
+
+  Recommended k from FA-based parallel analysis (`NA_integer_` if no FA
+  factor exceeded the random threshold).
 
 - k_map:
 
   Recommended k from MAP.
 
+- k_vss1:
+
+  Recommended k from VSS complexity-1.
+
+- k_vss2:
+
+  Recommended k from VSS complexity-2.
+
+- k_cd:
+
+  Recommended k from Comparison Data (`NA_integer_` when EFAtools is not
+  installed or CD fails).
+
+- cd_available:
+
+  Logical; `TRUE` when EFAtools was found and CD ran successfully.
+
 - criteria:
 
-  Data frame with one row per k: `k`, `map` value, `pa_suggested`
-  (logical; `TRUE` if k is within the parallel-analysis threshold).
+  Data frame with one row per k: `k`, `ev_obs` (observed PC eigenvalue),
+  `ev_obs_fa` (observed FA eigenvalue), `pa_pc_quant` / `pa_fa_quant`
+  (95th-pct simulated eigenvalue for each basis), `pa_pc_suggested` /
+  `pa_fa_suggested` (logical retention), `map`, `vss1`, `vss2`.
 
 - k_max, n_obs, n_vars, cor:
 
@@ -65,20 +101,34 @@ list contains:
 
 **Criteria computed:**
 
-- **Parallel analysis** (Horn 1965) – compares observed eigenvalues to
-  those from random correlation matrices of the same size. Suggests the
-  number of components whose eigenvalues exceed the 95th-percentile
-  chance level.
+- **PA-PC** (Horn 1965, PC basis) – parallel analysis on
+  principal-component eigenvalues. Compares observed eigenvalues to
+  those from random correlation matrices; suggests retaining components
+  whose eigenvalues exceed the 95th percentile of chance. Tends to
+  overextract; treat as an upper bound.
 
-- **MAP** (Velicer 1976) – the Minimum Average Partial criterion. Finds
-  the number of components that minimises the average squared partial
-  correlation after the components are partialled out.
+- **PA-FA** (Horn 1965, FA basis) – parallel analysis using
+  common-factor eigenvalues. More conservative than PA-PC and the better
+  match for the EFA and ESEM engines in
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
 
-Both use the same Pearson or Spearman correlation matrix as
+- **MAP** (Velicer 1976) – Minimum Average Partial criterion. Finds the
+  k that minimises the average squared partial correlation remaining
+  after extracting k components. Usually conservative.
+
+- **VSS-1 / VSS-2** (Revelle & Rocklin 1979) – Very Simple Structure fit
+  at complexities 1 and 2. Finds the k maximising the fit of a very
+  simple loading structure.
+
+- **CD** (Ruscio & Roche 2012; optional) – Comparison Data. Resamples
+  from the observed item distributions to generate comparison eigenvalue
+  profiles; retains factors until adding one no longer improves RMSE
+  beyond chance. Requires the EFAtools package (install separately).
+
+PA (both bases), MAP, and VSS share the same correlation matrix as
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
-Parallel analysis is implemented via
-[`psych::fa.parallel()`](https://rdrr.io/pkg/psych/man/fa.parallel.html);
-MAP via [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html).
+CD operates on the raw data matrix directly (required for resampling)
+and is skipped gracefully when EFAtools is not installed.
 
 ## Interpreting the output
 
@@ -91,13 +141,10 @@ overextraction.
 
 ## A note on overextraction
 
-Parallel analysis in particular tends to recommend more factors than
-replicate across independent samples, especially with correlated items
-(Forbes, 2023). Treat these criteria as a starting range for
-exploration, not a definitive stopping rule. Setting `k` in
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-one or two levels above the consensus is intentional – watching factors
-fragment is part of the method.
+PA-PC in particular tends to recommend more factors than replicate
+across independent samples, especially with correlated items (Forbes,
+2023). PA-FA and CD are more conservative. Treat the full set of
+criteria as a range: the true k is likely somewhere in the middle.
 
 ## References
 
@@ -108,6 +155,14 @@ differences: An extension of Goldberg's bass-ackward method.
 
 Horn, J. L. (1965). A rationale and test for the number of factors in
 factor analysis. *Psychometrika*, 30, 179–185.
+
+Revelle, W., & Rocklin, T. (1979). Very simple structure: An alternative
+procedure for estimating the optimal number of interpretable factors.
+*Multivariate Behavioral Research*, 14(4), 403–414.
+
+Ruscio, J., & Roche, B. (2012). Determining the number of factors to
+retain in an exploratory factor analysis using comparison data of a
+known factorial structure. *Psychological Assessment*, 24(2), 282–292.
 
 Velicer, W. F. (1976). Determining the number of components from the
 matrix of partial correlations. *Psychometrika*, 41, 321–327.
@@ -120,7 +175,11 @@ matrix of partial correlations. *Psychometrika*, 41, 321–327.
 
 ``` r
 if (FALSE) { # \dontrun{
-suggest_k(psych::bfi[, 1:25])
+sk <- suggest_k(psych::bfi[, 1:25])
+sk
+autoplot(sk)
+
+# Faster exploratory run
 suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5)
 } # }
 ```

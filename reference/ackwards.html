@@ -67,8 +67,6 @@ not a fitted higher-order SEM.</p>
 <span>  <span class="va">data</span>,</span>
 <span>  <span class="va">k</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"pca"</span>,</span>
-<span>  rotation <span class="op">=</span> <span class="st">"cfT"</span>,</span>
-<span>  kappa <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cor <span class="op">=</span> <span class="st">"pearson"</span>,</span>
 <span>  fm <span class="op">=</span> <span class="st">"minres"</span>,</span>
 <span>  estimator <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -108,21 +106,6 @@ be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.</p><
 <code>"esem"</code> uses <code><a href="https://rdrr.io/pkg/lavaan/man/efa.html" class="external-link">lavaan::efa()</a></code> with rotation-aware SEs and per-level fit
 indices; recommended for the clinical/HiTOP workflow (Kim &amp; Eaton, 2015;
 Forbush et al., 2024). Requires lavaan &gt;= 0.6-13.</p></dd>
-
-
-<dt id="arg-rotation">rotation<a class="anchor" aria-label="anchor" href="#arg-rotation"></a></dt>
-<dd><p>Rotation family. Only <code>"cfT"</code> (orthogonal Crawford-Ferguson,
-default, ≈ varimax) is supported. Oblique rotation (<code>"cfQ"</code>) is not
-available: oblique within-level factor correlations confound the
-between-level score correlations that are the method's core output
-(Goldberg, 2006; Kim &amp; Eaton, 2015). See DESIGN.md §9.</p></dd>
-
-
-<dt id="arg-kappa">kappa<a class="anchor" aria-label="anchor" href="#arg-kappa"></a></dt>
-<dd><p>CF rotation kappa parameter. <code>NULL</code> (default) uses
-<code>1 / p</code> where <code>p</code> is the number of variables — the value that
-reproduces varimax for orthogonal rotation (Crawford &amp; Ferguson, 1970;
-Browne, 2001; Kim &amp; Eaton, 2015).</p></dd>
 
 
 <dt id="arg-cor">cor<a class="anchor" aria-label="anchor" href="#arg-cor"></a></dt>
@@ -226,9 +209,13 @@ output methods.</p>
 
 <ul><li><p><strong><code>method = "pca"</code></strong> — the original Goldberg (2006) method; fastest; never
 fails to converge; the Waller (2007) algebra is exact for components.</p></li>
-<li><p><strong><code>rotation = "cfT"</code></strong> — orthogonal Crawford-Ferguson (≈ varimax) keeps
-within-level factors uncorrelated, so cross-level edges reflect only the
-hierarchical signal, not within-level factor covariance. Matches Goldberg.</p></li>
+<li><p><strong><code>rotation = "varimax"</code></strong> — the <code>T'=T^-1</code> property of orthogonal
+rotation enables the closed-form <code>W'RW</code> edge algebra and keeps
+within-level factors uncorrelated so cross-level edges reflect only the
+hierarchical signal. Matches Goldberg (2006), Kim &amp; Eaton (2015), and
+Forbush et al. (2024). Varimax is the only supported rotation; oblique
+rotation would confound the between-level signal that is the method's
+core output.</p></li>
 <li><p><strong><code>cor = "pearson"</code></strong> — no silent basis switching. If your items look
 ordinal (≤ 7 distinct integer values), a cli warning will suggest
 <code>cor = "polychoric"</code>, which is available for all three engines.</p></li>

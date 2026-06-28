@@ -86,9 +86,9 @@ recommended stance on each.
 
 Three engines, all first-class, behind one user-facing function
 ([`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md))
-that dispatches. Rotation is exposed through one unified
-Crawford-Ferguson interface across engines: `cfT` (orthogonal; default,
-reproduces varimax) and `cfQ` (oblique) with a single `kappa` knob.
+that dispatches. Rotation is a single fixed choice across all engines:
+**varimax** (orthogonal; the `T'=T^-1` property enables the closed-form
+W’RW algebra). Oblique rotation is out of scope — see §9 and §14.1.
 
 | Engine | Extraction | Typical use | Notes |
 |----|----|----|----|
@@ -285,21 +285,35 @@ core, with the heavy bits nullable and recomputable.
 ## 8. Suggesting k
 
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-returns **several criteria and a recommended range**, never a single
-number: **parallel analysis** (Horn, via
-[`psych::fa.parallel`](https://rdrr.io/pkg/psych/man/fa.parallel.html))
-and **MAP** (Velicer, via
-[`psych::vss`](https://rdrr.io/pkg/psych/man/VSS.html)). Empirical
-Kaiser Criterion (EKC) and EGA ([EGAnet](https://r-ega.net)) are **out
-of scope** — the `EGAnet`/`paran` deps were not added (see §12);
-[`psych::fa.parallel`](https://rdrr.io/pkg/psych/man/fa.parallel.html) +
-[`psych::vss`](https://rdrr.io/pkg/psych/man/VSS.html) cover the
-most-used criteria without extra deps. For Likert/ordinal data, compute
-these on the **polychoric** matrix when `cor = "polychoric"` is set
-(basis follows the same choice as the main call). Report that `k` is a
-maximum *depth*; users often deliberately set it a level or two past the
-consensus to watch factors fragment. Note the
-overextraction/non-replicability caution (Forbes 2023).
+returns **several complementary criteria and a consensus range**, never
+a single number. The five criteria implemented (M12):
+
+| Criterion | Source | Function | Notes |
+|----|----|----|----|
+| **PA-PC** | Horn (1965), PC basis | `psych::fa.parallel(fa = "both")` | Tends to overextract; use as upper bound |
+| **PA-FA** | Horn (1965), FA basis | same call | More conservative; model-consistent for EFA/ESEM |
+| **MAP** | Velicer (1976) | [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html) | Minimise average squared partial; usually conservative |
+| **VSS-1/VSS-2** | Revelle & Rocklin (1979) | same call (already returned) | Maximise very-simple-structure fit at complexities 1 and 2 |
+| **CD** | Ruscio & Roche (2012) | [`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html) (optional) | Resamples raw data; among top performers in simulation; skipped gracefully when `EFAtools` absent |
+
+Empirical Kaiser Criterion (EKC) and EGA ([EGAnet](https://r-ega.net))
+are **out of scope** — additional deps without sufficient incremental
+benefit over the five criteria above. Note:
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+accepts `cor = "pearson"` (default) or `"spearman"` only; `"polychoric"`
+is not supported (PA and VSS do not have a polychoric
+eigen-decomposition path). Users analysing ordinal data should run
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+on the Pearson matrix and then switch to `cor = "polychoric"` in
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+Report that `k` is a maximum *depth*; users often deliberately set it a
+level or two past the consensus to watch factors fragment. Note the
+overextraction/non-replicability caution (Forbes 2023). Add a `seed`
+argument for reproducibility of the **CD step only** —
+[`psych::fa.parallel()`](https://rdrr.io/pkg/psych/man/fa.parallel.html)
+does not respond reliably to
+[`set.seed()`](https://rdrr.io/r/base/Random.html), so PA simulation
+results will vary across calls regardless of `seed`.
 
 ## 9. Defaults (high-stakes — users will not override these)
 
@@ -310,7 +324,7 @@ with its rationale.
 | Decision | Default | Rationale |
 |----|----|----|
 | `method` (engine) | `"pca"` | original method; fastest; never fails to converge; algebra-exact. Docs steer to `efa`/`esem` when a measurement-model rationale exists. |
-| `rotation` | **`cfT` (orthogonal CF, κ = 1/p, ≈ varimax) — the only supported rotation** | **Only orthogonal rotations produce interpretable between-level factor score correlations** in the bass-ackwards method (Goldberg 2006; Kim & Eaton 2015): oblique within-level correlations confound the cross-level signal — the package’s core deliverable. κ = 1/p is the Crawford-Ferguson varimax-equivalent (Crawford & Ferguson 1970; Browne 2001). **`cfQ` (oblique) is out of scope** (resolved 2026-06): supporting it would invite users to compute the one quantity the method cannot interpret. `rotation` is retained as an argument only to surface a clear error if `cfQ` is requested. |
+| `rotation` | **varimax — the only supported rotation; not a user argument** | **Only orthogonal rotation produces interpretable between-level factor score correlations** in the bass-ackwards method (Goldberg 2006; Kim & Eaton 2015): T’T = I so T’ = T^-1, enabling closed-form W’RW algebra (Waller 2007) without materialising scores. CF(κ = 1/p) ≡ varimax (Crawford & Ferguson 1970; Browne 2001) — no reference paper varies κ. Oblique rotation is out of scope (resolved 2026-06, M13): it confounds the cross-level signal that is the method’s whole point. `rotation` was removed as a user argument in M13 (varimax hardcoded internally). |
 | `estimator` (ESEM only) | **`"WLSMV"`** for `cor = "polychoric"`; `"ML"` otherwise | WLSMV (mean-and-variance-adjusted WLS) is the standard limited-information ordinal estimator (matches Kim & Eaton 2015; Forbush et al. 2024); gives correct fit indices for categorical indicators without full-information ML cost. |
 | `cor` (basis) | **`"pearson"`** (matches `psych`/`lavaan`); ordinal opt-in via `cor = "polychoric"` | No silent basis-switching (it can change the structure and break comparison to published work). Instead, **detect likely-ordinal columns and emit a suppressible cli warning** pointing to the polychoric option — loud *advice*, not silent action. |
 | `scores` (method) | **`"tenBerge"`** on the active basis (pearson or polychoric) for factor engines; `"components"` for PCA; `"EAP"` opt-in only | tenBerge preserves factor correlations (the property bass-ackwards cares about) and stays linear → algebra-eligible. For ordinal ESEM, tenBerge-on-polychoric gives the clean model-implied edge; EAP’s shrinkage attenuates cross-level correlations, so it’s an opt-in (triggers the scores route + raw-data requirement), not the default. |
@@ -408,7 +422,7 @@ however they like.
 | Imports (lean) | `stats`, `utils`, `cli`, `rlang`, `generics` | core, console output, guards, tidy/augment/glance generics |
 | Suggests — engines | `psych`, `GPArotation`, `lavaan (>= 0.6-13)` | EFA/PCA/rotations (CF family); ESEM |
 | Suggests — ordinal | `psych` | polychoric correlations for Likert basis |
-| Suggests — suggest_k | `psych` | `fa.parallel` (parallel analysis) + `vss` (MAP); no separate `EGAnet`/`paran` dep |
+| Suggests — suggest_k | `psych`, `EFAtools` (optional) | `fa.parallel(fa="both")` (PA-PC + PA-FA) + `vss` (MAP + VSS-1/2); [`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html) for Comparison Data (skipped gracefully when absent); no `EGAnet`/`paran` dep |
 | ~~Suggests — matching~~ | ~~`clue`~~ | ~~Hungarian assignment~~ — removed M5; greedy argmax (§7) requires no dep |
 | Suggests — viz | `ggplot2` | diagrams; uses `ggplot2` directly, not `ggraph`/`igraph`/`tidygraph` |
 | Suggests — infra | `testthat (>= 3.0.0)`, `knitr`, `rmarkdown`, `covr` | testing, vignettes, coverage |
@@ -416,7 +430,10 @@ however they like.
 `methods` is **not** imported — no `methods::` usage in the package.
 `ggraph`, `igraph`, `tidygraph`, `EGAnet`, `paran`, `future`,
 `future.apply` are **not** in DESCRIPTION (earlier design considered
-them; implementation chose leaner routes).
+them; implementation chose leaner routes). `EFAtools` is in Suggests
+(added M12) but gated behind
+[`rlang::is_installed()`](https://rlang.r-lib.org/reference/is_installed.html)
+— never hard-required.
 
 Gate every Suggests use with
 [`rlang::check_installed()`](https://rlang.r-lib.org/reference/is_installed.html)
@@ -441,28 +458,30 @@ dependency planned** (see §3).
 
 ## 14. Decisions resolved & remaining
 
-**Resolved (design round):** 1. Rotation → **orthogonal CF (`cfT`, ≈
-varimax) across all engines, only supported rotation**; oblique (`cfQ`)
+**Resolved (design round):** 1. Rotation → **varimax (orthogonal) across
+all engines, hardcoded internal constant since M13**; oblique rotation
 is **out of scope** (resolved 2026-06 — it confounds the cross-level
-signal that is the method’s whole point). Cleaner, more communicable
-cross-level structure; Goldberg-faithful. 2. Correlation basis →
-**`pearson` default, `polychoric` opt-in**, with an ordinal-detection
-cli **warning** (no silent switching). 3. Within-level order →
-**primary-parent (recursive), variance tiebreak**; `f{j}` IDs follow it.
-4. Ordinal ESEM scoring → **tenBerge on polychoric (linear → algebra)**
-as default; **EAP opt-in**. Default Likert path does **not** need `data`
-at edge time. 5. Package name → **`ackwards`** (verify via
+signal that is the method’s whole point). `rotation` removed as a user
+argument in M13. 2. Correlation basis → **`pearson` default,
+`polychoric` opt-in**, with an ordinal-detection cli **warning** (no
+silent switching). 3. Within-level order → **primary-parent (recursive),
+variance tiebreak**; `f{j}` IDs follow it. 4. Ordinal ESEM scoring →
+**tenBerge on polychoric (linear → algebra)** as default; **EAP
+opt-in**. Default Likert path does **not** need `data` at edge time. 5.
+Package name → **`ackwards`** (verify via
 `available::available("ackwards")`).
 
 **Resolved during build (M1–M3):** 6. Ordinal-detection heuristic: **≤ 7
 distinct integer values** triggers the warning. 7. CF `kappa`: **κ =
-1/p** (varimax-equivalent; Crawford & Ferguson 1970), user-tunable via
-the `kappa` argument. *Note: the initial implementation incorrectly used
-1/(2p); fixed before M4.* 8. `cor = "spearman"` added alongside
-`"pearson"` as a non-polychoric rank-based option. 9. `fm` argument
-exposed for EFA engine (`"minres"` default, `"ml"`, `"pa"`). 10.
-`cut_show` argument exposed (default 0.3) to control which edges are
-flagged `above_cut`.
+1/p** (varimax-equivalent; Crawford & Ferguson 1970). The `kappa`
+argument was accepted and stored but never wired to any engine — all
+engines hardcoded `cfT → "varimax"`. Removed entirely in M13: CF(κ=1/p)
+≡ varimax; the literature never varies kappa; exposing it implied
+quartimax/equamax were reasonable alternatives (they are not for this
+method). 8. `cor = "spearman"` added alongside `"pearson"` as a
+non-polychoric rank-based option. 9. `fm` argument exposed for EFA
+engine (`"minres"` default, `"ml"`, `"pa"`). 10. `cut_show` argument
+exposed (default 0.3) to control which edges are flagged `above_cut`.
 
 **Resolved for M4:** 11. ESEM engine →
 **[`lavaan::efa()`](https://rdrr.io/pkg/lavaan/man/efa.html)**
@@ -528,10 +547,10 @@ cf. Wicherts et al. 2016).
 **Known limitations / deferred to future milestones:** - `factor_cor` in
 the ESEM engine is not permuted by the variance-sort `ord` vector. Safe
 permanently: only orthogonal rotation is supported (`factor_cor = I`;
-permutation of I is I), and `cfQ`/oblique is out of scope (§9, §14.1).
-The guard comment in `engine_esem.R` documents what *would* be required
-if that decision were ever reversed. - Algebra-vs-scores cross-check
-does not cover `cor = "polychoric"` paths (see above). -
+permutation of I is I), and oblique rotation is out of scope (§9,
+§14.1). The guard comment in `engine_esem.R` documents what *would* be
+required if that decision were ever reversed. - Algebra-vs-scores
+cross-check does not cover `cor = "polychoric"` paths (see above). -
 `cor = "spearman"` + `method = "esem"` is semantically inconsistent
 (lavaan fits Pearson ML on raw data while edges use Spearman R);
 currently accepted without warning. - ESEM engine does not detect or
@@ -874,20 +893,23 @@ claim is inferentially honest.
     to the two-figure (labeled + unlabeled) treatment; `@param show_r`
     rewritten (coupling note removed); NEWS.md.
 
-12. **Best-practice `suggest_k` expansion + `autoplot.suggest_k()`** —
-    adds simulation-validated criteria and a ggplot diagnostic. **Amends
-    §8 and §12** (design-record changes; EGA remains out of scope).
+12. **Best-practice `suggest_k` expansion +
+    [`autoplot.suggest_k()`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md)**
+    *(done)* — adds simulation-validated criteria and a ggplot
+    diagnostic. **Amends §8 and §12** (design-record changes; EGA
+    remains out of scope).
 
     **(a) New criteria.** (i) **Comparison Data** (CD; Ruscio &
     Roche 2012) via `rlang::check_installed("EFAtools")` →
-    `EFAtools::CD()` — among the top simulation performers and a
-    genuinely different signal (reproduces the full eigenvalue profile +
-    a bootstrap retention test); needs raw data, is stochastic (add a
-    `seed`), and skips gracefully when `EFAtools` is absent. (ii)
-    **FA-eigenvalue parallel analysis**
-    (`psych::fa.parallel(fa = "fa")`) alongside the existing PC-based PA
-    — the model-consistent criterion for the EFA/ESEM engines. (iii)
-    **VSS-1/VSS-2** (Revelle & Rocklin 1979) — already returned by the
+    [`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html) — among
+    the top simulation performers and a genuinely different signal
+    (reproduces the full eigenvalue profile + a bootstrap retention
+    test); needs raw data, is stochastic (add a `seed`), and skips
+    gracefully when `EFAtools` is absent. (ii) **FA-eigenvalue parallel
+    analysis** (`psych::fa.parallel(fa = "fa")`) alongside the existing
+    PC-based PA — the model-consistent criterion for the EFA/ESEM
+    engines. (iii) **VSS-1/VSS-2** (Revelle & Rocklin 1979) — already
+    returned by the
     [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html) call used
     for MAP; surfaced rather than discarded.
 
@@ -896,10 +918,12 @@ claim is inferentially honest.
     FA), and the per-k MAP/VSS curves — the data backing the plot.
     Additive; no existing field changes.
 
-    **(c) `autoplot.suggest_k()`.** New S3 method (`generics`/`ggplot2`,
-    already Suggests): a parallel-analysis/scree plot (observed
-    eigenvalues vs. the random-data reference line, retention threshold
-    marked) with MAP/VSS on a companion panel. Mirrors the existing
+    **(c)
+    [`autoplot.suggest_k()`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md).**
+    New S3 method (`generics`/`ggplot2`, already Suggests): a
+    parallel-analysis/scree plot (observed eigenvalues vs. the
+    random-data reference line, retention threshold marked) with MAP/VSS
+    on a companion panel. Mirrors the existing
     [`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md)
     idiom; supersedes `psych`’s base-graphics output for this package’s
     users.
@@ -914,6 +938,18 @@ claim is inferentially honest.
 
     DoD: criterion + plot tests (CD skipped when `EFAtools` absent);
     `suggest_k`/visualization vignette coverage; `@examples`; NEWS.md.
+
+13. **Rotation honesty** *(done)* — removed dead `kappa` argument and
+    `rotation` user argument from
+    [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md);
+    renamed “cfT” → “varimax” throughout all three engine internals,
+    result object, print output, README, and docs. **Amends §4, §9,
+    §14.1, §14.7.** Rationale: only one rotation is valid for this
+    method (orthogonality is required for the W’RW algebra); exposing
+    `rotation` or `kappa` as user args implied quartimax/equamax were
+    reasonable alternatives (they are not). CF(κ=1/p) ≡ varimax
+    (Crawford & Ferguson 1970; Browne 2001); no reference paper varies
+    kappa.
 
 ------------------------------------------------------------------------
 

@@ -12,8 +12,6 @@ ackwards(
   data,
   k,
   method = "pca",
-  rotation = "cfT",
-  kappa = NULL,
   cor = "pearson",
   fm = "minres",
   estimator = NULL,
@@ -55,21 +53,6 @@ ackwards(
   rotation-aware SEs and per-level fit indices; recommended for the
   clinical/HiTOP workflow (Kim & Eaton, 2015; Forbush et al., 2024).
   Requires lavaan \>= 0.6-13.
-
-- rotation:
-
-  Rotation family. Only `"cfT"` (orthogonal Crawford-Ferguson, default,
-  ≈ varimax) is supported. Oblique rotation (`"cfQ"`) is not available:
-  oblique within-level factor correlations confound the between-level
-  score correlations that are the method's core output (Goldberg, 2006;
-  Kim & Eaton, 2015). See DESIGN.md §9.
-
-- kappa:
-
-  CF rotation kappa parameter. `NULL` (default) uses `1 / p` where `p`
-  is the number of variables — the value that reproduces varimax for
-  orthogonal rotation (Crawford & Ferguson, 1970; Browne, 2001; Kim &
-  Eaton, 2015).
 
 - cor:
 
@@ -188,10 +171,13 @@ for output methods.
   never fails to converge; the Waller (2007) algebra is exact for
   components.
 
-- **`rotation = "cfT"`** — orthogonal Crawford-Ferguson (≈ varimax)
-  keeps within-level factors uncorrelated, so cross-level edges reflect
-  only the hierarchical signal, not within-level factor covariance.
-  Matches Goldberg.
+- **`rotation = "varimax"`** — the `T'=T^-1` property of orthogonal
+  rotation enables the closed-form `W'RW` edge algebra and keeps
+  within-level factors uncorrelated so cross-level edges reflect only
+  the hierarchical signal. Matches Goldberg (2006), Kim & Eaton (2015),
+  and Forbush et al. (2024). Varimax is the only supported rotation;
+  oblique rotation would confound the between-level signal that is the
+  method's core output.
 
 - **`cor = "pearson"`** — no silent basis switching. If your items look
   ordinal (≤ 7 distinct integer values), a cli warning will suggest

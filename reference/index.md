@@ -10,6 +10,8 @@ The main modelling function and a helper for choosing k.
   : Suggest a maximum number of factors for bass-ackwards analysis
 - [`print(`*`<suggest_k>`*`)`](https://jmgirard.github.io/ackwards/reference/print.suggest_k.md)
   : Print a suggest_k object
+- [`autoplot(`*`<suggest_k>`*`)`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md)
+  : Plot a suggest_k diagnostic
 
 ## Extract results
 

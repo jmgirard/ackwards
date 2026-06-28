@@ -2,6 +2,70 @@
 
 ## ackwards 0.0.0.9000 (dev)
 
+### Milestone 13 — Rotation honesty: remove dead `kappa` argument
+
+- The `kappa` argument to
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  has been removed. It was accepted and stored in `x$meta` but was never
+  passed to any of the three engines — all engines already hardcoded
+  `cfT → "varimax"`. Crawford-Ferguson with κ = 1/p is numerically
+  identical to varimax (Crawford & Ferguson, 1970; Browne, 2001), and no
+  reference paper (Goldberg 2006; Kim & Eaton 2015; Forbush et al. 2024)
+  varies kappa. Exposing it implied quartimax/equamax were reasonable
+  alternatives for this method; they are not. (#M13)
+
+- The `rotation` argument to
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  has been removed. Varimax is the only valid rotation for this method,
+  so exposing it as a choice was misleading. “cfT” (Crawford-Ferguson
+  family name) has been renamed to “varimax” everywhere: the result
+  object’s `$rotation` field,
+  [`print()`](https://rdrr.io/r/base/print.html) output, and all engine
+  internals. The `@section Defaults` explains why orthogonal rotation is
+  load-bearing (T’T = I so T’ = T^-1, enabling closed-form W’RW algebra)
+  and that varimax is what Goldberg (2006), Kim & Eaton (2015), and
+  Forbush et al.
+
+  2024. all used. (#M13)
+
+### Milestone 12 — Best-practice `suggest_k()` expansion
+
+- [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  now runs five complementary criteria instead of two. New criteria:
+  **PA-FA** (factor-eigenvalue parallel analysis, the model-consistent
+  companion to PA-PC), **VSS-1/VSS-2** (Very Simple Structure; already
+  computed from [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html)
+  but now surfaced), and **CD** (Comparison Data, Ruscio & Roche 2012,
+  via [`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html) —
+  skipped gracefully when `EFAtools` is not installed). (#M12)
+
+- The `suggest_k` object has been enriched with new fields:
+  `k_parallel_pc`, `k_parallel_fa` (replaces `k_parallel`), `k_vss1`,
+  `k_vss2`, `k_cd`, `cd_available`; and the `criteria` table now
+  includes `ev_obs`, `pa_pc_quant`, `pa_pc_suggested`, `pa_fa_quant`,
+  `pa_fa_suggested`, `vss1`, `vss2`. (#M12)
+
+- New `seed` argument to
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  for reproducibility of the stochastic parallel-analysis and Comparison
+  Data steps. (#M12)
+
+- New
+  [`autoplot.suggest_k()`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md)
+  method produces a three-panel ggplot2 diagnostic: a
+  parallel-analysis/scree plot, a MAP panel, and a VSS panel. Optimal k
+  for each criterion is marked with a star-shaped point. (#M12)
+
+- [`print.suggest_k()`](https://jmgirard.github.io/ackwards/reference/print.suggest_k.md)
+  redesigned as a multi-criterion table showing PA-PC, PA-FA, MAP,
+  VSS-1, VSS-2, and CD (when available) side by side, with a consensus
+  range summary and overextraction caution. (#M12)
+
+- `EFAtools` added to `Suggests` in DESCRIPTION. Never imported
+  directly; gated by
+  [`rlang::is_installed()`](https://rlang.r-lib.org/reference/is_installed.html).
+  (#M12)
+
 ### Milestone 11 — Edge-label polish + `show_r` decoupling
 
 - `show_r` now defaults to `FALSE` in all
@@ -379,7 +443,8 @@
 - `x$prune$phi` now includes an `abs_phi` column alongside `phi` to aid
   artefact screening when sign alignment is ambiguous for non-primary
   cross-level factor pairs.
-- **Bug fix:** `match_parents()` previously used `clue::solve_LSAP`
+- **Bug fix:** `match_parents()` previously used
+  [`clue::solve_LSAP`](https://rdrr.io/pkg/clue/man/solve_LSAP.html)
   (bipartite bijection), which is ill-posed for bass-ackwards
   hierarchies — adjacent levels always have more children than parents,
   so the padding row returned indices beyond `nrow(E)`. Replaced with

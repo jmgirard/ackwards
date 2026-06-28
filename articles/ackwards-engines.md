@@ -58,7 +58,7 @@ x_pca
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
 #> Engine: pca
-#> Rotation: cfT
+#> Rotation: varimax
 #> Basis: polychoric
 #> n: 2,436
 #> k (max): 3
@@ -109,7 +109,7 @@ x_efa
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
 #> Engine: efa
-#> Rotation: cfT
+#> Rotation: varimax
 #> Basis: polychoric
 #> n: 2,436
 #> k (max): 3
@@ -248,7 +248,7 @@ x_esem
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
 #> Engine: esem
-#> Rotation: cfT
+#> Rotation: varimax
 #> Basis: polychoric
 #> n: 2,436
 #> k (max): 3

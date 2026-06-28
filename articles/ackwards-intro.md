@@ -66,24 +66,34 @@ this illustration.
 Before fitting the hierarchy, it helps to have a sense of the plausible
 range of k.
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-runs two established selection criteria:
+runs five complementary selection criteria — two forms of parallel
+analysis, MAP, VSS, and (optionally) Comparison Data:
 
-- **Parallel analysis** (Horn, 1965): compares observed eigenvalues
-  against those from random data of the same size and suggests retaining
-  factors whose observed eigenvalues exceed the parallel-analysis
-  threshold.
-- **Velicer’s MAP criterion** (Velicer, 1976): examines the average
-  off-diagonal partial correlation after successive factors are
-  extracted; suggests the k at which this average is minimized.
+- **PA-PC / PA-FA** (Horn, 1965): compares observed PC or FA eigenvalues
+  against those from random data of the same size. PA-PC tends to
+  overextract; PA-FA is more conservative and the better match for
+  EFA/ESEM engines.
+- **MAP** (Velicer, 1976): examines the average off-diagonal partial
+  correlation after successive factors are extracted; suggests the k at
+  which this average is minimized. Usually conservative.
+- **VSS-1 / VSS-2** (Revelle & Rocklin, 1979): finds the k maximising
+  the fit of a very-simple-structure loading pattern at complexities 1
+  and 2.
+- **CD** (Ruscio & Roche, 2012): resamples from the observed item
+  distributions to generate comparison eigenvalue profiles. Available
+  only when the `EFAtools` package is installed.
 
 ``` r
 
-sk <- suggest_k(bfi)
-#> ℹ Running parallel analysis (20 iterations)...
-#> ✔ Running parallel analysis (20 iterations)... [94ms]
+sk <- suggest_k(bfi, seed = 42)
+#> ℹ Running parallel analysis (20 iterations, PC + FA)...
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [335ms]
 #> 
-#> ℹ Running MAP (Velicer)...
-#> ✔ Running MAP (Velicer)... [114ms]
+#> ℹ Running MAP and VSS...
+#> ✔ Running MAP and VSS... [173ms]
+#> 
+#> ℹ Running Comparison Data (CD)...
+#> ✔ Running Comparison Data (CD)... [18.3s]
 #> 
 sk
 #> 
@@ -91,46 +101,50 @@ sk
 #> Variables: 25
 #> n: 2,436
 #> Basis: pearson
-#> Tested k: 1–8
+#> Tested k: 1-8
 #> 
-#> ── Criteria (k = 1–8) ──
+#> ── Criteria (k = 1-8) ──
 #> 
-#> ✔ k = 1: MAP = 0.0249 | PA suggested
-#> ✔ k = 2: MAP = 0.0189 | PA suggested
-#> ✔ k = 3: MAP = 0.0175 | PA suggested
-#> ✔ k = 4: MAP = 0.0157 | PA suggested
-#> ✔ k = 5: MAP = 0.0146 | PA suggested
-#> - k = 6: MAP = 0.0160 | PA not suggested
-#> - k = 7: MAP = 0.0194 | PA not suggested
-#> - k = 8: MAP = 0.0222 | PA not suggested
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔
+#> k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔
+#> k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD ✔*
 #> 
 #> ── Recommendations ──
 #> 
-#> • Parallel analysis: k ≤ 5
-#> • MAP (Velicer): k = 5
-#> Consensus: k = 5
+#> • PA-PC: k <= 5
+#> • PA-FA: k <= 6
+#> • MAP: k = 5
+#> • VSS-1: k = 4
+#> • VSS-2: k = 5
+#> • CD: k = 8
+#> Consensus range: k = 4-8
 #> ────────────────────────────────────────────────────────────────────────────────
-#> Note: k in ackwards() is a maximum depth. Consider setting k one or two levels
-#> above the consensus to observe factor fragmentation.
-#> Caution: parallel analysis tends to overextract; many suggested structures do
-#> not replicate (Forbes, 2023). Treat this as a range.
+#> Note: k in ackwards() is a maximum depth. Setting k one or two levels above the
+#> consensus to observe factor fragmentation is intentional.
+#> Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
+#> 2023). PA-FA and CD are more conservative. Use the range.
 ```
 
-> **What is that warning?**
-> [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-> detected that the BFI items look ordinal (integer-valued, ≤ 7 distinct
-> values). By default it still uses Pearson correlations, which can
-> underestimate factor loadings for ordinal items. When you move to
-> [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md),
-> you can address this with `cor = "polychoric"` — we will do that next.
-
-Both criteria agree: k = 5. This matches the instrument design (Big
-Five) and gives us a clear target. The note at the bottom reminds us
-that k in
+No single criterion is definitive. Look at the consensus range — if all
+five criteria point to the same k (or a tight range), that is strong
+evidence. The note at the bottom reminds us that k in
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-is an *upper bound* — the hierarchy covers every level from 1 to k, so
-setting k one or two levels higher than the consensus is often
-informative.
+is an *upper bound* — setting k one or two levels above the consensus to
+watch factors fragment is intentional and informative.
+
+A quick diagnostic plot shows the full picture:
+
+``` r
+
+autoplot(sk)
+```
+
+![](ackwards-intro_files/figure-html/suggest_k_plot-1.png)
 
 ## Step 2: Fit the hierarchy `ackwards()`
 
@@ -141,7 +155,6 @@ Now fit the bass-ackwards hierarchy. The most important arguments are:
 | `k` | Maximum depth of the hierarchy | *(required)* |
 | `method` | Extraction engine: `"pca"`, `"efa"`, or `"esem"` | `"pca"` |
 | `cor` | Correlation type: `"pearson"`, `"spearman"`, `"polychoric"` | `"pearson"` |
-| `rotation` | Rotation criterion (orthogonal CF ≈ varimax) | `"cfT"` |
 
 Because BFI items are ordinal, we use `cor = "polychoric"`. This
 computes polychoric correlations between items before factor extraction,
@@ -168,7 +181,7 @@ x
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
 #> Engine: pca
-#> Rotation: cfT
+#> Rotation: varimax
 #> Basis: polychoric
 #> n: 2,436
 #> k (max): 5
@@ -210,7 +223,7 @@ summary(x)
 #> 
 #> ── Summary: Bass-Ackwards Analysis (ackwards) ──────────────────────────────────
 #> Engine: pca
-#> Rotation: cfT
+#> Rotation: varimax
 #> Basis: polychoric
 #> n: 2,436
 #> k (max): 5
@@ -263,7 +276,7 @@ comparisons across models:
 
 glance(x)
 #>   method rotation   cor_type k_max n_obs deepest_converged n_edges
-#> 1    pca      cfT polychoric     5  2436                 5      40
+#> 1    pca  varimax polychoric     5  2436                 5      40
 ```
 
 ## Step 4: Visualize the hierarchy `autoplot()`
