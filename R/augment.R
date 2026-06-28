@@ -23,13 +23,13 @@ generics::augment
 #'
 #' **Data source.** If `data` is supplied, scores are always recomputed from
 #' it using the stored weights — this is how to score new observations. If
-#' `data` is `NULL` and `scores = TRUE` was set at fit time, the stored
+#' `data` is `NULL` and `keep_scores = TRUE` was set at fit time, the stored
 #' scores are returned. If neither is available an informative error is raised.
 #'
 #' @param x An `ackwards` object.
 #' @param data A data frame or numeric matrix with the same variables (columns)
 #'   used to fit `x`. When `NULL` (default), uses pre-stored scores if
-#'   available (requires `scores = TRUE` at fit time).
+#'   available (requires `keep_scores = TRUE` at fit time).
 #' @param ... Ignored.
 #'
 #' @return A data frame. If `data` is supplied it is returned with score
@@ -40,13 +40,13 @@ generics::augment
 #'
 #' @examples
 #' \dontrun{
-#' # Score the training data on the fly (no scores=TRUE needed)
-#' x <- ackwards(psych::bfi[, 1:25], k = 5)
+#' # Score the training data on the fly (no keep_scores=TRUE needed)
+#' x <- ackwards(psych::bfi[, 1:25], k_max = 5)
 #' scores_df <- augment(x, data = psych::bfi[, 1:25])
 #' head(scores_df[, grep("^\\.m", names(scores_df))])
 #'
 #' # Or store at fit time and augment without re-supplying data
-#' x2 <- ackwards(psych::bfi[, 1:25], k = 5, scores = TRUE)
+#' x2 <- ackwards(psych::bfi[, 1:25], k_max = 5, keep_scores = TRUE)
 #' scores_df2 <- augment(x2)
 #' }
 #'
@@ -91,7 +91,7 @@ augment.ackwards <- function(x, data = NULL, ...) {
     cli::cli_abort(c(
       "!" = "Factor scores are not stored in this {.cls ackwards} object \\
              and no {.arg data} was supplied.",
-      "i" = "Either refit with {.code scores = TRUE} or pass the original \\
+      "i" = "Either refit with {.code keep_scores = TRUE} or pass the original \\
              data: {.code augment(x, data = your_data)}."
     ))
   }

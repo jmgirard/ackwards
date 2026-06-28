@@ -2,7 +2,7 @@ test_that("prune='none' leaves x$prune as NULL", {
   skip_if_not_installed("psych")
   set.seed(10)
   data <- as.data.frame(matrix(rnorm(300), 100, 6))
-  x <- suppressWarnings(ackwards(data, k = 3))
+  x <- suppressWarnings(ackwards(data, k_max = 3))
   expect_null(x$prune)
   expect_equal(x$meta$prune, "none")
   expect_equal(x$meta$pairs, "adjacent")
@@ -14,7 +14,7 @@ test_that("prune='redundant' auto-upgrades pairs to 'all' with message", {
   data <- as.data.frame(matrix(rnorm(300), 100, 6))
 
   expect_message(
-    x <- suppressWarnings(ackwards(data, k = 3, prune = "redundant")),
+    x <- suppressWarnings(ackwards(data, k_max = 3, prune = "redundant")),
     "upgraded"
   )
   expect_equal(x$meta$pairs, "all")
@@ -41,7 +41,7 @@ test_that("prune='redundant' detects a known redundant chain and flags correctly
   )
 
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k = 4, prune = "redundant", redundancy_r = 0.9)
+    ackwards(data, k_max = 4, prune = "redundant", redundancy_r = 0.9)
   ))
 
   nodes <- x$prune$nodes
@@ -57,7 +57,7 @@ test_that("x$prune$nodes has one row per factor with correct structure", {
   set.seed(1)
   data <- as.data.frame(matrix(rnorm(900), 150, 6))
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k = 3, prune = "redundant")
+    ackwards(data, k_max = 3, prune = "redundant")
   ))
 
   nodes <- x$prune$nodes
@@ -90,7 +90,7 @@ test_that("x$prune$chains has correct structure when chains are found", {
     x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
   )
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k = 4, prune = "redundant", redundancy_r = 0.9)
+    ackwards(data, k_max = 4, prune = "redundant", redundancy_r = 0.9)
   ))
 
   if (!is.null(x$prune$chains)) {
@@ -126,7 +126,7 @@ test_that("retention rule: chain reaching k_max retains bottom node", {
   )
   k_max <- 4L
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k = k_max, prune = "redundant", redundancy_r = 0.9)
+    ackwards(data, k_max = k_max, prune = "redundant", redundancy_r = 0.9)
   ))
 
   if (!is.null(x$prune$chains)) {
@@ -167,7 +167,7 @@ test_that("prune='artefact' computes phi table without flagging nodes", {
   set.seed(5)
   data <- as.data.frame(matrix(rnorm(900), 150, 6))
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k = 3, prune = "artefact")
+    ackwards(data, k_max = 3, prune = "artefact")
   ))
 
   expect_false(is.null(x$prune))
@@ -198,7 +198,7 @@ test_that("redundancy_phi conjunctive criterion is applied when set", {
   # With phi threshold of 1 (impossible), no chains should survive
   x_strict <- suppressWarnings(suppressMessages(
     ackwards(data,
-      k = 4, prune = "redundant",
+      k_max = 4, prune = "redundant",
       redundancy_r = 0.9, redundancy_phi = 1.0
     )
   ))
@@ -210,12 +210,12 @@ test_that("invalid redundancy_r and redundancy_phi are rejected", {
   skip_if_not_installed("psych")
   data <- as.data.frame(matrix(rnorm(300), 100, 6))
   expect_error(
-    suppressWarnings(ackwards(data, k = 3, prune = "redundant", redundancy_r = 1.5)),
+    suppressWarnings(ackwards(data, k_max = 3, prune = "redundant", redundancy_r = 1.5)),
     "redundancy_r"
   )
   expect_error(
     suppressWarnings(ackwards(data,
-      k = 3, prune = "redundant",
+      k_max = 3, prune = "redundant",
       redundancy_phi = -0.1
     )),
     "redundancy_phi"
@@ -240,7 +240,7 @@ test_that("tidy(x, what='nodes') returns prune$nodes when pruning was applied", 
     x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
   )
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k = 4, prune = "redundant")
+    ackwards(data, k_max = 4, prune = "redundant")
   ))
 
   nodes <- tidy(x, what = "nodes")
@@ -252,7 +252,7 @@ test_that("tidy(x, what='nodes') returns prune$nodes when pruning was applied", 
 
 test_that("tidy(x, what='nodes') returns empty frame with correct columns when no pruning", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
   expect_null(x$prune)
 
   nodes <- tidy(x, what = "nodes")
@@ -283,7 +283,7 @@ test_that("print.ackwards() executes without error when pruning annotations are 
     x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
   )
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k = 4, prune = "redundant")
+    ackwards(data, k_max = 4, prune = "redundant")
   ))
   expect_no_error(print(x))
   expect_invisible(print(x))
@@ -348,7 +348,7 @@ test_that("B4: prune works correctly when hierarchy is truncated (k_eff < k_requ
   d <- .make_esem_data()
 
   x <- suppressWarnings(suppressMessages(
-    ackwards(d, k = 5, method = "esem", prune = "redundant")
+    ackwards(d, k_max = 5, engine = "esem", prune = "redundant")
   ))
 
   expect_equal(x$k_max, 3L)

@@ -7,7 +7,7 @@
 compute_edges(
   levels,
   R,
-  method = c("auto", "algebra", "scores"),
+  edge_method = c("auto", "algebra", "scores"),
   pairs = c("adjacent", "all"),
   data = NULL,
   align = TRUE,
@@ -22,14 +22,14 @@ engine. Each must contain a \code{scoring} sub-list with fields \code{linear},
 
 \item{R}{Square correlation matrix (p × p). Required for the algebra path.}
 
-\item{method}{One of \code{"auto"} (algebra when possible, scores otherwise),
+\item{edge_method}{One of \code{"auto"} (algebra when possible, scores otherwise),
 \code{"algebra"} (force; errors if conditions not met), or \code{"scores"} (always
 materialise).}
 
 \item{pairs}{\code{"adjacent"} (classic Goldberg) or \code{"all"} (Forbes extension).}
 
 \item{data}{Optional data frame / matrix of raw observations. Required only
-when \code{method = "scores"} or the scores path is triggered.}
+when \code{edge_method = "scores"} or the scores path is triggered.}
 
 \item{align}{Whether to sign-align edges to primary-parent lineage.}
 
@@ -59,6 +59,6 @@ materialising scores while remaining exact for PCA, EFA (regression /
 Bartlett / tenBerge), and oblique rotations — all of which are linear.
 
 When the algebra cannot be used (nonlinear scoring, missing \code{R}, or the user
-forces \code{method = "scores"}), scores are materialised from \code{data} instead.
+forces \code{edge_method = "scores"}), scores are materialised from \code{data} instead.
 }
 \keyword{internal}

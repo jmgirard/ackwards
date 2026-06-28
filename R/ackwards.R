@@ -6,7 +6,7 @@
 #' not a fitted higher-order SEM.
 #'
 #' @section Defaults and why:
-#' * **`method = "pca"`** — the original Goldberg (2006) method; fastest; never
+#' * **`engine = "pca"`** — the original Goldberg (2006) method; fastest; never
 #'   fails to converge; the Waller (2007) algebra is exact for components.
 #' * **`rotation = "varimax"`** — the `T'=T^-1` property of orthogonal
 #'   rotation enables the closed-form `W'RW` edge algebra and keeps
@@ -18,29 +18,29 @@
 #' * **`cor = "pearson"`** — no silent basis switching. If your items look
 #'   ordinal (≤ 7 distinct integer values), a cli warning will suggest
 #'   `cor = "polychoric"`, which is available for all three engines.
-#' * **`align = TRUE`** — unaligned signs make the output unreadable. Anchor:
-#'   m1f1 is oriented toward the positive manifold; each subsequent factor is
-#'   flipped so its edge to its primary parent is positive.
-#' * **`scores = FALSE` / `keep_fits = FALSE`** — memory and privacy. Scores
-#'   are O(n × Σk) and often sensitive; raw engine fits can be large. Both are
-#'   recomputable from the stored `r` matrix.
+#' * **`align_signs = TRUE`** — unaligned signs make the output unreadable.
+#'   Anchor: m1f1 is oriented toward the positive manifold; each subsequent
+#'   factor is flipped so its edge to its primary parent is positive.
+#' * **`keep_scores = FALSE` / `keep_fits = FALSE`** — memory and privacy.
+#'   Scores are O(n × Σk) and often sensitive; raw engine fits can be large.
+#'   Both are recomputable from the stored `r` matrix.
 #'
 #' @param data A data frame or numeric matrix of observed variables (items in
 #'   columns, observations in rows). Missing values are handled via pairwise
 #'   deletion when computing `R`. Note: `n_obs` passed to the EFA engine is
 #'   always `nrow(data)`; under missingness the effective per-correlation N may
 #'   be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.
-#' @param k Maximum number of factors/components. Required; use
+#' @param k_max Maximum number of factors/components to extract. Required; use
 #'   [suggest_k()] if uncertain. Sets the depth of the hierarchy: levels
-#'   1 through `k` are all extracted.
-#' @param method Extraction engine: `"pca"` (default), `"efa"`, or `"esem"`.
+#'   1 through `k_max` are all extracted.
+#' @param engine Extraction engine: `"pca"` (default), `"efa"`, or `"esem"`.
 #'   `"esem"` uses [lavaan::efa()] with rotation-aware SEs and per-level fit
 #'   indices; recommended for the clinical/HiTOP workflow (Kim & Eaton, 2015;
 #'   Forbush et al., 2024). Requires lavaan >= 0.6-13.
 #' @param fm Factor extraction method passed to [psych::fa()]; only used when
-#'   `method = "efa"`. One of `"minres"` (default, robust OLS), `"ml"`
+#'   `engine = "efa"`. One of `"minres"` (default, robust OLS), `"ml"`
 #'   (maximum likelihood, gives chi-square fit but converges less reliably at
-#'   deep levels), or `"pa"` (principal axis). Ignored for `method = "pca"`.
+#'   deep levels), or `"pa"` (principal axis). Ignored for `engine = "pca"`.
 #' @param cor Correlation basis: `"pearson"` (default), `"spearman"`, or
 #'   `"polychoric"`. For PCA/EFA, `"polychoric"` computes a polychoric
 #'   correlation matrix via `psych::polychoric()` (requires psych). For ESEM,
@@ -50,12 +50,13 @@
 #'   auto-selects: `"WLSMV"` when `cor = "polychoric"`, `"ML"` otherwise.
 #'   Pass explicitly to override: `"ULSMV"` (unweighted WLS), `"MLR"`
 #'   (robust ML). Ignored for PCA and EFA engines.
-#' @param align Logical; sign-align factors to primary-parent lineage?
+#' @param align_signs Logical; sign-align factors to primary-parent lineage?
 #'   Default `TRUE`.
-#' @param scores Logical; store factor scores in the result? Default `FALSE`
-#'   (recomputable via [augment.ackwards()]). When `TRUE`, per-observation
-#'   scores are stored in `x$scores` as a named list of `n × k_j` matrices,
-#'   one per level, standardized by real score SDs (see [augment.ackwards()]).
+#' @param keep_scores Logical; store factor scores in the result? Default
+#'   `FALSE` (recomputable via [augment.ackwards()]). When `TRUE`,
+#'   per-observation scores are stored in `x$scores` as a named list of
+#'   `n × k_j` matrices, one per level, standardized by real score SDs
+#'   (see [augment.ackwards()]).
 #' @param keep_fits Logical; store raw engine fit objects? Default `FALSE`.
 #'   When `TRUE`, the per-level fit objects (psych or lavaan) are stored in
 #'   `x$fits` as a named list indexed by level.
@@ -104,7 +105,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' x <- ackwards(psych::bfi[, 1:25], k = 5)
+#' x <- ackwards(psych::bfi[, 1:25], k_max = 5)
 #' print(x)
 #' tidy(x)
 #' glance(x)
@@ -113,13 +114,13 @@
 #' @export
 ackwards <- function(
   data,
-  k,
-  method = "pca",
+  k_max,
+  engine = "pca",
   cor = "pearson",
   fm = "minres",
   estimator = NULL,
-  align = TRUE,
-  scores = FALSE,
+  align_signs = TRUE,
+  keep_scores = FALSE,
   keep_fits = FALSE,
   seed = NULL,
   pairs = "adjacent",
@@ -132,7 +133,7 @@ ackwards <- function(
   cl <- match.call()
 
   # --- Input validation -------------------------------------------------------
-  method <- rlang::arg_match(method, c("pca", "efa", "esem"))
+  engine <- rlang::arg_match(engine, c("pca", "efa", "esem"))
   fm <- rlang::arg_match(fm, c("minres", "ml", "pa"))
   cor <- rlang::arg_match(cor, c("pearson", "spearman", "polychoric"))
   if (!is.null(estimator)) {
@@ -164,13 +165,13 @@ ackwards <- function(
     ))
   }
 
-  # cor = "spearman" + method = "esem" is semantically inconsistent: lavaan fits
+  # cor = "spearman" + engine = "esem" is semantically inconsistent: lavaan fits
   # Pearson ML on raw data while compute_edges() uses Spearman R for scoring
   # (DESIGN.md §14 known limitations). Warn loudly rather than silently mixing bases.
-  if (method == "esem" && cor == "spearman") {
+  if (engine == "esem" && cor == "spearman") {
     cli::cli_warn(
       c(
-        "!" = "{.code cor = \"spearman\"} with {.code method = \"esem\"} \\
+        "!" = "{.code cor = \"spearman\"} with {.code engine = \"esem\"} \\
                uses inconsistent bases: lavaan fits a Pearson-ML model on raw \\
                data while edges are computed from the Spearman correlation matrix.",
         "i" = "Consider {.code cor = \"polychoric\"} for ordinal data or \\
@@ -181,10 +182,10 @@ ackwards <- function(
     )
   }
 
-  if (!is.numeric(k) || length(k) != 1L || k < 2L || k != as.integer(k)) {
-    cli::cli_abort("{.arg k} must be an integer >= 2 (need at least two levels for a hierarchy).")
+  if (!is.numeric(k_max) || length(k_max) != 1L || k_max < 2L || k_max != as.integer(k_max)) {
+    cli::cli_abort("{.arg k_max} must be an integer >= 2 (need at least two levels for a hierarchy).")
   }
-  k <- as.integer(k)
+  k_max <- as.integer(k_max)
 
   if (!is.data.frame(data) && !is.matrix(data)) {
     cli::cli_abort("{.arg data} must be a data frame or numeric matrix.")
@@ -197,8 +198,8 @@ ackwards <- function(
   p <- ncol(data_mat)
   n_obs <- nrow(data_mat)
 
-  if (k > p) {
-    cli::cli_abort("{.arg k} ({k}) cannot exceed the number of variables ({p}).")
+  if (k_max > p) {
+    cli::cli_abort("{.arg k_max} ({k_max}) cannot exceed the number of variables ({p}).")
   }
 
   # --- Ordinal-detection warning (DESIGN.md §9, Invariant 6) -----------------
@@ -225,7 +226,7 @@ ackwards <- function(
   # ESEM: lavaan owns R computation for polychoric (WLSMV uses its own polychoric
   # matrix internally); for continuous paths we pre-compute R and pass it through.
   # PCA/EFA: always compute R here and pass to the engine.
-  if (method == "esem") {
+  if (engine == "esem") {
     R_ext <- if (cor != "polychoric") {
       stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
     } else {
@@ -239,7 +240,7 @@ ackwards <- function(
       "ML"
     }
     esem_out <- esem_levels(data_mat,
-      k_max = k, estimator = estimator_eff, cor_type = cor,
+      k_max = k_max, estimator = estimator_eff, cor_type = cor,
       n_obs = n_obs, R_external = R_ext, keep_fits = keep_fits
     )
     levels_list <- esem_out$levels
@@ -281,13 +282,13 @@ ackwards <- function(
     } else {
       R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
     }
-    engine_out <- switch(method,
+    engine_out <- switch(engine,
       pca = pca_levels(R,
-        k_max = k, cor_type = cor,
+        k_max = k_max, cor_type = cor,
         keep_fits = keep_fits
       ),
       efa = efa_levels(R,
-        k_max = k, fm = fm, n_obs = n_obs,
+        k_max = k_max, fm = fm, n_obs = n_obs,
         cor_type = cor, keep_fits = keep_fits
       )
     )
@@ -300,19 +301,19 @@ ackwards <- function(
   if (k_eff < 2L) {
     cli::cli_abort(
       c(
-        "!" = "{toupper(method)} failed to build at least 2 converged levels \\
+        "!" = "{toupper(engine)} failed to build at least 2 converged levels \\
                (k_eff = {k_eff}; at least 2 are required for a hierarchy).",
         "i" = "Try fewer factors, or check your data for \\
                perfect multicollinearity or near-singular correlation."
       )
     )
   }
-  if (k_eff < k) {
+  if (k_eff < k_max) {
     cli::cli_warn(
       c(
-        "!" = "Hierarchy truncated: {k - k_eff} level{?s} did not converge \\
-               (requested k = {k}, built k = {k_eff}).",
-        "i" = "Set {.arg k = {k_eff}} to suppress this message."
+        "!" = "Hierarchy truncated: {k_max - k_eff} level{?s} did not converge \\
+               (requested k_max = {k_max}, built k = {k_eff}).",
+        "i" = "Set {.arg k_max = {k_eff}} to suppress this message."
       )
     )
   }
@@ -321,12 +322,12 @@ ackwards <- function(
   # Always adjacent: lineage and sign alignment are defined by parent-child
   # relationships between consecutive levels.
   raw_edges_adj <- compute_edges(
-    levels   = levels_list,
-    R        = R,
-    method   = "auto",
-    pairs    = "adjacent",
-    align    = FALSE,
-    cut_show = cut_show
+    levels      = levels_list,
+    R           = R,
+    edge_method = "auto",
+    pairs       = "adjacent",
+    align       = FALSE,
+    cut_show    = cut_show
   )
 
   lineage <- vector("list", k_eff)
@@ -337,7 +338,7 @@ ackwards <- function(
   }
 
   # --- Sign alignment (DESIGN.md §7) -----------------------------------------
-  if (align && k_eff >= 1L) {
+  if (align_signs && k_eff >= 1L) {
     loadings_list <- lapply(levels_list, `[[`, "loadings")
     aligned <- align_signs(loadings_list, raw_edges_adj$matrices, lineage)
     for (ki in seq_len(k_eff)) {
@@ -355,12 +356,12 @@ ackwards <- function(
   # Recompute using aligned levels_list so skip-level edges inherit correct signs.
   # Adjacent-pair matrices match aligned$edges exactly; recomputing is safe.
   final_edges <- compute_edges(
-    levels   = levels_list,
-    R        = R,
-    method   = "auto",
-    pairs    = pairs,
-    align    = FALSE,
-    cut_show = cut_show
+    levels      = levels_list,
+    R           = R,
+    edge_method = "auto",
+    pairs       = pairs,
+    align       = FALSE,
+    cut_show    = cut_show
   )
 
   # --- Assemble aligned edge object -------------------------------------------
@@ -372,7 +373,7 @@ ackwards <- function(
   # --- Meta -------------------------------------------------------------------
   conv <- vapply(levels_list, `[[`, logical(1L), "converged")
   meta <- list(
-    k_requested       = k, # what the user asked for (may exceed k_eff)
+    k_requested       = k_max, # what the user asked for (may exceed k_eff)
     converged_levels  = conv,
     deepest_converged = max(which(conv)),
     pairs             = pairs,
@@ -386,10 +387,10 @@ ackwards <- function(
   # --- Assemble result --------------------------------------------------------
   x <- new_ackwards(
     call        = cl,
-    method      = method,
-    cor_type    = cor,
+    engine      = engine,
+    cor         = cor,
     n_obs       = n_obs,
-    k_max       = k_eff, # effective depth (may be < k if truncated)
+    k_max       = k_eff, # effective depth (may be < k_max if truncated)
     seed        = seed,
     pkg_version = utils::packageVersion("ackwards"),
     levels      = levels_list,
@@ -404,7 +405,7 @@ ackwards <- function(
 
   # --- Opt-in storage (scores and raw fits) -----------------------------------
   # Scores use the sign-aligned levels_list so column orientations match loadings.
-  if (isTRUE(scores)) {
+  if (isTRUE(keep_scores)) {
     x$scores <- .compute_scores(levels_list, data_mat)
   }
   if (isTRUE(keep_fits)) {
@@ -423,15 +424,15 @@ ackwards <- function(
 
 # S3 constructor — validates structure and attaches class
 new_ackwards <- function(
-  call, method, cor_type, n_obs, k_max, seed, pkg_version,
+  call, engine, cor, n_obs, k_max, seed, pkg_version,
   levels, edges, lineage, scores, fits, r, data, meta
 ) {
   structure(
     list(
       call        = call,
-      method      = method,
+      engine      = engine,
       rotation    = "varimax",
-      cor_type    = cor_type,
+      cor         = cor,
       n_obs       = n_obs,
       k_max       = k_max,
       seed        = seed,

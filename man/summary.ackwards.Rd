@@ -23,7 +23,7 @@ for inspection and reporting.
 }
 \examples{
 \dontrun{
-x <- ackwards(psych::bfi[, 1:25], k = 5)
+x <- ackwards(psych::bfi[, 1:25], k_max = 5)
 summary(x)
 }
 

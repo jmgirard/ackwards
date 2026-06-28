@@ -27,7 +27,7 @@ generics::glance
 #'     `id`, `level`, `pruned`, `prune_reason`. Returns an empty data frame with
 #'     the same columns when no pruning was applied.
 #'   * `"scores"` — long-format per-observation factor scores (requires
-#'     `scores = TRUE` at fit time or use [augment.ackwards()] for on-the-fly
+#'     `keep_scores = TRUE` at fit time or use [augment.ackwards()] for on-the-fly
 #'     computation). Columns: `obs` (row index), `level`, `factor`, `score`.
 #' @param ... Ignored.
 #'
@@ -69,7 +69,7 @@ tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit", "n
   if (is.null(x$scores)) {
     cli::cli_abort(c(
       "!" = "Factor scores are not stored in this {.cls ackwards} object.",
-      "i" = "Refit with {.code scores = TRUE}, or use {.fn augment} to \\
+      "i" = "Refit with {.code keep_scores = TRUE}, or use {.fn augment} to \\
              compute scores on the fly: {.code augment(x, data = your_data)}."
     ))
   }
@@ -163,9 +163,9 @@ tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit", "n
 #' @export
 glance.ackwards <- function(x, ...) {
   data.frame(
-    method            = x$method,
+    engine            = x$engine,
     rotation          = x$rotation,
-    cor_type          = x$cor_type,
+    cor               = x$cor,
     k_max             = x$k_max,
     n_obs             = x$n_obs,
     deepest_converged = x$meta$deepest_converged,

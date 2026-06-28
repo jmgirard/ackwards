@@ -18,9 +18,9 @@ print.ackwards <- function(x, ...) {
 
   # --- Call / settings --------------------------------------------------------
   cli::cli_dl(c(
-    "Engine"    = cli::style_bold(x$method),
+    "Engine"    = cli::style_bold(x$engine),
     "Rotation"  = x$rotation,
-    "Basis"     = x$cor_type,
+    "Basis"     = x$cor,
     "n"         = format(x$n_obs, big.mark = ","),
     "k (max)"   = as.character(x$k_max)
   ))

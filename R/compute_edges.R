@@ -13,18 +13,18 @@
 #' Bartlett / tenBerge), and oblique rotations — all of which are linear.
 #'
 #' When the algebra cannot be used (nonlinear scoring, missing `R`, or the user
-#' forces `method = "scores"`), scores are materialised from `data` instead.
+#' forces `edge_method = "scores"`), scores are materialised from `data` instead.
 #'
 #' @param levels Named list (indexed by k) of per-level objects produced by an
 #'   engine. Each must contain a `scoring` sub-list with fields `linear`,
 #'   `weights`, and `score_var`.
 #' @param R Square correlation matrix (p × p). Required for the algebra path.
-#' @param method One of `"auto"` (algebra when possible, scores otherwise),
+#' @param edge_method One of `"auto"` (algebra when possible, scores otherwise),
 #'   `"algebra"` (force; errors if conditions not met), or `"scores"` (always
 #'   materialise).
 #' @param pairs `"adjacent"` (classic Goldberg) or `"all"` (Forbes extension).
 #' @param data Optional data frame / matrix of raw observations. Required only
-#'   when `method = "scores"` or the scores path is triggered.
+#'   when `edge_method = "scores"` or the scores path is triggered.
 #' @param align Whether to sign-align edges to primary-parent lineage.
 #' @param use Passed to [stats::cor()] when materialising scores.
 #' @param cut_show Edges with `|r| >= cut_show` are flagged `above_cut` in the
@@ -40,14 +40,14 @@
 compute_edges <- function(
   levels,
   R,
-  method = c("auto", "algebra", "scores"),
+  edge_method = c("auto", "algebra", "scores"),
   pairs = c("adjacent", "all"),
   data = NULL,
   align = TRUE,
   use = "pairwise.complete.obs",
   cut_show = 0.3
 ) {
-  method <- match.arg(method)
+  edge_method <- match.arg(edge_method)
   pairs <- match.arg(pairs)
 
   K <- length(levels)
@@ -76,12 +76,12 @@ compute_edges <- function(
       isTRUE(lb$scoring$linear) &&
       !is.null(R)
 
-    use_algebra <- switch(method,
+    use_algebra <- switch(edge_method,
       auto = algebra_ok,
       algebra = {
         if (!algebra_ok) {
           cli::cli_abort(
-            "method = 'algebra' requested but conditions not met for pair {ka}:{kb}."
+            "edge_method = 'algebra' requested but conditions not met for pair {ka}:{kb}."
           )
         }
         TRUE

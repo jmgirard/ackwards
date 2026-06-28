@@ -6,13 +6,13 @@
 \usage{
 ackwards(
   data,
-  k,
-  method = "pca",
+  k_max,
+  engine = "pca",
   cor = "pearson",
   fm = "minres",
   estimator = NULL,
-  align = TRUE,
-  scores = FALSE,
+  align_signs = TRUE,
+  keep_scores = FALSE,
   keep_fits = FALSE,
   seed = NULL,
   pairs = "adjacent",
@@ -30,11 +30,11 @@ deletion when computing \code{R}. Note: \code{n_obs} passed to the EFA engine is
 always \code{nrow(data)}; under missingness the effective per-correlation N may
 be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.}
 
-\item{k}{Maximum number of factors/components. Required; use
+\item{k_max}{Maximum number of factors/components to extract. Required; use
 \code{\link[=suggest_k]{suggest_k()}} if uncertain. Sets the depth of the hierarchy: levels
-1 through \code{k} are all extracted.}
+1 through \code{k_max} are all extracted.}
 
-\item{method}{Extraction engine: \code{"pca"} (default), \code{"efa"}, or \code{"esem"}.
+\item{engine}{Extraction engine: \code{"pca"} (default), \code{"efa"}, or \code{"esem"}.
 \code{"esem"} uses \code{\link[lavaan:efa]{lavaan::efa()}} with rotation-aware SEs and per-level fit
 indices; recommended for the clinical/HiTOP workflow (Kim & Eaton, 2015;
 Forbush et al., 2024). Requires lavaan >= 0.6-13.}
@@ -46,22 +46,23 @@ it triggers WLSMV estimation via lavaan. A cli warning is emitted when
 ordinal-looking columns are detected and \code{cor} is not \code{"polychoric"}.}
 
 \item{fm}{Factor extraction method passed to \code{\link[psych:fa]{psych::fa()}}; only used when
-\code{method = "efa"}. One of \code{"minres"} (default, robust OLS), \code{"ml"}
+\code{engine = "efa"}. One of \code{"minres"} (default, robust OLS), \code{"ml"}
 (maximum likelihood, gives chi-square fit but converges less reliably at
-deep levels), or \code{"pa"} (principal axis). Ignored for \code{method = "pca"}.}
+deep levels), or \code{"pa"} (principal axis). Ignored for \code{engine = "pca"}.}
 
 \item{estimator}{Estimation method for the ESEM engine. \code{NULL} (default)
 auto-selects: \code{"WLSMV"} when \code{cor = "polychoric"}, \code{"ML"} otherwise.
 Pass explicitly to override: \code{"ULSMV"} (unweighted WLS), \code{"MLR"}
 (robust ML). Ignored for PCA and EFA engines.}
 
-\item{align}{Logical; sign-align factors to primary-parent lineage?
+\item{align_signs}{Logical; sign-align factors to primary-parent lineage?
 Default \code{TRUE}.}
 
-\item{scores}{Logical; store factor scores in the result? Default \code{FALSE}
-(recomputable via \code{\link[=augment.ackwards]{augment.ackwards()}}). When \code{TRUE}, per-observation
-scores are stored in \code{x$scores} as a named list of \verb{n × k_j} matrices,
-one per level, standardized by real score SDs (see \code{\link[=augment.ackwards]{augment.ackwards()}}).}
+\item{keep_scores}{Logical; store factor scores in the result? Default
+\code{FALSE} (recomputable via \code{\link[=augment.ackwards]{augment.ackwards()}}). When \code{TRUE},
+per-observation scores are stored in \code{x$scores} as a named list of
+\verb{n × k_j} matrices, one per level, standardized by real score SDs
+(see \code{\link[=augment.ackwards]{augment.ackwards()}}).}
 
 \item{keep_fits}{Logical; store raw engine fit objects? Default \code{FALSE}.
 When \code{TRUE}, the per-level fit objects (psych or lavaan) are stored in
@@ -118,7 +119,7 @@ not a fitted higher-order SEM.
 \section{Defaults and why}{
 
 \itemize{
-\item \strong{\code{method = "pca"}} — the original Goldberg (2006) method; fastest; never
+\item \strong{\code{engine = "pca"}} — the original Goldberg (2006) method; fastest; never
 fails to converge; the Waller (2007) algebra is exact for components.
 \item \strong{\code{rotation = "varimax"}} — the \verb{T'=T^-1} property of orthogonal
 rotation enables the closed-form \verb{W'RW} edge algebra and keeps
@@ -130,18 +131,18 @@ core output.
 \item \strong{\code{cor = "pearson"}} — no silent basis switching. If your items look
 ordinal (≤ 7 distinct integer values), a cli warning will suggest
 \code{cor = "polychoric"}, which is available for all three engines.
-\item \strong{\code{align = TRUE}} — unaligned signs make the output unreadable. Anchor:
-m1f1 is oriented toward the positive manifold; each subsequent factor is
-flipped so its edge to its primary parent is positive.
-\item \strong{\code{scores = FALSE} / \code{keep_fits = FALSE}} — memory and privacy. Scores
-are O(n × Σk) and often sensitive; raw engine fits can be large. Both are
-recomputable from the stored \code{r} matrix.
+\item \strong{\code{align_signs = TRUE}} — unaligned signs make the output unreadable.
+Anchor: m1f1 is oriented toward the positive manifold; each subsequent
+factor is flipped so its edge to its primary parent is positive.
+\item \strong{\code{keep_scores = FALSE} / \code{keep_fits = FALSE}} — memory and privacy.
+Scores are O(n × Σk) and often sensitive; raw engine fits can be large.
+Both are recomputable from the stored \code{r} matrix.
 }
 }
 
 \examples{
 \dontrun{
-x <- ackwards(psych::bfi[, 1:25], k = 5)
+x <- ackwards(psych::bfi[, 1:25], k_max = 5)
 print(x)
 tidy(x)
 glance(x)

@@ -146,7 +146,7 @@ flip_weights <- function(W, sign_vec) {
 # Validate that x is a well-formed ackwards object (used in tests).
 validate_ackwards <- function(x) {
   required <- c(
-    "call", "method", "rotation", "cor_type", "n_obs", "k_max",
+    "call", "engine", "rotation", "cor", "n_obs", "k_max",
     "seed", "pkg_version", "levels", "edges", "lineage",
     "scores", "fits", "r", "data", "meta", "prune"
   )

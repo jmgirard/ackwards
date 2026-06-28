@@ -11,7 +11,7 @@
 
 \item{data}{A data frame or numeric matrix with the same variables (columns)
 used to fit \code{x}. When \code{NULL} (default), uses pre-stored scores if
-available (requires \code{scores = TRUE} at fit time).}
+available (requires \code{keep_scores = TRUE} at fit time).}
 
 \item{...}{Ignored.}
 }
@@ -40,18 +40,18 @@ Use \code{na.omit(data)} before scoring if NA rows are unwanted.
 
 \strong{Data source.} If \code{data} is supplied, scores are always recomputed from
 it using the stored weights — this is how to score new observations. If
-\code{data} is \code{NULL} and \code{scores = TRUE} was set at fit time, the stored
+\code{data} is \code{NULL} and \code{keep_scores = TRUE} was set at fit time, the stored
 scores are returned. If neither is available an informative error is raised.
 }
 \examples{
 \dontrun{
-# Score the training data on the fly (no scores=TRUE needed)
-x <- ackwards(psych::bfi[, 1:25], k = 5)
+# Score the training data on the fly (no keep_scores=TRUE needed)
+x <- ackwards(psych::bfi[, 1:25], k_max = 5)
 scores_df <- augment(x, data = psych::bfi[, 1:25])
 head(scores_df[, grep("^\\\\.m", names(scores_df))])
 
 # Or store at fit time and augment without re-supplying data
-x2 <- ackwards(psych::bfi[, 1:25], k = 5, scores = TRUE)
+x2 <- ackwards(psych::bfi[, 1:25], k_max = 5, keep_scores = TRUE)
 scores_df2 <- augment(x2)
 }
 

@@ -5,12 +5,12 @@
 test_that("ackwards() with method = 'esem' returns a valid ackwards object", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k = 3, method = "esem"))
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
 
   expect_s3_class(x, "ackwards")
   validate_ackwards(x)
-  expect_equal(x$method, "esem")
-  expect_equal(x$cor_type, "pearson")
+  expect_equal(x$engine, "esem")
+  expect_equal(x$cor, "pearson")
   expect_equal(length(x$levels), 3L)
   expect_true(all(vapply(x$levels, `[[`, logical(1), "converged")))
 })
@@ -18,7 +18,7 @@ test_that("ackwards() with method = 'esem' returns a valid ackwards object", {
 test_that("ESEM levels have correct structure and label formats", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k = 3, method = "esem"))
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
 
   for (ki in 1:3) {
     lev <- x$levels[[as.character(ki)]]
@@ -45,7 +45,7 @@ test_that("ESEM levels have correct structure and label formats", {
 test_that("ESEM levels have a loadings_se matrix with correct dimensions", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k = 3, method = "esem"))
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
 
   for (ki in seq_len(x$k_max)) {
     lev <- x$levels[[as.character(ki)]]
@@ -64,8 +64,8 @@ test_that("ESEM levels have a loadings_se matrix with correct dimensions", {
 test_that("PCA and EFA engines have loadings_se = NULL", {
   skip_if_not_installed("psych")
   d <- .make_esem_data()
-  xp <- suppressWarnings(ackwards(d, k = 2, method = "pca"))
-  xe <- suppressWarnings(ackwards(d, k = 2, method = "efa"))
+  xp <- suppressWarnings(ackwards(d, k_max = 2, engine = "pca"))
+  xe <- suppressWarnings(ackwards(d, k_max = 2, engine = "efa"))
 
   for (ki in 1:2) {
     expect_null(xp$levels[[as.character(ki)]]$loadings_se,
@@ -82,7 +82,7 @@ test_that("PCA and EFA engines have loadings_se = NULL", {
 test_that("ESEM fit indices are named correctly (chi, dof, p_value, CFI, TLI, RMSEA, SRMR)", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k = 3, method = "esem"))
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
 
   expected_names <- c("chi", "dof", "p_value", "CFI", "TLI", "RMSEA", "SRMR")
   for (ki in seq_len(x$k_max)) {
@@ -97,7 +97,7 @@ test_that("ESEM fit indices are named correctly (chi, dof, p_value, CFI, TLI, RM
 test_that("ESEM levels use tenBerge scoring (linear, method = 'tenBerge')", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k = 3, method = "esem"))
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
 
   for (ki in seq_len(x$k_max)) {
     sc <- x$levels[[as.character(ki)]]$scoring
@@ -111,7 +111,7 @@ test_that("ESEM levels use tenBerge scoring (linear, method = 'tenBerge')", {
 test_that("ESEM factor_cor is identity (orthogonal rotation)", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k = 3, method = "esem"))
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
 
   for (ki in seq_len(x$k_max)) {
     Phi <- unname(x$levels[[as.character(ki)]]$factor_cor)
@@ -127,19 +127,19 @@ test_that("ESEM factor_cor is identity (orthogonal rotation)", {
 test_that("ESEM algebra and scores paths agree (algebra-vs-scores cross-check)", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k = 3, method = "esem"))
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
 
   # Scope: continuous (Pearson) paths only. For polychoric ESEM the algebra side
   # uses lavaan's polychoric R while the scores route applies Pearson
   # standardization to the raw ordinal data — they diverge by design and the
   # cross-check oracle (DESIGN.md §5.4) does not apply there.
   E_scores <- compute_edges(
-    levels  = x$levels,
-    R       = x$r,
-    method  = "scores",
-    pairs   = "adjacent",
-    data    = d,
-    align   = FALSE
+    levels      = x$levels,
+    R           = x$r,
+    edge_method = "scores",
+    pairs       = "adjacent",
+    data        = d,
+    align       = FALSE
   )$matrices
 
   for (key in names(x$edges$matrices)) {
@@ -161,7 +161,7 @@ test_that("ESEM warns and truncates when deep levels fail to converge", {
   d <- .make_esem_data()
   warn_msgs <- character(0L)
   withCallingHandlers(
-    x <- ackwards(d, k = 5, method = "esem"),
+    x <- ackwards(d, k_max = 5, engine = "esem"),
     warning = function(w) {
       warn_msgs <<- c(warn_msgs, conditionMessage(w))
       invokeRestart("muffleWarning")
@@ -188,7 +188,7 @@ test_that("ESEM warns and truncates when deep levels fail to converge", {
 test_that("print, tidy, glance work for ESEM objects", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k = 3, method = "esem"))
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
 
   expect_no_error(print(x))
   expect_s3_class(generics::tidy(x), "data.frame")
@@ -199,7 +199,7 @@ test_that("print, tidy, glance work for ESEM objects", {
 test_that("tidy(x, what = 'fit') returns 7 indices per level for ESEM", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k = 3, method = "esem"))
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
   td <- generics::tidy(x, what = "fit")
   expect_s3_class(td, "data.frame")
   expect_equal(nrow(td), 3L * 7L) # 3 levels × 7 indices
@@ -213,7 +213,7 @@ test_that("estimator argument is validated", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   expect_error(
-    ackwards(d, k = 2, method = "esem", estimator = "bad"),
+    ackwards(d, k_max = 2, engine = "esem", estimator = "bad"),
     "estimator"
   )
 })
@@ -223,11 +223,11 @@ test_that("estimator argument is validated", {
 test_that("cor = 'polychoric' works for PCA engine", {
   skip_if_not_installed("psych")
   d <- .make_ordinal_data()
-  suppressWarnings(x <- ackwards(d, k = 3, method = "pca", cor = "polychoric"))
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "pca", cor = "polychoric"))
 
   expect_s3_class(x, "ackwards")
   validate_ackwards(x)
-  expect_equal(x$cor_type, "polychoric")
+  expect_equal(x$cor, "polychoric")
   expect_equal(length(x$levels), 3L)
 
   # Scoring basis recorded correctly
@@ -246,11 +246,11 @@ test_that("cor = 'polychoric' works for PCA engine", {
 test_that("cor = 'polychoric' works for EFA engine", {
   skip_if_not_installed("psych")
   d <- .make_ordinal_data()
-  suppressWarnings(x <- ackwards(d, k = 3, method = "efa", cor = "polychoric"))
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "efa", cor = "polychoric"))
 
   expect_s3_class(x, "ackwards")
   validate_ackwards(x)
-  expect_equal(x$cor_type, "polychoric")
+  expect_equal(x$cor, "polychoric")
   expect_equal(length(x$levels), 3L)
 
   for (ki in seq_len(x$k_max)) {
@@ -267,12 +267,12 @@ test_that("cor = 'polychoric' with method = 'esem' uses WLSMV and returns valid 
   skip_if_not_installed("psych") # needed for detect_ordinal helper path
   d <- .make_ordinal_data()
   suppressWarnings(
-    x <- ackwards(d, k = 3, method = "esem", cor = "polychoric")
+    x <- ackwards(d, k_max = 3, engine = "esem", cor = "polychoric")
   )
 
   expect_s3_class(x, "ackwards")
   validate_ackwards(x)
-  expect_equal(x$cor_type, "polychoric")
+  expect_equal(x$cor, "polychoric")
   expect_equal(length(x$levels), 3L)
 
   # loadings_se populated
@@ -293,7 +293,7 @@ test_that("ordinal warning is NOT emitted when cor = 'polychoric'", {
   skip_if_not_installed("psych")
   d <- .make_ordinal_data()
   expect_no_warning(
-    suppressMessages(ackwards(d, k = 2, method = "pca", cor = "polychoric")),
+    suppressMessages(ackwards(d, k_max = 2, engine = "pca", cor = "polychoric")),
     message = "ordinal"
   )
 })
@@ -330,13 +330,16 @@ test_that("ESEM warns on improper solution (Heywood case) but still builds", {
     }),
     error = function(e) NULL
   )
-  theta_ok <- !is.null(lav_fit) && tryCatch({
-    any(diag(lavaan::lavInspect(lav_fit, "theta")) <= 0)
-  }, error = function(e) FALSE)
+  theta_ok <- !is.null(lav_fit) && tryCatch(
+    {
+      any(diag(lavaan::lavInspect(lav_fit, "theta")) <= 0)
+    },
+    error = function(e) FALSE
+  )
   skip_if(!theta_ok, "lavaan no longer produces theta <= 0 for this fixture")
 
   expect_warning(
-    x <- suppressMessages(ackwards(d, k = 3, method = "esem")),
+    x <- suppressMessages(ackwards(d, k_max = 3, engine = "esem")),
     "Heywood"
   )
   # Object still builds to the requested depth (not truncated)
@@ -344,13 +347,13 @@ test_that("ESEM warns on improper solution (Heywood case) but still builds", {
   expect_equal(x$k_max, 3L)
 })
 
-# ── cor = "spearman" + method = "esem" inconsistency warning ─────────────────
+# ── cor = "spearman" + engine = "esem" inconsistency warning ─────────────────
 
 test_that("cor = 'spearman' with method = 'esem' warns about inconsistent bases", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   expect_warning(
-    suppressMessages(ackwards(d, k = 2, method = "esem", cor = "spearman")),
+    suppressMessages(ackwards(d, k_max = 2, engine = "esem", cor = "spearman")),
     "inconsistent bases"
   )
 })

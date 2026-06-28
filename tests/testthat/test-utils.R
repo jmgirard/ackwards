@@ -1,13 +1,13 @@
 test_that(".format_r() strips leading zero and pads trailing zeros", {
   fmt <- ackwards:::.format_r
 
-  expect_equal(fmt(0.23, 2L),  ".23")
+  expect_equal(fmt(0.23, 2L), ".23")
   expect_equal(fmt(-0.23, 2L), "-.23")
-  expect_equal(fmt(0.3, 2L),   ".30")
-  expect_equal(fmt(-0.3, 2L),  "-.30")
-  expect_equal(fmt(0, 2L),     ".00")
-  expect_equal(fmt(1, 2L),     "1.00")
-  expect_equal(fmt(-1, 2L),    "-1.00")
+  expect_equal(fmt(0.3, 2L), ".30")
+  expect_equal(fmt(-0.3, 2L), "-.30")
+  expect_equal(fmt(0, 2L), ".00")
+  expect_equal(fmt(1, 2L), "1.00")
+  expect_equal(fmt(-1, 2L), "-1.00")
 })
 
 test_that(".format_r() does not produce '-.00' when magnitude rounds to zero", {
@@ -23,7 +23,7 @@ test_that(".format_r() respects digits argument", {
   fmt <- ackwards:::.format_r
 
   expect_equal(fmt(0.234, 3L), ".234")
-  expect_equal(fmt(0.2, 1L),   ".2")
+  expect_equal(fmt(0.2, 1L), ".2")
 })
 
 test_that(".format_r() is vectorised", {

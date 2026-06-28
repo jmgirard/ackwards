@@ -15,7 +15,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' x <- ackwards(psych::bfi[, 1:25], k = 5)
+#' x <- ackwards(psych::bfi[, 1:25], k_max = 5)
 #' summary(x)
 #' }
 #'
@@ -24,9 +24,9 @@ summary.ackwards <- function(object, ...) {
   structure(
     list(
       call       = object$call,
-      method     = object$method,
+      engine     = object$engine,
       rotation   = object$rotation,
-      cor_type   = object$cor_type,
+      cor        = object$cor,
       n_obs      = object$n_obs,
       k_max      = object$k_max,
       variance   = .tidy_variance(object),
@@ -48,9 +48,9 @@ print.summary_ackwards <- function(x, ...) {
   cli::cli_h1("Summary: Bass-Ackwards Analysis ({.pkg ackwards})")
 
   cli::cli_dl(c(
-    "Engine"   = cli::style_bold(x$method),
+    "Engine"   = cli::style_bold(x$engine),
     "Rotation" = x$rotation,
-    "Basis"    = x$cor_type,
+    "Basis"    = x$cor,
     "n"        = format(x$n_obs, big.mark = ","),
     "k (max)"  = as.character(x$k_max)
   ))
@@ -58,11 +58,11 @@ print.summary_ackwards <- function(x, ...) {
   # --- Per-level variance + fit -----------------------------------------------
   cli::cli_h2("Levels")
 
-  is_esem <- x$method == "esem"
-  is_efa  <- x$method == "efa"
-  is_pca  <- x$method == "pca"
+  is_esem <- x$engine == "esem"
+  is_efa <- x$engine == "efa"
+  is_pca <- x$engine == "pca"
 
-  fit_tbl <- x$fit  # pre-pulled for readability
+  fit_tbl <- x$fit # pre-pulled for readability
 
   for (ki in seq_len(x$k_max)) {
     var_rows <- x$variance[x$variance$level == ki, , drop = FALSE]
@@ -74,13 +74,14 @@ print.summary_ackwards <- function(x, ...) {
     fit_rows <- fit_tbl[fit_tbl$level == ki, , drop = FALSE]
 
     for (i in seq_len(nrow(var_rows))) {
-      fac  <- var_rows$factor[i]
+      fac <- var_rows$factor[i]
       vpct <- var_rows$variance_pct[i]
 
       # PCA: eigenvalue indices are "eigenvalue.<label>" (see engine_pca.R:65)
       suffix <- if (is_pca && nrow(fit_rows) > 0L) {
         eig_row <- fit_rows[
-          fit_rows$index == paste0("eigenvalue.", fac), , drop = FALSE
+          fit_rows$index == paste0("eigenvalue.", fac), ,
+          drop = FALSE
         ]
         if (nrow(eig_row) > 0L) {
           paste0("  eigenvalue ", round(eig_row$value[1L], 2))
@@ -211,7 +212,7 @@ print.summary_ackwards <- function(x, ...) {
   rows <- lapply(parents, function(p) {
     kids <- adj_primary$to[adj_primary$from == p]
     data.frame(
-      parent   = p,
+      parent = p,
       children = paste(kids, collapse = ", "),
       stringsAsFactors = FALSE
     )
@@ -223,7 +224,9 @@ print.summary_ackwards <- function(x, ...) {
 # rules is carried through so print.summary_ackwards can gate on what was requested
 # (e.g. prune="artefact" never flags redundant nodes).
 .summary_prune <- function(x) {
-  if (is.null(x$prune)) return(NULL)
+  if (is.null(x$prune)) {
+    return(NULL)
+  }
   nodes <- x$prune$nodes
   redundant <- if (!is.null(nodes)) {
     nodes$id[nodes$pruned & nodes$prune_reason == "redundant"]

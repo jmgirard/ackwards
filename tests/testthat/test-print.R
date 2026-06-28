@@ -1,6 +1,6 @@
 test_that("print.ackwards runs without error and returns x invisibly", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
   # cli writes to stderr in non-interactive mode; just verify no error + invisible
   expect_no_error(print(x))
   expect_invisible(print(x))
@@ -8,7 +8,7 @@ test_that("print.ackwards runs without error and returns x invisibly", {
 
 test_that("tidy(x, what = 'edges') returns expected structure", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
   ed <- generics::tidy(x, what = "edges")
   expect_s3_class(ed, "data.frame")
   expect_true(all(c("from", "to", "level_from", "level_to", "r", "is_primary", "above_cut") %in% names(ed)))
@@ -19,7 +19,7 @@ test_that("tidy(x, what = 'edges') returns expected structure", {
 
 test_that("tidy(x, what = 'loadings') returns expected structure", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 2))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
   ld <- generics::tidy(x, what = "loadings")
   expect_s3_class(ld, "data.frame")
   expect_true(all(c("level", "factor", "item", "loading") %in% names(ld)))
@@ -29,7 +29,7 @@ test_that("tidy(x, what = 'loadings') returns expected structure", {
 
 test_that("tidy(x, what = 'variance') returns expected structure", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
   vr <- generics::tidy(x, what = "variance")
   expect_s3_class(vr, "data.frame")
   expect_true(all(c("level", "factor", "variance_pct", "cumulative_pct") %in% names(vr)))
@@ -39,12 +39,12 @@ test_that("tidy(x, what = 'variance') returns expected structure", {
 
 test_that("glance.ackwards returns a one-row data frame with expected columns", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
   gl <- generics::glance(x)
   expect_s3_class(gl, "data.frame")
   expect_equal(nrow(gl), 1L)
   expect_true(all(c(
-    "method", "rotation", "cor_type", "k_max", "n_obs",
+    "engine", "rotation", "cor", "k_max", "n_obs",
     "deepest_converged", "n_edges"
   ) %in% names(gl)))
   expect_equal(gl$rotation, "varimax")
@@ -57,20 +57,20 @@ test_that("glance.ackwards returns a one-row data frame with expected columns", 
 
 test_that("summary.ackwards returns a summary_ackwards object with expected fields", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k = 3))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k_max = 3))
   s <- summary(x)
   expect_s3_class(s, "summary_ackwards")
   expect_true(all(c(
-    "call", "method", "rotation", "cor_type", "n_obs", "k_max",
+    "call", "engine", "rotation", "cor", "n_obs", "k_max",
     "variance", "fit", "lineage", "prune"
   ) %in% names(s)))
-  expect_equal(s$method, "pca")
+  expect_equal(s$engine, "pca")
   expect_equal(s$k_max, 3L)
 })
 
 test_that("print.summary_ackwards runs without error and returns invisibly", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k = 3))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k_max = 3))
   s <- summary(x)
   expect_no_error(print(s))
   expect_invisible(print(s))
@@ -78,7 +78,7 @@ test_that("print.summary_ackwards runs without error and returns invisibly", {
 
 test_that("summary fit table carries eigenvalues for PCA", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k = 2))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k_max = 2))
   s <- summary(x)
   # PCA fit indices are named "eigenvalue.<label>"; verify they exist
   fit_k1 <- s$fit[s$fit$level == 1L, ]
@@ -88,7 +88,7 @@ test_that("summary fit table carries eigenvalues for PCA", {
 
 test_that("summary lineage: correct structure, ordering, and content", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k = 3))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k_max = 3))
   s <- summary(x)
   lin <- s$lineage
   expect_s3_class(lin, "data.frame")
@@ -105,7 +105,7 @@ test_that("summary lineage: correct structure, ordering, and content", {
 
 test_that("summary.ackwards shows pruning info when prune = 'redundant'", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k = 4, prune = "redundant"))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k_max = 4, prune = "redundant"))
   s <- summary(x)
   expect_false(is.null(s$prune))
   expect_equal(s$prune$rules, "redundant")
@@ -115,7 +115,7 @@ test_that("summary.ackwards shows pruning info when prune = 'redundant'", {
 test_that("summary prune = 'artefact' carries rules and no spurious redundant info", {
   skip_if_not_installed("psych")
   suppressMessages(x <- suppressWarnings(
-    ackwards(psych::bfi[, 1:10], k = 3, prune = "artefact")
+    ackwards(psych::bfi[, 1:10], k_max = 3, prune = "artefact")
   ))
   s <- summary(x)
   expect_false(is.null(s$prune))
@@ -131,7 +131,7 @@ test_that("summary prune = 'artefact' carries rules and no spurious redundant in
 test_that("summary prune = c('redundant','artefact') shows both sections", {
   skip_if_not_installed("psych")
   suppressMessages(x <- suppressWarnings(
-    ackwards(psych::bfi[, 1:10], k = 4, prune = c("redundant", "artefact"))
+    ackwards(psych::bfi[, 1:10], k_max = 4, prune = c("redundant", "artefact"))
   ))
   s <- summary(x)
   expect_setequal(s$prune$rules, c("redundant", "artefact"))
@@ -143,7 +143,7 @@ test_that("summary.ackwards handles truncated ESEM hierarchy", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   # k=5 requested but p=6 caps lavaan at 3 -> k_eff=3
-  x <- suppressWarnings(suppressMessages(ackwards(d, k = 5, method = "esem")))
+  x <- suppressWarnings(suppressMessages(ackwards(d, k_max = 5, engine = "esem")))
   s <- summary(x)
   # Summary reflects k_eff, not the requested k
   expect_equal(s$k_max, x$k_max)
@@ -155,11 +155,11 @@ test_that("summary.ackwards works with polychoric basis", {
   skip_if_not_installed("psych")
   d <- .make_ordinal_data()
   suppressMessages(x <- suppressWarnings(
-    ackwards(d, k = 2, cor = "polychoric")
+    ackwards(d, k_max = 2, cor = "polychoric")
   ))
   s <- summary(x)
   expect_s3_class(s, "summary_ackwards")
-  expect_equal(s$cor_type, "polychoric")
+  expect_equal(s$cor, "polychoric")
   expect_no_error(suppressMessages(print(s)))
 })
 
@@ -167,9 +167,9 @@ test_that("summary.ackwards works for all three engines", {
   skip_if_not_installed("psych")
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  x_pca  <- suppressWarnings(ackwards(d, k = 2))
-  x_efa  <- suppressWarnings(ackwards(d, k = 2, method = "efa"))
-  x_esem <- suppressWarnings(ackwards(d, k = 2, method = "esem"))
+  x_pca <- suppressWarnings(ackwards(d, k_max = 2))
+  x_efa <- suppressWarnings(ackwards(d, k_max = 2, engine = "efa"))
+  x_esem <- suppressWarnings(ackwards(d, k_max = 2, engine = "esem"))
   expect_no_error(summary(x_pca))
   expect_no_error(summary(x_efa))
   expect_no_error(summary(x_esem))

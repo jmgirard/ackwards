@@ -1,13 +1,13 @@
 test_that("ackwards() with method = 'efa' returns a valid ackwards object", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 5, method = "efa"))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5, engine = "efa"))
 
   expect_s3_class(x, "ackwards")
   validate_ackwards(x)
-  expect_equal(x$method, "efa")
+  expect_equal(x$engine, "efa")
   expect_equal(x$k_max, 5L)
   expect_equal(x$n_obs, 2800L)
-  expect_equal(x$cor_type, "pearson")
+  expect_equal(x$cor, "pearson")
 
   # All five levels present and converged
   expect_equal(length(x$levels), 5L)
@@ -27,7 +27,7 @@ test_that("ackwards() with method = 'efa' returns a valid ackwards object", {
 
 test_that("EFA levels use tenBerge scoring (linear, method = 'tenBerge')", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3, method = "efa"))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
 
   for (ki in seq_len(x$k_max)) {
     sc <- x$levels[[as.character(ki)]]$scoring
@@ -57,15 +57,15 @@ test_that("EFA algebra and scores paths agree (algebra-vs-scores cross-check)", 
   )
   R <- cor(data)
 
-  suppressWarnings(x <- ackwards(data, k = 4, method = "efa"))
+  suppressWarnings(x <- ackwards(data, k_max = 4, engine = "efa"))
 
   E_scores <- compute_edges(
-    levels  = x$levels,
-    R       = R,
-    method  = "scores",
-    pairs   = "adjacent",
-    data    = data,
-    align   = FALSE
+    levels      = x$levels,
+    R           = R,
+    edge_method = "scores",
+    pairs       = "adjacent",
+    data        = data,
+    align       = FALSE
   )$matrices
 
   for (key in names(x$edges$matrices)) {
@@ -80,7 +80,7 @@ test_that("EFA algebra and scores paths agree (algebra-vs-scores cross-check)", 
 
 test_that("EFA factor_cor is identity (orthogonal rotation)", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3, method = "efa"))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
 
   for (ki in seq_len(x$k_max)) {
     Phi <- x$levels[[as.character(ki)]]$factor_cor
@@ -92,7 +92,7 @@ test_that("EFA factor_cor is identity (orthogonal rotation)", {
 
 test_that("EFA levels have correct structure and label formats", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3, method = "efa"))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
 
   for (ki in 1:3) {
     lev <- x$levels[[as.character(ki)]]
@@ -109,7 +109,7 @@ test_that("EFA levels have correct structure and label formats", {
 
 test_that("print, tidy, glance work for EFA objects", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3, method = "efa"))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
 
   expect_no_error(print(x))
   expect_s3_class(generics::tidy(x), "data.frame")
@@ -119,7 +119,7 @@ test_that("print, tidy, glance work for EFA objects", {
 
 test_that("EFA tidy() edges contain is_primary column", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3, method = "efa"))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
   td <- generics::tidy(x)
   expect_true("is_primary" %in% names(td))
   expect_type(td$is_primary, "logical")
@@ -135,7 +135,7 @@ test_that("EFA tidy() edges contain is_primary column", {
 
 test_that("meta$k_requested stores original k even when not truncated", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 4, method = "efa"))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4, engine = "efa"))
   expect_equal(x$meta$k_requested, 4L)
   expect_equal(x$k_max, 4L) # no truncation on well-formed data
 })
@@ -152,7 +152,7 @@ test_that("ackwards errors informatively when all EFA levels fail (k_eff < 2)", 
   d_sing <- data.frame(x1 = x1, x2 = x2, x3 = x3, x4 = x1 + x2 + x3)
 
   expect_error(
-    suppressWarnings(ackwards(d_sing, k = 3, method = "efa", fm = "ml")),
+    suppressWarnings(ackwards(d_sing, k_max = 3, engine = "efa", fm = "ml")),
     regexp = "at least 2" # from our k_eff < 2 guard
   )
 })
@@ -161,7 +161,7 @@ test_that("fm argument is validated", {
   skip_if_not_installed("psych")
   d <- psych::bfi[, 1:5]
   expect_error(
-    ackwards(d, k = 2, method = "efa", fm = "bad_fm"),
+    ackwards(d, k_max = 2, engine = "efa", fm = "bad_fm"),
     "fm"
   )
 })
@@ -173,7 +173,7 @@ test_that("EFA edge correlations match psych::bassAckward(fm='minres') within to
   ba <- suppressWarnings(
     psych::bassAckward(d, nfactors = 4L, fm = "minres", rotate = "varimax", plot = FALSE)
   )
-  suppressWarnings(x <- ackwards(d, k = 4L, method = "efa", fm = "minres"))
+  suppressWarnings(x <- ackwards(d, k_max = 4L, engine = "efa", fm = "minres"))
 
   # Skip i=1 (level 1:2): psych::bassAckward has a diag(scalar) bug that silently
   # skips score-variance standardization when a k=1 level is involved — the call
@@ -197,12 +197,12 @@ test_that("fm = 'ml' produces a valid object and passes algebra-vs-scores", {
     x1 = f1 + 0.3 * rnorm(n), x2 = f1 + 0.3 * rnorm(n),
     x3 = f2 + 0.3 * rnorm(n), x4 = f2 + 0.3 * rnorm(n)
   )
-  suppressWarnings(x <- ackwards(d, k = 3L, method = "efa", fm = "ml"))
+  suppressWarnings(x <- ackwards(d, k_max = 3L, engine = "efa", fm = "ml"))
   expect_s3_class(x, "ackwards")
   validate_ackwards(x)
   # Cross-check: algebra vs scores
   E_sc <- compute_edges(x$levels,
-    R = cor(d), method = "scores",
+    R = cor(d), edge_method = "scores",
     pairs = "adjacent", data = d, align = FALSE
   )$matrices
   for (key in names(x$edges$matrices)) {
@@ -222,11 +222,11 @@ test_that("fm = 'pa' produces a valid object and passes algebra-vs-scores", {
     x1 = f1 + 0.3 * rnorm(n), x2 = f1 + 0.3 * rnorm(n),
     x3 = f2 + 0.3 * rnorm(n), x4 = f2 + 0.3 * rnorm(n)
   )
-  suppressWarnings(x <- ackwards(d, k = 3L, method = "efa", fm = "pa"))
+  suppressWarnings(x <- ackwards(d, k_max = 3L, engine = "efa", fm = "pa"))
   expect_s3_class(x, "ackwards")
   validate_ackwards(x)
   E_sc <- compute_edges(x$levels,
-    R = cor(d), method = "scores",
+    R = cor(d), edge_method = "scores",
     pairs = "adjacent", data = d, align = FALSE
   )$matrices
   for (key in names(x$edges$matrices)) {
@@ -241,21 +241,21 @@ test_that("scoring$basis reflects the actual cor= argument", {
   set.seed(1)
   d <- as.data.frame(matrix(rnorm(200 * 6), 200, 6))
   # Pearson
-  xp <- ackwards(d, k = 2L, method = "efa")
+  xp <- ackwards(d, k_max = 2L, engine = "efa")
   expect_equal(xp$levels[["1"]]$scoring$basis, "pearson")
   expect_equal(xp$levels[["2"]]$scoring$basis, "pearson")
   # Spearman
-  xs <- ackwards(d, k = 2L, method = "efa", cor = "spearman")
+  xs <- ackwards(d, k_max = 2L, engine = "efa", cor = "spearman")
   expect_equal(xs$levels[["1"]]$scoring$basis, "spearman")
   expect_equal(xs$levels[["2"]]$scoring$basis, "spearman")
   # PCA engine too
-  xpca_s <- ackwards(d, k = 2L, method = "pca", cor = "spearman")
+  xpca_s <- ackwards(d, k_max = 2L, engine = "pca", cor = "spearman")
   expect_equal(xpca_s$levels[["1"]]$scoring$basis, "spearman")
 })
 
 test_that("tidy(x, what = 'fit') returns one row per level with named indices", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3L, method = "efa"))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3L, engine = "efa"))
   td <- generics::tidy(x, what = "fit")
   expect_s3_class(td, "data.frame")
   expect_true(all(c("level", "index", "value") %in% names(td)))
@@ -263,7 +263,7 @@ test_that("tidy(x, what = 'fit') returns one row per level with named indices", 
   expect_equal(nrow(td), 18L)
   expect_equal(sort(unique(td$level)), 1:3)
   # PCA fit returns different indices (eigenvalues) — should also work
-  suppressWarnings(xp <- ackwards(psych::bfi[, 1:25], k = 3L, method = "pca"))
+  suppressWarnings(xp <- ackwards(psych::bfi[, 1:25], k_max = 3L, engine = "pca"))
   td_pca <- generics::tidy(xp, what = "fit")
   expect_s3_class(td_pca, "data.frame")
   expect_equal(nrow(td_pca), 1L + 2L + 3L) # 1+2+3 eigenvalues across 3 levels

@@ -29,7 +29,7 @@ when the object was created). One row per factor across all levels:
 \code{id}, \code{level}, \code{pruned}, \code{prune_reason}. Returns an empty data frame with
 the same columns when no pruning was applied.
 \item \code{"scores"} — long-format per-observation factor scores (requires
-\code{scores = TRUE} at fit time or use \code{\link[=augment.ackwards]{augment.ackwards()}} for on-the-fly
+\code{keep_scores = TRUE} at fit time or use \code{\link[=augment.ackwards]{augment.ackwards()}} for on-the-fly
 computation). Columns: \code{obs} (row index), \code{level}, \code{factor}, \code{score}.
 }}
 
