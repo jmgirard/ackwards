@@ -52,6 +52,7 @@
 <div class="section level2">
 <h2 id="what-this-is">What this is<a class="anchor" aria-label="anchor" href="#what-this-is"></a></h2>
 <p><code>ackwards</code> is an R package implementing Goldberg’s (2006) bass-ackwards method and modern descendants (PCA / EFA / ESEM engines) for hierarchical structural analysis. Extract solutions from 1..k factors, then characterize the hierarchy via between-level factor-score correlations. Full rationale, contracts, object spec, and resolved defaults are in <code>DESIGN.md</code>.</p>
+<p><strong>Note:</strong> Forbes (2023) footnote 3 cites this package (<code>github.com/jmgirard/ackwards</code>) as the reference implementation of the extended bass-ackwards approach. Fidelity to the paper’s algorithm is the baseline contract for anything Forbes-related; additive enrichments are acceptable but the default output must reproduce Forbes’s examples exactly.</p>
 </div>
 <div class="section level2">
 <h2 id="completed-milestones">Completed milestones<a class="anchor" aria-label="anchor" href="#completed-milestones"></a></h2>
@@ -67,11 +68,15 @@
 </ul></li>
 <li>
 <strong>M5 (done):</strong> Forbes extension — <code>pairs = "all"</code>, <code>prune = "redundant"/"artefact"</code>, Tucker’s φ chains (DFS enumeration, global retain set), annotated <code><a href="reference/autoplot.html">autoplot()</a></code> (skip-level arcs, pruned fill), <code>tidy(what = "nodes")</code>, <code><a href="reference/augment.ackwards.html">augment.ackwards()</a></code> print caveat.</li>
+<li>
+<strong>M6 (done):</strong> Storage materialization + cfQ cleanup — <code>scores = TRUE</code> / <code>keep_fits = TRUE</code> storage, <code><a href="reference/augment.ackwards.html">augment.ackwards()</a></code>, <code>tidy(what = "scores")</code>, cfQ hard error, cross-check tests.</li>
+<li>
+<strong>M7 (done):</strong> Documentation — README.Rmd, intro vignette, pkgdown site, three targeted vignettes (engines, ordinal, Forbes extension).</li>
+<li>
+<strong>M8 (done):</strong> Plot customization — <code>show_r</code>/<code>r_digits</code>, <code>mono</code>, <code>show_level_labels</code>/ <code>level_label_size</code>, <code>node_labels</code>, <code>primary_only</code>, <code>drop_pruned</code>/<code>compress_levels</code> on <code><a href="reference/autoplot.ackwards.html">autoplot.ackwards()</a></code>; private <code>.drop_pruned_nodes()</code> helper in <code>layout.R</code>.</li>
 </ul></div>
 <div class="section level2">
-<h2 id="current-focus--milestone-6">Current focus — Milestone 6<a class="anchor" aria-label="anchor" href="#current-focus--milestone-6"></a></h2>
-<p><strong>Scope:</strong> Storage materialization + cfQ cleanup. See <code>DESIGN.md</code> §15.6. 1. <code>scores = TRUE</code> storage (per-level <code>n × k</code> matrices, standardized by real score SDs per Inv. 1) + <code><a href="reference/augment.ackwards.html">augment.ackwards()</a></code> accessor (appends score columns; recomputes from weights + R when not kept) + <code>tidy(what = "scores")</code>. Linear engines only; EAP deferred. 2. <code>keep_fits = TRUE</code> storage — retain per-level raw engine objects in <code>$fits</code> (same plumbing). 3. cfQ cleanup — orthogonal-only is resolved (§9, §14.1); make <code>cfQ</code> error as <em>unsupported</em> (not “not yet implemented”) consistently across engines and docs.</p>
-<p>After M6: README.Rmd → intro vignette → pkgdown → vignettes (engines, ordinal, Forbes). See <code>DESIGN.md</code> §15.7.</p>
+<h2 id="current-focus--no-active-milestone">Current focus — no active milestone<a class="anchor" aria-label="anchor" href="#current-focus--no-active-milestone"></a></h2>
 <p>If a step needs a design decision not covered in <code>DESIGN.md</code>, <strong>stop and ask</strong> rather than guessing.</p>
 </div>
 <div class="section level2">
@@ -98,7 +103,8 @@
 </div>
 <div class="section level2">
 <h2 id="dependencies-see-designmd-12">Dependencies (see <code>DESIGN.md</code> §12)<a class="anchor" aria-label="anchor" href="#dependencies-see-designmd-12"></a></h2>
-<p>Keep <code>Imports</code> lean: <code>stats</code>, <code>methods</code>, <code>cli</code>, <code>rlang</code>. Everything else (<code>psych</code>/<code>GPArotation</code>, <code>lavaan</code>, <code>clue</code>, <code>ggraph</code>+friends, <code>EGAnet</code>/<code>paran</code>, <code>future</code>) goes in <code>Suggests</code>, gated by <code><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">rlang::check_installed()</a></code>. <strong>Do not add to <code>Imports</code> without flagging it.</strong> <strong>No Rcpp</strong> — profile first; the heavy compute already lives in compiled deps (§3).</p>
+<p>Keep <code>Imports</code> lean: <code>stats</code>, <code>utils</code>, <code>cli</code>, <code>rlang</code>, <code>generics</code>. Everything else (<code>psych</code>, <code>GPArotation</code>, <code>lavaan</code>, <code>ggplot2</code>, testing/docs infrastructure) goes in <code>Suggests</code>, gated by <code><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">rlang::check_installed()</a></code>. <strong>Do not add to <code>Imports</code> without flagging it.</strong> <strong>No Rcpp</strong> — profile first; the heavy compute already lives in compiled deps (§3).</p>
+<p>Current <code>Imports</code>: <code>cli</code>, <code>generics</code>, <code>rlang</code>, <code>stats</code>, <code>utils</code>. Current <code>Suggests</code>: <code>covr</code>, <code>ggplot2</code>, <code>GPArotation</code>, <code>knitr</code>, <code>lavaan (&gt;= 0.6-13)</code>, <code>psych</code>, <code>rmarkdown</code>, <code>testthat (&gt;= 3.0.0)</code>. <code><a href="reference/suggest_k.html">suggest_k()</a></code> uses <code><a href="https://rdrr.io/pkg/psych/man/fa.parallel.html" class="external-link">psych::fa.parallel</a></code> and <code><a href="https://rdrr.io/pkg/psych/man/VSS.html" class="external-link">psych::vss</a></code> (no separate <code>EGAnet</code>/<code>paran</code> dep). Visualization uses <code>ggplot2</code> directly (no <code>ggraph</code>/<code>igraph</code>/ <code>tidygraph</code>). <code>methods</code> is <strong>not</strong> imported (no <code>methods::</code> usage). <code>clue</code> was removed in M5.</p>
 </div>
 <div class="section level2">
 <h2 id="dev-workflow">Dev workflow<a class="anchor" aria-label="anchor" href="#dev-workflow"></a></h2>
@@ -140,11 +146,13 @@
 <div class="section level2">
 <h2 id="out-of-scope-for-now">Out of scope for now<a class="anchor" aria-label="anchor" href="#out-of-scope-for-now"></a></h2>
 <ul><li>
-<strong>EAP scoring</strong> for ordinal ESEM — deferred past M6; linear tenBerge scores cover the common case.</li>
+<strong>EAP scoring</strong> for ordinal ESEM — deferred; linear tenBerge scores cover the common case.</li>
 <li>
-<strong>Oblique rotation full support</strong> — <code>cfQ</code> is offered but edge-correlation interpretation is documented as limited; no plans to change the default.</li>
+<strong>Oblique rotation</strong> — <code>cfQ</code> hard-errors as unsupported (confounds cross-level signal). No plans to add it.</li>
 <li>
 <strong>Higher-order SEM / Schmid-Leiman</strong> — out of scope per §2; <code>ackwards</code> is correlation-based, not SEM-based.</li>
+<li>
+<strong>M5 deferred improvements</strong> — structural artefact signals (split-then-merge, &lt;3-item factors, orphans), φ as default for non-PCA redundancy, bootstrap CIs on skip-level edges. Logged in <code>DESIGN.md</code> §14.</li>
 </ul></div>
 </div>
 

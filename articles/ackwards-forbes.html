@@ -126,9 +126,9 @@ adjacent pairs only to every combination of levels.</p>
 <span><span class="va">x_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, pairs <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># How many edges?</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_adj</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span><span class="op">)</span>   <span class="co"># adjacent only</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_adj</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span><span class="op">)</span> <span class="co"># adjacent only</span></span>
 <span><span class="co">#&gt; [1] 40</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_all</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span><span class="op">)</span>   <span class="co"># all pairs</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_all</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span><span class="op">)</span> <span class="co"># all pairs</span></span>
 <span><span class="co">#&gt; [1] 85</span></span></code></pre></div>
 <p>With k = 5, the adjacent-only model has 40 edges (1×2 + 2×3 + 3×4 +
 4×5). The all-pairs model adds every non-adjacent pair — 1↔︎3, 1↔︎4, 1↔︎5,
@@ -194,8 +194,10 @@ m2f2 → m3f2 → m4f2 → m5f1 all share r &gt; 0.97, the intermediate nodes
 m3f2 and m4f2 are flagged as redundant: they repeat rather than refine
 the same dimension.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x_prune</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>,</span>
-<span>                    pairs <span class="op">=</span> <span class="st">"all"</span>, prune <span class="op">=</span> <span class="st">"redundant"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">x_prune</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>,</span>
+<span>  k <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>,</span>
+<span>  pairs <span class="op">=</span> <span class="st">"all"</span>, prune <span class="op">=</span> <span class="st">"redundant"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span></code></pre></div>
@@ -243,6 +245,35 @@ The un-shaded factors at k = 1, the non-flagged factors at k = 2 and k =
 hierarchy.</p>
 </div>
 <div class="section level3">
+<h3 id="the-drop-pruned-diagram-drop_pruned">The drop-pruned diagram (<code>drop_pruned</code>)<a class="anchor" aria-label="anchor" href="#the-drop-pruned-diagram-drop_pruned"></a>
+</h3>
+<p>The annotated view keeps all factors visible and uses shading to flag
+the redundant ones. For presentations and publications it is often
+cleaner to omit the flagged factors entirely and draw direct arrows from
+each retained factor to its single strongest kept ancestor — even when
+that ancestor is several levels away. This is the Forbes (2023)
+pruned-factor diagram, activated by <code>drop_pruned = TRUE</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x_prune</span>, drop_pruned <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="ackwards-forbes_files/figure-html/drop-pruned-1.png" class="r-plt" alt="" width="768"></p>
+<p>Level 4 is entirely pruned, leaving a visible gap in the y-axis. The
+gap is intentional: it shows <em>which</em> level was removed. Spanning
+arrows bridge directly from level 3 factors to level 5 factors (or from
+level 1 to level 3 where level 2 was partly flagged). Correlation labels
+appear by default in this view (<code>show_r</code> auto-defaults to
+<code>TRUE</code>) because they are the primary signal distinguishing a
+close connection from a long gap-spanning one.</p>
+<p>To close the gaps and compact the layout while retaining the original
+level numbers on the axis:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x_prune</span>, drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>, compress_levels <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="ackwards-forbes_files/figure-html/drop-pruned-compressed-1.png" class="r-plt" alt="" width="768"></p>
+<p>The level labels still read “1 factor”, “2 factors”, “3 factors”, “5
+factors” so readers know which levels were retained; the uniform
+vertical spacing makes the diagram easier to read in constrained page
+layouts.</p>
+</div>
+<div class="section level3">
 <h3 id="prune-artefact-factors-defined-by-structural-similarity">
 <code>prune = "artefact"</code>: factors defined by structural
 similarity<a class="anchor" aria-label="anchor" href="#prune-artefact-factors-defined-by-structural-similarity"></a>
@@ -257,9 +288,11 @@ coefficient (φ):</p>
 near-identical loading patterns regardless of sign. A factor at k = 3
 that has φ &gt; 0.95 with a factor at k = 1 is suspected to be an
 artefact of the rotation rather than a genuine new dimension.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x_art</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>,</span>
-<span>                  pairs <span class="op">=</span> <span class="st">"all"</span>, prune <span class="op">=</span> <span class="st">"artefact"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">x_art</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>,</span>
+<span>  k <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>,</span>
+<span>  pairs <span class="op">=</span> <span class="st">"all"</span>, prune <span class="op">=</span> <span class="st">"artefact"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Artefact mode: Tucker's computed for all cross-level factor pairs.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Inspect `x$prune$phi` to identify potential artefacts; removal is a</span></span>
 <span><span class="co">#&gt;   researcher judgment (Forbes, 2023).</span></span>
@@ -305,42 +338,46 @@ looks like a copy rather than a refinement.</li>
 <div class="section level2">
 <h2 id="tuning-the-thresholds">Tuning the thresholds<a class="anchor" aria-label="anchor" href="#tuning-the-thresholds"></a>
 </h2>
-<p>Both pruning criteria have adjustable thresholds. The defaults
-(<code>phi_redundant = 0.90</code>, <code>phi_artefact = 0.95</code>)
-are those used in Forbes (2023).</p>
+<p>The redundancy criterion has an adjustable <code>redundancy_r</code>
+threshold (default <code>0.90</code>) matching Forbes (2023). The
+artefact criterion has no auto-flag threshold —
+<code>prune = "artefact"</code> computes Tucker’s φ for researcher
+inspection; no factors are auto-flagged.</p>
 <p>For the BFI, the result is the same across a wide range of thresholds
 because the redundant chains all have correlations &gt; 0.97 — the
 flagging is unambiguous. With your own data you may find borderline
 cases where the threshold matters:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Check how many factors are flagged at different thresholds</span></span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Check how many factors are flagged at different redundancy_r thresholds</span></span>
 <span><span class="va">thresholds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.80</span>, <span class="fl">0.85</span>, <span class="fl">0.90</span>, <span class="fl">0.95</span><span class="op">)</span></span>
 <span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">thresholds</span>, <span class="kw">function</span><span class="op">(</span><span class="va">thr</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>,</span>
-<span>             pairs <span class="op">=</span> <span class="st">"all"</span>, prune <span class="op">=</span> <span class="st">"redundant"</span>,</span>
-<span>             phi_redundant <span class="op">=</span> <span class="va">thr</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>,</span>
+<span>      k <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>,</span>
+<span>      pairs <span class="op">=</span> <span class="st">"all"</span>, prune <span class="op">=</span> <span class="st">"redundant"</span>,</span>
+<span>      redundancy_r <span class="op">=</span> <span class="va">thr</span></span>
+<span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"nodes"</span><span class="op">)</span><span class="op">$</span><span class="va">pruned</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.8) flagged 8 nodes.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
+<span><span class="co">#&gt;   `x$prune$chains`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.85) flagged 7 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
-<span><span class="co">#&gt;   `x$prune$chains`.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>phi_redundant <span class="op">=</span> <span class="va">thresholds</span>, n_flagged <span class="op">=</span> <span class="va">counts</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   phi_redundant n_flagged</span></span>
-<span><span class="co">#&gt; 1          0.80         6</span></span>
-<span><span class="co">#&gt; 2          0.85         6</span></span>
-<span><span class="co">#&gt; 3          0.90         6</span></span>
-<span><span class="co">#&gt; 4          0.95         6</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>redundancy_r <span class="op">=</span> <span class="va">thresholds</span>, n_flagged <span class="op">=</span> <span class="va">counts</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   redundancy_r n_flagged</span></span>
+<span><span class="co">#&gt; 1         0.80         8</span></span>
+<span><span class="co">#&gt; 2         0.85         7</span></span>
+<span><span class="co">#&gt; 3         0.90         6</span></span>
+<span><span class="co">#&gt; 4         0.95         6</span></span></code></pre></div>
 <p>For the BFI all thresholds agree: the flagged factors are robustly
 redundant, not borderline cases. In noisier datasets or smaller samples
 you will typically see the count increase as you lower the

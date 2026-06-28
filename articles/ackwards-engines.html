@@ -425,10 +425,10 @@ important for judging which loadings are meaningfully non-zero.</p>
 edges. For well-structured, continuous data, all three engines should
 agree closely on the hierarchy.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">e_pca</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_pca</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span></span>
-<span><span class="va">e_efa</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_efa</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span></span>
-<span><span class="va">e_pca</span><span class="op">$</span><span class="va">engine</span>  <span class="op">&lt;-</span> <span class="st">"pca"</span></span>
-<span><span class="va">e_efa</span><span class="op">$</span><span class="va">engine</span>  <span class="op">&lt;-</span> <span class="st">"efa"</span></span>
+<code class="sourceCode R"><span><span class="va">e_pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_pca</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span></span>
+<span><span class="va">e_efa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_efa</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span></span>
+<span><span class="va">e_pca</span><span class="op">$</span><span class="va">engine</span> <span class="op">&lt;-</span> <span class="st">"pca"</span></span>
+<span><span class="va">e_efa</span><span class="op">$</span><span class="va">engine</span> <span class="op">&lt;-</span> <span class="st">"efa"</span></span>
 <span></span>
 <span><span class="co"># Primary-parent edges at each level transition</span></span>
 <span><span class="va">primary_pca</span> <span class="op">&lt;-</span> <span class="va">e_pca</span><span class="op">[</span><span class="va">e_pca</span><span class="op">$</span><span class="va">is_primary</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"engine"</span>, <span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span><span class="op">)</span><span class="op">]</span></span>

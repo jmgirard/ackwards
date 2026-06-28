@@ -80,10 +80,10 @@ runs two established selection criteria:
 
 sk <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations)...
-#> ✔ Running parallel analysis (20 iterations)... [116ms]
+#> ✔ Running parallel analysis (20 iterations)... [118ms]
 #> 
 #> ℹ Running MAP (Velicer)...
-#> ✔ Running MAP (Velicer)... [126ms]
+#> ✔ Running MAP (Velicer)... [123ms]
 #> 
 sk
 #> 
@@ -373,7 +373,8 @@ scored <- augment(x, data = bfi)
 #>   comes from the "polychoric" R.
 #> ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,
 #>   between-level edges from `tidy()` are the authoritative associations.
-dim(scored)         # 25 original items + 15 score columns (1+2+3+4+5)
+#> This warning is displayed once per session.
+dim(scored) # 25 original items + 15 score columns (1+2+3+4+5)
 #> [1] 2436   40
 names(scored)[26:40]
 #>  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"
@@ -395,13 +396,7 @@ matrices on every call:
 ``` r
 
 x2 <- ackwards(bfi, k = 5, cor = "polychoric", scores = TRUE)
-#> Warning: ! Factor scores are standardized using model-implied SDs from a "polychoric"
-#>   correlation matrix.
-#> ℹ The raw projection uses `scale(data)` (Pearson z-scores), but `score_var`
-#>   comes from the "polychoric" R.
-#> ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,
-#>   between-level edges from `tidy()` are the authoritative associations.
-scored2 <- augment(x2)   # uses stored matrices — no recomputation
+scored2 <- augment(x2) # uses stored matrices — no recomputation
 identical(round(scored2$.m5f1, 8), round(scored$.m5f1, 8))
 #> [1] TRUE
 ```

@@ -49,6 +49,40 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="ackwards-0009000-dev">ackwards 0.0.0.9000 (dev)<a class="anchor" aria-label="anchor" href="#ackwards-0009000-dev"></a></h2>
 <div class="section level3">
+<h3 id="milestone--plot-customization-waves--0-0-0-9000">Milestone 8 — Plot customization (Waves 1 &amp; 2)<a class="anchor" aria-label="anchor" href="#milestone--plot-customization-waves--0-0-0-9000"></a></h3>
+<ul><li>
+<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>show_r = FALSE</code> / <code>r_digits = 2L</code>: when <code>show_r = TRUE</code>, draws <code>round(r, r_digits)</code> as a text label at each edge midpoint. Pairs naturally with <code>mono = TRUE</code> for greyscale journal figures.</li>
+<li>
+<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>mono = FALSE</code>: monochrome mode draws all edges in black with <code>linewidth</code> encoding <code>|r|</code> and <code>linetype</code> encoding sign (<code>solid</code> = positive, <code>dashed</code> = negative). Drops the <code>cut_strong</code> strong/weak linetype distinction (linewidth already conveys magnitude, so a second strength encoding on linetype is redundant).</li>
+<li>
+<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>show_level_labels = TRUE</code> / <code>level_label_size = 3</code>: draws “1 factor”, “2 factors”, … to the left of the diagram at each level’s <code>y</code> position (using <code>coord_cartesian(clip = "off")</code> for overflow-safe placement, which was already set). Default is <code>TRUE</code> (was missing before).</li>
+<li>
+<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>node_labels = NULL</code>: a named character vector mapping factor IDs (e.g. <code>"m5f1"</code>) to custom display strings. Unspecified factors keep their <code>m{k}f{j}</code> label. Warns if a supplied name matches no factor ID in the object.</li>
+<li>
+<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>primary_only = FALSE</code>: when <code>TRUE</code>, filters the edge table to <code>is_primary == TRUE</code> before drawing, producing a clean tree of primary parent links. Because skip-level edges are never primary, this also suppresses curved skip arcs.</li>
+<li>
+<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>drop_pruned = FALSE</code>: activates the Forbes
+<ol start="2023" style="list-style-type: decimal"><li>pruned-view rendering path. Pruned nodes are removed from the diagram entirely; each retained node is connected to its single strongest kept ancestor by a straight arrow, even when the arrow spans multiple level gaps (no curved arcs in this mode). Requires <code>prune != "none"</code> at fit time; errors with a clear message if pruning annotations are absent. <code>show_r</code> auto-defaults to <code>TRUE</code> in this mode (Forbes convention).</li>
+</ol></li>
+<li>
+<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>compress_levels = FALSE</code>: used together with <code>drop_pruned = TRUE</code>, closes the vertical gaps left by pruned levels so retained nodes are evenly spaced; level axis labels still show the original level numbers so each row remains identifiable.</li>
+<li>Added private helper <code>.drop_pruned_nodes(x, nodes, compress_levels)</code> in <code>layout.R</code>: computes the kept-only node set and a reduced primary-edge table for the drop-pruned rendering path. For each kept node it selects the single strongest <code>|r|</code> edge to any kept shallower node, recomputing primary parentage on the reduced graph (the original <code>is_primary</code> column is not reused). When <code>compress_levels = TRUE</code>, re-indexes <code>y = -rank(level)</code> while preserving the original <code>level</code> column for display labels.</li>
+<li>
+<code>show_r</code> default changed from <code>FALSE</code> to <code>NULL</code> to support the <code>drop_pruned</code> auto-default; calling <code>autoplot(x)</code> without <code>show_r</code> produces the same behaviour as before (<code>FALSE</code>).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="m6m7-conformance-fixes-second-pass-review-0-0-0-9000">M6/M7 conformance fixes (second-pass review)<a class="anchor" aria-label="anchor" href="#m6m7-conformance-fixes-second-pass-review-0-0-0-9000"></a></h3>
+<ul><li>
+<code>augment(x, data=)</code> and <code>scores = TRUE</code> now warn when <code>data</code> contains rows with missing values: score projection applies weights row-wise and propagates NAs listwise, even though fitting used pairwise-complete correlations. The warning advises <code>na.omit(data)</code> to remove incomplete rows before scoring. <code><a href="../reference/augment.ackwards.html">?augment.ackwards</a></code> documents the listwise-vs-pairwise asymmetry.</li>
+<li>
+<code>augment(x, data=)</code> now errors with a clear message when <code>data</code> contains non-numeric columns (previously would error inside <code><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale()</a></code> with a cryptic message).</li>
+<li>
+<code>detect_ordinal()</code> is now called once in <code><a href="../reference/ackwards.html">ackwards()</a></code> and its result reused for both the Invariant-6 console warning and <code>meta$ordinal_warned</code> (was called twice, scanning all columns each time).</li>
+<li>The non-Pearson basis warning in <code>.compute_scores()</code> now uses <code>.frequency = "once"</code> so repeated <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> calls on the same object do not produce duplicate warnings in a session.</li>
+<li>Tests added: non-Pearson basis warns on scoring (Fix 3); <code>keep_fits = TRUE</code> only stores converged levels under truncation (Fix 4, labelled B4); NA-data warns and produces NA scores for <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> and <code>scores = TRUE</code> (Fix 1); non-numeric <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> data errors cleanly (Fix 5).</li>
+<li>DESIGN.md §12 and CLAUDE.md dependency section updated to match DESCRIPTION: <code>Imports</code> is <code>cli</code>, <code>generics</code>, <code>rlang</code>, <code>stats</code>, <code>utils</code> (<code>methods</code> is not imported; no <code>methods::</code> usage exists). <code>Suggests</code> reflects the actual set (<code>psych</code>, <code>GPArotation</code>, <code>lavaan</code>, <code>ggplot2</code>, <code>testthat</code>, <code>knitr</code>, <code>rmarkdown</code>, <code>covr</code>); <code>ggraph</code>/<code>igraph</code>/<code>tidygraph</code>, <code>EGAnet</code>/<code>paran</code>, <code>clue</code>, <code>future</code> are not in DESCRIPTION and the §12 table no longer lists them. <code><a href="../reference/suggest_k.html">suggest_k()</a></code> uses <code><a href="https://rdrr.io/pkg/psych/man/fa.parallel.html" class="external-link">psych::fa.parallel</a></code> + <code><a href="https://rdrr.io/pkg/psych/man/VSS.html" class="external-link">psych::vss</a></code> (not separate <code>EGAnet</code>/<code>paran</code> deps).</li>
+</ul></div>
+<div class="section level3">
 <h3 id="milestone-post-review-fixes-0-0-0-9000">Milestone 6 post-review fixes<a class="anchor" aria-label="anchor" href="#milestone-post-review-fixes-0-0-0-9000"></a></h3>
 <ul><li>
 <code>augment(x, data=)</code> now validates column names/count before projecting. Named data: errors if any model variable is missing; silently subsets extra columns (so passing the full dataset works when the model used a subset). Unnamed data (bare matrix): errors if column count doesn’t match.</li>

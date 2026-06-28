@@ -47,9 +47,9 @@ x_adj <- ackwards(bfi, k = 5, cor = "polychoric")
 x_all <- ackwards(bfi, k = 5, cor = "polychoric", pairs = "all")
 
 # How many edges?
-nrow(tidy(x_adj, what = "edges"))   # adjacent only
+nrow(tidy(x_adj, what = "edges")) # adjacent only
 #> [1] 40
-nrow(tidy(x_all, what = "edges"))   # all pairs
+nrow(tidy(x_all, what = "edges")) # all pairs
 #> [1] 85
 ```
 
@@ -122,8 +122,10 @@ dimension.
 
 ``` r
 
-x_prune <- ackwards(bfi, k = 5, cor = "polychoric",
-                    pairs = "all", prune = "redundant")
+x_prune <- ackwards(bfi,
+  k = 5, cor = "polychoric",
+  pairs = "all", prune = "redundant"
+)
 #> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
@@ -178,6 +180,45 @@ indicate “you can probably jump over these without losing information.”
 The un-shaded factors at k = 1, the non-flagged factors at k = 2 and k =
 3, and all five factors at k = 5 tell the main story of the hierarchy.
 
+### The drop-pruned diagram (`drop_pruned`)
+
+The annotated view keeps all factors visible and uses shading to flag
+the redundant ones. For presentations and publications it is often
+cleaner to omit the flagged factors entirely and draw direct arrows from
+each retained factor to its single strongest kept ancestor — even when
+that ancestor is several levels away. This is the Forbes (2023)
+pruned-factor diagram, activated by `drop_pruned = TRUE`.
+
+``` r
+
+autoplot(x_prune, drop_pruned = TRUE)
+```
+
+![](ackwards-forbes_files/figure-html/drop-pruned-1.png)
+
+Level 4 is entirely pruned, leaving a visible gap in the y-axis. The gap
+is intentional: it shows *which* level was removed. Spanning arrows
+bridge directly from level 3 factors to level 5 factors (or from level 1
+to level 3 where level 2 was partly flagged). Correlation labels appear
+by default in this view (`show_r` auto-defaults to `TRUE`) because they
+are the primary signal distinguishing a close connection from a long
+gap-spanning one.
+
+To close the gaps and compact the layout while retaining the original
+level numbers on the axis:
+
+``` r
+
+autoplot(x_prune, drop_pruned = TRUE, compress_levels = TRUE)
+```
+
+![](ackwards-forbes_files/figure-html/drop-pruned-compressed-1.png)
+
+The level labels still read “1 factor”, “2 factors”, “3 factors”, “5
+factors” so readers know which levels were retained; the uniform
+vertical spacing makes the diagram easier to read in constrained page
+layouts.
+
 ### `prune = "artefact"`: factors defined by structural similarity
 
 An **artefact** factor is one whose loading pattern is more similar to a
@@ -196,8 +237,10 @@ rotation rather than a genuine new dimension.
 
 ``` r
 
-x_art <- ackwards(bfi, k = 5, cor = "polychoric",
-                  pairs = "all", prune = "artefact")
+x_art <- ackwards(bfi,
+  k = 5, cor = "polychoric",
+  pairs = "all", prune = "artefact"
+)
 #> ℹ Artefact mode: Tucker's computed for all cross-level factor pairs.
 #> ℹ Inspect `x$prune$phi` to identify potential artefacts; removal is a
 #>   researcher judgment (Forbes, 2023).
@@ -240,9 +283,10 @@ not the other; the two criteria capture different flavors of redundancy:
 
 ## Tuning the thresholds
 
-Both pruning criteria have adjustable thresholds. The defaults
-(`phi_redundant = 0.90`, `phi_artefact = 0.95`) are those used in Forbes
-(2023).
+The redundancy criterion has an adjustable `redundancy_r` threshold
+(default `0.90`) matching Forbes (2023). The artefact criterion has no
+auto-flag threshold — `prune = "artefact"` computes Tucker’s φ for
+researcher inspection; no factors are auto-flagged.
 
 For the BFI, the result is the same across a wide range of thresholds
 because the redundant chains all have correlations \> 0.97 — the
@@ -251,34 +295,36 @@ cases where the threshold matters:
 
 ``` r
 
-# Check how many factors are flagged at different thresholds
+# Check how many factors are flagged at different redundancy_r thresholds
 thresholds <- c(0.80, 0.85, 0.90, 0.95)
 counts <- sapply(thresholds, function(thr) {
   x <- suppressWarnings(
-    ackwards(bfi, k = 5, cor = "polychoric",
-             pairs = "all", prune = "redundant",
-             phi_redundant = thr)
+    ackwards(bfi,
+      k = 5, cor = "polychoric",
+      pairs = "all", prune = "redundant",
+      redundancy_r = thr
+    )
   )
   sum(tidy(x, what = "nodes")$pruned)
 })
-#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
+#> ℹ Redundancy pruning (|r| ≥ 0.8) flagged 8 nodes.
+#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+#>   `x$prune$chains`.
+#> ℹ Redundancy pruning (|r| ≥ 0.85) flagged 7 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
 #> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
-#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
+#> ℹ Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
-#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
-#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
-#>   `x$prune$chains`.
-data.frame(phi_redundant = thresholds, n_flagged = counts)
-#>   phi_redundant n_flagged
-#> 1          0.80         6
-#> 2          0.85         6
-#> 3          0.90         6
-#> 4          0.95         6
+data.frame(redundancy_r = thresholds, n_flagged = counts)
+#>   redundancy_r n_flagged
+#> 1         0.80         8
+#> 2         0.85         7
+#> 3         0.90         6
+#> 4         0.95         6
 ```
 
 For the BFI all thresholds agree: the flagged factors are robustly

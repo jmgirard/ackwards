@@ -116,15 +116,17 @@ loadings and change eigenvalues.
 ``` r
 
 l_pear <- tidy(x_pearson, what = "loadings")
-l_poly <- tidy(x_poly,    what = "loadings")
+l_poly <- tidy(x_poly, what = "loadings")
 l_pear$basis <- "pearson"
 l_poly$basis <- "polychoric"
 
 # k = 5 loadings for Neuroticism items
 both <- rbind(l_pear, l_poly)
 both5_N <- both[both$level == 5 & substr(both$item, 1, 1) == "N", ]
-both5_N[order(both5_N$factor, both5_N$item),
-        c("basis", "factor", "item", "loading")]
+both5_N[
+  order(both5_N$factor, both5_N$item),
+  c("basis", "factor", "item", "loading")
+]
 #>          basis factor item       loading
 #> 266    pearson   m5f1   N1  0.8062243646
 #> 641 polychoric   m5f1   N1  0.8292885417
@@ -187,7 +189,7 @@ categories is removed.
 ``` r
 
 e_pear <- tidy(x_pearson, what = "edges")
-e_poly <- tidy(x_poly,    what = "edges")
+e_poly <- tidy(x_poly, what = "edges")
 
 primary_pear <- e_pear[e_pear$is_primary, c("from", "to", "r")]
 primary_poly <- e_poly[e_poly$is_primary, c("from", "to", "r")]

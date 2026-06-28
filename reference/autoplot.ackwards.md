@@ -22,6 +22,15 @@ autoplot(
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
+  show_r = NULL,
+  r_digits = 2L,
+  mono = FALSE,
+  show_level_labels = TRUE,
+  level_label_size = 3,
+  node_labels = NULL,
+  primary_only = FALSE,
+  drop_pruned = FALSE,
+  compress_levels = FALSE,
   ...
 )
 
@@ -43,16 +52,18 @@ plot(x, ...)
 - cut_strong:
 
   Edges with `|r| >= cut_strong` are drawn solid; those between
-  `cut_show` and `cut_strong` are dashed. A documented threshold
-  separating "notable" from "strong" associations. Default `0.5`.
+  `cut_show` and `cut_strong` are dashed. Ignored when `mono = TRUE`.
+  Default `0.5`.
 
 - color_pos:
 
-  Colour for positive edges. Default `"#2166AC"` (blue).
+  Colour for positive edges. Default `"#2166AC"` (blue). Ignored when
+  `mono = TRUE`.
 
 - color_neg:
 
-  Colour for negative edges. Default `"#D6604D"` (red).
+  Colour for negative edges. Default `"#D6604D"` (red). Ignored when
+  `mono = TRUE`.
 
 - node_width:
 
@@ -72,20 +83,79 @@ plot(x, ...)
 
   Whether to draw skip-level (non-adjacent) edges. `NULL` (default)
   auto-detects: `TRUE` when the object was run with `pairs = "all"`,
-  `FALSE` otherwise. Skip-level edges are drawn as curved lines to
-  distinguish them from the adjacent straight arrows.
+  `FALSE` otherwise. Ignored when `drop_pruned = TRUE`.
 
 - curvature:
 
   Curvature of skip-level edge arcs. Passed to
   [`ggplot2::geom_curve()`](https://ggplot2.tidyverse.org/reference/geom_segment.html).
-  Positive values curve right; default `0.2`.
+  Positive values curve right; default `0.2`. Ignored when
+  `drop_pruned = TRUE`.
 
 - color_pruned:
 
   Fill colour for nodes flagged as pruned/redundant. Default `"grey80"`.
   Only applied when the object carries pruning annotations (`x$prune` is
-  non-`NULL`).
+  non-`NULL`) and `drop_pruned = FALSE` (pruned nodes are omitted
+  entirely when `drop_pruned = TRUE`).
+
+- show_r:
+
+  Whether to label each drawn edge with its rounded correlation
+  coefficient. `NULL` (default) uses `FALSE` normally and `TRUE` when
+  `drop_pruned = TRUE` (Forbes 2023 figures always label spanning
+  arrows). Set explicitly to `TRUE` or `FALSE` to override.
+
+- r_digits:
+
+  Number of decimal places for edge labels when `show_r = TRUE`. Default
+  `2L`.
+
+- mono:
+
+  Monochrome mode. When `TRUE`, all edges are drawn in black;
+  `linewidth` still encodes `|r|`; `linetype` encodes sign (`solid` =
+  positive, `dashed` = negative). The `cut_strong` strong/weak linetype
+  distinction is dropped in mono mode. Default `FALSE`.
+
+- show_level_labels:
+
+  Whether to draw level axis labels ("1 factor", "2 factors", ...) to
+  the left of the diagram. Default `TRUE`.
+
+- level_label_size:
+
+  Font size for level axis labels. Default `3`.
+
+- node_labels:
+
+  A named character vector mapping factor IDs (e.g. `"m5f1"`) to custom
+  display strings (e.g. `"General"`). Unspecified factors keep their
+  default `m{k}f{j}` label. A warning is issued for names that match no
+  factor ID in the object. Default `NULL`.
+
+- primary_only:
+
+  When `TRUE`, only primary-parent edges (`is_primary == TRUE`) are
+  drawn. Because skip-level edges are never primary, this also
+  suppresses skip arcs. Ignored when `drop_pruned = TRUE`. Default
+  `FALSE`.
+
+- drop_pruned:
+
+  When `TRUE`, activates the Forbes (2023) pruned-view rendering path:
+  pruned nodes are removed from the diagram entirely and each retained
+  node is connected to its single strongest kept ancestor by a straight
+  arrow (even across level gaps). Requires the object to carry pruning
+  annotations (`prune != "none"` at fit time); errors if not. Overrides
+  `show_skip`, `curvature`, and `primary_only`. Default `FALSE`.
+
+- compress_levels:
+
+  When `TRUE` under `drop_pruned = TRUE`, closes vertical gaps left by
+  pruned levels so retained levels are evenly spaced; level axis
+  labels (d) still show the original level numbers. Ignored when
+  `drop_pruned = FALSE`. Default `FALSE`.
 
 - ...:
 
@@ -115,5 +185,19 @@ if (FALSE) { # \dontrun{
 x <- ackwards(psych::bfi[, 1:25], k = 5)
 autoplot(x)
 autoplot(x, cut_strong = 0.6, color_pos = "steelblue")
+
+# Monochrome with correlation labels (for greyscale figures)
+autoplot(x, mono = TRUE, show_r = TRUE)
+
+# Custom node labels for the 5-factor level
+autoplot(x, node_labels = c(m5f1 = "Neuroticism", m5f2 = "Agreeableness"))
+
+# Primary links only — clean hierarchy tree
+autoplot(x, primary_only = TRUE)
+
+# Forbes pruned view: omit redundant nodes, straight spanning arrows
+xp <- ackwards(psych::bfi[, 1:25], k = 5, prune = "redundant")
+autoplot(xp, drop_pruned = TRUE)
+autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
 } # }
 ```

@@ -330,10 +330,10 @@ closely on the hierarchy.
 
 ``` r
 
-e_pca  <- tidy(x_pca, what = "edges")
-e_efa  <- tidy(x_efa, what = "edges")
-e_pca$engine  <- "pca"
-e_efa$engine  <- "efa"
+e_pca <- tidy(x_pca, what = "edges")
+e_efa <- tidy(x_efa, what = "edges")
+e_pca$engine <- "pca"
+e_efa$engine <- "efa"
 
 # Primary-parent edges at each level transition
 primary_pca <- e_pca[e_pca$is_primary, c("engine", "from", "to", "r")]

@@ -318,37 +318,36 @@
 <th>Purpose</th>
 </tr></thead><tbody><tr><td>Imports (lean)</td>
 <td>
-<code>stats</code>, <code>methods</code>, <code>cli</code>, <code>rlang</code>
+<code>stats</code>, <code>utils</code>, <code>cli</code>, <code>rlang</code>, <code>generics</code>
 </td>
-<td>core, console output, guards</td>
+<td>core, console output, guards, tidy/augment/glance generics</td>
 </tr><tr><td>Suggests — engines</td>
 <td>
-<code>psych</code> and/or <code>GPArotation</code>, <code>lavaan</code>
+<code>psych</code>, <code>GPArotation</code>, <code>lavaan (&gt;= 0.6-13)</code>
 </td>
-<td>EFA/PCA/rotations (incl. CF family); ESEM</td>
+<td>EFA/PCA/rotations (CF family); ESEM</td>
 </tr><tr><td>Suggests — ordinal</td>
-<td>polychoric source (e.g. <code>psych</code>)</td>
-<td>Likert basis</td>
+<td><code>psych</code></td>
+<td>polychoric correlations for Likert basis</td>
 </tr><tr><td>Suggests — suggest_k</td>
+<td><code>psych</code></td>
 <td>
-<code>EGAnet</code>, <code>paran</code>
-</td>
-<td>dimensionality criteria</td>
+<code>fa.parallel</code> (parallel analysis) + <code>vss</code> (MAP); no separate <code>EGAnet</code>/<code>paran</code> dep</td>
 </tr><tr><td><del>Suggests — matching</del></td>
 <td><del><code>clue</code></del></td>
 <td>
-<del>Hungarian assignment</del> — removed; greedy argmax (§7) requires no dep</td>
+<del>Hungarian assignment</del> — removed M5; greedy argmax (§7) requires no dep</td>
 </tr><tr><td>Suggests — viz</td>
-<td>
-<code>ggraph</code>, <code>ggplot2</code>, <code>igraph</code>, <code>tidygraph</code>
+<td><code>ggplot2</code></td>
+<td>diagrams; uses <code>ggplot2</code> directly, not <code>ggraph</code>/<code>igraph</code>/<code>tidygraph</code>
 </td>
-<td>diagrams</td>
-</tr><tr><td>Suggests — perf</td>
+</tr><tr><td>Suggests — infra</td>
 <td>
-<code>future</code>, <code>future.apply</code>
+<code>testthat (&gt;= 3.0.0)</code>, <code>knitr</code>, <code>rmarkdown</code>, <code>covr</code>
 </td>
-<td>parallel bootstrap (if/when added)</td>
-</tr></tbody></table><p>Gate every Suggests use with <code><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">rlang::check_installed()</a></code> and a helpful cli message naming the engine that needs it. <strong>No Rcpp dependency planned</strong> (see §3).</p>
+<td>testing, vignettes, coverage</td>
+</tr></tbody></table><p><code>methods</code> is <strong>not</strong> imported — no <code>methods::</code> usage in the package. <code>ggraph</code>, <code>igraph</code>, <code>tidygraph</code>, <code>EGAnet</code>, <code>paran</code>, <code>future</code>, <code>future.apply</code> are <strong>not</strong> in DESCRIPTION (earlier design considered them; implementation chose leaner routes).</p>
+<p>Gate every Suggests use with <code><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">rlang::check_installed()</a></code> and a helpful cli message naming the engine that needs it. <strong>No Rcpp dependency planned</strong> (see §3).</p>
 </div>
 <div class="section level2">
 <h2 id="id_13-testing--infrastructure">13. Testing &amp; infrastructure<a class="anchor" aria-label="anchor" href="#id_13-testing--infrastructure"></a></h2>
@@ -369,31 +368,46 @@
 </div>
 <div class="section level2">
 <h2 id="id_15-suggested-milestones">15. Suggested milestones<a class="anchor" aria-label="anchor" href="#id_15-suggested-milestones"></a></h2>
-<ol style="list-style-type: decimal"><li>
-<strong>Core + PCA engine + algebra <code>compute_edges</code> + object + <code>print</code>/<code>tidy</code>/<code>glance</code></strong>, validated against <code><a href="https://rdrr.io/pkg/psych/man/bassAckward.html" class="external-link">psych::bassAckward</a></code>. <em>(done)</em>
-</li>
+<ol style="list-style-type: decimal"><li><p><strong>Core + PCA engine + algebra <code>compute_edges</code> + object + <code>print</code>/<code>tidy</code>/<code>glance</code></strong>, validated against <code><a href="https://rdrr.io/pkg/psych/man/bassAckward.html" class="external-link">psych::bassAckward</a></code>. <em>(done)</em></p></li>
+<li><p><strong><code><a href="reference/ba_layout.html">ba_layout()</a></code> + <code><a href="reference/autoplot.html">autoplot()</a></code></strong> (clean adjacent-level diagram) + <code><a href="reference/suggest_k.html">suggest_k()</a></code>. <em>(done)</em></p></li>
+<li><p><strong>EFA engine</strong>, scores route, algebra-vs-scores cross-check. <em>(done)</em></p></li>
+<li><p><strong>ESEM engine (lavaan)</strong> + ordinal/polychoric path + per-level fit in the object. <em>(done)</em></p></li>
+<li><p><strong>Forbes extension</strong> (pruning + all-levels edges) + annotated rendering. <em>(done)</em></p></li>
 <li>
-<strong><code><a href="reference/ba_layout.html">ba_layout()</a></code> + <code><a href="reference/autoplot.html">autoplot()</a></code></strong> (clean adjacent-level diagram) + <code><a href="reference/suggest_k.html">suggest_k()</a></code>. <em>(done)</em>
-</li>
-<li>
-<strong>EFA engine</strong>, scores route, algebra-vs-scores cross-check. <em>(done)</em>
-</li>
-<li>
-<strong>ESEM engine (lavaan)</strong> + ordinal/polychoric path + per-level fit in the object. <em>(done)</em>
-</li>
-<li>
-<strong>Forbes extension</strong> (pruning + all-levels edges) + annotated rendering. <em>(done)</em>
-</li>
-<li>
-<strong>Storage materialization + cfQ cleanup</strong> —
+<p><strong>Storage materialization + cfQ cleanup</strong> —</p>
 <ol style="list-style-type: lower-alpha"><li>
 <code>scores = TRUE</code> storage + <code><a href="reference/augment.ackwards.html">augment.ackwards()</a></code> accessor: store per-level <code>n × k</code> score matrices (standardized by real score SDs per Inv. 1) in the <code>$scores</code> slot; <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> appends score columns to supplied data and recomputes from stored weights + R when scores were not kept (Inv. 3); add <code>tidy(what = "scores")</code> for long format; verify algebra-vs-materialized agreement (Inv. 2). Linear engines only (tenBerge/components); EAP deferred.</li>
 <li>
 <code>keep_fits = TRUE</code> storage: retain per-level raw engine objects in the <code>$fits</code> slot (same fit-time plumbing/warning block as scores).</li>
 <li>cfQ cleanup: orthogonal-only is now the resolved design (§9, §14.1) — make <code>cfQ</code> error cleanly and consistently as unsupported (not “not yet implemented”); remove the half-promise from all engine messages and docs.</li>
 </ol></li>
+<li><p><strong>Documentation</strong> — README.Rmd (storefront + hero example on <code>bfi</code>), intro vignette (PCA happy path from <code><a href="reference/suggest_k.html">suggest_k()</a></code> through <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code>), pkgdown site, then targeted vignettes: (a) engines &amp; rotations (PCA/EFA/ESEM comparison), (b) ordinal &amp; non-normal data (<code>cor = "polychoric"</code>, WLSMV), (c) Forbes extension (<code>pairs = "all"</code>, pruning, annotated plot). <em>(done)</em></p></li>
 <li>
-<strong>Documentation</strong> — README.Rmd (storefront + hero example on <code>bfi</code>), intro vignette (PCA happy path from <code><a href="reference/suggest_k.html">suggest_k()</a></code> through <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code>), pkgdown site, then targeted vignettes: (a) engines &amp; rotations (PCA/EFA/ESEM comparison), (b) ordinal &amp; non-normal data (<code>cor = "polychoric"</code>, WLSMV), (c) Forbes extension (<code>pairs = "all"</code>, pruning, annotated plot).</li>
+<p><strong>Plot customization</strong> — new <code><a href="reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> arguments and one new layout helper <code>.drop_pruned_nodes()</code>. All changes are additive; no existing argument semantics change.</p>
+<p>Implement in <strong>two waves</strong>: the cheap, low-risk batch (a, b, d, e, f) first, then the drop-pruned view (c) as its own focused pass — (c) is a distinct rendering mode, not a filter, and is where the design and the bugs live.</p>
+<p><strong>(a) Edge labels</strong> (<code>show_r = NULL</code>, <code>r_digits = 2L</code>). The <code>NULL</code> default resolves to <code>FALSE</code> normally and to <code>TRUE</code> when <code>drop_pruned = TRUE</code> (Forbes 2023 Figs 3B/4B always label spanning arrows); an explicit <code>TRUE</code>/<code>FALSE</code> overrides the auto-default. When <code>show_r = TRUE</code>, draws <code>round(r, r_digits)</code> as <code>geom_text</code> at each edge midpoint. For straight edges the midpoint is <code>((x_from+x_to)/2, (y_from+y_to)/2)</code> with a small horizontal nudge so the label clears the line; for curved skip arcs the label sits near the chord midpoint (slightly off the arc — acceptable). Pairs naturally with <code>mono</code> for publication-quality labeled plots.</p>
+<p><strong>(b) Monochrome mode</strong> (<code>mono = FALSE</code>). <strong>Resolved encoding</strong> (supersedes the earlier “2-vs-4 linetypes” open question): keep <code>|r|</code> on <code>linewidth</code>, move <strong>sign</strong> to <code>linetype</code> (<code>solid</code> = positive, <code>dashed</code> = negative), and <strong>drop</strong> the <code>cut_strong</code> strong/weak linetype distinction in mono mode — <code>linewidth</code> already conveys magnitude, so a second strength encoding on linetype is redundant and four linetypes are hard to read. Net: all edges black, two linetypes (sign), one <code>linewidth</code> legend, no color legend. Applies to both the straight and curved edge layers. Use case: greyscale journal figures. (In the default color mode, the existing behaviour is unchanged: color = sign, linewidth = <code>|r|</code>, linetype = strong/weak.)</p>
+<p><strong>(c) Drop-pruned view</strong> (<code>drop_pruned = FALSE</code>). A <strong>separate rendering path</strong>, not a filter on the normal pipeline. Requires <code>x$prune</code> non-<code>NULL</code>; errors clearly if not. If <code>x$prune$nodes</code> has no <code>pruned = TRUE</code> rows (e.g. <code>prune = "artefact"</code> never auto-flags), warn and render anyway (nothing is dropped). Because <code>prune != "none"</code> auto-upgrades <code>pairs</code> to <code>"all"</code> (M5), any prunable object is guaranteed to carry all-levels edges in <code>x$edges$tidy</code> — <code>.drop_pruned_nodes()</code> works entirely off that tidy table (no need to touch <code>x$edges$matrices</code>). When <code>TRUE</code>:</p>
+<ul><li>
+<strong>Edge selection (the core rule).</strong> Forbes draws, for each kept node, its single strongest correlation to a kept node at a shallower level (Fig 2C note: “the strongest component correlation for each lower-order component with the higher-order components”). This is a <strong>primary-parent recomputation on the reduced (kept-only) node set</strong> — the original <code>is_primary</code> column was computed on the full <em>adjacent</em> lineage and must NOT be reused. <code>.drop_pruned_nodes(x, nodes, compress_levels)</code> therefore: (i) drops every node flagged <code>pruned = TRUE</code>; (ii) from the remaining tidy edges (all level gaps), for each kept node picks the kept shallower node with max <code>|r|</code> as its single parent edge;
+<ol start="3" style="list-style-type: lower-roman"><li>returns the reduced <code>nodes</code> (y re-indexed when <code>compress_levels = TRUE</code>) and the reduced primary-edge table. (The function signature takes three args: the ackwards object, the pre-computed <code>ba_layout()$nodes</code>, and <code>compress_levels</code>; documented as <code>.drop_pruned_nodes(x)</code> elsewhere is shorthand.)</li>
+</ol></li>
+<li>
+<strong>Geometry.</strong> All reduced edges are drawn as <strong>straight</strong> <code>geom_segment</code>, even when they span level gaps — this overrides the normal adjacent/skip partition and the <code>geom_curve</code> skip-arc rendering (curved arcs are a <em>non</em>-drop-pruned affordance). A gap-spanning edge is distinguished from an adjacent one only by its greater length, matching Forbes’s figures.</li>
+<li>
+<strong>Gap-preserved layout (default).</strong> Pruned boxes are removed but kept nodes keep their original <code>y = -level</code>, so empty levels show as vertical gaps. Mixed levels (some kept, some pruned) show only the kept nodes.</li>
+<li>
+<strong>Compressed layout</strong> (<code>compress_levels = FALSE</code>). When <code>TRUE</code>, re-index <code>y</code> to <code>-rank(unique(kept_levels))</code>, closing the gaps. Level labels (d) then show the <strong>original</strong> level numbers so each retained row remains identifiable.</li>
+<li>
+<strong>Degenerate case.</strong> A redundancy chain that reaches level <code>k</code> prunes <em>all</em> upper levels (the common “keep the bottom” rule), leaving a single surviving level with no edges. When <code>≤ 1</code> level survives, warn (<code><a href="https://cli.r-lib.org/reference/cli_abort.html" class="external-link">cli::cli_warn</a></code>) and return a node-only plot rather than erroring.</li>
+<li>
+<code>show_r</code> defaults to <code>TRUE</code> here (Forbes convention).</li>
+</ul><p><strong>(d) Level axis labels</strong> (<code>show_level_labels = TRUE</code>). Adds left-margin <code>geom_text</code> (“1 factor”, “2 factors”, …) at each level’s <code>y</code>, placed at <code>x = min(nodes$x) - pad</code> with <code>coord_cartesian(clip = "off")</code>. Under <code>compress_levels = TRUE</code> the labels show the original level numbers despite re-indexed <code>y</code>. Font size via <code>level_label_size = 3</code>.</p>
+<p><strong>(e) Custom node labels</strong> (<code>node_labels = NULL</code>). A named character vector mapping factor IDs (e.g. <code>"m5f1"</code>) to display strings (e.g. <code>"General"</code>), applied to <code>nodes$label</code> before any geometry is drawn. Unspecified IDs keep their default <code>m{k}f{j}</code> label; warns if a supplied name matches no factor ID in the object.</p>
+<p><strong>(f) Primary-edges-only mode</strong> (<code>primary_only = FALSE</code>). When <code>TRUE</code>, filters the edge table to <code>is_primary == TRUE</code> before drawing — a clean tree of adjacent primary links. Skip-level edges carry <code>is_primary = FALSE</code>, so this also suppresses skip arcs (intended). Independent of (c): drop-pruned does its own reduced-graph edge selection and ignores <code>primary_only</code>.</p>
+<p><strong>Flag interactions.</strong> (a, b, d, e, f) compose independently and stack with the normal pipeline. (c) replaces the edge-selection and geometry stages, then (a) labels, (b) colour/linetype, (d) level labels, and (e) node labels still apply on top of the reduced graph; <code>show_skip</code>/<code>curvature</code> and <code>primary_only</code> are ignored under <code>drop_pruned</code>.</p>
+<p><strong>Implementation notes.</strong> All args live on <code><a href="reference/autoplot.ackwards.html">autoplot.ackwards()</a></code>; <code>.drop_pruned_nodes()</code> is a new private helper in <code>layout.R</code>. No new exports, no new dependencies. Per-arg tests: <code>expect_no_error</code>/<code>expect_s3_class("ggplot")</code> happy paths plus guarded <code>expect_error</code> (e.g. <code>drop_pruned = TRUE</code> without pruning) and the degenerate-prune <code>expect_warning</code>. DoD additions: NEWS.md entry, and extend the Forbes vignette’s pruning section with a <code>drop_pruned</code> example.</p>
+</li>
 </ol><hr><div class="section level3">
 <h3 id="key-references">Key references<a class="anchor" aria-label="anchor" href="#key-references"></a></h3>
 <ul><li>Goldberg, L. R. (2006). Doing it all bass-ackwards. <em>J. Research in Personality</em>, 40(4), 347–358.</li>

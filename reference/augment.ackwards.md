@@ -41,6 +41,13 @@ stored in the object, and `sqrt(score_var)` standardizes by the real
 score standard deviations (Invariant 1: never assume unit variance). For
 PCA the method is `"components"`; for EFA/ESEM it is `"tenBerge"`.
 
+**Missing data.** Score projection applies weights row-wise and
+propagates NAs listwise: any observation with at least one missing item
+variable will produce `NA` scores at every level. This differs from
+fitting, which uses pairwise-complete correlations. A warning is issued
+if NA rows are detected. Use `na.omit(data)` before scoring if NA rows
+are unwanted.
+
 **Data source.** If `data` is supplied, scores are always recomputed
 from it using the stored weights — this is how to score new
 observations. If `data` is `NULL` and `scores = TRUE` was set at fit
