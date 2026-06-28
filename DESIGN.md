@@ -241,10 +241,12 @@ question: neither — a structured light core, with the heavy bits nullable and 
 ## 8. Suggesting k
 
 `suggest_k()` returns **several criteria and a recommended range**, never a single number:
-parallel analysis (Horn), Empirical Kaiser Criterion, MAP (Velicer), and EGA (`{EGAnet}`).
-For Likert/ordinal data, compute these on the **polychoric** matrix when `cor = "polychoric"` is
-set (basis follows the same choice as the main call). Report that `k` is a maximum
-*depth*; users often deliberately set it a level or two past the consensus to watch factors
+**parallel analysis** (Horn, via `psych::fa.parallel`) and **MAP** (Velicer, via `psych::vss`).
+Empirical Kaiser Criterion (EKC) and EGA (`{EGAnet}`) are **out of scope** — the `EGAnet`/`paran`
+deps were not added (see §12); `psych::fa.parallel` + `psych::vss` cover the most-used criteria
+without extra deps. For Likert/ordinal data, compute these on the **polychoric** matrix when
+`cor = "polychoric"` is set (basis follows the same choice as the main call). Report that `k` is a
+maximum *depth*; users often deliberately set it a level or two past the consensus to watch factors
 fragment. Note the overextraction/non-replicability caution (Forbes 2023).
 
 ## 9. Defaults (high-stakes — users will not override these)

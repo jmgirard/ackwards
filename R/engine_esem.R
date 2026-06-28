@@ -106,6 +106,30 @@ esem_levels <- function(data, k_max, rotation, estimator, cor_type, n_obs,
       break
     }
 
+    # Improper solution / Heywood check: zero or negative residual variances.
+    # lavaan clamps theta to 0 when residual variance would go negative (Heywood
+    # case); warn at <= 0 to catch both the clamped-to-zero and unconstrained-
+    # negative cases. Warn but do NOT truncate (Invariant 7).
+    theta <- tryCatch(
+      lavaan::lavInspect(fit, "theta"),
+      error = function(e) NULL
+    )
+    if (!is.null(theta)) {
+      bad_resid <- diag(theta) <= 0
+      if (any(bad_resid)) {
+        cli::cli_warn(
+          c(
+            "!" = "Improper solution at k = {k}: \\
+                   {sum(bad_resid)} residual variance{?s} \\
+                   at or below zero (Heywood case).",
+            "i" = "Results may be unreliable. Consider reducing \\
+                   {.arg k}, changing {.arg estimator}, \\
+                   or inspecting the solution."
+          )
+        )
+      }
+    }
+
     # Extract correlation matrix from lavaan once (same across levels).
     # For WLSMV + ordered: sampstat$cov IS the polychoric correlation matrix.
     # For ML + continuous: r_lv was already set from R_external before the loop,

@@ -307,3 +307,44 @@ test_that("ordinal warning is NOT emitted when cor = 'polychoric'", {
     message = "ordinal"
   )
 })
+
+# ── Heywood / improper-solution warning ───────────────────────────────────────
+
+test_that("ESEM warns on improper solution (Heywood case) but still builds", {
+  skip_if_not_installed("lavaan")
+  # 8 variables with near-zero unique variance (eps=0.001), 2 true factors.
+  # k=3 pushes one residual to the Heywood boundary (theta <= 0 for one variable).
+  set.seed(42)
+  n <- 200
+  f1 <- rnorm(n)
+  f2 <- rnorm(n)
+  eps <- 0.001
+  d <- as.data.frame(cbind(
+    x1 = sqrt(1 - eps) * f1 + sqrt(eps) * rnorm(n),
+    x2 = sqrt(1 - eps) * f1 + sqrt(eps) * rnorm(n),
+    x3 = sqrt(1 - eps) * f1 + sqrt(eps) * rnorm(n),
+    x4 = sqrt(1 - eps) * f1 + sqrt(eps) * rnorm(n),
+    x5 = sqrt(1 - eps) * f2 + sqrt(eps) * rnorm(n),
+    x6 = sqrt(1 - eps) * f2 + sqrt(eps) * rnorm(n),
+    x7 = sqrt(1 - eps) * f2 + sqrt(eps) * rnorm(n),
+    x8 = sqrt(1 - eps) * f2 + sqrt(eps) * rnorm(n)
+  ))
+  expect_warning(
+    x <- suppressMessages(ackwards(d, k = 3, method = "esem")),
+    "Heywood"
+  )
+  # Object still builds to the requested depth (not truncated)
+  expect_s3_class(x, "ackwards")
+  expect_equal(x$k_max, 3L)
+})
+
+# ── cor = "spearman" + method = "esem" inconsistency warning ─────────────────
+
+test_that("cor = 'spearman' with method = 'esem' warns about inconsistent bases", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  expect_warning(
+    suppressMessages(ackwards(d, k = 2, method = "esem", cor = "spearman")),
+    "inconsistent bases"
+  )
+})

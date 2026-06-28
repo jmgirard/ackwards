@@ -1,5 +1,25 @@
 # ackwards 0.0.0.9000 (dev)
 
+## Milestone 10 — Conformance + robustness (Wave 1)
+
+* **ESEM improper-solution warning.** The ESEM engine now warns when any residual
+  variance in the lavaan theta matrix is at or below zero (Heywood case). lavaan
+  clamps negative residual variances to 0 by default; the check catches both
+  clamped-to-zero and unconstrained-negative values. The object is still returned
+  at the full requested depth — the warning is diagnostic, not truncating
+  (Invariant 7). Parity with the EFA engine, which has warned on Heywood cases
+  since M3.
+* **`cor = "spearman"` + `method = "esem"` inconsistency warning.** `ackwards()`
+  now warns when this combination is requested: lavaan fits a Pearson-ML model on
+  raw data while `compute_edges()` uses the Spearman correlation matrix for
+  scoring, mixing bases silently. The warning suggests `cor = "polychoric"` for
+  ordinal data or `cor = "pearson"` for a fully consistent continuous path.
+  Emitted once per session (`.frequency = "once"`).
+* **DESIGN.md §8 reconciled.** `suggest_k()` documentation in §8 now lists only
+  the two implemented criteria (parallel analysis and MAP/Velicer) and explicitly
+  marks Empirical Kaiser Criterion (EKC) and EGA (`{EGAnet}`) as out of scope,
+  consistent with the §12/§14 no-extra-deps decision.
+
 ## Milestone 9 — Visualization round 2 + vignette restructure
 
 ### Wave 2: vignette restructure

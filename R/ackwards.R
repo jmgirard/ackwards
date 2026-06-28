@@ -180,6 +180,23 @@ ackwards <- function(
     ))
   }
 
+  # cor = "spearman" + method = "esem" is semantically inconsistent: lavaan fits
+  # Pearson ML on raw data while compute_edges() uses Spearman R for scoring
+  # (DESIGN.md §14 known limitations). Warn loudly rather than silently mixing bases.
+  if (method == "esem" && cor == "spearman") {
+    cli::cli_warn(
+      c(
+        "!" = "{.code cor = \"spearman\"} with {.code method = \"esem\"} \\
+               uses inconsistent bases: lavaan fits a Pearson-ML model on raw \\
+               data while edges are computed from the Spearman correlation matrix.",
+        "i" = "Consider {.code cor = \"polychoric\"} for ordinal data or \\
+               {.code cor = \"pearson\"} for a consistent continuous path."
+      ),
+      .frequency = "once",
+      .frequency_id = "ackwards_esem_spearman"
+    )
+  }
+
   if (!is.numeric(k) || length(k) != 1L || k < 2L || k != as.integer(k)) {
     cli::cli_abort("{.arg k} must be an integer >= 2 (need at least two levels for a hierarchy).")
   }
