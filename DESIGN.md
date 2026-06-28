@@ -607,7 +607,7 @@ that needs it. **No Rcpp dependency planned** (see §3).
     EGA (`{EGAnet}`) marked explicitly out of scope.
 
 11. **Edge-label polish + `show_r` decoupling** — additive label-quality pass on
-    `autoplot.ackwards()`, plus one default change (flagged in (c)).
+    `autoplot.ackwards()`, plus one default change (flagged in (c)). *(done)*
 
     **(a) APA-style correlation formatting.** New internal helper `.format_r(r, digits)` (in
     `R/utils.R`): formats to `r_digits` with trailing-zero padding (`.30`, not `.3`), strips the

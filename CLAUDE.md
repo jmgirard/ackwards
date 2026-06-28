@@ -44,16 +44,17 @@ default output must reproduce Forbes's examples exactly.
   (previously documented but unimplemented §10 method); ESEM Heywood/improper-solution warning
   (`theta ≤ 0`, parity with EFA engine); `cor="spearman"` + `method="esem"` inconsistency warning;
   DESIGN.md §8 reconciled to list only PA + MAP (EKC/EGA marked out of scope).
+- **M11 (done):** Edge-label polish + `show_r` decoupling — APA `.format_r()` helper (strip leading
+  zero, pad trailing zeros, suppress `-.00`), `geom_label` with perpendicular offset + white halo +
+  `r_label_size` arg; **decouple `show_r` from `drop_pruned`** (default `FALSE` everywhere); Forbes
+  vignette updated to two-figure (labeled + unlabeled) treatment; `.lintr` added to `.Rbuildignore`
+  (R CMD check fully clean: 0 errors, 0 warnings, 0 notes).
 
-## Current focus — M11 (edge-label polish + `show_r` decoupling)
+## Current focus — M12 (best-practice `suggest_k`)
 
-Next up, planned in `DESIGN.md` §15.11–12:
+Next up, planned in `DESIGN.md` §15.12:
 
-- **M11 (current):** `autoplot.ackwards()` label quality — APA `.format_r()` helper (strip leading
-  zero, pad trailing zeros), `geom_label` with a perpendicular offset so labels clear arrows, and
-  **decouple `show_r` from `drop_pruned`** (default `FALSE` everywhere; supersedes the M8 §15.8a/8c
-  auto-default — a flagged default change). Additive otherwise.
-- **M12 (next):** best-practice `suggest_k` — add Comparison Data (CD, via `EFAtools` gated by
+- **M12 (current):** best-practice `suggest_k` — add Comparison Data (CD, via `EFAtools` gated by
   `check_installed()`), FA-eigenvalue PA, and VSS-1/2; enrich the object with eigenvalues; new
   `autoplot.suggest_k()` scree/parallel plot; redesigned multi-criterion `print`. **Amends §8 and
   §12** (adds `EFAtools` to Suggests; EGA stays out of scope) — flag before landing.
