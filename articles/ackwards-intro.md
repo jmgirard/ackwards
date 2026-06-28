@@ -80,10 +80,10 @@ runs two established selection criteria:
 
 sk <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations)...
-#> ✔ Running parallel analysis (20 iterations)... [118ms]
+#> ✔ Running parallel analysis (20 iterations)... [113ms]
 #> 
 #> ℹ Running MAP (Velicer)...
-#> ✔ Running MAP (Velicer)... [123ms]
+#> ✔ Running MAP (Velicer)... [120ms]
 #> 
 sk
 #> 
