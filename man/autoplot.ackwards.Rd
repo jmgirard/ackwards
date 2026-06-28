@@ -26,6 +26,9 @@
   primary_only = FALSE,
   drop_pruned = FALSE,
   compress_levels = FALSE,
+  show_arrows = TRUE,
+  edge_linewidth = NULL,
+  legend = TRUE,
   ...
 )
 
@@ -105,6 +108,21 @@ vertical gaps left by pruned levels so retained levels are evenly spaced;
 level axis labels (d) still show the original level numbers. Ignored when
 \code{drop_pruned = FALSE}. Default \code{FALSE}.}
 
+\item{show_arrows}{When \code{FALSE}, edges are drawn with plain line ends instead
+of closed arrowheads (\code{arrow = NULL}). Applies to both straight and curved
+edge layers. Default \code{TRUE}. Forbes (2023) figures use plain line ends.}
+
+\item{edge_linewidth}{\code{NULL} (default) maps \verb{|r|} to \code{linewidth} via a
+continuous scale (current behaviour). A numeric value draws every edge at
+that constant width, removes the \code{linewidth} aesthetic mapping, and drops
+the \verb{|r|} linewidth legend. Applies in both colour and \code{mono} modes and in
+the \code{drop_pruned} path. Forbes figures use uniform thin lines (≈ 0.5–0.6).}
+
+\item{legend}{When \code{FALSE}, suppresses all plot legends
+(\code{legend.position = "none"}). Useful when \code{color_pos == color_neg} (e.g.
+both \code{"black"}) to remove an otherwise redundant Direction key. Default
+\code{TRUE}.}
+
 \item{...}{Ignored.}
 
 \item{x}{An \code{ackwards} object.}
@@ -141,6 +159,20 @@ autoplot(x, primary_only = TRUE)
 xp <- ackwards(psych::bfi[, 1:25], k = 5, prune = "redundant")
 autoplot(xp, drop_pruned = TRUE)
 autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
+
+# Plain line ends without arrowheads
+autoplot(x, show_arrows = FALSE)
+
+# Uniform edge width (no |r| scaling)
+autoplot(x, edge_linewidth = 0.5)
+
+# Suppress legend
+autoplot(x, legend = FALSE)
+
+# Forbes (2023) publication style: black lines, uniform width, no arrowheads
+autoplot(xp, drop_pruned = TRUE,
+         color_pos = "black", color_neg = "black",
+         edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE)
 }
 
 }

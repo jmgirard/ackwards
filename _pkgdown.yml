@@ -28,6 +28,7 @@ articles:
   - ackwards-engines
   - ackwards-ordinal
   - ackwards-forbes
+  - ackwards-visualization
 reference:
 - title: Fit the model
   desc: |

@@ -80,6 +80,18 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   vertical gaps left by pruned levels so retained levels are evenly spaced;
 #'   level axis labels (d) still show the original level numbers. Ignored when
 #'   `drop_pruned = FALSE`. Default `FALSE`.
+#' @param show_arrows When `FALSE`, edges are drawn with plain line ends instead
+#'   of closed arrowheads (`arrow = NULL`). Applies to both straight and curved
+#'   edge layers. Default `TRUE`. Forbes (2023) figures use plain line ends.
+#' @param edge_linewidth `NULL` (default) maps `|r|` to `linewidth` via a
+#'   continuous scale (current behaviour). A numeric value draws every edge at
+#'   that constant width, removes the `linewidth` aesthetic mapping, and drops
+#'   the `|r|` linewidth legend. Applies in both colour and `mono` modes and in
+#'   the `drop_pruned` path. Forbes figures use uniform thin lines (≈ 0.5–0.6).
+#' @param legend When `FALSE`, suppresses all plot legends
+#'   (`legend.position = "none"`). Useful when `color_pos == color_neg` (e.g.
+#'   both `"black"`) to remove an otherwise redundant Direction key. Default
+#'   `TRUE`.
 #' @param ... Ignored.
 #'
 #' @return A `ggplot` object.
@@ -105,6 +117,22 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' xp <- ackwards(psych::bfi[, 1:25], k = 5, prune = "redundant")
 #' autoplot(xp, drop_pruned = TRUE)
 #' autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
+#'
+#' # Plain line ends without arrowheads
+#' autoplot(x, show_arrows = FALSE)
+#'
+#' # Uniform edge width (no |r| scaling)
+#' autoplot(x, edge_linewidth = 0.5)
+#'
+#' # Suppress legend
+#' autoplot(x, legend = FALSE)
+#'
+#' # Forbes (2023) publication style: black lines, uniform width, no arrowheads
+#' autoplot(xp,
+#'   drop_pruned = TRUE,
+#'   color_pos = "black", color_neg = "black",
+#'   edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
+#' )
 #' }
 #'
 #' @importFrom rlang .data `%||%`
@@ -130,6 +158,9 @@ autoplot.ackwards <- function(
   primary_only = FALSE,
   drop_pruned = FALSE,
   compress_levels = FALSE,
+  show_arrows = TRUE,
+  edge_linewidth = NULL,
+  legend = TRUE,
   ...
 ) {
   rlang::check_installed("ggplot2", reason = "for autoplot.ackwards()")
@@ -138,6 +169,15 @@ autoplot.ackwards <- function(
     cli::cli_warn(
       "{.arg min_sep} ({min_sep}) is less than {.arg node_width} ({node_width}); \\
        adjacent boxes may overlap."
+    )
+  }
+
+  if (!is.null(edge_linewidth) &&
+    (!is.numeric(edge_linewidth) ||
+      length(edge_linewidth) != 1L ||
+      edge_linewidth <= 0)) {
+    cli::cli_abort(
+      "{.arg edge_linewidth} must be a single positive number or {.val NULL}."
     )
   }
 
@@ -217,7 +257,8 @@ autoplot.ackwards <- function(
       )
       return(.ba_degenerate_plot(
         nodes, node_width, node_height,
-        show_level_labels, level_label_size
+        show_level_labels, level_label_size,
+        legend = legend
       ))
     }
 
@@ -277,57 +318,84 @@ autoplot.ackwards <- function(
   # Draw
   # --------------------------------------------------------------------------
 
-  arrow_spec <- ggplot2::arrow(length = ggplot2::unit(0.15, "cm"), type = "closed")
-
-  if (mono) {
-    edge_aes <- ggplot2::aes(
-      x         = .data$x_from,
-      y         = .data$y_from,
-      xend      = .data$x_to,
-      yend      = .data$y_to,
-      linewidth = abs(.data$r),
-      linetype  = .data$linetype
-    )
+  arrow_spec <- if (show_arrows) {
+    ggplot2::arrow(length = ggplot2::unit(0.15, "cm"), type = "closed")
   } else {
-    edge_aes <- ggplot2::aes(
-      x         = .data$x_from,
-      y         = .data$y_from,
-      xend      = .data$x_to,
-      yend      = .data$y_to,
-      color     = .data$color_group,
-      linewidth = abs(.data$r),
-      linetype  = .data$linetype
+    NULL
+  }
+
+  # Build edge aesthetics. linewidth enters the mapping only when edge_linewidth
+  # is NULL (the dynamic |r|-scaled path); a numeric edge_linewidth is passed
+  # directly to each geom layer as a constant instead.
+  if (mono) {
+    if (is.null(edge_linewidth)) {
+      edge_aes <- ggplot2::aes(
+        x         = .data$x_from,
+        y         = .data$y_from,
+        xend      = .data$x_to,
+        yend      = .data$y_to,
+        linewidth = abs(.data$r),
+        linetype  = .data$linetype
+      )
+    } else {
+      edge_aes <- ggplot2::aes(
+        x        = .data$x_from,
+        y        = .data$y_from,
+        xend     = .data$x_to,
+        yend     = .data$y_to,
+        linetype = .data$linetype
+      )
+    }
+  } else {
+    if (is.null(edge_linewidth)) {
+      edge_aes <- ggplot2::aes(
+        x         = .data$x_from,
+        y         = .data$y_from,
+        xend      = .data$x_to,
+        yend      = .data$y_to,
+        color     = .data$color_group,
+        linewidth = abs(.data$r),
+        linetype  = .data$linetype
+      )
+    } else {
+      edge_aes <- ggplot2::aes(
+        x        = .data$x_from,
+        y        = .data$y_from,
+        xend     = .data$x_to,
+        yend     = .data$y_to,
+        color    = .data$color_group,
+        linetype = .data$linetype
+      )
+    }
+  }
+
+  # Local helpers to add geom layers — consolidates the mono × edge_linewidth
+  # argument matrix so each combination is not repeated for segment and curve.
+  .add_seg <- function(p, data) {
+    args <- list(data = data, mapping = edge_aes, arrow = arrow_spec)
+    if (mono) args[["color"]] <- "black"
+    if (!is.null(edge_linewidth)) args[["linewidth"]] <- edge_linewidth
+    p + do.call(ggplot2::geom_segment, args)
+  }
+  .add_cur <- function(p, data) {
+    args <- list(
+      data = data, mapping = edge_aes, arrow = arrow_spec,
+      curvature = curvature
     )
+    if (mono) args[["color"]] <- "black"
+    if (!is.null(edge_linewidth)) args[["linewidth"]] <- edge_linewidth
+    p + do.call(ggplot2::geom_curve, args)
   }
 
   p <- ggplot2::ggplot()
 
   # Straight edges (adjacent in normal mode; all edges in drop_pruned mode)
   ed_str <- draw_edges[!draw_edges$curved, , drop = FALSE]
-  if (nrow(ed_str) > 0L) {
-    if (mono) {
-      p <- p + ggplot2::geom_segment(
-        data = ed_str, edge_aes, arrow = arrow_spec, color = "black"
-      )
-    } else {
-      p <- p + ggplot2::geom_segment(data = ed_str, edge_aes, arrow = arrow_spec)
-    }
-  }
+  if (nrow(ed_str) > 0L) p <- .add_seg(p, ed_str)
 
   # Curved arcs (skip-level edges in normal path only; never in drop_pruned)
   ed_cur <- draw_edges[draw_edges$curved, , drop = FALSE]
-  if (nrow(ed_cur) > 0L) {
-    if (mono) {
-      p <- p + ggplot2::geom_curve(
-        data = ed_cur, edge_aes,
-        curvature = curvature, arrow = arrow_spec, color = "black"
-      )
-    } else {
-      p <- p + ggplot2::geom_curve(
-        data = ed_cur, edge_aes, curvature = curvature, arrow = arrow_spec
-      )
-    }
-  }
+  if (nrow(ed_cur) > 0L) p <- .add_cur(p, ed_cur)
 
   # (a) Edge correlation labels at midpoints
   if (show_r && nrow(draw_edges) > 0L) {
@@ -360,33 +428,31 @@ autoplot.ackwards <- function(
     ) +
     ggplot2::scale_fill_identity(guide = "none")
 
-  # Edge scales — conditional on mono
+  # Edge scales — conditional on mono and edge_linewidth
   if (mono) {
-    p <- p +
-      ggplot2::scale_linewidth_continuous(
-        range  = c(0.4, 1.8),
-        name   = "|r|",
-        limits = c(cut_show, 1)
-      ) +
-      ggplot2::scale_linetype_manual(
-        values = c("solid" = "solid", "dashed" = "dashed"),
-        breaks = c("solid", "dashed"),
-        labels = c("solid" = "Positive", "dashed" = "Negative"),
-        name   = "Direction"
+    if (is.null(edge_linewidth)) {
+      p <- p + ggplot2::scale_linewidth_continuous(
+        range = c(0.4, 1.8), name = "|r|", limits = c(cut_show, 1)
       )
+    }
+    p <- p + ggplot2::scale_linetype_manual(
+      values = c("solid" = "solid", "dashed" = "dashed"),
+      breaks = c("solid", "dashed"),
+      labels = c("solid" = "Positive", "dashed" = "Negative"),
+      name   = "Direction"
+    )
   } else {
-    p <- p +
-      ggplot2::scale_color_manual(
-        values = c(positive = color_pos, negative = color_neg),
-        name   = "Direction",
-        labels = c(positive = "Positive", negative = "Negative")
-      ) +
-      ggplot2::scale_linewidth_continuous(
-        range  = c(0.4, 1.8),
-        name   = "|r|",
-        limits = c(cut_show, 1)
-      ) +
-      ggplot2::scale_linetype_identity(guide = "none")
+    p <- p + ggplot2::scale_color_manual(
+      values = c(positive = color_pos, negative = color_neg),
+      name   = "Direction",
+      labels = c(positive = "Positive", negative = "Negative")
+    )
+    if (is.null(edge_linewidth)) {
+      p <- p + ggplot2::scale_linewidth_continuous(
+        range = c(0.4, 1.8), name = "|r|", limits = c(cut_show, 1)
+      )
+    }
+    p <- p + ggplot2::scale_linetype_identity(guide = "none")
   }
 
   # (d) Level axis labels in left margin
@@ -400,14 +466,15 @@ autoplot.ackwards <- function(
     ggplot2::coord_cartesian(clip = "off") +
     ggplot2::theme_void(base_size = 11) +
     ggplot2::theme(
-      legend.position = "right",
+      legend.position = if (legend) "right" else "none",
       plot.margin     = ggplot2::margin(10, 10, 10, left_margin)
     )
 }
 
 # Build a node-only plot for the drop_pruned degenerate case (<=1 kept level).
 .ba_degenerate_plot <- function(
-  nodes, node_width, node_height, show_level_labels, level_label_size
+  nodes, node_width, node_height, show_level_labels, level_label_size,
+  legend = TRUE
 ) {
   p <- ggplot2::ggplot() +
     ggplot2::geom_tile(
@@ -435,7 +502,7 @@ autoplot.ackwards <- function(
     ggplot2::coord_cartesian(clip = "off") +
     ggplot2::theme_void(base_size = 11) +
     ggplot2::theme(
-      legend.position = "right",
+      legend.position = if (legend) "right" else "none",
       plot.margin     = ggplot2::margin(10, 10, 10, left_margin)
     )
 }

@@ -1,5 +1,48 @@
 # ackwards 0.0.0.9000 (dev)
 
+## Milestone 9 — Visualization round 2 + vignette restructure
+
+### Wave 2: vignette restructure
+
+* New `vignette("ackwards-visualization")`: a dedicated visual reference for
+  all `autoplot.ackwards()` presentation options, with rendered before/after
+  figures for each argument. Covers thresholds, colours, monochrome mode,
+  correlation labels, custom node labels, primary-only mode, level labels,
+  arrowheads, edge width, and legend; closes with a publication-ready worked
+  example.
+* `vignette("ackwards-forbes")`: removed the curved-arc `autoplot(x_all)`
+  figure (skip-level edges are better understood via the edge table); the
+  annotated grey-box view is replaced by the Forbes-styled `drop_pruned`
+  diagram as the primary figure, using `color_pos = color_neg = "black"`,
+  `edge_linewidth = 0.6`, `show_arrows = FALSE`, `legend = FALSE`. Added a
+  cross-reference to the visualization vignette for cosmetic options.
+* `vignette("ackwards-intro")`: trimmed the "Adjusting the diagram" section to
+  prose pointing to `vignette("ackwards-visualization")`; fixed a stale code
+  comment that promised to "relabel the k = 5 factors" when the code did not.
+  Added the visualization vignette to the "Next steps" table.
+
+### Wave 1: new autoplot args
+
+* `autoplot.ackwards()` gains `show_arrows = TRUE`: when `FALSE`, edges are
+  drawn with plain line ends (`arrow = NULL`) instead of closed arrowheads.
+  Applies to both straight and curved edge layers. Forbes (2023) figures use
+  plain line ends throughout.
+* `autoplot.ackwards()` gains `edge_linewidth = NULL`: `NULL` (default) keeps
+  the existing behaviour of mapping `|r|` to `linewidth` via a continuous scale.
+  A numeric value draws every edge at that constant width, removes the
+  `linewidth` aesthetic mapping, and drops the `|r|` linewidth legend. Forbes
+  figures use uniform thin lines (≈ 0.5–0.6).
+* `autoplot.ackwards()` gains `legend = TRUE`: when `FALSE`, suppresses all
+  plot legends (`legend.position = "none"`). Useful with `color_pos = color_neg
+  = "black"` to remove the otherwise redundant "Direction" key.
+* **Forbes (2023) publication style** is now reproducible without a new mode.
+  Combine existing colour-mode args with the three new args:
+  `autoplot(xp, drop_pruned = TRUE, color_pos = "black", color_neg = "black",`
+  `         edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE)`.
+  The colour mode's `cut_strong`-based solid/dashed distinction matches
+  Forbes's weak/secondary dashing; `mono` is not needed and uses different
+  linetype semantics (sign, not strength).
+
 ## Milestone 8 — Plot customization (Waves 1 & 2)
 
 * `autoplot.ackwards()` gains `show_r = FALSE` / `r_digits = 2L`: when

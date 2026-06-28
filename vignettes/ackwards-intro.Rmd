@@ -178,12 +178,10 @@ the loadings, the edge table, the factor scores, and the diagram.
 
 ### Adjusting the diagram
 
-```{r autoplot-custom, fig.width = 8, fig.height = 5, warning = FALSE}
-# Show only strong connections; relabel the k = 5 factors
-autoplot(x, cut_show = 0.5, cut_strong = 0.7)
-```
-
-See `?autoplot.ackwards` for the full argument list.
+`autoplot()` accepts arguments to control edge thresholds, colours, line
+styles, arrowheads, node labels, and more. See
+`vignette("ackwards-visualization")` for a guided tour of all options with
+rendered examples, or `?autoplot.ackwards` for the full argument list.
 
 ## Step 5: Dig into the factors `tidy()`
 
@@ -309,6 +307,7 @@ The bass-ackwards workflow in **ackwards** has six steps:
 | When PCA is not enough: comparing EFA and ESEM engines | `vignette("ackwards-engines")` |
 | Ordinal data: polychoric correlations and WLSMV estimation | `vignette("ackwards-ordinal")` |
 | Skip-level connections and pruning with the Forbes extension | `vignette("ackwards-forbes")` |
+| Customizing the hierarchy diagram | `vignette("ackwards-visualization")` |
 
 ## References
 

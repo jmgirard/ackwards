@@ -582,3 +582,178 @@ test_that("drop_pruned=TRUE ignores primary_only and show_skip", {
   ))
   expect_s3_class(p, "ggplot")
 })
+
+# --- Wave 1 (M9): show_arrows, edge_linewidth, legend -------------------------
+
+test_that("show_arrows=FALSE returns a ggplot", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(x, show_arrows = FALSE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("show_arrows=FALSE sets arrow=NULL on segment layers", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- ggplot2::autoplot(x, show_arrows = FALSE)
+  seg_layers <- Filter(function(l) inherits(l$geom, "GeomSegment"), p$layers)
+  expect_true(length(seg_layers) > 0L)
+  for (l in seg_layers) expect_null(l$geom_params$arrow)
+})
+
+test_that("show_arrows=TRUE (default) retains arrowheads on segment layers", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- ggplot2::autoplot(x, show_arrows = TRUE)
+  seg_layers <- Filter(function(l) inherits(l$geom, "GeomSegment"), p$layers)
+  for (l in seg_layers) expect_s3_class(l$geom_params$arrow, "arrow")
+})
+
+test_that("show_arrows=FALSE removes arrowheads from curved arcs too", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 4, pairs = "all"))
+  p <- ggplot2::autoplot(x, show_arrows = FALSE)
+  expect_s3_class(p, "ggplot")
+  cur_layers <- Filter(function(l) inherits(l$geom, "GeomCurve"), p$layers)
+  for (l in cur_layers) expect_null(l$geom_params$arrow)
+})
+
+test_that("edge_linewidth numeric returns a ggplot", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(x, edge_linewidth = 0.6))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("edge_linewidth numeric drops the linewidth scale", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  has_lw_scale <- function(p) {
+    any(vapply(p$scales$scales, function(s) "linewidth" %in% s$aesthetics, logical(1L)))
+  }
+  expect_true(has_lw_scale(ggplot2::autoplot(x)))
+  expect_false(has_lw_scale(ggplot2::autoplot(x, edge_linewidth = 0.6)))
+})
+
+test_that("edge_linewidth=NULL (default) retains the linewidth scale", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  has_lw_scale <- function(p) {
+    any(vapply(p$scales$scales, function(s) "linewidth" %in% s$aesthetics, logical(1L)))
+  }
+  expect_true(has_lw_scale(ggplot2::autoplot(x, edge_linewidth = NULL)))
+})
+
+test_that("legend=FALSE returns a ggplot with legend.position='none'", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(x, legend = FALSE))
+  expect_s3_class(p, "ggplot")
+  expect_equal(p$theme$legend.position, "none")
+})
+
+test_that("legend=TRUE (default) does not suppress the legend", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- ggplot2::autoplot(x, legend = TRUE)
+  expect_false(identical(p$theme$legend.position, "none"))
+})
+
+test_that("Forbes-style composition: drop_pruned+black+fixed lw+no arrows+no legend", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    x <- ackwards(psych::bfi[, 1:25], k = 5, prune = "redundant", redundancy_r = 0.95)
+  ))
+  p <- expect_no_error(ggplot2::autoplot(
+    x,
+    drop_pruned    = TRUE,
+    color_pos      = "black",
+    color_neg      = "black",
+    edge_linewidth = 0.6,
+    show_arrows    = FALSE,
+    legend         = FALSE
+  ))
+  expect_s3_class(p, "ggplot")
+  expect_equal(p$theme$legend.position, "none")
+})
+
+test_that("M9 args compose with mono=TRUE without error", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(
+    x,
+    mono           = TRUE,
+    show_arrows    = FALSE,
+    edge_linewidth = 0.5,
+    legend         = FALSE
+  ))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("all M9 args compose with all M8 args without error", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 4, pairs = "all"))
+  p <- expect_no_error(ggplot2::autoplot(
+    x,
+    show_r            = TRUE,
+    r_digits          = 2L,
+    show_level_labels = TRUE,
+    node_labels       = c(m4f1 = "General"),
+    primary_only      = FALSE,
+    show_arrows       = FALSE,
+    edge_linewidth    = 0.5,
+    legend            = FALSE
+  ))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("edge_linewidth numeric stores constant linewidth on segment layers", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- ggplot2::autoplot(x, edge_linewidth = 0.6)
+  seg_layers <- Filter(function(l) inherits(l$geom, "GeomSegment"), p$layers)
+  expect_true(length(seg_layers) > 0L)
+  # linewidth is a ggplot2 aesthetic so constant values land in $aes_params
+  for (l in seg_layers) expect_equal(l$aes_params$linewidth, 0.6)
+})
+
+test_that("edge_linewidth invalid values error clearly", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  expect_error(ggplot2::autoplot(x, edge_linewidth = "thick"), "edge_linewidth")
+  expect_error(ggplot2::autoplot(x, edge_linewidth = -0.5), "edge_linewidth")
+  expect_error(ggplot2::autoplot(x, edge_linewidth = c(0.5, 0.6)), "edge_linewidth")
+})
+
+test_that("legend=FALSE is honoured on the degenerate drop_pruned plot", {
+  skip_if_not_installed("ggplot2")
+  set.seed(42)
+  n <- 500
+  g <- rnorm(n)
+  d <- data.frame(
+    x1 = 0.9 * g + rnorm(n, sd = 0.05),
+    x2 = 0.9 * g + rnorm(n, sd = 0.05),
+    x3 = 0.9 * g + rnorm(n, sd = 0.05),
+    x4 = 0.9 * g + rnorm(n, sd = 0.05),
+    x5 = 0.9 * g + rnorm(n, sd = 0.05),
+    x6 = 0.9 * g + rnorm(n, sd = 0.05)
+  )
+  x <- suppressMessages(ackwards(d, k = 2, prune = "redundant", redundancy_r = 0.7))
+  p <- suppressWarnings(ggplot2::autoplot(x, drop_pruned = TRUE, legend = FALSE))
+  expect_s3_class(p, "ggplot")
+  expect_equal(p$theme$legend.position, "none")
+})
