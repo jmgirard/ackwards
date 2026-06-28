@@ -49,15 +49,17 @@ default output must reproduce Forbes's examples exactly.
   `r_label_size` arg; **decouple `show_r` from `drop_pruned`** (default `FALSE` everywhere); Forbes
   vignette updated to two-figure (labeled + unlabeled) treatment; `.lintr` added to `.Rbuildignore`
   (R CMD check fully clean: 0 errors, 0 warnings, 0 notes).
+- **M12 (done):** Best-practice `suggest_k` — PA-FA added alongside PA-PC (`psych::fa.parallel(fa =
+  "both")`); VSS-1/VSS-2 surfaced from existing `psych::vss()` call; Comparison Data (CD) added via
+  `EFAtools::CD()` gated by `rlang::is_installed()` (skips gracefully when absent); new `seed` arg;
+  enriched `suggest_k` object (`k_parallel_pc`, `k_parallel_fa`, `k_vss1`, `k_vss2`, `k_cd`,
+  `cd_available`, expanded `criteria` table); redesigned `print.suggest_k()` multi-criterion table;
+  new `autoplot.suggest_k()` three-panel ggplot2 diagnostic (scree/PA + MAP + VSS); `EFAtools` added
+  to Suggests; DESIGN.md §8 and §12 updated.
 
-## Current focus — M12 (best-practice `suggest_k`)
+## Current focus
 
-Next up, planned in `DESIGN.md` §15.12:
-
-- **M12 (current):** best-practice `suggest_k` — add Comparison Data (CD, via `EFAtools` gated by
-  `check_installed()`), FA-eigenvalue PA, and VSS-1/2; enrich the object with eigenvalues; new
-  `autoplot.suggest_k()` scree/parallel plot; redesigned multi-criterion `print`. **Amends §8 and
-  §12** (adds `EFAtools` to Suggests; EGA stays out of scope) — flag before landing.
+No milestone in progress. See `DESIGN.md` §15 for candidate next steps.
 
 If a step needs a design decision not covered in `DESIGN.md`, **stop and ask** rather than guessing.
 
@@ -98,10 +100,12 @@ Keep `Imports` lean: `stats`, `utils`, `cli`, `rlang`, `generics`. Everything el
 first; the heavy compute already lives in compiled deps (§3).
 
 Current `Imports`: `cli`, `generics`, `rlang`, `stats`, `utils`.
-Current `Suggests`: `covr`, `ggplot2`, `GPArotation`, `knitr`, `lavaan (>= 0.6-13)`, `psych`,
-`rmarkdown`, `testthat (>= 3.0.0)`. `suggest_k()` uses `psych::fa.parallel` and `psych::vss` (no
-separate `EGAnet`/`paran` dep). Visualization uses `ggplot2` directly (no `ggraph`/`igraph`/
-`tidygraph`). `methods` is **not** imported (no `methods::` usage). `clue` was removed in M5.
+Current `Suggests`: `covr`, `EFAtools`, `ggplot2`, `GPArotation`, `knitr`, `lavaan (>= 0.6-13)`,
+`psych`, `rmarkdown`, `testthat (>= 3.0.0)`. `suggest_k()` uses `psych::fa.parallel(fa="both")` +
+`psych::vss` (PA-PC, PA-FA, MAP, VSS-1/2) and optionally `EFAtools::CD()` (gated by
+`rlang::is_installed()`); no separate `EGAnet`/`paran` dep. Visualization uses `ggplot2` directly
+(no `ggraph`/`igraph`/`tidygraph`). `methods` is **not** imported (no `methods::` usage). `clue`
+was removed in M5.
 
 ## Dev workflow
 

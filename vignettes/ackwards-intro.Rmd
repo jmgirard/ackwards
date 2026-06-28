@@ -73,17 +73,23 @@ sufficient for this illustration.
 ## Step 1: How many factors? `suggest_k()`
 
 Before fitting the hierarchy, it helps to have a sense of the plausible range
-of k. `suggest_k()` runs two established selection criteria:
+of k. `suggest_k()` runs five complementary selection criteria — two forms of
+parallel analysis, MAP, VSS, and (optionally) Comparison Data:
 
-- **Parallel analysis** (Horn, 1965): compares observed eigenvalues against
-  those from random data of the same size and suggests retaining factors whose
-  observed eigenvalues exceed the parallel-analysis threshold.
-- **Velicer's MAP criterion** (Velicer, 1976): examines the average
-  off-diagonal partial correlation after successive factors are extracted;
-  suggests the k at which this average is minimized.
+- **PA-PC / PA-FA** (Horn, 1965): compares observed PC or FA eigenvalues
+  against those from random data of the same size. PA-PC tends to overextract;
+  PA-FA is more conservative and the better match for EFA/ESEM engines.
+- **MAP** (Velicer, 1976): examines the average off-diagonal partial
+  correlation after successive factors are extracted; suggests the k at which
+  this average is minimized. Usually conservative.
+- **VSS-1 / VSS-2** (Revelle & Rocklin, 1979): finds the k maximising the
+  fit of a very-simple-structure loading pattern at complexities 1 and 2.
+- **CD** (Ruscio & Roche, 2012): resamples from the observed item distributions
+  to generate comparison eigenvalue profiles. Available only when the
+  `EFAtools` package is installed.
 
 ```{r suggest_k}
-sk <- suggest_k(bfi)
+sk <- suggest_k(bfi, seed = 42)
 sk
 ```
 
@@ -93,11 +99,17 @@ sk
 > items. When you move to `ackwards()`, you can address this with
 > `cor = "polychoric"` — we will do that next.
 
-Both criteria agree: k = 5. This matches the instrument design (Big Five) and
-gives us a clear target. The note at the bottom reminds us that k in
-`ackwards()` is an *upper bound* — the hierarchy covers every level from 1 to
-k, so setting k one or two levels higher than the consensus is often
-informative.
+No single criterion is definitive. Look at the consensus range — if all five
+criteria point to the same k (or a tight range), that is strong evidence.
+The note at the bottom reminds us that k in `ackwards()` is an *upper bound*
+— setting k one or two levels above the consensus to watch factors fragment is
+intentional and informative.
+
+A quick diagnostic plot shows the full picture:
+
+```{r suggest_k_plot, fig.width=6, fig.height=7}
+autoplot(sk)
+```
 
 ## Step 2: Fit the hierarchy `ackwards()`
 

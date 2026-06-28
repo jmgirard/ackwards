@@ -1,20 +1,31 @@
 #' Suggest a maximum number of factors for bass-ackwards analysis
 #'
-#' Runs two complementary criteria and reports their recommendations. Neither
-#' alone is definitive; the goal is a consensus range to inform your choice of
-#' `k` in [ackwards()].
+#' Runs five complementary selection criteria and reports their recommendations.
+#' No single criterion is definitive; the goal is a consensus range to inform
+#' your choice of `k` in [ackwards()].
 #'
 #' **Criteria computed:**
-#' * **Parallel analysis** (Horn 1965) -- compares observed eigenvalues to those
-#'   from random correlation matrices of the same size. Suggests the number of
-#'   components whose eigenvalues exceed the 95th-percentile chance level.
-#' * **MAP** (Velicer 1976) -- the Minimum Average Partial criterion. Finds the
-#'   number of components that minimises the average squared partial correlation
-#'   after the components are partialled out.
+#' * **PA-PC** (Horn 1965, PC basis) -- parallel analysis on principal-component
+#'   eigenvalues. Compares observed eigenvalues to those from random correlation
+#'   matrices; suggests retaining components whose eigenvalues exceed the 95th
+#'   percentile of chance. Tends to overextract; treat as an upper bound.
+#' * **PA-FA** (Horn 1965, FA basis) -- parallel analysis using common-factor
+#'   eigenvalues. More conservative than PA-PC and the better match for the EFA
+#'   and ESEM engines in [ackwards()].
+#' * **MAP** (Velicer 1976) -- Minimum Average Partial criterion. Finds the k
+#'   that minimises the average squared partial correlation remaining after
+#'   extracting k components. Usually conservative.
+#' * **VSS-1 / VSS-2** (Revelle & Rocklin 1979) -- Very Simple Structure fit
+#'   at complexities 1 and 2. Finds the k maximising the fit of a very simple
+#'   loading structure.
+#' * **CD** (Ruscio & Roche 2012; optional) -- Comparison Data. Resamples
+#'   from the observed item distributions to generate comparison eigenvalue
+#'   profiles; retains factors until adding one no longer improves RMSE beyond
+#'   chance. Requires the \pkg{EFAtools} package (install separately).
 #'
-#' Both use the same Pearson or Spearman correlation matrix as [ackwards()].
-#' Parallel analysis is implemented via [psych::fa.parallel()]; MAP via
-#' [psych::vss()].
+#' PA (both bases), MAP, and VSS share the same correlation matrix as
+#' [ackwards()]. CD operates on the raw data matrix directly (required for
+#' resampling) and is skipped gracefully when \pkg{EFAtools} is not installed.
 #'
 #' @section Interpreting the output:
 #' `k` in [ackwards()] is a **maximum depth**, not a claim that exactly k
@@ -31,22 +42,33 @@
 #' @param n_iter Number of Monte Carlo iterations for parallel analysis. Default
 #'   `20`. Reduce to `5` for fast/exploratory runs; increase to `100+` for
 #'   publication.
+#' @param seed Integer seed for reproducibility of the stochastic PA and CD
+#'   steps. `NULL` (default) uses the current RNG state.
 #' @param ... Reserved for future arguments.
 #'
-#' @return An object of class `"suggest_k"`. Print it for a formatted summary.
-#'   The list contains:
-#'   \item{k_parallel}{Recommended k from parallel analysis.}
+#' @return An object of class `"suggest_k"`. Print it for a formatted summary;
+#'   call [autoplot()] on it for a diagnostic scree/criteria plot. The list
+#'   contains:
+#'   \item{k_parallel_pc}{Recommended k from PC-based parallel analysis.}
+#'   \item{k_parallel_fa}{Recommended k from FA-based parallel analysis.}
 #'   \item{k_map}{Recommended k from MAP.}
-#'   \item{criteria}{Data frame with one row per k: `k`, `map` value,
-#'     `pa_suggested` (logical; `TRUE` if k is within the parallel-analysis threshold).}
+#'   \item{k_vss1}{Recommended k from VSS complexity-1.}
+#'   \item{k_vss2}{Recommended k from VSS complexity-2.}
+#'   \item{k_cd}{Recommended k from Comparison Data (`NA_integer_` when
+#'     \pkg{EFAtools} is not installed).}
+#'   \item{cd_available}{Logical; `TRUE` when \pkg{EFAtools} was found and CD
+#'     ran successfully.}
+#'   \item{criteria}{Data frame with one row per k: `k`, `ev_obs` (observed PC
+#'     eigenvalue), `pa_pc_quant` / `pa_fa_quant` (95th-pct simulated
+#'     eigenvalue), `pa_pc_suggested` / `pa_fa_suggested` (logical retention),
+#'     `map`, `vss1`, `vss2`.}
 #'   \item{k_max, n_obs, n_vars, cor}{Metadata.}
 #'
 #' @section A note on overextraction:
-#' Parallel analysis in particular tends to recommend more factors than replicate
-#' across independent samples, especially with correlated items (Forbes, 2023).
-#' Treat these criteria as a starting range for exploration, not a definitive
-#' stopping rule. Setting `k` in [ackwards()] one or two levels above the
-#' consensus is intentional -- watching factors fragment is part of the method.
+#' PA-PC in particular tends to recommend more factors than replicate across
+#' independent samples, especially with correlated items (Forbes, 2023).
+#' PA-FA and CD are more conservative. Treat the full set of criteria as a
+#' range: the true k is likely somewhere in the middle.
 #'
 #' @seealso [ackwards()]
 #'
@@ -58,17 +80,30 @@
 #' Horn, J. L. (1965). A rationale and test for the number of factors in factor
 #'   analysis. *Psychometrika*, 30, 179--185.
 #'
+#' Revelle, W., & Rocklin, T. (1979). Very simple structure: An alternative
+#'   procedure for estimating the optimal number of interpretable factors.
+#'   *Multivariate Behavioral Research*, 14(4), 403--414.
+#'
+#' Ruscio, J., & Roche, B. (2012). Determining the number of factors to retain
+#'   in an exploratory factor analysis using comparison data of a known factorial
+#'   structure. *Psychological Assessment*, 24(2), 282--292.
+#'
 #' Velicer, W. F. (1976). Determining the number of components from the matrix
 #'   of partial correlations. *Psychometrika*, 41, 321--327.
 #'
 #' @examples
 #' \dontrun{
-#' suggest_k(psych::bfi[, 1:25])
-#' suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5)
+#' sk <- suggest_k(psych::bfi[, 1:25])
+#' sk
+#' autoplot(sk)
+#'
+#' # Faster exploratory run; fix seed for reproducibility
+#' suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5, seed = 42)
 #' }
 #'
 #' @export
-suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L, ...) {
+suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L,
+                      seed = NULL, ...) {
   rlang::check_installed("psych", reason = "for suggest_k()")
 
   cor <- rlang::arg_match(cor, c("pearson", "spearman"))
@@ -94,56 +129,107 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L, ...) {
     )
   }
 
+  if (!is.null(seed)) set.seed(seed)
+
   R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
 
-  # --- Parallel analysis (Horn) -----------------------------------------------
-  cli::cli_progress_step("Running parallel analysis ({n_iter} iterations)...")
+  # --- Parallel analysis: PC + FA (Horn) --------------------------------------
+  cli::cli_progress_step(
+    "Running parallel analysis ({n_iter} iterations, PC + FA)..."
+  )
   invisible(utils::capture.output(
     pa <- psych::fa.parallel(
       R,
       n.obs  = n,
-      fa     = "pc",
+      fa     = "both",
       n.iter = n_iter,
       plot   = FALSE,
       quant  = 0.95
     )
   ))
-  # Cap at k_max in case pa reports more components than we tested
-  k_parallel <- min(pa$ncomp, k_max)
+  k_parallel_pc <- min(pa$ncomp, k_max)
+  k_parallel_fa <- min(pa$nfact %||% 0L, k_max)
 
-  # --- MAP (Velicer) ----------------------------------------------------------
-  cli::cli_progress_step("Running MAP (Velicer)...")
-  vss_out <- psych::vss(
-    R,
-    n      = k_max,
-    n.obs  = n,
-    rotate = "varimax",
-    fm     = "pc",
-    plot   = FALSE
-  )
+  # Observed PC eigenvalues; simulated thresholds at the requested quantile.
+  # psych uses $pc.values / $pc.sim in newer versions with fa = "both";
+  # fall back to $values / $sim (backwards-compat aliases) if absent.
+  ev_obs <- (pa$pc.values %||% pa$values)[seq_len(k_max)]
+  pa_pc_quant <- (pa$pc.sim %||% pa$sim)[seq_len(k_max)]
+  pa_fa_quant <- pa$fa.sim[seq_len(k_max)]
+
+  # --- MAP + VSS (Velicer; Revelle & Rocklin) ---------------------------------
+  cli::cli_progress_step("Running MAP and VSS...")
+  invisible(utils::capture.output(
+    vss_out <- psych::vss(
+      R,
+      n      = k_max,
+      n.obs  = n,
+      rotate = "varimax",
+      fm     = "pc",
+      plot   = FALSE
+    )
+  ))
   map_vals <- vss_out$map[seq_len(k_max)]
   k_map <- which.min(map_vals)
+  vss1_vals <- vss_out$vss.stats$cfit.1[seq_len(k_max)]
+  vss2_vals <- vss_out$vss.stats$cfit.2[seq_len(k_max)]
+  k_vss1 <- which.max(vss1_vals)
+  k_vss2 <- which.max(vss2_vals)
+
+  # --- Comparison Data (Ruscio & Roche 2012) -- optional ---------------------
+  cd_available <- rlang::is_installed("EFAtools")
+  k_cd <- NA_integer_
+  if (cd_available) {
+    cli::cli_progress_step("Running Comparison Data (CD)...")
+    cd_out <- tryCatch(
+      EFAtools::CD(data_mat, n_factors_max = k_max),
+      error = function(e) {
+        cli::cli_warn(
+          c(
+            "!" = "Comparison Data (CD) failed and will be omitted.",
+            "i" = "{conditionMessage(e)}"
+          )
+        )
+        NULL
+      }
+    )
+    if (!is.null(cd_out)) {
+      k_cd <- min(as.integer(cd_out$n_factors), k_max)
+    } else {
+      cd_available <- FALSE
+    }
+  }
 
   cli::cli_progress_done()
 
   # --- Build criteria table ---------------------------------------------------
-  # pa_suggested: TRUE if k is within the parallel-analysis threshold
   criteria <- data.frame(
     k = seq_len(k_max),
+    ev_obs = ev_obs,
+    pa_pc_quant = pa_pc_quant,
+    pa_pc_suggested = seq_len(k_max) <= k_parallel_pc,
+    pa_fa_quant = pa_fa_quant,
+    pa_fa_suggested = seq_len(k_max) <= k_parallel_fa,
     map = map_vals,
-    pa_suggested = seq_len(k_max) <= k_parallel,
+    vss1 = vss1_vals,
+    vss2 = vss2_vals,
     stringsAsFactors = FALSE
   )
 
   structure(
     list(
-      k_parallel = k_parallel,
-      k_map      = k_map,
-      criteria   = criteria,
-      k_max      = k_max,
-      n_obs      = n,
-      n_vars     = p,
-      cor        = cor
+      k_parallel_pc = k_parallel_pc,
+      k_parallel_fa = k_parallel_fa,
+      k_map         = k_map,
+      k_vss1        = k_vss1,
+      k_vss2        = k_vss2,
+      k_cd          = k_cd,
+      cd_available  = cd_available,
+      criteria      = criteria,
+      k_max         = k_max,
+      n_obs         = n,
+      n_vars        = p,
+      cor           = cor
     ),
     class = "suggest_k"
   )
@@ -162,50 +248,268 @@ print.suggest_k <- function(x, ...) {
     "Variables" = as.character(x$n_vars),
     "n"         = format(x$n_obs, big.mark = ","),
     "Basis"     = x$cor,
-    "Tested k"  = paste0("1\u2013", x$k_max)
+    "Tested k"  = paste0("1-", x$k_max)
   ))
 
-  cli::cli_h2("Criteria (k = 1\u2013{x$k_max})")
+  cli::cli_h2("Criteria (k = 1-{x$k_max})")
 
   cr <- x$criteria
-  pa_sym <- ifelse(cr$pa_suggested, cli::col_green(cli::symbol$tick), cli::col_grey("-"))
+  tick <- cli::col_green(cli::symbol$tick)
+  dash <- cli::col_grey("-")
+  star <- cli::col_cyan("*")
+
   map_fmt <- formatC(cr$map, digits = 4, format = "f")
+  vss1_fmt <- formatC(cr$vss1, digits = 4, format = "f")
+  vss2_fmt <- formatC(cr$vss2, digits = 4, format = "f")
+
+  map_fmt[x$k_map] <- paste0(map_fmt[x$k_map], star)
+  vss1_fmt[x$k_vss1] <- paste0(vss1_fmt[x$k_vss1], star)
+  vss2_fmt[x$k_vss2] <- paste0(vss2_fmt[x$k_vss2], star)
+
+  cd_note <- if (!x$cd_available) " (CD n/a+)" else ""
 
   for (i in seq_len(nrow(cr))) {
+    pc_sym <- if (cr$pa_pc_suggested[i]) tick else dash
+    fa_sym <- if (cr$pa_fa_suggested[i]) tick else dash
+
+    if (!x$cd_available) {
+      cd_part <- ""
+    } else if (!is.na(x$k_cd) && i == x$k_cd) {
+      cd_part <- paste0("  CD ", tick, star)
+    } else if (!is.na(x$k_cd) && i < x$k_cd) {
+      cd_part <- paste0("  CD ", tick)
+    } else {
+      cd_part <- paste0("  CD ", dash)
+    }
+
     cli::cli_text(
-      "  {pa_sym[i]} k = {cr$k[i]}:  MAP = {map_fmt[i]}  |  \\
-       PA {ifelse(cr$pa_suggested[i], 'suggested', 'not suggested')}"
+      "  k = {cr$k[i]}:  PA-PC {pc_sym}  PA-FA {fa_sym}  \\
+       MAP {map_fmt[i]}  VSS-1 {vss1_fmt[i]}  VSS-2 {vss2_fmt[i]}{cd_part}"
+    )
+  }
+
+  if (!x$cd_available) {
+    cli::cli_text(
+      cli::col_grey(
+        "  + CD requires {.pkg EFAtools} (install to enable)."
+      )
     )
   }
 
   cli::cli_h2("Recommendations")
 
-  cli::cli_bullets(c(
-    "*" = "Parallel analysis: k {cli::symbol$leq} {x$k_parallel}",
-    "*" = "MAP (Velicer):     k = {x$k_map}"
-  ))
+  recs <- c(
+    "PA-PC" = paste0("k <= ", x$k_parallel_pc),
+    "PA-FA" = paste0("k <= ", x$k_parallel_fa),
+    "MAP"   = paste0("k = ", x$k_map),
+    "VSS-1" = paste0("k = ", x$k_vss1),
+    "VSS-2" = paste0("k = ", x$k_vss2)
+  )
+  if (x$cd_available && !is.na(x$k_cd)) {
+    recs["CD"] <- paste0("k = ", x$k_cd)
+  }
+  for (nm in names(recs)) {
+    cli::cli_bullets(c("*" = paste0(nm, ": ", recs[[nm]])))
+  }
 
-  lo <- min(x$k_map, x$k_parallel)
-  hi <- max(x$k_map, x$k_parallel)
+  all_k <- c(x$k_parallel_pc, x$k_parallel_fa, x$k_map, x$k_vss1, x$k_vss2)
+  if (x$cd_available && !is.na(x$k_cd)) all_k <- c(all_k, x$k_cd)
+  lo <- min(all_k)
+  hi <- max(all_k)
+
   if (lo == hi) {
     cli::cli_text("{.strong Consensus: k = {lo}}")
   } else {
-    cli::cli_text("{.strong Consensus range: k = {lo}\u2013{hi}}")
+    cli::cli_text("{.strong Consensus range: k = {lo}-{hi}}")
   }
 
   cli::cli_rule()
   cli::cli_text(
     cli::col_grey(
-      "Note: k in ackwards() is a maximum depth. Consider setting k one \\
-       or two levels above the consensus to observe factor fragmentation."
+      "Note: k in ackwards() is a maximum depth. Setting k one or two levels \\
+       above the consensus to observe factor fragmentation is intentional."
     )
   )
   cli::cli_text(
     cli::col_grey(
-      "Caution: parallel analysis tends to overextract; many suggested \\
-       structures do not replicate (Forbes, 2023). Treat this as a range."
+      "Caution: PA-PC tends to overextract; structures may not replicate \\
+       (Forbes, 2023). PA-FA and CD are more conservative. Use the range."
     )
   )
 
   invisible(x)
+}
+
+#' Plot a suggest_k diagnostic
+#'
+#' Renders a three-panel ggplot2 diagnostic for a `suggest_k` object:
+#' a parallel-analysis/scree plot on top, a MAP panel in the middle, and a VSS
+#' panel on the bottom. The recommended k for each criterion is marked with a
+#' star-shaped point.
+#'
+#' Requires the \pkg{ggplot2} package.
+#'
+#' @param object A `suggest_k` object.
+#' @param ... Ignored.
+#' @return A `ggplot` object.
+#'
+#' @seealso [suggest_k()]
+#'
+#' @examples
+#' \dontrun{
+#' sk <- suggest_k(psych::bfi[, 1:25], n_iter = 5, seed = 42)
+#' autoplot(sk)
+#' }
+#'
+#' @importFrom rlang .data
+#' @export
+autoplot.suggest_k <- function(object, ...) {
+  rlang::check_installed("ggplot2", reason = "for autoplot.suggest_k()")
+
+  cr <- object$criteria
+  k_max <- object$k_max
+
+  # --- Long-format data -------------------------------------------------------
+
+  scree_data <- data.frame(
+    k = rep(cr$k, 3L),
+    value = c(cr$ev_obs, cr$pa_pc_quant, cr$pa_fa_quant),
+    series = rep(
+      c("Observed (PC)", "PA-PC (95th pct)", "PA-FA (95th pct)"),
+      each = k_max
+    ),
+    panel = "Scree / Parallel Analysis",
+    stringsAsFactors = FALSE
+  )
+
+  map_data <- data.frame(
+    k = cr$k,
+    value = cr$map,
+    series = "MAP",
+    panel = "MAP (minimize)",
+    stringsAsFactors = FALSE
+  )
+
+  vss_data <- data.frame(
+    k = rep(cr$k, 2L),
+    value = c(cr$vss1, cr$vss2),
+    series = rep(c("VSS-1", "VSS-2"), each = k_max),
+    panel = "VSS (maximize)",
+    stringsAsFactors = FALSE
+  )
+
+  plot_data <- rbind(scree_data, map_data, vss_data)
+  panel_levels <- c("Scree / Parallel Analysis", "MAP (minimize)", "VSS (maximize)")
+  plot_data$panel <- factor(plot_data$panel, levels = panel_levels)
+
+  all_series <- c(
+    "Observed (PC)", "PA-PC (95th pct)", "PA-FA (95th pct)",
+    "MAP", "VSS-1", "VSS-2"
+  )
+  plot_data$series <- factor(plot_data$series, levels = all_series)
+
+  # --- Mark optimal k for each criterion with a star point --------------------
+  plot_data$is_opt <- FALSE
+
+  # Scree: mark the observed eigenvalue at each PA suggestion
+  pa_ks <- unique(c(object$k_parallel_pc, object$k_parallel_fa))
+  plot_data$is_opt <- plot_data$is_opt |
+    (plot_data$panel == "Scree / Parallel Analysis" &
+      plot_data$series == "Observed (PC)" &
+      plot_data$k %in% pa_ks)
+
+  # MAP: mark the minimum
+  plot_data$is_opt <- plot_data$is_opt |
+    (plot_data$panel == "MAP (minimize)" & plot_data$k == object$k_map)
+
+  # VSS: mark each criterion's maximum
+  plot_data$is_opt <- plot_data$is_opt |
+    (plot_data$series == "VSS-1" & plot_data$k == object$k_vss1) |
+    (plot_data$series == "VSS-2" & plot_data$k == object$k_vss2)
+
+  # CD: vertical line in MAP panel (only when available)
+  cd_vline <- if (object$cd_available && !is.na(object$k_cd)) {
+    data.frame(
+      k     = object$k_cd,
+      panel = factor("MAP (minimize)", levels = panel_levels)
+    )
+  } else {
+    NULL
+  }
+
+  # --- Scales -----------------------------------------------------------------
+  series_color <- c(
+    "Observed (PC)" = "#2166AC",
+    "PA-PC (95th pct)" = "#999999",
+    "PA-FA (95th pct)" = "#BBBBBB",
+    "MAP" = "#D6604D",
+    "VSS-1" = "#1A9850",
+    "VSS-2" = "#762A83"
+  )
+  series_lt <- c(
+    "Observed (PC)" = "solid",
+    "PA-PC (95th pct)" = "dashed",
+    "PA-FA (95th pct)" = "dotted",
+    "MAP" = "solid",
+    "VSS-1" = "solid",
+    "VSS-2" = "dashed"
+  )
+  series_shape <- c(
+    "Observed (PC)" = 16L,
+    "PA-PC (95th pct)" = 17L,
+    "PA-FA (95th pct)" = 15L,
+    "MAP" = 16L,
+    "VSS-1" = 16L,
+    "VSS-2" = 17L
+  )
+
+  p <- ggplot2::ggplot(
+    plot_data,
+    ggplot2::aes(
+      x        = .data$k,
+      y        = .data$value,
+      color    = .data$series,
+      linetype = .data$series,
+      shape    = .data$series
+    )
+  ) +
+    ggplot2::geom_line() +
+    ggplot2::geom_point(size = 1.8) +
+    ggplot2::geom_point(
+      data        = plot_data[plot_data$is_opt, , drop = FALSE],
+      size        = 3.5,
+      shape       = 8L,
+      stroke      = 1.2,
+      show.legend = FALSE,
+      inherit.aes = TRUE
+    ) +
+    ggplot2::scale_color_manual(values = series_color, name = NULL) +
+    ggplot2::scale_linetype_manual(values = series_lt, name = NULL) +
+    ggplot2::scale_shape_manual(values = series_shape, name = NULL) +
+    ggplot2::scale_x_continuous(breaks = seq_len(k_max)) +
+    ggplot2::facet_wrap(~panel, ncol = 1L, scales = "free_y") +
+    ggplot2::labs(
+      x = "Number of factors / components (k)",
+      y = NULL
+    ) +
+    ggplot2::theme_bw(base_size = 11) +
+    ggplot2::theme(
+      legend.position  = "bottom",
+      panel.grid.minor = ggplot2::element_blank(),
+      strip.background = ggplot2::element_rect(fill = "grey95"),
+      strip.text       = ggplot2::element_text(face = "bold")
+    )
+
+  if (!is.null(cd_vline)) {
+    p <- p + ggplot2::geom_vline(
+      data = cd_vline,
+      ggplot2::aes(xintercept = .data$k),
+      color = "#D6604D",
+      linetype = "dotted",
+      linewidth = 0.8,
+      inherit.aes = FALSE
+    )
+  }
+
+  p
 }

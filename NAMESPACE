@@ -2,6 +2,7 @@
 
 S3method(augment,ackwards)
 S3method(autoplot,ackwards)
+S3method(autoplot,suggest_k)
 S3method(glance,ackwards)
 S3method(plot,ackwards)
 S3method(print,ackwards)

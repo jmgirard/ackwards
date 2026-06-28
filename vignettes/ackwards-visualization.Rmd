@@ -254,3 +254,28 @@ autoplot(x,
 
 For the pruned-factor variant of this figure (nodes omitted, spanning arrows)
 see `vignette("ackwards-forbes")`.
+
+---
+
+## Diagnostic scree / criteria plot: `autoplot.suggest_k()`
+
+`suggest_k()` returns a multi-criterion object that has its own `autoplot()`
+method. It produces a three-panel ggplot2 diagnostic:
+
+- **Scree / Parallel Analysis** — observed PC eigenvalues vs. the PA-PC and
+  PA-FA simulated thresholds (95th percentile from random data).
+- **MAP (minimize)** — Velicer's MAP criterion; a star marks the optimal k.
+- **VSS (maximize)** — VSS-1 and VSS-2 fit curves; stars mark each optimum.
+
+If `EFAtools` is installed and `EFAtools::CD()` ran successfully, a dotted
+vertical line in the MAP panel indicates the CD-suggested k.
+
+```{r suggest_k_plot, fig.height=8}
+sk <- suggest_k(bfi, seed = 42)
+autoplot(sk)
+```
+
+Star-shaped markers (shape 8) identify the recommended k for each criterion.
+Use the consensus range across all panels — if they converge on the same k, that
+is strong evidence; if they spread over 2–3 values, fit the hierarchy at a
+few depths and compare interpretability.

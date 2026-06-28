@@ -1,5 +1,33 @@
 # ackwards 0.0.0.9000 (dev)
 
+## Milestone 12 — Best-practice `suggest_k()` expansion
+
+* `suggest_k()` now runs five complementary criteria instead of two. New
+  criteria: **PA-FA** (factor-eigenvalue parallel analysis, the model-consistent
+  companion to PA-PC), **VSS-1/VSS-2** (Very Simple Structure; already computed
+  from `psych::vss()` but now surfaced), and **CD** (Comparison Data, Ruscio &
+  Roche 2012, via `EFAtools::CD()` — skipped gracefully when `EFAtools` is not
+  installed). (#M12)
+
+* The `suggest_k` object has been enriched with new fields: `k_parallel_pc`,
+  `k_parallel_fa` (replaces `k_parallel`), `k_vss1`, `k_vss2`, `k_cd`,
+  `cd_available`; and the `criteria` table now includes `ev_obs`, `pa_pc_quant`,
+  `pa_pc_suggested`, `pa_fa_quant`, `pa_fa_suggested`, `vss1`, `vss2`. (#M12)
+
+* New `seed` argument to `suggest_k()` for reproducibility of the stochastic
+  parallel-analysis and Comparison Data steps. (#M12)
+
+* New `autoplot.suggest_k()` method produces a three-panel ggplot2 diagnostic:
+  a parallel-analysis/scree plot, a MAP panel, and a VSS panel. Optimal k for
+  each criterion is marked with a star-shaped point. (#M12)
+
+* `print.suggest_k()` redesigned as a multi-criterion table showing PA-PC,
+  PA-FA, MAP, VSS-1, VSS-2, and CD (when available) side by side, with a
+  consensus range summary and overextraction caution. (#M12)
+
+* `EFAtools` added to `Suggests` in DESCRIPTION. Never imported directly;
+  gated by `rlang::is_installed()`. (#M12)
+
 ## Milestone 11 — Edge-label polish + `show_r` decoupling
 
 * `show_r` now defaults to `FALSE` in all `autoplot.ackwards()` views.

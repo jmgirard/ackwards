@@ -240,14 +240,23 @@ question: neither — a structured light core, with the heavy bits nullable and 
 
 ## 8. Suggesting k
 
-`suggest_k()` returns **several criteria and a recommended range**, never a single number:
-**parallel analysis** (Horn, via `psych::fa.parallel`) and **MAP** (Velicer, via `psych::vss`).
-Empirical Kaiser Criterion (EKC) and EGA (`{EGAnet}`) are **out of scope** — the `EGAnet`/`paran`
-deps were not added (see §12); `psych::fa.parallel` + `psych::vss` cover the most-used criteria
-without extra deps. For Likert/ordinal data, compute these on the **polychoric** matrix when
-`cor = "polychoric"` is set (basis follows the same choice as the main call). Report that `k` is a
-maximum *depth*; users often deliberately set it a level or two past the consensus to watch factors
-fragment. Note the overextraction/non-replicability caution (Forbes 2023).
+`suggest_k()` returns **several complementary criteria and a consensus range**, never a single
+number. The five criteria implemented (M12):
+
+| Criterion | Source | Function | Notes |
+|---|---|---|---|
+| **PA-PC** | Horn (1965), PC basis | `psych::fa.parallel(fa = "both")` | Tends to overextract; use as upper bound |
+| **PA-FA** | Horn (1965), FA basis | same call | More conservative; model-consistent for EFA/ESEM |
+| **MAP** | Velicer (1976) | `psych::vss()` | Minimise average squared partial; usually conservative |
+| **VSS-1/VSS-2** | Revelle & Rocklin (1979) | same call (already returned) | Maximise very-simple-structure fit at complexities 1 and 2 |
+| **CD** | Ruscio & Roche (2012) | `EFAtools::CD()` (optional) | Resamples raw data; among top performers in simulation; skipped gracefully when `EFAtools` absent |
+
+Empirical Kaiser Criterion (EKC) and EGA (`{EGAnet}`) are **out of scope** — additional deps
+without sufficient incremental benefit over the five criteria above. For Likert/ordinal data,
+compute these on the **polychoric** matrix when `cor = "polychoric"` is set (basis follows the same
+choice as the main call). Report that `k` is a maximum *depth*; users often deliberately set it a
+level or two past the consensus to watch factors fragment. Note the overextraction/non-replicability
+caution (Forbes 2023). Add a `seed` argument for reproducibility of the stochastic PA and CD steps.
 
 ## 9. Defaults (high-stakes — users will not override these)
 
@@ -333,14 +342,15 @@ footprint sane and lets users plot the layout however they like.
 | Imports (lean) | `stats`, `utils`, `cli`, `rlang`, `generics` | core, console output, guards, tidy/augment/glance generics |
 | Suggests — engines | `psych`, `GPArotation`, `lavaan (>= 0.6-13)` | EFA/PCA/rotations (CF family); ESEM |
 | Suggests — ordinal | `psych` | polychoric correlations for Likert basis |
-| Suggests — suggest_k | `psych` | `fa.parallel` (parallel analysis) + `vss` (MAP); no separate `EGAnet`/`paran` dep |
+| Suggests — suggest_k | `psych`, `EFAtools` (optional) | `fa.parallel(fa="both")` (PA-PC + PA-FA) + `vss` (MAP + VSS-1/2); `EFAtools::CD()` for Comparison Data (skipped gracefully when absent); no `EGAnet`/`paran` dep |
 | ~~Suggests — matching~~ | ~~`clue`~~ | ~~Hungarian assignment~~ — removed M5; greedy argmax (§7) requires no dep |
 | Suggests — viz | `ggplot2` | diagrams; uses `ggplot2` directly, not `ggraph`/`igraph`/`tidygraph` |
 | Suggests — infra | `testthat (>= 3.0.0)`, `knitr`, `rmarkdown`, `covr` | testing, vignettes, coverage |
 
 `methods` is **not** imported — no `methods::` usage in the package. `ggraph`, `igraph`,
 `tidygraph`, `EGAnet`, `paran`, `future`, `future.apply` are **not** in DESCRIPTION (earlier
-design considered them; implementation chose leaner routes).
+design considered them; implementation chose leaner routes). `EFAtools` is in Suggests (added M12)
+but gated behind `rlang::is_installed()` — never hard-required.
 
 Gate every Suggests use with `rlang::check_installed()` and a helpful cli message naming the engine
 that needs it. **No Rcpp dependency planned** (see §3).
@@ -634,9 +644,9 @@ that needs it. **No Rcpp dependency planned** (see §3).
     perpendicular placement via `layer_data()`; Forbes vignette updated to the two-figure (labeled +
     unlabeled) treatment; `@param show_r` rewritten (coupling note removed); NEWS.md.
 
-12. **Best-practice `suggest_k` expansion + `autoplot.suggest_k()`** — adds simulation-validated
-    criteria and a ggplot diagnostic. **Amends §8 and §12** (design-record changes; EGA remains out
-    of scope).
+12. **Best-practice `suggest_k` expansion + `autoplot.suggest_k()`** *(done)* — adds
+    simulation-validated criteria and a ggplot diagnostic. **Amends §8 and §12** (design-record
+    changes; EGA remains out of scope).
 
     **(a) New criteria.** (i) **Comparison Data** (CD; Ruscio & Roche 2012) via
     `rlang::check_installed("EFAtools")` → `EFAtools::CD()` — among the top simulation performers and
