@@ -64,7 +64,42 @@ default output must reproduce Forbes's examples exactly.
 
 ## Current focus
 
-No milestone in progress. See `DESIGN.md` §15 for candidate next steps.
+**M14 (planned) — dedicated `suggest_k()` vignette.** Documentation-only milestone (no numerics,
+no new deps, no default changes). `suggest_k()` outgrew its ~30-line intro-vignette section in M12
+(five criteria + three-panel `autoplot`); give it a narrative/educational home that teaches *when
+to trust which criterion*. Style precedent: M7/M9 vignette work.
+
+**Wave 1 — new vignette** `vignettes/ackwards-suggest-k.Rmd` (narrative, not a roxygen re-list;
+link to `?suggest_k` for anything omitted):
+1. Why k is a decision, not an output — overextraction/non-replication (Forbes 2023); k as *max depth*.
+2. The five criteria, one subsection each (PA-PC, PA-FA, MAP, VSS-1/2, CD) with pros/cons + bias
+   direction + when each is the right lens; compact comparison table.
+3. Reading the output — walk the `print` table + `autoplot` three-panel diagnostic on `bfi`
+   (consensus range, star markers).
+4. Matching criterion to engine — PA-FA model-consistent for `efa`/`esem`; PA-PC pairs with `pca`.
+5. The arguments — `cor` (+ ordinal nugget: run on Pearson, then `cor="polychoric"` in `ackwards()`),
+   `n_iter` (speed/precision), `seed` + honest PA-non-reproducibility caveat, `k_max`.
+6. A worked recommendation — defensible k for `bfi`; demonstrate going one level past consensus.
+
+**Wave 2 — wire-up + trims:**
+- Trim intro vignette Step 1 (lines ~76–100) to the default `suggest_k(bfi)` + `autoplot(sk)` call
+  plus a one-line pointer to the new vignette (mirrors M9's "Adjusting the diagram" trim).
+- `_pkgdown.yml`: add `ackwards-suggest-k` **first** under "Deep dives" (choosing k precedes fitting).
+- `README.Rmd`: fix stale line 56 (five criteria, not "parallel analysis and MAP"); add a vignette-
+  table row linking the new article; re-knit `README.md`.
+- DESCRIPTION: no change (knitr auto-discovers vignettes; `knitr`/`rmarkdown` already in Suggests).
+
+**Acceptance criteria:**
+1. `ackwards-suggest-k.Rmd` exists, builds cleanly, renders the `print.suggest_k` output and
+   `autoplot.suggest_k` figure on `bfi`.
+2. All five criteria documented with explicit pros/cons + an engine→criterion best-practice
+   recommendation; `cor`/`n_iter`/`seed`/`k_max` covered incl. ordinal→Pearson and PA-non-repro caveats.
+3. Intro vignette Step 1 trimmed to default call + plot + pointer; still knits.
+4. `_pkgdown.yml` lists the new article first under Deep dives; `pkgdown::build_articles()` succeeds.
+5. README.Rmd line 56 corrected; vignette table includes the new article; `README.md` re-knit.
+6. `devtools::check()` clean (0/0/0) — vignettes build under check.
+7. NEWS.md M14 entry; DESIGN.md §15 gains a `14.` entry and §8 cross-references the new vignette;
+   CLAUDE.md "Completed milestones" updated (post-implementation, usual flow).
 
 If a step needs a design decision not covered in `DESIGN.md`, **stop and ask** rather than guessing.
 
