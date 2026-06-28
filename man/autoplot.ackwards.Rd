@@ -19,6 +19,7 @@
   color_pruned = "grey80",
   show_r = FALSE,
   r_digits = 2L,
+  r_label_size = 2.5,
   mono = FALSE,
   show_level_labels = TRUE,
   level_label_size = 3,
@@ -77,6 +78,10 @@ edge using a white-background label that clears the arrowhead.}
 
 \item{r_digits}{Number of decimal places for edge labels when
 \code{show_r = TRUE}. Default \code{2L}.}
+
+\item{r_label_size}{Font size for edge correlation labels when
+\code{show_r = TRUE}. Passed to \code{ggplot2::geom_label()} as \code{size}. Default
+\code{2.5}.}
 
 \item{mono}{Monochrome mode. When \code{TRUE}, all edges are drawn in black;
 \code{linewidth} still encodes \verb{|r|}; \code{linetype} encodes sign (\code{solid} =
@@ -158,7 +163,7 @@ autoplot(x, primary_only = TRUE)
 # Forbes pruned view: omit redundant nodes, straight spanning arrows
 xp <- ackwards(psych::bfi[, 1:25], k = 5, prune = "redundant")
 autoplot(xp, drop_pruned = TRUE)
-autoplot(xp, drop_pruned = TRUE, show_r = TRUE)  # with APA-style r labels
+autoplot(xp, drop_pruned = TRUE, show_r = TRUE) # with APA-style r labels
 autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
 
 # Plain line ends without arrowheads

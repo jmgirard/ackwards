@@ -615,9 +615,11 @@ that needs it. **No Rcpp dependency planned** (see §3).
     the bare `round(r, r_digits)` at the edge-label step.
 
     **(b) `geom_label` placement.** Swap the edge-label `geom_text` for `geom_label` with a white
-    background (`label.size = 0`, small padding) and a **perpendicular** offset derived from each
+    background (`linewidth = 0`, small padding) and a **perpendicular** offset derived from each
     edge's `(dx, dy)`, so the label clears near-vertical arrows and the arrowhead regardless of edge
-    angle (the current flat `nudge_x` does not). Label size remains tunable.
+    angle (the current flat `nudge_x` does not). A new `r_label_size` argument (default `2.5`)
+    exposes the font size. A `pmax(..., 1e-9)` guard on the edge length prevents `NaN` coordinates
+    for any degenerate zero-length edge.
 
     **(c) Decouple `show_r` from `drop_pruned` (default change — supersedes §15.8a/8c).** M8 made
     `show_r = NULL` resolve to `TRUE` under `drop_pruned` (the "Forbes auto-default"). This puns two
@@ -627,9 +629,10 @@ that needs it. **No Rcpp dependency planned** (see §3).
     explicitly rather than hiding the choice in a coupled default. Invariant 6 ("loud defaults; never
     switch silently") favours the explicit form.
 
-    DoD: `.format_r()` unit tests (`.5`, `-.5`, `0`, `±1`); regression test that `show_r` is `FALSE`
-    under `drop_pruned`; Forbes vignette updated to the two-figure (labeled + unlabeled) treatment;
-    `@param show_r` rewritten (coupling note removed); NEWS.md.
+    DoD: `.format_r()` unit tests (`.5`, `-.5`, `0`, `±1`, `-.00` suppression); regression test that
+    `show_r` is `FALSE` under `drop_pruned`; integration tests verifying APA label text and
+    perpendicular placement via `layer_data()`; Forbes vignette updated to the two-figure (labeled +
+    unlabeled) treatment; `@param show_r` rewritten (coupling note removed); NEWS.md.
 
 12. **Best-practice `suggest_k` expansion + `autoplot.suggest_k()`** — adds simulation-validated
     criteria and a ggplot diagnostic. **Amends §8 and §12** (design-record changes; EGA remains out

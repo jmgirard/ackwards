@@ -56,6 +56,9 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   edge using a white-background label that clears the arrowhead.
 #' @param r_digits Number of decimal places for edge labels when
 #'   `show_r = TRUE`. Default `2L`.
+#' @param r_label_size Font size for edge correlation labels when
+#'   `show_r = TRUE`. Passed to `ggplot2::geom_label()` as `size`. Default
+#'   `2.5`.
 #' @param mono Monochrome mode. When `TRUE`, all edges are drawn in black;
 #'   `linewidth` still encodes `|r|`; `linetype` encodes sign (`solid` =
 #'   positive, `dashed` = negative). The `cut_strong` strong/weak linetype
@@ -116,7 +119,7 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' # Forbes pruned view: omit redundant nodes, straight spanning arrows
 #' xp <- ackwards(psych::bfi[, 1:25], k = 5, prune = "redundant")
 #' autoplot(xp, drop_pruned = TRUE)
-#' autoplot(xp, drop_pruned = TRUE, show_r = TRUE)  # with APA-style r labels
+#' autoplot(xp, drop_pruned = TRUE, show_r = TRUE) # with APA-style r labels
 #' autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
 #'
 #' # Plain line ends without arrowheads
@@ -152,6 +155,7 @@ autoplot.ackwards <- function(
   color_pruned = "grey80",
   show_r = FALSE,
   r_digits = 2L,
+  r_label_size = 2.5,
   mono = FALSE,
   show_level_labels = TRUE,
   level_label_size = 3,
@@ -402,7 +406,8 @@ autoplot.ackwards <- function(
     de <- draw_edges
     de$edx <- de$x_to - de$x_from
     de$edy <- de$y_to - de$y_from
-    de$elen <- sqrt(de$edx^2 + de$edy^2)
+    # pmax guard: degenerate zero-length edges produce NaN coordinates without it
+    de$elen <- pmax(sqrt(de$edx^2 + de$edy^2), 1e-9)
     r_nudge <- 0.15
     de$lx <- (de$x_from + de$x_to) / 2 + (-de$edy / de$elen) * r_nudge
     de$ly <- (de$y_from + de$y_to) / 2 + (de$edx / de$elen) * r_nudge
@@ -410,7 +415,7 @@ autoplot.ackwards <- function(
     p <- p + ggplot2::geom_label(
       data = de,
       ggplot2::aes(x = .data$lx, y = .data$ly, label = .data$rl),
-      size = 2.5,
+      size = r_label_size,
       linewidth = 0,
       label.padding = ggplot2::unit(0.1, "lines"),
       inherit.aes = FALSE

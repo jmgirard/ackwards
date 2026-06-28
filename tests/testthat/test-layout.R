@@ -410,6 +410,55 @@ test_that("drop_pruned=TRUE + show_r=FALSE produces no GeomLabel layers", {
   expect_equal(length(label_layers), 0L)
 })
 
+test_that("show_r=TRUE label text is APA-formatted (no leading zero, padded decimals)", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- ggplot2::autoplot(x, show_r = TRUE, r_digits = 2L)
+  idx <- which(vapply(p$layers, function(l) inherits(l$geom, "GeomLabel"), logical(1L)))
+  ld <- ggplot2::layer_data(p, idx)
+  # APA convention: no label starts with "0." or "-0."
+  expect_false(any(grepl("^0\\.", ld$label)))
+  expect_false(any(grepl("^-0\\.", ld$label)))
+  # Labels that contain a decimal point have exactly r_digits digits after it
+  has_dot <- grepl("\\.", ld$label)
+  if (any(has_dot)) {
+    decimal_parts <- sub("^[^.]*\\.", "", ld$label[has_dot])
+    expect_true(all(nchar(decimal_parts) == 2L))
+  }
+})
+
+test_that("show_r=TRUE places labels offset from the edge midpoint", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- ggplot2::autoplot(x, show_r = TRUE)
+  ld <- ggplot2::layer_data(p, which(vapply(p$layers, function(l) {
+    inherits(l$geom, "GeomLabel")
+  }, logical(1L))))
+  # Recover the segment layers for midpoint comparison
+  seg_layers <- which(vapply(p$layers, function(l) inherits(l$geom, "GeomSegment"), logical(1L)))
+  sd <- ggplot2::layer_data(p, seg_layers[[1L]])
+  mid_x <- (sd$x + sd$xend) / 2
+  mid_y <- (sd$y + sd$yend) / 2
+  # Labels must not coincide with the raw midpoints — perpendicular nudge moved them
+  expect_false(all(abs(ld$x - mid_x) < 1e-9 & abs(ld$y - mid_y) < 1e-9))
+})
+
+test_that("r_label_size arg changes the geom_label size", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p_small <- ggplot2::autoplot(x, show_r = TRUE, r_label_size = 1.5)
+  p_large <- ggplot2::autoplot(x, show_r = TRUE, r_label_size = 4.0)
+  get_label_size <- function(p) {
+    idx <- which(vapply(p$layers, function(l) inherits(l$geom, "GeomLabel"), logical(1L)))
+    p$layers[[idx]]$aes_params$size
+  }
+  expect_equal(get_label_size(p_small), 1.5)
+  expect_equal(get_label_size(p_large), 4.0)
+})
+
 test_that("drop_pruned=TRUE + compress_levels=TRUE returns a ggplot", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")

@@ -19,6 +19,14 @@
   arrows and the arrowhead regardless of edge angle. The previous flat
   horizontal nudge was ineffective for near-vertical segments. (#M11)
 
+* New `r_label_size` argument to `autoplot.ackwards()` controls the font size
+  of edge correlation labels when `show_r = TRUE`. Default `2.5` preserves
+  existing behaviour. (#M11)
+
+* `.format_r()` no longer produces `"-.00"` when a small negative correlation
+  rounds to zero at the requested precision; sign is suppressed in that case.
+  (#M11)
+
 ## Milestone 10 — Conformance + robustness
 
 ### Wave 2 follow-up: conformance fixes

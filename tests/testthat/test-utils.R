@@ -10,6 +10,15 @@ test_that(".format_r() strips leading zero and pads trailing zeros", {
   expect_equal(fmt(-1, 2L),    "-1.00")
 })
 
+test_that(".format_r() does not produce '-.00' when magnitude rounds to zero", {
+  fmt <- ackwards:::.format_r
+
+  # -0.003 rounds to .00 at 2 digits; sign should be suppressed
+  expect_equal(fmt(-0.003, 2L), ".00")
+  # Exact zero is also clean
+  expect_equal(fmt(-0, 2L), ".00")
+})
+
 test_that(".format_r() respects digits argument", {
   fmt <- ackwards:::.format_r
 
