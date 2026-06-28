@@ -74,7 +74,56 @@ default output must reproduce Forbes's examples exactly.
 
 ## Current focus
 
-No milestone in progress. See `DESIGN.md` §15 for candidate next steps.
+**M15 (in progress):** Naming clarity & consistency pass. Dev-mode rename — no users yet, so no
+back-compat concern. Maximize clarity/accessibility/consistency of public function and argument
+names without changing any behavior.
+
+**Confirmed renames:**
+
+| Surface | From | To |
+|---|---|---|
+| `ackwards()` arg | `k` | `k_max` |
+| `ackwards()` arg | `method` | `engine` |
+| `ackwards()` arg | `scores` | `keep_scores` |
+| `ackwards()` arg | `align` | `align_signs` |
+| object field | `$method` | `$engine` |
+| object field | `$cor_type` | `$cor` |
+| `compute_edges()` arg | `method` | `edge_method` |
+
+`k_max` chosen over `max_factors`/`n_factors_max`: it nails the *maximum-depth* semantics, stays
+neutral for the PCA default (which yields components, not factors), unifies with the pre-existing
+`suggest_k(k_max=)` arg and `$k_max` field (zero churn, perfect triangle), and preserves the
+`m{k}f{j}` / literature `k` notation. `engine` resolves the overload with `compute_edges`'s
+algebra-vs-scores arg and matches DESIGN's "three engines" prose.
+
+**Kept deliberately (do not rename):** `cor`, `fm`, `estimator`, `n_iter` (psych/lavaan mirrors —
+semantics genuinely match), `pairs`, `prune`, `redundancy_r/phi`, `cut_show`/`cut_strong`,
+`keep_fits`, `seed`, the entire `autoplot()` surface, and generic-dictated first args (`x`/`object`).
+
+**Out of scope (resolved):** surfacing `edge_method` as a user arg on `ackwards()` (it stays
+internal — adding an arg is a feature, not a naming pass); renaming `cut_show` (self-consistent with
+`cut_strong`; `show_cut` would falsely imply a boolean).
+
+**Implementation order:**
+1. *Code (`R/`):* rename the four `ackwards()` formals + all internal uses, validation, cli
+   messages, and the result-object constructor (`$method`→`$engine`, `$cor_type`→`$cor`); rename
+   `compute_edges(method=)`→`edge_method` + its two callers; sweep every `$method`/`$cor_type`
+   reader (`summary.R`, `print.R`, `tidy.R`, glance, `autoplot.R`, `prune.R`) and the
+   `summary_ackwards` sub-fields; update roxygen `@param`/`@examples`.
+2. *Regenerate + docs:* `devtools::document()` (man + NAMESPACE); update all `tests/testthat/*`
+   call-sites and field assertions; update + re-knit the 6 vignettes and `README.Rmd`; NEWS.md entry;
+   update CLAUDE.md "Resolved defaults" and DESIGN.md §5.3/§6/§9 + append M15 to §15.
+
+**Acceptance criteria:**
+1. `names(formals(ackwards))` is exactly `data, k_max, engine, cor, fm, estimator, align_signs,
+   keep_scores, keep_fits, seed, pairs, prune, redundancy_r, redundancy_phi, cut_show, ...` — no
+   `k`, `method`, `scores`, or `align` survive.
+2. `ackwards(k_max=)`, `suggest_k(k_max=)`, and `x$k_max` are one consistent name.
+3. A fitted object exposes `$engine` and `$cor`; no `$method`/`$cor_type` remain (grep-clean in `R/`).
+4. `names(formals(compute_edges))` contains `edge_method`, not `method`.
+5. `print`/`summary`/`glance`/`tidy`/`autoplot` render correctly off the renamed fields.
+6. Full suite green (≈719 tests, 1 skip); `devtools::check()` clean (0/0/0); styled + linted.
+7. NEWS, README, all vignettes, CLAUDE.md, and DESIGN.md reflect the new names.
 
 If a step needs a design decision not covered in `DESIGN.md`, **stop and ask** rather than guessing.
 
