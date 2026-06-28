@@ -93,12 +93,6 @@ sk <- suggest_k(bfi, seed = 42)
 sk
 ```
 
-> **What is that warning?** `suggest_k()` detected that the BFI items look
-> ordinal (integer-valued, ≤ 7 distinct values). By default it still uses
-> Pearson correlations, which can underestimate factor loadings for ordinal
-> items. When you move to `ackwards()`, you can address this with
-> `cor = "polychoric"` — we will do that next.
-
 No single criterion is definitive. Look at the consensus range — if all five
 criteria point to the same k (or a tight range), that is strong evidence.
 The note at the bottom reminds us that k in `ackwards()` is an *upper bound*

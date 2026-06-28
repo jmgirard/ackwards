@@ -20,8 +20,11 @@ match the \code{cor} argument you plan to use in \code{\link[=ackwards]{ackwards
 \code{20}. Reduce to \code{5} for fast/exploratory runs; increase to \verb{100+} for
 publication.}
 
-\item{seed}{Integer seed for reproducibility of the stochastic PA and CD
-steps. \code{NULL} (default) uses the current RNG state.}
+\item{seed}{Integer seed passed to \code{\link[=set.seed]{set.seed()}} before the Comparison Data
+(CD) step. \code{NULL} (default) uses the current RNG state. \strong{Note:} the
+parallel-analysis step uses \code{psych::fa.parallel()}, which does not respond
+reliably to \code{set.seed()} -- PA simulation results will vary across calls
+regardless of \code{seed}.}
 
 \item{...}{Reserved for future arguments.}
 }
@@ -30,17 +33,19 @@ An object of class \code{"suggest_k"}. Print it for a formatted summary;
 call \code{\link[=autoplot]{autoplot()}} on it for a diagnostic scree/criteria plot. The list
 contains:
 \item{k_parallel_pc}{Recommended k from PC-based parallel analysis.}
-\item{k_parallel_fa}{Recommended k from FA-based parallel analysis.}
+\item{k_parallel_fa}{Recommended k from FA-based parallel analysis
+(\code{NA_integer_} if no FA factor exceeded the random threshold).}
 \item{k_map}{Recommended k from MAP.}
 \item{k_vss1}{Recommended k from VSS complexity-1.}
 \item{k_vss2}{Recommended k from VSS complexity-2.}
 \item{k_cd}{Recommended k from Comparison Data (\code{NA_integer_} when
-\pkg{EFAtools} is not installed).}
+\pkg{EFAtools} is not installed or CD fails).}
 \item{cd_available}{Logical; \code{TRUE} when \pkg{EFAtools} was found and CD
 ran successfully.}
 \item{criteria}{Data frame with one row per k: \code{k}, \code{ev_obs} (observed PC
-eigenvalue), \code{pa_pc_quant} / \code{pa_fa_quant} (95th-pct simulated
-eigenvalue), \code{pa_pc_suggested} / \code{pa_fa_suggested} (logical retention),
+eigenvalue), \code{ev_obs_fa} (observed FA eigenvalue),
+\code{pa_pc_quant} / \code{pa_fa_quant} (95th-pct simulated eigenvalue for each
+basis), \code{pa_pc_suggested} / \code{pa_fa_suggested} (logical retention),
 \code{map}, \code{vss1}, \code{vss2}.}
 \item{k_max, n_obs, n_vars, cor}{Metadata.}
 }
@@ -97,8 +102,8 @@ sk <- suggest_k(psych::bfi[, 1:25])
 sk
 autoplot(sk)
 
-# Faster exploratory run; fix seed for reproducibility
-suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5, seed = 42)
+# Faster exploratory run
+suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5)
 }
 
 }

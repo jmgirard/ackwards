@@ -42,25 +42,30 @@
 #' @param n_iter Number of Monte Carlo iterations for parallel analysis. Default
 #'   `20`. Reduce to `5` for fast/exploratory runs; increase to `100+` for
 #'   publication.
-#' @param seed Integer seed for reproducibility of the stochastic PA and CD
-#'   steps. `NULL` (default) uses the current RNG state.
+#' @param seed Integer seed passed to [set.seed()] before the Comparison Data
+#'   (CD) step. `NULL` (default) uses the current RNG state. **Note:** the
+#'   parallel-analysis step uses `psych::fa.parallel()`, which does not respond
+#'   reliably to `set.seed()` -- PA simulation results will vary across calls
+#'   regardless of `seed`.
 #' @param ... Reserved for future arguments.
 #'
 #' @return An object of class `"suggest_k"`. Print it for a formatted summary;
 #'   call [autoplot()] on it for a diagnostic scree/criteria plot. The list
 #'   contains:
 #'   \item{k_parallel_pc}{Recommended k from PC-based parallel analysis.}
-#'   \item{k_parallel_fa}{Recommended k from FA-based parallel analysis.}
+#'   \item{k_parallel_fa}{Recommended k from FA-based parallel analysis
+#'     (`NA_integer_` if no FA factor exceeded the random threshold).}
 #'   \item{k_map}{Recommended k from MAP.}
 #'   \item{k_vss1}{Recommended k from VSS complexity-1.}
 #'   \item{k_vss2}{Recommended k from VSS complexity-2.}
 #'   \item{k_cd}{Recommended k from Comparison Data (`NA_integer_` when
-#'     \pkg{EFAtools} is not installed).}
+#'     \pkg{EFAtools} is not installed or CD fails).}
 #'   \item{cd_available}{Logical; `TRUE` when \pkg{EFAtools} was found and CD
 #'     ran successfully.}
 #'   \item{criteria}{Data frame with one row per k: `k`, `ev_obs` (observed PC
-#'     eigenvalue), `pa_pc_quant` / `pa_fa_quant` (95th-pct simulated
-#'     eigenvalue), `pa_pc_suggested` / `pa_fa_suggested` (logical retention),
+#'     eigenvalue), `ev_obs_fa` (observed FA eigenvalue),
+#'     `pa_pc_quant` / `pa_fa_quant` (95th-pct simulated eigenvalue for each
+#'     basis), `pa_pc_suggested` / `pa_fa_suggested` (logical retention),
 #'     `map`, `vss1`, `vss2`.}
 #'   \item{k_max, n_obs, n_vars, cor}{Metadata.}
 #'
@@ -97,8 +102,8 @@
 #' sk
 #' autoplot(sk)
 #'
-#' # Faster exploratory run; fix seed for reproducibility
-#' suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5, seed = 42)
+#' # Faster exploratory run
+#' suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5)
 #' }
 #'
 #' @export
@@ -129,8 +134,6 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L,
     )
   }
 
-  if (!is.null(seed)) set.seed(seed)
-
   R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
 
   # --- Parallel analysis: PC + FA (Horn) --------------------------------------
@@ -148,12 +151,22 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L,
     )
   ))
   k_parallel_pc <- min(pa$ncomp, k_max)
-  k_parallel_fa <- min(pa$nfact %||% 0L, k_max)
 
-  # Observed PC eigenvalues; simulated thresholds at the requested quantile.
+  # PA-FA may legitimately return 0 when no observed FA eigenvalue exceeds the
+  # random-data threshold. Use NA_integer_ so downstream code can detect and
+  # handle the "undetermined" state cleanly rather than emitting "k <= 0".
+  nfact_raw <- pa$nfact
+  k_parallel_fa <- if (is.null(nfact_raw) || nfact_raw == 0L) {
+    NA_integer_
+  } else {
+    min(as.integer(nfact_raw), k_max)
+  }
+
+  # Observed PC and FA eigenvalues; simulated thresholds at the 95th pct.
   # psych uses $pc.values / $pc.sim in newer versions with fa = "both";
   # fall back to $values / $sim (backwards-compat aliases) if absent.
   ev_obs <- (pa$pc.values %||% pa$values)[seq_len(k_max)]
+  ev_obs_fa <- pa$fa.values[seq_len(k_max)]
   pa_pc_quant <- (pa$pc.sim %||% pa$sim)[seq_len(k_max)]
   pa_fa_quant <- pa$fa.sim[seq_len(k_max)]
 
@@ -180,9 +193,31 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L,
   cd_available <- rlang::is_installed("EFAtools")
   k_cd <- NA_integer_
   if (cd_available) {
+    # Warn early when the correlation basis won't carry over to CD.
+    if (cor == "spearman") {
+      cli::cli_warn(
+        c(
+          "!" = "CD ({.pkg EFAtools}) always uses Pearson correlations.",
+          "i" = "The {.code cor = \"spearman\"} basis applies to MAP/VSS/PA \\
+                 but not to CD. CD and the other criteria may diverge."
+        )
+      )
+    }
+
+    # CD needs complete cases for resampling; apply listwise deletion.
+    data_complete <- data_mat[stats::complete.cases(data_mat), , drop = FALSE]
+    n_dropped <- nrow(data_mat) - nrow(data_complete)
+    if (n_dropped > 0L) {
+      cli::cli_inform(
+        "CD: {n_dropped} row{?s} with missing values removed \\
+         ({nrow(data_complete)} complete cases used)."
+      )
+    }
+
     cli::cli_progress_step("Running Comparison Data (CD)...")
+    if (!is.null(seed)) set.seed(seed)
     cd_out <- tryCatch(
-      EFAtools::CD(data_mat, n_factors_max = k_max),
+      EFAtools::CD(data_complete, n_factors_max = k_max),
       error = function(e) {
         cli::cli_warn(
           c(
@@ -206,10 +241,15 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L,
   criteria <- data.frame(
     k = seq_len(k_max),
     ev_obs = ev_obs,
+    ev_obs_fa = ev_obs_fa,
     pa_pc_quant = pa_pc_quant,
     pa_pc_suggested = seq_len(k_max) <= k_parallel_pc,
     pa_fa_quant = pa_fa_quant,
-    pa_fa_suggested = seq_len(k_max) <= k_parallel_fa,
+    pa_fa_suggested = if (is.na(k_parallel_fa)) {
+      rep(FALSE, k_max)
+    } else {
+      seq_len(k_max) <= k_parallel_fa
+    },
     map = map_vals,
     vss1 = vss1_vals,
     vss2 = vss2_vals,
@@ -266,8 +306,6 @@ print.suggest_k <- function(x, ...) {
   vss1_fmt[x$k_vss1] <- paste0(vss1_fmt[x$k_vss1], star)
   vss2_fmt[x$k_vss2] <- paste0(vss2_fmt[x$k_vss2], star)
 
-  cd_note <- if (!x$cd_available) " (CD n/a+)" else ""
-
   for (i in seq_len(nrow(cr))) {
     pc_sym <- if (cr$pa_pc_suggested[i]) tick else dash
     fa_sym <- if (cr$pa_fa_suggested[i]) tick else dash
@@ -298,13 +336,16 @@ print.suggest_k <- function(x, ...) {
 
   cli::cli_h2("Recommendations")
 
-  recs <- c(
-    "PA-PC" = paste0("k <= ", x$k_parallel_pc),
-    "PA-FA" = paste0("k <= ", x$k_parallel_fa),
-    "MAP"   = paste0("k = ", x$k_map),
-    "VSS-1" = paste0("k = ", x$k_vss1),
-    "VSS-2" = paste0("k = ", x$k_vss2)
-  )
+  # Build recommendations; PA-FA is omitted when undetermined (NA).
+  recs <- c("PA-PC" = paste0("k <= ", x$k_parallel_pc))
+  if (!is.na(x$k_parallel_fa)) {
+    recs["PA-FA"] <- paste0("k <= ", x$k_parallel_fa)
+  } else {
+    recs["PA-FA"] <- "undetermined (no FA factor exceeded random threshold)"
+  }
+  recs["MAP"] <- paste0("k = ", x$k_map)
+  recs["VSS-1"] <- paste0("k = ", x$k_vss1)
+  recs["VSS-2"] <- paste0("k = ", x$k_vss2)
   if (x$cd_available && !is.na(x$k_cd)) {
     recs["CD"] <- paste0("k = ", x$k_cd)
   }
@@ -312,8 +353,13 @@ print.suggest_k <- function(x, ...) {
     cli::cli_bullets(c("*" = paste0(nm, ": ", recs[[nm]])))
   }
 
-  all_k <- c(x$k_parallel_pc, x$k_parallel_fa, x$k_map, x$k_vss1, x$k_vss2)
-  if (x$cd_available && !is.na(x$k_cd)) all_k <- c(all_k, x$k_cd)
+  # Consensus uses only the numeric k values; NA PA-FA and absent CD excluded.
+  all_k <- stats::na.omit(
+    c(
+      x$k_parallel_pc, x$k_parallel_fa, x$k_map, x$k_vss1, x$k_vss2,
+      if (x$cd_available) x$k_cd
+    )
+  )
   lo <- min(all_k)
   hi <- max(all_k)
 
@@ -347,6 +393,12 @@ print.suggest_k <- function(x, ...) {
 #' panel on the bottom. The recommended k for each criterion is marked with a
 #' star-shaped point.
 #'
+#' The scree panel shows both PC and FA observed eigenvalues alongside their
+#' respective random-data thresholds. PA-PC compares the blue "Observed (PC)"
+#' line to the dashed PA-PC threshold; PA-FA compares the teal "Observed (FA)"
+#' line to the dotted PA-FA threshold. Reading the lines on the same panel is
+#' informative but the two comparisons are independent.
+#'
 #' Requires the \pkg{ggplot2} package.
 #'
 #' @param object A `suggest_k` object.
@@ -357,7 +409,7 @@ print.suggest_k <- function(x, ...) {
 #'
 #' @examples
 #' \dontrun{
-#' sk <- suggest_k(psych::bfi[, 1:25], n_iter = 5, seed = 42)
+#' sk <- suggest_k(psych::bfi[, 1:25], n_iter = 5)
 #' autoplot(sk)
 #' }
 #'
@@ -370,12 +422,14 @@ autoplot.suggest_k <- function(object, ...) {
   k_max <- object$k_max
 
   # --- Long-format data -------------------------------------------------------
-
+  # Scree panel: 4 series so each PA comparison is shown correctly.
+  # PA-PC: Observed (PC) vs PA-PC (95th pct).
+  # PA-FA: Observed (FA) vs PA-FA (95th pct).
   scree_data <- data.frame(
-    k = rep(cr$k, 3L),
-    value = c(cr$ev_obs, cr$pa_pc_quant, cr$pa_fa_quant),
+    k = rep(cr$k, 4L),
+    value = c(cr$ev_obs, cr$pa_pc_quant, cr$ev_obs_fa, cr$pa_fa_quant),
     series = rep(
-      c("Observed (PC)", "PA-PC (95th pct)", "PA-FA (95th pct)"),
+      c("Observed (PC)", "PA-PC (95th pct)", "Observed (FA)", "PA-FA (95th pct)"),
       each = k_max
     ),
     panel = "Scree / Parallel Analysis",
@@ -403,7 +457,8 @@ autoplot.suggest_k <- function(object, ...) {
   plot_data$panel <- factor(plot_data$panel, levels = panel_levels)
 
   all_series <- c(
-    "Observed (PC)", "PA-PC (95th pct)", "PA-FA (95th pct)",
+    "Observed (PC)", "PA-PC (95th pct)",
+    "Observed (FA)", "PA-FA (95th pct)",
     "MAP", "VSS-1", "VSS-2"
   )
   plot_data$series <- factor(plot_data$series, levels = all_series)
@@ -411,12 +466,19 @@ autoplot.suggest_k <- function(object, ...) {
   # --- Mark optimal k for each criterion with a star point --------------------
   plot_data$is_opt <- FALSE
 
-  # Scree: mark the observed eigenvalue at each PA suggestion
-  pa_ks <- unique(c(object$k_parallel_pc, object$k_parallel_fa))
+  # Scree: PA-PC star on PC observed at k_parallel_pc;
+  #        PA-FA star on FA observed at k_parallel_fa (omit if NA).
   plot_data$is_opt <- plot_data$is_opt |
     (plot_data$panel == "Scree / Parallel Analysis" &
       plot_data$series == "Observed (PC)" &
-      plot_data$k %in% pa_ks)
+      plot_data$k == object$k_parallel_pc)
+
+  if (!is.na(object$k_parallel_fa)) {
+    plot_data$is_opt <- plot_data$is_opt |
+      (plot_data$panel == "Scree / Parallel Analysis" &
+        plot_data$series == "Observed (FA)" &
+        plot_data$k == object$k_parallel_fa)
+  }
 
   # MAP: mark the minimum
   plot_data$is_opt <- plot_data$is_opt |
@@ -441,6 +503,7 @@ autoplot.suggest_k <- function(object, ...) {
   series_color <- c(
     "Observed (PC)" = "#2166AC",
     "PA-PC (95th pct)" = "#999999",
+    "Observed (FA)" = "#4DAC26",
     "PA-FA (95th pct)" = "#BBBBBB",
     "MAP" = "#D6604D",
     "VSS-1" = "#1A9850",
@@ -449,6 +512,7 @@ autoplot.suggest_k <- function(object, ...) {
   series_lt <- c(
     "Observed (PC)" = "solid",
     "PA-PC (95th pct)" = "dashed",
+    "Observed (FA)" = "solid",
     "PA-FA (95th pct)" = "dotted",
     "MAP" = "solid",
     "VSS-1" = "solid",
@@ -457,7 +521,8 @@ autoplot.suggest_k <- function(object, ...) {
   series_shape <- c(
     "Observed (PC)" = 16L,
     "PA-PC (95th pct)" = 17L,
-    "PA-FA (95th pct)" = 15L,
+    "Observed (FA)" = 15L,
+    "PA-FA (95th pct)" = 4L,
     "MAP" = 16L,
     "VSS-1" = 16L,
     "VSS-2" = 17L

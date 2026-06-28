@@ -252,11 +252,15 @@ number. The five criteria implemented (M12):
 | **CD** | Ruscio & Roche (2012) | `EFAtools::CD()` (optional) | Resamples raw data; among top performers in simulation; skipped gracefully when `EFAtools` absent |
 
 Empirical Kaiser Criterion (EKC) and EGA (`{EGAnet}`) are **out of scope** — additional deps
-without sufficient incremental benefit over the five criteria above. For Likert/ordinal data,
-compute these on the **polychoric** matrix when `cor = "polychoric"` is set (basis follows the same
-choice as the main call). Report that `k` is a maximum *depth*; users often deliberately set it a
-level or two past the consensus to watch factors fragment. Note the overextraction/non-replicability
-caution (Forbes 2023). Add a `seed` argument for reproducibility of the stochastic PA and CD steps.
+without sufficient incremental benefit over the five criteria above. Note: `suggest_k()` accepts
+`cor = "pearson"` (default) or `"spearman"` only; `"polychoric"` is not supported (PA and VSS do
+not have a polychoric eigen-decomposition path). Users analysing ordinal data should run
+`suggest_k()` on the Pearson matrix and then switch to `cor = "polychoric"` in `ackwards()`.
+Report that `k` is a maximum *depth*; users often deliberately set it a level or two past the
+consensus to watch factors fragment. Note the overextraction/non-replicability caution (Forbes 2023).
+Add a `seed` argument for reproducibility of the **CD step only** — `psych::fa.parallel()` does not
+respond reliably to `set.seed()`, so PA simulation results will vary across calls regardless of
+`seed`.
 
 ## 9. Defaults (high-stakes — users will not override these)
 

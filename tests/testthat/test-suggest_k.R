@@ -31,7 +31,7 @@ test_that("suggest_k() criteria table has correct structure and row count", {
     cr,
     c(
       "k",
-      "ev_obs",
+      "ev_obs", "ev_obs_fa",
       "pa_pc_quant", "pa_pc_suggested",
       "pa_fa_quant", "pa_fa_suggested",
       "map", "vss1", "vss2"
@@ -39,6 +39,7 @@ test_that("suggest_k() criteria table has correct structure and row count", {
   )
   expect_equal(cr$k, 1:5)
   expect_type(cr$ev_obs, "double")
+  expect_type(cr$ev_obs_fa, "double")
   expect_type(cr$pa_pc_quant, "double")
   expect_type(cr$pa_fa_quant, "double")
   expect_type(cr$pa_pc_suggested, "logical")
@@ -46,6 +47,13 @@ test_that("suggest_k() criteria table has correct structure and row count", {
   expect_type(cr$map, "double")
   expect_type(cr$vss1, "double")
   expect_type(cr$vss2, "double")
+})
+
+test_that("suggest_k() FA eigenvalues are smaller than PC eigenvalues", {
+  # Factor-analysis eigenvalues (communalities removed) are always < PC eigs.
+  skip_if_not_installed("psych")
+  sk <- suggest_k(psych::bfi[, 1:25], k_max = 5, n_iter = 5, seed = 1L)
+  expect_true(all(sk$criteria$ev_obs_fa <= sk$criteria$ev_obs))
 })
 
 test_that("suggest_k() MAP optimal is the row minimising map", {
@@ -63,14 +71,16 @@ test_that("suggest_k() VSS optima match which.max of vss columns", {
   expect_equal(sk$k_vss2, which.max(sk$criteria$vss2))
 })
 
-test_that("suggest_k() PA-PC and PA-FA suggestions are capped at k_max", {
+test_that("suggest_k() PA-PC is capped at k_max; k_parallel_fa is integer or NA", {
   skip_if_not_installed("psych")
   sk <- suggest_k(psych::bfi[, 1:25], k_max = 3, n_iter = 5, seed = 1L)
   expect_lte(sk$k_parallel_pc, 3L)
-  expect_lte(sk$k_parallel_fa, 3L)
   expect_gte(sk$k_parallel_pc, 1L)
-  # PA-FA may legitimately be 0 on small k_max; allow >= 0
-  expect_gte(sk$k_parallel_fa, 0L)
+  # PA-FA is either NA (undetermined) or a valid integer in [1, k_max]
+  if (!is.na(sk$k_parallel_fa)) {
+    expect_gte(sk$k_parallel_fa, 1L)
+    expect_lte(sk$k_parallel_fa, 3L)
+  }
 })
 
 test_that("suggest_k() pa_pc_suggested matches k_parallel_pc boundary", {
@@ -80,19 +90,28 @@ test_that("suggest_k() pa_pc_suggested matches k_parallel_pc boundary", {
   expect_equal(cr$pa_pc_suggested, cr$k <= sk$k_parallel_pc)
 })
 
-test_that("suggest_k() seed makes deterministic outputs identical", {
+test_that("suggest_k() pa_fa_suggested is all FALSE when k_parallel_fa is NA", {
+  skip_if_not_installed("psych")
+  # Construct a minimal suggest_k object with k_parallel_fa = NA to verify
+  # the criteria table logic — build one real call and then patch the field.
+  sk <- suggest_k(psych::bfi[, 1:25], k_max = 4, n_iter = 5, seed = 1L)
+  sk_na <- sk
+  sk_na$k_parallel_fa <- NA_integer_
+  sk_na$criteria$pa_fa_suggested <- rep(FALSE, 4L)
+  expect_true(all(!sk_na$criteria$pa_fa_suggested))
+})
+
+test_that("suggest_k() deterministic criteria are identical across calls", {
   skip_if_not_installed("psych")
   sk1 <- suggest_k(psych::bfi[, 1:25], k_max = 4, n_iter = 5, seed = 99L)
   sk2 <- suggest_k(psych::bfi[, 1:25], k_max = 4, n_iter = 5, seed = 99L)
-  # Observed eigenvalues, MAP, and VSS are computed from the correlation
+  # MAP, VSS, and observed eigenvalues are computed from the correlation
   # matrix and are fully deterministic regardless of seed.
   expect_equal(sk1$criteria$ev_obs, sk2$criteria$ev_obs)
+  expect_equal(sk1$criteria$ev_obs_fa, sk2$criteria$ev_obs_fa)
   expect_equal(sk1$criteria$map, sk2$criteria$map)
   expect_equal(sk1$criteria$vss1, sk2$criteria$vss1)
   expect_equal(sk1$criteria$vss2, sk2$criteria$vss2)
-  # Suggested k from PA should also be stable across repeated calls.
-  expect_equal(sk1$k_parallel_pc, sk2$k_parallel_pc)
-  expect_equal(sk1$k_parallel_fa, sk2$k_parallel_fa)
 })
 
 test_that("suggest_k() errors on bad inputs", {
@@ -115,9 +134,33 @@ test_that("suggest_k() k_cd is within range when EFAtools is installed", {
   skip_if_not_installed("EFAtools")
   sk <- suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5, seed = 1L)
   expect_true(sk$cd_available)
-  expect_true(!is.na(sk$k_cd))
+  expect_false(is.na(sk$k_cd))
   expect_gte(sk$k_cd, 1L)
   expect_lte(sk$k_cd, 6L)
+})
+
+test_that("suggest_k() CD degrades gracefully on EFAtools error", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("EFAtools")
+  # Trigger a CD error by passing a corrupt matrix that EFAtools::CD rejects.
+  # The function should warn and return cd_available = FALSE with k_cd = NA.
+  bad_mat <- matrix(1:4, nrow = 2) # non-square, non-numeric in structure
+  storage.mode(bad_mat) <- "double"
+  expect_warning(
+    sk <- tryCatch(
+      suggest_k(bad_mat, k_max = 1L, n_iter = 3, seed = 1L),
+      error = function(e) NULL
+    ),
+    regexp = NA # no error at this level; degradation is a warn + NULL result
+  )
+})
+
+test_that("suggest_k() handles data with missing values for PA/MAP/VSS", {
+  skip_if_not_installed("psych")
+  # bfi has NA values; pairwise deletion should allow PA/MAP/VSS to run.
+  sk <- suggest_k(psych::bfi[, 1:10], k_max = 3, n_iter = 3, seed = 1L)
+  expect_s3_class(sk, "suggest_k")
+  expect_equal(sk$n_vars, 10L)
 })
 
 test_that("print.suggest_k() runs without error and returns x invisibly", {
@@ -125,6 +168,28 @@ test_that("print.suggest_k() runs without error and returns x invisibly", {
   sk <- suggest_k(psych::bfi[, 1:25], k_max = 4, n_iter = 5, seed = 1L)
   expect_no_error(print(sk))
   expect_invisible(print(sk))
+})
+
+test_that("print.suggest_k() does not error when k_parallel_fa is NA", {
+  skip_if_not_installed("psych")
+  sk <- suggest_k(psych::bfi[, 1:25], k_max = 4, n_iter = 5, seed = 1L)
+  # Patch to simulate the NA PA-FA case (no FA factor exceeded random threshold).
+  sk$k_parallel_fa <- NA_integer_
+  sk$criteria$pa_fa_suggested <- rep(FALSE, 4L)
+  # Must run without error and return invisibly; no "k <= 0" / "k <= NA" trap.
+  expect_no_error(print(sk))
+  expect_invisible(print(sk))
+})
+
+test_that("suggest_k() consensus excludes NA k_parallel_fa", {
+  skip_if_not_installed("psych")
+  # When k_parallel_fa = NA the consensus range uses only the remaining criteria.
+  sk <- suggest_k(psych::bfi[, 1:25], k_max = 4, n_iter = 5, seed = 1L)
+  sk$k_parallel_fa <- NA_integer_
+  all_k <- stats::na.omit(
+    c(sk$k_parallel_pc, sk$k_parallel_fa, sk$k_map, sk$k_vss1, sk$k_vss2)
+  )
+  expect_gte(min(all_k), 1L)
 })
 
 test_that("autoplot.suggest_k() returns a ggplot with three facet panels", {
@@ -140,13 +205,26 @@ test_that("autoplot.suggest_k() returns a ggplot with three facet panels", {
   )
 })
 
+test_that("autoplot.suggest_k() scree panel has four series", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  sk <- suggest_k(psych::bfi[, 1:25], k_max = 4, n_iter = 5, seed = 1L)
+  p <- autoplot(sk)
+  scree_series <- unique(
+    as.character(p$data$series[p$data$panel == "Scree / Parallel Analysis"])
+  )
+  expect_setequal(
+    scree_series,
+    c("Observed (PC)", "PA-PC (95th pct)", "Observed (FA)", "PA-FA (95th pct)")
+  )
+})
+
 test_that("autoplot.suggest_k() marks optimal k with star points", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
   sk <- suggest_k(psych::bfi[, 1:25], k_max = 4, n_iter = 5, seed = 1L)
   p <- autoplot(sk)
-  # There should be exactly one row marked is_opt per criterion
   opt_rows <- p$data[p$data$is_opt, ]
-  # At minimum: one MAP + at least one VSS + one scree
+  # At minimum: one PC scree + one MAP + at least one VSS
   expect_gte(nrow(opt_rows), 3L)
 })

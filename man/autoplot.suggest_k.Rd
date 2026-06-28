@@ -21,11 +21,17 @@ panel on the bottom. The recommended k for each criterion is marked with a
 star-shaped point.
 }
 \details{
+The scree panel shows both PC and FA observed eigenvalues alongside their
+respective random-data thresholds. PA-PC compares the blue "Observed (PC)"
+line to the dashed PA-PC threshold; PA-FA compares the teal "Observed (FA)"
+line to the dotted PA-FA threshold. Reading the lines on the same panel is
+informative but the two comparisons are independent.
+
 Requires the \pkg{ggplot2} package.
 }
 \examples{
 \dontrun{
-sk <- suggest_k(psych::bfi[, 1:25], n_iter = 5, seed = 42)
+sk <- suggest_k(psych::bfi[, 1:25], n_iter = 5)
 autoplot(sk)
 }
 
