@@ -93,14 +93,27 @@ flip_weights <- function(W, sign_vec) {
   bases <- unique(vapply(levels_list, function(lev) lev$scoring$basis, character(1L)))
   if (!all(bases == "pearson")) {
     non_pearson <- bases[bases != "pearson"]
+    cli::cli_warn(
+      c(
+        "!" = "Factor scores are standardized using model-implied SDs from a \\
+               {.val {non_pearson}} correlation matrix.",
+        "i" = "The raw projection uses {.code scale(data)} (Pearson z-scores), \\
+               but {.code score_var} comes from the {.val {non_pearson}} R.",
+        "i" = "Empirical score SDs will differ from 1.0. \\
+               For non-Pearson analyses, between-level edges from \\
+               {.fn tidy} are the authoritative associations."
+      ),
+      .frequency = "once",
+      .frequency_id = "ackwards_nonpearson_scores"
+    )
+  }
+  n_na_rows <- sum(!stats::complete.cases(data_mat))
+  if (n_na_rows > 0L) {
     cli::cli_warn(c(
-      "!" = "Factor scores are standardized using model-implied SDs from a \\
-             {.val {non_pearson}} correlation matrix.",
-      "i" = "The raw projection uses {.code scale(data)} (Pearson z-scores), \\
-             but {.code score_var} comes from the {.val {non_pearson}} R.",
-      "i" = "Empirical score SDs will differ from 1.0. \\
-             For non-Pearson analyses, between-level edges from \\
-             {.fn tidy} are the authoritative associations."
+      "!" = "{n_na_rows} row{?s} contain missing values and will produce NA scores.",
+      "i" = "The model was fit with pairwise-complete correlations, but score \\
+             projection applies weights row-wise and propagates NAs listwise.",
+      "i" = "Use {.code na.omit(data)} before scoring to remove incomplete rows."
     ))
   }
   Z <- scale(data_mat)

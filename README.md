@@ -54,11 +54,10 @@ library(ackwards)
 bfi <- na.omit(psych::bfi[, 1:25])
 sk  <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations)...
-#> Parallel analysis suggests that the number of factors =  NA  and the number of components =  5
-#> ✔ Running parallel analysis (20 iterations)... [163ms]
+#> ✔ Running parallel analysis (20 iterations)... [156ms]
 #> 
 #> ℹ Running MAP (Velicer)...
-#> ✔ Running MAP (Velicer)... [53ms]
+#> ✔ Running MAP (Velicer)... [51ms]
 #> 
 sk
 #> 
@@ -202,4 +201,20 @@ in Personality*, *40*(4), 347–358.
 
 ``` r
 citation("ackwards")
+#> Warning in citation("ackwards"): could not determine year for 'ackwards' from
+#> package DESCRIPTION file
+#> To cite package 'ackwards' in publications use:
+#> 
+#>   Girard J (????). _ackwards: Bass-Ackwards Hierarchical Structural
+#>   Analysis_. R package version 0.0.0.9000,
+#>   <https://jmgirard.github.io/ackwards/>.
+#> 
+#> A BibTeX entry for LaTeX users is
+#> 
+#>   @Manual{,
+#>     title = {ackwards: Bass-Ackwards Hierarchical Structural Analysis},
+#>     author = {Jeffrey M. Girard},
+#>     note = {R package version 0.0.0.9000},
+#>     url = {https://jmgirard.github.io/ackwards/},
+#>   }
 ```

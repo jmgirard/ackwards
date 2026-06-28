@@ -155,6 +155,52 @@ ba_layout <- function(x, min_sep = 1.0) {
   list(nodes = nodes, edges = tidy_edges)
 }
 
+# Given an ackwards object with pruning annotations and a ba_layout() nodes
+# data frame, returns the kept-only node set and a reduced primary-edge table
+# for the drop_pruned rendering path.
+#
+# Edge selection: for each kept node, picks the single edge with the largest
+# |r| to any kept node at a shallower level — a primary-parent recomputation
+# on the reduced graph. The original is_primary must NOT be reused (it was
+# computed on the full adjacent lineage).
+#
+# Requires x$edges$tidy to carry all-levels edges, which is guaranteed
+# whenever prune != "none" (M5 auto-upgrades pairs = "all").
+.drop_pruned_nodes <- function(x, nodes, compress_levels = FALSE) {
+  prune_tbl <- x$prune$nodes
+  tidy_edges <- x$edges$tidy
+
+  kept_ids <- prune_tbl$id[!prune_tbl$pruned]
+  nodes_kept <- nodes[nodes$id %in% kept_ids, , drop = FALSE]
+
+  if (compress_levels && nrow(nodes_kept) > 0L) {
+    kept_levels <- sort(unique(nodes_kept$level))
+    nodes_kept$y <- -match(nodes_kept$level, kept_levels)
+  }
+
+  edge_list <- lapply(kept_ids, function(nid) {
+    node_level <- nodes_kept$level[nodes_kept$id == nid][[1L]]
+    candidates <- tidy_edges[
+      tidy_edges$to == nid &
+        tidy_edges$from %in% kept_ids &
+        tidy_edges$level_from < node_level, ,
+      drop = FALSE
+    ]
+    if (nrow(candidates) == 0L) {
+      return(NULL)
+    }
+    candidates[which.max(abs(candidates$r)), , drop = FALSE]
+  })
+  edge_list <- Filter(Negate(is.null), edge_list)
+  edges_kept <- if (length(edge_list) > 0L) {
+    do.call(rbind, edge_list)
+  } else {
+    tidy_edges[0L, , drop = FALSE]
+  }
+
+  list(nodes = nodes_kept, edges = edges_kept)
+}
+
 # Enforce minimum separation between positions while preserving order.
 # Re-centres the spread positions around the original barycenter mean.
 .spread_positions <- function(bary, min_sep) {

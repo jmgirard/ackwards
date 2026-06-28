@@ -201,8 +201,10 @@ ackwards <- function(
   }
 
   # --- Ordinal-detection warning (DESIGN.md §9, Invariant 6) -----------------
+  # Compute once; reused in meta$ordinal_warned below.
   # Only warn when the user has NOT already opted into the polychoric basis.
-  if (detect_ordinal(as.data.frame(data_mat)) && cor != "polychoric") {
+  is_ordinal <- detect_ordinal(as.data.frame(data_mat))
+  if (is_ordinal && cor != "polychoric") {
     cli::cli_warn(
       c(
         "!" = "One or more columns look like ordinal/Likert items \\
@@ -382,7 +384,7 @@ ackwards <- function(
     redundancy_r      = redundancy_r,
     redundancy_phi    = redundancy_phi,
     cut_show          = cut_show,
-    ordinal_warned    = detect_ordinal(as.data.frame(data_mat))
+    ordinal_warned    = is_ordinal
   )
 
   # --- Assemble result --------------------------------------------------------

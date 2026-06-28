@@ -1,5 +1,78 @@
 # ackwards 0.0.0.9000 (dev)
 
+## Milestone 8 — Plot customization (Waves 1 & 2)
+
+* `autoplot.ackwards()` gains `show_r = FALSE` / `r_digits = 2L`: when
+  `show_r = TRUE`, draws `round(r, r_digits)` as a text label at each edge
+  midpoint. Pairs naturally with `mono = TRUE` for greyscale journal figures.
+* `autoplot.ackwards()` gains `mono = FALSE`: monochrome mode draws all edges
+  in black with `linewidth` encoding `|r|` and `linetype` encoding sign
+  (`solid` = positive, `dashed` = negative). Drops the `cut_strong`
+  strong/weak linetype distinction (linewidth already conveys magnitude, so a
+  second strength encoding on linetype is redundant).
+* `autoplot.ackwards()` gains `show_level_labels = TRUE` / `level_label_size = 3`:
+  draws "1 factor", "2 factors", … to the left of the diagram at each level's
+  `y` position (using `coord_cartesian(clip = "off")` for overflow-safe placement,
+  which was already set). Default is `TRUE` (was missing before).
+* `autoplot.ackwards()` gains `node_labels = NULL`: a named character vector
+  mapping factor IDs (e.g. `"m5f1"`) to custom display strings. Unspecified
+  factors keep their `m{k}f{j}` label. Warns if a supplied name matches no
+  factor ID in the object.
+* `autoplot.ackwards()` gains `primary_only = FALSE`: when `TRUE`, filters
+  the edge table to `is_primary == TRUE` before drawing, producing a clean
+  tree of primary parent links. Because skip-level edges are never primary,
+  this also suppresses curved skip arcs.
+* `autoplot.ackwards()` gains `drop_pruned = FALSE`: activates the Forbes
+  (2023) pruned-view rendering path. Pruned nodes are removed from the
+  diagram entirely; each retained node is connected to its single strongest
+  kept ancestor by a straight arrow, even when the arrow spans multiple
+  level gaps (no curved arcs in this mode). Requires `prune != "none"` at
+  fit time; errors with a clear message if pruning annotations are absent.
+  `show_r` auto-defaults to `TRUE` in this mode (Forbes convention).
+* `autoplot.ackwards()` gains `compress_levels = FALSE`: used together with
+  `drop_pruned = TRUE`, closes the vertical gaps left by pruned levels so
+  retained nodes are evenly spaced; level axis labels still show the original
+  level numbers so each row remains identifiable.
+* Added private helper `.drop_pruned_nodes(x, nodes, compress_levels)` in
+  `layout.R`: computes the kept-only node set and a reduced primary-edge
+  table for the drop-pruned rendering path. For each kept node it selects the
+  single strongest `|r|` edge to any kept shallower node, recomputing primary
+  parentage on the reduced graph (the original `is_primary` column is not
+  reused). When `compress_levels = TRUE`, re-indexes `y = -rank(level)` while
+  preserving the original `level` column for display labels.
+* `show_r` default changed from `FALSE` to `NULL` to support the
+  `drop_pruned` auto-default; calling `autoplot(x)` without `show_r`
+  produces the same behaviour as before (`FALSE`).
+
+## M6/M7 conformance fixes (second-pass review)
+
+* `augment(x, data=)` and `scores = TRUE` now warn when `data` contains rows
+  with missing values: score projection applies weights row-wise and propagates
+  NAs listwise, even though fitting used pairwise-complete correlations. The
+  warning advises `na.omit(data)` to remove incomplete rows before scoring.
+  `?augment.ackwards` documents the listwise-vs-pairwise asymmetry.
+* `augment(x, data=)` now errors with a clear message when `data` contains
+  non-numeric columns (previously would error inside `scale()` with a
+  cryptic message).
+* `detect_ordinal()` is now called once in `ackwards()` and its result reused
+  for both the Invariant-6 console warning and `meta$ordinal_warned` (was
+  called twice, scanning all columns each time).
+* The non-Pearson basis warning in `.compute_scores()` now uses
+  `.frequency = "once"` so repeated `augment()` calls on the same object
+  do not produce duplicate warnings in a session.
+* Tests added: non-Pearson basis warns on scoring (Fix 3); `keep_fits = TRUE`
+  only stores converged levels under truncation (Fix 4, labelled B4);
+  NA-data warns and produces NA scores for `augment()` and `scores = TRUE`
+  (Fix 1); non-numeric `augment()` data errors cleanly (Fix 5).
+* DESIGN.md §12 and CLAUDE.md dependency section updated to match DESCRIPTION:
+  `Imports` is `cli`, `generics`, `rlang`, `stats`, `utils` (`methods` is not
+  imported; no `methods::` usage exists). `Suggests` reflects the actual set
+  (`psych`, `GPArotation`, `lavaan`, `ggplot2`, `testthat`, `knitr`,
+  `rmarkdown`, `covr`); `ggraph`/`igraph`/`tidygraph`, `EGAnet`/`paran`,
+  `clue`, `future` are not in DESCRIPTION and the §12 table no longer lists
+  them. `suggest_k()` uses `psych::fa.parallel` + `psych::vss` (not separate
+  `EGAnet`/`paran` deps).
+
 ## Milestone 6 post-review fixes
 
 * `augment(x, data=)` now validates column names/count before projecting.

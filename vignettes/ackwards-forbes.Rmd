@@ -10,7 +10,7 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment  = "#>",
+  comment = "#>",
   fig.width = 8,
   fig.height = 5
 )
@@ -60,8 +60,8 @@ x_adj <- ackwards(bfi, k = 5, cor = "polychoric")
 x_all <- ackwards(bfi, k = 5, cor = "polychoric", pairs = "all")
 
 # How many edges?
-nrow(tidy(x_adj, what = "edges"))   # adjacent only
-nrow(tidy(x_all, what = "edges"))   # all pairs
+nrow(tidy(x_adj, what = "edges")) # adjacent only
+nrow(tidy(x_all, what = "edges")) # all pairs
 ```
 
 With k = 5, the adjacent-only model has 40 edges (1×2 + 2×3 + 3×4 + 4×5).
@@ -112,8 +112,10 @@ m5f1 all share r > 0.97, the intermediate nodes m3f2 and m4f2 are flagged as
 redundant: they repeat rather than refine the same dimension.
 
 ```{r prune-redundant}
-x_prune <- ackwards(bfi, k = 5, cor = "polychoric",
-                    pairs = "all", prune = "redundant")
+x_prune <- ackwards(bfi,
+  k = 5, cor = "polychoric",
+  pairs = "all", prune = "redundant"
+)
 ```
 
 ```{r prune-nodes}
@@ -144,6 +146,37 @@ The grey boxes at k = 4 and the two flagged boxes at k = 2 and k = 3 indicate
 factors at k = 1, the non-flagged factors at k = 2 and k = 3, and all five
 factors at k = 5 tell the main story of the hierarchy.
 
+### The drop-pruned diagram (`drop_pruned`)
+
+The annotated view keeps all factors visible and uses shading to flag the
+redundant ones. For presentations and publications it is often cleaner to omit
+the flagged factors entirely and draw direct arrows from each retained factor
+to its single strongest kept ancestor — even when that ancestor is several
+levels away. This is the Forbes (2023) pruned-factor diagram, activated by
+`drop_pruned = TRUE`.
+
+```{r drop-pruned, warning = FALSE}
+autoplot(x_prune, drop_pruned = TRUE)
+```
+
+Level 4 is entirely pruned, leaving a visible gap in the y-axis. The gap is
+intentional: it shows *which* level was removed. Spanning arrows bridge
+directly from level 3 factors to level 5 factors (or from level 1 to level 3
+where level 2 was partly flagged). Correlation labels appear by default in
+this view (`show_r` auto-defaults to `TRUE`) because they are the primary
+signal distinguishing a close connection from a long gap-spanning one.
+
+To close the gaps and compact the layout while retaining the original level
+numbers on the axis:
+
+```{r drop-pruned-compressed, warning = FALSE}
+autoplot(x_prune, drop_pruned = TRUE, compress_levels = TRUE)
+```
+
+The level labels still read "1 factor", "2 factors", "3 factors", "5 factors"
+so readers know which levels were retained; the uniform vertical spacing makes
+the diagram easier to read in constrained page layouts.
+
 ### `prune = "artefact"`: factors defined by structural similarity
 
 An **artefact** factor is one whose loading pattern is more similar to a factor
@@ -159,8 +192,10 @@ at k = 1 is suspected to be an artefact of the rotation rather than a genuine
 new dimension.
 
 ```{r prune-artefact}
-x_art <- ackwards(bfi, k = 5, cor = "polychoric",
-                  pairs = "all", prune = "artefact")
+x_art <- ackwards(bfi,
+  k = 5, cor = "polychoric",
+  pairs = "all", prune = "artefact"
+)
 tidy(x_art, what = "nodes")
 ```
 
@@ -183,25 +218,29 @@ criteria capture different flavors of redundancy:
 
 ## Tuning the thresholds
 
-Both pruning criteria have adjustable thresholds. The defaults
-(`phi_redundant = 0.90`, `phi_artefact = 0.95`) are those used in Forbes (2023).
+The redundancy criterion has an adjustable `redundancy_r` threshold (default
+`0.90`) matching Forbes (2023). The artefact criterion has no auto-flag
+threshold — `prune = "artefact"` computes Tucker's φ for researcher inspection;
+no factors are auto-flagged.
 
 For the BFI, the result is the same across a wide range of thresholds because
 the redundant chains all have correlations > 0.97 — the flagging is unambiguous.
 With your own data you may find borderline cases where the threshold matters:
 
 ```{r thresholds}
-# Check how many factors are flagged at different thresholds
+# Check how many factors are flagged at different redundancy_r thresholds
 thresholds <- c(0.80, 0.85, 0.90, 0.95)
 counts <- sapply(thresholds, function(thr) {
   x <- suppressWarnings(
-    ackwards(bfi, k = 5, cor = "polychoric",
-             pairs = "all", prune = "redundant",
-             phi_redundant = thr)
+    ackwards(bfi,
+      k = 5, cor = "polychoric",
+      pairs = "all", prune = "redundant",
+      redundancy_r = thr
+    )
   )
   sum(tidy(x, what = "nodes")$pruned)
 })
-data.frame(phi_redundant = thresholds, n_flagged = counts)
+data.frame(redundancy_r = thresholds, n_flagged = counts)
 ```
 
 For the BFI all thresholds agree: the flagged factors are robustly redundant, not

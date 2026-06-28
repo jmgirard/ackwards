@@ -12,6 +12,11 @@ descendants (PCA / EFA / ESEM engines) for hierarchical structural analysis. Ext
 1..k factors, then characterize the hierarchy via between-level factor-score correlations. Full
 rationale, contracts, object spec, and resolved defaults are in `DESIGN.md`.
 
+**Note:** Forbes (2023) footnote 3 cites this package (`github.com/jmgirard/ackwards`) as the
+reference implementation of the extended bass-ackwards approach. Fidelity to the paper's algorithm
+is the baseline contract for anything Forbes-related; additive enrichments are acceptable but the
+default output must reproduce Forbes's examples exactly.
+
 ## Completed milestones
 
 - **M1 (done):** PCA engine + algebra `compute_edges()` + result object + `print`/`tidy`/`glance`,
@@ -25,19 +30,15 @@ rationale, contracts, object spec, and resolved defaults are in `DESIGN.md`.
 - **M5 (done):** Forbes extension — `pairs = "all"`, `prune = "redundant"/"artefact"`, Tucker's φ
   chains (DFS enumeration, global retain set), annotated `autoplot()` (skip-level arcs, pruned
   fill), `tidy(what = "nodes")`, `augment.ackwards()` print caveat.
+- **M6 (done):** Storage materialization + cfQ cleanup — `scores = TRUE` / `keep_fits = TRUE`
+  storage, `augment.ackwards()`, `tidy(what = "scores")`, cfQ hard error, cross-check tests.
+- **M7 (done):** Documentation — README.Rmd, intro vignette, pkgdown site, three targeted
+  vignettes (engines, ordinal, Forbes extension).
+- **M8 (done):** Plot customization — `show_r`/`r_digits`, `mono`, `show_level_labels`/
+  `level_label_size`, `node_labels`, `primary_only`, `drop_pruned`/`compress_levels` on
+  `autoplot.ackwards()`; private `.drop_pruned_nodes()` helper in `layout.R`.
 
-## Current focus — Milestone 6
-
-**Scope:** Storage materialization + cfQ cleanup. See `DESIGN.md` §15.6.
-1. `scores = TRUE` storage (per-level `n × k` matrices, standardized by real score SDs per Inv. 1)
-   + `augment.ackwards()` accessor (appends score columns; recomputes from weights + R when not
-   kept) + `tidy(what = "scores")`. Linear engines only; EAP deferred.
-2. `keep_fits = TRUE` storage — retain per-level raw engine objects in `$fits` (same plumbing).
-3. cfQ cleanup — orthogonal-only is resolved (§9, §14.1); make `cfQ` error as *unsupported*
-   (not "not yet implemented") consistently across engines and docs.
-
-After M6: README.Rmd → intro vignette → pkgdown → vignettes (engines, ordinal, Forbes).
-See `DESIGN.md` §15.7.
+## Current focus — no active milestone
 
 If a step needs a design decision not covered in `DESIGN.md`, **stop and ask** rather than guessing.
 
@@ -72,10 +73,16 @@ Forbes extension **off** · `k` required · sign `align = TRUE` · `scores`/`kee
 
 ## Dependencies (see `DESIGN.md` §12)
 
-Keep `Imports` lean: `stats`, `methods`, `cli`, `rlang`. Everything else (`psych`/`GPArotation`,
-`lavaan`, `clue`, `ggraph`+friends, `EGAnet`/`paran`, `future`) goes in `Suggests`, gated by
+Keep `Imports` lean: `stats`, `utils`, `cli`, `rlang`, `generics`. Everything else (`psych`,
+`GPArotation`, `lavaan`, `ggplot2`, testing/docs infrastructure) goes in `Suggests`, gated by
 `rlang::check_installed()`. **Do not add to `Imports` without flagging it.** **No Rcpp** — profile
 first; the heavy compute already lives in compiled deps (§3).
+
+Current `Imports`: `cli`, `generics`, `rlang`, `stats`, `utils`.
+Current `Suggests`: `covr`, `ggplot2`, `GPArotation`, `knitr`, `lavaan (>= 0.6-13)`, `psych`,
+`rmarkdown`, `testthat (>= 3.0.0)`. `suggest_k()` uses `psych::fa.parallel` and `psych::vss` (no
+separate `EGAnet`/`paran` dep). Visualization uses `ggplot2` directly (no `ggraph`/`igraph`/
+`tidygraph`). `methods` is **not** imported (no `methods::` usage). `clue` was removed in M5.
 
 ## Dev workflow
 
@@ -120,6 +127,9 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
 
 ## Out of scope for now
 
-- **EAP scoring** for ordinal ESEM — deferred past M6; linear tenBerge scores cover the common case.
-- **Oblique rotation full support** — `cfQ` is offered but edge-correlation interpretation is documented as limited; no plans to change the default.
+- **EAP scoring** for ordinal ESEM — deferred; linear tenBerge scores cover the common case.
+- **Oblique rotation** — `cfQ` hard-errors as unsupported (confounds cross-level signal). No plans to add it.
 - **Higher-order SEM / Schmid-Leiman** — out of scope per §2; `ackwards` is correlation-based, not SEM-based.
+- **M5 deferred improvements** — structural artefact signals (split-then-merge, <3-item factors,
+  orphans), φ as default for non-PCA redundancy, bootstrap CIs on skip-level edges. Logged in
+  `DESIGN.md` §14.

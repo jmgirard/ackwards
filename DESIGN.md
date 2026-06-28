@@ -328,13 +328,17 @@ footprint sane and lets users plot the layout however they like.
 
 | Tier | Packages | Purpose |
 |---|---|---|
-| Imports (lean) | `stats`, `methods`, `cli`, `rlang` | core, console output, guards |
-| Suggests — engines | `psych` and/or `GPArotation`, `lavaan` | EFA/PCA/rotations (incl. CF family); ESEM |
-| Suggests — ordinal | polychoric source (e.g. `psych`) | Likert basis |
-| Suggests — suggest_k | `EGAnet`, `paran` | dimensionality criteria |
-| ~~Suggests — matching~~ | ~~`clue`~~ | ~~Hungarian assignment~~ — removed; greedy argmax (§7) requires no dep |
-| Suggests — viz | `ggraph`, `ggplot2`, `igraph`, `tidygraph` | diagrams |
-| Suggests — perf | `future`, `future.apply` | parallel bootstrap (if/when added) |
+| Imports (lean) | `stats`, `utils`, `cli`, `rlang`, `generics` | core, console output, guards, tidy/augment/glance generics |
+| Suggests — engines | `psych`, `GPArotation`, `lavaan (>= 0.6-13)` | EFA/PCA/rotations (CF family); ESEM |
+| Suggests — ordinal | `psych` | polychoric correlations for Likert basis |
+| Suggests — suggest_k | `psych` | `fa.parallel` (parallel analysis) + `vss` (MAP); no separate `EGAnet`/`paran` dep |
+| ~~Suggests — matching~~ | ~~`clue`~~ | ~~Hungarian assignment~~ — removed M5; greedy argmax (§7) requires no dep |
+| Suggests — viz | `ggplot2` | diagrams; uses `ggplot2` directly, not `ggraph`/`igraph`/`tidygraph` |
+| Suggests — infra | `testthat (>= 3.0.0)`, `knitr`, `rmarkdown`, `covr` | testing, vignettes, coverage |
+
+`methods` is **not** imported — no `methods::` usage in the package. `ggraph`, `igraph`,
+`tidygraph`, `EGAnet`, `paran`, `future`, `future.apply` are **not** in DESCRIPTION (earlier
+design considered them; implementation chose leaner routes).
 
 Gate every Suggests use with `rlang::check_installed()` and a helpful cli message naming the engine
 that needs it. **No Rcpp dependency planned** (see §3).
@@ -431,7 +435,96 @@ that needs it. **No Rcpp dependency planned** (see §3).
    (PCA happy path from `suggest_k()` through `augment()`), pkgdown site, then targeted
    vignettes: (a) engines & rotations (PCA/EFA/ESEM comparison), (b) ordinal & non-normal
    data (`cor = "polychoric"`, WLSMV), (c) Forbes extension (`pairs = "all"`, pruning,
-   annotated plot).
+   annotated plot). *(done)*
+8. **Plot customization** — new `autoplot.ackwards()` arguments and one new layout helper
+   `.drop_pruned_nodes()`. All changes are additive; no existing argument semantics change.
+
+   Implement in **two waves**: the cheap, low-risk batch (a, b, d, e, f) first, then the
+   drop-pruned view (c) as its own focused pass — (c) is a distinct rendering mode, not a
+   filter, and is where the design and the bugs live.
+
+   **(a) Edge labels** (`show_r = NULL`, `r_digits = 2L`). The `NULL` default resolves to
+   `FALSE` normally and to `TRUE` when `drop_pruned = TRUE` (Forbes 2023 Figs 3B/4B always
+   label spanning arrows); an explicit `TRUE`/`FALSE` overrides the auto-default. When
+   `show_r = TRUE`, draws `round(r, r_digits)` as `geom_text` at each edge midpoint. For
+   straight edges the midpoint is `((x_from+x_to)/2, (y_from+y_to)/2)` with a small
+   horizontal nudge so the label clears the line; for curved skip arcs the label sits near
+   the chord midpoint (slightly off the arc — acceptable). Pairs naturally with `mono`
+   for publication-quality labeled plots.
+
+   **(b) Monochrome mode** (`mono = FALSE`). **Resolved encoding** (supersedes the earlier
+   "2-vs-4 linetypes" open question): keep `|r|` on `linewidth`, move **sign** to `linetype`
+   (`solid` = positive, `dashed` = negative), and **drop** the `cut_strong` strong/weak
+   linetype distinction in mono mode — `linewidth` already conveys magnitude, so a second
+   strength encoding on linetype is redundant and four linetypes are hard to read. Net: all
+   edges black, two linetypes (sign), one `linewidth` legend, no color legend. Applies to
+   both the straight and curved edge layers. Use case: greyscale journal figures. (In the
+   default color mode, the existing behaviour is unchanged: color = sign, linewidth = `|r|`,
+   linetype = strong/weak.)
+
+   **(c) Drop-pruned view** (`drop_pruned = FALSE`). A **separate rendering path**, not a
+   filter on the normal pipeline. Requires `x$prune` non-`NULL`; errors clearly if not.
+   If `x$prune$nodes` has no `pruned = TRUE` rows (e.g. `prune = "artefact"` never
+   auto-flags), warn and render anyway (nothing is dropped). Because `prune != "none"`
+   auto-upgrades `pairs` to `"all"` (M5), any prunable object is guaranteed to carry
+   all-levels edges in `x$edges$tidy` — `.drop_pruned_nodes()` works entirely off that
+   tidy table (no need to touch `x$edges$matrices`). When `TRUE`:
+   - **Edge selection (the core rule).** Forbes draws, for each kept node, its single
+     strongest correlation to a kept node at a shallower level (Fig 2C note: "the strongest
+     component correlation for each lower-order component with the higher-order components").
+     This is a **primary-parent recomputation on the reduced (kept-only) node set** — the
+     original `is_primary` column was computed on the full *adjacent* lineage and must NOT
+     be reused. `.drop_pruned_nodes(x, nodes, compress_levels)` therefore: (i) drops every
+     node flagged `pruned = TRUE`; (ii) from the remaining tidy edges (all level gaps), for
+     each kept node picks the kept shallower node with max `|r|` as its single parent edge;
+     (iii) returns the reduced `nodes` (y re-indexed when `compress_levels = TRUE`) and the
+     reduced primary-edge table. (The function signature takes three args: the ackwards
+     object, the pre-computed `ba_layout()$nodes`, and `compress_levels`; documented as
+     `.drop_pruned_nodes(x)` elsewhere is shorthand.)
+   - **Geometry.** All reduced edges are drawn as **straight** `geom_segment`, even when
+     they span level gaps — this overrides the normal adjacent/skip partition and the
+     `geom_curve` skip-arc rendering (curved arcs are a *non*-drop-pruned affordance). A
+     gap-spanning edge is distinguished from an adjacent one only by its greater length,
+     matching Forbes's figures.
+   - **Gap-preserved layout (default).** Pruned boxes are removed but kept nodes keep their
+     original `y = -level`, so empty levels show as vertical gaps. Mixed levels (some kept,
+     some pruned) show only the kept nodes.
+   - **Compressed layout** (`compress_levels = FALSE`). When `TRUE`, re-index `y` to
+     `-rank(unique(kept_levels))`, closing the gaps. Level labels (d) then show the
+     **original** level numbers so each retained row remains identifiable.
+   - **Degenerate case.** A redundancy chain that reaches level `k` prunes *all* upper
+     levels (the common "keep the bottom" rule), leaving a single surviving level with no
+     edges. When `≤ 1` level survives, warn (`cli::cli_warn`) and return a node-only plot
+     rather than erroring.
+   - `show_r` defaults to `TRUE` here (Forbes convention).
+
+   **(d) Level axis labels** (`show_level_labels = TRUE`). Adds left-margin `geom_text`
+   ("1 factor", "2 factors", …) at each level's `y`, placed at `x = min(nodes$x) - pad`
+   with `coord_cartesian(clip = "off")`. Under `compress_levels = TRUE` the labels show the
+   original level numbers despite re-indexed `y`. Font size via `level_label_size = 3`.
+
+   **(e) Custom node labels** (`node_labels = NULL`). A named character vector mapping
+   factor IDs (e.g. `"m5f1"`) to display strings (e.g. `"General"`), applied to
+   `nodes$label` before any geometry is drawn. Unspecified IDs keep their default
+   `m{k}f{j}` label; warns if a supplied name matches no factor ID in the object.
+
+   **(f) Primary-edges-only mode** (`primary_only = FALSE`). When `TRUE`, filters the edge
+   table to `is_primary == TRUE` before drawing — a clean tree of adjacent primary links.
+   Skip-level edges carry `is_primary = FALSE`, so this also suppresses skip arcs (intended).
+   Independent of (c): drop-pruned does its own reduced-graph edge selection and ignores
+   `primary_only`.
+
+   **Flag interactions.** (a, b, d, e, f) compose independently and stack with the normal
+   pipeline. (c) replaces the edge-selection and geometry stages, then (a) labels, (b)
+   colour/linetype, (d) level labels, and (e) node labels still apply on top of the reduced
+   graph; `show_skip`/`curvature` and `primary_only` are ignored under `drop_pruned`.
+
+   **Implementation notes.** All args live on `autoplot.ackwards()`; `.drop_pruned_nodes()`
+   is a new private helper in `layout.R`. No new exports, no new dependencies. Per-arg tests:
+   `expect_no_error`/`expect_s3_class("ggplot")` happy paths plus guarded `expect_error`
+   (e.g. `drop_pruned = TRUE` without pruning) and the degenerate-prune `expect_warning`.
+   DoD additions: NEWS.md entry, and extend the Forbes vignette's pruning section with a
+   `drop_pruned` example.
 
 ---
 

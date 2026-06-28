@@ -236,3 +236,349 @@ test_that("autoplot.ackwards() handles objects with prune=NULL (no pruning)", {
   p <- expect_no_error(ggplot2::autoplot(x))
   expect_s3_class(p, "ggplot")
 })
+
+# --- Wave 1 (M8): show_r, mono, show_level_labels, node_labels, primary_only ---
+
+test_that("autoplot.ackwards() show_r=TRUE labels edges without error", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(x, show_r = TRUE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot.ackwards() show_r=TRUE respects r_digits", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(x, show_r = TRUE, r_digits = 3L))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot.ackwards() show_r=TRUE works with pairs='all'", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 4, pairs = "all"))
+  p <- expect_no_error(ggplot2::autoplot(x, show_r = TRUE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot.ackwards() mono=TRUE returns a ggplot", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(x, mono = TRUE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot.ackwards() mono=TRUE + show_r=TRUE composes without error", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(x, mono = TRUE, show_r = TRUE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot.ackwards() show_level_labels=TRUE (default) returns a ggplot", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(x, show_level_labels = TRUE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot.ackwards() show_level_labels=FALSE omits labels without error", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(x, show_level_labels = FALSE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot.ackwards() node_labels applies custom labels", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(x, node_labels = c(m3f1 = "Alpha")))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot.ackwards() node_labels warns for unknown factor IDs", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  expect_warning(
+    ggplot2::autoplot(x, node_labels = c(m99f1 = "Ghost")),
+    "match no factor ID"
+  )
+})
+
+test_that("autoplot.ackwards() primary_only=TRUE returns a ggplot", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(x, primary_only = TRUE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot.ackwards() primary_only=TRUE hides skip arcs", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 4, pairs = "all"))
+  # primary_only filters to is_primary==TRUE; skip edges are never primary
+  p <- expect_no_error(ggplot2::autoplot(x, primary_only = TRUE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot.ackwards() all Wave-1 args compose without error", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 4, pairs = "all"))
+  p <- expect_no_error(ggplot2::autoplot(
+    x,
+    show_r            = TRUE,
+    r_digits          = 2L,
+    mono              = TRUE,
+    show_level_labels = TRUE,
+    level_label_size  = 3,
+    node_labels       = c(m4f1 = "General"),
+    primary_only      = FALSE
+  ))
+  expect_s3_class(p, "ggplot")
+})
+
+# --- Wave 2 (M8): drop_pruned + compress_levels + .drop_pruned_nodes() ------
+
+test_that("drop_pruned=TRUE errors without pruning annotations", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  expect_null(x$prune)
+  expect_error(ggplot2::autoplot(x, drop_pruned = TRUE), "prune")
+})
+
+test_that("drop_pruned=TRUE returns a ggplot for a pruned object", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    x <- ackwards(psych::bfi[, 1:25],
+      k = 5, prune = "redundant",
+      redundancy_r = 0.95
+    )
+  ))
+  p <- expect_no_error(ggplot2::autoplot(x, drop_pruned = TRUE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("drop_pruned=TRUE defaults show_r to TRUE", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    x <- ackwards(psych::bfi[, 1:25],
+      k = 5, prune = "redundant",
+      redundancy_r = 0.95
+    )
+  ))
+  # show_r = NULL auto-defaults to TRUE; should produce a plot without error
+  p <- expect_no_error(ggplot2::autoplot(x, drop_pruned = TRUE, show_r = NULL))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("drop_pruned=TRUE respects explicit show_r=FALSE override", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    x <- ackwards(psych::bfi[, 1:25],
+      k = 5, prune = "redundant",
+      redundancy_r = 0.95
+    )
+  ))
+  p <- expect_no_error(ggplot2::autoplot(x, drop_pruned = TRUE, show_r = FALSE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("drop_pruned=TRUE + compress_levels=TRUE returns a ggplot", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    x <- ackwards(psych::bfi[, 1:25],
+      k = 5, prune = "redundant",
+      redundancy_r = 0.95
+    )
+  ))
+  p <- expect_no_error(ggplot2::autoplot(x,
+    drop_pruned = TRUE,
+    compress_levels = TRUE
+  ))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("drop_pruned=TRUE + mono=TRUE returns a ggplot", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    x <- ackwards(psych::bfi[, 1:25],
+      k = 5, prune = "redundant",
+      redundancy_r = 0.95
+    )
+  ))
+  p <- expect_no_error(ggplot2::autoplot(x, drop_pruned = TRUE, mono = TRUE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("drop_pruned=TRUE + node_labels applies labels", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    x <- ackwards(psych::bfi[, 1:25],
+      k = 5, prune = "redundant",
+      redundancy_r = 0.95
+    )
+  ))
+  p <- expect_no_error(ggplot2::autoplot(x,
+    drop_pruned = TRUE,
+    node_labels = c(m5f1 = "Neuroticism")
+  ))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("drop_pruned degenerate case warns and returns node-only ggplot", {
+  skip_if_not_installed("ggplot2")
+  # k=2 with high-g data: m1f1 is redundant with m2f1 (chain reaches k=2),
+  # leaving only level-2 nodes — n_kept_levels = 1 -> degenerate
+  set.seed(42)
+  n <- 500
+  g <- rnorm(n)
+  d <- data.frame(
+    x1 = 0.9 * g + rnorm(n, sd = 0.05),
+    x2 = 0.9 * g + rnorm(n, sd = 0.05),
+    x3 = 0.9 * g + rnorm(n, sd = 0.05),
+    x4 = 0.9 * g + rnorm(n, sd = 0.05),
+    x5 = 0.9 * g + rnorm(n, sd = 0.05),
+    x6 = 0.9 * g + rnorm(n, sd = 0.05)
+  )
+  x <- suppressMessages(ackwards(d,
+    k = 2, prune = "redundant",
+    redundancy_r = 0.7
+  ))
+  # Verify the test fixture: m1f1 should be pruned, only level 2 keeps nodes
+  expect_equal(
+    unique(x$prune$nodes$level[!x$prune$nodes$pruned]),
+    2L
+  )
+  expect_warning(ggplot2::autoplot(x, drop_pruned = TRUE), "node-only")
+  p <- suppressWarnings(ggplot2::autoplot(x, drop_pruned = TRUE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that(".drop_pruned_nodes() returns kept-only nodes and reduced edges", {
+  suppressWarnings(suppressMessages(
+    x <- ackwards(psych::bfi[, 1:25],
+      k = 5, prune = "redundant",
+      redundancy_r = 0.95
+    )
+  ))
+  lay <- ba_layout(x)
+  dp <- ackwards:::.drop_pruned_nodes(x, lay$nodes)
+  kept <- x$prune$nodes$id[!x$prune$nodes$pruned]
+
+  # All returned nodes are kept
+  expect_true(all(dp$nodes$id %in% kept))
+  expect_equal(nrow(dp$nodes), length(kept))
+
+  # Each edge connects two kept nodes
+  if (nrow(dp$edges) > 0L) {
+    expect_true(all(dp$edges$from %in% kept))
+    expect_true(all(dp$edges$to %in% kept))
+    # Each "to" node appears at most once (one primary parent per node)
+    expect_equal(length(unique(dp$edges$to)), nrow(dp$edges))
+    # Parent is always shallower than child
+    expect_true(all(dp$edges$level_from < dp$edges$level_to))
+  }
+})
+
+test_that(".drop_pruned_nodes() compress_levels re-indexes y", {
+  suppressWarnings(suppressMessages(
+    x <- ackwards(psych::bfi[, 1:25],
+      k = 5, prune = "redundant",
+      redundancy_r = 0.95
+    )
+  ))
+  lay <- ba_layout(x)
+  dp_gap <- ackwards:::.drop_pruned_nodes(x, lay$nodes, compress_levels = FALSE)
+  dp_comp <- ackwards:::.drop_pruned_nodes(x, lay$nodes, compress_levels = TRUE)
+
+  # Gap-preserved: y == -level for all kept nodes
+  expect_equal(dp_gap$nodes$y, -dp_gap$nodes$level)
+
+  # Compressed: y values are consecutive integers starting at -1
+  kept_levels <- sort(unique(dp_comp$nodes$level))
+  if (length(kept_levels) > 1L) {
+    expected_y <- -match(dp_comp$nodes$level, kept_levels)
+    expect_equal(dp_comp$nodes$y, expected_y)
+  }
+})
+
+test_that("drop_pruned=TRUE warns when no nodes are pruned (artefact-only)", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    x <- ackwards(psych::bfi[, 1:25], k = 3, prune = "artefact")
+  ))
+  expect_true(!any(x$prune$nodes$pruned))
+  expect_warning(
+    ggplot2::autoplot(x, drop_pruned = TRUE),
+    "no nodes are flagged"
+  )
+})
+
+test_that("drop_pruned=TRUE warns when cut_show removes all reduced edges", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    x <- ackwards(psych::bfi[, 1:25],
+      k = 5, prune = "redundant",
+      redundancy_r = 0.95
+    )
+  ))
+  expect_warning(
+    ggplot2::autoplot(x, drop_pruned = TRUE, cut_show = 1.01),
+    "No edges"
+  )
+})
+
+test_that("node_labels as unnamed vector silently does nothing", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  # Unnamed character: names() is NULL; no warning, no crash
+  p <- expect_no_error(ggplot2::autoplot(x, node_labels = c("Alpha", "Beta")))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("compress_levels=TRUE without drop_pruned is silently ignored", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(x, compress_levels = TRUE))
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("drop_pruned=TRUE ignores primary_only and show_skip", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    x <- ackwards(psych::bfi[, 1:25],
+      k = 5, prune = "redundant",
+      redundancy_r = 0.95
+    )
+  ))
+  # These flags should be silently ignored — no error
+  p <- expect_no_error(ggplot2::autoplot(
+    x,
+    drop_pruned  = TRUE,
+    primary_only = TRUE,
+    show_skip    = TRUE
+  ))
+  expect_s3_class(p, "ggplot")
+})

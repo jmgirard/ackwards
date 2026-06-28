@@ -17,6 +17,15 @@
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
+  show_r = NULL,
+  r_digits = 2L,
+  mono = FALSE,
+  show_level_labels = TRUE,
+  level_label_size = 3,
+  node_labels = NULL,
+  primary_only = FALSE,
+  drop_pruned = FALSE,
+  compress_levels = FALSE,
   ...
 )
 
@@ -29,12 +38,14 @@
 value used when the object was created (\code{x$meta$cut_show}, typically 0.3).}
 
 \item{cut_strong}{Edges with \verb{|r| >= cut_strong} are drawn solid; those
-between \code{cut_show} and \code{cut_strong} are dashed. A documented threshold
-separating "notable" from "strong" associations. Default \code{0.5}.}
+between \code{cut_show} and \code{cut_strong} are dashed. Ignored when
+\code{mono = TRUE}. Default \code{0.5}.}
 
-\item{color_pos}{Colour for positive edges. Default \code{"#2166AC"} (blue).}
+\item{color_pos}{Colour for positive edges. Default \code{"#2166AC"} (blue).
+Ignored when \code{mono = TRUE}.}
 
-\item{color_neg}{Colour for negative edges. Default \code{"#D6604D"} (red).}
+\item{color_neg}{Colour for negative edges. Default \code{"#D6604D"} (red).
+Ignored when \code{mono = TRUE}.}
 
 \item{node_width}{Width of factor boxes in layout units. Default \code{0.8}.}
 
@@ -45,15 +56,54 @@ separating "notable" from "strong" associations. Default \code{0.5}.}
 
 \item{show_skip}{Whether to draw skip-level (non-adjacent) edges. \code{NULL}
 (default) auto-detects: \code{TRUE} when the object was run with
-\code{pairs = "all"}, \code{FALSE} otherwise. Skip-level edges are drawn as curved
-lines to distinguish them from the adjacent straight arrows.}
+\code{pairs = "all"}, \code{FALSE} otherwise. Ignored when \code{drop_pruned = TRUE}.}
 
 \item{curvature}{Curvature of skip-level edge arcs. Passed to
-\code{\link[ggplot2:geom_curve]{ggplot2::geom_curve()}}. Positive values curve right; default \code{0.2}.}
+\code{\link[ggplot2:geom_curve]{ggplot2::geom_curve()}}. Positive values curve right; default \code{0.2}.
+Ignored when \code{drop_pruned = TRUE}.}
 
 \item{color_pruned}{Fill colour for nodes flagged as pruned/redundant.
 Default \code{"grey80"}. Only applied when the object carries pruning
-annotations (\code{x$prune} is non-\code{NULL}).}
+annotations (\code{x$prune} is non-\code{NULL}) and \code{drop_pruned = FALSE} (pruned
+nodes are omitted entirely when \code{drop_pruned = TRUE}).}
+
+\item{show_r}{Whether to label each drawn edge with its rounded correlation
+coefficient. \code{NULL} (default) uses \code{FALSE} normally and \code{TRUE} when
+\code{drop_pruned = TRUE} (Forbes 2023 figures always label spanning arrows).
+Set explicitly to \code{TRUE} or \code{FALSE} to override.}
+
+\item{r_digits}{Number of decimal places for edge labels when
+\code{show_r = TRUE}. Default \code{2L}.}
+
+\item{mono}{Monochrome mode. When \code{TRUE}, all edges are drawn in black;
+\code{linewidth} still encodes \verb{|r|}; \code{linetype} encodes sign (\code{solid} =
+positive, \code{dashed} = negative). The \code{cut_strong} strong/weak linetype
+distinction is dropped in mono mode. Default \code{FALSE}.}
+
+\item{show_level_labels}{Whether to draw level axis labels
+("1 factor", "2 factors", ...) to the left of the diagram. Default \code{TRUE}.}
+
+\item{level_label_size}{Font size for level axis labels. Default \code{3}.}
+
+\item{node_labels}{A named character vector mapping factor IDs (e.g.
+\code{"m5f1"}) to custom display strings (e.g. \code{"General"}). Unspecified
+factors keep their default \verb{m\{k\}f\{j\}} label. A warning is issued for
+names that match no factor ID in the object. Default \code{NULL}.}
+
+\item{primary_only}{When \code{TRUE}, only primary-parent edges (\code{is_primary == TRUE}) are drawn. Because skip-level edges are never primary, this also
+suppresses skip arcs. Ignored when \code{drop_pruned = TRUE}. Default \code{FALSE}.}
+
+\item{drop_pruned}{When \code{TRUE}, activates the Forbes (2023) pruned-view
+rendering path: pruned nodes are removed from the diagram entirely and
+each retained node is connected to its single strongest kept ancestor by
+a straight arrow (even across level gaps). Requires the object to carry
+pruning annotations (\code{prune != "none"} at fit time); errors if not.
+Overrides \code{show_skip}, \code{curvature}, and \code{primary_only}. Default \code{FALSE}.}
+
+\item{compress_levels}{When \code{TRUE} under \code{drop_pruned = TRUE}, closes
+vertical gaps left by pruned levels so retained levels are evenly spaced;
+level axis labels (d) still show the original level numbers. Ignored when
+\code{drop_pruned = FALSE}. Default \code{FALSE}.}
 
 \item{...}{Ignored.}
 
@@ -77,6 +127,20 @@ Requires the \pkg{ggplot2} package.
 x <- ackwards(psych::bfi[, 1:25], k = 5)
 autoplot(x)
 autoplot(x, cut_strong = 0.6, color_pos = "steelblue")
+
+# Monochrome with correlation labels (for greyscale figures)
+autoplot(x, mono = TRUE, show_r = TRUE)
+
+# Custom node labels for the 5-factor level
+autoplot(x, node_labels = c(m5f1 = "Neuroticism", m5f2 = "Agreeableness"))
+
+# Primary links only — clean hierarchy tree
+autoplot(x, primary_only = TRUE)
+
+# Forbes pruned view: omit redundant nodes, straight spanning arrows
+xp <- ackwards(psych::bfi[, 1:25], k = 5, prune = "redundant")
+autoplot(xp, drop_pruned = TRUE)
+autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
 }
 
 }

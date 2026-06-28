@@ -10,7 +10,7 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment  = "#>",
+  comment = "#>",
   fig.width = 7,
   fig.height = 4.5
 )
@@ -105,15 +105,17 @@ eigenvalues.
 
 ```{r load-compare}
 l_pear <- tidy(x_pearson, what = "loadings")
-l_poly <- tidy(x_poly,    what = "loadings")
+l_poly <- tidy(x_poly, what = "loadings")
 l_pear$basis <- "pearson"
 l_poly$basis <- "polychoric"
 
 # k = 5 loadings for Neuroticism items
 both <- rbind(l_pear, l_poly)
 both5_N <- both[both$level == 5 & substr(both$item, 1, 1) == "N", ]
-both5_N[order(both5_N$factor, both5_N$item),
-        c("basis", "factor", "item", "loading")]
+both5_N[
+  order(both5_N$factor, both5_N$item),
+  c("basis", "factor", "item", "loading")
+]
 ```
 
 Polychoric loadings for the Neuroticism items are noticeably higher — the latent
@@ -124,7 +126,7 @@ removed.
 
 ```{r edge-compare}
 e_pear <- tidy(x_pearson, what = "edges")
-e_poly <- tidy(x_poly,    what = "edges")
+e_poly <- tidy(x_poly, what = "edges")
 
 primary_pear <- e_pear[e_pear$is_primary, c("from", "to", "r")]
 primary_poly <- e_poly[e_poly$is_primary, c("from", "to", "r")]

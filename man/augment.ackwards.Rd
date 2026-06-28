@@ -32,6 +32,12 @@ stored in the object, and \code{sqrt(score_var)} standardizes by the real
 score standard deviations (Invariant 1: never assume unit variance).
 For PCA the method is \code{"components"}; for EFA/ESEM it is \code{"tenBerge"}.
 
+\strong{Missing data.} Score projection applies weights row-wise and propagates
+NAs listwise: any observation with at least one missing item variable will
+produce \code{NA} scores at every level. This differs from fitting, which uses
+pairwise-complete correlations. A warning is issued if NA rows are detected.
+Use \code{na.omit(data)} before scoring if NA rows are unwanted.
+
 \strong{Data source.} If \code{data} is supplied, scores are always recomputed from
 it using the stored weights — this is how to score new observations. If
 \code{data} is \code{NULL} and \code{scores = TRUE} was set at fit time, the stored

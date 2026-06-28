@@ -129,7 +129,7 @@ test_that("augment(x, data) returns data frame with score columns appended", {
   skip_if_not_installed("psych")
   bfi_items <- psych::bfi[, 1:25]
   x <- suppressWarnings(ackwards(bfi_items, k = 3))
-  out <- augment(x, data = bfi_items)
+  out <- suppressWarnings(augment(x, data = bfi_items))
   expect_s3_class(out, "data.frame")
   # Same number of rows as input
   expect_equal(nrow(out), nrow(bfi_items))
@@ -160,8 +160,8 @@ test_that("augment(x, data) and augment(x) [with stored scores] agree", {
   skip_if_not_installed("psych")
   bfi_items <- psych::bfi[, 1:25]
   x <- suppressWarnings(ackwards(bfi_items, k = 2, scores = TRUE))
-  out_stored <- augment(x)
-  out_recomp <- augment(x, data = bfi_items)
+  out_stored <- suppressWarnings(augment(x))
+  out_recomp <- suppressWarnings(augment(x, data = bfi_items))
   # Score columns should be numerically identical
   score_cols_stored <- grep("^\\.m", names(out_stored), value = TRUE)
   score_cols_recomp <- grep("^\\.m", names(out_recomp), value = TRUE)
@@ -292,9 +292,84 @@ test_that("augment(x, data) works when data has extra named columns (supersets)"
   x <- suppressWarnings(ackwards(bfi_items, k = 2))
   # Add an extra column not in the model
   d_extra <- cbind(bfi_items, extra = rnorm(50))
-  out <- augment(x, data = d_extra)
+  out <- suppressWarnings(augment(x, data = d_extra))
   expect_s3_class(out, "data.frame")
   expect_equal(nrow(out), 50L)
   expect_true("extra" %in% names(out))
   expect_true(".m1f1" %in% names(out))
+})
+
+test_that("augment(x, data) errors on non-numeric data", {
+  skip_if_not_installed("psych")
+  bfi_items <- psych::bfi[1:50, 1:25]
+  x <- suppressWarnings(ackwards(bfi_items, k = 2))
+  d_chr <- as.data.frame(lapply(bfi_items, as.character))
+  expect_error(augment(x, data = d_chr), "[Nn]umeric")
+})
+
+# ── NA data: warning + correct propagation ────────────────────────────────────
+
+test_that("augment(x, data) warns when data has missing rows", {
+  skip_if_not_installed("psych")
+  set.seed(42)
+  d <- as.data.frame(matrix(rnorm(200L * 10L), 200L, 10L))
+  x <- ackwards(d, k = 2L)
+  d_na <- d
+  d_na[5L, 1L] <- NA_real_
+  expect_warning(augment(x, data = d_na), "missing")
+})
+
+test_that("augment(x, data) produces NA scores for rows with missing values", {
+  skip_if_not_installed("psych")
+  set.seed(42)
+  d <- as.data.frame(matrix(rnorm(200L * 10L), 200L, 10L))
+  x <- ackwards(d, k = 2L)
+  d_na <- d
+  d_na[5L, 1L] <- NA_real_
+  out <- suppressWarnings(augment(x, data = d_na))
+  expect_true(is.na(out$.m1f1[5L]))
+})
+
+test_that("scores = TRUE warns when training data has missing rows", {
+  skip_if_not_installed("psych")
+  set.seed(42)
+  d <- as.data.frame(matrix(rnorm(200L * 10L), 200L, 10L))
+  d[5L, 1L] <- NA_real_
+  expect_warning(ackwards(d, k = 2L, scores = TRUE), "missing")
+})
+
+test_that("scores = TRUE produces NA scores for rows with missing values", {
+  skip_if_not_installed("psych")
+  set.seed(42)
+  d <- as.data.frame(matrix(rnorm(200L * 10L), 200L, 10L))
+  d[5L, 1L] <- NA_real_
+  x <- suppressWarnings(ackwards(d, k = 2L, scores = TRUE))
+  expect_true(any(is.na(x$scores[["1"]])))
+})
+
+# ── Non-Pearson basis: warning on scoring ────────────────────────────────────
+
+test_that("scoring with non-Pearson basis warns about basis mismatch", {
+  skip_if_not_installed("psych")
+  set.seed(42)
+  # Build a small ordinal data set so polychoric is valid
+  d <- as.data.frame(matrix(
+    sample(1L:5L, 150L * 6L, replace = TRUE), 150L, 6L
+  ))
+  x <- suppressWarnings(ackwards(d, k = 2, cor = "polychoric"))
+  expect_warning(augment(x, data = d), "polychoric")
+})
+
+# ── B4: keep_fits truncation ─────────────────────────────────────────────────
+
+test_that("keep_fits = TRUE only stores fits for converged levels when truncated", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  # 6 variables → lavaan::efa() truncates at k = 3; k = 5 requested
+  suppressWarnings(x <- ackwards(d, k = 5, method = "esem", keep_fits = TRUE))
+  expect_equal(x$k_max, 3L)
+  expect_false(is.null(x$fits))
+  expect_named(x$fits, c("1", "2", "3"))
+  expect_false("4" %in% names(x$fits))
+  expect_false("5" %in% names(x$fits))
 })

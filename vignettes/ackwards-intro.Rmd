@@ -9,8 +9,8 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse  = TRUE,
-  comment   = "#>",
+  collapse = TRUE,
+  comment = "#>",
   fig.width = 7,
   fig.height = 4.5
 )
@@ -243,7 +243,7 @@ matrices and appends them to your data frame. The score columns are named
 
 ```{r augment}
 scored <- augment(x, data = bfi)
-dim(scored)         # 25 original items + 15 score columns (1+2+3+4+5)
+dim(scored) # 25 original items + 15 score columns (1+2+3+4+5)
 names(scored)[26:40]
 ```
 
@@ -260,7 +260,7 @@ call:
 
 ```{r scores-stored}
 x2 <- ackwards(bfi, k = 5, cor = "polychoric", scores = TRUE)
-scored2 <- augment(x2)   # uses stored matrices — no recomputation
+scored2 <- augment(x2) # uses stored matrices — no recomputation
 identical(round(scored2$.m5f1, 8), round(scored$.m5f1, 8))
 ```
 

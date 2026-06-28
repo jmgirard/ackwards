@@ -6,9 +6,9 @@ output: github_document
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse  = TRUE,
-  comment   = "#>",
-  fig.path  = "man/figures/README-",
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
   out.width = "100%",
   fig.width = 8,
   fig.height = 5
@@ -60,7 +60,7 @@ choose an upper bound for the hierarchy depth.
 library(ackwards)
 
 bfi <- na.omit(psych::bfi[, 1:25])
-sk  <- suggest_k(bfi)
+sk <- suggest_k(bfi)
 sk
 ```
 
@@ -107,7 +107,7 @@ head(edges[edges$is_primary, c("from", "to", "r")], 8)
 ```{r augment}
 # Append scores for all 5 levels to the original data frame
 scored <- augment(x, data = bfi)
-dim(scored)   # original 25 items + 1+2+3+4+5 = 15 score columns
+dim(scored) # original 25 items + 1+2+3+4+5 = 15 score columns
 names(scored)[26:40]
 ```
 
@@ -129,6 +129,6 @@ Goldberg, L. R. (2006). Doing it all bass-ackwards: The development of
 hierarchical factor structures from the top down. *Journal of Research in
 Personality*, *40*(4), 347–358. https://doi.org/10.1016/j.jrp.2006.01.001
 
-```{r citation, eval = FALSE}
+```{r citation}
 citation("ackwards")
 ```

@@ -10,7 +10,7 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment  = "#>",
+  comment = "#>",
   fig.width = 7,
   fig.height = 4.5
 )
@@ -187,10 +187,10 @@ well-structured, continuous data, all three engines should agree closely on the
 hierarchy.
 
 ```{r edges-compare}
-e_pca  <- tidy(x_pca, what = "edges")
-e_efa  <- tidy(x_efa, what = "edges")
-e_pca$engine  <- "pca"
-e_efa$engine  <- "efa"
+e_pca <- tidy(x_pca, what = "edges")
+e_efa <- tidy(x_efa, what = "edges")
+e_pca$engine <- "pca"
+e_efa$engine <- "efa"
 
 # Primary-parent edges at each level transition
 primary_pca <- e_pca[e_pca$is_primary, c("engine", "from", "to", "r")]
