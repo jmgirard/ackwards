@@ -138,7 +138,7 @@ print.summary_ackwards <- function(x, ...) {
   if (!is.null(x$prune)) {
     cli::cli_h2("Pruning")
     p <- x$prune
-    if (!is.null(p$redundant)) {
+    if ("redundant" %in% p$rules) {
       nodes_str <- if (length(p$redundant) > 0L) {
         paste(p$redundant, collapse = ", ")
       } else {
@@ -158,7 +158,7 @@ print.summary_ackwards <- function(x, ...) {
         cli::cli_text("  Flagged: {nodes_str}")
       }
     }
-    if (!is.null(p$artefact_n)) {
+    if ("artefact" %in% p$rules) {
       cli::cli_text(
         "  Artefact: Tucker's phi computed for {p$artefact_n} cross-level pair{?s}"
       )
@@ -187,9 +187,13 @@ print.summary_ackwards <- function(x, ...) {
 # Build the lineage data frame: one row per parent with all primary children.
 # Uses only adjacent-level primary edges (level_to == level_from + 1) so
 # skip-level edges from pairs="all" don't appear in the tree listing.
+# which() is used instead of direct logical indexing for NA-safety: fill_primary()
+# leaves is_primary = NA on skip-level edges, and NA & FALSE = NA (row included).
+# Explicit sort by level then label ensures stable top-down ordering.
 .summary_lineage <- function(x) {
   e <- x$edges$tidy
-  adj_primary <- e[e$is_primary & (e$level_to == e$level_from + 1L), , drop = FALSE]
+  idx <- which(e$is_primary & (e$level_to == e$level_from + 1L))
+  adj_primary <- e[idx, , drop = FALSE]
 
   if (nrow(adj_primary) == 0L) {
     return(data.frame(
@@ -200,6 +204,10 @@ print.summary_ackwards <- function(x, ...) {
   }
 
   parents <- unique(adj_primary$from)
+  # Sort by level (level_from of first occurrence) then by label within level.
+  parent_levels <- adj_primary$level_from[match(parents, adj_primary$from)]
+  parents <- parents[order(parent_levels, parents)]
+
   rows <- lapply(parents, function(p) {
     kids <- adj_primary$to[adj_primary$from == p]
     data.frame(
@@ -212,6 +220,8 @@ print.summary_ackwards <- function(x, ...) {
 }
 
 # Extract pruning info for display: lists of flagged-node IDs and artefact count.
+# rules is carried through so print.summary_ackwards can gate on what was requested
+# (e.g. prune="artefact" never flags redundant nodes).
 .summary_prune <- function(x) {
   if (is.null(x$prune)) return(NULL)
   nodes <- x$prune$nodes
@@ -222,6 +232,7 @@ print.summary_ackwards <- function(x, ...) {
   }
   artefact_n <- if (!is.null(x$prune$phi)) nrow(x$prune$phi) else NULL
   list(
+    rules          = x$prune$rules,
     redundant      = redundant,
     artefact_n     = artefact_n,
     redundancy_r   = x$prune$redundancy_r,

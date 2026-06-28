@@ -314,6 +314,9 @@ test_that("ESEM warns on improper solution (Heywood case) but still builds", {
   skip_if_not_installed("lavaan")
   # 8 variables with near-zero unique variance (eps=0.001), 2 true factors.
   # k=3 pushes one residual to the Heywood boundary (theta <= 0 for one variable).
+  # lavaan clamps negative theta to 0 by default; our check fires at <= 0.
+  # The skip_if below guards against future lavaan versions that may change this
+  # bounding behaviour, which would make the fixture no longer trigger the warning.
   set.seed(42)
   n <- 200
   f1 <- rnorm(n)
@@ -329,6 +332,19 @@ test_that("ESEM warns on improper solution (Heywood case) but still builds", {
     x7 = sqrt(1 - eps) * f2 + sqrt(eps) * rnorm(n),
     x8 = sqrt(1 - eps) * f2 + sqrt(eps) * rnorm(n)
   ))
+  # Pre-check: verify this version of lavaan still produces theta <= 0 here.
+  lav_fit <- tryCatch(
+    suppressWarnings({
+      raw <- lavaan::efa(data = d, nfactors = 3L, rotation = "varimax")
+      if (inherits(raw, "efaList")) raw[[1L]] else raw
+    }),
+    error = function(e) NULL
+  )
+  theta_ok <- !is.null(lav_fit) && tryCatch({
+    any(diag(lavaan::lavInspect(lav_fit, "theta")) <= 0)
+  }, error = function(e) FALSE)
+  skip_if(!theta_ok, "lavaan no longer produces theta <= 0 for this fixture")
+
   expect_warning(
     x <- suppressMessages(ackwards(d, k = 3, method = "esem")),
     "Heywood"

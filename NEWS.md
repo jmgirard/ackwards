@@ -2,6 +2,30 @@
 
 ## Milestone 10 — Conformance + robustness
 
+### Wave 2 follow-up: conformance fixes
+
+* Fixed `print.summary_ackwards()` spuriously printing "Redundant: 0 nodes
+  flagged" when only `prune = "artefact"` was requested. Root cause:
+  `.summary_prune()` always returned a `redundant` field (a length-0 character
+  vector), and `print` gated on `!is.null(redundant)` rather than on the
+  `rules` slot. Fix: `.summary_prune()` now carries `rules` through from the
+  prune slot; both pruning display blocks in `print` gate on `"redundant" %in%
+  p$rules` / `"artefact" %in% p$rules` respectively — consistent with how
+  `print.ackwards()` handles the same slot.
+* `.summary_lineage()` now uses `which(e$is_primary & ...)` instead of direct
+  logical indexing to guard against `NA` values in `is_primary` (skip-level
+  edges from `pairs = "all"` carry `NA` there). Parents are now sorted
+  explicitly by level then label rather than relying on tidy-table insertion
+  order, giving stable top-down ordering regardless of pairs mode.
+* 7 new tests added to `test-print.R` covering: artefact-only prune (no
+  spurious redundant line), redundant+artefact combined, truncated ESEM
+  hierarchy, polychoric basis, PCA eigenvalue presence in fit table, lineage
+  content correctness (specific parent→children check), and the print method.
+* Heywood fixture in `test-esem.R` now starts with a `skip_if` pre-check
+  that verifies the fixture still produces `theta <= 0` under the installed
+  lavaan version, making the test skip gracefully rather than silently pass
+  if a future lavaan changes its residual-variance bounding behaviour.
+
 ### Wave 2: summary method
 
 * Added `summary.ackwards()` and `print.summary_ackwards()` — the previously

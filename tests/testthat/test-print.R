@@ -75,24 +75,91 @@ test_that("print.summary_ackwards runs without error and returns invisibly", {
   expect_invisible(print(s))
 })
 
-test_that("summary lineage lists all adjacent primary parent links", {
+test_that("summary fit table carries eigenvalues for PCA", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k = 2))
+  s <- summary(x)
+  # PCA fit indices are named "eigenvalue.<label>"; verify they exist
+  fit_k1 <- s$fit[s$fit$level == 1L, ]
+  expect_true(any(startsWith(fit_k1$index, "eigenvalue.")))
+  expect_true(all(is.finite(fit_k1$value)))
+})
+
+test_that("summary lineage: correct structure, ordering, and content", {
   skip_if_not_installed("psych")
   suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k = 3))
   s <- summary(x)
   lin <- s$lineage
   expect_s3_class(lin, "data.frame")
   expect_true(all(c("parent", "children") %in% names(lin)))
-  # k=3 hierarchy has k=1 and k=2 parents: m1f1 + m2f1 + m2f2 = 3 rows
+  # k=3 hierarchy has level-1 and level-2 parents: m1f1 + m2f1 + m2f2 = 3 rows
   expect_equal(nrow(lin), 3L)
-  expect_true("m1f1" %in% lin$parent)
+  # Parents appear in ascending level order (m1fX before m2fX)
+  expect_equal(lin$parent[1L], "m1f1")
+  # m1f1's children are the two k=2 factors (both primary children of m1f1)
+  m1_row <- lin[lin$parent == "m1f1", ]
+  m1_children <- trimws(strsplit(m1_row$children, ",")[[1L]])
+  expect_setequal(m1_children, c("m2f1", "m2f2"))
 })
 
-test_that("summary.ackwards shows pruning info when prune != 'none'", {
+test_that("summary.ackwards shows pruning info when prune = 'redundant'", {
   skip_if_not_installed("psych")
   suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k = 4, prune = "redundant"))
   s <- summary(x)
   expect_false(is.null(s$prune))
+  expect_equal(s$prune$rules, "redundant")
   expect_true(!is.null(s$prune$redundancy_r))
+})
+
+test_that("summary prune = 'artefact' carries rules and no spurious redundant info", {
+  skip_if_not_installed("psych")
+  suppressMessages(x <- suppressWarnings(
+    ackwards(psych::bfi[, 1:10], k = 3, prune = "artefact")
+  ))
+  s <- summary(x)
+  expect_false(is.null(s$prune))
+  expect_equal(s$prune$rules, "artefact")
+  # artefact-only: no node is flagged as redundant
+  expect_equal(length(s$prune$redundant), 0L)
+  # phi table exists
+  expect_true(!is.null(s$prune$artefact_n) && s$prune$artefact_n > 0L)
+  # print does not error (was showing spurious "Redundant: 0 nodes" before fix)
+  expect_no_error(suppressMessages(print(s)))
+})
+
+test_that("summary prune = c('redundant','artefact') shows both sections", {
+  skip_if_not_installed("psych")
+  suppressMessages(x <- suppressWarnings(
+    ackwards(psych::bfi[, 1:10], k = 4, prune = c("redundant", "artefact"))
+  ))
+  s <- summary(x)
+  expect_setequal(s$prune$rules, c("redundant", "artefact"))
+  expect_true(!is.null(s$prune$artefact_n))
+  expect_no_error(suppressMessages(print(s)))
+})
+
+test_that("summary.ackwards handles truncated ESEM hierarchy", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  # k=5 requested but p=6 caps lavaan at 3 -> k_eff=3
+  x <- suppressWarnings(suppressMessages(ackwards(d, k = 5, method = "esem")))
+  s <- summary(x)
+  # Summary reflects k_eff, not the requested k
+  expect_equal(s$k_max, x$k_max)
+  expect_equal(nrow(s$variance), sum(seq_len(x$k_max)))
+  expect_no_error(suppressMessages(print(s)))
+})
+
+test_that("summary.ackwards works with polychoric basis", {
+  skip_if_not_installed("psych")
+  d <- .make_ordinal_data()
+  suppressMessages(x <- suppressWarnings(
+    ackwards(d, k = 2, cor = "polychoric")
+  ))
+  s <- summary(x)
+  expect_s3_class(s, "summary_ackwards")
+  expect_equal(s$cor_type, "polychoric")
+  expect_no_error(suppressMessages(print(s)))
 })
 
 test_that("summary.ackwards works for all three engines", {
