@@ -2,6 +2,7 @@
 ^CLAUDE\.md$
 ^DESIGN\.md$
 ^LICENSE\.md$
+^\.lintr$
 ^\.DS_Store$
 ^.*\.Rproj$
 ^\.Rproj\.user$
