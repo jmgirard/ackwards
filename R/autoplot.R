@@ -50,10 +50,10 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   Default `"grey80"`. Only applied when the object carries pruning
 #'   annotations (`x$prune` is non-`NULL`) and `drop_pruned = FALSE` (pruned
 #'   nodes are omitted entirely when `drop_pruned = TRUE`).
-#' @param show_r Whether to label each drawn edge with its rounded correlation
-#'   coefficient. `NULL` (default) uses `FALSE` normally and `TRUE` when
-#'   `drop_pruned = TRUE` (Forbes 2023 figures always label spanning arrows).
-#'   Set explicitly to `TRUE` or `FALSE` to override.
+#' @param show_r Whether to label each drawn edge with its correlation
+#'   coefficient. Default `FALSE`. When `TRUE`, labels are formatted in APA
+#'   style (leading zero stripped, e.g. `.23`, `-.30`) and placed beside each
+#'   edge using a white-background label that clears the arrowhead.
 #' @param r_digits Number of decimal places for edge labels when
 #'   `show_r = TRUE`. Default `2L`.
 #' @param mono Monochrome mode. When `TRUE`, all edges are drawn in black;
@@ -116,6 +116,7 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' # Forbes pruned view: omit redundant nodes, straight spanning arrows
 #' xp <- ackwards(psych::bfi[, 1:25], k = 5, prune = "redundant")
 #' autoplot(xp, drop_pruned = TRUE)
+#' autoplot(xp, drop_pruned = TRUE, show_r = TRUE)  # with APA-style r labels
 #' autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
 #'
 #' # Plain line ends without arrowheads
@@ -149,7 +150,7 @@ autoplot.ackwards <- function(
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
-  show_r = NULL,
+  show_r = FALSE,
   r_digits = 2L,
   mono = FALSE,
   show_level_labels = TRUE,
@@ -183,7 +184,6 @@ autoplot.ackwards <- function(
 
   cut_show <- cut_show %||% object$meta$cut_show %||% 0.3
   show_skip <- show_skip %||% isTRUE(object$meta$pairs == "all")
-  show_r <- show_r %||% drop_pruned # Forbes: label spanning arrows by default
 
   layout <- ba_layout(object, min_sep = min_sep)
   nodes <- layout$nodes
@@ -397,16 +397,22 @@ autoplot.ackwards <- function(
   ed_cur <- draw_edges[draw_edges$curved, , drop = FALSE]
   if (nrow(ed_cur) > 0L) p <- .add_cur(p, ed_cur)
 
-  # (a) Edge correlation labels at midpoints
-  if (show_r && nrow(draw_edges) > 0L) {
-    draw_edges$lx <- (draw_edges$x_from + draw_edges$x_to) / 2
-    draw_edges$ly <- (draw_edges$y_from + draw_edges$y_to) / 2
-    draw_edges$rl <- round(draw_edges$r, r_digits)
-    p <- p + ggplot2::geom_text(
-      data = draw_edges,
+  # (a) Edge correlation labels — APA style, perpendicular offset, white halo
+  if (isTRUE(show_r) && nrow(draw_edges) > 0L) {
+    de <- draw_edges
+    de$edx <- de$x_to - de$x_from
+    de$edy <- de$y_to - de$y_from
+    de$elen <- sqrt(de$edx^2 + de$edy^2)
+    r_nudge <- 0.15
+    de$lx <- (de$x_from + de$x_to) / 2 + (-de$edy / de$elen) * r_nudge
+    de$ly <- (de$y_from + de$y_to) / 2 + (de$edx / de$elen) * r_nudge
+    de$rl <- .format_r(de$r, r_digits)
+    p <- p + ggplot2::geom_label(
+      data = de,
       ggplot2::aes(x = .data$lx, y = .data$ly, label = .data$rl),
       size = 2.5,
-      nudge_x = 0.1,
+      linewidth = 0,
+      label.padding = ggplot2::unit(0.1, "lines"),
       inherit.aes = FALSE
     )
   }

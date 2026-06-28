@@ -1,5 +1,24 @@
 # ackwards 0.0.0.9000 (dev)
 
+## Milestone 11 — Edge-label polish + `show_r` decoupling
+
+* `show_r` now defaults to `FALSE` in all `autoplot.ackwards()` views.
+  Previously, `show_r = NULL` resolved to `TRUE` when `drop_pruned = TRUE`
+  (coupling two orthogonal concerns). The default is now explicit: pass
+  `show_r = TRUE` to label edges. The Forbes vignette demonstrates both the
+  labeled and unlabeled variants, matching the two-figure treatment in Forbes
+  (2023). (#M11)
+
+* Edge correlation labels now use APA-style formatting via the new internal
+  helper `.format_r()`: the leading zero is stripped (`.23` not `0.23`),
+  trailing zeros are padded to `r_digits` decimal places (`.30` not `.3`),
+  and `±1` formats as `1.00` / `-1.00`. (#M11)
+
+* Edge labels are now rendered with `geom_label` (white background, no border)
+  offset perpendicular to each edge's direction, so they clear near-vertical
+  arrows and the arrowhead regardless of edge angle. The previous flat
+  horizontal nudge was ineffective for near-vertical segments. (#M11)
+
 ## Milestone 10 — Conformance + robustness
 
 ### Wave 2 follow-up: conformance fixes

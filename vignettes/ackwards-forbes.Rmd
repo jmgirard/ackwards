@@ -125,13 +125,25 @@ entirely and draw direct connections from each retained factor to its single
 strongest kept ancestor — even when that ancestor is several levels away. This
 is the Forbes (2023) pruned-factor diagram, activated by `drop_pruned = TRUE`.
 
-Correlation labels appear by default in this view (`show_r` auto-defaults to
-`TRUE`) because they are the primary signal distinguishing a close connection
-from a long gap-spanning one. The arguments below reproduce the style of the
-figures in Forbes (2023): black lines, uniform width, plain line ends, and no
-legend.
+Forbes (2023) presents two variants: one with correlation labels on each arrow
+and one without. The first is useful when the strength of each spanning
+connection matters to the interpretation; the second is cleaner for
+presentations. Both are reproduced below using the same publication style —
+black lines, uniform width, plain line ends, and no legend.
+
+**With correlation labels** (`show_r = TRUE`):
 
 ```{r drop-pruned, warning = FALSE}
+autoplot(x_prune,
+  drop_pruned = TRUE, show_r = TRUE,
+  color_pos = "black", color_neg = "black",
+  edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
+)
+```
+
+**Without labels** (cleaner for slides or when the exact values are not the focus):
+
+```{r drop-pruned-unlabeled, warning = FALSE}
 autoplot(x_prune,
   drop_pruned = TRUE,
   color_pos = "black", color_neg = "black",

@@ -1,5 +1,14 @@
 # Internal utilities — not exported
 
+# Format a correlation as an APA-style string: strip the leading zero, pad
+# trailing zeros to `digits` decimal places.
+# Examples (digits = 2): 0.23 -> ".23", -0.3 -> "-.30", 0 -> ".00", 1 -> "1.00"
+.format_r <- function(r, digits = 2L) {
+  fmt <- formatC(abs(r), digits = digits, format = "f")
+  fmt <- sub("^0\\.", ".", fmt)
+  ifelse(r < 0, paste0("-", fmt), fmt)
+}
+
 # Generate standard factor labels for level k with j factors: "m{k}f{j}"
 make_labels <- function(k) {
   paste0("m", k, "f", seq_len(k))

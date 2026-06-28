@@ -17,7 +17,7 @@
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
-  show_r = NULL,
+  show_r = FALSE,
   r_digits = 2L,
   mono = FALSE,
   show_level_labels = TRUE,
@@ -70,10 +70,10 @@ Default \code{"grey80"}. Only applied when the object carries pruning
 annotations (\code{x$prune} is non-\code{NULL}) and \code{drop_pruned = FALSE} (pruned
 nodes are omitted entirely when \code{drop_pruned = TRUE}).}
 
-\item{show_r}{Whether to label each drawn edge with its rounded correlation
-coefficient. \code{NULL} (default) uses \code{FALSE} normally and \code{TRUE} when
-\code{drop_pruned = TRUE} (Forbes 2023 figures always label spanning arrows).
-Set explicitly to \code{TRUE} or \code{FALSE} to override.}
+\item{show_r}{Whether to label each drawn edge with its correlation
+coefficient. Default \code{FALSE}. When \code{TRUE}, labels are formatted in APA
+style (leading zero stripped, e.g. \code{.23}, \code{-.30}) and placed beside each
+edge using a white-background label that clears the arrowhead.}
 
 \item{r_digits}{Number of decimal places for edge labels when
 \code{show_r = TRUE}. Default \code{2L}.}
@@ -158,6 +158,7 @@ autoplot(x, primary_only = TRUE)
 # Forbes pruned view: omit redundant nodes, straight spanning arrows
 xp <- ackwards(psych::bfi[, 1:25], k = 5, prune = "redundant")
 autoplot(xp, drop_pruned = TRUE)
+autoplot(xp, drop_pruned = TRUE, show_r = TRUE)  # with APA-style r labels
 autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
 
 # Plain line ends without arrowheads

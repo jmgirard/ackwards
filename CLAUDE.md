@@ -45,7 +45,18 @@ default output must reproduce Forbes's examples exactly.
   (`theta ≤ 0`, parity with EFA engine); `cor="spearman"` + `method="esem"` inconsistency warning;
   DESIGN.md §8 reconciled to list only PA + MAP (EKC/EGA marked out of scope).
 
-## Current focus — no active milestone
+## Current focus — M11 (edge-label polish + `show_r` decoupling)
+
+Next up, planned in `DESIGN.md` §15.11–12:
+
+- **M11 (current):** `autoplot.ackwards()` label quality — APA `.format_r()` helper (strip leading
+  zero, pad trailing zeros), `geom_label` with a perpendicular offset so labels clear arrows, and
+  **decouple `show_r` from `drop_pruned`** (default `FALSE` everywhere; supersedes the M8 §15.8a/8c
+  auto-default — a flagged default change). Additive otherwise.
+- **M12 (next):** best-practice `suggest_k` — add Comparison Data (CD, via `EFAtools` gated by
+  `check_installed()`), FA-eigenvalue PA, and VSS-1/2; enrich the object with eigenvalues; new
+  `autoplot.suggest_k()` scree/parallel plot; redesigned multi-criterion `print`. **Amends §8 and
+  §12** (adds `EFAtools` to Suggests; EGA stays out of scope) — flag before landing.
 
 If a step needs a design decision not covered in `DESIGN.md`, **stop and ask** rather than guessing.
 

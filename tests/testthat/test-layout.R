@@ -370,7 +370,7 @@ test_that("drop_pruned=TRUE returns a ggplot for a pruned object", {
   expect_s3_class(p, "ggplot")
 })
 
-test_that("drop_pruned=TRUE defaults show_r to TRUE", {
+test_that("drop_pruned=TRUE: show_r defaults to FALSE (decoupled from drop_pruned)", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
   suppressWarnings(suppressMessages(
@@ -379,12 +379,23 @@ test_that("drop_pruned=TRUE defaults show_r to TRUE", {
       redundancy_r = 0.95
     )
   ))
-  # show_r = NULL auto-defaults to TRUE; should produce a plot without error
-  p <- expect_no_error(ggplot2::autoplot(x, drop_pruned = TRUE, show_r = NULL))
+  # show_r defaults FALSE; no GeomLabel layers should appear
+  p <- expect_no_error(ggplot2::autoplot(x, drop_pruned = TRUE))
   expect_s3_class(p, "ggplot")
+  label_layers <- Filter(function(l) inherits(l$geom, "GeomLabel"), p$layers)
+  expect_equal(length(label_layers), 0L)
 })
 
-test_that("drop_pruned=TRUE respects explicit show_r=FALSE override", {
+test_that("show_r=TRUE produces GeomLabel layers", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k = 3))
+  p <- expect_no_error(ggplot2::autoplot(x, show_r = TRUE))
+  label_layers <- Filter(function(l) inherits(l$geom, "GeomLabel"), p$layers)
+  expect_true(length(label_layers) > 0L)
+})
+
+test_that("drop_pruned=TRUE + show_r=FALSE produces no GeomLabel layers", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
   suppressWarnings(suppressMessages(
@@ -395,6 +406,8 @@ test_that("drop_pruned=TRUE respects explicit show_r=FALSE override", {
   ))
   p <- expect_no_error(ggplot2::autoplot(x, drop_pruned = TRUE, show_r = FALSE))
   expect_s3_class(p, "ggplot")
+  label_layers <- Filter(function(l) inherits(l$geom, "GeomLabel"), p$layers)
+  expect_equal(length(label_layers), 0L)
 })
 
 test_that("drop_pruned=TRUE + compress_levels=TRUE returns a ggplot", {
