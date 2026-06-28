@@ -101,6 +101,18 @@ exactly.
   object, print output, README, and docs; `@section Defaults` explains
   T′=T⁻¹ → W′RW algebra + varimax = what all reference papers used;
   DESIGN.md §4, §9, §14.1, §14.7 updated.
+- **M14 (done):** Dedicated
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  vignette — new
+  [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md)
+  (“Choosing k: How Many Factors?”) with all five criteria (pros/cons,
+  bias direction, engine pairing), argument coverage
+  (cor/n_iter/seed/k_max including ordinal→Pearson and
+  PA-non-reproducibility caveats), and a worked BFI recommendation;
+  intro vignette Step 1 trimmed to default call + pointer;
+  `_pkgdown.yml` lists the new article first under Deep dives; README
+  stale two-criteria description corrected to five criteria; DESIGN.md
+  §8 and §15 updated.
 
 ## Current focus
 

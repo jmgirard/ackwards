@@ -20,6 +20,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><a class="dropdown-item" href="articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
@@ -85,6 +86,8 @@
 <strong>M12 (done):</strong> Best-practice <code>suggest_k</code> — PA-FA added alongside PA-PC (<code>psych::fa.parallel(fa = "both")</code>); VSS-1/VSS-2 surfaced from existing <code><a href="https://rdrr.io/pkg/psych/man/VSS.html" class="external-link">psych::vss()</a></code> call; Comparison Data (CD) added via <code><a href="https://rdrr.io/pkg/EFAtools/man/CD.html" class="external-link">EFAtools::CD()</a></code> gated by <code><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">rlang::is_installed()</a></code> (skips gracefully when absent); new <code>seed</code> arg; enriched <code>suggest_k</code> object (<code>k_parallel_pc</code>, <code>k_parallel_fa</code>, <code>k_vss1</code>, <code>k_vss2</code>, <code>k_cd</code>, <code>cd_available</code>, expanded <code>criteria</code> table); redesigned <code><a href="reference/print.suggest_k.html">print.suggest_k()</a></code> multi-criterion table; new <code><a href="reference/autoplot.suggest_k.html">autoplot.suggest_k()</a></code> three-panel ggplot2 diagnostic (scree/PA + MAP + VSS); <code>EFAtools</code> added to Suggests; DESIGN.md §8 and §12 updated.</li>
 <li>
 <strong>M13 (done):</strong> Rotation honesty — removed dead <code>kappa</code> argument; removed <code>rotation</code> argument entirely (only varimax is valid; exposed as a user arg it implied quartimax/equamax were options); renamed “cfT” → “varimax” throughout all three engine internals, the result object, print output, README, and docs; <code>@section Defaults</code> explains T′=T⁻¹ → W′RW algebra + varimax = what all reference papers used; DESIGN.md §4, §9, §14.1, §14.7 updated.</li>
+<li>
+<strong>M14 (done):</strong> Dedicated <code><a href="reference/suggest_k.html">suggest_k()</a></code> vignette — new <code><a href="articles/ackwards-suggest-k.html">vignette("ackwards-suggest-k")</a></code> (“Choosing k: How Many Factors?”) with all five criteria (pros/cons, bias direction, engine pairing), argument coverage (cor/n_iter/seed/k_max including ordinal→Pearson and PA-non-reproducibility caveats), and a worked BFI recommendation; intro vignette Step 1 trimmed to default call + pointer; <code>_pkgdown.yml</code> lists the new article first under Deep dives; README stale two-criteria description corrected to five criteria; DESIGN.md §8 and §15 updated.</li>
 </ul></div>
 <div class="section level2">
 <h2 id="current-focus">Current focus<a class="anchor" aria-label="anchor" href="#current-focus"></a></h2>

@@ -37,6 +37,7 @@
 <li><a class="dropdown-item" href="articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><a class="dropdown-item" href="articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
@@ -89,17 +90,20 @@
 <div class="section level3">
 <h3 id="step-1--suggest-a-range-of-k">Step 1 — Suggest a range of k<a class="anchor" aria-label="anchor" href="#step-1--suggest-a-range-of-k"></a>
 </h3>
-<p><code><a href="reference/suggest_k.html">suggest_k()</a></code> runs parallel analysis and Velicer’s MAP criterion to help you choose an upper bound for the hierarchy depth.</p>
+<p><code><a href="reference/suggest_k.html">suggest_k()</a></code> runs five complementary criteria — two forms of parallel analysis (PC and FA basis), MAP, VSS, and optionally Comparison Data — to help you choose an upper bound for the hierarchy depth.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmgirard.github.io/ackwards/">ackwards</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">sk</span>  <span class="op">&lt;-</span> <span class="fu"><a href="reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Running parallel analysis (20 iterations)...</span></span>
-<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations)... [156ms]</span></span>
+<span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Running parallel analysis (20 iterations, PC + FA)...</span></span>
+<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [211ms]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Running MAP (Velicer)...</span></span>
-<span><span class="co">#&gt; ✔ Running MAP (Velicer)... [51ms]</span></span>
+<span><span class="co">#&gt; ℹ Running MAP and VSS...</span></span>
+<span><span class="co">#&gt; ✔ Running MAP and VSS... [93ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Running Comparison Data (CD)...</span></span>
+<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [8.6s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -107,30 +111,34 @@
 <span><span class="co">#&gt; Variables: 25</span></span>
 <span><span class="co">#&gt; n: 2,436</span></span>
 <span><span class="co">#&gt; Basis: pearson</span></span>
-<span><span class="co">#&gt; Tested k: 1–8</span></span>
+<span><span class="co">#&gt; Tested k: 1-8</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── Criteria (k = 1–8) ──</span></span>
+<span><span class="co">#&gt; ── Criteria (k = 1-8) ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ✔ k = 1: MAP = 0.0249 | PA suggested</span></span>
-<span><span class="co">#&gt; ✔ k = 2: MAP = 0.0189 | PA suggested</span></span>
-<span><span class="co">#&gt; ✔ k = 3: MAP = 0.0175 | PA suggested</span></span>
-<span><span class="co">#&gt; ✔ k = 4: MAP = 0.0157 | PA suggested</span></span>
-<span><span class="co">#&gt; ✔ k = 5: MAP = 0.0146 | PA suggested</span></span>
-<span><span class="co">#&gt; - k = 6: MAP = 0.0160 | PA not suggested</span></span>
-<span><span class="co">#&gt; - k = 7: MAP = 0.0194 | PA not suggested</span></span>
-<span><span class="co">#&gt; - k = 8: MAP = 0.0222 | PA not suggested</span></span>
+<span><span class="co">#&gt; k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD ✔</span></span>
+<span><span class="co">#&gt; k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD ✔</span></span>
+<span><span class="co">#&gt; k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD ✔</span></span>
+<span><span class="co">#&gt; k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔</span></span>
+<span><span class="co">#&gt; k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔</span></span>
+<span><span class="co">#&gt; k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔</span></span>
+<span><span class="co">#&gt; k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔</span></span>
+<span><span class="co">#&gt; k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD ✔*</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Recommendations ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; • Parallel analysis: k ≤ 5</span></span>
-<span><span class="co">#&gt; • MAP (Velicer): k = 5</span></span>
-<span><span class="co">#&gt; Consensus: k = 5</span></span>
+<span><span class="co">#&gt; • PA-PC: k &lt;= 5</span></span>
+<span><span class="co">#&gt; • PA-FA: k &lt;= 6</span></span>
+<span><span class="co">#&gt; • MAP: k = 5</span></span>
+<span><span class="co">#&gt; • VSS-1: k = 4</span></span>
+<span><span class="co">#&gt; • VSS-2: k = 5</span></span>
+<span><span class="co">#&gt; • CD: k = 8</span></span>
+<span><span class="co">#&gt; Consensus range: k = 4-8</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Note: k in ackwards() is a maximum depth. Consider setting k one or two levels</span></span>
-<span><span class="co">#&gt; above the consensus to observe factor fragmentation.</span></span>
-<span><span class="co">#&gt; Caution: parallel analysis tends to overextract; many suggested structures do</span></span>
-<span><span class="co">#&gt; not replicate (Forbes, 2023). Treat this as a range.</span></span></code></pre></div>
-<p>Both criteria agree: k = 5 fits the known Big Five structure of this instrument.</p>
+<span><span class="co">#&gt; Note: k in ackwards() is a maximum depth. Setting k one or two levels above the</span></span>
+<span><span class="co">#&gt; consensus to observe factor fragmentation is intentional.</span></span>
+<span><span class="co">#&gt; Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span>
+<span><span class="co">#&gt; 2023). PA-FA and CD are more conservative. Use the range.</span></span></code></pre></div>
+<p>The criteria converge on a consensus range that covers k = 5, consistent with the known Big Five structure of this instrument.</p>
 </div>
 <div class="section level3">
 <h3 id="step-2--fit-the-hierarchy">Step 2 — Fit the hierarchy<a class="anchor" aria-label="anchor" href="#step-2--fit-the-hierarchy"></a>
@@ -198,7 +206,8 @@
 <span><span class="co">#&gt;   comes from the "polychoric" R.</span></span>
 <span><span class="co">#&gt; ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,</span></span>
 <span><span class="co">#&gt;   between-level edges from `tidy()` are the authoritative associations.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span>   <span class="co"># original 25 items + 1+2+3+4+5 = 15 score columns</span></span>
+<span><span class="co">#&gt; This warning is displayed once per session.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span> <span class="co"># original 25 items + 1+2+3+4+5 = 15 score columns</span></span>
 <span><span class="co">#&gt; [1] 2436   40</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span><span class="op">[</span><span class="fl">26</span><span class="op">:</span><span class="fl">40</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"</span></span>
@@ -223,6 +232,10 @@
 <td>Full PCA walkthrough: <code>suggest_k</code> → <code>ackwards</code> → inspect → plot → score</td>
 </tr>
 <tr>
+<td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.html">Choosing k</a></td>
+<td>Five criteria explained: pros/cons, bias direction, engine pairing</td>
+</tr>
+<tr>
 <td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-engines.html">Engines &amp; rotation</a></td>
 <td>When to choose EFA or ESEM over PCA; convergence and loading comparison</td>
 </tr>
@@ -245,11 +258,9 @@
 <p>Goldberg, L. R. (2006). Doing it all bass-ackwards: The development of hierarchical factor structures from the top down. <em>Journal of Research in Personality</em>, <em>40</em>(4), 347–358. <a href="https://doi.org/10.1016/j.jrp.2006.01.001" class="external-link uri">https://doi.org/10.1016/j.jrp.2006.01.001</a></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"ackwards"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in citation("ackwards"): could not determine year for 'ackwards' from</span></span>
-<span><span class="co">#&gt; package DESCRIPTION file</span></span>
 <span><span class="co">#&gt; To cite package 'ackwards' in publications use:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Girard J (????). _ackwards: Bass-Ackwards Hierarchical Structural</span></span>
+<span><span class="co">#&gt;   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural</span></span>
 <span><span class="co">#&gt;   Analysis_. R package version 0.0.0.9000,</span></span>
 <span><span class="co">#&gt;   &lt;https://jmgirard.github.io/ackwards/&gt;.</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -258,6 +269,7 @@
 <span><span class="co">#&gt;   @Manual{,</span></span>
 <span><span class="co">#&gt;     title = {ackwards: Bass-Ackwards Hierarchical Structural Analysis},</span></span>
 <span><span class="co">#&gt;     author = {Jeffrey M. Girard},</span></span>
+<span><span class="co">#&gt;     year = {2026},</span></span>
 <span><span class="co">#&gt;     note = {R package version 0.0.0.9000},</span></span>
 <span><span class="co">#&gt;     url = {https://jmgirard.github.io/ackwards/},</span></span>
 <span><span class="co">#&gt;   }</span></span></code></pre></div>

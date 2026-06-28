@@ -20,6 +20,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
@@ -49,6 +50,12 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="ackwards-0009000-dev">ackwards 0.0.0.9000 (dev)<a class="anchor" aria-label="anchor" href="#ackwards-0009000-dev"></a></h2>
+<div class="section level3">
+<h3 id="milestone--dedicated-suggest_k-vignette-0-0-0-9000">Milestone 14 — Dedicated <code>suggest_k()</code> vignette<a class="anchor" aria-label="anchor" href="#milestone--dedicated-suggest_k-vignette-0-0-0-9000"></a></h3>
+<ul><li><p>New vignette <code><a href="../articles/ackwards-suggest-k.html">vignette("ackwards-suggest-k")</a></code> — “Choosing k: How Many Factors?” — a narrative/educational companion to the <code><a href="../reference/suggest_k.html">suggest_k()</a></code> reference page. Covers all five criteria with pros/cons and bias direction, engine-to- criterion pairing (PA-FA for efa/esem; PA-PC for pca), all four arguments including the ordinal→Pearson caveat and the PA non-reproducibility note, and a worked k-selection for the BFI. Listed first in the pkgdown “Deep dives” section. (#M14)</p></li>
+<li><p>Intro vignette (<code><a href="../articles/ackwards-intro.html">vignette("ackwards-intro")</a></code>) Step 1 trimmed to the default <code><a href="../reference/suggest_k.html">suggest_k()</a></code> call plus a pointer to the new vignette; criteria prose moved there. (#M14)</p></li>
+<li><p>README corrected: <code><a href="../reference/suggest_k.html">suggest_k()</a></code> description updated from “parallel analysis and Velicer’s MAP criterion” to the accurate five-criteria description; “Both criteria agree” prose updated to “The criteria converge”; new vignette added to the “Learn more” table. (#M14)</p></li>
+</ul></div>
 <div class="section level3">
 <h3 id="milestone--rotation-honesty-remove-dead-kappa-argument-0-0-0-9000">Milestone 13 — Rotation honesty: remove dead <code>kappa</code> argument<a class="anchor" aria-label="anchor" href="#milestone--rotation-honesty-remove-dead-kappa-argument-0-0-0-9000"></a></h3>
 <ul><li><p>The <code>kappa</code> argument to <code><a href="../reference/ackwards.html">ackwards()</a></code> has been removed. It was accepted and stored in <code>x$meta</code> but was never passed to any of the three engines — all engines already hardcoded <code>cfT → "varimax"</code>. Crawford-Ferguson with κ = 1/p is numerically identical to varimax (Crawford &amp; Ferguson, 1970; Browne, 2001), and no reference paper (Goldberg 2006; Kim &amp; Eaton 2015; Forbush et al. 2024) varies kappa. Exposing it implied quartimax/equamax were reasonable alternatives for this method; they are not. (#M13)</p></li>

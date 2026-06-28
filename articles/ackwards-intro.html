@@ -35,6 +35,7 @@
 <li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
@@ -144,40 +145,19 @@ analysis you might use pairwise deletion or multiple imputation;
 <div class="section level2">
 <h2 id="step-1-how-many-factors-suggest_k">Step 1: How many factors? <code>suggest_k()</code><a class="anchor" aria-label="anchor" href="#step-1-how-many-factors-suggest_k"></a>
 </h2>
-<p>Before fitting the hierarchy, it helps to have a sense of the
-plausible range of k. <code><a href="../reference/suggest_k.html">suggest_k()</a></code> runs five complementary
-selection criteria — two forms of parallel analysis, MAP, VSS, and
-(optionally) Comparison Data:</p>
-<ul>
-<li>
-<strong>PA-PC / PA-FA</strong> (Horn, 1965): compares observed PC or
-FA eigenvalues against those from random data of the same size. PA-PC
-tends to overextract; PA-FA is more conservative and the better match
-for EFA/ESEM engines.</li>
-<li>
-<strong>MAP</strong> (Velicer, 1976): examines the average
-off-diagonal partial correlation after successive factors are extracted;
-suggests the k at which this average is minimized. Usually
-conservative.</li>
-<li>
-<strong>VSS-1 / VSS-2</strong> (Revelle &amp; Rocklin, 1979): finds
-the k maximising the fit of a very-simple-structure loading pattern at
-complexities 1 and 2.</li>
-<li>
-<strong>CD</strong> (Ruscio &amp; Roche, 2012): resamples from the
-observed item distributions to generate comparison eigenvalue profiles.
-Available only when the <code>EFAtools</code> package is installed.</li>
-</ul>
+<p>Before fitting the hierarchy, get a sense of the plausible range of
+k. <code><a href="../reference/suggest_k.html">suggest_k()</a></code> runs five complementary selection criteria
+and reports a consensus range:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[335ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[323ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[173ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[18.3s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[18.4s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -212,16 +192,15 @@ Available only when the <code>EFAtools</code> package is installed.</li>
 <span><span class="co">#&gt; <span style="color: #555555;">consensus to observe factor fragmentation is intentional.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">2023). PA-FA and CD are more conservative. Use the range.</span></span></span></code></pre></div>
-<p>No single criterion is definitive. Look at the consensus range — if
-all five criteria point to the same k (or a tight range), that is strong
-evidence. The note at the bottom reminds us that k in
-<code><a href="../reference/ackwards.html">ackwards()</a></code> is an <em>upper bound</em> — setting k one or
-two levels above the consensus to watch factors fragment is intentional
-and informative.</p>
-<p>A quick diagnostic plot shows the full picture:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-intro_files/figure-html/suggest_k_plot-1.png" class="r-plt" alt="" width="576"></p>
+<p>No single criterion is decisive — look at where they converge. k in
+<code><a href="../reference/ackwards.html">ackwards()</a></code> is an <em>upper bound</em>; setting k one or two
+levels above the consensus to watch factors fragment is intentional and
+informative. For a full explanation of each criterion, its bias
+direction, and how to match it to your engine, see
+<code><a href="../articles/ackwards-suggest-k.html">vignette("ackwards-suggest-k")</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="step-2-fit-the-hierarchy-ackwards">Step 2: Fit the hierarchy <code>ackwards()</code><a class="anchor" aria-label="anchor" href="#step-2-fit-the-hierarchy-ackwards"></a>
@@ -621,18 +600,23 @@ factor scores for downstream use.</li>
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td>Choosing k: the five criteria in depth, pros/cons, and best
+practices</td>
+<td><code><a href="../articles/ackwards-suggest-k.html">vignette("ackwards-suggest-k")</a></code></td>
+</tr>
+<tr class="even">
 <td>When PCA is not enough: comparing EFA and ESEM engines</td>
 <td><code><a href="../articles/ackwards-engines.html">vignette("ackwards-engines")</a></code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Ordinal data: polychoric correlations and WLSMV estimation</td>
 <td><code><a href="../articles/ackwards-ordinal.html">vignette("ackwards-ordinal")</a></code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Skip-level connections and pruning with the Forbes extension</td>
 <td><code><a href="../articles/ackwards-forbes.html">vignette("ackwards-forbes")</a></code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Customizing the hierarchy diagram</td>
 <td><code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code></td>
 </tr>

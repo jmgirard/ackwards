@@ -7,6 +7,8 @@
 
 ### Deep dives
 
+- [Choosing k: How Many
+  Factors?](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md):
 - [Choosing an Engine: PCA, EFA, and
   ESEM](https://jmgirard.github.io/ackwards/articles/ackwards-engines.md):
 - [Ordinal Data: Polychoric Correlations and

@@ -63,37 +63,22 @@ this illustration.
 
 ## Step 1: How many factors? `suggest_k()`
 
-Before fitting the hierarchy, it helps to have a sense of the plausible
-range of k.
+Before fitting the hierarchy, get a sense of the plausible range of k.
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-runs five complementary selection criteria — two forms of parallel
-analysis, MAP, VSS, and (optionally) Comparison Data:
-
-- **PA-PC / PA-FA** (Horn, 1965): compares observed PC or FA eigenvalues
-  against those from random data of the same size. PA-PC tends to
-  overextract; PA-FA is more conservative and the better match for
-  EFA/ESEM engines.
-- **MAP** (Velicer, 1976): examines the average off-diagonal partial
-  correlation after successive factors are extracted; suggests the k at
-  which this average is minimized. Usually conservative.
-- **VSS-1 / VSS-2** (Revelle & Rocklin, 1979): finds the k maximising
-  the fit of a very-simple-structure loading pattern at complexities 1
-  and 2.
-- **CD** (Ruscio & Roche, 2012): resamples from the observed item
-  distributions to generate comparison eigenvalue profiles. Available
-  only when the `EFAtools` package is installed.
+runs five complementary selection criteria and reports a consensus
+range:
 
 ``` r
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [335ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [323ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> ✔ Running MAP and VSS... [173ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [18.3s]
+#> ✔ Running Comparison Data (CD)... [18.4s]
 #> 
 sk
 #> 
@@ -130,21 +115,20 @@ sk
 #> 2023). PA-FA and CD are more conservative. Use the range.
 ```
 
-No single criterion is definitive. Look at the consensus range — if all
-five criteria point to the same k (or a tight range), that is strong
-evidence. The note at the bottom reminds us that k in
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-is an *upper bound* — setting k one or two levels above the consensus to
-watch factors fragment is intentional and informative.
-
-A quick diagnostic plot shows the full picture:
-
 ``` r
 
 autoplot(sk)
 ```
 
 ![](ackwards-intro_files/figure-html/suggest_k_plot-1.png)
+
+No single criterion is decisive — look at where they converge. k in
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+is an *upper bound*; setting k one or two levels above the consensus to
+watch factors fragment is intentional and informative. For a full
+explanation of each criterion, its bias direction, and how to match it
+to your engine, see
+[`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md).
 
 ## Step 2: Fit the hierarchy `ackwards()`
 
@@ -526,6 +510,7 @@ The bass-ackwards workflow in **ackwards** has six steps:
 
 | Topic | Vignette |
 |----|----|
+| Choosing k: the five criteria in depth, pros/cons, and best practices | [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md) |
 | When PCA is not enough: comparing EFA and ESEM engines | [`vignette("ackwards-engines")`](https://jmgirard.github.io/ackwards/articles/ackwards-engines.md) |
 | Ordinal data: polychoric correlations and WLSMV estimation | [`vignette("ackwards-ordinal")`](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.md) |
 | Skip-level connections and pruning with the Forbes extension | [`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md) |

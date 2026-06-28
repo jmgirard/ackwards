@@ -45,20 +45,24 @@ set `cor = "polychoric"`.
 ### Step 1 — Suggest a range of k
 
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-runs parallel analysis and Velicer’s MAP criterion to help you choose an
-upper bound for the hierarchy depth.
+runs five complementary criteria — two forms of parallel analysis (PC
+and FA basis), MAP, VSS, and optionally Comparison Data — to help you
+choose an upper bound for the hierarchy depth.
 
 ``` r
 
 library(ackwards)
 
 bfi <- na.omit(psych::bfi[, 1:25])
-sk  <- suggest_k(bfi)
-#> ℹ Running parallel analysis (20 iterations)...
-#> ✔ Running parallel analysis (20 iterations)... [156ms]
+sk <- suggest_k(bfi)
+#> ℹ Running parallel analysis (20 iterations, PC + FA)...
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [211ms]
 #> 
-#> ℹ Running MAP (Velicer)...
-#> ✔ Running MAP (Velicer)... [51ms]
+#> ℹ Running MAP and VSS...
+#> ✔ Running MAP and VSS... [93ms]
+#> 
+#> ℹ Running Comparison Data (CD)...
+#> ✔ Running Comparison Data (CD)... [8.6s]
 #> 
 sk
 #> 
@@ -66,33 +70,37 @@ sk
 #> Variables: 25
 #> n: 2,436
 #> Basis: pearson
-#> Tested k: 1–8
+#> Tested k: 1-8
 #> 
-#> ── Criteria (k = 1–8) ──
+#> ── Criteria (k = 1-8) ──
 #> 
-#> ✔ k = 1: MAP = 0.0249 | PA suggested
-#> ✔ k = 2: MAP = 0.0189 | PA suggested
-#> ✔ k = 3: MAP = 0.0175 | PA suggested
-#> ✔ k = 4: MAP = 0.0157 | PA suggested
-#> ✔ k = 5: MAP = 0.0146 | PA suggested
-#> - k = 6: MAP = 0.0160 | PA not suggested
-#> - k = 7: MAP = 0.0194 | PA not suggested
-#> - k = 8: MAP = 0.0222 | PA not suggested
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔
+#> k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔
+#> k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD ✔*
 #> 
 #> ── Recommendations ──
 #> 
-#> • Parallel analysis: k ≤ 5
-#> • MAP (Velicer): k = 5
-#> Consensus: k = 5
+#> • PA-PC: k <= 5
+#> • PA-FA: k <= 6
+#> • MAP: k = 5
+#> • VSS-1: k = 4
+#> • VSS-2: k = 5
+#> • CD: k = 8
+#> Consensus range: k = 4-8
 #> ────────────────────────────────────────────────────────────────────────────────
-#> Note: k in ackwards() is a maximum depth. Consider setting k one or two levels
-#> above the consensus to observe factor fragmentation.
-#> Caution: parallel analysis tends to overextract; many suggested structures do
-#> not replicate (Forbes, 2023). Treat this as a range.
+#> Note: k in ackwards() is a maximum depth. Setting k one or two levels above the
+#> consensus to observe factor fragmentation is intentional.
+#> Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
+#> 2023). PA-FA and CD are more conservative. Use the range.
 ```
 
-Both criteria agree: k = 5 fits the known Big Five structure of this
-instrument.
+The criteria converge on a consensus range that covers k = 5, consistent
+with the known Big Five structure of this instrument.
 
 ### Step 2 — Fit the hierarchy
 
@@ -182,7 +190,8 @@ scored <- augment(x, data = bfi)
 #>   comes from the "polychoric" R.
 #> ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,
 #>   between-level edges from `tidy()` are the authoritative associations.
-dim(scored)   # original 25 items + 1+2+3+4+5 = 15 score columns
+#> This warning is displayed once per session.
+dim(scored) # original 25 items + 1+2+3+4+5 = 15 score columns
 #> [1] 2436   40
 names(scored)[26:40]
 #>  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"
@@ -194,6 +203,7 @@ names(scored)[26:40]
 | Vignette | Topic |
 |----|----|
 | [Introduction](https://jmgirard.github.io/ackwards/articles/ackwards-intro.html) | Full PCA walkthrough: `suggest_k` → `ackwards` → inspect → plot → score |
+| [Choosing k](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.html) | Five criteria explained: pros/cons, bias direction, engine pairing |
 | [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA; convergence and loading comparison |
 | [Ordinal data](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html) | Polychoric correlations, attenuation bias, and WLSMV estimation |
 | [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = "all"` |
@@ -211,11 +221,9 @@ in Personality*, *40*(4), 347–358.
 ``` r
 
 citation("ackwards")
-#> Warning in citation("ackwards"): could not determine year for 'ackwards' from
-#> package DESCRIPTION file
 #> To cite package 'ackwards' in publications use:
 #> 
-#>   Girard J (????). _ackwards: Bass-Ackwards Hierarchical Structural
+#>   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural
 #>   Analysis_. R package version 0.0.0.9000,
 #>   <https://jmgirard.github.io/ackwards/>.
 #> 
@@ -224,6 +232,7 @@ citation("ackwards")
 #>   @Manual{,
 #>     title = {ackwards: Bass-Ackwards Hierarchical Structural Analysis},
 #>     author = {Jeffrey M. Girard},
+#>     year = {2026},
 #>     note = {R package version 0.0.0.9000},
 #>     url = {https://jmgirard.github.io/ackwards/},
 #>   }
@@ -294,6 +303,8 @@ loading broom.
 
 ### Deep dives
 
+- [Choosing k: How Many
+  Factors?](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md):
 - [Choosing an Engine: PCA, EFA, and
   ESEM](https://jmgirard.github.io/ackwards/articles/ackwards-engines.md):
 - [Ordinal Data: Polychoric Correlations and
