@@ -19,6 +19,20 @@
   "Both criteria agree" prose updated to "The criteria converge"; new vignette
   added to the "Learn more" table. (#M14)
 
+* Vignette worked-example prose corrected: the initial version mis-stated
+  PA-PC and PA-FA recommendations and assumed CD was absent. The section now
+  reads from the actual rendered output (PA-PC=5, PA-FA=6, MAP=5, VSS-1=4,
+  VSS-2=5, CD=8 on `bfi`), explains the unusual PA-FA > PA-PC relationship,
+  and documents why CD=8 is a high outlier on large correlated samples rather
+  than a directive to extract 8 factors. (#M14)
+
+* CD summary table: "Conservative, accurate" changed to "Accurate in
+  simulation; can over-retain on large, correlated samples". (#M14)
+
+* Tests added for three previously-uncovered branches in `autoplot.suggest_k()`
+  and `print.suggest_k()`: `k_parallel_fa = NA` (no FA star rendered),
+  `cd_available = FALSE` (no CD vline; "requires EFAtools" note in print). (#M14)
+
 ## Milestone 13 — Rotation honesty: remove dead `kappa` argument
 
 * The `kappa` argument to `ackwards()` has been removed. It was accepted and

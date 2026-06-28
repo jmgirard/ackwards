@@ -66,7 +66,11 @@ default output must reproduce Forbes's examples exactly.
   coverage (cor/n_iter/seed/k_max including ordinal→Pearson and PA-non-reproducibility caveats), and
   a worked BFI recommendation; intro vignette Step 1 trimmed to default call + pointer; `_pkgdown.yml`
   lists the new article first under Deep dives; README stale two-criteria description corrected to
-  five criteria; DESIGN.md §8 and §15 updated.
+  five criteria; DESIGN.md §8 and §15 updated. Post-review fixes: worked-example prose corrected to
+  match actual output (PA-PC=5/PA-FA=6/CD=8, CD-outlier explanation); CD table "Conservative" →
+  "Accurate in simulation; can over-retain on large, correlated samples"; three new tests covering
+  `autoplot.suggest_k()` and `print.suggest_k()` for the `k_parallel_fa=NA` and `cd_available=FALSE`
+  branches. (719 tests pass, 1 skip.)
 
 ## Current focus
 
