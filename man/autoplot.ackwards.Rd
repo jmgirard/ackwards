@@ -170,9 +170,11 @@ autoplot(x, edge_linewidth = 0.5)
 autoplot(x, legend = FALSE)
 
 # Forbes (2023) publication style: black lines, uniform width, no arrowheads
-autoplot(xp, drop_pruned = TRUE,
-         color_pos = "black", color_neg = "black",
-         edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE)
+autoplot(xp,
+  drop_pruned = TRUE,
+  color_pos = "black", color_neg = "black",
+  edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
+)
 }
 
 }

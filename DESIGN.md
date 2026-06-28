@@ -583,6 +583,28 @@ that needs it. **No Rcpp dependency planned** (see §3).
    built `linewidth` and absent linewidth scale under numeric `edge_linewidth`; assert
    `legend.position == "none"` under `legend = FALSE`; plus composition with `drop_pruned` and
    `mono`. DoD: NEWS.md entries, roxygen `@param`/`@examples`, and the three vignette updates.
+   *(done)*
+
+10. **Conformance + robustness** — two waves. *(done)*
+
+    **(a) `summary.ackwards()` + `print.summary_ackwards()`.** The previously documented (§6/§10)
+    but unimplemented summary method. Returns a structured `summary_ackwards` S3 object with fields
+    `variance`, `fit`, `lineage`, `prune`. `print` renders: per-level variance % (PCA also shows
+    eigenvalues; EFA/ESEM append CFI/TLI/RMSEA/SRMR or RMSEA/TLI/chi/df per level); a readable
+    lineage list of adjacent primary-parent chains; pruning annotations when `prune != "none"`.
+    New file `R/summary.R`; NAMESPACE via roxygen `@export`.
+
+    **(b) ESEM Heywood/improper-solution warning.** Engine now inspects `lavaan::lavInspect(fit,
+    "theta")` after each converged level and warns when `any(diag(theta) <= 0)`. lavaan clamps
+    negative residual variances to 0 by default; the `<= 0` check catches both. Warn, do not
+    truncate (Invariant 7). Parity with the EFA engine.
+
+    **(c) `cor = "spearman"` + `method = "esem"` inconsistency warning.** Emitted once per
+    session in `ackwards()` when this combination is requested; points to `polychoric` or `pearson`
+    as model-consistent alternatives.
+
+    **(d) DESIGN.md §8 reconciled.** `suggest_k()` criteria updated to list only PA + MAP; EKC and
+    EGA (`{EGAnet}`) marked explicitly out of scope.
 
 ---
 

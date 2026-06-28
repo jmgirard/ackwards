@@ -141,7 +141,15 @@ connections exceed the display threshold of |r| ≥ 0.3. The 40 comes from
 summing across all adjacent pairs: 1×2 + 2×3 + 3×4 + 4×5 = 2 + 6 + 12 + 20 =
 40.
 
-`glance()` returns the same information as a one-row data frame, convenient for
+`summary()` gives a more detailed view — per-factor variance and fit indices at
+each level, plus a lineage list showing which factors at each level descend from
+which parents:
+
+```{r summary}
+summary(x)
+```
+
+`glance()` returns the same top-level information as a one-row data frame, convenient for
 comparisons across models:
 
 ```{r glance}
@@ -293,8 +301,8 @@ The bass-ackwards workflow in **ackwards** has six steps:
 
 1. **`suggest_k(data)`** — identify a plausible range for the hierarchy depth.
 2. **`ackwards(data, k, cor = ...)`** — fit the full hierarchy of factor models.
-3. **`print(x)` / `glance(x)`** — check that all levels converged and read the
-   top-level summary.
+3. **`print(x)` / `summary(x)` / `glance(x)`** — check convergence, read the
+   per-level variance and fit indices, and inspect the lineage list.
 4. **`autoplot(x)`** — visualize the hierarchy as a lineage diagram.
 5. **`tidy(x, what = ...)`** — extract loadings, edges, or variance in a form
    ready for tables or further analysis.

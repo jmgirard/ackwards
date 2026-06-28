@@ -40,6 +40,10 @@ default output must reproduce Forbes's examples exactly.
 - **M9 (done):** Visualization round 2 — `show_arrows`, `edge_linewidth`, `legend` on
   `autoplot.ackwards()`; new `ackwards-visualization.Rmd` vignette; Forbes vignette slimmed toward
   the paper; intro vignette trimmed and stale comment fixed.
+- **M10 (done):** Conformance + robustness — `summary.ackwards()` + `print.summary_ackwards()`
+  (previously documented but unimplemented §10 method); ESEM Heywood/improper-solution warning
+  (`theta ≤ 0`, parity with EFA engine); `cor="spearman"` + `method="esem"` inconsistency warning;
+  DESIGN.md §8 reconciled to list only PA + MAP (EKC/EGA marked out of scope).
 
 ## Current focus — no active milestone
 

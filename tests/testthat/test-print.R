@@ -51,3 +51,58 @@ test_that("glance.ackwards returns a one-row data frame with expected columns", 
   expect_equal(gl$n_obs, 2800L)
   expect_equal(gl$n_edges, 8L)
 })
+
+# ── summary.ackwards ──────────────────────────────────────────────────────────
+
+test_that("summary.ackwards returns a summary_ackwards object with expected fields", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k = 3))
+  s <- summary(x)
+  expect_s3_class(s, "summary_ackwards")
+  expect_true(all(c(
+    "call", "method", "rotation", "cor_type", "n_obs", "k_max",
+    "variance", "fit", "lineage", "prune"
+  ) %in% names(s)))
+  expect_equal(s$method, "pca")
+  expect_equal(s$k_max, 3L)
+})
+
+test_that("print.summary_ackwards runs without error and returns invisibly", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k = 3))
+  s <- summary(x)
+  expect_no_error(print(s))
+  expect_invisible(print(s))
+})
+
+test_that("summary lineage lists all adjacent primary parent links", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k = 3))
+  s <- summary(x)
+  lin <- s$lineage
+  expect_s3_class(lin, "data.frame")
+  expect_true(all(c("parent", "children") %in% names(lin)))
+  # k=3 hierarchy has k=1 and k=2 parents: m1f1 + m2f1 + m2f2 = 3 rows
+  expect_equal(nrow(lin), 3L)
+  expect_true("m1f1" %in% lin$parent)
+})
+
+test_that("summary.ackwards shows pruning info when prune != 'none'", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k = 4, prune = "redundant"))
+  s <- summary(x)
+  expect_false(is.null(s$prune))
+  expect_true(!is.null(s$prune$redundancy_r))
+})
+
+test_that("summary.ackwards works for all three engines", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  x_pca  <- suppressWarnings(ackwards(d, k = 2))
+  x_efa  <- suppressWarnings(ackwards(d, k = 2, method = "efa"))
+  x_esem <- suppressWarnings(ackwards(d, k = 2, method = "esem"))
+  expect_no_error(summary(x_pca))
+  expect_no_error(summary(x_efa))
+  expect_no_error(summary(x_esem))
+})

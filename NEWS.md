@@ -1,6 +1,27 @@
 # ackwards 0.0.0.9000 (dev)
 
-## Milestone 10 — Conformance + robustness (Wave 1)
+## Milestone 10 — Conformance + robustness
+
+### Wave 2: summary method
+
+* Added `summary.ackwards()` and `print.summary_ackwards()` — the previously
+  documented but unimplemented summary method (DESIGN.md §6/§10). Returns a
+  structured `summary_ackwards` object that, when printed, shows:
+  - **Per-level block**: per-factor variance % and cumulative variance for every
+    level. PCA levels additionally show eigenvalues; EFA/ESEM levels (k ≥ 2)
+    append a fit-index line (RMSEA/TLI/chi/df for EFA; CFI/TLI/RMSEA/SRMR for
+    ESEM).
+  - **Lineage list**: `m1f1 → m2f1, m2f2` readable chains walking the
+    adjacent primary-parent edges top-down.
+  - **Pruning section**: when `prune != "none"`, lists flagged-node IDs per
+    rule and notes that pruning is interpretive, not re-estimation.
+  - Honesty caveat (series of linked solutions, not a fitted hierarchy).
+  The returned object carries `variance`, `fit`, `lineage`, and `prune` fields
+  for programmatic access, matching the `print.suggest_k` pattern.
+* Added `summary.ackwards` and `print.summary_ackwards` to `_pkgdown.yml`
+  reference and mentioned `summary()` in the intro vignette Step 3 section.
+
+### Wave 1: engine robustness
 
 * **ESEM improper-solution warning.** The ESEM engine now warns when any residual
   variance in the lavaan theta matrix is at or below zero (Heywood case). lavaan
