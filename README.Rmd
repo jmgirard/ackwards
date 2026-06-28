@@ -70,11 +70,11 @@ the known Big Five structure of this instrument.
 
 ### Step 2 — Fit the hierarchy
 
-`ackwards()` fits factor models at every level from 1 to k and computes the
+`ackwards()` fits factor models at every level from 1 to `k_max` and computes the
 between-level factor-score correlations that define the hierarchy.
 
 ```{r fit}
-x <- ackwards(bfi, k = 5, cor = "polychoric")
+x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 x
 ```
 

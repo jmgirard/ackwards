@@ -372,8 +372,8 @@ print.suggest_k <- function(x, ...) {
   cli::cli_rule()
   cli::cli_text(
     cli::col_grey(
-      "Note: k in ackwards() is a maximum depth. Setting k one or two levels \\
-       above the consensus to observe factor fragmentation is intentional."
+      "Note: k_max in ackwards() is a maximum depth. Setting k_max one or two \\
+       levels above the consensus to observe factor fragmentation is intentional."
     )
   )
   cli::cli_text(

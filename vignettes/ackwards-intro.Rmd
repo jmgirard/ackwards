@@ -85,9 +85,9 @@ sk
 autoplot(sk)
 ```
 
-No single criterion is decisive — look at where they converge. k in `ackwards()`
-is an *upper bound*; setting k one or two levels above the consensus to watch
-factors fragment is intentional and informative. For a full explanation of each
+No single criterion is decisive — look at where they converge. `k_max` in
+`ackwards()` is an *upper bound*; setting `k_max` one or two levels above the
+consensus to watch factors fragment is intentional and informative. For a full explanation of each
 criterion, its bias direction, and how to match it to your engine, see
 `vignette("ackwards-suggest-k")`.
 
@@ -106,7 +106,7 @@ polychoric correlations between items before factor extraction, giving a more
 accurate representation of the latent structure.
 
 ```{r fit}
-x <- ackwards(bfi, k = 5, cor = "polychoric")
+x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 ```
 
 No warning this time — specifying `cor = "polychoric"` tells `ackwards()` that
@@ -252,11 +252,11 @@ PCA on Pearson correlations the model-implied and empirical variances agree
 exactly.
 
 If you need scores repeatedly (e.g., in a cross-validation loop), store them at
-fit time with `scores = TRUE` to avoid re-applying the weight matrices on every
+fit time with `keep_scores = TRUE` to avoid re-applying the weight matrices on every
 call:
 
 ```{r scores-stored}
-x2 <- ackwards(bfi, k = 5, cor = "polychoric", scores = TRUE)
+x2 <- ackwards(bfi, k_max = 5, cor = "polychoric", keep_scores = TRUE)
 scored2 <- augment(x2) # uses stored matrices — no recomputation
 identical(round(scored2$.m5f1, 8), round(scored$.m5f1, 8))
 ```
@@ -291,7 +291,7 @@ the `tidy(what = "edges")` table says they should.
 The bass-ackwards workflow in **ackwards** has six steps:
 
 1. **`suggest_k(data)`** — identify a plausible range for the hierarchy depth.
-2. **`ackwards(data, k, cor = ...)`** — fit the full hierarchy of factor models.
+2. **`ackwards(data, k_max, cor = ...)`** — fit the full hierarchy of factor models.
 3. **`print(x)` / `summary(x)` / `glance(x)`** — check convergence, read the
    per-level variance and fit indices, and inspect the lineage list.
 4. **`autoplot(x)`** — visualize the hierarchy as a lineage diagram.

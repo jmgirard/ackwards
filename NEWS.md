@@ -1,5 +1,33 @@
 # ackwards 0.0.0.9000 (dev)
 
+## Milestone 15 — Naming clarity & consistency pass
+
+* `ackwards()` argument `k` renamed to `k_max`. Aligns with the pre-existing
+  `suggest_k(k_max=)` parameter and `$k_max` result-object field, making the
+  maximum-depth semantic explicit and consistent across the full API. (#M15)
+
+* `ackwards()` argument `method` renamed to `engine`. Resolves the overload with
+  `compute_edges()`'s internal `edge_method` argument and matches DESIGN.md's
+  "three engines" prose (`"pca"`, `"efa"`, `"esem"`). (#M15)
+
+* `ackwards()` argument `scores` renamed to `keep_scores`. Mirrors the existing
+  `keep_fits` argument and removes ambiguity between "store scores" (the storage
+  option) and "factor scores" (the output concept). (#M15)
+
+* `ackwards()` argument `align` renamed to `align_signs`. Clarifies that the
+  argument controls sign orientation of loadings, not structural alignment or
+  rotation. (#M15)
+
+* Result-object field `$method` renamed to `$engine`. Result-object field
+  `$cor_type` renamed to `$cor`. All S3 methods (`print`, `summary`, `glance`,
+  `tidy`, `augment`, `autoplot`) updated to read from the new field names. (#M15)
+
+* `compute_edges()` argument `method` renamed to `edge_method`. Disambiguates
+  from the (now-removed) `method` engine argument on `ackwards()`. (#M15)
+
+* No behaviour changes. All existing functionality is preserved; only surface
+  names changed.
+
 ## Milestone 14 — Dedicated `suggest_k()` vignette
 
 * New vignette `vignette("ackwards-suggest-k")` — "Choosing k: How Many

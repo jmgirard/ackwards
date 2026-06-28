@@ -69,14 +69,14 @@ bfi <- na.omit(psych::bfi[, 1:25])
 
 ```{r detect}
 # The warning fires with the default Pearson basis
-x_pearson <- ackwards(bfi, k = 5)
+x_pearson <- ackwards(bfi, k_max = 5)
 ```
 
 The warning is ackwards reminding you to make an active choice. Specifying
 `cor = "polychoric"` acknowledges the data type and suppresses it:
 
 ```{r polychoric-silent}
-x_poly <- ackwards(bfi, k = 5, cor = "polychoric")
+x_poly <- ackwards(bfi, k_max = 5, cor = "polychoric")
 ```
 
 ## Seeing the difference
@@ -145,7 +145,7 @@ levels when the true latent structure is properly recovered.
 
 ## WLSMV for ESEM with ordinal items
 
-When `method = "esem"` and `cor = "polychoric"` are combined, `ackwards()`
+When `engine = "esem"` and `cor = "polychoric"` are combined, `ackwards()`
 automatically switches the lavaan estimator to **WLSMV** (diagonally weighted
 least squares, mean- and variance-adjusted). This is the standard estimator for
 structural equation models with categorical or ordinal indicators, and is the
@@ -162,7 +162,7 @@ if (!has_lavaan) {
 ```
 
 ```{r esem-wlsmv, eval = has_lavaan}
-x_esem <- ackwards(bfi, k = 3, method = "esem", cor = "polychoric")
+x_esem <- ackwards(bfi, k_max = 3, engine = "esem", cor = "polychoric")
 x_esem
 ```
 

@@ -54,10 +54,10 @@ combination of levels.
 
 ```{r adj-vs-all}
 # Classic adjacent-only
-x_adj <- ackwards(bfi, k = 5, cor = "polychoric")
+x_adj <- ackwards(bfi, k_max = 5, cor = "polychoric")
 
 # All pairs
-x_all <- ackwards(bfi, k = 5, cor = "polychoric", pairs = "all")
+x_all <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all")
 
 # How many edges?
 nrow(tidy(x_adj, what = "edges")) # adjacent only
@@ -99,7 +99,7 @@ redundant: they repeat rather than refine the same dimension.
 
 ```{r prune-redundant}
 x_prune <- ackwards(bfi,
-  k = 5, cor = "polychoric",
+  k_max = 5, cor = "polychoric",
   pairs = "all", prune = "redundant"
 )
 ```
@@ -192,7 +192,7 @@ new dimension.
 
 ```{r prune-artefact}
 x_art <- ackwards(bfi,
-  k = 5, cor = "polychoric",
+  k_max = 5, cor = "polychoric",
   pairs = "all", prune = "artefact"
 )
 tidy(x_art, what = "nodes")
@@ -232,7 +232,7 @@ thresholds <- c(0.80, 0.85, 0.90, 0.95)
 counts <- sapply(thresholds, function(thr) {
   x <- suppressWarnings(
     ackwards(bfi,
-      k = 5, cor = "polychoric",
+      k_max = 5, cor = "polychoric",
       pairs = "all", prune = "redundant",
       redundancy_r = thr
     )

@@ -349,7 +349,7 @@ test_that("ESEM warns on improper solution (Heywood case) but still builds", {
 
 # ── cor = "spearman" + engine = "esem" inconsistency warning ─────────────────
 
-test_that("cor = 'spearman' with method = 'esem' warns about inconsistent bases", {
+test_that("cor = 'spearman' with engine = 'esem' warns about inconsistent bases", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   expect_warning(

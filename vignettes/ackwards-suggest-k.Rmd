@@ -23,9 +23,9 @@ bfi <- na.omit(psych::bfi[, 1:25])
 
 ## k is a decision, not an output
 
-Before you can run `ackwards()`, you need a value for `k` — the *maximum depth*
-of the hierarchy. This is not the same question as "how many factors does my
-data really have?" There is no single true k hidden in the data, and different
+Before you can run `ackwards()`, you need a value for `k_max` — the *maximum
+depth* of the hierarchy. This is not the same question as "how many factors does
+my data really have?" There is no single true k hidden in the data, and different
 selection criteria will give different answers depending on their assumptions and
 what they are optimized for.
 
@@ -36,10 +36,11 @@ see where they agree and where they diverge.
 
 A few things to keep in mind before you start:
 
-**k is a maximum depth, not a claim about the true structure.** Setting k = 5
-tells `ackwards()` to fit models at every level from 1 to 5 and examine how the
-structure evolves across those levels. It does not assert that exactly five
-factors exist. In fact, deliberately setting k one or two levels past the
+**k_max is a maximum depth, not a claim about the true structure.** Setting
+`k_max = 5` tells `ackwards()` to fit models at every level from 1 to 5 and
+examine how the structure evolves across those levels. It does not assert that
+exactly five factors exist. In fact, deliberately setting k_max one or two
+levels past the
 consensus — to watch factors fragment at the deeper levels — is a normal and
 informative part of the analysis.
 
@@ -75,7 +76,7 @@ components than replicate in independent samples, particularly when items are
 moderately correlated (which they usually are in personality and clinical
 research). Treat its recommendation as an *upper bound*.
 
-**When it is useful.** Best paired with `method = "pca"` in `ackwards()`, since
+**When it is useful.** Best paired with `engine = "pca"` in `ackwards()`, since
 both operate on the same PC eigenvalue basis. It also provides a fast, stable
 baseline across a wide range of data types.
 
@@ -94,8 +95,8 @@ against the 95th percentile of simulated FA eigenvalues.
 (they exclude unique variance), so fewer of them exceed the random-data
 threshold. PA-FA recommendations typically equal or fall below PA-PC.
 
-**When it is useful.** The model-consistent criterion for `method = "efa"` or
-`method = "esem"` in `ackwards()`: if your analysis assumes a common-factor
+**When it is useful.** The model-consistent criterion for `engine = "efa"` or
+`engine = "esem"` in `ackwards()`: if your analysis assumes a common-factor
 model, comparing FA eigenvalues to a FA baseline is the better-matched test.
 
 **Limitation.** Like PA-PC, it can be underpowered with small samples and
@@ -181,8 +182,8 @@ criteria may diverge.
 
 | Criterion | Tends to | Best for | Requires |
 |-----------|----------|----------|----------|
-| PA-PC | Overextract (upper bound) | `method = "pca"` | `psych` |
-| PA-FA | Conservative | `method = "efa"` / `"esem"` | `psych` |
+| PA-PC | Overextract (upper bound) | `engine = "pca"` | `psych` |
+| PA-FA | Conservative | `engine = "efa"` / `"esem"` | `psych` |
 | MAP | Conservative | General secondary check | `psych` |
 | VSS-1/2 | Variable | Simple-structure check | `psych` |
 | CD | Accurate in simulation; can over-retain on large, correlated samples | Ordinal/non-normal data | `EFAtools` |
@@ -240,9 +241,9 @@ exploring a range of k values in `ackwards()` is the right response.
 
 | If you plan to use... | Prefer... | Rationale |
 |----------------------|-----------|-----------|
-| `method = "pca"` | PA-PC, MAP | PA-PC uses the same PC basis as the engine |
-| `method = "efa"` | PA-FA, MAP, CD | PA-FA is basis-consistent; MAP and CD are robust across models |
-| `method = "esem"` | PA-FA, MAP, CD | Same rationale as EFA |
+| `engine = "pca"` | PA-PC, MAP | PA-PC uses the same PC basis as the engine |
+| `engine = "efa"` | PA-FA, MAP, CD | PA-FA is basis-consistent; MAP and CD are robust across models |
+| `engine = "esem"` | PA-FA, MAP, CD | Same rationale as EFA |
 
 This is a best-practice recommendation, not a hard rule. Running all five
 criteria regardless of your engine is cheap and informative — you will see where
@@ -297,8 +298,8 @@ respond to `set.seed()` and is reproducible when `seed` is set.
 `k_max` is the maximum number of factors tested. The default is
 `min(ncol(data) - 1, 8)`. Increase it if you expect a deeper hierarchy; reduce
 it to speed up computation when you already have a strong prior. Note that
-`k_max` here is a search ceiling for `suggest_k()` and need not equal the `k`
-you ultimately pass to `ackwards()`.
+`k_max` here is a search ceiling for `suggest_k()` and need not equal the
+`k_max` you ultimately pass to `ackwards()`.
 
 ## A worked recommendation for the BFI
 
@@ -306,7 +307,7 @@ The BFI has 25 items measuring five personality traits. The criteria do not all
 converge here, which is itself informative:
 
 ```{r recap}
-sk  # reproduced from earlier
+sk # reproduced from earlier
 ```
 
 Reading the rendered table:
@@ -331,13 +332,14 @@ a large gap between CD and the other criteria as an invitation to look carefully
 at the deeper levels — not a directive to extract that many factors
 unconditionally.
 
-**Defensible choice: `k = 6`.** This matches the PA-FA recommendation and sits
-one level above the MAP/VSS-2 consensus of 5. Setting k = 6 lets `ackwards()`
+**Defensible choice: `k_max = 6`.** This matches the PA-FA recommendation and
+sits one level above the MAP/VSS-2 consensus of 5. Setting `k_max = 6` lets
+`ackwards()`
 show whether a sixth level reveals interpretable sub-facets or merely splits the
 Big Five into arbitrary micro-factors.
 
 ```{r ackwards, eval = FALSE}
-x <- ackwards(bfi, k = 6, cor = "polychoric")
+x <- ackwards(bfi, k_max = 6, cor = "polychoric")
 autoplot(x)
 ```
 

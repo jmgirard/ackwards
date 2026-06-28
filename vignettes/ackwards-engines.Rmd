@@ -64,7 +64,7 @@ components, making the edges algebraically exact rather than approximated from
 materialized scores.
 
 ```{r pca}
-x_pca <- ackwards(bfi, k = 3, cor = "polychoric")
+x_pca <- ackwards(bfi, k_max = 3, cor = "polychoric")
 x_pca
 ```
 
@@ -85,7 +85,7 @@ than PCA when you believe the items are fallible indicators of latent constructs
 rather than the constructs themselves.
 
 ```{r efa}
-x_efa <- ackwards(bfi, k = 3, method = "efa", cor = "polychoric")
+x_efa <- ackwards(bfi, k_max = 3, engine = "efa", cor = "polychoric")
 x_efa
 ```
 
@@ -139,7 +139,7 @@ unlocks two capabilities that EFA cannot provide:
    significance tests.
 2. **The WLSMV estimator** for ordinal data, which is the appropriate
    maximum-likelihood-adjacent estimator for categorical indicators. When
-   `cor = "polychoric"` is set with `method = "esem"`, WLSMV is used
+   `cor = "polychoric"` is set with `engine = "esem"`, WLSMV is used
    automatically.
 
 ```{r esem-check, echo = FALSE, results = "asis"}
@@ -153,7 +153,7 @@ if (!has_lavaan) {
 ```
 
 ```{r esem, eval = has_lavaan}
-x_esem <- ackwards(bfi, k = 3, method = "esem", cor = "polychoric")
+x_esem <- ackwards(bfi, k_max = 3, engine = "esem", cor = "polychoric")
 x_esem
 ```
 

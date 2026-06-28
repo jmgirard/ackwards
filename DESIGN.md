@@ -135,7 +135,7 @@ scoring <- list(
 
 ```r
 compute_edges(levels, R,
-              method = c("auto", "algebra", "scores"),
+              edge_method = c("auto", "algebra", "scores"),
               pairs  = c("adjacent", "all"),   # "all" for Forbes extension
               data   = NULL,
               align  = TRUE,
@@ -146,7 +146,7 @@ compute_edges(levels, R,
     algebra_ok <- levels[[a]]$scoring$linear &&
                   levels[[b]]$scoring$linear && !is.null(R)
 
-    if (method == "algebra" || (method == "auto" && algebra_ok)) {
+    if (edge_method == "algebra" || (edge_method == "auto" && algebra_ok)) {
       Wa <- levels[[a]]$scoring$weights
       Wb <- levels[[b]]$scoring$weights
       C  <- crossprod(Wa, R %*% Wb)                       # W_a' R W_b
@@ -154,7 +154,7 @@ compute_edges(levels, R,
       sb <- sqrt(diag(crossprod(Wb, R %*% Wb)))
       E  <- sweep(sweep(C, 1, sa, "/"), 2, sb, "/")       # standardize
     } else {
-      stopifnot(!is.null(data))                           # nonlinear/EAP or method="scores"
+      stopifnot(!is.null(data))                           # nonlinear/EAP or edge_method="scores"
       Sa <- score(levels[[a]], data); Sb <- score(levels[[b]], data)
       E  <- cor(Sa, Sb, use = use)
     }
@@ -187,7 +187,7 @@ S3, not R6/S4 — matches `psych`/`lavaan`/broom conventions and serializes clea
 
 ```r
 structure(list(
-  call, method, rotation, cor_type, n_obs, k_max, seed, pkg_version,
+  call, engine, rotation, cor, n_obs, k_max, seed, pkg_version,
   levels  = <list indexed by k; each is the §4 level object>,
   edges   = <list of adjacent (and optionally all-pairs) correlation matrices
              + tidy edge tibble>,
@@ -270,17 +270,17 @@ announced via cli and documented in roxygen with its rationale.
 
 | Decision | Default | Rationale |
 |---|---|---|
-| `method` (engine) | `"pca"` | original method; fastest; never fails to converge; algebra-exact. Docs steer to `efa`/`esem` when a measurement-model rationale exists. |
+| `engine` | `"pca"` | original method; fastest; never fails to converge; algebra-exact. Docs steer to `efa`/`esem` when a measurement-model rationale exists. |
 | `rotation` | **varimax — the only supported rotation; not a user argument** | **Only orthogonal rotation produces interpretable between-level factor score correlations** in the bass-ackwards method (Goldberg 2006; Kim & Eaton 2015): T'T = I so T' = T^-1, enabling closed-form W'RW algebra (Waller 2007) without materialising scores. CF(κ = 1/p) ≡ varimax (Crawford & Ferguson 1970; Browne 2001) — no reference paper varies κ. Oblique rotation is out of scope (resolved 2026-06, M13): it confounds the cross-level signal that is the method's whole point. `rotation` was removed as a user argument in M13 (varimax hardcoded internally). |
 | `estimator` (ESEM only) | **`"WLSMV"`** for `cor = "polychoric"`; `"ML"` otherwise | WLSMV (mean-and-variance-adjusted WLS) is the standard limited-information ordinal estimator (matches Kim & Eaton 2015; Forbush et al. 2024); gives correct fit indices for categorical indicators without full-information ML cost. |
 | `cor` (basis) | **`"pearson"`** (matches `psych`/`lavaan`); ordinal opt-in via `cor = "polychoric"` | No silent basis-switching (it can change the structure and break comparison to published work). Instead, **detect likely-ordinal columns and emit a suppressible cli warning** pointing to the polychoric option — loud *advice*, not silent action. |
-| `scores` (method) | **`"tenBerge"`** on the active basis (pearson or polychoric) for factor engines; `"components"` for PCA; `"EAP"` opt-in only | tenBerge preserves factor correlations (the property bass-ackwards cares about) and stays linear → algebra-eligible. For ordinal ESEM, tenBerge-on-polychoric gives the clean model-implied edge; EAP's shrinkage attenuates cross-level correlations, so it's an opt-in (triggers the scores route + raw-data requirement), not the default. |
+| scores (method) | **`"tenBerge"`** on the active basis (pearson or polychoric) for factor engines; `"components"` for PCA; `"EAP"` opt-in only | tenBerge preserves factor correlations (the property bass-ackwards cares about) and stays linear → algebra-eligible. For ordinal ESEM, tenBerge-on-polychoric gives the clean model-implied edge; EAP's shrinkage attenuates cross-level correlations, so it's an opt-in (triggers the scores route + raw-data requirement), not the default. |
 | `edge_method` | `"auto"` | algebra when linear, scores otherwise. |
 | `pairs` | `"adjacent"` | classic Goldberg; `"all"` switched on with the Forbes extension. |
 | `extension` (Forbes pruning) | **off** | pruning is an interpretive choice with thresholds; turning it on silently would change results. Opt-in with documented thresholds (|r| ≥ .9, congruence > .95). |
-| sign `align` | `TRUE` | unaligned signs make output unreadable. |
-| `keep_fits` / `scores`(store) | `FALSE` / `FALSE` | memory + privacy. |
-| `k` | required (or `k = "suggest"`) | force a deliberate choice; don't silently pick. |
+| sign `align_signs` | `TRUE` | unaligned signs make output unreadable. |
+| `keep_fits` / `keep_scores` | `FALSE` / `FALSE` | memory + privacy. |
+| `k_max` | required | force a deliberate choice; don't silently pick. |
 | `seed` | `NULL` but captured | stochastic engines (rotation starts, ML) need reproducibility; encourage setting. |
 
 ### Documentation standard (owner priority)
@@ -424,7 +424,7 @@ that needs it. **No Rcpp dependency planned** (see §3).
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.
 - Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (see above).
-- `cor = "spearman"` + `method = "esem"` is semantically inconsistent (lavaan fits Pearson ML on raw data while edges use Spearman R); currently accepted without warning.
+- `cor = "spearman"` + `engine = "esem"` is semantically inconsistent (lavaan fits Pearson ML on raw data while edges use Spearman R); a warning is now emitted (M10).
 - ESEM engine does not detect or warn on improper/Heywood solutions (lavaan negative residual variances), unlike the EFA engine which warns explicitly.
 - **Forbes-extension improvements deferred past M5** (the published method has weaker spots worth strengthening later; M5 ships the faithful method + the §14.20 reporting enrichments):
   - *Structural artefact signals.* Beyond congruence, artefacts have detectable structural signatures — the split-then-merge pattern (indicators split at level k then reunite under a different parent at k+1; Forbes Fig. 2), factors with `< 3` primary-loading items, and orphaned/non-replicating factors. Surface these as diagnostics rather than relying on φ alone.
@@ -700,6 +700,16 @@ that needs it. **No Rcpp dependency planned** (see §3).
     recommendation. Listed first in the pkgdown "Deep dives" nav. Intro vignette Step-1 trimmed
     to default call + pointer. README stale two-criteria description updated to five criteria.
     **Cross-references §8.** See `vignette("ackwards-suggest-k")`.
+
+15. **Naming clarity & consistency pass** *(done)* — dev-mode rename with no behaviour changes.
+    Renamed four `ackwards()` formals (`k`→`k_max`, `method`→`engine`, `scores`→`keep_scores`,
+    `align`→`align_signs`), two result-object fields (`$method`→`$engine`, `$cor_type`→`$cor`),
+    and one `compute_edges()` formal (`method`→`edge_method`). **Amends §5.3, §6, §9.**
+    Rationale: `k_max` makes the maximum-depth semantic explicit and unifies with the pre-existing
+    `suggest_k(k_max=)` / `$k_max` surface; `engine` resolves the overload with
+    `compute_edges`'s algebra-vs-scores arg and matches "three engines" prose throughout this
+    document; `keep_scores` mirrors `keep_fits`; `align_signs` is self-documenting; `$cor` drops
+    the redundant `_type` suffix.
 
 ---
 

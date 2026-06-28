@@ -34,7 +34,7 @@ specific to the Forbes pruning extension and are covered in
 library(ackwards)
 
 bfi <- na.omit(psych::bfi[, 1:25])
-x <- ackwards(bfi, k = 5, cor = "polychoric")
+x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 ```
 
 The default diagram for reference:
