@@ -235,3 +235,46 @@ test_that("autoplot.suggest_k() marks optimal k with star points", {
   # At minimum: one PC scree + one MAP + at least one VSS
   expect_gte(nrow(opt_rows), 3L)
 })
+
+test_that("autoplot.suggest_k() handles k_parallel_fa = NA without error", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  sk <- suggest_k(psych::bfi[, 1:25], k_max = 4, n_iter = 5, seed = 1L)
+  sk$k_parallel_fa <- NA_integer_
+  sk$criteria$pa_fa_suggested <- rep(FALSE, 4L)
+  # FA star must be omitted; the plot must still build and have three panels.
+  expect_no_error({
+    p <- autoplot(sk)
+  })
+  expect_s3_class(p, "gg")
+  expect_equal(
+    levels(p$data$panel),
+    c("Scree / Parallel Analysis", "MAP (minimize)", "VSS (maximize)")
+  )
+})
+
+test_that("autoplot.suggest_k() handles cd_available = FALSE without error", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  sk <- suggest_k(psych::bfi[, 1:25], k_max = 4, n_iter = 5, seed = 1L)
+  sk$cd_available <- FALSE
+  sk$k_cd <- NA_integer_
+  # CD vline layer must be suppressed; the plot must still build.
+  expect_no_error({
+    p <- autoplot(sk)
+  })
+  expect_s3_class(p, "gg")
+  # Verify no vline geom was added (cd_vline branch returns NULL).
+  geom_types <- vapply(p$layers, function(l) class(l$geom)[1], character(1))
+  expect_false("GeomVline" %in% geom_types)
+})
+
+test_that("print.suggest_k() runs without error when cd_available = FALSE", {
+  skip_if_not_installed("psych")
+  sk <- suggest_k(psych::bfi[, 1:25], k_max = 4, n_iter = 5, seed = 1L)
+  sk$cd_available <- FALSE
+  sk$k_cd <- NA_integer_
+  # Must print the "CD requires EFAtools" note, not error, and return invisibly.
+  expect_no_error(print(sk))
+  expect_invisible(print(sk))
+})
