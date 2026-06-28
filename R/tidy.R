@@ -134,7 +134,6 @@ tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit", "n
     k <- as.integer(ki)
     fac_labels <- lev$labels
     var_vals <- lev$variance[fac_labels]
-    cum_val <- lev$variance["cumulative"]
     data.frame(
       level = k,
       factor = fac_labels,

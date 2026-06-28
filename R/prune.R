@@ -260,7 +260,6 @@
 # Returns the $prune slot to attach to the ackwards object.
 .apply_pruning <- function(x, prune, redundancy_r, redundancy_phi) {
   levels_list <- x$levels
-  k_max <- x$k_max
 
   # Baseline node table — all nodes, initially not pruned
   base_nodes <- data.frame(
