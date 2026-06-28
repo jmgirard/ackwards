@@ -77,10 +77,17 @@
 <strong>M8 (done):</strong> Plot customization — <code>show_r</code>/<code>r_digits</code>, <code>mono</code>, <code>show_level_labels</code>/ <code>level_label_size</code>, <code>node_labels</code>, <code>primary_only</code>, <code>drop_pruned</code>/<code>compress_levels</code> on <code><a href="reference/autoplot.ackwards.html">autoplot.ackwards()</a></code>; private <code>.drop_pruned_nodes()</code> helper in <code>layout.R</code>.</li>
 <li>
 <strong>M9 (done):</strong> Visualization round 2 — <code>show_arrows</code>, <code>edge_linewidth</code>, <code>legend</code> on <code><a href="reference/autoplot.ackwards.html">autoplot.ackwards()</a></code>; new <code>ackwards-visualization.Rmd</code> vignette; Forbes vignette slimmed toward the paper; intro vignette trimmed and stale comment fixed.</li>
+<li>
+<strong>M10 (done):</strong> Conformance + robustness — <code><a href="reference/summary.ackwards.html">summary.ackwards()</a></code> + <code><a href="reference/print.summary_ackwards.html">print.summary_ackwards()</a></code> (previously documented but unimplemented §10 method); ESEM Heywood/improper-solution warning (<code>theta ≤ 0</code>, parity with EFA engine); <code>cor="spearman"</code> + <code>method="esem"</code> inconsistency warning; DESIGN.md §8 reconciled to list only PA + MAP (EKC/EGA marked out of scope).</li>
+<li>
+<strong>M11 (done):</strong> Edge-label polish + <code>show_r</code> decoupling — APA <code>.format_r()</code> helper (strip leading zero, pad trailing zeros, suppress <code>-.00</code>), <code>geom_label</code> with perpendicular offset + white halo + <code>r_label_size</code> arg; <strong>decouple <code>show_r</code> from <code>drop_pruned</code></strong> (default <code>FALSE</code> everywhere); Forbes vignette updated to two-figure (labeled + unlabeled) treatment; <code>.lintr</code> added to <code>.Rbuildignore</code> (R CMD check fully clean: 0 errors, 0 warnings, 0 notes).</li>
 </ul></div>
 <div class="section level2">
-<h2 id="current-focus--no-active-milestone">Current focus — no active milestone<a class="anchor" aria-label="anchor" href="#current-focus--no-active-milestone"></a></h2>
-<p>If a step needs a design decision not covered in <code>DESIGN.md</code>, <strong>stop and ask</strong> rather than guessing.</p>
+<h2 id="current-focus--m12-best-practice-suggest_k">Current focus — M12 (best-practice <code>suggest_k</code>)<a class="anchor" aria-label="anchor" href="#current-focus--m12-best-practice-suggest_k"></a></h2>
+<p>Next up, planned in <code>DESIGN.md</code> §15.12:</p>
+<ul><li>
+<strong>M12 (current):</strong> best-practice <code>suggest_k</code> — add Comparison Data (CD, via <code>EFAtools</code> gated by <code>check_installed()</code>), FA-eigenvalue PA, and VSS-1/2; enrich the object with eigenvalues; new <code>autoplot.suggest_k()</code> scree/parallel plot; redesigned multi-criterion <code>print</code>. <strong>Amends §8 and §12</strong> (adds <code>EFAtools</code> to Suggests; EGA stays out of scope) — flag before landing.</li>
+</ul><p>If a step needs a design decision not covered in <code>DESIGN.md</code>, <strong>stop and ask</strong> rather than guessing.</p>
 </div>
 <div class="section level2">
 <h2 id="invariants--do-not-violate-without-flagging">Invariants — do not violate without flagging<a class="anchor" aria-label="anchor" href="#invariants--do-not-violate-without-flagging"></a></h2>

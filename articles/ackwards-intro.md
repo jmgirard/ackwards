@@ -80,10 +80,10 @@ runs two established selection criteria:
 
 sk <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations)...
-#> ✔ Running parallel analysis (20 iterations)... [121ms]
+#> ✔ Running parallel analysis (20 iterations)... [94ms]
 #> 
 #> ℹ Running MAP (Velicer)...
-#> ✔ Running MAP (Velicer)... [131ms]
+#> ✔ Running MAP (Velicer)... [114ms]
 #> 
 sk
 #> 
@@ -200,9 +200,64 @@ connections exceed the display threshold of \|r\| ≥ 0.3. The 40 comes
 from summing across all adjacent pairs: 1×2 + 2×3 + 3×4 + 4×5 = 2 + 6 +
 12 + 20 = 40.
 
+[`summary()`](https://rdrr.io/r/base/summary.html) gives a more detailed
+view — per-factor variance and fit indices at each level, plus a lineage
+list showing which factors at each level descend from which parents:
+
+``` r
+
+summary(x)
+#> 
+#> ── Summary: Bass-Ackwards Analysis (ackwards) ──────────────────────────────────
+#> Engine: pca
+#> Rotation: cfT
+#> Basis: polychoric
+#> n: 2,436
+#> k (max): 5
+#> 
+#> ── Levels ──
+#> 
+#> k = 1: 1 factor (22.9% cumulative variance)
+#> m1f1 22.9% eigenvalue 5.73
+#> k = 2: 2 factors (34.74% cumulative variance)
+#> m2f1 20.28% eigenvalue 5.73
+#> m2f2 14.46% eigenvalue 2.96
+#> k = 3: 3 factors (43.92% cumulative variance)
+#> m3f1 17.1% eigenvalue 5.73
+#> m3f2 14.05% eigenvalue 2.96
+#> m3f3 12.76% eigenvalue 2.29
+#> k = 4: 4 factors (51.77% cumulative variance)
+#> m4f1 16.98% eigenvalue 5.73
+#> m4f2 13.72% eigenvalue 2.96
+#> m4f3 11.29% eigenvalue 2.29
+#> m4f4 9.78% eigenvalue 1.96
+#> k = 5: 5 factors (58.33% cumulative variance)
+#> m5f1 13.6% eigenvalue 5.73
+#> m5f2 13.38% eigenvalue 2.96
+#> m5f3 11.36% eigenvalue 2.29
+#> m5f4 10.27% eigenvalue 1.96
+#> m5f5 9.72% eigenvalue 1.64
+#> 
+#> ── Lineage (primary parents) ──
+#> 
+#> m1f1 → m2f1, m2f2
+#> m2f1 → m3f1, m3f3
+#> m2f2 → m3f2
+#> m3f1 → m4f1
+#> m3f2 → m4f2
+#> m3f3 → m4f3, m4f4
+#> m4f1 → m5f2, m5f4
+#> m4f2 → m5f1
+#> m4f3 → m5f3
+#> m4f4 → m5f5
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: This is a series of linked solutions, not a fitted hierarchical model.
+#> Cross-level edges are descriptive score correlations.
+```
+
 [`glance()`](https://generics.r-lib.org/reference/glance.html) returns
-the same information as a one-row data frame, convenient for comparisons
-across models:
+the same top-level information as a one-row data frame, convenient for
+comparisons across models:
 
 ``` r
 
@@ -445,8 +500,9 @@ The bass-ackwards workflow in **ackwards** has six steps:
     depth.
 2.  **`ackwards(data, k, cor = ...)`** — fit the full hierarchy of
     factor models.
-3.  **`print(x)` / `glance(x)`** — check that all levels converged and
-    read the top-level summary.
+3.  **`print(x)` / `summary(x)` / `glance(x)`** — check convergence,
+    read the per-level variance and fit indices, and inspect the lineage
+    list.
 4.  **`autoplot(x)`** — visualize the hierarchy as a lineage diagram.
 5.  **`tidy(x, what = ...)`** — extract loadings, edges, or variance in
     a form ready for tables or further analysis.

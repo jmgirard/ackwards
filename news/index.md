@@ -2,6 +2,121 @@
 
 ## ackwards 0.0.0.9000 (dev)
 
+### Milestone 11 — Edge-label polish + `show_r` decoupling
+
+- `show_r` now defaults to `FALSE` in all
+  [`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md)
+  views. Previously, `show_r = NULL` resolved to `TRUE` when
+  `drop_pruned = TRUE` (coupling two orthogonal concerns). The default
+  is now explicit: pass `show_r = TRUE` to label edges. The Forbes
+  vignette demonstrates both the labeled and unlabeled variants,
+  matching the two-figure treatment in Forbes (2023). (#M11)
+
+- Edge correlation labels now use APA-style formatting via the new
+  internal helper `.format_r()`: the leading zero is stripped (`.23` not
+  `0.23`), trailing zeros are padded to `r_digits` decimal places (`.30`
+  not `.3`), and `±1` formats as `1.00` / `-1.00`. (#M11)
+
+- Edge labels are now rendered with `geom_label` (white background, no
+  border) offset perpendicular to each edge’s direction, so they clear
+  near-vertical arrows and the arrowhead regardless of edge angle. The
+  previous flat horizontal nudge was ineffective for near-vertical
+  segments. (#M11)
+
+- New `r_label_size` argument to
+  [`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md)
+  controls the font size of edge correlation labels when
+  `show_r = TRUE`. Default `2.5` preserves existing behaviour. (#M11)
+
+- `.format_r()` no longer produces `"-.00"` when a small negative
+  correlation rounds to zero at the requested precision; sign is
+  suppressed in that case. (#M11)
+
+### Milestone 10 — Conformance + robustness
+
+#### Wave 2 follow-up: conformance fixes
+
+- Fixed
+  [`print.summary_ackwards()`](https://jmgirard.github.io/ackwards/reference/print.summary_ackwards.md)
+  spuriously printing “Redundant: 0 nodes flagged” when only
+  `prune = "artefact"` was requested. Root cause: `.summary_prune()`
+  always returned a `redundant` field (a length-0 character vector), and
+  `print` gated on `!is.null(redundant)` rather than on the `rules`
+  slot. Fix: `.summary_prune()` now carries `rules` through from the
+  prune slot; both pruning display blocks in `print` gate on
+  `"redundant" %in% p$rules` / `"artefact" %in% p$rules` respectively —
+  consistent with how
+  [`print.ackwards()`](https://jmgirard.github.io/ackwards/reference/print.ackwards.md)
+  handles the same slot.
+- `.summary_lineage()` now uses `which(e$is_primary & ...)` instead of
+  direct logical indexing to guard against `NA` values in `is_primary`
+  (skip-level edges from `pairs = "all"` carry `NA` there). Parents are
+  now sorted explicitly by level then label rather than relying on
+  tidy-table insertion order, giving stable top-down ordering regardless
+  of pairs mode.
+- 7 new tests added to `test-print.R` covering: artefact-only prune (no
+  spurious redundant line), redundant+artefact combined, truncated ESEM
+  hierarchy, polychoric basis, PCA eigenvalue presence in fit table,
+  lineage content correctness (specific parent→children check), and the
+  print method.
+- Heywood fixture in `test-esem.R` now starts with a `skip_if` pre-check
+  that verifies the fixture still produces `theta <= 0` under the
+  installed lavaan version, making the test skip gracefully rather than
+  silently pass if a future lavaan changes its residual-variance
+  bounding behaviour.
+
+#### Wave 2: summary method
+
+- Added
+  [`summary.ackwards()`](https://jmgirard.github.io/ackwards/reference/summary.ackwards.md)
+  and
+  [`print.summary_ackwards()`](https://jmgirard.github.io/ackwards/reference/print.summary_ackwards.md)
+  — the previously documented but unimplemented summary method
+  (DESIGN.md §6/§10). Returns a structured `summary_ackwards` object
+  that, when printed, shows:
+  - **Per-level block**: per-factor variance % and cumulative variance
+    for every level. PCA levels additionally show eigenvalues; EFA/ESEM
+    levels (k ≥ 2) append a fit-index line (RMSEA/TLI/chi/df for EFA;
+    CFI/TLI/RMSEA/SRMR for ESEM).
+  - **Lineage list**: `m1f1 → m2f1, m2f2` readable chains walking the
+    adjacent primary-parent edges top-down.
+  - **Pruning section**: when `prune != "none"`, lists flagged-node IDs
+    per rule and notes that pruning is interpretive, not re-estimation.
+  - Honesty caveat (series of linked solutions, not a fitted hierarchy).
+    The returned object carries `variance`, `fit`, `lineage`, and
+    `prune` fields for programmatic access, matching the
+    `print.suggest_k` pattern.
+- Added `summary.ackwards` and `print.summary_ackwards` to
+  `_pkgdown.yml` reference and mentioned
+  [`summary()`](https://rdrr.io/r/base/summary.html) in the intro
+  vignette Step 3 section.
+
+#### Wave 1: engine robustness
+
+- **ESEM improper-solution warning.** The ESEM engine now warns when any
+  residual variance in the lavaan theta matrix is at or below zero
+  (Heywood case). lavaan clamps negative residual variances to 0 by
+  default; the check catches both clamped-to-zero and
+  unconstrained-negative values. The object is still returned at the
+  full requested depth — the warning is diagnostic, not truncating
+  (Invariant 7). Parity with the EFA engine, which has warned on Heywood
+  cases since M3.
+- **`cor = "spearman"` + `method = "esem"` inconsistency warning.**
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  now warns when this combination is requested: lavaan fits a Pearson-ML
+  model on raw data while
+  [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+  uses the Spearman correlation matrix for scoring, mixing bases
+  silently. The warning suggests `cor = "polychoric"` for ordinal data
+  or `cor = "pearson"` for a fully consistent continuous path. Emitted
+  once per session (`.frequency = "once"`).
+- **DESIGN.md §8 reconciled.**
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  documentation in §8 now lists only the two implemented criteria
+  (parallel analysis and MAP/Velicer) and explicitly marks Empirical
+  Kaiser Criterion (EKC) and EGA ([EGAnet](https://r-ega.net)) as out of
+  scope, consistent with the §12/§14 no-extra-deps decision.
+
 ### Milestone 9 — Visualization round 2 + vignette restructure
 
 #### Wave 2: vignette restructure

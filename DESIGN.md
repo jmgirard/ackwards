@@ -286,13 +286,20 @@ core, with the heavy bits nullable and recomputable.
 
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
 returns **several criteria and a recommended range**, never a single
-number: parallel analysis (Horn), Empirical Kaiser Criterion, MAP
-(Velicer), and EGA ([EGAnet](https://r-ega.net)). For Likert/ordinal
-data, compute these on the **polychoric** matrix when
-`cor = "polychoric"` is set (basis follows the same choice as the main
-call). Report that `k` is a maximum *depth*; users often deliberately
-set it a level or two past the consensus to watch factors fragment. Note
-the overextraction/non-replicability caution (Forbes 2023).
+number: **parallel analysis** (Horn, via
+[`psych::fa.parallel`](https://rdrr.io/pkg/psych/man/fa.parallel.html))
+and **MAP** (Velicer, via
+[`psych::vss`](https://rdrr.io/pkg/psych/man/VSS.html)). Empirical
+Kaiser Criterion (EKC) and EGA ([EGAnet](https://r-ega.net)) are **out
+of scope** — the `EGAnet`/`paran` deps were not added (see §12);
+[`psych::fa.parallel`](https://rdrr.io/pkg/psych/man/fa.parallel.html) +
+[`psych::vss`](https://rdrr.io/pkg/psych/man/VSS.html) cover the
+most-used criteria without extra deps. For Likert/ordinal data, compute
+these on the **polychoric** matrix when `cor = "polychoric"` is set
+(basis follows the same choice as the main call). Report that `k` is a
+maximum *depth*; users often deliberately set it a level or two past the
+consensus to watch factors fragment. Note the
+overextraction/non-replicability caution (Forbes 2023).
 
 ## 9. Defaults (high-stakes — users will not override these)
 
@@ -795,7 +802,118 @@ claim is inferentially honest.
       `edge_linewidth`; assert `legend.position == "none"` under
       `legend = FALSE`; plus composition with `drop_pruned` and `mono`.
       DoD: NEWS.md entries, roxygen `@param`/`@examples`, and the three
-      vignette updates.
+      vignette updates. *(done)*
+
+10. **Conformance + robustness** — two waves. *(done)*
+
+    **(a)
+    [`summary.ackwards()`](https://jmgirard.github.io/ackwards/reference/summary.ackwards.md) +
+    [`print.summary_ackwards()`](https://jmgirard.github.io/ackwards/reference/print.summary_ackwards.md).**
+    The previously documented (§6/§10) but unimplemented summary method.
+    Returns a structured `summary_ackwards` S3 object with fields
+    `variance`, `fit`, `lineage`, `prune`. `print` renders: per-level
+    variance % (PCA also shows eigenvalues; EFA/ESEM append
+    CFI/TLI/RMSEA/SRMR or RMSEA/TLI/chi/df per level); a readable
+    lineage list of adjacent primary-parent chains; pruning annotations
+    when `prune != "none"`. New file `R/summary.R`; NAMESPACE via
+    roxygen `@export`.
+
+    **(b) ESEM Heywood/improper-solution warning.** Engine now inspects
+    `lavaan::lavInspect(fit, "theta")` after each converged level and
+    warns when `any(diag(theta) <= 0)`. lavaan clamps negative residual
+    variances to 0 by default; the `<= 0` check catches both. Warn, do
+    not truncate (Invariant 7). Parity with the EFA engine.
+
+    **(c) `cor = "spearman"` + `method = "esem"` inconsistency
+    warning.** Emitted once per session in
+    [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+    when this combination is requested; points to `polychoric` or
+    `pearson` as model-consistent alternatives.
+
+    **(d) DESIGN.md §8 reconciled.**
+    [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+    criteria updated to list only PA + MAP; EKC and EGA
+    ([EGAnet](https://r-ega.net)) marked explicitly out of scope.
+
+11. **Edge-label polish + `show_r` decoupling** — additive label-quality
+    pass on
+    [`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md),
+    plus one default change (flagged in (c)). *(done)*
+
+    **(a) APA-style correlation formatting.** New internal helper
+    `.format_r(r, digits)` (in `R/utils.R`): formats to `r_digits` with
+    trailing-zero padding (`.30`, not `.3`), strips the leading zero per
+    APA convention (`.23`, `-.23`), and handles `±1`/`0` (`1.00`,
+    `.00`). Replaces the bare `round(r, r_digits)` at the edge-label
+    step.
+
+    **(b) `geom_label` placement.** Swap the edge-label `geom_text` for
+    `geom_label` with a white background (`linewidth = 0`, small
+    padding) and a **perpendicular** offset derived from each edge’s
+    `(dx, dy)`, so the label clears near-vertical arrows and the
+    arrowhead regardless of edge angle (the current flat `nudge_x` does
+    not). A new `r_label_size` argument (default `2.5`) exposes the font
+    size. A `pmax(..., 1e-9)` guard on the edge length prevents `NaN`
+    coordinates for any degenerate zero-length edge.
+
+    **(c) Decouple `show_r` from `drop_pruned` (default change —
+    supersedes §15.8a/8c).** M8 made `show_r = NULL` resolve to `TRUE`
+    under `drop_pruned` (the “Forbes auto-default”). This puns two
+    orthogonal concerns — node dropping vs. edge annotation — and
+    surprises users. **Resolution:** `show_r` defaults to `FALSE` in all
+    views. The Forbes paper itself presents *both* a labeled and an
+    unlabeled pruned diagram, so the vignette demonstrates
+    `show_r = TRUE` and `show_r = FALSE` explicitly rather than hiding
+    the choice in a coupled default. Invariant 6 (“loud defaults; never
+    switch silently”) favours the explicit form.
+
+    DoD: `.format_r()` unit tests (`.5`, `-.5`, `0`, `±1`, `-.00`
+    suppression); regression test that `show_r` is `FALSE` under
+    `drop_pruned`; integration tests verifying APA label text and
+    perpendicular placement via `layer_data()`; Forbes vignette updated
+    to the two-figure (labeled + unlabeled) treatment; `@param show_r`
+    rewritten (coupling note removed); NEWS.md.
+
+12. **Best-practice `suggest_k` expansion + `autoplot.suggest_k()`** —
+    adds simulation-validated criteria and a ggplot diagnostic. **Amends
+    §8 and §12** (design-record changes; EGA remains out of scope).
+
+    **(a) New criteria.** (i) **Comparison Data** (CD; Ruscio &
+    Roche 2012) via `rlang::check_installed("EFAtools")` →
+    `EFAtools::CD()` — among the top simulation performers and a
+    genuinely different signal (reproduces the full eigenvalue profile +
+    a bootstrap retention test); needs raw data, is stochastic (add a
+    `seed`), and skips gracefully when `EFAtools` is absent. (ii)
+    **FA-eigenvalue parallel analysis**
+    (`psych::fa.parallel(fa = "fa")`) alongside the existing PC-based PA
+    — the model-consistent criterion for the EFA/ESEM engines. (iii)
+    **VSS-1/VSS-2** (Revelle & Rocklin 1979) — already returned by the
+    [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html) call used
+    for MAP; surfaced rather than discarded.
+
+    **(b) Object enrichment.** Retain in the `suggest_k` object the
+    observed eigenvalues, the PA random-data means/quantiles (PC and
+    FA), and the per-k MAP/VSS curves — the data backing the plot.
+    Additive; no existing field changes.
+
+    **(c) `autoplot.suggest_k()`.** New S3 method (`generics`/`ggplot2`,
+    already Suggests): a parallel-analysis/scree plot (observed
+    eigenvalues vs. the random-data reference line, retention threshold
+    marked) with MAP/VSS on a companion panel. Mirrors the existing
+    [`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md)
+    idiom; supersedes `psych`’s base-graphics output for this package’s
+    users.
+
+    **(d) `print.suggest_k` redesign.** A multi-criterion consensus
+    table (PA-PC, PA-FA, MAP, VSS, CD side by side) plus the existing
+    overextraction caution.
+
+    **(e) Design-record amendments.** §8 → “PA (PC & FA) + MAP + VSS +
+    CD; EKC & EGA out of scope”; §12 → add `EFAtools` to Suggests, gated
+    by `check_installed()`, with the heavy-opt-in rationale.
+
+    DoD: criterion + plot tests (CD skipped when `EFAtools` absent);
+    `suggest_k`/visualization vignette coverage; `@examples`; NEWS.md.
 
 ------------------------------------------------------------------------
 

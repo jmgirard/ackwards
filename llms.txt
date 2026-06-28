@@ -244,7 +244,7 @@ The main modelling function and a helper for choosing k.
 
 ## Extract results
 
-Tidy, glance, augment, and print methods for ackwards objects.
+Tidy, glance, augment, summary, and print methods for ackwards objects.
 
 - [`tidy(`*`<ackwards>`*`)`](https://jmgirard.github.io/ackwards/reference/tidy.ackwards.md)
   : Tidy an ackwards object into a long data frame
@@ -252,8 +252,12 @@ Tidy, glance, augment, and print methods for ackwards objects.
   : Glance at an ackwards object
 - [`augment(`*`<ackwards>`*`)`](https://jmgirard.github.io/ackwards/reference/augment.ackwards.md)
   : Augment data with factor scores from an ackwards object
+- [`summary(`*`<ackwards>`*`)`](https://jmgirard.github.io/ackwards/reference/summary.ackwards.md)
+  : Summarise an ackwards object
 - [`print(`*`<ackwards>`*`)`](https://jmgirard.github.io/ackwards/reference/print.ackwards.md)
   : Print an ackwards object
+- [`print(`*`<summary_ackwards>`*`)`](https://jmgirard.github.io/ackwards/reference/print.summary_ackwards.md)
+  : Print a summary_ackwards object
 
 ## Visualize
 

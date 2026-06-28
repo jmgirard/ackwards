@@ -50,6 +50,47 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="ackwards-0009000-dev">ackwards 0.0.0.9000 (dev)<a class="anchor" aria-label="anchor" href="#ackwards-0009000-dev"></a></h2>
 <div class="section level3">
+<h3 id="milestone--edge-label-polish--show_r-decoupling-0-0-0-9000">Milestone 11 — Edge-label polish + <code>show_r</code> decoupling<a class="anchor" aria-label="anchor" href="#milestone--edge-label-polish--show_r-decoupling-0-0-0-9000"></a></h3>
+<ul><li><p><code>show_r</code> now defaults to <code>FALSE</code> in all <code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> views. Previously, <code>show_r = NULL</code> resolved to <code>TRUE</code> when <code>drop_pruned = TRUE</code> (coupling two orthogonal concerns). The default is now explicit: pass <code>show_r = TRUE</code> to label edges. The Forbes vignette demonstrates both the labeled and unlabeled variants, matching the two-figure treatment in Forbes (2023). (#M11)</p></li>
+<li><p>Edge correlation labels now use APA-style formatting via the new internal helper <code>.format_r()</code>: the leading zero is stripped (<code>.23</code> not <code>0.23</code>), trailing zeros are padded to <code>r_digits</code> decimal places (<code>.30</code> not <code>.3</code>), and <code>±1</code> formats as <code>1.00</code> / <code>-1.00</code>. (#M11)</p></li>
+<li><p>Edge labels are now rendered with <code>geom_label</code> (white background, no border) offset perpendicular to each edge’s direction, so they clear near-vertical arrows and the arrowhead regardless of edge angle. The previous flat horizontal nudge was ineffective for near-vertical segments. (#M11)</p></li>
+<li><p>New <code>r_label_size</code> argument to <code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> controls the font size of edge correlation labels when <code>show_r = TRUE</code>. Default <code>2.5</code> preserves existing behaviour. (#M11)</p></li>
+<li><p><code>.format_r()</code> no longer produces <code>"-.00"</code> when a small negative correlation rounds to zero at the requested precision; sign is suppressed in that case. (#M11)</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="milestone--conformance--robustness-0-0-0-9000">Milestone 10 — Conformance + robustness<a class="anchor" aria-label="anchor" href="#milestone--conformance--robustness-0-0-0-9000"></a></h3>
+<div class="section level4">
+<h4 id="wave-follow-up-conformance-fixes-0-0-0-9000">Wave 2 follow-up: conformance fixes<a class="anchor" aria-label="anchor" href="#wave-follow-up-conformance-fixes-0-0-0-9000"></a></h4>
+<ul><li>Fixed <code><a href="../reference/print.summary_ackwards.html">print.summary_ackwards()</a></code> spuriously printing “Redundant: 0 nodes flagged” when only <code>prune = "artefact"</code> was requested. Root cause: <code>.summary_prune()</code> always returned a <code>redundant</code> field (a length-0 character vector), and <code>print</code> gated on <code>!is.null(redundant)</code> rather than on the <code>rules</code> slot. Fix: <code>.summary_prune()</code> now carries <code>rules</code> through from the prune slot; both pruning display blocks in <code>print</code> gate on <code>"redundant" %in% p$rules</code> / <code>"artefact" %in% p$rules</code> respectively — consistent with how <code><a href="../reference/print.ackwards.html">print.ackwards()</a></code> handles the same slot.</li>
+<li>
+<code>.summary_lineage()</code> now uses <code>which(e$is_primary &amp; ...)</code> instead of direct logical indexing to guard against <code>NA</code> values in <code>is_primary</code> (skip-level edges from <code>pairs = "all"</code> carry <code>NA</code> there). Parents are now sorted explicitly by level then label rather than relying on tidy-table insertion order, giving stable top-down ordering regardless of pairs mode.</li>
+<li>7 new tests added to <code>test-print.R</code> covering: artefact-only prune (no spurious redundant line), redundant+artefact combined, truncated ESEM hierarchy, polychoric basis, PCA eigenvalue presence in fit table, lineage content correctness (specific parent→children check), and the print method.</li>
+<li>Heywood fixture in <code>test-esem.R</code> now starts with a <code>skip_if</code> pre-check that verifies the fixture still produces <code>theta &lt;= 0</code> under the installed lavaan version, making the test skip gracefully rather than silently pass if a future lavaan changes its residual-variance bounding behaviour.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="wave-summary-method-0-0-0-9000">Wave 2: summary method<a class="anchor" aria-label="anchor" href="#wave-summary-method-0-0-0-9000"></a></h4>
+<ul><li>Added <code><a href="../reference/summary.ackwards.html">summary.ackwards()</a></code> and <code><a href="../reference/print.summary_ackwards.html">print.summary_ackwards()</a></code> — the previously documented but unimplemented summary method (DESIGN.md §6/§10). Returns a structured <code>summary_ackwards</code> object that, when printed, shows:
+<ul><li>
+<strong>Per-level block</strong>: per-factor variance % and cumulative variance for every level. PCA levels additionally show eigenvalues; EFA/ESEM levels (k ≥ 2) append a fit-index line (RMSEA/TLI/chi/df for EFA; CFI/TLI/RMSEA/SRMR for ESEM).</li>
+<li>
+<strong>Lineage list</strong>: <code>m1f1 → m2f1, m2f2</code> readable chains walking the adjacent primary-parent edges top-down.</li>
+<li>
+<strong>Pruning section</strong>: when <code>prune != "none"</code>, lists flagged-node IDs per rule and notes that pruning is interpretive, not re-estimation.</li>
+<li>Honesty caveat (series of linked solutions, not a fitted hierarchy). The returned object carries <code>variance</code>, <code>fit</code>, <code>lineage</code>, and <code>prune</code> fields for programmatic access, matching the <code>print.suggest_k</code> pattern.</li>
+</ul></li>
+<li>Added <code>summary.ackwards</code> and <code>print.summary_ackwards</code> to <code>_pkgdown.yml</code> reference and mentioned <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> in the intro vignette Step 3 section.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="wave-engine-robustness-0-0-0-9000">Wave 1: engine robustness<a class="anchor" aria-label="anchor" href="#wave-engine-robustness-0-0-0-9000"></a></h4>
+<ul><li>
+<strong>ESEM improper-solution warning.</strong> The ESEM engine now warns when any residual variance in the lavaan theta matrix is at or below zero (Heywood case). lavaan clamps negative residual variances to 0 by default; the check catches both clamped-to-zero and unconstrained-negative values. The object is still returned at the full requested depth — the warning is diagnostic, not truncating (Invariant 7). Parity with the EFA engine, which has warned on Heywood cases since M3.</li>
+<li>
+<strong><code>cor = "spearman"</code> + <code>method = "esem"</code> inconsistency warning.</strong> <code><a href="../reference/ackwards.html">ackwards()</a></code> now warns when this combination is requested: lavaan fits a Pearson-ML model on raw data while <code><a href="../reference/compute_edges.html">compute_edges()</a></code> uses the Spearman correlation matrix for scoring, mixing bases silently. The warning suggests <code>cor = "polychoric"</code> for ordinal data or <code>cor = "pearson"</code> for a fully consistent continuous path. Emitted once per session (<code>.frequency = "once"</code>).</li>
+<li>
+<strong>DESIGN.md §8 reconciled.</strong> <code><a href="../reference/suggest_k.html">suggest_k()</a></code> documentation in §8 now lists only the two implemented criteria (parallel analysis and MAP/Velicer) and explicitly marks Empirical Kaiser Criterion (EKC) and EGA (<a href="https://r-ega.net" class="external-link">EGAnet</a>) as out of scope, consistent with the §12/§14 no-extra-deps decision.</li>
+</ul></div>
+</div>
+<div class="section level3">
 <h3 id="milestone--visualization-round--vignette-restructure-0-0-0-9000">Milestone 9 — Visualization round 2 + vignette restructure<a class="anchor" aria-label="anchor" href="#milestone--visualization-round--vignette-restructure-0-0-0-9000"></a></h3>
 <div class="section level4">
 <h4 id="wave-vignette-restructure-0-0-0-9000">Wave 2: vignette restructure<a class="anchor" aria-label="anchor" href="#wave-vignette-restructure-0-0-0-9000"></a></h4>

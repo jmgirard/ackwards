@@ -79,8 +79,9 @@ solid and those between the two thresholds are dashed.</p>
 <span>  show_skip <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  curvature <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  color_pruned <span class="op">=</span> <span class="st">"grey80"</span>,</span>
-<span>  show_r <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  show_r <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  r_digits <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  r_label_size <span class="op">=</span> <span class="fl">2.5</span>,</span>
 <span>  mono <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_level_labels <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  level_label_size <span class="op">=</span> <span class="fl">3</span>,</span>
@@ -160,15 +161,21 @@ nodes are omitted entirely when <code>drop_pruned = TRUE</code>).</p></dd>
 
 
 <dt id="arg-show-r">show_r<a class="anchor" aria-label="anchor" href="#arg-show-r"></a></dt>
-<dd><p>Whether to label each drawn edge with its rounded correlation
-coefficient. <code>NULL</code> (default) uses <code>FALSE</code> normally and <code>TRUE</code> when
-<code>drop_pruned = TRUE</code> (Forbes 2023 figures always label spanning arrows).
-Set explicitly to <code>TRUE</code> or <code>FALSE</code> to override.</p></dd>
+<dd><p>Whether to label each drawn edge with its correlation
+coefficient. Default <code>FALSE</code>. When <code>TRUE</code>, labels are formatted in APA
+style (leading zero stripped, e.g. <code>.23</code>, <code>-.30</code>) and placed beside each
+edge using a white-background label that clears the arrowhead.</p></dd>
 
 
 <dt id="arg-r-digits">r_digits<a class="anchor" aria-label="anchor" href="#arg-r-digits"></a></dt>
 <dd><p>Number of decimal places for edge labels when
 <code>show_r = TRUE</code>. Default <code>2L</code>.</p></dd>
+
+
+<dt id="arg-r-label-size">r_label_size<a class="anchor" aria-label="anchor" href="#arg-r-label-size"></a></dt>
+<dd><p>Font size for edge correlation labels when
+<code>show_r = TRUE</code>. Passed to <code><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">ggplot2::geom_label()</a></code> as <code>size</code>. Default
+<code>2.5</code>.</p></dd>
 
 
 <dt id="arg-mono">mono<a class="anchor" aria-label="anchor" href="#arg-mono"></a></dt>
@@ -276,6 +283,7 @@ both <code>"black"</code>) to remove an otherwise redundant Direction key. Defau
 <span class="r-in"><span><span class="co"># Forbes pruned view: omit redundant nodes, straight spanning arrows</span></span></span>
 <span class="r-in"><span><span class="va">xp</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span>, k <span class="op">=</span> <span class="fl">5</span>, prune <span class="op">=</span> <span class="st">"redundant"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">xp</span>, drop_pruned <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">xp</span>, drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>, show_r <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># with APA-style r labels</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">xp</span>, drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>, compress_levels <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plain line ends without arrowheads</span></span></span>
@@ -288,9 +296,11 @@ both <code>"black"</code>) to remove an otherwise redundant Direction key. Defau
 <span class="r-in"><span><span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Forbes (2023) publication style: black lines, uniform width, no arrowheads</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">xp</span>, drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>         color_pos <span class="op">=</span> <span class="st">"black"</span>, color_neg <span class="op">=</span> <span class="st">"black"</span>,</span></span>
-<span class="r-in"><span>         edge_linewidth <span class="op">=</span> <span class="fl">0.6</span>, show_arrows <span class="op">=</span> <span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">xp</span>,</span></span>
+<span class="r-in"><span>  drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  color_pos <span class="op">=</span> <span class="st">"black"</span>, color_neg <span class="op">=</span> <span class="st">"black"</span>,</span></span>
+<span class="r-in"><span>  edge_linewidth <span class="op">=</span> <span class="fl">0.6</span>, show_arrows <span class="op">=</span> <span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

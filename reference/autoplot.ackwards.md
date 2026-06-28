@@ -22,8 +22,9 @@ autoplot(
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
-  show_r = NULL,
+  show_r = FALSE,
   r_digits = 2L,
+  r_label_size = 2.5,
   mono = FALSE,
   show_level_labels = TRUE,
   level_label_size = 3,
@@ -104,15 +105,21 @@ plot(x, ...)
 
 - show_r:
 
-  Whether to label each drawn edge with its rounded correlation
-  coefficient. `NULL` (default) uses `FALSE` normally and `TRUE` when
-  `drop_pruned = TRUE` (Forbes 2023 figures always label spanning
-  arrows). Set explicitly to `TRUE` or `FALSE` to override.
+  Whether to label each drawn edge with its correlation coefficient.
+  Default `FALSE`. When `TRUE`, labels are formatted in APA style
+  (leading zero stripped, e.g. `.23`, `-.30`) and placed beside each
+  edge using a white-background label that clears the arrowhead.
 
 - r_digits:
 
   Number of decimal places for edge labels when `show_r = TRUE`. Default
   `2L`.
+
+- r_label_size:
+
+  Font size for edge correlation labels when `show_r = TRUE`. Passed to
+  [`ggplot2::geom_label()`](https://ggplot2.tidyverse.org/reference/geom_text.html)
+  as `size`. Default `2.5`.
 
 - mono:
 
@@ -222,6 +229,7 @@ autoplot(x, primary_only = TRUE)
 # Forbes pruned view: omit redundant nodes, straight spanning arrows
 xp <- ackwards(psych::bfi[, 1:25], k = 5, prune = "redundant")
 autoplot(xp, drop_pruned = TRUE)
+autoplot(xp, drop_pruned = TRUE, show_r = TRUE) # with APA-style r labels
 autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
 
 # Plain line ends without arrowheads
@@ -234,8 +242,10 @@ autoplot(x, edge_linewidth = 0.5)
 autoplot(x, legend = FALSE)
 
 # Forbes (2023) publication style: black lines, uniform width, no arrowheads
-autoplot(xp, drop_pruned = TRUE,
-         color_pos = "black", color_neg = "black",
-         edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE)
+autoplot(xp,
+  drop_pruned = TRUE,
+  color_pos = "black", color_neg = "black",
+  edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
+)
 } # }
 ```

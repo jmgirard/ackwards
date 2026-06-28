@@ -161,10 +161,10 @@ are extracted; suggests the k at which this average is minimized.</li>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations)... <span style="color: #B2B2B2;">[121ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations)... <span style="color: #B2B2B2;">[94ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP (Velicer)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP (Velicer)... <span style="color: #B2B2B2;">[131ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP (Velicer)... <span style="color: #B2B2B2;">[114ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -302,9 +302,60 @@ several specific dimensions.</p>
 connections exceed the display threshold of |r| ≥ 0.3. The 40 comes from
 summing across all adjacent pairs: 1×2 + 2×3 + 3×4 + 4×5 = 2 + 6 + 12 +
 20 = 40.</p>
-<p><code><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance()</a></code> returns the same information as a one-row data
-frame, convenient for comparisons across models:</p>
+<p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> gives a more detailed view — per-factor
+variance and fit indices at each level, plus a lineage list showing
+which factors at each level descend from which parents:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Summary: Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────</span></span></span>
+<span><span class="co">#&gt; Engine: <span style="font-weight: bold;">pca</span></span></span>
+<span><span class="co">#&gt; Rotation: cfT</span></span>
+<span><span class="co">#&gt; Basis: polychoric</span></span>
+<span><span class="co">#&gt; n: 2,436</span></span>
+<span><span class="co">#&gt; k (max): 5</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 1</span>: 1 factor (22.9% cumulative variance)</span></span>
+<span><span class="co">#&gt; m1f1 22.9% eigenvalue 5.73</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 2</span>: 2 factors (34.74% cumulative variance)</span></span>
+<span><span class="co">#&gt; m2f1 20.28% eigenvalue 5.73</span></span>
+<span><span class="co">#&gt; m2f2 14.46% eigenvalue 2.96</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 3</span>: 3 factors (43.92% cumulative variance)</span></span>
+<span><span class="co">#&gt; m3f1 17.1% eigenvalue 5.73</span></span>
+<span><span class="co">#&gt; m3f2 14.05% eigenvalue 2.96</span></span>
+<span><span class="co">#&gt; m3f3 12.76% eigenvalue 2.29</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 4</span>: 4 factors (51.77% cumulative variance)</span></span>
+<span><span class="co">#&gt; m4f1 16.98% eigenvalue 5.73</span></span>
+<span><span class="co">#&gt; m4f2 13.72% eigenvalue 2.96</span></span>
+<span><span class="co">#&gt; m4f3 11.29% eigenvalue 2.29</span></span>
+<span><span class="co">#&gt; m4f4 9.78% eigenvalue 1.96</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 5</span>: 5 factors (58.33% cumulative variance)</span></span>
+<span><span class="co">#&gt; m5f1 13.6% eigenvalue 5.73</span></span>
+<span><span class="co">#&gt; m5f2 13.38% eigenvalue 2.96</span></span>
+<span><span class="co">#&gt; m5f3 11.36% eigenvalue 2.29</span></span>
+<span><span class="co">#&gt; m5f4 10.27% eigenvalue 1.96</span></span>
+<span><span class="co">#&gt; m5f5 9.72% eigenvalue 1.64</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── <span style="font-weight: bold;">Lineage (primary parents)</span> ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; m1f1 → m2f1, m2f2</span></span>
+<span><span class="co">#&gt; m2f1 → m3f1, m3f3</span></span>
+<span><span class="co">#&gt; m2f2 → m3f2</span></span>
+<span><span class="co">#&gt; m3f1 → m4f1</span></span>
+<span><span class="co">#&gt; m3f2 → m4f2</span></span>
+<span><span class="co">#&gt; m3f3 → m4f3, m4f4</span></span>
+<span><span class="co">#&gt; m4f1 → m5f2, m5f4</span></span>
+<span><span class="co">#&gt; m4f2 → m5f1</span></span>
+<span><span class="co">#&gt; m4f3 → m5f3</span></span>
+<span><span class="co">#&gt; m4f4 → m5f5</span></span>
+<span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations.</span></span></span></code></pre></div>
+<p><code><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance()</a></code> returns the same top-level information as a
+one-row data frame, convenient for comparisons across models:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   method rotation   cor_type k_max n_obs deepest_converged n_edges</span></span>
 <span><span class="co">#&gt; 1    pca      cfT polychoric     5  2436                 5      40</span></span></code></pre></div>
@@ -321,7 +372,7 @@ Arrow thickness is proportional to |r|; color shows direction (blue =
 positive, orange = negative by default); solid arrows indicate strong
 connections (|r| ≥ 0.6), dashed arrows show moderate ones (|r| ≥
 0.3).</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-intro_files/figure-html/autoplot-1.png" class="r-plt" alt="" width="768"></p>
 <p>Reading this diagram from left to right tells the story of the Big
@@ -366,7 +417,7 @@ returned.</p>
 <div class="section level3">
 <h3 id="factor-loadings">Factor loadings<a class="anchor" aria-label="anchor" href="#factor-loadings"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">loadings_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">loadings_df</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   level factor item    loading</span></span>
@@ -379,7 +430,7 @@ returned.</p>
 <p>Each row is one item at one level for one factor. You can filter to a
 specific level to see what items define each factor. Here are the
 strongest-loading items at k = 5:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lv5</span> <span class="op">&lt;-</span> <span class="va">loadings_df</span><span class="op">[</span><span class="va">loadings_df</span><span class="op">$</span><span class="va">level</span> <span class="op">==</span> <span class="fl">5</span>, <span class="op">]</span></span>
 <span><span class="va">lv5</span> <span class="op">&lt;-</span> <span class="va">lv5</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">lv5</span><span class="op">$</span><span class="va">loading</span><span class="op">)</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="va">lv5</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html" class="external-link">duplicated</a></span><span class="op">(</span><span class="va">lv5</span><span class="op">$</span><span class="va">factor</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"factor"</span>, <span class="st">"item"</span>, <span class="st">"loading"</span><span class="op">)</span><span class="op">]</span></span>
@@ -393,7 +444,7 @@ strongest-loading items at k = 5:</p>
 <div class="section level3">
 <h3 id="between-level-edges">Between-level edges<a class="anchor" aria-label="anchor" href="#between-level-edges"></a>
 </h3>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span></span>
 <span><span class="co"># Primary-parent edges sorted by strength</span></span>
 <span><span class="va">primary</span> <span class="op">&lt;-</span> <span class="va">edges</span><span class="op">[</span><span class="va">edges</span><span class="op">$</span><span class="va">is_primary</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span><span class="op">)</span><span class="op">]</span></span>
@@ -422,7 +473,7 @@ reorganizing.</p>
 <div class="section level3">
 <h3 id="variance-explained">Variance explained<a class="anchor" aria-label="anchor" href="#variance-explained"></a>
 </h3>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    level factor variance_pct cumulative_pct</span></span>
 <span><span class="co">#&gt; 1      1   m1f1        22.90          22.90</span></span>
@@ -455,7 +506,7 @@ where you want a continuous summary of a latent dimension.</p>
 the stored weight matrices and appends them to your data frame. The
 score columns are named <code>.m{k}f{j}</code> to distinguish them from
 the original variables.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">scored</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x</span>, data <span class="op">=</span> <span class="va">bfi</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: <span style="color: #BBBB00;">!</span> Factor scores are standardized using model-implied SDs from a <span style="color: #0000BB;">"polychoric"</span></span></span>
 <span><span class="co">#&gt;   correlation matrix.</span></span>
@@ -479,7 +530,7 @@ empirical variances agree exactly.</p>
 <p>If you need scores repeatedly (e.g., in a cross-validation loop),
 store them at fit time with <code>scores = TRUE</code> to avoid
 re-applying the weight matrices on every call:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, scores <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">scored2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span> <span class="co"># uses stored matrices — no recomputation</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">scored2</span><span class="op">$</span><span class="va">.m5f1</span>, <span class="fl">8</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">scored</span><span class="op">$</span><span class="va">.m5f1</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span></span>
@@ -492,7 +543,7 @@ slot directly into any standard R workflow. As a quick illustration, the
 k = 5 factor scores should be nearly uncorrelated with each other — a
 consequence of orthogonal rotation — while scores across levels should
 be highly correlated along the primary-parent lineage:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Within-level correlations at k = 5: should be near zero (orthogonal rotation)</span></span>
 <span><span class="va">k5</span> <span class="op">&lt;-</span> <span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"^\\.m5"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">k5</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
@@ -502,7 +553,7 @@ be highly correlated along the primary-parent lineage:</p>
 <span><span class="co">#&gt; .m5f3  0.01 -0.01  1.00 -0.02 -0.02</span></span>
 <span><span class="co">#&gt; .m5f4  0.01 -0.01 -0.02  1.00 -0.02</span></span>
 <span><span class="co">#&gt; .m5f5 -0.01 -0.01 -0.02 -0.02  1.00</span></span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Cross-level: m4f1 is the primary parent of m5f2 and m5f4 (from the edge table)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m4f1"</span>, <span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f4"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       .m4f1 .m5f1 .m5f2 .m5f4</span></span>
@@ -532,8 +583,9 @@ range for the hierarchy depth.</li>
 <strong><code>ackwards(data, k, cor = ...)</code></strong> — fit the
 full hierarchy of factor models.</li>
 <li>
-<strong><code>print(x)</code> / <code>glance(x)</code></strong> —
-check that all levels converged and read the top-level summary.</li>
+<strong><code>print(x)</code> / <code>summary(x)</code> /
+<code>glance(x)</code></strong> — check convergence, read the per-level
+variance and fit indices, and inspect the lineage list.</li>
 <li>
 <strong><code>autoplot(x)</code></strong> — visualize the hierarchy
 as a lineage diagram.</li>
