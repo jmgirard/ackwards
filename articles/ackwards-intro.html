@@ -38,6 +38,7 @@
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-visualization.html">Customizing the Hierarchy Diagram</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -160,10 +161,10 @@ are extracted; suggests the k at which this average is minimized.</li>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations)... <span style="color: #B2B2B2;">[113ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations)... <span style="color: #B2B2B2;">[121ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP (Velicer)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP (Velicer)... <span style="color: #B2B2B2;">[120ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP (Velicer)... <span style="color: #B2B2B2;">[131ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -349,11 +350,11 @@ factor scores, and the diagram.</p>
 <div class="section level3">
 <h3 id="adjusting-the-diagram">Adjusting the diagram<a class="anchor" aria-label="anchor" href="#adjusting-the-diagram"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Show only strong connections; relabel the k = 5 factors</span></span>
-<span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, cut_show <span class="op">=</span> <span class="fl">0.5</span>, cut_strong <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-intro_files/figure-html/autoplot-custom-1.png" class="r-plt" alt="" width="768"></p>
-<p>See <code><a href="../reference/autoplot.ackwards.html">?autoplot.ackwards</a></code> for the full argument list.</p>
+<p><code><a href="../reference/autoplot.html">autoplot()</a></code> accepts arguments to control edge thresholds,
+colours, line styles, arrowheads, node labels, and more. See
+<code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code> for a guided tour of all
+options with rendered examples, or <code><a href="../reference/autoplot.ackwards.html">?autoplot.ackwards</a></code> for
+the full argument list.</p>
 </div>
 </div>
 <div class="section level2">
@@ -365,7 +366,7 @@ returned.</p>
 <div class="section level3">
 <h3 id="factor-loadings">Factor loadings<a class="anchor" aria-label="anchor" href="#factor-loadings"></a>
 </h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">loadings_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">loadings_df</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   level factor item    loading</span></span>
@@ -378,7 +379,7 @@ returned.</p>
 <p>Each row is one item at one level for one factor. You can filter to a
 specific level to see what items define each factor. Here are the
 strongest-loading items at k = 5:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lv5</span> <span class="op">&lt;-</span> <span class="va">loadings_df</span><span class="op">[</span><span class="va">loadings_df</span><span class="op">$</span><span class="va">level</span> <span class="op">==</span> <span class="fl">5</span>, <span class="op">]</span></span>
 <span><span class="va">lv5</span> <span class="op">&lt;-</span> <span class="va">lv5</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">lv5</span><span class="op">$</span><span class="va">loading</span><span class="op">)</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="va">lv5</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html" class="external-link">duplicated</a></span><span class="op">(</span><span class="va">lv5</span><span class="op">$</span><span class="va">factor</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"factor"</span>, <span class="st">"item"</span>, <span class="st">"loading"</span><span class="op">)</span><span class="op">]</span></span>
@@ -392,7 +393,7 @@ strongest-loading items at k = 5:</p>
 <div class="section level3">
 <h3 id="between-level-edges">Between-level edges<a class="anchor" aria-label="anchor" href="#between-level-edges"></a>
 </h3>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span></span>
 <span><span class="co"># Primary-parent edges sorted by strength</span></span>
 <span><span class="va">primary</span> <span class="op">&lt;-</span> <span class="va">edges</span><span class="op">[</span><span class="va">edges</span><span class="op">$</span><span class="va">is_primary</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span><span class="op">)</span><span class="op">]</span></span>
@@ -421,7 +422,7 @@ reorganizing.</p>
 <div class="section level3">
 <h3 id="variance-explained">Variance explained<a class="anchor" aria-label="anchor" href="#variance-explained"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    level factor variance_pct cumulative_pct</span></span>
 <span><span class="co">#&gt; 1      1   m1f1        22.90          22.90</span></span>
@@ -454,7 +455,7 @@ where you want a continuous summary of a latent dimension.</p>
 the stored weight matrices and appends them to your data frame. The
 score columns are named <code>.m{k}f{j}</code> to distinguish them from
 the original variables.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">scored</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x</span>, data <span class="op">=</span> <span class="va">bfi</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: <span style="color: #BBBB00;">!</span> Factor scores are standardized using model-implied SDs from a <span style="color: #0000BB;">"polychoric"</span></span></span>
 <span><span class="co">#&gt;   correlation matrix.</span></span>
@@ -478,7 +479,7 @@ empirical variances agree exactly.</p>
 <p>If you need scores repeatedly (e.g., in a cross-validation loop),
 store them at fit time with <code>scores = TRUE</code> to avoid
 re-applying the weight matrices on every call:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, scores <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">scored2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span> <span class="co"># uses stored matrices — no recomputation</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">scored2</span><span class="op">$</span><span class="va">.m5f1</span>, <span class="fl">8</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">scored</span><span class="op">$</span><span class="va">.m5f1</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span></span>
@@ -491,7 +492,7 @@ slot directly into any standard R workflow. As a quick illustration, the
 k = 5 factor scores should be nearly uncorrelated with each other — a
 consequence of orthogonal rotation — while scores across levels should
 be highly correlated along the primary-parent lineage:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Within-level correlations at k = 5: should be near zero (orthogonal rotation)</span></span>
 <span><span class="va">k5</span> <span class="op">&lt;-</span> <span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"^\\.m5"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">k5</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
@@ -501,7 +502,7 @@ be highly correlated along the primary-parent lineage:</p>
 <span><span class="co">#&gt; .m5f3  0.01 -0.01  1.00 -0.02 -0.02</span></span>
 <span><span class="co">#&gt; .m5f4  0.01 -0.01 -0.02  1.00 -0.02</span></span>
 <span><span class="co">#&gt; .m5f5 -0.01 -0.01 -0.02 -0.02  1.00</span></span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Cross-level: m4f1 is the primary parent of m5f2 and m5f4 (from the edge table)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m4f1"</span>, <span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f4"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       .m4f1 .m5f1 .m5f2 .m5f4</span></span>
@@ -569,6 +570,10 @@ factor scores for downstream use.</li>
 <tr class="odd">
 <td>Skip-level connections and pruning with the Forbes extension</td>
 <td><code><a href="../articles/ackwards-forbes.html">vignette("ackwards-forbes")</a></code></td>
+</tr>
+<tr class="even">
+<td>Customizing the hierarchy diagram</td>
+<td><code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code></td>
 </tr>
 </tbody>
 </table>

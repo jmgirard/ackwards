@@ -31,6 +31,9 @@ autoplot(
   primary_only = FALSE,
   drop_pruned = FALSE,
   compress_levels = FALSE,
+  show_arrows = TRUE,
+  edge_linewidth = NULL,
+  legend = TRUE,
   ...
 )
 
@@ -157,6 +160,27 @@ plot(x, ...)
   labels (d) still show the original level numbers. Ignored when
   `drop_pruned = FALSE`. Default `FALSE`.
 
+- show_arrows:
+
+  When `FALSE`, edges are drawn with plain line ends instead of closed
+  arrowheads (`arrow = NULL`). Applies to both straight and curved edge
+  layers. Default `TRUE`. Forbes (2023) figures use plain line ends.
+
+- edge_linewidth:
+
+  `NULL` (default) maps `|r|` to `linewidth` via a continuous scale
+  (current behaviour). A numeric value draws every edge at that constant
+  width, removes the `linewidth` aesthetic mapping, and drops the `|r|`
+  linewidth legend. Applies in both colour and `mono` modes and in the
+  `drop_pruned` path. Forbes figures use uniform thin lines (≈ 0.5–0.6).
+
+- legend:
+
+  When `FALSE`, suppresses all plot legends
+  (`legend.position = "none"`). Useful when `color_pos == color_neg`
+  (e.g. both `"black"`) to remove an otherwise redundant Direction key.
+  Default `TRUE`.
+
 - ...:
 
   Ignored.
@@ -199,5 +223,19 @@ autoplot(x, primary_only = TRUE)
 xp <- ackwards(psych::bfi[, 1:25], k = 5, prune = "redundant")
 autoplot(xp, drop_pruned = TRUE)
 autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
+
+# Plain line ends without arrowheads
+autoplot(x, show_arrows = FALSE)
+
+# Uniform edge width (no |r| scaling)
+autoplot(x, edge_linewidth = 0.5)
+
+# Suppress legend
+autoplot(x, legend = FALSE)
+
+# Forbes (2023) publication style: black lines, uniform width, no arrowheads
+autoplot(xp, drop_pruned = TRUE,
+         color_pos = "black", color_neg = "black",
+         edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE)
 } # }
 ```

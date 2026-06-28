@@ -57,24 +57,6 @@ With k = 5, the adjacent-only model has 40 edges (1×2 + 2×3 + 3×4 +
 4×5). The all-pairs model adds every non-adjacent pair — 1↔︎3, 1↔︎4, 1↔︎5,
 2↔︎4, 2↔︎5, 3↔︎5 — for 85 edges total.
 
-### Visualizing skip-level connections
-
-[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
-detects when `pairs = "all"` was used and renders skip-level edges as
-curved arcs alongside the straight arrows for adjacent connections.
-
-``` r
-
-autoplot(x_all)
-```
-
-![](ackwards-forbes_files/figure-html/autoplot-all-1.png)
-
-Curved arcs that nearly match the thickness of the straight arrows tell
-you that a factor connects almost as strongly to a grandparent or
-great-grandparent as it does to its immediate parent. That is the
-signature of a stable, replicating dimension.
-
 ### Reading the skip-level edge table
 
 ``` r
@@ -162,54 +144,48 @@ a diagnostic annotation, not a deletion. You can still inspect their
 loadings, use their scores, and include them in the diagram. Pruning
 flags guide interpretation; they do not alter the model.
 
-### Annotated diagram
+### The pruned-factor diagram
 
-The pruned autoplot shades flagged factors in a distinct color (default:
-light grey) so you can read the hierarchy and the redundancy flags
-simultaneously.
+For presentations and publications it is cleaner to omit the flagged
+factors entirely and draw direct connections from each retained factor
+to its single strongest kept ancestor — even when that ancestor is
+several levels away. This is the Forbes (2023) pruned-factor diagram,
+activated by `drop_pruned = TRUE`.
 
-``` r
-
-autoplot(x_prune)
-```
-
-![](ackwards-forbes_files/figure-html/autoplot-pruned-1.png)
-
-The grey boxes at k = 4 and the two flagged boxes at k = 2 and k = 3
-indicate “you can probably jump over these without losing information.”
-The un-shaded factors at k = 1, the non-flagged factors at k = 2 and k =
-3, and all five factors at k = 5 tell the main story of the hierarchy.
-
-### The drop-pruned diagram (`drop_pruned`)
-
-The annotated view keeps all factors visible and uses shading to flag
-the redundant ones. For presentations and publications it is often
-cleaner to omit the flagged factors entirely and draw direct arrows from
-each retained factor to its single strongest kept ancestor — even when
-that ancestor is several levels away. This is the Forbes (2023)
-pruned-factor diagram, activated by `drop_pruned = TRUE`.
+Correlation labels appear by default in this view (`show_r`
+auto-defaults to `TRUE`) because they are the primary signal
+distinguishing a close connection from a long gap-spanning one. The
+arguments below reproduce the style of the figures in Forbes (2023):
+black lines, uniform width, plain line ends, and no legend.
 
 ``` r
 
-autoplot(x_prune, drop_pruned = TRUE)
+autoplot(x_prune,
+  drop_pruned = TRUE,
+  color_pos = "black", color_neg = "black",
+  edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
+)
 ```
 
 ![](ackwards-forbes_files/figure-html/drop-pruned-1.png)
 
 Level 4 is entirely pruned, leaving a visible gap in the y-axis. The gap
 is intentional: it shows *which* level was removed. Spanning arrows
-bridge directly from level 3 factors to level 5 factors (or from level 1
-to level 3 where level 2 was partly flagged). Correlation labels appear
-by default in this view (`show_r` auto-defaults to `TRUE`) because they
-are the primary signal distinguishing a close connection from a long
-gap-spanning one.
+bridge directly from level 3 factors to level 5 factors (and from level
+2 to level 5 where intermediate levels were flagged). Solid lines
+indicate strong connections (\|r\| ≥ 0.5 by default); dashed lines
+indicate weaker ones — the same `cut_strong` threshold used throughout.
 
 To close the gaps and compact the layout while retaining the original
 level numbers on the axis:
 
 ``` r
 
-autoplot(x_prune, drop_pruned = TRUE, compress_levels = TRUE)
+autoplot(x_prune,
+  drop_pruned = TRUE, compress_levels = TRUE,
+  color_pos = "black", color_neg = "black",
+  edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
+)
 ```
 
 ![](ackwards-forbes_files/figure-html/drop-pruned-compressed-1.png)
@@ -218,6 +194,10 @@ The level labels still read “1 factor”, “2 factors”, “3 factors”, �
 factors” so readers know which levels were retained; the uniform
 vertical spacing makes the diagram easier to read in constrained page
 layouts.
+
+For further cosmetic customization — colours, node labels, arrowheads,
+and more — see
+[`vignette("ackwards-visualization")`](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.md).
 
 ### `prune = "artefact"`: factors defined by structural similarity
 

@@ -80,10 +80,10 @@ runs two established selection criteria:
 
 sk <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations)...
-#> ✔ Running parallel analysis (20 iterations)... [113ms]
+#> ✔ Running parallel analysis (20 iterations)... [121ms]
 #> 
 #> ℹ Running MAP (Velicer)...
-#> ✔ Running MAP (Velicer)... [120ms]
+#> ✔ Running MAP (Velicer)... [131ms]
 #> 
 sk
 #> 
@@ -247,15 +247,11 @@ diagram.
 
 ### Adjusting the diagram
 
-``` r
-
-# Show only strong connections; relabel the k = 5 factors
-autoplot(x, cut_show = 0.5, cut_strong = 0.7)
-```
-
-![](ackwards-intro_files/figure-html/autoplot-custom-1.png)
-
-See
+[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+accepts arguments to control edge thresholds, colours, line styles,
+arrowheads, node labels, and more. See
+[`vignette("ackwards-visualization")`](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.md)
+for a guided tour of all options with rendered examples, or
 [`?autoplot.ackwards`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md)
 for the full argument list.
 
@@ -464,6 +460,7 @@ The bass-ackwards workflow in **ackwards** has six steps:
 | When PCA is not enough: comparing EFA and ESEM engines | [`vignette("ackwards-engines")`](https://jmgirard.github.io/ackwards/articles/ackwards-engines.md) |
 | Ordinal data: polychoric correlations and WLSMV estimation | [`vignette("ackwards-ordinal")`](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.md) |
 | Skip-level connections and pruning with the Forbes extension | [`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md) |
+| Customizing the hierarchy diagram | [`vignette("ackwards-visualization")`](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.md) |
 
 ## References
 

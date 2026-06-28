@@ -60,6 +60,11 @@ exactly.
   `primary_only`, `drop_pruned`/`compress_levels` on
   [`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md);
   private `.drop_pruned_nodes()` helper in `layout.R`.
+- **M9 (done):** Visualization round 2 — `show_arrows`,
+  `edge_linewidth`, `legend` on
+  [`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md);
+  new `ackwards-visualization.Rmd` vignette; Forbes vignette slimmed
+  toward the paper; intro vignette trimmed and stale comment fixed.
 
 ## Current focus — no active milestone
 

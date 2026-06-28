@@ -23,6 +23,7 @@
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-visualization.html">Customizing the Hierarchy Diagram</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
@@ -48,6 +49,28 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="ackwards-0009000-dev">ackwards 0.0.0.9000 (dev)<a class="anchor" aria-label="anchor" href="#ackwards-0009000-dev"></a></h2>
+<div class="section level3">
+<h3 id="milestone--visualization-round--vignette-restructure-0-0-0-9000">Milestone 9 — Visualization round 2 + vignette restructure<a class="anchor" aria-label="anchor" href="#milestone--visualization-round--vignette-restructure-0-0-0-9000"></a></h3>
+<div class="section level4">
+<h4 id="wave-vignette-restructure-0-0-0-9000">Wave 2: vignette restructure<a class="anchor" aria-label="anchor" href="#wave-vignette-restructure-0-0-0-9000"></a></h4>
+<ul><li>New <code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code>: a dedicated visual reference for all <code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> presentation options, with rendered before/after figures for each argument. Covers thresholds, colours, monochrome mode, correlation labels, custom node labels, primary-only mode, level labels, arrowheads, edge width, and legend; closes with a publication-ready worked example.</li>
+<li>
+<code><a href="../articles/ackwards-forbes.html">vignette("ackwards-forbes")</a></code>: removed the curved-arc <code>autoplot(x_all)</code> figure (skip-level edges are better understood via the edge table); the annotated grey-box view is replaced by the Forbes-styled <code>drop_pruned</code> diagram as the primary figure, using <code>color_pos = color_neg = "black"</code>, <code>edge_linewidth = 0.6</code>, <code>show_arrows = FALSE</code>, <code>legend = FALSE</code>. Added a cross-reference to the visualization vignette for cosmetic options.</li>
+<li>
+<code><a href="../articles/ackwards-intro.html">vignette("ackwards-intro")</a></code>: trimmed the “Adjusting the diagram” section to prose pointing to <code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code>; fixed a stale code comment that promised to “relabel the k = 5 factors” when the code did not. Added the visualization vignette to the “Next steps” table.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="wave-new-autoplot-args-0-0-0-9000">Wave 1: new autoplot args<a class="anchor" aria-label="anchor" href="#wave-new-autoplot-args-0-0-0-9000"></a></h4>
+<ul><li>
+<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>show_arrows = TRUE</code>: when <code>FALSE</code>, edges are drawn with plain line ends (<code>arrow = NULL</code>) instead of closed arrowheads. Applies to both straight and curved edge layers. Forbes (2023) figures use plain line ends throughout.</li>
+<li>
+<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>edge_linewidth = NULL</code>: <code>NULL</code> (default) keeps the existing behaviour of mapping <code>|r|</code> to <code>linewidth</code> via a continuous scale. A numeric value draws every edge at that constant width, removes the <code>linewidth</code> aesthetic mapping, and drops the <code>|r|</code> linewidth legend. Forbes figures use uniform thin lines (≈ 0.5–0.6).</li>
+<li>
+<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>legend = TRUE</code>: when <code>FALSE</code>, suppresses all plot legends (<code>legend.position = "none"</code>). Useful with <code>color_pos = color_neg = "black"</code> to remove the otherwise redundant “Direction” key.</li>
+<li>
+<strong>Forbes (2023) publication style</strong> is now reproducible without a new mode. Combine existing colour-mode args with the three new args: <code>autoplot(xp, drop_pruned = TRUE, color_pos = "black", color_neg = "black",</code> <code>edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE)</code>. The colour mode’s <code>cut_strong</code>-based solid/dashed distinction matches Forbes’s weak/secondary dashing; <code>mono</code> is not needed and uses different linetype semantics (sign, not strength).</li>
+</ul></div>
+</div>
 <div class="section level3">
 <h3 id="milestone--plot-customization-waves--0-0-0-9000">Milestone 8 — Plot customization (Waves 1 &amp; 2)<a class="anchor" aria-label="anchor" href="#milestone--plot-customization-waves--0-0-0-9000"></a></h3>
 <ul><li>

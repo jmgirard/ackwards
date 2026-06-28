@@ -717,7 +717,85 @@ claim is inferentially honest.
     guarded `expect_error` (e.g. `drop_pruned = TRUE` without pruning)
     and the degenerate-prune `expect_warning`. DoD additions: NEWS.md
     entry, and extend the Forbes vignette’s pruning section with a
-    `drop_pruned` example.
+    `drop_pruned` example. *(done)*
+
+9.  **Visualization round 2 + vignette restructure** — three additive
+    [`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md)
+    arguments for publication/Forbes-style figures, plus a
+    reorganization of the plotting documentation into a dedicated
+    vignette. All argument changes are additive; no existing default
+    changes and **no `drop_pruned` auto-coupling** (the M8 `show_r`
+    auto-default remains the only drop-pruned-conditional default; M9
+    adds none).
+
+    **(a) Arrowhead toggle** (`show_arrows = TRUE`). When `FALSE`, edges
+    are drawn with plain line ends (`arrow = NULL` on both the
+    `geom_segment` and `geom_curve` layers) instead of the closed
+    arrowheads. Default `TRUE` preserves current output. Forbes (2023)
+    figures use plain line ends throughout.
+
+    **(b) Fixed edge width** (`edge_linewidth = NULL`). `NULL` keeps
+    current behaviour: `linewidth` is mapped to `abs(r)` via
+    `scale_linewidth_continuous` with its `|r|` legend. A numeric value
+    draws every edge at that constant width, drops the `linewidth`
+    aesthetic mapping, and removes the linewidth scale/legend. Applies
+    in both colour and `mono` modes and in the `drop_pruned` path.
+    Forbes figures use uniform thin lines (≈ 0.5–0.6).
+
+    **(c) Legend toggle** (`legend = TRUE`). When `FALSE`, sets
+    `legend.position = "none"`, suppressing all guides. Forbes figures
+    carry no legend; this also removes the otherwise redundant
+    black-on-black “Direction” key when `color_pos == color_neg`.
+    Default `TRUE`.
+
+    **Forbes-style composition (no new mode).** Black lines with
+    Forbes’s *weak/secondary* dashing are produced by the existing
+    colour mode, **not** `mono`: `color_pos = color_neg = "black"`
+    yields black edges whose solid/dashed split still encodes strength
+    via `cut_strong` (matching Forbes’s dashed secondary connections).
+    `mono`’s linetype encodes *sign* — the opposite semantics — so
+    `mono` is not used for Forbes reproduction. The canonical Forbes
+    call:
+
+        autoplot(x_prune, drop_pruned = TRUE, color_pos = "black", color_neg = "black",
+                 edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE)
+
+    (`show_r` already auto-defaults to `TRUE` under `drop_pruned`.)
+
+    **Vignette restructure.**
+
+    - *Forbes vignette* (`ackwards-forbes.Rmd`): kept as close to the
+      paper as feasible. Remove the curved-arc `autoplot(x_all)` figure
+      (retain the skip-level edge *table* and prose), trim the grey-box
+      annotated view, and make the Forbes-styled `drop_pruned` diagram
+      the primary figure via the canonical call above. Cross-link the
+      visualization vignette for styling knobs.
+    - *New `ackwards-visualization.Rmd`*: a dedicated home for
+      engine-agnostic presentation options, each shown with rendered
+      figures — `cut_show`/`cut_strong`, `color_*`, `mono` (sign-dashing
+      use case), `show_r`/`r_digits`, `node_labels` (incl. multi-line
+      via `\n`), `primary_only`, `show_level_labels`/`level_label_size`,
+      and the three new args; closes with a publication-figure worked
+      example. Semantic options (`drop_pruned`/`compress_levels`) stay
+      in the Forbes vignette by design.
+    - *Intro vignette* (`ackwards-intro.Rmd`): trim “Adjusting the
+      diagram” to `autoplot(x)` plus a pointer to the visualization
+      vignette; fix the stale “relabel the k = 5 factors” comment (the
+      code never relabels).
+
+    **Implementation notes.** All three args live on
+    [`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md);
+    no new exports, no new dependencies, no layout-helper changes. Build
+    in two waves like M8: (1) the three args + tests
+
+    - NEWS, then (2) the three vignette edits. Per-arg tests:
+      `expect_s3_class("ggplot")` happy paths; assert the `arrow` layer
+      param is `NULL` under `show_arrows = FALSE`; assert constant built
+      `linewidth` and absent linewidth scale under numeric
+      `edge_linewidth`; assert `legend.position == "none"` under
+      `legend = FALSE`; plus composition with `drop_pruned` and `mono`.
+      DoD: NEWS.md entries, roxygen `@param`/`@examples`, and the three
+      vignette updates.
 
 ------------------------------------------------------------------------
 
