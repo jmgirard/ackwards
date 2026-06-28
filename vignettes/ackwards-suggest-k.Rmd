@@ -185,7 +185,7 @@ criteria may diverge.
 | PA-FA | Conservative | `method = "efa"` / `"esem"` | `psych` |
 | MAP | Conservative | General secondary check | `psych` |
 | VSS-1/2 | Variable | Simple-structure check | `psych` |
-| CD | Conservative, accurate | Ordinal/non-normal data | `EFAtools` |
+| CD | Accurate in simulation; can over-retain on large, correlated samples | Ordinal/non-normal data | `EFAtools` |
 
 For a complete reference — argument definitions, return value structure, and
 citations — see `?suggest_k`.
@@ -302,20 +302,39 @@ you ultimately pass to `ackwards()`.
 
 ## A worked recommendation for the BFI
 
-The BFI has 25 items measuring five personality traits. The consensus from five
-criteria is tight:
+The BFI has 25 items measuring five personality traits. The criteria do not all
+converge here, which is itself informative:
 
 ```{r recap}
 sk  # reproduced from earlier
 ```
 
-PA-PC says retain up to k = 6 (the upper bound, predictably the highest). PA-FA
-says k = 5. MAP and VSS-1/2 suggest 4–5. If CD was available in your
-environment, it would likely come in near 5 as well.
+Reading the rendered table:
 
-**Defensible choice: `k = 6`.** Setting k one level above the PA-FA consensus
-(5) lets `ackwards()` show us whether a sixth level fragments the Big Five into
-stable sub-facets or produces artifactual micro-factors — a useful diagnostic.
+**MAP and VSS-2 agree on k = 5**, with VSS-1 slightly more conservative at
+k = 4. Two conservative criteria converging is a meaningful signal; the modal
+answer from the non-PA criteria is 5.
+
+**PA-FA exceeds PA-PC in this run** (6 vs. 5). Normally PA-PC over-extracts
+relative to PA-FA, making PA-PC the liberal upper bound. Here the relationship
+inverts — a nuance in this dataset's eigenvalue geometry, not a contradiction.
+Read both, but trust PA-FA as the model-consistent criterion for EFA and ESEM
+engines.
+
+**CD is a high outlier** (k = 8, when `EFAtools` is available). CD is among the
+most accurate criteria in simulation studies, but it resamples from the marginal
+distributions of each item independently, without preserving inter-item
+correlations. On a large, moderately correlated sample like the BFI
+(n = 2,436, 25 correlated items), the comparison data underestimates how much
+structure the real correlation matrix contains, so CD over-retains factors. Treat
+a large gap between CD and the other criteria as an invitation to look carefully
+at the deeper levels — not a directive to extract that many factors
+unconditionally.
+
+**Defensible choice: `k = 6`.** This matches the PA-FA recommendation and sits
+one level above the MAP/VSS-2 consensus of 5. Setting k = 6 lets `ackwards()`
+show whether a sixth level reveals interpretable sub-facets or merely splits the
+Big Five into arbitrary micro-factors.
 
 ```{r ackwards, eval = FALSE}
 x <- ackwards(bfi, k = 6, cor = "polychoric")
