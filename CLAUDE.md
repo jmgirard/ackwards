@@ -99,7 +99,47 @@ default output must reproduce Forbes's examples exactly.
 
 ## Current focus
 
-No milestone currently in progress.
+**M18 (in progress):** Factor interpretation & label scaffolding — pre-CRAN usability pass. Two new
+exported functions, both pure consumers of the existing light core (`$levels[[k]]$loadings`/`$labels`,
+node IDs); no new dependencies, no invariant or default changes, nothing touching the out-of-scope
+list.
+
+- **`top_items(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE)`** — per level/factor, lists the
+  salient items (`|loading| >= cut`) sorted descending by `|loading|` with signed values, instead of
+  a full item×factor matrix that doesn't scale to large `k`/many items. `level = NULL` → all levels
+  (grouped); a vector subsets. `n` optionally caps items per factor (top-`n` after the cut). Returns
+  an S3 object carrying a tidy data frame (a thresholded, sorted view of `tidy(what = "loadings")`)
+  + metadata, with a `print` method rendering a grouped level→factor→items cli list (no matrix dump).
+  Loadings reflect the object's primary-parent sign alignment (Inv. 4) — document it.
+- **`label_template(x, style = c("id", "forbes", "blank"))`** — emits the named-character-vector
+  scaffold for `autoplot(node_labels=)`. `"id"` (default) → identity `c(m1f1 = "m1f1", ...)` (round-
+  trips, user edits values); `"forbes"` → level-letter + within-level index `c(m1f1 = "A1", m2f1 =
+  "B1", m2f2 = "B2", ...)` (via `LETTERS`); `"blank"` → empty strings. Names enumerate every factor
+  ID across all levels in canonical layout order. Returns the named vector **and** prints a copy-
+  pasteable `c(...)` literal (usethis-style "edit in your script" idiom).
+
+Files: new `R/interpret.R`, `R/label_template.R`, `tests/testthat/test-interpret.R`,
+`tests/testthat/test-label_template.R`; modify `NAMESPACE` (via `document()`), `NEWS.md`,
+`_pkgdown.yml` (reference index), `vignettes/ackwards-visualization.Rmd` (`label_template()` beside
+the `node_labels` section), `vignettes/ackwards-intro.Rmd` (a `top_items()` step where factors are
+first examined), `DESIGN.md` (§10/§11 notes + M18 entry in §15). Order: (1) `top_items()` + print +
+tests; (2) `label_template()` + tests; (3) docs/vignette/NEWS/pkgdown/DESIGN + `document()`/`check()`.
+
+Acceptance criteria:
+1. `top_items(x)` returns an S3 object whose data frame holds only items with `|loading| >= cut`,
+   sorted descending by `|loading|` within each factor; `print` renders a grouped per-level/per-factor
+   cli listing with signed loadings and no full-matrix dump.
+2. `top_items(x, level = k)` restricts to the requested level(s); `n =` caps items per factor; an
+   out-of-range `level` errors cleanly via cli.
+3. `label_template(x)` returns a named character vector covering all factor IDs in canonical order;
+   `label_template(x, style = "id")` passed to `autoplot(x, node_labels = ...)` reproduces the
+   default labels exactly (round-trip no-op), and the function prints an editable `c(...)` literal.
+4. `style = "forbes"` yields level-letter + within-level-index values (`m1f1→"A1"`, `m2f2→"B2"`);
+   `style = "blank"` yields empty strings.
+5. `top_items` loadings reflect the object's sign alignment; displayed values equal the corresponding
+   `tidy(what = "loadings")` rows.
+6. Runnable `@examples` on both; NEWS.md entries; visualization + intro vignettes updated;
+   `devtools::check()` clean (0/0/0); styled + linted; full suite passes.
 
 ## Invariants — do not violate without flagging
 
