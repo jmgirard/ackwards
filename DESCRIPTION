@@ -9,7 +9,7 @@ Description: Implements Goldberg's (2006) bass-ackwards method and modern
     1 to k factors using PCA, EFA, or ESEM engines, then characterizes the
     hierarchy via between-level factor-score correlations computed via exact
     linear algebra or materialized scores.
-License: CC BY 4.0
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends:
