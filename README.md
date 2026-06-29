@@ -1,3 +1,4 @@
+
 <!-- README.md is generated from README.Rmd. Please edit that file. -->
 
 # ackwards
@@ -31,8 +32,10 @@ factors.
 
 ## Installation
 
-    # install.packages("pak")
-    pak::pak("jmgirard/ackwards")
+``` r
+# install.packages("pak")
+pak::pak("jmgirard/ackwards")
+```
 
 ## Quick start
 
@@ -46,52 +49,54 @@ set `cor = "polychoric"`.
 analysis (PC and FA basis), MAP, VSS, and optionally Comparison Data —
 to help you choose an upper bound for the hierarchy depth.
 
-    library(ackwards)
+``` r
+library(ackwards)
 
-    bfi <- na.omit(psych::bfi[, 1:25])
-    sk <- suggest_k(bfi)
-    #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-    #> ✔ Running parallel analysis (20 iterations, PC + FA)... [179ms]
-    #> 
-    #> ℹ Running MAP and VSS...
-    #> ✔ Running MAP and VSS... [123ms]
-    #> 
-    #> ℹ Running Comparison Data (CD)...
-    #> ✔ Running Comparison Data (CD)... [8.5s]
-    #> 
-    sk
-    #> 
-    #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
-    #> Variables: 25
-    #> n: 2,436
-    #> Basis: pearson
-    #> Tested k: 1-8
-    #> 
-    #> ── Criteria (k = 1-8) ──
-    #> 
-    #> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD ✔
-    #> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD ✔
-    #> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD ✔
-    #> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔
-    #> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔
-    #> k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔
-    #> k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔
-    #> k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD ✔*
-    #> 
-    #> ── Recommendations ──
-    #> 
-    #> • PA-PC: k <= 5
-    #> • PA-FA: k <= 6
-    #> • MAP: k = 5
-    #> • VSS-1: k = 4
-    #> • VSS-2: k = 5
-    #> • CD: k = 8
-    #> Consensus range: k = 4-8
-    #> ────────────────────────────────────────────────────────────────────────────────
-    #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
-    #> above the consensus to observe factor fragmentation is intentional.
-    #> Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
-    #> 2023). PA-FA and CD are more conservative. Use the range.
+bfi <- na.omit(psych::bfi[, 1:25])
+sk <- suggest_k(bfi)
+#> ℹ Running parallel analysis (20 iterations, PC + FA)...
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [226ms]
+#> 
+#> ℹ Running MAP and VSS...
+#> ✔ Running MAP and VSS... [100ms]
+#> 
+#> ℹ Running Comparison Data (CD)...
+#> ✔ Running Comparison Data (CD)... [8.7s]
+#> 
+sk
+#> 
+#> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
+#> Variables: 25
+#> n: 2,436
+#> Basis: pearson
+#> Tested k: 1-8
+#> 
+#> ── Criteria (k = 1-8) ──
+#> 
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔
+#> k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔
+#> k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD ✔*
+#> 
+#> ── Recommendations ──
+#> 
+#> • PA-PC: k <= 5
+#> • PA-FA: k <= 6
+#> • MAP: k = 5
+#> • VSS-1: k = 4
+#> • VSS-2: k = 5
+#> • CD: k = 8
+#> Consensus range: k = 4-8
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
+#> above the consensus to observe factor fragmentation is intentional.
+#> Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
+#> 2023). PA-FA and CD are more conservative. Use the range.
+```
 
 The criteria converge on a consensus range that covers k = 5, consistent
 with the known Big Five structure of this instrument.
@@ -102,39 +107,43 @@ with the known Big Five structure of this instrument.
 computes the between-level factor-score correlations that define the
 hierarchy.
 
-    x <- ackwards(bfi, k_max = 5, cor = "polychoric")
-    x
-    #> 
-    #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
-    #> Engine: pca
-    #> Rotation: varimax
-    #> Basis: polychoric
-    #> n: 2,436
-    #> k (max): 5
-    #> 
-    #> ── Levels ──
-    #> 
-    #> ✔ k = 1: 1 factor, 22.9% variance
-    #> ✔ k = 2: 2 factors, 34.7% variance
-    #> ✔ k = 3: 3 factors, 43.9% variance
-    #> ✔ k = 4: 4 factors, 51.8% variance
-    #> ✔ k = 5: 5 factors, 58.3% variance
-    #> 
-    #> ── Edges ──
-    #> 
-    #> 14 of 40 edges have |r| ≥ 0.3
-    #> ────────────────────────────────────────────────────────────────────────────────
-    #> Note: This is a series of linked solutions, not a fitted hierarchical model.
-    #> Cross-level edges are descriptive score correlations.
+``` r
+x <- ackwards(bfi, k_max = 5, cor = "polychoric")
+x
+#> 
+#> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
+#> Engine: pca
+#> Rotation: varimax
+#> Basis: polychoric
+#> n: 2,436
+#> k (max): 5
+#> 
+#> ── Levels ──
+#> 
+#> ✔ k = 1: 1 factor, 22.9% variance
+#> ✔ k = 2: 2 factors, 34.7% variance
+#> ✔ k = 3: 3 factors, 43.9% variance
+#> ✔ k = 4: 4 factors, 51.8% variance
+#> ✔ k = 5: 5 factors, 58.3% variance
+#> 
+#> ── Edges ──
+#> 
+#> 14 of 40 edges have |r| ≥ 0.3
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: This is a series of linked solutions, not a fitted hierarchical model.
+#> Cross-level edges are descriptive score correlations.
+```
 
 ### Step 3 — Visualize
 
 `autoplot()` draws the hierarchical diagram. Each column is a level (k =
 1 at left, k = 5 at right); arrows show which narrow factors inherit
-from which broad factor. Solid arrows indicate strong connections (|r| ≥
-0.6 by default); dashed arrows show weaker ones.
+from which broad factor. Solid arrows indicate strong connections (\|r\|
+≥ 0.6 by default); dashed arrows show weaker ones.
 
-    autoplot(x)
+``` r
+autoplot(x)
+```
 
 <img src="man/figures/README-plot-1.png" alt="" width="100%" />
 
@@ -148,102 +157,68 @@ narrower traits.
 `tidy()` extracts any part of the object into a tidy data frame;
 `augment()` appends factor scores to your data for downstream analysis.
 
-    # Eight strongest adjacent-level primary edges
-    edges <- tidy(x, what = "edges", sort = "strength")
-    head(edges[edges$is_primary, c("from", "to", "r")], 8)
-    #>    from   to          r
-    #> 1  m1f1 m2f1  0.8737068
-    #> 2  m1f1 m2f2  0.4864530
-    #> 3  m2f1 m3f1  0.8157785
-    #> 5  m2f1 m3f3  0.5767812
-    #> 7  m2f2 m3f2 -0.9975486
-    #> 9  m3f1 m4f1  0.9990773
-    #> 14 m3f2 m4f2  0.9789921
-    #> 19 m3f3 m4f3  0.7150725
+``` r
+# Eight strongest adjacent-level primary edges
+edges <- tidy(x, what = "edges", sort = "strength")
+head(edges[edges$is_primary, c("from", "to", "r")], 8)
+#>   from   to          r
+#> 1 m3f1 m4f1  0.9990773
+#> 2 m2f2 m3f2 -0.9975486
+#> 3 m4f3 m5f3  0.9972853
+#> 4 m4f2 m5f1  0.9964532
+#> 5 m4f4 m5f5  0.9930407
+#> 6 m3f2 m4f2  0.9789921
+#> 7 m1f1 m2f1  0.8737068
+#> 8 m2f1 m3f1  0.8157785
+```
 
-    # Append scores for all 5 levels to the original data frame
-    scored <- augment(x, data = bfi)
-    #> Warning: ! Factor scores are standardized using model-implied SDs from a "polychoric"
-    #>   correlation matrix.
-    #> ℹ The raw projection uses `scale(data)` (Pearson z-scores), but `score_var`
-    #>   comes from the "polychoric" R.
-    #> ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,
-    #>   between-level edges from `tidy()` are the authoritative associations.
-    #> This warning is displayed once per session.
-    dim(scored) # original 25 items + 1+2+3+4+5 = 15 score columns
-    #> [1] 2436   40
-    names(scored)[26:40]
-    #>  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"
-    #> [10] ".m4f4" ".m5f1" ".m5f2" ".m5f3" ".m5f4" ".m5f5"
+``` r
+# Append scores for all 5 levels to the original data frame
+scored <- augment(x, data = bfi)
+#> Warning: ! Factor scores are standardized using model-implied SDs from a "polychoric"
+#>   correlation matrix.
+#> ℹ The raw projection uses `.standardize(data)` (Pearson z-scores), but
+#>   `score_var` comes from the "polychoric" R.
+#> ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,
+#>   between-level edges from `tidy()` are the authoritative associations.
+#> This warning is displayed once per session.
+dim(scored) # original 25 items + 1+2+3+4+5 = 15 score columns
+#> [1] 2436   40
+names(scored)[26:40]
+#>  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"
+#> [10] ".m4f4" ".m5f1" ".m5f2" ".m5f3" ".m5f4" ".m5f5"
+```
 
 ## Learn more
 
-<table>
-<colgroup>
-<col style="width: 58%" />
-<col style="width: 41%" />
-</colgroup>
-<thead>
-<tr>
-<th>Vignette</th>
-<th>Topic</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a
-href="https://jmgirard.github.io/ackwards/articles/ackwards-intro.html">Introduction</a></td>
-<td>Full PCA walkthrough: <code>suggest_k</code> → <code>ackwards</code>
-→ inspect → plot → score</td>
-</tr>
-<tr>
-<td><a
-href="https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.html">Choosing
-k</a></td>
-<td>Five criteria explained: pros/cons, bias direction, engine
-pairing</td>
-</tr>
-<tr>
-<td><a
-href="https://jmgirard.github.io/ackwards/articles/ackwards-engines.html">Engines
-&amp; rotation</a></td>
-<td>When to choose EFA or ESEM over PCA; convergence and loading
-comparison</td>
-</tr>
-<tr>
-<td><a
-href="https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html">Ordinal
-data</a></td>
-<td>Polychoric correlations, attenuation bias, and WLSMV estimation</td>
-</tr>
-<tr>
-<td><a
-href="https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html">Forbes
-extension</a></td>
-<td>Skip-level edges, redundancy pruning,
-<code>pairs = "all"</code></td>
-</tr>
-</tbody>
-</table>
+| Vignette | Topic |
+|----|----|
+| [Introduction](https://jmgirard.github.io/ackwards/articles/ackwards-intro.html) | Full PCA walkthrough: `suggest_k` → `ackwards` → inspect → plot → score |
+| [Choosing k](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.html) | Five criteria explained: pros/cons, bias direction, engine pairing |
+| [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA; convergence and loading comparison |
+| [Ordinal data](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html) | Polychoric correlations, attenuation bias, and WLSMV estimation |
+| [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = "all"` |
 
 ## Citation
 
 If you use **ackwards** in your research, please cite both the method
 and the package:
 
-    citation("ackwards")
-    #> To cite package 'ackwards' in publications use:
-    #> 
-    #>   Goldberg L (2006). "Doing it all bass-ackwards: The development of
-    #>   hierarchical factor structures from the top down." _Journal of
-    #>   Research in Personality_, *40*(4), 347-358.
-    #>   doi:10.1016/j.jrp.2006.01.001
-    #>   <https://doi.org/10.1016/j.jrp.2006.01.001>.
-    #> 
-    #>   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural
-    #>   Analysis_. R package version 0.1.0,
-    #>   <https://github.com/jmgirard/ackwards>.
-    #> 
-    #> To see these entries in BibTeX format, use 'print(<citation>,
-    #> bibtex=TRUE)', 'toBibtex(.)', or set
-    #> 'options(citation.bibtex.max=999)'.
+``` r
+citation("ackwards")
+#> To cite package 'ackwards' in publications use:
+#> 
+#>   Goldberg L (2006). "Doing it all bass-ackwards: The development of
+#>   hierarchical factor structures from the top down." _Journal of
+#>   Research in Personality_, *40*(4), 347-358.
+#>   doi:10.1016/j.jrp.2006.01.001
+#>   <https://doi.org/10.1016/j.jrp.2006.01.001>.
+#> 
+#>   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural
+#>   Analysis_. R package version 0.1.0,
+#>   <https://github.com/jmgirard/ackwards>.
+#> 
+#> To see these entries in BibTeX format, use 'print(<citation>,
+#> bibtex=TRUE)', 'toBibtex(.)', or set
+#> 'options(citation.bibtex.max=999)'.
+```
