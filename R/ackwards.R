@@ -6,23 +6,23 @@
 #' not a fitted higher-order SEM.
 #'
 #' @section Defaults and why:
-#' * **`engine = "pca"`** — the original Goldberg (2006) method; fastest; never
+#' * **`engine = "pca"`** -- the original Goldberg (2006) method; fastest; never
 #'   fails to converge; the Waller (2007) algebra is exact for components.
-#' * **`rotation = "varimax"`** — the `T'=T^-1` property of orthogonal
+#' * **`rotation = "varimax"`** -- the `T'=T^-1` property of orthogonal
 #'   rotation enables the closed-form `W'RW` edge algebra and keeps
 #'   within-level factors uncorrelated so cross-level edges reflect only the
 #'   hierarchical signal. Matches Goldberg (2006), Kim & Eaton (2015), and
 #'   Forbush et al. (2024). Varimax is the only supported rotation; oblique
 #'   rotation would confound the between-level signal that is the method's
 #'   core output.
-#' * **`cor = "pearson"`** — no silent basis switching. If your items look
-#'   ordinal (≤ 7 distinct integer values), a cli warning will suggest
+#' * **`cor = "pearson"`** -- no silent basis switching. If your items look
+#'   ordinal (<= 7 distinct integer values), a cli warning will suggest
 #'   `cor = "polychoric"`, which is available for all three engines.
-#' * **`align_signs = TRUE`** — unaligned signs make the output unreadable.
+#' * **`align_signs = TRUE`** -- unaligned signs make the output unreadable.
 #'   Anchor: m1f1 is oriented toward the positive manifold; each subsequent
 #'   factor is flipped so its edge to its primary parent is positive.
-#' * **`keep_scores = FALSE` / `keep_fits = FALSE`** — memory and privacy.
-#'   Scores are O(n × Σk) and often sensitive; raw engine fits can be large.
+#' * **`keep_scores = FALSE` / `keep_fits = FALSE`** -- memory and privacy.
+#'   Scores are O(n x Sigmak) and often sensitive; raw engine fits can be large.
 #'   Both are recomputable from the stored `r` matrix.
 #'
 #' @param data A data frame or numeric matrix of observed variables (items in
@@ -36,7 +36,7 @@
 #'   1 through `k_max` are all extracted.
 #' @param n_obs Number of observations. Used only when `data` is a
 #'   pre-computed correlation matrix. Ignored when raw data are supplied (N is
-#'   determined from `nrow(data)`). For `engine = "efa"`, `n_obs` is required —
+#'   determined from `nrow(data)`). For `engine = "efa"`, `n_obs` is required --
 #'   [psych::fa()] needs N to compute fit indices (chi-square, RMSEA, TLI). For
 #'   `engine = "pca"`, `n_obs` is optional; edges use only the `W'RW` algebra
 #'   and never touch N (if `NULL`, stored as `NA_integer_` and fit statistics
@@ -59,24 +59,24 @@
 #'   Pass explicitly to override: `"ULSMV"` (unweighted WLS), `"MLR"`
 #'   (robust ML). Ignored for PCA and EFA engines.
 #' @param missing How to handle missing item responses. One of:
-#'   * `"pairwise"` (default) — use all available observations pairwise.
+#'   * `"pairwise"` (default) -- use all available observations pairwise.
 #'     For PCA/EFA this feeds `stats::cor(use = "pairwise.complete.obs")`.
 #'     For ESEM with WLSMV/ULSMV (ordinal), lavaan uses `available.cases`,
 #'     which computes polychoric thresholds and correlations from all rows that
-#'     contribute to each pair — MCAR-valid and uses the full N.
+#'     contribute to each pair -- MCAR-valid and uses the full N.
 #'     For ESEM with ML/MLR (continuous), lavaan uses listwise deletion
 #'     internally while edges are computed from a pairwise correlation matrix;
 #'     this minor inconsistency is documented in `$meta`. A warning is emitted
 #'     when incomplete rows are detected.
-#'   * `"listwise"` — only complete rows are used. Reduces data to
+#'   * `"listwise"` -- only complete rows are used. Reduces data to
 #'     `stats::complete.cases()` before fitting, so the correlation matrix,
 #'     the engine fit, and the edges are all consistent. `n_obs` in the result
 #'     reflects the reduced N.
-#'   * `"fiml"` — Full Information Maximum Likelihood. Passes
+#'   * `"fiml"` -- Full Information Maximum Likelihood. Passes
 #'     `missing = "fiml"` to [lavaan::efa()]; edge correlations are derived
 #'     from lavaan's FIML-estimated saturated model, ensuring consistency.
 #'     **Only valid for `engine = "esem"` with `estimator = "ML"` or
-#'     `"MLR"`** — errors for PCA, EFA, and WLSMV/ULSMV. Note: FIML improves
+#'     `"MLR"`** -- errors for PCA, EFA, and WLSMV/ULSMV. Note: FIML improves
 #'     factor estimation under missingness but does not impute item responses;
 #'     score materialisation (`keep_scores = TRUE`) still produces `NA` rows
 #'     for incomplete observations.
@@ -85,7 +85,7 @@
 #' @param keep_scores Logical; store factor scores in the result? Default
 #'   `FALSE` (recomputable via [augment.ackwards()]). When `TRUE`,
 #'   per-observation scores are stored in `x$scores` as a named list of
-#'   `n × k_j` matrices, one per level, standardized by real score SDs
+#'   `n x k_j` matrices, one per level, standardized by real score SDs
 #'   (see [augment.ackwards()]).
 #' @param keep_fits Logical; store raw engine fit objects? Default `FALSE`.
 #'   When `TRUE`, the per-level fit objects (psych or lavaan) are stored in
@@ -93,26 +93,26 @@
 #' @param seed Integer seed for stochastic engines (not used by PCA but
 #'   captured for reproducibility metadata). Default `NULL`.
 #' @param pairs Which level pairs to compute edges for: `"adjacent"` (default,
-#'   classic Goldberg — only consecutive levels) or `"all"` (Forbes extension —
+#'   classic Goldberg -- only consecutive levels) or `"all"` (Forbes extension --
 #'   every pair of levels). `"all"` reveals associations that span multiple
 #'   levels and is required for redundancy pruning. Setting `prune` to anything
 #'   other than `"none"` automatically upgrades this to `"all"` with a message.
 #' @param prune Character vector controlling Forbes-extension pruning. Default
 #'   `"none"` (no pruning). Options:
-#'   * `"redundant"` — identify chains of factors connected by primary-parent
+#'   * `"redundant"` -- identify chains of factors connected by primary-parent
 #'     links with `|r| >= redundancy_r` (and optionally `phi > redundancy_phi`).
 #'     Applies Forbes's (2023) retention rule: keep the bottom node when the
 #'     chain reaches level `k` (most specific); keep the top node otherwise.
 #'     Pruning is *flag-only*: flagged nodes stay in the object with
 #'     `pruned = TRUE` and `prune_reason = "redundant"` in `x$prune$nodes`.
-#'   * `"artefact"` — compute Tucker's congruence coefficient (φ) for all
+#'   * `"artefact"` -- compute Tucker's congruence coefficient (phi) for all
 #'     cross-level factor pairs and store in `x$prune$phi` for researcher
 #'     inspection. No factors are auto-flagged; artefact identification requires
 #'     judgment (Forbes, 2023; Wicherts et al., 2016).
 #' @param redundancy_r Scalar in `(0, 1]`. Adjacent primary-parent `|r|`
 #'   threshold for redundancy chains. Default `0.9` (Forbes, 2023).
 #' @param redundancy_phi Scalar in `(0, 1]` or `NULL` (default). If non-`NULL`,
-#'   Tucker's φ must *also* exceed this threshold for a link to be included in
+#'   Tucker's phi must *also* exceed this threshold for a link to be included in
 #'   a redundancy chain (conjunctive with `redundancy_r`). `NULL` means only
 #'   `redundancy_r` is used. Recommended: `0.95` (Lorenzo-Seva & ten Berge, 2006).
 #' @param cut_show Edges with `|r| >= cut_show` are flagged `above_cut` in
@@ -127,16 +127,16 @@
 #'
 #' @references
 #' Goldberg, L. R. (2006). Doing it all bass-ackwards. *Journal of Research in
-#'   Personality*, 40(4), 347–358. \doi{10.1016/j.jrp.2006.01.001}
+#'   Personality*, 40(4), 347--358. \doi{10.1016/j.jrp.2006.01.001}
 #'
 #' Waller, N. G. (2007). A general method for computing hierarchical component
 #'   structures by Goldberg's bass-ackwards method. *Journal of Research in
-#'   Personality*, 41(4), 745–752. \doi{10.1016/j.jrp.2006.08.005}
+#'   Personality*, 41(4), 745--752. \doi{10.1016/j.jrp.2006.08.005}
 #'
 #' @section Correlation-matrix input:
 #' When `data` is a pre-computed correlation matrix (square, symmetric, unit
 #' diagonal), `ackwards()` runs entirely from that matrix using the `W'RW`
-#' algebra — no raw item responses are needed. This is useful when you have
+#' algebra -- no raw item responses are needed. This is useful when you have
 #' a published correlation table or a polychoric matrix computed externally.
 #'
 #' Constraints and behaviour when a correlation matrix is supplied:
@@ -145,9 +145,9 @@
 #'   per-level fit indices) and will error clearly.
 #' * **`n_obs`:** required for `"efa"` (psych needs N for chi-square / RMSEA /
 #'   TLI); optional for `"pca"` (stored as `NA` if omitted).
-#' * **`cor` argument:** ignored — the basis is already determined by the
+#' * **`cor` argument:** ignored -- the basis is already determined by the
 #'   matrix you supply. A warning is emitted if you set `cor` explicitly.
-#' * **`missing` argument:** ignored — missingness was handled when computing
+#' * **`missing` argument:** ignored -- missingness was handled when computing
 #'   the matrix. A warning is emitted if you set `missing` explicitly.
 #' * **Factor scores:** `keep_scores = TRUE` will error; `augment()` and
 #'   `tidy(what = "scores")` will also error because individual-level scores
@@ -227,7 +227,7 @@ ackwards <- function(
   }
 
   # ============================================================
-  # BRANCH A — correlation-matrix input
+  # BRANCH A -- correlation-matrix input
   # ============================================================
   if (input_type == "cor_matrix") {
     # Gate ESEM: lavaan must fit on raw data
@@ -244,22 +244,24 @@ ackwards <- function(
     # Warn if cor/missing are set explicitly (they're ignored for R input).
     cor_was_set <- !missing(cor) && cor != "pearson"
     if (cor_was_set) {
-      cli::cli_warn(c(
-        "!" = "{.arg cor} is ignored when a correlation matrix is supplied \\
+      cli::cli_warn(
+        c(
+          "!" = "{.arg cor} is ignored when a correlation matrix is supplied \\
                (the basis is already determined by your matrix).",
-        "i" = "Remove {.arg cor} from your call to suppress this warning."
-      ),
+          "i" = "Remove {.arg cor} from your call to suppress this warning."
+        ),
         .frequency = "once",
         .frequency_id = "ackwards_cor_ignored"
       )
     }
     missing_was_set <- !missing(missing) && missing != "pairwise"
     if (missing_was_set) {
-      cli::cli_warn(c(
-        "!" = "{.arg missing} is ignored when a correlation matrix is supplied \\
+      cli::cli_warn(
+        c(
+          "!" = "{.arg missing} is ignored when a correlation matrix is supplied \\
                (missingness was handled before computing the matrix).",
-        "i" = "Remove {.arg missing} from your call to suppress this warning."
-      ),
+          "i" = "Remove {.arg missing} from your call to suppress this warning."
+        ),
         .frequency = "once",
         .frequency_id = "ackwards_missing_ignored"
       )
@@ -283,13 +285,13 @@ ackwards <- function(
     }
 
     # Warn if n_obs supplied alongside raw data (handled below)
-    # — handled in the data branch instead.
+    # -- handled in the data branch instead.
 
     # Block keep_scores=TRUE: no row-level data to score
     if (isTRUE(keep_scores)) {
       cli::cli_abort(c(
         "!" = "{.code keep_scores = TRUE} requires raw item data.",
-        "i" = "Factor scores are individual-level (n × k) projections and \\
+        "i" = "Factor scores are individual-level (n x k) projections and \\
                cannot be computed from a correlation matrix alone.",
         "i" = "Either supply raw data or set {.code keep_scores = FALSE}."
       ))
@@ -335,19 +337,19 @@ ackwards <- function(
     levels_list <- engine_out$levels
     fits_stored <- engine_out$fits
     data_mat <- NULL
-
   } else {
     # ============================================================
-    # BRANCH B — raw data input (existing behaviour)
+    # BRANCH B -- raw data input (existing behaviour)
     # ============================================================
 
     # Warn if n_obs supplied alongside raw data (N comes from nrow)
     if (!is.null(n_obs)) {
-      cli::cli_warn(c(
-        "!" = "{.arg n_obs} is ignored when raw data are supplied \\
+      cli::cli_warn(
+        c(
+          "!" = "{.arg n_obs} is ignored when raw data are supplied \\
                (N is determined from {.code nrow(data)}).",
-        "i" = "Remove {.arg n_obs} from your call to suppress this warning."
-      ),
+          "i" = "Remove {.arg n_obs} from your call to suppress this warning."
+        ),
         .frequency = "once",
         .frequency_id = "ackwards_nobs_ignored"
       )
@@ -376,7 +378,7 @@ ackwards <- function(
 
     # cor = "spearman" + engine = "esem" is semantically inconsistent: lavaan fits
     # Pearson ML on raw data while compute_edges() uses Spearman R for scoring
-    # (DESIGN.md §14 known limitations). Warn loudly rather than silently mixing bases.
+    # (DESIGN.md s.14 known limitations). Warn loudly rather than silently mixing bases.
     if (engine == "esem" && cor == "spearman") {
       cli::cli_warn(
         c(
@@ -418,12 +420,12 @@ ackwards <- function(
     # n_obs reflects listwise reduction (if applied); pairwise/fiml keep total N.
     n_obs_eff <- nrow(data_mat)
 
-    # Pairwise advisory when data has NAs (Invariant 6 — loud defaults).
+    # Pairwise advisory when data has NAs (Invariant 6 -- loud defaults).
     # For ESEM ML/MLR this is especially relevant: lavaan defaults to listwise for
     # model fitting while edges use pairwise correlations, which can make fit
     # statistics slightly anti-conservative.
     # No .frequency = "once": unlike the ordinal-detection warning (a fixed
-    # property of the data), this is a per-call data-state advisory — the user
+    # property of the data), this is a per-call data-state advisory -- the user
     # may be iterating k_max or engine and should be reminded each time NAs are
     # present with the pairwise default.
     if (missing == "pairwise" && n_complete < nrow(data_mat)) {
@@ -445,7 +447,7 @@ ackwards <- function(
       )
     }
 
-    # --- Ordinal-detection warning (DESIGN.md §9, Invariant 6) ---------------
+    # --- Ordinal-detection warning (DESIGN.md s.9, Invariant 6) ---------------
     # Compute once; reused in meta$ordinal_warned below.
     # Only warn when the user has NOT already opted into the polychoric basis.
     is_ordinal <- detect_ordinal(as.data.frame(data_mat))
@@ -474,8 +476,8 @@ ackwards <- function(
     if (engine == "esem") {
       # Pre-compute edge R for non-polychoric, non-FIML paths. For FIML, R is
       # extracted from lavaan's FIML saturated model inside esem_levels().
-      # For listwise, data_mat is already complete so pairwise.complete.obs ≡
-      # complete.obs — no special handling needed.
+      # For listwise, data_mat is already complete so pairwise.complete.obs ==
+      # complete.obs -- no special handling needed.
       R_ext <- if (cor != "polychoric" && missing != "fiml") {
         stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
       } else {
@@ -510,7 +512,7 @@ ackwards <- function(
           }
         )
         R <- poly_out$rho
-        # Guard against non-positive-definite polychoric matrices (DESIGN.md §14 remaining)
+        # Guard against non-positive-definite polychoric matrices (DESIGN.md s.14 remaining)
         min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
         if (min_eig <= 0) {
           cli::cli_warn(
@@ -581,7 +583,7 @@ ackwards <- function(
     lineage[[as.character(ki)]] <- match_parents(raw_edges_adj$matrices[[key]])
   }
 
-  # --- Sign alignment (DESIGN.md §7) -----------------------------------------
+  # --- Sign alignment (DESIGN.md s.7) -----------------------------------------
   if (align_signs && k_eff >= 1L) {
     loadings_list <- lapply(levels_list, `[[`, "loadings")
     aligned <- .align_signs(loadings_list, raw_edges_adj$matrices, lineage)
@@ -670,7 +672,7 @@ ackwards <- function(
   x
 }
 
-# S3 constructor — validates structure and attaches class
+# S3 constructor -- validates structure and attaches class
 new_ackwards <- function(
   call, engine, cor, n_obs, k_max, seed, pkg_version,
   levels, edges, lineage, scores, fits, r, data, meta

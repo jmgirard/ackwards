@@ -1,6 +1,6 @@
-# R/prune.R — Forbes (2023) extension: redundancy/artefact pruning (internal)
+# R/prune.R -- Forbes (2023) extension: redundancy/artefact pruning (internal)
 #
-# Design (DESIGN.md §14 items 17–21):
+# Design (DESIGN.md s.14 items 17--21):
 #   - Flag-only, never remove. Adds pruned/prune_reason annotations; the object
 #     retains all levels (preserves Invariant 5).
 #   - Redundancy: trace chains via ADJACENT primary-parent links with
@@ -123,7 +123,7 @@
   }
   rownames(sl) <- NULL
 
-  # --- Map label → level -------------------------------------------------------
+  # --- Map label -> level -------------------------------------------------------
   label_to_level <- stats::setNames(
     unlist(lapply(names(levels_list), function(ki) rep(as.integer(ki), as.integer(ki)))),
     unlist(lapply(levels_list, `[[`, "labels"))
@@ -134,7 +134,7 @@
 
   # --- Enumerate all root-to-leaf paths via DFS --------------------------------
   # A root with multiple strong-link children (sibling redundancies) spawns one
-  # chain per branch — each is analysed independently. DFS also handles diamonds
+  # chain per branch -- each is analysed independently. DFS also handles diamonds
   # (a node reachable from two roots) without special-casing.
   chains_raw <- list()
   for (root in root_labels) {
@@ -164,9 +164,9 @@
 
     # Retention rule (Forbes 2023, p.3):
     retain_label <- if (ch_levels[length(ch)] == k_max) {
-      ch[length(ch)] # chain reaches most-specific level → keep bottom
+      ch[length(ch)] # chain reaches most-specific level -> keep bottom
     } else {
-      ch[1L] # chain ends mid-hierarchy → keep top (broadest)
+      ch[1L] # chain ends mid-hierarchy -> keep top (broadest)
     }
 
     r_vals <- vapply(seq_along(ch), function(idx) {
@@ -187,7 +187,7 @@
 
     # Endpoint r enrichment: direct r between chain root and leaf from all-levels edges.
     # Disagreement (endpoint_r_agrees = FALSE) means the chain method and the direct
-    # correlation give conflicting answers — flag for researcher attention.
+    # correlation give conflicting answers -- flag for researcher attention.
     ep_key <- paste0(ch_levels[1L], ":", ch_levels[length(ch)])
     E_ep <- x$edges$matrices[[ep_key]]
     endpoint_r <- NA_real_
@@ -261,7 +261,7 @@
 .apply_pruning <- function(x, prune, redundancy_r, redundancy_phi) {
   levels_list <- x$levels
 
-  # Baseline node table — all nodes, initially not pruned
+  # Baseline node table -- all nodes, initially not pruned
   base_nodes <- data.frame(
     id = unlist(lapply(levels_list, `[[`, "labels")),
     level = unlist(lapply(
@@ -293,7 +293,7 @@
 
   if ("artefact" %in% prune) {
     # Compute phi for all cross-level pairs for researcher inspection.
-    # Pruning is not automated here — artefact identification requires judgment
+    # Pruning is not automated here -- artefact identification requires judgment
     # (Forbes 2023 is explicit: this step introduces researcher DoF).
     phi_df <- .phi_pairs(levels_list, which_pairs = "all")
   }

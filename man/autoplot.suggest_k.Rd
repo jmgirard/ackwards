@@ -16,7 +16,7 @@ A \code{ggplot} object.
 }
 \description{
 Renders a ggplot2 diagnostic for a \code{suggest_k} object. When
-\pkg{EFAtools} is installed and CD was computed, the plot is a 2×2 grid:
+\pkg{EFAtools} is installed and CD was computed, the plot is a 2x2 grid:
 Scree/PA (top-left), MAP (top-right), VSS (bottom-left), and CD RMSE
 (bottom-right). When CD is unavailable, the plot is a single-column
 three-panel layout (Scree/PA, MAP, VSS). The recommended k for each

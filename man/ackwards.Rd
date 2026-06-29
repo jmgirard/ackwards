@@ -60,24 +60,24 @@ Pass explicitly to override: \code{"ULSMV"} (unweighted WLS), \code{"MLR"}
 
 \item{missing}{How to handle missing item responses. One of:
 \itemize{
-\item \code{"pairwise"} (default) — use all available observations pairwise.
+\item \code{"pairwise"} (default) -- use all available observations pairwise.
 For PCA/EFA this feeds \code{stats::cor(use = "pairwise.complete.obs")}.
 For ESEM with WLSMV/ULSMV (ordinal), lavaan uses \code{available.cases},
 which computes polychoric thresholds and correlations from all rows that
-contribute to each pair — MCAR-valid and uses the full N.
+contribute to each pair -- MCAR-valid and uses the full N.
 For ESEM with ML/MLR (continuous), lavaan uses listwise deletion
 internally while edges are computed from a pairwise correlation matrix;
 this minor inconsistency is documented in \verb{$meta}. A warning is emitted
 when incomplete rows are detected.
-\item \code{"listwise"} — only complete rows are used. Reduces data to
+\item \code{"listwise"} -- only complete rows are used. Reduces data to
 \code{stats::complete.cases()} before fitting, so the correlation matrix,
 the engine fit, and the edges are all consistent. \code{n_obs} in the result
 reflects the reduced N.
-\item \code{"fiml"} — Full Information Maximum Likelihood. Passes
+\item \code{"fiml"} -- Full Information Maximum Likelihood. Passes
 \code{missing = "fiml"} to \code{\link[lavaan:efa]{lavaan::efa()}}; edge correlations are derived
 from lavaan's FIML-estimated saturated model, ensuring consistency.
 \strong{Only valid for \code{engine = "esem"} with \code{estimator = "ML"} or
-\code{"MLR"}} — errors for PCA, EFA, and WLSMV/ULSMV. Note: FIML improves
+\code{"MLR"}} -- errors for PCA, EFA, and WLSMV/ULSMV. Note: FIML improves
 factor estimation under missingness but does not impute item responses;
 score materialisation (\code{keep_scores = TRUE}) still produces \code{NA} rows
 for incomplete observations.
@@ -85,7 +85,7 @@ for incomplete observations.
 
 \item{n_obs}{Number of observations. Used only when \code{data} is a
 pre-computed correlation matrix. Ignored when raw data are supplied (N is
-determined from \code{nrow(data)}). For \code{engine = "efa"}, \code{n_obs} is required —
+determined from \code{nrow(data)}). For \code{engine = "efa"}, \code{n_obs} is required --
 \code{\link[psych:fa]{psych::fa()}} needs N to compute fit indices (chi-square, RMSEA, TLI). For
 \code{engine = "pca"}, \code{n_obs} is optional; edges use only the \verb{W'RW} algebra
 and never touch N (if \code{NULL}, stored as \code{NA_integer_} and fit statistics
@@ -97,7 +97,7 @@ Default \code{TRUE}.}
 \item{keep_scores}{Logical; store factor scores in the result? Default
 \code{FALSE} (recomputable via \code{\link[=augment.ackwards]{augment.ackwards()}}). When \code{TRUE},
 per-observation scores are stored in \code{x$scores} as a named list of
-\verb{n × k_j} matrices, one per level, standardized by real score SDs
+\verb{n x k_j} matrices, one per level, standardized by real score SDs
 (see \code{\link[=augment.ackwards]{augment.ackwards()}}).}
 
 \item{keep_fits}{Logical; store raw engine fit objects? Default \code{FALSE}.
@@ -108,7 +108,7 @@ When \code{TRUE}, the per-level fit objects (psych or lavaan) are stored in
 captured for reproducibility metadata). Default \code{NULL}.}
 
 \item{pairs}{Which level pairs to compute edges for: \code{"adjacent"} (default,
-classic Goldberg — only consecutive levels) or \code{"all"} (Forbes extension —
+classic Goldberg -- only consecutive levels) or \code{"all"} (Forbes extension --
 every pair of levels). \code{"all"} reveals associations that span multiple
 levels and is required for redundancy pruning. Setting \code{prune} to anything
 other than \code{"none"} automatically upgrades this to \code{"all"} with a message.}
@@ -116,13 +116,13 @@ other than \code{"none"} automatically upgrades this to \code{"all"} with a mess
 \item{prune}{Character vector controlling Forbes-extension pruning. Default
 \code{"none"} (no pruning). Options:
 \itemize{
-\item \code{"redundant"} — identify chains of factors connected by primary-parent
+\item \code{"redundant"} -- identify chains of factors connected by primary-parent
 links with \verb{|r| >= redundancy_r} (and optionally \code{phi > redundancy_phi}).
 Applies Forbes's (2023) retention rule: keep the bottom node when the
 chain reaches level \code{k} (most specific); keep the top node otherwise.
 Pruning is \emph{flag-only}: flagged nodes stay in the object with
 \code{pruned = TRUE} and \code{prune_reason = "redundant"} in \code{x$prune$nodes}.
-\item \code{"artefact"} — compute Tucker's congruence coefficient (φ) for all
+\item \code{"artefact"} -- compute Tucker's congruence coefficient (phi) for all
 cross-level factor pairs and store in \code{x$prune$phi} for researcher
 inspection. No factors are auto-flagged; artefact identification requires
 judgment (Forbes, 2023; Wicherts et al., 2016).
@@ -132,7 +132,7 @@ judgment (Forbes, 2023; Wicherts et al., 2016).
 threshold for redundancy chains. Default \code{0.9} (Forbes, 2023).}
 
 \item{redundancy_phi}{Scalar in \verb{(0, 1]} or \code{NULL} (default). If non-\code{NULL},
-Tucker's φ must \emph{also} exceed this threshold for a link to be included in
+Tucker's phi must \emph{also} exceed this threshold for a link to be included in
 a redundancy chain (conjunctive with \code{redundancy_r}). \code{NULL} means only
 \code{redundancy_r} is used. Recommended: \code{0.95} (Lorenzo-Seva & ten Berge, 2006).}
 
@@ -155,23 +155,23 @@ not a fitted higher-order SEM.
 \section{Defaults and why}{
 
 \itemize{
-\item \strong{\code{engine = "pca"}} — the original Goldberg (2006) method; fastest; never
+\item \strong{\code{engine = "pca"}} -- the original Goldberg (2006) method; fastest; never
 fails to converge; the Waller (2007) algebra is exact for components.
-\item \strong{\code{rotation = "varimax"}} — the \verb{T'=T^-1} property of orthogonal
+\item \strong{\code{rotation = "varimax"}} -- the \verb{T'=T^-1} property of orthogonal
 rotation enables the closed-form \verb{W'RW} edge algebra and keeps
 within-level factors uncorrelated so cross-level edges reflect only the
 hierarchical signal. Matches Goldberg (2006), Kim & Eaton (2015), and
 Forbush et al. (2024). Varimax is the only supported rotation; oblique
 rotation would confound the between-level signal that is the method's
 core output.
-\item \strong{\code{cor = "pearson"}} — no silent basis switching. If your items look
-ordinal (≤ 7 distinct integer values), a cli warning will suggest
+\item \strong{\code{cor = "pearson"}} -- no silent basis switching. If your items look
+ordinal (<= 7 distinct integer values), a cli warning will suggest
 \code{cor = "polychoric"}, which is available for all three engines.
-\item \strong{\code{align_signs = TRUE}} — unaligned signs make the output unreadable.
+\item \strong{\code{align_signs = TRUE}} -- unaligned signs make the output unreadable.
 Anchor: m1f1 is oriented toward the positive manifold; each subsequent
 factor is flipped so its edge to its primary parent is positive.
-\item \strong{\code{keep_scores = FALSE} / \code{keep_fits = FALSE}} — memory and privacy.
-Scores are O(n × Σk) and often sensitive; raw engine fits can be large.
+\item \strong{\code{keep_scores = FALSE} / \code{keep_fits = FALSE}} -- memory and privacy.
+Scores are O(n x Sigmak) and often sensitive; raw engine fits can be large.
 Both are recomputable from the stored \code{r} matrix.
 }
 }
@@ -180,7 +180,7 @@ Both are recomputable from the stored \code{r} matrix.
 
 When \code{data} is a pre-computed correlation matrix (square, symmetric, unit
 diagonal), \code{ackwards()} runs entirely from that matrix using the \verb{W'RW}
-algebra — no raw item responses are needed. This is useful when you have
+algebra -- no raw item responses are needed. This is useful when you have
 a published correlation table or a polychoric matrix computed externally.
 
 Constraints and behaviour when a correlation matrix is supplied:
@@ -190,9 +190,9 @@ data (for lavaan's own polychoric computation, WLSMV estimation, and
 per-level fit indices) and will error clearly.
 \item \strong{\code{n_obs}:} required for \code{"efa"} (psych needs N for chi-square / RMSEA /
 TLI); optional for \code{"pca"} (stored as \code{NA} if omitted).
-\item \strong{\code{cor} argument:} ignored — the basis is already determined by the
+\item \strong{\code{cor} argument:} ignored -- the basis is already determined by the
 matrix you supply. A warning is emitted if you set \code{cor} explicitly.
-\item \strong{\code{missing} argument:} ignored — missingness was handled when computing
+\item \strong{\code{missing} argument:} ignored -- missingness was handled when computing
 the matrix. A warning is emitted if you set \code{missing} explicitly.
 \item \strong{Factor scores:} \code{keep_scores = TRUE} will error; \code{augment()} and
 \code{tidy(what = "scores")} will also error because individual-level scores
@@ -216,11 +216,11 @@ print(x_R)
 }
 \references{
 Goldberg, L. R. (2006). Doing it all bass-ackwards. \emph{Journal of Research in
-Personality}, 40(4), 347–358. \doi{10.1016/j.jrp.2006.01.001}
+Personality}, 40(4), 347--358. \doi{10.1016/j.jrp.2006.01.001}
 
 Waller, N. G. (2007). A general method for computing hierarchical component
 structures by Goldberg's bass-ackwards method. \emph{Journal of Research in
-Personality}, 41(4), 745–752. \doi{10.1016/j.jrp.2006.08.005}
+Personality}, 41(4), 745--752. \doi{10.1016/j.jrp.2006.08.005}
 }
 \seealso{
 \code{\link[=print.ackwards]{print.ackwards()}}, \code{\link[=tidy.ackwards]{tidy.ackwards()}}, \code{\link[=glance.ackwards]{glance.ackwards()}}

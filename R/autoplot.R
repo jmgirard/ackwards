@@ -90,7 +90,7 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   continuous scale (current behaviour). A numeric value draws every edge at
 #'   that constant width, removes the `linewidth` aesthetic mapping, and drops
 #'   the `|r|` linewidth legend. Applies in both colour and `mono` modes and in
-#'   the `drop_pruned` path. Forbes figures use uniform thin lines (≈ 0.5–0.6).
+#'   the `drop_pruned` path. Forbes figures use uniform thin lines (~= 0.5--0.6).
 #' @param legend When `FALSE`, suppresses all plot legends
 #'   (`legend.position = "none"`). Useful when `color_pos == color_neg` (e.g.
 #'   both `"black"`) to remove an otherwise redundant Direction key. Default
@@ -114,7 +114,7 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   # Custom node labels for the 5-factor level
 #'   autoplot(x, node_labels = c(m5f1 = "Neuroticism", m5f2 = "Agreeableness"))
 #'
-#'   # Primary links only — clean hierarchy tree
+#'   # Primary links only -- clean hierarchy tree
 #'   autoplot(x, primary_only = TRUE)
 #'
 #'   # Forbes pruned view: omit redundant nodes, straight spanning arrows
@@ -232,7 +232,7 @@ autoplot.ackwards <- function(
   }
 
   # --------------------------------------------------------------------------
-  # Build draw_edges — branching on drop_pruned
+  # Build draw_edges -- branching on drop_pruned
   # --------------------------------------------------------------------------
 
   if (drop_pruned) {
@@ -375,7 +375,7 @@ autoplot.ackwards <- function(
     }
   }
 
-  # Local helpers to add geom layers — consolidates the mono × edge_linewidth
+  # Local helpers to add geom layers -- consolidates the mono x edge_linewidth
   # argument matrix so each combination is not repeated for segment and curve.
   .add_seg <- function(p, data) {
     args <- list(data = data, mapping = edge_aes, arrow = arrow_spec)
@@ -403,7 +403,7 @@ autoplot.ackwards <- function(
   ed_cur <- draw_edges[draw_edges$curved, , drop = FALSE]
   if (nrow(ed_cur) > 0L) p <- .add_cur(p, ed_cur)
 
-  # (a) Edge correlation labels — APA style, perpendicular offset, white halo
+  # (a) Edge correlation labels -- APA style, perpendicular offset, white halo
   if (isTRUE(show_r) && nrow(draw_edges) > 0L) {
     de <- draw_edges
     de$edx <- de$x_to - de$x_from
@@ -441,7 +441,7 @@ autoplot.ackwards <- function(
     ) +
     ggplot2::scale_fill_identity(guide = "none")
 
-  # Edge scales — conditional on mono and edge_linewidth
+  # Edge scales -- conditional on mono and edge_linewidth
   if (mono) {
     if (is.null(edge_linewidth)) {
       p <- p + ggplot2::scale_linewidth_continuous(

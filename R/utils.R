@@ -1,9 +1,9 @@
-# Internal utilities — not exported
+# Internal utilities -- not exported
 
 # Column-wise na.rm-aware standardization: each column is centered and scaled
 # using its own non-NA observations. NA values in a column remain NA after
 # standardization, so only rows that are missing a particular item produce NA
-# in that column of Z — and consequently NA scores only for those rows (via the
+# in that column of Z -- and consequently NA scores only for those rows (via the
 # linear map S = Z W). Contrast with base scale(), which returns a fully-NA
 # column when any value is missing, making ALL scores NA.
 # A zero-variance or all-NA column gets scale factor 1 (avoids Inf/NaN).
@@ -50,7 +50,7 @@ detect_ordinal <- function(data, max_levels = 7L) {
 # Primary-parent assignment: for each factor in level b, find the factor in level a
 # with the highest |r|. Returns an integer vector of length ncol(E).
 # Each child picks its argmax parent independently; multiple children can (and do)
-# share a parent — that is normal and expected in the bass-ackwards hierarchy.
+# share a parent -- that is normal and expected in the bass-ackwards hierarchy.
 # LSAP (bijection) is wrong here: adjacent levels always have n_b = n_a + 1, so
 # a bijection would need a padding row that can return an index > nrow(E).
 match_parents <- function(E) {
@@ -60,19 +60,19 @@ match_parents <- function(E) {
 # Sign-align a list of per-level loadings matrices and a corresponding list of
 # edge matrices.
 #
-# Rules (DESIGN.md §7):
+# Rules (DESIGN.md s.7):
 #   1. Anchor m1f1: flip so sum of loadings column is positive.
 #      Extend to all factors in level 1: each flipped so sum > 0.
 #   2. For each subsequent level: flip each factor so its edge correlation
 #      with its primary parent (from match_parents) is positive.
 #
 # Arguments:
-#   loadings_list  — list indexed by k (1..K) of p×k loading matrices
-#   edges_list     — list named "k_a:k_b" of (k_a × k_b) edge matrices
-#   lineage        — list indexed by k>=2 of integer vectors (parent indices)
+#   loadings_list  -- list indexed by k (1..K) of pxk loading matrices
+#   edges_list     -- list named "k_a:k_b" of (k_a x k_b) edge matrices
+#   lineage        -- list indexed by k>=2 of integer vectors (parent indices)
 #
 # Returns: list(loadings = ..., edges = ..., signs = ...) where signs is a list
-# of ±1 vectors (one per level) recording the flip applied.
+# of +/-1 vectors (one per level) recording the flip applied.
 .align_signs <- function(loadings_list, edges_list, lineage) {
   K <- length(loadings_list)
   signs <- vector("list", K)
@@ -102,7 +102,7 @@ match_parents <- function(E) {
   list(loadings = loadings_list, edges = edges_list, signs = signs)
 }
 
-# Apply previously computed sign vectors to a weight matrix W (p × k).
+# Apply previously computed sign vectors to a weight matrix W (p x k).
 flip_weights <- function(W, sign_vec) {
   sweep(W, 2, sign_vec, "*")
 }
@@ -111,7 +111,7 @@ flip_weights <- function(W, sign_vec) {
 # Z = .standardize(data_mat): standardizes observed items by their sample mean/SD.
 # S_k = Z W_k, then each column divided by sqrt(score_var_k) (Invariant 1:
 # standardize by real score SDs, never assume unit variance).
-# Returns a named list (by level character key) of n × k_j matrices.
+# Returns a named list (by level character key) of n x k_j matrices.
 #
 # Pearson basis: .standardize() gives Pearson z-scores, so W'RW computed on the
 # Pearson R matches and empirical score variance = model-implied = 1.
@@ -164,7 +164,7 @@ flip_weights <- function(W, sign_vec) {
 
 # Validate the missing= argument against engine and estimator.
 # Errors clearly when the combination is unsupported (FIML is only valid for
-# ESEM with a full-information estimator — ML or MLR). PCA and EFA work on a
+# ESEM with a full-information estimator -- ML or MLR). PCA and EFA work on a
 # pre-computed correlation matrix; WLSMV/ULSMV are limited-information WLS
 # and have no FIML extension.
 .resolve_missing <- function(missing, engine, estimator_eff) {
@@ -200,16 +200,24 @@ flip_weights <- function(W, sign_vec) {
 # A false positive on raw data is effectively impossible (requires n x n
 # numeric data where n == p and all diagonal elements are exactly 1.0).
 .is_cor_matrix <- function(x) {
-  if (!is.matrix(x) || !is.numeric(x)) return(FALSE)
-  if (nrow(x) != ncol(x)) return(FALSE)
-  if (!all(abs(diag(x) - 1) < 1e-8)) return(FALSE)
-  if (!isSymmetric(unname(x), tol = 1e-8)) return(FALSE)
+  if (!is.matrix(x) || !is.numeric(x)) {
+    return(FALSE)
+  }
+  if (nrow(x) != ncol(x)) {
+    return(FALSE)
+  }
+  if (!all(abs(diag(x) - 1) < 1e-8)) {
+    return(FALSE)
+  }
+  if (!isSymmetric(unname(x), tol = 1e-8)) {
+    return(FALSE)
+  }
   TRUE
 }
 
 # Validate and normalise a user-supplied correlation matrix. Returns the
 # matrix (possibly with synthesised dimnames) or errors with a specific message.
-# Non-positive-definite matrices warn and pass through — the engine will error
+# Non-positive-definite matrices warn and pass through -- the engine will error
 # naturally if truly degenerate; auto-smoothing would silently alter user input.
 .validate_cor_matrix <- function(R) {
   if (!is.matrix(R) || !is.numeric(R)) {

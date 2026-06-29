@@ -158,7 +158,7 @@ ba_layout <- function(x, min_sep = 1.0) {
 # for the drop_pruned rendering path.
 #
 # Edge selection: for each kept node, picks the single edge with the largest
-# |r| to any kept node at a shallower level — a primary-parent recomputation
+# |r| to any kept node at a shallower level -- a primary-parent recomputation
 # on the reduced graph. The original is_primary must NOT be reused (it was
 # computed on the full adjacent lineage).
 #

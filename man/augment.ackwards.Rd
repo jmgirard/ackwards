@@ -39,7 +39,7 @@ pairwise-complete correlations. A warning is issued if NA rows are detected.
 Use \code{na.omit(data)} before scoring if NA rows are unwanted.
 
 \strong{Data source.} If \code{data} is supplied, scores are always recomputed from
-it using the stored weights — this is how to score new observations. If
+it using the stored weights -- this is how to score new observations. If
 \code{data} is \code{NULL} and \code{keep_scores = TRUE} was set at fit time, the stored
 scores are returned. If neither is available an informative error is raised.
 }

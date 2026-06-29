@@ -22,7 +22,7 @@ generics::augment
 #' Use `na.omit(data)` before scoring if NA rows are unwanted.
 #'
 #' **Data source.** If `data` is supplied, scores are always recomputed from
-#' it using the stored weights — this is how to score new observations. If
+#' it using the stored weights -- this is how to score new observations. If
 #' `data` is `NULL` and `keep_scores = TRUE` was set at fit time, the stored
 #' scores are returned. If neither is available an informative error is raised.
 #'

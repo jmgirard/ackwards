@@ -10,7 +10,7 @@
 #' where `R` is the input correlation matrix and `D_x = diag(W_x' R W_x)` are
 #' the **actual** score variances (not assumed to be 1). This avoids
 #' materialising scores while remaining exact for PCA, EFA (regression /
-#' Bartlett / tenBerge) — all of which produce linear score maps.
+#' Bartlett / tenBerge) -- all of which produce linear score maps.
 #'
 #' When the algebra cannot be used (nonlinear scoring, missing `R`, or the user
 #' forces `edge_method = "scores"`), scores are materialised from `data` instead.
@@ -18,7 +18,7 @@
 #' @param levels Named list (indexed by k) of per-level objects produced by an
 #'   engine. Each must contain a `scoring` sub-list with fields `linear`,
 #'   `weights`, and `score_var`.
-#' @param R Square correlation matrix (p × p). Required for the algebra path.
+#' @param R Square correlation matrix (p x p). Required for the algebra path.
 #' @param edge_method One of `"auto"` (algebra when possible, scores otherwise),
 #'   `"algebra"` (force; errors if conditions not met), or `"scores"` (always
 #'   materialise).
@@ -31,7 +31,7 @@
 #'   tidy tibble.
 #'
 #' @return A list with:
-#'   \item{matrices}{Named list of `(k_a × k_b)` edge matrices, keyed
+#'   \item{matrices}{Named list of `(k_a x k_b)` edge matrices, keyed
 #'     `"k_a:k_b"`.}
 #'   \item{tidy}{A data frame with one row per directed edge: `from`, `to`,
 #'     `level_from`, `level_to`, `r`, `is_primary`, `above_cut`.}

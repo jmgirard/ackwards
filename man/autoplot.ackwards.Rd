@@ -121,7 +121,7 @@ edge layers. Default \code{TRUE}. Forbes (2023) figures use plain line ends.}
 continuous scale (current behaviour). A numeric value draws every edge at
 that constant width, removes the \code{linewidth} aesthetic mapping, and drops
 the \verb{|r|} linewidth legend. Applies in both colour and \code{mono} modes and in
-the \code{drop_pruned} path. Forbes figures use uniform thin lines (≈ 0.5–0.6).}
+the \code{drop_pruned} path. Forbes figures use uniform thin lines (~= 0.5--0.6).}
 
 \item{legend}{When \code{FALSE}, suppresses all plot legends
 (\code{legend.position = "none"}). Useful when \code{color_pos == color_neg} (e.g.
@@ -158,7 +158,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   # Custom node labels for the 5-factor level
   autoplot(x, node_labels = c(m5f1 = "Neuroticism", m5f2 = "Agreeableness"))
 
-  # Primary links only — clean hierarchy tree
+  # Primary links only -- clean hierarchy tree
   autoplot(x, primary_only = TRUE)
 
   # Forbes pruned view: omit redundant nodes, straight spanning arrows

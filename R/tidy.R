@@ -13,28 +13,28 @@ generics::glance
 #'
 #' @param x An `ackwards` object.
 #' @param what What to extract:
-#'   * `"edges"` *(default)* — one row per directed between-level edge:
+#'   * `"edges"` *(default)* -- one row per directed between-level edge:
 #'     `from`, `to`, `level_from`, `level_to`, `r`, `is_primary`, `above_cut`.
-#'   * `"loadings"` — one row per item × factor × level:
+#'   * `"loadings"` -- one row per item x factor x level:
 #'     `level`, `factor`, `item`, `loading`.
-#'   * `"loadings_se"` — one row per item × factor × level with the rotation-aware
+#'   * `"loadings_se"` -- one row per item x factor x level with the rotation-aware
 #'     standard error of each loading: `level`, `factor`, `item`, `se`. Only the
 #'     ESEM engine (`engine = "esem"`) produces these; errors informatively for
 #'     PCA/EFA objects, which carry no loading standard errors.
-#'   * `"variance"` — one row per factor × level:
+#'   * `"variance"` -- one row per factor x level:
 #'     `level`, `factor`, `variance_pct`, `cumulative_pct`.
-#'   * `"fit"` — one row per fit index × level: `level`, `index`, `value`.
+#'   * `"fit"` -- one row per fit index x level: `level`, `index`, `value`.
 #'     For PCA objects the indices are eigenvalues; for EFA objects they are
 #'     `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`.
-#'   * `"nodes"` — Forbes-extension pruning annotations (requires `prune != "none"`
+#'   * `"nodes"` -- Forbes-extension pruning annotations (requires `prune != "none"`
 #'     when the object was created). One row per factor across all levels:
 #'     `id`, `level`, `pruned`, `prune_reason`. Returns an empty data frame with
 #'     the same columns when no pruning was applied.
-#'   * `"scores"` — long-format per-observation factor scores (requires
+#'   * `"scores"` -- long-format per-observation factor scores (requires
 #'     `keep_scores = TRUE` at fit time or use [augment.ackwards()] for on-the-fly
 #'     computation). Columns: `obs` (row index), `level`, `factor`, `score`.
 #' @param primary_only For `what = "edges"` only. When `TRUE`, returns just each
-#'   factor's primary-parent edge (`is_primary == TRUE`) — the lineage tree that
+#'   factor's primary-parent edge (`is_primary == TRUE`) -- the lineage tree that
 #'   the diagram draws as solid arrows. Default `FALSE` (all edges). Errors for
 #'   any other value of `what`.
 #' @param sort For `what = "edges"` only. One of `"none"` (default, natural order)

@@ -1,11 +1,11 @@
 # ESEM engine -- internal, not exported
 #' @importFrom stats cov2cor
 #
-# Wraps lavaan::efa() for each level 1..k_max, returning the standard §4 level
+# Wraps lavaan::efa() for each level 1..k_max, returning the standard s.4 level
 # contract. For ordinal/polychoric data uses WLSMV estimation (Kim & Eaton 2015;
 # Forbush et al. 2024); for continuous data uses ML. Scoring uses self-computed
 # tenBerge weights from lavaan's estimated loadings and the underlying correlation
-# matrix, keeping compute_edges() on the algebra path (DESIGN.md §14 item 12).
+# matrix, keeping compute_edges() on the algebra path (DESIGN.md s.14 item 12).
 #
 # Key additions over the EFA engine:
 #   - loadings_se: rotation-aware delta-method SEs from lavaan's standardized solution
@@ -13,15 +13,15 @@
 #   - Polychoric basis: for cor = "polychoric", ordered variables trigger WLSMV
 #
 # Arguments:
-#   data       — numeric matrix, items in columns (raw data, NOT a correlation matrix)
-#   k_max      — maximum number of factors to extract
-#   rotation   — always "varimax" (orthogonal; the only supported rotation)
-#   estimator  — "ML", "WLSMV", "ULSMV", etc.; passed directly to lavaan::efa()
-#   cor   — "pearson", "spearman", or "polychoric"; controls ordered= argument
-#   n_obs      — number of observations (for record-keeping only; lavaan uses data)
-#   R_external — pre-computed correlation matrix for tenBerge weights (used for
+#   data       -- numeric matrix, items in columns (raw data, NOT a correlation matrix)
+#   k_max      -- maximum number of factors to extract
+#   rotation   -- always "varimax" (orthogonal; the only supported rotation)
+#   estimator  -- "ML", "WLSMV", "ULSMV", etc.; passed directly to lavaan::efa()
+#   cor   -- "pearson", "spearman", or "polychoric"; controls ordered= argument
+#   n_obs      -- number of observations (for record-keeping only; lavaan uses data)
+#   R_external -- pre-computed correlation matrix for tenBerge weights (used for
 #                continuous paths); NULL for polychoric (lavaan's R is extracted)
-#   keep_fits  — retain raw lavaan fit objects per level in the returned fits list
+#   keep_fits  -- retain raw lavaan fit objects per level in the returned fits list
 #
 # Returns list(levels = <named list>, r_lv = <p x p matrix>, fits = <list | NULL>)
 
@@ -57,9 +57,9 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
     # missing= mapping to lavaan's vocabulary:
     #   "fiml"     -> "fiml"           (ML/MLR only; validated upstream)
     #   "pairwise" -> "available.cases" for WLSMV/ULSMV (uses all rows via
-    #                 pairwise polychoric thresholds — MCAR-valid, honest N);
+    #                 pairwise polychoric thresholds -- MCAR-valid, honest N);
     #                 "listwise" for ML/MLR (lavaan default; edge R is the
-    #                 separately-computed pairwise stats::cor — documented minor
+    #                 separately-computed pairwise stats::cor -- documented minor
     #                 inconsistency under pairwise with missing data)
     #   "listwise" -> "listwise"       (data already reduced upstream)
     lav_missing <- if (missing == "fiml") {
@@ -151,7 +151,7 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
             h1 <- lavaan::lavInspect(fit, "h1")
             # lavInspect("h1") returns list(cov = <matrix>, mean = <vector>)
             # for single-group models (the only case ackwards uses).
-            # Multi-group would return list(g1 = list(cov=...), g2 = ...) —
+            # Multi-group would return list(g1 = list(cov=...), g2 = ...) --
             # guard against that with is.list(h1[[1L]]).
             cov_h1 <- if (is.list(h1[[1L]])) h1[[1L]]$cov else h1$cov
             cov2cor(cov_h1)
@@ -191,7 +191,7 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
     load_rows <- std_sol[std_sol$op == "=~", , drop = FALSE]
     factors_lav <- unique(load_rows$lhs) # lavaan's internal factor names
 
-    # Build p × k loading and SE matrices indexed by item_names
+    # Build p x k loading and SE matrices indexed by item_names
     L <- matrix(0, p, k, dimnames = list(item_names, factors_lav))
     L_se <- matrix(NA_real_, p, k, dimnames = list(item_names, factors_lav))
 
@@ -222,7 +222,7 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
     }
 
     # tenBerge weights from lavaan's loadings + lavaan's correlation matrix.
-    # Keeps compute_edges() on the algebra path (DESIGN.md §14 item 12).
+    # Keeps compute_edges() on the algebra path (DESIGN.md s.14 item 12).
     weight_method <- "tenBerge"
     W <- tryCatch(
       .tenBerge_weights(r_lv, L),

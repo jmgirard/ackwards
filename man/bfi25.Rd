@@ -3,17 +3,17 @@
 \docType{data}
 \name{bfi25}
 \alias{bfi25}
-\title{Big Five Inventory — 25-item IPIP example dataset}
+\title{Big Five Inventory -- 25-item IPIP example dataset}
 \format{
 A data frame with 1 000 rows and 25 integer columns (Likert responses
-scored 1–6, with some \code{NA}s reflecting genuine missing values in the
+scored 1--6, with some \code{NA}s reflecting genuine missing values in the
 original survey). The 25 items span the Big Five personality domains:\tabular{ll}{
    Columns \tab Domain \cr
-   \code{A1}–\code{A5} \tab Agreeableness \cr
-   \code{C1}–\code{C5} \tab Conscientiousness \cr
-   \code{E1}–\code{E5} \tab Extraversion \cr
-   \code{N1}–\code{N5} \tab Neuroticism \cr
-   \code{O1}–\code{O5} \tab Openness \cr
+   \code{A1}--\code{A5} \tab Agreeableness \cr
+   \code{C1}--\code{C5} \tab Conscientiousness \cr
+   \code{E1}--\code{E5} \tab Extraversion \cr
+   \code{N1}--\code{N5} \tab Neuroticism \cr
+   \code{O1}--\code{O5} \tab Openness \cr
 }
 }
 \source{
@@ -28,7 +28,7 @@ project (\url{https://www.sapa-project.org/}). Items are public-domain IPIP
 Goldberg, L. R. (1999). A broad-bandwidth, public domain, personality
 inventory measuring the lower-level facets of several five-factor models.
 In I. Mervielde, I. Deary, F. De Fruyt, & F. Ostendorf (Eds.),
-\emph{Personality Psychology in Europe}, Vol. 7, pp. 7–28. Tilburg University Press.
+\emph{Personality Psychology in Europe}, Vol. 7, pp. 7--28. Tilburg University Press.
 }
 \usage{
 bfi25

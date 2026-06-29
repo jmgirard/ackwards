@@ -2,10 +2,10 @@
 #' @importFrom stats setNames
 #
 # Uses psych::pca() (varimax rotation), which is the same function
-# psych::bassAckward() uses internally — ensures our PCA path matches
+# psych::bassAckward() uses internally -- ensures our PCA path matches
 # psych's reference implementation within floating-point tolerance.
 #
-# Returns list(levels = <named list per §4 contract>, fits = <named list | NULL>)
+# Returns list(levels = <named list per s.4 contract>, fits = <named list | NULL>)
 
 pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE) {
   p <- nrow(R)
@@ -38,7 +38,7 @@ pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE) {
     colnames(W) <- make_labels(k)
     rownames(W) <- rownames(R)
 
-    # Score variances: diag(W' R W) — NOT assumed to be 1
+    # Score variances: diag(W' R W) -- NOT assumed to be 1
     score_var <- diag(crossprod(W, R %*% W))
 
     # Variance explained per factor and cumulative

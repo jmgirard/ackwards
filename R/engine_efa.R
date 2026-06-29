@@ -1,7 +1,7 @@
 # EFA engine -- internal, not exported
 #' @importFrom stats setNames
 #
-# Wraps psych::fa() for each level 1..k_max, returning the standard §4 level
+# Wraps psych::fa() for each level 1..k_max, returning the standard s.4 level
 # contract. Scoring uses tenBerge weights (linear S = ZW), which keeps
 # compute_edges() on the algebra path. Convergence failures truncate the
 # hierarchy at the last successful level; Heywood cases warn but continue.

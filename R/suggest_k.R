@@ -135,10 +135,11 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_obs = NULL,
     # Warn if cor set explicitly (ignored for R input)
     cor_was_set <- !missing(cor) && cor != "pearson"
     if (cor_was_set) {
-      cli::cli_warn(c(
-        "!" = "{.arg cor} is ignored when a correlation matrix is supplied.",
-        "i" = "Remove {.arg cor} from your call to suppress this warning."
-      ),
+      cli::cli_warn(
+        c(
+          "!" = "{.arg cor} is ignored when a correlation matrix is supplied.",
+          "i" = "Remove {.arg cor} from your call to suppress this warning."
+        ),
         .frequency = "once",
         .frequency_id = "suggest_k_cor_ignored"
       )
@@ -166,25 +167,25 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_obs = NULL,
       )
     }
 
-    # CD requires raw data for resampling — gate it off with an info note
+    # CD requires raw data for resampling -- gate it off with an info note
     cd_available <- FALSE
     cli::cli_inform(c(
       "i" = "Comparison Data (CD) is skipped when a correlation matrix is \\
              supplied (CD requires raw item distributions for resampling)."
     ))
     cor_stored <- NA_character_
-    data_mat <- NULL  # no raw data
-
+    data_mat <- NULL # no raw data
   } else {
     # --- Raw data path --------------------------------------------------------
     cor <- rlang::arg_match(cor, c("pearson", "spearman"))
 
     if (!is.null(n_obs)) {
-      cli::cli_warn(c(
-        "!" = "{.arg n_obs} is ignored when raw data are supplied \\
+      cli::cli_warn(
+        c(
+          "!" = "{.arg n_obs} is ignored when raw data are supplied \\
                (N is determined from {.code nrow(data)}).",
-        "i" = "Remove {.arg n_obs} from your call to suppress this warning."
-      ),
+          "i" = "Remove {.arg n_obs} from your call to suppress this warning."
+        ),
         .frequency = "once",
         .frequency_id = "suggest_k_nobs_ignored"
       )
@@ -213,7 +214,7 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_obs = NULL,
     }
 
     R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
-    cd_available <- rlang::is_installed("EFAtools")  # will be checked later
+    cd_available <- rlang::is_installed("EFAtools") # will be checked later
   }
 
   # --- Parallel analysis: PC + FA (Horn) -----------------------------------------
@@ -486,7 +487,7 @@ print.suggest_k <- function(x, ...) {
 #' Plot a suggest_k diagnostic
 #'
 #' Renders a ggplot2 diagnostic for a `suggest_k` object. When
-#' \pkg{EFAtools} is installed and CD was computed, the plot is a 2×2 grid:
+#' \pkg{EFAtools} is installed and CD was computed, the plot is a 2x2 grid:
 #' Scree/PA (top-left), MAP (top-right), VSS (bottom-left), and CD RMSE
 #' (bottom-right). When CD is unavailable, the plot is a single-column
 #' three-panel layout (Scree/PA, MAP, VSS). The recommended k for each

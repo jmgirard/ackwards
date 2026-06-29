@@ -17,30 +17,30 @@
 
 \item{what}{What to extract:
 \itemize{
-\item \code{"edges"} \emph{(default)} — one row per directed between-level edge:
+\item \code{"edges"} \emph{(default)} -- one row per directed between-level edge:
 \code{from}, \code{to}, \code{level_from}, \code{level_to}, \code{r}, \code{is_primary}, \code{above_cut}.
-\item \code{"loadings"} — one row per item × factor × level:
+\item \code{"loadings"} -- one row per item x factor x level:
 \code{level}, \code{factor}, \code{item}, \code{loading}.
-\item \code{"loadings_se"} — one row per item × factor × level with the rotation-aware
+\item \code{"loadings_se"} -- one row per item x factor x level with the rotation-aware
 standard error of each loading: \code{level}, \code{factor}, \code{item}, \code{se}. Only the
 ESEM engine (\code{engine = "esem"}) produces these; errors informatively for
 PCA/EFA objects, which carry no loading standard errors.
-\item \code{"variance"} — one row per factor × level:
+\item \code{"variance"} -- one row per factor x level:
 \code{level}, \code{factor}, \code{variance_pct}, \code{cumulative_pct}.
-\item \code{"fit"} — one row per fit index × level: \code{level}, \code{index}, \code{value}.
+\item \code{"fit"} -- one row per fit index x level: \code{level}, \code{index}, \code{value}.
 For PCA objects the indices are eigenvalues; for EFA objects they are
 \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, \code{BIC}.
-\item \code{"nodes"} — Forbes-extension pruning annotations (requires \code{prune != "none"}
+\item \code{"nodes"} -- Forbes-extension pruning annotations (requires \code{prune != "none"}
 when the object was created). One row per factor across all levels:
 \code{id}, \code{level}, \code{pruned}, \code{prune_reason}. Returns an empty data frame with
 the same columns when no pruning was applied.
-\item \code{"scores"} — long-format per-observation factor scores (requires
+\item \code{"scores"} -- long-format per-observation factor scores (requires
 \code{keep_scores = TRUE} at fit time or use \code{\link[=augment.ackwards]{augment.ackwards()}} for on-the-fly
 computation). Columns: \code{obs} (row index), \code{level}, \code{factor}, \code{score}.
 }}
 
 \item{primary_only}{For \code{what = "edges"} only. When \code{TRUE}, returns just each
-factor's primary-parent edge (\code{is_primary == TRUE}) — the lineage tree that
+factor's primary-parent edge (\code{is_primary == TRUE}) -- the lineage tree that
 the diagram draws as solid arrows. Default \code{FALSE} (all edges). Errors for
 any other value of \code{what}.}
 
