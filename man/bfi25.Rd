@@ -17,7 +17,7 @@ original survey). The 25 items span the Big Five personality domains:\tabular{ll
 }
 }
 \source{
-Revelle, W. (2025). \emph{psych: Procedures for Psychological, Psychometric, and
+Revelle, W. (2026). \emph{psych: Procedures for Psychological, Psychometric, and
 Personality Research}. Northwestern University, Evanston, Illinois.
 R package. \url{https://CRAN.R-project.org/package=psych}
 

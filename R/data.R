@@ -26,7 +26,7 @@
 #' package root.
 #'
 #' @source
-#' Revelle, W. (2025). *psych: Procedures for Psychological, Psychometric, and
+#' Revelle, W. (2026). *psych: Procedures for Psychological, Psychometric, and
 #'   Personality Research*. Northwestern University, Evanston, Illinois.
 #'   R package. <https://CRAN.R-project.org/package=psych>
 #'
