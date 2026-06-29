@@ -317,7 +317,14 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_obs = NULL,
     )
     if (!is.null(cd_out)) {
       k_cd <- min(as.integer(cd_out$n_factors), k_max)
-      cd_rmse <- colMeans(cd_out$RMSE_eigenvalues)[seq_len(k_max)]
+      # EFAtools >= 0.4.4 returns RMSE_eigenvalues as a pre-averaged vector;
+      # older versions return a matrix (n_iter x k). Handle both.
+      rmse_raw <- cd_out$RMSE_eigenvalues
+      cd_rmse <- if (length(dim(rmse_raw)) >= 2L) {
+        colMeans(rmse_raw)[seq_len(k_max)]
+      } else {
+        as.numeric(rmse_raw)[seq_len(k_max)]
+      }
     } else {
       cd_available <- FALSE
     }

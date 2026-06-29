@@ -12,7 +12,20 @@
 | windows-latest (R-hub) | R-* | 0/0/0 |
 | win-builder R-devel | R-devel | _pending_ |
 
-win-builder results will be added before submission.
+win-builder results will be updated once the re-check completes.
+
+## Notes
+
+### "Possibly misspelled words" in DESCRIPTION
+
+win-builder flags: Ackwards (2:13), EFA (9:65), ESEM (9:73), ackwards (8:10).
+
+These are all correctly spelled technical terms:
+- `ackwards` / `Ackwards` — the package name, a deliberate play on "bass-ackwards"
+- `EFA` — standard abbreviation for Exploratory Factor Analysis
+- `ESEM` — standard abbreviation for Exploratory Structural Equation Modeling
+
+No misspellings are present.
 
 ## Package scope
 
