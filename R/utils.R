@@ -195,6 +195,90 @@ flip_weights <- function(W, sign_vec) {
   invisible(NULL)
 }
 
+# Detect whether x looks like a correlation matrix (not raw data).
+# Heuristic: numeric, square, symmetric, and unit diagonal.
+# A false positive on raw data is effectively impossible (requires n x n
+# numeric data where n == p and all diagonal elements are exactly 1.0).
+.is_cor_matrix <- function(x) {
+  if (!is.matrix(x) || !is.numeric(x)) return(FALSE)
+  if (nrow(x) != ncol(x)) return(FALSE)
+  if (!all(abs(diag(x) - 1) < 1e-8)) return(FALSE)
+  if (!isSymmetric(unname(x), tol = 1e-8)) return(FALSE)
+  TRUE
+}
+
+# Validate and normalise a user-supplied correlation matrix. Returns the
+# matrix (possibly with synthesised dimnames) or errors with a specific message.
+# Non-positive-definite matrices warn and pass through — the engine will error
+# naturally if truly degenerate; auto-smoothing would silently alter user input.
+.validate_cor_matrix <- function(R) {
+  if (!is.matrix(R) || !is.numeric(R)) {
+    cli::cli_abort(c(
+      "!" = "Supplied correlation matrix must be a numeric matrix.",
+      "i" = "Got {.cls {class(R)}}."
+    ))
+  }
+  p <- nrow(R)
+  if (p != ncol(R)) {
+    cli::cli_abort(c(
+      "!" = "Correlation matrix must be square ({p} rows but {ncol(R)} columns)."
+    ))
+  }
+  if (anyNA(R)) {
+    cli::cli_abort(c(
+      "!" = "Correlation matrix contains {sum(is.na(R))} NA value{?s}.",
+      "i" = "Supply a complete (no-NA) correlation matrix."
+    ))
+  }
+  if (!all(is.finite(R))) {
+    cli::cli_abort(c(
+      "!" = "Correlation matrix contains non-finite values (Inf or NaN)."
+    ))
+  }
+  if (!isSymmetric(unname(R), tol = 1e-8)) {
+    cli::cli_abort(c(
+      "!" = "Correlation matrix is not symmetric.",
+      "i" = "Maximum asymmetry: {max(abs(R - t(R)))}.",
+      "i" = "Use {.code R <- (R + t(R)) / 2} to force symmetry."
+    ))
+  }
+  if (!all(abs(diag(R) - 1) < 1e-8)) {
+    bad_diag <- which(abs(diag(R) - 1) >= 1e-8)
+    cli::cli_abort(c(
+      "!" = "Correlation matrix diagonal must be all 1s.",
+      "x" = "{length(bad_diag)} diagonal element{?s} differ from 1: \\
+             {.val {round(diag(R)[bad_diag], 6)}} (position{?s} {bad_diag}).",
+      "i" = "Supply a correlation matrix, not a covariance matrix."
+    ))
+  }
+  off_diag <- R[row(R) != col(R)]
+  if (any(abs(off_diag) > 1 + 1e-8)) {
+    worst <- max(abs(off_diag))
+    cli::cli_abort(c(
+      "!" = "Correlation matrix has off-diagonal |r| > 1 (max = {round(worst, 6)}).",
+      "i" = "Check that your matrix is a valid correlation matrix."
+    ))
+  }
+  # Synthesise dimnames if absent so loadings/labels work downstream.
+  if (is.null(rownames(R))) {
+    rn <- paste0("V", seq_len(p))
+    rownames(R) <- rn
+    colnames(R) <- rn
+  }
+  # Non-PD: warn and pass through; engine errors naturally if truly degenerate.
+  min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
+  if (min_eig <= 0) {
+    cli::cli_warn(c(
+      "!" = "Supplied correlation matrix is not positive definite \\
+             (min eigenvalue = {round(min_eig, 4)}).",
+      "i" = "PCA/EFA results may be unreliable. Consider regularising \\
+             the matrix (e.g., {.fn psych::cor.smooth}) before calling \\
+             {.fn ackwards}."
+    ))
+  }
+  R
+}
+
 # Validate that x is a well-formed ackwards object (used in tests).
 validate_ackwards <- function(x) {
   required <- c(

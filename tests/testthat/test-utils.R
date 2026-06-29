@@ -60,6 +60,90 @@ test_that(".standardize produces NA only in cells where input was NA", {
   expect_false(anyNA(z[c(1L, 3L), ]))
 })
 
+test_that(".is_cor_matrix() returns TRUE for a valid correlation matrix", {
+  R <- cor(bfi25, use = "pairwise.complete.obs")
+  expect_true(ackwards:::.is_cor_matrix(R))
+})
+
+test_that(".is_cor_matrix() returns FALSE for raw data", {
+  expect_false(ackwards:::.is_cor_matrix(as.matrix(bfi25)))
+})
+
+test_that(".is_cor_matrix() returns FALSE for non-square matrix", {
+  expect_false(ackwards:::.is_cor_matrix(matrix(1:6, 2, 3)))
+})
+
+test_that(".is_cor_matrix() returns FALSE for non-numeric input", {
+  expect_false(ackwards:::.is_cor_matrix(list(a = 1, b = 2)))
+})
+
+test_that(".is_cor_matrix() returns FALSE for asymmetric matrix", {
+  R <- cor(bfi25, use = "pairwise.complete.obs")
+  R[1, 2] <- 0.999
+  expect_false(ackwards:::.is_cor_matrix(R))
+})
+
+test_that(".validate_cor_matrix() errors on non-matrix input", {
+  expect_error(
+    ackwards:::.validate_cor_matrix(list(a = 1)),
+    "numeric matrix"
+  )
+})
+
+test_that(".validate_cor_matrix() errors on non-square matrix", {
+  expect_error(
+    ackwards:::.validate_cor_matrix(matrix(1:6, 2, 3)),
+    "square"
+  )
+})
+
+test_that(".validate_cor_matrix() errors when NA present", {
+  R <- diag(3)
+  R[1, 2] <- R[2, 1] <- NA_real_
+  expect_error(
+    ackwards:::.validate_cor_matrix(R),
+    "NA value"
+  )
+})
+
+test_that(".validate_cor_matrix() errors on non-symmetric matrix", {
+  R <- diag(3)
+  R[1, 2] <- 0.5
+  expect_error(
+    ackwards:::.validate_cor_matrix(R),
+    "symmetric"
+  )
+})
+
+test_that(".validate_cor_matrix() errors when diagonal != 1", {
+  R <- matrix(c(1, 0.5, 0.5, 2), 2, 2) # diagonal element is 2
+  expect_error(
+    ackwards:::.validate_cor_matrix(R),
+    "diagonal must be all 1s"
+  )
+})
+
+test_that(".validate_cor_matrix() errors when |r| > 1", {
+  R <- matrix(c(1, 1.5, 1.5, 1), 2, 2)
+  expect_error(
+    ackwards:::.validate_cor_matrix(R),
+    "off-diagonal"
+  )
+})
+
+test_that(".validate_cor_matrix() synthesises dimnames when absent", {
+  R <- cor(bfi25, use = "pairwise.complete.obs")
+  dimnames(R) <- NULL
+  R2 <- ackwards:::.validate_cor_matrix(R)
+  expect_equal(rownames(R2), paste0("V", seq_len(ncol(R2))))
+})
+
+test_that(".validate_cor_matrix() passes valid matrix through unchanged", {
+  R <- cor(bfi25, use = "pairwise.complete.obs")
+  R2 <- ackwards:::.validate_cor_matrix(R)
+  expect_equal(R2, R)
+})
+
 test_that("inst/CITATION has two entries with correct years and no unknown year", {
   skip_if_not_installed("ackwards")
   cites <- citation("ackwards")
