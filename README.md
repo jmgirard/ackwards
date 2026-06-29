@@ -55,13 +55,13 @@ library(ackwards)
 bfi <- na.omit(psych::bfi[, 1:25])
 sk <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [212ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [216ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [102ms]
+#> ✔ Running MAP and VSS... [103ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [8.8s]
+#> ✔ Running Comparison Data (CD)... [7.8s]
 #> 
 sk
 #> 
@@ -78,8 +78,8 @@ sk
 #> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD ✔
 #> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔
 #> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔
-#> k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔*
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔*
+#> k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD -
 #> k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD -
 #> 
 #> ── Recommendations ──
@@ -89,8 +89,8 @@ sk
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
-#> • CD: k = 7
-#> Consensus range: k = 4-7
+#> • CD: k = 6
+#> Consensus range: k = 4-6
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.
@@ -205,27 +205,21 @@ names(scored)[26:40]
 If you use **ackwards** in your research, please cite both the method
 and the package:
 
-Goldberg, L. R. (2006). Doing it all bass-ackwards: The development of
-hierarchical factor structures from the top down. *Journal of Research
-in Personality*, *40*(4), 347–358.
-<https://doi.org/10.1016/j.jrp.2006.01.001>
-
 ``` r
 citation("ackwards")
-#> Warning in citation("ackwards"): could not determine year for 'ackwards' from
-#> package DESCRIPTION file
 #> To cite package 'ackwards' in publications use:
 #> 
-#>   Girard J (????). _ackwards: Bass-Ackwards Hierarchical Structural
+#>   Goldberg L (2006). "Doing it all bass-ackwards: The development of
+#>   hierarchical factor structures from the top down." _Journal of
+#>   Research in Personality_, *40*(4), 347-358.
+#>   doi:10.1016/j.jrp.2006.01.001
+#>   <https://doi.org/10.1016/j.jrp.2006.01.001>.
+#> 
+#>   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural
 #>   Analysis_. R package version 0.1.0,
-#>   <https://jmgirard.github.io/ackwards/>.
+#>   <https://github.com/jmgirard/ackwards>.
 #> 
-#> A BibTeX entry for LaTeX users is
-#> 
-#>   @Manual{,
-#>     title = {ackwards: Bass-Ackwards Hierarchical Structural Analysis},
-#>     author = {Jeffrey M. Girard},
-#>     note = {R package version 0.1.0},
-#>     url = {https://jmgirard.github.io/ackwards/},
-#>   }
+#> To see these entries in BibTeX format, use 'print(<citation>,
+#> bibtex=TRUE)', 'toBibtex(.)', or set
+#> 'options(citation.bibtex.max=999)'.
 ```
