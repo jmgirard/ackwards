@@ -33,6 +33,33 @@ test_that(".format_r() is vectorised", {
   expect_equal(result, c(".23", "-.45", "1.00", ".00"))
 })
 
+test_that("detect_ordinal returns FALSE for an all-NA column", {
+  # all-NA column alongside a clearly continuous column
+  d <- data.frame(x = rep(NA_real_, 5L), y = c(1.1, 2.2, 3.3, 4.4, 5.5))
+  expect_false(ackwards:::detect_ordinal(d))
+})
+
+test_that("detect_ordinal returns FALSE for a data frame with no ordinal columns", {
+  d <- data.frame(x = c(1.1, 2.2, 3.3), y = c(4.4, 5.5, 6.6))
+  expect_false(ackwards:::detect_ordinal(d))
+})
+
+test_that("detect_ordinal returns TRUE for integer columns with few distinct values", {
+  d <- data.frame(x = sample(1:5, 20, replace = TRUE))
+  expect_true(ackwards:::detect_ordinal(d))
+})
+
+test_that(".standardize produces NA only in cells where input was NA", {
+  m <- matrix(c(1, NA, 3, 4, 5, 6), nrow = 3, ncol = 2)
+  z <- ackwards:::.standardize(m)
+  # Cell [2,1] was NA -> stays NA
+  expect_true(is.na(z[2L, 1L]))
+  # Cell [2,2] was not NA -> should be finite
+  expect_false(is.na(z[2L, 2L]))
+  # Rows 1 and 3 have no NAs -> all finite
+  expect_false(anyNA(z[c(1L, 3L), ]))
+})
+
 test_that("inst/CITATION has two entries with correct years and no unknown year", {
   skip_if_not_installed("ackwards")
   cites <- citation("ackwards")

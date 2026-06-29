@@ -1,5 +1,19 @@
 # Internal utilities — not exported
 
+# Column-wise na.rm-aware standardization: each column is centered and scaled
+# using its own non-NA observations. NA values in a column remain NA after
+# standardization, so only rows that are missing a particular item produce NA
+# in that column of Z — and consequently NA scores only for those rows (via the
+# linear map S = Z W). Contrast with base scale(), which returns a fully-NA
+# column when any value is missing, making ALL scores NA.
+# A zero-variance or all-NA column gets scale factor 1 (avoids Inf/NaN).
+.standardize <- function(x) {
+  m <- colMeans(x, na.rm = TRUE)
+  s <- apply(x, 2, sd, na.rm = TRUE)
+  s[!is.finite(s) | s == 0] <- 1
+  sweep(sweep(x, 2, m, "-"), 2, s, "/")
+}
+
 # Format a correlation as an APA-style string: strip the leading zero, pad
 # trailing zeros to `digits` decimal places. Does not prepend "-" when the
 # magnitude rounds to zero at the requested precision (avoids "-.00").
@@ -25,7 +39,10 @@ detect_ordinal <- function(data, max_levels = 7L) {
     is.integer(x) || (is.numeric(x) && all(x == floor(x), na.rm = TRUE))
   }
   cols <- vapply(data, function(x) {
-    is_int_like(x) && length(unique(x[!is.na(x)])) <= max_levels
+    vals <- x[!is.na(x)]
+    length(vals) > 0L &&
+      is_int_like(x) &&
+      length(unique(vals)) <= max_levels
   }, logical(1))
   any(cols)
 }
@@ -130,7 +147,7 @@ flip_weights <- function(W, sign_vec) {
              {.code na.omit(data)} before scoring."
     ))
   }
-  Z <- scale(data_mat)
+  Z <- .standardize(data_mat)
   scores <- lapply(names(levels_list), function(ki) {
     lev <- levels_list[[ki]]
     W <- lev$scoring$weights

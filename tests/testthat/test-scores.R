@@ -318,6 +318,8 @@ test_that("augment(x, data) produces NA scores for rows with missing values", {
   d_na[5L, 1L] <- NA_real_
   out <- suppressWarnings(augment(x, data = d_na))
   expect_true(is.na(out$.m1f1[5L]))
+  # Complete rows must NOT be NA (distinguishes row-NA from column-NA propagation)
+  expect_false(anyNA(out$.m1f1[-5L]))
 })
 
 test_that("keep_scores = TRUE warns about NA score propagation", {
@@ -338,13 +340,16 @@ test_that("keep_scores = TRUE warns about NA score propagation", {
   expect_true(any(grepl("NA scores", warns)))
 })
 
-test_that("keep_scores = TRUE produces NA scores for rows with missing values", {
+test_that("keep_scores = TRUE produces NA scores only for incomplete rows", {
   skip_if_not_installed("psych")
   set.seed(42)
   d <- as.data.frame(matrix(rnorm(200L * 10L), 200L, 10L))
   d[5L, 1L] <- NA_real_
   x <- suppressWarnings(ackwards(d, k_max = 2L, keep_scores = TRUE))
-  expect_true(any(is.na(x$scores[["1"]])))
+  # Row 5 (incomplete) must be NA at all factors
+  expect_true(all(is.na(x$scores[["1"]][5L, ])))
+  # All other rows (complete) must NOT be NA
+  expect_false(anyNA(x$scores[["1"]][-5L, ]))
 })
 
 # ── Non-Pearson basis: warning on scoring ────────────────────────────────────
