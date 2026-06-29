@@ -41,6 +41,13 @@ reference:
   - suggest_k
   - print.suggest_k
   - autoplot.suggest_k
+- title: Interpret factors
+  desc: |
+    Helpers for understanding what each factor means and labelling it.
+  contents:
+  - top_items
+  - print.top_items
+  - label_template
 - title: Extract results
   desc: |
     Tidy, glance, augment, summary, and print methods for ackwards objects.

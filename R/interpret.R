@@ -90,9 +90,9 @@ top_items <- function(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE) {
         vals <- vals[take]
       }
       data.frame(
-        level   = k,
-        factor  = colnames(L)[j],
-        item    = items,
+        level = k,
+        factor = colnames(L)[j],
+        item = items,
         loading = vals,
         stringsAsFactors = FALSE
       )
@@ -102,9 +102,9 @@ top_items <- function(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE) {
   df <- do.call(rbind, Filter(Negate(is.null), rows))
   if (is.null(df)) {
     df <- data.frame(
-      level   = integer(0L),
-      factor  = character(0L),
-      item    = character(0L),
+      level = integer(0L),
+      factor = character(0L),
+      item = character(0L),
       loading = numeric(0L),
       stringsAsFactors = FALSE
     )
@@ -135,7 +135,7 @@ print.top_items <- function(x, ...) {
   cli::cli_h1("Salient items by factor ({.pkg ackwards})")
   cli::cli_dl(c(
     "Engine"  = x$engine,
-    "Cut"     = paste0("|loading| ≥ ", x$cut),
+    "Cut"     = paste0("|loading| >= ", x$cut),
     "Top-n"   = if (is.null(x$n)) "all" else as.character(x$n)
   ))
 
@@ -143,7 +143,7 @@ print.top_items <- function(x, ...) {
 
   if (nrow(df) == 0L) {
     cli::cli_text(cli::col_grey(
-      "No items met the |loading| ≥ {x$cut} threshold."
+      "No items met the |loading| >= {x$cut} threshold."
     ))
     return(invisible(x))
   }

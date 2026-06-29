@@ -301,6 +301,10 @@ announced via cli and documented in roxygen with its rationale.
 - **`summary.ackwards`** — per-level variance explained and fit indices (ESEM); a readable
   lineage list (`m1f1 → m2f1, m2f2 → …`); flagged redundant/artefact components when the extension
   is on.
+- **`top_items(x, level, cut, n, sort)`** (M18) — per-factor salient-item listing, filtered to
+  `|loading| >= cut` and sorted descending. Returns a `top_items` S3 object with a grouped cli print
+  method. Loadings reflect primary-parent sign alignment (Inv. 4). The `$data` field is a subset of
+  the `tidy(what = "loadings")` table.
 - **broom-style tidiers:**
   - `tidy(x, what = "edges")` *(default)* — one row per directed edge `(from m_k f_i, to m_{k+1}
     f_j, r, is_primary, above_cut)`. This is the graph edge list and the primary plotting input.
@@ -340,6 +344,10 @@ footprint sane and lets users plot the layout however they like.
   edges (longer curves) since the extension correlates *all* levels, not just adjacent. Default to
   showing only above-cut edges to control clutter. Treat as a later milestone; ship the clean
   adjacent-level Goldberg diagram first.
+- **`label_template(x, style)` (M18, core, no heavy deps).** Generates the named-character-vector
+  scaffold for `autoplot(node_labels=)`. Styles: `"id"` (round-trip identity), `"forbes"` (level-
+  letter + within-level index), `"blank"` (empty strings). Returns the vector and also prints an
+  editable `c(...)` literal for copy-paste. Factor IDs in canonical `ba_layout()` order.
 
 ## 12. Dependencies
 
@@ -714,6 +722,24 @@ that needs it. **No Rcpp dependency planned** (see §3).
     `compute_edges`'s algebra-vs-scores arg and matches "three engines" prose throughout this
     document; `keep_scores` mirrors `keep_fits`; `align_signs` is self-documenting; `$cor` drops
     the redundant `_type` suffix.
+
+18. **Factor interpretation & label scaffolding** *(done)* — two new exported helpers for the
+    factor-naming workflow, both pure consumers of the existing light core.
+
+    **`top_items(x, level, cut, n, sort)`** — lists the salient items (|loading| ≥ cut, default 0.3)
+    per level and factor, sorted descending by |loading|. Avoids printing a full item-by-factor
+    matrix that doesn't scale to large k or many items. Optional `level` subsets levels; optional `n`
+    caps items per factor; `sort = FALSE` preserves original item order. Returns a `top_items` S3
+    object with a grouped level → factor → items cli print method; `$data` is a filtered/sorted view
+    of `tidy(what = "loadings")`. **Amends §10.**
+
+    **`label_template(x, style)`** — generates the named-character-vector scaffold for
+    `autoplot(node_labels=)`. Styles: `"id"` (default; identity, round-trip no-op), `"forbes"`
+    (level-letter + within-level index: A1, B1, B2, …), `"blank"` (empty strings). Returns the
+    vector and prints an editable `c(...)` literal for copy-paste. IDs in canonical `ba_layout()`
+    order. **Amends §11.**
+
+    No new dependencies. No invariant or default changes. 122 tests (96 + 26).
 
 ---
 

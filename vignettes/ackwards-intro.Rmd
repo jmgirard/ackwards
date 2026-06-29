@@ -187,21 +187,31 @@ rendered examples, or `?autoplot.ackwards` for the full argument list.
 `tidy()` extracts any component of the result as a tidy data frame. The `what`
 argument controls what is returned.
 
-### Factor loadings
+### Reading each factor — `top_items()`
+
+To understand what each factor represents, `top_items()` lists the salient
+items (those with `|loading| >= cut`) for every factor, grouped by level.
+This is more readable than a full item-by-factor matrix, especially for deep
+hierarchies.
+
+```{r top-items}
+top_items(x, level = 5, cut = 0.3)
+```
+
+You can cap the output to the strongest items per factor with `n`:
+
+```{r top-items-n}
+top_items(x, level = 5, cut = 0.3, n = 3)
+```
+
+### Factor loadings (tidy)
+
+For programmatic access, `tidy(what = "loadings")` returns the full loading
+matrix in long format — one row per item × factor × level:
 
 ```{r tidy-loadings}
 loadings_df <- tidy(x, what = "loadings")
 head(loadings_df)
-```
-
-Each row is one item at one level for one factor. You can filter to a specific
-level to see what items define each factor. Here are the strongest-loading items
-at k = 5:
-
-```{r top-loadings}
-lv5 <- loadings_df[loadings_df$level == 5, ]
-lv5 <- lv5[order(-abs(lv5$loading)), ]
-lv5[!duplicated(lv5$factor), c("factor", "item", "loading")]
 ```
 
 ### Between-level edges

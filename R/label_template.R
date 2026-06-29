@@ -10,15 +10,15 @@
 #' directly onto the diagram.
 #'
 #' @section Style options:
-#' * `"id"` *(default)* — every value equals the factor ID (`"m1f1"`, `"m2f1"`,
-#'   …). This is a round-trip no-op: passing the result to `node_labels` without
+#' * `"id"` *(default)* -- every value equals the factor ID (`"m1f1"`, `"m2f1"`,
+#'   ...). This is a round-trip no-op: passing the result to `node_labels` without
 #'   editing reproduces the default labels exactly. Useful as the starting point
 #'   for adding substantive labels.
-#' * `"forbes"` — values follow the Forbes (2023) convention: level-letter +
-#'   within-level index (`"A1"`, `"B1"`, `"B2"`, …). Level 1 → `A`, level 2 →
-#'   `B`, level 3 → `C`, and so on. Within-level indices are assigned in
+#' * `"forbes"` -- values follow the Forbes (2023) convention: level-letter +
+#'   within-level index (`"A1"`, `"B1"`, `"B2"`, ...). Level 1 -> `A`, level 2 ->
+#'   `B`, level 3 -> `C`, and so on. Within-level indices are assigned in
 #'   canonical layout order (left to right).
-#' * `"blank"` — all values are empty strings. Useful as a starting scaffold
+#' * `"blank"` -- all values are empty strings. Useful as a starting scaffold
 #'   when you want to supply every label from scratch with no defaults showing
 #'   through.
 #'

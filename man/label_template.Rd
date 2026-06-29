@@ -33,15 +33,15 @@ directly onto the diagram.
 \section{Style options}{
 
 \itemize{
-\item \code{"id"} \emph{(default)} — every value equals the factor ID (\code{"m1f1"}, \code{"m2f1"},
-…). This is a round-trip no-op: passing the result to \code{node_labels} without
+\item \code{"id"} \emph{(default)} -- every value equals the factor ID (\code{"m1f1"}, \code{"m2f1"},
+...). This is a round-trip no-op: passing the result to \code{node_labels} without
 editing reproduces the default labels exactly. Useful as the starting point
 for adding substantive labels.
-\item \code{"forbes"} — values follow the Forbes (2023) convention: level-letter +
-within-level index (\code{"A1"}, \code{"B1"}, \code{"B2"}, …). Level 1 → \code{A}, level 2 →
-\code{B}, level 3 → \code{C}, and so on. Within-level indices are assigned in
+\item \code{"forbes"} -- values follow the Forbes (2023) convention: level-letter +
+within-level index (\code{"A1"}, \code{"B1"}, \code{"B2"}, ...). Level 1 -> \code{A}, level 2 ->
+\code{B}, level 3 -> \code{C}, and so on. Within-level indices are assigned in
 canonical layout order (left to right).
-\item \code{"blank"} — all values are empty strings. Useful as a starting scaffold
+\item \code{"blank"} -- all values are empty strings. Useful as a starting scaffold
 when you want to supply every label from scratch with no defaults showing
 through.
 }
