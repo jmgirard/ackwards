@@ -149,3 +149,22 @@ test_that("print.top_items handles zero-row result gracefully", {
   out <- top_items(x, cut = 0.99)
   expect_no_error(print(out))
 })
+
+test_that("interpret vignette edges idiom: adjacent primary filter and column select", {
+  # Guards the pattern used in ackwards-interpret.Rmd (edges-weak chunk):
+  #   edges[edges$is_primary & edges$level_to == edges$level_from + 1, c("from","to","r")]
+  skip_if_not_installed("psych")
+  set.seed(1)
+  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+
+  edges <- tidy(x, what = "edges")
+  primary <- edges[edges$is_primary & edges$level_to == edges$level_from + 1, ]
+  expect_true(nrow(primary) > 0L)
+  expect_true(all(primary$level_to == primary$level_from + 1L))
+  expect_true(all(primary$is_primary))
+
+  # Column-select exactly as the vignette does
+  sub <- primary[order(abs(primary$r)), c("from", "to", "r")]
+  expect_named(sub, c("from", "to", "r"))
+  expect_true(nrow(sub) > 0L)
+})

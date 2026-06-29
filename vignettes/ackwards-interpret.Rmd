@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r packages, message = FALSE}
+```{r packages, message = FALSE, warning = FALSE}
 library(ackwards)
 bfi <- na.omit(psych::bfi[, 1:25])
 x <- ackwards(bfi, k_max = 5)
