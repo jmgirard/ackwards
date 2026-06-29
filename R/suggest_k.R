@@ -98,14 +98,12 @@
 #'
 #' @examples
 #' \donttest{
-#' if (requireNamespace("psych", quietly = TRUE)) {
-#'   sk <- suggest_k(psych::bfi[, 1:25])
-#'   sk
-#'   autoplot(sk)
+#' sk <- suggest_k(bfi25)
+#' sk
+#' autoplot(sk)
 #'
-#'   # Faster exploratory run
-#'   suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5)
-#' }
+#' # Faster exploratory run
+#' suggest_k(bfi25, k_max = 6, n_iter = 5)
 #' }
 #'
 #' @export
@@ -409,9 +407,8 @@ print.suggest_k <- function(x, ...) {
 #'
 #' @examples
 #' \donttest{
-#' if (requireNamespace("psych", quietly = TRUE) &&
-#'   requireNamespace("ggplot2", quietly = TRUE)) {
-#'   sk <- suggest_k(psych::bfi[, 1:25], n_iter = 5)
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   sk <- suggest_k(bfi25, n_iter = 5)
 #'   autoplot(sk)
 #' }
 #' }

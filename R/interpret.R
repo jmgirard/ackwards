@@ -30,11 +30,9 @@
 #' @seealso [tidy.ackwards()], [label_template()], [autoplot.ackwards()]
 #'
 #' @examples
-#' if (requireNamespace("psych", quietly = TRUE)) {
-#'   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-#'   top_items(x)
-#'   top_items(x, level = 5, cut = 0.4, n = 5)
-#' }
+#' x <- ackwards(bfi25, k_max = 5)
+#' top_items(x)
+#' top_items(x, level = 5, cut = 0.4, n = 5)
 #'
 #' @export
 top_items <- function(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE) {

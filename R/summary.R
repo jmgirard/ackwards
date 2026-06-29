@@ -14,10 +14,8 @@
 #' @seealso [print.ackwards()], [tidy.ackwards()], [glance.ackwards()]
 #'
 #' @examples
-#' if (requireNamespace("psych", quietly = TRUE)) {
-#'   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-#'   summary(x)
-#' }
+#' x <- ackwards(bfi25, k_max = 5)
+#' summary(x)
 #'
 #' @export
 summary.ackwards <- function(object, ...) {

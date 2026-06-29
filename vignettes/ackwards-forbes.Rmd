@@ -44,7 +44,7 @@ between every pair of levels, not just neighbors.
 
 ```{r setup-data}
 library(ackwards)
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 ```
 
 ## `pairs = "all"`: computing every between-level correlation

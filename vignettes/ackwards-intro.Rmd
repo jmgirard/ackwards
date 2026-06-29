@@ -54,21 +54,21 @@ the factor structure of your data builds from broad to narrow.
 
 ## Data
 
-We use the 25-item Big Five Inventory from the `psych` package (`psych::bfi`).
+We use `bfi25`, the built-in 25-item Big Five example dataset.
 The items measure five personality traits — Agreeableness (A1–A5),
 Conscientiousness (C1–C5), Extraversion (E1–E5), Neuroticism (N1–N5), and
-Openness (O1–O5) — each on a 6-point Likert scale, in 2,800 participants.
+Openness (O1–O5) — each on a 6-point Likert scale. See `?bfi25` for full
+provenance; the data derive from the SAPA project using public-domain IPIP items.
 
 ```{r data}
 library(ackwards)
 
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 dim(bfi)
 ```
 
-We drop 364 cases with any missing item, leaving n = 2,436. In a real analysis
-you might use pairwise deletion or multiple imputation; `na.omit()` is
-sufficient for this illustration.
+We drop cases with any missing item. In a real analysis you might use pairwise
+deletion or multiple imputation; `na.omit()` is sufficient for this illustration.
 
 ## Step 1: How many factors? `suggest_k()`
 

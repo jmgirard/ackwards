@@ -30,11 +30,9 @@
 #' @seealso [autoplot.ackwards()], [tidy.ackwards()]
 #'
 #' @examples
-#' if (requireNamespace("psych", quietly = TRUE)) {
-#'   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-#'   lay <- ba_layout(x)
-#'   head(lay$nodes)
-#' }
+#' x <- ackwards(bfi25, k_max = 5)
+#' lay <- ba_layout(x)
+#' head(lay$nodes)
 #'
 #' @export
 ba_layout <- function(x, min_sep = 1.0) {

@@ -124,12 +124,10 @@
 #'   Personality*, 41(4), 745–752. \doi{10.1016/j.jrp.2006.08.005}
 #'
 #' @examples
-#' if (requireNamespace("psych", quietly = TRUE)) {
-#'   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-#'   print(x)
-#'   tidy(x)
-#'   glance(x)
-#' }
+#' x <- ackwards(bfi25, k_max = 5)
+#' print(x)
+#' tidy(x)
+#' glance(x)
 #'
 #' @export
 ackwards <- function(

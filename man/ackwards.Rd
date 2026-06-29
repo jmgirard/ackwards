@@ -165,12 +165,10 @@ Both are recomputable from the stored \code{r} matrix.
 }
 
 \examples{
-if (requireNamespace("psych", quietly = TRUE)) {
-  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-  print(x)
-  tidy(x)
-  glance(x)
-}
+x <- ackwards(bfi25, k_max = 5)
+print(x)
+tidy(x)
+glance(x)
 
 }
 \references{

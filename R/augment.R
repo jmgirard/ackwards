@@ -39,16 +39,14 @@ generics::augment
 #' @seealso [ackwards()], [tidy.ackwards()]
 #'
 #' @examples
-#' if (requireNamespace("psych", quietly = TRUE)) {
-#'   # Score the training data on the fly (no keep_scores = TRUE needed)
-#'   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-#'   scores_df <- augment(x, data = psych::bfi[, 1:25])
-#'   head(scores_df[, startsWith(names(scores_df), ".m")])
+#' # Score the training data on the fly (no keep_scores = TRUE needed)
+#' x <- ackwards(bfi25, k_max = 5)
+#' scores_df <- augment(x, data = bfi25)
+#' head(scores_df[, startsWith(names(scores_df), ".m")])
 #'
-#'   # Store at fit time and augment without re-supplying data
-#'   x2 <- ackwards(psych::bfi[, 1:25], k_max = 5, keep_scores = TRUE)
-#'   scores_df2 <- augment(x2)
-#' }
+#' # Store at fit time and augment without re-supplying data
+#' x2 <- ackwards(bfi25, k_max = 5, keep_scores = TRUE)
+#' scores_df2 <- augment(x2)
 #'
 #' @export
 augment.ackwards <- function(x, data = NULL, ...) {

@@ -47,8 +47,8 @@ pak::pak("jmgirard/ackwards")
 
 ## Quick start
 
-We use the 25-item Big Five Inventory (`psych::bfi`) as a running example.
-Because BFI items are recorded on a 6-point ordinal scale, we set
+We use `bfi25`, the built-in 25-item Big Five example dataset (see `?bfi25` for
+provenance). Because BFI items are recorded on a 6-point ordinal scale, we set
 `cor = "polychoric"`.
 
 ### Step 1 — Suggest a range of k
@@ -60,7 +60,7 @@ an upper bound for the hierarchy depth.
 ```{r suggest}
 library(ackwards)
 
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 sk <- suggest_k(bfi)
 sk
 ```

@@ -43,7 +43,7 @@ differ.
 
 ```{r setup-data}
 library(ackwards)
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 ```
 
 We use the BFI-25 with polychoric correlations throughout so that differences in

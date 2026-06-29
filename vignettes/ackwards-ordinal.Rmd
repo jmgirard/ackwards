@@ -64,7 +64,7 @@ warning is issued when `cor = "pearson"` (the default).
 
 ```{r data}
 library(ackwards)
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 ```
 
 ```{r detect}

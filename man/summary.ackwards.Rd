@@ -22,10 +22,8 @@ present) pruning annotations. More verbose than \code{\link[=print.ackwards]{pri
 for inspection and reporting.
 }
 \examples{
-if (requireNamespace("psych", quietly = TRUE)) {
-  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-  summary(x)
-}
+x <- ackwards(bfi25, k_max = 5)
+summary(x)
 
 }
 \seealso{

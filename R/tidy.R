@@ -46,14 +46,12 @@ generics::glance
 #' @seealso [glance.ackwards()], [print.ackwards()]
 #'
 #' @examples
-#' if (requireNamespace("psych", quietly = TRUE)) {
-#'   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-#'   tidy(x) # edges in natural order
-#'   tidy(x, sort = "strength") # strongest edges first
-#'   tidy(x, primary_only = TRUE) # just the primary-parent lineage
-#'   tidy(x, what = "loadings")
-#'   tidy(x, what = "variance")
-#' }
+#' x <- ackwards(bfi25, k_max = 5)
+#' tidy(x) # edges in natural order
+#' tidy(x, sort = "strength") # strongest edges first
+#' tidy(x, primary_only = TRUE) # just the primary-parent lineage
+#' tidy(x, what = "loadings")
+#' tidy(x, what = "variance")
 #'
 #' @export
 tidy.ackwards <- function(

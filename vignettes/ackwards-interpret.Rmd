@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 ```{r packages, message = FALSE}
 library(ackwards)
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 # BFI items are ordinal, so use polychoric correlations (matches the intro and
 # visualization vignettes). This also avoids the ordinal-detection warning.
 x <- ackwards(bfi, k_max = 5, cor = "polychoric")

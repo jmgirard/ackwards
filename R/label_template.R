@@ -36,16 +36,14 @@
 #' @seealso [autoplot.ackwards()], [top_items()], [ba_layout()]
 #'
 #' @examples
-#' if (requireNamespace("psych", quietly = TRUE)) {
-#'   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+#' x <- ackwards(bfi25, k_max = 5)
 #'
-#'   # Start from ID defaults, then fill in your own labels:
-#'   labs <- label_template(x)
-#'   labs["m5f1"] <- "Neuroticism"
+#' # Start from ID defaults, then fill in your own labels:
+#' labs <- label_template(x)
+#' labs["m5f1"] <- "Neuroticism"
 #'
-#'   # Forbes letter convention:
-#'   label_template(x, style = "forbes")
-#' }
+#' # Forbes letter convention:
+#' label_template(x, style = "forbes")
 #'
 #' @export
 label_template <- function(x, style = c("id", "forbes", "blank")) {

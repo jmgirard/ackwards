@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 ```{r packages, message = FALSE}
 library(ackwards)
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 ```
 
 ## k is a decision, not an output
@@ -303,8 +303,8 @@ it to speed up computation when you already have a strong prior. Note that
 
 ## A worked recommendation for the BFI
 
-The BFI has 25 items measuring five personality traits. The criteria do not all
-converge here, which is itself informative:
+The BFI-25 has 25 items measuring five personality traits. The criteria do not
+all converge here, which is itself informative:
 
 ```{r recap}
 sk # reproduced from earlier
@@ -322,21 +322,16 @@ inverts — a nuance in this dataset's eigenvalue geometry, not a contradiction.
 Read both, but trust PA-FA as the model-consistent criterion for EFA and ESEM
 engines.
 
-**CD is a high outlier** (k = 8, when `EFAtools` is available). CD is among the
-most accurate criteria in simulation studies, but it resamples from the marginal
-distributions of each item independently, without preserving inter-item
-correlations. On a large, moderately correlated sample like the BFI
-(n = 2,436, 25 correlated items), the comparison data underestimates how much
-structure the real correlation matrix contains, so CD over-retains factors. Treat
-a large gap between CD and the other criteria as an invitation to look carefully
-at the deeper levels — not a directive to extract that many factors
-unconditionally.
+**CD agrees with PA-FA** (k = 6, when `EFAtools` is available). Both point to a
+sixth factor worth examining. CD resamples from the marginal item distributions
+without preserving inter-item correlations, so on datasets with strong structure
+it can over-retain; here it lands conservatively at 6, in line with the other
+liberal criterion.
 
-**Defensible choice: `k_max = 6`.** This matches the PA-FA recommendation and
-sits one level above the MAP/VSS-2 consensus of 5. Setting `k_max = 6` lets
-`ackwards()`
-show whether a sixth level reveals interpretable sub-facets or merely splits the
-Big Five into arbitrary micro-factors.
+**Defensible choice: `k_max = 6`.** This matches the PA-FA and CD recommendations
+and sits one level above the MAP/VSS-2 consensus of 5. Setting `k_max = 6` lets
+`ackwards()` show whether a sixth level reveals interpretable sub-facets or merely
+splits the Big Five into arbitrary micro-factors.
 
 ```{r ackwards, eval = FALSE}
 x <- ackwards(bfi, k_max = 6, cor = "polychoric")

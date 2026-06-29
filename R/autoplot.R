@@ -103,9 +103,8 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'
 #' @examples
 #' \donttest{
-#' if (requireNamespace("psych", quietly = TRUE) &&
-#'   requireNamespace("ggplot2", quietly = TRUE)) {
-#'   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   x <- ackwards(bfi25, k_max = 5)
 #'   autoplot(x)
 #'   autoplot(x, cut_strong = 0.6, color_pos = "steelblue")
 #'
@@ -119,7 +118,7 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   autoplot(x, primary_only = TRUE)
 #'
 #'   # Forbes pruned view: omit redundant nodes, straight spanning arrows
-#'   xp <- ackwards(psych::bfi[, 1:25], k_max = 5, prune = "redundant")
+#'   xp <- ackwards(bfi25, k_max = 5, prune = "redundant")
 #'   autoplot(xp, drop_pruned = TRUE)
 #'   autoplot(xp, drop_pruned = TRUE, show_r = TRUE)
 #'   autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
