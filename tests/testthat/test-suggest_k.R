@@ -26,7 +26,7 @@ test_that("suggest_k() returns a suggest_k object with expected fields", {
     c(
       "k_parallel_pc", "k_parallel_fa",
       "k_map", "k_vss1", "k_vss2",
-      "k_cd", "cd_available",
+      "k_cd", "cd_available", "cd_rmse",
       "criteria",
       "k_max", "n_obs", "n_vars", "cor"
     )
@@ -141,15 +141,16 @@ test_that("suggest_k() errors on bad inputs", {
   expect_error(suggest_k(psych::bfi[, 1:5], k_max = 0), "k_max")
 })
 
-test_that("suggest_k() k_cd is NA when EFAtools is not installed", {
+test_that("suggest_k() k_cd is NA and cd_rmse is NULL when EFAtools not installed", {
   skip_if_not_installed("psych")
   skip_if(rlang::is_installed("EFAtools"), "EFAtools is installed; skipping absence test")
   sk <- .get_sk(4L)
   expect_false(sk$cd_available)
   expect_identical(sk$k_cd, NA_integer_)
+  expect_null(sk$cd_rmse)
 })
 
-test_that("suggest_k() k_cd is within range when EFAtools is installed", {
+test_that("suggest_k() k_cd and cd_rmse populated when EFAtools is installed", {
   skip_if_not_installed("psych")
   skip_if_not_installed("EFAtools")
   sk <- .get_sk(6L)
@@ -157,6 +158,10 @@ test_that("suggest_k() k_cd is within range when EFAtools is installed", {
   expect_false(is.na(sk$k_cd))
   expect_gte(sk$k_cd, 1L)
   expect_lte(sk$k_cd, 6L)
+  # cd_rmse: length-k_max numeric vector of mean RMSE values
+  expect_false(is.null(sk$cd_rmse))
+  expect_length(sk$cd_rmse, 6L)
+  expect_true(is.numeric(sk$cd_rmse))
 })
 
 test_that("suggest_k() CD degrades gracefully on EFAtools error", {
@@ -219,10 +224,12 @@ test_that("suggest_k() consensus excludes NA k_parallel_fa", {
   expect_gte(min(all_k), 1L)
 })
 
-test_that("autoplot.suggest_k() returns a ggplot with three facet panels", {
+test_that("autoplot.suggest_k() renders 3 panels in single column when CD absent", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
   sk <- .get_sk(4L)
+  sk$cd_available <- FALSE
+  sk$cd_rmse <- NULL
   p <- autoplot(sk)
   expect_s3_class(p, "gg")
   panel_vals <- levels(p$data$panel)
@@ -230,6 +237,31 @@ test_that("autoplot.suggest_k() returns a ggplot with three facet panels", {
     panel_vals,
     c("Scree / Parallel Analysis", "MAP (minimize)", "VSS (maximize)")
   )
+})
+
+test_that("autoplot.suggest_k() renders 4-panel 2x2 grid when CD available", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("EFAtools")
+  sk <- .get_sk(4L)
+  # Ensure cd_rmse is populated (real CD run)
+  expect_true(sk$cd_available)
+  expect_false(is.null(sk$cd_rmse))
+  expect_length(sk$cd_rmse, 4L)
+  p <- autoplot(sk)
+  expect_s3_class(p, "gg")
+  panel_vals <- levels(p$data$panel)
+  expect_equal(
+    panel_vals,
+    c(
+      "Scree / Parallel Analysis", "MAP (minimize)",
+      "VSS (maximize)", "CD (RMSE, minimize)"
+    )
+  )
+  # CD star marked at k_cd
+  cd_rows <- p$data[p$data$series == "CD (RMSE)" & p$data$is_opt, ]
+  expect_equal(nrow(cd_rows), 1L)
+  expect_equal(cd_rows$k, sk$k_cd)
 })
 
 test_that("autoplot.suggest_k() scree panel has four series", {
@@ -262,7 +294,9 @@ test_that("autoplot.suggest_k() handles k_parallel_fa = NA without error", {
   sk <- .get_sk(4L)
   sk$k_parallel_fa <- NA_integer_
   sk$criteria$pa_fa_suggested <- rep(FALSE, 4L)
-  # FA star must be omitted; the plot must still build and have three panels.
+  sk$cd_available <- FALSE
+  sk$cd_rmse <- NULL
+  # FA star must be omitted; the plot must still build with 3 panels (CD absent).
   expect_no_error({
     p <- autoplot(sk)
   })
@@ -278,15 +312,14 @@ test_that("autoplot.suggest_k() handles cd_available = FALSE without error", {
   skip_if_not_installed("ggplot2")
   sk <- .get_sk(4L)
   sk$cd_available <- FALSE
+  sk$cd_rmse <- NULL
   sk$k_cd <- NA_integer_
-  # CD vline layer must be suppressed; the plot must still build.
+  # CD panel must be absent; plot must still build with 3 panels.
   expect_no_error({
     p <- autoplot(sk)
   })
   expect_s3_class(p, "gg")
-  # Verify no vline geom was added (cd_vline branch returns NULL).
-  geom_types <- vapply(p$layers, function(l) class(l$geom)[1], character(1))
-  expect_false("GeomVline" %in% geom_types)
+  expect_false("CD (RMSE, minimize)" %in% levels(p$data$panel))
 })
 
 test_that("print.suggest_k() runs without error when cd_available = FALSE", {

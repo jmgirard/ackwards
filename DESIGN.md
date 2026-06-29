@@ -251,7 +251,7 @@ number. The five criteria implemented (M12):
 | **PA-FA** | Horn (1965), FA basis | same call | More conservative; model-consistent for EFA/ESEM |
 | **MAP** | Velicer (1976) | `psych::vss()` | Minimise average squared partial; usually conservative |
 | **VSS-1/VSS-2** | Revelle & Rocklin (1979) | same call (already returned) | Maximise very-simple-structure fit at complexities 1 and 2 |
-| **CD** | Ruscio & Roche (2012) | `EFAtools::CD()` (optional) | Resamples raw data; among top performers in simulation; skipped gracefully when `EFAtools` absent |
+| **CD** | Ruscio & Roche (2012) | `EFAtools::CD()` (optional) | Resamples raw data; among top performers in simulation; skipped gracefully when `EFAtools` absent. M21: `cd_rmse = colMeans(RMSE_eigenvalues)` stored in object; dedicated 4th panel in `autoplot.suggest_k()` (2×2 grid when CD present; 3-panel single column otherwise). |
 
 Empirical Kaiser Criterion (EKC) and EGA (`{EGAnet}`) are **out of scope** — additional deps
 without sufficient incremental benefit over the five criteria above. Note: `suggest_k()` accepts
@@ -754,6 +754,37 @@ that needs it. **No Rcpp dependency planned** (see §3).
     in the pkgdown "Deep dives" nav after `ackwards-suggest-k`. Intro Step 5 trimmed to a slim
     `top_items()` example + pointer; visualization vignette keeps the `node_labels`/`label_template`
     mechanic + cross-ref (naming-judgment treatment moved to the new vignette). **Amends §10, §11.**
+
+21. **Onboarding & usability pass** *(done)* — pre-CRAN usability/polish; not a feature milestone.
+    Correlation-matrix input deferred to M22.
+
+    **(A) `psych` → Imports; drop `GPArotation`.** `psych` moved from Suggests to Imports — it is the
+    engine substrate for the default PCA and EFA paths; a `check_installed` guard for the default path
+    contradicted the lean-Imports intent (which aimed at the SEM/plotting stacks, not the engine). All
+    `check_installed("psych")` guards removed from `pca_levels()`, `efa_levels()`, the polychoric path
+    in `ackwards()`, and `suggest_k()`. `GPArotation` removed from DESCRIPTION entirely — verified that
+    `psych::pca`/`psych::fa` with `rotate = "varimax"` never loads GPArotation (routes through
+    `stats::varimax`). Two vestigial `skip_if_not_installed("GPArotation")` test lines removed.
+    **Amends §3, §12.**
+
+    **(B) Bundle `bfi25` example dataset.** `data/bfi25.rda` — 1 000 rows sampled from
+    `psych::bfi[, 1:25]` (seed 42; NAs preserved) via `data-raw/bfi25.R`. `R/data.R` documents
+    `@format`, `@source` (Revelle/psych/SAPA/IPIP — items are public-domain IPIP), and `@details`
+    (derivation). `DESCRIPTION` adds `LazyData: true`. All `@examples` and all 6 vignettes and
+    README.Rmd migrated from `psych::bfi[, 1:25]` to `bfi25`; psych data-guards dropped. Suggest-k
+    worked-example prose regenerated against `bfi25` output (n=875: PA-PC=5, PA-FA=6, MAP=5,
+    VSS-1=4, VSS-2=5, CD=6; consensus 4–6). Exception: the `psych::bassAckward()` fidelity oracle
+    snapshot stays on full `psych::bfi[, 1:25]`.
+
+    **(C) README "Learn more" completeness.** Added the missing Visualization and Interpreting &
+    labeling rows so all 7 vignettes are listed.
+
+    **(D) CD panel in `autoplot.suggest_k()`.** Stores `cd_rmse = colMeans(cd_out$RMSE_eigenvalues)`
+    (length k_max; NULL when CD unavailable) in the `suggest_k` object. Adds a 4th panel
+    "CD (RMSE, minimize)" with the RMSE-vs-k curve and k_cd star. When CD is present, facets as
+    2×2 (`ncol = 2`); when absent, unchanged 3-panel single-column layout. The CD vline that
+    previously appeared in the MAP panel is removed — CD now has its own space. **Amends §8.**
+    968 tests pass, 1 skip; 0/0/0 R CMD check.
 
 ### Key references
 - Goldberg, L. R. (2006). Doing it all bass-ackwards. *J. Research in Personality*, 40(4), 347–358.

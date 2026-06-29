@@ -218,19 +218,25 @@ all available recommendations.
 autoplot(sk)
 ```
 
-The three panels show the full evidence curve at a glance:
+When `EFAtools` is installed and CD is computed, the plot is a 2×2 grid;
+otherwise it falls back to a single-column three-panel layout.
 
-**Scree / Parallel Analysis (top).** The solid blue line is the observed PC
+**Scree / Parallel Analysis (top-left).** The solid blue line is the observed PC
 eigenvalue profile; the grey dashed line is the PA-PC 95th-percentile threshold.
 Retain PC-based components where the blue line is above the grey dashed line
 (left of the PA-PC star). The solid teal line and grey dotted line show the same
 for the FA basis (PA-FA). The two comparisons are independent — you read each
 pair against its own threshold.
 
-**MAP (middle).** Lower is better. The criterion minimizes at the starred k.
+**MAP (top-right).** Lower is better. The criterion minimizes at the starred k.
 
-**VSS (bottom).** Higher is better. VSS-1 (solid green) and VSS-2 (dashed
+**VSS (bottom-left).** Higher is better. VSS-1 (solid green) and VSS-2 (dashed
 purple) each peak at their starred k.
+
+**CD — Comparison Data (bottom-right, when available).** Shows the mean RMSE
+between observed and comparison-data eigenvalues at each k. Lower is better;
+the starred k is where adding another factor no longer reduces RMSE beyond
+chance. Requires `EFAtools`.
 
 Look for visual convergence across panels. When the scree elbow, the MAP
 minimum, and a VSS peak all occur at roughly the same k, the evidence is

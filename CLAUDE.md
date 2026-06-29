@@ -134,59 +134,27 @@ default output must reproduce Forbes's examples exactly.
   (5) Verify: styler + lintr clean; `R CMD check --as-cran` → 0/0/0; README rebuilt.
   Owner next steps: `devtools::check_win_devel()`, `rhub::rhub_check()` before actual CRAN upload.
   (947 tests pass, 1 skip; 0/0/0 R CMD check.)
+- **M21 (done):** Onboarding & usability pass (pre-CRAN). Four parts:
+  (A) `psych` Suggests→Imports (engine substrate for default PCA/EFA; never needed an install prompt
+  for core use); `GPArotation` removed entirely (varimax routes through `stats::varimax`; verified
+  never loaded). All `check_installed("psych")` guards removed; two vestigial `skip_if_not_installed
+  ("GPArotation")` test lines deleted. DESIGN.md §3/§12 updated.
+  (B) `bfi25` dataset bundled: 1 000 rows sampled from `psych::bfi[, 1:25]` (seed 42, NAs preserved)
+  via `data-raw/bfi25.R`; documented in `R/data.R` with `@source` (Revelle/psych/SAPA/IPIP — items
+  are public-domain IPIP). All `@examples` + 6 vignettes + README.Rmd migrated to `bfi25`; suggest-k
+  worked-example prose regenerated (n=875: PA-PC=5, PA-FA=6, MAP=5, VSS-1=4, VSS-2=5, CD=6;
+  consensus 4–6). Oracle snapshot stays on full `psych::bfi[, 1:25]`.
+  (C) README "Learn more" table now lists all 7 vignettes (Visualization and Interpreting & labeling
+  were missing).
+  (D) `autoplot.suggest_k()` adds a 4th "CD (RMSE, minimize)" panel (2×2 grid when CD available;
+  unchanged 3-panel single-column otherwise); `suggest_k` object gains `cd_rmse` field. CD vline
+  removed from MAP panel. Tests for 4-panel/3-panel branches and `cd_rmse` field.
+  (968 tests pass, 1 skip; 0/0/0 R CMD check.)
 
 ## Current focus
 
-**M21 (in progress):** Onboarding & usability pass (pre-CRAN; 0.1.0 still unreleased). A
-usability/polish milestone, **not** a DESIGN.md §15 feature milestone. Touches nothing on the
-out-of-scope list. Correlation-matrix input was raised but **deferred to M22** (large; PCA/EFA-only,
-needs an `n_obs` arg + R-detection + engine gating). Four parts, order A → B → C → D:
-
-**(A) `psych` → Imports; drop `GPArotation` entirely.** The default PCA engine currently sits behind
-`rlang::check_installed("psych")` (`engine_pca.R:11`, `engine_efa.R:11`, the polychoric path, and
-`suggest_k`) — core functionality behind an install prompt. Move `psych` Suggests→Imports and remove
-every `check_installed("psych")` guard; **keep** the `lavaan`/`ggplot2`/`EFAtools` guards. `GPArotation`
-is unused — varimax (orthogonal) routes through base `stats::varimax`; verified it never enters
-`loadedNamespaces()` on the `psych::pca`/`psych::fa` varimax path — so **remove it from Suggests** and
-delete the two vestigial `skip_if_not_installed("GPArotation")` lines (`test-interpret.R:85`,
-`test-label_template.R:123`). New `Imports`: `cli, generics, psych, rlang, stats, utils`. Update
-DESIGN.md §3/§12 and the CLAUDE.md Dependencies section. **This reverses the documented lean-`Imports`
-stance for `psych` only — owner-approved (psych is the engine substrate for the default path; the SEM
-and plotting stacks stay opt-in).**
-  *Acceptance:* `ackwards(bfi25, k_max = 5)` runs with no install prompt when
-  lavaan/ggplot2/EFAtools/GPArotation are absent but psych is present; `grep check_installed R/` shows
-  no psych guard while lavaan/ggplot2/EFAtools guards remain; `R CMD check` 0/0/0.
-
-**(B) Bundle `bfi25` example dataset.** `data-raw/bfi25.R` samples ~1000 rows from
-`psych::bfi[, 1:25]` with a fixed seed, **preserving the natural NAs** (so `test-missing.R` and the
-ordinal-detection warning still have data to bite on) → `data/bfi25.rda` (xz). `R/data.R` documents
-`@format`, `@source` (Revelle / psych / SAPA / IPIP; items are public-domain IPIP), and `@details`
-explaining the derivation (seed, n, first 25 columns). `DESCRIPTION` gains `LazyData: true`;
-`.Rbuildignore` ignores `^data-raw$`. Migrate **all** `@examples` and **all** vignettes from
-`psych::bfi[, 1:25]` → `bfi25`, dropping psych data-guards; **regenerate any numeric prose against
-bfi25's actual output** (esp. the suggest-k worked example — re-verify like the M14 post-review pass).
-**Exception:** the PCA-vs-`psych::bassAckward()` fidelity snapshot test stays on full
-`psych::bfi[, 1:25]` (canonical oracle).
-  *Acceptance:* `dim(bfi25)` is ~1000 × 25; `?bfi25` documents format/source/derivation;
-  examples + vignettes reference `bfi25`; the oracle snapshot is unchanged and passing; `R CMD check`
-  clean (no data-compression NOTE).
-
-**(C) README "Learn more" completeness.** README.Rmd lists only 5 of 7 vignettes. Add the missing
-**Visualization** and **Interpreting & labeling factors** rows; `devtools::build_readme()`.
-  *Acceptance:* all 7 vignettes listed; links resolve to the pkgdown article paths.
-
-**(D) CD panel in `autoplot.suggest_k()`.** `EFAtools::CD()` returns `RMSE_eigenvalues`
-(`N_samples × n_factors_max`); its column means are CD's native RMSE-vs-k curve. Store
-`cd_rmse = colMeans(cd_out$RMSE_eigenvalues)` (length `n_factors_max`; `NULL` when CD unavailable) in
-the `suggest_k` object. Add a 4th panel **"CD (RMSE, minimize)"** plotting `cd_rmse` vs k with `k_cd`
-marked, **only when `cd_available`**, and move the CD vline out of the MAP panel into it. Facet **2×2**
-(`facet_wrap(ncol = 2)`) when CD is present; keep the current single-column layout when CD is absent
-(no dangling empty cell). Tests for the 4-panel / 3-panel branches and the `cd_rmse` field. DESIGN.md
-§15 gets the M21 entry + a §8/§12 CD-panel note; NEWS.md bullets land under the **existing unreleased
-0.1.0 entry**; refresh the CD figure in the suggest-k or visualization vignette.
-  *Acceptance:* with EFAtools present, `autoplot(suggest_k(bfi25, k_max = 8))` renders a 2×2 grid
-  including the CD RMSE panel with `k_cd` marked; without EFAtools, 3 panels render with no error; the
-  object carries `cd_rmse`.
+No milestone currently in progress. M21 complete (see Completed milestones). M22 planned:
+correlation-matrix input (PCA/EFA-only; needs `n_obs` arg + R-detection + engine gating).
 
 ## Invariants — do not violate without flagging
 

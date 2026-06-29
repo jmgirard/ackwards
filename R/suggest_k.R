@@ -190,6 +190,7 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L,
   # --- Comparison Data (Ruscio & Roche 2012) -- optional ---------------------
   cd_available <- rlang::is_installed("EFAtools")
   k_cd <- NA_integer_
+  cd_rmse <- NULL
   if (cd_available) {
     # Warn early when the correlation basis won't carry over to CD.
     if (cor == "spearman") {
@@ -228,6 +229,7 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L,
     )
     if (!is.null(cd_out)) {
       k_cd <- min(as.integer(cd_out$n_factors), k_max)
+      cd_rmse <- colMeans(cd_out$RMSE_eigenvalues)[seq_len(k_max)]
     } else {
       cd_available <- FALSE
     }
@@ -263,6 +265,7 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L,
       k_vss2        = k_vss2,
       k_cd          = k_cd,
       cd_available  = cd_available,
+      cd_rmse       = cd_rmse,
       criteria      = criteria,
       k_max         = k_max,
       n_obs         = n,
@@ -386,16 +389,22 @@ print.suggest_k <- function(x, ...) {
 
 #' Plot a suggest_k diagnostic
 #'
-#' Renders a three-panel ggplot2 diagnostic for a `suggest_k` object:
-#' a parallel-analysis/scree plot on top, a MAP panel in the middle, and a VSS
-#' panel on the bottom. The recommended k for each criterion is marked with a
-#' star-shaped point.
+#' Renders a ggplot2 diagnostic for a `suggest_k` object. When
+#' \pkg{EFAtools} is installed and CD was computed, the plot is a 2×2 grid:
+#' Scree/PA (top-left), MAP (top-right), VSS (bottom-left), and CD RMSE
+#' (bottom-right). When CD is unavailable, the plot is a single-column
+#' three-panel layout (Scree/PA, MAP, VSS). The recommended k for each
+#' criterion is marked with a star-shaped point.
 #'
 #' The scree panel shows both PC and FA observed eigenvalues alongside their
 #' respective random-data thresholds. PA-PC compares the blue "Observed (PC)"
 #' line to the dashed PA-PC threshold; PA-FA compares the teal "Observed (FA)"
 #' line to the dotted PA-FA threshold. Reading the lines on the same panel is
 #' informative but the two comparisons are independent.
+#'
+#' The CD panel plots the mean RMSE between observed and comparison-data
+#' eigenvalues at each k; the retention threshold (star) is where this curve
+#' first crosses below the comparison-data average.
 #'
 #' Requires the \pkg{ggplot2} package.
 #'
@@ -420,6 +429,7 @@ autoplot.suggest_k <- function(object, ...) {
 
   cr <- object$criteria
   k_max <- object$k_max
+  show_cd <- isTRUE(object$cd_available) && !is.null(object$cd_rmse)
 
   # --- Long-format data -------------------------------------------------------
   # Scree panel: 4 series so each PA comparison is shown correctly.
@@ -454,13 +464,28 @@ autoplot.suggest_k <- function(object, ...) {
 
   plot_data <- rbind(scree_data, map_data, vss_data)
   panel_levels <- c("Scree / Parallel Analysis", "MAP (minimize)", "VSS (maximize)")
-  plot_data$panel <- factor(plot_data$panel, levels = panel_levels)
 
   all_series <- c(
     "Observed (PC)", "PA-PC (95th pct)",
     "Observed (FA)", "PA-FA (95th pct)",
     "MAP", "VSS-1", "VSS-2"
   )
+
+  # Add CD panel when available; it gets its own row in the 2x2 grid.
+  if (show_cd) {
+    cd_data <- data.frame(
+      k = seq_len(k_max),
+      value = object$cd_rmse,
+      series = "CD (RMSE)",
+      panel = "CD (RMSE, minimize)",
+      stringsAsFactors = FALSE
+    )
+    plot_data <- rbind(plot_data, cd_data)
+    panel_levels <- c(panel_levels, "CD (RMSE, minimize)")
+    all_series <- c(all_series, "CD (RMSE)")
+  }
+
+  plot_data$panel <- factor(plot_data$panel, levels = panel_levels)
   plot_data$series <- factor(plot_data$series, levels = all_series)
 
   # --- Mark optimal k for each criterion with a star point --------------------
@@ -489,14 +514,10 @@ autoplot.suggest_k <- function(object, ...) {
     (plot_data$series == "VSS-1" & plot_data$k == object$k_vss1) |
     (plot_data$series == "VSS-2" & plot_data$k == object$k_vss2)
 
-  # CD: vertical line in MAP panel (only when available)
-  cd_vline <- if (object$cd_available && !is.na(object$k_cd)) {
-    data.frame(
-      k     = object$k_cd,
-      panel = factor("MAP (minimize)", levels = panel_levels)
-    )
-  } else {
-    NULL
+  # CD: mark its retention threshold on the CD panel (not MAP)
+  if (show_cd && !is.na(object$k_cd)) {
+    plot_data$is_opt <- plot_data$is_opt |
+      (plot_data$series == "CD (RMSE)" & plot_data$k == object$k_cd)
   }
 
   # --- Scales -----------------------------------------------------------------
@@ -507,7 +528,8 @@ autoplot.suggest_k <- function(object, ...) {
     "PA-FA (95th pct)" = "#BBBBBB",
     "MAP" = "#D6604D",
     "VSS-1" = "#1A9850",
-    "VSS-2" = "#762A83"
+    "VSS-2" = "#762A83",
+    "CD (RMSE)" = "#B35806"
   )
   series_lt <- c(
     "Observed (PC)" = "solid",
@@ -516,7 +538,8 @@ autoplot.suggest_k <- function(object, ...) {
     "PA-FA (95th pct)" = "dotted",
     "MAP" = "solid",
     "VSS-1" = "solid",
-    "VSS-2" = "dashed"
+    "VSS-2" = "dashed",
+    "CD (RMSE)" = "solid"
   )
   series_shape <- c(
     "Observed (PC)" = 16L,
@@ -525,8 +548,12 @@ autoplot.suggest_k <- function(object, ...) {
     "PA-FA (95th pct)" = 4L,
     "MAP" = 16L,
     "VSS-1" = 16L,
-    "VSS-2" = 17L
+    "VSS-2" = 17L,
+    "CD (RMSE)" = 16L
   )
+
+  # ncol = 2 when CD panel present (2x2 grid); single column otherwise.
+  n_col <- if (show_cd) 2L else 1L
 
   p <- ggplot2::ggplot(
     plot_data,
@@ -552,7 +579,7 @@ autoplot.suggest_k <- function(object, ...) {
     ggplot2::scale_linetype_manual(values = series_lt, name = NULL) +
     ggplot2::scale_shape_manual(values = series_shape, name = NULL) +
     ggplot2::scale_x_continuous(breaks = seq_len(k_max)) +
-    ggplot2::facet_wrap(~panel, ncol = 1L, scales = "free_y") +
+    ggplot2::facet_wrap(~panel, ncol = n_col, scales = "free_y") +
     ggplot2::labs(
       x = "Number of factors / components (k)",
       y = NULL
@@ -564,17 +591,6 @@ autoplot.suggest_k <- function(object, ...) {
       strip.background = ggplot2::element_rect(fill = "grey95"),
       strip.text       = ggplot2::element_text(face = "bold")
     )
-
-  if (!is.null(cd_vline)) {
-    p <- p + ggplot2::geom_vline(
-      data = cd_vline,
-      ggplot2::aes(xintercept = .data$k),
-      color = "#D6604D",
-      linetype = "dotted",
-      linewidth = 0.8,
-      inherit.aes = FALSE
-    )
-  }
 
   p
 }

@@ -15,10 +15,12 @@
 A \code{ggplot} object.
 }
 \description{
-Renders a three-panel ggplot2 diagnostic for a \code{suggest_k} object:
-a parallel-analysis/scree plot on top, a MAP panel in the middle, and a VSS
-panel on the bottom. The recommended k for each criterion is marked with a
-star-shaped point.
+Renders a ggplot2 diagnostic for a \code{suggest_k} object. When
+\pkg{EFAtools} is installed and CD was computed, the plot is a 2×2 grid:
+Scree/PA (top-left), MAP (top-right), VSS (bottom-left), and CD RMSE
+(bottom-right). When CD is unavailable, the plot is a single-column
+three-panel layout (Scree/PA, MAP, VSS). The recommended k for each
+criterion is marked with a star-shaped point.
 }
 \details{
 The scree panel shows both PC and FA observed eigenvalues alongside their
@@ -26,6 +28,10 @@ respective random-data thresholds. PA-PC compares the blue "Observed (PC)"
 line to the dashed PA-PC threshold; PA-FA compares the teal "Observed (FA)"
 line to the dotted PA-FA threshold. Reading the lines on the same panel is
 informative but the two comparisons are independent.
+
+The CD panel plots the mean RMSE between observed and comparison-data
+eigenvalues at each k; the retention threshold (star) is where this curve
+first crosses below the comparison-data average.
 
 Requires the \pkg{ggplot2} package.
 }
