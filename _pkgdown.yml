@@ -66,6 +66,11 @@ reference:
   - autoplot
   - autoplot.ackwards
   - ba_layout
+- title: Data
+  desc: |
+    Example dataset bundled with the package.
+  contents:
+  - bfi25
 - title: Re-exported generics
   desc: |
     Generics re-exported from the generics package so they work after `library(ackwards)` without also loading broom.
