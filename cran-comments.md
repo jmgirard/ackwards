@@ -2,27 +2,17 @@
 
 ## R CMD check results
 
-Local check (`devtools::check()`):
+0 errors | 0 warnings | 0 notes on all platforms tested.
 
-```
-0 errors | 0 warnings | 0 notes
-```
+| Platform | R version | Result |
+|---|---|---|
+| macOS 15.5 arm64 (local) | R 4.4.x | 0/0/0 |
+| ubuntu-latest (R-hub) | R-* | 0/0/0 |
+| macos-latest arm64 (R-hub) | R-* | 0/0/0 |
+| windows-latest (R-hub) | R-* | 0/0/0 |
+| win-builder R-devel | R-devel | _pending_ |
 
-Tested on:
-- macOS 15.5 (Darwin 25.5.0), R 4.4.x (local dev environment)
-
-**Before submitting, also run:**
-
-```r
-# R-devel win-builder (the check CRAN actually runs):
-devtools::check_win_devel()
-
-# macOS release builder:
-devtools::check_mac_release()
-
-# R-hub v2 (via GitHub Actions — run rhub::rhub_setup() once first):
-rhub::rhub_check()
-```
+win-builder results will be added before submission.
 
 ## Package scope
 
@@ -33,10 +23,13 @@ and the Forbes (2023) redundancy-pruning extension.
 
 ## Suggests dependencies
 
-All heavy dependencies (`psych`, `lavaan`, `GPArotation`, `ggplot2`, `EFAtools`)
-are in `Suggests`, gated behind `rlang::check_installed()` calls. The package
-installs and loads without any of them; functionality degrades gracefully with
-informative error messages when a required Suggests package is absent.
+`psych` is in `Imports` as it is the engine substrate for the default PCA and
+EFA paths; placing it in `Suggests` would require an install prompt for core
+functionality. All other optional dependencies (`lavaan`, `ggplot2`, `EFAtools`,
+`knitr`, `rmarkdown`, `testthat`, `covr`) are in `Suggests`, gated behind
+`rlang::check_installed()` or `requireNamespace()` calls. The package installs
+and loads without any of them; functionality degrades gracefully with informative
+error messages when a required `Suggests` package is absent.
 
 ## Downstream dependencies
 
