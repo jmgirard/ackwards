@@ -108,7 +108,12 @@ default output must reproduce Forbes's examples exactly.
   vs child, blends, reorganizing factors via lineage/edges) and the sign-alignment caveat. Listed in
   pkgdown Deep dives after `ackwards-suggest-k`. Intro Step 5 trimmed to a slim `top_items()` example
   + pointer; visualization vignette keeps the labeling mechanic + cross-ref (naming judgment moved to
-  the new vignette). DESIGN.md §15 entry (amends §10/§11). No code/test changes. (0/0/0 R CMD check.)
+  the new vignette). DESIGN.md §15 entry (amends §10/§11). Original milestone was
+  documentation-only; post-review hardening added a guard test for the vignette's edges idiom,
+  `top_items()`/`label_template()`→`autoplot()` idiom smoke tests, switched the interpret vignette
+  to `cor = "polychoric"` (consistency + drops the ordinal warning), and **fixed swapped m5f3/m5f5
+  labels** (Conscientiousness/Openness) in the interpret and visualization vignettes. (0/0/0 R CMD
+  check.)
 
 ## Current focus
 

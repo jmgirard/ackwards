@@ -16,10 +16,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r packages, message = FALSE, warning = FALSE}
+```{r packages, message = FALSE}
 library(ackwards)
 bfi <- na.omit(psych::bfi[, 1:25])
-x <- ackwards(bfi, k_max = 5)
+# BFI items are ordinal, so use polychoric correlations (matches the intro and
+# visualization vignettes). This also avoids the ordinal-detection warning.
+x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 ```
 
 Fitting an `ackwards` model gives you a hierarchy of factors with stable but
@@ -181,9 +183,9 @@ about:
 autoplot(x, node_labels = c(
   m5f1 = "Neuroticism",
   m5f2 = "Extraversion",
-  m5f3 = "Openness",
+  m5f3 = "Conscientiousness",
   m5f4 = "Agreeableness",
-  m5f5 = "Conscientiousness"
+  m5f5 = "Openness"
 ))
 ```
 
@@ -210,9 +212,9 @@ If you would rather supply every label yourself with no defaults showing through
 labs <- label_template(x, style = "blank")
 labs["m5f1"] <- "N"
 labs["m5f2"] <- "E"
-labs["m5f3"] <- "O"
+labs["m5f3"] <- "C"
 labs["m5f4"] <- "A"
-labs["m5f5"] <- "C"
+labs["m5f5"] <- "O"
 autoplot(x, node_labels = labs)
 ```
 

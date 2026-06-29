@@ -138,9 +138,9 @@ Unspecified factors keep their `m{k}f{j}` labels.
 autoplot(x, node_labels = c(
   m5f1 = "Neuro.",
   m5f2 = "Extra.",
-  m5f3 = "Open.",
+  m5f3 = "Consc.",
   m5f4 = "Agree.",
-  m5f5 = "Consc."
+  m5f5 = "Open."
 ))
 ```
 
@@ -260,9 +260,9 @@ autoplot(x,
   node_labels = c(
     m5f1 = "Neuro.",
     m5f2 = "Extra.",
-    m5f3 = "Open.",
+    m5f3 = "Consc.",
     m5f4 = "Agree.",
-    m5f5 = "Consc."
+    m5f5 = "Open."
   )
 )
 ```

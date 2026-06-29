@@ -168,3 +168,40 @@ test_that("interpret vignette edges idiom: adjacent primary filter and column se
   expect_named(sub, c("from", "to", "r"))
   expect_true(nrow(sub) > 0L)
 })
+
+test_that("interpret vignette top_items idioms run", {
+  # Guards the top_items() signatures shown in ackwards-interpret.Rmd.
+  skip_if_not_installed("psych")
+  set.seed(1)
+  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+
+  expect_no_error(top_items(x, level = 3))
+  expect_no_error(top_items(x, level = 3, cut = 0.45))
+  expect_no_error(top_items(x, level = 3, cut = 0.3, n = 4))
+  expect_no_error(top_items(x, level = 2, cut = 0.25)) # cross-loadings idiom
+
+  ti <- top_items(x, level = 3, cut = 0.3)
+  expect_true(is.data.frame(ti$data)) # $data access shown in vignette
+})
+
+test_that("interpret/visualization vignette idiom: label_template feeds autoplot cleanly", {
+  # Guards the round-trip autoplot(x, node_labels = label_template(x, style)).
+  # Every ID label_template emits must resolve to a real factor, so no
+  # "match no factor ID" warning should fire for any style.
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  set.seed(1)
+  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+
+  for (style in c("id", "forbes", "blank")) {
+    labs <- suppressMessages(label_template(x, style = style))
+    p <- expect_no_warning(ggplot2::autoplot(x, node_labels = labs))
+    expect_s3_class(p, "ggplot")
+  }
+
+  # Blank-slate idiom: fill specific IDs, pass back (vignette label-blank chunk)
+  labs <- suppressMessages(label_template(x, style = "blank"))
+  labs["m3f1"] <- "Alpha"
+  p <- expect_no_warning(ggplot2::autoplot(x, node_labels = labs))
+  expect_s3_class(p, "ggplot")
+})
