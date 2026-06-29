@@ -120,6 +120,8 @@ names(scored)[26:40]
 | [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA; convergence and loading comparison |
 | [Ordinal data](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html) | Polychoric correlations, attenuation bias, and WLSMV estimation |
 | [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = "all"` |
+| [Visualization](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html) | Styling `autoplot()`: color, labels, mono mode, publication figures |
+| [Interpreting & labeling](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.html) | `top_items()`, hierarchy-aware naming, `label_template()` round-trip |
 
 ## Citation
 
