@@ -32,3 +32,17 @@ test_that(".format_r() is vectorised", {
   result <- fmt(c(0.23, -0.45, 1, 0), 2L)
   expect_equal(result, c(".23", "-.45", "1.00", ".00"))
 })
+
+test_that("inst/CITATION has two entries with correct years and no unknown year", {
+  skip_if_not_installed("ackwards")
+  cites <- citation("ackwards")
+  expect_length(cites, 2)
+  # Goldberg (2006) method paper
+  expect_equal(cites[[1]]$year, "2006")
+  # Package entry: year is set, version note is present, no "????" fallback
+  pkg_year <- cites[[2]]$year
+  expect_false(is.null(pkg_year))
+  expect_false(is.na(pkg_year))
+  expect_match(pkg_year, "^[0-9]{4}$")
+  expect_match(cites[[2]]$note, "R package version")
+})
