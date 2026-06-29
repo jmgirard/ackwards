@@ -219,16 +219,15 @@ Each edge is the between-level factor-score correlation computed via Waller's
 materialization, just the weight matrices and the input correlation matrix.
 
 ```{r tidy-edges}
-edges <- tidy(x, what = "edges", sort = "strength")
-# Primary-parent edges sorted by strength
-primary <- edges[edges$is_primary, c("from", "to", "r")]
-primary
+# Each factor's primary-parent edge, strongest first
+tidy(x, what = "edges", primary_only = TRUE, sort = "strength")
 ```
 
-`is_primary` marks the strongest-connecting edge for each factor (its primary
-parent). The r values close to 1.0 indicate factors that are nearly identical
-across adjacent levels — a sign of a stable, replicable dimension. Smaller
-values indicate where the structure is reorganizing.
+`primary_only = TRUE` keeps just the strongest-connecting edge for each factor
+— its primary parent — and `sort = "strength"` orders them by `|r|`. The r
+values close to 1.0 indicate factors that are nearly identical across adjacent
+levels — a sign of a stable, replicable dimension. Smaller values indicate where
+the structure is reorganizing.
 
 ### Variance explained
 
@@ -283,13 +282,14 @@ lineage:
 
 ```{r downstream}
 # Within-level correlations at k = 5: should be near zero (orthogonal rotation)
-k5 <- scored[, startsWith(names(scored), ".m5")]
+k5 <- scored[, c(".m5f1", ".m5f2", ".m5f3", ".m5f4", ".m5f5")]
 round(cor(k5), 2)
 ```
 
 ```{r downstream2}
 # Cross-level: m4f1 is the primary parent of m5f2 and m5f4 (from the edge table)
-round(cor(scored[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]), 2)
+lineage <- scored[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]
+round(cor(lineage), 2)
 ```
 
 The cross-level block confirms lineage: `.m4f1` correlates strongly with

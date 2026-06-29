@@ -109,20 +109,24 @@ PCA loadings are highly correlated but not identical. EFA loadings are
 systematically somewhat smaller because they model only the common variance;
 PCA inflates loadings by fitting noise alongside signal.
 
-```{r loadings-compare}
-l_pca <- tidy(x_pca, what = "loadings")
-l_efa <- tidy(x_efa, what = "loadings")
+The table below pairs the `k = 3` loadings from each engine — built by stacking
+`tidy(x_pca, what = "loadings")` and the EFA equivalent — for six representative
+items (two each from the Neuroticism, Extraversion, and Conscientiousness
+families).
 
-# k = 3, first 5 items per factor
-l_pca$engine <- "pca"
-l_efa$engine <- "efa"
-both <- rbind(l_pca, l_efa)
-both3 <- both[both$level == 3, ]
-
-# Representative items: highest-loading per factor in the PCA solution
+```{r loadings-compare, echo = FALSE}
 anchors <- c("N1", "N2", "E1", "E2", "C1", "C2")
-comp <- both3[both3$item %in% anchors, c("engine", "factor", "item", "loading")]
-comp[order(comp$factor, comp$item), ]
+loadings <- rbind(
+  cbind(engine = "pca", tidy(x_pca, what = "loadings")),
+  cbind(engine = "efa", tidy(x_efa, what = "loadings"))
+)
+loadings <- loadings[loadings$level == 3 & loadings$item %in% anchors, ]
+loadings <- loadings[order(loadings$factor, loadings$item), ]
+knitr::kable(
+  loadings[, c("engine", "factor", "item", "loading")],
+  digits = 2, row.names = FALSE,
+  caption = "PCA vs EFA loadings for anchor items (k = 3)"
+)
 ```
 
 EFA loadings for the same items are consistently a few points lower — the PCA
@@ -166,19 +170,20 @@ tidy(x_esem, what = "fit")
 
 ### Loading standard errors
 
-The unique output from ESEM is `loadings_se` — a matrix of standard errors for
-every loading at every level. Access it via the level object directly:
+The unique output from ESEM is the rotation-aware **standard error** of every
+loading. `tidy(what = "loadings_se")` returns them in the same long format as
+`tidy(what = "loadings")`, with an `se` column in place of `loading`:
 
 ```{r esem-se, eval = has_lavaan}
-# SE for k = 3 loadings
-se3 <- x_esem$levels[["3"]]$loadings_se
-round(se3[c("N1", "N2", "E1", "E2", "C1", "C2"), ], 3)
+se <- tidy(x_esem, what = "loadings_se")
+head(se)
 ```
 
 These SEs allow you to construct confidence intervals: loading ± 1.96 × SE
 gives an approximate 95% CI. For the BFI with > 2,000 participants the SEs are
 small; with smaller samples they become important for judging which loadings are
-meaningfully non-zero.
+meaningfully non-zero. (`tidy(what = "loadings_se")` errors for PCA and EFA
+objects, which carry no loading standard errors.)
 
 ## How much do the edges differ?
 
@@ -186,17 +191,20 @@ The primary output of bass-ackwards analysis is the between-level edges. For
 well-structured, continuous data, all three engines should agree closely on the
 hierarchy.
 
-```{r edges-compare}
-e_pca <- tidy(x_pca, what = "edges")
-e_efa <- tidy(x_efa, what = "edges")
-e_pca$engine <- "pca"
-e_efa$engine <- "efa"
+The table stacks each engine's primary-parent edges — `tidy(what = "edges",
+primary_only = TRUE)` — at every level transition:
 
-# Primary-parent edges at each level transition
-primary_pca <- e_pca[e_pca$is_primary, c("engine", "from", "to", "r")]
-primary_efa <- e_efa[e_efa$is_primary, c("engine", "from", "to", "r")]
-both_primary <- rbind(primary_pca, primary_efa)
-both_primary[order(both_primary$to), ]
+```{r edges-compare, echo = FALSE}
+edges <- rbind(
+  cbind(engine = "pca", tidy(x_pca, what = "edges", primary_only = TRUE)),
+  cbind(engine = "efa", tidy(x_efa, what = "edges", primary_only = TRUE))
+)
+edges <- edges[order(edges$to), c("engine", "from", "to", "r")]
+knitr::kable(
+  edges,
+  digits = 2, row.names = FALSE,
+  caption = "Primary-parent edges: PCA vs EFA"
+)
 ```
 
 The r values are very close between engines: the hierarchy that PCA reveals is

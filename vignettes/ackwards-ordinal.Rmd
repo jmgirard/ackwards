@@ -103,19 +103,21 @@ eigenvalues.
 
 ### Loadings
 
-```{r load-compare}
-l_pear <- tidy(x_pearson, what = "loadings")
-l_poly <- tidy(x_poly, what = "loadings")
-l_pear$basis <- "pearson"
-l_poly$basis <- "polychoric"
+Stacking `tidy(what = "loadings")` from each basis lets us read the `k = 5`
+Neuroticism-item loadings side by side:
 
-# k = 5 loadings for Neuroticism items
-both <- rbind(l_pear, l_poly)
-both5_N <- both[both$level == 5 & substr(both$item, 1, 1) == "N", ]
-both5_N[
-  order(both5_N$factor, both5_N$item),
-  c("basis", "factor", "item", "loading")
-]
+```{r load-compare, echo = FALSE}
+loadings <- rbind(
+  cbind(basis = "pearson", tidy(x_pearson, what = "loadings")),
+  cbind(basis = "polychoric", tidy(x_poly, what = "loadings"))
+)
+loadings <- loadings[loadings$level == 5 & substr(loadings$item, 1, 1) == "N", ]
+loadings <- loadings[order(loadings$factor, loadings$item), ]
+knitr::kable(
+  loadings[, c("basis", "factor", "item", "loading")],
+  digits = 2, row.names = FALSE,
+  caption = "Neuroticism-item loadings (k = 5): Pearson vs polychoric"
+)
 ```
 
 Polychoric loadings for the Neuroticism items are noticeably higher — the latent
@@ -124,18 +126,20 @@ removed.
 
 ### Between-level edges
 
-```{r edge-compare}
-e_pear <- tidy(x_pearson, what = "edges")
-e_poly <- tidy(x_poly, what = "edges")
+The same comparison for the primary-parent edges — `tidy(what = "edges",
+primary_only = TRUE)` under each basis:
 
-primary_pear <- e_pear[e_pear$is_primary, c("from", "to", "r")]
-primary_poly <- e_poly[e_poly$is_primary, c("from", "to", "r")]
-
-primary_pear$basis <- "pearson"
-primary_poly$basis <- "polychoric"
-
-both_e <- rbind(primary_pear, primary_poly)
-both_e[order(both_e$to, both_e$basis), ]
+```{r edge-compare, echo = FALSE}
+edges <- rbind(
+  cbind(basis = "pearson", tidy(x_pearson, what = "edges", primary_only = TRUE)),
+  cbind(basis = "polychoric", tidy(x_poly, what = "edges", primary_only = TRUE))
+)
+edges <- edges[order(edges$to, edges$basis), c("basis", "from", "to", "r")]
+knitr::kable(
+  edges,
+  digits = 2, row.names = FALSE,
+  caption = "Primary-parent edges: Pearson vs polychoric"
+)
 ```
 
 The edges are broadly similar in sign and rank order — the hierarchy is the

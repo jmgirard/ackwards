@@ -70,15 +70,20 @@ The all-pairs model adds every non-adjacent pair — 1↔3, 1↔4, 1↔5, 2↔4,
 
 ### Reading the skip-level edge table
 
-```{r skip-edges}
-edges <- tidy(x_all, what = "edges", sort = "strength")
+The table below keeps the non-adjacent edges (levels more than one apart) with
+`|r| >= 0.5`, strongest first — drawn from `tidy(x_all, what = "edges")`:
 
-# Non-adjacent edges with |r| >= 0.5, sorted by strength
+```{r skip-edges, echo = FALSE}
+edges <- tidy(x_all, what = "edges", sort = "strength")
 skip <- edges[
   abs(edges$level_to - edges$level_from) > 1 & abs(edges$r) >= 0.5,
   c("from", "to", "level_from", "level_to", "r")
 ]
-head(skip, 12)
+knitr::kable(
+  head(skip, 12),
+  digits = 2, row.names = FALSE,
+  caption = "Strongest skip-level edges (|r| >= 0.5, non-adjacent levels)"
+)
 ```
 
 Several factors connect across two or more levels with correlations above 0.90.
@@ -228,8 +233,10 @@ For the BFI, the result is the same across a wide range of thresholds because
 the redundant chains all have correlations > 0.97 — the flagging is unambiguous.
 With your own data you may find borderline cases where the threshold matters:
 
-```{r thresholds}
-# Check how many factors are flagged at different redundancy_r thresholds
+Refitting at a few `redundancy_r` thresholds and counting flagged factors at
+each shows how sensitive the pruning is:
+
+```{r thresholds, echo = FALSE}
 thresholds <- c(0.80, 0.85, 0.90, 0.95)
 counts <- sapply(thresholds, function(thr) {
   x <- suppressWarnings(
@@ -241,7 +248,11 @@ counts <- sapply(thresholds, function(thr) {
   )
   sum(tidy(x, what = "nodes")$pruned)
 })
-data.frame(redundancy_r = thresholds, n_flagged = counts)
+knitr::kable(
+  data.frame(redundancy_r = thresholds, n_flagged = counts),
+  row.names = FALSE,
+  caption = "Factors flagged redundant at each redundancy_r threshold"
+)
 ```
 
 For the BFI all thresholds agree: the flagged factors are robustly redundant, not

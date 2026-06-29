@@ -91,8 +91,10 @@ pruned view (`drop_pruned`, `compress_levels`).
 
 * `print.ackwards()` — compact cli summary card.
 * `summary.ackwards()` — per-level variance, fit indices, lineage list, pruning notes.
-* `tidy(x, what = "edges" / "loadings" / "variance" / "nodes" / "scores")` — long-format
-  tidy tibbles.
+* `tidy(x, what = "edges" / "loadings" / "loadings_se" / "variance" / "nodes" / "scores")` —
+  long-format tidy tibbles. For `what = "edges"`, `primary_only = TRUE` returns just each
+  factor's primary-parent edge (the lineage tree) and `sort = "strength"` orders by `|r|`.
+  `what = "loadings_se"` returns the rotation-aware loading standard errors (ESEM only).
 * `glance(x)` — one-row model-level summary.
 * `augment(x, data = ...)` — appends factor scores to a data frame; recomputes from stored
   weights when scores were not materialized at fit time.

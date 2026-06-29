@@ -152,14 +152,13 @@ children. Use it to name **top-down**:
   visible:
 
 ```{r edges-weak}
-edges <- tidy(x, what = "edges")
-primary <- edges[edges$is_primary & edges$level_to == edges$level_from + 1, ]
-primary[order(abs(primary$r)), c("from", "to", "r")] |> head()
+# Primary-parent edges, weakest last: the bottom rows are where structure shifts
+tidy(x, what = "edges", primary_only = TRUE, sort = "strength") |> tail()
 ```
 
 Edges with `|r|` near 1.0 are factors that pass through nearly unchanged — name
-the child the same as the parent. The smaller `|r|` values flag where a new,
-distinct construct is emerging and deserves its own name.
+the child the same as the parent. The smaller `|r|` values at the bottom flag
+where a new, distinct construct is emerging and deserves its own name.
 
 ## Applying your names
 
