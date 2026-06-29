@@ -95,6 +95,28 @@ confirmed during M16 planning), version bump `0.0.0.9000 → 0.1.0`, NEWS 0.1.0 
 `test()`+`check()`+`urlchecker`+pkgdown rebuild, tag. CRAN-only items (`\dontrun`→`\donttest`,
 spell/win-builder) deferred to a later CRAN-prep milestone.
 
+**Test-suite performance (M17 scope).** Measured 2026-06-28: full `test()` ≈ 130s, of which
+`test-suggest_k.R` alone is **~106s (81%)**; all other files combined ≈ 25s. `check()` ≈ 3m40s
+(tests + vignette build + examples). Root cause is *redundant recomputation*, not parameter
+choices (tests already use `n_iter = 5`, `bfi[, 1:25]`): the file makes 49 `suggest_k()` calls —
+12 of them byte-identical (`k_max=4, n_iter=5, seed=1L`) — each re-running parallel analysis
+(resampling 2800×25 `bfi`) + VSS + MAP from scratch. Actions, ranked by impact:
+  1. **Memoize the shared `suggest_k()` fixtures.** Add a cached helper in `helper-data.R` keyed on
+     `(k_max, n_iter, seed)` so the ~30 repeated calls collapse to ~6 unique computations. Expected:
+     `test-suggest_k.R` ~106s → ~20-25s; full suite ~130s → ~45s. Highest ROI, no behaviour change.
+  2. **Shrink the `suggest_k` test fixture.** Parallel analysis resamples the raw matrix, so a
+     ~500-800-row `bfi` subset cuts each call further. Safe for structure/branch tests (they check
+     the result object's shape and the criteria table, not the exact recommended k). Note: this does
+     **not** help PCA/EFA tests — those run on the 25×25 correlation matrix where row count is
+     irrelevant (`test-pca.R` is already 0.6s). Targeted win for `suggest_k` only.
+  3. **Dev-loop ergonomics (no code change).** Use `devtools::test(filter = "...")` for the inner
+     loop; reserve full `check()` for pre-commit. For a fast structural check during iteration,
+     `devtools::check(vignettes = FALSE)` (or `args = "--no-build-vignettes"`) skips the vignette
+     rebuild, which runs real `suggest_k`/ESEM/`fa.parallel` analyses (the suggest-k vignette already
+     guards its slowest chunks with `eval = FALSE`).
+  4. Confirm 0/0/0 still holds after the fixture changes; the `EFAtools::CD()` skip must remain
+     graceful.
+
 ## Invariants — do not violate without flagging
 
 These encode hard-won reasoning from the design phase. Changing them is a design decision, not a
