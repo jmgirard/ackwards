@@ -59,6 +59,11 @@ reference:
   - summary.ackwards
   - print.ackwards
   - print.summary_ackwards
+- title: Low-level utilities
+  desc: |
+    Functions for advanced use or building on top of ackwards results.
+  contents:
+  - compute_edges
 - title: Visualize
   desc: |
     Diagram and layout helpers for the bass-ackwards hierarchy.
