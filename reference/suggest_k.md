@@ -198,14 +198,14 @@ matrix of partial correlations. *Psychometrika*, 41, 321–327.
 # \donttest{
 sk <- suggest_k(bfi25)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [264ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [230ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [101ms]
+#> ✔ Running MAP and VSS... [100ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [12.4s]
+#> ✔ Running Comparison Data (CD)... [12.3s]
 #> 
 sk
 #> 
@@ -246,14 +246,14 @@ autoplot(sk)
 # Faster exploratory run
 suggest_k(bfi25, k_max = 6, n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [101ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [99ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [83ms]
+#> ✔ Running MAP and VSS... [84ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.7s]
+#> ✔ Running Comparison Data (CD)... [10.9s]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -292,10 +292,10 @@ suggest_k(R, n_obs = 875L)
 #> ℹ Comparison Data (CD) is skipped when a correlation matrix is supplied (CD
 #>   requires raw item distributions for resampling).
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [237ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [281ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [92ms]
+#> ✔ Running MAP and VSS... [97ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
