@@ -27,7 +27,7 @@ matching the factor labels used throughout the object.
 }
 \details{
 \strong{Score computation.} Scores are \verb{S = Z W / sqrt(score_var)}, where
-\code{Z = scale(data)} (item z-scores), \code{W} is the per-level weight matrix
+\code{Z = .standardize(data)} (item z-scores), \code{W} is the per-level weight matrix
 stored in the object, and \code{sqrt(score_var)} standardizes by the real
 score standard deviations (Invariant 1: never assume unit variance).
 For PCA the method is \code{"components"}; for EFA/ESEM it is \code{"tenBerge"}.

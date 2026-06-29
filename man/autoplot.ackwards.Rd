@@ -148,7 +148,7 @@ Requires the \pkg{ggplot2} package.
 \examples{
 \donttest{
 if (requireNamespace("psych", quietly = TRUE) &&
-    requireNamespace("ggplot2", quietly = TRUE)) {
+  requireNamespace("ggplot2", quietly = TRUE)) {
   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
   autoplot(x)
   autoplot(x, cut_strong = 0.6, color_pos = "steelblue")

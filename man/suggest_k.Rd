@@ -112,7 +112,7 @@ if (requireNamespace("psych", quietly = TRUE)) {
 \references{
 Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg's bass-ackward method.
-\emph{Psychological Methods}. \doi{10.1037/met0000578}
+\emph{Psychological Methods}. \doi{10.1037/met0000546}
 
 Horn, J. L. (1965). A rationale and test for the number of factors in factor
 analysis. \emph{Psychometrika}, 30, 179--185.
