@@ -26,10 +26,8 @@
 #'   Both are recomputable from the stored `r` matrix.
 #'
 #' @param data A data frame or numeric matrix of observed variables (items in
-#'   columns, observations in rows). Missing values are handled via pairwise
-#'   deletion when computing `R`. Note: `n_obs` passed to the EFA engine is
-#'   always `nrow(data)`; under missingness the effective per-correlation N may
-#'   be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.
+#'   columns, observations in rows). How missing values are handled depends on
+#'   the `missing` argument; see below.
 #' @param k_max Maximum number of factors/components to extract. Required; use
 #'   [suggest_k()] if uncertain. Sets the depth of the hierarchy: levels
 #'   1 through `k_max` are all extracted.
@@ -50,6 +48,25 @@
 #'   auto-selects: `"WLSMV"` when `cor = "polychoric"`, `"ML"` otherwise.
 #'   Pass explicitly to override: `"ULSMV"` (unweighted WLS), `"MLR"`
 #'   (robust ML). Ignored for PCA and EFA engines.
+#' @param missing How to handle missing item responses. One of:
+#'   * `"pairwise"` (default) — correlations computed on all available pairs
+#'     (pairwise complete observations). For PCA/EFA this feeds `stats::cor()`;
+#'     for ESEM ML/MLR, lavaan additionally uses listwise deletion internally
+#'     for model fitting, so fit statistics may be slightly anti-conservative
+#'     when data are missing. A warning is emitted when incomplete rows are
+#'     detected.
+#'   * `"listwise"` — only complete rows are used. Reduces data to
+#'     `stats::complete.cases()` before fitting, so the correlation matrix,
+#'     the engine fit, and the edges are all consistent. `n_obs` in the result
+#'     reflects the reduced N.
+#'   * `"fiml"` — Full Information Maximum Likelihood. Passes
+#'     `missing = "fiml"` to [lavaan::efa()]; edge correlations are derived
+#'     from lavaan's FIML-estimated saturated model, ensuring consistency.
+#'     **Only valid for `engine = "esem"` with `estimator = "ML"` or
+#'     `"MLR"`** — errors for PCA, EFA, and WLSMV/ULSMV. Note: FIML improves
+#'     factor estimation under missingness but does not impute item responses;
+#'     score materialisation (`keep_scores = TRUE`) still produces `NA` rows
+#'     for incomplete observations.
 #' @param align_signs Logical; sign-align factors to primary-parent lineage?
 #'   Default `TRUE`.
 #' @param keep_scores Logical; store factor scores in the result? Default
@@ -119,6 +136,7 @@ ackwards <- function(
   cor = "pearson",
   fm = "minres",
   estimator = NULL,
+  missing = "pairwise",
   align_signs = TRUE,
   keep_scores = FALSE,
   keep_fits = FALSE,
@@ -139,10 +157,26 @@ ackwards <- function(
   if (!is.null(estimator)) {
     estimator <- rlang::arg_match(estimator, c("ML", "MLR", "WLSMV", "ULSMV"))
   }
+  missing <- rlang::arg_match(missing, c("pairwise", "listwise", "fiml"))
   pairs <- rlang::arg_match(pairs, c("adjacent", "all"))
   prune <- rlang::arg_match(prune, c("none", "redundant", "artefact"),
     multiple = TRUE
   )
+
+  # Resolve effective estimator early (needed for missing= validation before
+  # the engine dispatch block; also avoids repeating the logic below).
+  estimator_eff <- if (engine == "esem") {
+    if (!is.null(estimator)) {
+      estimator
+    } else if (cor == "polychoric") {
+      "WLSMV"
+    } else {
+      "ML"
+    }
+  } else {
+    NULL
+  }
+  .resolve_missing(missing, engine, estimator_eff)
 
   if (!is.numeric(redundancy_r) || length(redundancy_r) != 1L ||
     redundancy_r <= 0 || redundancy_r > 1) {
@@ -196,10 +230,45 @@ ackwards <- function(
   }
 
   p <- ncol(data_mat)
-  n_obs <- nrow(data_mat)
 
   if (k_max > p) {
     cli::cli_abort("{.arg k_max} ({k_max}) cannot exceed the number of variables ({p}).")
+  }
+
+  # --- Missing-data preparation (M16, Invariant 6) ----------------------------
+  # n_complete is computed from the original data regardless of deletion mode.
+  n_complete <- sum(stats::complete.cases(data_mat))
+
+  # Listwise: reduce to complete rows now; all downstream steps (R computation,
+  # engine calls, score materialisation) will use the same consistent set.
+  if (missing == "listwise" && n_complete < nrow(data_mat)) {
+    data_mat <- data_mat[stats::complete.cases(data_mat), , drop = FALSE]
+  }
+
+  # n_obs reflects listwise reduction (if applied); pairwise/fiml keep total N.
+  n_obs <- nrow(data_mat)
+
+  # Pairwise advisory when data has NAs (Invariant 6 — loud defaults).
+  # For ESEM ML/MLR this is especially relevant: lavaan defaults to listwise for
+  # model fitting while edges use pairwise correlations, which can make fit
+  # statistics slightly anti-conservative.
+  if (missing == "pairwise" && n_complete < nrow(data_mat)) {
+    n_incomplete <- nrow(data_mat) - n_complete
+    supports_fiml <- !is.null(estimator_eff) && !estimator_eff %in% c("WLSMV", "ULSMV")
+    cli::cli_warn(
+      c(
+        "!" = "{n_incomplete} row{?s} have missing values; correlations are \\
+               computed pairwise.",
+        if (supports_fiml) {
+          c("i" = "Use {.code missing = \"listwise\"} for consistent \\
+                   complete-case analysis, or {.code missing = \"fiml\"} \\
+                   for full-information ML.")
+        } else {
+          c("i" = "Use {.code missing = \"listwise\"} for consistent \\
+                   complete-case analysis.")
+        }
+      )
+    )
   }
 
   # --- Ordinal-detection warning (DESIGN.md §9, Invariant 6) -----------------
@@ -227,21 +296,20 @@ ackwards <- function(
   # matrix internally); for continuous paths we pre-compute R and pass it through.
   # PCA/EFA: always compute R here and pass to the engine.
   if (engine == "esem") {
-    R_ext <- if (cor != "polychoric") {
+    # Pre-compute edge R for non-polychoric, non-FIML paths. For FIML, R is
+    # extracted from lavaan's FIML saturated model inside esem_levels().
+    # For listwise, data_mat is already complete so pairwise.complete.obs ≡
+    # complete.obs — no special handling needed.
+    R_ext <- if (cor != "polychoric" && missing != "fiml") {
       stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
     } else {
       NULL
     }
-    estimator_eff <- if (!is.null(estimator)) {
-      estimator
-    } else if (cor == "polychoric") {
-      "WLSMV"
-    } else {
-      "ML"
-    }
+    # estimator_eff already computed above for .resolve_missing() validation.
     esem_out <- esem_levels(data_mat,
       k_max = k_max, estimator = estimator_eff, cor = cor,
-      n_obs = n_obs, R_external = R_ext, keep_fits = keep_fits
+      n_obs = n_obs, R_external = R_ext, keep_fits = keep_fits,
+      missing = missing
     )
     levels_list <- esem_out$levels
     fits_stored <- esem_out$fits
@@ -381,7 +449,9 @@ ackwards <- function(
     redundancy_r      = redundancy_r,
     redundancy_phi    = redundancy_phi,
     cut_show          = cut_show,
-    ordinal_warned    = is_ordinal
+    ordinal_warned    = is_ordinal,
+    missing           = missing,
+    n_complete        = n_complete
   )
 
   # --- Assemble result --------------------------------------------------------

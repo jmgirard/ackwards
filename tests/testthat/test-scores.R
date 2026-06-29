@@ -320,12 +320,22 @@ test_that("augment(x, data) produces NA scores for rows with missing values", {
   expect_true(is.na(out$.m1f1[5L]))
 })
 
-test_that("keep_scores = TRUE warns when training data has missing rows", {
+test_that("keep_scores = TRUE warns about NA score propagation", {
   skip_if_not_installed("psych")
   set.seed(42)
   d <- as.data.frame(matrix(rnorm(200L * 10L), 200L, 10L))
   d[5L, 1L] <- NA_real_
-  expect_warning(ackwards(d, k_max = 2L, keep_scores = TRUE), "missing")
+  # Collect all warnings (pairwise advisory + score NA) and verify the score
+  # NA warning is present; suppress so no warnings leak to testthat.
+  warns <- character(0L)
+  withCallingHandlers(
+    ackwards(d, k_max = 2L, keep_scores = TRUE),
+    warning = function(w) {
+      warns <<- c(warns, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_true(any(grepl("NA scores", warns)))
 })
 
 test_that("keep_scores = TRUE produces NA scores for rows with missing values", {

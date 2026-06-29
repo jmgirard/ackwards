@@ -123,9 +123,11 @@ flip_weights <- function(W, sign_vec) {
   if (n_na_rows > 0L) {
     cli::cli_warn(c(
       "!" = "{n_na_rows} row{?s} contain missing values and will produce NA scores.",
-      "i" = "The model was fit with pairwise-complete correlations, but score \\
-             projection applies weights row-wise and propagates NAs listwise.",
-      "i" = "Use {.code na.omit(data)} before scoring to remove incomplete rows."
+      "i" = "Score projection applies weights row-wise and propagates NAs \\
+             listwise; FIML estimation does not impute missing item responses.",
+      "i" = "Use {.code missing = \"listwise\"} when fitting (so the model \\
+             and scores share the same complete rows), or call \\
+             {.code na.omit(data)} before scoring."
     ))
   }
   Z <- scale(data_mat)
@@ -141,6 +143,39 @@ flip_weights <- function(W, sign_vec) {
   })
   names(scores) <- names(levels_list)
   scores
+}
+
+# Validate the missing= argument against engine and estimator.
+# Errors clearly when the combination is unsupported (FIML is only valid for
+# ESEM with a full-information estimator — ML or MLR). PCA and EFA work on a
+# pre-computed correlation matrix; WLSMV/ULSMV are limited-information WLS
+# and have no FIML extension.
+.resolve_missing <- function(missing, engine, estimator_eff) {
+  if (missing != "fiml") {
+    return(invisible(NULL))
+  }
+  if (engine %in% c("pca", "efa")) {
+    cli::cli_abort(c(
+      "!" = "{.code missing = \"fiml\"} is not supported for \\
+             {.code engine = \"{engine}\"}.",
+      "i" = "FIML requires a raw-data likelihood; PCA and EFA operate on a \\
+             pre-computed correlation matrix.",
+      "i" = "Use {.code missing = \"pairwise\"} or \\
+             {.code missing = \"listwise\"} instead."
+    ))
+  }
+  if (!is.null(estimator_eff) && estimator_eff %in% c("WLSMV", "ULSMV")) {
+    cli::cli_abort(c(
+      "!" = "{.code missing = \"fiml\"} is not supported with \\
+             {.code estimator = \"{estimator_eff}\"}.",
+      "i" = "FIML requires a full-information estimator; \\
+             {estimator_eff} is limited-information WLS.",
+      "i" = "Use {.code missing = \"fiml\"} with {.code estimator = \"ML\"} \\
+             or {.code estimator = \"MLR\"}, or switch to \\
+             {.code missing = \"listwise\"}."
+    ))
+  }
+  invisible(NULL)
 }
 
 # Validate that x is a well-formed ackwards object (used in tests).

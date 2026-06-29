@@ -26,7 +26,8 @@
 # Returns list(levels = <named list>, r_lv = <p x p matrix>, fits = <list | NULL>)
 
 esem_levels <- function(data, k_max, estimator, cor, n_obs,
-                        R_external = NULL, keep_fits = FALSE) {
+                        R_external = NULL, keep_fits = FALSE,
+                        missing = "pairwise") {
   rlang::check_installed("lavaan", reason = "for the ESEM engine")
   if (!exists("efa", envir = asNamespace("lavaan"), inherits = FALSE)) {
     cli::cli_abort(
@@ -53,6 +54,10 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
     warn_msgs <- character(0L)
 
     # lavaan::efa() returns an efaList; extract the single lavaan fit object.
+    # Pass missing = "fiml" through to lavaan for the FIML path; leave the
+    # default ("listwise") for pairwise/listwise (data is already reduced for
+    # listwise, so lavaan sees only complete rows regardless).
+    lav_missing <- if (missing == "fiml") "fiml" else "listwise"
     fit_raw <- tryCatch(
       withCallingHandlers(
         lavaan::efa(
@@ -60,7 +65,8 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
           nfactors  = k,
           rotation  = rotate_k,
           estimator = estimator,
-          ordered   = ordered_cols
+          ordered   = ordered_cols,
+          missing   = lav_missing
         ),
         warning = function(w) {
           warn_msgs <<- c(warn_msgs, conditionMessage(w))
@@ -121,19 +127,31 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
       }
     }
 
-    # Extract correlation matrix from lavaan once (same across levels).
-    # For WLSMV + ordered: sampstat$cov IS the polychoric correlation matrix.
-    # For ML + continuous: r_lv was already set from R_external before the loop,
-    # so this block only executes for the polychoric path (cor == "polychoric").
-    # The cov2cor branch is retained for completeness but is not currently reachable.
+    # Extract correlation matrix for tenBerge weights.
+    # Sources differ by path:
+    # - polychoric/WLSMV: lavaan's sampstat$cov IS the polychoric matrix
+    # - continuous pairwise/listwise: R_external already set before the loop
+    # - continuous FIML: extract from FIML saturated model (h1) so the edge R
+    #   reflects FIML-estimated sufficient statistics, not observed pairwise
     if (is.null(r_lv)) {
-      r_lv <- tryCatch(
-        {
-          sstat <- lavaan::lavInspect(fit, "sampstat")
-          if (cor == "polychoric") sstat$cov else cov2cor(sstat$cov)
-        },
-        error = function(e) NULL
-      )
+      if (missing == "fiml") {
+        r_lv <- tryCatch(
+          {
+            h1 <- lavaan::lavInspect(fit, "h1")
+            cov_h1 <- if (is.list(h1) && !is.matrix(h1)) h1[[1L]]$cov else h1$cov
+            cov2cor(cov_h1)
+          },
+          error = function(e) NULL
+        )
+      } else {
+        r_lv <- tryCatch(
+          {
+            sstat <- lavaan::lavInspect(fit, "sampstat")
+            if (cor == "polychoric") sstat$cov else cov2cor(sstat$cov)
+          },
+          error = function(e) NULL
+        )
+      }
     }
     if (is.null(r_lv)) {
       r_lv <- stats::cor(data, method = "pearson", use = "pairwise.complete.obs")

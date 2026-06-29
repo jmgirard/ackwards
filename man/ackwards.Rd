@@ -11,6 +11,7 @@ ackwards(
   cor = "pearson",
   fm = "minres",
   estimator = NULL,
+  missing = "pairwise",
   align_signs = TRUE,
   keep_scores = FALSE,
   keep_fits = FALSE,
@@ -25,10 +26,8 @@ ackwards(
 }
 \arguments{
 \item{data}{A data frame or numeric matrix of observed variables (items in
-columns, observations in rows). Missing values are handled via pairwise
-deletion when computing \code{R}. Note: \code{n_obs} passed to the EFA engine is
-always \code{nrow(data)}; under missingness the effective per-correlation N may
-be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.}
+columns, observations in rows). How missing values are handled depends on
+the \code{missing} argument; see below.}
 
 \item{k_max}{Maximum number of factors/components to extract. Required; use
 \code{\link[=suggest_k]{suggest_k()}} if uncertain. Sets the depth of the hierarchy: levels
@@ -54,6 +53,28 @@ deep levels), or \code{"pa"} (principal axis). Ignored for \code{engine = "pca"}
 auto-selects: \code{"WLSMV"} when \code{cor = "polychoric"}, \code{"ML"} otherwise.
 Pass explicitly to override: \code{"ULSMV"} (unweighted WLS), \code{"MLR"}
 (robust ML). Ignored for PCA and EFA engines.}
+
+\item{missing}{How to handle missing item responses. One of:
+\itemize{
+\item \code{"pairwise"} (default) — correlations computed on all available pairs
+(pairwise complete observations). For PCA/EFA this feeds \code{stats::cor()};
+for ESEM ML/MLR, lavaan additionally uses listwise deletion internally
+for model fitting, so fit statistics may be slightly anti-conservative
+when data are missing. A warning is emitted when incomplete rows are
+detected.
+\item \code{"listwise"} — only complete rows are used. Reduces data to
+\code{stats::complete.cases()} before fitting, so the correlation matrix,
+the engine fit, and the edges are all consistent. \code{n_obs} in the result
+reflects the reduced N.
+\item \code{"fiml"} — Full Information Maximum Likelihood. Passes
+\code{missing = "fiml"} to \code{\link[lavaan:efa]{lavaan::efa()}}; edge correlations are derived
+from lavaan's FIML-estimated saturated model, ensuring consistency.
+\strong{Only valid for \code{engine = "esem"} with \code{estimator = "ML"} or
+\code{"MLR"}} — errors for PCA, EFA, and WLSMV/ULSMV. Note: FIML improves
+factor estimation under missingness but does not impute item responses;
+score materialisation (\code{keep_scores = TRUE}) still produces \code{NA} rows
+for incomplete observations.
+}}
 
 \item{align_signs}{Logical; sign-align factors to primary-parent lineage?
 Default \code{TRUE}.}
