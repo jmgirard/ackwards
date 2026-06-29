@@ -101,7 +101,11 @@ default output must reproduce Forbes's examples exactly.
   styles: "id"/"forbes"/"blank", prints editable c(...) literal). Both are pure consumers of the
   existing light core; no new dependencies, no invariant or default changes. Intro vignette and
   visualization vignette updated; pkgdown reference index updated; DESIGN.md §10/§11/§15 updated.
-  (909 tests pass, 1 skip; 0/0/0 R CMD check.)
+  Post-review hardening: `label_template(style = "forbes")` now guards `k_max > 26` (LETTERS
+  exhaustion) with a loud `cli_abort` and documents the constraint; the duplicate `ba_layout()`
+  call in the forbes branch was cached; the `sort = FALSE` test asserts order against `tidy()`
+  rather than set membership; EFA smoke tests added for both helpers (engine-agnosticism);
+  stale `tests/testthat/_problems/` removed.
 - **M19 (done):** Dedicated interpretation/labeling vignette — documentation-only. New
   `vignette("ackwards-interpret")` ("Interpreting and Labeling Factors") owns the `top_items()` →
   name → `label_template()` → `autoplot(node_labels=)` workflow plus hierarchy-aware naming (parent
@@ -112,8 +116,8 @@ default output must reproduce Forbes's examples exactly.
   documentation-only; post-review hardening added a guard test for the vignette's edges idiom,
   `top_items()`/`label_template()`→`autoplot()` idiom smoke tests, switched the interpret vignette
   to `cor = "polychoric"` (consistency + drops the ordinal warning), and **fixed swapped m5f3/m5f5
-  labels** (Conscientiousness/Openness) in the interpret and visualization vignettes. (0/0/0 R CMD
-  check.)
+  labels** (Conscientiousness/Openness) in the interpret and visualization vignettes.
+  (935 tests pass, 1 skip; 0/0/0 R CMD check.)
 
 ## Current focus
 
