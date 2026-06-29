@@ -20,6 +20,12 @@
   With `missing = "fiml"`, the edge R is extracted from lavaan's FIML saturated
   model rather than a pairwise `stats::cor()`. (#M16)
 
+* For ESEM with `cor = "polychoric"` (WLSMV/ULSMV), `missing = "pairwise"` now
+  passes `missing = "available.cases"` to `lavaan::efa()` rather than lavaan's
+  listwise default. This uses every row that contributes to each pair of
+  polychoric thresholds (MCAR-valid) and makes `n_obs` in the result reflect the
+  full sample size, not just complete cases. (#M16)
+
 * `ackwards()` result objects now carry `$meta$missing` (the `missing` argument
   value used) and `$meta$n_complete` (the number of complete cases in the
   original data, regardless of deletion mode). (#M16)

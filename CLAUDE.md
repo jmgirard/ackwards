@@ -78,20 +78,20 @@ default output must reproduce Forbes's examples exactly.
   1 skip; 0/0/0 R CMD check.)
 - **M16 (done):** Estimator-aware missing-data handling — new `missing = c("pairwise","listwise",
   "fiml")` argument on `ackwards()`. Default `"pairwise"` preserves existing behaviour and warns
-  when NAs present. `"listwise"` reduces to complete cases pre-fit for consistent N. `"fiml"` (ESEM
-  ML/MLR only) uses Full Information ML via lavaan and derives edge R from the FIML saturated model.
-  Fixes ESEM ML/MLR fit-vs-edges inconsistency for `"listwise"` and `"fiml"`. Adds `.resolve_missing()`
-  helper; records `meta$missing`/`meta$n_complete`. 42 new tests in `test-missing.R`; missing-data
-  section added to `ackwards-engines.Rmd`; DESIGN.md §9 and §15 updated. (766 tests pass, 1 skip;
-  0/0/0 R CMD check.)
+  when NAs present; for ESEM WLSMV/ULSMV passes `available.cases` to lavaan (full N, honest).
+  `"listwise"` reduces to complete cases pre-fit for consistent N. `"fiml"` (ESEM ML/MLR only)
+  uses Full Information ML via lavaan and derives edge R from the FIML saturated model. Fixes ESEM
+  ML/MLR fit-vs-edges inconsistency for `"listwise"` and `"fiml"` (including a silent bug where the
+  h1 extraction fell back to pairwise). Adds `.resolve_missing()` helper; records
+  `meta$missing`/`meta$n_complete`. 36 tests in `test-missing.R`; missing-data section added to
+  `ackwards-engines.Rmd`; DESIGN.md §9 and §14 updated. (778 tests pass, 1 skip; 0/0/0 R CMD check.)
 
 ## Current focus
 
 No milestone currently in progress.
 
-**Road to 0.1.0.** M17 — GitHub 0.1.0 release prep: reconcile stale DESIGN.md §14 Heywood note
-(the warning exists since M10), switch license **CC BY 4.0 → MIT** (decision confirmed during M16
-planning), version bump `0.0.0.9000 → 0.1.0`, NEWS 0.1.0 section, fresh
+**Road to 0.1.0.** M17 — GitHub 0.1.0 release prep: switch license **CC BY 4.0 → MIT** (decision
+confirmed during M16 planning), version bump `0.0.0.9000 → 0.1.0`, NEWS 0.1.0 section, fresh
 `test()`+`check()`+`urlchecker`+pkgdown rebuild, tag. CRAN-only items (`\dontrun`→`\donttest`,
 spell/win-builder) deferred to a later CRAN-prep milestone.
 

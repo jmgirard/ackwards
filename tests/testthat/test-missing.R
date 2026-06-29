@@ -430,3 +430,46 @@ test_that("pairwise warning for ESEM ML mentions fiml as an alternative", {
   # The ESEM ML branch (supports_fiml = TRUE) should mention fiml in the advisory
   expect_true(any(grepl("fiml", warns, ignore.case = TRUE)))
 })
+
+# ── FIML score NA propagation ────────────────────────────────────────────────
+
+test_that("ESEM FIML keep_scores: NA rows still produce NA scores", {
+  skip_if_not_installed("lavaan")
+  set.seed(42)
+  d <- .make_esem_data()
+  d[5, 1] <- NA_real_ # one incomplete row
+  x <- suppressWarnings(
+    ackwards(d,
+      k_max = 2L, engine = "esem", missing = "fiml",
+      estimator = "ML", keep_scores = TRUE
+    )
+  )
+  # FIML improves estimation but does not impute item responses;
+  # score projection still propagates NAs row-wise
+  expect_true(any(is.na(x$scores[["1"]])))
+  expect_true(any(is.na(x$scores[["2"]])))
+})
+
+# ── available.cases vs listwise: R matrices differ ────────────────────────────
+
+test_that("ESEM WLSMV pairwise (available.cases) R differs from listwise R with NAs", {
+  skip_if_not_installed("lavaan")
+  d <- .make_ordinal_data()
+  d[1:30, 1] <- NA_integer_ # 10% missingness concentrated on one variable
+  x_pw <- suppressWarnings(
+    ackwards(d,
+      k_max = 2L, engine = "esem", cor = "polychoric",
+      missing = "pairwise"
+    )
+  )
+  x_lw <- suppressWarnings(
+    ackwards(d,
+      k_max = 2L, engine = "esem", cor = "polychoric",
+      missing = "listwise"
+    )
+  )
+  # available.cases uses all rows for each pair; listwise uses only the 270
+  # complete rows. With 10% missingness on one variable the polychoric
+  # correlation matrices will differ.
+  expect_false(isTRUE(all.equal(x_pw$r, x_lw$r, tolerance = 1e-3)))
+})
