@@ -1,0 +1,21 @@
+bibentry(
+  bibtype  = "Article",
+  title    = "Doing it all bass-ackwards: The development of hierarchical factor structures from the top down",
+  author   = person("Lewis R.", "Goldberg"),
+  journal  = "Journal of Research in Personality",
+  year     = "2006",
+  volume   = "40",
+  number   = "4",
+  pages    = "347--358",
+  doi      = "10.1016/j.jrp.2006.01.001"
+)
+
+bibentry(
+  bibtype  = "Manual",
+  title    = "ackwards: Bass-Ackwards Hierarchical Structural Analysis",
+  author   = person("Jeffrey M.", "Girard",
+                    comment = c(ORCID = "0000-0002-7359-3746")),
+  year     = "2026",
+  note     = "R package version 0.1.0",
+  url      = "https://github.com/jmgirard/ackwards"
+)
