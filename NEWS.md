@@ -1,22 +1,3 @@
-# ackwards (development)
-
-## Factor interpretation helpers (M18)
-
-* **`top_items(x, level, cut, n, sort)`** — displays the salient items for each
-  factor, filtered to `|loading| >= cut` (default `0.3`) and sorted by descending
-  absolute loading. Avoids printing a full item-by-factor matrix that doesn't scale
-  to large `k` or many items. Arguments `level`, `n`, and `sort` let you subset levels,
-  cap items per factor, and control ordering. Returns a `top_items` S3 object with a
-  grouped cli print method; the underlying data frame is accessible via `$data` and
-  matches `tidy(x, what = "loadings")`.
-
-* **`label_template(x, style)`** — generates the named-character-vector scaffold for
-  `autoplot(x, node_labels = ...)`. Styles: `"id"` (default; values equal factor IDs,
-  a round-trip no-op), `"forbes"` (level-letter + within-level index: `"A1"`, `"B1"`,
-  `"B2"`, …), `"blank"` (empty strings for a clean slate). Factor IDs are returned in
-  canonical layout order — the same order used by `autoplot.ackwards()`. The function
-  also prints an editable `c(...)` literal to the console for copy-paste into scripts.
-
 # ackwards 0.1.0
 
 First public release. Licensed under MIT.
@@ -89,6 +70,22 @@ A ggplot2 layered diagram with extensive customization: edge color by sign, widt
 mode (`primary_only`); level axis labels (`show_level_labels`); arrowhead toggle
 (`show_arrows`); fixed edge width (`edge_linewidth`); legend toggle (`legend`); Forbes-style
 pruned view (`drop_pruned`, `compress_levels`).
+
+## Factor interpretation
+
+* **`top_items(x, level, cut, n, sort)`** — lists the salient items for each factor,
+  filtered to `|loading| >= cut` (default `0.3`) and sorted by descending absolute loading.
+  Arguments `level`, `n`, and `sort` allow subsetting levels, capping items per factor, and
+  controlling order. Returns a `top_items` S3 object with a grouped cli print method.
+
+* **`label_template(x, style)`** — generates the named-character-vector scaffold for
+  `autoplot(x, node_labels = ...)`. Styles: `"id"` (default), `"forbes"` (level-letter +
+  within-level index: `"A1"`, `"B1"`, `"B2"`, …), `"blank"`. Factor IDs are in canonical
+  layout order; an editable `c(...)` literal is also printed for copy-paste.
+
+* See `vignette("ackwards-interpret")` for the end-to-end naming workflow: reading a factor
+  with `top_items()`, hierarchy-aware naming (parent vs. child, blends), sign-alignment
+  caveat, and the `top_items()` → `label_template()` → `autoplot(node_labels = ...)` round-trip.
 
 ## Tidy interface and scoring
 

@@ -3,6 +3,7 @@
 ^DESIGN\.md$
 ^LICENSE\.md$
 ^\.lintr$
+^cran-comments\.md$
 ^\.DS_Store$
 ^.*\.Rproj$
 ^\.Rproj\.user$

@@ -4,11 +4,14 @@ Version: 0.1.0
 Authors@R:
     person("Jeffrey M.", "Girard", , "me@jmgirard.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-7359-3746"))
-Description: Implements Goldberg's (2006) bass-ackwards method and modern
-    descendants for hierarchical structural analysis. Extracts solutions from
-    1 to k factors using PCA, EFA, or ESEM engines, then characterizes the
-    hierarchy via between-level factor-score correlations computed via exact
-    linear algebra or materialized scores.
+Description: Implements Goldberg's (2006) <doi:10.1016/j.jrp.2006.01.001>
+    bass-ackwards method and modern descendants for hierarchical structural
+    analysis. Extracts solutions from 1 to k factors using PCA, EFA, or ESEM
+    engines, then characterizes the hierarchy via between-level factor-score
+    correlations computed via exact linear algebra (Waller, 2007,
+    <doi:10.1016/j.jrp.2006.08.005>) or materialized scores. Includes the
+    Forbes (2023) <doi:10.1037/met0000516> extension for redundancy pruning
+    and all-levels cross-correlations.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

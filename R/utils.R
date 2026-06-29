@@ -9,7 +9,7 @@
 # A zero-variance or all-NA column gets scale factor 1 (avoids Inf/NaN).
 .standardize <- function(x) {
   m <- colMeans(x, na.rm = TRUE)
-  s <- apply(x, 2, sd, na.rm = TRUE)
+  s <- apply(x, 2, stats::sd, na.rm = TRUE)
   s[!is.finite(s) | s == 0] <- 1
   sweep(sweep(x, 2, m, "-"), 2, s, "/")
 }
