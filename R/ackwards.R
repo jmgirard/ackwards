@@ -26,11 +26,21 @@
 #'   Both are recomputable from the stored `r` matrix.
 #'
 #' @param data A data frame or numeric matrix of observed variables (items in
-#'   columns, observations in rows). How missing values are handled depends on
-#'   the `missing` argument; see below.
+#'   columns, observations in rows). Alternatively, a pre-computed **correlation
+#'   matrix** may be supplied (a square, symmetric, numeric matrix with unit
+#'   diagonal). When a correlation matrix is supplied, `engine` must be `"pca"`
+#'   or `"efa"` (ESEM requires raw data), and the `missing` and `cor` arguments
+#'   are ignored. See the *Correlation-matrix input* section below.
 #' @param k_max Maximum number of factors/components to extract. Required; use
 #'   [suggest_k()] if uncertain. Sets the depth of the hierarchy: levels
 #'   1 through `k_max` are all extracted.
+#' @param n_obs Number of observations. Used only when `data` is a
+#'   pre-computed correlation matrix. Ignored when raw data are supplied (N is
+#'   determined from `nrow(data)`). For `engine = "efa"`, `n_obs` is required —
+#'   [psych::fa()] needs N to compute fit indices (chi-square, RMSEA, TLI). For
+#'   `engine = "pca"`, `n_obs` is optional; edges use only the `W'RW` algebra
+#'   and never touch N (if `NULL`, stored as `NA_integer_` and fit statistics
+#'   requiring N are unavailable).
 #' @param engine Extraction engine: `"pca"` (default), `"efa"`, or `"esem"`.
 #'   `"esem"` uses [lavaan::efa()] with rotation-aware SEs and per-level fit
 #'   indices; recommended for the clinical/HiTOP workflow (Kim & Eaton, 2015;
@@ -123,11 +133,38 @@
 #'   structures by Goldberg's bass-ackwards method. *Journal of Research in
 #'   Personality*, 41(4), 745–752. \doi{10.1016/j.jrp.2006.08.005}
 #'
+#' @section Correlation-matrix input:
+#' When `data` is a pre-computed correlation matrix (square, symmetric, unit
+#' diagonal), `ackwards()` runs entirely from that matrix using the `W'RW`
+#' algebra — no raw item responses are needed. This is useful when you have
+#' a published correlation table or a polychoric matrix computed externally.
+#'
+#' Constraints and behaviour when a correlation matrix is supplied:
+#' * **Engine:** only `"pca"` and `"efa"` are supported. `"esem"` requires raw
+#'   data (for lavaan's own polychoric computation, WLSMV estimation, and
+#'   per-level fit indices) and will error clearly.
+#' * **`n_obs`:** required for `"efa"` (psych needs N for chi-square / RMSEA /
+#'   TLI); optional for `"pca"` (stored as `NA` if omitted).
+#' * **`cor` argument:** ignored — the basis is already determined by the
+#'   matrix you supply. A warning is emitted if you set `cor` explicitly.
+#' * **`missing` argument:** ignored — missingness was handled when computing
+#'   the matrix. A warning is emitted if you set `missing` explicitly.
+#' * **Factor scores:** `keep_scores = TRUE` will error; `augment()` and
+#'   `tidy(what = "scores")` will also error because individual-level scores
+#'   require row-level item responses.
+#' * **`$cor` field:** stored as `NA_character_`; printed as
+#'   `"(user-supplied matrix)"`.
+#'
 #' @examples
 #' x <- ackwards(bfi25, k_max = 5)
 #' print(x)
 #' tidy(x)
 #' glance(x)
+#'
+#' # Correlation-matrix input (PCA engine; n_obs optional)
+#' R <- cor(bfi25, use = "pairwise.complete.obs")
+#' x_R <- ackwards(R, k_max = 5)
+#' print(x_R)
 #'
 #' @export
 ackwards <- function(
@@ -138,6 +175,7 @@ ackwards <- function(
   fm = "minres",
   estimator = NULL,
   missing = "pairwise",
+  n_obs = NULL,
   align_signs = TRUE,
   keep_scores = FALSE,
   keep_fits = FALSE,
@@ -151,33 +189,16 @@ ackwards <- function(
 ) {
   cl <- match.call()
 
-  # --- Input validation -------------------------------------------------------
+  # --- Detect correlation-matrix vs. raw-data input ---------------------------
+  input_type <- if (.is_cor_matrix(data)) "cor_matrix" else "data"
+
+  # --- Shared argument validation ---------------------------------------------
   engine <- rlang::arg_match(engine, c("pca", "efa", "esem"))
   fm <- rlang::arg_match(fm, c("minres", "ml", "pa"))
-  cor <- rlang::arg_match(cor, c("pearson", "spearman", "polychoric"))
-  if (!is.null(estimator)) {
-    estimator <- rlang::arg_match(estimator, c("ML", "MLR", "WLSMV", "ULSMV"))
-  }
-  missing <- rlang::arg_match(missing, c("pairwise", "listwise", "fiml"))
   pairs <- rlang::arg_match(pairs, c("adjacent", "all"))
   prune <- rlang::arg_match(prune, c("none", "redundant", "artefact"),
     multiple = TRUE
   )
-
-  # Resolve effective estimator early (needed for missing= validation before
-  # the engine dispatch block; also avoids repeating the logic below).
-  estimator_eff <- if (engine == "esem") {
-    if (!is.null(estimator)) {
-      estimator
-    } else if (cor == "polychoric") {
-      "WLSMV"
-    } else {
-      "ML"
-    }
-  } else {
-    NULL
-  }
-  .resolve_missing(missing, engine, estimator_eff)
 
   if (!is.numeric(redundancy_r) || length(redundancy_r) != 1L ||
     redundancy_r <= 0 || redundancy_r > 1) {
@@ -188,6 +209,11 @@ ackwards <- function(
       redundancy_phi <= 0 || redundancy_phi > 1)) {
     cli::cli_abort("{.arg redundancy_phi} must be a single number in (0, 1] or {.code NULL}.")
   }
+
+  if (!is.numeric(k_max) || length(k_max) != 1L || k_max < 2L || k_max != as.integer(k_max)) {
+    cli::cli_abort("{.arg k_max} must be an integer >= 2 (need at least two levels for a hierarchy).")
+  }
+  k_max <- as.integer(k_max)
 
   # Auto-upgrade pairs to "all" when pruning is requested (chains need all-levels
   # edges for the endpoint-r enrichment; artefact phi is most informative across
@@ -200,173 +226,319 @@ ackwards <- function(
     ))
   }
 
-  # cor = "spearman" + engine = "esem" is semantically inconsistent: lavaan fits
-  # Pearson ML on raw data while compute_edges() uses Spearman R for scoring
-  # (DESIGN.md §14 known limitations). Warn loudly rather than silently mixing bases.
-  if (engine == "esem" && cor == "spearman") {
-    cli::cli_warn(
-      c(
-        "!" = "{.code cor = \"spearman\"} with {.code engine = \"esem\"} \\
-               uses inconsistent bases: lavaan fits a Pearson-ML model on raw \\
-               data while edges are computed from the Spearman correlation matrix.",
-        "i" = "Consider {.code cor = \"polychoric\"} for ordinal data or \\
-               {.code cor = \"pearson\"} for a consistent continuous path."
-      ),
-      .frequency = "once",
-      .frequency_id = "ackwards_esem_spearman"
-    )
-  }
-
-  if (!is.numeric(k_max) || length(k_max) != 1L || k_max < 2L || k_max != as.integer(k_max)) {
-    cli::cli_abort("{.arg k_max} must be an integer >= 2 (need at least two levels for a hierarchy).")
-  }
-  k_max <- as.integer(k_max)
-
-  if (!is.data.frame(data) && !is.matrix(data)) {
-    cli::cli_abort("{.arg data} must be a data frame or numeric matrix.")
-  }
-  data_mat <- as.matrix(data)
-  if (!is.numeric(data_mat)) {
-    cli::cli_abort("{.arg data} must contain only numeric columns.")
-  }
-
-  p <- ncol(data_mat)
-
-  if (k_max > p) {
-    cli::cli_abort("{.arg k_max} ({k_max}) cannot exceed the number of variables ({p}).")
-  }
-
-  # --- Missing-data preparation (M16, Invariant 6) ----------------------------
-  # n_complete is computed from the original data regardless of deletion mode.
-  n_complete <- sum(stats::complete.cases(data_mat))
-
-  # Listwise: reduce to complete rows now; all downstream steps (R computation,
-  # engine calls, score materialisation) will use the same consistent set.
-  if (missing == "listwise" && n_complete < nrow(data_mat)) {
-    data_mat <- data_mat[stats::complete.cases(data_mat), , drop = FALSE]
-  }
-
-  # n_obs reflects listwise reduction (if applied); pairwise/fiml keep total N.
-  n_obs <- nrow(data_mat)
-
-  # Pairwise advisory when data has NAs (Invariant 6 — loud defaults).
-  # For ESEM ML/MLR this is especially relevant: lavaan defaults to listwise for
-  # model fitting while edges use pairwise correlations, which can make fit
-  # statistics slightly anti-conservative.
-  # No .frequency = "once": unlike the ordinal-detection warning (a fixed
-  # property of the data), this is a per-call data-state advisory — the user
-  # may be iterating k_max or engine and should be reminded each time NAs are
-  # present with the pairwise default.
-  if (missing == "pairwise" && n_complete < nrow(data_mat)) {
-    n_incomplete <- nrow(data_mat) - n_complete
-    supports_fiml <- !is.null(estimator_eff) && !estimator_eff %in% c("WLSMV", "ULSMV")
-    cli::cli_warn(
-      c(
-        "!" = "{n_incomplete} row{?s} have missing values; correlations are \\
-               computed pairwise.",
-        if (supports_fiml) {
-          c("i" = "Use {.code missing = \"listwise\"} for consistent \\
-                   complete-case analysis, or {.code missing = \"fiml\"} \\
-                   for full-information ML.")
-        } else {
-          c("i" = "Use {.code missing = \"listwise\"} for consistent \\
-                   complete-case analysis.")
-        }
-      )
-    )
-  }
-
-  # --- Ordinal-detection warning (DESIGN.md §9, Invariant 6) -----------------
-  # Compute once; reused in meta$ordinal_warned below.
-  # Only warn when the user has NOT already opted into the polychoric basis.
-  is_ordinal <- detect_ordinal(as.data.frame(data_mat))
-  if (is_ordinal && cor != "polychoric") {
-    cli::cli_warn(
-      c(
-        "!" = "One or more columns look like ordinal/Likert items \\
-               ({cli::symbol$ellipsis} {.val <= 7} distinct integer values).",
-        "i" = "Results use a {.val {cor}} basis. Consider \\
-               {.code cor = \"polychoric\"} for ordinal data."
-      ),
-      .frequency = "once",
-      .frequency_id = "ackwards_ordinal_warning"
-    )
-  }
-
-  # --- Seed capture -----------------------------------------------------------
-  if (!is.null(seed)) set.seed(seed)
-
-  # --- Compute correlation matrix + extract levels ----------------------------
-  # ESEM: lavaan owns R computation for polychoric (WLSMV uses its own polychoric
-  # matrix internally); for continuous paths we pre-compute R and pass it through.
-  # PCA/EFA: always compute R here and pass to the engine.
-  if (engine == "esem") {
-    # Pre-compute edge R for non-polychoric, non-FIML paths. For FIML, R is
-    # extracted from lavaan's FIML saturated model inside esem_levels().
-    # For listwise, data_mat is already complete so pairwise.complete.obs ≡
-    # complete.obs — no special handling needed.
-    R_ext <- if (cor != "polychoric" && missing != "fiml") {
-      stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
-    } else {
-      NULL
+  # ============================================================
+  # BRANCH A — correlation-matrix input
+  # ============================================================
+  if (input_type == "cor_matrix") {
+    # Gate ESEM: lavaan must fit on raw data
+    if (engine == "esem") {
+      cli::cli_abort(c(
+        "!" = "{.code engine = \"esem\"} requires raw item data.",
+        "i" = "ESEM (lavaan) needs individual responses for WLSMV estimation, \\
+               polychoric computation, and per-level fit indices.",
+        "i" = "Use {.code engine = \"pca\"} or {.code engine = \"efa\"} \\
+               when supplying a correlation matrix."
+      ))
     }
-    # estimator_eff already computed above for .resolve_missing() validation.
-    esem_out <- esem_levels(data_mat,
-      k_max = k_max, estimator = estimator_eff, cor = cor,
-      n_obs = n_obs, R_external = R_ext, keep_fits = keep_fits,
-      missing = missing
-    )
-    levels_list <- esem_out$levels
-    fits_stored <- esem_out$fits
-    R <- esem_out$r_lv
-    if (is.null(R)) R <- R_ext
-    if (is.null(R)) {
-      R <- stats::cor(data_mat, method = "pearson", use = "pairwise.complete.obs")
-    }
-  } else {
-    # PCA / EFA: compute R then dispatch
-    if (cor == "polychoric") {
-      poly_out <- tryCatch(
-        psych::polychoric(data_mat),
-        error = function(e) {
-          cli::cli_abort(
-            c(
-              "!" = "{.fn psych::polychoric} failed: {conditionMessage(e)}",
-              "i" = "Check that your data contains integer-like columns with few \\
-                   distinct values, or use {.code cor = \"pearson\"}."
-            )
-          )
-        }
+
+    # Warn if cor/missing are set explicitly (they're ignored for R input).
+    cor_was_set <- !missing(cor) && cor != "pearson"
+    if (cor_was_set) {
+      cli::cli_warn(c(
+        "!" = "{.arg cor} is ignored when a correlation matrix is supplied \\
+               (the basis is already determined by your matrix).",
+        "i" = "Remove {.arg cor} from your call to suppress this warning."
+      ),
+        .frequency = "once",
+        .frequency_id = "ackwards_cor_ignored"
       )
-      R <- poly_out$rho
-      # Guard against non-positive-definite polychoric matrices (DESIGN.md §14 remaining)
-      min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
-      if (min_eig <= 0) {
-        cli::cli_warn(
-          c(
-            "!" = "Polychoric correlation matrix is not positive definite \\
-                   (min eigenvalue = {round(min_eig, 4)}).",
-            "i" = "Applying smoothing via {.fn psych::cor.smooth}."
-          )
-        )
-        R <- psych::cor.smooth(R)
+    }
+    missing_was_set <- !missing(missing) && missing != "pairwise"
+    if (missing_was_set) {
+      cli::cli_warn(c(
+        "!" = "{.arg missing} is ignored when a correlation matrix is supplied \\
+               (missingness was handled before computing the matrix).",
+        "i" = "Remove {.arg missing} from your call to suppress this warning."
+      ),
+        .frequency = "once",
+        .frequency_id = "ackwards_missing_ignored"
+      )
+    }
+
+    # n_obs: required for EFA, optional for PCA
+    if (!is.null(n_obs)) {
+      if (!is.numeric(n_obs) || length(n_obs) != 1L ||
+        n_obs < 1L || n_obs != as.integer(n_obs)) {
+        cli::cli_abort("{.arg n_obs} must be a positive integer when supplied.")
       }
-    } else {
-      R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
+      n_obs <- as.integer(n_obs)
     }
+    if (engine == "efa" && is.null(n_obs)) {
+      cli::cli_abort(c(
+        "!" = "{.arg n_obs} is required when {.code engine = \"efa\"} and \\
+               a correlation matrix is supplied.",
+        "i" = "{.fn psych::fa} needs N to compute chi-square / RMSEA / TLI.",
+        "i" = "Supply the number of observations: {.code n_obs = <N>}."
+      ))
+    }
+
+    # Warn if n_obs supplied alongside raw data (handled below)
+    # — handled in the data branch instead.
+
+    # Block keep_scores=TRUE: no row-level data to score
+    if (isTRUE(keep_scores)) {
+      cli::cli_abort(c(
+        "!" = "{.code keep_scores = TRUE} requires raw item data.",
+        "i" = "Factor scores are individual-level (n × k) projections and \\
+               cannot be computed from a correlation matrix alone.",
+        "i" = "Either supply raw data or set {.code keep_scores = FALSE}."
+      ))
+    }
+
+    # Validate and normalise R; synthesise dimnames if absent
+    R <- .validate_cor_matrix(as.matrix(data))
+    p <- nrow(R)
+
+    if (k_max > p) {
+      cli::cli_abort(
+        "{.arg k_max} ({k_max}) cannot exceed the number of variables ({p})."
+      )
+    }
+
+    # Store effective n_obs (NA when not supplied for PCA)
+    n_obs_eff <- if (is.null(n_obs)) NA_integer_ else n_obs
+    if (engine == "pca" && is.null(n_obs)) {
+      cli::cli_inform(c(
+        "i" = "{.arg n_obs} not supplied; stored as {.code NA}.",
+        "i" = "Fit statistics requiring N (chi-square, RMSEA, TLI) \\
+               are unavailable. Pass {.code n_obs = <N>} to enable them."
+      ))
+    }
+
+    cor_eff <- NA_character_
+    missing_eff <- NA_character_
+    n_complete <- NA_integer_
+    is_ordinal <- FALSE
+
+    if (!is.null(seed)) set.seed(seed)
+
     engine_out <- switch(engine,
       pca = pca_levels(R,
-        k_max = k_max, cor = cor,
+        k_max = k_max, cor = "pearson",
         keep_fits = keep_fits
       ),
       efa = efa_levels(R,
-        k_max = k_max, fm = fm, n_obs = n_obs,
-        cor = cor, keep_fits = keep_fits
+        k_max = k_max, fm = fm, n_obs = n_obs_eff,
+        cor = "pearson", keep_fits = keep_fits
       )
     )
     levels_list <- engine_out$levels
     fits_stored <- engine_out$fits
-  }
+    data_mat <- NULL
+
+  } else {
+    # ============================================================
+    # BRANCH B — raw data input (existing behaviour)
+    # ============================================================
+
+    # Warn if n_obs supplied alongside raw data (N comes from nrow)
+    if (!is.null(n_obs)) {
+      cli::cli_warn(c(
+        "!" = "{.arg n_obs} is ignored when raw data are supplied \\
+               (N is determined from {.code nrow(data)}).",
+        "i" = "Remove {.arg n_obs} from your call to suppress this warning."
+      ),
+        .frequency = "once",
+        .frequency_id = "ackwards_nobs_ignored"
+      )
+    }
+
+    cor <- rlang::arg_match(cor, c("pearson", "spearman", "polychoric"))
+    if (!is.null(estimator)) {
+      estimator <- rlang::arg_match(estimator, c("ML", "MLR", "WLSMV", "ULSMV"))
+    }
+    missing <- rlang::arg_match(missing, c("pairwise", "listwise", "fiml"))
+
+    # Resolve effective estimator early (needed for missing= validation before
+    # the engine dispatch block; also avoids repeating the logic below).
+    estimator_eff <- if (engine == "esem") {
+      if (!is.null(estimator)) {
+        estimator
+      } else if (cor == "polychoric") {
+        "WLSMV"
+      } else {
+        "ML"
+      }
+    } else {
+      NULL
+    }
+    .resolve_missing(missing, engine, estimator_eff)
+
+    # cor = "spearman" + engine = "esem" is semantically inconsistent: lavaan fits
+    # Pearson ML on raw data while compute_edges() uses Spearman R for scoring
+    # (DESIGN.md §14 known limitations). Warn loudly rather than silently mixing bases.
+    if (engine == "esem" && cor == "spearman") {
+      cli::cli_warn(
+        c(
+          "!" = "{.code cor = \"spearman\"} with {.code engine = \"esem\"} \\
+                 uses inconsistent bases: lavaan fits a Pearson-ML model on raw \\
+                 data while edges are computed from the Spearman correlation matrix.",
+          "i" = "Consider {.code cor = \"polychoric\"} for ordinal data or \\
+                 {.code cor = \"pearson\"} for a consistent continuous path."
+        ),
+        .frequency = "once",
+        .frequency_id = "ackwards_esem_spearman"
+      )
+    }
+
+    if (!is.data.frame(data) && !is.matrix(data)) {
+      cli::cli_abort("{.arg data} must be a data frame or numeric matrix.")
+    }
+    data_mat <- as.matrix(data)
+    if (!is.numeric(data_mat)) {
+      cli::cli_abort("{.arg data} must contain only numeric columns.")
+    }
+
+    p <- ncol(data_mat)
+
+    if (k_max > p) {
+      cli::cli_abort("{.arg k_max} ({k_max}) cannot exceed the number of variables ({p}).")
+    }
+
+    # --- Missing-data preparation (M16, Invariant 6) --------------------------
+    # n_complete is computed from the original data regardless of deletion mode.
+    n_complete <- sum(stats::complete.cases(data_mat))
+
+    # Listwise: reduce to complete rows now; all downstream steps (R computation,
+    # engine calls, score materialisation) will use the same consistent set.
+    if (missing == "listwise" && n_complete < nrow(data_mat)) {
+      data_mat <- data_mat[stats::complete.cases(data_mat), , drop = FALSE]
+    }
+
+    # n_obs reflects listwise reduction (if applied); pairwise/fiml keep total N.
+    n_obs_eff <- nrow(data_mat)
+
+    # Pairwise advisory when data has NAs (Invariant 6 — loud defaults).
+    # For ESEM ML/MLR this is especially relevant: lavaan defaults to listwise for
+    # model fitting while edges use pairwise correlations, which can make fit
+    # statistics slightly anti-conservative.
+    # No .frequency = "once": unlike the ordinal-detection warning (a fixed
+    # property of the data), this is a per-call data-state advisory — the user
+    # may be iterating k_max or engine and should be reminded each time NAs are
+    # present with the pairwise default.
+    if (missing == "pairwise" && n_complete < nrow(data_mat)) {
+      n_incomplete <- nrow(data_mat) - n_complete
+      supports_fiml <- !is.null(estimator_eff) && !estimator_eff %in% c("WLSMV", "ULSMV")
+      cli::cli_warn(
+        c(
+          "!" = "{n_incomplete} row{?s} have missing values; correlations are \\
+                 computed pairwise.",
+          if (supports_fiml) {
+            c("i" = "Use {.code missing = \"listwise\"} for consistent \\
+                     complete-case analysis, or {.code missing = \"fiml\"} \\
+                     for full-information ML.")
+          } else {
+            c("i" = "Use {.code missing = \"listwise\"} for consistent \\
+                     complete-case analysis.")
+          }
+        )
+      )
+    }
+
+    # --- Ordinal-detection warning (DESIGN.md §9, Invariant 6) ---------------
+    # Compute once; reused in meta$ordinal_warned below.
+    # Only warn when the user has NOT already opted into the polychoric basis.
+    is_ordinal <- detect_ordinal(as.data.frame(data_mat))
+    if (is_ordinal && cor != "polychoric") {
+      cli::cli_warn(
+        c(
+          "!" = "One or more columns look like ordinal/Likert items \\
+                 ({cli::symbol$ellipsis} {.val <= 7} distinct integer values).",
+          "i" = "Results use a {.val {cor}} basis. Consider \\
+                 {.code cor = \"polychoric\"} for ordinal data."
+        ),
+        .frequency = "once",
+        .frequency_id = "ackwards_ordinal_warning"
+      )
+    }
+
+    cor_eff <- cor
+    missing_eff <- missing
+
+    if (!is.null(seed)) set.seed(seed)
+
+    # --- Compute correlation matrix + extract levels --------------------------
+    # ESEM: lavaan owns R computation for polychoric (WLSMV uses its own polychoric
+    # matrix internally); for continuous paths we pre-compute R and pass it through.
+    # PCA/EFA: always compute R here and pass to the engine.
+    if (engine == "esem") {
+      # Pre-compute edge R for non-polychoric, non-FIML paths. For FIML, R is
+      # extracted from lavaan's FIML saturated model inside esem_levels().
+      # For listwise, data_mat is already complete so pairwise.complete.obs ≡
+      # complete.obs — no special handling needed.
+      R_ext <- if (cor != "polychoric" && missing != "fiml") {
+        stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
+      } else {
+        NULL
+      }
+      # estimator_eff already computed above for .resolve_missing() validation.
+      esem_out <- esem_levels(data_mat,
+        k_max = k_max, estimator = estimator_eff, cor = cor,
+        n_obs = n_obs_eff, R_external = R_ext, keep_fits = keep_fits,
+        missing = missing
+      )
+      levels_list <- esem_out$levels
+      fits_stored <- esem_out$fits
+      R <- esem_out$r_lv
+      if (is.null(R)) R <- R_ext
+      if (is.null(R)) {
+        R <- stats::cor(data_mat, method = "pearson", use = "pairwise.complete.obs")
+      }
+    } else {
+      # PCA / EFA: compute R then dispatch
+      if (cor == "polychoric") {
+        poly_out <- tryCatch(
+          psych::polychoric(data_mat),
+          error = function(e) {
+            cli::cli_abort(
+              c(
+                "!" = "{.fn psych::polychoric} failed: {conditionMessage(e)}",
+                "i" = "Check that your data contains integer-like columns with few \\
+                     distinct values, or use {.code cor = \"pearson\"}."
+              )
+            )
+          }
+        )
+        R <- poly_out$rho
+        # Guard against non-positive-definite polychoric matrices (DESIGN.md §14 remaining)
+        min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
+        if (min_eig <= 0) {
+          cli::cli_warn(
+            c(
+              "!" = "Polychoric correlation matrix is not positive definite \\
+                     (min eigenvalue = {round(min_eig, 4)}).",
+              "i" = "Applying smoothing via {.fn psych::cor.smooth}."
+            )
+          )
+          R <- psych::cor.smooth(R)
+        }
+      } else {
+        R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
+      }
+      engine_out <- switch(engine,
+        pca = pca_levels(R,
+          k_max = k_max, cor = cor,
+          keep_fits = keep_fits
+        ),
+        efa = efa_levels(R,
+          k_max = k_max, fm = fm, n_obs = n_obs_eff,
+          cor = cor, keep_fits = keep_fits
+        )
+      )
+      levels_list <- engine_out$levels
+      fits_stored <- engine_out$fits
+    }
+  } # end BRANCH B
 
   # --- Handle convergence truncation (PCA never truncates; EFA/ESEM may) -----
   k_eff <- length(levels_list)
@@ -454,16 +626,17 @@ ackwards <- function(
     redundancy_phi    = redundancy_phi,
     cut_show          = cut_show,
     ordinal_warned    = is_ordinal,
-    missing           = missing,
-    n_complete        = n_complete
+    missing           = missing_eff,
+    n_complete        = n_complete,
+    input_type        = input_type
   )
 
   # --- Assemble result --------------------------------------------------------
   x <- new_ackwards(
     call        = cl,
     engine      = engine,
-    cor         = cor,
-    n_obs       = n_obs,
+    cor         = cor_eff,
+    n_obs       = n_obs_eff,
     k_max       = k_eff, # effective depth (may be < k_max if truncated)
     seed        = seed,
     pkg_version = utils::packageVersion("ackwards"),
@@ -479,6 +652,7 @@ ackwards <- function(
 
   # --- Opt-in storage (scores and raw fits) -----------------------------------
   # Scores use the sign-aligned levels_list so column orientations match loadings.
+  # keep_scores=TRUE is blocked at entry for cor_matrix input (already errored above).
   if (isTRUE(keep_scores)) {
     x$scores <- .compute_scores(levels_list, data_mat)
   }

@@ -12,6 +12,7 @@ ackwards(
   fm = "minres",
   estimator = NULL,
   missing = "pairwise",
+  n_obs = NULL,
   align_signs = TRUE,
   keep_scores = FALSE,
   keep_fits = FALSE,
@@ -26,8 +27,11 @@ ackwards(
 }
 \arguments{
 \item{data}{A data frame or numeric matrix of observed variables (items in
-columns, observations in rows). How missing values are handled depends on
-the \code{missing} argument; see below.}
+columns, observations in rows). Alternatively, a pre-computed \strong{correlation
+matrix} may be supplied (a square, symmetric, numeric matrix with unit
+diagonal). When a correlation matrix is supplied, \code{engine} must be \code{"pca"}
+or \code{"efa"} (ESEM requires raw data), and the \code{missing} and \code{cor} arguments
+are ignored. See the \emph{Correlation-matrix input} section below.}
 
 \item{k_max}{Maximum number of factors/components to extract. Required; use
 \code{\link[=suggest_k]{suggest_k()}} if uncertain. Sets the depth of the hierarchy: levels
@@ -78,6 +82,14 @@ factor estimation under missingness but does not impute item responses;
 score materialisation (\code{keep_scores = TRUE}) still produces \code{NA} rows
 for incomplete observations.
 }}
+
+\item{n_obs}{Number of observations. Used only when \code{data} is a
+pre-computed correlation matrix. Ignored when raw data are supplied (N is
+determined from \code{nrow(data)}). For \code{engine = "efa"}, \code{n_obs} is required —
+\code{\link[psych:fa]{psych::fa()}} needs N to compute fit indices (chi-square, RMSEA, TLI). For
+\code{engine = "pca"}, \code{n_obs} is optional; edges use only the \verb{W'RW} algebra
+and never touch N (if \code{NULL}, stored as \code{NA_integer_} and fit statistics
+requiring N are unavailable).}
 
 \item{align_signs}{Logical; sign-align factors to primary-parent lineage?
 Default \code{TRUE}.}
@@ -164,11 +176,42 @@ Both are recomputable from the stored \code{r} matrix.
 }
 }
 
+\section{Correlation-matrix input}{
+
+When \code{data} is a pre-computed correlation matrix (square, symmetric, unit
+diagonal), \code{ackwards()} runs entirely from that matrix using the \verb{W'RW}
+algebra — no raw item responses are needed. This is useful when you have
+a published correlation table or a polychoric matrix computed externally.
+
+Constraints and behaviour when a correlation matrix is supplied:
+\itemize{
+\item \strong{Engine:} only \code{"pca"} and \code{"efa"} are supported. \code{"esem"} requires raw
+data (for lavaan's own polychoric computation, WLSMV estimation, and
+per-level fit indices) and will error clearly.
+\item \strong{\code{n_obs}:} required for \code{"efa"} (psych needs N for chi-square / RMSEA /
+TLI); optional for \code{"pca"} (stored as \code{NA} if omitted).
+\item \strong{\code{cor} argument:} ignored — the basis is already determined by the
+matrix you supply. A warning is emitted if you set \code{cor} explicitly.
+\item \strong{\code{missing} argument:} ignored — missingness was handled when computing
+the matrix. A warning is emitted if you set \code{missing} explicitly.
+\item \strong{Factor scores:} \code{keep_scores = TRUE} will error; \code{augment()} and
+\code{tidy(what = "scores")} will also error because individual-level scores
+require row-level item responses.
+\item \strong{\verb{$cor} field:} stored as \code{NA_character_}; printed as
+\code{"(user-supplied matrix)"}.
+}
+}
+
 \examples{
 x <- ackwards(bfi25, k_max = 5)
 print(x)
 tidy(x)
 glance(x)
+
+# Correlation-matrix input (PCA engine; n_obs optional)
+R <- cor(bfi25, use = "pairwise.complete.obs")
+x_R <- ackwards(R, k_max = 5)
+print(x_R)
 
 }
 \references{

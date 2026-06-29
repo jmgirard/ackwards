@@ -45,11 +45,13 @@ summary.ackwards <- function(object, ...) {
 print.summary_ackwards <- function(x, ...) {
   cli::cli_h1("Summary: Bass-Ackwards Analysis ({.pkg ackwards})")
 
+  cor_label <- if (is.na(x$cor)) "(user-supplied matrix)" else x$cor
+  n_label <- if (is.na(x$n_obs)) "NA" else format(x$n_obs, big.mark = ",")
   cli::cli_dl(c(
     "Engine"   = cli::style_bold(x$engine),
     "Rotation" = x$rotation,
-    "Basis"    = x$cor,
-    "n"        = format(x$n_obs, big.mark = ","),
+    "Basis"    = cor_label,
+    "n"        = n_label,
     "k (max)"  = as.character(x$k_max)
   ))
 
