@@ -10,7 +10,7 @@ Description: Implements Goldberg's (2006) <doi:10.1016/j.jrp.2006.01.001>
     engines, then characterizes the hierarchy via between-level factor-score
     correlations computed via exact linear algebra (Waller, 2007,
     <doi:10.1016/j.jrp.2006.08.005>) or materialized scores. Includes the
-    Forbes (2023) <doi:10.1037/met0000516> extension for redundancy pruning
+    Forbes (2023) <doi:10.1037/met0000546> extension for redundancy pruning
     and all-levels cross-correlations.
 License: MIT + file LICENSE
 Encoding: UTF-8

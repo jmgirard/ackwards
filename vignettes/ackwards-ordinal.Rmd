@@ -196,7 +196,7 @@ very large item pools.
 > **A note on score computation.** When `cor = "polychoric"`, the weight
 > matrices stored in the object are derived from the polychoric `R`. Materializing
 > factor scores via `augment()` applies those weights to Pearson-standardized raw
-> data (`scale(data)`). The resulting scores are calibrated to have
+> data (`.standardize(data)`). The resulting scores are calibrated to have
 > *model-implied* unit variance, not empirically unit variance. For downstream
 > analysis this distinction rarely matters — the scores are still well-scaled —
 > but it is why `augment()` issues a warning when `cor != "pearson"`. The

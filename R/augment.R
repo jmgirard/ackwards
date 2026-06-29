@@ -10,7 +10,7 @@ generics::augment
 #'
 #' @details
 #' **Score computation.** Scores are `S = Z W / sqrt(score_var)`, where
-#' `Z = scale(data)` (item z-scores), `W` is the per-level weight matrix
+#' `Z = .standardize(data)` (item z-scores), `W` is the per-level weight matrix
 #' stored in the object, and `sqrt(score_var)` standardizes by the real
 #' score standard deviations (Invariant 1: never assume unit variance).
 #' For PCA the method is `"components"`; for EFA/ESEM it is `"tenBerge"`.

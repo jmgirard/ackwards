@@ -284,7 +284,7 @@ Personality*, *40*(4), 347–358.
 
 Forbes, M. K. (2023). Improving hierarchical models of individual differences:
 An extension of Goldberg's bass-ackward method. *Psychological Methods*.
-https://doi.org/10.1037/met0000593
+https://doi.org/10.1037/met0000546
 
 Tucker, L. R. (1951). *A method for synthesis of factor analysis studies*
 (Personnel Research Section Report No. 984). Department of the Army.
