@@ -149,7 +149,9 @@ default output must reproduce Forbes's examples exactly.
   (D) `autoplot.suggest_k()` adds a 4th "CD (RMSE, minimize)" panel (2×2 grid when CD available;
   unchanged 3-panel single-column otherwise); `suggest_k` object gains `cd_rmse` field. CD vline
   removed from MAP panel. Tests for 4-panel/3-panel branches and `cd_rmse` field.
-  (968 tests pass, 1 skip; 0/0/0 R CMD check.)
+  Post-review: committed stale README hero figure (bfi25 render); added `test-data.R` (6 assertions
+  on `bfi25` shape/cols/class/NAs/range); corrected `data.R` `@source` year 2025→2026.
+  (974 tests pass, 1 skip; 0/0/0 R CMD check.)
 
 ## Current focus
 
