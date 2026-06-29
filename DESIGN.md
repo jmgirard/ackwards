@@ -198,7 +198,8 @@ structure(list(
   fits    = NULL,        # opt-in raw engine objects (keep_fits = TRUE)
   r       = <p x p input correlation matrix>,   # cheap; kept so scores/edges recomputable
   data    = NULL,        # opt-in raw data
-  meta    = <suggest_k output, timestamps, convergence summary, chosen defaults>,
+  meta    = <suggest_k output, timestamps, convergence summary, chosen defaults,
+             input_type = "data"|"cor_matrix">,
   prune   = NULL         # Forbes extension: node flags + chain table + phi table;
                          # populated by .apply_pruning() when prune != "none"
 ), class = "ackwards")
@@ -284,7 +285,8 @@ announced via cli and documented in roxygen with its rationale.
 | `keep_fits` / `keep_scores` | `FALSE` / `FALSE` | memory + privacy. |
 | `k_max` | required | force a deliberate choice; don't silently pick. |
 | `seed` | `NULL` but captured | stochastic engines (rotation starts, ML) need reproducibility; encourage setting. |
-| `missing` | **`"pairwise"`** | preserves existing behaviour (pairwise-complete correlations); warns when NAs present. `"listwise"` gives fully consistent N across fit and edges (reduces to complete cases pre-fit). `"fiml"` (ESEM ML/MLR only) uses Full Information ML and derives edge R from lavaan's FIML saturated model. FIML errors for PCA, EFA, and WLSMV/ULSMV. Added M16; **see §14 "ESEM ML/MLR pairwise" limitation entry** (the ML/MLR fit-vs-edges inconsistency under missingness is resolved for `"listwise"` and `"fiml"`; `"pairwise"` retains the existing minor inconsistency and now warns). |
+| `missing` | **`"pairwise"`** | preserves existing behaviour (pairwise-complete correlations); warns when NAs present. `"listwise"` gives fully consistent N across fit and edges (reduces to complete cases pre-fit). `"fiml"` (ESEM ML/MLR only) uses Full Information ML and derives edge R from lavaan's FIML saturated model. FIML errors for PCA, EFA, and WLSMV/ULSMV. Added M16; **see §14 "ESEM ML/MLR pairwise" limitation entry** (the ML/MLR fit-vs-edges inconsistency under missingness is resolved for `"listwise"` and `"fiml"`; `"pairwise"` retains the existing minor inconsistency and now warns). Ignored (with a warning) when a correlation matrix is supplied — added M22. |
+| `n_obs` | `NULL` (new M22) | required for `engine = "efa"` when a correlation matrix is supplied (psych needs N for chi-square/RMSEA); optional for `"pca"` (stored as `NA_integer_`). Ignored (with a warning) when raw data are supplied (N comes from `nrow(data)`). |
 
 ### Documentation standard (owner priority)
 
@@ -756,7 +758,7 @@ that needs it. **No Rcpp dependency planned** (see §3).
     mechanic + cross-ref (naming-judgment treatment moved to the new vignette). **Amends §10, §11.**
 
 21. **Onboarding & usability pass** *(done)* — pre-CRAN usability/polish; not a feature milestone.
-    Correlation-matrix input deferred to M22.
+    Correlation-matrix input deferred to M22. *(see M22 below)*
 
     **(A) `psych` → Imports; drop `GPArotation`.** `psych` moved from Suggests to Imports — it is the
     engine substrate for the default PCA and EFA paths; a `check_installed` guard for the default path
@@ -785,6 +787,20 @@ that needs it. **No Rcpp dependency planned** (see §3).
     2×2 (`ncol = 2`); when absent, unchanged 3-panel single-column layout. The CD vline that
     previously appeared in the MAP panel is removed — CD now has its own space. **Amends §8.**
     968 tests pass, 1 skip; 0/0/0 R CMD check.
+
+22. **Correlation-matrix input** *(done)* — `ackwards()` and `suggest_k()` accept a pre-computed
+    correlation matrix (auto-detected: square, symmetric, unit diagonal) in addition to raw data.
+    Detection via `.is_cor_matrix()` helper; full validation in `.validate_cor_matrix()` (square,
+    numeric, finite, symmetric, unit diagonal, `|r| ≤ 1`, no NA; synthesises `V1..Vp` dimnames if
+    absent; warns on non-PD without auto-smoothing user input). Engine gating: `"esem"` errors
+    clearly (lavaan requires raw data). New `n_obs` argument: required for `"efa"` (psych needs N
+    for chi-square/RMSEA/TLI); optional for `"pca"` (stored as `NA`); ignored (with warning) for
+    raw-data input. `cor` and `missing` args ignored+warned when R supplied; `$cor` stored as
+    `NA_character_`, printed as `"(user-supplied matrix)"`. `keep_scores = TRUE`, `augment()`, and
+    `tidy(what = "scores")` error clearly. CD gated off in `suggest_k()` with info note. Edges
+    computed from the supplied R via the same `W'RW` algebra — identical to the raw-data path for
+    the same matrix. `meta$input_type` records `"data"` | `"cor_matrix"` in every result. 36 new
+    tests in `test-cor-input.R`. **Amends §6, §9.**
 
 ### Key references
 - Goldberg, L. R. (2006). Doing it all bass-ackwards. *J. Research in Personality*, 40(4), 347–358.

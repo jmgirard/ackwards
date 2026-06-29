@@ -1,3 +1,34 @@
+# ackwards 0.2.0 (development)
+
+## Correlation-matrix input (M22)
+
+`ackwards()` and `suggest_k()` now accept a pre-computed **correlation matrix**
+in place of raw item data, detected automatically from the matrix shape (square,
+symmetric, unit diagonal).
+
+* **Engine gating** — only `"pca"` and `"efa"` are supported for matrix input;
+  `"esem"` errors clearly (lavaan requires raw data for WLSMV, FIML, and per-level
+  fit indices).
+* **`n_obs` argument** — new optional argument on both functions. Required for
+  `engine = "efa"` with a matrix (psych needs N for chi-square/RMSEA/TLI); optional
+  for `engine = "pca"` (stored as `NA` when omitted with a cli note). Ignored (with
+  a warning) when raw data are supplied.
+* **Edge correctness** — edges from `ackwards(R, ...)` match `ackwards(data, ...)`
+  exactly for the same input correlation matrix: both use the same closed-form
+  `W′RW` algebra.
+* **`cor` and `missing` arguments** — ignored (with a warning if set) for matrix
+  input; the basis is already determined by the supplied matrix, and missingness was
+  handled upstream. `$cor` is stored as `NA_character_` and printed as
+  `"(user-supplied matrix)"`.
+* **Score paths blocked** — `keep_scores = TRUE`, `augment()`, and
+  `tidy(what = "scores")` error clearly: individual-level scoring requires raw item
+  responses.
+* **CD skipped in `suggest_k()`** — Comparison Data resamples raw item
+  distributions; it is skipped with an info note when a matrix is supplied.
+* **Validation** — `.validate_cor_matrix()` checks square, numeric, finite,
+  symmetric, unit diagonal, `|r| ≤ 1`, no NA; synthesises `V1..Vp` dimnames when
+  absent; warns (does not auto-smooth) when the matrix is not positive-definite.
+
 # ackwards 0.1.0
 
 First public release. Licensed under MIT.

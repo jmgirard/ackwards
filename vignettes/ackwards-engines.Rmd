@@ -305,6 +305,45 @@ ackwards(data, k_max = 4, engine = "esem", cor = "polychoric",
 | ESEM ML/MLR, meaningful missingness, want all rows used in estimation | `"fiml"` |
 | MAR-valid with ordinal (not yet built-in) | MI via `lavaan.mi` or `mirt` |
 
+## Correlation-matrix input
+
+When you have a pre-computed correlation matrix — a published table, a
+polychoric matrix computed externally, or a subset you want to analyse without
+refitting — you can pass it directly to `ackwards()` or `suggest_k()`. The
+matrix is auto-detected from its shape (square, symmetric, unit diagonal).
+
+```{r cor-matrix-input, eval = FALSE}
+R <- cor(bfi25, use = "pairwise.complete.obs")
+
+# PCA from a correlation matrix (n_obs optional for PCA; required for EFA)
+x_R <- ackwards(R, k_max = 5)
+# EFA requires n_obs for fit indices:
+x_efa_R <- ackwards(R, k_max = 5, engine = "efa", n_obs = 875L)
+
+# Edges are identical to the raw-data run (same W'RW algebra):
+x_d <- ackwards(bfi25, k_max = 5)
+all.equal(tidy(x_R)$r, tidy(x_d)$r) # TRUE within floating-point tolerance
+```
+
+### Constraints
+
+| Constraint | Detail |
+|---|---|
+| **Engine** | `"pca"` and `"efa"` only — `"esem"` errors (lavaan needs raw data) |
+| **`n_obs`** | Required for `"efa"`; optional for `"pca"` (stored as `NA`) |
+| **`cor` argument** | Ignored (basis is fixed); warns if set explicitly |
+| **`missing` argument** | Ignored; warns if set explicitly |
+| **Factor scores** | `keep_scores = TRUE`, `augment()`, `tidy(what = "scores")` all error |
+| **`$cor` field** | Stored as `NA`; shown as `"(user-supplied matrix)"` in print |
+
+### suggest_k() with a correlation matrix
+
+```{r cor-matrix-suggest, eval = FALSE}
+sk_R <- suggest_k(R, n_obs = 875L)
+# CD is skipped (resampling requires raw item distributions)
+# PA, MAP, and VSS run normally
+```
+
 ## References
 
 Goldberg, L. R. (2006). Doing it all bass-ackwards. *Journal of Research in
