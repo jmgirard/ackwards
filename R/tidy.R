@@ -17,6 +17,10 @@ generics::glance
 #'     `from`, `to`, `level_from`, `level_to`, `r`, `is_primary`, `above_cut`.
 #'   * `"loadings"` — one row per item × factor × level:
 #'     `level`, `factor`, `item`, `loading`.
+#'   * `"loadings_se"` — one row per item × factor × level with the rotation-aware
+#'     standard error of each loading: `level`, `factor`, `item`, `se`. Only the
+#'     ESEM engine (`engine = "esem"`) produces these; errors informatively for
+#'     PCA/EFA objects, which carry no loading standard errors.
 #'   * `"variance"` — one row per factor × level:
 #'     `level`, `factor`, `variance_pct`, `cumulative_pct`.
 #'   * `"fit"` — one row per fit index × level: `level`, `index`, `value`.
@@ -29,6 +33,10 @@ generics::glance
 #'   * `"scores"` — long-format per-observation factor scores (requires
 #'     `keep_scores = TRUE` at fit time or use [augment.ackwards()] for on-the-fly
 #'     computation). Columns: `obs` (row index), `level`, `factor`, `score`.
+#' @param primary_only For `what = "edges"` only. When `TRUE`, returns just each
+#'   factor's primary-parent edge (`is_primary == TRUE`) — the lineage tree that
+#'   the diagram draws as solid arrows. Default `FALSE` (all edges). Errors for
+#'   any other value of `what`.
 #' @param sort For `what = "edges"` only. One of `"none"` (default, natural order)
 #'   or `"strength"` (descending `|r|`). Ignored for all other values of `what`.
 #' @param ... Ignored.
@@ -42,6 +50,7 @@ generics::glance
 #'   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
 #'   tidy(x) # edges in natural order
 #'   tidy(x, sort = "strength") # strongest edges first
+#'   tidy(x, primary_only = TRUE) # just the primary-parent lineage
 #'   tidy(x, what = "loadings")
 #'   tidy(x, what = "variance")
 #' }
@@ -49,7 +58,8 @@ generics::glance
 #' @export
 tidy.ackwards <- function(
   x,
-  what = c("edges", "loadings", "variance", "fit", "nodes", "scores"),
+  what = c("edges", "loadings", "loadings_se", "variance", "fit", "nodes", "scores"),
+  primary_only = FALSE,
   sort = c("none", "strength"),
   ...
 ) {
@@ -61,16 +71,28 @@ tidy.ackwards <- function(
        not {.code what = \"{what}\"}."
     )
   }
+  if (isTRUE(primary_only) && what != "edges") {
+    cli::cli_abort(
+      "{.arg primary_only} is only supported for {.code what = \"edges\"}, \\
+       not {.code what = \"{what}\"}."
+    )
+  }
   out <- switch(what,
-    edges    = .tidy_edges(x),
-    loadings = .tidy_loadings(x),
-    variance = .tidy_variance(x),
-    fit      = .tidy_fit(x),
-    nodes    = .tidy_nodes(x),
-    scores   = .tidy_scores(x)
+    edges       = .tidy_edges(x),
+    loadings    = .tidy_loadings(x),
+    loadings_se = .tidy_loadings_se(x),
+    variance    = .tidy_variance(x),
+    fit         = .tidy_fit(x),
+    nodes       = .tidy_nodes(x),
+    scores      = .tidy_scores(x)
   )
-  if (sort == "strength" && what == "edges") {
-    out <- out[order(abs(out$r), decreasing = TRUE), , drop = FALSE]
+  if (what == "edges") {
+    if (isTRUE(primary_only)) {
+      out <- out[out$is_primary, , drop = FALSE]
+    }
+    if (sort == "strength") {
+      out <- out[order(abs(out$r), decreasing = TRUE), , drop = FALSE]
+    }
     rownames(out) <- NULL
   }
   out
@@ -130,6 +152,37 @@ tidy.ackwards <- function(
         factor = colnames(L)[j],
         item = rownames(L),
         loading = L[, j],
+        stringsAsFactors = FALSE
+      )
+    }))
+  })
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
+  out
+}
+
+.tidy_loadings_se <- function(x) {
+  has_se <- vapply(x$levels, function(lev) !is.null(lev$loadings_se), logical(1L))
+  if (!any(has_se)) {
+    cli::cli_abort(c(
+      "!" = "Loading standard errors are not available in this {.cls ackwards} \\
+             object.",
+      "i" = "Rotation-aware loading SEs are produced only by \\
+             {.code engine = \"esem\"}; PCA and EFA carry none."
+    ))
+  }
+  rows <- lapply(names(x$levels), function(ki) {
+    SE <- x$levels[[ki]]$loadings_se
+    if (is.null(SE)) {
+      return(NULL)
+    }
+    k <- as.integer(ki)
+    do.call(rbind, lapply(seq_len(ncol(SE)), function(j) {
+      data.frame(
+        level = k,
+        factor = colnames(SE)[j],
+        item = rownames(SE),
+        se = SE[, j],
         stringsAsFactors = FALSE
       )
     }))

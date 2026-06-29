@@ -206,6 +206,19 @@ test_that("tidy(x, what = 'fit') returns 7 indices per level for ESEM", {
   expect_equal(sort(unique(td$level)), 1:3)
 })
 
+test_that("tidy(x, what = 'loadings_se') returns one SE per loading for ESEM", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  se <- generics::tidy(x, what = "loadings_se")
+  expect_s3_class(se, "data.frame")
+  expect_identical(names(se), c("level", "factor", "item", "se"))
+  # Same number of rows as the loadings table (one SE per loading)
+  expect_identical(nrow(se), nrow(generics::tidy(x, what = "loadings")))
+  expect_true(all(is.finite(se$se)))
+  expect_true(all(se$se >= 0))
+})
+
 
 # ── estimator argument ────────────────────────────────────────────────────────
 

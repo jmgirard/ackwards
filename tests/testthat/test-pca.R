@@ -143,3 +143,39 @@ test_that("tidy(x, sort = 'strength', what = 'loadings') errors informatively", 
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_error(tidy(x, what = "loadings", sort = "strength"), "edges")
 })
+
+# ── tidy(primary_only = TRUE) ──────────────────────────────────────────────────
+
+test_that("tidy(x, primary_only = TRUE) returns only is_primary edges", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5))
+  full <- tidy(x, what = "edges")
+  prim <- tidy(x, what = "edges", primary_only = TRUE)
+  expect_true(all(prim$is_primary))
+  expect_identical(nrow(prim), sum(full$is_primary))
+})
+
+test_that("tidy(x, primary_only = TRUE, sort = 'strength') filters and sorts", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5))
+  out <- tidy(x, what = "edges", primary_only = TRUE, sort = "strength")
+  expect_true(all(out$is_primary))
+  expect_true(all(diff(abs(out$r)) <= 0))
+})
+
+test_that("tidy(x, primary_only = TRUE, what = 'loadings') errors informatively", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  expect_error(
+    tidy(x, what = "loadings", primary_only = TRUE),
+    "edges"
+  )
+})
+
+# ── tidy(what = "loadings_se") ─────────────────────────────────────────────────
+
+test_that("tidy(x, what = 'loadings_se') errors for PCA (no SEs)", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  expect_error(tidy(x, what = "loadings_se"), "standard error")
+})

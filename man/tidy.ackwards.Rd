@@ -6,7 +6,8 @@
 \usage{
 \method{tidy}{ackwards}(
   x,
-  what = c("edges", "loadings", "variance", "fit", "nodes", "scores"),
+  what = c("edges", "loadings", "loadings_se", "variance", "fit", "nodes", "scores"),
+  primary_only = FALSE,
   sort = c("none", "strength"),
   ...
 )
@@ -20,6 +21,10 @@
 \code{from}, \code{to}, \code{level_from}, \code{level_to}, \code{r}, \code{is_primary}, \code{above_cut}.
 \item \code{"loadings"} — one row per item × factor × level:
 \code{level}, \code{factor}, \code{item}, \code{loading}.
+\item \code{"loadings_se"} — one row per item × factor × level with the rotation-aware
+standard error of each loading: \code{level}, \code{factor}, \code{item}, \code{se}. Only the
+ESEM engine (\code{engine = "esem"}) produces these; errors informatively for
+PCA/EFA objects, which carry no loading standard errors.
 \item \code{"variance"} — one row per factor × level:
 \code{level}, \code{factor}, \code{variance_pct}, \code{cumulative_pct}.
 \item \code{"fit"} — one row per fit index × level: \code{level}, \code{index}, \code{value}.
@@ -33,6 +38,11 @@ the same columns when no pruning was applied.
 \code{keep_scores = TRUE} at fit time or use \code{\link[=augment.ackwards]{augment.ackwards()}} for on-the-fly
 computation). Columns: \code{obs} (row index), \code{level}, \code{factor}, \code{score}.
 }}
+
+\item{primary_only}{For \code{what = "edges"} only. When \code{TRUE}, returns just each
+factor's primary-parent edge (\code{is_primary == TRUE}) — the lineage tree that
+the diagram draws as solid arrows. Default \code{FALSE} (all edges). Errors for
+any other value of \code{what}.}
 
 \item{sort}{For \code{what = "edges"} only. One of \code{"none"} (default, natural order)
 or \code{"strength"} (descending \verb{|r|}). Ignored for all other values of \code{what}.}
@@ -49,8 +59,9 @@ default (\code{what = "edges"}) returns the graph edge list that drives diagrams
 \examples{
 if (requireNamespace("psych", quietly = TRUE)) {
   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-  tidy(x)                                    # edges in natural order
-  tidy(x, sort = "strength")                 # strongest edges first
+  tidy(x) # edges in natural order
+  tidy(x, sort = "strength") # strongest edges first
+  tidy(x, primary_only = TRUE) # just the primary-parent lineage
   tidy(x, what = "loadings")
   tidy(x, what = "variance")
 }
