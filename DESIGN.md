@@ -741,7 +741,17 @@ that needs it. **No Rcpp dependency planned** (see §3).
 
     No new dependencies. No invariant or default changes. 122 tests (96 + 26).
 
----
+19. **Dedicated interpretation/labeling vignette** *(done)* — documentation-only. The M18 helpers
+    were split across the intro (`top_items()`) and visualization (`label_template()`) vignettes,
+    fragmenting one workflow. New `vignette("ackwards-interpret")` ("Interpreting and Labeling
+    Factors") owns the end-to-end arc: reading a factor with `top_items()` (cut/n/sort, cross-
+    loadings); the sign-alignment caveat in interpretive terms (negative ≠ "low"); **hierarchy-aware
+    naming** (parent vs child, blends, factors reorganizing across levels, using lineage/edges to
+    inform names — content no other vignette covers); the `top_items` → name → `label_template` →
+    `autoplot(node_labels=)` round-trip; the Forbes letter convention vs substantive names. Listed
+    in the pkgdown "Deep dives" nav after `ackwards-suggest-k`. Intro Step 5 trimmed to a slim
+    `top_items()` example + pointer; visualization vignette keeps the `node_labels`/`label_template`
+    mechanic + cross-ref (naming-judgment treatment moved to the new vignette). **Amends §10, §11.**
 
 ### Key references
 - Goldberg, L. R. (2006). Doing it all bass-ackwards. *J. Research in Personality*, 40(4), 347–358.

@@ -1,0 +1,223 @@
+---
+title: "Interpreting and Labeling Factors"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Interpreting and Labeling Factors}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 7
+)
+```
+
+```{r packages, message = FALSE}
+library(ackwards)
+bfi <- na.omit(psych::bfi[, 1:25])
+x <- ackwards(bfi, k_max = 5)
+```
+
+Fitting an `ackwards` model gives you a hierarchy of factors with stable but
+opaque IDs — `m1f1`, `m2f1`, `m2f2`, and so on. Turning those IDs into something
+you can reason about is *interpretive* work: you read each factor's loadings,
+decide what construct it represents, and give it a name. This is the part of the
+analysis that requires judgment, and it is harder in a bass-ackwards hierarchy
+than in a single flat factor solution, because the same construct can appear,
+split, and merge across levels.
+
+This article covers the full workflow:
+
+1. **Read** each factor with `top_items()`.
+2. **Understand** the sign convention so you don't misread a factor.
+3. **Name** factors in a way that respects the hierarchy.
+4. **Apply** your names to the diagram with `label_template()` and
+   `autoplot(node_labels = ...)`.
+
+## Reading a factor with `top_items()`
+
+A factor is defined by the items that load strongly on it. `top_items()` lists,
+for each factor, the items whose absolute loading meets a threshold, sorted from
+strongest to weakest. This is far easier to read than a full item-by-factor
+matrix, especially at deeper levels.
+
+```{r top-items-5}
+top_items(x, level = 5)
+```
+
+The default `cut = 0.3` shows every item with `|loading| >= 0.3`. Raise it to
+isolate the items that most define each factor, or lower it to surface weaker
+cross-loadings.
+
+```{r top-items-cut}
+top_items(x, level = 5, cut = 0.45)
+```
+
+When a factor has many salient items, `n` caps the list at the strongest few so
+you can see the core of each factor at a glance:
+
+```{r top-items-n}
+top_items(x, level = 5, cut = 0.3, n = 4)
+```
+
+By default items are sorted by descending `|loading|`. If your items have a
+meaningful order (for example, a numbered scale you want to keep in sequence),
+set `sort = FALSE`.
+
+`top_items()` returns an object whose `$data` field is a plain data frame — a
+filtered, sorted slice of `tidy(x, what = "loadings")` — so you can compute on it
+if you need to:
+
+```{r top-items-data}
+ti <- top_items(x, level = 5, cut = 0.3)
+head(ti$data)
+```
+
+### Cross-loadings are signal
+
+Items that load on more than one factor are not noise to be suppressed — they
+often tell you how two factors relate. Lowering the cut reveals them:
+
+```{r top-items-cross}
+top_items(x, level = 3, cut = 0.25)
+```
+
+An item that appears under two factors at the same level marks a point where the
+constructs overlap. Whether that overlap is substantively meaningful or a sign of
+overextraction is a judgment call — see `vignette("ackwards-suggest-k")` for the
+overextraction discussion.
+
+## The sign convention: negative does not mean "low"
+
+Before naming anything, understand how `ackwards` orients factors. Loadings are
+**sign-aligned to the primary parent** (see `?ackwards`): the level-1 factor is
+anchored so its loadings sum positive, and every deeper factor is flipped so its
+correlation with its primary parent is positive. This makes the diagram readable,
+but it has a consequence for interpretation.
+
+A factor's *sign* is arbitrary in the sense that flipping every loading and the
+factor's orientation describes the same dimension. So a column of negative
+loadings does **not** mean "low" on that construct — it means the construct's
+positive pole was oriented the other way by the alignment step. Read the
+*pattern* of items, not the bare sign:
+
+```{r sign-example}
+top_items(x, level = 2)
+```
+
+If a Neuroticism factor shows up with negative loadings on the anxiety items,
+that is an orientation artifact of the alignment, not a "low anxiety" factor.
+Name it for the construct (Neuroticism), and if the sign matters for your
+downstream use, flip the scores yourself. The values shown by `top_items()` and
+`tidy(what = "loadings")` are the aligned values, so they are consistent with the
+diagram and the edge table.
+
+## Naming in a hierarchy
+
+In a flat factor solution you name each factor once. In a bass-ackwards hierarchy
+you are naming factors at *every* level, and the levels are related — so the
+names should be related too. The lineage tells you how.
+
+```{r lineage}
+summary(x)
+```
+
+The lineage list (`m1f1 → m2f1, m2f2 → ...`) shows each factor's primary
+children. Use it to name **top-down**:
+
+- **Upper-level factors are broader.** A level-2 factor that is the primary
+  parent of two level-3 factors is the construct they share. Name it for the
+  blend, not for one child. In the `bfi` data above, the level-1 factor is a
+  single broad dimension; at level 2 it separates into a Neuroticism factor
+  (`m2f2`, defined by the N items) and a broad factor blending the remaining four
+  trait families (`m2f1`). The Big Five themselves do not appear cleanly until
+  level 5 — so a substantive name for `m2f1` ("broad well-adjustment", say) is
+  necessarily coarser than the names you give its descendants.
+
+- **A split is a refinement, not a contradiction.** When a parent factor splits
+  into two children, the children carve up the parent's content. Their names
+  should read as specializations of the parent's name, so that reading down a
+  branch tells a coherent story.
+
+- **Watch for factors that reorganize.** A child whose strongest parent is at the
+  *other* side of the level above (a crossing edge), or a factor whose primary
+  edge is weak (`|r|` well below the near-1.0 values of stable dimensions), is a
+  place where the structure is genuinely rearranging. The edge table makes these
+  visible:
+
+```{r edges-weak}
+edges <- tidy(x, what = "edges")
+primary <- edges[edges$is_primary & edges$level_to == edges$level_from + 1, ]
+primary[order(abs(primary$r)), c("from", "to", "r")] |> head()
+```
+
+Edges with `|r|` near 1.0 are factors that pass through nearly unchanged — name
+the child the same as the parent. The smaller `|r|` values flag where a new,
+distinct construct is emerging and deserves its own name.
+
+## Applying your names
+
+Once you have decided on names, attach them to the diagram. `autoplot()` takes a
+`node_labels` argument: a named character vector mapping factor IDs to display
+strings.
+
+Typing that vector out by hand is tedious and error-prone, so `label_template()`
+generates it for you, in the same order the diagram uses, and prints an editable
+`c(...)` literal you can paste straight into your script:
+
+```{r label-template}
+label_template(x)
+```
+
+Copy that literal, fill in your names, and pass it to `autoplot()`. Unspecified
+IDs keep their default `m{k}f{j}` label, so you can label just the level you care
+about:
+
+```{r node-labels}
+autoplot(x, node_labels = c(
+  m5f1 = "Neuroticism",
+  m5f2 = "Extraversion",
+  m5f3 = "Openness",
+  m5f4 = "Agreeableness",
+  m5f5 = "Conscientiousness"
+))
+```
+
+### The Forbes letter convention
+
+Forbes (2023) labels nodes by level-letter and within-level index — `A1` for the
+single level-1 factor, `B1`/`B2` at level 2, and so on. `label_template()`
+produces this convention directly with `style = "forbes"`:
+
+```{r label-forbes}
+autoplot(x, node_labels = label_template(x, style = "forbes"))
+```
+
+This is useful when you want to refer to nodes by position rather than by
+substantive name — for example, in a methods section that walks through the
+hierarchy before interpreting it.
+
+### Starting from a blank slate
+
+If you would rather supply every label yourself with no defaults showing through,
+`style = "blank"` gives you an all-empty scaffold to fill in:
+
+```{r label-blank}
+labs <- label_template(x, style = "blank")
+labs["m5f1"] <- "N"
+labs["m5f2"] <- "E"
+labs["m5f3"] <- "O"
+labs["m5f4"] <- "A"
+labs["m5f5"] <- "C"
+autoplot(x, node_labels = labs)
+```
+
+## Where to go next
+
+This article is about *what* to put on the diagram. For *how* the diagram looks —
+colours, edge thresholds, monochrome and publication styling, level labels, and
+the Forbes pruned-diagram mode — see `vignette("ackwards-visualization")`.

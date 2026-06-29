@@ -198,11 +198,9 @@ hierarchies.
 top_items(x, level = 5, cut = 0.3)
 ```
 
-You can cap the output to the strongest items per factor with `n`:
-
-```{r top-items-n}
-top_items(x, level = 5, cut = 0.3, n = 3)
-```
+Reading a hierarchy of factors and giving them names is its own topic — including
+the sign convention, naming across levels, and applying labels to the diagram.
+See `vignette("ackwards-interpret")` for the full workflow.
 
 ### Factor loadings (tidy)
 

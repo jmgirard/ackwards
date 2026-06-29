@@ -28,6 +28,7 @@ articles:
   navbar: Deep dives
   contents:
   - ackwards-suggest-k
+  - ackwards-interpret
   - ackwards-engines
   - ackwards-ordinal
   - ackwards-forbes
