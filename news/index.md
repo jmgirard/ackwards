@@ -120,6 +120,70 @@ toggle (`legend`); Forbes-style pruned view (`drop_pruned`,
   [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
   → `autoplot(node_labels = ...)` round-trip.
 
+### Dependencies
+
+- **`psych` moved to `Imports`** — the default PCA and EFA engines
+  require psych; placing it in Suggests meant a mandatory install prompt
+  for core functionality. The SEM (`lavaan`) and plotting (`ggplot2`)
+  stacks remain in Suggests.
+- **`GPArotation` removed** — varimax rotation routes through base
+  [`stats::varimax`](https://rdrr.io/r/stats/varimax.html); GPArotation
+  was never loaded on any supported path.
+- **`bfi25` example dataset** bundled — a 1 000-row, 25-item subset of
+  the SAPA/IPIP Big Five data (sampled from
+  [`psych::bfi`](https://rdrr.io/pkg/psych/man/bfi.html)). Used
+  throughout examples and vignettes so they run without reaching into
+  psych’s namespace. See
+  [`?bfi25`](https://jmgirard.github.io/ackwards/reference/bfi25.md) for
+  provenance and `@source`.
+
+### `autoplot.suggest_k()` — CD panel
+
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+now stores `cd_rmse` (column means of
+[`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html)’s RMSE
+eigenvalue matrix) in the returned object. When CD is available,
+`autoplot(suggest_k(...))` renders a four-panel 2×2 grid including a
+dedicated **“CD (RMSE, minimize)”** panel with the retention threshold
+marked — giving CD its own diagnostic space rather than sharing the MAP
+panel. The three-panel single-column layout is unchanged when EFAtools
+is absent.
+
+### Correlation-matrix input
+
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+and
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+now accept a pre-computed **correlation matrix** in place of raw item
+data, detected automatically from the matrix shape (square, symmetric,
+unit diagonal).
+
+- **Engine gating** — only `"pca"` and `"efa"` are supported; `"esem"`
+  errors clearly (lavaan requires raw data for WLSMV estimation and
+  per-level fit indices).
+- **`n_obs` argument** — new optional argument on both functions.
+  Required for `engine = "efa"` with a matrix (psych needs N for
+  chi-square/RMSEA/TLI); optional for `engine = "pca"` (stored as `NA`
+  when omitted). Ignored (with a warning) when raw data are supplied.
+- **Edge correctness** — edges from `ackwards(R, ...)` match
+  `ackwards(data, ...)` exactly for the same correlation matrix: both
+  routes use the closed-form `W'RW` algebra.
+- **`cor` and `missing` arguments** — ignored (with a warning if set)
+  for matrix input. `$cor` is stored as `NA_character_` and printed as
+  `"(user-supplied matrix)"`.
+- **Score paths blocked** — `keep_scores = TRUE`,
+  [`augment()`](https://generics.r-lib.org/reference/augment.html), and
+  `tidy(what = "scores")` error clearly: individual-level scoring
+  requires row-level item responses.
+- **CD skipped in
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)**
+  — Comparison Data resamples raw item distributions and is skipped with
+  an info note when a matrix is supplied.
+- **Validation** — square, numeric, finite, symmetric, unit diagonal,
+  `|r| <= 1`, no NA; synthesises `V1..Vp` dimnames when absent; warns
+  (does not auto-smooth) when not positive-definite; errors with a clear
+  message when a covariance matrix is detected.
+
 ### Tidy interface and scoring
 
 - [`print.ackwards()`](https://jmgirard.github.io/ackwards/reference/print.ackwards.md)

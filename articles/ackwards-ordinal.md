@@ -52,7 +52,7 @@ warning is issued when `cor = "pearson"` (the default).
 ``` r
 
 library(ackwards)
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 ```
 
 ``` r
@@ -87,11 +87,11 @@ correlation matrices directly.
 # Pearson R (stored in x$r)
 round(x_pearson$r[1:5, 1:5], 2)
 #>       A1    A2    A3    A4    A5
-#> A1  1.00 -0.35 -0.27 -0.16 -0.19
-#> A2 -0.35  1.00  0.50  0.35  0.40
-#> A3 -0.27  0.50  1.00  0.38  0.52
-#> A4 -0.16  0.35  0.38  1.00  0.33
-#> A5 -0.19  0.40  0.52  0.33  1.00
+#> A1  1.00 -0.37 -0.33 -0.16 -0.24
+#> A2 -0.37  1.00  0.54  0.36  0.40
+#> A3 -0.33  0.54  1.00  0.39  0.57
+#> A4 -0.16  0.36  0.39  1.00  0.34
+#> A5 -0.24  0.40  0.57  0.34  1.00
 ```
 
 ``` r
@@ -99,11 +99,11 @@ round(x_pearson$r[1:5, 1:5], 2)
 # Polychoric R
 round(x_poly$r[1:5, 1:5], 2)
 #>       A1    A2    A3    A4    A5
-#> A1  1.00 -0.42 -0.33 -0.19 -0.24
-#> A2 -0.42  1.00  0.57  0.41  0.46
-#> A3 -0.33  0.57  1.00  0.43  0.58
-#> A4 -0.19  0.41  0.43  1.00  0.37
-#> A5 -0.24  0.46  0.58  0.37  1.00
+#> A1  1.00 -0.44 -0.38 -0.18 -0.29
+#> A2 -0.44  1.00  0.61  0.41  0.45
+#> A3 -0.38  0.61  1.00  0.44  0.64
+#> A4 -0.18  0.41  0.44  1.00  0.39
+#> A5 -0.29  0.45  0.64  0.39  1.00
 ```
 
 The polychoric correlations are consistently higher — sometimes
@@ -118,56 +118,56 @@ Stacking `tidy(what = "loadings")` from each basis lets us read the
 
 | basis      | factor | item | loading |
 |:-----------|:-------|:-----|--------:|
-| pearson    | m5f1   | N1   |    0.81 |
-| polychoric | m5f1   | N1   |    0.83 |
-| pearson    | m5f1   | N2   |    0.79 |
-| polychoric | m5f1   | N2   |    0.82 |
-| pearson    | m5f1   | N3   |    0.79 |
-| polychoric | m5f1   | N3   |    0.82 |
-| pearson    | m5f1   | N4   |    0.65 |
-| polychoric | m5f1   | N4   |    0.67 |
-| pearson    | m5f1   | N5   |    0.63 |
-| polychoric | m5f1   | N5   |    0.66 |
-| pearson    | m5f2   | N1   |    0.08 |
-| polychoric | m5f2   | N1   |    0.08 |
-| pearson    | m5f2   | N2   |    0.04 |
-| polychoric | m5f2   | N2   |    0.04 |
-| pearson    | m5f2   | N3   |   -0.04 |
-| polychoric | m5f2   | N3   |   -0.04 |
-| pearson    | m5f2   | N4   |   -0.35 |
-| polychoric | m5f2   | N4   |   -0.36 |
-| pearson    | m5f2   | N5   |   -0.17 |
-| polychoric | m5f2   | N5   |   -0.19 |
-| pearson    | m5f3   | N1   |   -0.05 |
-| polychoric | m5f3   | N1   |   -0.05 |
-| pearson    | m5f3   | N2   |   -0.03 |
-| polychoric | m5f3   | N2   |   -0.02 |
-| pearson    | m5f3   | N3   |   -0.06 |
-| polychoric | m5f3   | N3   |   -0.06 |
-| pearson    | m5f3   | N4   |   -0.17 |
-| polychoric | m5f3   | N4   |   -0.17 |
-| pearson    | m5f3   | N5   |   -0.02 |
-| polychoric | m5f3   | N5   |   -0.03 |
-| pearson    | m5f4   | N1   |   -0.21 |
-| polychoric | m5f4   | N1   |   -0.23 |
-| pearson    | m5f4   | N2   |   -0.20 |
-| polychoric | m5f4   | N2   |   -0.20 |
+| pearson    | m5f1   | N1   |    0.05 |
+| polychoric | m5f1   | N1   |    0.05 |
+| pearson    | m5f1   | N2   |    0.09 |
+| polychoric | m5f1   | N2   |    0.09 |
+| pearson    | m5f1   | N3   |   -0.04 |
+| polychoric | m5f1   | N3   |   -0.04 |
+| pearson    | m5f1   | N4   |   -0.30 |
+| polychoric | m5f1   | N4   |   -0.31 |
+| pearson    | m5f1   | N5   |   -0.14 |
+| polychoric | m5f1   | N5   |   -0.15 |
+| pearson    | m5f2   | N1   |    0.79 |
+| polychoric | m5f2   | N1   |    0.81 |
+| pearson    | m5f2   | N2   |    0.78 |
+| polychoric | m5f2   | N2   |    0.81 |
+| pearson    | m5f2   | N3   |    0.80 |
+| polychoric | m5f2   | N3   |    0.82 |
+| pearson    | m5f2   | N4   |    0.63 |
+| polychoric | m5f2   | N4   |    0.65 |
+| pearson    | m5f2   | N5   |    0.66 |
+| polychoric | m5f2   | N5   |    0.69 |
+| pearson    | m5f3   | N1   |   -0.06 |
+| polychoric | m5f3   | N1   |   -0.07 |
+| pearson    | m5f3   | N2   |   -0.04 |
+| polychoric | m5f3   | N2   |   -0.05 |
+| pearson    | m5f3   | N3   |   -0.03 |
+| polychoric | m5f3   | N3   |   -0.04 |
+| pearson    | m5f3   | N4   |   -0.21 |
+| polychoric | m5f3   | N4   |   -0.21 |
+| pearson    | m5f3   | N5   |   -0.01 |
+| polychoric | m5f3   | N5   |   -0.02 |
+| pearson    | m5f4   | N1   |   -0.23 |
+| polychoric | m5f4   | N1   |   -0.25 |
+| pearson    | m5f4   | N2   |   -0.21 |
+| polychoric | m5f4   | N2   |   -0.22 |
 | pearson    | m5f4   | N3   |   -0.03 |
-| polychoric | m5f4   | N3   |   -0.04 |
-| pearson    | m5f4   | N4   |    0.02 |
-| polychoric | m5f4   | N4   |    0.02 |
-| pearson    | m5f4   | N5   |    0.15 |
-| polychoric | m5f4   | N5   |    0.16 |
-| pearson    | m5f5   | N1   |   -0.08 |
-| polychoric | m5f5   | N1   |   -0.08 |
-| pearson    | m5f5   | N2   |   -0.01 |
+| polychoric | m5f4   | N3   |   -0.03 |
+| pearson    | m5f4   | N4   |    0.04 |
+| polychoric | m5f4   | N4   |    0.05 |
+| pearson    | m5f4   | N5   |    0.14 |
+| polychoric | m5f4   | N5   |    0.17 |
+| pearson    | m5f5   | N1   |   -0.13 |
+| polychoric | m5f5   | N1   |   -0.13 |
+| pearson    | m5f5   | N2   |    0.00 |
 | polychoric | m5f5   | N2   |    0.00 |
-| pearson    | m5f5   | N3   |    0.00 |
-| polychoric | m5f5   | N3   |    0.00 |
-| pearson    | m5f5   | N4   |    0.09 |
-| polychoric | m5f5   | N4   |    0.10 |
-| pearson    | m5f5   | N5   |   -0.18 |
-| polychoric | m5f5   | N5   |   -0.19 |
+| pearson    | m5f5   | N3   |    0.02 |
+| polychoric | m5f5   | N3   |    0.01 |
+| pearson    | m5f5   | N4   |    0.11 |
+| polychoric | m5f5   | N4   |    0.13 |
+| pearson    | m5f5   | N5   |   -0.14 |
+| polychoric | m5f5   | N5   |   -0.15 |
 
 Neuroticism-item loadings (k = 5): Pearson vs polychoric {.table}
 
@@ -182,33 +182,33 @@ The same comparison for the primary-parent edges —
 
 | basis      | from | to   |     r |
 |:-----------|:-----|:-----|------:|
-| pearson    | m1f1 | m2f1 |  0.86 |
-| polychoric | m1f1 | m2f1 |  0.87 |
-| pearson    | m1f1 | m2f2 |  0.52 |
-| polychoric | m1f1 | m2f2 |  0.49 |
-| pearson    | m2f1 | m3f1 |  0.85 |
-| polychoric | m2f1 | m3f1 |  0.82 |
-| pearson    | m2f2 | m3f2 | -1.00 |
-| polychoric | m2f2 | m3f2 | -1.00 |
-| pearson    | m2f1 | m3f3 |  0.51 |
-| polychoric | m2f1 | m3f3 |  0.58 |
+| pearson    | m1f1 | m2f1 |  0.88 |
+| polychoric | m1f1 | m2f1 |  0.89 |
+| pearson    | m1f1 | m2f2 |  0.48 |
+| polychoric | m1f1 | m2f2 |  0.46 |
+| pearson    | m2f1 | m3f1 |  0.90 |
+| polychoric | m2f1 | m3f1 |  0.87 |
+| pearson    | m2f2 | m3f2 | -0.97 |
+| polychoric | m2f2 | m3f2 | -0.99 |
+| pearson    | m2f1 | m3f3 |  0.43 |
+| polychoric | m2f1 | m3f3 |  0.48 |
 | pearson    | m3f1 | m4f1 |  1.00 |
-| polychoric | m3f1 | m4f1 |  1.00 |
+| polychoric | m3f1 | m4f1 |  0.99 |
 | pearson    | m3f2 | m4f2 |  0.99 |
 | polychoric | m3f2 | m4f2 |  0.98 |
 | pearson    | m3f3 | m4f3 |  0.80 |
-| polychoric | m3f3 | m4f3 |  0.72 |
-| pearson    | m3f3 | m4f4 |  0.60 |
-| polychoric | m3f3 | m4f4 |  0.70 |
-| pearson    | m4f2 | m5f1 |  1.00 |
-| polychoric | m4f2 | m5f1 |  1.00 |
-| pearson    | m4f1 | m5f2 |  0.78 |
-| polychoric | m4f1 | m5f2 |  0.79 |
-| pearson    | m4f3 | m5f3 |  1.00 |
-| polychoric | m4f3 | m5f3 |  1.00 |
-| pearson    | m4f1 | m5f4 |  0.62 |
-| polychoric | m4f1 | m5f4 |  0.62 |
-| pearson    | m4f4 | m5f5 |  0.98 |
+| polychoric | m3f3 | m4f3 |  0.73 |
+| pearson    | m3f3 | m4f4 |  0.59 |
+| polychoric | m3f3 | m4f4 |  0.68 |
+| pearson    | m4f1 | m5f1 |  0.82 |
+| polychoric | m4f1 | m5f1 |  0.84 |
+| pearson    | m4f2 | m5f2 |  1.00 |
+| polychoric | m4f2 | m5f2 |  1.00 |
+| pearson    | m4f3 | m5f3 |  0.98 |
+| polychoric | m4f3 | m5f3 |  0.98 |
+| pearson    | m4f1 | m5f4 |  0.58 |
+| polychoric | m4f1 | m5f4 |  0.55 |
+| pearson    | m4f4 | m5f5 |  0.96 |
 | polychoric | m4f4 | m5f5 |  0.99 |
 
 Primary-parent edges: Pearson vs polychoric {.table}
@@ -237,14 +237,14 @@ x_esem
 #> Engine: esem
 #> Rotation: varimax
 #> Basis: polychoric
-#> n: 2,436
+#> n: 875
 #> k (max): 3
 #> 
 #> ── Levels ──
 #> 
-#> ✔ k = 1: 1 factor, 23.1% variance
-#> ✔ k = 2: 2 factors, 32% variance
-#> ✔ k = 3: 3 factors, 38.8% variance
+#> ✔ k = 1: 1 factor, 23.5% variance
+#> ✔ k = 2: 2 factors, 32.9% variance
+#> ✔ k = 3: 3 factors, 39.5% variance
 #> 
 #> ── Edges ──
 #> 
@@ -264,27 +264,27 @@ WLSMV uses.
 
 tidy(x_esem, what = "fit")
 #>    level   index        value
-#> 1      1     chi 2.018685e+04
+#> 1      1     chi 7.629329e+03
 #> 2      1     dof 2.750000e+02
 #> 3      1 p_value           NA
-#> 4      1     CFI 7.108666e-01
-#> 5      1     TLI 6.845817e-01
-#> 6      1   RMSEA 1.724408e-01
-#> 7      1    SRMR 1.403309e-01
-#> 8      2     chi 9.149066e+03
+#> 4      1     CFI 7.153139e-01
+#> 5      1     TLI 6.894333e-01
+#> 6      1   RMSEA 1.749240e-01
+#> 7      1    SRMR 1.443569e-01
+#> 8      2     chi 3.172628e+03
 #> 9      2     dof 2.510000e+02
 #> 10     2 p_value           NA
-#> 11     2     CFI 8.707941e-01
-#> 12     2     TLI 8.455707e-01
-#> 13     2   RMSEA 1.206595e-01
-#> 14     2    SRMR 9.666487e-02
-#> 15     3     chi 4.900412e+03
+#> 11     2     CFI 8.869038e-01
+#> 12     2     TLI 8.648252e-01
+#> 13     2   RMSEA 1.154037e-01
+#> 14     2    SRMR 9.547997e-02
+#> 15     3     chi 1.703232e+03
 #> 16     3     dof 2.280000e+02
 #> 17     3 p_value           NA
-#> 18     3     CFI 9.321535e-01
-#> 19     3     TLI 9.107282e-01
-#> 20     3   RMSEA 9.173893e-02
-#> 21     3    SRMR 7.325403e-02
+#> 18     3     CFI 9.428938e-01
+#> 19     3     TLI 9.248602e-01
+#> 20     3   RMSEA 8.604131e-02
+#> 21     3    SRMR 7.172502e-02
 ```
 
 ## Practical guidance: when to use polychoric

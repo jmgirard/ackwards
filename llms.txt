@@ -37,10 +37,10 @@ pak::pak("jmgirard/ackwards")
 
 ## Quick start
 
-We use the 25-item Big Five Inventory
-([`psych::bfi`](https://rdrr.io/pkg/psych/man/bfi.html)) as a running
-example. Because BFI items are recorded on a 6-point ordinal scale, we
-set `cor = "polychoric"`.
+We use `bfi25`, the built-in 25-item Big Five example dataset (see
+[`?bfi25`](https://jmgirard.github.io/ackwards/reference/bfi25.md) for
+provenance). Because BFI items are recorded on a 6-point ordinal scale,
+we set `cor = "polychoric"`.
 
 ### Step 1 — Suggest a range of k
 
@@ -53,35 +53,35 @@ choose an upper bound for the hierarchy depth.
 
 library(ackwards)
 
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 sk <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [226ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [212ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [100ms]
+#> ✔ Running MAP and VSS... [108ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [8.7s]
+#> ✔ Running Comparison Data (CD)... [4.5s]
 #> 
 sk
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
 #> Variables: 25
-#> n: 2,436
+#> n: 875
 #> Basis: pearson
 #> Tested k: 1-8
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔
-#> k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔
-#> k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD ✔*
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*
+#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -
+#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -
 #> 
 #> ── Recommendations ──
 #> 
@@ -90,8 +90,8 @@ sk
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
-#> • CD: k = 8
-#> Consensus range: k = 4-8
+#> • CD: k = 6
+#> Consensus range: k = 4-6
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.
@@ -117,16 +117,16 @@ x
 #> Engine: pca
 #> Rotation: varimax
 #> Basis: polychoric
-#> n: 2,436
+#> n: 875
 #> k (max): 5
 #> 
 #> ── Levels ──
 #> 
-#> ✔ k = 1: 1 factor, 22.9% variance
-#> ✔ k = 2: 2 factors, 34.7% variance
-#> ✔ k = 3: 3 factors, 43.9% variance
-#> ✔ k = 4: 4 factors, 51.8% variance
-#> ✔ k = 5: 5 factors, 58.3% variance
+#> ✔ k = 1: 1 factor, 23.2% variance
+#> ✔ k = 2: 2 factors, 35.5% variance
+#> ✔ k = 3: 3 factors, 44.6% variance
+#> ✔ k = 4: 4 factors, 52.2% variance
+#> ✔ k = 5: 5 factors, 58.4% variance
 #> 
 #> ── Edges ──
 #> 
@@ -169,14 +169,14 @@ factor scores to your data for downstream analysis.
 edges <- tidy(x, what = "edges", sort = "strength")
 head(edges[edges$is_primary, c("from", "to", "r")], 8)
 #>   from   to          r
-#> 1 m3f1 m4f1  0.9990773
-#> 2 m2f2 m3f2 -0.9975486
-#> 3 m4f3 m5f3  0.9972853
-#> 4 m4f2 m5f1  0.9964532
-#> 5 m4f4 m5f5  0.9930407
-#> 6 m3f2 m4f2  0.9789921
-#> 7 m1f1 m2f1  0.8737068
-#> 8 m2f1 m3f1  0.8157785
+#> 1 m4f2 m5f2  0.9984791
+#> 2 m3f1 m4f1  0.9938371
+#> 3 m4f4 m5f5  0.9894063
+#> 4 m2f2 m3f2 -0.9873651
+#> 5 m4f3 m5f3  0.9824895
+#> 6 m3f2 m4f2  0.9761484
+#> 7 m1f1 m2f1  0.8900522
+#> 8 m2f1 m3f1  0.8740850
 ```
 
 ``` r
@@ -191,7 +191,7 @@ scored <- augment(x, data = bfi)
 #>   between-level edges from `tidy()` are the authoritative associations.
 #> This warning is displayed once per session.
 dim(scored) # original 25 items + 1+2+3+4+5 = 15 score columns
-#> [1] 2436   40
+#> [1] 875  40
 names(scored)[26:40]
 #>  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"
 #> [10] ".m4f4" ".m5f1" ".m5f2" ".m5f3" ".m5f4" ".m5f5"
@@ -206,6 +206,8 @@ names(scored)[26:40]
 | [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA; convergence and loading comparison |
 | [Ordinal data](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html) | Polychoric correlations, attenuation bias, and WLSMV estimation |
 | [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = "all"` |
+| [Visualization](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html) | Styling [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md): color, labels, mono mode, publication figures |
+| [Interpreting & labeling](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.html) | [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md), hierarchy-aware naming, [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md) round-trip |
 
 ## Citation
 
@@ -275,6 +277,13 @@ Tidy, glance, augment, summary, and print methods for ackwards objects.
 - [`print(`*`<summary_ackwards>`*`)`](https://jmgirard.github.io/ackwards/reference/print.summary_ackwards.md)
   : Print a summary_ackwards object
 
+## Low-level utilities
+
+Functions for advanced use or building on top of ackwards results.
+
+- [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+  : Compute between-level factor-score correlations
+
 ## Visualize
 
 Diagram and layout helpers for the bass-ackwards hierarchy.
@@ -286,6 +295,13 @@ Diagram and layout helpers for the bass-ackwards hierarchy.
   : Plot a bass-ackwards diagram
 - [`ba_layout()`](https://jmgirard.github.io/ackwards/reference/ba_layout.md)
   : Compute a layered layout for a bass-ackwards diagram
+
+## Data
+
+Example dataset bundled with the package.
+
+- [`bfi25`](https://jmgirard.github.io/ackwards/reference/bfi25.md) :
+  Big Five Inventory – 25-item IPIP example dataset
 
 ## Re-exported generics
 

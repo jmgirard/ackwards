@@ -30,7 +30,7 @@ correlation between every pair of levels, not just neighbors.
 ``` r
 
 library(ackwards)
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 ```
 
 ## `pairs = "all"`: computing every between-level correlation
@@ -65,18 +65,18 @@ apart) with `|r| >= 0.5`, strongest first — drawn from
 
 | from | to   | level_from | level_to |     r |
 |:-----|:-----|-----------:|---------:|------:|
-| m3f2 | m5f1 |          3 |        5 |  0.98 |
-| m2f2 | m4f2 |          2 |        4 | -0.98 |
-| m2f2 | m5f1 |          2 |        5 | -0.97 |
-| m2f1 | m4f1 |          2 |        4 |  0.81 |
-| m3f1 | m5f2 |          3 |        5 |  0.78 |
-| m1f1 | m3f1 |          1 |        3 |  0.75 |
-| m1f1 | m4f1 |          1 |        4 |  0.74 |
-| m3f3 | m5f3 |          3 |        5 |  0.72 |
-| m3f3 | m5f5 |          3 |        5 |  0.69 |
-| m2f1 | m5f2 |          2 |        5 |  0.64 |
-| m3f1 | m5f4 |          3 |        5 |  0.62 |
-| m1f1 | m5f2 |          1 |        5 |  0.61 |
+| m3f2 | m5f2 |          3 |        5 |  0.98 |
+| m2f2 | m4f2 |          2 |        4 | -0.97 |
+| m2f2 | m5f2 |          2 |        5 | -0.97 |
+| m2f1 | m4f1 |          2 |        4 |  0.85 |
+| m3f1 | m5f1 |          3 |        5 |  0.82 |
+| m1f1 | m3f1 |          1 |        3 |  0.77 |
+| m1f1 | m4f1 |          1 |        4 |  0.75 |
+| m3f3 | m5f3 |          3 |        5 |  0.73 |
+| m2f1 | m5f1 |          2 |        5 |  0.69 |
+| m3f3 | m5f5 |          3 |        5 |  0.68 |
+| m1f1 | m5f1 |          1 |        5 |  0.61 |
+| m3f1 | m5f4 |          3 |        5 |  0.56 |
 
 Strongest skip-level edges (\|r\| \>= 0.5, non-adjacent levels) {.table}
 
@@ -290,10 +290,10 @@ cases where the threshold matters:
 Refitting at a few `redundancy_r` thresholds and counting flagged
 factors at each shows how sensitive the pruning is:
 
-    #> ℹ Redundancy pruning (|r| ≥ 0.8) flagged 8 nodes.
+    #> ℹ Redundancy pruning (|r| ≥ 0.8) flagged 9 nodes.
     #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
     #>   `x$prune$chains`.
-    #> ℹ Redundancy pruning (|r| ≥ 0.85) flagged 7 nodes.
+    #> ℹ Redundancy pruning (|r| ≥ 0.85) flagged 8 nodes.
     #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
     #>   `x$prune$chains`.
     #> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
@@ -305,8 +305,8 @@ factors at each shows how sensitive the pruning is:
 
 | redundancy_r | n_flagged |
 |-------------:|----------:|
-|         0.80 |         8 |
-|         0.85 |         7 |
+|         0.80 |         9 |
+|         0.85 |         8 |
 |         0.90 |         6 |
 |         0.95 |         6 |
 

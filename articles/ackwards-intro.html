@@ -129,20 +129,21 @@ PCA.</em></p>
 <div class="section level2">
 <h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
 </h2>
-<p>We use the 25-item Big Five Inventory from the <code>psych</code>
-package (<code><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">psych::bfi</a></code>). The items measure five personality
-traits — Agreeableness (A1–A5), Conscientiousness (C1–C5), Extraversion
-(E1–E5), Neuroticism (N1–N5), and Openness (O1–O5) — each on a 6-point
-Likert scale, in 2,800 participants.</p>
+<p>We use <code>bfi25</code>, the built-in 25-item Big Five example
+dataset. The items measure five personality traits — Agreeableness
+(A1–A5), Conscientiousness (C1–C5), Extraversion (E1–E5), Neuroticism
+(N1–N5), and Openness (O1–O5) — each on a 6-point Likert scale. See
+<code><a href="../reference/bfi25.html">?bfi25</a></code> for full provenance; the data derive from the SAPA
+project using public-domain IPIP items.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmgirard.github.io/ackwards/">ackwards</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">bfi</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 2436   25</span></span></code></pre></div>
-<p>We drop 364 cases with any missing item, leaving n = 2,436. In a real
-analysis you might use pairwise deletion or multiple imputation;
-<code><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit()</a></code> is sufficient for this illustration.</p>
+<span><span class="co">#&gt; [1] 875  25</span></span></code></pre></div>
+<p>We drop cases with any missing item. In a real analysis you might use
+pairwise deletion or multiple imputation; <code><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit()</a></code> is
+sufficient for this illustration.</p>
 </div>
 <div class="section level2">
 <h2 id="step-1-how-many-factors-suggest_k">Step 1: How many factors? <code>suggest_k()</code><a class="anchor" aria-label="anchor" href="#step-1-how-many-factors-suggest_k"></a>
@@ -153,32 +154,32 @@ and reports a consensus range:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[265ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[278ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[175ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[118ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[17.9s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[9.8s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span></span>
 <span><span class="co">#&gt; Variables: 25</span></span>
-<span><span class="co">#&gt; n: 2,436</span></span>
+<span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; Basis: pearson</span></span>
 <span><span class="co">#&gt; Tested k: 1-8</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Criteria (k = 1-8)</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0157 VSS-1 0.6303<span style="color: #00BBBB;">*</span> VSS-2 0.7809 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 5: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0146<span style="color: #00BBBB;">*</span> VSS-1 0.5890 VSS-2 0.7944<span style="color: #00BBBB;">*</span> CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD <span style="color: #00BB00;">✔</span><span style="color: #00BBBB;">*</span></span></span>
+<span><span class="co">#&gt; k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0164 VSS-1 0.6215<span style="color: #00BBBB;">*</span> VSS-2 0.7837 CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 5: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0160<span style="color: #00BBBB;">*</span> VSS-1 0.5738 VSS-2 0.7950<span style="color: #00BBBB;">*</span> CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD <span style="color: #00BB00;">✔</span><span style="color: #00BBBB;">*</span></span></span>
+<span><span class="co">#&gt; k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD <span style="color: #555555;">-</span></span></span>
+<span><span class="co">#&gt; k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD <span style="color: #555555;">-</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Recommendations</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -187,8 +188,8 @@ and reports a consensus range:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> MAP: k = 5</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> VSS-1: k = 4</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> VSS-2: k = 5</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> CD: k = 8</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Consensus range: k = 4-8</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> CD: k = 6</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">Consensus range: k = 4-6</span></span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span></span>
@@ -267,16 +268,16 @@ measurement scale.</p>
 <span><span class="co">#&gt; Engine: <span style="font-weight: bold;">pca</span></span></span>
 <span><span class="co">#&gt; Rotation: varimax</span></span>
 <span><span class="co">#&gt; Basis: polychoric</span></span>
-<span><span class="co">#&gt; n: 2,436</span></span>
+<span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; k (max): 5</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 22.9% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 34.7% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 43.9% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 51.8% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 58.3% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 23.2% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 35.5% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 44.6% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 52.2% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 58.4% variance</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Edges</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -303,31 +304,31 @@ which factors at each level descend from which parents:</p>
 <span><span class="co">#&gt; Engine: <span style="font-weight: bold;">pca</span></span></span>
 <span><span class="co">#&gt; Rotation: varimax</span></span>
 <span><span class="co">#&gt; Basis: polychoric</span></span>
-<span><span class="co">#&gt; n: 2,436</span></span>
+<span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; k (max): 5</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">k = 1</span>: 1 factor (22.9% cumulative variance)</span></span>
-<span><span class="co">#&gt; m1f1 22.9% eigenvalue 5.73</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">k = 2</span>: 2 factors (34.74% cumulative variance)</span></span>
-<span><span class="co">#&gt; m2f1 20.28% eigenvalue 5.73</span></span>
-<span><span class="co">#&gt; m2f2 14.46% eigenvalue 2.96</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">k = 3</span>: 3 factors (43.92% cumulative variance)</span></span>
-<span><span class="co">#&gt; m3f1 17.1% eigenvalue 5.73</span></span>
-<span><span class="co">#&gt; m3f2 14.05% eigenvalue 2.96</span></span>
-<span><span class="co">#&gt; m3f3 12.76% eigenvalue 2.29</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">k = 4</span>: 4 factors (51.77% cumulative variance)</span></span>
-<span><span class="co">#&gt; m4f1 16.98% eigenvalue 5.73</span></span>
-<span><span class="co">#&gt; m4f2 13.72% eigenvalue 2.96</span></span>
-<span><span class="co">#&gt; m4f3 11.29% eigenvalue 2.29</span></span>
-<span><span class="co">#&gt; m4f4 9.78% eigenvalue 1.96</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">k = 5</span>: 5 factors (58.33% cumulative variance)</span></span>
-<span><span class="co">#&gt; m5f1 13.6% eigenvalue 5.73</span></span>
-<span><span class="co">#&gt; m5f2 13.38% eigenvalue 2.96</span></span>
-<span><span class="co">#&gt; m5f3 11.36% eigenvalue 2.29</span></span>
-<span><span class="co">#&gt; m5f4 10.27% eigenvalue 1.96</span></span>
-<span><span class="co">#&gt; m5f5 9.72% eigenvalue 1.64</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 1</span>: 1 factor (23.21% cumulative variance)</span></span>
+<span><span class="co">#&gt; m1f1 23.21% eigenvalue 5.8</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 2</span>: 2 factors (35.48% cumulative variance)</span></span>
+<span><span class="co">#&gt; m2f1 20.94% eigenvalue 5.8</span></span>
+<span><span class="co">#&gt; m2f2 14.54% eigenvalue 3.07</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 3</span>: 3 factors (44.58% cumulative variance)</span></span>
+<span><span class="co">#&gt; m3f1 18.04% eigenvalue 5.8</span></span>
+<span><span class="co">#&gt; m3f2 13.89% eigenvalue 3.07</span></span>
+<span><span class="co">#&gt; m3f3 12.66% eigenvalue 2.28</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 4</span>: 4 factors (52.17% cumulative variance)</span></span>
+<span><span class="co">#&gt; m4f1 17.5% eigenvalue 5.8</span></span>
+<span><span class="co">#&gt; m4f2 13.63% eigenvalue 3.07</span></span>
+<span><span class="co">#&gt; m4f3 11.83% eigenvalue 2.28</span></span>
+<span><span class="co">#&gt; m4f4 9.21% eigenvalue 1.9</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 5</span>: 5 factors (58.42% cumulative variance)</span></span>
+<span><span class="co">#&gt; m5f1 13.75% eigenvalue 5.8</span></span>
+<span><span class="co">#&gt; m5f2 13.56% eigenvalue 3.07</span></span>
+<span><span class="co">#&gt; m5f3 11.9% eigenvalue 2.28</span></span>
+<span><span class="co">#&gt; m5f4 10.09% eigenvalue 1.9</span></span>
+<span><span class="co">#&gt; m5f5 9.12% eigenvalue 1.56</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Lineage (primary parents)</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -337,8 +338,8 @@ which factors at each level descend from which parents:</p>
 <span><span class="co">#&gt; m3f1 → m4f1</span></span>
 <span><span class="co">#&gt; m3f2 → m4f2</span></span>
 <span><span class="co">#&gt; m3f3 → m4f3, m4f4</span></span>
-<span><span class="co">#&gt; m4f1 → m5f2, m5f4</span></span>
-<span><span class="co">#&gt; m4f2 → m5f1</span></span>
+<span><span class="co">#&gt; m4f1 → m5f1, m5f4</span></span>
+<span><span class="co">#&gt; m4f2 → m5f2</span></span>
 <span><span class="co">#&gt; m4f3 → m5f3</span></span>
 <span><span class="co">#&gt; m4f4 → m5f5</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
@@ -349,7 +350,7 @@ one-row data frame, convenient for comparisons across models:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   engine rotation        cor k_max n_obs deepest_converged n_edges</span></span>
-<span><span class="co">#&gt; 1    pca  varimax polychoric     5  2436                 5      40</span></span></code></pre></div>
+<span><span class="co">#&gt; 1    pca  varimax polychoric     5   875                 5      40</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -423,42 +424,44 @@ item-by-factor matrix, especially for deep hierarchies.</p>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Level 5 (5 factors)</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f1</span></span></span>
-<span><span class="co">#&gt; N1 [0.829]</span></span>
-<span><span class="co">#&gt; N2 [0.818]</span></span>
-<span><span class="co">#&gt; N3 [0.817]</span></span>
-<span><span class="co">#&gt; N4 [0.671]</span></span>
-<span><span class="co">#&gt; N5 [0.657]</span></span>
-<span><span class="co">#&gt; C5 [0.332]</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f2</span></span></span>
 <span><span class="co">#&gt; E2 [-0.752]</span></span>
-<span><span class="co">#&gt; E4 [0.734]</span></span>
-<span><span class="co">#&gt; E1 [-0.707]</span></span>
-<span><span class="co">#&gt; E3 [0.636]</span></span>
-<span><span class="co">#&gt; E5 [0.603]</span></span>
-<span><span class="co">#&gt; A5 [0.455]</span></span>
-<span><span class="co">#&gt; A3 [0.375]</span></span>
-<span><span class="co">#&gt; N4 [-0.365]</span></span>
-<span><span class="co">#&gt; O3 [0.363]</span></span>
+<span><span class="co">#&gt; E4 [0.747]</span></span>
+<span><span class="co">#&gt; E1 [-0.701]</span></span>
+<span><span class="co">#&gt; E3 [0.677]</span></span>
+<span><span class="co">#&gt; E5 [0.597]</span></span>
+<span><span class="co">#&gt; A5 [0.487]</span></span>
+<span><span class="co">#&gt; A3 [0.415]</span></span>
+<span><span class="co">#&gt; O3 [0.394]</span></span>
+<span><span class="co">#&gt; N4 [-0.314]</span></span>
+<span><span class="co">#&gt; O1 [0.302]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">m5f2</span></span></span>
+<span><span class="co">#&gt; N3 [0.825]</span></span>
+<span><span class="co">#&gt; N1 [0.810]</span></span>
+<span><span class="co">#&gt; N2 [0.805]</span></span>
+<span><span class="co">#&gt; N5 [0.688]</span></span>
+<span><span class="co">#&gt; N4 [0.646]</span></span>
+<span><span class="co">#&gt; C5 [0.344]</span></span>
+<span><span class="co">#&gt; O4 [0.317]</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f3</span></span></span>
-<span><span class="co">#&gt; C2 [0.759]</span></span>
-<span><span class="co">#&gt; C4 [-0.719]</span></span>
-<span><span class="co">#&gt; C3 [0.701]</span></span>
-<span><span class="co">#&gt; C1 [0.673]</span></span>
-<span><span class="co">#&gt; C5 [-0.651]</span></span>
-<span><span class="co">#&gt; E5 [0.366]</span></span>
+<span><span class="co">#&gt; C2 [0.735]</span></span>
+<span><span class="co">#&gt; C4 [-0.716]</span></span>
+<span><span class="co">#&gt; C1 [0.690]</span></span>
+<span><span class="co">#&gt; C3 [0.679]</span></span>
+<span><span class="co">#&gt; C5 [-0.652]</span></span>
+<span><span class="co">#&gt; E5 [0.448]</span></span>
+<span><span class="co">#&gt; A4 [0.345]</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f4</span></span></span>
-<span><span class="co">#&gt; A2 [0.743]</span></span>
-<span><span class="co">#&gt; A3 [0.705]</span></span>
-<span><span class="co">#&gt; A1 [-0.677]</span></span>
-<span><span class="co">#&gt; A5 [0.594]</span></span>
-<span><span class="co">#&gt; A4 [0.540]</span></span>
+<span><span class="co">#&gt; A1 [-0.704]</span></span>
+<span><span class="co">#&gt; A3 [0.703]</span></span>
+<span><span class="co">#&gt; A2 [0.692]</span></span>
+<span><span class="co">#&gt; A5 [0.580]</span></span>
+<span><span class="co">#&gt; A4 [0.522]</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f5</span></span></span>
-<span><span class="co">#&gt; O5 [-0.708]</span></span>
-<span><span class="co">#&gt; O3 [0.676]</span></span>
-<span><span class="co">#&gt; O1 [0.641]</span></span>
-<span><span class="co">#&gt; O2 [-0.621]</span></span>
-<span><span class="co">#&gt; O4 [0.548]</span></span>
-<span><span class="co">#&gt; E3 [0.311]</span></span>
+<span><span class="co">#&gt; O5 [-0.705]</span></span>
+<span><span class="co">#&gt; O3 [0.655]</span></span>
+<span><span class="co">#&gt; O1 [0.604]</span></span>
+<span><span class="co">#&gt; O2 [-0.595]</span></span>
+<span><span class="co">#&gt; O4 [0.551]</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">for the full matrix.</span></span></span></code></pre></div>
@@ -477,12 +480,12 @@ level:</p>
 <code class="sourceCode R"><span><span class="va">loadings_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">loadings_df</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   level factor item    loading</span></span>
-<span><span class="co">#&gt; 1     1   m1f1   A1 -0.2833735</span></span>
-<span><span class="co">#&gt; 2     1   m1f1   A2  0.5409066</span></span>
-<span><span class="co">#&gt; 3     1   m1f1   A3  0.6047889</span></span>
-<span><span class="co">#&gt; 4     1   m1f1   A4  0.4887739</span></span>
-<span><span class="co">#&gt; 5     1   m1f1   A5  0.6516240</span></span>
-<span><span class="co">#&gt; 6     1   m1f1   C1  0.4133898</span></span></code></pre></div>
+<span><span class="co">#&gt; 1     1   m1f1   A1 -0.3440908</span></span>
+<span><span class="co">#&gt; 2     1   m1f1   A2  0.5977210</span></span>
+<span><span class="co">#&gt; 3     1   m1f1   A3  0.6511387</span></span>
+<span><span class="co">#&gt; 4     1   m1f1   A4  0.4837850</span></span>
+<span><span class="co">#&gt; 5     1   m1f1   A5  0.6848262</span></span>
+<span><span class="co">#&gt; 6     1   m1f1   C1  0.4502778</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="between-level-edges">Between-level edges<a class="anchor" aria-label="anchor" href="#between-level-edges"></a>
@@ -495,20 +498,20 @@ correlation matrix.</p>
 <code class="sourceCode R"><span><span class="co"># Each factor's primary-parent edge, strongest first</span></span>
 <span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"edges"</span>, primary_only <span class="op">=</span> <span class="cn">TRUE</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    from   to level_from level_to          r is_primary above_cut</span></span>
-<span><span class="co">#&gt; 1  m3f1 m4f1          3        4  0.9990773       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 2  m2f2 m3f2          2        3 -0.9975486       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 3  m4f3 m5f3          4        5  0.9972853       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 4  m4f2 m5f1          4        5  0.9964532       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 5  m4f4 m5f5          4        5  0.9930407       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 6  m3f2 m4f2          3        4  0.9789921       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 7  m1f1 m2f1          1        2  0.8737068       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 8  m2f1 m3f1          2        3  0.8157785       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 9  m4f1 m5f2          4        5  0.7879035       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 10 m3f3 m4f3          3        4  0.7150725       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 11 m3f3 m4f4          3        4  0.6989590       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 12 m4f1 m5f4          4        5  0.6157559       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 13 m2f1 m3f3          2        3  0.5767812       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 14 m1f1 m2f2          1        2  0.4864530       TRUE      TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt; 1  m4f2 m5f2          4        5  0.9984791       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 2  m3f1 m4f1          3        4  0.9938371       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 3  m4f4 m5f5          4        5  0.9894063       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 4  m2f2 m3f2          2        3 -0.9873651       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 5  m4f3 m5f3          4        5  0.9824895       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 6  m3f2 m4f2          3        4  0.9761484       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 7  m1f1 m2f1          1        2  0.8900522       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 8  m2f1 m3f1          2        3  0.8740850       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 9  m4f1 m5f1          4        5  0.8377659       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 10 m3f3 m4f3          3        4  0.7316162       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 11 m3f3 m4f4          3        4  0.6802343       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 12 m4f1 m5f4          4        5  0.5458269       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 13 m2f1 m3f3          2        3  0.4814452       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 14 m1f1 m2f2          1        2  0.4558587       TRUE      TRUE</span></span></code></pre></div>
 <p><code>primary_only = TRUE</code> keeps just the strongest-connecting
 edge for each factor — its primary parent — and
 <code>sort = "strength"</code> orders them by <code>|r|</code>. The r
@@ -522,21 +525,21 @@ values indicate where the structure is reorganizing.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    level factor variance_pct cumulative_pct</span></span>
-<span><span class="co">#&gt; 1      1   m1f1        22.90          22.90</span></span>
-<span><span class="co">#&gt; 2      2   m2f1        20.28          20.28</span></span>
-<span><span class="co">#&gt; 3      2   m2f2        14.46          34.74</span></span>
-<span><span class="co">#&gt; 4      3   m3f1        17.10          17.10</span></span>
-<span><span class="co">#&gt; 5      3   m3f2        14.05          31.16</span></span>
-<span><span class="co">#&gt; 6      3   m3f3        12.76          43.92</span></span>
-<span><span class="co">#&gt; 7      4   m4f1        16.98          16.98</span></span>
-<span><span class="co">#&gt; 8      4   m4f2        13.72          30.70</span></span>
-<span><span class="co">#&gt; 9      4   m4f3        11.29          41.99</span></span>
-<span><span class="co">#&gt; 10     4   m4f4         9.78          51.77</span></span>
-<span><span class="co">#&gt; 11     5   m5f1        13.60          13.60</span></span>
-<span><span class="co">#&gt; 12     5   m5f2        13.38          26.97</span></span>
-<span><span class="co">#&gt; 13     5   m5f3        11.36          38.34</span></span>
-<span><span class="co">#&gt; 14     5   m5f4        10.27          48.61</span></span>
-<span><span class="co">#&gt; 15     5   m5f5         9.72          58.33</span></span></code></pre></div>
+<span><span class="co">#&gt; 1      1   m1f1        23.21          23.21</span></span>
+<span><span class="co">#&gt; 2      2   m2f1        20.94          20.94</span></span>
+<span><span class="co">#&gt; 3      2   m2f2        14.54          35.48</span></span>
+<span><span class="co">#&gt; 4      3   m3f1        18.04          18.04</span></span>
+<span><span class="co">#&gt; 5      3   m3f2        13.89          31.93</span></span>
+<span><span class="co">#&gt; 6      3   m3f3        12.66          44.58</span></span>
+<span><span class="co">#&gt; 7      4   m4f1        17.50          17.50</span></span>
+<span><span class="co">#&gt; 8      4   m4f2        13.63          31.13</span></span>
+<span><span class="co">#&gt; 9      4   m4f3        11.83          42.96</span></span>
+<span><span class="co">#&gt; 10     4   m4f4         9.21          52.17</span></span>
+<span><span class="co">#&gt; 11     5   m5f1        13.75          13.75</span></span>
+<span><span class="co">#&gt; 12     5   m5f2        13.56          27.31</span></span>
+<span><span class="co">#&gt; 13     5   m5f3        11.90          39.21</span></span>
+<span><span class="co">#&gt; 14     5   m5f4        10.09          49.30</span></span>
+<span><span class="co">#&gt; 15     5   m5f5         9.12          58.42</span></span></code></pre></div>
 <p>Each row is one factor at one level. <code>variance_pct</code> is the
 percentage of total item variance explained by that factor;
 <code>cumulative_pct</code> accumulates within a level.</p>
@@ -562,7 +565,7 @@ the original variables.</p>
 <span><span class="co">#&gt;   between-level edges from `tidy()` are the authoritative associations.</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span> <span class="co"># 25 original items + 15 score columns (1+2+3+4+5)</span></span>
-<span><span class="co">#&gt; [1] 2436   40</span></span>
+<span><span class="co">#&gt; [1] 875  40</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span><span class="op">[</span><span class="fl">26</span><span class="op">:</span><span class="fl">40</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"</span></span>
 <span><span class="co">#&gt; [10] ".m4f4" ".m5f1" ".m5f2" ".m5f3" ".m5f4" ".m5f5"</span></span></code></pre></div>
@@ -594,20 +597,20 @@ be highly correlated along the primary-parent lineage:</p>
 <span><span class="va">k5</span> <span class="op">&lt;-</span> <span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f3"</span>, <span class="st">".m5f4"</span>, <span class="st">".m5f5"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">k5</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       .m5f1 .m5f2 .m5f3 .m5f4 .m5f5</span></span>
-<span><span class="co">#&gt; .m5f1  1.00  0.01  0.01  0.01 -0.01</span></span>
-<span><span class="co">#&gt; .m5f2  0.01  1.00 -0.01 -0.01 -0.01</span></span>
-<span><span class="co">#&gt; .m5f3  0.01 -0.01  1.00 -0.02 -0.02</span></span>
-<span><span class="co">#&gt; .m5f4  0.01 -0.01 -0.02  1.00 -0.02</span></span>
-<span><span class="co">#&gt; .m5f5 -0.01 -0.01 -0.02 -0.02  1.00</span></span></code></pre></div>
+<span><span class="co">#&gt; .m5f1  1.00  0.01 -0.01 -0.02  0.00</span></span>
+<span><span class="co">#&gt; .m5f2  0.01  1.00  0.01 -0.01 -0.01</span></span>
+<span><span class="co">#&gt; .m5f3 -0.01  0.01  1.00 -0.02 -0.02</span></span>
+<span><span class="co">#&gt; .m5f4 -0.02 -0.01 -0.02  1.00 -0.03</span></span>
+<span><span class="co">#&gt; .m5f5  0.00 -0.01 -0.02 -0.03  1.00</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Cross-level: m4f1 is the primary parent of m5f2 and m5f4 (from the edge table)</span></span>
 <span><span class="va">lineage</span> <span class="op">&lt;-</span> <span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m4f1"</span>, <span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f4"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">lineage</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       .m4f1 .m5f1 .m5f2 .m5f4</span></span>
-<span><span class="co">#&gt; .m4f1  1.00  0.02  0.79  0.61</span></span>
-<span><span class="co">#&gt; .m5f1  0.02  1.00  0.01  0.01</span></span>
-<span><span class="co">#&gt; .m5f2  0.79  0.01  1.00 -0.01</span></span>
-<span><span class="co">#&gt; .m5f4  0.61  0.01 -0.01  1.00</span></span></code></pre></div>
+<span><span class="co">#&gt; .m4f1  1.00  0.84  0.00  0.53</span></span>
+<span><span class="co">#&gt; .m5f1  0.84  1.00  0.01 -0.02</span></span>
+<span><span class="co">#&gt; .m5f2  0.00  0.01  1.00 -0.01</span></span>
+<span><span class="co">#&gt; .m5f4  0.53 -0.02 -0.01  1.00</span></span></code></pre></div>
 <p>The cross-level block confirms lineage: <code>.m4f1</code> correlates
 strongly with <code>.m5f2</code> and <code>.m5f4</code> (the k = 5
 factors it spawned) and near-zero with <code>.m5f1</code> (which

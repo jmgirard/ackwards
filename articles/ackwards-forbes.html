@@ -113,7 +113,7 @@ neighbors.</p>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmgirard.github.io/ackwards/">ackwards</a></span><span class="op">)</span></span>
-<span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="pairs-all-computing-every-between-level-correlation">
@@ -156,7 +156,7 @@ levels)</caption>
 <tbody>
 <tr class="odd">
 <td align="left">m3f2</td>
-<td align="left">m5f1</td>
+<td align="left">m5f2</td>
 <td align="right">3</td>
 <td align="right">5</td>
 <td align="right">0.98</td>
@@ -166,11 +166,11 @@ levels)</caption>
 <td align="left">m4f2</td>
 <td align="right">2</td>
 <td align="right">4</td>
-<td align="right">-0.98</td>
+<td align="right">-0.97</td>
 </tr>
 <tr class="odd">
 <td align="left">m2f2</td>
-<td align="left">m5f1</td>
+<td align="left">m5f2</td>
 <td align="right">2</td>
 <td align="right">5</td>
 <td align="right">-0.97</td>
@@ -180,63 +180,63 @@ levels)</caption>
 <td align="left">m4f1</td>
 <td align="right">2</td>
 <td align="right">4</td>
-<td align="right">0.81</td>
+<td align="right">0.85</td>
 </tr>
 <tr class="odd">
 <td align="left">m3f1</td>
-<td align="left">m5f2</td>
+<td align="left">m5f1</td>
 <td align="right">3</td>
 <td align="right">5</td>
-<td align="right">0.78</td>
+<td align="right">0.82</td>
 </tr>
 <tr class="even">
 <td align="left">m1f1</td>
 <td align="left">m3f1</td>
 <td align="right">1</td>
 <td align="right">3</td>
-<td align="right">0.75</td>
+<td align="right">0.77</td>
 </tr>
 <tr class="odd">
 <td align="left">m1f1</td>
 <td align="left">m4f1</td>
 <td align="right">1</td>
 <td align="right">4</td>
-<td align="right">0.74</td>
+<td align="right">0.75</td>
 </tr>
 <tr class="even">
 <td align="left">m3f3</td>
 <td align="left">m5f3</td>
 <td align="right">3</td>
 <td align="right">5</td>
-<td align="right">0.72</td>
+<td align="right">0.73</td>
 </tr>
 <tr class="odd">
-<td align="left">m3f3</td>
-<td align="left">m5f5</td>
-<td align="right">3</td>
+<td align="left">m2f1</td>
+<td align="left">m5f1</td>
+<td align="right">2</td>
 <td align="right">5</td>
 <td align="right">0.69</td>
 </tr>
 <tr class="even">
-<td align="left">m2f1</td>
-<td align="left">m5f2</td>
-<td align="right">2</td>
+<td align="left">m3f3</td>
+<td align="left">m5f5</td>
+<td align="right">3</td>
 <td align="right">5</td>
-<td align="right">0.64</td>
+<td align="right">0.68</td>
 </tr>
 <tr class="odd">
+<td align="left">m1f1</td>
+<td align="left">m5f1</td>
+<td align="right">1</td>
+<td align="right">5</td>
+<td align="right">0.61</td>
+</tr>
+<tr class="even">
 <td align="left">m3f1</td>
 <td align="left">m5f4</td>
 <td align="right">3</td>
 <td align="right">5</td>
-<td align="right">0.62</td>
-</tr>
-<tr class="even">
-<td align="left">m1f1</td>
-<td align="left">m5f2</td>
-<td align="right">1</td>
-<td align="right">5</td>
-<td align="right">0.61</td>
+<td align="right">0.56</td>
 </tr>
 </tbody>
 </table>
@@ -431,10 +431,10 @@ flagging is unambiguous. With your own data you may find borderline
 cases where the threshold matters:</p>
 <p>Refitting at a few <code>redundancy_r</code> thresholds and counting
 flagged factors at each shows how sensitive the pruning is:</p>
-<pre><code><span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.8) flagged 8 nodes.</span></span>
+<pre><code><span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.8) flagged 9 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.85) flagged 7 nodes.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.85) flagged 8 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.</span></span>
@@ -453,11 +453,11 @@ threshold</caption>
 <tbody>
 <tr class="odd">
 <td align="right">0.80</td>
-<td align="right">8</td>
+<td align="right">9</td>
 </tr>
 <tr class="even">
 <td align="right">0.85</td>
-<td align="right">7</td>
+<td align="right">8</td>
 </tr>
 <tr class="odd">
 <td align="right">0.90</td>

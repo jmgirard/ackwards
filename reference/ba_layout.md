@@ -59,13 +59,11 @@ is always at x = 0.
 ## Examples
 
 ``` r
-if (requireNamespace("psych", quietly = TRUE)) {
-  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-  lay <- ba_layout(x)
-  head(lay$nodes)
-}
-#> Warning: ! 364 rows have missing values; correlations are computed pairwise.
+x <- ackwards(bfi25, k_max = 5)
+#> Warning: ! 125 rows have missing values; correlations are computed pairwise.
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
+lay <- ba_layout(x)
+head(lay$nodes)
 #>     id level     x  y label
 #> 1 m1f1     1  0.00 -1  m1f1
 #> 2 m2f1     2 -1.25 -2  m2f1

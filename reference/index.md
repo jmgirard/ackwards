@@ -41,6 +41,13 @@ Tidy, glance, augment, summary, and print methods for ackwards objects.
 - [`print(`*`<summary_ackwards>`*`)`](https://jmgirard.github.io/ackwards/reference/print.summary_ackwards.md)
   : Print a summary_ackwards object
 
+## Low-level utilities
+
+Functions for advanced use or building on top of ackwards results.
+
+- [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+  : Compute between-level factor-score correlations
+
 ## Visualize
 
 Diagram and layout helpers for the bass-ackwards hierarchy.
@@ -52,6 +59,13 @@ Diagram and layout helpers for the bass-ackwards hierarchy.
   : Plot a bass-ackwards diagram
 - [`ba_layout()`](https://jmgirard.github.io/ackwards/reference/ba_layout.md)
   : Compute a layered layout for a bass-ackwards diagram
+
+## Data
+
+Example dataset bundled with the package.
+
+- [`bfi25`](https://jmgirard.github.io/ackwards/reference/bfi25.md) :
+  Big Five Inventory – 25-item IPIP example dataset
 
 ## Re-exported generics
 

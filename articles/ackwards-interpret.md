@@ -3,7 +3,7 @@
 ``` r
 
 library(ackwards)
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 # BFI items are ordinal, so use polychoric correlations (matches the intro and
 # visualization vignettes). This also avoids the ordinal-detection warning.
 x <- ackwards(bfi, k_max = 5, cor = "polychoric")
@@ -48,42 +48,44 @@ top_items(x, level = 5)
 #> ── Level 5 (5 factors) ──
 #> 
 #> m5f1
-#> N1 [0.829]
-#> N2 [0.818]
-#> N3 [0.817]
-#> N4 [0.671]
-#> N5 [0.657]
-#> C5 [0.332]
-#> m5f2
 #> E2 [-0.752]
-#> E4 [0.734]
-#> E1 [-0.707]
-#> E3 [0.636]
-#> E5 [0.603]
-#> A5 [0.455]
-#> A3 [0.375]
-#> N4 [-0.365]
-#> O3 [0.363]
+#> E4 [0.747]
+#> E1 [-0.701]
+#> E3 [0.677]
+#> E5 [0.597]
+#> A5 [0.487]
+#> A3 [0.415]
+#> O3 [0.394]
+#> N4 [-0.314]
+#> O1 [0.302]
+#> m5f2
+#> N3 [0.825]
+#> N1 [0.810]
+#> N2 [0.805]
+#> N5 [0.688]
+#> N4 [0.646]
+#> C5 [0.344]
+#> O4 [0.317]
 #> m5f3
-#> C2 [0.759]
-#> C4 [-0.719]
-#> C3 [0.701]
-#> C1 [0.673]
-#> C5 [-0.651]
-#> E5 [0.366]
+#> C2 [0.735]
+#> C4 [-0.716]
+#> C1 [0.690]
+#> C3 [0.679]
+#> C5 [-0.652]
+#> E5 [0.448]
+#> A4 [0.345]
 #> m5f4
-#> A2 [0.743]
-#> A3 [0.705]
-#> A1 [-0.677]
-#> A5 [0.594]
-#> A4 [0.540]
+#> A1 [-0.704]
+#> A3 [0.703]
+#> A2 [0.692]
+#> A5 [0.580]
+#> A4 [0.522]
 #> m5f5
-#> O5 [-0.708]
-#> O3 [0.676]
-#> O1 [0.641]
-#> O2 [-0.621]
-#> O4 [0.548]
-#> E3 [0.311]
+#> O5 [-0.705]
+#> O3 [0.655]
+#> O1 [0.604]
+#> O2 [-0.595]
+#> O4 [0.551]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.
@@ -105,36 +107,36 @@ top_items(x, level = 5, cut = 0.45)
 #> ── Level 5 (5 factors) ──
 #> 
 #> m5f1
-#> N1 [0.829]
-#> N2 [0.818]
-#> N3 [0.817]
-#> N4 [0.671]
-#> N5 [0.657]
-#> m5f2
 #> E2 [-0.752]
-#> E4 [0.734]
-#> E1 [-0.707]
-#> E3 [0.636]
-#> E5 [0.603]
-#> A5 [0.455]
+#> E4 [0.747]
+#> E1 [-0.701]
+#> E3 [0.677]
+#> E5 [0.597]
+#> A5 [0.487]
+#> m5f2
+#> N3 [0.825]
+#> N1 [0.810]
+#> N2 [0.805]
+#> N5 [0.688]
+#> N4 [0.646]
 #> m5f3
-#> C2 [0.759]
-#> C4 [-0.719]
-#> C3 [0.701]
-#> C1 [0.673]
-#> C5 [-0.651]
+#> C2 [0.735]
+#> C4 [-0.716]
+#> C1 [0.690]
+#> C3 [0.679]
+#> C5 [-0.652]
 #> m5f4
-#> A2 [0.743]
-#> A3 [0.705]
-#> A1 [-0.677]
-#> A5 [0.594]
-#> A4 [0.540]
+#> A1 [-0.704]
+#> A3 [0.703]
+#> A2 [0.692]
+#> A5 [0.580]
+#> A4 [0.522]
 #> m5f5
-#> O5 [-0.708]
-#> O3 [0.676]
-#> O1 [0.641]
-#> O2 [-0.621]
-#> O4 [0.548]
+#> O5 [-0.705]
+#> O3 [0.655]
+#> O1 [0.604]
+#> O2 [-0.595]
+#> O4 [0.551]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.
@@ -155,30 +157,30 @@ top_items(x, level = 5, cut = 0.3, n = 4)
 #> ── Level 5 (5 factors) ──
 #> 
 #> m5f1
-#> N1 [0.829]
-#> N2 [0.818]
-#> N3 [0.817]
-#> N4 [0.671]
-#> m5f2
 #> E2 [-0.752]
-#> E4 [0.734]
-#> E1 [-0.707]
-#> E3 [0.636]
+#> E4 [0.747]
+#> E1 [-0.701]
+#> E3 [0.677]
+#> m5f2
+#> N3 [0.825]
+#> N1 [0.810]
+#> N2 [0.805]
+#> N5 [0.688]
 #> m5f3
-#> C2 [0.759]
-#> C4 [-0.719]
-#> C3 [0.701]
-#> C1 [0.673]
+#> C2 [0.735]
+#> C4 [-0.716]
+#> C1 [0.690]
+#> C3 [0.679]
 #> m5f4
-#> A2 [0.743]
-#> A3 [0.705]
-#> A1 [-0.677]
-#> A5 [0.594]
+#> A1 [-0.704]
+#> A3 [0.703]
+#> A2 [0.692]
+#> A5 [0.580]
 #> m5f5
-#> O5 [-0.708]
-#> O3 [0.676]
-#> O1 [0.641]
-#> O2 [-0.621]
+#> O5 [-0.705]
+#> O3 [0.655]
+#> O1 [0.604]
+#> O2 [-0.595]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.
@@ -197,13 +199,13 @@ compute on it if you need to:
 
 ti <- top_items(x, level = 5, cut = 0.3)
 head(ti$data)
-#>   level factor item   loading
-#> 1     5   m5f1   N1 0.8292885
-#> 2     5   m5f1   N2 0.8181280
-#> 3     5   m5f1   N3 0.8170949
-#> 4     5   m5f1   N4 0.6711163
-#> 5     5   m5f1   N5 0.6566396
-#> 6     5   m5f1   C5 0.3321598
+#>   level factor item    loading
+#> 1     5   m5f1   E2 -0.7523369
+#> 2     5   m5f1   E4  0.7468932
+#> 3     5   m5f1   E1 -0.7011135
+#> 4     5   m5f1   E3  0.6769085
+#> 5     5   m5f1   E5  0.5974602
+#> 6     5   m5f1   A5  0.4869514
 ```
 
 ### Cross-loadings are signal
@@ -224,41 +226,40 @@ top_items(x, level = 3, cut = 0.25)
 #> ── Level 3 (3 factors) ──
 #> 
 #> m3f1
-#> E4 [0.760]
-#> A3 [0.733]
-#> A5 [0.724]
-#> E3 [0.653]
-#> A2 [0.652]
-#> E2 [-0.649]
-#> E1 [-0.604]
-#> A4 [0.536]
-#> E5 [0.506]
-#> O3 [0.345]
-#> A1 [-0.320]
-#> N4 [-0.271]
+#> E4 [0.784]
+#> A3 [0.750]
+#> A5 [0.735]
+#> E2 [-0.698]
+#> E3 [0.664]
+#> A2 [0.650]
+#> E1 [-0.611]
+#> E5 [0.507]
+#> A4 [0.490]
+#> O3 [0.355]
+#> A1 [-0.354]
+#> O1 [0.253]
+#> C5 [-0.252]
 #> m3f2
-#> N3 [0.807]
-#> N1 [0.794]
-#> N2 [0.794]
-#> N4 [0.711]
-#> N5 [0.632]
-#> C5 [0.436]
-#> O4 [0.389]
-#> C4 [0.364]
-#> E2 [0.298]
+#> N3 [0.812]
+#> N2 [0.791]
+#> N1 [0.777]
+#> N4 [0.680]
+#> N5 [0.650]
+#> C5 [0.428]
+#> O4 [0.414]
+#> C4 [0.348]
 #> m3f3
-#> C1 [0.657]
-#> C2 [0.634]
-#> C4 [-0.593]
-#> O1 [0.540]
-#> O5 [-0.540]
-#> O3 [0.525]
-#> O2 [-0.510]
-#> C3 [0.479]
-#> E5 [0.430]
-#> C5 [-0.425]
-#> O4 [0.351]
-#> E3 [0.276]
+#> C1 [0.658]
+#> C2 [0.642]
+#> C4 [-0.609]
+#> O5 [-0.553]
+#> O2 [-0.520]
+#> O3 [0.504]
+#> O1 [0.493]
+#> C3 [0.476]
+#> C5 [-0.453]
+#> E5 [0.392]
+#> O4 [0.319]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.
@@ -298,33 +299,32 @@ top_items(x, level = 2)
 #> ── Level 2 (2 factors) ──
 #> 
 #> m2f1
-#> E3 [0.694]
-#> A3 [0.667]
-#> E5 [0.662]
-#> A5 [0.644]
-#> E4 [0.614]
-#> A2 [0.611]
-#> O3 [0.589]
-#> E2 [-0.572]
-#> O1 [0.500]
-#> E1 [-0.478]
-#> A4 [0.473]
-#> C2 [0.466]
-#> C1 [0.450]
-#> C4 [-0.414]
-#> C5 [-0.384]
-#> C3 [0.359]
-#> O5 [-0.300]
+#> A3 [0.730]
+#> A5 [0.694]
+#> E3 [0.684]
+#> A2 [0.661]
+#> E4 [0.638]
+#> E5 [0.630]
+#> E2 [-0.614]
+#> O3 [0.565]
+#> E1 [-0.525]
+#> A4 [0.471]
+#> C2 [0.468]
+#> O1 [0.467]
+#> C1 [0.421]
+#> C5 [-0.411]
+#> C4 [-0.389]
+#> C3 [0.365]
+#> A1 [-0.335]
 #> m2f2
-#> N3 [-0.808]
-#> N2 [-0.797]
-#> N1 [-0.795]
-#> N4 [-0.726]
-#> N5 [-0.629]
-#> C5 [-0.439]
-#> O4 [-0.400]
-#> C4 [-0.359]
-#> E2 [-0.339]
+#> N3 [-0.806]
+#> N1 [-0.790]
+#> N2 [-0.789]
+#> N4 [-0.677]
+#> N5 [-0.659]
+#> C5 [-0.491]
+#> C4 [-0.438]
+#> O4 [-0.358]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.
@@ -353,31 +353,31 @@ summary(x)
 #> Engine: pca
 #> Rotation: varimax
 #> Basis: polychoric
-#> n: 2,436
+#> n: 875
 #> k (max): 5
 #> 
 #> ── Levels ──
 #> 
-#> k = 1: 1 factor (22.9% cumulative variance)
-#> m1f1 22.9% eigenvalue 5.73
-#> k = 2: 2 factors (34.74% cumulative variance)
-#> m2f1 20.28% eigenvalue 5.73
-#> m2f2 14.46% eigenvalue 2.96
-#> k = 3: 3 factors (43.92% cumulative variance)
-#> m3f1 17.1% eigenvalue 5.73
-#> m3f2 14.05% eigenvalue 2.96
-#> m3f3 12.76% eigenvalue 2.29
-#> k = 4: 4 factors (51.77% cumulative variance)
-#> m4f1 16.98% eigenvalue 5.73
-#> m4f2 13.72% eigenvalue 2.96
-#> m4f3 11.29% eigenvalue 2.29
-#> m4f4 9.78% eigenvalue 1.96
-#> k = 5: 5 factors (58.33% cumulative variance)
-#> m5f1 13.6% eigenvalue 5.73
-#> m5f2 13.38% eigenvalue 2.96
-#> m5f3 11.36% eigenvalue 2.29
-#> m5f4 10.27% eigenvalue 1.96
-#> m5f5 9.72% eigenvalue 1.64
+#> k = 1: 1 factor (23.21% cumulative variance)
+#> m1f1 23.21% eigenvalue 5.8
+#> k = 2: 2 factors (35.48% cumulative variance)
+#> m2f1 20.94% eigenvalue 5.8
+#> m2f2 14.54% eigenvalue 3.07
+#> k = 3: 3 factors (44.58% cumulative variance)
+#> m3f1 18.04% eigenvalue 5.8
+#> m3f2 13.89% eigenvalue 3.07
+#> m3f3 12.66% eigenvalue 2.28
+#> k = 4: 4 factors (52.17% cumulative variance)
+#> m4f1 17.5% eigenvalue 5.8
+#> m4f2 13.63% eigenvalue 3.07
+#> m4f3 11.83% eigenvalue 2.28
+#> m4f4 9.21% eigenvalue 1.9
+#> k = 5: 5 factors (58.42% cumulative variance)
+#> m5f1 13.75% eigenvalue 5.8
+#> m5f2 13.56% eigenvalue 3.07
+#> m5f3 11.9% eigenvalue 2.28
+#> m5f4 10.09% eigenvalue 1.9
+#> m5f5 9.12% eigenvalue 1.56
 #> 
 #> ── Lineage (primary parents) ──
 #> 
@@ -387,8 +387,8 @@ summary(x)
 #> m3f1 → m4f1
 #> m3f2 → m4f2
 #> m3f3 → m4f3, m4f4
-#> m4f1 → m5f2, m5f4
-#> m4f2 → m5f1
+#> m4f1 → m5f1, m5f4
+#> m4f2 → m5f2
 #> m4f3 → m5f3
 #> m4f4 → m5f5
 #> ────────────────────────────────────────────────────────────────────────────────
@@ -425,12 +425,12 @@ children. Use it to name **top-down**:
 # Primary-parent edges, weakest last: the bottom rows are where structure shifts
 tidy(x, what = "edges", primary_only = TRUE, sort = "strength") |> tail()
 #>    from   to level_from level_to         r is_primary above_cut
-#> 9  m4f1 m5f2          4        5 0.7879035       TRUE      TRUE
-#> 10 m3f3 m4f3          3        4 0.7150725       TRUE      TRUE
-#> 11 m3f3 m4f4          3        4 0.6989590       TRUE      TRUE
-#> 12 m4f1 m5f4          4        5 0.6157559       TRUE      TRUE
-#> 13 m2f1 m3f3          2        3 0.5767812       TRUE      TRUE
-#> 14 m1f1 m2f2          1        2 0.4864530       TRUE      TRUE
+#> 9  m4f1 m5f1          4        5 0.8377659       TRUE      TRUE
+#> 10 m3f3 m4f3          3        4 0.7316162       TRUE      TRUE
+#> 11 m3f3 m4f4          3        4 0.6802343       TRUE      TRUE
+#> 12 m4f1 m5f4          4        5 0.5458269       TRUE      TRUE
+#> 13 m2f1 m3f3          2        3 0.4814452       TRUE      TRUE
+#> 14 m1f1 m2f2          1        2 0.4558587       TRUE      TRUE
 ```
 
 Edges with `|r|` near 1.0 are factors that pass through nearly unchanged

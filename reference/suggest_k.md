@@ -8,7 +8,15 @@ consensus range to inform your choice of `k` in
 ## Usage
 
 ``` r
-suggest_k(data, k_max = NULL, cor = "pearson", n_iter = 20L, seed = NULL, ...)
+suggest_k(
+  data,
+  k_max = NULL,
+  cor = "pearson",
+  n_obs = NULL,
+  n_iter = 20L,
+  seed = NULL,
+  ...
+)
 ```
 
 ## Arguments
@@ -16,7 +24,12 @@ suggest_k(data, k_max = NULL, cor = "pearson", n_iter = 20L, seed = NULL, ...)
 - data:
 
   A data frame or numeric matrix (items in columns, observations in
-  rows).
+  rows). Alternatively, a pre-computed **correlation matrix** may be
+  supplied (a square, symmetric, numeric matrix with unit diagonal).
+  When a correlation matrix is supplied, `n_obs` is required (PA and VSS
+  need N), the `cor` argument is ignored, and the Comparison Data (CD)
+  criterion is skipped (CD requires raw item distributions for
+  resampling).
 
 - k_max:
 
@@ -28,6 +41,14 @@ suggest_k(data, k_max = NULL, cor = "pearson", n_iter = 20L, seed = NULL, ...)
   Correlation basis: `"pearson"` (default) or `"spearman"`. Should match
   the `cor` argument you plan to use in
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+  Ignored when `data` is a correlation matrix (the basis is already
+  fixed).
+
+- n_obs:
+
+  Number of observations. Required when `data` is a pre-computed
+  correlation matrix (PA and VSS need N). Ignored when raw data are
+  supplied (N is determined from `nrow(data)`).
 
 - n_iter:
 
@@ -175,58 +196,133 @@ matrix of partial correlations. *Psychometrika*, 41, 321–327.
 
 ``` r
 # \donttest{
-if (requireNamespace("psych", quietly = TRUE)) {
-  sk <- suggest_k(psych::bfi[, 1:25])
-  sk
-  autoplot(sk)
-
-  # Faster exploratory run
-  suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5)
-}
+sk <- suggest_k(bfi25)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [245ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [264ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> CD: 364 rows with missing values removed (2436 complete cases used).
-#> ✔ Running MAP and VSS... [100ms]
+#> CD: 125 rows with missing values removed (875 complete cases used).
+#> ✔ Running MAP and VSS... [101ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [20s]
+#> ✔ Running Comparison Data (CD)... [12.4s]
 #> 
-#> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [109ms]
-#> 
-#> ℹ Running MAP and VSS...
-#> CD: 364 rows with missing values removed (2436 complete cases used).
-#> ✔ Running MAP and VSS... [79ms]
-#> 
-#> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [17s]
-#> 
+sk
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
 #> Variables: 25
-#> n: 2,800
+#> n: 1,000
 #> Basis: pearson
-#> Tested k: 1-6
+#> Tested k: 1-8
 #> 
-#> ── Criteria (k = 1-6) ──
+#> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0242 VSS-1 0.5008 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0181 VSS-1 0.5626 VSS-2 0.6494 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0169 VSS-1 0.5819 VSS-2 0.7264 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0155 VSS-1 0.6244* VSS-2 0.7746 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0148* VSS-1 0.5858 VSS-2 0.7913* CD ✔
-#> k = 6: PA-PC ✔ PA-FA ✔ MAP 0.0159 VSS-1 0.5675 VSS-2 0.7508 CD ✔*
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0246 VSS-1 0.5121 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0190 VSS-1 0.5761 VSS-2 0.6636 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6198* VSS-2 0.7781 CD ✔
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5730 VSS-2 0.7912* CD ✔
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530 CD ✔*
+#> k = 7: PA-PC - PA-FA - MAP 0.0201 VSS-1 0.5698 VSS-2 0.7290 CD -
+#> k = 8: PA-PC - PA-FA - MAP 0.0231 VSS-1 0.5615 VSS-2 0.7252 CD -
 #> 
 #> ── Recommendations ──
 #> 
-#> • PA-PC: k <= 6
+#> • PA-PC: k <= 5
 #> • PA-FA: k <= 6
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
 #> • CD: k = 6
+#> Consensus range: k = 4-6
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
+#> above the consensus to observe factor fragmentation is intentional.
+#> Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
+#> 2023). PA-FA and CD are more conservative. Use the range.
+autoplot(sk)
+
+
+# Faster exploratory run
+suggest_k(bfi25, k_max = 6, n_iter = 5)
+#> ℹ Running parallel analysis (5 iterations, PC + FA)...
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [101ms]
+#> 
+#> ℹ Running MAP and VSS...
+#> CD: 125 rows with missing values removed (875 complete cases used).
+#> ✔ Running MAP and VSS... [83ms]
+#> 
+#> ℹ Running Comparison Data (CD)...
+#> ✔ Running Comparison Data (CD)... [10.7s]
+#> 
+#> 
+#> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
+#> Variables: 25
+#> n: 1,000
+#> Basis: pearson
+#> Tested k: 1-6
+#> 
+#> ── Criteria (k = 1-6) ──
+#> 
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0246 VSS-1 0.5121 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0190 VSS-1 0.5761 VSS-2 0.6636 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6198* VSS-2 0.7781 CD ✔
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5730 VSS-2 0.7912* CD ✔
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530 CD ✔*
+#> 
+#> ── Recommendations ──
+#> 
+#> • PA-PC: k <= 5
+#> • PA-FA: k <= 6
+#> • MAP: k = 5
+#> • VSS-1: k = 4
+#> • VSS-2: k = 5
+#> • CD: k = 6
+#> Consensus range: k = 4-6
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
+#> above the consensus to observe factor fragmentation is intentional.
+#> Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
+#> 2023). PA-FA and CD are more conservative. Use the range.
+
+# Correlation-matrix input (CD is skipped; n_obs required)
+R <- cor(bfi25, use = "pairwise.complete.obs")
+suggest_k(R, n_obs = 875L)
+#> ℹ Comparison Data (CD) is skipped when a correlation matrix is supplied (CD
+#>   requires raw item distributions for resampling).
+#> ℹ Running parallel analysis (20 iterations, PC + FA)...
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [237ms]
+#> 
+#> ℹ Running MAP and VSS...
+#> ✔ Running MAP and VSS... [92ms]
+#> 
+#> 
+#> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
+#> Variables: 25
+#> n: 875
+#> Basis: (user-supplied matrix)
+#> Tested k: 1-8
+#> 
+#> ── Criteria (k = 1-8) ──
+#> 
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0246 VSS-1 0.5121 VSS-2 0.0000
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0190 VSS-1 0.5761 VSS-2 0.6636
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6198* VSS-2 0.7781
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5730 VSS-2 0.7912*
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530
+#> k = 7: PA-PC - PA-FA - MAP 0.0201 VSS-1 0.5698 VSS-2 0.7290
+#> k = 8: PA-PC - PA-FA - MAP 0.0231 VSS-1 0.5615 VSS-2 0.7252
+#> + CD skipped (requires raw data; not available for matrix input).
+#> 
+#> ── Recommendations ──
+#> 
+#> • PA-PC: k <= 5
+#> • PA-FA: k <= 6
+#> • MAP: k = 5
+#> • VSS-1: k = 4
+#> • VSS-2: k = 5
 #> Consensus range: k = 4-6
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels

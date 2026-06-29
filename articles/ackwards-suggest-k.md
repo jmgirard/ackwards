@@ -3,7 +3,7 @@
 ``` r
 
 library(ackwards)
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 ```
 
 ## k is a decision, not an output
@@ -204,32 +204,32 @@ and citations — see
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [281ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [288ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [175ms]
+#> ✔ Running MAP and VSS... [123ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [18s]
+#> ✔ Running Comparison Data (CD)... [9.9s]
 #> 
 sk
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
 #> Variables: 25
-#> n: 2,436
+#> n: 875
 #> Basis: pearson
 #> Tested k: 1-8
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔
-#> k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔
-#> k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD ✔*
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*
+#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -
+#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -
 #> 
 #> ── Recommendations ──
 #> 
@@ -238,8 +238,8 @@ sk
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
-#> • CD: k = 8
-#> Consensus range: k = 4-8
+#> • CD: k = 6
+#> Consensus range: k = 4-6
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.
@@ -270,20 +270,27 @@ autoplot(sk)
 
 ![](ackwards-suggest-k_files/figure-html/autoplot-1.png)
 
-The three panels show the full evidence curve at a glance:
+When `EFAtools` is installed and CD is computed, the plot is a 2×2 grid;
+otherwise it falls back to a single-column three-panel layout.
 
-**Scree / Parallel Analysis (top).** The solid blue line is the observed
-PC eigenvalue profile; the grey dashed line is the PA-PC 95th-percentile
-threshold. Retain PC-based components where the blue line is above the
-grey dashed line (left of the PA-PC star). The solid teal line and grey
-dotted line show the same for the FA basis (PA-FA). The two comparisons
-are independent — you read each pair against its own threshold.
+**Scree / Parallel Analysis (top-left).** The solid blue line is the
+observed PC eigenvalue profile; the grey dashed line is the PA-PC
+95th-percentile threshold. Retain PC-based components where the blue
+line is above the grey dashed line (left of the PA-PC star). The solid
+teal line and grey dotted line show the same for the FA basis (PA-FA).
+The two comparisons are independent — you read each pair against its own
+threshold.
 
-**MAP (middle).** Lower is better. The criterion minimizes at the
+**MAP (top-right).** Lower is better. The criterion minimizes at the
 starred k.
 
-**VSS (bottom).** Higher is better. VSS-1 (solid green) and VSS-2
+**VSS (bottom-left).** Higher is better. VSS-1 (solid green) and VSS-2
 (dashed purple) each peak at their starred k.
+
+**CD — Comparison Data (bottom-right, when available).** Shows the mean
+RMSE between observed and comparison-data eigenvalues at each k. Lower
+is better; the starred k is where adding another factor no longer
+reduces RMSE beyond chance. Requires `EFAtools`.
 
 Look for visual convergence across panels. When the scree elbow, the MAP
 minimum, and a VSS peak all occur at roughly the same k, the evidence is
@@ -377,8 +384,8 @@ and need not equal the `k_max` you ultimately pass to
 
 ## A worked recommendation for the BFI
 
-The BFI has 25 items measuring five personality traits. The criteria do
-not all converge here, which is itself informative:
+The BFI-25 has 25 items measuring five personality traits. The criteria
+do not all converge here, which is itself informative:
 
 ``` r
 
@@ -386,20 +393,20 @@ sk # reproduced from earlier
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
 #> Variables: 25
-#> n: 2,436
+#> n: 875
 #> Basis: pearson
 #> Tested k: 1-8
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔
-#> k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔
-#> k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD ✔*
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*
+#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -
+#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -
 #> 
 #> ── Recommendations ──
 #> 
@@ -408,8 +415,8 @@ sk # reproduced from earlier
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
-#> • CD: k = 8
-#> Consensus range: k = 4-8
+#> • CD: k = 6
+#> Consensus range: k = 4-6
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.
@@ -429,18 +436,14 @@ Here the relationship inverts — a nuance in this dataset’s eigenvalue
 geometry, not a contradiction. Read both, but trust PA-FA as the
 model-consistent criterion for EFA and ESEM engines.
 
-**CD is a high outlier** (k = 8, when `EFAtools` is available). CD is
-among the most accurate criteria in simulation studies, but it resamples
-from the marginal distributions of each item independently, without
-preserving inter-item correlations. On a large, moderately correlated
-sample like the BFI (n = 2,436, 25 correlated items), the comparison
-data underestimates how much structure the real correlation matrix
-contains, so CD over-retains factors. Treat a large gap between CD and
-the other criteria as an invitation to look carefully at the deeper
-levels — not a directive to extract that many factors unconditionally.
+**CD agrees with PA-FA** (k = 6, when `EFAtools` is available). Both
+point to a sixth factor worth examining. CD resamples from the marginal
+item distributions without preserving inter-item correlations, so on
+datasets with strong structure it can over-retain; here it lands
+conservatively at 6, in line with the other liberal criterion.
 
-**Defensible choice: `k_max = 6`.** This matches the PA-FA
-recommendation and sits one level above the MAP/VSS-2 consensus of 5.
+**Defensible choice: `k_max = 6`.** This matches the PA-FA and CD
+recommendations and sits one level above the MAP/VSS-2 consensus of 5.
 Setting `k_max = 6` lets
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 show whether a sixth level reveals interpretable sub-facets or merely

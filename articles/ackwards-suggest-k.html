@@ -83,7 +83,7 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmgirard.github.io/ackwards/">ackwards</a></span><span class="op">)</span></span>
-<span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="k-is-a-decision-not-an-output">k is a decision, not an output<a class="anchor" aria-label="anchor" href="#k-is-a-decision-not-an-output"></a>
 </h2>
@@ -310,32 +310,32 @@ structure, and citations — see <code><a href="../reference/suggest_k.html">?su
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[281ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[288ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[175ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[123ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[18s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[9.9s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span></span>
 <span><span class="co">#&gt; Variables: 25</span></span>
-<span><span class="co">#&gt; n: 2,436</span></span>
+<span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; Basis: pearson</span></span>
 <span><span class="co">#&gt; Tested k: 1-8</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Criteria (k = 1-8)</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0157 VSS-1 0.6303<span style="color: #00BBBB;">*</span> VSS-2 0.7809 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 5: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0146<span style="color: #00BBBB;">*</span> VSS-1 0.5890 VSS-2 0.7944<span style="color: #00BBBB;">*</span> CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD <span style="color: #00BB00;">✔</span><span style="color: #00BBBB;">*</span></span></span>
+<span><span class="co">#&gt; k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0164 VSS-1 0.6215<span style="color: #00BBBB;">*</span> VSS-2 0.7837 CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 5: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0160<span style="color: #00BBBB;">*</span> VSS-1 0.5738 VSS-2 0.7950<span style="color: #00BBBB;">*</span> CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD <span style="color: #00BB00;">✔</span><span style="color: #00BBBB;">*</span></span></span>
+<span><span class="co">#&gt; k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD <span style="color: #555555;">-</span></span></span>
+<span><span class="co">#&gt; k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD <span style="color: #555555;">-</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Recommendations</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -344,8 +344,8 @@ structure, and citations — see <code><a href="../reference/suggest_k.html">?su
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> MAP: k = 5</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> VSS-1: k = 4</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> VSS-2: k = 5</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> CD: k = 8</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Consensus range: k = 4-8</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> CD: k = 6</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">Consensus range: k = 4-6</span></span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span></span>
@@ -371,18 +371,24 @@ available recommendations.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-suggest-k_files/figure-html/autoplot-1.png" class="r-plt" alt="" width="672"></p>
-<p>The three panels show the full evidence curve at a glance:</p>
-<p><strong>Scree / Parallel Analysis (top).</strong> The solid blue line
-is the observed PC eigenvalue profile; the grey dashed line is the PA-PC
-95th-percentile threshold. Retain PC-based components where the blue
-line is above the grey dashed line (left of the PA-PC star). The solid
-teal line and grey dotted line show the same for the FA basis (PA-FA).
-The two comparisons are independent — you read each pair against its own
-threshold.</p>
-<p><strong>MAP (middle).</strong> Lower is better. The criterion
+<p>When <code>EFAtools</code> is installed and CD is computed, the plot
+is a 2×2 grid; otherwise it falls back to a single-column three-panel
+layout.</p>
+<p><strong>Scree / Parallel Analysis (top-left).</strong> The solid blue
+line is the observed PC eigenvalue profile; the grey dashed line is the
+PA-PC 95th-percentile threshold. Retain PC-based components where the
+blue line is above the grey dashed line (left of the PA-PC star). The
+solid teal line and grey dotted line show the same for the FA basis
+(PA-FA). The two comparisons are independent — you read each pair
+against its own threshold.</p>
+<p><strong>MAP (top-right).</strong> Lower is better. The criterion
 minimizes at the starred k.</p>
-<p><strong>VSS (bottom).</strong> Higher is better. VSS-1 (solid green)
-and VSS-2 (dashed purple) each peak at their starred k.</p>
+<p><strong>VSS (bottom-left).</strong> Higher is better. VSS-1 (solid
+green) and VSS-2 (dashed purple) each peak at their starred k.</p>
+<p><strong>CD — Comparison Data (bottom-right, when available).</strong>
+Shows the mean RMSE between observed and comparison-data eigenvalues at
+each k. Lower is better; the starred k is where adding another factor no
+longer reduces RMSE beyond chance. Requires <code>EFAtools</code>.</p>
 <p>Look for visual convergence across panels. When the scree elbow, the
 MAP minimum, and a VSS peak all occur at roughly the same k, the
 evidence is unusually consistent. When they scatter, you have genuine
@@ -495,27 +501,27 @@ search ceiling for <code><a href="../reference/suggest_k.html">suggest_k()</a></
 <div class="section level2">
 <h2 id="a-worked-recommendation-for-the-bfi">A worked recommendation for the BFI<a class="anchor" aria-label="anchor" href="#a-worked-recommendation-for-the-bfi"></a>
 </h2>
-<p>The BFI has 25 items measuring five personality traits. The criteria
-do not all converge here, which is itself informative:</p>
+<p>The BFI-25 has 25 items measuring five personality traits. The
+criteria do not all converge here, which is itself informative:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="co"># reproduced from earlier</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span></span>
 <span><span class="co">#&gt; Variables: 25</span></span>
-<span><span class="co">#&gt; n: 2,436</span></span>
+<span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; Basis: pearson</span></span>
 <span><span class="co">#&gt; Tested k: 1-8</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Criteria (k = 1-8)</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0157 VSS-1 0.6303<span style="color: #00BBBB;">*</span> VSS-2 0.7809 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 5: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0146<span style="color: #00BBBB;">*</span> VSS-1 0.5890 VSS-2 0.7944<span style="color: #00BBBB;">*</span> CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD <span style="color: #00BB00;">✔</span><span style="color: #00BBBB;">*</span></span></span>
+<span><span class="co">#&gt; k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0164 VSS-1 0.6215<span style="color: #00BBBB;">*</span> VSS-2 0.7837 CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 5: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0160<span style="color: #00BBBB;">*</span> VSS-1 0.5738 VSS-2 0.7950<span style="color: #00BBBB;">*</span> CD <span style="color: #00BB00;">✔</span></span></span>
+<span><span class="co">#&gt; k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD <span style="color: #00BB00;">✔</span><span style="color: #00BBBB;">*</span></span></span>
+<span><span class="co">#&gt; k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD <span style="color: #555555;">-</span></span></span>
+<span><span class="co">#&gt; k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD <span style="color: #555555;">-</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Recommendations</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -524,8 +530,8 @@ do not all converge here, which is itself informative:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> MAP: k = 5</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> VSS-1: k = 4</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> VSS-2: k = 5</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> CD: k = 8</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Consensus range: k = 4-8</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> CD: k = 6</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">Consensus range: k = 4-6</span></span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span></span>
@@ -540,19 +546,15 @@ PA-PC over-extracts relative to PA-FA, making PA-PC the liberal upper
 bound. Here the relationship inverts — a nuance in this dataset’s
 eigenvalue geometry, not a contradiction. Read both, but trust PA-FA as
 the model-consistent criterion for EFA and ESEM engines.</p>
-<p><strong>CD is a high outlier</strong> (k = 8, when
-<code>EFAtools</code> is available). CD is among the most accurate
-criteria in simulation studies, but it resamples from the marginal
-distributions of each item independently, without preserving inter-item
-correlations. On a large, moderately correlated sample like the BFI (n =
-2,436, 25 correlated items), the comparison data underestimates how much
-structure the real correlation matrix contains, so CD over-retains
-factors. Treat a large gap between CD and the other criteria as an
-invitation to look carefully at the deeper levels — not a directive to
-extract that many factors unconditionally.</p>
+<p><strong>CD agrees with PA-FA</strong> (k = 6, when
+<code>EFAtools</code> is available). Both point to a sixth factor worth
+examining. CD resamples from the marginal item distributions without
+preserving inter-item correlations, so on datasets with strong structure
+it can over-retain; here it lands conservatively at 6, in line with the
+other liberal criterion.</p>
 <p><strong>Defensible choice: <code>k_max = 6</code>.</strong> This
-matches the PA-FA recommendation and sits one level above the MAP/VSS-2
-consensus of 5. Setting <code>k_max = 6</code> lets
+matches the PA-FA and CD recommendations and sits one level above the
+MAP/VSS-2 consensus of 5. Setting <code>k_max = 6</code> lets
 <code><a href="../reference/ackwards.html">ackwards()</a></code> show whether a sixth level reveals interpretable
 sub-facets or merely splits the Big Five into arbitrary
 micro-factors.</p>

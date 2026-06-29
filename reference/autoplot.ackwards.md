@@ -179,7 +179,8 @@ plot(x, ...)
   (current behaviour). A numeric value draws every edge at that constant
   width, removes the `linewidth` aesthetic mapping, and drops the `|r|`
   linewidth legend. Applies in both colour and `mono` modes and in the
-  `drop_pruned` path. Forbes figures use uniform thin lines (≈ 0.5–0.6).
+  `drop_pruned` path. Forbes figures use uniform thin lines (~=
+  0.5–0.6).
 
 - legend:
 
@@ -213,9 +214,8 @@ Requires the ggplot2 package.
 
 ``` r
 # \donttest{
-if (requireNamespace("psych", quietly = TRUE) &&
-  requireNamespace("ggplot2", quietly = TRUE)) {
-  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  x <- ackwards(bfi25, k_max = 5)
   autoplot(x)
   autoplot(x, cut_strong = 0.6, color_pos = "steelblue")
 
@@ -225,11 +225,11 @@ if (requireNamespace("psych", quietly = TRUE) &&
   # Custom node labels for the 5-factor level
   autoplot(x, node_labels = c(m5f1 = "Neuroticism", m5f2 = "Agreeableness"))
 
-  # Primary links only — clean hierarchy tree
+  # Primary links only -- clean hierarchy tree
   autoplot(x, primary_only = TRUE)
 
   # Forbes pruned view: omit redundant nodes, straight spanning arrows
-  xp <- ackwards(psych::bfi[, 1:25], k_max = 5, prune = "redundant")
+  xp <- ackwards(bfi25, k_max = 5, prune = "redundant")
   autoplot(xp, drop_pruned = TRUE)
   autoplot(xp, drop_pruned = TRUE, show_r = TRUE)
   autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
@@ -250,13 +250,13 @@ if (requireNamespace("psych", quietly = TRUE) &&
     edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
   )
 }
-#> Warning: ! 364 rows have missing values; correlations are computed pairwise.
+#> Warning: ! 125 rows have missing values; correlations are computed pairwise.
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
 #> ℹ `pairs` upgraded to "all": pruning requires all-levels edges to assess
 #>   redundancy chains and artefact relationships.
-#> Warning: ! 364 rows have missing values; correlations are computed pairwise.
+#> Warning: ! 125 rows have missing values; correlations are computed pairwise.
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
-#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
+#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 7 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
 

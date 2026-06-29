@@ -137,7 +137,7 @@ levels, the data is flagged and a warning is issued when
 <code>cor = "pearson"</code> (the default).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmgirard.github.io/ackwards/">ackwards</a></span><span class="op">)</span></span>
-<span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The warning fires with the default Pearson basis</span></span>
 <span><span class="va">x_pearson</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
@@ -164,20 +164,20 @@ correlation matrices directly.</p>
 <code class="sourceCode R"><span><span class="co"># Pearson R (stored in x$r)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">x_pearson</span><span class="op">$</span><span class="va">r</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       A1    A2    A3    A4    A5</span></span>
-<span><span class="co">#&gt; A1  1.00 -0.35 -0.27 -0.16 -0.19</span></span>
-<span><span class="co">#&gt; A2 -0.35  1.00  0.50  0.35  0.40</span></span>
-<span><span class="co">#&gt; A3 -0.27  0.50  1.00  0.38  0.52</span></span>
-<span><span class="co">#&gt; A4 -0.16  0.35  0.38  1.00  0.33</span></span>
-<span><span class="co">#&gt; A5 -0.19  0.40  0.52  0.33  1.00</span></span></code></pre></div>
+<span><span class="co">#&gt; A1  1.00 -0.37 -0.33 -0.16 -0.24</span></span>
+<span><span class="co">#&gt; A2 -0.37  1.00  0.54  0.36  0.40</span></span>
+<span><span class="co">#&gt; A3 -0.33  0.54  1.00  0.39  0.57</span></span>
+<span><span class="co">#&gt; A4 -0.16  0.36  0.39  1.00  0.34</span></span>
+<span><span class="co">#&gt; A5 -0.24  0.40  0.57  0.34  1.00</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Polychoric R</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">x_poly</span><span class="op">$</span><span class="va">r</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       A1    A2    A3    A4    A5</span></span>
-<span><span class="co">#&gt; A1  1.00 -0.42 -0.33 -0.19 -0.24</span></span>
-<span><span class="co">#&gt; A2 -0.42  1.00  0.57  0.41  0.46</span></span>
-<span><span class="co">#&gt; A3 -0.33  0.57  1.00  0.43  0.58</span></span>
-<span><span class="co">#&gt; A4 -0.19  0.41  0.43  1.00  0.37</span></span>
-<span><span class="co">#&gt; A5 -0.24  0.46  0.58  0.37  1.00</span></span></code></pre></div>
+<span><span class="co">#&gt; A1  1.00 -0.44 -0.38 -0.18 -0.29</span></span>
+<span><span class="co">#&gt; A2 -0.44  1.00  0.61  0.41  0.45</span></span>
+<span><span class="co">#&gt; A3 -0.38  0.61  1.00  0.44  0.64</span></span>
+<span><span class="co">#&gt; A4 -0.18  0.41  0.44  1.00  0.39</span></span>
+<span><span class="co">#&gt; A5 -0.29  0.45  0.64  0.39  1.00</span></span></code></pre></div>
 <p>The polychoric correlations are consistently higher — sometimes
 substantially so. The <code>N1</code>–<code>N2</code> pair, for
 instance, goes from roughly 0.59 (Pearson) to 0.73 (polychoric): a
@@ -202,205 +202,205 @@ polychoric</caption>
 <td align="left">pearson</td>
 <td align="left">m5f1</td>
 <td align="left">N1</td>
-<td align="right">0.81</td>
+<td align="right">0.05</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f1</td>
 <td align="left">N1</td>
-<td align="right">0.83</td>
+<td align="right">0.05</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m5f1</td>
 <td align="left">N2</td>
-<td align="right">0.79</td>
+<td align="right">0.09</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f1</td>
 <td align="left">N2</td>
-<td align="right">0.82</td>
+<td align="right">0.09</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m5f1</td>
 <td align="left">N3</td>
-<td align="right">0.79</td>
+<td align="right">-0.04</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f1</td>
 <td align="left">N3</td>
-<td align="right">0.82</td>
+<td align="right">-0.04</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m5f1</td>
 <td align="left">N4</td>
-<td align="right">0.65</td>
+<td align="right">-0.30</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f1</td>
 <td align="left">N4</td>
-<td align="right">0.67</td>
+<td align="right">-0.31</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m5f1</td>
 <td align="left">N5</td>
+<td align="right">-0.14</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f1</td>
+<td align="left">N5</td>
+<td align="right">-0.15</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f2</td>
+<td align="left">N1</td>
+<td align="right">0.79</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f2</td>
+<td align="left">N1</td>
+<td align="right">0.81</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f2</td>
+<td align="left">N2</td>
+<td align="right">0.78</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f2</td>
+<td align="left">N2</td>
+<td align="right">0.81</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f2</td>
+<td align="left">N3</td>
+<td align="right">0.80</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f2</td>
+<td align="left">N3</td>
+<td align="right">0.82</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f2</td>
+<td align="left">N4</td>
 <td align="right">0.63</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
-<td align="left">m5f1</td>
+<td align="left">m5f2</td>
+<td align="left">N4</td>
+<td align="right">0.65</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f2</td>
 <td align="left">N5</td>
 <td align="right">0.66</td>
 </tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f2</td>
-<td align="left">N1</td>
-<td align="right">0.08</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f2</td>
-<td align="left">N1</td>
-<td align="right">0.08</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f2</td>
-<td align="left">N2</td>
-<td align="right">0.04</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f2</td>
-<td align="left">N2</td>
-<td align="right">0.04</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f2</td>
-<td align="left">N3</td>
-<td align="right">-0.04</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f2</td>
-<td align="left">N3</td>
-<td align="right">-0.04</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f2</td>
-<td align="left">N4</td>
-<td align="right">-0.35</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f2</td>
-<td align="left">N4</td>
-<td align="right">-0.36</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f2</td>
-<td align="left">N5</td>
-<td align="right">-0.17</td>
-</tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f2</td>
 <td align="left">N5</td>
-<td align="right">-0.19</td>
+<td align="right">0.69</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m5f3</td>
 <td align="left">N1</td>
-<td align="right">-0.05</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f3</td>
-<td align="left">N1</td>
-<td align="right">-0.05</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f3</td>
-<td align="left">N2</td>
-<td align="right">-0.03</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f3</td>
-<td align="left">N2</td>
-<td align="right">-0.02</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f3</td>
-<td align="left">N3</td>
 <td align="right">-0.06</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f3</td>
+<td align="left">N1</td>
+<td align="right">-0.07</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f3</td>
+<td align="left">N2</td>
+<td align="right">-0.04</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f3</td>
+<td align="left">N2</td>
+<td align="right">-0.05</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f3</td>
 <td align="left">N3</td>
-<td align="right">-0.06</td>
+<td align="right">-0.03</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f3</td>
+<td align="left">N3</td>
+<td align="right">-0.04</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m5f3</td>
 <td align="left">N4</td>
-<td align="right">-0.17</td>
+<td align="right">-0.21</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f3</td>
 <td align="left">N4</td>
-<td align="right">-0.17</td>
+<td align="right">-0.21</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
+<td align="left">m5f3</td>
+<td align="left">N5</td>
+<td align="right">-0.01</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
 <td align="left">m5f3</td>
 <td align="left">N5</td>
 <td align="right">-0.02</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f3</td>
-<td align="left">N5</td>
-<td align="right">-0.03</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m5f4</td>
 <td align="left">N1</td>
+<td align="right">-0.23</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f4</td>
+<td align="left">N1</td>
+<td align="right">-0.25</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f4</td>
+<td align="left">N2</td>
 <td align="right">-0.21</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f4</td>
-<td align="left">N1</td>
-<td align="right">-0.23</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f4</td>
 <td align="left">N2</td>
-<td align="right">-0.20</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f4</td>
-<td align="left">N2</td>
-<td align="right">-0.20</td>
+<td align="right">-0.22</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
@@ -412,49 +412,49 @@ polychoric</caption>
 <td align="left">polychoric</td>
 <td align="left">m5f4</td>
 <td align="left">N3</td>
-<td align="right">-0.04</td>
+<td align="right">-0.03</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m5f4</td>
 <td align="left">N4</td>
-<td align="right">0.02</td>
+<td align="right">0.04</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f4</td>
 <td align="left">N4</td>
-<td align="right">0.02</td>
+<td align="right">0.05</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m5f4</td>
 <td align="left">N5</td>
-<td align="right">0.15</td>
+<td align="right">0.14</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f4</td>
 <td align="left">N5</td>
-<td align="right">0.16</td>
+<td align="right">0.17</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m5f5</td>
 <td align="left">N1</td>
-<td align="right">-0.08</td>
+<td align="right">-0.13</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f5</td>
 <td align="left">N1</td>
-<td align="right">-0.08</td>
+<td align="right">-0.13</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m5f5</td>
 <td align="left">N2</td>
-<td align="right">-0.01</td>
+<td align="right">0.00</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
@@ -466,37 +466,37 @@ polychoric</caption>
 <td align="left">pearson</td>
 <td align="left">m5f5</td>
 <td align="left">N3</td>
-<td align="right">0.00</td>
+<td align="right">0.02</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f5</td>
 <td align="left">N3</td>
-<td align="right">0.00</td>
+<td align="right">0.01</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m5f5</td>
 <td align="left">N4</td>
-<td align="right">0.09</td>
+<td align="right">0.11</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f5</td>
 <td align="left">N4</td>
-<td align="right">0.10</td>
+<td align="right">0.13</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m5f5</td>
 <td align="left">N5</td>
-<td align="right">-0.18</td>
+<td align="right">-0.14</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m5f5</td>
 <td align="left">N5</td>
-<td align="right">-0.19</td>
+<td align="right">-0.15</td>
 </tr>
 </tbody>
 </table>
@@ -523,61 +523,61 @@ basis:</p>
 <td align="left">pearson</td>
 <td align="left">m1f1</td>
 <td align="left">m2f1</td>
-<td align="right">0.86</td>
+<td align="right">0.88</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m1f1</td>
 <td align="left">m2f1</td>
+<td align="right">0.89</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m1f1</td>
+<td align="left">m2f2</td>
+<td align="right">0.48</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m1f1</td>
+<td align="left">m2f2</td>
+<td align="right">0.46</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m2f1</td>
+<td align="left">m3f1</td>
+<td align="right">0.90</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m2f1</td>
+<td align="left">m3f1</td>
 <td align="right">0.87</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
-<td align="left">m1f1</td>
-<td align="left">m2f2</td>
-<td align="right">0.52</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m1f1</td>
-<td align="left">m2f2</td>
-<td align="right">0.49</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m2f1</td>
-<td align="left">m3f1</td>
-<td align="right">0.85</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m2f1</td>
-<td align="left">m3f1</td>
-<td align="right">0.82</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
 <td align="left">m2f2</td>
 <td align="left">m3f2</td>
-<td align="right">-1.00</td>
+<td align="right">-0.97</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m2f2</td>
 <td align="left">m3f2</td>
-<td align="right">-1.00</td>
+<td align="right">-0.99</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m2f1</td>
 <td align="left">m3f3</td>
-<td align="right">0.51</td>
+<td align="right">0.43</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m2f1</td>
 <td align="left">m3f3</td>
-<td align="right">0.58</td>
+<td align="right">0.48</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
@@ -589,7 +589,7 @@ basis:</p>
 <td align="left">polychoric</td>
 <td align="left">m3f1</td>
 <td align="left">m4f1</td>
-<td align="right">1.00</td>
+<td align="right">0.99</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
@@ -613,73 +613,73 @@ basis:</p>
 <td align="left">polychoric</td>
 <td align="left">m3f3</td>
 <td align="left">m4f3</td>
-<td align="right">0.72</td>
+<td align="right">0.73</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m3f3</td>
 <td align="left">m4f4</td>
-<td align="right">0.60</td>
+<td align="right">0.59</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m3f3</td>
 <td align="left">m4f4</td>
-<td align="right">0.70</td>
+<td align="right">0.68</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m4f1</td>
+<td align="left">m5f1</td>
+<td align="right">0.82</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m4f1</td>
+<td align="left">m5f1</td>
+<td align="right">0.84</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m4f2</td>
-<td align="left">m5f1</td>
+<td align="left">m5f2</td>
 <td align="right">1.00</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m4f2</td>
-<td align="left">m5f1</td>
+<td align="left">m5f2</td>
 <td align="right">1.00</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m4f1</td>
-<td align="left">m5f2</td>
-<td align="right">0.78</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m4f1</td>
-<td align="left">m5f2</td>
-<td align="right">0.79</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m4f3</td>
 <td align="left">m5f3</td>
-<td align="right">1.00</td>
+<td align="right">0.98</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m4f3</td>
 <td align="left">m5f3</td>
-<td align="right">1.00</td>
+<td align="right">0.98</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m4f1</td>
 <td align="left">m5f4</td>
-<td align="right">0.62</td>
+<td align="right">0.58</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
 <td align="left">m4f1</td>
 <td align="left">m5f4</td>
-<td align="right">0.62</td>
+<td align="right">0.55</td>
 </tr>
 <tr class="odd">
 <td align="left">pearson</td>
 <td align="left">m4f4</td>
 <td align="left">m5f5</td>
-<td align="right">0.98</td>
+<td align="right">0.96</td>
 </tr>
 <tr class="even">
 <td align="left">polychoric</td>
@@ -713,14 +713,14 @@ is the same method used by Mplus by default.</p>
 <span><span class="co">#&gt; Engine: <span style="font-weight: bold;">esem</span></span></span>
 <span><span class="co">#&gt; Rotation: varimax</span></span>
 <span><span class="co">#&gt; Basis: polychoric</span></span>
-<span><span class="co">#&gt; n: 2,436</span></span>
+<span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; k (max): 3</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 23.1% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 32% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 38.8% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 23.5% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 32.9% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 39.5% variance</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Edges</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -736,27 +736,27 @@ WLSMV uses.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    level   index        value</span></span>
-<span><span class="co">#&gt; 1      1     chi 2.018685e+04</span></span>
+<span><span class="co">#&gt; 1      1     chi 7.629329e+03</span></span>
 <span><span class="co">#&gt; 2      1     dof 2.750000e+02</span></span>
 <span><span class="co">#&gt; 3      1 p_value           NA</span></span>
-<span><span class="co">#&gt; 4      1     CFI 7.108666e-01</span></span>
-<span><span class="co">#&gt; 5      1     TLI 6.845817e-01</span></span>
-<span><span class="co">#&gt; 6      1   RMSEA 1.724408e-01</span></span>
-<span><span class="co">#&gt; 7      1    SRMR 1.403309e-01</span></span>
-<span><span class="co">#&gt; 8      2     chi 9.149066e+03</span></span>
+<span><span class="co">#&gt; 4      1     CFI 7.153139e-01</span></span>
+<span><span class="co">#&gt; 5      1     TLI 6.894333e-01</span></span>
+<span><span class="co">#&gt; 6      1   RMSEA 1.749240e-01</span></span>
+<span><span class="co">#&gt; 7      1    SRMR 1.443569e-01</span></span>
+<span><span class="co">#&gt; 8      2     chi 3.172628e+03</span></span>
 <span><span class="co">#&gt; 9      2     dof 2.510000e+02</span></span>
 <span><span class="co">#&gt; 10     2 p_value           NA</span></span>
-<span><span class="co">#&gt; 11     2     CFI 8.707941e-01</span></span>
-<span><span class="co">#&gt; 12     2     TLI 8.455707e-01</span></span>
-<span><span class="co">#&gt; 13     2   RMSEA 1.206595e-01</span></span>
-<span><span class="co">#&gt; 14     2    SRMR 9.666487e-02</span></span>
-<span><span class="co">#&gt; 15     3     chi 4.900412e+03</span></span>
+<span><span class="co">#&gt; 11     2     CFI 8.869038e-01</span></span>
+<span><span class="co">#&gt; 12     2     TLI 8.648252e-01</span></span>
+<span><span class="co">#&gt; 13     2   RMSEA 1.154037e-01</span></span>
+<span><span class="co">#&gt; 14     2    SRMR 9.547997e-02</span></span>
+<span><span class="co">#&gt; 15     3     chi 1.703232e+03</span></span>
 <span><span class="co">#&gt; 16     3     dof 2.280000e+02</span></span>
 <span><span class="co">#&gt; 17     3 p_value           NA</span></span>
-<span><span class="co">#&gt; 18     3     CFI 9.321535e-01</span></span>
-<span><span class="co">#&gt; 19     3     TLI 9.107282e-01</span></span>
-<span><span class="co">#&gt; 20     3   RMSEA 9.173893e-02</span></span>
-<span><span class="co">#&gt; 21     3    SRMR 7.325403e-02</span></span></code></pre></div>
+<span><span class="co">#&gt; 18     3     CFI 9.428938e-01</span></span>
+<span><span class="co">#&gt; 19     3     TLI 9.248602e-01</span></span>
+<span><span class="co">#&gt; 20     3   RMSEA 8.604131e-02</span></span>
+<span><span class="co">#&gt; 21     3    SRMR 7.172502e-02</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="practical-guidance-when-to-use-polychoric">Practical guidance: when to use polychoric<a class="anchor" aria-label="anchor" href="#practical-guidance-when-to-use-polychoric"></a>

@@ -37,42 +37,40 @@ An object of class `"summary_ackwards"`, printed via
 ## Examples
 
 ``` r
-if (requireNamespace("psych", quietly = TRUE)) {
-  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-  summary(x)
-}
-#> Warning: ! 364 rows have missing values; correlations are computed pairwise.
+x <- ackwards(bfi25, k_max = 5)
+#> Warning: ! 125 rows have missing values; correlations are computed pairwise.
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
+summary(x)
 #> 
 #> ── Summary: Bass-Ackwards Analysis (ackwards) ──────────────────────────────────
 #> Engine: pca
 #> Rotation: varimax
 #> Basis: pearson
-#> n: 2,800
+#> n: 1,000
 #> k (max): 5
 #> 
 #> ── Levels ──
 #> 
-#> k = 1: 1 factor (20.15% cumulative variance)
-#> m1f1 20.15% eigenvalue 5.04
-#> k = 2: 2 factors (31.12% cumulative variance)
-#> m2f1 17.65% eigenvalue 5.04
-#> m2f2 13.48% eigenvalue 2.74
-#> k = 3: 3 factors (39.55% cumulative variance)
-#> m3f1 15.52% eigenvalue 5.04
-#> m3f2 12.85% eigenvalue 2.74
-#> m3f3 11.18% eigenvalue 2.11
-#> k = 4: 4 factors (46.88% cumulative variance)
-#> m4f1 15.3% eigenvalue 5.04
-#> m4f2 12.81% eigenvalue 2.74
-#> m4f3 10.19% eigenvalue 2.11
-#> m4f4 8.58% eigenvalue 1.83
-#> k = 5: 5 factors (53.02% cumulative variance)
-#> m5f1 12.72% eigenvalue 5.04
-#> m5f2 12.34% eigenvalue 2.74
-#> m5f3 10.26% eigenvalue 2.11
-#> m5f4 9.27% eigenvalue 1.83
-#> m5f5 8.44% eigenvalue 1.54
+#> k = 1: 1 factor (20.61% cumulative variance)
+#> m1f1 20.61% eigenvalue 5.15
+#> k = 2: 2 factors (31.82% cumulative variance)
+#> m2f1 18.46% eigenvalue 5.15
+#> m2f2 13.36% eigenvalue 2.8
+#> k = 3: 3 factors (40.09% cumulative variance)
+#> m3f1 16.39% eigenvalue 5.15
+#> m3f2 12.42% eigenvalue 2.8
+#> m3f3 11.28% eigenvalue 2.07
+#> k = 4: 4 factors (47.29% cumulative variance)
+#> m4f1 15.77% eigenvalue 5.15
+#> m4f2 12.58% eigenvalue 2.8
+#> m4f3 10.67% eigenvalue 2.07
+#> m4f4 8.28% eigenvalue 1.8
+#> k = 5: 5 factors (53.28% cumulative variance)
+#> m5f1 12.57% eigenvalue 5.15
+#> m5f2 12.51% eigenvalue 2.8
+#> m5f3 10.75% eigenvalue 2.07
+#> m5f4 9.47% eigenvalue 1.8
+#> m5f5 7.98% eigenvalue 1.5
 #> 
 #> ── Lineage (primary parents) ──
 #> 
@@ -82,8 +80,8 @@ if (requireNamespace("psych", quietly = TRUE)) {
 #> m3f1 → m4f1
 #> m3f2 → m4f2
 #> m3f3 → m4f3, m4f4
-#> m4f1 → m5f2, m5f4
-#> m4f2 → m5f1
+#> m4f1 → m5f1, m5f4
+#> m4f2 → m5f2
 #> m4f3 → m5f3
 #> m4f4 → m5f5
 #> ────────────────────────────────────────────────────────────────────────────────

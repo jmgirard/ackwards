@@ -74,6 +74,7 @@ not a fitted higher-order SEM.</p>
 <span>  fm <span class="op">=</span> <span class="st">"minres"</span>,</span>
 <span>  estimator <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  missing <span class="op">=</span> <span class="st">"pairwise"</span>,</span>
+<span>  n_obs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  align_signs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  keep_scores <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  keep_fits <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -93,8 +94,11 @@ not a fitted higher-order SEM.</p>
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>A data frame or numeric matrix of observed variables (items in
-columns, observations in rows). How missing values are handled depends on
-the <code>missing</code> argument; see below.</p></dd>
+columns, observations in rows). Alternatively, a pre-computed <strong>correlation
+matrix</strong> may be supplied (a square, symmetric, numeric matrix with unit
+diagonal). When a correlation matrix is supplied, <code>engine</code> must be <code>"pca"</code>
+or <code>"efa"</code> (ESEM requires raw data), and the <code>missing</code> and <code>cor</code> arguments
+are ignored. See the <em>Correlation-matrix input</em> section below.</p></dd>
 
 
 <dt id="arg-k-max">k_max<a class="anchor" aria-label="anchor" href="#arg-k-max"></a></dt>
@@ -133,28 +137,38 @@ Pass explicitly to override: <code>"ULSMV"</code> (unweighted WLS), <code>"MLR"<
 
 
 <dt id="arg-missing">missing<a class="anchor" aria-label="anchor" href="#arg-missing"></a></dt>
-<dd><p>How to handle missing item responses. One of:</p><ul><li><p><code>"pairwise"</code> (default) — use all available observations pairwise.
+<dd><p>How to handle missing item responses. One of:</p><ul><li><p><code>"pairwise"</code> (default) – use all available observations pairwise.
 For PCA/EFA this feeds <code>stats::cor(use = "pairwise.complete.obs")</code>.
 For ESEM with WLSMV/ULSMV (ordinal), lavaan uses <code>available.cases</code>,
 which computes polychoric thresholds and correlations from all rows that
-contribute to each pair — MCAR-valid and uses the full N.
+contribute to each pair – MCAR-valid and uses the full N.
 For ESEM with ML/MLR (continuous), lavaan uses listwise deletion
 internally while edges are computed from a pairwise correlation matrix;
 this minor inconsistency is documented in <code>$meta</code>. A warning is emitted
 when incomplete rows are detected.</p></li>
-<li><p><code>"listwise"</code> — only complete rows are used. Reduces data to
+<li><p><code>"listwise"</code> – only complete rows are used. Reduces data to
 <code><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">stats::complete.cases()</a></code> before fitting, so the correlation matrix,
 the engine fit, and the edges are all consistent. <code>n_obs</code> in the result
 reflects the reduced N.</p></li>
-<li><p><code>"fiml"</code> — Full Information Maximum Likelihood. Passes
+<li><p><code>"fiml"</code> – Full Information Maximum Likelihood. Passes
 <code>missing = "fiml"</code> to <code><a href="https://rdrr.io/pkg/lavaan/man/efa.html" class="external-link">lavaan::efa()</a></code>; edge correlations are derived
 from lavaan's FIML-estimated saturated model, ensuring consistency.
 <strong>Only valid for <code>engine = "esem"</code> with <code>estimator = "ML"</code> or
-<code>"MLR"</code></strong> — errors for PCA, EFA, and WLSMV/ULSMV. Note: FIML improves
+<code>"MLR"</code></strong> – errors for PCA, EFA, and WLSMV/ULSMV. Note: FIML improves
 factor estimation under missingness but does not impute item responses;
 score materialisation (<code>keep_scores = TRUE</code>) still produces <code>NA</code> rows
 for incomplete observations.</p></li>
 </ul></dd>
+
+
+<dt id="arg-n-obs">n_obs<a class="anchor" aria-label="anchor" href="#arg-n-obs"></a></dt>
+<dd><p>Number of observations. Used only when <code>data</code> is a
+pre-computed correlation matrix. Ignored when raw data are supplied (N is
+determined from <code>nrow(data)</code>). For <code>engine = "efa"</code>, <code>n_obs</code> is required –
+<code><a href="https://rdrr.io/pkg/psych/man/fa.html" class="external-link">psych::fa()</a></code> needs N to compute fit indices (chi-square, RMSEA, TLI). For
+<code>engine = "pca"</code>, <code>n_obs</code> is optional; edges use only the <code>W'RW</code> algebra
+and never touch N (if <code>NULL</code>, stored as <code>NA_integer_</code> and fit statistics
+requiring N are unavailable).</p></dd>
 
 
 <dt id="arg-align-signs">align_signs<a class="anchor" aria-label="anchor" href="#arg-align-signs"></a></dt>
@@ -166,7 +180,7 @@ Default <code>TRUE</code>.</p></dd>
 <dd><p>Logical; store factor scores in the result? Default
 <code>FALSE</code> (recomputable via <code><a href="augment.ackwards.html">augment.ackwards()</a></code>). When <code>TRUE</code>,
 per-observation scores are stored in <code>x$scores</code> as a named list of
-<code>n × k_j</code> matrices, one per level, standardized by real score SDs
+<code>n x k_j</code> matrices, one per level, standardized by real score SDs
 (see <code><a href="augment.ackwards.html">augment.ackwards()</a></code>).</p></dd>
 
 
@@ -183,7 +197,7 @@ captured for reproducibility metadata). Default <code>NULL</code>.</p></dd>
 
 <dt id="arg-pairs">pairs<a class="anchor" aria-label="anchor" href="#arg-pairs"></a></dt>
 <dd><p>Which level pairs to compute edges for: <code>"adjacent"</code> (default,
-classic Goldberg — only consecutive levels) or <code>"all"</code> (Forbes extension —
+classic Goldberg – only consecutive levels) or <code>"all"</code> (Forbes extension –
 every pair of levels). <code>"all"</code> reveals associations that span multiple
 levels and is required for redundancy pruning. Setting <code>prune</code> to anything
 other than <code>"none"</code> automatically upgrades this to <code>"all"</code> with a message.</p></dd>
@@ -191,13 +205,13 @@ other than <code>"none"</code> automatically upgrades this to <code>"all"</code>
 
 <dt id="arg-prune">prune<a class="anchor" aria-label="anchor" href="#arg-prune"></a></dt>
 <dd><p>Character vector controlling Forbes-extension pruning. Default
-<code>"none"</code> (no pruning). Options:</p><ul><li><p><code>"redundant"</code> — identify chains of factors connected by primary-parent
+<code>"none"</code> (no pruning). Options:</p><ul><li><p><code>"redundant"</code> – identify chains of factors connected by primary-parent
 links with <code>|r| &gt;= redundancy_r</code> (and optionally <code>phi &gt; redundancy_phi</code>).
 Applies Forbes's (2023) retention rule: keep the bottom node when the
 chain reaches level <code>k</code> (most specific); keep the top node otherwise.
 Pruning is <em>flag-only</em>: flagged nodes stay in the object with
 <code>pruned = TRUE</code> and <code>prune_reason = "redundant"</code> in <code>x$prune$nodes</code>.</p></li>
-<li><p><code>"artefact"</code> — compute Tucker's congruence coefficient (φ) for all
+<li><p><code>"artefact"</code> – compute Tucker's congruence coefficient (phi) for all
 cross-level factor pairs and store in <code>x$prune$phi</code> for researcher
 inspection. No factors are auto-flagged; artefact identification requires
 judgment (Forbes, 2023; Wicherts et al., 2016).</p></li>
@@ -211,7 +225,7 @@ threshold for redundancy chains. Default <code>0.9</code> (Forbes, 2023).</p></d
 
 <dt id="arg-redundancy-phi">redundancy_phi<a class="anchor" aria-label="anchor" href="#arg-redundancy-phi"></a></dt>
 <dd><p>Scalar in <code>(0, 1]</code> or <code>NULL</code> (default). If non-<code>NULL</code>,
-Tucker's φ must <em>also</em> exceed this threshold for a link to be included in
+Tucker's phi must <em>also</em> exceed this threshold for a link to be included in
 a redundancy chain (conjunctive with <code>redundancy_r</code>). <code>NULL</code> means only
 <code>redundancy_r</code> is used. Recommended: <code>0.95</code> (Lorenzo-Seva &amp; ten Berge, 2006).</p></dd>
 
@@ -235,24 +249,47 @@ output methods.</p>
     <h2 id="defaults-and-why">Defaults and why<a class="anchor" aria-label="anchor" href="#defaults-and-why"></a></h2>
 
 
-<ul><li><p><strong><code>engine = "pca"</code></strong> — the original Goldberg (2006) method; fastest; never
+<ul><li><p><strong><code>engine = "pca"</code></strong> – the original Goldberg (2006) method; fastest; never
 fails to converge; the Waller (2007) algebra is exact for components.</p></li>
-<li><p><strong><code>rotation = "varimax"</code></strong> — the <code>T'=T^-1</code> property of orthogonal
+<li><p><strong><code>rotation = "varimax"</code></strong> – the <code>T'=T^-1</code> property of orthogonal
 rotation enables the closed-form <code>W'RW</code> edge algebra and keeps
 within-level factors uncorrelated so cross-level edges reflect only the
 hierarchical signal. Matches Goldberg (2006), Kim &amp; Eaton (2015), and
 Forbush et al. (2024). Varimax is the only supported rotation; oblique
 rotation would confound the between-level signal that is the method's
 core output.</p></li>
-<li><p><strong><code>cor = "pearson"</code></strong> — no silent basis switching. If your items look
-ordinal (≤ 7 distinct integer values), a cli warning will suggest
+<li><p><strong><code>cor = "pearson"</code></strong> – no silent basis switching. If your items look
+ordinal (&lt;= 7 distinct integer values), a cli warning will suggest
 <code>cor = "polychoric"</code>, which is available for all three engines.</p></li>
-<li><p><strong><code>align_signs = TRUE</code></strong> — unaligned signs make the output unreadable.
+<li><p><strong><code>align_signs = TRUE</code></strong> – unaligned signs make the output unreadable.
 Anchor: m1f1 is oriented toward the positive manifold; each subsequent
 factor is flipped so its edge to its primary parent is positive.</p></li>
-<li><p><strong><code>keep_scores = FALSE</code> / <code>keep_fits = FALSE</code></strong> — memory and privacy.
-Scores are O(n × Σk) and often sensitive; raw engine fits can be large.
+<li><p><strong><code>keep_scores = FALSE</code> / <code>keep_fits = FALSE</code></strong> – memory and privacy.
+Scores are O(n x Sigmak) and often sensitive; raw engine fits can be large.
 Both are recomputable from the stored <code>r</code> matrix.</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="correlation-matrix-input">Correlation-matrix input<a class="anchor" aria-label="anchor" href="#correlation-matrix-input"></a></h2>
+
+
+<p>When <code>data</code> is a pre-computed correlation matrix (square, symmetric, unit
+diagonal), <code>ackwards()</code> runs entirely from that matrix using the <code>W'RW</code>
+algebra – no raw item responses are needed. This is useful when you have
+a published correlation table or a polychoric matrix computed externally.</p>
+<p>Constraints and behaviour when a correlation matrix is supplied:</p><ul><li><p><strong>Engine:</strong> only <code>"pca"</code> and <code>"efa"</code> are supported. <code>"esem"</code> requires raw
+data (for lavaan's own polychoric computation, WLSMV estimation, and
+per-level fit indices) and will error clearly.</p></li>
+<li><p><strong><code>n_obs</code>:</strong> required for <code>"efa"</code> (psych needs N for chi-square / RMSEA /
+TLI); optional for <code>"pca"</code> (stored as <code>NA</code> if omitted).</p></li>
+<li><p><strong><code>cor</code> argument:</strong> ignored – the basis is already determined by the
+matrix you supply. A warning is emitted if you set <code>cor</code> explicitly.</p></li>
+<li><p><strong><code>missing</code> argument:</strong> ignored – missingness was handled when computing
+the matrix. A warning is emitted if you set <code>missing</code> explicitly.</p></li>
+<li><p><strong>Factor scores:</strong> <code>keep_scores = TRUE</code> will error; <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> and
+<code>tidy(what = "scores")</code> will also error because individual-level scores
+require row-level item responses.</p></li>
+<li><p><strong><code>$cor</code> field:</strong> stored as <code>NA_character_</code>; printed as
+<code>"(user-supplied matrix)"</code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -269,34 +306,30 @@ Personality</em>, 41(4), 745–752. <a href="https://doi.org/10.1016/j.jrp.2006.
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"psych"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">ackwards</span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 364 rows have missing values; correlations are computed pairwise.</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">ackwards</span><span class="op">(</span><span class="va">bfi25</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 125 rows have missing values; correlations are computed pairwise.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `missing = "listwise"` for consistent complete-case analysis.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> One or more columns look like ordinal/Likert items (… <span style="color: #0000BB;">"&lt;= 7"</span> distinct integer</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span>   values).</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results use a <span style="color: #0000BB;">"pearson"</span> basis. Consider `cor = "polychoric"` for ordinal</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span>   data.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">This warning is displayed once per session.</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">───────────────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Engine: <span style="font-weight: bold;">pca</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rotation: varimax</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Basis: pearson</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> n: 2,800</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> n: 1,000</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> k (max): 5</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Levels</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 20.1% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 31.1% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 39.6% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 46.9% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 53% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 20.6% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 31.8% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 40.1% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 47.3% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 53.3% variance</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Edges</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -304,8 +337,81 @@ Personality</em>, 41(4), 745–752. <a href="https://doi.org/10.1016/j.jrp.2006.
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Cross-level edges are descriptive score correlations.</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to            r is_primary above_cut</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  m1f1 m2f1          1        2  0.878066713       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  m1f1 m2f2          1        2  0.478538241       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m2f1 m3f1          2        3  0.905019446       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  m2f1 m3f2          2        3  0.084915431      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  m2f1 m3f3          2        3  0.416808316       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m2f2 m3f1          2        3 -0.032217716      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  m2f2 m3f2          2        3 -0.963373570       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  m2f2 m3f3          2        3  0.266220556      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  m3f1 m4f1          3        4  0.996745750       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 m3f1 m4f2          3        4  0.006661471      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 m3f1 m4f3          3        4  0.042095931      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 m3f1 m4f4          3        4  0.068421245      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 m3f2 m4f1          3        4 -0.016233327      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 m3f2 m4f2          3        4  0.988176397       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 m3f2 m4f3          3        4 -0.018059508      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 m3f2 m4f4          3        4  0.151386067      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 m3f3 m4f1          3        4 -0.070214243      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 m3f3 m4f2          3        4 -0.061809300      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 m3f3 m4f3          3        4  0.861695922       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 m3f3 m4f4          3        4  0.498728091       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21 m4f1 m5f1          4        5  0.806394128       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22 m4f1 m5f2          4        5  0.001363543      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23 m4f1 m5f3          4        5  0.006259133      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24 m4f1 m5f4          4        5  0.589479673       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 m4f1 m5f5          4        5 -0.046916846      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26 m4f2 m5f1          4        5 -0.030991419      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27 m4f2 m5f2          4        5  0.998569303       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28 m4f2 m5f3          4        5 -0.015523208      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29 m4f2 m5f4          4        5  0.040546852      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30 m4f2 m5f5          4        5  0.003723118      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31 m4f3 m5f1          4        5 -0.105831031      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32 m4f3 m5f2          4        5  0.006424971      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33 m4f3 m5f3          4        5  0.984798330       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34 m4f3 m5f4          4        5  0.135975178      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35 m4f3 m5f5          4        5  0.021012193      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36 m4f4 m5f1          4        5  0.191253503      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37 m4f4 m5f2          4        5  0.010261396      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38 m4f4 m5f3          4        5  0.025504732      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39 m4f4 m5f4          4        5 -0.185238698      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40 m4f4 m5f5          4        5  0.963510734       TRUE      TRUE</span>
+<span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   engine rotation     cor k_max n_obs deepest_converged n_edges</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    pca  varimax pearson     5  2800                 5      40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    pca  varimax pearson     5  1000                 5      40</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Correlation-matrix input (PCA engine; n_obs optional)</span></span></span>
+<span class="r-in"><span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">bfi25</span>, use <span class="op">=</span> <span class="st">"pairwise.complete.obs"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x_R</span> <span class="op">&lt;-</span> <span class="fu">ackwards</span><span class="op">(</span><span class="va">R</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> `n_obs` not supplied; stored as `NA`.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit statistics requiring N (chi-square, RMSEA, TLI) are unavailable. Pass</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   `n_obs = &lt;N&gt;` to enable them.</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x_R</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">───────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Engine: <span style="font-weight: bold;">pca</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Rotation: varimax</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Basis: (user-supplied matrix)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> n: NA</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k (max): 5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Levels</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 20.6% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 31.8% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 40.1% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 47.3% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 53.3% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Edges</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 14 of 40 edges have |r| ≥ 0.3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Cross-level edges are descriptive score correlations.</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

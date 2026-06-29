@@ -31,7 +31,7 @@ guarantees differ.
 ``` r
 
 library(ackwards)
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 ```
 
 We use the BFI-25 with polychoric correlations throughout so that
@@ -60,14 +60,14 @@ x_pca
 #> Engine: pca
 #> Rotation: varimax
 #> Basis: polychoric
-#> n: 2,436
+#> n: 875
 #> k (max): 3
 #> 
 #> ── Levels ──
 #> 
-#> ✔ k = 1: 1 factor, 22.9% variance
-#> ✔ k = 2: 2 factors, 34.7% variance
-#> ✔ k = 3: 3 factors, 43.9% variance
+#> ✔ k = 1: 1 factor, 23.2% variance
+#> ✔ k = 2: 2 factors, 35.5% variance
+#> ✔ k = 3: 3 factors, 44.6% variance
 #> 
 #> ── Edges ──
 #> 
@@ -85,12 +85,12 @@ model rejection.
 
 tidy(x_pca, what = "fit")
 #>   level           index    value
-#> 1     1 eigenvalue.m1f1 5.725295
-#> 2     2 eigenvalue.m2f1 5.725295
-#> 3     2 eigenvalue.m2f2 2.960038
-#> 4     3 eigenvalue.m3f1 5.725295
-#> 5     3 eigenvalue.m3f2 2.960038
-#> 6     3 eigenvalue.m3f3 2.293698
+#> 1     1 eigenvalue.m1f1 5.802803
+#> 2     2 eigenvalue.m2f1 5.802803
+#> 3     2 eigenvalue.m2f2 3.067627
+#> 4     3 eigenvalue.m3f1 5.802803
+#> 5     3 eigenvalue.m3f2 3.067627
+#> 6     3 eigenvalue.m3f3 2.275419
 ```
 
 ## EFA: factors from common variance
@@ -111,14 +111,14 @@ x_efa
 #> Engine: efa
 #> Rotation: varimax
 #> Basis: polychoric
-#> n: 2,436
+#> n: 875
 #> k (max): 3
 #> 
 #> ── Levels ──
 #> 
-#> ✔ k = 1: 1 factor, 19.9% variance
-#> ✔ k = 2: 2 factors, 30% variance
-#> ✔ k = 3: 3 factors, 36.9% variance
+#> ✔ k = 1: 1 factor, 20.3% variance
+#> ✔ k = 2: 2 factors, 30.8% variance
+#> ✔ k = 3: 3 factors, 37.7% variance
 #> 
 #> ── Edges ──
 #> 
@@ -136,24 +136,24 @@ within sampling error.
 
 tidy(x_efa, what = "fit")
 #>    level   index        value
-#> 1      1     chi 1.338581e+04
-#> 2      1     dof 2.750000e+02
-#> 3      1 p_value 0.000000e+00
-#> 4      1   RMSEA 1.437845e-01
-#> 5      1     TLI 3.418359e-01
-#> 6      1     BIC 1.198013e+04
-#> 7      2     chi 7.111653e+03
-#> 8      2     dof 2.510000e+02
-#> 9      2 p_value 0.000000e+00
-#> 10     2   RMSEA 1.213312e-01
-#> 11     2     TLI 5.312110e-01
-#> 12     2     BIC 7.294886e+03
-#> 13     3     chi 4.096129e+03
-#> 14     3     dof 2.280000e+02
-#> 15     3 p_value 0.000000e+00
-#> 16     3   RMSEA 1.074290e-01
-#> 17     3     TLI 6.323810e-01
-#> 18     3     BIC 4.860084e+03
+#> 1      1     chi 4939.7638666
+#> 2      1     dof  275.0000000
+#> 3      1 p_value    0.0000000
+#> 4      1   RMSEA    0.1448964
+#> 5      1     TLI    0.3429279
+#> 6      1     BIC 3464.3179512
+#> 7      2     chi 2483.1990595
+#> 8      2     dof  251.0000000
+#> 9      2 p_value    0.0000000
+#> 10     2   RMSEA    0.1220036
+#> 11     2     TLI    0.5337688
+#> 12     2     BIC 1820.0486615
+#> 13     3     chi 1407.2742765
+#> 14     3     dof  228.0000000
+#> 15     3 p_value    0.0000000
+#> 16     3   RMSEA    0.1077785
+#> 17     3     TLI    0.6358514
+#> 18     3     BIC 1001.1717891
 ```
 
 The RMSEA values here are large (\> 0.10), indicating that 1–3 factors
@@ -176,42 +176,42 @@ and Conscientiousness families).
 
 | engine | factor | item | loading |
 |:-------|:-------|:-----|--------:|
-| pca    | m3f1   | C1   |    0.09 |
-| efa    | m3f1   | C1   |    0.10 |
-| pca    | m3f1   | C2   |    0.12 |
-| efa    | m3f1   | C2   |    0.12 |
-| pca    | m3f1   | E1   |   -0.60 |
-| efa    | m3f1   | E1   |   -0.54 |
-| pca    | m3f1   | E2   |   -0.65 |
-| efa    | m3f1   | E2   |   -0.62 |
-| pca    | m3f1   | N1   |   -0.07 |
-| efa    | m3f1   | N1   |   -0.08 |
-| pca    | m3f1   | N2   |   -0.08 |
-| efa    | m3f1   | N2   |   -0.09 |
-| pca    | m3f2   | C1   |   -0.05 |
+| pca    | m3f1   | C1   |    0.12 |
+| efa    | m3f1   | C1   |    0.13 |
+| pca    | m3f1   | C2   |    0.18 |
+| efa    | m3f1   | C2   |    0.17 |
+| pca    | m3f1   | E1   |   -0.61 |
+| efa    | m3f1   | E1   |   -0.55 |
+| pca    | m3f1   | E2   |   -0.70 |
+| efa    | m3f1   | E2   |   -0.67 |
+| pca    | m3f1   | N1   |   -0.08 |
+| efa    | m3f1   | N1   |   -0.09 |
+| pca    | m3f1   | N2   |   -0.04 |
+| efa    | m3f1   | N2   |   -0.04 |
+| pca    | m3f2   | C1   |   -0.06 |
 | efa    | m3f2   | C1   |   -0.02 |
-| pca    | m3f2   | C2   |    0.02 |
-| efa    | m3f2   | C2   |    0.05 |
-| pca    | m3f2   | E1   |    0.04 |
-| efa    | m3f2   | E1   |    0.05 |
-| pca    | m3f2   | E2   |    0.30 |
-| efa    | m3f2   | E2   |    0.27 |
-| pca    | m3f2   | N1   |    0.79 |
-| efa    | m3f2   | N1   |    0.76 |
+| pca    | m3f2   | C2   |    0.04 |
+| efa    | m3f2   | C2   |    0.07 |
+| pca    | m3f2   | E1   |    0.00 |
+| efa    | m3f2   | E1   |    0.02 |
+| pca    | m3f2   | E2   |    0.24 |
+| efa    | m3f2   | E2   |    0.23 |
+| pca    | m3f2   | N1   |    0.78 |
+| efa    | m3f2   | N1   |    0.75 |
 | pca    | m3f2   | N2   |    0.79 |
 | efa    | m3f2   | N2   |    0.76 |
 | pca    | m3f3   | C1   |    0.66 |
-| efa    | m3f3   | C1   |    0.61 |
-| pca    | m3f3   | C2   |    0.63 |
+| efa    | m3f3   | C1   |    0.62 |
+| pca    | m3f3   | C2   |    0.64 |
 | efa    | m3f3   | C2   |    0.61 |
 | pca    | m3f3   | E1   |    0.02 |
 | efa    | m3f3   | E1   |    0.01 |
-| pca    | m3f3   | E2   |   -0.10 |
-| efa    | m3f3   | E2   |   -0.11 |
-| pca    | m3f3   | N1   |   -0.08 |
-| efa    | m3f3   | N1   |   -0.10 |
-| pca    | m3f3   | N2   |    0.00 |
-| efa    | m3f3   | N2   |   -0.03 |
+| pca    | m3f3   | E2   |   -0.04 |
+| efa    | m3f3   | E2   |   -0.05 |
+| pca    | m3f3   | N1   |   -0.15 |
+| efa    | m3f3   | N1   |   -0.17 |
+| pca    | m3f3   | N2   |   -0.05 |
+| efa    | m3f3   | N2   |   -0.09 |
 
 PCA vs EFA loadings for anchor items (k = 3) {.table}
 
@@ -242,14 +242,14 @@ x_esem
 #> Engine: esem
 #> Rotation: varimax
 #> Basis: polychoric
-#> n: 2,436
+#> n: 875
 #> k (max): 3
 #> 
 #> ── Levels ──
 #> 
-#> ✔ k = 1: 1 factor, 23.1% variance
-#> ✔ k = 2: 2 factors, 32% variance
-#> ✔ k = 3: 3 factors, 38.8% variance
+#> ✔ k = 1: 1 factor, 23.5% variance
+#> ✔ k = 2: 2 factors, 32.9% variance
+#> ✔ k = 3: 3 factors, 39.5% variance
 #> 
 #> ── Edges ──
 #> 
@@ -266,27 +266,27 @@ giving a richer picture of model adequacy.
 
 tidy(x_esem, what = "fit")
 #>    level   index        value
-#> 1      1     chi 2.018685e+04
+#> 1      1     chi 7.629329e+03
 #> 2      1     dof 2.750000e+02
 #> 3      1 p_value           NA
-#> 4      1     CFI 7.108666e-01
-#> 5      1     TLI 6.845817e-01
-#> 6      1   RMSEA 1.724408e-01
-#> 7      1    SRMR 1.403309e-01
-#> 8      2     chi 9.149066e+03
+#> 4      1     CFI 7.153139e-01
+#> 5      1     TLI 6.894333e-01
+#> 6      1   RMSEA 1.749240e-01
+#> 7      1    SRMR 1.443569e-01
+#> 8      2     chi 3.172628e+03
 #> 9      2     dof 2.510000e+02
 #> 10     2 p_value           NA
-#> 11     2     CFI 8.707941e-01
-#> 12     2     TLI 8.455707e-01
-#> 13     2   RMSEA 1.206595e-01
-#> 14     2    SRMR 9.666487e-02
-#> 15     3     chi 4.900412e+03
+#> 11     2     CFI 8.869038e-01
+#> 12     2     TLI 8.648252e-01
+#> 13     2   RMSEA 1.154037e-01
+#> 14     2    SRMR 9.547997e-02
+#> 15     3     chi 1.703232e+03
 #> 16     3     dof 2.280000e+02
 #> 17     3 p_value           NA
-#> 18     3     CFI 9.321535e-01
-#> 19     3     TLI 9.107282e-01
-#> 20     3   RMSEA 9.173893e-02
-#> 21     3    SRMR 7.325403e-02
+#> 18     3     CFI 9.428938e-01
+#> 19     3     TLI 9.248602e-01
+#> 20     3   RMSEA 8.604131e-02
+#> 21     3    SRMR 7.172502e-02
 ```
 
 ### Loading standard errors
@@ -301,12 +301,12 @@ of `loading`:
 se <- tidy(x_esem, what = "loadings_se")
 head(se)
 #>   level factor item         se
-#> 1     1   m1f1   A1 0.01750773
-#> 2     1   m1f1   A2 0.01561537
-#> 3     1   m1f1   A3 0.01356797
-#> 4     1   m1f1   A4 0.01675980
-#> 5     1   m1f1   A5 0.01228831
-#> 6     1   m1f1   C1 0.01675244
+#> 1     1   m1f1   A1 0.02831633
+#> 2     1   m1f1   A2 0.02316777
+#> 3     1   m1f1   A3 0.01971862
+#> 4     1   m1f1   A4 0.02777029
+#> 5     1   m1f1   A5 0.01870826
+#> 6     1   m1f1   C1 0.02754885
 ```
 
 These SEs allow you to construct confidence intervals: loading ± 1.96 ×
@@ -327,16 +327,16 @@ The table stacks each engine’s primary-parent edges —
 
 | engine | from | to   |     r |
 |:-------|:-----|:-----|------:|
-| pca    | m1f1 | m2f1 |  0.87 |
-| efa    | m1f1 | m2f1 |  0.89 |
-| pca    | m1f1 | m2f2 |  0.49 |
-| efa    | m1f1 | m2f2 |  0.45 |
-| pca    | m2f1 | m3f1 |  0.82 |
-| efa    | m2f1 | m3f1 |  0.85 |
-| pca    | m2f2 | m3f2 | -1.00 |
-| efa    | m2f2 | m3f2 | -1.00 |
-| pca    | m2f1 | m3f3 |  0.58 |
-| efa    | m2f1 | m3f3 |  0.52 |
+| pca    | m1f1 | m2f1 |  0.89 |
+| efa    | m1f1 | m2f1 |  0.91 |
+| pca    | m1f1 | m2f2 |  0.46 |
+| efa    | m1f1 | m2f2 |  0.42 |
+| pca    | m2f1 | m3f1 |  0.87 |
+| efa    | m2f1 | m3f1 |  0.89 |
+| pca    | m2f2 | m3f2 | -0.99 |
+| efa    | m2f2 | m3f2 | -0.98 |
+| pca    | m2f1 | m3f3 |  0.48 |
+| efa    | m2f1 | m3f3 |  0.44 |
 
 Primary-parent edges: PCA vs EFA {.table}
 
@@ -446,6 +446,51 @@ ackwards(data, k_max = 4, engine = "esem", cor = "polychoric",
 | Want consistent fit statistics and edges (continuous ML/MLR) | `"listwise"` |
 | ESEM ML/MLR, meaningful missingness, want all rows used in estimation | `"fiml"` |
 | MAR-valid with ordinal (not yet built-in) | MI via `lavaan.mi` or `mirt` |
+
+## Correlation-matrix input
+
+When you have a pre-computed correlation matrix — a published table, a
+polychoric matrix computed externally, or a subset you want to analyse
+without refitting — you can pass it directly to
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+or
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md).
+The matrix is auto-detected from its shape (square, symmetric, unit
+diagonal).
+
+``` r
+
+R <- cor(bfi25, use = "pairwise.complete.obs")
+
+# PCA from a correlation matrix (n_obs optional for PCA; required for EFA)
+x_R <- ackwards(R, k_max = 5)
+# EFA requires n_obs for fit indices:
+x_efa_R <- ackwards(R, k_max = 5, engine = "efa", n_obs = 875L)
+
+# Edges are identical to the raw-data run (same W'RW algebra):
+x_d <- ackwards(bfi25, k_max = 5)
+all.equal(tidy(x_R)$r, tidy(x_d)$r) # TRUE within floating-point tolerance
+```
+
+### Constraints
+
+| Constraint | Detail |
+|----|----|
+| **Engine** | `"pca"` and `"efa"` only — `"esem"` errors (lavaan needs raw data) |
+| **`n_obs`** | Required for `"efa"`; optional for `"pca"` (stored as `NA`) |
+| **`cor` argument** | Ignored (basis is fixed); warns if set explicitly |
+| **`missing` argument** | Ignored; warns if set explicitly |
+| **Factor scores** | `keep_scores = TRUE`, [`augment()`](https://generics.r-lib.org/reference/augment.html), `tidy(what = "scores")` all error |
+| **`$cor` field** | Stored as `NA`; shown as `"(user-supplied matrix)"` in print |
+
+### suggest_k() with a correlation matrix
+
+``` r
+
+sk_R <- suggest_k(R, n_obs = 875L)
+# CD is skipped (resampling requires raw item distributions)
+# PA, MAP, and VSS run normally
+```
 
 ## References
 

@@ -40,24 +40,25 @@ how the factor structure of your data builds from broad to narrow.
 
 ## Data
 
-We use the 25-item Big Five Inventory from the `psych` package
-([`psych::bfi`](https://rdrr.io/pkg/psych/man/bfi.html)). The items
+We use `bfi25`, the built-in 25-item Big Five example dataset. The items
 measure five personality traits — Agreeableness (A1–A5),
 Conscientiousness (C1–C5), Extraversion (E1–E5), Neuroticism (N1–N5),
-and Openness (O1–O5) — each on a 6-point Likert scale, in 2,800
-participants.
+and Openness (O1–O5) — each on a 6-point Likert scale. See
+[`?bfi25`](https://jmgirard.github.io/ackwards/reference/bfi25.md) for
+full provenance; the data derive from the SAPA project using
+public-domain IPIP items.
 
 ``` r
 
 library(ackwards)
 
-bfi <- na.omit(psych::bfi[, 1:25])
+bfi <- na.omit(bfi25)
 dim(bfi)
-#> [1] 2436   25
+#> [1] 875  25
 ```
 
-We drop 364 cases with any missing item, leaving n = 2,436. In a real
-analysis you might use pairwise deletion or multiple imputation;
+We drop cases with any missing item. In a real analysis you might use
+pairwise deletion or multiple imputation;
 [`na.omit()`](https://rdrr.io/r/stats/na.fail.html) is sufficient for
 this illustration.
 
@@ -72,32 +73,32 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [265ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [278ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [175ms]
+#> ✔ Running MAP and VSS... [118ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [17.9s]
+#> ✔ Running Comparison Data (CD)... [9.8s]
 #> 
 sk
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
 #> Variables: 25
-#> n: 2,436
+#> n: 875
 #> Basis: pearson
 #> Tested k: 1-8
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔
-#> k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔
-#> k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD ✔*
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*
+#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -
+#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -
 #> 
 #> ── Recommendations ──
 #> 
@@ -106,8 +107,8 @@ sk
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
-#> • CD: k = 8
-#> Consensus range: k = 4-8
+#> • CD: k = 6
+#> Consensus range: k = 4-6
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.
@@ -168,16 +169,16 @@ x
 #> Engine: pca
 #> Rotation: varimax
 #> Basis: polychoric
-#> n: 2,436
+#> n: 875
 #> k (max): 5
 #> 
 #> ── Levels ──
 #> 
-#> ✔ k = 1: 1 factor, 22.9% variance
-#> ✔ k = 2: 2 factors, 34.7% variance
-#> ✔ k = 3: 3 factors, 43.9% variance
-#> ✔ k = 4: 4 factors, 51.8% variance
-#> ✔ k = 5: 5 factors, 58.3% variance
+#> ✔ k = 1: 1 factor, 23.2% variance
+#> ✔ k = 2: 2 factors, 35.5% variance
+#> ✔ k = 3: 3 factors, 44.6% variance
+#> ✔ k = 4: 4 factors, 52.2% variance
+#> ✔ k = 5: 5 factors, 58.4% variance
 #> 
 #> ── Edges ──
 #> 
@@ -210,31 +211,31 @@ summary(x)
 #> Engine: pca
 #> Rotation: varimax
 #> Basis: polychoric
-#> n: 2,436
+#> n: 875
 #> k (max): 5
 #> 
 #> ── Levels ──
 #> 
-#> k = 1: 1 factor (22.9% cumulative variance)
-#> m1f1 22.9% eigenvalue 5.73
-#> k = 2: 2 factors (34.74% cumulative variance)
-#> m2f1 20.28% eigenvalue 5.73
-#> m2f2 14.46% eigenvalue 2.96
-#> k = 3: 3 factors (43.92% cumulative variance)
-#> m3f1 17.1% eigenvalue 5.73
-#> m3f2 14.05% eigenvalue 2.96
-#> m3f3 12.76% eigenvalue 2.29
-#> k = 4: 4 factors (51.77% cumulative variance)
-#> m4f1 16.98% eigenvalue 5.73
-#> m4f2 13.72% eigenvalue 2.96
-#> m4f3 11.29% eigenvalue 2.29
-#> m4f4 9.78% eigenvalue 1.96
-#> k = 5: 5 factors (58.33% cumulative variance)
-#> m5f1 13.6% eigenvalue 5.73
-#> m5f2 13.38% eigenvalue 2.96
-#> m5f3 11.36% eigenvalue 2.29
-#> m5f4 10.27% eigenvalue 1.96
-#> m5f5 9.72% eigenvalue 1.64
+#> k = 1: 1 factor (23.21% cumulative variance)
+#> m1f1 23.21% eigenvalue 5.8
+#> k = 2: 2 factors (35.48% cumulative variance)
+#> m2f1 20.94% eigenvalue 5.8
+#> m2f2 14.54% eigenvalue 3.07
+#> k = 3: 3 factors (44.58% cumulative variance)
+#> m3f1 18.04% eigenvalue 5.8
+#> m3f2 13.89% eigenvalue 3.07
+#> m3f3 12.66% eigenvalue 2.28
+#> k = 4: 4 factors (52.17% cumulative variance)
+#> m4f1 17.5% eigenvalue 5.8
+#> m4f2 13.63% eigenvalue 3.07
+#> m4f3 11.83% eigenvalue 2.28
+#> m4f4 9.21% eigenvalue 1.9
+#> k = 5: 5 factors (58.42% cumulative variance)
+#> m5f1 13.75% eigenvalue 5.8
+#> m5f2 13.56% eigenvalue 3.07
+#> m5f3 11.9% eigenvalue 2.28
+#> m5f4 10.09% eigenvalue 1.9
+#> m5f5 9.12% eigenvalue 1.56
 #> 
 #> ── Lineage (primary parents) ──
 #> 
@@ -244,8 +245,8 @@ summary(x)
 #> m3f1 → m4f1
 #> m3f2 → m4f2
 #> m3f3 → m4f3, m4f4
-#> m4f1 → m5f2, m5f4
-#> m4f2 → m5f1
+#> m4f1 → m5f1, m5f4
+#> m4f2 → m5f2
 #> m4f3 → m5f3
 #> m4f4 → m5f5
 #> ────────────────────────────────────────────────────────────────────────────────
@@ -261,7 +262,7 @@ comparisons across models:
 
 glance(x)
 #>   engine rotation        cor k_max n_obs deepest_converged n_edges
-#> 1    pca  varimax polychoric     5  2436                 5      40
+#> 1    pca  varimax polychoric     5   875                 5      40
 ```
 
 ## Step 4: Visualize the hierarchy `autoplot()`
@@ -334,42 +335,44 @@ top_items(x, level = 5, cut = 0.3)
 #> ── Level 5 (5 factors) ──
 #> 
 #> m5f1
-#> N1 [0.829]
-#> N2 [0.818]
-#> N3 [0.817]
-#> N4 [0.671]
-#> N5 [0.657]
-#> C5 [0.332]
-#> m5f2
 #> E2 [-0.752]
-#> E4 [0.734]
-#> E1 [-0.707]
-#> E3 [0.636]
-#> E5 [0.603]
-#> A5 [0.455]
-#> A3 [0.375]
-#> N4 [-0.365]
-#> O3 [0.363]
+#> E4 [0.747]
+#> E1 [-0.701]
+#> E3 [0.677]
+#> E5 [0.597]
+#> A5 [0.487]
+#> A3 [0.415]
+#> O3 [0.394]
+#> N4 [-0.314]
+#> O1 [0.302]
+#> m5f2
+#> N3 [0.825]
+#> N1 [0.810]
+#> N2 [0.805]
+#> N5 [0.688]
+#> N4 [0.646]
+#> C5 [0.344]
+#> O4 [0.317]
 #> m5f3
-#> C2 [0.759]
-#> C4 [-0.719]
-#> C3 [0.701]
-#> C1 [0.673]
-#> C5 [-0.651]
-#> E5 [0.366]
+#> C2 [0.735]
+#> C4 [-0.716]
+#> C1 [0.690]
+#> C3 [0.679]
+#> C5 [-0.652]
+#> E5 [0.448]
+#> A4 [0.345]
 #> m5f4
-#> A2 [0.743]
-#> A3 [0.705]
-#> A1 [-0.677]
-#> A5 [0.594]
-#> A4 [0.540]
+#> A1 [-0.704]
+#> A3 [0.703]
+#> A2 [0.692]
+#> A5 [0.580]
+#> A4 [0.522]
 #> m5f5
-#> O5 [-0.708]
-#> O3 [0.676]
-#> O1 [0.641]
-#> O2 [-0.621]
-#> O4 [0.548]
-#> E3 [0.311]
+#> O5 [-0.705]
+#> O3 [0.655]
+#> O1 [0.604]
+#> O2 [-0.595]
+#> O4 [0.551]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.
@@ -391,12 +394,12 @@ loading matrix in long format — one row per item × factor × level:
 loadings_df <- tidy(x, what = "loadings")
 head(loadings_df)
 #>   level factor item    loading
-#> 1     1   m1f1   A1 -0.2833735
-#> 2     1   m1f1   A2  0.5409066
-#> 3     1   m1f1   A3  0.6047889
-#> 4     1   m1f1   A4  0.4887739
-#> 5     1   m1f1   A5  0.6516240
-#> 6     1   m1f1   C1  0.4133898
+#> 1     1   m1f1   A1 -0.3440908
+#> 2     1   m1f1   A2  0.5977210
+#> 3     1   m1f1   A3  0.6511387
+#> 4     1   m1f1   A4  0.4837850
+#> 5     1   m1f1   A5  0.6848262
+#> 6     1   m1f1   C1  0.4502778
 ```
 
 ### Between-level edges
@@ -411,20 +414,20 @@ correlation matrix.
 # Each factor's primary-parent edge, strongest first
 tidy(x, what = "edges", primary_only = TRUE, sort = "strength")
 #>    from   to level_from level_to          r is_primary above_cut
-#> 1  m3f1 m4f1          3        4  0.9990773       TRUE      TRUE
-#> 2  m2f2 m3f2          2        3 -0.9975486       TRUE      TRUE
-#> 3  m4f3 m5f3          4        5  0.9972853       TRUE      TRUE
-#> 4  m4f2 m5f1          4        5  0.9964532       TRUE      TRUE
-#> 5  m4f4 m5f5          4        5  0.9930407       TRUE      TRUE
-#> 6  m3f2 m4f2          3        4  0.9789921       TRUE      TRUE
-#> 7  m1f1 m2f1          1        2  0.8737068       TRUE      TRUE
-#> 8  m2f1 m3f1          2        3  0.8157785       TRUE      TRUE
-#> 9  m4f1 m5f2          4        5  0.7879035       TRUE      TRUE
-#> 10 m3f3 m4f3          3        4  0.7150725       TRUE      TRUE
-#> 11 m3f3 m4f4          3        4  0.6989590       TRUE      TRUE
-#> 12 m4f1 m5f4          4        5  0.6157559       TRUE      TRUE
-#> 13 m2f1 m3f3          2        3  0.5767812       TRUE      TRUE
-#> 14 m1f1 m2f2          1        2  0.4864530       TRUE      TRUE
+#> 1  m4f2 m5f2          4        5  0.9984791       TRUE      TRUE
+#> 2  m3f1 m4f1          3        4  0.9938371       TRUE      TRUE
+#> 3  m4f4 m5f5          4        5  0.9894063       TRUE      TRUE
+#> 4  m2f2 m3f2          2        3 -0.9873651       TRUE      TRUE
+#> 5  m4f3 m5f3          4        5  0.9824895       TRUE      TRUE
+#> 6  m3f2 m4f2          3        4  0.9761484       TRUE      TRUE
+#> 7  m1f1 m2f1          1        2  0.8900522       TRUE      TRUE
+#> 8  m2f1 m3f1          2        3  0.8740850       TRUE      TRUE
+#> 9  m4f1 m5f1          4        5  0.8377659       TRUE      TRUE
+#> 10 m3f3 m4f3          3        4  0.7316162       TRUE      TRUE
+#> 11 m3f3 m4f4          3        4  0.6802343       TRUE      TRUE
+#> 12 m4f1 m5f4          4        5  0.5458269       TRUE      TRUE
+#> 13 m2f1 m3f3          2        3  0.4814452       TRUE      TRUE
+#> 14 m1f1 m2f2          1        2  0.4558587       TRUE      TRUE
 ```
 
 `primary_only = TRUE` keeps just the strongest-connecting edge for each
@@ -439,21 +442,21 @@ dimension. Smaller values indicate where the structure is reorganizing.
 
 tidy(x, what = "variance")
 #>    level factor variance_pct cumulative_pct
-#> 1      1   m1f1        22.90          22.90
-#> 2      2   m2f1        20.28          20.28
-#> 3      2   m2f2        14.46          34.74
-#> 4      3   m3f1        17.10          17.10
-#> 5      3   m3f2        14.05          31.16
-#> 6      3   m3f3        12.76          43.92
-#> 7      4   m4f1        16.98          16.98
-#> 8      4   m4f2        13.72          30.70
-#> 9      4   m4f3        11.29          41.99
-#> 10     4   m4f4         9.78          51.77
-#> 11     5   m5f1        13.60          13.60
-#> 12     5   m5f2        13.38          26.97
-#> 13     5   m5f3        11.36          38.34
-#> 14     5   m5f4        10.27          48.61
-#> 15     5   m5f5         9.72          58.33
+#> 1      1   m1f1        23.21          23.21
+#> 2      2   m2f1        20.94          20.94
+#> 3      2   m2f2        14.54          35.48
+#> 4      3   m3f1        18.04          18.04
+#> 5      3   m3f2        13.89          31.93
+#> 6      3   m3f3        12.66          44.58
+#> 7      4   m4f1        17.50          17.50
+#> 8      4   m4f2        13.63          31.13
+#> 9      4   m4f3        11.83          42.96
+#> 10     4   m4f4         9.21          52.17
+#> 11     5   m5f1        13.75          13.75
+#> 12     5   m5f2        13.56          27.31
+#> 13     5   m5f3        11.90          39.21
+#> 14     5   m5f4        10.09          49.30
+#> 15     5   m5f5         9.12          58.42
 ```
 
 Each row is one factor at one level. `variance_pct` is the percentage of
@@ -481,7 +484,7 @@ scored <- augment(x, data = bfi)
 #>   between-level edges from `tidy()` are the authoritative associations.
 #> This warning is displayed once per session.
 dim(scored) # 25 original items + 15 score columns (1+2+3+4+5)
-#> [1] 2436   40
+#> [1] 875  40
 names(scored)[26:40]
 #>  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"
 #> [10] ".m4f4" ".m5f1" ".m5f2" ".m5f3" ".m5f4" ".m5f5"
@@ -522,11 +525,11 @@ the primary-parent lineage:
 k5 <- scored[, c(".m5f1", ".m5f2", ".m5f3", ".m5f4", ".m5f5")]
 round(cor(k5), 2)
 #>       .m5f1 .m5f2 .m5f3 .m5f4 .m5f5
-#> .m5f1  1.00  0.01  0.01  0.01 -0.01
-#> .m5f2  0.01  1.00 -0.01 -0.01 -0.01
-#> .m5f3  0.01 -0.01  1.00 -0.02 -0.02
-#> .m5f4  0.01 -0.01 -0.02  1.00 -0.02
-#> .m5f5 -0.01 -0.01 -0.02 -0.02  1.00
+#> .m5f1  1.00  0.01 -0.01 -0.02  0.00
+#> .m5f2  0.01  1.00  0.01 -0.01 -0.01
+#> .m5f3 -0.01  0.01  1.00 -0.02 -0.02
+#> .m5f4 -0.02 -0.01 -0.02  1.00 -0.03
+#> .m5f5  0.00 -0.01 -0.02 -0.03  1.00
 ```
 
 ``` r
@@ -535,10 +538,10 @@ round(cor(k5), 2)
 lineage <- scored[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]
 round(cor(lineage), 2)
 #>       .m4f1 .m5f1 .m5f2 .m5f4
-#> .m4f1  1.00  0.02  0.79  0.61
-#> .m5f1  0.02  1.00  0.01  0.01
-#> .m5f2  0.79  0.01  1.00 -0.01
-#> .m5f4  0.61  0.01 -0.01  1.00
+#> .m4f1  1.00  0.84  0.00  0.53
+#> .m5f1  0.84  1.00  0.01 -0.02
+#> .m5f2  0.00  0.01  1.00 -0.01
+#> .m5f4  0.53 -0.02 -0.01  1.00
 ```
 
 The cross-level block confirms lineage: `.m4f1` correlates strongly with

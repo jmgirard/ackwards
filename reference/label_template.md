@@ -66,18 +66,12 @@ so the printed literal maps directly onto the diagram.
 ## Examples
 
 ``` r
-if (requireNamespace("psych", quietly = TRUE)) {
-  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-
-  # Start from ID defaults, then fill in your own labels:
-  labs <- label_template(x)
-  labs["m5f1"] <- "Neuroticism"
-
-  # Forbes letter convention:
-  label_template(x, style = "forbes")
-}
-#> Warning: ! 364 rows have missing values; correlations are computed pairwise.
+x <- ackwards(bfi25, k_max = 5)
+#> Warning: ! 125 rows have missing values; correlations are computed pairwise.
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
+
+# Start from ID defaults, then fill in your own labels:
+labs <- label_template(x)
 #> `label_template()` scaffold (id style):
 #> c(
 #>   "m1f1" = "m1f1",
@@ -96,6 +90,10 @@ if (requireNamespace("psych", quietly = TRUE)) {
 #>   "m5f4" = "m5f4",
 #>   "m5f5" = "m5f5"
 #> )
+labs["m5f1"] <- "Neuroticism"
+
+# Forbes letter convention:
+label_template(x, style = "forbes")
 #> `label_template()` scaffold (forbes style):
 #> c(
 #>   "m1f1" = "A1",

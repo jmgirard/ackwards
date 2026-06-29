@@ -153,7 +153,7 @@ guarantees differ.</p>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmgirard.github.io/ackwards/">ackwards</a></span><span class="op">)</span></span>
-<span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span></code></pre></div>
 <p>We use the BFI-25 with polychoric correlations throughout so that
 differences in output reflect the engine, not the correlation basis.</p>
 </div>
@@ -179,14 +179,14 @@ scores.</p>
 <span><span class="co">#&gt; Engine: <span style="font-weight: bold;">pca</span></span></span>
 <span><span class="co">#&gt; Rotation: varimax</span></span>
 <span><span class="co">#&gt; Basis: polychoric</span></span>
-<span><span class="co">#&gt; n: 2,436</span></span>
+<span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; k (max): 3</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 22.9% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 34.7% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 43.9% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 23.2% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 35.5% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 44.6% variance</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Edges</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -200,12 +200,12 @@ no model rejection.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_pca</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   level           index    value</span></span>
-<span><span class="co">#&gt; 1     1 eigenvalue.m1f1 5.725295</span></span>
-<span><span class="co">#&gt; 2     2 eigenvalue.m2f1 5.725295</span></span>
-<span><span class="co">#&gt; 3     2 eigenvalue.m2f2 2.960038</span></span>
-<span><span class="co">#&gt; 4     3 eigenvalue.m3f1 5.725295</span></span>
-<span><span class="co">#&gt; 5     3 eigenvalue.m3f2 2.960038</span></span>
-<span><span class="co">#&gt; 6     3 eigenvalue.m3f3 2.293698</span></span></code></pre></div>
+<span><span class="co">#&gt; 1     1 eigenvalue.m1f1 5.802803</span></span>
+<span><span class="co">#&gt; 2     2 eigenvalue.m2f1 5.802803</span></span>
+<span><span class="co">#&gt; 3     2 eigenvalue.m2f2 3.067627</span></span>
+<span><span class="co">#&gt; 4     3 eigenvalue.m3f1 5.802803</span></span>
+<span><span class="co">#&gt; 5     3 eigenvalue.m3f2 3.067627</span></span>
+<span><span class="co">#&gt; 6     3 eigenvalue.m3f3 2.275419</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="efa-factors-from-common-variance">EFA: factors from common variance<a class="anchor" aria-label="anchor" href="#efa-factors-from-common-variance"></a>
@@ -224,14 +224,14 @@ rather than the constructs themselves.</p>
 <span><span class="co">#&gt; Engine: <span style="font-weight: bold;">efa</span></span></span>
 <span><span class="co">#&gt; Rotation: varimax</span></span>
 <span><span class="co">#&gt; Basis: polychoric</span></span>
-<span><span class="co">#&gt; n: 2,436</span></span>
+<span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; k (max): 3</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 19.9% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 30% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 36.9% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 20.3% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 30.8% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 37.7% variance</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Edges</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -245,24 +245,24 @@ matrix within sampling error.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_efa</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    level   index        value</span></span>
-<span><span class="co">#&gt; 1      1     chi 1.338581e+04</span></span>
-<span><span class="co">#&gt; 2      1     dof 2.750000e+02</span></span>
-<span><span class="co">#&gt; 3      1 p_value 0.000000e+00</span></span>
-<span><span class="co">#&gt; 4      1   RMSEA 1.437845e-01</span></span>
-<span><span class="co">#&gt; 5      1     TLI 3.418359e-01</span></span>
-<span><span class="co">#&gt; 6      1     BIC 1.198013e+04</span></span>
-<span><span class="co">#&gt; 7      2     chi 7.111653e+03</span></span>
-<span><span class="co">#&gt; 8      2     dof 2.510000e+02</span></span>
-<span><span class="co">#&gt; 9      2 p_value 0.000000e+00</span></span>
-<span><span class="co">#&gt; 10     2   RMSEA 1.213312e-01</span></span>
-<span><span class="co">#&gt; 11     2     TLI 5.312110e-01</span></span>
-<span><span class="co">#&gt; 12     2     BIC 7.294886e+03</span></span>
-<span><span class="co">#&gt; 13     3     chi 4.096129e+03</span></span>
-<span><span class="co">#&gt; 14     3     dof 2.280000e+02</span></span>
-<span><span class="co">#&gt; 15     3 p_value 0.000000e+00</span></span>
-<span><span class="co">#&gt; 16     3   RMSEA 1.074290e-01</span></span>
-<span><span class="co">#&gt; 17     3     TLI 6.323810e-01</span></span>
-<span><span class="co">#&gt; 18     3     BIC 4.860084e+03</span></span></code></pre></div>
+<span><span class="co">#&gt; 1      1     chi 4939.7638666</span></span>
+<span><span class="co">#&gt; 2      1     dof  275.0000000</span></span>
+<span><span class="co">#&gt; 3      1 p_value    0.0000000</span></span>
+<span><span class="co">#&gt; 4      1   RMSEA    0.1448964</span></span>
+<span><span class="co">#&gt; 5      1     TLI    0.3429279</span></span>
+<span><span class="co">#&gt; 6      1     BIC 3464.3179512</span></span>
+<span><span class="co">#&gt; 7      2     chi 2483.1990595</span></span>
+<span><span class="co">#&gt; 8      2     dof  251.0000000</span></span>
+<span><span class="co">#&gt; 9      2 p_value    0.0000000</span></span>
+<span><span class="co">#&gt; 10     2   RMSEA    0.1220036</span></span>
+<span><span class="co">#&gt; 11     2     TLI    0.5337688</span></span>
+<span><span class="co">#&gt; 12     2     BIC 1820.0486615</span></span>
+<span><span class="co">#&gt; 13     3     chi 1407.2742765</span></span>
+<span><span class="co">#&gt; 14     3     dof  228.0000000</span></span>
+<span><span class="co">#&gt; 15     3 p_value    0.0000000</span></span>
+<span><span class="co">#&gt; 16     3   RMSEA    0.1077785</span></span>
+<span><span class="co">#&gt; 17     3     TLI    0.6358514</span></span>
+<span><span class="co">#&gt; 18     3     BIC 1001.1717891</span></span></code></pre></div>
 <p>The RMSEA values here are large (&gt; 0.10), indicating that 1–3
 factors do not fully account for the BFI item correlations —
 unsurprising, because the true structure is 5 factors. Fit improves
@@ -293,79 +293,79 @@ Neuroticism, Extraversion, and Conscientiousness families).</p>
 <td align="left">pca</td>
 <td align="left">m3f1</td>
 <td align="left">C1</td>
-<td align="right">0.09</td>
+<td align="right">0.12</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
 <td align="left">m3f1</td>
 <td align="left">C1</td>
-<td align="right">0.10</td>
+<td align="right">0.13</td>
 </tr>
 <tr class="odd">
 <td align="left">pca</td>
 <td align="left">m3f1</td>
 <td align="left">C2</td>
-<td align="right">0.12</td>
+<td align="right">0.18</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
 <td align="left">m3f1</td>
 <td align="left">C2</td>
-<td align="right">0.12</td>
+<td align="right">0.17</td>
 </tr>
 <tr class="odd">
 <td align="left">pca</td>
 <td align="left">m3f1</td>
 <td align="left">E1</td>
-<td align="right">-0.60</td>
+<td align="right">-0.61</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
 <td align="left">m3f1</td>
 <td align="left">E1</td>
-<td align="right">-0.54</td>
+<td align="right">-0.55</td>
 </tr>
 <tr class="odd">
 <td align="left">pca</td>
 <td align="left">m3f1</td>
 <td align="left">E2</td>
-<td align="right">-0.65</td>
+<td align="right">-0.70</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
 <td align="left">m3f1</td>
 <td align="left">E2</td>
-<td align="right">-0.62</td>
+<td align="right">-0.67</td>
 </tr>
 <tr class="odd">
 <td align="left">pca</td>
 <td align="left">m3f1</td>
 <td align="left">N1</td>
-<td align="right">-0.07</td>
+<td align="right">-0.08</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
 <td align="left">m3f1</td>
 <td align="left">N1</td>
-<td align="right">-0.08</td>
-</tr>
-<tr class="odd">
-<td align="left">pca</td>
-<td align="left">m3f1</td>
-<td align="left">N2</td>
-<td align="right">-0.08</td>
-</tr>
-<tr class="even">
-<td align="left">efa</td>
-<td align="left">m3f1</td>
-<td align="left">N2</td>
 <td align="right">-0.09</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f1</td>
+<td align="left">N2</td>
+<td align="right">-0.04</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f1</td>
+<td align="left">N2</td>
+<td align="right">-0.04</td>
 </tr>
 <tr class="odd">
 <td align="left">pca</td>
 <td align="left">m3f2</td>
 <td align="left">C1</td>
-<td align="right">-0.05</td>
+<td align="right">-0.06</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
@@ -377,49 +377,49 @@ Neuroticism, Extraversion, and Conscientiousness families).</p>
 <td align="left">pca</td>
 <td align="left">m3f2</td>
 <td align="left">C2</td>
-<td align="right">0.02</td>
-</tr>
-<tr class="even">
-<td align="left">efa</td>
-<td align="left">m3f2</td>
-<td align="left">C2</td>
-<td align="right">0.05</td>
-</tr>
-<tr class="odd">
-<td align="left">pca</td>
-<td align="left">m3f2</td>
-<td align="left">E1</td>
 <td align="right">0.04</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
 <td align="left">m3f2</td>
+<td align="left">C2</td>
+<td align="right">0.07</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f2</td>
 <td align="left">E1</td>
-<td align="right">0.05</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f2</td>
+<td align="left">E1</td>
+<td align="right">0.02</td>
 </tr>
 <tr class="odd">
 <td align="left">pca</td>
 <td align="left">m3f2</td>
 <td align="left">E2</td>
-<td align="right">0.30</td>
+<td align="right">0.24</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
 <td align="left">m3f2</td>
 <td align="left">E2</td>
-<td align="right">0.27</td>
+<td align="right">0.23</td>
 </tr>
 <tr class="odd">
 <td align="left">pca</td>
 <td align="left">m3f2</td>
 <td align="left">N1</td>
-<td align="right">0.79</td>
+<td align="right">0.78</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
 <td align="left">m3f2</td>
 <td align="left">N1</td>
-<td align="right">0.76</td>
+<td align="right">0.75</td>
 </tr>
 <tr class="odd">
 <td align="left">pca</td>
@@ -443,13 +443,13 @@ Neuroticism, Extraversion, and Conscientiousness families).</p>
 <td align="left">efa</td>
 <td align="left">m3f3</td>
 <td align="left">C1</td>
-<td align="right">0.61</td>
+<td align="right">0.62</td>
 </tr>
 <tr class="odd">
 <td align="left">pca</td>
 <td align="left">m3f3</td>
 <td align="left">C2</td>
-<td align="right">0.63</td>
+<td align="right">0.64</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
@@ -473,37 +473,37 @@ Neuroticism, Extraversion, and Conscientiousness families).</p>
 <td align="left">pca</td>
 <td align="left">m3f3</td>
 <td align="left">E2</td>
-<td align="right">-0.10</td>
+<td align="right">-0.04</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
 <td align="left">m3f3</td>
 <td align="left">E2</td>
-<td align="right">-0.11</td>
+<td align="right">-0.05</td>
 </tr>
 <tr class="odd">
 <td align="left">pca</td>
 <td align="left">m3f3</td>
 <td align="left">N1</td>
-<td align="right">-0.08</td>
+<td align="right">-0.15</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
 <td align="left">m3f3</td>
 <td align="left">N1</td>
-<td align="right">-0.10</td>
+<td align="right">-0.17</td>
 </tr>
 <tr class="odd">
 <td align="left">pca</td>
 <td align="left">m3f3</td>
 <td align="left">N2</td>
-<td align="right">0.00</td>
+<td align="right">-0.05</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
 <td align="left">m3f3</td>
 <td align="left">N2</td>
-<td align="right">-0.03</td>
+<td align="right">-0.09</td>
 </tr>
 </tbody>
 </table>
@@ -538,14 +538,14 @@ indicators. When <code>cor = "polychoric"</code> is set with
 <span><span class="co">#&gt; Engine: <span style="font-weight: bold;">esem</span></span></span>
 <span><span class="co">#&gt; Rotation: varimax</span></span>
 <span><span class="co">#&gt; Basis: polychoric</span></span>
-<span><span class="co">#&gt; n: 2,436</span></span>
+<span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; k (max): 3</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 23.1% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 32% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 38.8% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 23.5% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 32.9% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 39.5% variance</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Edges</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -558,27 +558,27 @@ giving a richer picture of model adequacy.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    level   index        value</span></span>
-<span><span class="co">#&gt; 1      1     chi 2.018685e+04</span></span>
+<span><span class="co">#&gt; 1      1     chi 7.629329e+03</span></span>
 <span><span class="co">#&gt; 2      1     dof 2.750000e+02</span></span>
 <span><span class="co">#&gt; 3      1 p_value           NA</span></span>
-<span><span class="co">#&gt; 4      1     CFI 7.108666e-01</span></span>
-<span><span class="co">#&gt; 5      1     TLI 6.845817e-01</span></span>
-<span><span class="co">#&gt; 6      1   RMSEA 1.724408e-01</span></span>
-<span><span class="co">#&gt; 7      1    SRMR 1.403309e-01</span></span>
-<span><span class="co">#&gt; 8      2     chi 9.149066e+03</span></span>
+<span><span class="co">#&gt; 4      1     CFI 7.153139e-01</span></span>
+<span><span class="co">#&gt; 5      1     TLI 6.894333e-01</span></span>
+<span><span class="co">#&gt; 6      1   RMSEA 1.749240e-01</span></span>
+<span><span class="co">#&gt; 7      1    SRMR 1.443569e-01</span></span>
+<span><span class="co">#&gt; 8      2     chi 3.172628e+03</span></span>
 <span><span class="co">#&gt; 9      2     dof 2.510000e+02</span></span>
 <span><span class="co">#&gt; 10     2 p_value           NA</span></span>
-<span><span class="co">#&gt; 11     2     CFI 8.707941e-01</span></span>
-<span><span class="co">#&gt; 12     2     TLI 8.455707e-01</span></span>
-<span><span class="co">#&gt; 13     2   RMSEA 1.206595e-01</span></span>
-<span><span class="co">#&gt; 14     2    SRMR 9.666487e-02</span></span>
-<span><span class="co">#&gt; 15     3     chi 4.900412e+03</span></span>
+<span><span class="co">#&gt; 11     2     CFI 8.869038e-01</span></span>
+<span><span class="co">#&gt; 12     2     TLI 8.648252e-01</span></span>
+<span><span class="co">#&gt; 13     2   RMSEA 1.154037e-01</span></span>
+<span><span class="co">#&gt; 14     2    SRMR 9.547997e-02</span></span>
+<span><span class="co">#&gt; 15     3     chi 1.703232e+03</span></span>
 <span><span class="co">#&gt; 16     3     dof 2.280000e+02</span></span>
 <span><span class="co">#&gt; 17     3 p_value           NA</span></span>
-<span><span class="co">#&gt; 18     3     CFI 9.321535e-01</span></span>
-<span><span class="co">#&gt; 19     3     TLI 9.107282e-01</span></span>
-<span><span class="co">#&gt; 20     3   RMSEA 9.173893e-02</span></span>
-<span><span class="co">#&gt; 21     3    SRMR 7.325403e-02</span></span></code></pre></div>
+<span><span class="co">#&gt; 18     3     CFI 9.428938e-01</span></span>
+<span><span class="co">#&gt; 19     3     TLI 9.248602e-01</span></span>
+<span><span class="co">#&gt; 20     3   RMSEA 8.604131e-02</span></span>
+<span><span class="co">#&gt; 21     3    SRMR 7.172502e-02</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="loading-standard-errors">Loading standard errors<a class="anchor" aria-label="anchor" href="#loading-standard-errors"></a>
 </h3>
@@ -591,12 +591,12 @@ place of <code>loading</code>:</p>
 <code class="sourceCode R"><span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"loadings_se"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   level factor item         se</span></span>
-<span><span class="co">#&gt; 1     1   m1f1   A1 0.01750773</span></span>
-<span><span class="co">#&gt; 2     1   m1f1   A2 0.01561537</span></span>
-<span><span class="co">#&gt; 3     1   m1f1   A3 0.01356797</span></span>
-<span><span class="co">#&gt; 4     1   m1f1   A4 0.01675980</span></span>
-<span><span class="co">#&gt; 5     1   m1f1   A5 0.01228831</span></span>
-<span><span class="co">#&gt; 6     1   m1f1   C1 0.01675244</span></span></code></pre></div>
+<span><span class="co">#&gt; 1     1   m1f1   A1 0.02831633</span></span>
+<span><span class="co">#&gt; 2     1   m1f1   A2 0.02316777</span></span>
+<span><span class="co">#&gt; 3     1   m1f1   A3 0.01971862</span></span>
+<span><span class="co">#&gt; 4     1   m1f1   A4 0.02777029</span></span>
+<span><span class="co">#&gt; 5     1   m1f1   A5 0.01870826</span></span>
+<span><span class="co">#&gt; 6     1   m1f1   C1 0.02754885</span></span></code></pre></div>
 <p>These SEs allow you to construct confidence intervals: loading ± 1.96
 × SE gives an approximate 95% CI. For the BFI with &gt; 2,000
 participants the SEs are small; with smaller samples they become
@@ -627,61 +627,61 @@ transition:</p>
 <td align="left">pca</td>
 <td align="left">m1f1</td>
 <td align="left">m2f1</td>
+<td align="right">0.89</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m1f1</td>
+<td align="left">m2f1</td>
+<td align="right">0.91</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m1f1</td>
+<td align="left">m2f2</td>
+<td align="right">0.46</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m1f1</td>
+<td align="left">m2f2</td>
+<td align="right">0.42</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m2f1</td>
+<td align="left">m3f1</td>
 <td align="right">0.87</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
-<td align="left">m1f1</td>
 <td align="left">m2f1</td>
+<td align="left">m3f1</td>
 <td align="right">0.89</td>
 </tr>
 <tr class="odd">
 <td align="left">pca</td>
-<td align="left">m1f1</td>
-<td align="left">m2f2</td>
-<td align="right">0.49</td>
-</tr>
-<tr class="even">
-<td align="left">efa</td>
-<td align="left">m1f1</td>
-<td align="left">m2f2</td>
-<td align="right">0.45</td>
-</tr>
-<tr class="odd">
-<td align="left">pca</td>
-<td align="left">m2f1</td>
-<td align="left">m3f1</td>
-<td align="right">0.82</td>
-</tr>
-<tr class="even">
-<td align="left">efa</td>
-<td align="left">m2f1</td>
-<td align="left">m3f1</td>
-<td align="right">0.85</td>
-</tr>
-<tr class="odd">
-<td align="left">pca</td>
 <td align="left">m2f2</td>
 <td align="left">m3f2</td>
-<td align="right">-1.00</td>
+<td align="right">-0.99</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
 <td align="left">m2f2</td>
 <td align="left">m3f2</td>
-<td align="right">-1.00</td>
+<td align="right">-0.98</td>
 </tr>
 <tr class="odd">
 <td align="left">pca</td>
 <td align="left">m2f1</td>
 <td align="left">m3f3</td>
-<td align="right">0.58</td>
+<td align="right">0.48</td>
 </tr>
 <tr class="even">
 <td align="left">efa</td>
 <td align="left">m2f1</td>
 <td align="left">m3f3</td>
-<td align="right">0.52</td>
+<td align="right">0.44</td>
 </tr>
 </tbody>
 </table>
@@ -844,6 +844,80 @@ estimation</td>
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+<div class="section level2">
+<h2 id="correlation-matrix-input">Correlation-matrix input<a class="anchor" aria-label="anchor" href="#correlation-matrix-input"></a>
+</h2>
+<p>When you have a pre-computed correlation matrix — a published table,
+a polychoric matrix computed externally, or a subset you want to analyse
+without refitting — you can pass it directly to <code><a href="../reference/ackwards.html">ackwards()</a></code>
+or <code><a href="../reference/suggest_k.html">suggest_k()</a></code>. The matrix is auto-detected from its shape
+(square, symmetric, unit diagonal).</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">bfi25</span>, use <span class="op">=</span> <span class="st">"pairwise.complete.obs"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># PCA from a correlation matrix (n_obs optional for PCA; required for EFA)</span></span>
+<span><span class="va">x_R</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">R</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co"># EFA requires n_obs for fit indices:</span></span>
+<span><span class="va">x_efa_R</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">R</span>, k_max <span class="op">=</span> <span class="fl">5</span>, engine <span class="op">=</span> <span class="st">"efa"</span>, n_obs <span class="op">=</span> <span class="fl">875L</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Edges are identical to the raw-data run (same W'RW algebra):</span></span>
+<span><span class="va">x_d</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi25</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_R</span><span class="op">)</span><span class="op">$</span><span class="va">r</span>, <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_d</span><span class="op">)</span><span class="op">$</span><span class="va">r</span><span class="op">)</span> <span class="co"># TRUE within floating-point tolerance</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="constraints">Constraints<a class="anchor" aria-label="anchor" href="#constraints"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Constraint</th>
+<th>Detail</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><strong>Engine</strong></td>
+<td>
+<code>"pca"</code> and <code>"efa"</code> only — <code>"esem"</code>
+errors (lavaan needs raw data)</td>
+</tr>
+<tr class="even">
+<td><strong><code>n_obs</code></strong></td>
+<td>Required for <code>"efa"</code>; optional for <code>"pca"</code>
+(stored as <code>NA</code>)</td>
+</tr>
+<tr class="odd">
+<td><strong><code>cor</code> argument</strong></td>
+<td>Ignored (basis is fixed); warns if set explicitly</td>
+</tr>
+<tr class="even">
+<td><strong><code>missing</code> argument</strong></td>
+<td>Ignored; warns if set explicitly</td>
+</tr>
+<tr class="odd">
+<td><strong>Factor scores</strong></td>
+<td>
+<code>keep_scores = TRUE</code>, <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code>,
+<code>tidy(what = "scores")</code> all error</td>
+</tr>
+<tr class="even">
+<td><strong><code>$cor</code> field</strong></td>
+<td>Stored as <code>NA</code>; shown as
+<code>"(user-supplied matrix)"</code> in print</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="suggest_k-with-a-correlation-matrix">suggest_k() with a correlation matrix<a class="anchor" aria-label="anchor" href="#suggest_k-with-a-correlation-matrix"></a>
+</h3>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sk_R</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">R</span>, n_obs <span class="op">=</span> <span class="fl">875L</span><span class="op">)</span></span>
+<span><span class="co"># CD is skipped (resampling requires raw item distributions)</span></span>
+<span><span class="co"># PA, MAP, and VSS run normally</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">

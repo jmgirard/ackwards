@@ -231,10 +231,64 @@ exactly.
       README rebuilt. Owner next steps: `devtools::check_win_devel()`,
       `rhub::rhub_check()` before actual CRAN upload. (947 tests pass, 1
       skip; 0/0/0 R CMD check.)
+- **M21 (done):** Onboarding & usability pass (pre-CRAN). Four parts:
+  1.  `psych` Suggests→Imports (engine substrate for default PCA/EFA;
+      never needed an install prompt for core use); `GPArotation`
+      removed entirely (varimax routes through
+      [`stats::varimax`](https://rdrr.io/r/stats/varimax.html); verified
+      never loaded). All `check_installed("psych")` guards removed; two
+      vestigial `skip_if_not_installed ("GPArotation")` test lines
+      deleted. DESIGN.md §3/§12 updated.
+  2.  `bfi25` dataset bundled: 1 000 rows sampled from
+      `psych::bfi[, 1:25]` (seed 42, NAs preserved) via
+      `data-raw/bfi25.R`; documented in `R/data.R` with `@source`
+      (Revelle/psych/SAPA/IPIP — items are public-domain IPIP). All
+      `@examples` + 6 vignettes + README.Rmd migrated to `bfi25`;
+      suggest-k worked-example prose regenerated (n=875: PA-PC=5,
+      PA-FA=6, MAP=5, VSS-1=4, VSS-2=5, CD=6; consensus 4–6). Oracle
+      snapshot stays on full `psych::bfi[, 1:25]`.
+  3.  README “Learn more” table now lists all 7 vignettes (Visualization
+      and Interpreting & labeling were missing).
+  4.  [`autoplot.suggest_k()`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md)
+      adds a 4th “CD (RMSE, minimize)” panel (2×2 grid when CD
+      available; unchanged 3-panel single-column otherwise); `suggest_k`
+      object gains `cd_rmse` field. CD vline removed from MAP panel.
+      Tests for 4-panel/3-panel branches and `cd_rmse` field.
+      Post-review: committed stale README hero figure (bfi25 render);
+      added `test-data.R` (6 assertions on `bfi25`
+      shape/cols/class/NAs/range); corrected `data.R` `@source` year
+      2025→2026. (974 tests pass, 1 skip; 0/0/0 R CMD check.)
+- **M22 (done):** Correlation-matrix input (PCA/EFA-only).
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  and
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  now accept a pre-computed correlation matrix detected automatically
+  (square, symmetric, unit diagonal). New `n_obs` arg (required for
+  EFA+R, optional for PCA+R). ESEM gated off (lavaan needs raw data).
+  `cor`/`missing` args ignored+warned for R input; `$cor` stored as
+  `NA`; print shows `"(user-supplied matrix)"`.
+  `keep_scores=TRUE`/[`augment()`](https://generics.r-lib.org/reference/augment.html)/`tidy(what="scores")`
+  all error clearly. CD gated off in
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  with info note. Edges from R-matrix and raw-data paths are identical
+  within floating-point tolerance (same W’RW algebra).
+  `.is_cor_matrix()` + `.validate_cor_matrix()` +
+  `.check_maybe_cov_matrix()` helpers in `utils.R`. `meta$input_type`
+  field added. Non-ASCII chars replaced across all R files (0/0/0
+  clean). Post-review: non-PD warning tested; covariance-matrix
+  detection added (targeted error via `.check_maybe_cov_matrix()` in
+  both functions); `prune="redundant"` + cor_matrix test;
+  [`autoplot.suggest_k()`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md) +
+  cor_matrix test; invalid `n_obs` tests for
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md);
+  `missing(missing)` comment; NEWS folded into 0.1.0. 44 tests in
+  `test-cor-input.R`, 41 in `test-utils.R`. (1035 tests pass, 1 skip;
+  0/0/0 check.)
 
 ## Current focus
 
-No milestone currently in progress.
+No milestone currently in progress. M22 complete (see Completed
+milestones).
 
 ## Invariants — do not violate without flagging
 
@@ -277,16 +331,21 @@ required · sign `align_signs = TRUE` · `keep_scores`/`keep_fits` stored
 
 ## Dependencies (see `DESIGN.md` §12)
 
-Keep `Imports` lean: `stats`, `utils`, `cli`, `rlang`, `generics`.
-Everything else (`psych`, `GPArotation`, `lavaan`, `ggplot2`,
-testing/docs infrastructure) goes in `Suggests`, gated by
-[`rlang::check_installed()`](https://rlang.r-lib.org/reference/is_installed.html).
-**Do not add to `Imports` without flagging it.** **No Rcpp** — profile
-first; the heavy compute already lives in compiled deps (§3).
+`psych` is in **Imports** (M21) — it is the engine substrate for the
+default PCA and EFA paths and for polychoric correlations; placing it in
+Suggests would require an install prompt for core functionality. The
+SEM + plotting + optional-criterion stacks remain in `Suggests`.
+`GPArotation` was **removed entirely** (M21) — varimax routes through
+base [`stats::varimax`](https://rdrr.io/r/stats/varimax.html) and
+GPArotation never enters
+[`loadedNamespaces()`](https://rdrr.io/r/base/ns-load.html) on any
+supported path. **Do not add further to `Imports` without flagging it.**
+**No Rcpp** — profile first; the heavy compute already lives in compiled
+deps (§3).
 
-Current `Imports`: `cli`, `generics`, `rlang`, `stats`, `utils`. Current
-`Suggests`: `covr`, `EFAtools`, `ggplot2`, `GPArotation`, `knitr`,
-`lavaan (>= 0.6-13)`, `psych`, `rmarkdown`, `testthat (>= 3.0.0)`.
+Current `Imports`: `cli`, `generics`, `psych`, `rlang`, `stats`,
+`utils`. Current `Suggests`: `covr`, `EFAtools`, `ggplot2`, `knitr`,
+`lavaan (>= 0.6-13)`, `rmarkdown`, `testthat (>= 3.0.0)`.
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
 uses `psych::fa.parallel(fa="both")` +
 [`psych::vss`](https://rdrr.io/pkg/psych/man/VSS.html) (PA-PC, PA-FA,

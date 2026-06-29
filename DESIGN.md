@@ -54,11 +54,14 @@ a higher-order SEM. `psych`’s own docs make this point; we should too.
 These are the project’s standing priorities (owner-stated) and the
 recommended stance on each.
 
-- **Manageable dependencies.** Lean `Imports`; everything heavy or
-  engine-specific in `Suggests` behind
+- **Manageable dependencies.** `psych` is in `Imports` (M21 — it is the
+  engine substrate for the default PCA/EFA paths; requiring an install
+  prompt for the default engine contradicted this principle). Everything
+  else heavy or engine-specific remains in `Suggests` behind
   [`rlang::check_installed()`](https://rlang.r-lib.org/reference/is_installed.html)
-  guards. Installing for the PCA path must not pull in the SEM or
-  plotting stacks. (See §12.)
+  guards. Installing the package must not pull in the SEM or plotting
+  stacks. `GPArotation` was removed (M21 — varimax routes through
+  [`stats::varimax`](https://rdrr.io/r/stats/varimax.html)). (See §12.)
 - **Best practices.** testthat 3e, roxygen2, pkgdown, CI (`R CMD check`,
   lintr/styler), semantic versioning, snapshot tests against `psych` for
   the PCA path, a vignette reproducing a published structure.
@@ -228,7 +231,8 @@ structure(list(
   fits    = NULL,        # opt-in raw engine objects (keep_fits = TRUE)
   r       = <p x p input correlation matrix>,   # cheap; kept so scores/edges recomputable
   data    = NULL,        # opt-in raw data
-  meta    = <suggest_k output, timestamps, convergence summary, chosen defaults>,
+  meta    = <suggest_k output, timestamps, convergence summary, chosen defaults,
+             input_type = "data"|"cor_matrix">,
   prune   = NULL         # Forbes extension: node flags + chain table + phi table;
                          # populated by .apply_pruning() when prune != "none"
 ), class = "ackwards")
@@ -294,7 +298,7 @@ a single number. The five criteria implemented (M12):
 | **PA-FA** | Horn (1965), FA basis | same call | More conservative; model-consistent for EFA/ESEM |
 | **MAP** | Velicer (1976) | [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html) | Minimise average squared partial; usually conservative |
 | **VSS-1/VSS-2** | Revelle & Rocklin (1979) | same call (already returned) | Maximise very-simple-structure fit at complexities 1 and 2 |
-| **CD** | Ruscio & Roche (2012) | [`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html) (optional) | Resamples raw data; among top performers in simulation; skipped gracefully when `EFAtools` absent |
+| **CD** | Ruscio & Roche (2012) | [`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html) (optional) | Resamples raw data; among top performers in simulation; skipped gracefully when `EFAtools` absent. M21: `cd_rmse = colMeans(RMSE_eigenvalues)` stored in object; dedicated 4th panel in [`autoplot.suggest_k()`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md) (2×2 grid when CD present; 3-panel single column otherwise). |
 
 Empirical Kaiser Criterion (EKC) and EGA ([EGAnet](https://r-ega.net))
 are **out of scope** — additional deps without sufficient incremental
@@ -338,7 +342,8 @@ with its rationale.
 | `keep_fits` / `keep_scores` | `FALSE` / `FALSE` | memory + privacy. |
 | `k_max` | required | force a deliberate choice; don’t silently pick. |
 | `seed` | `NULL` but captured | stochastic engines (rotation starts, ML) need reproducibility; encourage setting. |
-| `missing` | **`"pairwise"`** | preserves existing behaviour (pairwise-complete correlations); warns when NAs present. `"listwise"` gives fully consistent N across fit and edges (reduces to complete cases pre-fit). `"fiml"` (ESEM ML/MLR only) uses Full Information ML and derives edge R from lavaan’s FIML saturated model. FIML errors for PCA, EFA, and WLSMV/ULSMV. Added M16; **see §14 “ESEM ML/MLR pairwise” limitation entry** (the ML/MLR fit-vs-edges inconsistency under missingness is resolved for `"listwise"` and `"fiml"`; `"pairwise"` retains the existing minor inconsistency and now warns). |
+| `missing` | **`"pairwise"`** | preserves existing behaviour (pairwise-complete correlations); warns when NAs present. `"listwise"` gives fully consistent N across fit and edges (reduces to complete cases pre-fit). `"fiml"` (ESEM ML/MLR only) uses Full Information ML and derives edge R from lavaan’s FIML saturated model. FIML errors for PCA, EFA, and WLSMV/ULSMV. Added M16; **see §14 “ESEM ML/MLR pairwise” limitation entry** (the ML/MLR fit-vs-edges inconsistency under missingness is resolved for `"listwise"` and `"fiml"`; `"pairwise"` retains the existing minor inconsistency and now warns). Ignored (with a warning) when a correlation matrix is supplied — added M22. |
+| `n_obs` | `NULL` (new M22) | required for `engine = "efa"` when a correlation matrix is supplied (psych needs N for chi-square/RMSEA); optional for `"pca"` (stored as `NA_integer_`). Ignored (with a warning) when raw data are supplied (N comes from `nrow(data)`). |
 
 ### Documentation standard (owner priority)
 
@@ -436,11 +441,11 @@ however they like.
 
 | Tier | Packages | Purpose |
 |----|----|----|
-| Imports (lean) | `stats`, `utils`, `cli`, `rlang`, `generics` | core, console output, guards, tidy/augment/glance generics |
-| Suggests — engines | `psych`, `GPArotation`, `lavaan (>= 0.6-13)` | EFA/PCA/rotations (CF family); ESEM |
-| Suggests — ordinal | `psych` | polychoric correlations for Likert basis |
-| Suggests — suggest_k | `psych`, `EFAtools` (optional) | `fa.parallel(fa="both")` (PA-PC + PA-FA) + `vss` (MAP + VSS-1/2); [`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html) for Comparison Data (skipped gracefully when absent); no `EGAnet`/`paran` dep |
+| Imports | `stats`, `utils`, `cli`, `rlang`, `generics`, `psych` | core, console output, guards, tidy/augment/glance generics; PCA/EFA engines + polychoric correlations (M21: moved from Suggests — engine substrate for default path) |
+| Suggests — ESEM | `lavaan (>= 0.6-13)` | ESEM engine |
+| Suggests — suggest_k | `EFAtools` (optional) | [`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html) for Comparison Data (skipped gracefully when absent); no `EGAnet`/`paran` dep |
 | ~~Suggests — matching~~ | ~~`clue`~~ | ~~Hungarian assignment~~ — removed M5; greedy argmax (§7) requires no dep |
+| ~~Suggests — rotations~~ | ~~`GPArotation`~~ | ~~CF-family rotations~~ — removed M21; varimax routes through [`stats::varimax`](https://rdrr.io/r/stats/varimax.html) and GPArotation never loaded on any supported path |
 | Suggests — viz | `ggplot2` | diagrams; uses `ggplot2` directly, not `ggraph`/`igraph`/`tidygraph` |
 | Suggests — infra | `testthat (>= 3.0.0)`, `knitr`, `rmarkdown`, `covr` | testing, vignettes, coverage |
 
@@ -1075,6 +1080,78 @@ claim is inferentially honest.
     example + pointer; visualization vignette keeps the
     `node_labels`/`label_template` mechanic + cross-ref (naming-judgment
     treatment moved to the new vignette). **Amends §10, §11.**
+
+19. **Onboarding & usability pass** *(done)* — pre-CRAN
+    usability/polish; not a feature milestone. Correlation-matrix input
+    deferred to M22. *(see M22 below)*
+
+    **(A) `psych` → Imports; drop `GPArotation`.** `psych` moved from
+    Suggests to Imports — it is the engine substrate for the default PCA
+    and EFA paths; a `check_installed` guard for the default path
+    contradicted the lean-Imports intent (which aimed at the
+    SEM/plotting stacks, not the engine). All `check_installed("psych")`
+    guards removed from `pca_levels()`, `efa_levels()`, the polychoric
+    path in
+    [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md),
+    and
+    [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md).
+    `GPArotation` removed from DESCRIPTION entirely — verified that
+    [`psych::pca`](https://rdrr.io/pkg/psych/man/principal.html)/[`psych::fa`](https://rdrr.io/pkg/psych/man/fa.html)
+    with `rotate = "varimax"` never loads GPArotation (routes through
+    [`stats::varimax`](https://rdrr.io/r/stats/varimax.html)). Two
+    vestigial `skip_if_not_installed("GPArotation")` test lines removed.
+    **Amends §3, §12.**
+
+    **(B) Bundle `bfi25` example dataset.** `data/bfi25.rda` — 1 000
+    rows sampled from `psych::bfi[, 1:25]` (seed 42; NAs preserved) via
+    `data-raw/bfi25.R`. `R/data.R` documents `@format`, `@source`
+    (Revelle/psych/SAPA/IPIP — items are public-domain IPIP), and
+    `@details` (derivation). `DESCRIPTION` adds `LazyData: true`. All
+    `@examples` and all 6 vignettes and README.Rmd migrated from
+    `psych::bfi[, 1:25]` to `bfi25`; psych data-guards dropped.
+    Suggest-k worked-example prose regenerated against `bfi25` output
+    (n=875: PA-PC=5, PA-FA=6, MAP=5, VSS-1=4, VSS-2=5, CD=6; consensus
+    4–6). Exception: the
+    [`psych::bassAckward()`](https://rdrr.io/pkg/psych/man/bassAckward.html)
+    fidelity oracle snapshot stays on full `psych::bfi[, 1:25]`.
+
+    **(C) README “Learn more” completeness.** Added the missing
+    Visualization and Interpreting & labeling rows so all 7 vignettes
+    are listed.
+
+    **(D) CD panel in
+    [`autoplot.suggest_k()`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md).**
+    Stores `cd_rmse = colMeans(cd_out$RMSE_eigenvalues)` (length k_max;
+    NULL when CD unavailable) in the `suggest_k` object. Adds a 4th
+    panel “CD (RMSE, minimize)” with the RMSE-vs-k curve and k_cd star.
+    When CD is present, facets as 2×2 (`ncol = 2`); when absent,
+    unchanged 3-panel single-column layout. The CD vline that previously
+    appeared in the MAP panel is removed — CD now has its own space.
+    **Amends §8.** 968 tests pass, 1 skip; 0/0/0 R CMD check.
+
+20. **Correlation-matrix input** *(done)* —
+    [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+    and
+    [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+    accept a pre-computed correlation matrix (auto-detected: square,
+    symmetric, unit diagonal) in addition to raw data. Detection via
+    `.is_cor_matrix()` helper; full validation in
+    `.validate_cor_matrix()` (square, numeric, finite, symmetric, unit
+    diagonal, `|r| ≤ 1`, no NA; synthesises `V1..Vp` dimnames if absent;
+    warns on non-PD without auto-smoothing user input). Engine gating:
+    `"esem"` errors clearly (lavaan requires raw data). New `n_obs`
+    argument: required for `"efa"` (psych needs N for
+    chi-square/RMSEA/TLI); optional for `"pca"` (stored as `NA`);
+    ignored (with warning) for raw-data input. `cor` and `missing` args
+    ignored+warned when R supplied; `$cor` stored as `NA_character_`,
+    printed as `"(user-supplied matrix)"`. `keep_scores = TRUE`,
+    [`augment()`](https://generics.r-lib.org/reference/augment.html),
+    and `tidy(what = "scores")` error clearly. CD gated off in
+    [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+    with info note. Edges computed from the supplied R via the same
+    `W'RW` algebra — identical to the raw-data path for the same matrix.
+    `meta$input_type` records `"data"` \| `"cor_matrix"` in every
+    result. 36 new tests in `test-cor-input.R`. **Amends §6, §9.**
 
 ### Key references
 

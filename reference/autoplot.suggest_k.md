@@ -1,9 +1,11 @@
 # Plot a suggest_k diagnostic
 
-Renders a three-panel ggplot2 diagnostic for a `suggest_k` object: a
-parallel-analysis/scree plot on top, a MAP panel in the middle, and a
-VSS panel on the bottom. The recommended k for each criterion is marked
-with a star-shaped point.
+Renders a ggplot2 diagnostic for a `suggest_k` object. When EFAtools is
+installed and CD was computed, the plot is a 2x2 grid: Scree/PA
+(top-left), MAP (top-right), VSS (bottom-left), and CD RMSE
+(bottom-right). When CD is unavailable, the plot is a single-column
+three-panel layout (Scree/PA, MAP, VSS). The recommended k for each
+criterion is marked with a star-shaped point.
 
 ## Usage
 
@@ -35,6 +37,10 @@ teal "Observed (FA)" line to the dotted PA-FA threshold. Reading the
 lines on the same panel is informative but the two comparisons are
 independent.
 
+The CD panel plots the mean RMSE between observed and comparison-data
+eigenvalues at each k; the retention threshold (star) is where this
+curve first crosses below the comparison-data average.
+
 Requires the ggplot2 package.
 
 ## See also
@@ -45,20 +51,19 @@ Requires the ggplot2 package.
 
 ``` r
 # \donttest{
-if (requireNamespace("psych", quietly = TRUE) &&
-  requireNamespace("ggplot2", quietly = TRUE)) {
-  sk <- suggest_k(psych::bfi[, 1:25], n_iter = 5)
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  sk <- suggest_k(bfi25, n_iter = 5)
   autoplot(sk)
 }
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [100ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [95ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> CD: 364 rows with missing values removed (2436 complete cases used).
-#> ✔ Running MAP and VSS... [120ms]
+#> CD: 125 rows with missing values removed (875 complete cases used).
+#> ✔ Running MAP and VSS... [121ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [23.8s]
+#> ✔ Running Comparison Data (CD)... [13.9s]
 #> 
 
 # }

@@ -29,7 +29,7 @@ compute_edges(
 
 - R:
 
-  Square correlation matrix (p × p). Required for the algebra path.
+  Square correlation matrix (p x p). Required for the algebra path.
 
 - edge_method:
 
@@ -66,7 +66,7 @@ A list with:
 
 - matrices:
 
-  Named list of `(k_a × k_b)` edge matrices, keyed `"k_a:k_b"`.
+  Named list of `(k_a x k_b)` edge matrices, keyed `"k_a:k_b"`.
 
 - tidy:
 
@@ -80,7 +80,7 @@ A list with:
 where `R` is the input correlation matrix and `D_x = diag(W_x' R W_x)`
 are the **actual** score variances (not assumed to be 1). This avoids
 materialising scores while remaining exact for PCA, EFA (regression /
-Bartlett / tenBerge) — all of which produce linear score maps.
+Bartlett / tenBerge) – all of which produce linear score maps.
 
 When the algebra cannot be used (nonlinear scoring, missing `R`, or the
 user forces `edge_method = "scores"`), scores are materialised from

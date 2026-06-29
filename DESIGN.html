@@ -70,7 +70,7 @@
 <h2 id="id_3-design-philosophy--priorities">3. Design philosophy &amp; priorities<a class="anchor" aria-label="anchor" href="#id_3-design-philosophy--priorities"></a></h2>
 <p>These are the project’s standing priorities (owner-stated) and the recommended stance on each.</p>
 <ul><li>
-<strong>Manageable dependencies.</strong> Lean <code>Imports</code>; everything heavy or engine-specific in <code>Suggests</code> behind <code><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">rlang::check_installed()</a></code> guards. Installing for the PCA path must not pull in the SEM or plotting stacks. (See §12.)</li>
+<strong>Manageable dependencies.</strong> <code>psych</code> is in <code>Imports</code> (M21 — it is the engine substrate for the default PCA/EFA paths; requiring an install prompt for the default engine contradicted this principle). Everything else heavy or engine-specific remains in <code>Suggests</code> behind <code><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">rlang::check_installed()</a></code> guards. Installing the package must not pull in the SEM or plotting stacks. <code>GPArotation</code> was removed (M21 — varimax routes through <code><a href="https://rdrr.io/r/stats/varimax.html" class="external-link">stats::varimax</a></code>). (See §12.)</li>
 <li>
 <strong>Best practices.</strong> testthat 3e, roxygen2, pkgdown, CI (<code>R CMD check</code>, lintr/styler), semantic versioning, snapshot tests against <code>psych</code> for the PCA path, a vignette reproducing a published structure.</li>
 <li>
@@ -190,10 +190,11 @@
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  <span class="at">fits    =</span> <span class="cn">NULL</span>,        <span class="co"># opt-in raw engine objects (keep_fits = TRUE)</span></span>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  <span class="at">r       =</span> <span class="sc">&lt;</span>p x p input correlation matrix<span class="sc">&gt;</span>,   <span class="co"># cheap; kept so scores/edges recomputable</span></span>
 <span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  <span class="at">data    =</span> <span class="cn">NULL</span>,        <span class="co"># opt-in raw data</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="at">meta    =</span> <span class="sc">&lt;</span>suggest_k output, timestamps, convergence summary, chosen defaults<span class="sc">&gt;</span>,</span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="at">prune   =</span> <span class="cn">NULL</span>         <span class="co"># Forbes extension: node flags + chain table + phi table;</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>                         <span class="co"># populated by .apply_pruning() when prune != "none"</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>), <span class="at">class =</span> <span class="st">"ackwards"</span>)</span></code></pre></div>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="at">meta    =</span> <span class="sc">&lt;</span>suggest_k output, timestamps, convergence summary, chosen defaults,</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>             <span class="at">input_type =</span> <span class="st">"data"</span><span class="sc">|</span><span class="st">"cor_matrix"</span><span class="sc">&gt;</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="at">prune   =</span> <span class="cn">NULL</span>         <span class="co"># Forbes extension: node flags + chain table + phi table;</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>                         <span class="co"># populated by .apply_pruning() when prune != "none"</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>), <span class="at">class =</span> <span class="st">"ackwards"</span>)</span></code></pre></div>
 <p><strong>Storage rule.</strong> <em>Light tidy core always; heavy artifacts opt-in.</em> - <strong>Always:</strong> loadings, variance, fit/convergence, weight matrices, within-level correlations, edges, lineage, the <code>p x p</code> input <code>R</code>, meta. This is enough for diagram + interpretation and is small and shareable. - <strong>Opt-in:</strong> factor <code>scores</code> (O(n × Σk); also a privacy/sharing liability), raw <code>fits</code> (lavaan fits can be large), raw <code>data</code>. Defaults: <code>scores = FALSE</code>, <code>keep_fits = FALSE</code>, keep <code>R = TRUE</code>.</p>
 <p>This directly answers the “giant list of fitted models vs. just loadings/scores/correlations” question: neither — a structured light core, with the heavy bits nullable and recomputable.</p>
 </div>
@@ -237,7 +238,7 @@
 <td>Ruscio &amp; Roche (2012)</td>
 <td>
 <code><a href="https://rdrr.io/pkg/EFAtools/man/CD.html" class="external-link">EFAtools::CD()</a></code> (optional)</td>
-<td>Resamples raw data; among top performers in simulation; skipped gracefully when <code>EFAtools</code> absent</td>
+<td>Resamples raw data; among top performers in simulation; skipped gracefully when <code>EFAtools</code> absent. M21: <code>cd_rmse = colMeans(RMSE_eigenvalues)</code> stored in object; dedicated 4th panel in <code><a href="reference/autoplot.suggest_k.html">autoplot.suggest_k()</a></code> (2×2 grid when CD present; 3-panel single column otherwise).</td>
 </tr></tbody></table><p>Empirical Kaiser Criterion (EKC) and EGA (<a href="https://r-ega.net" class="external-link">EGAnet</a>) are <strong>out of scope</strong> — additional deps without sufficient incremental benefit over the five criteria above. Note: <code><a href="reference/suggest_k.html">suggest_k()</a></code> accepts <code>cor = "pearson"</code> (default) or <code>"spearman"</code> only; <code>"polychoric"</code> is not supported (PA and VSS do not have a polychoric eigen-decomposition path). Users analysing ordinal data should run <code><a href="reference/suggest_k.html">suggest_k()</a></code> on the Pearson matrix and then switch to <code>cor = "polychoric"</code> in <code><a href="reference/ackwards.html">ackwards()</a></code>. Report that <code>k</code> is a maximum <em>depth</em>; users often deliberately set it a level or two past the consensus to watch factors fragment. Note the overextraction/non-replicability caution (Forbes 2023). Add a <code>seed</code> argument for reproducibility of the <strong>CD step only</strong> — <code><a href="https://rdrr.io/pkg/psych/man/fa.parallel.html" class="external-link">psych::fa.parallel()</a></code> does not respond reliably to <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code>, so PA simulation results will vary across calls regardless of <code>seed</code>. See <code><a href="articles/ackwards-suggest-k.html">vignette("ackwards-suggest-k")</a></code> for a narrative/educational treatment of all five criteria including pros/cons, bias direction, and engine-to-criterion pairing (M14).</p>
 </div>
 <div class="section level2">
@@ -298,7 +299,11 @@
 <td>stochastic engines (rotation starts, ML) need reproducibility; encourage setting.</td>
 </tr><tr><td><code>missing</code></td>
 <td><strong><code>"pairwise"</code></strong></td>
-<td>preserves existing behaviour (pairwise-complete correlations); warns when NAs present. <code>"listwise"</code> gives fully consistent N across fit and edges (reduces to complete cases pre-fit). <code>"fiml"</code> (ESEM ML/MLR only) uses Full Information ML and derives edge R from lavaan’s FIML saturated model. FIML errors for PCA, EFA, and WLSMV/ULSMV. Added M16; <strong>see §14 “ESEM ML/MLR pairwise” limitation entry</strong> (the ML/MLR fit-vs-edges inconsistency under missingness is resolved for <code>"listwise"</code> and <code>"fiml"</code>; <code>"pairwise"</code> retains the existing minor inconsistency and now warns).</td>
+<td>preserves existing behaviour (pairwise-complete correlations); warns when NAs present. <code>"listwise"</code> gives fully consistent N across fit and edges (reduces to complete cases pre-fit). <code>"fiml"</code> (ESEM ML/MLR only) uses Full Information ML and derives edge R from lavaan’s FIML saturated model. FIML errors for PCA, EFA, and WLSMV/ULSMV. Added M16; <strong>see §14 “ESEM ML/MLR pairwise” limitation entry</strong> (the ML/MLR fit-vs-edges inconsistency under missingness is resolved for <code>"listwise"</code> and <code>"fiml"</code>; <code>"pairwise"</code> retains the existing minor inconsistency and now warns). Ignored (with a warning) when a correlation matrix is supplied — added M22.</td>
+</tr><tr><td><code>n_obs</code></td>
+<td>
+<code>NULL</code> (new M22)</td>
+<td>required for <code>engine = "efa"</code> when a correlation matrix is supplied (psych needs N for chi-square/RMSEA); optional for <code>"pca"</code> (stored as <code>NA_integer_</code>). Ignored (with a warning) when raw data are supplied (N comes from <code>nrow(data)</code>).</td>
 </tr></tbody></table><div class="section level3">
 <h3 id="documentation-standard-owner-priority">Documentation standard (owner priority)<a class="anchor" aria-label="anchor" href="#documentation-standard-owner-priority"></a></h3>
 <ul><li>Every default above is documented in roxygen with <strong>why</strong>, not just <strong>what</strong>.</li>
@@ -352,28 +357,27 @@
 <table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr><th>Tier</th>
 <th>Packages</th>
 <th>Purpose</th>
-</tr></thead><tbody><tr><td>Imports (lean)</td>
+</tr></thead><tbody><tr><td>Imports</td>
 <td>
-<code>stats</code>, <code>utils</code>, <code>cli</code>, <code>rlang</code>, <code>generics</code>
+<code>stats</code>, <code>utils</code>, <code>cli</code>, <code>rlang</code>, <code>generics</code>, <code>psych</code>
 </td>
-<td>core, console output, guards, tidy/augment/glance generics</td>
-</tr><tr><td>Suggests — engines</td>
-<td>
-<code>psych</code>, <code>GPArotation</code>, <code>lavaan (&gt;= 0.6-13)</code>
-</td>
-<td>EFA/PCA/rotations (CF family); ESEM</td>
-</tr><tr><td>Suggests — ordinal</td>
-<td><code>psych</code></td>
-<td>polychoric correlations for Likert basis</td>
+<td>core, console output, guards, tidy/augment/glance generics; PCA/EFA engines + polychoric correlations (M21: moved from Suggests — engine substrate for default path)</td>
+</tr><tr><td>Suggests — ESEM</td>
+<td><code>lavaan (&gt;= 0.6-13)</code></td>
+<td>ESEM engine</td>
 </tr><tr><td>Suggests — suggest_k</td>
 <td>
-<code>psych</code>, <code>EFAtools</code> (optional)</td>
+<code>EFAtools</code> (optional)</td>
 <td>
-<code>fa.parallel(fa="both")</code> (PA-PC + PA-FA) + <code>vss</code> (MAP + VSS-1/2); <code><a href="https://rdrr.io/pkg/EFAtools/man/CD.html" class="external-link">EFAtools::CD()</a></code> for Comparison Data (skipped gracefully when absent); no <code>EGAnet</code>/<code>paran</code> dep</td>
+<code><a href="https://rdrr.io/pkg/EFAtools/man/CD.html" class="external-link">EFAtools::CD()</a></code> for Comparison Data (skipped gracefully when absent); no <code>EGAnet</code>/<code>paran</code> dep</td>
 </tr><tr><td><del>Suggests — matching</del></td>
 <td><del><code>clue</code></del></td>
 <td>
 <del>Hungarian assignment</del> — removed M5; greedy argmax (§7) requires no dep</td>
+</tr><tr><td><del>Suggests — rotations</del></td>
+<td><del><code>GPArotation</code></del></td>
+<td>
+<del>CF-family rotations</del> — removed M21; varimax routes through <code><a href="https://rdrr.io/r/stats/varimax.html" class="external-link">stats::varimax</a></code> and GPArotation never loaded on any supported path</td>
 </tr><tr><td>Suggests — viz</td>
 <td><code>ggplot2</code></td>
 <td>diagrams; uses <code>ggplot2</code> directly, not <code>ggraph</code>/<code>igraph</code>/<code>tidygraph</code>
@@ -499,6 +503,14 @@
 <p>No new dependencies. No invariant or default changes. 122 tests (96 + 26).</p>
 </li>
 <li><p><strong>Dedicated interpretation/labeling vignette</strong> <em>(done)</em> — documentation-only. The M18 helpers were split across the intro (<code><a href="reference/top_items.html">top_items()</a></code>) and visualization (<code><a href="reference/label_template.html">label_template()</a></code>) vignettes, fragmenting one workflow. New <code><a href="articles/ackwards-interpret.html">vignette("ackwards-interpret")</a></code> (“Interpreting and Labeling Factors”) owns the end-to-end arc: reading a factor with <code><a href="reference/top_items.html">top_items()</a></code> (cut/n/sort, cross- loadings); the sign-alignment caveat in interpretive terms (negative ≠ “low”); <strong>hierarchy-aware naming</strong> (parent vs child, blends, factors reorganizing across levels, using lineage/edges to inform names — content no other vignette covers); the <code>top_items</code> → name → <code>label_template</code> → <code>autoplot(node_labels=)</code> round-trip; the Forbes letter convention vs substantive names. Listed in the pkgdown “Deep dives” nav after <code>ackwards-suggest-k</code>. Intro Step 5 trimmed to a slim <code><a href="reference/top_items.html">top_items()</a></code> example + pointer; visualization vignette keeps the <code>node_labels</code>/<code>label_template</code> mechanic + cross-ref (naming-judgment treatment moved to the new vignette). <strong>Amends §10, §11.</strong></p></li>
+<li>
+<p><strong>Onboarding &amp; usability pass</strong> <em>(done)</em> — pre-CRAN usability/polish; not a feature milestone. Correlation-matrix input deferred to M22. <em>(see M22 below)</em></p>
+<p><strong>(A) <code>psych</code> → Imports; drop <code>GPArotation</code>.</strong> <code>psych</code> moved from Suggests to Imports — it is the engine substrate for the default PCA and EFA paths; a <code>check_installed</code> guard for the default path contradicted the lean-Imports intent (which aimed at the SEM/plotting stacks, not the engine). All <code>check_installed("psych")</code> guards removed from <code>pca_levels()</code>, <code>efa_levels()</code>, the polychoric path in <code><a href="reference/ackwards.html">ackwards()</a></code>, and <code><a href="reference/suggest_k.html">suggest_k()</a></code>. <code>GPArotation</code> removed from DESCRIPTION entirely — verified that <code><a href="https://rdrr.io/pkg/psych/man/principal.html" class="external-link">psych::pca</a></code>/<code><a href="https://rdrr.io/pkg/psych/man/fa.html" class="external-link">psych::fa</a></code> with <code>rotate = "varimax"</code> never loads GPArotation (routes through <code><a href="https://rdrr.io/r/stats/varimax.html" class="external-link">stats::varimax</a></code>). Two vestigial <code>skip_if_not_installed("GPArotation")</code> test lines removed. <strong>Amends §3, §12.</strong></p>
+<p><strong>(B) Bundle <code>bfi25</code> example dataset.</strong> <code>data/bfi25.rda</code> — 1 000 rows sampled from <code>psych::bfi[, 1:25]</code> (seed 42; NAs preserved) via <code>data-raw/bfi25.R</code>. <code>R/data.R</code> documents <code>@format</code>, <code>@source</code> (Revelle/psych/SAPA/IPIP — items are public-domain IPIP), and <code>@details</code> (derivation). <code>DESCRIPTION</code> adds <code>LazyData: true</code>. All <code>@examples</code> and all 6 vignettes and README.Rmd migrated from <code>psych::bfi[, 1:25]</code> to <code>bfi25</code>; psych data-guards dropped. Suggest-k worked-example prose regenerated against <code>bfi25</code> output (n=875: PA-PC=5, PA-FA=6, MAP=5, VSS-1=4, VSS-2=5, CD=6; consensus 4–6). Exception: the <code><a href="https://rdrr.io/pkg/psych/man/bassAckward.html" class="external-link">psych::bassAckward()</a></code> fidelity oracle snapshot stays on full <code>psych::bfi[, 1:25]</code>.</p>
+<p><strong>(C) README “Learn more” completeness.</strong> Added the missing Visualization and Interpreting &amp; labeling rows so all 7 vignettes are listed.</p>
+<p><strong>(D) CD panel in <code><a href="reference/autoplot.suggest_k.html">autoplot.suggest_k()</a></code>.</strong> Stores <code>cd_rmse = colMeans(cd_out$RMSE_eigenvalues)</code> (length k_max; NULL when CD unavailable) in the <code>suggest_k</code> object. Adds a 4th panel “CD (RMSE, minimize)” with the RMSE-vs-k curve and k_cd star. When CD is present, facets as 2×2 (<code>ncol = 2</code>); when absent, unchanged 3-panel single-column layout. The CD vline that previously appeared in the MAP panel is removed — CD now has its own space. <strong>Amends §8.</strong> 968 tests pass, 1 skip; 0/0/0 R CMD check.</p>
+</li>
+<li><p><strong>Correlation-matrix input</strong> <em>(done)</em> — <code><a href="reference/ackwards.html">ackwards()</a></code> and <code><a href="reference/suggest_k.html">suggest_k()</a></code> accept a pre-computed correlation matrix (auto-detected: square, symmetric, unit diagonal) in addition to raw data. Detection via <code>.is_cor_matrix()</code> helper; full validation in <code>.validate_cor_matrix()</code> (square, numeric, finite, symmetric, unit diagonal, <code>|r| ≤ 1</code>, no NA; synthesises <code>V1..Vp</code> dimnames if absent; warns on non-PD without auto-smoothing user input). Engine gating: <code>"esem"</code> errors clearly (lavaan requires raw data). New <code>n_obs</code> argument: required for <code>"efa"</code> (psych needs N for chi-square/RMSEA/TLI); optional for <code>"pca"</code> (stored as <code>NA</code>); ignored (with warning) for raw-data input. <code>cor</code> and <code>missing</code> args ignored+warned when R supplied; <code>$cor</code> stored as <code>NA_character_</code>, printed as <code>"(user-supplied matrix)"</code>. <code>keep_scores = TRUE</code>, <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code>, and <code>tidy(what = "scores")</code> error clearly. CD gated off in <code><a href="reference/suggest_k.html">suggest_k()</a></code> with info note. Edges computed from the supplied R via the same <code>W'RW</code> algebra — identical to the raw-data path for the same matrix. <code>meta$input_type</code> records <code>"data"</code> | <code>"cor_matrix"</code> in every result. 36 new tests in <code>test-cor-input.R</code>. <strong>Amends §6, §9.</strong></p></li>
 </ol><div class="section level3">
 <h3 id="key-references">Key references<a class="anchor" aria-label="anchor" href="#key-references"></a></h3>
 <ul><li>Goldberg, L. R. (2006). Doing it all bass-ackwards. <em>J. Research in Personality</em>, 40(4), 347–358.</li>

@@ -83,7 +83,7 @@ engine. Each must contain a <code>scoring</code> sub-list with fields <code>line
 
 
 <dt id="arg-r">R<a class="anchor" aria-label="anchor" href="#arg-r"></a></dt>
-<dd><p>Square correlation matrix (p × p). Required for the algebra path.</p></dd>
+<dd><p>Square correlation matrix (p x p). Required for the algebra path.</p></dd>
 
 
 <dt id="arg-edge-method">edge_method<a class="anchor" aria-label="anchor" href="#arg-edge-method"></a></dt>
@@ -118,7 +118,7 @@ tidy tibble.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list with:</p>
 <dl><dt>matrices</dt>
-<dd><p>Named list of <code>(k_a × k_b)</code> edge matrices, keyed
+<dd><p>Named list of <code>(k_a x k_b)</code> edge matrices, keyed
 <code>"k_a:k_b"</code>.</p></dd>
 
 <dt>tidy</dt>
@@ -132,7 +132,7 @@ tidy tibble.</p></dd>
 <p>where <code>R</code> is the input correlation matrix and <code>D_x = diag(W_x' R W_x)</code> are
 the <strong>actual</strong> score variances (not assumed to be 1). This avoids
 materialising scores while remaining exact for PCA, EFA (regression /
-Bartlett / tenBerge) — all of which produce linear score maps.</p>
+Bartlett / tenBerge) – all of which produce linear score maps.</p>
 <p>When the algebra cannot be used (nonlinear scoring, missing <code>R</code>, or the user
 forces <code>edge_method = "scores"</code>), scores are materialised from <code>data</code> instead.</p>
     </div>

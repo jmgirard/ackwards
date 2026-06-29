@@ -117,6 +117,38 @@
 <li><p>See <code><a href="../articles/ackwards-interpret.html">vignette("ackwards-interpret")</a></code> for the end-to-end naming workflow: reading a factor with <code><a href="../reference/top_items.html">top_items()</a></code>, hierarchy-aware naming (parent vs. child, blends), sign-alignment caveat, and the <code><a href="../reference/top_items.html">top_items()</a></code> → <code><a href="../reference/label_template.html">label_template()</a></code> → <code>autoplot(node_labels = ...)</code> round-trip.</p></li>
 </ul></div>
 <div class="section level3">
+<h3 id="dependencies-0-1-0">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies-0-1-0"></a></h3>
+<ul><li>
+<strong><code>psych</code> moved to <code>Imports</code></strong> — the default PCA and EFA engines require psych; placing it in Suggests meant a mandatory install prompt for core functionality. The SEM (<code>lavaan</code>) and plotting (<code>ggplot2</code>) stacks remain in Suggests.</li>
+<li>
+<strong><code>GPArotation</code> removed</strong> — varimax rotation routes through base <code><a href="https://rdrr.io/r/stats/varimax.html" class="external-link">stats::varimax</a></code>; GPArotation was never loaded on any supported path.</li>
+<li>
+<strong><code>bfi25</code> example dataset</strong> bundled — a 1 000-row, 25-item subset of the SAPA/IPIP Big Five data (sampled from <code><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">psych::bfi</a></code>). Used throughout examples and vignettes so they run without reaching into psych’s namespace. See <code><a href="../reference/bfi25.html">?bfi25</a></code> for provenance and <code>@source</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="autoplotsuggest_k--cd-panel-0-1-0">
+<code>autoplot.suggest_k()</code> — CD panel<a class="anchor" aria-label="anchor" href="#autoplotsuggest_k--cd-panel-0-1-0"></a></h3>
+<p><code><a href="../reference/suggest_k.html">suggest_k()</a></code> now stores <code>cd_rmse</code> (column means of <code><a href="https://rdrr.io/pkg/EFAtools/man/CD.html" class="external-link">EFAtools::CD()</a></code>’s RMSE eigenvalue matrix) in the returned object. When CD is available, <code>autoplot(suggest_k(...))</code> renders a four-panel 2×2 grid including a dedicated <strong>“CD (RMSE, minimize)”</strong> panel with the retention threshold marked — giving CD its own diagnostic space rather than sharing the MAP panel. The three-panel single-column layout is unchanged when EFAtools is absent.</p>
+</div>
+<div class="section level3">
+<h3 id="correlation-matrix-input-0-1-0">Correlation-matrix input<a class="anchor" aria-label="anchor" href="#correlation-matrix-input-0-1-0"></a></h3>
+<p><code><a href="../reference/ackwards.html">ackwards()</a></code> and <code><a href="../reference/suggest_k.html">suggest_k()</a></code> now accept a pre-computed <strong>correlation matrix</strong> in place of raw item data, detected automatically from the matrix shape (square, symmetric, unit diagonal).</p>
+<ul><li>
+<strong>Engine gating</strong> — only <code>"pca"</code> and <code>"efa"</code> are supported; <code>"esem"</code> errors clearly (lavaan requires raw data for WLSMV estimation and per-level fit indices).</li>
+<li>
+<strong><code>n_obs</code> argument</strong> — new optional argument on both functions. Required for <code>engine = "efa"</code> with a matrix (psych needs N for chi-square/RMSEA/TLI); optional for <code>engine = "pca"</code> (stored as <code>NA</code> when omitted). Ignored (with a warning) when raw data are supplied.</li>
+<li>
+<strong>Edge correctness</strong> — edges from <code>ackwards(R, ...)</code> match <code>ackwards(data, ...)</code> exactly for the same correlation matrix: both routes use the closed-form <code>W'RW</code> algebra.</li>
+<li>
+<strong><code>cor</code> and <code>missing</code> arguments</strong> — ignored (with a warning if set) for matrix input. <code>$cor</code> is stored as <code>NA_character_</code> and printed as <code>"(user-supplied matrix)"</code>.</li>
+<li>
+<strong>Score paths blocked</strong> — <code>keep_scores = TRUE</code>, <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code>, and <code>tidy(what = "scores")</code> error clearly: individual-level scoring requires row-level item responses.</li>
+<li>
+<strong>CD skipped in <code><a href="../reference/suggest_k.html">suggest_k()</a></code></strong> — Comparison Data resamples raw item distributions and is skipped with an info note when a matrix is supplied.</li>
+<li>
+<strong>Validation</strong> — square, numeric, finite, symmetric, unit diagonal, <code>|r| &lt;= 1</code>, no NA; synthesises <code>V1..Vp</code> dimnames when absent; warns (does not auto-smooth) when not positive-definite; errors with a clear message when a covariance matrix is detected.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="tidy-interface-and-scoring-0-1-0">Tidy interface and scoring<a class="anchor" aria-label="anchor" href="#tidy-interface-and-scoring-0-1-0"></a></h3>
 <ul><li>
 <code><a href="../reference/print.ackwards.html">print.ackwards()</a></code> — compact cli summary card.</li>
