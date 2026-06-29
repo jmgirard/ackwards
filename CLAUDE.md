@@ -88,34 +88,58 @@ default output must reproduce Forbes's examples exactly.
 
 ## Current focus
 
-No milestone currently in progress.
+**M17 — GitHub 0.1.0 release prep (in progress).** Process/release milestone, not a DESIGN.md §15
+feature. Planned 2026-06-28; scope confirmed with owner. Frame: **release prep + verify perf** (the
+high-ROI perf work already landed pre-milestone in `6adeb6a` — full suite 130s → 66s,
+`test-suggest_k.R` 106s → 39s, via a `local()` `.get_sk()` cache; the determinism test stays
+uncached on purpose). The mandatory fresh `check()` doubles as the perf-verification. The optional
+fixture-shrink (CLAUDE.md's old perf item 2) is **deferred / out of scope** for 0.1.0 — low ROI,
+edits test fixtures right before a tag, and can shift recommended-k assertions (risk > reward at
+66s). CRAN-only items (`\dontrun`→`\donttest`, spell/win-builder) deferred to a later CRAN-prep
+milestone.
 
-**Road to 0.1.0.** M17 — GitHub 0.1.0 release prep: switch license **CC BY 4.0 → MIT** (decision
-confirmed during M16 planning), version bump `0.0.0.9000 → 0.1.0`, NEWS 0.1.0 section, fresh
-`test()`+`check()`+`urlchecker`+pkgdown rebuild, tag. CRAN-only items (`\dontrun`→`\donttest`,
-spell/win-builder) deferred to a later CRAN-prep milestone.
+**Tasks (in order):**
+  1. **License CC BY 4.0 → MIT.** `usethis::use_mit_license("Jeffrey M. Girard")`; `LICENSE` stub
+     `YEAR: 2026` / holder `Jeffrey M. Girard` (shipped, not build-ignored); `LICENSE.md` → full MIT
+     text; DESCRIPTION `License: CC BY 4.0` → `License: MIT + file LICENSE`. `.Rbuildignore` keeps
+     `LICENSE.md` ignored, `LICENSE` shipped.
+  2. **Version bump** DESCRIPTION `0.0.0.9000 → 0.1.0`.
+  3. **README** (`README.Rmd`): license badge CC BY 4.0 → MIT; fix the `README.Rmd:102` comment
+     ("Five strongest" vs `head(..., 8)`) mismatch; regenerate `README.md` via
+     `devtools::build_readme()`.
+  4. **Deterministic citation:** new `inst/CITATION` citing **both** Goldberg (2006) and the package
+     (year 2026) so `citation("ackwards")` and the README citation chunk render reproducibly (the
+     MIT `LICENSE` year does *not* feed `citation()` — this file is the lever).
+  5. **NEWS.md:** top becomes a curated, capability-grouped user-facing `# ackwards 0.1.0` summary
+     (engines · choosing k · W'RW edge algebra · ordinal/polychoric · Forbes extension · missing-data
+     handling · visualization · tidy/score/print methods); retain the milestone-by-milestone log below
+     under a `# Development history` heading.
+  6. **pkgdown:** exclude `CLAUDE.md`/`DESIGN.md` from the built site via `_pkgdown.yml`; confirm the
+     rebuilt `docs/` has no `CLAUDE`/`DESIGN` pages.
+  7. **`devtools::document()`** (regen docs/NAMESPACE — no roxygen change expected, run to be safe).
+  8. **`devtools::test()`** — 781 pass / 1 skip, runtime ~60–70s (perf held); `EFAtools`-absent CD
+     skip stays graceful.
+  9. **`urlchecker::url_check()`** — clean.
+  10. **`devtools::check()`** — **0/0/0**.
+  11. **`pkgdown::build_site()`** — fresh rebuild reflecting MIT + 0.1.0.
+  12. Commit release-prep changes in one focused commit (CLAUDE.md Current-focus update committed
+      separately, before implementation). **Tag is owner-run:** surface
+      `git tag -a v0.1.0 -m "ackwards 0.1.0"` + `git push origin v0.1.0`; do not tag or push.
 
-**Test-suite performance (M17 scope).** Measured 2026-06-28: full `test()` ≈ 130s, of which
-`test-suggest_k.R` alone is **~106s (81%)**; all other files combined ≈ 25s. `check()` ≈ 3m40s
-(tests + vignette build + examples). Root cause is *redundant recomputation*, not parameter
-choices (tests already use `n_iter = 5`, `bfi[, 1:25]`): the file makes 49 `suggest_k()` calls —
-12 of them byte-identical (`k_max=4, n_iter=5, seed=1L`) — each re-running parallel analysis
-(resampling 2800×25 `bfi`) + VSS + MAP from scratch. Actions, ranked by impact:
-  1. **Memoize the shared `suggest_k()` fixtures.** Add a cached helper in `helper-data.R` keyed on
-     `(k_max, n_iter, seed)` so the ~30 repeated calls collapse to ~6 unique computations. Expected:
-     `test-suggest_k.R` ~106s → ~20-25s; full suite ~130s → ~45s. Highest ROI, no behaviour change.
-  2. **Shrink the `suggest_k` test fixture.** Parallel analysis resamples the raw matrix, so a
-     ~500-800-row `bfi` subset cuts each call further. Safe for structure/branch tests (they check
-     the result object's shape and the criteria table, not the exact recommended k). Note: this does
-     **not** help PCA/EFA tests — those run on the 25×25 correlation matrix where row count is
-     irrelevant (`test-pca.R` is already 0.6s). Targeted win for `suggest_k` only.
-  3. **Dev-loop ergonomics (no code change).** Use `devtools::test(filter = "...")` for the inner
-     loop; reserve full `check()` for pre-commit. For a fast structural check during iteration,
-     `devtools::check(vignettes = FALSE)` (or `args = "--no-build-vignettes"`) skips the vignette
-     rebuild, which runs real `suggest_k`/ESEM/`fa.parallel` analyses (the suggest-k vignette already
-     guards its slowest chunks with `eval = FALSE`).
-  4. Confirm 0/0/0 still holds after the fixture changes; the `EFAtools::CD()` skip must remain
-     graceful.
+**Acceptance criteria:**
+  - DESCRIPTION: `License: MIT + file LICENSE`, `Version: 0.1.0`; shipped `LICENSE` stub (YEAR 2026,
+    Jeffrey M. Girard), not build-ignored.
+  - `LICENSE.md` = full MIT text; no "CC BY"/"Creative Commons" anywhere outside `docs/` (grep-clean).
+  - License badge = MIT in `README.Rmd` and regenerated `README.md`; `head(8)` comment mismatch fixed.
+  - `citation("ackwards")` renders deterministically with year 2026 via `inst/CITATION` (cites
+    Goldberg + package); README citation chunk reflects it.
+  - NEWS.md: curated user-facing `# ackwards 0.1.0` section; detailed milestone log preserved below.
+  - Rebuilt pkgdown site contains no `CLAUDE`/`DESIGN` pages.
+  - `devtools::test()`: 781 pass, 1 skip, ~60–70s (perf held); `EFAtools`-absent skip graceful.
+  - `urlchecker::url_check()`: clean.
+  - `devtools::check()`: 0 errors / 0 warnings / 0 notes.
+  - Release-prep changes in one focused commit; CLAUDE.md Current-focus committed separately; no tag
+    created by the assistant (command handed to owner).
 
 ## Invariants — do not violate without flagging
 
