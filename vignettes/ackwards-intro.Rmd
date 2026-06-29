@@ -97,8 +97,8 @@ Now fit the bass-ackwards hierarchy. The most important arguments are:
 
 | Argument | What it controls | Default |
 |----------|-----------------|---------|
-| `k` | Maximum depth of the hierarchy | *(required)* |
-| `method` | Extraction engine: `"pca"`, `"efa"`, or `"esem"` | `"pca"` |
+| `k_max` | Maximum depth of the hierarchy | *(required)* |
+| `engine` | Extraction engine: `"pca"`, `"efa"`, or `"esem"` | `"pca"` |
 | `cor` | Correlation type: `"pearson"`, `"spearman"`, `"polychoric"` | `"pearson"` |
 
 Because BFI items are ordinal, we use `cor = "polychoric"`. This computes
