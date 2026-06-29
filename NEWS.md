@@ -83,7 +83,7 @@ pruned view (`drop_pruned`, `compress_levels`).
 
 ---
 
-# Development history
+## Development history
 
 ## Milestone 16 — Estimator-aware missing-data handling
 
