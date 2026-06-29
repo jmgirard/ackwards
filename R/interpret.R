@@ -30,10 +30,10 @@
 #' @seealso [tidy.ackwards()], [label_template()], [autoplot.ackwards()]
 #'
 #' @examples
-#' \dontrun{
-#' x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-#' top_items(x)
-#' top_items(x, level = 5, cut = 0.4, n = 5)
+#' if (requireNamespace("psych", quietly = TRUE)) {
+#'   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+#'   top_items(x)
+#'   top_items(x, level = 5, cut = 0.4, n = 5)
 #' }
 #'
 #' @export

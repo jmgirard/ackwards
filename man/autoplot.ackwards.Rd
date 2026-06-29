@@ -146,41 +146,44 @@ solid and those between the two thresholds are dashed.
 Requires the \pkg{ggplot2} package.
 }
 \examples{
-\dontrun{
-x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-autoplot(x)
-autoplot(x, cut_strong = 0.6, color_pos = "steelblue")
+\donttest{
+if (requireNamespace("psych", quietly = TRUE) &&
+    requireNamespace("ggplot2", quietly = TRUE)) {
+  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+  autoplot(x)
+  autoplot(x, cut_strong = 0.6, color_pos = "steelblue")
 
-# Monochrome with correlation labels (for greyscale figures)
-autoplot(x, mono = TRUE, show_r = TRUE)
+  # Monochrome with correlation labels (for greyscale figures)
+  autoplot(x, mono = TRUE, show_r = TRUE)
 
-# Custom node labels for the 5-factor level
-autoplot(x, node_labels = c(m5f1 = "Neuroticism", m5f2 = "Agreeableness"))
+  # Custom node labels for the 5-factor level
+  autoplot(x, node_labels = c(m5f1 = "Neuroticism", m5f2 = "Agreeableness"))
 
-# Primary links only — clean hierarchy tree
-autoplot(x, primary_only = TRUE)
+  # Primary links only — clean hierarchy tree
+  autoplot(x, primary_only = TRUE)
 
-# Forbes pruned view: omit redundant nodes, straight spanning arrows
-xp <- ackwards(psych::bfi[, 1:25], k_max = 5, prune = "redundant")
-autoplot(xp, drop_pruned = TRUE)
-autoplot(xp, drop_pruned = TRUE, show_r = TRUE) # with APA-style r labels
-autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
+  # Forbes pruned view: omit redundant nodes, straight spanning arrows
+  xp <- ackwards(psych::bfi[, 1:25], k_max = 5, prune = "redundant")
+  autoplot(xp, drop_pruned = TRUE)
+  autoplot(xp, drop_pruned = TRUE, show_r = TRUE)
+  autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
 
-# Plain line ends without arrowheads
-autoplot(x, show_arrows = FALSE)
+  # Plain line ends without arrowheads
+  autoplot(x, show_arrows = FALSE)
 
-# Uniform edge width (no |r| scaling)
-autoplot(x, edge_linewidth = 0.5)
+  # Uniform edge width (no |r| scaling)
+  autoplot(x, edge_linewidth = 0.5)
 
-# Suppress legend
-autoplot(x, legend = FALSE)
+  # Suppress legend
+  autoplot(x, legend = FALSE)
 
-# Forbes (2023) publication style: black lines, uniform width, no arrowheads
-autoplot(xp,
-  drop_pruned = TRUE,
-  color_pos = "black", color_neg = "black",
-  edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
-)
+  # Forbes (2023) publication style: black lines, uniform width, no arrowheads
+  autoplot(xp,
+    drop_pruned = TRUE,
+    color_pos = "black", color_neg = "black",
+    edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
+  )
+}
 }
 
 }

@@ -49,16 +49,15 @@ through.
 }
 
 \examples{
-\dontrun{
-x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+if (requireNamespace("psych", quietly = TRUE)) {
+  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
 
-# Start from ID defaults, then fill in your own labels:
-labs <- label_template(x)
-labs["m5f1"] <- "Neuroticism"
-autoplot(x, node_labels = labs)
+  # Start from ID defaults, then fill in your own labels:
+  labs <- label_template(x)
+  labs["m5f1"] <- "Neuroticism"
 
-# Or use the Forbes letter convention:
-autoplot(x, node_labels = label_template(x, style = "forbes"))
+  # Forbes letter convention:
+  label_template(x, style = "forbes")
 }
 
 }

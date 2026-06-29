@@ -14,9 +14,9 @@
 #' @seealso [print.ackwards()], [tidy.ackwards()], [glance.ackwards()]
 #'
 #' @examples
-#' \dontrun{
-#' x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-#' summary(x)
+#' if (requireNamespace("psych", quietly = TRUE)) {
+#'   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+#'   summary(x)
 #' }
 #'
 #' @export

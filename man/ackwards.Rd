@@ -165,11 +165,11 @@ Both are recomputable from the stored \code{r} matrix.
 }
 
 \examples{
-\dontrun{
-x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-print(x)
-tidy(x)
-glance(x)
+if (requireNamespace("psych", quietly = TRUE)) {
+  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+  print(x)
+  tidy(x)
+  glance(x)
 }
 
 }

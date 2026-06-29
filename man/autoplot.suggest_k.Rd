@@ -30,9 +30,12 @@ informative but the two comparisons are independent.
 Requires the \pkg{ggplot2} package.
 }
 \examples{
-\dontrun{
-sk <- suggest_k(psych::bfi[, 1:25], n_iter = 5)
-autoplot(sk)
+\donttest{
+if (requireNamespace("psych", quietly = TRUE) &&
+    requireNamespace("ggplot2", quietly = TRUE)) {
+  sk <- suggest_k(psych::bfi[, 1:25], n_iter = 5)
+  autoplot(sk)
+}
 }
 
 }

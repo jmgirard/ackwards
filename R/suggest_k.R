@@ -97,13 +97,15 @@
 #'   of partial correlations. *Psychometrika*, 41, 321--327.
 #'
 #' @examples
-#' \dontrun{
-#' sk <- suggest_k(psych::bfi[, 1:25])
-#' sk
-#' autoplot(sk)
+#' \donttest{
+#' if (requireNamespace("psych", quietly = TRUE)) {
+#'   sk <- suggest_k(psych::bfi[, 1:25])
+#'   sk
+#'   autoplot(sk)
 #'
-#' # Faster exploratory run
-#' suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5)
+#'   # Faster exploratory run
+#'   suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5)
+#' }
 #' }
 #'
 #' @export
@@ -408,9 +410,12 @@ print.suggest_k <- function(x, ...) {
 #' @seealso [suggest_k()]
 #'
 #' @examples
-#' \dontrun{
-#' sk <- suggest_k(psych::bfi[, 1:25], n_iter = 5)
-#' autoplot(sk)
+#' \donttest{
+#' if (requireNamespace("psych", quietly = TRUE) &&
+#'     requireNamespace("ggplot2", quietly = TRUE)) {
+#'   sk <- suggest_k(psych::bfi[, 1:25], n_iter = 5)
+#'   autoplot(sk)
+#' }
 #' }
 #'
 #' @importFrom rlang .data
