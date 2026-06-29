@@ -152,58 +152,20 @@ default output must reproduce Forbes's examples exactly.
   Post-review: committed stale README hero figure (bfi25 render); added `test-data.R` (6 assertions
   on `bfi25` shape/cols/class/NAs/range); corrected `data.R` `@source` year 2025→2026.
   (974 tests pass, 1 skip; 0/0/0 R CMD check.)
+- **M22 (done):** Correlation-matrix input (PCA/EFA-only). `ackwards()` and `suggest_k()` now
+  accept a pre-computed correlation matrix detected automatically (square, symmetric, unit diagonal).
+  New `n_obs` arg (required for EFA+R, optional for PCA+R). ESEM gated off (lavaan needs raw data).
+  `cor`/`missing` args ignored+warned for R input; `$cor` stored as `NA`; print shows
+  `"(user-supplied matrix)"`. `keep_scores=TRUE`/`augment()`/`tidy(what="scores")` all error
+  clearly. CD gated off in `suggest_k()` with info note. Edges from R-matrix and raw-data paths are
+  identical within floating-point tolerance (same W'RW algebra). `.is_cor_matrix()` +
+  `.validate_cor_matrix()` helpers in `utils.R`. `meta$input_type` field added. Non-ASCII chars
+  replaced across all R files (0/0/0 clean). 36 new tests in `test-cor-input.R`. Engines vignette
+  + DESIGN.md s15.22/s6/s9 updated. (1023 tests pass, 1 skip; 0/0/0 R CMD check.)
 
 ## Current focus
 
-**M22 in progress:** Correlation-matrix input (PCA/EFA-only).
-
-### Scope
-Allow `ackwards()` and `suggest_k()` to accept a pre-computed correlation matrix instead of raw
-data. PCA/EFA engines already operate on `R` internally; this milestone adds the input handling,
-`n_obs` argument, and gating. ESEM is excluded — lavaan must fit on raw data (WLSMV, FIML,
-per-level fit indices all require item responses).
-
-### Key design decisions (resolved during planning)
-- **Detection:** `.is_cor_matrix()` helper — numeric square matrix, symmetric, unit diagonal
-  (`|diag - 1| < 1e-8`). False-positive on raw data is effectively impossible.
-- **`n_obs` arg (new, default `NULL`):** Required for EFA+R (psych needs N for chi-square/RMSEA).
-  Optional for PCA+R (edges use only algebra; store `NA_integer_` and note fit stats unavailable).
-  Error if supplied alongside raw data.
-- **`cor` with R input:** Ignored + warn if non-default. Store `$cor = NA_character_`; render as
-  `"(user-supplied matrix)"` in print/summary. Skip `detect_ordinal()` entirely.
-- **`missing` with R input:** Ignored + warn if non-default. `meta$n_complete = NA_integer_`.
-- **Engine gating:** `engine = "esem"` + R → `cli_abort` pointing to PCA/EFA.
-- **`keep_scores = TRUE` + R:** `cli_abort` at fit time (no data). Existing augment/tidy score
-  errors already informative — no change needed.
-- **R validation:** square, numeric, finite, symmetric, `diag ≈ 1`, `|r| ≤ 1`, no NA. Non-PD →
-  **warn and proceed** (do not auto-smooth user input; engine errors naturally if truly degenerate).
-  Synthesize `V1..Vp` dimnames if absent.
-- **`meta$input_type`:** `"data"` | `"cor_matrix"` recorded in every result.
-- **`suggest_k()` for R:** Same detection; `n_obs` arg required; CD gated off (resampling needs
-  raw data) with an info message.
-
-### Implementation order
-1. `R/utils.R` — `.is_cor_matrix()` + `.validate_cor_matrix()` + tests → commit
-2. `R/ackwards.R` — input branch + gating + n_obs + roxygen → document() → commit
-3. `R/print.R` + `R/summary.R` — render NA cor/n_obs gracefully → commit
-4. `R/suggest_k.R` — R-input branch + n_obs arg + CD gating + roxygen → document() → commit
-5. Tests — `test-cor-input.R` + extend `test-suggest_k.R` → commit
-6. Docs — NEWS.md + `ackwards-engines.Rmd` section + DESIGN.md §15.22 + §6/§9 amends → commit
-7. Verify — check/style/lint → 0/0/0 → final commit if anything regenerates
-
-### Acceptance criteria
-- `ackwards(cor(bfi25), n_obs = 875, k_max = 5)` (PCA) edges match `ackwards(bfi25, k_max = 5)`
-  within tolerance (same R ⇒ identical algebra). Cross-check test.
-- Same for `engine = "efa"` with `n_obs` supplied.
-- `engine = "efa"` + R + no `n_obs` → clear error naming `n_obs`.
-- `engine = "esem"` + R → clear error pointing to PCA/EFA.
-- Non-symmetric / non-unit-diagonal / out-of-range / NA matrix → specific validation errors.
-- Raw data + `n_obs` → warn + ignore `n_obs`.
-- `cor` non-default + R → warn ignored; `$cor` is `NA`; no ordinal warning fires.
-- `keep_scores = TRUE` + R → error at fit time; `augment(x)` on R-fit errors informatively.
-- `print`/`summary`/`glance`/`tidy`/`autoplot` all work on an R-fit object.
-- `suggest_k(cor(bfi25), n_obs = 875)` runs PA/MAP/VSS; `cd_available = FALSE` with info note.
-- `devtools::check()` 0/0/0; styled; linted.
+No milestone currently in progress. M22 complete (see Completed milestones).
 
 ## Invariants — do not violate without flagging
 
