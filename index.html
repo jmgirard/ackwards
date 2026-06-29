@@ -98,13 +98,13 @@
 <span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [212ms]</span></span>
+<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [216ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; ✔ Running MAP and VSS... [102ms]</span></span>
+<span><span class="co">#&gt; ✔ Running MAP and VSS... [103ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [8.8s]</span></span>
+<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [7.8s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -121,8 +121,8 @@
 <span><span class="co">#&gt; k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD ✔</span></span>
 <span><span class="co">#&gt; k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔</span></span>
 <span><span class="co">#&gt; k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔</span></span>
-<span><span class="co">#&gt; k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔</span></span>
-<span><span class="co">#&gt; k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔*</span></span>
+<span><span class="co">#&gt; k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔*</span></span>
+<span><span class="co">#&gt; k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD -</span></span>
 <span><span class="co">#&gt; k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD -</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Recommendations ──</span></span>
@@ -132,8 +132,8 @@
 <span><span class="co">#&gt; • MAP: k = 5</span></span>
 <span><span class="co">#&gt; • VSS-1: k = 4</span></span>
 <span><span class="co">#&gt; • VSS-2: k = 5</span></span>
-<span><span class="co">#&gt; • CD: k = 7</span></span>
-<span><span class="co">#&gt; Consensus range: k = 4-7</span></span>
+<span><span class="co">#&gt; • CD: k = 6</span></span>
+<span><span class="co">#&gt; Consensus range: k = 4-6</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span>
 <span><span class="co">#&gt; above the consensus to observe factor fragmentation is intentional.</span></span>
@@ -256,25 +256,23 @@
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
 <p>If you use <strong>ackwards</strong> in your research, please cite both the method and the package:</p>
-<p>Goldberg, L. R. (2006). Doing it all bass-ackwards: The development of hierarchical factor structures from the top down. <em>Journal of Research in Personality</em>, <em>40</em>(4), 347–358. <a href="https://doi.org/10.1016/j.jrp.2006.01.001" class="external-link uri">https://doi.org/10.1016/j.jrp.2006.01.001</a></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"ackwards"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in citation("ackwards"): could not determine year for 'ackwards' from</span></span>
-<span><span class="co">#&gt; package DESCRIPTION file</span></span>
 <span><span class="co">#&gt; To cite package 'ackwards' in publications use:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Girard J (????). _ackwards: Bass-Ackwards Hierarchical Structural</span></span>
+<span><span class="co">#&gt;   Goldberg L (2006). "Doing it all bass-ackwards: The development of</span></span>
+<span><span class="co">#&gt;   hierarchical factor structures from the top down." _Journal of</span></span>
+<span><span class="co">#&gt;   Research in Personality_, *40*(4), 347-358.</span></span>
+<span><span class="co">#&gt;   doi:10.1016/j.jrp.2006.01.001</span></span>
+<span><span class="co">#&gt;   &lt;https://doi.org/10.1016/j.jrp.2006.01.001&gt;.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural</span></span>
 <span><span class="co">#&gt;   Analysis_. R package version 0.1.0,</span></span>
-<span><span class="co">#&gt;   &lt;https://jmgirard.github.io/ackwards/&gt;.</span></span>
+<span><span class="co">#&gt;   &lt;https://github.com/jmgirard/ackwards&gt;.</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; A BibTeX entry for LaTeX users is</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   @Manual{,</span></span>
-<span><span class="co">#&gt;     title = {ackwards: Bass-Ackwards Hierarchical Structural Analysis},</span></span>
-<span><span class="co">#&gt;     author = {Jeffrey M. Girard},</span></span>
-<span><span class="co">#&gt;     note = {R package version 0.1.0},</span></span>
-<span><span class="co">#&gt;     url = {https://jmgirard.github.io/ackwards/},</span></span>
-<span><span class="co">#&gt;   }</span></span></code></pre></div>
+<span><span class="co">#&gt; To see these entries in BibTeX format, use 'print(&lt;citation&gt;,</span></span>
+<span><span class="co">#&gt; bibtex=TRUE)', 'toBibtex(.)', or set</span></span>
+<span><span class="co">#&gt; 'options(citation.bibtex.max=999)'.</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
