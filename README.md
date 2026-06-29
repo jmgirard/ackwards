@@ -8,8 +8,8 @@
 coverage](https://codecov.io/gh/jmgirard/ackwards/branch/master/graph/badge.svg)](https://app.codecov.io/gh/jmgirard/ackwards?branch=master)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![License: CC BY
-4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![License:
+MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > Bass-ackwards hierarchical structural analysis in R
 
@@ -55,13 +55,13 @@ library(ackwards)
 bfi <- na.omit(psych::bfi[, 1:25])
 sk <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [211ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [212ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [93ms]
+#> ✔ Running MAP and VSS... [102ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [8.6s]
+#> ✔ Running Comparison Data (CD)... [8.8s]
 #> 
 sk
 #> 
@@ -79,8 +79,8 @@ sk
 #> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔
 #> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔
 #> k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔
-#> k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔
-#> k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD ✔*
+#> k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔*
+#> k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD -
 #> 
 #> ── Recommendations ──
 #> 
@@ -89,11 +89,11 @@ sk
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
-#> • CD: k = 8
-#> Consensus range: k = 4-8
+#> • CD: k = 7
+#> Consensus range: k = 4-7
 #> ────────────────────────────────────────────────────────────────────────────────
-#> Note: k in ackwards() is a maximum depth. Setting k one or two levels above the
-#> consensus to observe factor fragmentation is intentional.
+#> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
+#> above the consensus to observe factor fragmentation is intentional.
 #> Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
 #> 2023). PA-FA and CD are more conservative. Use the range.
 ```
@@ -103,11 +103,12 @@ with the known Big Five structure of this instrument.
 
 ### Step 2 — Fit the hierarchy
 
-`ackwards()` fits factor models at every level from 1 to k and computes
-the between-level factor-score correlations that define the hierarchy.
+`ackwards()` fits factor models at every level from 1 to `k_max` and
+computes the between-level factor-score correlations that define the
+hierarchy.
 
 ``` r
-x <- ackwards(bfi, k = 5, cor = "polychoric")
+x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 x
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
@@ -157,7 +158,7 @@ narrower traits.
 `augment()` appends factor scores to your data for downstream analysis.
 
 ``` r
-# Five strongest adjacent-level edges
+# Eight strongest adjacent-level primary edges
 edges <- tidy(x, what = "edges")
 edges <- edges[order(-abs(edges$r)), ]
 head(edges[edges$is_primary, c("from", "to", "r")], 8)
@@ -211,10 +212,12 @@ in Personality*, *40*(4), 347–358.
 
 ``` r
 citation("ackwards")
+#> Warning in citation("ackwards"): could not determine year for 'ackwards' from
+#> package DESCRIPTION file
 #> To cite package 'ackwards' in publications use:
 #> 
-#>   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural
-#>   Analysis_. R package version 0.0.0.9000,
+#>   Girard J (????). _ackwards: Bass-Ackwards Hierarchical Structural
+#>   Analysis_. R package version 0.1.0,
 #>   <https://jmgirard.github.io/ackwards/>.
 #> 
 #> A BibTeX entry for LaTeX users is
@@ -222,8 +225,7 @@ citation("ackwards")
 #>   @Manual{,
 #>     title = {ackwards: Bass-Ackwards Hierarchical Structural Analysis},
 #>     author = {Jeffrey M. Girard},
-#>     year = {2026},
-#>     note = {R package version 0.0.0.9000},
+#>     note = {R package version 0.1.0},
 #>     url = {https://jmgirard.github.io/ackwards/},
 #>   }
 ```

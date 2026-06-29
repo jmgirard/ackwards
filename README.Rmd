@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/jmgirard/ackwards/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jmgirard/ackwards/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/jmgirard/ackwards/branch/master/graph/badge.svg)](https://app.codecov.io/gh/jmgirard/ackwards?branch=master)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > Bass-ackwards hierarchical structural analysis in R
 
@@ -99,7 +99,7 @@ positive vs. negative affect (k = 2), then into successively narrower traits.
 appends factor scores to your data for downstream analysis.
 
 ```{r tidy}
-# Five strongest adjacent-level edges
+# Eight strongest adjacent-level primary edges
 edges <- tidy(x, what = "edges")
 edges <- edges[order(-abs(edges$r)), ]
 head(edges[edges$is_primary, c("from", "to", "r")], 8)
