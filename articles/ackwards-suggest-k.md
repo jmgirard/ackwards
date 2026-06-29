@@ -204,13 +204,13 @@ and citations — see
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [303ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [267ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [188ms]
+#> ✔ Running MAP and VSS... [178ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [18.6s]
+#> ✔ Running Comparison Data (CD)... [11.6s]
 #> 
 sk
 #> 

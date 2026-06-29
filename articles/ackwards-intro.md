@@ -72,13 +72,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [318ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [309ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [185ms]
+#> ✔ Running MAP and VSS... [169ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [18.9s]
+#> ✔ Running Comparison Data (CD)... [11.6s]
 #> 
 sk
 #> 
@@ -347,6 +347,11 @@ lv5[!duplicated(lv5$factor), c("factor", "item", "loading")]
 ```
 
 ### Between-level edges
+
+Each edge is the between-level factor-score correlation computed via
+Waller’s (2007) closed-form W′RW algebra — an exact result that requires
+no score materialization, just the weight matrices and the input
+correlation matrix.
 
 ``` r
 

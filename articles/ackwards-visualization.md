@@ -331,10 +331,10 @@ sk <- suggest_k(bfi, seed = 42)
 #> ✔ Running parallel analysis (20 iterations, PC + FA)... [310ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [180ms]
+#> ✔ Running MAP and VSS... [169ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [20.1s]
+#> ✔ Running Comparison Data (CD)... [12.6s]
 #> 
 autoplot(sk)
 ```
