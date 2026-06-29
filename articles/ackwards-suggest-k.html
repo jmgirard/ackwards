@@ -86,8 +86,8 @@
 <h2 id="k-is-a-decision-not-an-output">k is a decision, not an output<a class="anchor" aria-label="anchor" href="#k-is-a-decision-not-an-output"></a>
 </h2>
 <p>Before you can run <code><a href="../reference/ackwards.html">ackwards()</a></code>, you need a value for
-<code>k</code> — the <em>maximum depth</em> of the hierarchy. This is
-not the same question as “how many factors does my data really have?”
+<code>k_max</code> — the <em>maximum depth</em> of the hierarchy. This
+is not the same question as “how many factors does my data really have?”
 There is no single true k hidden in the data, and different selection
 criteria will give different answers depending on their assumptions and
 what they are optimized for.</p>
@@ -97,13 +97,14 @@ help you answer that. It runs five complementary criteria and reports
 their recommendations together, so you can see where they agree and
 where they diverge.</p>
 <p>A few things to keep in mind before you start:</p>
-<p><strong>k is a maximum depth, not a claim about the true
-structure.</strong> Setting k = 5 tells <code><a href="../reference/ackwards.html">ackwards()</a></code> to fit
-models at every level from 1 to 5 and examine how the structure evolves
-across those levels. It does not assert that exactly five factors exist.
-In fact, deliberately setting k one or two levels past the consensus —
-to watch factors fragment at the deeper levels — is a normal and
-informative part of the analysis.</p>
+<p><strong>k_max is a maximum depth, not a claim about the true
+structure.</strong> Setting <code>k_max = 5</code> tells
+<code><a href="../reference/ackwards.html">ackwards()</a></code> to fit models at every level from 1 to 5 and
+examine how the structure evolves across those levels. It does not
+assert that exactly five factors exist. In fact, deliberately setting
+k_max one or two levels past the consensus — to watch factors fragment
+at the deeper levels — is a normal and informative part of the
+analysis.</p>
 <p><strong>Overextraction is the dominant error mode.</strong>
 Simulation studies consistently find that the most common mistake is
 retaining too many factors, not too few. An overextracted level
@@ -140,7 +141,7 @@ particularly when items are moderately correlated (which they usually
 are in personality and clinical research). Treat its recommendation as
 an <em>upper bound</em>.</p>
 <p><strong>When it is useful.</strong> Best paired with
-<code>method = "pca"</code> in <code><a href="../reference/ackwards.html">ackwards()</a></code>, since both
+<code>engine = "pca"</code> in <code><a href="../reference/ackwards.html">ackwards()</a></code>, since both
 operate on the same PC eigenvalue basis. It also provides a fast, stable
 baseline across a wide range of data types.</p>
 <p><strong>Limitation.</strong> The 95th-percentile threshold is a
@@ -160,7 +161,7 @@ eigenvalues are smaller (they exclude unique variance), so fewer of them
 exceed the random-data threshold. PA-FA recommendations typically equal
 or fall below PA-PC.</p>
 <p><strong>When it is useful.</strong> The model-consistent criterion
-for <code>method = "efa"</code> or <code>method = "esem"</code> in
+for <code>engine = "efa"</code> or <code>engine = "esem"</code> in
 <code><a href="../reference/ackwards.html">ackwards()</a></code>: if your analysis assumes a common-factor model,
 comparing FA eigenvalues to a FA baseline is the better-matched
 test.</p>
@@ -265,14 +266,14 @@ warns that CD and the other criteria may diverge.</p>
 <tr class="odd">
 <td>PA-PC</td>
 <td>Overextract (upper bound)</td>
-<td><code>method = "pca"</code></td>
+<td><code>engine = "pca"</code></td>
 <td><code>psych</code></td>
 </tr>
 <tr class="even">
 <td>PA-FA</td>
 <td>Conservative</td>
 <td>
-<code>method = "efa"</code> / <code>"esem"</code>
+<code>engine = "efa"</code> / <code>"esem"</code>
 </td>
 <td><code>psych</code></td>
 </tr>
@@ -307,13 +308,13 @@ structure, and citations — see <code><a href="../reference/suggest_k.html">?su
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[308ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[279ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[186ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[180ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[18.7s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[16.6s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -344,8 +345,8 @@ structure, and citations — see <code><a href="../reference/suggest_k.html">?su
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> CD: k = 8</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Consensus range: k = 4-8</span></span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Note: k in ackwards() is a maximum depth. Setting k one or two levels above the</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">consensus to observe factor fragmentation is intentional.</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">2023). PA-FA and CD are more conservative. Use the range.</span></span></span></code></pre></div>
 <p>The output prints in two sections. The <strong>criteria
@@ -403,17 +404,17 @@ is the right response.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>method = "pca"</code></td>
+<td><code>engine = "pca"</code></td>
 <td>PA-PC, MAP</td>
 <td>PA-PC uses the same PC basis as the engine</td>
 </tr>
 <tr class="even">
-<td><code>method = "efa"</code></td>
+<td><code>engine = "efa"</code></td>
 <td>PA-FA, MAP, CD</td>
 <td>PA-FA is basis-consistent; MAP and CD are robust across models</td>
 </tr>
 <tr class="odd">
-<td><code>method = "esem"</code></td>
+<td><code>engine = "esem"</code></td>
 <td>PA-FA, MAP, CD</td>
 <td>Same rationale as EFA</td>
 </tr>
@@ -486,7 +487,7 @@ default is <code>min(ncol(data) - 1, 8)</code>. Increase it if you
 expect a deeper hierarchy; reduce it to speed up computation when you
 already have a strong prior. Note that <code>k_max</code> here is a
 search ceiling for <code><a href="../reference/suggest_k.html">suggest_k()</a></code> and need not equal the
-<code>k</code> you ultimately pass to <code><a href="../reference/ackwards.html">ackwards()</a></code>.</p>
+<code>k_max</code> you ultimately pass to <code><a href="../reference/ackwards.html">ackwards()</a></code>.</p>
 </div>
 </div>
 <div class="section level2">
@@ -495,7 +496,7 @@ search ceiling for <code><a href="../reference/suggest_k.html">suggest_k()</a></
 <p>The BFI has 25 items measuring five personality traits. The criteria
 do not all converge here, which is itself informative:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sk</span>  <span class="co"># reproduced from earlier</span></span>
+<code class="sourceCode R"><span><span class="va">sk</span> <span class="co"># reproduced from earlier</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span></span>
 <span><span class="co">#&gt; Variables: 25</span></span>
@@ -524,8 +525,8 @@ do not all converge here, which is itself informative:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> CD: k = 8</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Consensus range: k = 4-8</span></span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Note: k in ackwards() is a maximum depth. Setting k one or two levels above the</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">consensus to observe factor fragmentation is intentional.</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">2023). PA-FA and CD are more conservative. Use the range.</span></span></span></code></pre></div>
 <p>Reading the rendered table:</p>
@@ -547,13 +548,14 @@ structure the real correlation matrix contains, so CD over-retains
 factors. Treat a large gap between CD and the other criteria as an
 invitation to look carefully at the deeper levels — not a directive to
 extract that many factors unconditionally.</p>
-<p><strong>Defensible choice: <code>k = 6</code>.</strong> This matches
-the PA-FA recommendation and sits one level above the MAP/VSS-2
-consensus of 5. Setting k = 6 lets <code><a href="../reference/ackwards.html">ackwards()</a></code> show whether
-a sixth level reveals interpretable sub-facets or merely splits the Big
-Five into arbitrary micro-factors.</p>
+<p><strong>Defensible choice: <code>k_max = 6</code>.</strong> This
+matches the PA-FA recommendation and sits one level above the MAP/VSS-2
+consensus of 5. Setting <code>k_max = 6</code> lets
+<code><a href="../reference/ackwards.html">ackwards()</a></code> show whether a sixth level reveals interpretable
+sub-facets or merely splits the Big Five into arbitrary
+micro-factors.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k <span class="op">=</span> <span class="fl">6</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">6</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
 <p>If the k = 6 level looks like overextraction (very thin arrows,
 factors that split and immediately re-merge, between-level r ≈ 1), you

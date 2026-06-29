@@ -2,6 +2,44 @@
 
 ## ackwards 0.0.0.9000 (dev)
 
+### Milestone 15 — Naming clarity & consistency pass
+
+- [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  argument `k` renamed to `k_max`. Aligns with the pre-existing
+  `suggest_k(k_max=)` parameter and `$k_max` result-object field, making
+  the maximum-depth semantic explicit and consistent across the full
+  API. (#M15)
+
+- [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  argument `method` renamed to `engine`. Resolves the overload with
+  [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)’s
+  internal `edge_method` argument and matches DESIGN.md’s “three
+  engines” prose (`"pca"`, `"efa"`, `"esem"`). (#M15)
+
+- [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  argument `scores` renamed to `keep_scores`. Mirrors the existing
+  `keep_fits` argument and removes ambiguity between “store scores” (the
+  storage option) and “factor scores” (the output concept). (#M15)
+
+- [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  argument `align` renamed to `align_signs`. Clarifies that the argument
+  controls sign orientation of loadings, not structural alignment or
+  rotation. (#M15)
+
+- Result-object field `$method` renamed to `$engine`. Result-object
+  field `$cor_type` renamed to `$cor`. All S3 methods (`print`,
+  `summary`, `glance`, `tidy`, `augment`, `autoplot`) updated to read
+  from the new field names. (#M15)
+
+- [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+  argument `method` renamed to `edge_method`. Disambiguates from the
+  (now-removed) `method` engine argument on
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+  (#M15)
+
+- No behaviour changes. All existing functionality is preserved; only
+  surface names changed.
+
 ### Milestone 14 — Dedicated `suggest_k()` vignette
 
 - New vignette
@@ -28,6 +66,24 @@
   criterion” to the accurate five-criteria description; “Both criteria
   agree” prose updated to “The criteria converge”; new vignette added to
   the “Learn more” table. (#M14)
+
+- Vignette worked-example prose corrected: the initial version
+  mis-stated PA-PC and PA-FA recommendations and assumed CD was absent.
+  The section now reads from the actual rendered output (PA-PC=5,
+  PA-FA=6, MAP=5, VSS-1=4, VSS-2=5, CD=8 on `bfi`), explains the unusual
+  PA-FA \> PA-PC relationship, and documents why CD=8 is a high outlier
+  on large correlated samples rather than a directive to extract 8
+  factors. (#M14)
+
+- CD summary table: “Conservative, accurate” changed to “Accurate in
+  simulation; can over-retain on large, correlated samples”. (#M14)
+
+- Tests added for three previously-uncovered branches in
+  [`autoplot.suggest_k()`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md)
+  and
+  [`print.suggest_k()`](https://jmgirard.github.io/ackwards/reference/print.suggest_k.md):
+  `k_parallel_fa = NA` (no FA star rendered), `cd_available = FALSE` (no
+  CD vline; “requires EFAtools” note in print). (#M14)
 
 ### Milestone 13 — Rotation honesty: remove dead `kappa` argument
 

@@ -10,11 +10,11 @@ bfi <- na.omit(psych::bfi[, 1:25])
 
 Before you can run
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md),
-you need a value for `k` — the *maximum depth* of the hierarchy. This is
-not the same question as “how many factors does my data really have?”
-There is no single true k hidden in the data, and different selection
-criteria will give different answers depending on their assumptions and
-what they are optimized for.
+you need a value for `k_max` — the *maximum depth* of the hierarchy.
+This is not the same question as “how many factors does my data really
+have?” There is no single true k hidden in the data, and different
+selection criteria will give different answers depending on their
+assumptions and what they are optimized for.
 
 The practical question is: **what range of k is defensible, and where
 should I look?**
@@ -25,14 +25,14 @@ agree and where they diverge.
 
 A few things to keep in mind before you start:
 
-**k is a maximum depth, not a claim about the true structure.** Setting
-k = 5 tells
+**k_max is a maximum depth, not a claim about the true structure.**
+Setting `k_max = 5` tells
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 to fit models at every level from 1 to 5 and examine how the structure
 evolves across those levels. It does not assert that exactly five
-factors exist. In fact, deliberately setting k one or two levels past
-the consensus — to watch factors fragment at the deeper levels — is a
-normal and informative part of the analysis.
+factors exist. In fact, deliberately setting k_max one or two levels
+past the consensus — to watch factors fragment at the deeper levels — is
+a normal and informative part of the analysis.
 
 **Overextraction is the dominant error mode.** Simulation studies
 consistently find that the most common mistake is retaining too many
@@ -68,7 +68,7 @@ components than replicate in independent samples, particularly when
 items are moderately correlated (which they usually are in personality
 and clinical research). Treat its recommendation as an *upper bound*.
 
-**When it is useful.** Best paired with `method = "pca"` in
+**When it is useful.** Best paired with `engine = "pca"` in
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md),
 since both operate on the same PC eigenvalue basis. It also provides a
 fast, stable baseline across a wide range of data types.
@@ -91,7 +91,7 @@ random-data threshold. PA-FA recommendations typically equal or fall
 below PA-PC.
 
 **When it is useful.** The model-consistent criterion for
-`method = "efa"` or `method = "esem"` in
+`engine = "efa"` or `engine = "esem"` in
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md):
 if your analysis assumes a common-factor model, comparing FA eigenvalues
 to a FA baseline is the better-matched test.
@@ -188,8 +188,8 @@ warns that CD and the other criteria may diverge.
 
 | Criterion | Tends to | Best for | Requires |
 |----|----|----|----|
-| PA-PC | Overextract (upper bound) | `method = "pca"` | `psych` |
-| PA-FA | Conservative | `method = "efa"` / `"esem"` | `psych` |
+| PA-PC | Overextract (upper bound) | `engine = "pca"` | `psych` |
+| PA-FA | Conservative | `engine = "efa"` / `"esem"` | `psych` |
 | MAP | Conservative | General secondary check | `psych` |
 | VSS-1/2 | Variable | Simple-structure check | `psych` |
 | CD | Accurate in simulation; can over-retain on large, correlated samples | Ordinal/non-normal data | `EFAtools` |
@@ -204,13 +204,13 @@ and citations — see
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [308ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [279ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [186ms]
+#> ✔ Running MAP and VSS... [180ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [18.7s]
+#> ✔ Running Comparison Data (CD)... [16.6s]
 #> 
 sk
 #> 
@@ -241,8 +241,8 @@ sk
 #> • CD: k = 8
 #> Consensus range: k = 4-8
 #> ────────────────────────────────────────────────────────────────────────────────
-#> Note: k in ackwards() is a maximum depth. Setting k one or two levels above the
-#> consensus to observe factor fragmentation is intentional.
+#> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
+#> above the consensus to observe factor fragmentation is intentional.
 #> Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
 #> 2023). PA-FA and CD are more conservative. Use the range.
 ```
@@ -296,9 +296,9 @@ is the right response.
 
 | If you plan to use… | Prefer… | Rationale |
 |----|----|----|
-| `method = "pca"` | PA-PC, MAP | PA-PC uses the same PC basis as the engine |
-| `method = "efa"` | PA-FA, MAP, CD | PA-FA is basis-consistent; MAP and CD are robust across models |
-| `method = "esem"` | PA-FA, MAP, CD | Same rationale as EFA |
+| `engine = "pca"` | PA-PC, MAP | PA-PC uses the same PC basis as the engine |
+| `engine = "efa"` | PA-FA, MAP, CD | PA-FA is basis-consistent; MAP and CD are robust across models |
+| `engine = "esem"` | PA-FA, MAP, CD | Same rationale as EFA |
 
 This is a best-practice recommendation, not a hard rule. Running all
 five criteria regardless of your engine is cheap and informative — you
@@ -372,7 +372,7 @@ is reproducible when `seed` is set.
 reduce it to speed up computation when you already have a strong prior.
 Note that `k_max` here is a search ceiling for
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-and need not equal the `k` you ultimately pass to
+and need not equal the `k_max` you ultimately pass to
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
 
 ## A worked recommendation for the BFI
@@ -382,7 +382,7 @@ not all converge here, which is itself informative:
 
 ``` r
 
-sk  # reproduced from earlier
+sk # reproduced from earlier
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
 #> Variables: 25
@@ -411,8 +411,8 @@ sk  # reproduced from earlier
 #> • CD: k = 8
 #> Consensus range: k = 4-8
 #> ────────────────────────────────────────────────────────────────────────────────
-#> Note: k in ackwards() is a maximum depth. Setting k one or two levels above the
-#> consensus to observe factor fragmentation is intentional.
+#> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
+#> above the consensus to observe factor fragmentation is intentional.
 #> Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
 #> 2023). PA-FA and CD are more conservative. Use the range.
 ```
@@ -439,16 +439,16 @@ contains, so CD over-retains factors. Treat a large gap between CD and
 the other criteria as an invitation to look carefully at the deeper
 levels — not a directive to extract that many factors unconditionally.
 
-**Defensible choice: `k = 6`.** This matches the PA-FA recommendation
-and sits one level above the MAP/VSS-2 consensus of 5. Setting k = 6
-lets
+**Defensible choice: `k_max = 6`.** This matches the PA-FA
+recommendation and sits one level above the MAP/VSS-2 consensus of 5.
+Setting `k_max = 6` lets
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 show whether a sixth level reveals interpretable sub-facets or merely
 splits the Big Five into arbitrary micro-factors.
 
 ``` r
 
-x <- ackwards(bfi, k = 6, cor = "polychoric")
+x <- ackwards(bfi, k_max = 6, cor = "polychoric")
 autoplot(x)
 ```
 

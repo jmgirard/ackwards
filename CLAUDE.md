@@ -112,14 +112,27 @@ exactly.
   intro vignette Step 1 trimmed to default call + pointer;
   `_pkgdown.yml` lists the new article first under Deep dives; README
   stale two-criteria description corrected to five criteria; DESIGN.md
-  §8 and §15 updated.
+  §8 and §15 updated. Post-review fixes: worked-example prose corrected
+  to match actual output (PA-PC=5/PA-FA=6/CD=8, CD-outlier explanation);
+  CD table “Conservative” → “Accurate in simulation; can over-retain on
+  large, correlated samples”; three new tests covering
+  [`autoplot.suggest_k()`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md)
+  and
+  [`print.suggest_k()`](https://jmgirard.github.io/ackwards/reference/print.suggest_k.md)
+  for the `k_parallel_fa=NA` and `cd_available=FALSE` branches. (719
+  tests pass, 1 skip.)
+- **M15 (done):** Naming clarity & consistency pass — `k`→`k_max`,
+  `method`→`engine`, `scores`→`keep_scores`, `align`→`align_signs` on
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md);
+  `$method`→`$engine`, `$cor_type`→`$cor` on the result object;
+  `method`→`edge_method` on
+  [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md).
+  All S3 methods, tests, 6 vignettes, README, NEWS, CLAUDE.md, and
+  DESIGN.md updated. (724 tests pass, 1 skip; 0/0/0 R CMD check.)
 
 ## Current focus
 
-No milestone in progress. See `DESIGN.md` §15 for candidate next steps.
-
-If a step needs a design decision not covered in `DESIGN.md`, **stop and
-ask** rather than guessing.
+No milestone currently in progress.
 
 ## Invariants — do not violate without flagging
 
@@ -156,9 +169,9 @@ a design decision, not a refactor.
 M13; no `rotation` argument; oblique rotation **out of scope** (it
 confounds the cross-level signal) · `cor = "pearson"` with
 ordinal-detection warning · `tenBerge` scoring (on the active basis) ·
-WLSMV estimator for ordinal ESEM · Forbes extension **off** · `k`
-required · sign `align = TRUE` · `scores`/`keep_fits` stored = `FALSE`.
-Don’t change these silently.
+WLSMV estimator for ordinal ESEM · Forbes extension **off** · `k_max`
+required · sign `align_signs = TRUE` · `keep_scores`/`keep_fits` stored
+= `FALSE`. Don’t change these silently.
 
 ## Dependencies (see `DESIGN.md` §12)
 

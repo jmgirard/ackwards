@@ -10,13 +10,13 @@ correlations, not a fitted higher-order SEM.
 ``` r
 ackwards(
   data,
-  k,
-  method = "pca",
+  k_max,
+  engine = "pca",
   cor = "pearson",
   fm = "minres",
   estimator = NULL,
-  align = TRUE,
-  scores = FALSE,
+  align_signs = TRUE,
+  keep_scores = FALSE,
   keep_fits = FALSE,
   seed = NULL,
   pairs = "adjacent",
@@ -39,14 +39,14 @@ ackwards(
   per-correlation N may be smaller, making chi-square / RMSEA / p-value
   slightly anti-conservative.
 
-- k:
+- k_max:
 
-  Maximum number of factors/components. Required; use
+  Maximum number of factors/components to extract. Required; use
   [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-  if uncertain. Sets the depth of the hierarchy: levels 1 through `k`
-  are all extracted.
+  if uncertain. Sets the depth of the hierarchy: levels 1 through
+  `k_max` are all extracted.
 
-- method:
+- engine:
 
   Extraction engine: `"pca"` (default), `"efa"`, or `"esem"`. `"esem"`
   uses [`lavaan::efa()`](https://rdrr.io/pkg/lavaan/man/efa.html) with
@@ -68,10 +68,10 @@ ackwards(
 
   Factor extraction method passed to
   [`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html); only used when
-  `method = "efa"`. One of `"minres"` (default, robust OLS), `"ml"`
+  `engine = "efa"`. One of `"minres"` (default, robust OLS), `"ml"`
   (maximum likelihood, gives chi-square fit but converges less reliably
   at deep levels), or `"pa"` (principal axis). Ignored for
-  `method = "pca"`.
+  `engine = "pca"`.
 
 - estimator:
 
@@ -80,11 +80,11 @@ ackwards(
   to override: `"ULSMV"` (unweighted WLS), `"MLR"` (robust ML). Ignored
   for PCA and EFA engines.
 
-- align:
+- align_signs:
 
   Logical; sign-align factors to primary-parent lineage? Default `TRUE`.
 
-- scores:
+- keep_scores:
 
   Logical; store factor scores in the result? Default `FALSE`
   (recomputable via
@@ -167,7 +167,7 @@ for output methods.
 
 ## Defaults and why
 
-- **`method = "pca"`** — the original Goldberg (2006) method; fastest;
+- **`engine = "pca"`** — the original Goldberg (2006) method; fastest;
   never fails to converge; the Waller (2007) algebra is exact for
   components.
 
@@ -183,11 +183,11 @@ for output methods.
   ordinal (≤ 7 distinct integer values), a cli warning will suggest
   `cor = "polychoric"`, which is available for all three engines.
 
-- **`align = TRUE`** — unaligned signs make the output unreadable.
+- **`align_signs = TRUE`** — unaligned signs make the output unreadable.
   Anchor: m1f1 is oriented toward the positive manifold; each subsequent
   factor is flipped so its edge to its primary parent is positive.
 
-- **`scores = FALSE` / `keep_fits = FALSE`** — memory and privacy.
+- **`keep_scores = FALSE` / `keep_fits = FALSE`** — memory and privacy.
   Scores are O(n × Σk) and often sensitive; raw engine fits can be
   large. Both are recomputable from the stored `r` matrix.
 
@@ -212,7 +212,7 @@ Research in Personality*, 41(4), 745–752.
 
 ``` r
 if (FALSE) { # \dontrun{
-x <- ackwards(psych::bfi[, 1:25], k = 5)
+x <- ackwards(psych::bfi[, 1:25], k_max = 5)
 print(x)
 tidy(x)
 glance(x)

@@ -61,7 +61,7 @@ is a <strong>linear</strong> map <code>S = Z W</code>, the cross-level correlati
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">compute_edges</span><span class="op">(</span></span>
 <span>  <span class="va">levels</span>,</span>
 <span>  <span class="va">R</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"algebra"</span>, <span class="st">"scores"</span><span class="op">)</span>,</span>
+<span>  edge_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"algebra"</span>, <span class="st">"scores"</span><span class="op">)</span>,</span>
 <span>  pairs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"adjacent"</span>, <span class="st">"all"</span><span class="op">)</span>,</span>
 <span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  align <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -84,7 +84,7 @@ engine. Each must contain a <code>scoring</code> sub-list with fields <code>line
 <dd><p>Square correlation matrix (p × p). Required for the algebra path.</p></dd>
 
 
-<dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
+<dt id="arg-edge-method">edge_method<a class="anchor" aria-label="anchor" href="#arg-edge-method"></a></dt>
 <dd><p>One of <code>"auto"</code> (algebra when possible, scores otherwise),
 <code>"algebra"</code> (force; errors if conditions not met), or <code>"scores"</code> (always
 materialise).</p></dd>
@@ -96,7 +96,7 @@ materialise).</p></dd>
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>Optional data frame / matrix of raw observations. Required only
-when <code>method = "scores"</code> or the scores path is triggered.</p></dd>
+when <code>edge_method = "scores"</code> or the scores path is triggered.</p></dd>
 
 
 <dt id="arg-align">align<a class="anchor" aria-label="anchor" href="#arg-align"></a></dt>
@@ -132,7 +132,7 @@ the <strong>actual</strong> score variances (not assumed to be 1). This avoids
 materialising scores while remaining exact for PCA, EFA (regression /
 Bartlett / tenBerge), and oblique rotations — all of which are linear.</p>
 <p>When the algebra cannot be used (nonlinear scoring, missing <code>R</code>, or the user
-forces <code>method = "scores"</code>), scores are materialised from <code>data</code> instead.</p>
+forces <code>edge_method = "scores"</code>), scores are materialised from <code>data</code> instead.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

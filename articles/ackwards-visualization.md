@@ -20,7 +20,7 @@ covered in
 library(ackwards)
 
 bfi <- na.omit(psych::bfi[, 1:25])
-x <- ackwards(bfi, k = 5, cor = "polychoric")
+x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 ```
 
 The default diagram for reference:
@@ -328,13 +328,13 @@ CD-suggested k.
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [330ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [306ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [182ms]
+#> ✔ Running MAP and VSS... [170ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [19.8s]
+#> ✔ Running Comparison Data (CD)... [17.4s]
 #> 
 autoplot(sk)
 ```

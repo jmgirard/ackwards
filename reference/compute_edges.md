@@ -10,7 +10,7 @@ matrix is:
 compute_edges(
   levels,
   R,
-  method = c("auto", "algebra", "scores"),
+  edge_method = c("auto", "algebra", "scores"),
   pairs = c("adjacent", "all"),
   data = NULL,
   align = TRUE,
@@ -31,7 +31,7 @@ compute_edges(
 
   Square correlation matrix (p × p). Required for the algebra path.
 
-- method:
+- edge_method:
 
   One of `"auto"` (algebra when possible, scores otherwise), `"algebra"`
   (force; errors if conditions not met), or `"scores"` (always
@@ -44,7 +44,7 @@ compute_edges(
 - data:
 
   Optional data frame / matrix of raw observations. Required only when
-  `method = "scores"` or the scores path is triggered.
+  `edge_method = "scores"` or the scores path is triggered.
 
 - align:
 
@@ -83,5 +83,5 @@ materialising scores while remaining exact for PCA, EFA (regression /
 Bartlett / tenBerge), and oblique rotations — all of which are linear.
 
 When the algebra cannot be used (nonlinear scoring, missing `R`, or the
-user forces `method = "scores"`), scores are materialised from `data`
-instead.
+user forces `edge_method = "scores"`), scores are materialised from
+`data` instead.

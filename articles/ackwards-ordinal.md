@@ -58,7 +58,7 @@ bfi <- na.omit(psych::bfi[, 1:25])
 ``` r
 
 # The warning fires with the default Pearson basis
-x_pearson <- ackwards(bfi, k = 5)
+x_pearson <- ackwards(bfi, k_max = 5)
 #> Warning: ! One or more columns look like ordinal/Likert items (… "<= 7" distinct integer
 #>   values).
 #> ℹ Results use a "pearson" basis. Consider `cor = "polychoric"` for ordinal
@@ -72,7 +72,7 @@ suppresses it:
 
 ``` r
 
-x_poly <- ackwards(bfi, k = 5, cor = "polychoric")
+x_poly <- ackwards(bfi, k_max = 5, cor = "polychoric")
 ```
 
 ## Seeing the difference
@@ -238,7 +238,7 @@ properly recovered.
 
 ## WLSMV for ESEM with ordinal items
 
-When `method = "esem"` and `cor = "polychoric"` are combined,
+When `engine = "esem"` and `cor = "polychoric"` are combined,
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 automatically switches the lavaan estimator to **WLSMV** (diagonally
 weighted least squares, mean- and variance-adjusted). This is the
@@ -247,7 +247,7 @@ ordinal indicators, and is the same method used by Mplus by default.
 
 ``` r
 
-x_esem <- ackwards(bfi, k = 3, method = "esem", cor = "polychoric")
+x_esem <- ackwards(bfi, k_max = 3, engine = "esem", cor = "polychoric")
 x_esem
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────

@@ -53,7 +53,7 @@ approximated from materialized scores.
 
 ``` r
 
-x_pca <- ackwards(bfi, k = 3, cor = "polychoric")
+x_pca <- ackwards(bfi, k_max = 3, cor = "polychoric")
 x_pca
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
@@ -104,7 +104,7 @@ themselves.
 
 ``` r
 
-x_efa <- ackwards(bfi, k = 3, method = "efa", cor = "polychoric")
+x_efa <- ackwards(bfi, k_max = 3, engine = "efa", cor = "polychoric")
 x_efa
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
@@ -238,12 +238,12 @@ the engine. This unlocks two capabilities that EFA cannot provide:
     and significance tests.
 2.  **The WLSMV estimator** for ordinal data, which is the appropriate
     maximum-likelihood-adjacent estimator for categorical indicators.
-    When `cor = "polychoric"` is set with `method = "esem"`, WLSMV is
+    When `cor = "polychoric"` is set with `engine = "esem"`, WLSMV is
     used automatically.
 
 ``` r
 
-x_esem <- ackwards(bfi, k = 3, method = "esem", cor = "polychoric")
+x_esem <- ackwards(bfi, k_max = 3, engine = "esem", cor = "polychoric")
 x_esem
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────

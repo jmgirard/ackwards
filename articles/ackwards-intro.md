@@ -72,13 +72,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [323ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [316ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [173ms]
+#> ✔ Running MAP and VSS... [169ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [18.4s]
+#> ✔ Running Comparison Data (CD)... [16.7s]
 #> 
 sk
 #> 
@@ -109,8 +109,8 @@ sk
 #> • CD: k = 8
 #> Consensus range: k = 4-8
 #> ────────────────────────────────────────────────────────────────────────────────
-#> Note: k in ackwards() is a maximum depth. Setting k one or two levels above the
-#> consensus to observe factor fragmentation is intentional.
+#> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
+#> above the consensus to observe factor fragmentation is intentional.
 #> Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
 #> 2023). PA-FA and CD are more conservative. Use the range.
 ```
@@ -122,12 +122,13 @@ autoplot(sk)
 
 ![](ackwards-intro_files/figure-html/suggest_k_plot-1.png)
 
-No single criterion is decisive — look at where they converge. k in
+No single criterion is decisive — look at where they converge. `k_max`
+in
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-is an *upper bound*; setting k one or two levels above the consensus to
-watch factors fragment is intentional and informative. For a full
-explanation of each criterion, its bias direction, and how to match it
-to your engine, see
+is an *upper bound*; setting `k_max` one or two levels above the
+consensus to watch factors fragment is intentional and informative. For
+a full explanation of each criterion, its bias direction, and how to
+match it to your engine, see
 [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md).
 
 ## Step 2: Fit the hierarchy `ackwards()`
@@ -146,7 +147,7 @@ giving a more accurate representation of the latent structure.
 
 ``` r
 
-x <- ackwards(bfi, k = 5, cor = "polychoric")
+x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 ```
 
 No warning this time — specifying `cor = "polychoric"` tells
@@ -259,7 +260,7 @@ comparisons across models:
 ``` r
 
 glance(x)
-#>   method rotation   cor_type k_max n_obs deepest_converged n_edges
+#>   engine rotation        cor k_max n_obs deepest_converged n_edges
 #> 1    pca  varimax polychoric     5  2436                 5      40
 ```
 
@@ -438,12 +439,12 @@ for details. For pure PCA on Pearson correlations the model-implied and
 empirical variances agree exactly.
 
 If you need scores repeatedly (e.g., in a cross-validation loop), store
-them at fit time with `scores = TRUE` to avoid re-applying the weight
-matrices on every call:
+them at fit time with `keep_scores = TRUE` to avoid re-applying the
+weight matrices on every call:
 
 ``` r
 
-x2 <- ackwards(bfi, k = 5, cor = "polychoric", scores = TRUE)
+x2 <- ackwards(bfi, k_max = 5, cor = "polychoric", keep_scores = TRUE)
 scored2 <- augment(x2) # uses stored matrices — no recomputation
 identical(round(scored2$.m5f1, 8), round(scored$.m5f1, 8))
 #> [1] TRUE
@@ -495,7 +496,7 @@ The bass-ackwards workflow in **ackwards** has six steps:
 
 1.  **`suggest_k(data)`** — identify a plausible range for the hierarchy
     depth.
-2.  **`ackwards(data, k, cor = ...)`** — fit the full hierarchy of
+2.  **`ackwards(data, k_max, cor = ...)`** — fit the full hierarchy of
     factor models.
 3.  **`print(x)` / `summary(x)` / `glance(x)`** — check convergence,
     read the per-level variance and fit indices, and inspect the lineage

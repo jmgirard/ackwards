@@ -41,10 +41,10 @@ to every combination of levels.
 ``` r
 
 # Classic adjacent-only
-x_adj <- ackwards(bfi, k = 5, cor = "polychoric")
+x_adj <- ackwards(bfi, k_max = 5, cor = "polychoric")
 
 # All pairs
-x_all <- ackwards(bfi, k = 5, cor = "polychoric", pairs = "all")
+x_all <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all")
 
 # How many edges?
 nrow(tidy(x_adj, what = "edges")) # adjacent only
@@ -105,7 +105,7 @@ dimension.
 ``` r
 
 x_prune <- ackwards(bfi,
-  k = 5, cor = "polychoric",
+  k_max = 5, cor = "polychoric",
   pairs = "all", prune = "redundant"
 )
 #> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
@@ -234,7 +234,7 @@ rotation rather than a genuine new dimension.
 ``` r
 
 x_art <- ackwards(bfi,
-  k = 5, cor = "polychoric",
+  k_max = 5, cor = "polychoric",
   pairs = "all", prune = "artefact"
 )
 #> ℹ Artefact mode: Tucker's computed for all cross-level factor pairs.
@@ -296,7 +296,7 @@ thresholds <- c(0.80, 0.85, 0.90, 0.95)
 counts <- sapply(thresholds, function(thr) {
   x <- suppressWarnings(
     ackwards(bfi,
-      k = 5, cor = "polychoric",
+      k_max = 5, cor = "polychoric",
       pairs = "all", prune = "redundant",
       redundancy_r = thr
     )

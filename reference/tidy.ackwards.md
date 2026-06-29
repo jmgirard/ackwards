@@ -46,7 +46,7 @@ tidy(
     applied.
 
   - `"scores"` — long-format per-observation factor scores (requires
-    `scores = TRUE` at fit time or use
+    `keep_scores = TRUE` at fit time or use
     [`augment.ackwards()`](https://jmgirard.github.io/ackwards/reference/augment.ackwards.md)
     for on-the-fly computation). Columns: `obs` (row index), `level`,
     `factor`, `score`.

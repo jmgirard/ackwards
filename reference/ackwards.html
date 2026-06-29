@@ -66,13 +66,13 @@ not a fitted higher-order SEM.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ackwards</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
-<span>  <span class="va">k</span>,</span>
-<span>  method <span class="op">=</span> <span class="st">"pca"</span>,</span>
+<span>  <span class="va">k_max</span>,</span>
+<span>  engine <span class="op">=</span> <span class="st">"pca"</span>,</span>
 <span>  cor <span class="op">=</span> <span class="st">"pearson"</span>,</span>
 <span>  fm <span class="op">=</span> <span class="st">"minres"</span>,</span>
 <span>  estimator <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  align <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  scores <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  align_signs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  keep_scores <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  keep_fits <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pairs <span class="op">=</span> <span class="st">"adjacent"</span>,</span>
@@ -96,13 +96,13 @@ always <code>nrow(data)</code>; under missingness the effective per-correlation 
 be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.</p></dd>
 
 
-<dt id="arg-k">k<a class="anchor" aria-label="anchor" href="#arg-k"></a></dt>
-<dd><p>Maximum number of factors/components. Required; use
+<dt id="arg-k-max">k_max<a class="anchor" aria-label="anchor" href="#arg-k-max"></a></dt>
+<dd><p>Maximum number of factors/components to extract. Required; use
 <code><a href="suggest_k.html">suggest_k()</a></code> if uncertain. Sets the depth of the hierarchy: levels
-1 through <code>k</code> are all extracted.</p></dd>
+1 through <code>k_max</code> are all extracted.</p></dd>
 
 
-<dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
+<dt id="arg-engine">engine<a class="anchor" aria-label="anchor" href="#arg-engine"></a></dt>
 <dd><p>Extraction engine: <code>"pca"</code> (default), <code>"efa"</code>, or <code>"esem"</code>.
 <code>"esem"</code> uses <code><a href="https://rdrr.io/pkg/lavaan/man/efa.html" class="external-link">lavaan::efa()</a></code> with rotation-aware SEs and per-level fit
 indices; recommended for the clinical/HiTOP workflow (Kim &amp; Eaton, 2015;
@@ -119,9 +119,9 @@ ordinal-looking columns are detected and <code>cor</code> is not <code>"polychor
 
 <dt id="arg-fm">fm<a class="anchor" aria-label="anchor" href="#arg-fm"></a></dt>
 <dd><p>Factor extraction method passed to <code><a href="https://rdrr.io/pkg/psych/man/fa.html" class="external-link">psych::fa()</a></code>; only used when
-<code>method = "efa"</code>. One of <code>"minres"</code> (default, robust OLS), <code>"ml"</code>
+<code>engine = "efa"</code>. One of <code>"minres"</code> (default, robust OLS), <code>"ml"</code>
 (maximum likelihood, gives chi-square fit but converges less reliably at
-deep levels), or <code>"pa"</code> (principal axis). Ignored for <code>method = "pca"</code>.</p></dd>
+deep levels), or <code>"pa"</code> (principal axis). Ignored for <code>engine = "pca"</code>.</p></dd>
 
 
 <dt id="arg-estimator">estimator<a class="anchor" aria-label="anchor" href="#arg-estimator"></a></dt>
@@ -131,16 +131,17 @@ Pass explicitly to override: <code>"ULSMV"</code> (unweighted WLS), <code>"MLR"<
 (robust ML). Ignored for PCA and EFA engines.</p></dd>
 
 
-<dt id="arg-align">align<a class="anchor" aria-label="anchor" href="#arg-align"></a></dt>
+<dt id="arg-align-signs">align_signs<a class="anchor" aria-label="anchor" href="#arg-align-signs"></a></dt>
 <dd><p>Logical; sign-align factors to primary-parent lineage?
 Default <code>TRUE</code>.</p></dd>
 
 
-<dt id="arg-scores">scores<a class="anchor" aria-label="anchor" href="#arg-scores"></a></dt>
-<dd><p>Logical; store factor scores in the result? Default <code>FALSE</code>
-(recomputable via <code><a href="augment.ackwards.html">augment.ackwards()</a></code>). When <code>TRUE</code>, per-observation
-scores are stored in <code>x$scores</code> as a named list of <code>n × k_j</code> matrices,
-one per level, standardized by real score SDs (see <code><a href="augment.ackwards.html">augment.ackwards()</a></code>).</p></dd>
+<dt id="arg-keep-scores">keep_scores<a class="anchor" aria-label="anchor" href="#arg-keep-scores"></a></dt>
+<dd><p>Logical; store factor scores in the result? Default
+<code>FALSE</code> (recomputable via <code><a href="augment.ackwards.html">augment.ackwards()</a></code>). When <code>TRUE</code>,
+per-observation scores are stored in <code>x$scores</code> as a named list of
+<code>n × k_j</code> matrices, one per level, standardized by real score SDs
+(see <code><a href="augment.ackwards.html">augment.ackwards()</a></code>).</p></dd>
 
 
 <dt id="arg-keep-fits">keep_fits<a class="anchor" aria-label="anchor" href="#arg-keep-fits"></a></dt>
@@ -208,7 +209,7 @@ output methods.</p>
     <h2 id="defaults-and-why">Defaults and why<a class="anchor" aria-label="anchor" href="#defaults-and-why"></a></h2>
 
 
-<ul><li><p><strong><code>method = "pca"</code></strong> — the original Goldberg (2006) method; fastest; never
+<ul><li><p><strong><code>engine = "pca"</code></strong> — the original Goldberg (2006) method; fastest; never
 fails to converge; the Waller (2007) algebra is exact for components.</p></li>
 <li><p><strong><code>rotation = "varimax"</code></strong> — the <code>T'=T^-1</code> property of orthogonal
 rotation enables the closed-form <code>W'RW</code> edge algebra and keeps
@@ -220,12 +221,12 @@ core output.</p></li>
 <li><p><strong><code>cor = "pearson"</code></strong> — no silent basis switching. If your items look
 ordinal (≤ 7 distinct integer values), a cli warning will suggest
 <code>cor = "polychoric"</code>, which is available for all three engines.</p></li>
-<li><p><strong><code>align = TRUE</code></strong> — unaligned signs make the output unreadable. Anchor:
-m1f1 is oriented toward the positive manifold; each subsequent factor is
-flipped so its edge to its primary parent is positive.</p></li>
-<li><p><strong><code>scores = FALSE</code> / <code>keep_fits = FALSE</code></strong> — memory and privacy. Scores
-are O(n × Σk) and often sensitive; raw engine fits can be large. Both are
-recomputable from the stored <code>r</code> matrix.</p></li>
+<li><p><strong><code>align_signs = TRUE</code></strong> — unaligned signs make the output unreadable.
+Anchor: m1f1 is oriented toward the positive manifold; each subsequent
+factor is flipped so its edge to its primary parent is positive.</p></li>
+<li><p><strong><code>keep_scores = FALSE</code> / <code>keep_fits = FALSE</code></strong> — memory and privacy.
+Scores are O(n × Σk) and often sensitive; raw engine fits can be large.
+Both are recomputable from the stored <code>r</code> matrix.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -243,7 +244,7 @@ Personality</em>, 41(4), 745–752. <a href="https://doi.org/10.1016/j.jrp.2006.
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">ackwards</span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">ackwards</span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
