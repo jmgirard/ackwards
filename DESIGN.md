@@ -41,9 +41,11 @@ score correlations), not a higher-order SEM. `psych`'s own docs make this point;
 
 These are the project's standing priorities (owner-stated) and the recommended stance on each.
 
-- **Manageable dependencies.** Lean `Imports`; everything heavy or engine-specific in `Suggests`
-  behind `rlang::check_installed()` guards. Installing for the PCA path must not pull in the SEM
-  or plotting stacks. (See §12.)
+- **Manageable dependencies.** `psych` is in `Imports` (M21 — it is the engine substrate for the
+  default PCA/EFA paths; requiring an install prompt for the default engine contradicted this
+  principle). Everything else heavy or engine-specific remains in `Suggests` behind
+  `rlang::check_installed()` guards. Installing the package must not pull in the SEM or plotting
+  stacks. `GPArotation` was removed (M21 — varimax routes through `stats::varimax`). (See §12.)
 - **Best practices.** testthat 3e, roxygen2, pkgdown, CI (`R CMD check`, lintr/styler), semantic
   versioning, snapshot tests against `psych` for the PCA path, a vignette reproducing a published
   structure.
@@ -353,11 +355,11 @@ footprint sane and lets users plot the layout however they like.
 
 | Tier | Packages | Purpose |
 |---|---|---|
-| Imports (lean) | `stats`, `utils`, `cli`, `rlang`, `generics` | core, console output, guards, tidy/augment/glance generics |
-| Suggests — engines | `psych`, `GPArotation`, `lavaan (>= 0.6-13)` | EFA/PCA/rotations (CF family); ESEM |
-| Suggests — ordinal | `psych` | polychoric correlations for Likert basis |
-| Suggests — suggest_k | `psych`, `EFAtools` (optional) | `fa.parallel(fa="both")` (PA-PC + PA-FA) + `vss` (MAP + VSS-1/2); `EFAtools::CD()` for Comparison Data (skipped gracefully when absent); no `EGAnet`/`paran` dep |
+| Imports | `stats`, `utils`, `cli`, `rlang`, `generics`, `psych` | core, console output, guards, tidy/augment/glance generics; PCA/EFA engines + polychoric correlations (M21: moved from Suggests — engine substrate for default path) |
+| Suggests — ESEM | `lavaan (>= 0.6-13)` | ESEM engine |
+| Suggests — suggest_k | `EFAtools` (optional) | `EFAtools::CD()` for Comparison Data (skipped gracefully when absent); no `EGAnet`/`paran` dep |
 | ~~Suggests — matching~~ | ~~`clue`~~ | ~~Hungarian assignment~~ — removed M5; greedy argmax (§7) requires no dep |
+| ~~Suggests — rotations~~ | ~~`GPArotation`~~ | ~~CF-family rotations~~ — removed M21; varimax routes through `stats::varimax` and GPArotation never loaded on any supported path |
 | Suggests — viz | `ggplot2` | diagrams; uses `ggplot2` directly, not `ggraph`/`igraph`/`tidygraph` |
 | Suggests — infra | `testthat (>= 3.0.0)`, `knitr`, `rmarkdown`, `covr` | testing, vignettes, coverage |
 

@@ -219,14 +219,16 @@ Forbes extension **off** · `k_max` required · sign `align_signs = TRUE` · `ke
 
 ## Dependencies (see `DESIGN.md` §12)
 
-Keep `Imports` lean: `stats`, `utils`, `cli`, `rlang`, `generics`. Everything else (`psych`,
-`GPArotation`, `lavaan`, `ggplot2`, testing/docs infrastructure) goes in `Suggests`, gated by
-`rlang::check_installed()`. **Do not add to `Imports` without flagging it.** **No Rcpp** — profile
-first; the heavy compute already lives in compiled deps (§3).
+`psych` is in **Imports** (M21) — it is the engine substrate for the default PCA and EFA paths and
+for polychoric correlations; placing it in Suggests would require an install prompt for core
+functionality. The SEM + plotting + optional-criterion stacks remain in `Suggests`. `GPArotation`
+was **removed entirely** (M21) — varimax routes through base `stats::varimax` and GPArotation never
+enters `loadedNamespaces()` on any supported path. **Do not add further to `Imports` without
+flagging it.** **No Rcpp** — profile first; the heavy compute already lives in compiled deps (§3).
 
-Current `Imports`: `cli`, `generics`, `rlang`, `stats`, `utils`.
-Current `Suggests`: `covr`, `EFAtools`, `ggplot2`, `GPArotation`, `knitr`, `lavaan (>= 0.6-13)`,
-`psych`, `rmarkdown`, `testthat (>= 3.0.0)`. `suggest_k()` uses `psych::fa.parallel(fa="both")` +
+Current `Imports`: `cli`, `generics`, `psych`, `rlang`, `stats`, `utils`.
+Current `Suggests`: `covr`, `EFAtools`, `ggplot2`, `knitr`, `lavaan (>= 0.6-13)`,
+`rmarkdown`, `testthat (>= 3.0.0)`. `suggest_k()` uses `psych::fa.parallel(fa="both")` +
 `psych::vss` (PA-PC, PA-FA, MAP, VSS-1/2) and optionally `EFAtools::CD()` (gated by
 `rlang::is_installed()`); no separate `EGAnet`/`paran` dep. Visualization uses `ggplot2` directly
 (no `ggraph`/`igraph`/`tidygraph`). `methods` is **not** imported (no `methods::` usage). `clue`

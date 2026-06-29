@@ -20,6 +20,7 @@ Depends:
 Imports:
     cli,
     generics,
+    psych,
     rlang,
     stats,
     utils
@@ -27,12 +28,11 @@ Suggests:
     covr,
     EFAtools,
     ggplot2,
-    GPArotation,
     knitr,
     lavaan (>= 0.6-13),
-    psych,
     rmarkdown,
     testthat (>= 3.0.0)
+LazyData: true
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://jmgirard.github.io/ackwards/, https://github.com/jmgirard/ackwards

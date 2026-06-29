@@ -328,7 +328,6 @@ ackwards <- function(
   } else {
     # PCA / EFA: compute R then dispatch
     if (cor == "polychoric") {
-      rlang::check_installed("psych", reason = "for polychoric correlations")
       poly_out <- tryCatch(
         psych::polychoric(data_mat),
         error = function(e) {

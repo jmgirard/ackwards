@@ -87,6 +87,25 @@ pruned view (`drop_pruned`, `compress_levels`).
   with `top_items()`, hierarchy-aware naming (parent vs. child, blends), sign-alignment
   caveat, and the `top_items()` → `label_template()` → `autoplot(node_labels = ...)` round-trip.
 
+## Dependencies
+
+* **`psych` moved to `Imports`** — the default PCA and EFA engines require psych; placing it in
+  Suggests meant a mandatory install prompt for core functionality. The SEM (`lavaan`) and
+  plotting (`ggplot2`) stacks remain in Suggests.
+* **`GPArotation` removed** — varimax rotation routes through base `stats::varimax`; GPArotation
+  was never loaded on any supported path.
+* **`bfi25` example dataset** bundled — a 1 000-row, 25-item subset of the SAPA/IPIP Big Five
+  data (sampled from `psych::bfi`). Used throughout examples and vignettes so they run without
+  reaching into psych's namespace. See `?bfi25` for provenance and `@source`.
+
+## `autoplot.suggest_k()` — CD panel
+
+`suggest_k()` now stores `cd_rmse` (column means of `EFAtools::CD()`'s RMSE eigenvalue matrix)
+in the returned object. When CD is available, `autoplot(suggest_k(...))` renders a four-panel
+2×2 grid including a dedicated **"CD (RMSE, minimize)"** panel with the retention threshold
+marked — giving CD its own diagnostic space rather than sharing the MAP panel. The three-panel
+single-column layout is unchanged when EFAtools is absent.
+
 ## Tidy interface and scoring
 
 * `print.ackwards()` — compact cli summary card.

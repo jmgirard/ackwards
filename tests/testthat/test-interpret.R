@@ -82,7 +82,6 @@ test_that("top_items sort = FALSE preserves item order", {
 
 test_that("top_items works with engine = 'efa'", {
   skip_if_not_installed("psych")
-  skip_if_not_installed("GPArotation")
   set.seed(1)
   x <- ackwards(.make_esem_data(), k_max = 3, engine = "efa")
 

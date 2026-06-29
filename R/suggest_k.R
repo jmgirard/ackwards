@@ -111,8 +111,6 @@
 #' @export
 suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L,
                       seed = NULL, ...) {
-  rlang::check_installed("psych", reason = "for suggest_k()")
-
   cor <- rlang::arg_match(cor, c("pearson", "spearman"))
 
   if (!is.data.frame(data) && !is.matrix(data)) {

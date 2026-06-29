@@ -8,8 +8,6 @@
 # Returns list(levels = <named list per §4 contract>, fits = <named list | NULL>)
 
 pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE) {
-  rlang::check_installed("psych", reason = "for the PCA engine")
-
   p <- nrow(R)
   result <- vector("list", k_max)
   names(result) <- as.character(seq_len(k_max))

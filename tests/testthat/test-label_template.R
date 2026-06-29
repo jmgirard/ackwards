@@ -120,7 +120,6 @@ test_that("label_template forbes uses LETTERS correctly for deeper hierarchies",
 
 test_that("label_template works with engine = 'efa'", {
   skip_if_not_installed("psych")
-  skip_if_not_installed("GPArotation")
   set.seed(1)
   x <- ackwards(.make_esem_data(), k_max = 3, engine = "efa")
 
