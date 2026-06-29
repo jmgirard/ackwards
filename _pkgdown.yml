@@ -7,7 +7,9 @@ home:
   - text: Report a bug
     href: https://github.com/jmgirard/ackwards/issues
 news:
-  releases: []
+  releases:
+  - text: "0.1.0"
+    href: https://github.com/jmgirard/ackwards/releases/tag/v0.1.0
 navbar:
   structure:
     left:
