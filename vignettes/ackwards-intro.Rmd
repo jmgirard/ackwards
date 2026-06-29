@@ -206,6 +206,10 @@ lv5[!duplicated(lv5$factor), c("factor", "item", "loading")]
 
 ### Between-level edges
 
+Each edge is the between-level factor-score correlation computed via Waller's
+(2007) closed-form W′RW algebra — an exact result that requires no score
+materialization, just the weight matrices and the input correlation matrix.
+
 ```{r tidy-edges}
 edges <- tidy(x, what = "edges")
 # Primary-parent edges sorted by strength
