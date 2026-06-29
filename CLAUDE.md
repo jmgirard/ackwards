@@ -85,61 +85,19 @@ default output must reproduce Forbes's examples exactly.
   h1 extraction fell back to pairwise). Adds `.resolve_missing()` helper; records
   `meta$missing`/`meta$n_complete`. 36 tests in `test-missing.R`; missing-data section added to
   `ackwards-engines.Rmd`; DESIGN.md §9 and §14 updated. (778 tests pass, 1 skip; 0/0/0 R CMD check.)
+- **M17 (done):** GitHub 0.1.0 release prep — license switched CC BY 4.0 → MIT (`LICENSE` stub +
+  `LICENSE.md` updated, DESCRIPTION updated); version bumped `0.0.0.9000 → 0.1.0`; README MIT badge
+  + comment mismatch fixed; `inst/CITATION` added (Goldberg 2006 + package, year 2026, deterministic
+  `citation()`); NEWS.md restructured to curated capability-grouped summary (development history
+  dropped — pre-release, all captured in git); `_pkgdown.yml` 0.1.0 release URL registered; pkgdown
+  rebuilt cleanly. Note: pkgdown 2.2.0 renders all root `.md` files via `package_mds()` with no
+  config-based exclusion — CLAUDE.md/DESIGN.md appear as unlinked pages; not fixable without moving
+  files. (781 tests pass, 1 skip; 0/0/0 R CMD check; all URLs clean.) Tag: owner runs
+  `git tag -a v0.1.0 -m "ackwards 0.1.0" && git push origin v0.1.0`.
 
 ## Current focus
 
-**M17 — GitHub 0.1.0 release prep (in progress).** Process/release milestone, not a DESIGN.md §15
-feature. Planned 2026-06-28; scope confirmed with owner. Frame: **release prep + verify perf** (the
-high-ROI perf work already landed pre-milestone in `6adeb6a` — full suite 130s → 66s,
-`test-suggest_k.R` 106s → 39s, via a `local()` `.get_sk()` cache; the determinism test stays
-uncached on purpose). The mandatory fresh `check()` doubles as the perf-verification. The optional
-fixture-shrink (CLAUDE.md's old perf item 2) is **deferred / out of scope** for 0.1.0 — low ROI,
-edits test fixtures right before a tag, and can shift recommended-k assertions (risk > reward at
-66s). CRAN-only items (`\dontrun`→`\donttest`, spell/win-builder) deferred to a later CRAN-prep
-milestone.
-
-**Tasks (in order):**
-  1. **License CC BY 4.0 → MIT.** `usethis::use_mit_license("Jeffrey M. Girard")`; `LICENSE` stub
-     `YEAR: 2026` / holder `Jeffrey M. Girard` (shipped, not build-ignored); `LICENSE.md` → full MIT
-     text; DESCRIPTION `License: CC BY 4.0` → `License: MIT + file LICENSE`. `.Rbuildignore` keeps
-     `LICENSE.md` ignored, `LICENSE` shipped.
-  2. **Version bump** DESCRIPTION `0.0.0.9000 → 0.1.0`.
-  3. **README** (`README.Rmd`): license badge CC BY 4.0 → MIT; fix the `README.Rmd:102` comment
-     ("Five strongest" vs `head(..., 8)`) mismatch; regenerate `README.md` via
-     `devtools::build_readme()`.
-  4. **Deterministic citation:** new `inst/CITATION` citing **both** Goldberg (2006) and the package
-     (year 2026) so `citation("ackwards")` and the README citation chunk render reproducibly (the
-     MIT `LICENSE` year does *not* feed `citation()` — this file is the lever).
-  5. **NEWS.md:** top becomes a curated, capability-grouped user-facing `# ackwards 0.1.0` summary
-     (engines · choosing k · W'RW edge algebra · ordinal/polychoric · Forbes extension · missing-data
-     handling · visualization · tidy/score/print methods); retain the milestone-by-milestone log below
-     under a `# Development history` heading.
-  6. **pkgdown:** exclude `CLAUDE.md`/`DESIGN.md` from the built site via `_pkgdown.yml`; confirm the
-     rebuilt `docs/` has no `CLAUDE`/`DESIGN` pages.
-  7. **`devtools::document()`** (regen docs/NAMESPACE — no roxygen change expected, run to be safe).
-  8. **`devtools::test()`** — 781 pass / 1 skip, runtime ~60–70s (perf held); `EFAtools`-absent CD
-     skip stays graceful.
-  9. **`urlchecker::url_check()`** — clean.
-  10. **`devtools::check()`** — **0/0/0**.
-  11. **`pkgdown::build_site()`** — fresh rebuild reflecting MIT + 0.1.0.
-  12. Commit release-prep changes in one focused commit (CLAUDE.md Current-focus update committed
-      separately, before implementation). **Tag is owner-run:** surface
-      `git tag -a v0.1.0 -m "ackwards 0.1.0"` + `git push origin v0.1.0`; do not tag or push.
-
-**Acceptance criteria:**
-  - DESCRIPTION: `License: MIT + file LICENSE`, `Version: 0.1.0`; shipped `LICENSE` stub (YEAR 2026,
-    Jeffrey M. Girard), not build-ignored.
-  - `LICENSE.md` = full MIT text; no "CC BY"/"Creative Commons" anywhere outside `docs/` (grep-clean).
-  - License badge = MIT in `README.Rmd` and regenerated `README.md`; `head(8)` comment mismatch fixed.
-  - `citation("ackwards")` renders deterministically with year 2026 via `inst/CITATION` (cites
-    Goldberg + package); README citation chunk reflects it.
-  - NEWS.md: curated user-facing `# ackwards 0.1.0` section; detailed milestone log preserved below.
-  - Rebuilt pkgdown site contains no `CLAUDE`/`DESIGN` pages.
-  - `devtools::test()`: 781 pass, 1 skip, ~60–70s (perf held); `EFAtools`-absent skip graceful.
-  - `urlchecker::url_check()`: clean.
-  - `devtools::check()`: 0 errors / 0 warnings / 0 notes.
-  - Release-prep changes in one focused commit; CLAUDE.md Current-focus committed separately; no tag
-    created by the assistant (command handed to owner).
+No milestone currently in progress.
 
 ## Invariants — do not violate without flagging
 
