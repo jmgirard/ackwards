@@ -2,7 +2,7 @@
 
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes on all platforms tested.
+0 errors | 0 warnings on all platforms. 1 note on win-builder R-devel (see Notes).
 
 | Platform | R version | Result |
 |---|---|---|
@@ -10,9 +10,7 @@
 | ubuntu-latest (R-hub) | R-* | 0/0/0 |
 | macos-latest arm64 (R-hub) | R-* | 0/0/0 |
 | windows-latest (R-hub) | R-* | 0/0/0 |
-| win-builder R-devel | R-devel | _pending_ |
-
-win-builder results will be updated once the re-check completes.
+| win-builder R-devel | R-devel | 0/0/1 (see Notes) |
 
 ## Notes
 
