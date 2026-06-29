@@ -376,6 +376,89 @@ choose k. Switch to EFA or ESEM to confirm and report. If PCA and
 EFA/ESEM edges agree, you have robust evidence for the hierarchy; if
 they disagree, investigate why.
 
+## Missing data
+
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+accepts a `missing` argument with three options.
+
+**`"pairwise"` (default).** Use all available observations pairwise. The
+exact behaviour depends on the engine and estimator:
+
+- **PCA/EFA:** `stats::cor(use = "pairwise.complete.obs")` — uses all
+  rows that contribute to each variable pair. MCAR-valid; N = total
+  rows.
+- **ESEM WLSMV/ULSMV (ordinal):** lavaan `missing = "available.cases"` —
+  computes polychoric thresholds and correlations from every row
+  contributing to each pair. MCAR-valid; uses the full N, not just
+  complete cases. This is the honest interpretation of “pairwise” for
+  ordinal data.
+- **ESEM ML/MLR (continuous):** lavaan uses listwise deletion internally
+  while edge correlations are computed from a separately-computed
+  pairwise correlation matrix. This minor inconsistency (fit statistics
+  at complete-case N, edges at full N) is documented in `$meta`. Prefer
+  `"listwise"` or `"fiml"` when missingness is substantial.
+
+A warning is emitted whenever incomplete rows are detected with this
+option.
+
+``` r
+
+# Default: pairwise (warns if NAs present)
+x <- ackwards(data_with_nas, k_max = 4)
+```
+
+**`"listwise"`.** Data are reduced to complete cases before *all*
+downstream steps — correlation matrix, engine fitting, and edges — so
+the three quantities are fully consistent. `x$n_obs` and
+`x$meta$n_complete` both reflect the reduced sample size. Valid for all
+three engines.
+
+``` r
+
+# Consistent complete-case analysis
+x <- ackwards(data_with_nas, k_max = 4, missing = "listwise")
+x$n_obs         # complete-case N
+x$meta$missing  # "listwise"
+```
+
+**`"fiml"`.** Full Information Maximum Likelihood — available only for
+`engine = "esem"` with `estimator = "ML"` or `"MLR"`. FIML uses
+information from all rows (including those with partial data) when
+estimating loadings and fit. Edge correlations are derived from lavaan’s
+FIML-estimated saturated model (the h1 unrestricted model), ensuring
+that fits and edges use the same information. Note: FIML improves
+*estimation* but does not impute item responses; score materialisation
+(`keep_scores = TRUE`) still yields `NA` for incomplete rows.
+
+``` r
+
+# FIML for ESEM with continuous data
+x <- ackwards(data_with_nas, k_max = 4, engine = "esem",
+              estimator = "ML", missing = "fiml")
+```
+
+`"fiml"` errors clearly for unsupported combinations:
+
+``` r
+
+# Errors: PCA and EFA are correlation-based, not raw-data likelihood
+ackwards(data, k_max = 4, engine = "pca", missing = "fiml")
+
+# Errors: WLSMV is limited-information WLS, no FIML extension
+ackwards(data, k_max = 4, engine = "esem", cor = "polychoric",
+         missing = "fiml")
+```
+
+### Which option to use?
+
+| Situation | Recommendation |
+|----|----|
+| Continuous data, little missingness | `"pairwise"` (default) |
+| Ordinal data + WLSMV, any missingness | `"pairwise"` (uses `available.cases` — MCAR-valid, full N) |
+| Want consistent fit statistics and edges (continuous ML/MLR) | `"listwise"` |
+| ESEM ML/MLR, meaningful missingness, want all rows used in estimation | `"fiml"` |
+| MAR-valid with ordinal (not yet built-in) | MI via `lavaan.mi` or `mirt` |
+
 ## References
 
 Goldberg, L. R. (2006). Doing it all bass-ackwards. *Journal of Research

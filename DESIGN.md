@@ -338,6 +338,7 @@ with its rationale.
 | `keep_fits` / `keep_scores` | `FALSE` / `FALSE` | memory + privacy. |
 | `k_max` | required | force a deliberate choice; don’t silently pick. |
 | `seed` | `NULL` but captured | stochastic engines (rotation starts, ML) need reproducibility; encourage setting. |
+| `missing` | **`"pairwise"`** | preserves existing behaviour (pairwise-complete correlations); warns when NAs present. `"listwise"` gives fully consistent N across fit and edges (reduces to complete cases pre-fit). `"fiml"` (ESEM ML/MLR only) uses Full Information ML and derives edge R from lavaan’s FIML saturated model. FIML errors for PCA, EFA, and WLSMV/ULSMV. Added M16; **see §14 “ESEM ML/MLR pairwise” limitation entry** (the ML/MLR fit-vs-edges inconsistency under missingness is resolved for `"listwise"` and `"fiml"`; `"pairwise"` retains the existing minor inconsistency and now warns). |
 
 ### Documentation standard (owner priority)
 
@@ -556,25 +557,34 @@ required if that decision were ever reversed. - Algebra-vs-scores
 cross-check does not cover `cor = "polychoric"` paths (see above). -
 `cor = "spearman"` + `engine = "esem"` is semantically inconsistent
 (lavaan fits Pearson ML on raw data while edges use Spearman R); a
-warning is now emitted (M10). - ESEM engine does not detect or warn on
-improper/Heywood solutions (lavaan negative residual variances), unlike
-the EFA engine which warns explicitly. - **Forbes-extension improvements
-deferred past M5** (the published method has weaker spots worth
-strengthening later; M5 ships the faithful method + the §14.20 reporting
-enrichments): - *Structural artefact signals.* Beyond congruence,
-artefacts have detectable structural signatures — the split-then-merge
-pattern (indicators split at level k then reunite under a different
-parent at k+1; Forbes Fig. 2), factors with `< 3` primary-loading items,
-and orphaned/non-replicating factors. Surface these as diagnostics
-rather than relying on φ alone. - *Factor-score-indeterminacy caveat for
-EFA/ESEM redundancy.* Score-correlation-based redundancy is exact for
-PCA (Waller algebra) but inherits factor-score indeterminacy for
-EFA/ESEM; φ (loading-based) is the more stable criterion there. Consider
-making φ the default for non-PCA engines. - *Selection bias in the
-“strongest” edge.* Plotting the max correlation across many all-levels
-pairs capitalizes on chance (85 → 1,320 correlations as levels grow).
-Add bootstrap CIs / SEs on edges (reuse the `loadings_se`
-infrastructure) so the strongest-edge claim is inferentially honest.
+warning is now emitted (M10). - ~~ESEM engine does not detect or warn on
+improper/Heywood solutions~~ — **resolved M10**: engine now inspects
+`lavaan::lavInspect(fit, "theta")` and warns when
+`any(diag(theta) <= 0)` (parity with EFA engine, Invariant 7). - **ESEM
+ML/MLR with `missing = "pairwise"`**: lavaan uses listwise deletion for
+the model fit while edges are computed from a separately-computed
+pairwise [`stats::cor()`](https://rdrr.io/r/stats/cor.html) — a minor
+inconsistency (fit statistics at complete-case N, edges at full pairwise
+N). Documented in `$meta$missing`; a per-call advisory warning fires
+whenever NAs are detected. Use `missing = "listwise"` or `"fiml"` to
+resolve. *(Added M16; §9 `missing` row cross-references this.)* -
+**Forbes-extension improvements deferred past M5** (the published method
+has weaker spots worth strengthening later; M5 ships the faithful
+method + the §14.20 reporting enrichments): - *Structural artefact
+signals.* Beyond congruence, artefacts have detectable structural
+signatures — the split-then-merge pattern (indicators split at level k
+then reunite under a different parent at k+1; Forbes Fig. 2), factors
+with `< 3` primary-loading items, and orphaned/non-replicating factors.
+Surface these as diagnostics rather than relying on φ alone. -
+*Factor-score-indeterminacy caveat for EFA/ESEM redundancy.*
+Score-correlation-based redundancy is exact for PCA (Waller algebra) but
+inherits factor-score indeterminacy for EFA/ESEM; φ (loading-based) is
+the more stable criterion there. Consider making φ the default for
+non-PCA engines. - *Selection bias in the “strongest” edge.* Plotting
+the max correlation across many all-levels pairs capitalizes on chance
+(85 → 1,320 correlations as levels grow). Add bootstrap CIs / SEs on
+edges (reuse the `loadings_se` infrastructure) so the strongest-edge
+claim is inferentially honest.
 
 ## 15. Suggested milestones
 
@@ -972,7 +982,25 @@ infrastructure) so the strongest-edge claim is inferentially honest.
     updated to five criteria. **Cross-references §8.** See
     [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md).
 
-15. **Naming clarity & consistency pass** *(done)* — dev-mode rename
+15. **Estimator-aware missing-data handling** *(done)* — new
+    `missing = c("pairwise", "listwise", "fiml")` argument on
+    [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+    Default `"pairwise"` preserves all existing behaviour and now emits
+    an advisory warning when incomplete rows are detected. `"listwise"`
+    reduces data to complete cases before all downstream steps
+    (correlation matrix, engine, edges) for full consistency. `"fiml"`
+    passes `missing = "fiml"` to
+    [`lavaan::efa()`](https://rdrr.io/pkg/lavaan/man/efa.html) for ESEM
+    ML/MLR and derives edge R from lavaan’s FIML saturated model; errors
+    for PCA, EFA, and WLSMV/ULSMV. Adds `.resolve_missing()` internal
+    helper for validation. Records `$meta$missing` and
+    `$meta$n_complete` in every result. Fixes the ESEM ML/MLR
+    fit-vs-edges consistency for `"listwise"` and `"fiml"`. **Amends
+    §9** (defaults table). See
+    [`vignette("ackwards-engines")`](https://jmgirard.github.io/ackwards/articles/ackwards-engines.md)
+    for usage.
+
+16. **Naming clarity & consistency pass** *(done)* — dev-mode rename
     with no behaviour changes. Renamed four
     [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
     formals (`k`→`k_max`, `method`→`engine`, `scores`→`keep_scores`,

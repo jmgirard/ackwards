@@ -13,7 +13,7 @@ not a fitted higher-order SEM.'></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ackwards</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,7 @@ not a fitted higher-order SEM.'></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-news"><li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
+    <li><a class="external-link dropdown-item" href="https://github.com/jmgirard/ackwards/releases/tag/v0.1.0">0.1.0</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
   </ul></li>
@@ -71,6 +72,7 @@ not a fitted higher-order SEM.</p>
 <span>  cor <span class="op">=</span> <span class="st">"pearson"</span>,</span>
 <span>  fm <span class="op">=</span> <span class="st">"minres"</span>,</span>
 <span>  estimator <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  missing <span class="op">=</span> <span class="st">"pairwise"</span>,</span>
 <span>  align_signs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  keep_scores <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  keep_fits <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -90,10 +92,8 @@ not a fitted higher-order SEM.</p>
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>A data frame or numeric matrix of observed variables (items in
-columns, observations in rows). Missing values are handled via pairwise
-deletion when computing <code>R</code>. Note: <code>n_obs</code> passed to the EFA engine is
-always <code>nrow(data)</code>; under missingness the effective per-correlation N may
-be smaller, making chi-square / RMSEA / p-value slightly anti-conservative.</p></dd>
+columns, observations in rows). How missing values are handled depends on
+the <code>missing</code> argument; see below.</p></dd>
 
 
 <dt id="arg-k-max">k_max<a class="anchor" aria-label="anchor" href="#arg-k-max"></a></dt>
@@ -129,6 +129,31 @@ deep levels), or <code>"pa"</code> (principal axis). Ignored for <code>engine = 
 auto-selects: <code>"WLSMV"</code> when <code>cor = "polychoric"</code>, <code>"ML"</code> otherwise.
 Pass explicitly to override: <code>"ULSMV"</code> (unweighted WLS), <code>"MLR"</code>
 (robust ML). Ignored for PCA and EFA engines.</p></dd>
+
+
+<dt id="arg-missing">missing<a class="anchor" aria-label="anchor" href="#arg-missing"></a></dt>
+<dd><p>How to handle missing item responses. One of:</p><ul><li><p><code>"pairwise"</code> (default) — use all available observations pairwise.
+For PCA/EFA this feeds <code>stats::cor(use = "pairwise.complete.obs")</code>.
+For ESEM with WLSMV/ULSMV (ordinal), lavaan uses <code>available.cases</code>,
+which computes polychoric thresholds and correlations from all rows that
+contribute to each pair — MCAR-valid and uses the full N.
+For ESEM with ML/MLR (continuous), lavaan uses listwise deletion
+internally while edges are computed from a pairwise correlation matrix;
+this minor inconsistency is documented in <code>$meta</code>. A warning is emitted
+when incomplete rows are detected.</p></li>
+<li><p><code>"listwise"</code> — only complete rows are used. Reduces data to
+<code><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">stats::complete.cases()</a></code> before fitting, so the correlation matrix,
+the engine fit, and the edges are all consistent. <code>n_obs</code> in the result
+reflects the reduced N.</p></li>
+<li><p><code>"fiml"</code> — Full Information Maximum Likelihood. Passes
+<code>missing = "fiml"</code> to <code><a href="https://rdrr.io/pkg/lavaan/man/efa.html" class="external-link">lavaan::efa()</a></code>; edge correlations are derived
+from lavaan's FIML-estimated saturated model, ensuring consistency.
+<strong>Only valid for <code>engine = "esem"</code> with <code>estimator = "ML"</code> or
+<code>"MLR"</code></strong> — errors for PCA, EFA, and WLSMV/ULSMV. Note: FIML improves
+factor estimation under missingness but does not impute item responses;
+score materialisation (<code>keep_scores = TRUE</code>) still produces <code>NA</code> rows
+for incomplete observations.</p></li>
+</ul></dd>
 
 
 <dt id="arg-align-signs">align_signs<a class="anchor" aria-label="anchor" href="#arg-align-signs"></a></dt>

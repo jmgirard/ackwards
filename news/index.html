@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ackwards</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,6 +30,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-news"><li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
+    <li><a class="external-link dropdown-item" href="https://github.com/jmgirard/ackwards/releases/tag/v0.1.0">0.1.0</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
   </ul></li>
@@ -49,204 +50,77 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.0.0.9000" id="ackwards-0009000-dev">ackwards 0.0.0.9000 (dev)<a class="anchor" aria-label="anchor" href="#ackwards-0009000-dev"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.1.0" id="ackwards-010">ackwards 0.1.0<a class="anchor" aria-label="anchor" href="#ackwards-010"></a></h2>
+<p>First public release. Licensed under MIT.</p>
 <div class="section level3">
-<h3 id="milestone--naming-clarity--consistency-pass-0-0-0-9000">Milestone 15 — Naming clarity &amp; consistency pass<a class="anchor" aria-label="anchor" href="#milestone--naming-clarity--consistency-pass-0-0-0-9000"></a></h3>
-<ul><li><p><code><a href="../reference/ackwards.html">ackwards()</a></code> argument <code>k</code> renamed to <code>k_max</code>. Aligns with the pre-existing <code>suggest_k(k_max=)</code> parameter and <code>$k_max</code> result-object field, making the maximum-depth semantic explicit and consistent across the full API. (#M15)</p></li>
-<li><p><code><a href="../reference/ackwards.html">ackwards()</a></code> argument <code>method</code> renamed to <code>engine</code>. Resolves the overload with <code><a href="../reference/compute_edges.html">compute_edges()</a></code>’s internal <code>edge_method</code> argument and matches DESIGN.md’s “three engines” prose (<code>"pca"</code>, <code>"efa"</code>, <code>"esem"</code>). (#M15)</p></li>
-<li><p><code><a href="../reference/ackwards.html">ackwards()</a></code> argument <code>scores</code> renamed to <code>keep_scores</code>. Mirrors the existing <code>keep_fits</code> argument and removes ambiguity between “store scores” (the storage option) and “factor scores” (the output concept). (#M15)</p></li>
-<li><p><code><a href="../reference/ackwards.html">ackwards()</a></code> argument <code>align</code> renamed to <code>align_signs</code>. Clarifies that the argument controls sign orientation of loadings, not structural alignment or rotation. (#M15)</p></li>
-<li><p>Result-object field <code>$method</code> renamed to <code>$engine</code>. Result-object field <code>$cor_type</code> renamed to <code>$cor</code>. All S3 methods (<code>print</code>, <code>summary</code>, <code>glance</code>, <code>tidy</code>, <code>augment</code>, <code>autoplot</code>) updated to read from the new field names. (#M15)</p></li>
-<li><p><code><a href="../reference/compute_edges.html">compute_edges()</a></code> argument <code>method</code> renamed to <code>edge_method</code>. Disambiguates from the (now-removed) <code>method</code> engine argument on <code><a href="../reference/ackwards.html">ackwards()</a></code>. (#M15)</p></li>
-<li><p>No behaviour changes. All existing functionality is preserved; only surface names changed.</p></li>
-</ul></div>
-<div class="section level3">
-<h3 id="milestone--dedicated-suggest_k-vignette-0-0-0-9000">Milestone 14 — Dedicated <code>suggest_k()</code> vignette<a class="anchor" aria-label="anchor" href="#milestone--dedicated-suggest_k-vignette-0-0-0-9000"></a></h3>
-<ul><li><p>New vignette <code><a href="../articles/ackwards-suggest-k.html">vignette("ackwards-suggest-k")</a></code> — “Choosing k: How Many Factors?” — a narrative/educational companion to the <code><a href="../reference/suggest_k.html">suggest_k()</a></code> reference page. Covers all five criteria with pros/cons and bias direction, engine-to- criterion pairing (PA-FA for efa/esem; PA-PC for pca), all four arguments including the ordinal→Pearson caveat and the PA non-reproducibility note, and a worked k-selection for the BFI. Listed first in the pkgdown “Deep dives” section. (#M14)</p></li>
-<li><p>Intro vignette (<code><a href="../articles/ackwards-intro.html">vignette("ackwards-intro")</a></code>) Step 1 trimmed to the default <code><a href="../reference/suggest_k.html">suggest_k()</a></code> call plus a pointer to the new vignette; criteria prose moved there. (#M14)</p></li>
-<li><p>README corrected: <code><a href="../reference/suggest_k.html">suggest_k()</a></code> description updated from “parallel analysis and Velicer’s MAP criterion” to the accurate five-criteria description; “Both criteria agree” prose updated to “The criteria converge”; new vignette added to the “Learn more” table. (#M14)</p></li>
-<li><p>Vignette worked-example prose corrected: the initial version mis-stated PA-PC and PA-FA recommendations and assumed CD was absent. The section now reads from the actual rendered output (PA-PC=5, PA-FA=6, MAP=5, VSS-1=4, VSS-2=5, CD=8 on <code>bfi</code>), explains the unusual PA-FA &gt; PA-PC relationship, and documents why CD=8 is a high outlier on large correlated samples rather than a directive to extract 8 factors. (#M14)</p></li>
-<li><p>CD summary table: “Conservative, accurate” changed to “Accurate in simulation; can over-retain on large, correlated samples”. (#M14)</p></li>
-<li><p>Tests added for three previously-uncovered branches in <code><a href="../reference/autoplot.suggest_k.html">autoplot.suggest_k()</a></code> and <code><a href="../reference/print.suggest_k.html">print.suggest_k()</a></code>: <code>k_parallel_fa = NA</code> (no FA star rendered), <code>cd_available = FALSE</code> (no CD vline; “requires EFAtools” note in print). (#M14)</p></li>
-</ul></div>
-<div class="section level3">
-<h3 id="milestone--rotation-honesty-remove-dead-kappa-argument-0-0-0-9000">Milestone 13 — Rotation honesty: remove dead <code>kappa</code> argument<a class="anchor" aria-label="anchor" href="#milestone--rotation-honesty-remove-dead-kappa-argument-0-0-0-9000"></a></h3>
-<ul><li><p>The <code>kappa</code> argument to <code><a href="../reference/ackwards.html">ackwards()</a></code> has been removed. It was accepted and stored in <code>x$meta</code> but was never passed to any of the three engines — all engines already hardcoded <code>cfT → "varimax"</code>. Crawford-Ferguson with κ = 1/p is numerically identical to varimax (Crawford &amp; Ferguson, 1970; Browne, 2001), and no reference paper (Goldberg 2006; Kim &amp; Eaton 2015; Forbush et al. 2024) varies kappa. Exposing it implied quartimax/equamax were reasonable alternatives for this method; they are not. (#M13)</p></li>
-<li>
-<p>The <code>rotation</code> argument to <code><a href="../reference/ackwards.html">ackwards()</a></code> has been removed. Varimax is the only valid rotation for this method, so exposing it as a choice was misleading. “cfT” (Crawford-Ferguson family name) has been renamed to “varimax” everywhere: the result object’s <code>$rotation</code> field, <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> output, and all engine internals. The <code>@section Defaults</code> explains why orthogonal rotation is load-bearing (T’T = I so T’ = T^-1, enabling closed-form W’RW algebra) and that varimax is what Goldberg (2006), Kim &amp; Eaton (2015), and Forbush et al.</p>
-<ol start="2024" style="list-style-type: decimal"><li>all used. (#M13)</li>
-</ol></li>
-</ul></div>
-<div class="section level3">
-<h3 id="milestone--best-practice-suggest_k-expansion-0-0-0-9000">Milestone 12 — Best-practice <code>suggest_k()</code> expansion<a class="anchor" aria-label="anchor" href="#milestone--best-practice-suggest_k-expansion-0-0-0-9000"></a></h3>
-<ul><li><p><code><a href="../reference/suggest_k.html">suggest_k()</a></code> now runs five complementary criteria instead of two. New criteria: <strong>PA-FA</strong> (factor-eigenvalue parallel analysis, the model-consistent companion to PA-PC), <strong>VSS-1/VSS-2</strong> (Very Simple Structure; already computed from <code><a href="https://rdrr.io/pkg/psych/man/VSS.html" class="external-link">psych::vss()</a></code> but now surfaced), and <strong>CD</strong> (Comparison Data, Ruscio &amp; Roche 2012, via <code><a href="https://rdrr.io/pkg/EFAtools/man/CD.html" class="external-link">EFAtools::CD()</a></code> — skipped gracefully when <code>EFAtools</code> is not installed). (#M12)</p></li>
-<li><p>The <code>suggest_k</code> object has been enriched with new fields: <code>k_parallel_pc</code>, <code>k_parallel_fa</code> (replaces <code>k_parallel</code>), <code>k_vss1</code>, <code>k_vss2</code>, <code>k_cd</code>, <code>cd_available</code>; and the <code>criteria</code> table now includes <code>ev_obs</code>, <code>pa_pc_quant</code>, <code>pa_pc_suggested</code>, <code>pa_fa_quant</code>, <code>pa_fa_suggested</code>, <code>vss1</code>, <code>vss2</code>. (#M12)</p></li>
-<li><p>New <code>seed</code> argument to <code><a href="../reference/suggest_k.html">suggest_k()</a></code> for reproducibility of the stochastic parallel-analysis and Comparison Data steps. (#M12)</p></li>
-<li><p>New <code><a href="../reference/autoplot.suggest_k.html">autoplot.suggest_k()</a></code> method produces a three-panel ggplot2 diagnostic: a parallel-analysis/scree plot, a MAP panel, and a VSS panel. Optimal k for each criterion is marked with a star-shaped point. (#M12)</p></li>
-<li><p><code><a href="../reference/print.suggest_k.html">print.suggest_k()</a></code> redesigned as a multi-criterion table showing PA-PC, PA-FA, MAP, VSS-1, VSS-2, and CD (when available) side by side, with a consensus range summary and overextraction caution. (#M12)</p></li>
-<li><p><code>EFAtools</code> added to <code>Suggests</code> in DESCRIPTION. Never imported directly; gated by <code><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">rlang::is_installed()</a></code>. (#M12)</p></li>
-</ul></div>
-<div class="section level3">
-<h3 id="milestone--edge-label-polish--show_r-decoupling-0-0-0-9000">Milestone 11 — Edge-label polish + <code>show_r</code> decoupling<a class="anchor" aria-label="anchor" href="#milestone--edge-label-polish--show_r-decoupling-0-0-0-9000"></a></h3>
-<ul><li><p><code>show_r</code> now defaults to <code>FALSE</code> in all <code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> views. Previously, <code>show_r = NULL</code> resolved to <code>TRUE</code> when <code>drop_pruned = TRUE</code> (coupling two orthogonal concerns). The default is now explicit: pass <code>show_r = TRUE</code> to label edges. The Forbes vignette demonstrates both the labeled and unlabeled variants, matching the two-figure treatment in Forbes (2023). (#M11)</p></li>
-<li><p>Edge correlation labels now use APA-style formatting via the new internal helper <code>.format_r()</code>: the leading zero is stripped (<code>.23</code> not <code>0.23</code>), trailing zeros are padded to <code>r_digits</code> decimal places (<code>.30</code> not <code>.3</code>), and <code>±1</code> formats as <code>1.00</code> / <code>-1.00</code>. (#M11)</p></li>
-<li><p>Edge labels are now rendered with <code>geom_label</code> (white background, no border) offset perpendicular to each edge’s direction, so they clear near-vertical arrows and the arrowhead regardless of edge angle. The previous flat horizontal nudge was ineffective for near-vertical segments. (#M11)</p></li>
-<li><p>New <code>r_label_size</code> argument to <code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> controls the font size of edge correlation labels when <code>show_r = TRUE</code>. Default <code>2.5</code> preserves existing behaviour. (#M11)</p></li>
-<li><p><code>.format_r()</code> no longer produces <code>"-.00"</code> when a small negative correlation rounds to zero at the requested precision; sign is suppressed in that case. (#M11)</p></li>
-</ul></div>
-<div class="section level3">
-<h3 id="milestone--conformance--robustness-0-0-0-9000">Milestone 10 — Conformance + robustness<a class="anchor" aria-label="anchor" href="#milestone--conformance--robustness-0-0-0-9000"></a></h3>
-<div class="section level4">
-<h4 id="wave-follow-up-conformance-fixes-0-0-0-9000">Wave 2 follow-up: conformance fixes<a class="anchor" aria-label="anchor" href="#wave-follow-up-conformance-fixes-0-0-0-9000"></a></h4>
-<ul><li>Fixed <code><a href="../reference/print.summary_ackwards.html">print.summary_ackwards()</a></code> spuriously printing “Redundant: 0 nodes flagged” when only <code>prune = "artefact"</code> was requested. Root cause: <code>.summary_prune()</code> always returned a <code>redundant</code> field (a length-0 character vector), and <code>print</code> gated on <code>!is.null(redundant)</code> rather than on the <code>rules</code> slot. Fix: <code>.summary_prune()</code> now carries <code>rules</code> through from the prune slot; both pruning display blocks in <code>print</code> gate on <code>"redundant" %in% p$rules</code> / <code>"artefact" %in% p$rules</code> respectively — consistent with how <code><a href="../reference/print.ackwards.html">print.ackwards()</a></code> handles the same slot.</li>
-<li>
-<code>.summary_lineage()</code> now uses <code>which(e$is_primary &amp; ...)</code> instead of direct logical indexing to guard against <code>NA</code> values in <code>is_primary</code> (skip-level edges from <code>pairs = "all"</code> carry <code>NA</code> there). Parents are now sorted explicitly by level then label rather than relying on tidy-table insertion order, giving stable top-down ordering regardless of pairs mode.</li>
-<li>7 new tests added to <code>test-print.R</code> covering: artefact-only prune (no spurious redundant line), redundant+artefact combined, truncated ESEM hierarchy, polychoric basis, PCA eigenvalue presence in fit table, lineage content correctness (specific parent→children check), and the print method.</li>
-<li>Heywood fixture in <code>test-esem.R</code> now starts with a <code>skip_if</code> pre-check that verifies the fixture still produces <code>theta &lt;= 0</code> under the installed lavaan version, making the test skip gracefully rather than silently pass if a future lavaan changes its residual-variance bounding behaviour.</li>
-</ul></div>
-<div class="section level4">
-<h4 id="wave-summary-method-0-0-0-9000">Wave 2: summary method<a class="anchor" aria-label="anchor" href="#wave-summary-method-0-0-0-9000"></a></h4>
-<ul><li>Added <code><a href="../reference/summary.ackwards.html">summary.ackwards()</a></code> and <code><a href="../reference/print.summary_ackwards.html">print.summary_ackwards()</a></code> — the previously documented but unimplemented summary method (DESIGN.md §6/§10). Returns a structured <code>summary_ackwards</code> object that, when printed, shows:
+<h3 id="extraction-engines-0-1-0">Extraction engines<a class="anchor" aria-label="anchor" href="#extraction-engines-0-1-0"></a></h3>
+<p>Three engines are available via the <code>engine</code> argument to <code><a href="../reference/ackwards.html">ackwards()</a></code>:</p>
 <ul><li>
-<strong>Per-level block</strong>: per-factor variance % and cumulative variance for every level. PCA levels additionally show eigenvalues; EFA/ESEM levels (k ≥ 2) append a fit-index line (RMSEA/TLI/chi/df for EFA; CFI/TLI/RMSEA/SRMR for ESEM).</li>
+<strong>PCA</strong> (<code>engine = "pca"</code>) — the original Goldberg (2006) bass-ackwards method. Fastest; never fails to converge; exact W′RW algebra for between-level edges.</li>
 <li>
-<strong>Lineage list</strong>: <code>m1f1 → m2f1, m2f2</code> readable chains walking the adjacent primary-parent edges top-down.</li>
+<strong>EFA</strong> (<code>engine = "efa"</code>) — exploratory factor analysis via <code><a href="https://rdrr.io/pkg/psych/man/fa.html" class="external-link">psych::fa()</a></code> with tenBerge scoring weights and the same closed-form algebra path.</li>
 <li>
-<strong>Pruning section</strong>: when <code>prune != "none"</code>, lists flagged-node IDs per rule and notes that pruning is interpretive, not re-estimation.</li>
-<li>Honesty caveat (series of linked solutions, not a fitted hierarchy). The returned object carries <code>variance</code>, <code>fit</code>, <code>lineage</code>, and <code>prune</code> fields for programmatic access, matching the <code>print.suggest_k</code> pattern.</li>
-</ul></li>
-<li>Added <code>summary.ackwards</code> and <code>print.summary_ackwards</code> to <code>_pkgdown.yml</code> reference and mentioned <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> in the intro vignette Step 3 section.</li>
-</ul></div>
-<div class="section level4">
-<h4 id="wave-engine-robustness-0-0-0-9000">Wave 1: engine robustness<a class="anchor" aria-label="anchor" href="#wave-engine-robustness-0-0-0-9000"></a></h4>
-<ul><li>
-<strong>ESEM improper-solution warning.</strong> The ESEM engine now warns when any residual variance in the lavaan theta matrix is at or below zero (Heywood case). lavaan clamps negative residual variances to 0 by default; the check catches both clamped-to-zero and unconstrained-negative values. The object is still returned at the full requested depth — the warning is diagnostic, not truncating (Invariant 7). Parity with the EFA engine, which has warned on Heywood cases since M3.</li>
-<li>
-<strong><code>cor = "spearman"</code> + <code>method = "esem"</code> inconsistency warning.</strong> <code><a href="../reference/ackwards.html">ackwards()</a></code> now warns when this combination is requested: lavaan fits a Pearson-ML model on raw data while <code><a href="../reference/compute_edges.html">compute_edges()</a></code> uses the Spearman correlation matrix for scoring, mixing bases silently. The warning suggests <code>cor = "polychoric"</code> for ordinal data or <code>cor = "pearson"</code> for a fully consistent continuous path. Emitted once per session (<code>.frequency = "once"</code>).</li>
-<li>
-<strong>DESIGN.md §8 reconciled.</strong> <code><a href="../reference/suggest_k.html">suggest_k()</a></code> documentation in §8 now lists only the two implemented criteria (parallel analysis and MAP/Velicer) and explicitly marks Empirical Kaiser Criterion (EKC) and EGA (<a href="https://r-ega.net" class="external-link">EGAnet</a>) as out of scope, consistent with the §12/§14 no-extra-deps decision.</li>
-</ul></div>
+<strong>ESEM</strong> (<code>engine = "esem"</code>) — EFA estimated in a SEM framework via <code><a href="https://rdrr.io/pkg/lavaan/man/efa.html" class="external-link">lavaan::efa()</a></code> with WLSMV ordinal estimation, per-level fit indices (CFI, TLI, RMSEA, SRMR), and rotation-aware standard errors. Required for the clinical/HiTOP workflow.</li>
+</ul><p>All engines use <strong>varimax</strong> (orthogonal) rotation — the only rotation compatible with the W′RW algebra. Oblique rotation is unsupported by design.</p>
 </div>
 <div class="section level3">
-<h3 id="milestone--visualization-round--vignette-restructure-0-0-0-9000">Milestone 9 — Visualization round 2 + vignette restructure<a class="anchor" aria-label="anchor" href="#milestone--visualization-round--vignette-restructure-0-0-0-9000"></a></h3>
-<div class="section level4">
-<h4 id="wave-vignette-restructure-0-0-0-9000">Wave 2: vignette restructure<a class="anchor" aria-label="anchor" href="#wave-vignette-restructure-0-0-0-9000"></a></h4>
-<ul><li>New <code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code>: a dedicated visual reference for all <code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> presentation options, with rendered before/after figures for each argument. Covers thresholds, colours, monochrome mode, correlation labels, custom node labels, primary-only mode, level labels, arrowheads, edge width, and legend; closes with a publication-ready worked example.</li>
-<li>
-<code><a href="../articles/ackwards-forbes.html">vignette("ackwards-forbes")</a></code>: removed the curved-arc <code>autoplot(x_all)</code> figure (skip-level edges are better understood via the edge table); the annotated grey-box view is replaced by the Forbes-styled <code>drop_pruned</code> diagram as the primary figure, using <code>color_pos = color_neg = "black"</code>, <code>edge_linewidth = 0.6</code>, <code>show_arrows = FALSE</code>, <code>legend = FALSE</code>. Added a cross-reference to the visualization vignette for cosmetic options.</li>
-<li>
-<code><a href="../articles/ackwards-intro.html">vignette("ackwards-intro")</a></code>: trimmed the “Adjusting the diagram” section to prose pointing to <code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code>; fixed a stale code comment that promised to “relabel the k = 5 factors” when the code did not. Added the visualization vignette to the “Next steps” table.</li>
-</ul></div>
-<div class="section level4">
-<h4 id="wave-new-autoplot-args-0-0-0-9000">Wave 1: new autoplot args<a class="anchor" aria-label="anchor" href="#wave-new-autoplot-args-0-0-0-9000"></a></h4>
+<h3 id="choosing-k--suggest_k-0-1-0">Choosing k — <code>suggest_k()</code>
+<a class="anchor" aria-label="anchor" href="#choosing-k--suggest_k-0-1-0"></a></h3>
+<p><code><a href="../reference/suggest_k.html">suggest_k()</a></code> runs five complementary retention criteria and returns a consensus range:</p>
 <ul><li>
-<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>show_arrows = TRUE</code>: when <code>FALSE</code>, edges are drawn with plain line ends (<code>arrow = NULL</code>) instead of closed arrowheads. Applies to both straight and curved edge layers. Forbes (2023) figures use plain line ends throughout.</li>
+<strong>PA-PC</strong> and <strong>PA-FA</strong> — parallel analysis on the PC and FA eigenvalue bases (<code>psych::fa.parallel(fa = "both")</code>).</li>
 <li>
-<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>edge_linewidth = NULL</code>: <code>NULL</code> (default) keeps the existing behaviour of mapping <code>|r|</code> to <code>linewidth</code> via a continuous scale. A numeric value draws every edge at that constant width, removes the <code>linewidth</code> aesthetic mapping, and drops the <code>|r|</code> linewidth legend. Forbes figures use uniform thin lines (≈ 0.5–0.6).</li>
+<strong>MAP</strong> (Velicer 1976) and <strong>VSS-1/VSS-2</strong> (Revelle &amp; Rocklin 1979) via <code><a href="https://rdrr.io/pkg/psych/man/VSS.html" class="external-link">psych::vss()</a></code>.</li>
 <li>
-<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>legend = TRUE</code>: when <code>FALSE</code>, suppresses all plot legends (<code>legend.position = "none"</code>). Useful with <code>color_pos = color_neg = "black"</code> to remove the otherwise redundant “Direction” key.</li>
-<li>
-<strong>Forbes (2023) publication style</strong> is now reproducible without a new mode. Combine existing colour-mode args with the three new args: <code>autoplot(xp, drop_pruned = TRUE, color_pos = "black", color_neg = "black",</code> <code>edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE)</code>. The colour mode’s <code>cut_strong</code>-based solid/dashed distinction matches Forbes’s weak/secondary dashing; <code>mono</code> is not needed and uses different linetype semantics (sign, not strength).</li>
-</ul></div>
+<strong>Comparison Data</strong> (Ruscio &amp; Roche 2012) via <code><a href="https://rdrr.io/pkg/EFAtools/man/CD.html" class="external-link">EFAtools::CD()</a></code> — skipped gracefully when <code>EFAtools</code> is not installed.</li>
+</ul><p><code><a href="../reference/autoplot.suggest_k.html">autoplot.suggest_k()</a></code> produces a three-panel ggplot2 diagnostic (scree/PA, MAP, VSS).</p>
 </div>
 <div class="section level3">
-<h3 id="milestone--plot-customization-waves--0-0-0-9000">Milestone 8 — Plot customization (Waves 1 &amp; 2)<a class="anchor" aria-label="anchor" href="#milestone--plot-customization-waves--0-0-0-9000"></a></h3>
+<h3 id="between-level-edges--exact-wrw-algebra-0-1-0">Between-level edges — exact W′RW algebra<a class="anchor" aria-label="anchor" href="#between-level-edges--exact-wrw-algebra-0-1-0"></a></h3>
+<p>Between-level factor-score correlations are computed via closed-form <code>W′RW</code> algebra for all linear engines (PCA, EFA, ESEM with tenBerge weights) — no scores need to be materialized. Standardization uses real score SDs from <code>sqrt(diag(W′RW))</code> rather than assuming unit variance. A materialized-scores fallback is available and a cross-check test verifies the two routes agree within tolerance.</p>
+</div>
+<div class="section level3">
+<h3 id="ordinal--likert-data-0-1-0">Ordinal / Likert data<a class="anchor" aria-label="anchor" href="#ordinal--likert-data-0-1-0"></a></h3>
+<p>Pass <code>cor = "polychoric"</code> to use polychoric correlations as the basis for PCA or EFA. For ESEM, lavaan’s own polychoric matrix is used for edge computation (consistent with the fitted model). The WLSMV estimator is the default for <code>cor = "polychoric"</code> with ESEM. <code><a href="../reference/ackwards.html">ackwards()</a></code> detects likely-ordinal columns (≤ 7 distinct integer values) and emits a suppressible warning when <code>cor = "pearson"</code> is set.</p>
+</div>
+<div class="section level3">
+<h3 id="missing-data--missing-argument-0-1-0">Missing data — <code>missing</code> argument<a class="anchor" aria-label="anchor" href="#missing-data--missing-argument-0-1-0"></a></h3>
+<p>Three strategies via <code>missing</code> on <code><a href="../reference/ackwards.html">ackwards()</a></code>:</p>
 <ul><li>
-<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>show_r = FALSE</code> / <code>r_digits = 2L</code>: when <code>show_r = TRUE</code>, draws <code>round(r, r_digits)</code> as a text label at each edge midpoint. Pairs naturally with <code>mono = TRUE</code> for greyscale journal figures.</li>
+<code>"pairwise"</code> (default) — pairwise-complete correlations; warns when NAs are present.</li>
 <li>
-<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>mono = FALSE</code>: monochrome mode draws all edges in black with <code>linewidth</code> encoding <code>|r|</code> and <code>linetype</code> encoding sign (<code>solid</code> = positive, <code>dashed</code> = negative). Drops the <code>cut_strong</code> strong/weak linetype distinction (linewidth already conveys magnitude, so a second strength encoding on linetype is redundant).</li>
+<code>"listwise"</code> — complete cases only, consistent N across fit and edges.</li>
 <li>
-<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>show_level_labels = TRUE</code> / <code>level_label_size = 3</code>: draws “1 factor”, “2 factors”, … to the left of the diagram at each level’s <code>y</code> position (using <code>coord_cartesian(clip = "off")</code> for overflow-safe placement, which was already set). Default is <code>TRUE</code> (was missing before).</li>
-<li>
-<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>node_labels = NULL</code>: a named character vector mapping factor IDs (e.g. <code>"m5f1"</code>) to custom display strings. Unspecified factors keep their <code>m{k}f{j}</code> label. Warns if a supplied name matches no factor ID in the object.</li>
-<li>
-<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>primary_only = FALSE</code>: when <code>TRUE</code>, filters the edge table to <code>is_primary == TRUE</code> before drawing, producing a clean tree of primary parent links. Because skip-level edges are never primary, this also suppresses curved skip arcs.</li>
-<li>
-<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>drop_pruned = FALSE</code>: activates the Forbes
-<ol start="2023" style="list-style-type: decimal"><li>pruned-view rendering path. Pruned nodes are removed from the diagram entirely; each retained node is connected to its single strongest kept ancestor by a straight arrow, even when the arrow spans multiple level gaps (no curved arcs in this mode). Requires <code>prune != "none"</code> at fit time; errors with a clear message if pruning annotations are absent. <code>show_r</code> auto-defaults to <code>TRUE</code> in this mode (Forbes convention).</li>
-</ol></li>
-<li>
-<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> gains <code>compress_levels = FALSE</code>: used together with <code>drop_pruned = TRUE</code>, closes the vertical gaps left by pruned levels so retained nodes are evenly spaced; level axis labels still show the original level numbers so each row remains identifiable.</li>
-<li>Added private helper <code>.drop_pruned_nodes(x, nodes, compress_levels)</code> in <code>layout.R</code>: computes the kept-only node set and a reduced primary-edge table for the drop-pruned rendering path. For each kept node it selects the single strongest <code>|r|</code> edge to any kept shallower node, recomputing primary parentage on the reduced graph (the original <code>is_primary</code> column is not reused). When <code>compress_levels = TRUE</code>, re-indexes <code>y = -rank(level)</code> while preserving the original <code>level</code> column for display labels.</li>
-<li>
-<code>show_r</code> default changed from <code>FALSE</code> to <code>NULL</code> to support the <code>drop_pruned</code> auto-default; calling <code>autoplot(x)</code> without <code>show_r</code> produces the same behaviour as before (<code>FALSE</code>).</li>
+<code>"fiml"</code> — Full Information ML via lavaan (ESEM ML/MLR only); edges derived from the FIML saturated model.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="m6m7-conformance-fixes-second-pass-review-0-0-0-9000">M6/M7 conformance fixes (second-pass review)<a class="anchor" aria-label="anchor" href="#m6m7-conformance-fixes-second-pass-review-0-0-0-9000"></a></h3>
+<h3 id="forbes-extension-0-1-0">Forbes (2023) extension<a class="anchor" aria-label="anchor" href="#forbes-extension-0-1-0"></a></h3>
 <ul><li>
-<code>augment(x, data=)</code> and <code>scores = TRUE</code> now warn when <code>data</code> contains rows with missing values: score projection applies weights row-wise and propagates NAs listwise, even though fitting used pairwise-complete correlations. The warning advises <code>na.omit(data)</code> to remove incomplete rows before scoring. <code><a href="../reference/augment.ackwards.html">?augment.ackwards</a></code> documents the listwise-vs-pairwise asymmetry.</li>
+<code>pairs = "all"</code> computes between-level correlations for every level pair, revealing skip-level associations.</li>
 <li>
-<code>augment(x, data=)</code> now errors with a clear message when <code>data</code> contains non-numeric columns (previously would error inside <code><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale()</a></code> with a cryptic message).</li>
+<code>prune = "redundant"</code> flags chains where adjacent <code>|r| ≥ 0.9</code> (Forbes retention rule).</li>
 <li>
-<code>detect_ordinal()</code> is now called once in <code><a href="../reference/ackwards.html">ackwards()</a></code> and its result reused for both the Invariant-6 console warning and <code>meta$ordinal_warned</code> (was called twice, scanning all columns each time).</li>
-<li>The non-Pearson basis warning in <code>.compute_scores()</code> now uses <code>.frequency = "once"</code> so repeated <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> calls on the same object do not produce duplicate warnings in a session.</li>
-<li>Tests added: non-Pearson basis warns on scoring (Fix 3); <code>keep_fits = TRUE</code> only stores converged levels under truncation (Fix 4, labelled B4); NA-data warns and produces NA scores for <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> and <code>scores = TRUE</code> (Fix 1); non-numeric <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> data errors cleanly (Fix 5).</li>
-<li>DESIGN.md §12 and CLAUDE.md dependency section updated to match DESCRIPTION: <code>Imports</code> is <code>cli</code>, <code>generics</code>, <code>rlang</code>, <code>stats</code>, <code>utils</code> (<code>methods</code> is not imported; no <code>methods::</code> usage exists). <code>Suggests</code> reflects the actual set (<code>psych</code>, <code>GPArotation</code>, <code>lavaan</code>, <code>ggplot2</code>, <code>testthat</code>, <code>knitr</code>, <code>rmarkdown</code>, <code>covr</code>); <code>ggraph</code>/<code>igraph</code>/<code>tidygraph</code>, <code>EGAnet</code>/<code>paran</code>, <code>clue</code>, <code>future</code> are not in DESCRIPTION and the §12 table no longer lists them. <code><a href="../reference/suggest_k.html">suggest_k()</a></code> uses <code><a href="https://rdrr.io/pkg/psych/man/fa.parallel.html" class="external-link">psych::fa.parallel</a></code> + <code><a href="https://rdrr.io/pkg/psych/man/VSS.html" class="external-link">psych::vss</a></code> (not separate <code>EGAnet</code>/<code>paran</code> deps).</li>
+<code>prune = "artefact"</code> computes Tucker’s φ for researcher inspection; no auto-flagging.</li>
+<li>
+<code><a href="../reference/autoplot.html">autoplot()</a></code> renders pruned views (<code>drop_pruned = TRUE</code>) and skip-level arcs.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="milestone-post-review-fixes-0-0-0-9000">Milestone 6 post-review fixes<a class="anchor" aria-label="anchor" href="#milestone-post-review-fixes-0-0-0-9000"></a></h3>
+<h3 id="visualization--autoplotackwards-0-1-0">Visualization — <code>autoplot.ackwards()</code>
+<a class="anchor" aria-label="anchor" href="#visualization--autoplotackwards-0-1-0"></a></h3>
+<p>A ggplot2 layered diagram with extensive customization: edge color by sign, width/alpha by <code>|r|</code>, solid/dashed by strength; monochrome mode (<code>mono</code>); APA-formatted correlation labels (<code>show_r</code>, <code>r_digits</code>, <code>r_label_size</code>); custom node labels (<code>node_labels</code>); primary-only mode (<code>primary_only</code>); level axis labels (<code>show_level_labels</code>); arrowhead toggle (<code>show_arrows</code>); fixed edge width (<code>edge_linewidth</code>); legend toggle (<code>legend</code>); Forbes-style pruned view (<code>drop_pruned</code>, <code>compress_levels</code>).</p>
+</div>
+<div class="section level3">
+<h3 id="tidy-interface-and-scoring-0-1-0">Tidy interface and scoring<a class="anchor" aria-label="anchor" href="#tidy-interface-and-scoring-0-1-0"></a></h3>
 <ul><li>
-<code>augment(x, data=)</code> now validates column names/count before projecting. Named data: errors if any model variable is missing; silently subsets extra columns (so passing the full dataset works when the model used a subset). Unnamed data (bare matrix): errors if column count doesn’t match.</li>
+<code><a href="../reference/print.ackwards.html">print.ackwards()</a></code> — compact cli summary card.</li>
 <li>
-<code>.compute_scores()</code> now warns when the scoring basis is non-Pearson (polychoric/Spearman): empirical score SDs will differ from 1.0 because the raw projection uses Pearson z-scores while <code>score_var</code> comes from the model’s non-Pearson R (Invariant 6).</li>
+<code><a href="../reference/summary.ackwards.html">summary.ackwards()</a></code> — per-level variance, fit indices, lineage list, pruning notes.</li>
 <li>
-<code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code>, <code><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance()</a></code>, and <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> are now re-exported from <code>generics</code> so they work after <code><a href="https://jmgirard.github.io/ackwards/">library(ackwards)</a></code> without also loading <code>broom</code> or <code>generics</code> (consistent with <code><a href="../reference/autoplot.html">autoplot()</a></code>).</li>
-<li>Tests added: EFA/ESEM scores+fits coverage (B1), scores truncation for k_eff &lt; k (B3), three augment column-validation tests (B5). 526 total.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="milestone--storage-materialization--cfq-cleanup-0-0-0-9000">Milestone 6 — Storage materialization + cfQ cleanup<a class="anchor" aria-label="anchor" href="#milestone--storage-materialization--cfq-cleanup-0-0-0-9000"></a></h3>
-<ul><li>
-<code>scores = TRUE</code> in <code><a href="../reference/ackwards.html">ackwards()</a></code> now stores factor scores in <code>x$scores</code> as a named list of <code>n x k_j</code> matrices (one per level), standardized by real score SDs via <code>sqrt(diag(W'RW))</code> (Invariant 1 — never assume unit variance). Column names match the <code>m{k}f{j}</code> factor labels used throughout the object.</li>
-<li>Added <code><a href="../reference/augment.ackwards.html">augment.ackwards()</a></code> (broom generic): appends score columns (<code>.m{k}f{j}</code>) to a supplied data frame by applying the stored weight matrices to new or training data. When <code>data = NULL</code>, uses pre-stored scores (requires <code>scores = TRUE</code> at fit time). Gives an informative error if neither is available.</li>
+<code>tidy(x, what = "edges" / "loadings" / "variance" / "nodes" / "scores")</code> — long-format tidy tibbles.</li>
 <li>
-<code>keep_fits = TRUE</code> in <code><a href="../reference/ackwards.html">ackwards()</a></code> now stores the raw per-level engine fit objects (psych or lavaan) in <code>x$fits</code> as a named list indexed by level.</li>
-<li>Added <code>tidy(x, what = "scores")</code>: long-format per-observation scores with columns <code>obs</code>, <code>level</code>, <code>factor</code>, <code>score</code> (requires <code>scores = TRUE</code> at fit time; for on-the-fly computation use <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code>).</li>
+<code>glance(x)</code> — one-row model-level summary.</li>
 <li>
-<code>rotation = "cfQ"</code> (oblique) is now documented as <strong>unsupported</strong> (not “not yet implemented”) across all engines. Oblique rotation confounds the between-level score correlations that are the method’s core output (Goldberg, 2006; Kim &amp; Eaton, 2015). Only <code>cfT</code> (orthogonal CF, approx. varimax) is available. <code><a href="../reference/ackwards.html">ackwards()</a></code> now errors immediately with a clear message rather than forwarding to the engine.</li>
-<li>All three engines (<code>pca_levels</code>, <code>efa_levels</code>, <code>esem_levels</code>) now return <code>list(levels = ..., fits = ...)</code> consistently, matching the pre-existing ESEM convention. <code>keep_fits = FALSE</code> (default) keeps <code>fits = NULL</code>.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="milestone--forbes-extension-0-0-0-9000">Milestone 5 — Forbes (2023) extension<a class="anchor" aria-label="anchor" href="#milestone--forbes-extension-0-0-0-9000"></a></h3>
-<ul><li>Added <code>pairs = "all"</code> to <code><a href="../reference/ackwards.html">ackwards()</a></code>: computes between-level factor-score correlations for <em>every</em> pair of levels, not just adjacent ones. Reveals associations that span multiple levels and is required for redundancy pruning. Default remains <code>"adjacent"</code> (classic Goldberg). Adjacent-level edges are identical between the two modes.</li>
-<li>Added <code>prune = "redundant"</code> to <code><a href="../reference/ackwards.html">ackwards()</a></code>: identifies chains of factors connected by adjacent primary-parent links with <code>|r| &gt;= redundancy_r</code> (default 0.9) and applies Forbes’s (2023) retention rule — keep the bottom node when the chain reaches level <code>k</code> (most specific, best-defined), else keep the top node (broadest manifestation). Pruning is <em>flag-only</em>: flagged nodes are retained in the object with <code>pruned = TRUE</code> / <code>prune_reason = "redundant"</code> in <code>x$prune$nodes</code>; nothing is removed.</li>
-<li>Added <code>prune = "artefact"</code> to <code><a href="../reference/ackwards.html">ackwards()</a></code>: computes Tucker’s congruence coefficient (φ) for all cross-level factor pairs and stores results in <code>x$prune$phi</code> for researcher inspection. No factors are auto-flagged; artefact identification requires researcher judgment (Forbes, 2023).</li>
-<li>Added <code>redundancy_phi</code> argument (default <code>NULL</code>): when non-<code>NULL</code>, Tucker’s φ must also exceed the threshold for a primary-parent link to qualify as a redundancy chain link (conjunctive with <code>redundancy_r</code>).</li>
-<li>Additive enrichments over the published method: redundancy chains report both <code>r</code> and <code>phi</code> per link (report-first / flag-second so borderline cases stay visible), plus a direct <em>endpoint</em> <code>r</code> from the all-levels edge matrix with a flag when it disagrees with the chain criterion (correlation is non-transitive; a clean adjacent chain is neither necessary nor sufficient for endpoint identity).</li>
-<li>Setting <code>prune</code> to anything other than <code>"none"</code> automatically upgrades <code>pairs</code> to <code>"all"</code> with a <code>cli_inform()</code> message (Invariant 6).</li>
-<li>
-<code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> now renders skip-level edges as curved arcs (<code><a href="https://ggplot2.tidyverse.org/reference/geom_segment.html" class="external-link">ggplot2::geom_curve()</a></code>; curvature tunable via <code>curvature</code> arg) when <code>pairs = "all"</code>. Pruned (redundant) nodes are displayed with a distinct fill (<code>color_pruned</code>, default <code>"grey80"</code>). Both features degrade gracefully when not applicable.</li>
-<li>New meta fields: <code>meta$pairs</code>, <code>meta$prune</code>, <code>meta$redundancy_r</code>, <code>meta$redundancy_phi</code>.</li>
-<li>
-<code><a href="../reference/print.ackwards.html">print.ackwards()</a></code> now shows a <strong>Pruning</strong> section when <code>prune != "none"</code>: flagged-node count per rule, and an explicit caveat that pruning is interpretive relabeling, not re-estimation.</li>
-<li>
-<code>tidy(x, what = "nodes")</code> exposes the Forbes pruning node-annotation table (<code>id</code>, <code>level</code>, <code>pruned</code>, <code>prune_reason</code>). Returns an empty frame with the same columns when no pruning was applied (safe to call unconditionally).</li>
-<li>
-<code>x$prune$phi</code> now includes an <code>abs_phi</code> column alongside <code>phi</code> to aid artefact screening when sign alignment is ambiguous for non-primary cross-level factor pairs.</li>
-<li>
-<strong>Bug fix:</strong> <code>match_parents()</code> previously used <code><a href="https://rdrr.io/pkg/clue/man/solve_LSAP.html" class="external-link">clue::solve_LSAP</a></code> (bipartite bijection), which is ill-posed for bass-ackwards hierarchies — adjacent levels always have more children than parents, so the padding row returned indices beyond <code>nrow(E)</code>. Replaced with greedy per-column argmax (<code>apply(abs(E), 2, which.max)</code>), which is correct for many-to-one parent assignment. <code>clue</code> removed from <code>Suggests</code>.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="previous-milestones-0-0-0-9000">Previous milestones<a class="anchor" aria-label="anchor" href="#previous-milestones-0-0-0-9000"></a></h3>
-<ul><li><p>Added ESEM engine (<code>method = "esem"</code>) using <code><a href="https://rdrr.io/pkg/lavaan/man/efa.html" class="external-link">lavaan::efa()</a></code> (requires lavaan &gt;= 0.6-13) with WLSMV ordinal estimation, rotation-aware SEs in <code>loadings_se</code>, and per-level fit indices (CFI, TLI, RMSEA, SRMR). Self-computed tenBerge weights keep <code><a href="../reference/compute_edges.html">compute_edges()</a></code> on the algebra path for ESEM as for EFA.</p></li>
-<li><p>Added <code>cor = "polychoric"</code> as a general basis option for all three engines. PCA/EFA use <code><a href="https://rdrr.io/pkg/psych/man/tetrachor.html" class="external-link">psych::polychoric()</a></code> with NPD smoothing; ESEM uses lavaan’s own polychoric matrix (extracted from WLSMV sampstat) to ensure consistency with the fitted model.</p></li>
-<li><p>Added <code>estimator</code> argument for the ESEM engine (<code>NULL</code> auto-selects <code>"WLSMV"</code> for <code>cor = "polychoric"</code>, <code>"ML"</code> otherwise; user-overridable).</p></li>
-<li><p>Added <code>loadings_se</code> field to the §4 level contract (p × k matrix; <code>NULL</code> for PCA and EFA engines that do not produce rotation-aware SEs).</p></li>
-<li><p>Updated ordinal-detection warning: no longer fires when <code>cor = "polychoric"</code> is already set; message updated to remove “future release” language.</p></li>
-<li><p>Added EFA engine (<code>method = "efa"</code>) using <code><a href="https://rdrr.io/pkg/psych/man/fa.html" class="external-link">psych::fa()</a></code> with tenBerge scoring weights, keeping the W’RW algebra path in <code><a href="../reference/compute_edges.html">compute_edges()</a></code>. Convergence failures truncate the hierarchy at the deepest converged level (warn + valid object). Heywood cases warn but do not truncate. Orthogonal rotation only for now; <code>fm</code> controls extraction method (<code>"minres"</code> default, <code>"ml"</code>, <code>"pa"</code>).</p></li>
-<li><p>Added <code><a href="../reference/ackwards.html">ackwards()</a></code> implementing Goldberg’s (2006) bass-ackwards method with a PCA engine.</p></li>
-<li><p>Added <code><a href="../reference/compute_edges.html">compute_edges()</a></code> computing between-level factor-score correlations via W’RW algebra.</p></li>
-<li><p>Added <code><a href="../reference/print.ackwards.html">print.ackwards()</a></code>, <code><a href="../reference/tidy.ackwards.html">tidy.ackwards()</a></code>, and <code><a href="../reference/glance.ackwards.html">glance.ackwards()</a></code> for output.</p></li>
-<li><p>Added <code><a href="../reference/ba_layout.html">ba_layout()</a></code> computing a Sugiyama-style barycenter layout for bass-ackwards diagrams.</p></li>
-<li><p>Added <code><a href="../reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> and <code><a href="../reference/autoplot.ackwards.html">plot.ackwards()</a></code> for ggplot2-based hierarchy diagrams (requires ggplot2; edges coloured by sign, scaled by |r|, solid/dashed by strength).</p></li>
-<li><p>Added <code><a href="../reference/suggest_k.html">suggest_k()</a></code> with parallel analysis and MAP (Velicer) criteria to guide choice of <code>k</code>.</p></li>
-<li><p>Fixed: <code>scoring$basis</code> in both PCA and EFA engines now reflects the actual <code>cor=</code> argument passed by the user rather than always reporting <code>"pearson"</code>.</p></li>
-<li><p>Fixed: EFA tenBerge weight fallback now labels <code>scoring$method = "regression"</code> when <code>.tenBerge_weights()</code> fails and psych regression weights are used instead (Invariant 6).</p></li>
-<li><p>Added <code>tidy(x, what = "fit")</code> returning one row per fit index × level (<code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>RMSEA</code>, <code>TLI</code>, <code>BIC</code> for EFA; eigenvalues for PCA).</p></li>
-<li><p>Fixed: <code>rotation = "cfQ"</code> now errors immediately rather than silently running oblimin.</p></li>
-<li><p>Fixed: <code>scores = TRUE</code> / <code>keep_fits = TRUE</code> now warn that storage is not yet implemented.</p></li>
-<li><p>Fixed: <code><a href="../reference/print.ackwards.html">print.ackwards()</a></code> cut threshold now reads from the stored object rather than a param.</p></li>
-<li><p>Fixed: <code>k = 1</code> now errors; at least two levels are required for a hierarchy.</p></li>
-<li><p>Fixed: <code>kappa</code> default corrected from <code>1 / (2 * p)</code> to <code>1 / p</code>, which is the varimax-equivalent Crawford-Ferguson value (Crawford &amp; Ferguson, 1970; Browne, 2001; Kim &amp; Eaton, 2015). The previous value (equamax-adjacent) was silently wrong.</p></li>
+<code>augment(x, data = ...)</code> — appends factor scores to a data frame; recomputes from stored weights when scores were not materialized at fit time.</li>
 </ul></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

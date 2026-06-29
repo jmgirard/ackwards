@@ -72,13 +72,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [316ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [315ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [169ms]
+#> ✔ Running MAP and VSS... [171ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [16.7s]
+#> ✔ Running Comparison Data (CD)... [18s]
 #> 
 sk
 #> 
@@ -137,8 +137,8 @@ Now fit the bass-ackwards hierarchy. The most important arguments are:
 
 | Argument | What it controls | Default |
 |----|----|----|
-| `k` | Maximum depth of the hierarchy | *(required)* |
-| `method` | Extraction engine: `"pca"`, `"efa"`, or `"esem"` | `"pca"` |
+| `k_max` | Maximum depth of the hierarchy | *(required)* |
+| `engine` | Extraction engine: `"pca"`, `"efa"`, or `"esem"` | `"pca"` |
 | `cor` | Correlation type: `"pearson"`, `"spearman"`, `"polychoric"` | `"pearson"` |
 
 Because BFI items are ordinal, we use `cor = "polychoric"`. This

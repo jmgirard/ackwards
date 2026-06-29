@@ -15,6 +15,7 @@ ackwards(
   cor = "pearson",
   fm = "minres",
   estimator = NULL,
+  missing = "pairwise",
   align_signs = TRUE,
   keep_scores = FALSE,
   keep_fits = FALSE,
@@ -33,11 +34,8 @@ ackwards(
 - data:
 
   A data frame or numeric matrix of observed variables (items in
-  columns, observations in rows). Missing values are handled via
-  pairwise deletion when computing `R`. Note: `n_obs` passed to the EFA
-  engine is always `nrow(data)`; under missingness the effective
-  per-correlation N may be smaller, making chi-square / RMSEA / p-value
-  slightly anti-conservative.
+  columns, observations in rows). How missing values are handled depends
+  on the `missing` argument; see below.
 
 - k_max:
 
@@ -79,6 +77,37 @@ ackwards(
   `"WLSMV"` when `cor = "polychoric"`, `"ML"` otherwise. Pass explicitly
   to override: `"ULSMV"` (unweighted WLS), `"MLR"` (robust ML). Ignored
   for PCA and EFA engines.
+
+- missing:
+
+  How to handle missing item responses. One of:
+
+  - `"pairwise"` (default) — use all available observations pairwise.
+    For PCA/EFA this feeds `stats::cor(use = "pairwise.complete.obs")`.
+    For ESEM with WLSMV/ULSMV (ordinal), lavaan uses `available.cases`,
+    which computes polychoric thresholds and correlations from all rows
+    that contribute to each pair — MCAR-valid and uses the full N. For
+    ESEM with ML/MLR (continuous), lavaan uses listwise deletion
+    internally while edges are computed from a pairwise correlation
+    matrix; this minor inconsistency is documented in `$meta`. A warning
+    is emitted when incomplete rows are detected.
+
+  - `"listwise"` — only complete rows are used. Reduces data to
+    [`stats::complete.cases()`](https://rdrr.io/r/stats/complete.cases.html)
+    before fitting, so the correlation matrix, the engine fit, and the
+    edges are all consistent. `n_obs` in the result reflects the reduced
+    N.
+
+  - `"fiml"` — Full Information Maximum Likelihood. Passes
+    `missing = "fiml"` to
+    [`lavaan::efa()`](https://rdrr.io/pkg/lavaan/man/efa.html); edge
+    correlations are derived from lavaan's FIML-estimated saturated
+    model, ensuring consistency. **Only valid for `engine = "esem"` with
+    `estimator = "ML"` or `"MLR"`** — errors for PCA, EFA, and
+    WLSMV/ULSMV. Note: FIML improves factor estimation under missingness
+    but does not impute item responses; score materialisation
+    (`keep_scores = TRUE`) still produces `NA` rows for incomplete
+    observations.
 
 - align_signs:
 
