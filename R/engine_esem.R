@@ -149,7 +149,11 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
         r_lv <- tryCatch(
           {
             h1 <- lavaan::lavInspect(fit, "h1")
-            cov_h1 <- if (is.list(h1) && !is.matrix(h1)) h1[[1L]]$cov else h1$cov
+            # lavInspect("h1") returns list(cov = <matrix>, mean = <vector>)
+            # for single-group models (the only case ackwards uses).
+            # Multi-group would return list(g1 = list(cov=...), g2 = ...) —
+            # guard against that with is.list(h1[[1L]]).
+            cov_h1 <- if (is.list(h1[[1L]])) h1[[1L]]$cov else h1$cov
             cov2cor(cov_h1)
           },
           error = function(e) NULL

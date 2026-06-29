@@ -316,3 +316,117 @@ test_that("ESEM WLSMV listwise uses complete-case N, pairwise uses full N", {
   expect_equal(x_pw$n_obs, nrow(d)) # pairwise: full N
   expect_equal(x_lw$n_obs, nrow(d) - 20L) # listwise: complete-case N
 })
+
+# ── ESEM polychoric + listwise: complete-case consistency ─────────────────────
+
+test_that("ESEM polychoric listwise: n_obs equals complete-case count", {
+  skip_if_not_installed("lavaan")
+  d <- .make_ordinal_data()
+  d[1:15, 2] <- NA_integer_
+  x <- suppressWarnings(
+    ackwards(d,
+      k_max = 2L, engine = "esem", cor = "polychoric",
+      missing = "listwise"
+    )
+  )
+  expect_equal(x$n_obs, nrow(d) - 15L)
+  expect_equal(x$meta$n_complete, nrow(d) - 15L)
+})
+
+test_that("ESEM polychoric listwise: correlation matrix has no NAs", {
+  skip_if_not_installed("lavaan")
+  d <- .make_ordinal_data()
+  d[1:15, 2] <- NA_integer_
+  x <- suppressWarnings(
+    ackwards(d,
+      k_max = 2L, engine = "esem", cor = "polychoric",
+      missing = "listwise"
+    )
+  )
+  expect_false(any(is.na(x$r)))
+})
+
+# ── ESEM FIML + MLR end-to-end ────────────────────────────────────────────────
+
+test_that("ESEM FIML with MLR estimator succeeds and produces valid edges", {
+  skip_if_not_installed("lavaan")
+  set.seed(42)
+  d <- .make_esem_data()
+  d[1:5, 1] <- NA_real_
+  x <- suppressWarnings(
+    ackwards(d,
+      k_max = 2L, engine = "esem", missing = "fiml",
+      estimator = "MLR"
+    )
+  )
+  expect_false(any(is.na(x$edges$tidy$r)))
+  expect_equal(x$meta$missing, "fiml")
+})
+
+# ── FIML criterion 4: edge R derived from lavaan h1 saturated model ──────────
+
+test_that("ESEM FIML r matches lavaan h1 saturated-model correlation", {
+  skip_if_not_installed("lavaan")
+  set.seed(42)
+  d <- .make_esem_data()
+  d[1:10, 1] <- NA_real_
+  # keep_fits = TRUE so we can inspect the k=1 lavaan fit directly
+  x <- suppressWarnings(
+    ackwards(d,
+      k_max = 2L, engine = "esem", missing = "fiml",
+      estimator = "ML", keep_fits = TRUE
+    )
+  )
+  # r_lv in esem_levels() is populated from the k=1 fit's h1 model;
+  # compare x$r against the same h1 extraction to verify the source
+  fit_k1 <- x$fits[["1"]]
+  h1 <- lavaan::lavInspect(fit_k1, "h1")
+  cov_h1 <- if (is.list(h1[[1L]])) h1[[1L]]$cov else h1$cov
+  r_from_h1 <- stats::cov2cor(cov_h1)
+  expect_equal(x$r, r_from_h1, tolerance = 1e-8)
+})
+
+test_that("ESEM FIML edge R differs from pairwise R under substantial missingness", {
+  skip_if_not_installed("lavaan")
+  set.seed(42)
+  d <- .make_esem_data(n = 400)
+  # 20% MCAR: two different variables, non-overlapping rows
+  set.seed(99)
+  rows <- sample(400, 160)
+  d[rows[1:80], 1] <- NA_real_
+  d[rows[81:160], 2] <- NA_real_
+  x_fiml <- suppressWarnings(
+    ackwards(d,
+      k_max = 2L, engine = "esem", missing = "fiml",
+      estimator = "ML"
+    )
+  )
+  x_pw <- suppressWarnings(
+    ackwards(d, k_max = 2L, engine = "esem", missing = "pairwise")
+  )
+  # FIML uses all rows for estimation; pairwise uses a separate stats::cor().
+  # With 20% MCAR on different variables the correlation matrices will differ.
+  expect_false(isTRUE(all.equal(x_fiml$r, x_pw$r, tolerance = 1e-3)))
+})
+
+# ── Pairwise warning mentions "fiml" for ESEM ML path ────────────────────────
+
+test_that("pairwise warning for ESEM ML mentions fiml as an alternative", {
+  skip_if_not_installed("lavaan")
+  set.seed(42)
+  d <- .make_esem_data()
+  d[5, 1] <- NA_real_
+  warns <- character(0L)
+  withCallingHandlers(
+    suppressMessages(ackwards(d,
+      k_max = 2L, engine = "esem",
+      estimator = "ML", missing = "pairwise"
+    )),
+    warning = function(w) {
+      warns <<- c(warns, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+  # The ESEM ML branch (supports_fiml = TRUE) should mention fiml in the advisory
+  expect_true(any(grepl("fiml", warns, ignore.case = TRUE)))
+})

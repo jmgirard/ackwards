@@ -255,6 +255,10 @@ ackwards <- function(
   # For ESEM ML/MLR this is especially relevant: lavaan defaults to listwise for
   # model fitting while edges use pairwise correlations, which can make fit
   # statistics slightly anti-conservative.
+  # No .frequency = "once": unlike the ordinal-detection warning (a fixed
+  # property of the data), this is a per-call data-state advisory — the user
+  # may be iterating k_max or engine and should be reminded each time NAs are
+  # present with the pairwise default.
   if (missing == "pairwise" && n_complete < nrow(data_mat)) {
     n_incomplete <- nrow(data_mat) - n_complete
     supports_fiml <- !is.null(estimator_eff) && !estimator_eff %in% c("WLSMV", "ULSMV")
