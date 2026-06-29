@@ -87,13 +87,15 @@ default output must reproduce Forbes's examples exactly.
   `ackwards-engines.Rmd`; DESIGN.md §9 and §14 updated. (778 tests pass, 1 skip; 0/0/0 R CMD check.)
 - **M17 (done):** GitHub 0.1.0 release prep — license switched CC BY 4.0 → MIT (`LICENSE` stub +
   `LICENSE.md` updated, DESCRIPTION updated); version bumped `0.0.0.9000 → 0.1.0`; README MIT badge
-  + comment mismatch fixed; `inst/CITATION` added (Goldberg 2006 + package, year 2026, deterministic
-  `citation()`); NEWS.md restructured to curated capability-grouped summary (development history
-  dropped — pre-release, all captured in git); `_pkgdown.yml` 0.1.0 release URL registered; pkgdown
-  rebuilt cleanly. Note: pkgdown 2.2.0 renders all root `.md` files via `package_mds()` with no
-  config-based exclusion — CLAUDE.md/DESIGN.md appear as unlinked pages; not fixable without moving
-  files. (781 tests pass, 1 skip; 0/0/0 R CMD check; all URLs clean.) Tag: owner runs
-  `git tag -a v0.1.0 -m "ackwards 0.1.0" && git push origin v0.1.0`.
+  + comment mismatch fixed; `inst/CITATION` added (Goldberg 2006 + package), version field dynamic
+  via `meta[["Version"]]`, hand-written Goldberg prose removed from README to avoid duplication;
+  README rebuilt with correct two-entry citation output; NEWS.md restructured to curated
+  capability-grouped summary (development history dropped — pre-release, all captured in git);
+  `_pkgdown.yml` 0.1.0 release URL registered; pkgdown rebuilt cleanly. Post-review: citation
+  guard test added to `test-utils.R`. Note: pkgdown 2.2.0 renders all root `.md` files via
+  `package_mds()` with no config-based exclusion — CLAUDE.md/DESIGN.md appear as unlinked pages;
+  not fixable without moving files. (787 tests pass, 1 skip; 0/0/0 R CMD check; all URLs clean.)
+  Tag: owner runs `git tag -a v0.1.0 -m "ackwards 0.1.0" && git push origin v0.1.0`.
 
 ## Current focus
 
