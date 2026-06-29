@@ -49,12 +49,15 @@
 #'   Pass explicitly to override: `"ULSMV"` (unweighted WLS), `"MLR"`
 #'   (robust ML). Ignored for PCA and EFA engines.
 #' @param missing How to handle missing item responses. One of:
-#'   * `"pairwise"` (default) — correlations computed on all available pairs
-#'     (pairwise complete observations). For PCA/EFA this feeds `stats::cor()`;
-#'     for ESEM ML/MLR, lavaan additionally uses listwise deletion internally
-#'     for model fitting, so fit statistics may be slightly anti-conservative
-#'     when data are missing. A warning is emitted when incomplete rows are
-#'     detected.
+#'   * `"pairwise"` (default) — use all available observations pairwise.
+#'     For PCA/EFA this feeds `stats::cor(use = "pairwise.complete.obs")`.
+#'     For ESEM with WLSMV/ULSMV (ordinal), lavaan uses `available.cases`,
+#'     which computes polychoric thresholds and correlations from all rows that
+#'     contribute to each pair — MCAR-valid and uses the full N.
+#'     For ESEM with ML/MLR (continuous), lavaan uses listwise deletion
+#'     internally while edges are computed from a pairwise correlation matrix;
+#'     this minor inconsistency is documented in `$meta`. A warning is emitted
+#'     when incomplete rows are detected.
 #'   * `"listwise"` — only complete rows are used. Reduces data to
 #'     `stats::complete.cases()` before fitting, so the correlation matrix,
 #'     the engine fit, and the edges are all consistent. `n_obs` in the result

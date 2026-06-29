@@ -56,12 +56,15 @@ Pass explicitly to override: \code{"ULSMV"} (unweighted WLS), \code{"MLR"}
 
 \item{missing}{How to handle missing item responses. One of:
 \itemize{
-\item \code{"pairwise"} (default) — correlations computed on all available pairs
-(pairwise complete observations). For PCA/EFA this feeds \code{stats::cor()};
-for ESEM ML/MLR, lavaan additionally uses listwise deletion internally
-for model fitting, so fit statistics may be slightly anti-conservative
-when data are missing. A warning is emitted when incomplete rows are
-detected.
+\item \code{"pairwise"} (default) — use all available observations pairwise.
+For PCA/EFA this feeds \code{stats::cor(use = "pairwise.complete.obs")}.
+For ESEM with WLSMV/ULSMV (ordinal), lavaan uses \code{available.cases},
+which computes polychoric thresholds and correlations from all rows that
+contribute to each pair — MCAR-valid and uses the full N.
+For ESEM with ML/MLR (continuous), lavaan uses listwise deletion
+internally while edges are computed from a pairwise correlation matrix;
+this minor inconsistency is documented in \verb{$meta}. A warning is emitted
+when incomplete rows are detected.
 \item \code{"listwise"} — only complete rows are used. Reduces data to
 \code{stats::complete.cases()} before fitting, so the correlation matrix,
 the engine fit, and the edges are all consistent. \code{n_obs} in the result

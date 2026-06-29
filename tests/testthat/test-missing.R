@@ -279,3 +279,40 @@ test_that("ESEM listwise: correlation matrix has no NAs", {
   )
   expect_false(any(is.na(x$r)))
 })
+
+# ── ESEM WLSMV pairwise uses available.cases (full N) ────────────────────────
+
+test_that("ESEM WLSMV pairwise uses full N (available.cases), not complete-case N", {
+  skip_if_not_installed("lavaan")
+  d <- .make_ordinal_data()
+  d[1:20, 1] <- NA_integer_ # 20 incomplete rows; 280 complete
+  x <- suppressWarnings(
+    ackwards(d,
+      k_max = 2L, engine = "esem", cor = "polychoric",
+      missing = "pairwise"
+    )
+  )
+  # available.cases uses all rows; n_obs should reflect total, not complete-case N
+  expect_equal(x$n_obs, nrow(d))
+  expect_equal(x$meta$n_complete, nrow(d) - 20L)
+})
+
+test_that("ESEM WLSMV listwise uses complete-case N, pairwise uses full N", {
+  skip_if_not_installed("lavaan")
+  d <- .make_ordinal_data()
+  d[1:20, 1] <- NA_integer_
+  x_pw <- suppressWarnings(
+    ackwards(d,
+      k_max = 2L, engine = "esem", cor = "polychoric",
+      missing = "pairwise"
+    )
+  )
+  x_lw <- suppressWarnings(
+    ackwards(d,
+      k_max = 2L, engine = "esem", cor = "polychoric",
+      missing = "listwise"
+    )
+  )
+  expect_equal(x_pw$n_obs, nrow(d)) # pairwise: full N
+  expect_equal(x_lw$n_obs, nrow(d) - 20L) # listwise: complete-case N
+})

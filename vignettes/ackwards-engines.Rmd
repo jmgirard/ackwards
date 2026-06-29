@@ -226,14 +226,22 @@ why.
 
 `ackwards()` accepts a `missing` argument with three options.
 
-**`"pairwise"` (default).** Correlations are computed using all available pairs
-of observations (`pairwise.complete.obs`). This is the classical approach and
-works for PCA, EFA, and ESEM. For the ESEM engine with a continuous estimator
-(ML/MLR), lavaan additionally performs listwise deletion internally for model
-fitting, so fit statistics (CFI, RMSEA, …) are computed at the complete-case N
-while edges use the larger pairwise N. This inconsistency is usually small but
-is documented in the result's `$meta`. A warning is emitted whenever incomplete
-rows are detected with this option.
+**`"pairwise"` (default).** Use all available observations pairwise. The exact
+behaviour depends on the engine and estimator:
+
+- **PCA/EFA:** `stats::cor(use = "pairwise.complete.obs")` — uses all rows that
+  contribute to each variable pair. MCAR-valid; N = total rows.
+- **ESEM WLSMV/ULSMV (ordinal):** lavaan `missing = "available.cases"` —
+  computes polychoric thresholds and correlations from every row contributing to
+  each pair. MCAR-valid; uses the full N, not just complete cases. This is the
+  honest interpretation of "pairwise" for ordinal data.
+- **ESEM ML/MLR (continuous):** lavaan uses listwise deletion internally while
+  edge correlations are computed from a separately-computed pairwise correlation
+  matrix. This minor inconsistency (fit statistics at complete-case N, edges at
+  full N) is documented in `$meta`. Prefer `"listwise"` or `"fiml"` when
+  missingness is substantial.
+
+A warning is emitted whenever incomplete rows are detected with this option.
 
 ```r
 # Default: pairwise (warns if NAs present)
@@ -283,9 +291,10 @@ ackwards(data, k_max = 4, engine = "esem", cor = "polychoric",
 | Situation | Recommendation |
 |-----------|----------------|
 | Continuous data, little missingness | `"pairwise"` (default) |
-| Want consistent fit statistics and edges | `"listwise"` |
+| Ordinal data + WLSMV, any missingness | `"pairwise"` (uses `available.cases` — MCAR-valid, full N) |
+| Want consistent fit statistics and edges (continuous ML/MLR) | `"listwise"` |
 | ESEM ML/MLR, meaningful missingness, want all rows used in estimation | `"fiml"` |
-| Ordinal data + WLSMV | `"pairwise"` or `"listwise"` |
+| MAR-valid with ordinal (not yet built-in) | MI via `lavaan.mi` or `mirt` |
 
 ## References
 

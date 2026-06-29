@@ -54,10 +54,21 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
     warn_msgs <- character(0L)
 
     # lavaan::efa() returns an efaList; extract the single lavaan fit object.
-    # Pass missing = "fiml" through to lavaan for the FIML path; leave the
-    # default ("listwise") for pairwise/listwise (data is already reduced for
-    # listwise, so lavaan sees only complete rows regardless).
-    lav_missing <- if (missing == "fiml") "fiml" else "listwise"
+    # missing= mapping to lavaan's vocabulary:
+    #   "fiml"     -> "fiml"           (ML/MLR only; validated upstream)
+    #   "pairwise" -> "available.cases" for WLSMV/ULSMV (uses all rows via
+    #                 pairwise polychoric thresholds — MCAR-valid, honest N);
+    #                 "listwise" for ML/MLR (lavaan default; edge R is the
+    #                 separately-computed pairwise stats::cor — documented minor
+    #                 inconsistency under pairwise with missing data)
+    #   "listwise" -> "listwise"       (data already reduced upstream)
+    lav_missing <- if (missing == "fiml") {
+      "fiml"
+    } else if (missing == "pairwise" && estimator %in% c("WLSMV", "ULSMV")) {
+      "available.cases"
+    } else {
+      "listwise"
+    }
     fit_raw <- tryCatch(
       withCallingHandlers(
         lavaan::efa(
