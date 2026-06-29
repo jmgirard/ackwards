@@ -105,7 +105,32 @@ default output must reproduce Forbes's examples exactly.
 
 ## Current focus
 
-No milestone currently in progress.
+**M19 (in progress):** Dedicated interpretation/labeling vignette — documentation-only. The M18
+helpers (`top_items()`, `label_template()`) were split across the intro (interpretation) and
+visualization (labeling) vignettes, fragmenting what is one workflow. M19 gives that workflow a home
+and adds the hierarchy-aware-naming content no current vignette covers.
+
+- New `vignette("ackwards-interpret")` titled **"Interpreting and Labeling Factors"**, listed in the
+  pkgdown "Deep dives" nav **after `ackwards-suggest-k`**. Owns: reading a factor via `top_items()`
+  (cut/n/sort, salient items, cross-loadings); the sign-alignment caveat in interpretive terms
+  (loadings anchored to the primary parent — negative ≠ "low"); **hierarchy-aware naming** (parent vs
+  child, blends, factors splitting across levels, using lineage/edges to inform parent names); the
+  full round-trip `top_items` → write names → `label_template` → `autoplot(node_labels=)`; Forbes
+  letter convention vs substantive names; a pointer to the visualization vignette for styling knobs.
+- Trim the M18 additions: intro Step 5 keeps a slim `top_items()` example + pointer to the new
+  vignette; visualization keeps the `node_labels`/`label_template()` mechanic + a cross-ref, with the
+  naming-judgment treatment moved to the new vignette (no duplicated deep dive).
+- `_pkgdown.yml`: add `ackwards-interpret` after `ackwards-suggest-k` in Deep dives contents.
+- `DESIGN.md` §15: add M19 entry. No code, no new exports, no deps, no test changes.
+
+Acceptance criteria:
+1. New `ackwards-interpret.Rmd` builds cleanly and appears in Deep dives nav directly after
+   `ackwards-suggest-k`.
+2. Vignette covers: `top_items()` reading, sign-alignment caveat, hierarchy-aware naming,
+   `label_template()` round-trip (id/forbes/blank), and a pointer to `ackwards-visualization`.
+3. Intro keeps a slim `top_items()` step + pointer; visualization keeps the labeling mechanic +
+   cross-ref; neither retains the full naming-workflow treatment (no duplication).
+4. `devtools::check()` clean (0/0/0); DESIGN.md §15 records M19; no R/ or test changes.
 
 ## Invariants — do not violate without flagging
 
