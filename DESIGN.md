@@ -282,6 +282,7 @@ announced via cli and documented in roxygen with its rationale.
 | `keep_fits` / `keep_scores` | `FALSE` / `FALSE` | memory + privacy. |
 | `k_max` | required | force a deliberate choice; don't silently pick. |
 | `seed` | `NULL` but captured | stochastic engines (rotation starts, ML) need reproducibility; encourage setting. |
+| `missing` | **`"pairwise"`** | preserves existing behaviour (pairwise-complete correlations); warns when NAs present. `"listwise"` gives fully consistent N across fit and edges (reduces to complete cases pre-fit). `"fiml"` (ESEM ML/MLR only) uses Full Information ML and derives edge R from lavaan's FIML saturated model. FIML errors for PCA, EFA, and WLSMV/ULSMV. Added M16; **amends §14 ESEM limitation note** (the ML/MLR fit-vs-edges inconsistency under missingness is resolved for `"listwise"` and `"fiml"`; `"pairwise"` retains the existing minor inconsistency and now warns). |
 
 ### Documentation standard (owner priority)
 
@@ -700,6 +701,8 @@ that needs it. **No Rcpp dependency planned** (see §3).
     recommendation. Listed first in the pkgdown "Deep dives" nav. Intro vignette Step-1 trimmed
     to default call + pointer. README stale two-criteria description updated to five criteria.
     **Cross-references §8.** See `vignette("ackwards-suggest-k")`.
+
+16. **Estimator-aware missing-data handling** *(done)* — new `missing = c("pairwise", "listwise", "fiml")` argument on `ackwards()`. Default `"pairwise"` preserves all existing behaviour and now emits an advisory warning when incomplete rows are detected. `"listwise"` reduces data to complete cases before all downstream steps (correlation matrix, engine, edges) for full consistency. `"fiml"` passes `missing = "fiml"` to `lavaan::efa()` for ESEM ML/MLR and derives edge R from lavaan's FIML saturated model; errors for PCA, EFA, and WLSMV/ULSMV. Adds `.resolve_missing()` internal helper for validation. Records `$meta$missing` and `$meta$n_complete` in every result. Fixes the ESEM ML/MLR fit-vs-edges consistency for `"listwise"` and `"fiml"`. **Amends §9** (defaults table). See `vignette("ackwards-engines")` for usage.
 
 15. **Naming clarity & consistency pass** *(done)* — dev-mode rename with no behaviour changes.
     Renamed four `ackwards()` formals (`k`→`k_max`, `method`→`engine`, `scores`→`keep_scores`,

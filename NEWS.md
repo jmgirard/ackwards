@@ -1,5 +1,29 @@
 # ackwards 0.0.0.9000 (dev)
 
+## Milestone 16 — Estimator-aware missing-data handling
+
+* New `missing` argument on `ackwards()`. Controls how incomplete rows are
+  handled across all three engines. `"pairwise"` (default) preserves existing
+  behaviour — pairwise-complete correlations — and emits a warning when missing
+  rows are detected. `"listwise"` reduces data to complete cases before all
+  downstream steps, so the correlation matrix, the engine fit, and the edges
+  are all consistent; `n_obs` in the result reflects the reduced N. `"fiml"`
+  (ESEM ML/MLR only) passes `missing = "fiml"` to `lavaan::efa()` and derives
+  edge correlations from lavaan's FIML-estimated saturated model, ensuring
+  fit-vs-edges consistency under missingness. `"fiml"` errors clearly for PCA,
+  EFA, and WLSMV/ULSMV estimators. (#M16)
+
+* Fixed a latent inconsistency in the ESEM continuous (ML/MLR) path: the
+  engine fit used lavaan's default listwise deletion while edge correlations
+  were computed from a separately computed pairwise matrix. With
+  `missing = "listwise"`, the data are pre-filtered so both use identical rows.
+  With `missing = "fiml"`, the edge R is extracted from lavaan's FIML saturated
+  model rather than a pairwise `stats::cor()`. (#M16)
+
+* `ackwards()` result objects now carry `$meta$missing` (the `missing` argument
+  value used) and `$meta$n_complete` (the number of complete cases in the
+  original data, regardless of deletion mode). (#M16)
+
 ## Milestone 15 — Naming clarity & consistency pass
 
 * `ackwards()` argument `k` renamed to `k_max`. Aligns with the pre-existing

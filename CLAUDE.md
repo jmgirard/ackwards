@@ -76,65 +76,22 @@ default output must reproduce Forbes's examples exactly.
   `$cor_type`→`$cor` on the result object; `method`→`edge_method` on `compute_edges()`. All S3
   methods, tests, 6 vignettes, README, NEWS, CLAUDE.md, and DESIGN.md updated. (724 tests pass,
   1 skip; 0/0/0 R CMD check.)
+- **M16 (done):** Estimator-aware missing-data handling — new `missing = c("pairwise","listwise",
+  "fiml")` argument on `ackwards()`. Default `"pairwise"` preserves existing behaviour and warns
+  when NAs present. `"listwise"` reduces to complete cases pre-fit for consistent N. `"fiml"` (ESEM
+  ML/MLR only) uses Full Information ML via lavaan and derives edge R from the FIML saturated model.
+  Fixes ESEM ML/MLR fit-vs-edges inconsistency for `"listwise"` and `"fiml"`. Adds `.resolve_missing()`
+  helper; records `meta$missing`/`meta$n_complete`. 42 new tests in `test-missing.R`; missing-data
+  section added to `ackwards-engines.Rmd`; DESIGN.md §9 and §15 updated. (766 tests pass, 1 skip;
+  0/0/0 R CMD check.)
 
 ## Current focus
 
-**M16 (planned) — Estimator-aware missing-data handling.** Expose a single `missing=` argument on
-`ackwards()` that behaves correctly per engine/estimator, fix the latent ESEM fit-vs-edges basis
-inconsistency under missingness, and make effective-N honest — without changing default output.
-Net-new milestone (not in DESIGN.md §15's original list); amends DESIGN.md §9 and §15. No new
-dependencies (`lavaan` FIML is built in); no Imports change.
+No milestone currently in progress.
 
-**API.** Add `missing = c("pairwise", "listwise", "fiml")`, default `"pairwise"` (= current
-behavior, so no regression). Estimator-aware validity:
-
-| `missing` | PCA | EFA | ESEM ML/MLR | ESEM WLSMV/ULSMV |
-|---|---|---|---|---|
-| `"pairwise"` (default) | `cor(use="pairwise")` | same | lavaan `missing="pairwise"` + pairwise edge R | lavaan pairwise/available-case (current) |
-| `"listwise"` | `na.omit` → `cor` | same | complete-case for fit **and** edges | complete-case |
-| `"fiml"` | **error** (correlation-based) | **error** | lavaan `missing="fiml"`; edge R from lavaan FIML correlation | **error** (no FIML for limited-info WLS) |
-
-**Resolved design calls (from planning):**
-- (A) FIML edge `R` source = lavaan's **FIML saturated** correlation (represents the data, not the
-  model-implied matrix).
-- (B) Keep the clean 3-value vocabulary; do **not** surface lavaan's richer options
-  (`doubly.robust`, `two.stage`) — advanced users go to lavaan directly.
-- (C) Document via a **section in `ackwards-engines.Rmd`**, not a new standalone vignette.
-
-**Files to modify.** `R/ackwards.R` (new formal + estimator-aware validation + thread into R
-computation/`esem_levels()` + `meta$missing`/`meta$n_complete` + one-time pairwise-missingness cli
-caveat per Inv. 6) · `R/engine_esem.R` (pass mapped `missing` to `lavaan::efa()`; derive edge `R`
-consistently with the fit's deletion — the substantive fix, replacing the separate pairwise
-`stats::cor`) · `R/engine_efa.R` (complete-case `n_obs` under listwise) · `R/utils.R` (small
-`.resolve_missing()` helper; extend score-NA warning to note FIML aids estimation, not row-wise
-projection) · roxygen `@param missing` · new `tests/testthat/test-missing.R` · `NEWS.md` ·
-`DESIGN.md` §9/§15 · `ackwards-engines.Rmd` section.
-
-**Order of implementation.** (1) `.resolve_missing()` + validation matrix + validation tests;
-(2) PCA/EFA listwise + effective-N threading + tests; (3) ESEM pass-through + consistent edge-R
-derivation (the substantive piece) + tests; (4) loud-default cli caveat + meta fields; (5) docs
-(roxygen, NEWS, DESIGN, vignette section).
-
-**Acceptance criteria.**
-1. `ackwards()` gains `missing = c("pairwise","listwise","fiml")`, default `"pairwise"`; an existing
-   call reproduces prior output exactly (regression test on `bfi`).
-2. `missing="fiml"` errors with a clear cli message for `engine="pca"`, `engine="efa"`, and
-   `engine="esem"` + WLSMV/ULSMV; succeeds for `engine="esem"` + ML/MLR.
-3. Under `missing="listwise"`, the correlation matrix, the lavaan fit, and the edges all use the
-   same complete-case rows; `n_obs`/`meta$n_complete` reflect complete-case N.
-4. ESEM continuous fit-vs-edges inconsistency resolved: edge `R` derived consistently with the
-   fit's missing handling under all three modes (test asserts agreement on a constructed dataset
-   with injected NAs).
-5. A one-time cli message fires when data contain NAs and `missing="pairwise"`, naming the
-   anti-conservative-fit caveat and pointing to `listwise`/`fiml`.
-6. Score materialization still yields NA for incomplete rows under every `missing=` value,
-   documented and tested (FIML does not back-fill linear projections).
-7. New `test-missing.R` passes; full suite + `R CMD check` clean (0/0/0); NEWS/roxygen/DESIGN/
-   vignette updated.
-
-**Road to 0.1.0 (after M16).** M17 — GitHub 0.1.0 release prep: reconcile stale DESIGN.md §14
-Heywood note (the warning exists since M10), switch license **CC BY 4.0 → MIT** (decision D; CRAN
-expects a code license), version bump `0.0.0.9000 → 0.1.0`, NEWS 0.1.0 section, fresh
+**Road to 0.1.0.** M17 — GitHub 0.1.0 release prep: reconcile stale DESIGN.md §14 Heywood note
+(the warning exists since M10), switch license **CC BY 4.0 → MIT** (decision confirmed during M16
+planning), version bump `0.0.0.9000 → 0.1.0`, NEWS 0.1.0 section, fresh
 `test()`+`check()`+`urlchecker`+pkgdown rebuild, tag. CRAN-only items (`\dontrun`→`\donttest`,
 spell/win-builder) deferred to a later CRAN-prep milestone.
 
