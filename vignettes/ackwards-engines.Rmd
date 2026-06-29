@@ -195,7 +195,8 @@ e_efa$engine <- "efa"
 # Primary-parent edges at each level transition
 primary_pca <- e_pca[e_pca$is_primary, c("engine", "from", "to", "r")]
 primary_efa <- e_efa[e_efa$is_primary, c("engine", "from", "to", "r")]
-rbind(primary_pca, primary_efa)[order(rbind(primary_pca, primary_efa)$to), ]
+both_primary <- rbind(primary_pca, primary_efa)
+both_primary[order(both_primary$to), ]
 ```
 
 The r values are very close between engines: the hierarchy that PCA reveals is

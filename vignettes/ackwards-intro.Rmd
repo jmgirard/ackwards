@@ -219,10 +219,10 @@ Each edge is the between-level factor-score correlation computed via Waller's
 materialization, just the weight matrices and the input correlation matrix.
 
 ```{r tidy-edges}
-edges <- tidy(x, what = "edges")
+edges <- tidy(x, what = "edges", sort = "strength")
 # Primary-parent edges sorted by strength
 primary <- edges[edges$is_primary, c("from", "to", "r")]
-primary[order(-abs(primary$r)), ]
+primary
 ```
 
 `is_primary` marks the strongest-connecting edge for each factor (its primary
@@ -270,7 +270,7 @@ call:
 ```{r scores-stored}
 x2 <- ackwards(bfi, k_max = 5, cor = "polychoric", keep_scores = TRUE)
 scored2 <- augment(x2) # uses stored matrices — no recomputation
-identical(round(scored2$.m5f1, 8), round(scored$.m5f1, 8))
+all.equal(scored2$.m5f1, scored$.m5f1)
 ```
 
 ### Using scores for downstream analysis
@@ -283,7 +283,7 @@ lineage:
 
 ```{r downstream}
 # Within-level correlations at k = 5: should be near zero (orthogonal rotation)
-k5 <- scored[, grep("^\\.m5", names(scored))]
+k5 <- scored[, startsWith(names(scored), ".m5")]
 round(cor(k5), 2)
 ```
 

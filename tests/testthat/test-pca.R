@@ -121,3 +121,25 @@ test_that("ackwards() meta does not store kappa (M13: removed)", {
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_false("kappa" %in% names(x$meta))
 })
+
+# ── tidy(sort = "strength") ────────────────────────────────────────────────────
+
+test_that("tidy(x, sort = 'strength') returns edges in descending |r| order", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5))
+  out <- tidy(x, sort = "strength")
+  expect_s3_class(out, "data.frame")
+  expect_true(all(diff(abs(out$r)) <= 0))
+})
+
+test_that("tidy(x, sort = 'none') is byte-identical to the default", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5))
+  expect_identical(tidy(x, sort = "none"), tidy(x))
+})
+
+test_that("tidy(x, sort = 'strength', what = 'loadings') errors informatively", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  expect_error(tidy(x, what = "loadings", sort = "strength"), "edges")
+})

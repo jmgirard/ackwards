@@ -7,6 +7,7 @@
 \method{tidy}{ackwards}(
   x,
   what = c("edges", "loadings", "variance", "fit", "nodes", "scores"),
+  sort = c("none", "strength"),
   ...
 )
 }
@@ -33,6 +34,9 @@ the same columns when no pruning was applied.
 computation). Columns: \code{obs} (row index), \code{level}, \code{factor}, \code{score}.
 }}
 
+\item{sort}{For \code{what = "edges"} only. One of \code{"none"} (default, natural order)
+or \code{"strength"} (descending \verb{|r|}). Ignored for all other values of \code{what}.}
+
 \item{...}{Ignored.}
 }
 \value{
@@ -41,6 +45,16 @@ A data frame (class \code{data.frame}).
 \description{
 Returns structured data from an \code{ackwards} object in tidy format. The
 default (\code{what = "edges"}) returns the graph edge list that drives diagrams.
+}
+\examples{
+if (requireNamespace("psych", quietly = TRUE)) {
+  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+  tidy(x)                                    # edges in natural order
+  tidy(x, sort = "strength")                 # strongest edges first
+  tidy(x, what = "loadings")
+  tidy(x, what = "variance")
+}
+
 }
 \seealso{
 \code{\link[=glance.ackwards]{glance.ackwards()}}, \code{\link[=print.ackwards]{print.ackwards()}}

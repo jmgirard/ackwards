@@ -29,16 +29,39 @@ generics::glance
 #'   * `"scores"` — long-format per-observation factor scores (requires
 #'     `keep_scores = TRUE` at fit time or use [augment.ackwards()] for on-the-fly
 #'     computation). Columns: `obs` (row index), `level`, `factor`, `score`.
+#' @param sort For `what = "edges"` only. One of `"none"` (default, natural order)
+#'   or `"strength"` (descending `|r|`). Ignored for all other values of `what`.
 #' @param ... Ignored.
 #'
 #' @return A data frame (class `data.frame`).
 #'
 #' @seealso [glance.ackwards()], [print.ackwards()]
 #'
+#' @examples
+#' if (requireNamespace("psych", quietly = TRUE)) {
+#'   x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+#'   tidy(x)                                    # edges in natural order
+#'   tidy(x, sort = "strength")                 # strongest edges first
+#'   tidy(x, what = "loadings")
+#'   tidy(x, what = "variance")
+#' }
+#'
 #' @export
-tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit", "nodes", "scores"), ...) {
+tidy.ackwards <- function(
+  x,
+  what = c("edges", "loadings", "variance", "fit", "nodes", "scores"),
+  sort = c("none", "strength"),
+  ...
+) {
   what <- match.arg(what)
-  switch(what,
+  sort <- match.arg(sort)
+  if (sort != "none" && what != "edges") {
+    cli::cli_abort(
+      "{.arg sort} is only supported for {.code what = \"edges\"}, \\
+       not {.code what = \"{what}\"}."
+    )
+  }
+  out <- switch(what,
     edges    = .tidy_edges(x),
     loadings = .tidy_loadings(x),
     variance = .tidy_variance(x),
@@ -46,6 +69,11 @@ tidy.ackwards <- function(x, what = c("edges", "loadings", "variance", "fit", "n
     nodes    = .tidy_nodes(x),
     scores   = .tidy_scores(x)
   )
+  if (sort == "strength" && what == "edges") {
+    out <- out[order(abs(out$r), decreasing = TRUE), , drop = FALSE]
+    rownames(out) <- NULL
+  }
+  out
 }
 
 .tidy_edges <- function(x) {

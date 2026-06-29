@@ -100,8 +100,7 @@ appends factor scores to your data for downstream analysis.
 
 ```{r tidy}
 # Eight strongest adjacent-level primary edges
-edges <- tidy(x, what = "edges")
-edges <- edges[order(-abs(edges$r)), ]
+edges <- tidy(x, what = "edges", sort = "strength")
 head(edges[edges$is_primary, c("from", "to", "r")], 8)
 ```
 

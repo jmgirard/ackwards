@@ -71,11 +71,11 @@ The all-pairs model adds every non-adjacent pair — 1↔3, 1↔4, 1↔5, 2↔4,
 ### Reading the skip-level edge table
 
 ```{r skip-edges}
-edges <- tidy(x_all, what = "edges")
+edges <- tidy(x_all, what = "edges", sort = "strength")
 
 # Non-adjacent edges with |r| >= 0.5, sorted by strength
-skip <- edges[abs(edges$level_to - edges$level_from) > 1 & abs(edges$r) >= 0.5, ]
-skip <- skip[order(-abs(skip$r)), c("from", "to", "level_from", "level_to", "r")]
+skip <- edges[abs(edges$level_to - edges$level_from) > 1 & abs(edges$r) >= 0.5,
+              c("from", "to", "level_from", "level_to", "r")]
 head(skip, 12)
 ```
 
