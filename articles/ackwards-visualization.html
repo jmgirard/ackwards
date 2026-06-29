@@ -36,6 +36,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
@@ -221,9 +222,9 @@ IDs to display strings. Unspecified factors keep their
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  m5f1 <span class="op">=</span> <span class="st">"Neuro."</span>,</span>
 <span>  m5f2 <span class="op">=</span> <span class="st">"Extra."</span>,</span>
-<span>  m5f3 <span class="op">=</span> <span class="st">"Open."</span>,</span>
+<span>  m5f3 <span class="op">=</span> <span class="st">"Consc."</span>,</span>
 <span>  m5f4 <span class="op">=</span> <span class="st">"Agree."</span>,</span>
-<span>  m5f5 <span class="op">=</span> <span class="st">"Consc."</span></span>
+<span>  m5f5 <span class="op">=</span> <span class="st">"Open."</span></span>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/node-labels-1.png" class="r-plt" alt="" width="768"></p>
 <p>Multi-line labels are supported via <code>\n</code>:</p>
@@ -233,6 +234,41 @@ IDs to display strings. Unspecified factors keep their
 <span>  m5f2 <span class="op">=</span> <span class="st">"Extra-\nversion"</span></span>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/node-labels-multiline-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="label_template-generate-the-scaffold">
+<code>label_template()</code> — generate the scaffold<a class="anchor" aria-label="anchor" href="#label_template-generate-the-scaffold"></a>
+</h3>
+<p>Typing out every factor ID is tedious for large objects.
+<code><a href="../reference/label_template.html">label_template()</a></code> generates the full named vector in
+canonical diagram order and prints a copy-pasteable <code>c(...)</code>
+literal you can edit and pass back to <code>node_labels</code>. It also
+offers the Forbes (2023) letter convention (<code>"A1"</code>,
+<code>"B1"</code>, <code>"B2"</code>, …) as a built-in style:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="fu"><a href="../reference/label_template.html">label_template</a></span><span class="op">(</span><span class="va">x</span>, style <span class="op">=</span> <span class="st">"forbes"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; `label_template()` scaffold (forbes style):</span></span>
+<span><span class="co">#&gt; c(</span></span>
+<span><span class="co">#&gt;   "m1f1" = "A1",</span></span>
+<span><span class="co">#&gt;   "m2f1" = "B1",</span></span>
+<span><span class="co">#&gt;   "m2f2" = "B2",</span></span>
+<span><span class="co">#&gt;   "m3f1" = "C1",</span></span>
+<span><span class="co">#&gt;   "m3f2" = "C2",</span></span>
+<span><span class="co">#&gt;   "m3f3" = "C3",</span></span>
+<span><span class="co">#&gt;   "m4f1" = "D1",</span></span>
+<span><span class="co">#&gt;   "m4f2" = "D2",</span></span>
+<span><span class="co">#&gt;   "m4f3" = "D3",</span></span>
+<span><span class="co">#&gt;   "m4f4" = "D4",</span></span>
+<span><span class="co">#&gt;   "m5f1" = "E1",</span></span>
+<span><span class="co">#&gt;   "m5f2" = "E2",</span></span>
+<span><span class="co">#&gt;   "m5f3" = "E3",</span></span>
+<span><span class="co">#&gt;   "m5f4" = "E4",</span></span>
+<span><span class="co">#&gt;   "m5f5" = "E5"</span></span>
+<span><span class="co">#&gt; )</span></span></code></pre></div>
+<p><img src="ackwards-visualization_files/figure-html/label-template-forbes-1.png" class="r-plt" alt="" width="768"></p>
+<p>For the full naming workflow — reading factors, the sign convention,
+and choosing labels across the hierarchy — see
+<code><a href="../articles/ackwards-interpret.html">vignette("ackwards-interpret")</a></code>.</p>
 </div>
 </div>
 <div class="section level2">
@@ -247,7 +283,7 @@ edges<a class="anchor" aria-label="anchor" href="#primary_only-true-show-only-pr
 strongest edge per factor (its primary parent), producing a clean tree.
 Because skip-level edges are never primary, this also suppresses curved
 arcs when <code>pairs = "all"</code> was used.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, primary_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/primary-only-1.png" class="r-plt" alt="" width="768"></p>
 </div>
@@ -261,10 +297,10 @@ arcs when <code>pairs = "all"</code> was used.</p>
 </h3>
 <p>Level labels (“1 factor”, “2 factors”, …) are shown by default on the
 left margin. They can be hidden or resized.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_level_labels <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/level-labels-off-1.png" class="r-plt" alt="" width="768"></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_level_labels <span class="op">=</span> <span class="cn">TRUE</span>, level_label_size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/level-labels-size-1.png" class="r-plt" alt="" width="768"></p>
 </div>
@@ -279,7 +315,7 @@ left margin. They can be hidden or resized.</p>
 <p>By default, edges end with closed arrowheads. Setting
 <code>show_arrows = FALSE</code> draws plain line ends. This applies to
 both straight edges and curved skip-level arcs.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_arrows <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/no-arrows-1.png" class="r-plt" alt="" width="768"></p>
 </div>
@@ -294,7 +330,7 @@ both straight edges and curved skip-level arcs.</p>
 <p>By default, edge width is proportional to |r|. A numeric
 <code>edge_linewidth</code> draws every edge at that constant width and
 removes the linewidth legend.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, edge_linewidth <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/edge-linewidth-1.png" class="r-plt" alt="" width="768"></p>
 </div>
@@ -309,7 +345,7 @@ removes the linewidth legend.</p>
 <p><code>legend = FALSE</code> removes all legends from the plot. Most
 useful when the diagram is self-explanatory or the legend duplicates
 information conveyed by labels.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/no-legend-1.png" class="r-plt" alt="" width="768"></p>
 </div>
@@ -322,7 +358,7 @@ black lines of uniform weight, plain line ends, correlation labels, and
 no legend. It uses colour mode (not <code>mono</code>) so that the
 dashing retains its <code>cut_strong</code> weak/secondary-connection
 semantics.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>,</span>
 <span>  color_pos      <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  color_neg      <span class="op">=</span> <span class="st">"black"</span>,</span>
@@ -334,7 +370,7 @@ semantics.</p>
 <p><img src="ackwards-visualization_files/figure-html/pub-figure-1.png" class="r-plt" alt="" width="768"></p>
 <p>Combining with <code>node_labels</code> names the factors for the
 final figure:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>,</span>
 <span>  color_pos <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  color_neg <span class="op">=</span> <span class="st">"black"</span>,</span>
@@ -345,9 +381,9 @@ final figure:</p>
 <span>  node_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    m5f1 <span class="op">=</span> <span class="st">"Neuro."</span>,</span>
 <span>    m5f2 <span class="op">=</span> <span class="st">"Extra."</span>,</span>
-<span>    m5f3 <span class="op">=</span> <span class="st">"Open."</span>,</span>
+<span>    m5f3 <span class="op">=</span> <span class="st">"Consc."</span>,</span>
 <span>    m5f4 <span class="op">=</span> <span class="st">"Agree."</span>,</span>
-<span>    m5f5 <span class="op">=</span> <span class="st">"Consc."</span></span>
+<span>    m5f5 <span class="op">=</span> <span class="st">"Open."</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/pub-figure-labeled-1.png" class="r-plt" alt="" width="768"></p>
@@ -377,16 +413,16 @@ mark each optimum.</li>
 <p>If <code>EFAtools</code> is installed and <code><a href="https://rdrr.io/pkg/EFAtools/man/CD.html" class="external-link">EFAtools::CD()</a></code>
 ran successfully, a dotted vertical line in the MAP panel indicates the
 CD-suggested k.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[310ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[306ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[169ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[181ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[12.6s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[19.3s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/suggest_k_plot-1.png" class="r-plt" alt="" width="768"></p>

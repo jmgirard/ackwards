@@ -159,6 +159,49 @@ exactly.
     unlinked pages; not fixable without moving files. (787 tests pass, 1
     skip; 0/0/0 R CMD check; all URLs clean.) Tag: owner runs
     `git tag -a v0.1.0 -m "ackwards 0.1.0" && git push origin v0.1.0`.
+- **M18 (done):** Factor interpretation & label scaffolding —
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+  (salient per-factor item listing, `|loading| >= cut`, grouped cli
+  print) and
+  [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
+  (node_labels scaffold, styles: “id”/“forbes”/“blank”, prints editable
+  c(…) literal). Both are pure consumers of the existing light core; no
+  new dependencies, no invariant or default changes. Intro vignette and
+  visualization vignette updated; pkgdown reference index updated;
+  DESIGN.md §10/§11/§15 updated. Post-review hardening:
+  `label_template(style = "forbes")` now guards `k_max > 26` (LETTERS
+  exhaustion) with a loud `cli_abort` and documents the constraint; the
+  duplicate
+  [`ba_layout()`](https://jmgirard.github.io/ackwards/reference/ba_layout.md)
+  call in the forbes branch was cached; the `sort = FALSE` test asserts
+  order against
+  [`tidy()`](https://generics.r-lib.org/reference/tidy.html) rather than
+  set membership; EFA smoke tests added for both helpers
+  (engine-agnosticism); stale `tests/testthat/_problems/` removed.
+- **M19 (done):** Dedicated interpretation/labeling vignette —
+  documentation-only. New
+  [`vignette("ackwards-interpret")`](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md)
+  (“Interpreting and Labeling Factors”) owns the
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+  → name →
+  [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
+  → `autoplot(node_labels=)` workflow plus hierarchy-aware naming
+  (parent vs child, blends, reorganizing factors via lineage/edges) and
+  the sign-alignment caveat. Listed in pkgdown Deep dives after
+  `ackwards-suggest-k`. Intro Step 5 trimmed to a slim
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+  example
+  - pointer; visualization vignette keeps the labeling mechanic +
+    cross-ref (naming judgment moved to the new vignette). DESIGN.md §15
+    entry (amends §10/§11). Original milestone was documentation-only;
+    post-review hardening added a guard test for the vignette’s edges
+    idiom,
+    [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)/[`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)→[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+    idiom smoke tests, switched the interpret vignette to
+    `cor = "polychoric"` (consistency + drops the ordinal warning), and
+    **fixed swapped m5f3/m5f5 labels** (Conscientiousness/Openness) in
+    the interpret and visualization vignettes. (935 tests pass, 1 skip;
+    0/0/0 R CMD check.)
 
 ## Current focus
 

@@ -13,6 +13,17 @@ The main modelling function and a helper for choosing k.
 - [`autoplot(`*`<suggest_k>`*`)`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md)
   : Plot a suggest_k diagnostic
 
+## Interpret factors
+
+Helpers for understanding what each factor means and labelling it.
+
+- [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+  : Display the salient items for each factor
+- [`print(`*`<top_items>`*`)`](https://jmgirard.github.io/ackwards/reference/print.top_items.md)
+  : Print a top_items object
+- [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
+  : Generate a node-label scaffold for autoplot
+
 ## Extract results
 
 Tidy, glance, augment, summary, and print methods for ackwards objects.

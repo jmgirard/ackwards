@@ -9,6 +9,8 @@
 
 - [Choosing k: How Many
   Factors?](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md):
+- [Interpreting and Labeling
+  Factors](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md):
 - [Choosing an Engine: PCA, EFA, and
   ESEM](https://jmgirard.github.io/ackwards/articles/ackwards-engines.md):
 - [Ordinal Data: Polychoric Correlations and

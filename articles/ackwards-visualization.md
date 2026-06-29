@@ -153,9 +153,9 @@ strings. Unspecified factors keep their `m{k}f{j}` labels.
 autoplot(x, node_labels = c(
   m5f1 = "Neuro.",
   m5f2 = "Extra.",
-  m5f3 = "Open.",
+  m5f3 = "Consc.",
   m5f4 = "Agree.",
-  m5f5 = "Consc."
+  m5f5 = "Open."
 ))
 ```
 
@@ -172,6 +172,44 @@ autoplot(x, node_labels = c(
 ```
 
 ![](ackwards-visualization_files/figure-html/node-labels-multiline-1.png)
+
+### `label_template()` — generate the scaffold
+
+Typing out every factor ID is tedious for large objects.
+[`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
+generates the full named vector in canonical diagram order and prints a
+copy-pasteable `c(...)` literal you can edit and pass back to
+`node_labels`. It also offers the Forbes (2023) letter convention
+(`"A1"`, `"B1"`, `"B2"`, …) as a built-in style:
+
+``` r
+
+autoplot(x, node_labels = label_template(x, style = "forbes"))
+#> `label_template()` scaffold (forbes style):
+#> c(
+#>   "m1f1" = "A1",
+#>   "m2f1" = "B1",
+#>   "m2f2" = "B2",
+#>   "m3f1" = "C1",
+#>   "m3f2" = "C2",
+#>   "m3f3" = "C3",
+#>   "m4f1" = "D1",
+#>   "m4f2" = "D2",
+#>   "m4f3" = "D3",
+#>   "m4f4" = "D4",
+#>   "m5f1" = "E1",
+#>   "m5f2" = "E2",
+#>   "m5f3" = "E3",
+#>   "m5f4" = "E4",
+#>   "m5f5" = "E5"
+#> )
+```
+
+![](ackwards-visualization_files/figure-html/label-template-forbes-1.png)
+
+For the full naming workflow — reading factors, the sign convention, and
+choosing labels across the hierarchy — see
+[`vignette("ackwards-interpret")`](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md).
 
 ## Structural simplifications
 
@@ -290,9 +328,9 @@ autoplot(x,
   node_labels = c(
     m5f1 = "Neuro.",
     m5f2 = "Extra.",
-    m5f3 = "Open.",
+    m5f3 = "Consc.",
     m5f4 = "Agree.",
-    m5f5 = "Consc."
+    m5f5 = "Open."
   )
 )
 ```
@@ -328,13 +366,13 @@ CD-suggested k.
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [310ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [306ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [169ms]
+#> ✔ Running MAP and VSS... [181ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [12.6s]
+#> ✔ Running Comparison Data (CD)... [19.3s]
 #> 
 autoplot(sk)
 ```

@@ -36,6 +36,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
@@ -158,7 +159,7 @@ and reports a consensus range:</p>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[169ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[11.6s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[18.3s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -405,9 +406,74 @@ the full argument list.</p>
 data frame. The <code>what</code> argument controls what is
 returned.</p>
 <div class="section level3">
-<h3 id="factor-loadings">Factor loadings<a class="anchor" aria-label="anchor" href="#factor-loadings"></a>
+<h3 id="reading-each-factor-top_items">Reading each factor — <code>top_items()</code><a class="anchor" aria-label="anchor" href="#reading-each-factor-top_items"></a>
 </h3>
+<p>To understand what each factor represents, <code><a href="../reference/top_items.html">top_items()</a></code>
+lists the salient items (those with <code>|loading| &gt;= cut</code>)
+for every factor, grouped by level. This is more readable than a full
+item-by-factor matrix, especially for deep hierarchies.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">5</span>, cut <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient items by factor (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span></span>
+<span><span class="co">#&gt; Engine: pca</span></span>
+<span><span class="co">#&gt; Cut: |loading| &gt;= 0.3</span></span>
+<span><span class="co">#&gt; Top-n: all</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── <span style="font-weight: bold;">Level 5 (5 factors)</span> ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">m5f1</span></span></span>
+<span><span class="co">#&gt; N1 [0.829]</span></span>
+<span><span class="co">#&gt; N2 [0.818]</span></span>
+<span><span class="co">#&gt; N3 [0.817]</span></span>
+<span><span class="co">#&gt; N4 [0.671]</span></span>
+<span><span class="co">#&gt; N5 [0.657]</span></span>
+<span><span class="co">#&gt; C5 [0.332]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">m5f2</span></span></span>
+<span><span class="co">#&gt; E2 [-0.752]</span></span>
+<span><span class="co">#&gt; E4 [0.734]</span></span>
+<span><span class="co">#&gt; E1 [-0.707]</span></span>
+<span><span class="co">#&gt; E3 [0.636]</span></span>
+<span><span class="co">#&gt; E5 [0.603]</span></span>
+<span><span class="co">#&gt; A5 [0.455]</span></span>
+<span><span class="co">#&gt; A3 [0.375]</span></span>
+<span><span class="co">#&gt; N4 [-0.365]</span></span>
+<span><span class="co">#&gt; O3 [0.363]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">m5f3</span></span></span>
+<span><span class="co">#&gt; C2 [0.759]</span></span>
+<span><span class="co">#&gt; C4 [-0.719]</span></span>
+<span><span class="co">#&gt; C3 [0.701]</span></span>
+<span><span class="co">#&gt; C1 [0.673]</span></span>
+<span><span class="co">#&gt; C5 [-0.651]</span></span>
+<span><span class="co">#&gt; E5 [0.366]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">m5f4</span></span></span>
+<span><span class="co">#&gt; A2 [0.743]</span></span>
+<span><span class="co">#&gt; A3 [0.705]</span></span>
+<span><span class="co">#&gt; A1 [-0.677]</span></span>
+<span><span class="co">#&gt; A5 [0.594]</span></span>
+<span><span class="co">#&gt; A4 [0.540]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">m5f5</span></span></span>
+<span><span class="co">#&gt; O5 [-0.708]</span></span>
+<span><span class="co">#&gt; O3 [0.676]</span></span>
+<span><span class="co">#&gt; O1 [0.641]</span></span>
+<span><span class="co">#&gt; O2 [-0.621]</span></span>
+<span><span class="co">#&gt; O4 [0.548]</span></span>
+<span><span class="co">#&gt; E3 [0.311]</span></span>
+<span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">for the full matrix.</span></span></span></code></pre></div>
+<p>Reading a hierarchy of factors and giving them names is its own topic
+— including the sign convention, naming across levels, and applying
+labels to the diagram. See <code><a href="../articles/ackwards-interpret.html">vignette("ackwards-interpret")</a></code>
+for the full workflow.</p>
+</div>
+<div class="section level3">
+<h3 id="factor-loadings-tidy">Factor loadings (tidy)<a class="anchor" aria-label="anchor" href="#factor-loadings-tidy"></a>
+</h3>
+<p>For programmatic access, <code>tidy(what = "loadings")</code> returns
+the full loading matrix in long format — one row per item × factor ×
+level:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">loadings_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">loadings_df</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   level factor item    loading</span></span>
@@ -417,19 +483,6 @@ returned.</p>
 <span><span class="co">#&gt; 4     1   m1f1   A4  0.4887739</span></span>
 <span><span class="co">#&gt; 5     1   m1f1   A5  0.6516240</span></span>
 <span><span class="co">#&gt; 6     1   m1f1   C1  0.4133898</span></span></code></pre></div>
-<p>Each row is one item at one level for one factor. You can filter to a
-specific level to see what items define each factor. Here are the
-strongest-loading items at k = 5:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lv5</span> <span class="op">&lt;-</span> <span class="va">loadings_df</span><span class="op">[</span><span class="va">loadings_df</span><span class="op">$</span><span class="va">level</span> <span class="op">==</span> <span class="fl">5</span>, <span class="op">]</span></span>
-<span><span class="va">lv5</span> <span class="op">&lt;-</span> <span class="va">lv5</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">lv5</span><span class="op">$</span><span class="va">loading</span><span class="op">)</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="va">lv5</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html" class="external-link">duplicated</a></span><span class="op">(</span><span class="va">lv5</span><span class="op">$</span><span class="va">factor</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"factor"</span>, <span class="st">"item"</span>, <span class="st">"loading"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;     factor item    loading</span></span>
-<span><span class="co">#&gt; 266   m5f1   N1  0.8292885</span></span>
-<span><span class="co">#&gt; 307   m5f3   C2  0.7587492</span></span>
-<span><span class="co">#&gt; 287   m5f2   E2 -0.7515616</span></span>
-<span><span class="co">#&gt; 327   m5f4   A2  0.7427664</span></span>
-<span><span class="co">#&gt; 375   m5f5   O5 -0.7081540</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="between-level-edges">Between-level edges<a class="anchor" aria-label="anchor" href="#between-level-edges"></a>

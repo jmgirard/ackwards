@@ -78,7 +78,7 @@ sk <- suggest_k(bfi, seed = 42)
 #> ✔ Running MAP and VSS... [169ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [11.6s]
+#> ✔ Running Comparison Data (CD)... [18.3s]
 #> 
 sk
 #> 
@@ -314,7 +314,77 @@ for the full argument list.
 component of the result as a tidy data frame. The `what` argument
 controls what is returned.
 
-### Factor loadings
+### Reading each factor — `top_items()`
+
+To understand what each factor represents,
+[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+lists the salient items (those with `|loading| >= cut`) for every
+factor, grouped by level. This is more readable than a full
+item-by-factor matrix, especially for deep hierarchies.
+
+``` r
+
+top_items(x, level = 5, cut = 0.3)
+#> 
+#> ── Salient items by factor (ackwards) ──────────────────────────────────────────
+#> Engine: pca
+#> Cut: |loading| >= 0.3
+#> Top-n: all
+#> 
+#> ── Level 5 (5 factors) ──
+#> 
+#> m5f1
+#> N1 [0.829]
+#> N2 [0.818]
+#> N3 [0.817]
+#> N4 [0.671]
+#> N5 [0.657]
+#> C5 [0.332]
+#> m5f2
+#> E2 [-0.752]
+#> E4 [0.734]
+#> E1 [-0.707]
+#> E3 [0.636]
+#> E5 [0.603]
+#> A5 [0.455]
+#> A3 [0.375]
+#> N4 [-0.365]
+#> O3 [0.363]
+#> m5f3
+#> C2 [0.759]
+#> C4 [-0.719]
+#> C3 [0.701]
+#> C1 [0.673]
+#> C5 [-0.651]
+#> E5 [0.366]
+#> m5f4
+#> A2 [0.743]
+#> A3 [0.705]
+#> A1 [-0.677]
+#> A5 [0.594]
+#> A4 [0.540]
+#> m5f5
+#> O5 [-0.708]
+#> O3 [0.676]
+#> O1 [0.641]
+#> O2 [-0.621]
+#> O4 [0.548]
+#> E3 [0.311]
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
+#> for the full matrix.
+```
+
+Reading a hierarchy of factors and giving them names is its own topic —
+including the sign convention, naming across levels, and applying labels
+to the diagram. See
+[`vignette("ackwards-interpret")`](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md)
+for the full workflow.
+
+### Factor loadings (tidy)
+
+For programmatic access, `tidy(what = "loadings")` returns the full
+loading matrix in long format — one row per item × factor × level:
 
 ``` r
 
@@ -327,23 +397,6 @@ head(loadings_df)
 #> 4     1   m1f1   A4  0.4887739
 #> 5     1   m1f1   A5  0.6516240
 #> 6     1   m1f1   C1  0.4133898
-```
-
-Each row is one item at one level for one factor. You can filter to a
-specific level to see what items define each factor. Here are the
-strongest-loading items at k = 5:
-
-``` r
-
-lv5 <- loadings_df[loadings_df$level == 5, ]
-lv5 <- lv5[order(-abs(lv5$loading)), ]
-lv5[!duplicated(lv5$factor), c("factor", "item", "loading")]
-#>     factor item    loading
-#> 266   m5f1   N1  0.8292885
-#> 307   m5f3   C2  0.7587492
-#> 287   m5f2   E2 -0.7515616
-#> 327   m5f4   A2  0.7427664
-#> 375   m5f5   O5 -0.7081540
 ```
 
 ### Between-level edges
