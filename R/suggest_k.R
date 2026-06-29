@@ -122,6 +122,7 @@
 suggest_k <- function(data, k_max = NULL, cor = "pearson", n_obs = NULL,
                       n_iter = 20L, seed = NULL, ...) {
   # --- Detect R-matrix vs. raw-data input -------------------------------------
+  if (is.matrix(data)) .check_maybe_cov_matrix(data)
   input_type <- if (.is_cor_matrix(data)) "cor_matrix" else "data"
 
   n_iter <- as.integer(n_iter)

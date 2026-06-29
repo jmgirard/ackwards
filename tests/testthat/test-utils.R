@@ -144,6 +144,34 @@ test_that(".validate_cor_matrix() passes valid matrix through unchanged", {
   expect_equal(R2, R)
 })
 
+test_that(".validate_cor_matrix() warns on non-positive-definite matrix", {
+  # Inconsistent triangle: Var1-Var2 and Var1-Var3 are highly positive,
+  # but Var2-Var3 are highly negative -- impossible under transitivity,
+  # so det < 0 and the matrix has a negative eigenvalue.
+  R <- matrix(
+    c(1, 0.9, 0.9, 0.9, 1, -0.9, 0.9, -0.9, 1), 3, 3,
+    dimnames = list(paste0("V", 1:3), paste0("V", 1:3))
+  )
+  expect_warning(
+    ackwards:::.validate_cor_matrix(R),
+    "not positive definite"
+  )
+})
+
+test_that(".check_maybe_cov_matrix() errors on covariance-like matrix", {
+  S <- cov(bfi25, use = "pairwise.complete.obs")
+  expect_error(
+    ackwards:::.check_maybe_cov_matrix(S),
+    "covariance matrix"
+  )
+})
+
+test_that(".check_maybe_cov_matrix() passes silently for a valid correlation matrix", {
+  R <- cor(bfi25, use = "pairwise.complete.obs")
+  expect_no_error(ackwards:::.check_maybe_cov_matrix(R))
+  expect_no_error(ackwards:::.check_maybe_cov_matrix(as.data.frame(bfi25)))
+})
+
 test_that("inst/CITATION has two entries with correct years and no unknown year", {
   skip_if_not_installed("ackwards")
   cites <- citation("ackwards")

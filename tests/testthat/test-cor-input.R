@@ -192,6 +192,22 @@ test_that("R-like matrix with |r| > 1 off-diagonal errors clearly", {
   expect_error(suppressMessages(ackwards(R, k_max = 2)), "off-diagonal")
 })
 
+test_that("covariance matrix gives a targeted error not a confusing one", {
+  S <- cov(bfi25, use = "pairwise.complete.obs")
+  expect_error(ackwards(S, k_max = 3), "covariance matrix")
+})
+
+# ---- ackwards(): prune works with R-matrix input ----------------------------
+
+test_that("prune='redundant' works with R-matrix input", {
+  R <- .bfi6_R()
+  x <- suppressMessages(
+    ackwards(R, k_max = 3, prune = "redundant")
+  )
+  expect_s3_class(x, "ackwards")
+  expect_false(is.null(x$prune))
+})
+
 # ---- suggest_k(): R-matrix input --------------------------------------------
 
 test_that("suggest_k() accepts R-matrix input with n_obs", {
@@ -232,4 +248,29 @@ test_that("suggest_k() n_obs ignored for raw data with warning", {
     suggest_k(bfi25[, 1:6], n_obs = 999L, n_iter = 5L),
     "n_obs.*ignored"
   )
+})
+
+test_that("suggest_k() errors on non-positive n_obs", {
+  R <- .bfi6_R()
+  expect_error(suggest_k(R, n_obs = -1L), "positive integer")
+})
+
+test_that("suggest_k() errors on non-integer n_obs", {
+  R <- .bfi6_R()
+  expect_error(suggest_k(R, n_obs = 100.5), "positive integer")
+})
+
+test_that("suggest_k() covariance matrix gives a targeted error", {
+  S <- cov(bfi25, use = "pairwise.complete.obs")
+  expect_error(suggest_k(S), "covariance matrix")
+})
+
+test_that("autoplot.suggest_k() works on R-matrix suggest_k object", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  R <- .bfi6_R()
+  sk <- suppressMessages(suggest_k(R, n_obs = 875L, n_iter = 5L))
+  p <- suppressMessages(autoplot(sk))
+  expect_s3_class(p, "gg")
+  expect_false("CD (RMSE, minimize)" %in% levels(p$data$panel))
 })

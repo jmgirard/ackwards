@@ -190,6 +190,10 @@ ackwards <- function(
   cl <- match.call()
 
   # --- Detect correlation-matrix vs. raw-data input ---------------------------
+  # Guard first: a square symmetric matrix with non-unit diagonal is almost
+  # certainly a covariance matrix -- give a targeted error before it silently
+  # routes to the raw-data branch and produces a confusing message.
+  if (is.matrix(data)) .check_maybe_cov_matrix(data)
   input_type <- if (.is_cor_matrix(data)) "cor_matrix" else "data"
 
   # --- Shared argument validation ---------------------------------------------
@@ -254,6 +258,8 @@ ackwards <- function(
         .frequency_id = "ackwards_cor_ignored"
       )
     }
+    # missing() is a base R function that tests whether the caller supplied the
+    # argument; it coincidentally has the same name as the formal `missing`.
     missing_was_set <- !missing(missing) && missing != "pairwise"
     if (missing_was_set) {
       cli::cli_warn(

@@ -159,9 +159,12 @@ default output must reproduce Forbes's examples exactly.
   `"(user-supplied matrix)"`. `keep_scores=TRUE`/`augment()`/`tidy(what="scores")` all error
   clearly. CD gated off in `suggest_k()` with info note. Edges from R-matrix and raw-data paths are
   identical within floating-point tolerance (same W'RW algebra). `.is_cor_matrix()` +
-  `.validate_cor_matrix()` helpers in `utils.R`. `meta$input_type` field added. Non-ASCII chars
-  replaced across all R files (0/0/0 clean). 36 new tests in `test-cor-input.R`. Engines vignette
-  + DESIGN.md s15.22/s6/s9 updated. (1023 tests pass, 1 skip; 0/0/0 R CMD check.)
+  `.validate_cor_matrix()` + `.check_maybe_cov_matrix()` helpers in `utils.R`. `meta$input_type`
+  field added. Non-ASCII chars replaced across all R files (0/0/0 clean). Post-review: non-PD
+  warning tested; covariance-matrix detection added (targeted error via `.check_maybe_cov_matrix()`
+  in both functions); `prune="redundant"` + cor_matrix test; `autoplot.suggest_k()` + cor_matrix
+  test; invalid `n_obs` tests for `suggest_k()`; `missing(missing)` comment; NEWS folded into 0.1.0.
+  44 tests in `test-cor-input.R`, 41 in `test-utils.R`. (1035 tests pass, 1 skip; 0/0/0 check.)
 
 ## Current focus
 

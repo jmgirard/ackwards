@@ -195,6 +195,32 @@ flip_weights <- function(W, sign_vec) {
   invisible(NULL)
 }
 
+# If x is a square, symmetric, numeric matrix with non-unit diagonal, the user
+# almost certainly passed a covariance matrix by mistake. Error early with a
+# targeted message rather than letting it fall through to the raw-data branch
+# and produce a confusing "data must be a data frame" error.
+.check_maybe_cov_matrix <- function(x) {
+  if (!is.matrix(x) || !is.numeric(x)) {
+    return(invisible(NULL))
+  }
+  if (nrow(x) != ncol(x)) {
+    return(invisible(NULL))
+  }
+  if (!isSymmetric(unname(x), tol = 1e-8)) {
+    return(invisible(NULL))
+  }
+  if (!all(abs(diag(x) - 1) < 1e-8)) {
+    cli::cli_abort(c(
+      "!" = "The supplied matrix looks like a covariance matrix \\
+             (diagonal values are not all 1).",
+      "i" = "Supply a correlation matrix instead.",
+      "i" = "Convert with {.code cov2cor(your_matrix)}, or standardise \\
+             first with {.code cor(your_data)}."
+    ))
+  }
+  invisible(NULL)
+}
+
 # Detect whether x looks like a correlation matrix (not raw data).
 # Heuristic: numeric, square, symmetric, and unit diagonal.
 # A false positive on raw data is effectively impossible (requires n x n
