@@ -118,65 +118,26 @@ default output must reproduce Forbes's examples exactly.
   to `cor = "polychoric"` (consistency + drops the ordinal warning), and **fixed swapped m5f3/m5f5
   labels** (Conscientiousness/Openness) in the interpret and visualization vignettes.
   (935 tests pass, 1 skip; 0/0/0 R CMD check.)
+- **M20 (done):** CRAN submission readiness + example legibility. A *release-readiness* milestone
+  (not a DESIGN.md §15 feature milestone) ahead of tagging/submitting 0.1.0. Five waves:
+  (1) Statistical/correctness: `.standardize()` (na.rm-aware) replaces `scale()` in
+  `.compute_scores()` and `compute_edges()` scores route; `detect_ordinal()` guarded against
+  all-`NA` columns; stale "oblique rotations" wording in `compute_edges()` roxygen fixed.
+  (2) Example conversions: all `\dontrun{}` removed; fast examples use `requireNamespace()` guards;
+  slow/stochastic `suggest_k` blocks use `\donttest{}`.
+  (3) Submission metadata: three DOIs added to `DESCRIPTION` (Goldberg 2006, Waller 2007, Forbes
+  2023); `NEWS.md` restructured into a single `0.1.0` entry; `cran-comments.md` added.
+  (4) Example legibility: `tidy.ackwards()` gains `sort = c("none","strength")` for edges;
+  README/vignettes rewrote `order(-abs(...))` → `tidy(sort="strength")`, `identical(round(...))` →
+  `all.equal()`, `grep("^\\.m5",...)` → `startsWith(names(...), ".m5")`, double-`rbind` pattern →
+  intermediate variable.
+  (5) Verify: styler + lintr clean; `R CMD check --as-cran` → 0/0/0; README rebuilt.
+  Owner next steps: `devtools::check_win_devel()`, `rhub::rhub_check()` before actual CRAN upload.
+  (947 tests pass, 1 skip; 0/0/0 R CMD check.)
 
 ## Current focus
 
-- **M20 (in progress):** CRAN submission readiness + example legibility. A *release-readiness*
-  milestone (not a DESIGN.md §15 feature milestone) ahead of tagging/submitting 0.1.0. Five waves:
-
-  **Wave 1 — Statistical/correctness.** Add `.standardize()` (na.rm-aware center/scale) in
-  `R/utils.R`; rewrite `.compute_scores()` to use it so only genuinely incomplete *rows* yield
-  `NA` scores (the current `scale(data_mat)` makes any column with one `NA` all-`NA`, so *every*
-  score becomes `NA` — contradicting the warning that says only incomplete rows do). Use the same
-  helper in the `compute_edges()` scores route. Guard `detect_ordinal()` against all-`NA` columns
-  (`all(logical(0))` is `TRUE`). Fix stale "oblique rotations" wording in the `compute_edges()`
-  roxygen (varimax-only since M13).
-
-  **Wave 2 — Example conversions.** Remove all `\dontrun{}` from R/ roxygen (CRAN policy: only for
-  examples that genuinely cannot run). `requireNamespace(..., quietly = TRUE)` guards (runnable) for
-  the fast examples (`ackwards`, `autoplot`, `interpret`, `label_template`, `layout`, `augment`,
-  `summary`); `\donttest{}` + inner guard for the two slow/stochastic `suggest_k` blocks. Then
-  `devtools::document()`; `grep -rn dontrun R/` must be empty.
-
-  **Wave 3 — Submission metadata.** `DESCRIPTION`: add machine-readable refs to the Description
-  field — Goldberg 2006 `<doi:10.1016/j.jrp.2006.01.001>`, Waller 2007
-  `<doi:10.1016/j.jrp.2006.08.005>`, and Forbes 2023 (verify the DOI resolves before commit; fall
-  back to Goldberg + Waller only if it cannot be confirmed). `NEWS.md`: fold the `(development)`
-  section (M18 `top_items`/`label_template`) into a
-  single `0.1.0` entry and add the M19 interpret vignette; drop the dev header. New
-  `cran-comments.md` (local `R CMD check --as-cran` result + Suggests-gating rationale + "no
-  reverse dependencies"). **Owner must run win-builder + one R-hub platform before upload — not
-  runnable from the dev environment.**
-
-  **Wave 4 — Example legibility.** Add `sort = c("none", "strength")` to `tidy.ackwards()` for
-  `what = "edges"` (default `"none"` is byte-identical to current output / round-trip safe;
-  `"strength"` sorts descending `|r|`; `sort = "strength"` with `what != "edges"` errors). Rewrite
-  esoteric base R in README/vignettes to legible base R (no new deps): strength-sorts
-  (`order(-abs(...))` in intro:225, README:104, forbes:78) → `tidy(x, "edges", sort = "strength")`;
-  intro:273 `identical(round(...,8), round(...,8))` → `all.equal()`; intro:286 `grep("^\\.m5", ...)`
-  → `startsWith(names(scored), ".m5")`; interpret:157 weakest-first → plain inline
-  `order(abs(primary$r))`. Leave the legible by-`factor`/`item` display sorts in engines/ordinal.
-
-  **Wave 5 — Verify.** `devtools::document()`, `styler::style_pkg()`, `lintr::lint_package()`,
-  full `R CMD check --as-cran`, rebuild README.
-
-  **Acceptance criteria.**
-  1. `R CMD check --as-cran` → 0/0/0 (except the already-documented pkgdown-renders-CLAUDE/DESIGN
-     note, which is build-ignored).
-  2. `grep -rn "dontrun" R/` empty; every example guarded or `\donttest`.
-  3. New scores test: complete rows non-`NA`, incomplete rows `NA`; algebra-vs-scores cross-check
-     still green.
-  4. `detect_ordinal()` on an all-`NA` column returns `FALSE` (with a test).
-  5. `NEWS.md` has one `0.1.0` section (no "development"), listing `top_items()`,
-     `label_template()`, and the interpret vignette.
-  6. `DESCRIPTION` Description contains the Goldberg 2006 DOI in `Authors (year) <doi:...>` form.
-  7. `cran-comments.md` exists.
-  8. `devtools::test()` green (≥ 937 tests), styler/lintr clean.
-  9. `tidy(x, "edges", sort = "strength")` returns descending `|r|`; `sort = "none"` byte-identical
-     to current; `sort = "strength"` with `what != "edges"` errors. Test added.
-  10. No `order(-abs(...))`, `identical(round(...))`, or regex `grep` over score-column names
-      remains in README/vignettes; vignettes knit with no new package on their setup `library()`
-      lines.
+No milestone currently in progress.
 
 ## Invariants — do not violate without flagging
 
