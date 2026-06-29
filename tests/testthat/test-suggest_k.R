@@ -28,7 +28,7 @@ test_that("suggest_k() returns a suggest_k object with expected fields", {
       "k_map", "k_vss1", "k_vss2",
       "k_cd", "cd_available", "cd_rmse",
       "criteria",
-      "k_max", "n_obs", "n_vars", "cor"
+      "k_max", "n_obs", "n_vars", "cor", "input_type"
     )
   )
   expect_equal(sk$k_max, 4L)

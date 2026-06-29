@@ -4,17 +4,34 @@
 \alias{suggest_k}
 \title{Suggest a maximum number of factors for bass-ackwards analysis}
 \usage{
-suggest_k(data, k_max = NULL, cor = "pearson", n_iter = 20L, seed = NULL, ...)
+suggest_k(
+  data,
+  k_max = NULL,
+  cor = "pearson",
+  n_obs = NULL,
+  n_iter = 20L,
+  seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{data}{A data frame or numeric matrix (items in columns, observations in
-rows).}
+rows). Alternatively, a pre-computed \strong{correlation matrix} may be supplied
+(a square, symmetric, numeric matrix with unit diagonal). When a
+correlation matrix is supplied, \code{n_obs} is required (PA and VSS need N),
+the \code{cor} argument is ignored, and the Comparison Data (CD) criterion is
+skipped (CD requires raw item distributions for resampling).}
 
 \item{k_max}{Maximum number of components to test. Defaults to
 \code{min(ncol(data) - 1, 8)}. Increase if you expect a deeper hierarchy.}
 
 \item{cor}{Correlation basis: \code{"pearson"} (default) or \code{"spearman"}. Should
-match the \code{cor} argument you plan to use in \code{\link[=ackwards]{ackwards()}}.}
+match the \code{cor} argument you plan to use in \code{\link[=ackwards]{ackwards()}}. Ignored when
+\code{data} is a correlation matrix (the basis is already fixed).}
+
+\item{n_obs}{Number of observations. Required when \code{data} is a pre-computed
+correlation matrix (PA and VSS need N). Ignored when raw data are supplied
+(N is determined from \code{nrow(data)}).}
 
 \item{n_iter}{Number of Monte Carlo iterations for parallel analysis. Default
 \code{20}. Reduce to \code{5} for fast/exploratory runs; increase to \verb{100+} for
@@ -104,6 +121,10 @@ autoplot(sk)
 
 # Faster exploratory run
 suggest_k(bfi25, k_max = 6, n_iter = 5)
+
+# Correlation-matrix input (CD is skipped; n_obs required)
+R <- cor(bfi25, use = "pairwise.complete.obs")
+suggest_k(R, n_obs = 875L)
 }
 
 }

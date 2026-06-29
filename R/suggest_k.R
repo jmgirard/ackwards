@@ -34,11 +34,19 @@
 #' overextraction.
 #'
 #' @param data A data frame or numeric matrix (items in columns, observations in
-#'   rows).
+#'   rows). Alternatively, a pre-computed **correlation matrix** may be supplied
+#'   (a square, symmetric, numeric matrix with unit diagonal). When a
+#'   correlation matrix is supplied, `n_obs` is required (PA and VSS need N),
+#'   the `cor` argument is ignored, and the Comparison Data (CD) criterion is
+#'   skipped (CD requires raw item distributions for resampling).
 #' @param k_max Maximum number of components to test. Defaults to
 #'   `min(ncol(data) - 1, 8)`. Increase if you expect a deeper hierarchy.
 #' @param cor Correlation basis: `"pearson"` (default) or `"spearman"`. Should
-#'   match the `cor` argument you plan to use in [ackwards()].
+#'   match the `cor` argument you plan to use in [ackwards()]. Ignored when
+#'   `data` is a correlation matrix (the basis is already fixed).
+#' @param n_obs Number of observations. Required when `data` is a pre-computed
+#'   correlation matrix (PA and VSS need N). Ignored when raw data are supplied
+#'   (N is determined from `nrow(data)`).
 #' @param n_iter Number of Monte Carlo iterations for parallel analysis. Default
 #'   `20`. Reduce to `5` for fast/exploratory runs; increase to `100+` for
 #'   publication.
@@ -104,37 +112,111 @@
 #'
 #' # Faster exploratory run
 #' suggest_k(bfi25, k_max = 6, n_iter = 5)
+#'
+#' # Correlation-matrix input (CD is skipped; n_obs required)
+#' R <- cor(bfi25, use = "pairwise.complete.obs")
+#' suggest_k(R, n_obs = 875L)
 #' }
 #'
 #' @export
-suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L,
-                      seed = NULL, ...) {
-  cor <- rlang::arg_match(cor, c("pearson", "spearman"))
+suggest_k <- function(data, k_max = NULL, cor = "pearson", n_obs = NULL,
+                      n_iter = 20L, seed = NULL, ...) {
+  # --- Detect R-matrix vs. raw-data input -------------------------------------
+  input_type <- if (.is_cor_matrix(data)) "cor_matrix" else "data"
 
-  if (!is.data.frame(data) && !is.matrix(data)) {
-    cli::cli_abort("{.arg data} must be a data frame or numeric matrix.")
-  }
-  data_mat <- as.matrix(data)
-  if (!is.numeric(data_mat)) {
-    cli::cli_abort("{.arg data} must contain only numeric columns.")
-  }
-
-  p <- ncol(data_mat)
-  n <- nrow(data_mat)
-
-  if (is.null(k_max)) k_max <- min(p - 1L, 8L)
-  k_max <- as.integer(k_max)
   n_iter <- as.integer(n_iter)
 
-  if (k_max < 1L || k_max >= p) {
-    cli::cli_abort(
-      "{.arg k_max} must be between 1 and {p - 1L} (number of variables - 1)."
-    )
+  if (input_type == "cor_matrix") {
+    # Validate and normalise; synthesise V1..Vp dimnames if absent
+    R <- .validate_cor_matrix(as.matrix(data))
+    p <- nrow(R)
+    n_vars <- p
+
+    # Warn if cor set explicitly (ignored for R input)
+    cor_was_set <- !missing(cor) && cor != "pearson"
+    if (cor_was_set) {
+      cli::cli_warn(c(
+        "!" = "{.arg cor} is ignored when a correlation matrix is supplied.",
+        "i" = "Remove {.arg cor} from your call to suppress this warning."
+      ),
+        .frequency = "once",
+        .frequency_id = "suggest_k_cor_ignored"
+      )
+    }
+    # Warn if n_obs not supplied (also caught below for required check)
+    if (is.null(n_obs)) {
+      cli::cli_abort(c(
+        "!" = "{.arg n_obs} is required when a correlation matrix is supplied.",
+        "i" = "Parallel analysis and VSS need the number of observations.",
+        "i" = "Supply the number of observations: {.code n_obs = <N>}."
+      ))
+    }
+    if (!is.numeric(n_obs) || length(n_obs) != 1L ||
+      n_obs < 1L || n_obs != as.integer(n_obs)) {
+      cli::cli_abort("{.arg n_obs} must be a positive integer.")
+    }
+    n <- as.integer(n_obs)
+
+    if (is.null(k_max)) k_max <- min(p - 1L, 8L)
+    k_max <- as.integer(k_max)
+
+    if (k_max < 1L || k_max >= p) {
+      cli::cli_abort(
+        "{.arg k_max} must be between 1 and {p - 1L} (number of variables - 1)."
+      )
+    }
+
+    # CD requires raw data for resampling — gate it off with an info note
+    cd_available <- FALSE
+    cli::cli_inform(c(
+      "i" = "Comparison Data (CD) is skipped when a correlation matrix is \\
+             supplied (CD requires raw item distributions for resampling)."
+    ))
+    cor_stored <- NA_character_
+    data_mat <- NULL  # no raw data
+
+  } else {
+    # --- Raw data path --------------------------------------------------------
+    cor <- rlang::arg_match(cor, c("pearson", "spearman"))
+
+    if (!is.null(n_obs)) {
+      cli::cli_warn(c(
+        "!" = "{.arg n_obs} is ignored when raw data are supplied \\
+               (N is determined from {.code nrow(data)}).",
+        "i" = "Remove {.arg n_obs} from your call to suppress this warning."
+      ),
+        .frequency = "once",
+        .frequency_id = "suggest_k_nobs_ignored"
+      )
+    }
+
+    if (!is.data.frame(data) && !is.matrix(data)) {
+      cli::cli_abort("{.arg data} must be a data frame or numeric matrix.")
+    }
+    data_mat <- as.matrix(data)
+    if (!is.numeric(data_mat)) {
+      cli::cli_abort("{.arg data} must contain only numeric columns.")
+    }
+
+    p <- ncol(data_mat)
+    n_vars <- p
+    n <- nrow(data_mat)
+    cor_stored <- cor
+
+    if (is.null(k_max)) k_max <- min(p - 1L, 8L)
+    k_max <- as.integer(k_max)
+
+    if (k_max < 1L || k_max >= p) {
+      cli::cli_abort(
+        "{.arg k_max} must be between 1 and {p - 1L} (number of variables - 1)."
+      )
+    }
+
+    R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
+    cd_available <- rlang::is_installed("EFAtools")  # will be checked later
   }
 
-  R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
-
-  # --- Parallel analysis: PC + FA (Horn) --------------------------------------
+  # --- Parallel analysis: PC + FA (Horn) -----------------------------------------
   cli::cli_progress_step(
     "Running parallel analysis ({n_iter} iterations, PC + FA)..."
   )
@@ -188,7 +270,11 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L,
   k_vss2 <- which.max(vss2_vals)
 
   # --- Comparison Data (Ruscio & Roche 2012) -- optional ---------------------
-  cd_available <- rlang::is_installed("EFAtools")
+  # cd_available is FALSE when R-matrix input (gated above); otherwise check
+  # whether EFAtools is installed.
+  if (input_type == "data") {
+    cd_available <- rlang::is_installed("EFAtools")
+  }
   k_cd <- NA_integer_
   cd_rmse <- NULL
   if (cd_available) {
@@ -269,8 +355,9 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L,
       criteria      = criteria,
       k_max         = k_max,
       n_obs         = n,
-      n_vars        = p,
-      cor           = cor
+      n_vars        = n_vars,
+      cor           = cor_stored,
+      input_type    = input_type
     ),
     class = "suggest_k"
   )
@@ -285,10 +372,11 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_iter = 20L,
 print.suggest_k <- function(x, ...) {
   cli::cli_h1("Factor / Component Count Suggestion ({.pkg ackwards})")
 
+  cor_label <- if (is.na(x$cor)) "(user-supplied matrix)" else x$cor
   cli::cli_dl(c(
     "Variables" = as.character(x$n_vars),
     "n"         = format(x$n_obs, big.mark = ","),
-    "Basis"     = x$cor,
+    "Basis"     = cor_label,
     "Tested k"  = paste0("1-", x$k_max)
   ))
 
@@ -328,11 +416,19 @@ print.suggest_k <- function(x, ...) {
   }
 
   if (!x$cd_available) {
-    cli::cli_text(
-      cli::col_grey(
-        "  + CD requires {.pkg EFAtools} (install to enable)."
+    if (!is.null(x$input_type) && identical(x$input_type, "cor_matrix")) {
+      cli::cli_text(
+        cli::col_grey(
+          "  + CD skipped (requires raw data; not available for matrix input)."
+        )
       )
-    )
+    } else {
+      cli::cli_text(
+        cli::col_grey(
+          "  + CD requires {.pkg EFAtools} (install to enable)."
+        )
+      )
+    }
   }
 
   cli::cli_h2("Recommendations")
