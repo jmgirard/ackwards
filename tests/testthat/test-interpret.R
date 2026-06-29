@@ -62,21 +62,36 @@ test_that("top_items sort = FALSE preserves item order", {
   set.seed(1)
   x <- ackwards(.make_esem_data(), k_max = 2, engine = "pca")
 
-  out_sorted <- top_items(x, cut = 0, sort = TRUE)
   out_unsorted <- top_items(x, cut = 0, sort = FALSE)
+  full_loadings <- tidy(x, what = "loadings")
 
-  # The item sets are the same; order may differ
-  for (lev in unique(out_sorted$data$level)) {
-    for (fac in unique(out_sorted$data$factor[out_sorted$data$level == lev])) {
-      items_sorted <- out_sorted$data$item[
-        out_sorted$data$level == lev & out_sorted$data$factor == fac
-      ]
+  for (lev in unique(out_unsorted$data$level)) {
+    for (fac in unique(out_unsorted$data$factor[out_unsorted$data$level == lev])) {
       items_unsorted <- out_unsorted$data$item[
         out_unsorted$data$level == lev & out_unsorted$data$factor == fac
       ]
-      expect_setequal(items_sorted, items_unsorted)
+      # tidy() preserves loading-matrix row order; unsorted must match that order
+      items_tidy_order <- full_loadings$item[
+        full_loadings$level == lev & full_loadings$factor == fac
+      ]
+      expected_order <- items_tidy_order[items_tidy_order %in% items_unsorted]
+      expect_identical(items_unsorted, expected_order)
     }
   }
+})
+
+test_that("top_items works with engine = 'efa'", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("GPArotation")
+  set.seed(1)
+  x <- ackwards(.make_esem_data(), k_max = 3, engine = "efa")
+
+  out <- top_items(x)
+  expect_s3_class(out, "top_items")
+  expect_identical(out$engine, "efa")
+  # Filtering and structure work identically to PCA
+  expect_true(all(abs(out$data$loading) >= 0.3))
+  expect_named(out$data, c("level", "factor", "item", "loading"))
 })
 
 test_that("top_items data matches tidy(what = 'loadings')", {

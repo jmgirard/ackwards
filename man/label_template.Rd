@@ -40,7 +40,8 @@ for adding substantive labels.
 \item \code{"forbes"} -- values follow the Forbes (2023) convention: level-letter +
 within-level index (\code{"A1"}, \code{"B1"}, \code{"B2"}, ...). Level 1 -> \code{A}, level 2 ->
 \code{B}, level 3 -> \code{C}, and so on. Within-level indices are assigned in
-canonical layout order (left to right).
+canonical layout order (left to right). Requires \code{k_max <= 26} (LETTERS has
+26 entries); an error is raised for deeper objects.
 \item \code{"blank"} -- all values are empty strings. Useful as a starting scaffold
 when you want to supply every label from scratch with no defaults showing
 through.

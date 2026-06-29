@@ -17,7 +17,8 @@
 #' * `"forbes"` -- values follow the Forbes (2023) convention: level-letter +
 #'   within-level index (`"A1"`, `"B1"`, `"B2"`, ...). Level 1 -> `A`, level 2 ->
 #'   `B`, level 3 -> `C`, and so on. Within-level indices are assigned in
-#'   canonical layout order (left to right).
+#'   canonical layout order (left to right). Requires `k_max <= 26` (LETTERS has
+#'   26 entries); an error is raised for deeper objects.
 #' * `"blank"` -- all values are empty strings. Useful as a starting scaffold
 #'   when you want to supply every label from scratch with no defaults showing
 #'   through.
@@ -55,13 +56,22 @@ label_template <- function(x, style = c("id", "forbes", "blank")) {
   style <- match.arg(style)
 
   # Get factor IDs in canonical layout order (same as autoplot uses)
-  node_ids <- ba_layout(x)$nodes$id
+  layout_nodes <- ba_layout(x)$nodes
+  node_ids <- layout_nodes$id
 
   values <- switch(style,
     id = node_ids,
     blank = rep("", length(node_ids)),
     forbes = {
-      levels_vec <- ba_layout(x)$nodes$level
+      levels_vec <- layout_nodes$level
+      max_level <- max(levels_vec)
+      if (max_level > 26L) {
+        cli::cli_abort(c(
+          "style = \"forbes\" requires at most 26 levels (LETTERS has 26 entries).",
+          "x" = "This object has {max_level} levels.",
+          "i" = "Use style = \"id\" or style = \"blank\" instead."
+        ))
+      }
       level_seq <- lapply(unique(levels_vec), function(k) {
         ids_at_k <- node_ids[levels_vec == k]
         letter <- LETTERS[k]

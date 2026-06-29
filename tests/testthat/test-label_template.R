@@ -117,3 +117,18 @@ test_that("label_template forbes uses LETTERS correctly for deeper hierarchies",
   expect_true(all(grepl("^B", m2_vals)))
   expect_true(all(grepl("^C", m3_vals)))
 })
+
+test_that("label_template works with engine = 'efa'", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("GPArotation")
+  set.seed(1)
+  x <- ackwards(.make_esem_data(), k_max = 3, engine = "efa")
+
+  out <- label_template(x, style = "id")
+  expect_type(out, "character")
+  expect_length(out, 6L) # 1 + 2 + 3 factors
+  expect_identical(names(out), ba_layout(x)$nodes$id)
+
+  out_forbes <- label_template(x, style = "forbes")
+  expect_identical(out_forbes[["m1f1"]], "A1")
+})
