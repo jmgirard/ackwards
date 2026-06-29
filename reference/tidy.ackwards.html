@@ -63,7 +63,9 @@ default (<code>what = "edges"</code>) returns the graph edge list that drives di
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'ackwards'</span></span>
 <span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
-<span>  what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"edges"</span>, <span class="st">"loadings"</span>, <span class="st">"variance"</span>, <span class="st">"fit"</span>, <span class="st">"nodes"</span>, <span class="st">"scores"</span><span class="op">)</span>,</span>
+<span>  what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"edges"</span>, <span class="st">"loadings"</span>, <span class="st">"loadings_se"</span>, <span class="st">"variance"</span>, <span class="st">"fit"</span>, <span class="st">"nodes"</span>, <span class="st">"scores"</span><span class="op">)</span>,</span>
+<span>  primary_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  sort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"strength"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -81,6 +83,10 @@ default (<code>what = "edges"</code>) returns the graph edge list that drives di
 <code>from</code>, <code>to</code>, <code>level_from</code>, <code>level_to</code>, <code>r</code>, <code>is_primary</code>, <code>above_cut</code>.</p></li>
 <li><p><code>"loadings"</code> — one row per item × factor × level:
 <code>level</code>, <code>factor</code>, <code>item</code>, <code>loading</code>.</p></li>
+<li><p><code>"loadings_se"</code> — one row per item × factor × level with the rotation-aware
+standard error of each loading: <code>level</code>, <code>factor</code>, <code>item</code>, <code>se</code>. Only the
+ESEM engine (<code>engine = "esem"</code>) produces these; errors informatively for
+PCA/EFA objects, which carry no loading standard errors.</p></li>
 <li><p><code>"variance"</code> — one row per factor × level:
 <code>level</code>, <code>factor</code>, <code>variance_pct</code>, <code>cumulative_pct</code>.</p></li>
 <li><p><code>"fit"</code> — one row per fit index × level: <code>level</code>, <code>index</code>, <code>value</code>.
@@ -96,6 +102,18 @@ computation). Columns: <code>obs</code> (row index), <code>level</code>, <code>f
 </ul></dd>
 
 
+<dt id="arg-primary-only">primary_only<a class="anchor" aria-label="anchor" href="#arg-primary-only"></a></dt>
+<dd><p>For <code>what = "edges"</code> only. When <code>TRUE</code>, returns just each
+factor's primary-parent edge (<code>is_primary == TRUE</code>) — the lineage tree that
+the diagram draws as solid arrows. Default <code>FALSE</code> (all edges). Errors for
+any other value of <code>what</code>.</p></dd>
+
+
+<dt id="arg-sort">sort<a class="anchor" aria-label="anchor" href="#arg-sort"></a></dt>
+<dd><p>For <code>what = "edges"</code> only. One of <code>"none"</code> (default, natural order)
+or <code>"strength"</code> (descending <code>|r|</code>). Ignored for all other values of <code>what</code>.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Ignored.</p></dd>
 
@@ -109,6 +127,37 @@ computation). Columns: <code>obs</code> (row index), <code>level</code>, <code>f
     <div class="dont-index"><p><code><a href="glance.ackwards.html">glance.ackwards()</a></code>, <code><a href="print.ackwards.html">print.ackwards()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"psych"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="co"># edges in natural order</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span> <span class="co"># strongest edges first</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, primary_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># just the primary-parent lineage</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 364 rows have missing values; correlations are computed pairwise.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `missing = "listwise"` for consistent complete-case analysis.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    level factor variance_pct cumulative_pct</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      1   m1f1        20.15          20.15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      2   m2f1        17.65          17.65</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      2   m2f2        13.48          31.12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      3   m3f1        15.52          15.52</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      3   m3f2        12.85          28.37</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      3   m3f3        11.18          39.55</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7      4   m4f1        15.30          15.30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      4   m4f2        12.81          28.11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9      4   m4f3        10.19          38.30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10     4   m4f4         8.58          46.88</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11     5   m5f1        12.72          12.72</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12     5   m5f2        12.34          25.06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13     5   m5f3        10.26          35.32</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14     5   m5f4         9.27          44.59</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15     5   m5f5         8.44          53.02</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

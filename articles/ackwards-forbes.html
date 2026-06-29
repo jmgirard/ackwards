@@ -140,26 +140,106 @@ adjacent pairs only to every combination of levels.</p>
 <div class="section level3">
 <h3 id="reading-the-skip-level-edge-table">Reading the skip-level edge table<a class="anchor" aria-label="anchor" href="#reading-the-skip-level-edge-table"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_all</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Non-adjacent edges with |r| &gt;= 0.5, sorted by strength</span></span>
-<span><span class="va">skip</span> <span class="op">&lt;-</span> <span class="va">edges</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">edges</span><span class="op">$</span><span class="va">level_to</span> <span class="op">-</span> <span class="va">edges</span><span class="op">$</span><span class="va">level_from</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">edges</span><span class="op">$</span><span class="va">r</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">0.5</span>, <span class="op">]</span></span>
-<span><span class="va">skip</span> <span class="op">&lt;-</span> <span class="va">skip</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">skip</span><span class="op">$</span><span class="va">r</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"level_from"</span>, <span class="st">"level_to"</span>, <span class="st">"r"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">skip</span>, <span class="fl">12</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    from   to level_from level_to          r</span></span>
-<span><span class="co">#&gt; 56 m3f2 m5f1          3        5  0.9771525</span></span>
-<span><span class="co">#&gt; 26 m2f2 m4f2          2        4 -0.9758967</span></span>
-<span><span class="co">#&gt; 34 m2f2 m5f1          2        5 -0.9739184</span></span>
-<span><span class="co">#&gt; 21 m2f1 m4f1          2        4  0.8084362</span></span>
-<span><span class="co">#&gt; 52 m3f1 m5f2          3        5  0.7833802</span></span>
-<span><span class="co">#&gt; 3  m1f1 m3f1          1        3  0.7452805</span></span>
-<span><span class="co">#&gt; 6  m1f1 m4f1          1        4  0.7398477</span></span>
-<span><span class="co">#&gt; 63 m3f3 m5f3          3        5  0.7196037</span></span>
-<span><span class="co">#&gt; 65 m3f3 m5f5          3        5  0.6936223</span></span>
-<span><span class="co">#&gt; 30 m2f1 m5f2          2        5  0.6433249</span></span>
-<span><span class="co">#&gt; 54 m3f1 m5f4          3        5  0.6197564</span></span>
-<span><span class="co">#&gt; 11 m1f1 m5f2          1        5  0.6063399</span></span></code></pre></div>
+<p>The table below keeps the non-adjacent edges (levels more than one
+apart) with <code>|r| &gt;= 0.5</code>, strongest first — drawn from
+<code>tidy(x_all, what = "edges")</code>:</p>
+<table class="table">
+<caption>Strongest skip-level edges (|r| &gt;= 0.5, non-adjacent
+levels)</caption>
+<thead><tr class="header">
+<th align="left">from</th>
+<th align="left">to</th>
+<th align="right">level_from</th>
+<th align="right">level_to</th>
+<th align="right">r</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">m3f2</td>
+<td align="left">m5f1</td>
+<td align="right">3</td>
+<td align="right">5</td>
+<td align="right">0.98</td>
+</tr>
+<tr class="even">
+<td align="left">m2f2</td>
+<td align="left">m4f2</td>
+<td align="right">2</td>
+<td align="right">4</td>
+<td align="right">-0.98</td>
+</tr>
+<tr class="odd">
+<td align="left">m2f2</td>
+<td align="left">m5f1</td>
+<td align="right">2</td>
+<td align="right">5</td>
+<td align="right">-0.97</td>
+</tr>
+<tr class="even">
+<td align="left">m2f1</td>
+<td align="left">m4f1</td>
+<td align="right">2</td>
+<td align="right">4</td>
+<td align="right">0.81</td>
+</tr>
+<tr class="odd">
+<td align="left">m3f1</td>
+<td align="left">m5f2</td>
+<td align="right">3</td>
+<td align="right">5</td>
+<td align="right">0.78</td>
+</tr>
+<tr class="even">
+<td align="left">m1f1</td>
+<td align="left">m3f1</td>
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">0.75</td>
+</tr>
+<tr class="odd">
+<td align="left">m1f1</td>
+<td align="left">m4f1</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">0.74</td>
+</tr>
+<tr class="even">
+<td align="left">m3f3</td>
+<td align="left">m5f3</td>
+<td align="right">3</td>
+<td align="right">5</td>
+<td align="right">0.72</td>
+</tr>
+<tr class="odd">
+<td align="left">m3f3</td>
+<td align="left">m5f5</td>
+<td align="right">3</td>
+<td align="right">5</td>
+<td align="right">0.69</td>
+</tr>
+<tr class="even">
+<td align="left">m2f1</td>
+<td align="left">m5f2</td>
+<td align="right">2</td>
+<td align="right">5</td>
+<td align="right">0.64</td>
+</tr>
+<tr class="odd">
+<td align="left">m3f1</td>
+<td align="left">m5f4</td>
+<td align="right">3</td>
+<td align="right">5</td>
+<td align="right">0.62</td>
+</tr>
+<tr class="even">
+<td align="left">m1f1</td>
+<td align="left">m5f2</td>
+<td align="right">1</td>
+<td align="right">5</td>
+<td align="right">0.61</td>
+</tr>
+</tbody>
+</table>
 <p>Several factors connect across two or more levels with correlations
 above 0.90. <code>m3f2</code> (level 3, factor 2) correlates 0.98 with
 <code>m5f1</code> (level 5, factor 1), jumping <em>two</em> levels. This
@@ -183,7 +263,7 @@ by near-perfect correlations (|r| ≥ 0.9 by default) across levels. If
 m2f2 → m3f2 → m4f2 → m5f1 all share r &gt; 0.97, the intermediate nodes
 m3f2 and m4f2 are flagged as redundant: they repeat rather than refine
 the same dimension.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_prune</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>,</span>
 <span>  k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>,</span>
 <span>  pairs <span class="op">=</span> <span class="st">"all"</span>, prune <span class="op">=</span> <span class="st">"redundant"</span></span>
@@ -191,7 +271,7 @@ the same dimension.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_prune</span>, what <span class="op">=</span> <span class="st">"nodes"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      id level pruned prune_reason</span></span>
 <span><span class="co">#&gt; 1  m1f1     1  FALSE         &lt;NA&gt;</span></span>
@@ -235,7 +315,7 @@ publication style — black lines, uniform width, plain line ends, and no
 legend.</p>
 <p><strong>With correlation labels</strong>
 (<code>show_r = TRUE</code>):</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x_prune</span>,</span>
 <span>  drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>, show_r <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  color_pos <span class="op">=</span> <span class="st">"black"</span>, color_neg <span class="op">=</span> <span class="st">"black"</span>,</span>
@@ -244,7 +324,7 @@ legend.</p>
 <p><img src="ackwards-forbes_files/figure-html/drop-pruned-1.png" class="r-plt" alt="" width="768"></p>
 <p><strong>Without labels</strong> (cleaner for slides or when the exact
 values are not the focus):</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x_prune</span>,</span>
 <span>  drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  color_pos <span class="op">=</span> <span class="st">"black"</span>, color_neg <span class="op">=</span> <span class="st">"black"</span>,</span>
@@ -260,7 +340,7 @@ indicate weaker ones — the same <code>cut_strong</code> threshold used
 throughout.</p>
 <p>To close the gaps and compact the layout while retaining the original
 level numbers on the axis:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x_prune</span>,</span>
 <span>  drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>, compress_levels <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  color_pos <span class="op">=</span> <span class="st">"black"</span>, color_neg <span class="op">=</span> <span class="st">"black"</span>,</span>
@@ -290,7 +370,7 @@ coefficient (φ):</p>
 near-identical loading patterns regardless of sign. A factor at k = 3
 that has φ &gt; 0.95 with a factor at k = 1 is suspected to be an
 artefact of the rotation rather than a genuine new dimension.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_art</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>,</span>
 <span>  k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>,</span>
 <span>  pairs <span class="op">=</span> <span class="st">"all"</span>, prune <span class="op">=</span> <span class="st">"artefact"</span></span>
@@ -349,20 +429,9 @@ inspection; no factors are auto-flagged.</p>
 because the redundant chains all have correlations &gt; 0.97 — the
 flagging is unambiguous. With your own data you may find borderline
 cases where the threshold matters:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Check how many factors are flagged at different redundancy_r thresholds</span></span>
-<span><span class="va">thresholds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.80</span>, <span class="fl">0.85</span>, <span class="fl">0.90</span>, <span class="fl">0.95</span><span class="op">)</span></span>
-<span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">thresholds</span>, <span class="kw">function</span><span class="op">(</span><span class="va">thr</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>,</span>
-<span>      k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>,</span>
-<span>      pairs <span class="op">=</span> <span class="st">"all"</span>, prune <span class="op">=</span> <span class="st">"redundant"</span>,</span>
-<span>      redundancy_r <span class="op">=</span> <span class="va">thr</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"nodes"</span><span class="op">)</span><span class="op">$</span><span class="va">pruned</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.8) flagged 8 nodes.</span></span>
+<p>Refitting at a few <code>redundancy_r</code> thresholds and counting
+flagged factors at each shows how sensitive the pruning is:</p>
+<pre><code><span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.8) flagged 8 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.85) flagged 7 nodes.</span></span>
@@ -373,13 +442,33 @@ cases where the threshold matters:</p>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
-<span><span class="co">#&gt;   `x$prune$chains`.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>redundancy_r <span class="op">=</span> <span class="va">thresholds</span>, n_flagged <span class="op">=</span> <span class="va">counts</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   redundancy_r n_flagged</span></span>
-<span><span class="co">#&gt; 1         0.80         8</span></span>
-<span><span class="co">#&gt; 2         0.85         7</span></span>
-<span><span class="co">#&gt; 3         0.90         6</span></span>
-<span><span class="co">#&gt; 4         0.95         6</span></span></code></pre></div>
+<span><span class="co">#&gt;   `x$prune$chains`.</span></span></code></pre>
+<table class="table">
+<caption>Factors flagged redundant at each redundancy_r
+threshold</caption>
+<thead><tr class="header">
+<th align="right">redundancy_r</th>
+<th align="right">n_flagged</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.80</td>
+<td align="right">8</td>
+</tr>
+<tr class="even">
+<td align="right">0.85</td>
+<td align="right">7</td>
+</tr>
+<tr class="odd">
+<td align="right">0.90</td>
+<td align="right">6</td>
+</tr>
+<tr class="even">
+<td align="right">0.95</td>
+<td align="right">6</td>
+</tr>
+</tbody>
+</table>
 <p>For the BFI all thresholds agree: the flagged factors are robustly
 redundant, not borderline cases. In noisier datasets or smaller samples
 you will typically see the count increase as you lower the
@@ -412,7 +501,7 @@ guide your focus in reporting.</p>
 Research in Personality</em>, <em>40</em>(4), 347–358.</p>
 <p>Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg’s bass-ackward method.
-<em>Psychological Methods</em>. <a href="https://doi.org/10.1037/met0000593" class="external-link uri">https://doi.org/10.1037/met0000593</a></p>
+<em>Psychological Methods</em>. <a href="https://doi.org/10.1037/met0000546" class="external-link uri">https://doi.org/10.1037/met0000546</a></p>
 <p>Tucker, L. R. (1951). <em>A method for synthesis of factor analysis
 studies</em> (Personnel Research Section Report No. 984). Department of
 the Army.</p>

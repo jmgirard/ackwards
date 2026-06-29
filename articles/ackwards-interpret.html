@@ -484,20 +484,19 @@ the structure is genuinely rearranging. The edge table makes these
 visible:</p></li>
 </ul>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span></span>
-<span><span class="va">primary</span> <span class="op">&lt;-</span> <span class="va">edges</span><span class="op">[</span><span class="va">edges</span><span class="op">$</span><span class="va">is_primary</span> <span class="op">&amp;</span> <span class="va">edges</span><span class="op">$</span><span class="va">level_to</span> <span class="op">==</span> <span class="va">edges</span><span class="op">$</span><span class="va">level_from</span> <span class="op">+</span> <span class="fl">1</span>, <span class="op">]</span></span>
-<span><span class="va">primary</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">primary</span><span class="op">$</span><span class="va">r</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span><span class="op">)</span><span class="op">]</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    from   to         r</span></span>
-<span><span class="co">#&gt; 2  m1f1 m2f2 0.4864530</span></span>
-<span><span class="co">#&gt; 5  m2f1 m3f3 0.5767812</span></span>
-<span><span class="co">#&gt; 24 m4f1 m5f4 0.6157559</span></span>
-<span><span class="co">#&gt; 20 m3f3 m4f4 0.6989590</span></span>
-<span><span class="co">#&gt; 19 m3f3 m4f3 0.7150725</span></span>
-<span><span class="co">#&gt; 22 m4f1 m5f2 0.7879035</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Primary-parent edges, weakest last: the bottom rows are where structure shifts</span></span>
+<span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"edges"</span>, primary_only <span class="op">=</span> <span class="cn">TRUE</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    from   to level_from level_to         r is_primary above_cut</span></span>
+<span><span class="co">#&gt; 9  m4f1 m5f2          4        5 0.7879035       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 10 m3f3 m4f3          3        4 0.7150725       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 11 m3f3 m4f4          3        4 0.6989590       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 12 m4f1 m5f4          4        5 0.6157559       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 13 m2f1 m3f3          2        3 0.5767812       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 14 m1f1 m2f2          1        2 0.4864530       TRUE      TRUE</span></span></code></pre></div>
 <p>Edges with <code>|r|</code> near 1.0 are factors that pass through
 nearly unchanged — name the child the same as the parent. The smaller
-<code>|r|</code> values flag where a new, distinct construct is emerging
-and deserves its own name.</p>
+<code>|r|</code> values at the bottom flag where a new, distinct
+construct is emerging and deserves its own name.</p>
 </div>
 <div class="section level2">
 <h2 id="applying-your-names">Applying your names<a class="anchor" aria-label="anchor" href="#applying-your-names"></a>

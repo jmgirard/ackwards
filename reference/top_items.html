@@ -120,11 +120,54 @@ orientation but not the other; this is expected and informative.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">top_items</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">top_items</span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">5</span>, cut <span class="op">=</span> <span class="fl">0.4</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"psych"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">top_items</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">top_items</span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">5</span>, cut <span class="op">=</span> <span class="fl">0.4</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 364 rows have missing values; correlations are computed pairwise.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `missing = "listwise"` for consistent complete-case analysis.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient items by factor (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Engine: pca</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Cut: |loading| &gt;= 0.4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Top-n: 5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Level 5 (5 factors)</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f1</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> N1 [0.793]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> N3 [0.793]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> N2 [0.788]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> N4 [0.646]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> N5 [0.633]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f2</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> E2 [-0.722]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> E4 [0.704]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> E1 [-0.677]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> E3 [0.632]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> E5 [0.582]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f3</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C2 [0.738]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C3 [0.674]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C4 [-0.667]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C1 [0.651]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C5 [-0.617]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f4</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A2 [0.711]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A3 [0.677]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A1 [-0.627]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A5 [0.564]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A4 [0.525]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f5</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> O5 [-0.681]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> O3 [0.636]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> O2 [-0.594]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> O1 [0.588]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> O4 [0.499]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">for the full matrix.</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -240,10 +240,41 @@ Research in Personality*, 41(4), 745–752.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-print(x)
-tidy(x)
-glance(x)
-} # }
+if (requireNamespace("psych", quietly = TRUE)) {
+  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+  print(x)
+  tidy(x)
+  glance(x)
+}
+#> Warning: ! 364 rows have missing values; correlations are computed pairwise.
+#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
+#> Warning: ! One or more columns look like ordinal/Likert items (… "<= 7" distinct integer
+#>   values).
+#> ℹ Results use a "pearson" basis. Consider `cor = "polychoric"` for ordinal
+#>   data.
+#> This warning is displayed once per session.
+#> 
+#> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
+#> Engine: pca
+#> Rotation: varimax
+#> Basis: pearson
+#> n: 2,800
+#> k (max): 5
+#> 
+#> ── Levels ──
+#> 
+#> ✔ k = 1: 1 factor, 20.1% variance
+#> ✔ k = 2: 2 factors, 31.1% variance
+#> ✔ k = 3: 3 factors, 39.6% variance
+#> ✔ k = 4: 4 factors, 46.9% variance
+#> ✔ k = 5: 5 factors, 53% variance
+#> 
+#> ── Edges ──
+#> 
+#> 14 of 40 edges have |r| ≥ 0.3
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: This is a series of linked solutions, not a fitted hierarchical model.
+#> Cross-level edges are descriptive score correlations.
+#>   engine rotation     cor k_max n_obs deepest_converged n_edges
+#> 1    pca  varimax pearson     5  2800                 5      40
 ```

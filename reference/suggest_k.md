@@ -151,7 +151,7 @@ criteria as a range: the true k is likely somewhere in the middle.
 Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg's bass-ackward method.
 *Psychological Methods*.
-[doi:10.1037/met0000578](https://doi.org/10.1037/met0000578)
+[doi:10.1037/met0000546](https://doi.org/10.1037/met0000546)
 
 Horn, J. L. (1965). A rationale and test for the number of factors in
 factor analysis. *Psychometrika*, 30, 179–185.
@@ -174,12 +174,64 @@ matrix of partial correlations. *Psychometrika*, 41, 321–327.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-sk <- suggest_k(psych::bfi[, 1:25])
-sk
-autoplot(sk)
+# \donttest{
+if (requireNamespace("psych", quietly = TRUE)) {
+  sk <- suggest_k(psych::bfi[, 1:25])
+  sk
+  autoplot(sk)
 
-# Faster exploratory run
-suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5)
-} # }
+  # Faster exploratory run
+  suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5)
+}
+#> ℹ Running parallel analysis (20 iterations, PC + FA)...
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [296ms]
+#> 
+#> ℹ Running MAP and VSS...
+#> CD: 364 rows with missing values removed (2436 complete cases used).
+#> ✔ Running MAP and VSS... [101ms]
+#> 
+#> ℹ Running Comparison Data (CD)...
+#> ✔ Running Comparison Data (CD)... [20.2s]
+#> 
+#> ℹ Running parallel analysis (5 iterations, PC + FA)...
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [129ms]
+#> 
+#> ℹ Running MAP and VSS...
+#> CD: 364 rows with missing values removed (2436 complete cases used).
+#> ✔ Running MAP and VSS... [84ms]
+#> 
+#> ℹ Running Comparison Data (CD)...
+#> ✔ Running Comparison Data (CD)... [17.4s]
+#> 
+#> 
+#> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
+#> Variables: 25
+#> n: 2,800
+#> Basis: pearson
+#> Tested k: 1-6
+#> 
+#> ── Criteria (k = 1-6) ──
+#> 
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0242 VSS-1 0.5008 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0181 VSS-1 0.5626 VSS-2 0.6494 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0169 VSS-1 0.5819 VSS-2 0.7264 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0155 VSS-1 0.6244* VSS-2 0.7746 CD ✔
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0148* VSS-1 0.5858 VSS-2 0.7913* CD ✔
+#> k = 6: PA-PC ✔ PA-FA ✔ MAP 0.0159 VSS-1 0.5675 VSS-2 0.7508 CD ✔*
+#> 
+#> ── Recommendations ──
+#> 
+#> • PA-PC: k <= 6
+#> • PA-FA: k <= 6
+#> • MAP: k = 5
+#> • VSS-1: k = 4
+#> • VSS-2: k = 5
+#> • CD: k = 6
+#> Consensus range: k = 4-6
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
+#> above the consensus to observe factor fragmentation is intentional.
+#> Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
+#> 2023). PA-FA and CD are more conservative. Use the range.
+# }
 ```

@@ -204,10 +204,10 @@ and citations — see
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [293ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [281ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [178ms]
+#> ✔ Running MAP and VSS... [179ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
 #> ✔ Running Comparison Data (CD)... [18.1s]
@@ -466,7 +466,7 @@ kind of structured exploration.
 
 Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg’s bass-ackward method.
-*Psychological Methods*. <https://doi.org/10.1037/met0000578>
+*Psychological Methods*. <https://doi.org/10.1037/met0000546>
 
 Horn, J. L. (1965). A rationale and test for the number of factors in
 factor analysis. *Psychometrika*, *30*(2), 179–185.

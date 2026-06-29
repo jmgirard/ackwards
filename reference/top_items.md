@@ -66,9 +66,52 @@ the other; this is expected and informative.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-top_items(x)
-top_items(x, level = 5, cut = 0.4, n = 5)
-} # }
+if (requireNamespace("psych", quietly = TRUE)) {
+  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+  top_items(x)
+  top_items(x, level = 5, cut = 0.4, n = 5)
+}
+#> Warning: ! 364 rows have missing values; correlations are computed pairwise.
+#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
+#> 
+#> ── Salient items by factor (ackwards) ──────────────────────────────────────────
+#> Engine: pca
+#> Cut: |loading| >= 0.4
+#> Top-n: 5
+#> 
+#> ── Level 5 (5 factors) ──
+#> 
+#> m5f1
+#> N1 [0.793]
+#> N3 [0.793]
+#> N2 [0.788]
+#> N4 [0.646]
+#> N5 [0.633]
+#> m5f2
+#> E2 [-0.722]
+#> E4 [0.704]
+#> E1 [-0.677]
+#> E3 [0.632]
+#> E5 [0.582]
+#> m5f3
+#> C2 [0.738]
+#> C3 [0.674]
+#> C4 [-0.667]
+#> C1 [0.651]
+#> C5 [-0.617]
+#> m5f4
+#> A2 [0.711]
+#> A3 [0.677]
+#> A1 [-0.627]
+#> A5 [0.564]
+#> A4 [0.525]
+#> m5f5
+#> O5 [-0.681]
+#> O3 [0.636]
+#> O2 [-0.594]
+#> O1 [0.588]
+#> O4 [0.499]
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
+#> for the full matrix.
 ```

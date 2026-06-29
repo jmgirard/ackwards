@@ -202,6 +202,35 @@ exactly.
     **fixed swapped m5f3/m5f5 labels** (Conscientiousness/Openness) in
     the interpret and visualization vignettes. (935 tests pass, 1 skip;
     0/0/0 R CMD check.)
+- **M20 (done):** CRAN submission readiness + example legibility. A
+  *release-readiness* milestone (not a DESIGN.md §15 feature milestone)
+  ahead of tagging/submitting 0.1.0. Five waves:
+  1.  Statistical/correctness: `.standardize()` (na.rm-aware) replaces
+      [`scale()`](https://rdrr.io/r/base/scale.html) in
+      `.compute_scores()` and
+      [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+      scores route; `detect_ordinal()` guarded against all-`NA` columns;
+      stale “oblique rotations” wording in
+      [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+      roxygen fixed.
+  2.  Example conversions: all `\dontrun{}` removed; fast examples use
+      [`requireNamespace()`](https://rdrr.io/r/base/ns-load.html)
+      guards; slow/stochastic `suggest_k` blocks use `\donttest{}`.
+  3.  Submission metadata: three DOIs added to `DESCRIPTION` (Goldberg
+      2006, Waller 2007, Forbes 2023); `NEWS.md` restructured into a
+      single `0.1.0` entry; `cran-comments.md` added.
+  4.  Example legibility:
+      [`tidy.ackwards()`](https://jmgirard.github.io/ackwards/reference/tidy.ackwards.md)
+      gains `sort = c("none","strength")` for edges; README/vignettes
+      rewrote `order(-abs(...))` → `tidy(sort="strength")`,
+      `identical(round(...))` →
+      [`all.equal()`](https://rdrr.io/r/base/all.equal.html),
+      `grep("^\\.m5",...)` → `startsWith(names(...), ".m5")`,
+      double-`rbind` pattern → intermediate variable.
+  5.  Verify: styler + lintr clean; `R CMD check --as-cran` → 0/0/0;
+      README rebuilt. Owner next steps: `devtools::check_win_devel()`,
+      `rhub::rhub_check()` before actual CRAN upload. (947 tests pass, 1
+      skip; 0/0/0 R CMD check.)
 
 ## Current focus
 

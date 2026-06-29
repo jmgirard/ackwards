@@ -94,14 +94,44 @@ toggle (`show_arrows`); fixed edge width (`edge_linewidth`); legend
 toggle (`legend`); Forbes-style pruned view (`drop_pruned`,
 `compress_levels`).
 
+### Factor interpretation
+
+- **`top_items(x, level, cut, n, sort)`** — lists the salient items for
+  each factor, filtered to `|loading| >= cut` (default `0.3`) and sorted
+  by descending absolute loading. Arguments `level`, `n`, and `sort`
+  allow subsetting levels, capping items per factor, and controlling
+  order. Returns a `top_items` S3 object with a grouped cli print
+  method.
+
+- **`label_template(x, style)`** — generates the named-character-vector
+  scaffold for `autoplot(x, node_labels = ...)`. Styles: `"id"`
+  (default), `"forbes"` (level-letter + within-level index: `"A1"`,
+  `"B1"`, `"B2"`, …), `"blank"`. Factor IDs are in canonical layout
+  order; an editable `c(...)` literal is also printed for copy-paste.
+
+- See
+  [`vignette("ackwards-interpret")`](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md)
+  for the end-to-end naming workflow: reading a factor with
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md),
+  hierarchy-aware naming (parent vs. child, blends), sign-alignment
+  caveat, and the
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+  →
+  [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
+  → `autoplot(node_labels = ...)` round-trip.
+
 ### Tidy interface and scoring
 
 - [`print.ackwards()`](https://jmgirard.github.io/ackwards/reference/print.ackwards.md)
   — compact cli summary card.
 - [`summary.ackwards()`](https://jmgirard.github.io/ackwards/reference/summary.ackwards.md)
   — per-level variance, fit indices, lineage list, pruning notes.
-- `tidy(x, what = "edges" / "loadings" / "variance" / "nodes" / "scores")`
-  — long-format tidy tibbles.
+- `tidy(x, what = "edges" / "loadings" / "loadings_se" / "variance" / "nodes" / "scores")`
+  — long-format tidy tibbles. For `what = "edges"`,
+  `primary_only = TRUE` returns just each factor’s primary-parent edge
+  (the lineage tree) and `sort = "strength"` orders by `|r|`.
+  `what = "loadings_se"` returns the rotation-aware loading standard
+  errors (ESEM only).
 - `glance(x)` — one-row model-level summary.
 - `augment(x, data = ...)` — appends factor scores to a data frame;
   recomputes from stored weights when scores were not materialized at

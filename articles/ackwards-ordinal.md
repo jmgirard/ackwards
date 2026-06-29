@@ -113,72 +113,63 @@ loadings and change eigenvalues.
 
 ### Loadings
 
-``` r
+Stacking `tidy(what = "loadings")` from each basis lets us read the
+`k = 5` Neuroticism-item loadings side by side:
 
-l_pear <- tidy(x_pearson, what = "loadings")
-l_poly <- tidy(x_poly, what = "loadings")
-l_pear$basis <- "pearson"
-l_poly$basis <- "polychoric"
+| basis      | factor | item | loading |
+|:-----------|:-------|:-----|--------:|
+| pearson    | m5f1   | N1   |    0.81 |
+| polychoric | m5f1   | N1   |    0.83 |
+| pearson    | m5f1   | N2   |    0.79 |
+| polychoric | m5f1   | N2   |    0.82 |
+| pearson    | m5f1   | N3   |    0.79 |
+| polychoric | m5f1   | N3   |    0.82 |
+| pearson    | m5f1   | N4   |    0.65 |
+| polychoric | m5f1   | N4   |    0.67 |
+| pearson    | m5f1   | N5   |    0.63 |
+| polychoric | m5f1   | N5   |    0.66 |
+| pearson    | m5f2   | N1   |    0.08 |
+| polychoric | m5f2   | N1   |    0.08 |
+| pearson    | m5f2   | N2   |    0.04 |
+| polychoric | m5f2   | N2   |    0.04 |
+| pearson    | m5f2   | N3   |   -0.04 |
+| polychoric | m5f2   | N3   |   -0.04 |
+| pearson    | m5f2   | N4   |   -0.35 |
+| polychoric | m5f2   | N4   |   -0.36 |
+| pearson    | m5f2   | N5   |   -0.17 |
+| polychoric | m5f2   | N5   |   -0.19 |
+| pearson    | m5f3   | N1   |   -0.05 |
+| polychoric | m5f3   | N1   |   -0.05 |
+| pearson    | m5f3   | N2   |   -0.03 |
+| polychoric | m5f3   | N2   |   -0.02 |
+| pearson    | m5f3   | N3   |   -0.06 |
+| polychoric | m5f3   | N3   |   -0.06 |
+| pearson    | m5f3   | N4   |   -0.17 |
+| polychoric | m5f3   | N4   |   -0.17 |
+| pearson    | m5f3   | N5   |   -0.02 |
+| polychoric | m5f3   | N5   |   -0.03 |
+| pearson    | m5f4   | N1   |   -0.21 |
+| polychoric | m5f4   | N1   |   -0.23 |
+| pearson    | m5f4   | N2   |   -0.20 |
+| polychoric | m5f4   | N2   |   -0.20 |
+| pearson    | m5f4   | N3   |   -0.03 |
+| polychoric | m5f4   | N3   |   -0.04 |
+| pearson    | m5f4   | N4   |    0.02 |
+| polychoric | m5f4   | N4   |    0.02 |
+| pearson    | m5f4   | N5   |    0.15 |
+| polychoric | m5f4   | N5   |    0.16 |
+| pearson    | m5f5   | N1   |   -0.08 |
+| polychoric | m5f5   | N1   |   -0.08 |
+| pearson    | m5f5   | N2   |   -0.01 |
+| polychoric | m5f5   | N2   |    0.00 |
+| pearson    | m5f5   | N3   |    0.00 |
+| polychoric | m5f5   | N3   |    0.00 |
+| pearson    | m5f5   | N4   |    0.09 |
+| polychoric | m5f5   | N4   |    0.10 |
+| pearson    | m5f5   | N5   |   -0.18 |
+| polychoric | m5f5   | N5   |   -0.19 |
 
-# k = 5 loadings for Neuroticism items
-both <- rbind(l_pear, l_poly)
-both5_N <- both[both$level == 5 & substr(both$item, 1, 1) == "N", ]
-both5_N[
-  order(both5_N$factor, both5_N$item),
-  c("basis", "factor", "item", "loading")
-]
-#>          basis factor item       loading
-#> 266    pearson   m5f1   N1  0.8062243646
-#> 641 polychoric   m5f1   N1  0.8292885417
-#> 267    pearson   m5f1   N2  0.7938563923
-#> 642 polychoric   m5f1   N2  0.8181280340
-#> 268    pearson   m5f1   N3  0.7936642978
-#> 643 polychoric   m5f1   N3  0.8170949444
-#> 269    pearson   m5f1   N4  0.6494639043
-#> 644 polychoric   m5f1   N4  0.6711162693
-#> 270    pearson   m5f1   N5  0.6312852844
-#> 645 polychoric   m5f1   N5  0.6566396425
-#> 291    pearson   m5f2   N1  0.0782931777
-#> 666 polychoric   m5f2   N1  0.0759996064
-#> 292    pearson   m5f2   N2  0.0352421601
-#> 667 polychoric   m5f2   N2  0.0382025699
-#> 293    pearson   m5f2   N3 -0.0440010438
-#> 668 polychoric   m5f2   N3 -0.0444846998
-#> 294    pearson   m5f2   N4 -0.3541410691
-#> 669 polychoric   m5f2   N4 -0.3647980792
-#> 295    pearson   m5f2   N5 -0.1704111477
-#> 670 polychoric   m5f2   N5 -0.1861329939
-#> 316    pearson   m5f3   N1 -0.0455522012
-#> 691 polychoric   m5f3   N1 -0.0472607090
-#> 317    pearson   m5f3   N2 -0.0268094003
-#> 692 polychoric   m5f3   N2 -0.0247073912
-#> 318    pearson   m5f3   N3 -0.0578242974
-#> 693 polychoric   m5f3   N3 -0.0621272116
-#> 319    pearson   m5f3   N4 -0.1729968543
-#> 694 polychoric   m5f3   N4 -0.1740405531
-#> 320    pearson   m5f3   N5 -0.0153960113
-#> 695 polychoric   m5f3   N5 -0.0280403494
-#> 341    pearson   m5f4   N1 -0.2124823711
-#> 716 polychoric   m5f4   N1 -0.2278320038
-#> 342    pearson   m5f4   N2 -0.1952901283
-#> 717 polychoric   m5f4   N2 -0.2027024978
-#> 343    pearson   m5f4   N3 -0.0286771115
-#> 718 polychoric   m5f4   N3 -0.0385417711
-#> 344    pearson   m5f4   N4  0.0231643069
-#> 719 polychoric   m5f4   N4  0.0207848195
-#> 345    pearson   m5f4   N5  0.1464093383
-#> 720 polychoric   m5f4   N5  0.1622028430
-#> 366    pearson   m5f5   N1 -0.0827550035
-#> 741 polychoric   m5f5   N1 -0.0845363559
-#> 367    pearson   m5f5   N2 -0.0066114451
-#> 742 polychoric   m5f5   N2 -0.0007814723
-#> 368    pearson   m5f5   N3 -0.0034235903
-#> 743 polychoric   m5f5   N3 -0.0033825448
-#> 369    pearson   m5f5   N4  0.0939873291
-#> 744 polychoric   m5f5   N4  0.1008975660
-#> 370    pearson   m5f5   N5 -0.1800778847
-#> 745 polychoric   m5f5   N5 -0.1944942605
-```
+Neuroticism-item loadings (k = 5): Pearson vs polychoric {.table}
 
 Polychoric loadings for the Neuroticism items are noticeably higher —
 the latent structure is sharper when the attenuating effect of coarse
@@ -186,49 +177,41 @@ categories is removed.
 
 ### Between-level edges
 
-``` r
+The same comparison for the primary-parent edges —
+`tidy(what = "edges", primary_only = TRUE)` under each basis:
 
-e_pear <- tidy(x_pearson, what = "edges")
-e_poly <- tidy(x_poly, what = "edges")
+| basis      | from | to   |     r |
+|:-----------|:-----|:-----|------:|
+| pearson    | m1f1 | m2f1 |  0.86 |
+| polychoric | m1f1 | m2f1 |  0.87 |
+| pearson    | m1f1 | m2f2 |  0.52 |
+| polychoric | m1f1 | m2f2 |  0.49 |
+| pearson    | m2f1 | m3f1 |  0.85 |
+| polychoric | m2f1 | m3f1 |  0.82 |
+| pearson    | m2f2 | m3f2 | -1.00 |
+| polychoric | m2f2 | m3f2 | -1.00 |
+| pearson    | m2f1 | m3f3 |  0.51 |
+| polychoric | m2f1 | m3f3 |  0.58 |
+| pearson    | m3f1 | m4f1 |  1.00 |
+| polychoric | m3f1 | m4f1 |  1.00 |
+| pearson    | m3f2 | m4f2 |  0.99 |
+| polychoric | m3f2 | m4f2 |  0.98 |
+| pearson    | m3f3 | m4f3 |  0.80 |
+| polychoric | m3f3 | m4f3 |  0.72 |
+| pearson    | m3f3 | m4f4 |  0.60 |
+| polychoric | m3f3 | m4f4 |  0.70 |
+| pearson    | m4f2 | m5f1 |  1.00 |
+| polychoric | m4f2 | m5f1 |  1.00 |
+| pearson    | m4f1 | m5f2 |  0.78 |
+| polychoric | m4f1 | m5f2 |  0.79 |
+| pearson    | m4f3 | m5f3 |  1.00 |
+| polychoric | m4f3 | m5f3 |  1.00 |
+| pearson    | m4f1 | m5f4 |  0.62 |
+| polychoric | m4f1 | m5f4 |  0.62 |
+| pearson    | m4f4 | m5f5 |  0.98 |
+| polychoric | m4f4 | m5f5 |  0.99 |
 
-primary_pear <- e_pear[e_pear$is_primary, c("from", "to", "r")]
-primary_poly <- e_poly[e_poly$is_primary, c("from", "to", "r")]
-
-primary_pear$basis <- "pearson"
-primary_poly$basis <- "polychoric"
-
-both_e <- rbind(primary_pear, primary_poly)
-both_e[order(both_e$to, both_e$basis), ]
-#>     from   to          r      basis
-#> 1   m1f1 m2f1  0.8571067    pearson
-#> 11  m1f1 m2f1  0.8737068 polychoric
-#> 2   m1f1 m2f2  0.5151389    pearson
-#> 21  m1f1 m2f2  0.4864530 polychoric
-#> 3   m2f1 m3f1  0.8543686    pearson
-#> 31  m2f1 m3f1  0.8157785 polychoric
-#> 7   m2f2 m3f2 -0.9953342    pearson
-#> 71  m2f2 m3f2 -0.9975486 polychoric
-#> 5   m2f1 m3f3  0.5147376    pearson
-#> 51  m2f1 m3f3  0.5767812 polychoric
-#> 9   m3f1 m4f1  0.9993906    pearson
-#> 91  m3f1 m4f1  0.9990773 polychoric
-#> 14  m3f2 m4f2  0.9862431    pearson
-#> 141 m3f2 m4f2  0.9789921 polychoric
-#> 19  m3f3 m4f3  0.7984687    pearson
-#> 191 m3f3 m4f3  0.7150725 polychoric
-#> 20  m3f3 m4f4  0.6011486    pearson
-#> 201 m3f3 m4f4  0.6989590 polychoric
-#> 26  m4f2 m5f1  0.9971372    pearson
-#> 261 m4f2 m5f1  0.9964532 polychoric
-#> 22  m4f1 m5f2  0.7817947    pearson
-#> 221 m4f1 m5f2  0.7879035 polychoric
-#> 33  m4f3 m5f3  0.9973777    pearson
-#> 331 m4f3 m5f3  0.9972853 polychoric
-#> 24  m4f1 m5f4  0.6231008    pearson
-#> 241 m4f1 m5f4  0.6157559 polychoric
-#> 40  m4f4 m5f5  0.9827248    pearson
-#> 401 m4f4 m5f5  0.9930407 polychoric
-```
+Primary-parent edges: Pearson vs polychoric {.table}
 
 The edges are broadly similar in sign and rank order — the hierarchy is
 the same — but polychoric edges are stronger. Factors that represent
@@ -323,7 +306,7 @@ O(p²) and can be slow for very large item pools.
 > Materializing factor scores via
 > [`augment()`](https://generics.r-lib.org/reference/augment.html)
 > applies those weights to Pearson-standardized raw data
-> (`scale(data)`). The resulting scores are calibrated to have
+> (`.standardize(data)`). The resulting scores are calibrated to have
 > *model-implied* unit variance, not empirically unit variance. For
 > downstream analysis this distinction rarely matters — the scores are
 > still well-scaled — but it is why

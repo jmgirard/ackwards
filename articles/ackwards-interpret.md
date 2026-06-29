@@ -422,21 +422,21 @@ children. Use it to name **top-down**:
 
 ``` r
 
-edges <- tidy(x, what = "edges")
-primary <- edges[edges$is_primary & edges$level_to == edges$level_from + 1, ]
-primary[order(abs(primary$r)), c("from", "to", "r")] |> head()
-#>    from   to         r
-#> 2  m1f1 m2f2 0.4864530
-#> 5  m2f1 m3f3 0.5767812
-#> 24 m4f1 m5f4 0.6157559
-#> 20 m3f3 m4f4 0.6989590
-#> 19 m3f3 m4f3 0.7150725
-#> 22 m4f1 m5f2 0.7879035
+# Primary-parent edges, weakest last: the bottom rows are where structure shifts
+tidy(x, what = "edges", primary_only = TRUE, sort = "strength") |> tail()
+#>    from   to level_from level_to         r is_primary above_cut
+#> 9  m4f1 m5f2          4        5 0.7879035       TRUE      TRUE
+#> 10 m3f3 m4f3          3        4 0.7150725       TRUE      TRUE
+#> 11 m3f3 m4f4          3        4 0.6989590       TRUE      TRUE
+#> 12 m4f1 m5f4          4        5 0.6157559       TRUE      TRUE
+#> 13 m2f1 m3f3          2        3 0.5767812       TRUE      TRUE
+#> 14 m1f1 m2f2          1        2 0.4864530       TRUE      TRUE
 ```
 
 Edges with `|r|` near 1.0 are factors that pass through nearly unchanged
-— name the child the same as the parent. The smaller `|r|` values flag
-where a new, distinct construct is emerging and deserves its own name.
+— name the child the same as the parent. The smaller `|r|` values at the
+bottom flag where a new, distinct construct is emerging and deserves its
+own name.
 
 ## Applying your names
 

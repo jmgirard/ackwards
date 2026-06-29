@@ -276,57 +276,237 @@ EFA and PCA loadings are highly correlated but not identical. EFA
 loadings are systematically somewhat smaller because they model only the
 common variance; PCA inflates loadings by fitting noise alongside
 signal.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">l_pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_pca</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span>
-<span><span class="va">l_efa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_efa</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># k = 3, first 5 items per factor</span></span>
-<span><span class="va">l_pca</span><span class="op">$</span><span class="va">engine</span> <span class="op">&lt;-</span> <span class="st">"pca"</span></span>
-<span><span class="va">l_efa</span><span class="op">$</span><span class="va">engine</span> <span class="op">&lt;-</span> <span class="st">"efa"</span></span>
-<span><span class="va">both</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">l_pca</span>, <span class="va">l_efa</span><span class="op">)</span></span>
-<span><span class="va">both3</span> <span class="op">&lt;-</span> <span class="va">both</span><span class="op">[</span><span class="va">both</span><span class="op">$</span><span class="va">level</span> <span class="op">==</span> <span class="fl">3</span>, <span class="op">]</span></span>
-<span></span>
-<span><span class="co"># Representative items: highest-loading per factor in the PCA solution</span></span>
-<span><span class="va">anchors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N1"</span>, <span class="st">"N2"</span>, <span class="st">"E1"</span>, <span class="st">"E2"</span>, <span class="st">"C1"</span>, <span class="st">"C2"</span><span class="op">)</span></span>
-<span><span class="va">comp</span> <span class="op">&lt;-</span> <span class="va">both3</span><span class="op">[</span><span class="va">both3</span><span class="op">$</span><span class="va">item</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">anchors</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"engine"</span>, <span class="st">"factor"</span>, <span class="st">"item"</span>, <span class="st">"loading"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">comp</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">comp</span><span class="op">$</span><span class="va">factor</span>, <span class="va">comp</span><span class="op">$</span><span class="va">item</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;     engine factor item      loading</span></span>
-<span><span class="co">#&gt; 81     pca   m3f1   C1  0.089198696</span></span>
-<span><span class="co">#&gt; 231    efa   m3f1   C1  0.100385156</span></span>
-<span><span class="co">#&gt; 82     pca   m3f1   C2  0.121469270</span></span>
-<span><span class="co">#&gt; 232    efa   m3f1   C2  0.116475023</span></span>
-<span><span class="co">#&gt; 86     pca   m3f1   E1 -0.604309937</span></span>
-<span><span class="co">#&gt; 236    efa   m3f1   E1 -0.539690270</span></span>
-<span><span class="co">#&gt; 87     pca   m3f1   E2 -0.649293041</span></span>
-<span><span class="co">#&gt; 237    efa   m3f1   E2 -0.617496322</span></span>
-<span><span class="co">#&gt; 91     pca   m3f1   N1 -0.067953439</span></span>
-<span><span class="co">#&gt; 241    efa   m3f1   N1 -0.075321454</span></span>
-<span><span class="co">#&gt; 92     pca   m3f1   N2 -0.083392143</span></span>
-<span><span class="co">#&gt; 242    efa   m3f1   N2 -0.086681968</span></span>
-<span><span class="co">#&gt; 106    pca   m3f2   C1 -0.049859560</span></span>
-<span><span class="co">#&gt; 256    efa   m3f2   C1 -0.017670030</span></span>
-<span><span class="co">#&gt; 107    pca   m3f2   C2  0.024921135</span></span>
-<span><span class="co">#&gt; 257    efa   m3f2   C2  0.049742317</span></span>
-<span><span class="co">#&gt; 111    pca   m3f2   E1  0.042380567</span></span>
-<span><span class="co">#&gt; 261    efa   m3f2   E1  0.052189787</span></span>
-<span><span class="co">#&gt; 112    pca   m3f2   E2  0.298022534</span></span>
-<span><span class="co">#&gt; 262    efa   m3f2   E2  0.273511715</span></span>
-<span><span class="co">#&gt; 116    pca   m3f2   N1  0.793836214</span></span>
-<span><span class="co">#&gt; 266    efa   m3f2   N1  0.763790131</span></span>
-<span><span class="co">#&gt; 117    pca   m3f2   N2  0.793788172</span></span>
-<span><span class="co">#&gt; 267    efa   m3f2   N2  0.763387518</span></span>
-<span><span class="co">#&gt; 131    pca   m3f3   C1  0.657166570</span></span>
-<span><span class="co">#&gt; 281    efa   m3f3   C1  0.614744266</span></span>
-<span><span class="co">#&gt; 132    pca   m3f3   C2  0.633600363</span></span>
-<span><span class="co">#&gt; 282    efa   m3f3   C2  0.608718517</span></span>
-<span><span class="co">#&gt; 136    pca   m3f3   E1  0.023066417</span></span>
-<span><span class="co">#&gt; 286    efa   m3f3   E1  0.007142178</span></span>
-<span><span class="co">#&gt; 137    pca   m3f3   E2 -0.095262712</span></span>
-<span><span class="co">#&gt; 287    efa   m3f3   E2 -0.108191392</span></span>
-<span><span class="co">#&gt; 141    pca   m3f3   N1 -0.075697895</span></span>
-<span><span class="co">#&gt; 291    efa   m3f3   N1 -0.095752244</span></span>
-<span><span class="co">#&gt; 142    pca   m3f3   N2 -0.002610903</span></span>
-<span><span class="co">#&gt; 292    efa   m3f3   N2 -0.029911910</span></span></code></pre></div>
+<p>The table below pairs the <code>k = 3</code> loadings from each
+engine — built by stacking <code>tidy(x_pca, what = "loadings")</code>
+and the EFA equivalent — for six representative items (two each from the
+Neuroticism, Extraversion, and Conscientiousness families).</p>
+<table class="table">
+<caption>PCA vs EFA loadings for anchor items (k = 3)</caption>
+<thead><tr class="header">
+<th align="left">engine</th>
+<th align="left">factor</th>
+<th align="left">item</th>
+<th align="right">loading</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f1</td>
+<td align="left">C1</td>
+<td align="right">0.09</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f1</td>
+<td align="left">C1</td>
+<td align="right">0.10</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f1</td>
+<td align="left">C2</td>
+<td align="right">0.12</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f1</td>
+<td align="left">C2</td>
+<td align="right">0.12</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f1</td>
+<td align="left">E1</td>
+<td align="right">-0.60</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f1</td>
+<td align="left">E1</td>
+<td align="right">-0.54</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f1</td>
+<td align="left">E2</td>
+<td align="right">-0.65</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f1</td>
+<td align="left">E2</td>
+<td align="right">-0.62</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f1</td>
+<td align="left">N1</td>
+<td align="right">-0.07</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f1</td>
+<td align="left">N1</td>
+<td align="right">-0.08</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f1</td>
+<td align="left">N2</td>
+<td align="right">-0.08</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f1</td>
+<td align="left">N2</td>
+<td align="right">-0.09</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f2</td>
+<td align="left">C1</td>
+<td align="right">-0.05</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f2</td>
+<td align="left">C1</td>
+<td align="right">-0.02</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f2</td>
+<td align="left">C2</td>
+<td align="right">0.02</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f2</td>
+<td align="left">C2</td>
+<td align="right">0.05</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f2</td>
+<td align="left">E1</td>
+<td align="right">0.04</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f2</td>
+<td align="left">E1</td>
+<td align="right">0.05</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f2</td>
+<td align="left">E2</td>
+<td align="right">0.30</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f2</td>
+<td align="left">E2</td>
+<td align="right">0.27</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f2</td>
+<td align="left">N1</td>
+<td align="right">0.79</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f2</td>
+<td align="left">N1</td>
+<td align="right">0.76</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f2</td>
+<td align="left">N2</td>
+<td align="right">0.79</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f2</td>
+<td align="left">N2</td>
+<td align="right">0.76</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f3</td>
+<td align="left">C1</td>
+<td align="right">0.66</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f3</td>
+<td align="left">C1</td>
+<td align="right">0.61</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f3</td>
+<td align="left">C2</td>
+<td align="right">0.63</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f3</td>
+<td align="left">C2</td>
+<td align="right">0.61</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f3</td>
+<td align="left">E1</td>
+<td align="right">0.02</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f3</td>
+<td align="left">E1</td>
+<td align="right">0.01</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f3</td>
+<td align="left">E2</td>
+<td align="right">-0.10</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f3</td>
+<td align="left">E2</td>
+<td align="right">-0.11</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f3</td>
+<td align="left">N1</td>
+<td align="right">-0.08</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f3</td>
+<td align="left">N1</td>
+<td align="right">-0.10</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m3f3</td>
+<td align="left">N2</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m3f3</td>
+<td align="left">N2</td>
+<td align="right">-0.03</td>
+</tr>
+</tbody>
+</table>
 <p>EFA loadings for the same items are consistently a few points lower —
 the PCA loadings include some noise variance that EFA partitions into
 uniqueness. The factor structure (which items define which factor) is
@@ -350,7 +530,7 @@ appropriate maximum-likelihood-adjacent estimator for categorical
 indicators. When <code>cor = "polychoric"</code> is set with
 <code>engine = "esem"</code>, WLSMV is used automatically.</li>
 </ol>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_esem</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">3</span>, engine <span class="op">=</span> <span class="st">"esem"</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
 <span><span class="va">x_esem</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -375,7 +555,7 @@ indicators. When <code>cor = "polychoric"</code> is set with
 <span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations.</span></span></span></code></pre></div>
 <p>ESEM fit indices include CFI and SRMR in addition to RMSEA and TLI,
 giving a richer picture of model adequacy.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    level   index        value</span></span>
 <span><span class="co">#&gt; 1      1     chi 2.018685e+04</span></span>
@@ -402,24 +582,27 @@ giving a richer picture of model adequacy.</p>
 <div class="section level3">
 <h3 id="loading-standard-errors">Loading standard errors<a class="anchor" aria-label="anchor" href="#loading-standard-errors"></a>
 </h3>
-<p>The unique output from ESEM is <code>loadings_se</code> — a matrix of
-standard errors for every loading at every level. Access it via the
-level object directly:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># SE for k = 3 loadings</span></span>
-<span><span class="va">se3</span> <span class="op">&lt;-</span> <span class="va">x_esem</span><span class="op">$</span><span class="va">levels</span><span class="op">[[</span><span class="st">"3"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">loadings_se</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">se3</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"N1"</span>, <span class="st">"N2"</span>, <span class="st">"E1"</span>, <span class="st">"E2"</span>, <span class="st">"C1"</span>, <span class="st">"C2"</span><span class="op">)</span>, <span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     m3f1  m3f2  m3f3</span></span>
-<span><span class="co">#&gt; N1 0.015 0.008 0.016</span></span>
-<span><span class="co">#&gt; N2 0.015 0.008 0.017</span></span>
-<span><span class="co">#&gt; E1 0.016 0.019 0.019</span></span>
-<span><span class="co">#&gt; E2 0.012 0.017 0.019</span></span>
-<span><span class="co">#&gt; C1 0.017 0.018 0.015</span></span>
-<span><span class="co">#&gt; C2 0.018 0.019 0.014</span></span></code></pre></div>
+<p>The unique output from ESEM is the rotation-aware <strong>standard
+error</strong> of every loading. <code>tidy(what = "loadings_se")</code>
+returns them in the same long format as
+<code>tidy(what = "loadings")</code>, with an <code>se</code> column in
+place of <code>loading</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"loadings_se"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   level factor item         se</span></span>
+<span><span class="co">#&gt; 1     1   m1f1   A1 0.01750773</span></span>
+<span><span class="co">#&gt; 2     1   m1f1   A2 0.01561537</span></span>
+<span><span class="co">#&gt; 3     1   m1f1   A3 0.01356797</span></span>
+<span><span class="co">#&gt; 4     1   m1f1   A4 0.01675980</span></span>
+<span><span class="co">#&gt; 5     1   m1f1   A5 0.01228831</span></span>
+<span><span class="co">#&gt; 6     1   m1f1   C1 0.01675244</span></span></code></pre></div>
 <p>These SEs allow you to construct confidence intervals: loading ± 1.96
 × SE gives an approximate 95% CI. For the BFI with &gt; 2,000
 participants the SEs are small; with smaller samples they become
-important for judging which loadings are meaningfully non-zero.</p>
+important for judging which loadings are meaningfully non-zero.
+(<code>tidy(what = "loadings_se")</code> errors for PCA and EFA objects,
+which carry no loading standard errors.)</p>
 </div>
 </div>
 <div class="section level2">
@@ -428,27 +611,80 @@ important for judging which loadings are meaningfully non-zero.</p>
 <p>The primary output of bass-ackwards analysis is the between-level
 edges. For well-structured, continuous data, all three engines should
 agree closely on the hierarchy.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">e_pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_pca</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span></span>
-<span><span class="va">e_efa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_efa</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span></span>
-<span><span class="va">e_pca</span><span class="op">$</span><span class="va">engine</span> <span class="op">&lt;-</span> <span class="st">"pca"</span></span>
-<span><span class="va">e_efa</span><span class="op">$</span><span class="va">engine</span> <span class="op">&lt;-</span> <span class="st">"efa"</span></span>
-<span></span>
-<span><span class="co"># Primary-parent edges at each level transition</span></span>
-<span><span class="va">primary_pca</span> <span class="op">&lt;-</span> <span class="va">e_pca</span><span class="op">[</span><span class="va">e_pca</span><span class="op">$</span><span class="va">is_primary</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"engine"</span>, <span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">primary_efa</span> <span class="op">&lt;-</span> <span class="va">e_efa</span><span class="op">[</span><span class="va">e_efa</span><span class="op">$</span><span class="va">is_primary</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"engine"</span>, <span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">primary_pca</span>, <span class="va">primary_efa</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">primary_pca</span>, <span class="va">primary_efa</span><span class="op">)</span><span class="op">$</span><span class="va">to</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;    engine from   to          r</span></span>
-<span><span class="co">#&gt; 1     pca m1f1 m2f1  0.8737068</span></span>
-<span><span class="co">#&gt; 11    efa m1f1 m2f1  0.8900109</span></span>
-<span><span class="co">#&gt; 2     pca m1f1 m2f2  0.4864530</span></span>
-<span><span class="co">#&gt; 21    efa m1f1 m2f2  0.4535937</span></span>
-<span><span class="co">#&gt; 3     pca m2f1 m3f1  0.8157785</span></span>
-<span><span class="co">#&gt; 31    efa m2f1 m3f1  0.8514122</span></span>
-<span><span class="co">#&gt; 7     pca m2f2 m3f2 -0.9975486</span></span>
-<span><span class="co">#&gt; 71    efa m2f2 m3f2 -0.9980294</span></span>
-<span><span class="co">#&gt; 5     pca m2f1 m3f3  0.5767812</span></span>
-<span><span class="co">#&gt; 51    efa m2f1 m3f3  0.5208236</span></span></code></pre></div>
+<p>The table stacks each engine’s primary-parent edges —
+<code>tidy(what = "edges", primary_only = TRUE)</code> — at every level
+transition:</p>
+<table class="table">
+<caption>Primary-parent edges: PCA vs EFA</caption>
+<thead><tr class="header">
+<th align="left">engine</th>
+<th align="left">from</th>
+<th align="left">to</th>
+<th align="right">r</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m1f1</td>
+<td align="left">m2f1</td>
+<td align="right">0.87</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m1f1</td>
+<td align="left">m2f1</td>
+<td align="right">0.89</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m1f1</td>
+<td align="left">m2f2</td>
+<td align="right">0.49</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m1f1</td>
+<td align="left">m2f2</td>
+<td align="right">0.45</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m2f1</td>
+<td align="left">m3f1</td>
+<td align="right">0.82</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m2f1</td>
+<td align="left">m3f1</td>
+<td align="right">0.85</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m2f2</td>
+<td align="left">m3f2</td>
+<td align="right">-1.00</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m2f2</td>
+<td align="left">m3f2</td>
+<td align="right">-1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">pca</td>
+<td align="left">m2f1</td>
+<td align="left">m3f3</td>
+<td align="right">0.58</td>
+</tr>
+<tr class="even">
+<td align="left">efa</td>
+<td align="left">m2f1</td>
+<td align="left">m3f3</td>
+<td align="right">0.52</td>
+</tr>
+</tbody>
+</table>
 <p>The r values are very close between engines: the hierarchy that PCA
 reveals is essentially the same hierarchy that EFA reveals. This
 convergence across methods is reassuring — it suggests the structure is
@@ -533,7 +769,7 @@ documented in <code>$meta</code>. Prefer <code>"listwise"</code> or
 </ul>
 <p>A warning is emitted whenever incomplete rows are detected with this
 option.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Default: pairwise (warns if NAs present)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">data_with_nas</span>, k_max <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <p><strong><code>"listwise"</code>.</strong> Data are reduced to
@@ -541,7 +777,7 @@ complete cases before <em>all</em> downstream steps — correlation
 matrix, engine fitting, and edges — so the three quantities are fully
 consistent. <code>x$n_obs</code> and <code>x$meta$n_complete</code> both
 reflect the reduced sample size. Valid for all three engines.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Consistent complete-case analysis</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">data_with_nas</span>, k_max <span class="op">=</span> <span class="fl">4</span>, missing <span class="op">=</span> <span class="st">"listwise"</span><span class="op">)</span></span>
 <span><span class="va">x</span><span class="op">$</span><span class="va">n_obs</span>         <span class="co"># complete-case N</span></span>
@@ -556,12 +792,12 @@ that fits and edges use the same information. Note: FIML improves
 <em>estimation</em> but does not impute item responses; score
 materialisation (<code>keep_scores = TRUE</code>) still yields
 <code>NA</code> for incomplete rows.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># FIML for ESEM with continuous data</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">data_with_nas</span>, k_max <span class="op">=</span> <span class="fl">4</span>, engine <span class="op">=</span> <span class="st">"esem"</span>,</span>
 <span>              estimator <span class="op">=</span> <span class="st">"ML"</span>, missing <span class="op">=</span> <span class="st">"fiml"</span><span class="op">)</span></span></code></pre></div>
 <p><code>"fiml"</code> errors clearly for unsupported combinations:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Errors: PCA and EFA are correlation-based, not raw-data likelihood</span></span>
 <span><span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">data</span>, k_max <span class="op">=</span> <span class="fl">4</span>, engine <span class="op">=</span> <span class="st">"pca"</span>, missing <span class="op">=</span> <span class="st">"fiml"</span><span class="op">)</span></span>
 <span></span>

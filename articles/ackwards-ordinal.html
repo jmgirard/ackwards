@@ -186,70 +186,320 @@ difference large enough to shift loadings and change eigenvalues.</p>
 <div class="section level3">
 <h3 id="loadings">Loadings<a class="anchor" aria-label="anchor" href="#loadings"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">l_pear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_pearson</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span>
-<span><span class="va">l_poly</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_poly</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span>
-<span><span class="va">l_pear</span><span class="op">$</span><span class="va">basis</span> <span class="op">&lt;-</span> <span class="st">"pearson"</span></span>
-<span><span class="va">l_poly</span><span class="op">$</span><span class="va">basis</span> <span class="op">&lt;-</span> <span class="st">"polychoric"</span></span>
-<span></span>
-<span><span class="co"># k = 5 loadings for Neuroticism items</span></span>
-<span><span class="va">both</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">l_pear</span>, <span class="va">l_poly</span><span class="op">)</span></span>
-<span><span class="va">both5_N</span> <span class="op">&lt;-</span> <span class="va">both</span><span class="op">[</span><span class="va">both</span><span class="op">$</span><span class="va">level</span> <span class="op">==</span> <span class="fl">5</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">both</span><span class="op">$</span><span class="va">item</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">==</span> <span class="st">"N"</span>, <span class="op">]</span></span>
-<span><span class="va">both5_N</span><span class="op">[</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">both5_N</span><span class="op">$</span><span class="va">factor</span>, <span class="va">both5_N</span><span class="op">$</span><span class="va">item</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"basis"</span>, <span class="st">"factor"</span>, <span class="st">"item"</span>, <span class="st">"loading"</span><span class="op">)</span></span>
-<span><span class="op">]</span></span>
-<span><span class="co">#&gt;          basis factor item       loading</span></span>
-<span><span class="co">#&gt; 266    pearson   m5f1   N1  0.8062243646</span></span>
-<span><span class="co">#&gt; 641 polychoric   m5f1   N1  0.8292885417</span></span>
-<span><span class="co">#&gt; 267    pearson   m5f1   N2  0.7938563923</span></span>
-<span><span class="co">#&gt; 642 polychoric   m5f1   N2  0.8181280340</span></span>
-<span><span class="co">#&gt; 268    pearson   m5f1   N3  0.7936642978</span></span>
-<span><span class="co">#&gt; 643 polychoric   m5f1   N3  0.8170949444</span></span>
-<span><span class="co">#&gt; 269    pearson   m5f1   N4  0.6494639043</span></span>
-<span><span class="co">#&gt; 644 polychoric   m5f1   N4  0.6711162693</span></span>
-<span><span class="co">#&gt; 270    pearson   m5f1   N5  0.6312852844</span></span>
-<span><span class="co">#&gt; 645 polychoric   m5f1   N5  0.6566396425</span></span>
-<span><span class="co">#&gt; 291    pearson   m5f2   N1  0.0782931777</span></span>
-<span><span class="co">#&gt; 666 polychoric   m5f2   N1  0.0759996064</span></span>
-<span><span class="co">#&gt; 292    pearson   m5f2   N2  0.0352421601</span></span>
-<span><span class="co">#&gt; 667 polychoric   m5f2   N2  0.0382025699</span></span>
-<span><span class="co">#&gt; 293    pearson   m5f2   N3 -0.0440010438</span></span>
-<span><span class="co">#&gt; 668 polychoric   m5f2   N3 -0.0444846998</span></span>
-<span><span class="co">#&gt; 294    pearson   m5f2   N4 -0.3541410691</span></span>
-<span><span class="co">#&gt; 669 polychoric   m5f2   N4 -0.3647980792</span></span>
-<span><span class="co">#&gt; 295    pearson   m5f2   N5 -0.1704111477</span></span>
-<span><span class="co">#&gt; 670 polychoric   m5f2   N5 -0.1861329939</span></span>
-<span><span class="co">#&gt; 316    pearson   m5f3   N1 -0.0455522012</span></span>
-<span><span class="co">#&gt; 691 polychoric   m5f3   N1 -0.0472607090</span></span>
-<span><span class="co">#&gt; 317    pearson   m5f3   N2 -0.0268094003</span></span>
-<span><span class="co">#&gt; 692 polychoric   m5f3   N2 -0.0247073912</span></span>
-<span><span class="co">#&gt; 318    pearson   m5f3   N3 -0.0578242974</span></span>
-<span><span class="co">#&gt; 693 polychoric   m5f3   N3 -0.0621272116</span></span>
-<span><span class="co">#&gt; 319    pearson   m5f3   N4 -0.1729968543</span></span>
-<span><span class="co">#&gt; 694 polychoric   m5f3   N4 -0.1740405531</span></span>
-<span><span class="co">#&gt; 320    pearson   m5f3   N5 -0.0153960113</span></span>
-<span><span class="co">#&gt; 695 polychoric   m5f3   N5 -0.0280403494</span></span>
-<span><span class="co">#&gt; 341    pearson   m5f4   N1 -0.2124823711</span></span>
-<span><span class="co">#&gt; 716 polychoric   m5f4   N1 -0.2278320038</span></span>
-<span><span class="co">#&gt; 342    pearson   m5f4   N2 -0.1952901283</span></span>
-<span><span class="co">#&gt; 717 polychoric   m5f4   N2 -0.2027024978</span></span>
-<span><span class="co">#&gt; 343    pearson   m5f4   N3 -0.0286771115</span></span>
-<span><span class="co">#&gt; 718 polychoric   m5f4   N3 -0.0385417711</span></span>
-<span><span class="co">#&gt; 344    pearson   m5f4   N4  0.0231643069</span></span>
-<span><span class="co">#&gt; 719 polychoric   m5f4   N4  0.0207848195</span></span>
-<span><span class="co">#&gt; 345    pearson   m5f4   N5  0.1464093383</span></span>
-<span><span class="co">#&gt; 720 polychoric   m5f4   N5  0.1622028430</span></span>
-<span><span class="co">#&gt; 366    pearson   m5f5   N1 -0.0827550035</span></span>
-<span><span class="co">#&gt; 741 polychoric   m5f5   N1 -0.0845363559</span></span>
-<span><span class="co">#&gt; 367    pearson   m5f5   N2 -0.0066114451</span></span>
-<span><span class="co">#&gt; 742 polychoric   m5f5   N2 -0.0007814723</span></span>
-<span><span class="co">#&gt; 368    pearson   m5f5   N3 -0.0034235903</span></span>
-<span><span class="co">#&gt; 743 polychoric   m5f5   N3 -0.0033825448</span></span>
-<span><span class="co">#&gt; 369    pearson   m5f5   N4  0.0939873291</span></span>
-<span><span class="co">#&gt; 744 polychoric   m5f5   N4  0.1008975660</span></span>
-<span><span class="co">#&gt; 370    pearson   m5f5   N5 -0.1800778847</span></span>
-<span><span class="co">#&gt; 745 polychoric   m5f5   N5 -0.1944942605</span></span></code></pre></div>
+<p>Stacking <code>tidy(what = "loadings")</code> from each basis lets us
+read the <code>k = 5</code> Neuroticism-item loadings side by side:</p>
+<table class="table">
+<caption>Neuroticism-item loadings (k = 5): Pearson vs
+polychoric</caption>
+<thead><tr class="header">
+<th align="left">basis</th>
+<th align="left">factor</th>
+<th align="left">item</th>
+<th align="right">loading</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f1</td>
+<td align="left">N1</td>
+<td align="right">0.81</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f1</td>
+<td align="left">N1</td>
+<td align="right">0.83</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f1</td>
+<td align="left">N2</td>
+<td align="right">0.79</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f1</td>
+<td align="left">N2</td>
+<td align="right">0.82</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f1</td>
+<td align="left">N3</td>
+<td align="right">0.79</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f1</td>
+<td align="left">N3</td>
+<td align="right">0.82</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f1</td>
+<td align="left">N4</td>
+<td align="right">0.65</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f1</td>
+<td align="left">N4</td>
+<td align="right">0.67</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f1</td>
+<td align="left">N5</td>
+<td align="right">0.63</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f1</td>
+<td align="left">N5</td>
+<td align="right">0.66</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f2</td>
+<td align="left">N1</td>
+<td align="right">0.08</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f2</td>
+<td align="left">N1</td>
+<td align="right">0.08</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f2</td>
+<td align="left">N2</td>
+<td align="right">0.04</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f2</td>
+<td align="left">N2</td>
+<td align="right">0.04</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f2</td>
+<td align="left">N3</td>
+<td align="right">-0.04</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f2</td>
+<td align="left">N3</td>
+<td align="right">-0.04</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f2</td>
+<td align="left">N4</td>
+<td align="right">-0.35</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f2</td>
+<td align="left">N4</td>
+<td align="right">-0.36</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f2</td>
+<td align="left">N5</td>
+<td align="right">-0.17</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f2</td>
+<td align="left">N5</td>
+<td align="right">-0.19</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f3</td>
+<td align="left">N1</td>
+<td align="right">-0.05</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f3</td>
+<td align="left">N1</td>
+<td align="right">-0.05</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f3</td>
+<td align="left">N2</td>
+<td align="right">-0.03</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f3</td>
+<td align="left">N2</td>
+<td align="right">-0.02</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f3</td>
+<td align="left">N3</td>
+<td align="right">-0.06</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f3</td>
+<td align="left">N3</td>
+<td align="right">-0.06</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f3</td>
+<td align="left">N4</td>
+<td align="right">-0.17</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f3</td>
+<td align="left">N4</td>
+<td align="right">-0.17</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f3</td>
+<td align="left">N5</td>
+<td align="right">-0.02</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f3</td>
+<td align="left">N5</td>
+<td align="right">-0.03</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f4</td>
+<td align="left">N1</td>
+<td align="right">-0.21</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f4</td>
+<td align="left">N1</td>
+<td align="right">-0.23</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f4</td>
+<td align="left">N2</td>
+<td align="right">-0.20</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f4</td>
+<td align="left">N2</td>
+<td align="right">-0.20</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f4</td>
+<td align="left">N3</td>
+<td align="right">-0.03</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f4</td>
+<td align="left">N3</td>
+<td align="right">-0.04</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f4</td>
+<td align="left">N4</td>
+<td align="right">0.02</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f4</td>
+<td align="left">N4</td>
+<td align="right">0.02</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f4</td>
+<td align="left">N5</td>
+<td align="right">0.15</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f4</td>
+<td align="left">N5</td>
+<td align="right">0.16</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f5</td>
+<td align="left">N1</td>
+<td align="right">-0.08</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f5</td>
+<td align="left">N1</td>
+<td align="right">-0.08</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f5</td>
+<td align="left">N2</td>
+<td align="right">-0.01</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f5</td>
+<td align="left">N2</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f5</td>
+<td align="left">N3</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f5</td>
+<td align="left">N3</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f5</td>
+<td align="left">N4</td>
+<td align="right">0.09</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f5</td>
+<td align="left">N4</td>
+<td align="right">0.10</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m5f5</td>
+<td align="left">N5</td>
+<td align="right">-0.18</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m5f5</td>
+<td align="left">N5</td>
+<td align="right">-0.19</td>
+</tr>
+</tbody>
+</table>
 <p>Polychoric loadings for the Neuroticism items are noticeably higher —
 the latent structure is sharper when the attenuating effect of coarse
 categories is removed.</p>
@@ -257,47 +507,188 @@ categories is removed.</p>
 <div class="section level3">
 <h3 id="between-level-edges">Between-level edges<a class="anchor" aria-label="anchor" href="#between-level-edges"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">e_pear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_pearson</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span></span>
-<span><span class="va">e_poly</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_poly</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">primary_pear</span> <span class="op">&lt;-</span> <span class="va">e_pear</span><span class="op">[</span><span class="va">e_pear</span><span class="op">$</span><span class="va">is_primary</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">primary_poly</span> <span class="op">&lt;-</span> <span class="va">e_poly</span><span class="op">[</span><span class="va">e_poly</span><span class="op">$</span><span class="va">is_primary</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span><span class="op">)</span><span class="op">]</span></span>
-<span></span>
-<span><span class="va">primary_pear</span><span class="op">$</span><span class="va">basis</span> <span class="op">&lt;-</span> <span class="st">"pearson"</span></span>
-<span><span class="va">primary_poly</span><span class="op">$</span><span class="va">basis</span> <span class="op">&lt;-</span> <span class="st">"polychoric"</span></span>
-<span></span>
-<span><span class="va">both_e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">primary_pear</span>, <span class="va">primary_poly</span><span class="op">)</span></span>
-<span><span class="va">both_e</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">both_e</span><span class="op">$</span><span class="va">to</span>, <span class="va">both_e</span><span class="op">$</span><span class="va">basis</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;     from   to          r      basis</span></span>
-<span><span class="co">#&gt; 1   m1f1 m2f1  0.8571067    pearson</span></span>
-<span><span class="co">#&gt; 11  m1f1 m2f1  0.8737068 polychoric</span></span>
-<span><span class="co">#&gt; 2   m1f1 m2f2  0.5151389    pearson</span></span>
-<span><span class="co">#&gt; 21  m1f1 m2f2  0.4864530 polychoric</span></span>
-<span><span class="co">#&gt; 3   m2f1 m3f1  0.8543686    pearson</span></span>
-<span><span class="co">#&gt; 31  m2f1 m3f1  0.8157785 polychoric</span></span>
-<span><span class="co">#&gt; 7   m2f2 m3f2 -0.9953342    pearson</span></span>
-<span><span class="co">#&gt; 71  m2f2 m3f2 -0.9975486 polychoric</span></span>
-<span><span class="co">#&gt; 5   m2f1 m3f3  0.5147376    pearson</span></span>
-<span><span class="co">#&gt; 51  m2f1 m3f3  0.5767812 polychoric</span></span>
-<span><span class="co">#&gt; 9   m3f1 m4f1  0.9993906    pearson</span></span>
-<span><span class="co">#&gt; 91  m3f1 m4f1  0.9990773 polychoric</span></span>
-<span><span class="co">#&gt; 14  m3f2 m4f2  0.9862431    pearson</span></span>
-<span><span class="co">#&gt; 141 m3f2 m4f2  0.9789921 polychoric</span></span>
-<span><span class="co">#&gt; 19  m3f3 m4f3  0.7984687    pearson</span></span>
-<span><span class="co">#&gt; 191 m3f3 m4f3  0.7150725 polychoric</span></span>
-<span><span class="co">#&gt; 20  m3f3 m4f4  0.6011486    pearson</span></span>
-<span><span class="co">#&gt; 201 m3f3 m4f4  0.6989590 polychoric</span></span>
-<span><span class="co">#&gt; 26  m4f2 m5f1  0.9971372    pearson</span></span>
-<span><span class="co">#&gt; 261 m4f2 m5f1  0.9964532 polychoric</span></span>
-<span><span class="co">#&gt; 22  m4f1 m5f2  0.7817947    pearson</span></span>
-<span><span class="co">#&gt; 221 m4f1 m5f2  0.7879035 polychoric</span></span>
-<span><span class="co">#&gt; 33  m4f3 m5f3  0.9973777    pearson</span></span>
-<span><span class="co">#&gt; 331 m4f3 m5f3  0.9972853 polychoric</span></span>
-<span><span class="co">#&gt; 24  m4f1 m5f4  0.6231008    pearson</span></span>
-<span><span class="co">#&gt; 241 m4f1 m5f4  0.6157559 polychoric</span></span>
-<span><span class="co">#&gt; 40  m4f4 m5f5  0.9827248    pearson</span></span>
-<span><span class="co">#&gt; 401 m4f4 m5f5  0.9930407 polychoric</span></span></code></pre></div>
+<p>The same comparison for the primary-parent edges —
+<code>tidy(what = "edges", primary_only = TRUE)</code> under each
+basis:</p>
+<table class="table">
+<caption>Primary-parent edges: Pearson vs polychoric</caption>
+<thead><tr class="header">
+<th align="left">basis</th>
+<th align="left">from</th>
+<th align="left">to</th>
+<th align="right">r</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m1f1</td>
+<td align="left">m2f1</td>
+<td align="right">0.86</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m1f1</td>
+<td align="left">m2f1</td>
+<td align="right">0.87</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m1f1</td>
+<td align="left">m2f2</td>
+<td align="right">0.52</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m1f1</td>
+<td align="left">m2f2</td>
+<td align="right">0.49</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m2f1</td>
+<td align="left">m3f1</td>
+<td align="right">0.85</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m2f1</td>
+<td align="left">m3f1</td>
+<td align="right">0.82</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m2f2</td>
+<td align="left">m3f2</td>
+<td align="right">-1.00</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m2f2</td>
+<td align="left">m3f2</td>
+<td align="right">-1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m2f1</td>
+<td align="left">m3f3</td>
+<td align="right">0.51</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m2f1</td>
+<td align="left">m3f3</td>
+<td align="right">0.58</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m3f1</td>
+<td align="left">m4f1</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m3f1</td>
+<td align="left">m4f1</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m3f2</td>
+<td align="left">m4f2</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m3f2</td>
+<td align="left">m4f2</td>
+<td align="right">0.98</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m3f3</td>
+<td align="left">m4f3</td>
+<td align="right">0.80</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m3f3</td>
+<td align="left">m4f3</td>
+<td align="right">0.72</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m3f3</td>
+<td align="left">m4f4</td>
+<td align="right">0.60</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m3f3</td>
+<td align="left">m4f4</td>
+<td align="right">0.70</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m4f2</td>
+<td align="left">m5f1</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m4f2</td>
+<td align="left">m5f1</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m4f1</td>
+<td align="left">m5f2</td>
+<td align="right">0.78</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m4f1</td>
+<td align="left">m5f2</td>
+<td align="right">0.79</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m4f3</td>
+<td align="left">m5f3</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m4f3</td>
+<td align="left">m5f3</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m4f1</td>
+<td align="left">m5f4</td>
+<td align="right">0.62</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m4f1</td>
+<td align="left">m5f4</td>
+<td align="right">0.62</td>
+</tr>
+<tr class="odd">
+<td align="left">pearson</td>
+<td align="left">m4f4</td>
+<td align="left">m5f5</td>
+<td align="right">0.98</td>
+</tr>
+<tr class="even">
+<td align="left">polychoric</td>
+<td align="left">m4f4</td>
+<td align="left">m5f5</td>
+<td align="right">0.99</td>
+</tr>
+</tbody>
+</table>
 <p>The edges are broadly similar in sign and rank order — the hierarchy
 is the same — but polychoric edges are stronger. Factors that represent
 genuinely stable dimensions show near-perfect correlations with their
@@ -314,7 +705,7 @@ estimator to <strong>WLSMV</strong> (diagonally weighted least squares,
 mean- and variance-adjusted). This is the standard estimator for
 structural equation models with categorical or ordinal indicators, and
 is the same method used by Mplus by default.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_esem</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">3</span>, engine <span class="op">=</span> <span class="st">"esem"</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
 <span><span class="va">x_esem</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -342,7 +733,7 @@ that respects the ordinal measurement level. They will typically look
 better than Pearson-based fit indices on the same data, reflecting both
 the better model specification and the different reference distribution
 WLSMV uses.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    level   index        value</span></span>
 <span><span class="co">#&gt; 1      1     chi 2.018685e+04</span></span>
@@ -412,11 +803,11 @@ O(p²) and can be slow for very large item pools.</p>
 <code>cor = "polychoric"</code>, the weight matrices stored in the
 object are derived from the polychoric <code>R</code>. Materializing
 factor scores via <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> applies those weights to
-Pearson-standardized raw data (<code>scale(data)</code>). The resulting
-scores are calibrated to have <em>model-implied</em> unit variance, not
-empirically unit variance. For downstream analysis this distinction
-rarely matters — the scores are still well-scaled — but it is why
-<code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> issues a warning when
+Pearson-standardized raw data (<code>.standardize(data)</code>). The
+resulting scores are calibrated to have <em>model-implied</em> unit
+variance, not empirically unit variance. For downstream analysis this
+distinction rarely matters — the scores are still well-scaled — but it
+is why <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> issues a warning when
 <code>cor != "pearson"</code>. The between-level edges from
 <code>tidy(what = "edges")</code> are always exact because they come
 from the algebra, not materialized scores.</p>

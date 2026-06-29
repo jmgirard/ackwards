@@ -80,7 +80,7 @@ A list with:
 where `R` is the input correlation matrix and `D_x = diag(W_x' R W_x)`
 are the **actual** score variances (not assumed to be 1). This avoids
 materialising scores while remaining exact for PCA, EFA (regression /
-Bartlett / tenBerge), and oblique rotations — all of which are linear.
+Bartlett / tenBerge) — all of which produce linear score maps.
 
 When the algebra cannot be used (nonlinear scoring, missing `R`, or the
 user forces `edge_method = "scores"`), scores are materialised from

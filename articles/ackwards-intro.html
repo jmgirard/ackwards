@@ -153,13 +153,13 @@ and reports a consensus range:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[309ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[289ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[169ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[180ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[18.3s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[18.1s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -492,30 +492,29 @@ Waller’s (2007) closed-form W′RW algebra — an exact result that requires
 no score materialization, just the weight matrices and the input
 correlation matrix.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"edges"</span><span class="op">)</span></span>
-<span><span class="co"># Primary-parent edges sorted by strength</span></span>
-<span><span class="va">primary</span> <span class="op">&lt;-</span> <span class="va">edges</span><span class="op">[</span><span class="va">edges</span><span class="op">$</span><span class="va">is_primary</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">primary</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">primary</span><span class="op">$</span><span class="va">r</span><span class="op">)</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;    from   to          r</span></span>
-<span><span class="co">#&gt; 9  m3f1 m4f1  0.9990773</span></span>
-<span><span class="co">#&gt; 7  m2f2 m3f2 -0.9975486</span></span>
-<span><span class="co">#&gt; 33 m4f3 m5f3  0.9972853</span></span>
-<span><span class="co">#&gt; 26 m4f2 m5f1  0.9964532</span></span>
-<span><span class="co">#&gt; 40 m4f4 m5f5  0.9930407</span></span>
-<span><span class="co">#&gt; 14 m3f2 m4f2  0.9789921</span></span>
-<span><span class="co">#&gt; 1  m1f1 m2f1  0.8737068</span></span>
-<span><span class="co">#&gt; 3  m2f1 m3f1  0.8157785</span></span>
-<span><span class="co">#&gt; 22 m4f1 m5f2  0.7879035</span></span>
-<span><span class="co">#&gt; 19 m3f3 m4f3  0.7150725</span></span>
-<span><span class="co">#&gt; 20 m3f3 m4f4  0.6989590</span></span>
-<span><span class="co">#&gt; 24 m4f1 m5f4  0.6157559</span></span>
-<span><span class="co">#&gt; 5  m2f1 m3f3  0.5767812</span></span>
-<span><span class="co">#&gt; 2  m1f1 m2f2  0.4864530</span></span></code></pre></div>
-<p><code>is_primary</code> marks the strongest-connecting edge for each
-factor (its primary parent). The r values close to 1.0 indicate factors
-that are nearly identical across adjacent levels — a sign of a stable,
-replicable dimension. Smaller values indicate where the structure is
-reorganizing.</p>
+<code class="sourceCode R"><span><span class="co"># Each factor's primary-parent edge, strongest first</span></span>
+<span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"edges"</span>, primary_only <span class="op">=</span> <span class="cn">TRUE</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    from   to level_from level_to          r is_primary above_cut</span></span>
+<span><span class="co">#&gt; 1  m3f1 m4f1          3        4  0.9990773       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 2  m2f2 m3f2          2        3 -0.9975486       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 3  m4f3 m5f3          4        5  0.9972853       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 4  m4f2 m5f1          4        5  0.9964532       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 5  m4f4 m5f5          4        5  0.9930407       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 6  m3f2 m4f2          3        4  0.9789921       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 7  m1f1 m2f1          1        2  0.8737068       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 8  m2f1 m3f1          2        3  0.8157785       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 9  m4f1 m5f2          4        5  0.7879035       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 10 m3f3 m4f3          3        4  0.7150725       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 11 m3f3 m4f4          3        4  0.6989590       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 12 m4f1 m5f4          4        5  0.6157559       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 13 m2f1 m3f3          2        3  0.5767812       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 14 m1f1 m2f2          1        2  0.4864530       TRUE      TRUE</span></span></code></pre></div>
+<p><code>primary_only = TRUE</code> keeps just the strongest-connecting
+edge for each factor — its primary parent — and
+<code>sort = "strength"</code> orders them by <code>|r|</code>. The r
+values close to 1.0 indicate factors that are nearly identical across
+adjacent levels — a sign of a stable, replicable dimension. Smaller
+values indicate where the structure is reorganizing.</p>
 </div>
 <div class="section level3">
 <h3 id="variance-explained">Variance explained<a class="anchor" aria-label="anchor" href="#variance-explained"></a>
@@ -557,8 +556,8 @@ the original variables.</p>
 <code class="sourceCode R"><span><span class="va">scored</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x</span>, data <span class="op">=</span> <span class="va">bfi</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: <span style="color: #BBBB00;">!</span> Factor scores are standardized using model-implied SDs from a <span style="color: #0000BB;">"polychoric"</span></span></span>
 <span><span class="co">#&gt;   correlation matrix.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The raw projection uses `scale(data)` (Pearson z-scores), but `score_var`</span></span>
-<span><span class="co">#&gt;   comes from the <span style="color: #0000BB;">"polychoric"</span> R.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The raw projection uses `.standardize(data)` (Pearson z-scores), but</span></span>
+<span><span class="co">#&gt;   `score_var` comes from the <span style="color: #0000BB;">"polychoric"</span> R.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Empirical score SDs will differ from 1.0. For non-Pearson analyses,</span></span>
 <span><span class="co">#&gt;   between-level edges from `tidy()` are the authoritative associations.</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
@@ -580,7 +579,7 @@ re-applying the weight matrices on every call:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, keep_scores <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">scored2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span> <span class="co"># uses stored matrices — no recomputation</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">scored2</span><span class="op">$</span><span class="va">.m5f1</span>, <span class="fl">8</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">scored</span><span class="op">$</span><span class="va">.m5f1</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">scored2</span><span class="op">$</span><span class="va">.m5f1</span>, <span class="va">scored</span><span class="op">$</span><span class="va">.m5f1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="using-scores-for-downstream-analysis">Using scores for downstream analysis<a class="anchor" aria-label="anchor" href="#using-scores-for-downstream-analysis"></a>
@@ -592,7 +591,7 @@ consequence of orthogonal rotation — while scores across levels should
 be highly correlated along the primary-parent lineage:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Within-level correlations at k = 5: should be near zero (orthogonal rotation)</span></span>
-<span><span class="va">k5</span> <span class="op">&lt;-</span> <span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"^\\.m5"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">k5</span> <span class="op">&lt;-</span> <span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f3"</span>, <span class="st">".m5f4"</span>, <span class="st">".m5f5"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">k5</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       .m5f1 .m5f2 .m5f3 .m5f4 .m5f5</span></span>
 <span><span class="co">#&gt; .m5f1  1.00  0.01  0.01  0.01 -0.01</span></span>
@@ -602,7 +601,8 @@ be highly correlated along the primary-parent lineage:</p>
 <span><span class="co">#&gt; .m5f5 -0.01 -0.01 -0.02 -0.02  1.00</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Cross-level: m4f1 is the primary parent of m5f2 and m5f4 (from the edge table)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m4f1"</span>, <span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f4"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">lineage</span> <span class="op">&lt;-</span> <span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m4f1"</span>, <span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f4"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">lineage</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       .m4f1 .m5f1 .m5f2 .m5f4</span></span>
 <span><span class="co">#&gt; .m4f1  1.00  0.02  0.79  0.61</span></span>
 <span><span class="co">#&gt; .m5f1  0.02  1.00  0.01  0.01</span></span>

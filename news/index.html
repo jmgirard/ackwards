@@ -111,13 +111,19 @@
 <p>A ggplot2 layered diagram with extensive customization: edge color by sign, width/alpha by <code>|r|</code>, solid/dashed by strength; monochrome mode (<code>mono</code>); APA-formatted correlation labels (<code>show_r</code>, <code>r_digits</code>, <code>r_label_size</code>); custom node labels (<code>node_labels</code>); primary-only mode (<code>primary_only</code>); level axis labels (<code>show_level_labels</code>); arrowhead toggle (<code>show_arrows</code>); fixed edge width (<code>edge_linewidth</code>); legend toggle (<code>legend</code>); Forbes-style pruned view (<code>drop_pruned</code>, <code>compress_levels</code>).</p>
 </div>
 <div class="section level3">
+<h3 id="factor-interpretation-0-1-0">Factor interpretation<a class="anchor" aria-label="anchor" href="#factor-interpretation-0-1-0"></a></h3>
+<ul><li><p><strong><code>top_items(x, level, cut, n, sort)</code></strong> — lists the salient items for each factor, filtered to <code>|loading| &gt;= cut</code> (default <code>0.3</code>) and sorted by descending absolute loading. Arguments <code>level</code>, <code>n</code>, and <code>sort</code> allow subsetting levels, capping items per factor, and controlling order. Returns a <code>top_items</code> S3 object with a grouped cli print method.</p></li>
+<li><p><strong><code>label_template(x, style)</code></strong> — generates the named-character-vector scaffold for <code>autoplot(x, node_labels = ...)</code>. Styles: <code>"id"</code> (default), <code>"forbes"</code> (level-letter + within-level index: <code>"A1"</code>, <code>"B1"</code>, <code>"B2"</code>, …), <code>"blank"</code>. Factor IDs are in canonical layout order; an editable <code>c(...)</code> literal is also printed for copy-paste.</p></li>
+<li><p>See <code><a href="../articles/ackwards-interpret.html">vignette("ackwards-interpret")</a></code> for the end-to-end naming workflow: reading a factor with <code><a href="../reference/top_items.html">top_items()</a></code>, hierarchy-aware naming (parent vs. child, blends), sign-alignment caveat, and the <code><a href="../reference/top_items.html">top_items()</a></code> → <code><a href="../reference/label_template.html">label_template()</a></code> → <code>autoplot(node_labels = ...)</code> round-trip.</p></li>
+</ul></div>
+<div class="section level3">
 <h3 id="tidy-interface-and-scoring-0-1-0">Tidy interface and scoring<a class="anchor" aria-label="anchor" href="#tidy-interface-and-scoring-0-1-0"></a></h3>
 <ul><li>
 <code><a href="../reference/print.ackwards.html">print.ackwards()</a></code> — compact cli summary card.</li>
 <li>
 <code><a href="../reference/summary.ackwards.html">summary.ackwards()</a></code> — per-level variance, fit indices, lineage list, pruning notes.</li>
 <li>
-<code>tidy(x, what = "edges" / "loadings" / "variance" / "nodes" / "scores")</code> — long-format tidy tibbles.</li>
+<code>tidy(x, what = "edges" / "loadings" / "loadings_se" / "variance" / "nodes" / "scores")</code> — long-format tidy tibbles. For <code>what = "edges"</code>, <code>primary_only = TRUE</code> returns just each factor’s primary-parent edge (the lineage tree) and <code>sort = "strength"</code> orders by <code>|r|</code>. <code>what = "loadings_se"</code> returns the rotation-aware loading standard errors (ESEM only).</li>
 <li>
 <code>glance(x)</code> — one-row model-level summary.</li>
 <li>

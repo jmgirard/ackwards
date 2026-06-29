@@ -72,13 +72,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [309ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [289ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [169ms]
+#> ✔ Running MAP and VSS... [180ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [18.3s]
+#> ✔ Running Comparison Data (CD)... [18.1s]
 #> 
 sk
 #> 
@@ -408,30 +408,29 @@ correlation matrix.
 
 ``` r
 
-edges <- tidy(x, what = "edges")
-# Primary-parent edges sorted by strength
-primary <- edges[edges$is_primary, c("from", "to", "r")]
-primary[order(-abs(primary$r)), ]
-#>    from   to          r
-#> 9  m3f1 m4f1  0.9990773
-#> 7  m2f2 m3f2 -0.9975486
-#> 33 m4f3 m5f3  0.9972853
-#> 26 m4f2 m5f1  0.9964532
-#> 40 m4f4 m5f5  0.9930407
-#> 14 m3f2 m4f2  0.9789921
-#> 1  m1f1 m2f1  0.8737068
-#> 3  m2f1 m3f1  0.8157785
-#> 22 m4f1 m5f2  0.7879035
-#> 19 m3f3 m4f3  0.7150725
-#> 20 m3f3 m4f4  0.6989590
-#> 24 m4f1 m5f4  0.6157559
-#> 5  m2f1 m3f3  0.5767812
-#> 2  m1f1 m2f2  0.4864530
+# Each factor's primary-parent edge, strongest first
+tidy(x, what = "edges", primary_only = TRUE, sort = "strength")
+#>    from   to level_from level_to          r is_primary above_cut
+#> 1  m3f1 m4f1          3        4  0.9990773       TRUE      TRUE
+#> 2  m2f2 m3f2          2        3 -0.9975486       TRUE      TRUE
+#> 3  m4f3 m5f3          4        5  0.9972853       TRUE      TRUE
+#> 4  m4f2 m5f1          4        5  0.9964532       TRUE      TRUE
+#> 5  m4f4 m5f5          4        5  0.9930407       TRUE      TRUE
+#> 6  m3f2 m4f2          3        4  0.9789921       TRUE      TRUE
+#> 7  m1f1 m2f1          1        2  0.8737068       TRUE      TRUE
+#> 8  m2f1 m3f1          2        3  0.8157785       TRUE      TRUE
+#> 9  m4f1 m5f2          4        5  0.7879035       TRUE      TRUE
+#> 10 m3f3 m4f3          3        4  0.7150725       TRUE      TRUE
+#> 11 m3f3 m4f4          3        4  0.6989590       TRUE      TRUE
+#> 12 m4f1 m5f4          4        5  0.6157559       TRUE      TRUE
+#> 13 m2f1 m3f3          2        3  0.5767812       TRUE      TRUE
+#> 14 m1f1 m2f2          1        2  0.4864530       TRUE      TRUE
 ```
 
-`is_primary` marks the strongest-connecting edge for each factor (its
-primary parent). The r values close to 1.0 indicate factors that are
-nearly identical across adjacent levels — a sign of a stable, replicable
+`primary_only = TRUE` keeps just the strongest-connecting edge for each
+factor — its primary parent — and `sort = "strength"` orders them by
+`|r|`. The r values close to 1.0 indicate factors that are nearly
+identical across adjacent levels — a sign of a stable, replicable
 dimension. Smaller values indicate where the structure is reorganizing.
 
 ### Variance explained
@@ -476,8 +475,8 @@ are named `.m{k}f{j}` to distinguish them from the original variables.
 scored <- augment(x, data = bfi)
 #> Warning: ! Factor scores are standardized using model-implied SDs from a "polychoric"
 #>   correlation matrix.
-#> ℹ The raw projection uses `scale(data)` (Pearson z-scores), but `score_var`
-#>   comes from the "polychoric" R.
+#> ℹ The raw projection uses `.standardize(data)` (Pearson z-scores), but
+#>   `score_var` comes from the "polychoric" R.
 #> ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,
 #>   between-level edges from `tidy()` are the authoritative associations.
 #> This warning is displayed once per session.
@@ -504,7 +503,7 @@ weight matrices on every call:
 
 x2 <- ackwards(bfi, k_max = 5, cor = "polychoric", keep_scores = TRUE)
 scored2 <- augment(x2) # uses stored matrices — no recomputation
-identical(round(scored2$.m5f1, 8), round(scored$.m5f1, 8))
+all.equal(scored2$.m5f1, scored$.m5f1)
 #> [1] TRUE
 ```
 
@@ -520,7 +519,7 @@ the primary-parent lineage:
 ``` r
 
 # Within-level correlations at k = 5: should be near zero (orthogonal rotation)
-k5 <- scored[, grep("^\\.m5", names(scored))]
+k5 <- scored[, c(".m5f1", ".m5f2", ".m5f3", ".m5f4", ".m5f5")]
 round(cor(k5), 2)
 #>       .m5f1 .m5f2 .m5f3 .m5f4 .m5f5
 #> .m5f1  1.00  0.01  0.01  0.01 -0.01
@@ -533,7 +532,8 @@ round(cor(k5), 2)
 ``` r
 
 # Cross-level: m4f1 is the primary parent of m5f2 and m5f4 (from the edge table)
-round(cor(scored[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]), 2)
+lineage <- scored[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]
+round(cor(lineage), 2)
 #>       .m4f1 .m5f1 .m5f2 .m5f4
 #> .m4f1  1.00  0.02  0.79  0.61
 #> .m5f1  0.02  1.00  0.01  0.01

@@ -36,10 +36,11 @@ appended. If `data` is `NULL` the return is a minimal data frame with a
 ## Details
 
 **Score computation.** Scores are `S = Z W / sqrt(score_var)`, where
-`Z = scale(data)` (item z-scores), `W` is the per-level weight matrix
-stored in the object, and `sqrt(score_var)` standardizes by the real
-score standard deviations (Invariant 1: never assume unit variance). For
-PCA the method is `"components"`; for EFA/ESEM it is `"tenBerge"`.
+`Z = .standardize(data)` (item z-scores), `W` is the per-level weight
+matrix stored in the object, and `sqrt(score_var)` standardizes by the
+real score standard deviations (Invariant 1: never assume unit
+variance). For PCA the method is `"components"`; for EFA/ESEM it is
+`"tenBerge"`.
 
 **Missing data.** Score projection applies weights row-wise and
 propagates NAs listwise: any observation with at least one missing item
@@ -62,14 +63,28 @@ informative error is raised.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Score the training data on the fly (no keep_scores=TRUE needed)
-x <- ackwards(psych::bfi[, 1:25], k_max = 5)
-scores_df <- augment(x, data = psych::bfi[, 1:25])
-head(scores_df[, grep("^\\.m", names(scores_df))])
+if (requireNamespace("psych", quietly = TRUE)) {
+  # Score the training data on the fly (no keep_scores = TRUE needed)
+  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+  scores_df <- augment(x, data = psych::bfi[, 1:25])
+  head(scores_df[, startsWith(names(scores_df), ".m")])
 
-# Or store at fit time and augment without re-supplying data
-x2 <- ackwards(psych::bfi[, 1:25], k_max = 5, keep_scores = TRUE)
-scores_df2 <- augment(x2)
-} # }
+  # Store at fit time and augment without re-supplying data
+  x2 <- ackwards(psych::bfi[, 1:25], k_max = 5, keep_scores = TRUE)
+  scores_df2 <- augment(x2)
+}
+#> Warning: ! 364 rows have missing values; correlations are computed pairwise.
+#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
+#> Warning: ! 364 rows contain missing values and will produce NA scores.
+#> ℹ Score projection applies weights row-wise and propagates NAs listwise; FIML
+#>   estimation does not impute missing item responses.
+#> ℹ Use `missing = "listwise"` when fitting (so the model and scores share the
+#>   same complete rows), or call `na.omit(data)` before scoring.
+#> Warning: ! 364 rows have missing values; correlations are computed pairwise.
+#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
+#> Warning: ! 364 rows contain missing values and will produce NA scores.
+#> ℹ Score projection applies weights row-wise and propagates NAs listwise; FIML
+#>   estimation does not impute missing item responses.
+#> ℹ Use `missing = "listwise"` when fitting (so the model and scores share the
+#>   same complete rows), or call `na.omit(data)` before scoring.
 ```

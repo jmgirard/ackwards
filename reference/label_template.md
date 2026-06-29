@@ -66,15 +66,52 @@ so the printed literal maps directly onto the diagram.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-x <- ackwards(psych::bfi[, 1:25], k_max = 5)
+if (requireNamespace("psych", quietly = TRUE)) {
+  x <- ackwards(psych::bfi[, 1:25], k_max = 5)
 
-# Start from ID defaults, then fill in your own labels:
-labs <- label_template(x)
-labs["m5f1"] <- "Neuroticism"
-autoplot(x, node_labels = labs)
+  # Start from ID defaults, then fill in your own labels:
+  labs <- label_template(x)
+  labs["m5f1"] <- "Neuroticism"
 
-# Or use the Forbes letter convention:
-autoplot(x, node_labels = label_template(x, style = "forbes"))
-} # }
+  # Forbes letter convention:
+  label_template(x, style = "forbes")
+}
+#> Warning: ! 364 rows have missing values; correlations are computed pairwise.
+#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
+#> `label_template()` scaffold (id style):
+#> c(
+#>   "m1f1" = "m1f1",
+#>   "m2f1" = "m2f1",
+#>   "m2f2" = "m2f2",
+#>   "m3f1" = "m3f1",
+#>   "m3f2" = "m3f2",
+#>   "m3f3" = "m3f3",
+#>   "m4f1" = "m4f1",
+#>   "m4f2" = "m4f2",
+#>   "m4f3" = "m4f3",
+#>   "m4f4" = "m4f4",
+#>   "m5f1" = "m5f1",
+#>   "m5f2" = "m5f2",
+#>   "m5f3" = "m5f3",
+#>   "m5f4" = "m5f4",
+#>   "m5f5" = "m5f5"
+#> )
+#> `label_template()` scaffold (forbes style):
+#> c(
+#>   "m1f1" = "A1",
+#>   "m2f1" = "B1",
+#>   "m2f2" = "B2",
+#>   "m3f1" = "C1",
+#>   "m3f2" = "C2",
+#>   "m3f3" = "C3",
+#>   "m4f1" = "D1",
+#>   "m4f2" = "D2",
+#>   "m4f3" = "D3",
+#>   "m4f4" = "D4",
+#>   "m5f1" = "E1",
+#>   "m5f2" = "E2",
+#>   "m5f3" = "E3",
+#>   "m5f4" = "E4",
+#>   "m5f5" = "E5"
+#> )
 ```

@@ -169,59 +169,51 @@ and PCA loadings are highly correlated but not identical. EFA loadings
 are systematically somewhat smaller because they model only the common
 variance; PCA inflates loadings by fitting noise alongside signal.
 
-``` r
+The table below pairs the `k = 3` loadings from each engine — built by
+stacking `tidy(x_pca, what = "loadings")` and the EFA equivalent — for
+six representative items (two each from the Neuroticism, Extraversion,
+and Conscientiousness families).
 
-l_pca <- tidy(x_pca, what = "loadings")
-l_efa <- tidy(x_efa, what = "loadings")
+| engine | factor | item | loading |
+|:-------|:-------|:-----|--------:|
+| pca    | m3f1   | C1   |    0.09 |
+| efa    | m3f1   | C1   |    0.10 |
+| pca    | m3f1   | C2   |    0.12 |
+| efa    | m3f1   | C2   |    0.12 |
+| pca    | m3f1   | E1   |   -0.60 |
+| efa    | m3f1   | E1   |   -0.54 |
+| pca    | m3f1   | E2   |   -0.65 |
+| efa    | m3f1   | E2   |   -0.62 |
+| pca    | m3f1   | N1   |   -0.07 |
+| efa    | m3f1   | N1   |   -0.08 |
+| pca    | m3f1   | N2   |   -0.08 |
+| efa    | m3f1   | N2   |   -0.09 |
+| pca    | m3f2   | C1   |   -0.05 |
+| efa    | m3f2   | C1   |   -0.02 |
+| pca    | m3f2   | C2   |    0.02 |
+| efa    | m3f2   | C2   |    0.05 |
+| pca    | m3f2   | E1   |    0.04 |
+| efa    | m3f2   | E1   |    0.05 |
+| pca    | m3f2   | E2   |    0.30 |
+| efa    | m3f2   | E2   |    0.27 |
+| pca    | m3f2   | N1   |    0.79 |
+| efa    | m3f2   | N1   |    0.76 |
+| pca    | m3f2   | N2   |    0.79 |
+| efa    | m3f2   | N2   |    0.76 |
+| pca    | m3f3   | C1   |    0.66 |
+| efa    | m3f3   | C1   |    0.61 |
+| pca    | m3f3   | C2   |    0.63 |
+| efa    | m3f3   | C2   |    0.61 |
+| pca    | m3f3   | E1   |    0.02 |
+| efa    | m3f3   | E1   |    0.01 |
+| pca    | m3f3   | E2   |   -0.10 |
+| efa    | m3f3   | E2   |   -0.11 |
+| pca    | m3f3   | N1   |   -0.08 |
+| efa    | m3f3   | N1   |   -0.10 |
+| pca    | m3f3   | N2   |    0.00 |
+| efa    | m3f3   | N2   |   -0.03 |
 
-# k = 3, first 5 items per factor
-l_pca$engine <- "pca"
-l_efa$engine <- "efa"
-both <- rbind(l_pca, l_efa)
-both3 <- both[both$level == 3, ]
-
-# Representative items: highest-loading per factor in the PCA solution
-anchors <- c("N1", "N2", "E1", "E2", "C1", "C2")
-comp <- both3[both3$item %in% anchors, c("engine", "factor", "item", "loading")]
-comp[order(comp$factor, comp$item), ]
-#>     engine factor item      loading
-#> 81     pca   m3f1   C1  0.089198696
-#> 231    efa   m3f1   C1  0.100385156
-#> 82     pca   m3f1   C2  0.121469270
-#> 232    efa   m3f1   C2  0.116475023
-#> 86     pca   m3f1   E1 -0.604309937
-#> 236    efa   m3f1   E1 -0.539690270
-#> 87     pca   m3f1   E2 -0.649293041
-#> 237    efa   m3f1   E2 -0.617496322
-#> 91     pca   m3f1   N1 -0.067953439
-#> 241    efa   m3f1   N1 -0.075321454
-#> 92     pca   m3f1   N2 -0.083392143
-#> 242    efa   m3f1   N2 -0.086681968
-#> 106    pca   m3f2   C1 -0.049859560
-#> 256    efa   m3f2   C1 -0.017670030
-#> 107    pca   m3f2   C2  0.024921135
-#> 257    efa   m3f2   C2  0.049742317
-#> 111    pca   m3f2   E1  0.042380567
-#> 261    efa   m3f2   E1  0.052189787
-#> 112    pca   m3f2   E2  0.298022534
-#> 262    efa   m3f2   E2  0.273511715
-#> 116    pca   m3f2   N1  0.793836214
-#> 266    efa   m3f2   N1  0.763790131
-#> 117    pca   m3f2   N2  0.793788172
-#> 267    efa   m3f2   N2  0.763387518
-#> 131    pca   m3f3   C1  0.657166570
-#> 281    efa   m3f3   C1  0.614744266
-#> 132    pca   m3f3   C2  0.633600363
-#> 282    efa   m3f3   C2  0.608718517
-#> 136    pca   m3f3   E1  0.023066417
-#> 286    efa   m3f3   E1  0.007142178
-#> 137    pca   m3f3   E2 -0.095262712
-#> 287    efa   m3f3   E2 -0.108191392
-#> 141    pca   m3f3   N1 -0.075697895
-#> 291    efa   m3f3   N1 -0.095752244
-#> 142    pca   m3f3   N2 -0.002610903
-#> 292    efa   m3f3   N2 -0.029911910
-```
+PCA vs EFA loadings for anchor items (k = 3) {.table}
 
 EFA loadings for the same items are consistently a few points lower —
 the PCA loadings include some noise variance that EFA partitions into
@@ -299,28 +291,30 @@ tidy(x_esem, what = "fit")
 
 ### Loading standard errors
 
-The unique output from ESEM is `loadings_se` — a matrix of standard
-errors for every loading at every level. Access it via the level object
-directly:
+The unique output from ESEM is the rotation-aware **standard error** of
+every loading. `tidy(what = "loadings_se")` returns them in the same
+long format as `tidy(what = "loadings")`, with an `se` column in place
+of `loading`:
 
 ``` r
 
-# SE for k = 3 loadings
-se3 <- x_esem$levels[["3"]]$loadings_se
-round(se3[c("N1", "N2", "E1", "E2", "C1", "C2"), ], 3)
-#>     m3f1  m3f2  m3f3
-#> N1 0.015 0.008 0.016
-#> N2 0.015 0.008 0.017
-#> E1 0.016 0.019 0.019
-#> E2 0.012 0.017 0.019
-#> C1 0.017 0.018 0.015
-#> C2 0.018 0.019 0.014
+se <- tidy(x_esem, what = "loadings_se")
+head(se)
+#>   level factor item         se
+#> 1     1   m1f1   A1 0.01750773
+#> 2     1   m1f1   A2 0.01561537
+#> 3     1   m1f1   A3 0.01356797
+#> 4     1   m1f1   A4 0.01675980
+#> 5     1   m1f1   A5 0.01228831
+#> 6     1   m1f1   C1 0.01675244
 ```
 
 These SEs allow you to construct confidence intervals: loading ± 1.96 ×
 SE gives an approximate 95% CI. For the BFI with \> 2,000 participants
 the SEs are small; with smaller samples they become important for
 judging which loadings are meaningfully non-zero.
+(`tidy(what = "loadings_se")` errors for PCA and EFA objects, which
+carry no loading standard errors.)
 
 ## How much do the edges differ?
 
@@ -328,29 +322,23 @@ The primary output of bass-ackwards analysis is the between-level edges.
 For well-structured, continuous data, all three engines should agree
 closely on the hierarchy.
 
-``` r
+The table stacks each engine’s primary-parent edges —
+`tidy(what = "edges", primary_only = TRUE)` — at every level transition:
 
-e_pca <- tidy(x_pca, what = "edges")
-e_efa <- tidy(x_efa, what = "edges")
-e_pca$engine <- "pca"
-e_efa$engine <- "efa"
+| engine | from | to   |     r |
+|:-------|:-----|:-----|------:|
+| pca    | m1f1 | m2f1 |  0.87 |
+| efa    | m1f1 | m2f1 |  0.89 |
+| pca    | m1f1 | m2f2 |  0.49 |
+| efa    | m1f1 | m2f2 |  0.45 |
+| pca    | m2f1 | m3f1 |  0.82 |
+| efa    | m2f1 | m3f1 |  0.85 |
+| pca    | m2f2 | m3f2 | -1.00 |
+| efa    | m2f2 | m3f2 | -1.00 |
+| pca    | m2f1 | m3f3 |  0.58 |
+| efa    | m2f1 | m3f3 |  0.52 |
 
-# Primary-parent edges at each level transition
-primary_pca <- e_pca[e_pca$is_primary, c("engine", "from", "to", "r")]
-primary_efa <- e_efa[e_efa$is_primary, c("engine", "from", "to", "r")]
-rbind(primary_pca, primary_efa)[order(rbind(primary_pca, primary_efa)$to), ]
-#>    engine from   to          r
-#> 1     pca m1f1 m2f1  0.8737068
-#> 11    efa m1f1 m2f1  0.8900109
-#> 2     pca m1f1 m2f2  0.4864530
-#> 21    efa m1f1 m2f2  0.4535937
-#> 3     pca m2f1 m3f1  0.8157785
-#> 31    efa m2f1 m3f1  0.8514122
-#> 7     pca m2f2 m3f2 -0.9975486
-#> 71    efa m2f2 m3f2 -0.9980294
-#> 5     pca m2f1 m3f3  0.5767812
-#> 51    efa m2f1 m3f3  0.5208236
-```
+Primary-parent edges: PCA vs EFA {.table}
 
 The r values are very close between engines: the hierarchy that PCA
 reveals is essentially the same hierarchy that EFA reveals. This

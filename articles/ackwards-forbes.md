@@ -59,28 +59,26 @@ With k = 5, the adjacent-only model has 40 edges (1×2 + 2×3 + 3×4 +
 
 ### Reading the skip-level edge table
 
-``` r
+The table below keeps the non-adjacent edges (levels more than one
+apart) with `|r| >= 0.5`, strongest first — drawn from
+`tidy(x_all, what = "edges")`:
 
-edges <- tidy(x_all, what = "edges")
+| from | to   | level_from | level_to |     r |
+|:-----|:-----|-----------:|---------:|------:|
+| m3f2 | m5f1 |          3 |        5 |  0.98 |
+| m2f2 | m4f2 |          2 |        4 | -0.98 |
+| m2f2 | m5f1 |          2 |        5 | -0.97 |
+| m2f1 | m4f1 |          2 |        4 |  0.81 |
+| m3f1 | m5f2 |          3 |        5 |  0.78 |
+| m1f1 | m3f1 |          1 |        3 |  0.75 |
+| m1f1 | m4f1 |          1 |        4 |  0.74 |
+| m3f3 | m5f3 |          3 |        5 |  0.72 |
+| m3f3 | m5f5 |          3 |        5 |  0.69 |
+| m2f1 | m5f2 |          2 |        5 |  0.64 |
+| m3f1 | m5f4 |          3 |        5 |  0.62 |
+| m1f1 | m5f2 |          1 |        5 |  0.61 |
 
-# Non-adjacent edges with |r| >= 0.5, sorted by strength
-skip <- edges[abs(edges$level_to - edges$level_from) > 1 & abs(edges$r) >= 0.5, ]
-skip <- skip[order(-abs(skip$r)), c("from", "to", "level_from", "level_to", "r")]
-head(skip, 12)
-#>    from   to level_from level_to          r
-#> 56 m3f2 m5f1          3        5  0.9771525
-#> 26 m2f2 m4f2          2        4 -0.9758967
-#> 34 m2f2 m5f1          2        5 -0.9739184
-#> 21 m2f1 m4f1          2        4  0.8084362
-#> 52 m3f1 m5f2          3        5  0.7833802
-#> 3  m1f1 m3f1          1        3  0.7452805
-#> 6  m1f1 m4f1          1        4  0.7398477
-#> 63 m3f3 m5f3          3        5  0.7196037
-#> 65 m3f3 m5f5          3        5  0.6936223
-#> 30 m2f1 m5f2          2        5  0.6433249
-#> 54 m3f1 m5f4          3        5  0.6197564
-#> 11 m1f1 m5f2          1        5  0.6063399
-```
+Strongest skip-level edges (\|r\| \>= 0.5, non-adjacent levels) {.table}
 
 Several factors connect across two or more levels with correlations
 above 0.90. `m3f2` (level 3, factor 2) correlates 0.98 with `m5f1`
@@ -289,39 +287,30 @@ because the redundant chains all have correlations \> 0.97 — the
 flagging is unambiguous. With your own data you may find borderline
 cases where the threshold matters:
 
-``` r
+Refitting at a few `redundancy_r` thresholds and counting flagged
+factors at each shows how sensitive the pruning is:
 
-# Check how many factors are flagged at different redundancy_r thresholds
-thresholds <- c(0.80, 0.85, 0.90, 0.95)
-counts <- sapply(thresholds, function(thr) {
-  x <- suppressWarnings(
-    ackwards(bfi,
-      k_max = 5, cor = "polychoric",
-      pairs = "all", prune = "redundant",
-      redundancy_r = thr
-    )
-  )
-  sum(tidy(x, what = "nodes")$pruned)
-})
-#> ℹ Redundancy pruning (|r| ≥ 0.8) flagged 8 nodes.
-#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
-#>   `x$prune$chains`.
-#> ℹ Redundancy pruning (|r| ≥ 0.85) flagged 7 nodes.
-#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
-#>   `x$prune$chains`.
-#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
-#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
-#>   `x$prune$chains`.
-#> ℹ Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.
-#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
-#>   `x$prune$chains`.
-data.frame(redundancy_r = thresholds, n_flagged = counts)
-#>   redundancy_r n_flagged
-#> 1         0.80         8
-#> 2         0.85         7
-#> 3         0.90         6
-#> 4         0.95         6
-```
+    #> ℹ Redundancy pruning (|r| ≥ 0.8) flagged 8 nodes.
+    #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+    #>   `x$prune$chains`.
+    #> ℹ Redundancy pruning (|r| ≥ 0.85) flagged 7 nodes.
+    #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+    #>   `x$prune$chains`.
+    #> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
+    #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+    #>   `x$prune$chains`.
+    #> ℹ Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.
+    #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+    #>   `x$prune$chains`.
+
+| redundancy_r | n_flagged |
+|-------------:|----------:|
+|         0.80 |         8 |
+|         0.85 |         7 |
+|         0.90 |         6 |
+|         0.95 |         6 |
+
+Factors flagged redundant at each redundancy_r threshold {.table}
 
 For the BFI all thresholds agree: the flagged factors are robustly
 redundant, not borderline cases. In noisier datasets or smaller samples
@@ -353,7 +342,7 @@ in Personality*, *40*(4), 347–358.
 
 Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg’s bass-ackward method.
-*Psychological Methods*. <https://doi.org/10.1037/met0000593>
+*Psychological Methods*. <https://doi.org/10.1037/met0000546>
 
 Tucker, L. R. (1951). *A method for synthesis of factor analysis
 studies* (Personnel Research Section Report No. 984). Department of the

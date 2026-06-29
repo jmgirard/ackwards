@@ -132,7 +132,7 @@ tidy tibble.</p></dd>
 <p>where <code>R</code> is the input correlation matrix and <code>D_x = diag(W_x' R W_x)</code> are
 the <strong>actual</strong> score variances (not assumed to be 1). This avoids
 materialising scores while remaining exact for PCA, EFA (regression /
-Bartlett / tenBerge), and oblique rotations — all of which are linear.</p>
+Bartlett / tenBerge) — all of which produce linear score maps.</p>
 <p>When the algebra cannot be used (nonlinear scoring, missing <code>R</code>, or the user
 forces <code>edge_method = "scores"</code>), scores are materialised from <code>data</code> instead.</p>
     </div>

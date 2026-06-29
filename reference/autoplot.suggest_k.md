@@ -44,8 +44,22 @@ Requires the ggplot2 package.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-sk <- suggest_k(psych::bfi[, 1:25], n_iter = 5)
-autoplot(sk)
-} # }
+# \donttest{
+if (requireNamespace("psych", quietly = TRUE) &&
+  requireNamespace("ggplot2", quietly = TRUE)) {
+  sk <- suggest_k(psych::bfi[, 1:25], n_iter = 5)
+  autoplot(sk)
+}
+#> ℹ Running parallel analysis (5 iterations, PC + FA)...
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [102ms]
+#> 
+#> ℹ Running MAP and VSS...
+#> CD: 364 rows with missing values removed (2436 complete cases used).
+#> ✔ Running MAP and VSS... [120ms]
+#> 
+#> ℹ Running Comparison Data (CD)...
+#> ✔ Running Comparison Data (CD)... [24.6s]
+#> 
+
+# }
 ```
