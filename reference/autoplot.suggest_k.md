@@ -51,14 +51,14 @@ if (requireNamespace("psych", quietly = TRUE) &&
   autoplot(sk)
 }
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [102ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [100ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 364 rows with missing values removed (2436 complete cases used).
 #> ✔ Running MAP and VSS... [120ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [24.6s]
+#> ✔ Running Comparison Data (CD)... [23.8s]
 #> 
 
 # }

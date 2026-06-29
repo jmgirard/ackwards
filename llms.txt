@@ -29,7 +29,8 @@ factors.
 
 ## Installation
 
-``` R
+``` r
+
 # install.packages("pak")
 pak::pak("jmgirard/ackwards")
 ```
@@ -48,19 +49,20 @@ runs five complementary criteria — two forms of parallel analysis (PC
 and FA basis), MAP, VSS, and optionally Comparison Data — to help you
 choose an upper bound for the hierarchy depth.
 
-``` R
+``` r
+
 library(ackwards)
 
 bfi <- na.omit(psych::bfi[, 1:25])
 sk <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [179ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [226ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [123ms]
+#> ✔ Running MAP and VSS... [100ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [8.5s]
+#> ✔ Running Comparison Data (CD)... [8.7s]
 #> 
 sk
 #> 
@@ -106,7 +108,8 @@ with the known Big Five structure of this instrument.
 fits factor models at every level from 1 to `k_max` and computes the
 between-level factor-score correlations that define the hierarchy.
 
-``` R
+``` r
+
 x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 x
 #> 
@@ -141,7 +144,8 @@ draws the hierarchical diagram. Each column is a level (k = 1 at left, k
 factor. Solid arrows indicate strong connections (\|r\| ≥ 0.6 by
 default); dashed arrows show weaker ones.
 
-``` R
+``` r
+
 autoplot(x)
 ```
 
@@ -159,26 +163,30 @@ part of the object into a tidy data frame;
 [`augment()`](https://generics.r-lib.org/reference/augment.html) appends
 factor scores to your data for downstream analysis.
 
-``` R
+``` r
+
 # Eight strongest adjacent-level primary edges
 edges <- tidy(x, what = "edges", sort = "strength")
 head(edges[edges$is_primary, c("from", "to", "r")], 8)
-#>    from   to          r
-#> 1  m1f1 m2f1  0.8737068
-#> 2  m1f1 m2f2  0.4864530
-#> 3  m2f1 m3f1  0.8157785
-#> 5  m2f1 m3f3  0.5767812
-#> 7  m2f2 m3f2 -0.9975486
-#> 9  m3f1 m4f1  0.9990773
-#> 14 m3f2 m4f2  0.9789921
-#> 19 m3f3 m4f3  0.7150725
+#>   from   to          r
+#> 1 m3f1 m4f1  0.9990773
+#> 2 m2f2 m3f2 -0.9975486
+#> 3 m4f3 m5f3  0.9972853
+#> 4 m4f2 m5f1  0.9964532
+#> 5 m4f4 m5f5  0.9930407
+#> 6 m3f2 m4f2  0.9789921
+#> 7 m1f1 m2f1  0.8737068
+#> 8 m2f1 m3f1  0.8157785
+```
+
+``` r
 
 # Append scores for all 5 levels to the original data frame
 scored <- augment(x, data = bfi)
 #> Warning: ! Factor scores are standardized using model-implied SDs from a "polychoric"
 #>   correlation matrix.
-#> ℹ The raw projection uses `scale(data)` (Pearson z-scores), but `score_var`
-#>   comes from the "polychoric" R.
+#> ℹ The raw projection uses `.standardize(data)` (Pearson z-scores), but
+#>   `score_var` comes from the "polychoric" R.
 #> ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,
 #>   between-level edges from `tidy()` are the authoritative associations.
 #> This warning is displayed once per session.
@@ -197,14 +205,15 @@ names(scored)[26:40]
 | [Choosing k](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.html) | Five criteria explained: pros/cons, bias direction, engine pairing |
 | [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA; convergence and loading comparison |
 | [Ordinal data](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html) | Polychoric correlations, attenuation bias, and WLSMV estimation |
-| [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = “all”` |
+| [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = "all"` |
 
 ## Citation
 
 If you use **ackwards** in your research, please cite both the method
 and the package:
 
-``` R
+``` r
+
 citation("ackwards")
 #> To cite package 'ackwards' in publications use:
 #> 

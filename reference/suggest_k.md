@@ -184,24 +184,24 @@ if (requireNamespace("psych", quietly = TRUE)) {
   suggest_k(psych::bfi[, 1:25], k_max = 6, n_iter = 5)
 }
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [296ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [245ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 364 rows with missing values removed (2436 complete cases used).
-#> ✔ Running MAP and VSS... [101ms]
+#> ✔ Running MAP and VSS... [100ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [20.2s]
+#> ✔ Running Comparison Data (CD)... [20s]
 #> 
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [129ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [109ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 364 rows with missing values removed (2436 complete cases used).
-#> ✔ Running MAP and VSS... [84ms]
+#> ✔ Running MAP and VSS... [79ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [17.4s]
+#> ✔ Running Comparison Data (CD)... [17s]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────

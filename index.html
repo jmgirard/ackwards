@@ -81,8 +81,9 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># install.packages("pak")</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>pak<span class="sc">::</span><span class="fu">pak</span>(<span class="st">"jmgirard/ackwards"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"jmgirard/ackwards"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
@@ -92,88 +93,91 @@
 <h3 id="step-1--suggest-a-range-of-k">Step 1 — Suggest a range of k<a class="anchor" aria-label="anchor" href="#step-1--suggest-a-range-of-k"></a>
 </h3>
 <p><code><a href="reference/suggest_k.html">suggest_k()</a></code> runs five complementary criteria — two forms of parallel analysis (PC and FA basis), MAP, VSS, and optionally Comparison Data — to help you choose an upper bound for the hierarchy depth.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(ackwards)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>bfi <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(psych<span class="sc">::</span>bfi[, <span class="dv">1</span><span class="sc">:</span><span class="dv">25</span>])</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>sk <span class="ot">&lt;-</span> <span class="fu">suggest_k</span>(bfi)</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; ℹ Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [179ms]</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; ℹ Running MAP and VSS...</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; ✔ Running MAP and VSS... [123ms]</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; ℹ Running Comparison Data (CD)...</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; ✔ Running Comparison Data (CD)... [8.5s]</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>sk</span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; Variables: 25</span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; n: 2,436</span></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; Basis: pearson</span></span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; Tested k: 1-8</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; ── Criteria (k = 1-8) ──</span></span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD ✔</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD ✔</span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD ✔</span></span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔</span></span>
-<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔</span></span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔</span></span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔</span></span>
-<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD ✔*</span></span>
-<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; ── Recommendations ──</span></span>
-<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; • PA-PC: k &lt;= 5</span></span>
-<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt; • PA-FA: k &lt;= 6</span></span>
-<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; • MAP: k = 5</span></span>
-<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; • VSS-1: k = 4</span></span>
-<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt; • VSS-2: k = 5</span></span>
-<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; • CD: k = 8</span></span>
-<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt; Consensus range: k = 4-8</span></span>
-<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt; Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span>
-<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt; above the consensus to observe factor fragmentation is intentional.</span></span>
-<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt; Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span>
-<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="co">#&gt; 2023). PA-FA and CD are more conservative. Use the range.</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmgirard.github.io/ackwards/">ackwards</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="fu">psych</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">bfi</a></span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Running parallel analysis (20 iterations, PC + FA)...</span></span>
+<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [226ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Running MAP and VSS...</span></span>
+<span><span class="co">#&gt; ✔ Running MAP and VSS... [100ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Running Comparison Data (CD)...</span></span>
+<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [8.7s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="va">sk</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────</span></span>
+<span><span class="co">#&gt; Variables: 25</span></span>
+<span><span class="co">#&gt; n: 2,436</span></span>
+<span><span class="co">#&gt; Basis: pearson</span></span>
+<span><span class="co">#&gt; Tested k: 1-8</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Criteria (k = 1-8) ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0249 VSS-1 0.5096 VSS-2 0.0000 CD ✔</span></span>
+<span><span class="co">#&gt; k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0189 VSS-1 0.5651 VSS-2 0.6560 CD ✔</span></span>
+<span><span class="co">#&gt; k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5878 VSS-2 0.7343 CD ✔</span></span>
+<span><span class="co">#&gt; k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0157 VSS-1 0.6303* VSS-2 0.7809 CD ✔</span></span>
+<span><span class="co">#&gt; k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0146* VSS-1 0.5890 VSS-2 0.7944* CD ✔</span></span>
+<span><span class="co">#&gt; k = 6: PA-PC - PA-FA ✔ MAP 0.0160 VSS-1 0.5646 VSS-2 0.7520 CD ✔</span></span>
+<span><span class="co">#&gt; k = 7: PA-PC - PA-FA - MAP 0.0194 VSS-1 0.5617 VSS-2 0.7399 CD ✔</span></span>
+<span><span class="co">#&gt; k = 8: PA-PC - PA-FA - MAP 0.0222 VSS-1 0.5449 VSS-2 0.7266 CD ✔*</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Recommendations ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; • PA-PC: k &lt;= 5</span></span>
+<span><span class="co">#&gt; • PA-FA: k &lt;= 6</span></span>
+<span><span class="co">#&gt; • MAP: k = 5</span></span>
+<span><span class="co">#&gt; • VSS-1: k = 4</span></span>
+<span><span class="co">#&gt; • VSS-2: k = 5</span></span>
+<span><span class="co">#&gt; • CD: k = 8</span></span>
+<span><span class="co">#&gt; Consensus range: k = 4-8</span></span>
+<span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span>
+<span><span class="co">#&gt; above the consensus to observe factor fragmentation is intentional.</span></span>
+<span><span class="co">#&gt; Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span>
+<span><span class="co">#&gt; 2023). PA-FA and CD are more conservative. Use the range.</span></span></code></pre></div>
 <p>The criteria converge on a consensus range that covers k = 5, consistent with the known Big Five structure of this instrument.</p>
 </div>
 <div class="section level3">
 <h3 id="step-2--fit-the-hierarchy">Step 2 — Fit the hierarchy<a class="anchor" aria-label="anchor" href="#step-2--fit-the-hierarchy"></a>
 </h3>
 <p><code><a href="reference/ackwards.html">ackwards()</a></code> fits factor models at every level from 1 to <code>k_max</code> and computes the between-level factor-score correlations that define the hierarchy.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">ackwards</span>(bfi, <span class="at">k_max =</span> <span class="dv">5</span>, <span class="at">cor =</span> <span class="st">"polychoric"</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>x</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; Engine: pca</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; Rotation: varimax</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; Basis: polychoric</span></span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; n: 2,436</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; k (max): 5</span></span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; ── Levels ──</span></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; ✔ k = 1: 1 factor, 22.9% variance</span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; ✔ k = 2: 2 factors, 34.7% variance</span></span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; ✔ k = 3: 3 factors, 43.9% variance</span></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; ✔ k = 4: 4 factors, 51.8% variance</span></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; ✔ k = 5: 5 factors, 58.3% variance</span></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; ── Edges ──</span></span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; 14 of 40 edges have |r| ≥ 0.3</span></span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; Cross-level edges are descriptive score correlations.</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
+<span><span class="va">x</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Engine: pca</span></span>
+<span><span class="co">#&gt; Rotation: varimax</span></span>
+<span><span class="co">#&gt; Basis: polychoric</span></span>
+<span><span class="co">#&gt; n: 2,436</span></span>
+<span><span class="co">#&gt; k (max): 5</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Levels ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ✔ k = 1: 1 factor, 22.9% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 2: 2 factors, 34.7% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 3: 3 factors, 43.9% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 4: 4 factors, 51.8% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 5: 5 factors, 58.3% variance</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Edges ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 14 of 40 edges have |r| ≥ 0.3</span></span>
+<span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
+<span><span class="co">#&gt; Cross-level edges are descriptive score correlations.</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-3--visualize">Step 3 — Visualize<a class="anchor" aria-label="anchor" href="#step-3--visualize"></a>
 </h3>
 <p><code><a href="reference/autoplot.html">autoplot()</a></code> draws the hierarchical diagram. Each column is a level (k = 1 at left, k = 5 at right); arrows show which narrow factors inherit from which broad factor. Solid arrows indicate strong connections (|r| ≥ 0.6 by default); dashed arrows show weaker ones.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">autoplot</span>(x)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-plot-1.png" alt="" width="100%"></p>
 <p>The five-factor level cleanly splits into the Big Five. The single broad factor at k = 1 (roughly <em>general positive character</em>) differentiates first into positive vs. negative affect (k = 2), then into successively narrower traits.</p>
 </div>
@@ -181,33 +185,34 @@
 <h3 id="step-4--inspect-and-score">Step 4 — Inspect and score<a class="anchor" aria-label="anchor" href="#step-4--inspect-and-score"></a>
 </h3>
 <p><code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> extracts any part of the object into a tidy data frame; <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> appends factor scores to your data for downstream analysis.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Eight strongest adjacent-level primary edges</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">tidy</span>(x, <span class="at">what =</span> <span class="st">"edges"</span>, <span class="at">sort =</span> <span class="st">"strength"</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">head</span>(edges[edges<span class="sc">$</span>is_primary, <span class="fu">c</span>(<span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span>)], <span class="dv">8</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt;    from   to          r</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; 1  m1f1 m2f1  0.8737068</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; 2  m1f1 m2f2  0.4864530</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 3  m2f1 m3f1  0.8157785</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 5  m2f1 m3f3  0.5767812</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; 7  m2f2 m3f2 -0.9975486</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; 9  m3f1 m4f1  0.9990773</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; 14 m3f2 m4f2  0.9789921</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; 19 m3f3 m4f3  0.7150725</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co"># Append scores for all 5 levels to the original data frame</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>scored <span class="ot">&lt;-</span> <span class="fu">augment</span>(x, <span class="at">data =</span> bfi)</span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; Warning: ! Factor scores are standardized using model-implied SDs from a "polychoric"</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt;   correlation matrix.</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; ℹ The raw projection uses `scale(data)` (Pearson z-scores), but `score_var`</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt;   comes from the "polychoric" R.</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,</span></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt;   between-level edges from `tidy()` are the authoritative associations.</span></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once per session.</span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="fu">dim</span>(scored) <span class="co"># original 25 items + 1+2+3+4+5 = 15 score columns</span></span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; [1] 2436   40</span></span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="fu">names</span>(scored)[<span class="dv">26</span><span class="sc">:</span><span class="dv">40</span>]</span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt;  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"</span></span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt; [10] ".m4f4" ".m5f1" ".m5f2" ".m5f3" ".m5f4" ".m5f5"</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Eight strongest adjacent-level primary edges</span></span>
+<span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"edges"</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">edges</span><span class="op">[</span><span class="va">edges</span><span class="op">$</span><span class="va">is_primary</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">8</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   from   to          r</span></span>
+<span><span class="co">#&gt; 1 m3f1 m4f1  0.9990773</span></span>
+<span><span class="co">#&gt; 2 m2f2 m3f2 -0.9975486</span></span>
+<span><span class="co">#&gt; 3 m4f3 m5f3  0.9972853</span></span>
+<span><span class="co">#&gt; 4 m4f2 m5f1  0.9964532</span></span>
+<span><span class="co">#&gt; 5 m4f4 m5f5  0.9930407</span></span>
+<span><span class="co">#&gt; 6 m3f2 m4f2  0.9789921</span></span>
+<span><span class="co">#&gt; 7 m1f1 m2f1  0.8737068</span></span>
+<span><span class="co">#&gt; 8 m2f1 m3f1  0.8157785</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Append scores for all 5 levels to the original data frame</span></span>
+<span><span class="va">scored</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x</span>, data <span class="op">=</span> <span class="va">bfi</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: ! Factor scores are standardized using model-implied SDs from a "polychoric"</span></span>
+<span><span class="co">#&gt;   correlation matrix.</span></span>
+<span><span class="co">#&gt; ℹ The raw projection uses `.standardize(data)` (Pearson z-scores), but</span></span>
+<span><span class="co">#&gt;   `score_var` comes from the "polychoric" R.</span></span>
+<span><span class="co">#&gt; ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,</span></span>
+<span><span class="co">#&gt;   between-level edges from `tidy()` are the authoritative associations.</span></span>
+<span><span class="co">#&gt; This warning is displayed once per session.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span> <span class="co"># original 25 items + 1+2+3+4+5 = 15 score columns</span></span>
+<span><span class="co">#&gt; [1] 2436   40</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span><span class="op">[</span><span class="fl">26</span><span class="op">:</span><span class="fl">40</span><span class="op">]</span></span>
+<span><span class="co">#&gt;  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"</span></span>
+<span><span class="co">#&gt; [10] ".m4f4" ".m5f1" ".m5f2" ".m5f3" ".m5f4" ".m5f5"</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -215,56 +220,33 @@
 </h2>
 <table class="table">
 <colgroup>
-<col style="width: 58%">
-<col style="width: 41%">
+<col width="50%">
+<col width="50%">
 </colgroup>
 <thead><tr>
-<th>
-Vignette
-</th>
-<th>
-Topic
-</th>
+<th>Vignette</th>
+<th>Topic</th>
 </tr></thead>
 <tbody>
 <tr>
-<td>
-<a href="https://jmgirard.github.io/ackwards/articles/ackwards-intro.html">Introduction</a>
-</td>
-<td>
-Full PCA walkthrough: <code>suggest_k</code> → <code>ackwards</code> → inspect → plot → score
-</td>
+<td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-intro.html">Introduction</a></td>
+<td>Full PCA walkthrough: <code>suggest_k</code> → <code>ackwards</code> → inspect → plot → score</td>
 </tr>
 <tr>
-<td>
-<a href="https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.html">Choosing k</a>
-</td>
-<td>
-Five criteria explained: pros/cons, bias direction, engine pairing
-</td>
+<td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.html">Choosing k</a></td>
+<td>Five criteria explained: pros/cons, bias direction, engine pairing</td>
 </tr>
 <tr>
-<td>
-<a href="https://jmgirard.github.io/ackwards/articles/ackwards-engines.html">Engines &amp; rotation</a>
-</td>
-<td>
-When to choose EFA or ESEM over PCA; convergence and loading comparison
-</td>
+<td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-engines.html">Engines &amp; rotation</a></td>
+<td>When to choose EFA or ESEM over PCA; convergence and loading comparison</td>
 </tr>
 <tr>
-<td>
-<a href="https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html">Ordinal data</a>
-</td>
-<td>
-Polychoric correlations, attenuation bias, and WLSMV estimation
-</td>
+<td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html">Ordinal data</a></td>
+<td>Polychoric correlations, attenuation bias, and WLSMV estimation</td>
 </tr>
 <tr>
-<td>
-<a href="https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html">Forbes extension</a>
-</td>
-<td>
-Skip-level edges, redundancy pruning, <code>pairs = “all”</code>
+<td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html">Forbes extension</a></td>
+<td>Skip-level edges, redundancy pruning, <code>pairs = "all"</code>
 </td>
 </tr>
 </tbody>
@@ -274,22 +256,23 @@ Skip-level edges, redundancy pruning, <code>pairs = “all”</code>
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
 <p>If you use <strong>ackwards</strong> in your research, please cite both the method and the package:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">citation</span>(<span class="st">"ackwards"</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; To cite package 'ackwards' in publications use:</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;   Goldberg L (2006). "Doing it all bass-ackwards: The development of</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;   hierarchical factor structures from the top down." _Journal of</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;   Research in Personality_, *40*(4), 347-358.</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   doi:10.1016/j.jrp.2006.01.001</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt;   &lt;https://doi.org/10.1016/j.jrp.2006.01.001&gt;.</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;   Analysis_. R package version 0.1.0,</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;   &lt;https://github.com/jmgirard/ackwards&gt;.</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; To see these entries in BibTeX format, use 'print(&lt;citation&gt;,</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; bibtex=TRUE)', 'toBibtex(.)', or set</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; 'options(citation.bibtex.max=999)'.</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"ackwards"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; To cite package 'ackwards' in publications use:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Goldberg L (2006). "Doing it all bass-ackwards: The development of</span></span>
+<span><span class="co">#&gt;   hierarchical factor structures from the top down." _Journal of</span></span>
+<span><span class="co">#&gt;   Research in Personality_, *40*(4), 347-358.</span></span>
+<span><span class="co">#&gt;   doi:10.1016/j.jrp.2006.01.001</span></span>
+<span><span class="co">#&gt;   &lt;https://doi.org/10.1016/j.jrp.2006.01.001&gt;.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural</span></span>
+<span><span class="co">#&gt;   Analysis_. R package version 0.1.0,</span></span>
+<span><span class="co">#&gt;   &lt;https://github.com/jmgirard/ackwards&gt;.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; To see these entries in BibTeX format, use 'print(&lt;citation&gt;,</span></span>
+<span><span class="co">#&gt; bibtex=TRUE)', 'toBibtex(.)', or set</span></span>
+<span><span class="co">#&gt; 'options(citation.bibtex.max=999)'.</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
