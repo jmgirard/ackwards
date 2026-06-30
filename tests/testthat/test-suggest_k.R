@@ -275,13 +275,34 @@ test_that("autoplot.suggest_k() renders 4-panel 2x2 grid when CD available", {
     panel_vals,
     c(
       "Scree / Parallel Analysis", "MAP (minimize)",
-      "VSS (maximize)", "CD (RMSE, minimize)"
+      "VSS (maximize)", "CD (RMSE; sequential test)"
     )
   )
   # CD star marked at k_cd
   cd_rows <- p$data[p$data$series == "CD (RMSE)" & p$data$is_opt, ]
   expect_equal(nrow(cd_rows), 1L)
   expect_equal(cd_rows$k, sk$k_cd)
+  # No NA rows in plot data (NAs filtered before building frame)
+  cd_plot_rows <- p$data[p$data$series == "CD (RMSE)", ]
+  expect_false(anyNA(cd_plot_rows$value))
+})
+
+test_that("cd_rmse has no spurious zeros: trailing columns masked to NA", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("EFAtools")
+  # Use k_max large enough to guarantee unfilled columns exist when k_cd < k_max
+  sk <- suggest_k(bfi25, k_max = 8L, seed = 1L)
+  skip_if(!sk$cd_available)
+  expect_length(sk$cd_rmse, 8L)
+  # No zeros beyond the computed range (k_cd + 1)
+  expect_false(any(sk$cd_rmse == 0, na.rm = TRUE))
+  # Tail beyond k_cd + 1 is NA (when k_cd < k_max - 1)
+  n_computed <- min(sk$k_cd + 1L, 8L)
+  if (n_computed < 8L) {
+    expect_true(all(is.na(sk$cd_rmse[(n_computed + 1L):8L])))
+  }
+  # which.min over non-NA values is at a genuinely computed level
+  expect_lte(which.min(sk$cd_rmse), n_computed)
 })
 
 test_that("autoplot.suggest_k() scree panel has four series", {
