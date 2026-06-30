@@ -6,7 +6,7 @@
 \usage{
 \method{tidy}{ackwards}(
   x,
-  what = c("edges", "loadings", "loadings_se", "variance", "fit", "nodes", "scores"),
+  what = c("edges", "loadings", "variance", "fit", "nodes", "scores"),
   primary_only = FALSE,
   sort = c("none", "strength"),
   format = c("long", "wide"),
@@ -33,12 +33,16 @@
 For PCA objects the indices are eigenvalues; for EFA objects they are
 \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, \code{BIC}; for ESEM they are
 \code{chi}, \code{dof}, \code{p_value}, \code{CFI}, \code{TLI}, \code{RMSEA}, \code{SRMR}. Use
-\code{format = "wide"} for one row per level with index columns. Add
-\code{cutoffs = TRUE} to append a \code{meets} column flagging each index against
-conventional thresholds (Hu & Bentler 1999: CFI/TLI ≥ .95,
-RMSEA ≤ .06, SRMR ≤ .08); indices without a defined threshold (e.g.
-\code{chi}, \code{BIC}, eigenvalues) return \code{NA} for \code{meets}. Thresholds are
-conventional and contested; they are report-only and never gate anything.
+\code{format = "wide"} for one row per \strong{non-anchor} level (k >= 2; the
+saturated 1-factor anchor is dropped, matching \code{summary()} and
+\code{autoplot(what = "fit")}), one column per index. Add \code{cutoffs = TRUE} to
+append a \code{meets} column flagging each index against conventional
+thresholds (Hu & Bentler 1999: CFI/TLI >= .95, RMSEA <= .06,
+SRMR <= .08); indices without a defined threshold (e.g. \code{chi}, \code{BIC},
+eigenvalues) return \code{NA} for \code{meets}. Thresholds are conventional and
+contested; they are report-only and never gate anything. \code{format} and
+\code{cutoffs} are oriented to the EFA/ESEM model-fit indices; for PCA the
+"indices" are per-component eigenvalues.
 \item \code{"nodes"} -- Forbes-extension pruning annotations (requires \code{prune != "none"}
 when the object was created). One row per factor across all levels:
 \code{id}, \code{level}, \code{pruned}, \code{prune_reason}. Returns an empty data frame with

@@ -26,12 +26,16 @@ generics::glance
 #'     For PCA objects the indices are eigenvalues; for EFA objects they are
 #'     `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`; for ESEM they are
 #'     `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`. Use
-#'     `format = "wide"` for one row per level with index columns. Add
-#'     `cutoffs = TRUE` to append a `meets` column flagging each index against
-#'     conventional thresholds (Hu & Bentler 1999: CFI/TLI ≥ .95,
-#'     RMSEA ≤ .06, SRMR ≤ .08); indices without a defined threshold (e.g.
-#'     `chi`, `BIC`, eigenvalues) return `NA` for `meets`. Thresholds are
-#'     conventional and contested; they are report-only and never gate anything.
+#'     `format = "wide"` for one row per **non-anchor** level (k >= 2; the
+#'     saturated 1-factor anchor is dropped, matching `summary()` and
+#'     `autoplot(what = "fit")`), one column per index. Add `cutoffs = TRUE` to
+#'     append a `meets` column flagging each index against conventional
+#'     thresholds (Hu & Bentler 1999: CFI/TLI >= .95, RMSEA <= .06,
+#'     SRMR <= .08); indices without a defined threshold (e.g. `chi`, `BIC`,
+#'     eigenvalues) return `NA` for `meets`. Thresholds are conventional and
+#'     contested; they are report-only and never gate anything. `format` and
+#'     `cutoffs` are oriented to the EFA/ESEM model-fit indices; for PCA the
+#'     "indices" are per-component eigenvalues.
 #'   * `"nodes"` -- Forbes-extension pruning annotations (requires `prune != "none"`
 #'     when the object was created). One row per factor across all levels:
 #'     `id`, `level`, `pruned`, `prune_reason`. Returns an empty data frame with
@@ -76,7 +80,7 @@ generics::glance
 #' @export
 tidy.ackwards <- function(
   x,
-  what = c("edges", "loadings", "loadings_se", "variance", "fit", "nodes", "scores"),
+  what = c("edges", "loadings", "variance", "fit", "nodes", "scores"),
   primary_only = FALSE,
   sort = c("none", "strength"),
   format = c("long", "wide"),
@@ -118,13 +122,12 @@ tidy.ackwards <- function(
     )
   }
   out <- switch(what,
-    edges       = .tidy_edges(x),
-    loadings    = .tidy_loadings(x, conf_level = conf_level),
-    loadings_se = .tidy_loadings_se(x),
-    variance    = .tidy_variance(x),
-    fit         = .tidy_fit(x),
-    nodes       = .tidy_nodes(x),
-    scores      = .tidy_scores(x)
+    edges    = .tidy_edges(x),
+    loadings = .tidy_loadings(x, conf_level = conf_level),
+    variance = .tidy_variance(x),
+    fit      = .tidy_fit(x),
+    nodes    = .tidy_nodes(x),
+    scores   = .tidy_scores(x)
   )
   if (what == "edges") {
     if (isTRUE(primary_only)) {
@@ -212,37 +215,6 @@ tidy.ackwards <- function(
   out
 }
 
-.tidy_loadings_se <- function(x) {
-  has_se <- vapply(x$levels, function(lev) !is.null(lev$loadings_se), logical(1L))
-  if (!any(has_se)) {
-    cli::cli_abort(c(
-      "!" = "Loading standard errors are not available in this {.cls ackwards} \\
-             object.",
-      "i" = "Rotation-aware loading SEs are produced only by \\
-             {.code engine = \"esem\"}; PCA and EFA carry none."
-    ))
-  }
-  rows <- lapply(names(x$levels), function(ki) {
-    SE <- x$levels[[ki]]$loadings_se
-    if (is.null(SE)) {
-      return(NULL)
-    }
-    k <- as.integer(ki)
-    do.call(rbind, lapply(seq_len(ncol(SE)), function(j) {
-      data.frame(
-        level = k,
-        factor = colnames(SE)[j],
-        item = rownames(SE),
-        se = SE[, j],
-        stringsAsFactors = FALSE
-      )
-    }))
-  })
-  out <- do.call(rbind, rows)
-  rownames(out) <- NULL
-  out
-}
-
 .tidy_fit <- function(x) {
   rows <- lapply(names(x$levels), function(ki) {
     lev <- x$levels[[ki]]
@@ -286,6 +258,10 @@ tidy.ackwards <- function(
 }
 
 .fit_long_to_wide <- function(df) {
+  # Exclude the anchor level (k = 1). The 1-factor anchor is the saturated
+  # baseline; summary() and autoplot(what = "fit") both drop it, so the wide
+  # reporting table matches them (one row per non-anchor level).
+  df <- df[df$level > 1L, , drop = FALSE]
   has_meets <- "meets" %in% names(df)
   levels <- sort(unique(df$level))
   all_idx <- unique(df$index) # preserve original index order

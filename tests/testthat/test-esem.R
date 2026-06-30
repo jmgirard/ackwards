@@ -206,33 +206,6 @@ test_that("tidy(x, what = 'fit') returns 7 indices per level for ESEM", {
   expect_equal(sort(unique(td$level)), 1:3)
 })
 
-test_that("tidy(x, what = 'loadings_se') returns one SE per loading for ESEM", {
-  skip_if_not_installed("lavaan")
-  d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
-  se <- generics::tidy(x, what = "loadings_se")
-  expect_s3_class(se, "data.frame")
-  expect_identical(names(se), c("level", "factor", "item", "se"))
-  # Same number of rows as the loadings table (one SE per loading)
-  expect_identical(nrow(se), nrow(generics::tidy(x, what = "loadings")))
-  expect_true(all(is.finite(se$se)))
-  expect_true(all(se$se >= 0))
-})
-
-test_that("tidy(x, what = 'loadings_se') skips levels with NULL loadings_se", {
-  # Covers the return(NULL) branch at tidy.R line 175 when a level is missing SE.
-  # Simulate a partially-SE object by nulling out one level's SE.
-  skip_if_not_installed("lavaan")
-  d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
-  # Null out level-1 SE to force the return(NULL) branch for that level
-  x$levels[["1"]]$loadings_se <- NULL
-  se <- generics::tidy(x, what = "loadings_se")
-  # Levels 2 and 3 still have SE; level 1 is silently skipped
-  expect_s3_class(se, "data.frame")
-  expect_true(all(se$level >= 2L))
-})
-
 # ── M27: loading SEs/CIs folded into tidy(what = "loadings") ─────────────────
 
 test_that("tidy(what='loadings') for ESEM has se/ci_lower/ci_upper populated", {
@@ -280,13 +253,16 @@ test_that("conf_level passed with wrong what= errors", {
 
 # ── M27: wide fit table ───────────────────────────────────────────────────────
 
-test_that("tidy(what='fit', format='wide') gives one row per level", {
+test_that("tidy(what='fit', format='wide') gives one row per non-anchor level", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
   wide <- generics::tidy(x, what = "fit", format = "wide")
   expect_s3_class(wide, "data.frame")
-  expect_equal(nrow(wide), 3L)
+  # Anchor (k = 1) dropped: levels 2 and 3 only.
+  expect_equal(nrow(wide), 2L)
+  expect_false(1L %in% wide$level)
+  expect_equal(sort(wide$level), c(2L, 3L))
   expect_true("level" %in% names(wide))
   expect_true(all(c("CFI", "TLI", "RMSEA", "SRMR") %in% names(wide)))
 })

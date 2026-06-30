@@ -8,8 +8,9 @@ for all engines; indices unavailable for a given engine are `NA` (e.g. `CFI`
 and `SRMR` for EFA; all five for PCA).
 
 **`tidy(what = "fit")` gains two new arguments:**
-- `format = "wide"`: returns one row per level with one column per index —
-  the natural shape for reporting tables.
+- `format = "wide"`: returns one row per non-anchor level (k >= 2) with one
+  column per index — the natural shape for reporting tables. The saturated
+  1-factor anchor is dropped, matching `summary()` and `autoplot(what = "fit")`.
 - `cutoffs = TRUE`: appends a `meets` column flagging each index against Hu &
   Bentler (1999) conventional thresholds (CFI/TLI >= .95, RMSEA <= .06,
   SRMR <= .08). Indices without a defined threshold (chi, BIC, eigenvalues)
@@ -19,8 +20,9 @@ and `SRMR` for EFA; all five for PCA).
 columns** for all engines. For ESEM these are populated from the rotation-aware
 loading SEs; for PCA and EFA they are `NA`. A `conf_level` argument (default
 `0.95`) controls the interval width. This replaces the need to compute CIs by
-hand. `tidy(what = "loadings_se")` continues to work for backward
-compatibility.
+hand, and supersedes the previous `tidy(what = "loadings_se")` accessor, which
+has been **removed** (the package is unreleased, so no deprecation cycle is
+needed).
 
 **`autoplot(x, what = "fit")`** produces a two-panel ggplot2 chart of per-level
 fit indices (CFI/TLI in the top panel; RMSEA/SRMR in the bottom panel) with

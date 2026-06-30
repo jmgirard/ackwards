@@ -582,8 +582,9 @@ autoplot.ackwards <- function(
   }
 
   fit_long <- .tidy_fit(object)
-  # Exclude anchor level and index types without SEM meaning
-  excl <- c("chi", "dof", "p_value", "BIC")
+  # Panels split by direction of "good": higher-is-better vs lower-is-better.
+  # EFA reports only TLI / RMSEA; ESEM adds CFI / SRMR. Panel titles are built
+  # from the indices actually present so EFA is not mislabelled "CFI / TLI".
   if (engine == "efa") {
     hi_idx <- c("TLI")
     lo_idx <- c("RMSEA")
@@ -592,6 +593,10 @@ autoplot.ackwards <- function(
     lo_idx <- c("RMSEA", "SRMR")
   }
   keep_idx <- c(hi_idx, lo_idx)
+  hi_lbl <- paste0(paste(hi_idx, collapse = " / "), "  (higher is better)")
+  lo_lbl <- paste0(paste(lo_idx, collapse = " / "), "  (lower is better)")
+
+  # Anchor level (k = 1) excluded: saturated baseline, always fits perfectly.
   fd <- fit_long[fit_long$level > 1L & fit_long$index %in% keep_idx, , drop = FALSE]
 
   if (nrow(fd) == 0L) {
@@ -606,19 +611,16 @@ autoplot.ackwards <- function(
     )
   }
 
-  fd$panel <- ifelse(fd$index %in% hi_idx, "CFI / TLI  (higher is better)", "RMSEA / SRMR  (lower is better)")
-  fd$panel <- factor(fd$panel, levels = c("CFI / TLI  (higher is better)", "RMSEA / SRMR  (lower is better)"))
+  fd$panel <- ifelse(fd$index %in% hi_idx, hi_lbl, lo_lbl)
+  fd$panel <- factor(fd$panel, levels = c(hi_lbl, lo_lbl))
 
+  # Every index in keep_idx has a threshold in .fit_cutoffs(), so no NULL guard
+  # is needed here.
   cuts <- .fit_cutoffs()
-  ref_rows <- lapply(keep_idx, function(idx) {
-    cut <- cuts[[idx]]
-    if (is.null(cut)) {
-      return(NULL)
-    }
-    panel_lbl <- if (idx %in% hi_idx) "CFI / TLI  (higher is better)" else "RMSEA / SRMR  (lower is better)"
-    data.frame(panel = panel_lbl, yintercept = cut$threshold, stringsAsFactors = FALSE)
-  })
-  ref_df <- do.call(rbind, ref_rows[!vapply(ref_rows, is.null, logical(1L))])
+  ref_df <- do.call(rbind, lapply(keep_idx, function(idx) {
+    panel_lbl <- if (idx %in% hi_idx) hi_lbl else lo_lbl
+    data.frame(panel = panel_lbl, yintercept = cuts[[idx]]$threshold, stringsAsFactors = FALSE)
+  }))
   ref_df <- unique(ref_df)
   ref_df$panel <- factor(ref_df$panel, levels = levels(fd$panel))
 
