@@ -115,6 +115,14 @@
 #'   Tucker's phi must *also* exceed this threshold for a link to be included in
 #'   a redundancy chain (conjunctive with `redundancy_r`). `NULL` means only
 #'   `redundancy_r` is used. Recommended: `0.95` (Lorenzo-Seva & ten Berge, 2006).
+#' @param min_items Minimum number of items for which a factor must be the
+#'   primary loader (highest `|loading|`). Factors with fewer than `min_items`
+#'   primary items are flagged `few_items = TRUE` in `x$prune$structural`. Only
+#'   used when `prune = "artefact"`. Default `3L`.
+#' @param orphan_r Threshold for the `orphan` structural signal. A factor whose
+#'   maximum adjacent-level `|r|` falls below `orphan_r` is flagged
+#'   `orphan = TRUE` in `x$prune$structural` (non-replicating across levels).
+#'   Only used when `prune = "artefact"`. Default `0.5`.
 #' @param cut_show Edges with `|r| >= cut_show` are flagged `above_cut` in
 #'   `tidy()` output. Default `0.3`.
 #' @param ... Reserved for future arguments.
@@ -184,6 +192,8 @@ ackwards <- function(
   prune = "none",
   redundancy_r = 0.9,
   redundancy_phi = NULL,
+  min_items = 3L,
+  orphan_r = 0.5,
   cut_show = 0.3,
   ...
 ) {
@@ -672,7 +682,11 @@ ackwards <- function(
   # Pruning is applied post-assembly so .apply_pruning() can read the final
   # aligned edges directly from the object.
   if (!identical(prune, "none")) {
-    x$prune <- .apply_pruning(x, prune, redundancy_r, redundancy_phi)
+    x$prune <- .apply_pruning(
+      x, prune, redundancy_r, redundancy_phi,
+      min_items = as.integer(min_items),
+      orphan_r = orphan_r
+    )
   }
 
   x

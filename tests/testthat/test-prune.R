@@ -465,3 +465,132 @@ test_that("B4: prune works correctly when hierarchy is truncated (k_eff < k_requ
   # All node flags reference existing levels
   expect_true(all(x$prune$nodes$level <= 3L))
 })
+
+# ---- Tests for structural artefact signals (Wave 2 / M25) --------------------
+
+test_that("prune='artefact' populates $structural with correct schema", {
+  skip_if_not_installed("psych")
+  set.seed(5)
+  data <- as.data.frame(matrix(rnorm(900), 150, 6))
+  x <- suppressWarnings(suppressMessages(
+    ackwards(data, k_max = 3, prune = "artefact")
+  ))
+
+  expect_false(is.null(x$prune$structural))
+  struct <- x$prune$structural
+  expect_s3_class(struct, "data.frame")
+  expect_named(struct, c("id", "level", "few_items", "orphan", "split_merge"))
+  # One row per (level, factor): 1 + 2 + 3 = 6 rows for k_max = 3
+  expect_equal(nrow(struct), sum(seq_len(3L)))
+  expect_type(struct$few_items, "logical")
+  expect_type(struct$split_merge, "logical")
+  # phi table still present and unchanged
+  expect_false(is.null(x$prune$phi))
+  # No auto-flagging (artefact is flag/report only)
+  expect_true(all(!x$prune$nodes$pruned))
+})
+
+test_that("prune='artefact' stores min_items and orphan_r in prune slot", {
+  skip_if_not_installed("psych")
+  set.seed(5)
+  data <- as.data.frame(matrix(rnorm(900), 150, 6))
+  x <- suppressWarnings(suppressMessages(
+    ackwards(data,
+      k_max = 3, prune = "artefact",
+      min_items = 2L, orphan_r = 0.3
+    )
+  ))
+  expect_equal(x$prune$min_items, 2L)
+  expect_equal(x$prune$orphan_r, 0.3)
+})
+
+test_that("prune='redundant' leaves $structural NULL", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  x <- suppressWarnings(suppressMessages(
+    ackwards(data, k_max = 3, prune = "redundant")
+  ))
+  expect_null(x$prune$structural)
+})
+
+test_that("few_items flags 2-item factor when min_items = 3", {
+  skip_if_not_installed("psych")
+  # 3 items on factor 1, 2 items on factor 2 -> factor 2 at k=2 has few_items
+  set.seed(42)
+  n <- 300L
+  f1 <- rnorm(n)
+  f2 <- rnorm(n)
+  data_few <- data.frame(
+    x1 = 0.9 * f1 + rnorm(n, sd = 0.2),
+    x2 = 0.9 * f1 + rnorm(n, sd = 0.2),
+    x3 = 0.9 * f1 + rnorm(n, sd = 0.2),
+    x4 = 0.9 * f2 + rnorm(n, sd = 0.2),
+    x5 = 0.9 * f2 + rnorm(n, sd = 0.2)
+  )
+  x <- suppressMessages(
+    ackwards(data_few, k_max = 2, prune = "artefact", min_items = 3L)
+  )
+  struct <- x$prune$structural
+  k2 <- struct[struct$level == 2L, ]
+  # Exactly one k=2 factor should have 2 primary items -> few_items = TRUE
+  expect_true(any(k2$few_items))
+  # k=1 (single factor, all 5 items) must not be flagged
+  k1 <- struct[struct$level == 1L, ]
+  expect_false(k1$few_items)
+})
+
+test_that("orphan flags with very high orphan_r; none with zero threshold", {
+  skip_if_not_installed("psych")
+  set.seed(7)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+
+  # orphan_r = 0.99: nearly impossible to satisfy; all factors should be orphans
+  x_high <- suppressWarnings(suppressMessages(
+    ackwards(data, k_max = 3, prune = "artefact", orphan_r = 0.99)
+  ))
+  expect_true(any(x_high$prune$structural$orphan, na.rm = TRUE))
+
+  # orphan_r = 0: any nonzero |r| clears the threshold; none should be flagged
+  x_low <- suppressWarnings(suppressMessages(
+    ackwards(data, k_max = 3, prune = "artefact", orphan_r = 0)
+  ))
+  expect_false(any(x_low$prune$structural$orphan, na.rm = TRUE))
+})
+
+test_that("split_merge is FALSE at level 1 and level 2 (no multi-parent possible)", {
+  skip_if_not_installed("psych")
+  set.seed(7)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  x <- suppressWarnings(suppressMessages(
+    ackwards(data, k_max = 3, prune = "artefact")
+  ))
+  struct <- x$prune$structural
+  # Level 1: no parent level exists -> always FALSE
+  expect_false(any(struct$split_merge[struct$level == 1L]))
+  # Level 2: all items share one single k=1 parent -> always FALSE
+  expect_false(any(struct$split_merge[struct$level == 2L]))
+})
+
+test_that("print.ackwards() shows structural signal count for prune='artefact'", {
+  skip_if_not_installed("psych")
+  set.seed(5)
+  data <- as.data.frame(matrix(rnorm(900), 150, 6))
+  x <- suppressWarnings(suppressMessages(
+    ackwards(data, k_max = 3, prune = "artefact")
+  ))
+  # print must not error; structural count line present
+  expect_no_error(print(x))
+  expect_invisible(print(x))
+})
+
+test_that("summary.ackwards() shows structural signal count for prune='artefact'", {
+  skip_if_not_installed("psych")
+  set.seed(5)
+  data <- as.data.frame(matrix(rnorm(900), 150, 6))
+  x <- suppressWarnings(suppressMessages(
+    ackwards(data, k_max = 3, prune = "artefact")
+  ))
+  expect_no_error(summary(x))
+  expect_no_error(print(summary(x)))
+})

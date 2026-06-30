@@ -256,9 +256,85 @@
   list(node_flags = node_flags_df, chains = chains_df)
 }
 
+# Compute structural artefact signals for each (level, factor).
+# Returns a data frame: id, level, few_items, orphan, split_merge.
+#
+# few_items:   factor is primary parent for fewer than min_items items.
+# orphan:      factor's max adjacent-level |r| is below orphan_r (non-replicating).
+# split_merge: factor's primary items came from multiple different primary parents
+#              at the shallower adjacent level (items merged from separate groups).
+.compute_structural_signals <- function(x, min_items, orphan_r) {
+  levels_list <- x$levels
+  ks <- sort(as.integer(names(levels_list)))
+
+  # Primary factor label for each item at each level.
+  primary_factor_of <- lapply(ks, function(k) {
+    L <- levels_list[[as.character(k)]]$loadings
+    labels_k <- colnames(L)
+    idx <- apply(abs(L), 1L, which.max)
+    stats::setNames(labels_k[idx], rownames(L))
+  })
+  names(primary_factor_of) <- as.character(ks)
+
+  rows <- lapply(ks, function(k) {
+    lev <- levels_list[[as.character(k)]]
+    labels_k <- colnames(lev$loadings)
+    pf_k <- primary_factor_of[[as.character(k)]]
+
+    lapply(seq_along(labels_k), function(j_idx) {
+      jlab <- labels_k[j_idx]
+      primary_items <- names(pf_k)[pf_k == jlab]
+
+      # few_items ---------------------------------------------------------------
+      few_items <- length(primary_items) < min_items
+
+      # orphan: max adjacent-level |r| < orphan_r ------------------------------
+      adj_r <- numeric(0L)
+      if (k > min(ks)) {
+        key_up <- paste0(k - 1L, ":", k)
+        E_up <- x$edges$matrices[[key_up]]
+        if (!is.null(E_up) && jlab %in% colnames(E_up)) {
+          adj_r <- c(adj_r, abs(E_up[, jlab]))
+        }
+      }
+      if (k < max(ks)) {
+        key_dn <- paste0(k, ":", k + 1L)
+        E_dn <- x$edges$matrices[[key_dn]]
+        if (!is.null(E_dn) && jlab %in% rownames(E_dn)) {
+          adj_r <- c(adj_r, abs(E_dn[jlab, ]))
+        }
+      }
+      orphan <- if (length(adj_r) == 0L) NA else max(adj_r) < orphan_r
+
+      # split_merge: items came from multiple primary parents at level k-1 ------
+      split_merge <- if (k <= min(ks) || length(primary_items) == 0L) {
+        FALSE
+      } else {
+        pf_prev <- primary_factor_of[[as.character(k - 1L)]]
+        parents <- unique(pf_prev[primary_items])
+        length(parents[!is.na(parents)]) > 1L
+      }
+
+      data.frame(
+        id = jlab,
+        level = k,
+        few_items = few_items,
+        orphan = orphan,
+        split_merge = split_merge,
+        stringsAsFactors = FALSE
+      )
+    })
+  })
+
+  out <- do.call(rbind, do.call(c, rows))
+  rownames(out) <- NULL
+  out
+}
+
 # Main pruning dispatcher. Called from ackwards() when prune != "none".
 # Returns the $prune slot to attach to the ackwards object.
-.apply_pruning <- function(x, prune, redundancy_r, redundancy_phi) {
+.apply_pruning <- function(x, prune, redundancy_r, redundancy_phi,
+                           min_items, orphan_r) {
   levels_list <- x$levels
 
   # Baseline node table -- all nodes, initially not pruned
@@ -291,11 +367,15 @@
     }
   }
 
+  structural_df <- NULL
   if ("artefact" %in% prune) {
     # Compute phi for all cross-level pairs for researcher inspection.
     # Pruning is not automated here -- artefact identification requires judgment
     # (Forbes 2023 is explicit: this step introduces researcher DoF).
     phi_df <- .phi_pairs(levels_list, which_pairs = "all")
+
+    # Compute structural artefact signals: flag/report only, never auto-prune.
+    structural_df <- .compute_structural_signals(x, min_items, orphan_r)
   }
 
   n_flagged <- sum(base_nodes$pruned)
@@ -322,10 +402,18 @@
   }
 
   if ("artefact" %in% prune) {
+    n_struct <- if (!is.null(structural_df)) {
+      sum(structural_df$few_items | structural_df$orphan |
+        structural_df$split_merge, na.rm = TRUE)
+    } else {
+      0L
+    }
     cli::cli_inform(c(
       "i" = "Artefact mode: Tucker's {cli::symbol$phi} computed for all \\
              cross-level factor pairs.",
-      "i" = "Inspect {.code x$prune$phi} to identify potential artefacts; \\
+      "i" = "Structural signals computed: {n_struct} factor{?s} flagged \\
+             (few_items / orphan / split_merge).",
+      "i" = "Inspect {.code x$prune$phi} and {.code x$prune$structural}; \\
              removal is a researcher judgment (Forbes, 2023)."
     ))
   }
@@ -334,8 +422,11 @@
     rules          = prune,
     redundancy_r   = redundancy_r,
     redundancy_phi = redundancy_phi,
+    min_items      = min_items,
+    orphan_r       = orphan_r,
     nodes          = base_nodes,
     chains         = chains_df,
-    phi            = phi_df
+    phi            = phi_df,
+    structural     = structural_df
   )
 }

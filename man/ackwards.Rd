@@ -21,6 +21,8 @@ ackwards(
   prune = "none",
   redundancy_r = 0.9,
   redundancy_phi = NULL,
+  min_items = 3L,
+  orphan_r = 0.5,
   cut_show = 0.3,
   ...
 )
@@ -135,6 +137,16 @@ threshold for redundancy chains. Default \code{0.9} (Forbes, 2023).}
 Tucker's phi must \emph{also} exceed this threshold for a link to be included in
 a redundancy chain (conjunctive with \code{redundancy_r}). \code{NULL} means only
 \code{redundancy_r} is used. Recommended: \code{0.95} (Lorenzo-Seva & ten Berge, 2006).}
+
+\item{min_items}{Minimum number of items for which a factor must be the
+primary loader (highest \verb{|loading|}). Factors with fewer than \code{min_items}
+primary items are flagged \code{few_items = TRUE} in \code{x$prune$structural}. Only
+used when \code{prune = "artefact"}. Default \code{3L}.}
+
+\item{orphan_r}{Threshold for the \code{orphan} structural signal. A factor whose
+maximum adjacent-level \verb{|r|} falls below \code{orphan_r} is flagged
+\code{orphan = TRUE} in \code{x$prune$structural} (non-replicating across levels).
+Only used when \code{prune = "artefact"}. Default \code{0.5}.}
 
 \item{cut_show}{Edges with \verb{|r| >= cut_show} are flagged \code{above_cut} in
 \code{tidy()} output. Default \code{0.3}.}

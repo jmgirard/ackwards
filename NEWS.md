@@ -1,5 +1,24 @@
 # ackwards (development)
 
+## Structural artefact signals (Forbes extension)
+
+`ackwards(..., prune = "artefact")` now computes structural signals alongside Tucker's φ
+table. Two new arguments on `ackwards()`:
+
+* `min_items = 3L` — minimum primary-item count per factor; factors with fewer items are
+  flagged `few_items = TRUE`.
+* `orphan_r = 0.5` — minimum adjacent-level `|r|` required for a factor to be considered
+  "connected"; factors below this threshold across all adjacent levels are flagged
+  `orphan = TRUE`.
+
+A third signal, `split_merge`, is `TRUE` when a factor at level k draws its primary items
+from multiple distinct primary factors at level k−1 (items that were in separate groups at
+the shallower level merged into a single factor at the deeper level).
+
+All signals are **flag-only** (artefact identification requires researcher judgment;
+Forbes, 2023). Results are stored in `x$prune$structural` (one row per factor × level);
+`print()` and `summary()` report the count of flagged factors.
+
 ## `suggest_k()` criterion selection
 
 `suggest_k()` gains a `criteria` argument that controls which retention criteria are

@@ -163,6 +163,12 @@ print.summary_ackwards <- function(x, ...) {
       cli::cli_text(
         "  Artefact: Tucker's phi computed for {p$artefact_n} cross-level pair{?s}"
       )
+      if (!is.null(p$structural_n)) {
+        cli::cli_text(
+          "  Structural signals: {p$structural_n} factor{?s} flagged \\
+           (inspect {.code x$prune$structural})"
+        )
+      }
     }
     cli::cli_rule()
     cli::cli_text(
@@ -234,10 +240,20 @@ print.summary_ackwards <- function(x, ...) {
     character(0L)
   } # nocov end
   artefact_n <- if (!is.null(x$prune$phi)) nrow(x$prune$phi) else NULL
+  structural_n <- if (!is.null(x$prune$structural)) {
+    sum(
+      x$prune$structural$few_items | x$prune$structural$orphan |
+        x$prune$structural$split_merge,
+      na.rm = TRUE
+    )
+  } else {
+    NULL
+  }
   list(
     rules          = x$prune$rules,
     redundant      = redundant,
     artefact_n     = artefact_n,
+    structural_n   = structural_n,
     redundancy_r   = x$prune$redundancy_r,
     redundancy_phi = x$prune$redundancy_phi
   )

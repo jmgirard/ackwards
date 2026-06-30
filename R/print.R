@@ -72,6 +72,17 @@ print.ackwards <- function(x, ...) {
       cli::cli_text(
         "  Artefact: Tucker's phi computed for {n_phi} cross-level factor pair{?s}"
       )
+      if (!is.null(x$prune$structural)) {
+        n_struct <- sum(
+          x$prune$structural$few_items | x$prune$structural$orphan |
+            x$prune$structural$split_merge,
+          na.rm = TRUE
+        )
+        cli::cli_text(
+          "  Structural signals: {n_struct} factor{?s} flagged \\
+           (inspect {.code x$prune$structural})"
+        )
+      }
     }
     cli::cli_rule()
     cli::cli_text(
