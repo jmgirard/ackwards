@@ -27,6 +27,8 @@ Imports:
 Suggests:
     covr,
     EFAtools,
+    future,
+    future.apply,
     ggplot2,
     gt,
     knitr,

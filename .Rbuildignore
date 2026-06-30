@@ -1,6 +1,7 @@
 ^\.claude$
 ^CLAUDE\.md$
 ^DESIGN\.md$
+^MILESTONES\.md$
 ^LICENSE\.md$
 ^\.lintr$
 ^cran-comments\.md$

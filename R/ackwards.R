@@ -154,6 +154,29 @@
 #'   structures by Goldberg's bass-ackwards method. *Journal of Research in
 #'   Personality*, 41(4), 745--752. \doi{10.1016/j.jrp.2006.08.005}
 #'
+#' @section Performance (ESEM, large item sets):
+#' The ESEM engine fits a separate `lavaan` model at every level 1..`k_max`.
+#' For ordinal data (`cor = "polychoric"`, WLSMV) the costly sample statistics
+#' lavaan derives from the raw data -- thresholds, the polychoric correlation
+#' matrix, and the asymptotic weight matrix -- depend only on the data, not on
+#' the number of factors, so they are **computed once** at the first level and
+#' **reused** for every deeper level (identical solutions, much less work). This
+#' matters most when you have many items (hundreds), where recomputing those
+#' statistics at each level dominated the run time.
+#'
+#' The per-level model fits are mutually independent and are dispatched through
+#' the \pkg{future} framework when \pkg{future.apply} is installed. By default
+#' the plan is sequential (no behaviour change). To run the levels in parallel,
+#' set a plan once before calling `ackwards()`:
+#' \preformatted{
+#'   future::plan(future::multisession, workers = 4)  # or multicore on Unix
+#'   x <- ackwards(items, k_max = 8, engine = "esem", cor = "polychoric")
+#' }
+#' Parallelism pays off when the per-level fits are heavy (large `p`, several
+#' levels); for small problems the worker startup cost can outweigh it. Results
+#' are reproducible across plans when `seed` is supplied. PCA and EFA already
+#' compute their correlation matrix once and are unaffected.
+#'
 #' @section Correlation-matrix input:
 #' When `data` is a pre-computed correlation matrix (square, symmetric, unit
 #' diagonal), `ackwards()` runs entirely from that matrix using the `W'RW`
