@@ -117,7 +117,7 @@ print.summary_ackwards <- function(x, ...) {
             cut <- cuts[[idx]]
             if (!is.null(cut) && !is.na(val)) {
               ok <- if (cut$direction == "hi") val >= cut$threshold else val <= cut$threshold
-              formatted <- paste0(formatted, if (ok) " ✔" else " ✘")
+              formatted <- paste0(formatted, if (ok) " \u2714" else " \u2718")
             }
             formatted
           },

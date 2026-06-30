@@ -188,7 +188,9 @@ autoplot.ackwards <- function(
 ) {
   rlang::check_installed("ggplot2", reason = "for autoplot.ackwards()")
   what <- match.arg(what)
-  if (what == "fit") return(.ba_fit_plot(object))
+  if (what == "fit") {
+    return(.ba_fit_plot(object))
+  }
 
   if (min_sep < node_width) {
     cli::cli_warn(
@@ -568,8 +570,12 @@ autoplot.ackwards <- function(
     return(
       ggplot2::ggplot() +
         ggplot2::annotate(
-          "text", x = 0.5, y = 0.5, size = 4, color = "grey40",
-          label = "Fit indices are not available for engine = \"pca\".\nUse engine = \"efa\" or \"esem\" to obtain model fit."
+          "text",
+          x = 0.5, y = 0.5, size = 4, color = "grey40",
+          label = paste0(
+            "Fit indices are not available for engine = \"pca\".\n",
+            "Use engine = \"efa\" or \"esem\" to obtain model fit."
+          )
         ) +
         ggplot2::theme_void()
     )
@@ -592,7 +598,8 @@ autoplot.ackwards <- function(
     return(
       ggplot2::ggplot() +
         ggplot2::annotate(
-          "text", x = 0.5, y = 0.5, size = 4, color = "grey40",
+          "text",
+          x = 0.5, y = 0.5, size = 4, color = "grey40",
           label = "No fit indices available."
         ) +
         ggplot2::theme_void()
@@ -605,7 +612,9 @@ autoplot.ackwards <- function(
   cuts <- .fit_cutoffs()
   ref_rows <- lapply(keep_idx, function(idx) {
     cut <- cuts[[idx]]
-    if (is.null(cut)) return(NULL)
+    if (is.null(cut)) {
+      return(NULL)
+    }
     panel_lbl <- if (idx %in% hi_idx) "CFI / TLI  (higher is better)" else "RMSEA / SRMR  (lower is better)"
     data.frame(panel = panel_lbl, yintercept = cut$threshold, stringsAsFactors = FALSE)
   })
@@ -629,7 +638,7 @@ autoplot.ackwards <- function(
     ggplot2::scale_color_brewer(palette = "Set1", name = "Index") +
     ggplot2::labs(
       y = "Value",
-      caption = "Dashed lines: Hu & Bentler (1999) thresholds (CFI/TLI ≥ .95, RMSEA ≤ .06, SRMR ≤ .08)"
+      caption = "Dashed lines: Hu & Bentler (1999) thresholds (CFI/TLI >= .95, RMSEA <= .06, SRMR <= .08)"
     ) +
     ggplot2::theme_bw(base_size = 11) +
     ggplot2::theme(

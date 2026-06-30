@@ -196,11 +196,11 @@ tidy.ackwards <- function(
       se_col <- if (!is.null(SE)) SE[, j] else rep(NA_real_, nrow(L))
       loading_col <- L[, j]
       data.frame(
-        level    = k,
-        factor   = colnames(L)[j],
-        item     = rownames(L),
-        loading  = loading_col,
-        se       = se_col,
+        level = k,
+        factor = colnames(L)[j],
+        item = rownames(L),
+        loading = loading_col,
+        se = se_col,
         ci_lower = loading_col - z * se_col,
         ci_upper = loading_col + z * se_col,
         stringsAsFactors = FALSE
@@ -276,7 +276,9 @@ tidy.ackwards <- function(
   cuts <- .fit_cutoffs()
   meets <- vapply(seq_len(nrow(df)), function(i) {
     cut <- cuts[[df$index[i]]]
-    if (is.null(cut) || is.na(df$value[i])) return(NA)
+    if (is.null(cut) || is.na(df$value[i])) {
+      return(NA)
+    }
     if (cut$direction == "hi") df$value[i] >= cut$threshold else df$value[i] <= cut$threshold
   }, logical(1L))
   df$meets <- meets
@@ -373,14 +375,18 @@ glance.ackwards <- function(x, ...) {
     CFI = NA_real_, TLI = NA_real_, RMSEA = NA_real_,
     SRMR = NA_real_, BIC = NA_real_
   )
-  if (is.null(dc) || dc < 2L) return(na_row)
+  if (is.null(dc) || dc < 2L) {
+    return(na_row)
+  }
   fv <- x$levels[[as.character(dc)]]$fit
-  if (is.null(fv) || length(fv) == 0L) return(na_row)
+  if (is.null(fv) || length(fv) == 0L) {
+    return(na_row)
+  }
   data.frame(
-    CFI   = if ("CFI"   %in% names(fv)) fv[["CFI"]]   else NA_real_,
-    TLI   = if ("TLI"   %in% names(fv)) fv[["TLI"]]   else NA_real_,
+    CFI   = if ("CFI" %in% names(fv)) fv[["CFI"]] else NA_real_,
+    TLI   = if ("TLI" %in% names(fv)) fv[["TLI"]] else NA_real_,
     RMSEA = if ("RMSEA" %in% names(fv)) fv[["RMSEA"]] else NA_real_,
-    SRMR  = if ("SRMR"  %in% names(fv)) fv[["SRMR"]]  else NA_real_,
-    BIC   = if ("BIC"   %in% names(fv)) fv[["BIC"]]   else NA_real_
+    SRMR  = if ("SRMR" %in% names(fv)) fv[["SRMR"]] else NA_real_,
+    BIC   = if ("BIC" %in% names(fv)) fv[["BIC"]] else NA_real_
   )
 }
