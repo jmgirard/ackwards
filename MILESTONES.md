@@ -302,6 +302,11 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   measures; `compute_edges()` seam preserved but implementation not planned. Bootstrap CIs on
   skip-level edges **remain deferred** with rationale added (DESIGN §14 Forbes-extension bullet).
   CLAUDE.md "Out of scope" updated to reflect the EAP decision.
-  Tests: 6 new tests (no spurious zeros in `cd_rmse`; NA masking correct; no NA in plot data;
-  panel label; star at `k_cd`; updated panel-level string in prior test).
-  (1290 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+  Tests: new tests covering no spurious zeros in `cd_rmse`, correct NA masking, no NA in plot
+  data, the renamed panel label, the star at `k_cd`, and a divergent-fixture test asserting the
+  star follows `k_cd` even when the RMSE minimum sits at a deeper level (the sequential-test case
+  the relabel exists to clarify); plus the updated panel-level string in a prior test.
+  Post-review (from /post-milestone-review): added the divergent-fixture star test (the one
+  nice-to-have flagged; the vector-form EFAtools masking branch remains pre-existing `nocov`,
+  untestable on a machine with current EFAtools).
+  (1294 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
