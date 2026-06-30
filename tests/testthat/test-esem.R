@@ -384,3 +384,51 @@ test_that("cor = 'spearman' with engine = 'esem' warns about inconsistent bases"
     "inconsistent bases"
   )
 })
+
+# ── M26: cached sample statistics + parallel dispatch ─────────────────────────
+
+test_that(".esem_lapply falls back to serial lapply when future.apply is absent", {
+  # Force the is_installed() check to report future.apply missing.
+  testthat::local_mocked_bindings(
+    is_installed = function(...) FALSE,
+    .package = "rlang"
+  )
+  out <- .esem_lapply(1:3, function(x) x^2)
+  expect_identical(out, list(1, 4, 9))
+})
+
+test_that(".esem_lapply uses future.apply when available", {
+  skip_if_not_installed("future.apply")
+  out <- .esem_lapply(1:3, function(x) x^2)
+  expect_identical(out, list(1, 4, 9))
+})
+
+test_that("ESEM results are identical across serial and parallel future plans", {
+  skip_if_not_installed("lavaan")
+  skip_if_not_installed("future")
+  skip_if_not_installed("future.apply")
+  skip_on_os("windows")
+  skip_if(!future::supportsMulticore(), "multicore plan unavailable here")
+
+  d <- .make_ordinal_data()
+
+  future::plan(future::sequential)
+  serial <- suppressMessages(suppressWarnings(
+    ackwards(d, k_max = 3, engine = "esem", cor = "polychoric", seed = 42)
+  ))
+
+  future::plan(future::multicore, workers = 2)
+  on.exit(future::plan(future::sequential), add = TRUE)
+  par <- suppressMessages(suppressWarnings(
+    ackwards(d, k_max = 3, engine = "esem", cor = "polychoric", seed = 42)
+  ))
+
+  for (ki in seq_along(serial$levels)) {
+    expect_equal(
+      serial$levels[[ki]]$loadings,
+      par$levels[[ki]]$loadings,
+      info = paste("loadings level", ki)
+    )
+  }
+  expect_equal(tidy(serial)$r, tidy(par)$r)
+})

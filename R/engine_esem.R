@@ -12,19 +12,284 @@
 #   - fit: CFI, TLI, RMSEA, SRMR from lavaan::fitMeasures()
 #   - Polychoric basis: for cor = "polychoric", ordered variables trigger WLSMV
 #
-# Arguments:
-#   data       -- numeric matrix, items in columns (raw data, NOT a correlation matrix)
-#   k_max      -- maximum number of factors to extract
-#   rotation   -- always "varimax" (orthogonal; the only supported rotation)
-#   estimator  -- "ML", "WLSMV", "ULSMV", etc.; passed directly to lavaan::efa()
-#   cor   -- "pearson", "spearman", or "polychoric"; controls ordered= argument
-#   n_obs      -- number of observations (for record-keeping only; lavaan uses data)
-#   R_external -- pre-computed correlation matrix for tenBerge weights (used for
-#                continuous paths); NULL for polychoric (lavaan's R is extracted)
-#   keep_fits  -- retain raw lavaan fit objects per level in the returned fits list
-#
-# Returns list(levels = <named list>, r_lv = <p x p matrix>, fits = <list | NULL>)
+# Performance (M26): the sample statistics lavaan derives from the raw data --
+# thresholds, the polychoric correlation matrix, and the (expensive) asymptotic
+# weight matrix NACOV/WLS.V -- are IDENTICAL across all levels (they depend only
+# on the data, estimator, and missing handling, never on nfactors/rotation). They
+# are therefore computed ONCE at the anchor level (k = 1) and reused for every
+# deeper level via lavaan's slotSampleStats= argument, which skips the recompute
+# and yields bit-identical solutions. The per-level model fits are mutually
+# independent and are dispatched through .esem_lapply(), which parallelises via
+# future.apply when the user has set a future::plan() (serial otherwise).
 
+# --- Parallel dispatch -------------------------------------------------------
+# future.apply is an optional (Suggests) dependency. When present, the per-level
+# fits run under the user's future::plan() (sequential by default -- no behaviour
+# change unless the user opts in to a parallel plan). When absent, fall back to
+# serial lapply(). future.seed = TRUE sets up reproducible per-task RNG streams
+# (lavaan::efa() is deterministic, but this silences future's RNG advisory).
+.esem_lapply <- function(X, FUN) {
+  if (rlang::is_installed("future.apply")) {
+    future.apply::future_lapply(X, FUN, future.seed = TRUE)
+  } else {
+    lapply(X, FUN)
+  }
+}
+
+# --- Single-level fit + extraction -------------------------------------------
+# Fits one ESEM level and returns the slim level contract (NOT the heavy lavaan
+# fit, which would carry a duplicate NACOV per level and be costly to serialise
+# back from a parallel worker).
+#
+#   ss_in    -- NULL at the anchor level: fit from raw data and harvest the
+#               SampleStats slot (+ r_lv) for reuse. Non-NULL for deeper levels:
+#               reuse via slotSampleStats= (skip the polychoric/NACOV recompute).
+#   r_lv_in  -- pre-computed correlation matrix for tenBerge weights (continuous
+#               paths); NULL means extract from the fit (polychoric / FIML).
+#
+# Returns one of:
+#   list(status = "ok", k, level, bad_resid, ss, r_lv, fit_raw)
+#   list(status = "error",        k, error_msg)
+#   list(status = "nonconverged", k)
+.esem_fit_one <- function(k, data_df, estimator, cor, ordered_cols, lav_missing,
+                          ss_in, r_lv_in, item_names, p, keep_fit) {
+  # No rotation needed for a single factor.
+  rotate_k <- if (k == 1L) "none" else "varimax"
+
+  efa_args <- list(
+    data      = data_df,
+    nfactors  = k,
+    rotation  = rotate_k,
+    estimator = estimator,
+    ordered   = ordered_cols,
+    missing   = lav_missing
+  )
+  # Reuse cached sample statistics for deeper levels (M26). lavaan uses the slot
+  # and skips recomputing thresholds / polychorics / NACOV.
+  if (!is.null(ss_in)) efa_args$slotSampleStats <- ss_in
+
+  # lavaan emits fit-time warnings (e.g. non-PD vcov) that are not actionable
+  # here; suppress them around the fit only (matches pre-M26 muffling behaviour).
+  fit_raw <- tryCatch(
+    suppressWarnings(do.call(lavaan::efa, efa_args)),
+    error = function(e) {
+      structure(list(msg = conditionMessage(e)), class = "esem_fit_error")
+    }
+  )
+  if (inherits(fit_raw, "esem_fit_error")) {
+    return(list(status = "error", k = k, error_msg = fit_raw$msg))
+  }
+  fit <- if (inherits(fit_raw, "efaList")) fit_raw[[1L]] else fit_raw
+  if (is.null(fit)) { # nocov start
+    return(list(status = "error", k = k, error_msg = "lavaan returned NULL fit"))
+  } # nocov end
+
+  # Convergence check
+  converged <- isTRUE(tryCatch(
+    lavaan::lavInspect(fit, "converged"),
+    error = function(e) FALSE
+  ))
+  if (!converged) { # nocov start
+    return(list(status = "nonconverged", k = k))
+  } # nocov end
+
+  # Improper solution / Heywood check: zero or negative residual variances.
+  # lavaan clamps theta to 0 when residual variance would go negative (Heywood
+  # case); flag at <= 0 to catch both the clamped-to-zero and unconstrained-
+  # negative cases. Flag but do NOT truncate (Invariant 7) -- reported by the
+  # caller via the returned count.
+  theta <- tryCatch(
+    lavaan::lavInspect(fit, "theta"),
+    error = function(e) NULL
+  )
+  bad_resid <- if (!is.null(theta)) sum(diag(theta) <= 0) else 0L
+
+  # Harvest the SampleStats slot at the anchor level for downstream reuse.
+  harvested_ss <- if (is.null(ss_in)) fit@SampleStats else NULL
+
+  # Extract correlation matrix for tenBerge weights.
+  # Sources differ by path:
+  # - polychoric/WLSMV: lavaan's sampstat$cov IS the polychoric matrix
+  # - continuous pairwise/listwise: r_lv_in already set (passed through)
+  # - continuous FIML: extract from FIML saturated model (h1) so the edge R
+  #   reflects FIML-estimated sufficient statistics, not observed pairwise
+  r_lv <- r_lv_in
+  if (is.null(r_lv)) {
+    if (lav_missing == "fiml") {
+      r_lv <- tryCatch(
+        {
+          h1 <- lavaan::lavInspect(fit, "h1")
+          # lavInspect("h1") returns list(cov = <matrix>, mean = <vector>)
+          # for single-group models (the only case ackwards uses).
+          # Multi-group would return list(g1 = list(cov=...), g2 = ...) --
+          # guard against that with is.list(h1[[1L]]).
+          cov_h1 <- if (is.list(h1[[1L]])) h1[[1L]]$cov else h1$cov
+          cov2cor(cov_h1)
+        },
+        error = function(e) NULL
+      )
+    } else {
+      r_lv <- tryCatch(
+        {
+          sstat <- lavaan::lavInspect(fit, "sampstat")
+          # cov2cor branch: unreachable via ackwards() since r_lv_in is always
+          # pre-computed for cor != "polychoric" (r_lv would not be NULL).
+          if (cor == "polychoric") sstat$cov else cov2cor(sstat$cov) # nocov
+        },
+        error = function(e) NULL
+      )
+    }
+  }
+  if (is.null(r_lv)) { # nocov start
+    r_lv <- stats::cor(data_df, method = "pearson", use = "pairwise.complete.obs")
+  } # nocov end
+
+  # Standardized solution (std.all = pattern matrix on correlation scale --
+  # consistent with psych::fa output and with tenBerge weights using R).
+  std_sol <- tryCatch(
+    lavaan::standardizedSolution(fit, type = "std.all"),
+    error = function(e) NULL
+  )
+  if (is.null(std_sol)) { # nocov start
+    return(list(
+      status = "error", k = k,
+      error_msg = "could not extract standardized solution"
+    ))
+  } # nocov end
+
+  load_rows <- std_sol[std_sol$op == "=~", , drop = FALSE]
+  factors_lav <- unique(load_rows$lhs) # lavaan's internal factor names
+
+  # Build p x k loading and SE matrices indexed by item_names
+  L <- matrix(0, p, k, dimnames = list(item_names, factors_lav))
+  L_se <- matrix(NA_real_, p, k, dimnames = list(item_names, factors_lav))
+
+  for (fj in seq_along(factors_lav)) {
+    frows <- load_rows[load_rows$lhs == factors_lav[fj], , drop = FALSE]
+    L[frows$rhs, fj] <- frows$est.std
+    L_se[frows$rhs, fj] <- if ("se" %in% names(frows)) frows$se else NA_real_
+  }
+
+  labels_k <- make_labels(k)
+
+  # Sort factors by descending variance explained (consistent with PCA/EFA convention).
+  # NOTE: factor_cor is extracted independently below and does NOT apply ord.
+  # For orthogonal rotation (factor_cor = I) this is safe. If oblique
+  # rotation were ever added, factor_cor must also be permuted by ord to stay consistent
+  # with the column ordering of L.
+  var_unsorted <- colSums(L^2) / p
+  ord <- order(var_unsorted, decreasing = TRUE)
+  L <- L[, ord, drop = FALSE]
+  L_se <- L_se[, ord, drop = FALSE]
+  colnames(L) <- labels_k
+  colnames(L_se) <- labels_k
+
+  # Positive manifold anchor for k = 1 (matches PCA/EFA engine behaviour)
+  if (k == 1L && sum(L) < 0) {
+    L <- -L
+    # L_se contains SEs (always non-negative); leave unchanged
+  }
+
+  # tenBerge weights from lavaan's loadings + lavaan's correlation matrix.
+  # Keeps compute_edges() on the algebra path (DESIGN.md s.14 item 12).
+  weight_method <- "tenBerge"
+  W <- tryCatch(
+    .tenBerge_weights(r_lv, L),
+    error = function(e) { # nocov start
+      weight_method <<- "regression"
+      tryCatch(
+        {
+          Ri <- solve(r_lv)
+          W_reg <- Ri %*% L
+          colnames(W_reg) <- labels_k
+          rownames(W_reg) <- item_names
+          W_reg
+        },
+        error = function(e2) NULL
+      )
+    } # nocov end
+  )
+  if (is.null(W)) { # nocov start
+    return(list(
+      status = "error", k = k,
+      error_msg = "could not compute scoring weights"
+    ))
+  } # nocov end
+  colnames(W) <- labels_k
+  rownames(W) <- item_names
+
+  score_var <- diag(crossprod(W, r_lv %*% W))
+
+  # Variance explained (sum of squared standardized loadings / p)
+  var_per_factor <- colSums(L^2) / p
+  variance <- c(
+    setNames(var_per_factor, labels_k),
+    cumulative = sum(var_per_factor)
+  )
+
+  # Fit indices: chi, dof, p_value, CFI, TLI, RMSEA, SRMR
+  fitmeas <- tryCatch(
+    lavaan::fitMeasures(
+      fit,
+      c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr")
+    ),
+    error = function(e) { # nocov start
+      setNames(
+        rep(NA_real_, 7L),
+        c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr")
+      )
+    } # nocov end
+  )
+  fit_info <- setNames(
+    as.numeric(fitmeas),
+    c("chi", "dof", "p_value", "CFI", "TLI", "RMSEA", "SRMR")
+  )
+
+  # Within-level factor correlations (identity for orthogonal rotation)
+  factor_cor <- tryCatch(
+    {
+      Phi <- lavaan::lavInspect(fit, "cor.lv")
+      if (is.matrix(Phi) && nrow(Phi) == k) {
+        rownames(Phi) <- labels_k
+        colnames(Phi) <- labels_k
+        Phi
+      } else {
+        diag(k) # nocov
+      }
+    },
+    error = function(e) diag(k)
+  )
+
+  level <- list(
+    k = k,
+    loadings = L,
+    loadings_se = L_se,
+    variance = variance,
+    fit = fit_info,
+    converged = TRUE,
+    factor_cor = factor_cor,
+    labels = labels_k,
+    scoring = list(
+      linear    = TRUE,
+      method    = weight_method,
+      basis     = cor,
+      weights   = W,
+      score_var = score_var
+    )
+  )
+
+  list(
+    status    = "ok",
+    k         = k,
+    level     = level,
+    bad_resid = bad_resid,
+    ss        = harvested_ss,
+    r_lv      = r_lv,
+    fit_raw   = if (keep_fit) fit else NULL
+  )
+}
+
+# --- Driver: fit all levels 1..k_max -----------------------------------------
 esem_levels <- function(data, k_max, estimator, cor, n_obs,
                         R_external = NULL, keep_fits = FALSE,
                         missing = "pairwise") {
@@ -40,290 +305,109 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
 
   p <- ncol(data)
   item_names <- colnames(data)
+  data_df <- as.data.frame(data)
 
   # For polychoric/WLSMV: treat all columns as ordered categorical
   ordered_cols <- if (cor == "polychoric") item_names else NULL
 
+  # missing= mapping to lavaan's vocabulary (constant across levels):
+  #   "fiml"     -> "fiml"           (ML/MLR only; validated upstream)
+  #   "pairwise" -> "available.cases" for WLSMV/ULSMV (uses all rows via
+  #                 pairwise polychoric thresholds -- MCAR-valid, honest N);
+  #                 "listwise" for ML/MLR (lavaan default; edge R is the
+  #                 separately-computed pairwise stats::cor)
+  #   "listwise" -> "listwise"       (data already reduced upstream)
+  lav_missing <- if (missing == "fiml") {
+    "fiml"
+  } else if (missing == "pairwise" && estimator %in% c("WLSMV", "ULSMV")) {
+    "available.cases"
+  } else {
+    "listwise"
+  }
+
+  # --- Phase 1: anchor level (k = 1) -- harvest sample stats + r_lv -----------
+  anchor <- .esem_fit_one(
+    1L, data_df, estimator, cor, ordered_cols, lav_missing,
+    ss_in = NULL, r_lv_in = R_external,
+    item_names = item_names, p = p, keep_fit = keep_fits
+  )
+  if (anchor$status != "ok") { # nocov start
+    # Anchor failed: nothing to build on. Warn and return empty; ackwards()
+    # aborts on k_eff < 2. Mirrors the pre-M26 break-at-k=1 behaviour.
+    if (anchor$status == "error") {
+      cli::cli_warn(c(
+        "!" = "ESEM failed at k = 1: {anchor$error_msg}",
+        "i" = "No levels could be built."
+      ))
+    } else {
+      cli::cli_warn(c(
+        "!" = "ESEM did not converge at k = 1.",
+        "i" = "No levels could be built."
+      ))
+    }
+    return(list(levels = list(), r_lv = R_external, fits = NULL))
+  } # nocov end
+  ss <- anchor$ss
+  r_lv <- anchor$r_lv
+
+  # --- Phase 2: deeper levels 2..k_max -- independent, reuse cached stats -----
+  # Dispatched through .esem_lapply (parallel under a future::plan(), else serial).
+  rest <- if (k_max >= 2L) {
+    .esem_lapply(seq.int(2L, k_max), function(k) {
+      .esem_fit_one(
+        k, data_df, estimator, cor, ordered_cols, lav_missing,
+        ss_in = ss, r_lv_in = r_lv,
+        item_names = item_names, p = p, keep_fit = keep_fits
+      )
+    })
+  } else {
+    list() # nocov  (k_max >= 2 enforced upstream)
+  }
+
+  all_res <- c(list(anchor), rest) # ordered k = 1, 2, ...
+
+  # --- Assembly: walk in order, truncate at first failure (Invariant 7) ------
+  # All cli warnings are emitted here, in the main process, in deterministic
+  # level order -- the parallel workers never signal conditions themselves.
   result <- list()
   fits_list <- if (keep_fits) list() else NULL
-  r_lv <- R_external # set externally for continuous; extracted from lavaan for polychoric
-
-  for (k in seq_len(k_max)) {
-    # No rotation needed for a single factor
-    rotate_k <- if (k == 1L) "none" else "varimax"
-    warn_msgs <- character(0L)
-
-    # lavaan::efa() returns an efaList; extract the single lavaan fit object.
-    # missing= mapping to lavaan's vocabulary:
-    #   "fiml"     -> "fiml"           (ML/MLR only; validated upstream)
-    #   "pairwise" -> "available.cases" for WLSMV/ULSMV (uses all rows via
-    #                 pairwise polychoric thresholds -- MCAR-valid, honest N);
-    #                 "listwise" for ML/MLR (lavaan default; edge R is the
-    #                 separately-computed pairwise stats::cor -- documented minor
-    #                 inconsistency under pairwise with missing data)
-    #   "listwise" -> "listwise"       (data already reduced upstream)
-    lav_missing <- if (missing == "fiml") {
-      "fiml"
-    } else if (missing == "pairwise" && estimator %in% c("WLSMV", "ULSMV")) {
-      "available.cases"
-    } else {
-      "listwise"
+  for (res in all_res) {
+    k <- res$k
+    if (res$status == "error") {
+      cli::cli_warn(c(
+        "!" = "ESEM failed at k = {k}: {res$error_msg}",
+        "i" = "Truncating hierarchy at level {k - 1L}."
+      ))
+      break
     }
-    fit_raw <- tryCatch(
-      withCallingHandlers(
-        lavaan::efa(
-          data      = as.data.frame(data),
-          nfactors  = k,
-          rotation  = rotate_k,
-          estimator = estimator,
-          ordered   = ordered_cols,
-          missing   = lav_missing
-        ),
-        # nocov: this handler does run (lavaan emits warnings on some fits),
-        # but covr cannot instrument a withCallingHandlers body that exits via
-        # invokeRestart("muffleWarning") -- the lines never register as hit.
-        # Excluded as a tooling limitation, not as dead code.
-        warning = function(w) { # nocov start
-          warn_msgs <<- c(warn_msgs, conditionMessage(w))
-          invokeRestart("muffleWarning")
-        } # nocov end
-      ),
-      error = function(e) {
-        cli::cli_warn(
-          c(
-            "!" = "ESEM failed at k = {k}: {conditionMessage(e)}",
-            "i" = "Truncating hierarchy at level {k - 1L}."
-          )
-        )
-        NULL
-      }
-    )
-
-    if (is.null(fit_raw)) break
-    fit <- if (inherits(fit_raw, "efaList")) fit_raw[[1L]] else fit_raw
-    if (is.null(fit)) break # nocov
-
-    # Convergence check
-    converged <- isTRUE(tryCatch(
-      lavaan::lavInspect(fit, "converged"),
-      error = function(e) FALSE
-    ))
-    if (!converged) { # nocov start
+    if (res$status == "nonconverged") {
+      cli::cli_warn(c( # nocov start
+        "!" = "ESEM did not converge at k = {k}.",
+        "i" = "Truncating hierarchy at level {k - 1L}."
+      )) # nocov end
+      break # nocov
+    }
+    # status == "ok"
+    if (res$bad_resid > 0L) {
       cli::cli_warn(
         c(
-          "!" = "ESEM did not converge at k = {k}.",
-          "i" = "Truncating hierarchy at level {k - 1L}."
+          "!" = "Improper solution at k = {k}: \\
+                 {res$bad_resid} residual variance{?s} \\
+                 at or below zero (Heywood case).",
+          "i" = "Results may be unreliable. Consider reducing \\
+                 {.arg k}, changing {.arg estimator}, \\
+                 or inspecting the solution."
         )
       )
-      break
-    } # nocov end
-
-    # Improper solution / Heywood check: zero or negative residual variances.
-    # lavaan clamps theta to 0 when residual variance would go negative (Heywood
-    # case); warn at <= 0 to catch both the clamped-to-zero and unconstrained-
-    # negative cases. Warn but do NOT truncate (Invariant 7).
-    theta <- tryCatch(
-      lavaan::lavInspect(fit, "theta"),
-      error = function(e) NULL
-    )
-    if (!is.null(theta)) {
-      bad_resid <- diag(theta) <= 0
-      if (any(bad_resid)) {
-        cli::cli_warn(
-          c(
-            "!" = "Improper solution at k = {k}: \\
-                   {sum(bad_resid)} residual variance{?s} \\
-                   at or below zero (Heywood case).",
-            "i" = "Results may be unreliable. Consider reducing \\
-                   {.arg k}, changing {.arg estimator}, \\
-                   or inspecting the solution."
-          )
-        )
-      }
     }
-
-    # Extract correlation matrix for tenBerge weights.
-    # Sources differ by path:
-    # - polychoric/WLSMV: lavaan's sampstat$cov IS the polychoric matrix
-    # - continuous pairwise/listwise: R_external already set before the loop
-    # - continuous FIML: extract from FIML saturated model (h1) so the edge R
-    #   reflects FIML-estimated sufficient statistics, not observed pairwise
-    if (is.null(r_lv)) {
-      if (missing == "fiml") {
-        r_lv <- tryCatch(
-          {
-            h1 <- lavaan::lavInspect(fit, "h1")
-            # lavInspect("h1") returns list(cov = <matrix>, mean = <vector>)
-            # for single-group models (the only case ackwards uses).
-            # Multi-group would return list(g1 = list(cov=...), g2 = ...) --
-            # guard against that with is.list(h1[[1L]]).
-            cov_h1 <- if (is.list(h1[[1L]])) h1[[1L]]$cov else h1$cov
-            cov2cor(cov_h1)
-          },
-          error = function(e) NULL
-        )
-      } else {
-        r_lv <- tryCatch(
-          {
-            sstat <- lavaan::lavInspect(fit, "sampstat")
-            # cov2cor branch: unreachable via ackwards() since R_external is
-            # always pre-computed for cor != "polychoric" (r_lv would not be NULL).
-            if (cor == "polychoric") sstat$cov else cov2cor(sstat$cov) # nocov
-          },
-          error = function(e) NULL
-        )
-      }
-    }
-    if (is.null(r_lv)) { # nocov start
-      r_lv <- stats::cor(data, method = "pearson", use = "pairwise.complete.obs")
+    if (identical(res$level$scoring$method, "regression")) { # nocov start
+      cli::cli_warn(c(
+        "!" = "tenBerge weights failed at k = {k}; \\
+               used regression (Thurstone) weights instead."
+      ))
     } # nocov end
-
-    # Standardized solution (std.all = pattern matrix on correlation scale --
-    # consistent with psych::fa output and with tenBerge weights using R).
-    std_sol <- tryCatch(
-      lavaan::standardizedSolution(fit, type = "std.all"),
-      error = function(e) NULL
-    )
-    if (is.null(std_sol)) { # nocov start
-      cli::cli_warn(
-        c(
-          "!" = "Could not extract standardized solution at k = {k}.",
-          "i" = "Truncating hierarchy at level {k - 1L}."
-        )
-      )
-      break
-    } # nocov end
-
-    load_rows <- std_sol[std_sol$op == "=~", , drop = FALSE]
-    factors_lav <- unique(load_rows$lhs) # lavaan's internal factor names
-
-    # Build p x k loading and SE matrices indexed by item_names
-    L <- matrix(0, p, k, dimnames = list(item_names, factors_lav))
-    L_se <- matrix(NA_real_, p, k, dimnames = list(item_names, factors_lav))
-
-    for (fj in seq_along(factors_lav)) {
-      frows <- load_rows[load_rows$lhs == factors_lav[fj], , drop = FALSE]
-      L[frows$rhs, fj] <- frows$est.std
-      L_se[frows$rhs, fj] <- if ("se" %in% names(frows)) frows$se else NA_real_
-    }
-
-    labels_k <- make_labels(k)
-
-    # Sort factors by descending variance explained (consistent with PCA/EFA convention).
-    # NOTE: factor_cor is extracted independently below and does NOT apply ord.
-    # For orthogonal rotation (factor_cor = I) this is safe. If oblique
-    # rotation were ever added, factor_cor must also be permuted by ord to stay consistent
-    # with the column ordering of L.
-    var_unsorted <- colSums(L^2) / p
-    ord <- order(var_unsorted, decreasing = TRUE)
-    L <- L[, ord, drop = FALSE]
-    L_se <- L_se[, ord, drop = FALSE]
-    colnames(L) <- labels_k
-    colnames(L_se) <- labels_k
-
-    # Positive manifold anchor for k = 1 (matches PCA/EFA engine behaviour)
-    if (k == 1L && sum(L) < 0) {
-      L <- -L
-      # L_se contains SEs (always non-negative); leave unchanged
-    }
-
-    # tenBerge weights from lavaan's loadings + lavaan's correlation matrix.
-    # Keeps compute_edges() on the algebra path (DESIGN.md s.14 item 12).
-    weight_method <- "tenBerge"
-    W <- tryCatch(
-      .tenBerge_weights(r_lv, L),
-      error = function(e) { # nocov start
-        weight_method <<- "regression"
-        cli::cli_warn(
-          c(
-            "!" = "tenBerge weights failed at k = {k}: {conditionMessage(e)}",
-            "i" = "Falling back to regression (Thurstone) weights."
-          )
-        )
-        tryCatch(
-          {
-            Ri <- solve(r_lv)
-            W_reg <- Ri %*% L
-            colnames(W_reg) <- labels_k
-            rownames(W_reg) <- item_names
-            W_reg
-          },
-          error = function(e2) NULL
-        )
-      } # nocov end
-    )
-    if (is.null(W)) { # nocov start
-      cli::cli_warn(
-        c(
-          "!" = "Could not compute scoring weights at k = {k}.",
-          "i" = "Truncating hierarchy at level {k - 1L}."
-        )
-      )
-      break
-    } # nocov end
-    colnames(W) <- labels_k
-    rownames(W) <- item_names
-
-    score_var <- diag(crossprod(W, r_lv %*% W))
-
-    # Variance explained (sum of squared standardized loadings / p)
-    var_per_factor <- colSums(L^2) / p
-    variance <- c(
-      setNames(var_per_factor, labels_k),
-      cumulative = sum(var_per_factor)
-    )
-
-    # Fit indices: chi, dof, p_value, CFI, TLI, RMSEA, SRMR
-    fitmeas <- tryCatch(
-      lavaan::fitMeasures(
-        fit,
-        c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr")
-      ),
-      error = function(e) { # nocov start
-        setNames(
-          rep(NA_real_, 7L),
-          c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr")
-        )
-      } # nocov end
-    )
-    fit_info <- setNames(
-      as.numeric(fitmeas),
-      c("chi", "dof", "p_value", "CFI", "TLI", "RMSEA", "SRMR")
-    )
-
-    # Within-level factor correlations (identity for orthogonal rotation)
-    factor_cor <- tryCatch(
-      {
-        Phi <- lavaan::lavInspect(fit, "cor.lv")
-        if (is.matrix(Phi) && nrow(Phi) == k) {
-          rownames(Phi) <- labels_k
-          colnames(Phi) <- labels_k
-          Phi
-        } else {
-          diag(k) # nocov
-        }
-      },
-      error = function(e) diag(k)
-    )
-
-    result[[as.character(k)]] <- list(
-      k = k,
-      loadings = L,
-      loadings_se = L_se,
-      variance = variance,
-      fit = fit_info,
-      converged = TRUE,
-      factor_cor = factor_cor,
-      labels = labels_k,
-      scoring = list(
-        linear    = TRUE,
-        method    = weight_method,
-        basis     = cor,
-        weights   = W,
-        score_var = score_var
-      )
-    )
-    if (keep_fits) fits_list[[as.character(k)]] <- fit
+    result[[as.character(k)]] <- res$level
+    if (keep_fits) fits_list[[as.character(k)]] <- res$fit_raw
   }
 
   list(levels = result, r_lv = r_lv, fits = fits_list)

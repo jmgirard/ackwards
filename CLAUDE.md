@@ -234,9 +234,31 @@ default output must reproduce Forbes's examples exactly.
   EFAtools-absent CD note (covered only when EFAtools missing). Coverage back to 100%.
   (1219 tests pass, 2 skip; 0/0/0 R CMD check.)
 
+- **M26 (done):** ESEM performance for large item sets — two complementary speedups, no
+  behaviour change. (1) **Cached sample statistics:** the ESEM engine no longer recomputes
+  lavaan's data-derived sample statistics (thresholds, polychoric matrix, asymptotic weight
+  matrix NACOV/WLS.V) at every level — they depend only on the data, not `nfactors`, so they are
+  harvested once at the anchor level (k=1) via `fit@SampleStats` and reused for every deeper level
+  through lavaan's `slotSampleStats=` argument. Verified **bit-identical** (0.00e+00 loading/edge
+  diff) vs. the from-raw path. Dominant saving at large p (polychoric+NACOV recompute was O(p²)+ ×
+  k_max). (2) **Parallel per-level fits:** `esem_levels()` refactored into a slim per-level worker
+  `.esem_fit_one()` (returns the level contract, not the heavy fit, to avoid serialising a
+  duplicate NACOV) dispatched through `.esem_lapply()` — `future.apply::future_lapply` when
+  installed (gated by `rlang::is_installed()`), serial `lapply` fallback otherwise. No `ncores`
+  arg: users set `future::plan()` (sequential default → no behaviour change; `multisession`/
+  `multicore` to parallelize). `future.seed = TRUE` (lavaan::efa is mildly RNG-stochastic, ~1e-6);
+  reproducible across plans when `seed` supplied (verified 0.00e+00). Invariant 7 preserved: all
+  levels fit, then assembly truncates at the first non-converged/failed level and emits all cli
+  warnings in deterministic level order (workers never signal conditions). `future.apply` added to
+  **Suggests** (flagged + approved). New `@section Performance` on `ackwards()`; "Performance with
+  many items" section in `ackwards-engines.Rmd` (incl. EFA+polychoric cheaper-route pointer); NEWS +
+  DESIGN §12/§14 updated. Three new tests (both `.esem_lapply` branches via `local_mocked_bindings`;
+  serial-vs-`multicore` identity, skipped on Windows / when future absent). Coverage held at 100%.
+  (1225 tests pass, 2 skip; 0/0/0 R CMD check.)
+
 ## Current focus
 
-No active milestone. M25 completed 2026-06-30.
+No active milestone. M26 completed 2026-06-30.
 
 ## Invariants — do not violate without flagging
 
@@ -280,10 +302,14 @@ enters `loadedNamespaces()` on any supported path. **Do not add further to `Impo
 flagging it.** **No Rcpp** — profile first; the heavy compute already lives in compiled deps (§3).
 
 Current `Imports`: `cli`, `generics`, `psych`, `rlang`, `stats`, `utils`.
-Current `Suggests`: `covr`, `EFAtools`, `ggplot2`, `knitr`, `lavaan (>= 0.6-13)`,
-`rmarkdown`, `testthat (>= 3.0.0)`. `suggest_k()` uses `psych::fa.parallel(fa="both")` +
-`psych::vss` (PA-PC, PA-FA, MAP, VSS-1/2) and optionally `EFAtools::CD()` (gated by
-`rlang::is_installed()`); no separate `EGAnet`/`paran` dep. Visualization uses `ggplot2` directly
+Current `Suggests`: `covr`, `EFAtools`, `future`, `future.apply`, `ggplot2`, `gt`, `knitr`,
+`lavaan (>= 0.6-13)`, `rmarkdown`, `testthat (>= 3.0.0)`. (`future` itself is declared because the
+parallel test calls `future::plan()` directly; `future.apply` is the dispatch backend.) `suggest_k()` uses
+`psych::fa.parallel(fa="both")` + `psych::vss` (PA-PC, PA-FA, MAP, VSS-1/2) and optionally
+`EFAtools::CD()` (gated by `rlang::is_installed()`); no separate `EGAnet`/`paran` dep.
+`future.apply` (M26) is the optional parallel backend for the ESEM per-level fits, gated by
+`rlang::is_installed()` with a serial `lapply` fallback — users opt in via `future::plan()`; no
+`ncores` arg, no `future`/`parallel` in Imports. Visualization uses `ggplot2` directly
 (no `ggraph`/`igraph`/`tidygraph`). `methods` is **not** imported (no `methods::` usage). `clue`
 was removed in M5.
 

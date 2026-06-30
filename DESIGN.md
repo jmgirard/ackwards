@@ -55,9 +55,13 @@ These are the project's standing priorities (owner-stated) and the recommended s
   (eigen/ML/WLSMV, polychoric estimation) already lives in compiled code inside lavaan/psych/BLAS.
   The bass-ackwards-specific work is small matrix products (`W'RW`, where items `p` is modest and
   factors `k` is small) and small assignment/pruning steps — none are bottlenecks. The realistic
-  hotspot is **many bootstrap/permutation resamples** for stability/CIs; address that first with
-  `{future}` parallelism over replicates, and only consider Rcpp if profiling proves a remaining
-  C-level bottleneck. Measure before optimizing.
+  hotspots are (a) **many bootstrap/permutation resamples** for stability/CIs, and (b) the **ESEM
+  engine at large p**, where lavaan re-deriving the polychoric matrix + asymptotic weight matrix
+  (NACOV) at every level dominates. Both are addressed with reuse + `{future}` parallelism rather
+  than Rcpp: M26 computes the ESEM sample statistics once (data-derived, level-independent) and
+  reuses them via `slotSampleStats=`, then dispatches the independent per-level fits through
+  `future.apply` (opt-in via `future::plan()`; serial fallback). Only consider Rcpp if profiling
+  proves a remaining C-level bottleneck. Measure before optimizing.
 - **Safe, reproducible, and *loud* defaults.** (See §9.) The guiding rule: when the package makes
   a consequential automatic choice (correlation basis, `k`, rotation), it **announces it via cli**
   so the user who never reads an argument still sees what happened.
@@ -372,13 +376,17 @@ footprint sane and lets users plot the layout however they like.
 | Suggests — suggest_k | `EFAtools` (optional) | `EFAtools::CD()` for Comparison Data (skipped gracefully when absent); no `EGAnet`/`paran` dep |
 | ~~Suggests — matching~~ | ~~`clue`~~ | ~~Hungarian assignment~~ — removed M5; greedy argmax (§7) requires no dep |
 | ~~Suggests — rotations~~ | ~~`GPArotation`~~ | ~~CF-family rotations~~ — removed M21; varimax routes through `stats::varimax` and GPArotation never loaded on any supported path |
-| Suggests — viz | `ggplot2` | diagrams; uses `ggplot2` directly, not `ggraph`/`igraph`/`tidygraph` |
+| Suggests — viz | `ggplot2`, `gt` | diagrams (uses `ggplot2` directly, not `ggraph`/`igraph`/`tidygraph`); `gt` for wide comparison tables in vignettes (M24) |
+| Suggests — ESEM parallelism | `future.apply`, `future` (optional) | parallel backend for ESEM per-level fits (M26); gated by `rlang::is_installed()` with a serial `lapply` fallback; users opt in via `future::plan()` (`future` declared because the parallel test calls `plan()` directly) |
 | Suggests — infra | `testthat (>= 3.0.0)`, `knitr`, `rmarkdown`, `covr` | testing, vignettes, coverage |
 
 `methods` is **not** imported — no `methods::` usage in the package. `ggraph`, `igraph`,
-`tidygraph`, `EGAnet`, `paran`, `future`, `future.apply` are **not** in DESCRIPTION (earlier
-design considered them; implementation chose leaner routes). `EFAtools` is in Suggests (added M12)
-but gated behind `rlang::is_installed()` — never hard-required.
+`tidygraph`, `EGAnet`, `paran` are **not** in DESCRIPTION (earlier design considered them;
+implementation chose leaner routes). `future`/`future.apply`/`parallel` are **not** in
+Imports: M26 added `future.apply` + `future` to **Suggests** only (optional ESEM parallelism),
+keeping the framework choice (sequential/multisession/multicore) entirely in the user's hands via
+`future::plan()` — no `ncores` argument, no behaviour change by default. `EFAtools` (M12) and `future.apply` (M26) are
+both gated behind `rlang::is_installed()` — never hard-required.
 
 Gate every Suggests use with `rlang::check_installed()` and a helpful cli message naming the engine
 that needs it. **No Rcpp dependency planned** (see §3).
@@ -828,6 +836,32 @@ that needs it. **No Rcpp dependency planned** (see §3).
     made. Guard tests in `test-vignette-m24.R` verify alignment assertions, expected columns,
     magnitude-delta sign behaviour, the `knitr::kable` fallback branch, the NA primary-parent
     disagreement merge, and the inline-derivation helpers. **Amends §7 (Documentation).**
+
+26. **M26 — ESEM performance for large item sets** *(done)* — two complementary speedups to the
+    ESEM engine, **no behaviour change** (verified bit-identical). Motivated by bass-ackwards
+    analyses with hundreds of items, where the engine fits a separate `lavaan` model per level and,
+    for ordinal/WLSMV data, re-derives the polychoric matrix + asymptotic weight matrix (NACOV) at
+    every level — work that depends only on the data, not on `nfactors`. **(1) Cached sample
+    statistics.** The data-derived statistics are harvested once at the anchor level (k=1) via
+    `fit@SampleStats` and reused for every deeper level through lavaan's `slotSampleStats=` argument
+    (identical solutions; the redundant recompute — the dominant cost at large `p` — is removed).
+    **(2) Parallel per-level fits.** `esem_levels()` refactored into a slim per-level worker
+    `.esem_fit_one()` (returns the level *contract*, not the heavy fit, to avoid serialising a
+    duplicate NACOV per worker) dispatched through `.esem_lapply()`: `future.apply::future_lapply`
+    when installed (gated by `rlang::is_installed()`), serial `lapply` fallback otherwise. **Design
+    decision:** parallelism is exposed through `future::plan()` rather than an `ncores` argument —
+    cross-platform (multisession on Windows, multicore on Unix), default plan is sequential (no
+    behaviour change), and `future`/`future.apply` stay in **Suggests** (consistent with the
+    light-core ethos, §3). `future.seed = TRUE` because `lavaan::efa()` is mildly RNG-stochastic
+    (~1e-6); results are reproducible across plans when `seed` is supplied. **Invariant 7
+    preserved:** all levels fit, then assembly truncates at the first non-converged/failed level and
+    emits all cli warnings in deterministic level order (workers never signal conditions). New
+    `@section Performance` on `ackwards()`; "Performance with many items" section in
+    `ackwards-engines.Rmd` (incl. the EFA+polychoric cheaper-route pointer for users who do not need
+    SEs/fit). Three new tests (both `.esem_lapply` branches; serial-vs-`multicore` identity, skipped
+    on Windows / when future absent). Coverage held at 100%. **Amends §3 (Efficiency) and §12
+    (Dependencies).** *(Process note: requested directly after M25 rather than through the usual
+    milestone-planning workflow; recorded here for parity.)*
 
 ### Key references
 - Goldberg, L. R. (2006). Doing it all bass-ackwards. *J. Research in Personality*, 40(4), 347–358.

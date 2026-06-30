@@ -1,5 +1,22 @@
 # ackwards (development)
 
+## Faster ESEM on large item sets
+
+The ESEM engine no longer recomputes lavaan's sample statistics (thresholds, the
+polychoric correlation matrix, and the asymptotic weight matrix) at every level.
+These depend only on the data, so they are now computed once at the first level and
+reused for every deeper level via lavaan's `slotSampleStats=`. Solutions are
+identical; the redundant recomputation — which dominated run time with hundreds of
+items — is removed.
+
+The independent per-level model fits can now also run in parallel. When the
+optional `future.apply` package is installed, `ackwards()` dispatches the ESEM
+levels through the `future` framework. The default plan is sequential (no behaviour
+change); call `future::plan(future::multisession, workers = N)` before `ackwards()`
+to parallelize. Results are reproducible across plans when `seed` is supplied.
+`future.apply` added to `Suggests`. See the "Performance with many items" section of
+`vignette("ackwards-engines")`.
+
 ## Tucker's φ default for non-PCA redundancy (⚠ resolved-default change)
 
 `redundancy_phi = NULL` (the default) now **auto-resolves** based on the extraction engine:
