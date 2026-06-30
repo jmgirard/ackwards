@@ -594,3 +594,106 @@ test_that("summary.ackwards() shows structural signal count for prune='artefact'
   expect_no_error(summary(x))
   expect_no_error(print(summary(x)))
 })
+
+# ---- Tests for Wave 3: Tucker's phi auto-default for non-PCA (M25) ----------
+
+test_that("EFA prune='redundant' auto-applies redundancy_phi=0.95 and announces", {
+  skip_if_not_installed("psych")
+  set.seed(42)
+  n <- 500L
+  g <- rnorm(n)
+  s1 <- rnorm(n)
+  s2 <- rnorm(n)
+  data <- data.frame(
+    x1 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x2 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x3 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x4 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x5 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
+  )
+  # Default redundancy_phi = NULL on EFA should auto-set to 0.95 and announce
+  expect_message(
+    x <- suppressWarnings(
+      ackwards(data, k_max = 4, engine = "efa", prune = "redundant")
+    ),
+    "0.95"
+  )
+  expect_equal(x$prune$redundancy_phi, 0.95)
+})
+
+test_that("PCA prune='redundant' keeps NULL phi (no auto-phi announcement)", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  # PCA: auto-resolve for NULL should stay NULL; the "0.95" announcement must
+  # not appear. Capture messages and grep for absence of phi note.
+  msgs <- character(0L)
+  x <- withCallingHandlers(
+    suppressWarnings(ackwards(data, k_max = 3, engine = "pca", prune = "redundant")),
+    message = function(m) {
+      msgs <<- c(msgs, conditionMessage(m))
+      invokeRestart("muffleMessage")
+    }
+  )
+  expect_false(any(grepl("0\\.95", msgs)))
+  expect_null(x$prune$redundancy_phi)
+})
+
+test_that("explicit redundancy_phi overrides auto on any engine", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  x <- suppressMessages(
+    ackwards(data,
+      k_max = 3, engine = "pca", prune = "redundant",
+      redundancy_phi = 0.8
+    )
+  )
+  expect_equal(x$prune$redundancy_phi, 0.8)
+  x2 <- suppressMessages(
+    ackwards(data,
+      k_max = 3, engine = "efa", prune = "redundant",
+      redundancy_phi = 0.8
+    )
+  )
+  expect_equal(x2$prune$redundancy_phi, 0.8)
+})
+
+test_that("redundancy_phi = NA opts out on EFA (no phi filter, no announcement)", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  # NA = explicit opt-out: phi announcement must not appear
+  msgs <- character(0L)
+  x <- withCallingHandlers(
+    suppressWarnings(ackwards(data,
+      k_max = 3, engine = "efa", prune = "redundant",
+      redundancy_phi = NA
+    )),
+    message = function(m) {
+      msgs <<- c(msgs, conditionMessage(m))
+      invokeRestart("muffleMessage")
+    }
+  )
+  expect_false(any(grepl("0\\.95", msgs)))
+  # Internally, NA gets resolved to NULL (no phi filter)
+  expect_null(x$prune$redundancy_phi)
+})
+
+test_that("invalid redundancy_phi value still errors (not NA or numeric in (0,1])", {
+  skip_if_not_installed("psych")
+  data <- as.data.frame(matrix(rnorm(300), 100, 6))
+  expect_error(
+    suppressMessages(
+      ackwards(data, k_max = 3, prune = "redundant", redundancy_phi = 1.5)
+    ),
+    "redundancy_phi"
+  )
+  expect_error(
+    suppressMessages(
+      ackwards(data, k_max = 3, prune = "redundant", redundancy_phi = 0)
+    ),
+    "redundancy_phi"
+  )
+})

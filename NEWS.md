@@ -1,5 +1,23 @@
 # ackwards (development)
 
+## Tucker's φ default for non-PCA redundancy (⚠ resolved-default change)
+
+`redundancy_phi = NULL` (the default) now **auto-resolves** based on the extraction engine:
+
+* `engine = "pca"` — no φ filter (the closed-form W′RW algebra is exact; `|r|` alone is
+  sufficient, as in the original Waller 2007 method).
+* `engine = "efa"` or `"esem"` — automatically applies `redundancy_phi = 0.95` (Lorenzo-Seva
+  & ten Berge, 2006). Factor-score indeterminacy off-PCA makes `|r|`-only redundancy too
+  liberal; the conjunctive φ criterion is the conservative default.
+
+A cli message is emitted whenever auto-resolution applies (Invariant 6: loud defaults). The
+resolved value is stored in `x$prune$redundancy_phi`.
+
+**Existing non-PCA calls using `prune = "redundant"` will become more conservative** — some
+previously flagged redundant chains may no longer meet the φ criterion. To restore the old
+behaviour, pass `redundancy_phi = NA` (explicit opt-out; no φ filter regardless of engine).
+Explicit numeric values (e.g., `redundancy_phi = 0.8`) override on any engine.
+
 ## Structural artefact signals (Forbes extension)
 
 `ackwards(..., prune = "artefact")` now computes structural signals alongside Tucker's φ

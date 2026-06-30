@@ -111,10 +111,16 @@
 #'     judgment (Forbes, 2023; Wicherts et al., 2016).
 #' @param redundancy_r Scalar in `(0, 1]`. Adjacent primary-parent `|r|`
 #'   threshold for redundancy chains. Default `0.9` (Forbes, 2023).
-#' @param redundancy_phi Scalar in `(0, 1]` or `NULL` (default). If non-`NULL`,
-#'   Tucker's phi must *also* exceed this threshold for a link to be included in
-#'   a redundancy chain (conjunctive with `redundancy_r`). `NULL` means only
-#'   `redundancy_r` is used. Recommended: `0.95` (Lorenzo-Seva & ten Berge, 2006).
+#' @param redundancy_phi Scalar in `(0, 1]`, `NULL` (default, auto), or `NA`
+#'   (explicit opt-out). When `NULL`:
+#'   * `engine = "pca"` — no phi filter (the W'RW algebra is exact; phi adds
+#'     nothing that |r| does not already capture).
+#'   * `engine = "efa"` or `"esem"` — automatically set to `0.95` (Lorenzo-Seva
+#'     & ten Berge, 2006). Factor-score indeterminacy off-PCA means |r|-alone
+#'     is liberal; the conjunctive phi criterion is the conservative default.
+#'     A cli message announces the resolved value (Invariant 6).
+#'   Pass `NA` to disable phi filtering regardless of engine (matches the old
+#'   `NULL` behaviour). Pass a numeric value to override on any engine.
 #' @param min_items Minimum number of items for which a factor must be the
 #'   primary loader (highest `|loading|`). Factors with fewer than `min_items`
 #'   primary items are flagged `few_items = TRUE` in `x$prune$structural`. Only
@@ -218,10 +224,15 @@ ackwards <- function(
     redundancy_r <= 0 || redundancy_r > 1) {
     cli::cli_abort("{.arg redundancy_r} must be a single number in (0, 1].")
   }
-  if (!is.null(redundancy_phi) &&
+  # NA is the explicit opt-out ("no phi regardless of engine").
+  # NULL is auto (resolved below once engine and prune are known).
+  # Any other non-NULL, non-NA value must be numeric in (0, 1].
+  if (!is.null(redundancy_phi) && !isTRUE(is.na(redundancy_phi)) &&
     (!is.numeric(redundancy_phi) || length(redundancy_phi) != 1L ||
       redundancy_phi <= 0 || redundancy_phi > 1)) {
-    cli::cli_abort("{.arg redundancy_phi} must be a single number in (0, 1] or {.code NULL}.")
+    cli::cli_abort(
+      "{.arg redundancy_phi} must be a number in (0, 1], {.code NULL} (auto), or {.code NA} (opt-out)."
+    )
   }
 
   if (!is.numeric(k_max) || length(k_max) != 1L || k_max < 2L || k_max != as.integer(k_max)) {
@@ -238,6 +249,26 @@ ackwards <- function(
       "i" = "{.arg pairs} upgraded to {.val all}: pruning requires all-levels \\
              edges to assess redundancy chains and artefact relationships."
     ))
+  }
+
+  # Auto-resolve redundancy_phi = NULL (Invariant 6: announce loud).
+  # NA is the explicit opt-out and maps to NULL internally.
+  if ("redundant" %in% prune) {
+    if (is.null(redundancy_phi)) {
+      if (engine %in% c("efa", "esem")) {
+        redundancy_phi <- 0.95
+        cli::cli_inform(c(
+          "i" = "{.arg redundancy_phi} auto-set to {.val 0.95} for {.val {engine}} engine \\
+                 (Lorenzo-Seva & ten Berge, 2006).",
+          "i" = "Factor-score indeterminacy off-PCA means {.code |r|}-only \\
+                 redundancy is liberal; phi adds a congruence guard.",
+          "i" = "To opt out: pass {.code redundancy_phi = NA}."
+        ))
+      }
+      # engine == "pca": keep NULL (|r|-only; W'RW algebra is exact)
+    } else if (isTRUE(is.na(redundancy_phi))) {
+      redundancy_phi <- NULL # explicit opt-out -> same as PCA default
+    }
   }
 
   # ============================================================

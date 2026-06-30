@@ -281,6 +281,7 @@ announced via cli and documented in roxygen with its rationale.
 | `edge_method` | `"auto"` | algebra when linear, scores otherwise. |
 | `pairs` | `"adjacent"` | classic Goldberg; `"all"` switched on with the Forbes extension. |
 | `extension` (Forbes pruning) | **off** | pruning is an interpretive choice with thresholds; turning it on silently would change results. Opt-in with documented thresholds (|r| ≥ .9, congruence > .95). |
+| `redundancy_phi` | **`NULL` (auto)** — PCA → no φ filter (W′RW algebra is exact; `|r|` alone is sufficient); EFA/ESEM → `0.95` (Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy off-PCA makes `|r|`-only liberal; φ adds a congruence guard). Explicit number overrides on any engine. `NA` is the opt-out (no φ filter regardless of engine). Announces auto-resolve via cli (Invariant 6). **Added M25.** |
 | sign `align_signs` | `TRUE` | unaligned signs make output unreadable. |
 | `keep_fits` / `keep_scores` | `FALSE` / `FALSE` | memory + privacy. |
 | `k_max` | required | force a deliberate choice; don't silently pick. |
@@ -441,9 +442,9 @@ that needs it. **No Rcpp dependency planned** (see §3).
 - ~~ESEM engine does not detect or warn on improper/Heywood solutions~~ — **resolved M10**: engine now inspects `lavaan::lavInspect(fit, "theta")` and warns when `any(diag(theta) <= 0)` (parity with EFA engine, Invariant 7).
 - **ESEM ML/MLR with `missing = "pairwise"`**: lavaan uses listwise deletion for the model fit while edges are computed from a separately-computed pairwise `stats::cor()` — a minor inconsistency (fit statistics at complete-case N, edges at full pairwise N). Documented in `$meta$missing`; a per-call advisory warning fires whenever NAs are detected. Use `missing = "listwise"` or `"fiml"` to resolve. *(Added M16; §9 `missing` row cross-references this.)*
 - **Forbes-extension improvements deferred past M5** (the published method has weaker spots worth strengthening later; M5 ships the faithful method + the §14.20 reporting enrichments):
-  - *Structural artefact signals.* Beyond congruence, artefacts have detectable structural signatures — the split-then-merge pattern (indicators split at level k then reunite under a different parent at k+1; Forbes Fig. 2), factors with `< 3` primary-loading items, and orphaned/non-replicating factors. Surface these as diagnostics rather than relying on φ alone.
-  - *Factor-score-indeterminacy caveat for EFA/ESEM redundancy.* Score-correlation-based redundancy is exact for PCA (Waller algebra) but inherits factor-score indeterminacy for EFA/ESEM; φ (loading-based) is the more stable criterion there. Consider making φ the default for non-PCA engines.
-  - *Selection bias in the "strongest" edge.* Plotting the max correlation across many all-levels pairs capitalizes on chance (85 → 1,320 correlations as levels grow). Add bootstrap CIs / SEs on edges (reuse the `loadings_se` infrastructure) so the strongest-edge claim is inferentially honest.
+  - ~~*Structural artefact signals.*~~ **Done M25 (Wave 2).** `prune = "artefact"` now populates `x$prune$structural` with per-factor `few_items` / `orphan` / `split_merge` signals (flag/report only; no auto-pruning). Args: `min_items = 3L`, `orphan_r = 0.5`. `split_merge` is `TRUE` when a factor's primary items came from multiple different primary factors at the preceding level. CLI and `print()`/`summary()` report the flagged count.
+  - ~~*Factor-score-indeterminacy caveat for EFA/ESEM redundancy.*~~ **Done M25 (Wave 3).** `redundancy_phi = NULL` now auto-resolves: PCA → no φ filter; EFA/ESEM → `0.95`. `NA` is the explicit opt-out. Announces via cli when auto-applied (Invariant 6). See §9 defaults table.
+  - *Selection bias in the "strongest" edge.* Plotting the max correlation across many all-levels pairs capitalizes on chance (85 → 1,320 correlations as levels grow). Add bootstrap CIs / SEs on edges (reuse the `loadings_se` infrastructure) so the strongest-edge claim is inferentially honest. **Still deferred.**
 
 ## 15. Suggested milestones
 

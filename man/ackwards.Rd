@@ -133,10 +133,18 @@ judgment (Forbes, 2023; Wicherts et al., 2016).
 \item{redundancy_r}{Scalar in \verb{(0, 1]}. Adjacent primary-parent \verb{|r|}
 threshold for redundancy chains. Default \code{0.9} (Forbes, 2023).}
 
-\item{redundancy_phi}{Scalar in \verb{(0, 1]} or \code{NULL} (default). If non-\code{NULL},
-Tucker's phi must \emph{also} exceed this threshold for a link to be included in
-a redundancy chain (conjunctive with \code{redundancy_r}). \code{NULL} means only
-\code{redundancy_r} is used. Recommended: \code{0.95} (Lorenzo-Seva & ten Berge, 2006).}
+\item{redundancy_phi}{Scalar in \verb{(0, 1]}, \code{NULL} (default, auto), or \code{NA}
+(explicit opt-out). When \code{NULL}:
+\itemize{
+\item \code{engine = "pca"} — no phi filter (the W'RW algebra is exact; phi adds
+nothing that |r| does not already capture).
+\item \code{engine = "efa"} or \code{"esem"} — automatically set to \code{0.95} (Lorenzo-Seva
+& ten Berge, 2006). Factor-score indeterminacy off-PCA means |r|-alone
+is liberal; the conjunctive phi criterion is the conservative default.
+A cli message announces the resolved value (Invariant 6).
+Pass \code{NA} to disable phi filtering regardless of engine (matches the old
+\code{NULL} behaviour). Pass a numeric value to override on any engine.
+}}
 
 \item{min_items}{Minimum number of items for which a factor must be the
 primary loader (highest \verb{|loading|}). Factors with fewer than \code{min_items}
