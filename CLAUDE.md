@@ -51,7 +51,47 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-No active milestone. M26 completed 2026-06-30.
+**M27 — ESEM fit & SEs as first-class output (CRAN-readiness pass).** Make per-level fit indices
+and rotation-aware loading SEs usable and correctly framed before retagging 0.1.0 for CRAN.
+Additive surfacing + docs only; touches no invariant or resolved default. No new `Imports`; version
+stays `0.1.0`.
+
+Scope:
+1. **`glance()` carries fit** — deepest-converged-level fit columns (ESEM: CFI/TLI/RMSEA/SRMR;
+   EFA: RMSEA/TLI/BIC; PCA: NA). Consistent column set across engines (NA, not varying columns).
+2. **Wide per-level fit table** — `tidy(what="fit", format="wide")`, one row per non-anchor level,
+   one column per index. `format` defaults `"long"` (current output byte-identical).
+3. **Cutoff flags** — `.fit_cutoffs()` (Hu & Bentler 1999: CFI≥.95, TLI≥.95, RMSEA≤.06, SRMR≤.08)
+   attached as a `meets` column when `cutoffs=TRUE`. Single-threshold, overridable, **report-only,
+   never gates** anything. Cutoffs documented as conventional/contested.
+4. **Loading CIs folded into `what="loadings"`** — columns become
+   `level/item/factor/loading/se/ci_lower/ci_upper` for all engines (`se`/`ci_*` NA for PCA/EFA,
+   populated for ESEM); add `conf_level=0.95` (gated like `sort`/`primary_only`). **Retire
+   `what="loadings_se"`** as now-redundant (pre-CRAN; no deprecation — update vignettes/tests).
+5. **Fit plot** — `autoplot(x, what="fit")` overload (`what` defaults `"hierarchy"`): indices
+   across levels with cutoff reference lines, CFI/TLI and RMSEA/SRMR panelled separately.
+6. **`summary()` cutoff annotation** on the per-level fit line.
+7. **Dedicated section in `ackwards-engines.Rmd`** — "Per-level fit: what it tells you (and what it
+   doesn't)": fit qualifies each *level*, never validates the *hierarchy*/edges; the ESEM
+   cost/benefit tradeoff made concrete; demonstrates wide table, cutoff flags, loading CIs, fit plot.
+8. **`print()` honesty note** extended with per-level-adequacy framing; NEWS + MILESTONES (numeric
+   order) + CLAUDE one-liner + pkgdown reference index.
+
+Acceptance criteria:
+- `glance()` returns correct fit columns per engine at the deepest converged level (NA for PCA);
+  consistent column set; test asserts presence + level.
+- `tidy(what="fit", format="wide")` = one row per non-anchor level with index columns; `"long"`
+  byte-identical to current; guard error when `format`/`conf_level` passed with non-matching `what`.
+- `tidy(what="fit", cutoffs=TRUE)` adds a `meets` flag matching `.fit_cutoffs()`; default unchanged.
+- `tidy(what="loadings")` returns `se`/`ci_lower`/`ci_upper` for all engines (NA for PCA/EFA;
+  `loading ± z·se` for ESEM); `conf_level` respected. `what="loadings_se"` removed with no orphaned
+  references.
+- `autoplot(x, what="fit")` returns a ggplot with cutoff reference lines; `"hierarchy"` (default)
+  unchanged; PCA/degenerate (no fit) handled gracefully.
+- `summary()` shows cutoff-annotated fit lines; snapshot updated.
+- Engines vignette builds with the new section; hierarchy-vs-level framing explicit.
+- `devtools::check()` clean (0/0/0); styled; linted; coverage stays at 100% (M23 bar); no new
+  `Imports`; version stays `0.1.0`; NEWS + MILESTONES + CLAUDE one-liner updated.
 
 ## Invariants — do not violate without flagging
 
