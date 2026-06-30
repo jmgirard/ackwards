@@ -15,7 +15,16 @@
 A one-row \code{data.frame}.
 }
 \description{
-Returns a one-row data frame of top-level model metadata.
+Returns a one-row data frame of top-level model metadata. For EFA and ESEM
+objects, fit indices at the deepest converged level are included. The same
+five columns (\code{CFI}, \code{TLI}, \code{RMSEA}, \code{SRMR}, \code{BIC}) are present across all
+engines; columns unavailable for a given engine are \code{NA} (e.g., \code{CFI} and
+\code{SRMR} are \code{NA} for EFA; all five are \code{NA} for PCA).
+}
+\examples{
+x <- ackwards(bfi25, k_max = 5)
+glance(x)
+
 }
 \seealso{
 \code{\link[=tidy.ackwards]{tidy.ackwards()}}, \code{\link[=print.ackwards]{print.ackwards()}}

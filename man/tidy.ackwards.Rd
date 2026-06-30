@@ -9,6 +9,9 @@
   what = c("edges", "loadings", "loadings_se", "variance", "fit", "nodes", "scores"),
   primary_only = FALSE,
   sort = c("none", "strength"),
+  format = c("long", "wide"),
+  cutoffs = FALSE,
+  conf_level = 0.95,
   ...
 )
 }
@@ -20,16 +23,22 @@
 \item \code{"edges"} \emph{(default)} -- one row per directed between-level edge:
 \code{from}, \code{to}, \code{level_from}, \code{level_to}, \code{r}, \code{is_primary}, \code{above_cut}.
 \item \code{"loadings"} -- one row per item x factor x level:
-\code{level}, \code{factor}, \code{item}, \code{loading}.
-\item \code{"loadings_se"} -- one row per item x factor x level with the rotation-aware
-standard error of each loading: \code{level}, \code{factor}, \code{item}, \code{se}. Only the
-ESEM engine (\code{engine = "esem"}) produces these; errors informatively for
-PCA/EFA objects, which carry no loading standard errors.
+\code{level}, \code{factor}, \code{item}, \code{loading}, \code{se}, \code{ci_lower}, \code{ci_upper}.
+\code{se}, \code{ci_lower}, and \code{ci_upper} are populated only for
+\code{engine = "esem"} (which produces rotation-aware loading SEs); they are
+\code{NA} for PCA and EFA. The confidence level is controlled by \code{conf_level}.
 \item \code{"variance"} -- one row per factor x level:
 \code{level}, \code{factor}, \code{variance_pct}, \code{cumulative_pct}.
 \item \code{"fit"} -- one row per fit index x level: \code{level}, \code{index}, \code{value}.
 For PCA objects the indices are eigenvalues; for EFA objects they are
-\code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, \code{BIC}.
+\code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, \code{BIC}; for ESEM they are
+\code{chi}, \code{dof}, \code{p_value}, \code{CFI}, \code{TLI}, \code{RMSEA}, \code{SRMR}. Use
+\code{format = "wide"} for one row per level with index columns. Add
+\code{cutoffs = TRUE} to append a \code{meets} column flagging each index against
+conventional thresholds (Hu & Bentler 1999: CFI/TLI ≥ .95,
+RMSEA ≤ .06, SRMR ≤ .08); indices without a defined threshold (e.g.
+\code{chi}, \code{BIC}, eigenvalues) return \code{NA} for \code{meets}. Thresholds are
+conventional and contested; they are report-only and never gate anything.
 \item \code{"nodes"} -- Forbes-extension pruning annotations (requires \code{prune != "none"}
 when the object was created). One row per factor across all levels:
 \code{id}, \code{level}, \code{pruned}, \code{prune_reason}. Returns an empty data frame with
@@ -47,6 +56,20 @@ any other value of \code{what}.}
 \item{sort}{For \code{what = "edges"} only. One of \code{"none"} (default, natural order)
 or \code{"strength"} (descending \verb{|r|}). Ignored for all other values of \code{what}.}
 
+\item{format}{For \code{what = "fit"} only. One of \code{"long"} (default, one row per
+index x level) or \code{"wide"} (one row per level, one column per index).
+Errors for all other values of \code{what}.}
+
+\item{cutoffs}{For \code{what = "fit"} only. When \code{TRUE}, appends a logical \code{meets}
+column indicating whether each index meets its conventional threshold (Hu &
+Bentler 1999). \code{NA} when no threshold is defined for that index. Default
+\code{FALSE}. Errors for all other values of \code{what}.}
+
+\item{conf_level}{For \code{what = "loadings"} only. Confidence level for the
+loading intervals; default \code{0.95}. The intervals are computed as
+\verb{loading ± qnorm((1 + conf_level) / 2) * se} and are \code{NA} for engines
+that carry no SEs (PCA, EFA). Errors for all other values of \code{what}.}
+
 \item{...}{Ignored.}
 }
 \value{
@@ -63,6 +86,9 @@ tidy(x, sort = "strength") # strongest edges first
 tidy(x, primary_only = TRUE) # just the primary-parent lineage
 tidy(x, what = "loadings")
 tidy(x, what = "variance")
+tidy(x, what = "fit")
+tidy(x, what = "fit", format = "wide")
+tidy(x, what = "fit", cutoffs = TRUE)
 
 }
 \seealso{
