@@ -222,9 +222,12 @@ In those cases, VSS-1 in particular may underestimate k.</p>
 <p><strong>What it does.</strong> Generates comparison datasets by
 drawing from the marginal distributions of the observed items
 (preserving each item’s shape without assuming multivariate normality).
-Computes eigenvalues for each comparison dataset and retains the factor
-whose addition most consistently improves RMSE across the real and
-comparison data.</p>
+Computes eigenvalues for each comparison dataset and applies a
+sequential one-sided Wilcoxon test (default α = 0.30): a factor is
+retained while adding it significantly reduces RMSE relative to the
+previous level; the procedure stops at the first non-significant
+improvement. The recommended k is the last retained level — it is not
+necessarily the minimum of the RMSE curve.</p>
 <p><strong>Typical behavior.</strong> Among the most accurate criteria
 in simulation studies (Ruscio &amp; Roche, 2012), particularly when
 items have non-normal distributions — a common feature of Likert-scale
@@ -310,13 +313,13 @@ structure, and citations — see <code><a href="../reference/suggest_k.html">?su
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[307ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[304ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[181ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[175ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.8s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[9.9s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -387,8 +390,11 @@ minimizes at the starred k.</p>
 green) and VSS-2 (dashed purple) each peak at their starred k.</p>
 <p><strong>CD — Comparison Data (bottom-right, when available).</strong>
 Shows the mean RMSE between observed and comparison-data eigenvalues at
-each k. Lower is better; the starred k is where adding another factor no
-longer reduces RMSE beyond chance. Requires <code>EFAtools</code>.</p>
+each k. The curve is drawn only over the levels that were actually
+computed by <code><a href="https://rdrr.io/pkg/EFAtools/man/CD.html" class="external-link">EFAtools::CD</a></code> (up to the first non-significant
+improvement plus one). The starred k is the last level retained by the
+sequential Wilcoxon test — it need not be the visible minimum of the
+plotted curve. Requires <code>EFAtools</code>.</p>
 <p>Look for visual convergence across panels. When the scree elbow, the
 MAP minimum, and a VSS peak all occur at roughly the same k, the
 evidence is unusually consistent. When they scatter, you have genuine

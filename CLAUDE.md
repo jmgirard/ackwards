@@ -85,10 +85,12 @@ as part of the definition of done.
   parallel per-level fits)
 - **M27** — ESEM fit & SEs as first-class output (glance fit, wide fit
   table, cutoff flags, loading CIs, fit plot, vignette framing)
+- **M28** — CD correctness & honesty fix (`cd_rmse` trailing-zero bug;
+  “minimize” label/roxygen corrected to sequential-test framing)
 
 ## Current focus
 
-No active milestone. M27 completed 2026-06-30.
+No active milestone. M28 completed 2026-06-30.
 
 ## Invariants — do not violate without flagging
 
@@ -230,8 +232,11 @@ default, runnable `@examples`, `@seealso` cross-links).
 
 ## Out of scope for now
 
-- **EAP scoring** for ordinal ESEM — deferred; linear tenBerge scores
-  cover the common case.
+- **EAP scoring** for ordinal ESEM — declined (M28): EAP’s shrinkage
+  attenuates the cross-level correlations that bass-ackwards exists to
+  measure; tenBerge covers the common case. Seam preserved in
+  [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+  but implementing EAP is not planned.
 - **Oblique rotation** — varimax is hardcoded; no `rotation` argument;
   oblique confounds the cross-level signal. No plans to add it.
 - **Higher-order SEM / Schmid-Leiman** — out of scope per §2; `ackwards`

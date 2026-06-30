@@ -154,8 +154,11 @@ cases, VSS-1 in particular may underestimate k.
 **What it does.** Generates comparison datasets by drawing from the
 marginal distributions of the observed items (preserving each item’s
 shape without assuming multivariate normality). Computes eigenvalues for
-each comparison dataset and retains the factor whose addition most
-consistently improves RMSE across the real and comparison data.
+each comparison dataset and applies a sequential one-sided Wilcoxon test
+(default α = 0.30): a factor is retained while adding it significantly
+reduces RMSE relative to the previous level; the procedure stops at the
+first non-significant improvement. The recommended k is the last
+retained level — it is not necessarily the minimum of the RMSE curve.
 
 **Typical behavior.** Among the most accurate criteria in simulation
 studies (Ruscio & Roche, 2012), particularly when items have non-normal
@@ -204,13 +207,13 @@ and citations — see
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [307ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [304ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [181ms]
+#> ✔ Running MAP and VSS... [175ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.8s]
+#> ✔ Running Comparison Data (CD)... [9.9s]
 #> 
 sk
 #> 
@@ -288,9 +291,12 @@ starred k.
 (dashed purple) each peak at their starred k.
 
 **CD — Comparison Data (bottom-right, when available).** Shows the mean
-RMSE between observed and comparison-data eigenvalues at each k. Lower
-is better; the starred k is where adding another factor no longer
-reduces RMSE beyond chance. Requires `EFAtools`.
+RMSE between observed and comparison-data eigenvalues at each k. The
+curve is drawn only over the levels that were actually computed by
+[`EFAtools::CD`](https://rdrr.io/pkg/EFAtools/man/CD.html) (up to the
+first non-significant improvement plus one). The starred k is the last
+level retained by the sequential Wilcoxon test — it need not be the
+visible minimum of the plotted curve. Requires `EFAtools`.
 
 Look for visual convergence across panels. When the scree elbow, the MAP
 minimum, and a VSS peak all occur at roughly the same k, the evidence is

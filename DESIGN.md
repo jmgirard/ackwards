@@ -543,11 +543,15 @@ EFA solutions. 12. ESEM scoring → self-compute tenBerge weights from
 lavaan’s estimated loadings `Λ` and latent correlation matrix `R` via
 the existing `.tenBerge_weights(R, Λ)`. `lavPredict()` is not used for
 the default path (it lacks tenBerge); it is the eventual hook for EAP
-opt-in. 13. EAP scoring → **deferred**; an EAP request returns
+opt-in. 13. EAP scoring → **out of scope (declined M28).** EAP’s
+shrinkage attenuates cross-level correlations — the primary signal
+bass-ackwards measures — making it theoretically inferior to tenBerge
+for this method. An EAP request still returns
 `cli_abort("not yet implemented")`. The scores-route seam in
 [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
-is preserved for when EAP lands. 14. `cor = "polychoric"` → **general
-basis** for all engines (not ESEM-only). PCA/EFA compute `R` via
+is preserved, but implementing EAP is not planned. 14.
+`cor = "polychoric"` → **general basis** for all engines (not
+ESEM-only). PCA/EFA compute `R` via
 [`psych::polychoric()`](https://rdrr.io/pkg/psych/man/tetrachor.html) in
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 then feed it to the engine as usual. ESEM uses lavaan’s own latent
@@ -633,7 +637,10 @@ explicit opt-out. Announces via cli when auto-applied (Invariant 6). See
 the max correlation across many all-levels pairs capitalizes on chance
 (85 → 1,320 correlations as levels grow). Add bootstrap CIs / SEs on
 edges (reuse the `loadings_se` infrastructure) so the strongest-edge
-claim is inferentially honest. **Still deferred.**
+claim is inferentially honest. **Deferred; warrants its own milestone**
+(perf-heavy: each resample re-runs full extraction at every level; needs
+[future](https://future.futureverse.org) parallelisation +
+print/plot/vignette integration).
 
 ## 15. Milestones
 

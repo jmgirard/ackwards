@@ -120,10 +120,12 @@
 <strong>M26</strong> — Faster ESEM on large item sets (cached sample stats + parallel per-level fits)</li>
 <li>
 <strong>M27</strong> — ESEM fit &amp; SEs as first-class output (glance fit, wide fit table, cutoff flags, loading CIs, fit plot, vignette framing)</li>
+<li>
+<strong>M28</strong> — CD correctness &amp; honesty fix (<code>cd_rmse</code> trailing-zero bug; “minimize” label/roxygen corrected to sequential-test framing)</li>
 </ul></div>
 <div class="section level2">
 <h2 id="current-focus">Current focus<a class="anchor" aria-label="anchor" href="#current-focus"></a></h2>
-<p>No active milestone. M27 completed 2026-06-30.</p>
+<p>No active milestone. M28 completed 2026-06-30.</p>
 </div>
 <div class="section level2">
 <h2 id="invariants--do-not-violate-without-flagging">Invariants — do not violate without flagging<a class="anchor" aria-label="anchor" href="#invariants--do-not-violate-without-flagging"></a></h2>
@@ -193,7 +195,7 @@
 <div class="section level2">
 <h2 id="out-of-scope-for-now">Out of scope for now<a class="anchor" aria-label="anchor" href="#out-of-scope-for-now"></a></h2>
 <ul><li>
-<strong>EAP scoring</strong> for ordinal ESEM — deferred; linear tenBerge scores cover the common case.</li>
+<strong>EAP scoring</strong> for ordinal ESEM — declined (M28): EAP’s shrinkage attenuates the cross-level correlations that bass-ackwards exists to measure; tenBerge covers the common case. Seam preserved in <code><a href="reference/compute_edges.html">compute_edges()</a></code> but implementing EAP is not planned.</li>
 <li>
 <strong>Oblique rotation</strong> — varimax is hardcoded; no <code>rotation</code> argument; oblique confounds the cross-level signal. No plans to add it.</li>
 <li>

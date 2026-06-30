@@ -38,8 +38,12 @@ PA-PC threshold; PA-FA compares the teal "Observed (FA)" line to the
 dotted PA-FA threshold.
 
 The CD panel plots the mean RMSE between observed and comparison-data
-eigenvalues at each k; the retention threshold (star) is where this
-curve first crosses below the comparison-data average.
+eigenvalues at each k. CD uses a sequential one-sided Wilcoxon test
+(Ruscio & Roche, 2012): a factor is retained while adding it
+significantly reduces RMSE (default \\\alpha = 0.30\\); the starred k is
+the last retained factor. The curve is shown only over the levels that
+were actually computed; the starred k need not be the visible minimum of
+the plotted curve.
 
 Requires the ggplot2 package.
 
@@ -56,14 +60,14 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   autoplot(sk)
 }
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [171ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [133ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [144ms]
+#> ✔ Running MAP and VSS... [122ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [17.3s]
+#> ✔ Running Comparison Data (CD)... [15.9s]
 #> 
 
 # }
