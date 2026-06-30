@@ -191,7 +191,10 @@ print.summary_ackwards <- function(x, ...) {
   cli::cli_text(
     cli::col_grey(
       "Note: This is a series of linked solutions, not a fitted hierarchical \\
-       model. Cross-level edges are descriptive score correlations."
+       model. Cross-level edges are descriptive score correlations. \\
+       Per-level fit indices (EFA/ESEM) describe how well a k-factor model \\
+       fits the items at that level -- they do not validate the edges or \\
+       the hierarchy itself."
     )
   )
 
