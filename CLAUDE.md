@@ -168,7 +168,41 @@ default output must reproduce Forbes's examples exactly.
 
 ## Current focus
 
-No milestone currently in progress. M22 complete (see Completed milestones).
+**M23 (planned, not started): Test-coverage hardening to ≥99%.** A §13 testing/robustness
+milestone (not a DESIGN.md §15 feature). Baseline at planning: **93.37%** overall (`covr`). Touches
+**no invariants, no resolved defaults, no public API**; `covr` is already in Suggests (no new dep).
+The only production-code edits are `# nocov` markers (and any flagged reachability refactor); no
+behavior change.
+
+**Decisions (owner-approved):** target **≥99% overall, every file ≥95%**; genuinely-untestable
+defensive branches (those needing a sabotaged dependency) get `# nocov` + a one-line justification,
+surfaced for review — test first, `# nocov` last resort. **Local verification only** — no CI
+coverage workflow / codecov this milestone. Prefer `# nocov` over a brittle test for any
+non-convergence path that proves flaky across platforms (CRAN machines).
+
+Lowest files at planning: `engine_esem.R` 75.0, `engine_efa.R` 83.2, `label_template.R` 83.9,
+`suggest_k.R` 92.6, `summary.R` 92.6, `print.R` 92.1, `ackwards.R` 93.3.
+
+**Four waves:**
+1. *Pure-input branches* (deterministic): cor-matrix validation + missing-field/wrong-class aborts
+   (`utils.R`); `n_obs` validation, `k_max > p`, polychoric failure + NPD smoothing (`ackwards.R`);
+   cor-ignored/spearman+CD/CD-failure/`pa_fa=NA` (`suggest_k.R`); forbes >26-level guard
+   (`label_template.R`); φ `denom==0`/missing-matrix/empty-chains (`prune.R`); orphaned-parent
+   fallbacks (`layout.R`).
+2. *Render branches*: new `test-summary.R` (eigenvalue rows, chi/dof fmt, single-level lineage,
+   prune branches); `test-print.R` artefact/redundancy sections; lone lines in `interpret.R`/
+   `tidy.R`/`compute_edges.R`.
+3. *Engine branches*: PCA k=1 sign flip; EFA Heywood/convergence; ESEM improper-solution +
+   error-truncation + polychoric `r_lv` extraction.
+4. *`# nocov` + verify*: mark untestable defensives (lavaan `efa` version guard
+   `engine_esem.R:32`, tenBerge→regression fallback `engine_efa.R:86`, residual `return(NULL)`
+   guards); re-run `covr`, full suite, `R CMD check --as-cran` 0/0/0, styler + lintr.
+
+**Acceptance:** (1) `covr` ≥99% overall, ≥95% per file; (2) every `# nocov` justified + listed for
+review; (3) suite green, 1 expected skip preserved; (4) 0/0/0 check, styled + linted; (5) no
+behavior change beyond `# nocov`/flagged refactor; (6) NEWS.md "Testing" line under 0.1.0.
+
+Implementation via `/implement-milestone`.
 
 ## Invariants — do not violate without flagging
 
