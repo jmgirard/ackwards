@@ -304,7 +304,13 @@
           adj_r <- c(adj_r, abs(E_dn[jlab, ]))
         }
       }
-      orphan <- if (length(adj_r) == 0L) NA else max(adj_r) < orphan_r
+      # Every factor has >= 1 adjacent level (k_max >= 2, artefact uses
+      # pairs = "all"), so the empty-adj_r guard is defensive only.
+      orphan <- if (length(adj_r) == 0L) {
+        NA # nocov
+      } else {
+        max(adj_r) < orphan_r
+      }
 
       # split_merge: items came from multiple primary parents at level k-1 ------
       split_merge <- if (k <= min(ks) || length(primary_items) == 0L) {
@@ -402,12 +408,9 @@
   }
 
   if ("artefact" %in% prune) {
-    n_struct <- if (!is.null(structural_df)) {
-      sum(structural_df$few_items | structural_df$orphan |
-        structural_df$split_merge, na.rm = TRUE)
-    } else {
-      0L
-    }
+    # structural_df is always set above when artefact pruning runs.
+    n_struct <- sum(structural_df$few_items | structural_df$orphan |
+      structural_df$split_merge, na.rm = TRUE)
     cli::cli_inform(c(
       "i" = "Artefact mode: Tucker's {cli::symbol$phi} computed for all \\
              cross-level factor pairs.",

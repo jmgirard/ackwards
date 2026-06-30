@@ -223,8 +223,16 @@ default output must reproduce Forbes's examples exactly.
   `print()`/`summary()` report flagged count. (3) `redundancy_phi = NULL` auto-resolves: PCA →
   no φ (exact algebra); EFA/ESEM → `0.95` (Lorenzo-Seva & ten Berge 2006; announced via cli,
   Invariant 6); `NA` is explicit opt-out. Bootstrap CIs on edges remain deferred. `CLAUDE.md`
-  Resolved defaults + Out of scope updated; DESIGN §9/§14 updated. (1201 tests pass, 2 skip;
-  0/0/0 R CMD check.)
+  Resolved defaults + Out of scope updated; DESIGN §9/§14 updated. Post-review hardening:
+  added loud validation for `min_items` (positive integer) / `orphan_r` (`[0,1]`); roxygen *why*
+  for both defaults (three-indicator rule; moderate-correlation rationale); deterministic unit
+  tests for the previously-untested `split_merge = TRUE` path (mock loadings) and the Wave-3
+  φ-decision outcome change (`.find_redundant_chains` flags under no-φ but not under φ>0.95) plus
+  an end-to-end EFA subset-property test (auto-φ flagged set ⊆ |r|-only set); documented `criteria=`
+  in `ackwards-suggest-k.Rmd`, structural signals + φ auto-default in `ackwards-forbes.Rmd`,
+  `criteria=` in DESIGN §8; simplified an unreachable `n_struct` branch and `# nocov`'d the
+  EFAtools-absent CD note (covered only when EFAtools missing). Coverage back to 100%.
+  (1219 tests pass, 2 skip; 0/0/0 R CMD check.)
 
 ## Current focus
 

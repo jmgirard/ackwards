@@ -697,3 +697,185 @@ test_that("invalid redundancy_phi value still errors (not NA or numeric in (0,1]
     "redundancy_phi"
   )
 })
+
+# ---- Wave 3: outcome-change at the phi decision point (M25) -----------------
+
+# Mock an ackwards object with a single strong adjacent link whose score-r
+# clears redundancy_r (0.95 >= 0.9) but whose loading congruence is moderate
+# (phi ~ 0.71 < 0.95). This isolates the exact decision the auto-phi default
+# toggles: with no phi filter the link forms a chain and flags a node; with
+# phi > 0.95 the link is rejected and nothing is flagged.
+.mock_phi_divergent <- function() {
+  items <- paste0("i", 1:4)
+  L1 <- matrix(c(0.9, 0.9, 0.9, 0.9),
+    ncol = 1,
+    dimnames = list(items, "m1f1")
+  )
+  # m2f1 loads only i1,i2 -> phi(L1[,1], L2[,1]) < 0.95, but scores still
+  # correlate strongly with m1f1 via the supplied edge matrix.
+  L2 <- matrix(
+    c(
+      0.9, 0.9, 0.0, 0.0, # m2f1
+      0.0, 0.0, 0.9, 0.9 # m2f2
+    ),
+    ncol = 2, dimnames = list(items, c("m2f1", "m2f2"))
+  )
+  E12 <- matrix(c(0.95, 0.10),
+    nrow = 1,
+    dimnames = list("m1f1", c("m2f1", "m2f2"))
+  )
+  list(
+    k_max = 2L,
+    levels = list(
+      "1" = list(loadings = L1, labels = "m1f1"),
+      "2" = list(loadings = L2, labels = c("m2f1", "m2f2"))
+    ),
+    lineage = list("1" = NA_integer_, "2" = c(1L, 1L)),
+    edges = list(matrices = list("1:2" = E12))
+  )
+}
+
+test_that(".tucker_phi confirms the mock link is below the 0.95 auto threshold", {
+  m <- .mock_phi_divergent()
+  phi <- ackwards:::.tucker_phi(m$levels[["1"]]$loadings[, 1], m$levels[["2"]]$loadings[, 1])
+  expect_lt(phi, 0.95)
+  # And the score-r clears redundancy_r.
+  expect_gte(abs(m$edges$matrices[["1:2"]]["m1f1", "m2f1"]), 0.9)
+})
+
+test_that("phi filter changes the flagged outcome at the chain-finding step", {
+  m <- .mock_phi_divergent()
+
+  # No phi filter (|r|-only, == PCA default / redundancy_phi = NA): link forms.
+  no_phi <- ackwards:::.find_redundant_chains(m, threshold_r = 0.9, threshold_phi = NULL)
+  expect_false(is.null(no_phi$node_flags))
+  expect_true("m1f1" %in% no_phi$node_flags$id)
+
+  # Auto default phi > 0.95: the moderate-congruence link is rejected -> no chain.
+  with_phi <- ackwards:::.find_redundant_chains(m, threshold_r = 0.9, threshold_phi = 0.95)
+  expect_null(with_phi$node_flags)
+  expect_null(with_phi$chains)
+})
+
+test_that("auto-phi flagged set is a subset of the |r|-only set (EFA, end to end)", {
+  skip_if_not_installed("psych")
+  set.seed(42)
+  n <- 500L
+  g <- rnorm(n)
+  s1 <- rnorm(n)
+  s2 <- rnorm(n)
+  data <- data.frame(
+    x1 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x2 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x3 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x4 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x5 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
+  )
+
+  na_path <- suppressWarnings(suppressMessages(
+    ackwards(data, k_max = 4, engine = "efa", prune = "redundant", redundancy_phi = NA)
+  ))
+  auto <- suppressWarnings(suppressMessages(
+    ackwards(data, k_max = 4, engine = "efa", prune = "redundant")
+  ))
+
+  flagged_na <- na_path$prune$nodes$id[na_path$prune$nodes$pruned]
+  flagged_auto <- auto$prune$nodes$id[auto$prune$nodes$pruned]
+
+  # Conjunctive phi can only remove links, never add: the auto-default flagged
+  # set must be a subset of the |r|-only set (i.e., never less conservative).
+  expect_true(all(flagged_auto %in% flagged_na))
+  expect_lte(length(flagged_auto), length(flagged_na))
+  # Thresholds recorded honestly.
+  expect_equal(auto$prune$redundancy_phi, 0.95)
+  expect_null(na_path$prune$redundancy_phi)
+})
+
+# ---- Wave 2: split_merge = TRUE positive path (M25) -------------------------
+
+# Direct unit test of .compute_structural_signals: a level-3 factor whose
+# primary items came from two different level-2 primary parents (an items-merge
+# anomaly; Forbes Fig 2). Real FA cannot reproduce this deterministically, so
+# we mock the loading structure that defines the signal.
+.mock_split_merge <- function() {
+  items <- paste0("i", 1:6)
+  hi <- 0.8
+  lo <- 0.1
+  L1 <- matrix(rep(hi, 6), ncol = 1, dimnames = list(items, "m1f1"))
+  # Level 2: i1-i3 -> m2f1, i4-i6 -> m2f2
+  L2 <- matrix(
+    c(
+      hi, hi, hi, lo, lo, lo, # m2f1
+      lo, lo, lo, hi, hi, hi # m2f2
+    ),
+    ncol = 2, dimnames = list(items, c("m2f1", "m2f2"))
+  )
+  # Level 3: m3f1 <- {i1 (from m2f1), i4 (from m2f2)} -> split_merge
+  #          m3f2 <- {i2, i3} (both m2f1); m3f3 <- {i5, i6} (both m2f2)
+  L3 <- matrix(
+    c(
+      hi, lo, lo, hi, lo, lo, # m3f1 dominant on i1, i4
+      lo, hi, hi, lo, lo, lo, # m3f2 dominant on i2, i3
+      lo, lo, lo, lo, hi, hi # m3f3 dominant on i5, i6
+    ),
+    ncol = 3, dimnames = list(items, c("m3f1", "m3f2", "m3f3"))
+  )
+  # Edges so orphan does not fire (all neighbours well-connected).
+  E12 <- matrix(0.7,
+    nrow = 1, ncol = 2,
+    dimnames = list("m1f1", c("m2f1", "m2f2"))
+  )
+  E23 <- matrix(0.7,
+    nrow = 2, ncol = 3,
+    dimnames = list(c("m2f1", "m2f2"), c("m3f1", "m3f2", "m3f3"))
+  )
+  list(
+    levels = list(
+      "1" = list(loadings = L1),
+      "2" = list(loadings = L2),
+      "3" = list(loadings = L3)
+    ),
+    edges = list(matrices = list("1:2" = E12, "2:3" = E23))
+  )
+}
+
+test_that("split_merge = TRUE for a factor whose items merge from two parents", {
+  m <- .mock_split_merge()
+  # min_items = 2 so the 2-item level-3 factors are not also few_items-flagged,
+  # isolating the split_merge signal.
+  struct <- ackwards:::.compute_structural_signals(m, min_items = 2L, orphan_r = 0.5)
+
+  m3f1 <- struct[struct$id == "m3f1" & struct$level == 3L, ]
+  expect_true(m3f1$split_merge)
+
+  # The single-parent level-3 factors are not flagged.
+  expect_false(struct$split_merge[struct$id == "m3f2" & struct$level == 3L])
+  expect_false(struct$split_merge[struct$id == "m3f3" & struct$level == 3L])
+
+  # Orphan should be FALSE everywhere (edges all 0.7 >= 0.5).
+  expect_false(any(struct$orphan, na.rm = TRUE))
+})
+
+# ---- Wave 2: min_items / orphan_r input validation (M25) --------------------
+
+test_that("invalid min_items and orphan_r are rejected", {
+  skip_if_not_installed("psych")
+  data <- as.data.frame(matrix(rnorm(300), 100, 6))
+  expect_error(
+    suppressMessages(ackwards(data, k_max = 3, prune = "artefact", min_items = 0)),
+    "min_items"
+  )
+  expect_error(
+    suppressMessages(ackwards(data, k_max = 3, prune = "artefact", min_items = 2.5)),
+    "min_items"
+  )
+  expect_error(
+    suppressMessages(ackwards(data, k_max = 3, prune = "artefact", orphan_r = 1.5)),
+    "orphan_r"
+  )
+  expect_error(
+    suppressMessages(ackwards(data, k_max = 3, prune = "artefact", orphan_r = -0.1)),
+    "orphan_r"
+  )
+})

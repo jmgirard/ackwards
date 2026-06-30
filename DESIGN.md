@@ -254,6 +254,15 @@ number. The five criteria implemented (M12):
 | **VSS-1/VSS-2** | Revelle & Rocklin (1979) | same call (already returned) | Maximise very-simple-structure fit at complexities 1 and 2 |
 | **CD** | Ruscio & Roche (2012) | `EFAtools::CD()` (optional) | Resamples raw data; among top performers in simulation; skipped gracefully when `EFAtools` absent. M21: `cd_rmse = colMeans(RMSE_eigenvalues)` stored in object; dedicated 4th panel in `autoplot.suggest_k()` (2×2 grid when CD present; 3-panel single column otherwise). |
 
+**Selective computation (M25).** A `criteria` argument (`rlang::arg_match(multiple = TRUE)`, default
+all five) lets callers request any subset of `c("pa_pc", "pa_fa", "map", "vss", "cd")`. Skipping is a
+real compute saving, not output filtering: `pa_pc`/`pa_fa` share one `fa.parallel(fa = "both")` call
+(both or neither run) and `map`/`vss` share one `vss()` call, so e.g. `criteria = "map"` avoids the
+PA simulation entirely; `vss` toggles VSS-1+VSS-2 as a unit. Non-requested `k_*` fields are `NA`; the
+`criteria` data frame keeps a stable schema (NA-filled non-run columns); the object records
+`criteria_requested`. `print()`/`autoplot()` render only requested criteria and the consensus range is
+computed from requested criteria only.
+
 Empirical Kaiser Criterion (EKC) and EGA (`{EGAnet}`) are **out of scope** — additional deps
 without sufficient incremental benefit over the five criteria above. Note: `suggest_k()` accepts
 `cor = "pearson"` (default) or `"spearman"` only; `"polychoric"` is not supported (PA and VSS do

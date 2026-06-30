@@ -35,7 +35,9 @@ the shallower level merged into a single factor at the deeper level).
 
 All signals are **flag-only** (artefact identification requires researcher judgment;
 Forbes, 2023). Results are stored in `x$prune$structural` (one row per factor × level);
-`print()` and `summary()` report the count of flagged factors.
+`print()` and `summary()` report the count of flagged factors. Both `min_items` (positive
+integer) and `orphan_r` (number in `[0, 1]`) are validated with a clear error. See
+`vignette("ackwards-forbes")` for a worked example.
 
 ## `suggest_k()` criterion selection
 

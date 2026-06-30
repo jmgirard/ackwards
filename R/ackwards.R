@@ -124,11 +124,18 @@
 #' @param min_items Minimum number of items for which a factor must be the
 #'   primary loader (highest `|loading|`). Factors with fewer than `min_items`
 #'   primary items are flagged `few_items = TRUE` in `x$prune$structural`. Only
-#'   used when `prune = "artefact"`. Default `3L`.
+#'   used when `prune = "artefact"`. Default `3L` -- a factor defined by one or
+#'   two items is under-identified and frequently an extraction artefact rather
+#'   than a replicable construct (the classic "three-indicator rule"; Forbes,
+#'   2023, Fig. 2).
 #' @param orphan_r Threshold for the `orphan` structural signal. A factor whose
-#'   maximum adjacent-level `|r|` falls below `orphan_r` is flagged
-#'   `orphan = TRUE` in `x$prune$structural` (non-replicating across levels).
-#'   Only used when `prune = "artefact"`. Default `0.5`.
+#'   maximum **adjacent-level** `|r|` (to the immediately shallower and deeper
+#'   levels) falls below `orphan_r` is flagged `orphan = TRUE` in
+#'   `x$prune$structural` -- it does not connect to the neighbouring solutions
+#'   and so does not replicate across the hierarchy. Only used when
+#'   `prune = "artefact"`. Default `0.5` -- a moderate correlation; a factor
+#'   that shares less than a quarter of its variance with every neighbour is a
+#'   structural outlier worth inspecting.
 #' @param cut_show Edges with `|r| >= cut_show` are flagged `above_cut` in
 #'   `tidy()` output. Default `0.3`.
 #' @param ... Reserved for future arguments.
@@ -233,6 +240,14 @@ ackwards <- function(
     cli::cli_abort(
       "{.arg redundancy_phi} must be a number in (0, 1], {.code NULL} (auto), or {.code NA} (opt-out)."
     )
+  }
+  if (!is.numeric(min_items) || length(min_items) != 1L ||
+    is.na(min_items) || min_items < 1L || min_items != as.integer(min_items)) {
+    cli::cli_abort("{.arg min_items} must be a single positive integer.")
+  }
+  if (!is.numeric(orphan_r) || length(orphan_r) != 1L ||
+    is.na(orphan_r) || orphan_r < 0 || orphan_r > 1) {
+    cli::cli_abort("{.arg orphan_r} must be a single number in [0, 1].")
   }
 
   if (!is.numeric(k_max) || length(k_max) != 1L || k_max < 2L || k_max != as.integer(k_max)) {

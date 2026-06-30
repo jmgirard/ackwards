@@ -149,12 +149,19 @@ Pass \code{NA} to disable phi filtering regardless of engine (matches the old
 \item{min_items}{Minimum number of items for which a factor must be the
 primary loader (highest \verb{|loading|}). Factors with fewer than \code{min_items}
 primary items are flagged \code{few_items = TRUE} in \code{x$prune$structural}. Only
-used when \code{prune = "artefact"}. Default \code{3L}.}
+used when \code{prune = "artefact"}. Default \code{3L} -- a factor defined by one or
+two items is under-identified and frequently an extraction artefact rather
+than a replicable construct (the classic "three-indicator rule"; Forbes,
+2023, Fig. 2).}
 
 \item{orphan_r}{Threshold for the \code{orphan} structural signal. A factor whose
-maximum adjacent-level \verb{|r|} falls below \code{orphan_r} is flagged
-\code{orphan = TRUE} in \code{x$prune$structural} (non-replicating across levels).
-Only used when \code{prune = "artefact"}. Default \code{0.5}.}
+maximum \strong{adjacent-level} \verb{|r|} (to the immediately shallower and deeper
+levels) falls below \code{orphan_r} is flagged \code{orphan = TRUE} in
+\code{x$prune$structural} -- it does not connect to the neighbouring solutions
+and so does not replicate across the hierarchy. Only used when
+\code{prune = "artefact"}. Default \code{0.5} -- a moderate correlation; a factor
+that shares less than a quarter of its variance with every neighbour is a
+structural outlier worth inspecting.}
 
 \item{cut_show}{Edges with \verb{|r| >= cut_show} are flagged \code{above_cut} in
 \code{tidy()} output. Default \code{0.3}.}

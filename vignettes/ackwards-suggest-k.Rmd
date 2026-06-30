@@ -257,6 +257,31 @@ the criteria agree and where they pull in different directions.
 
 ## The arguments
 
+### `criteria` — which criteria to compute
+
+By default `suggest_k()` runs all five criteria (CD only if **EFAtools** is
+installed). The `criteria` argument lets you request a subset — useful when you
+only trust certain criteria for your data, or when you want a faster run:
+
+```{r criteria, eval = FALSE}
+# Just MAP (skips parallel analysis and CD entirely)
+suggest_k(bfi25, criteria = "map")
+
+# Only the two parallel-analysis criteria
+suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"))
+```
+
+Skipping is a genuine computational saving, not just output filtering: `"pa_pc"`
+and `"pa_fa"` share a single `psych::fa.parallel()` call (so both run, or
+neither), and `"map"` and `"vss"` share a single `psych::vss()` call. Requesting
+`"map"` alone therefore avoids the parallel-analysis simulation altogether.
+`"vss"` selects VSS-1 and VSS-2 together as a unit.
+
+Criteria you do not request are skipped, and their `k_*` fields in the result
+are `NA`. The `print()` method and the `autoplot()` diagnostic render only the
+criteria you asked for, and the consensus range is computed from the requested
+criteria only.
+
 ### `cor` — correlation basis
 
 `cor` controls the correlation matrix used to compute eigenvalues for PA, MAP,
