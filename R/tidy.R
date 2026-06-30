@@ -230,7 +230,11 @@ tidy.ackwards <- function(
 
 #' Glance at an ackwards object
 #'
-#' Returns a one-row data frame of top-level model metadata.
+#' Returns a one-row data frame of top-level model metadata. For EFA and ESEM
+#' objects, fit indices at the deepest converged level are included. The same
+#' five columns (`CFI`, `TLI`, `RMSEA`, `SRMR`, `BIC`) are present across all
+#' engines; columns unavailable for a given engine are `NA` (e.g., `CFI` and
+#' `SRMR` are `NA` for EFA; all five are `NA` for PCA).
 #'
 #' @param x An `ackwards` object.
 #' @param ... Ignored.
@@ -239,8 +243,13 @@ tidy.ackwards <- function(
 #'
 #' @seealso [tidy.ackwards()], [print.ackwards()]
 #'
+#' @examples
+#' x <- ackwards(bfi25, k_max = 5)
+#' glance(x)
+#'
 #' @export
 glance.ackwards <- function(x, ...) {
+  fc <- .glance_fit(x)
   data.frame(
     engine            = x$engine,
     rotation          = x$rotation,
@@ -249,6 +258,32 @@ glance.ackwards <- function(x, ...) {
     n_obs             = x$n_obs,
     deepest_converged = x$meta$deepest_converged,
     n_edges           = nrow(x$edges$tidy),
+    CFI               = fc$CFI,
+    TLI               = fc$TLI,
+    RMSEA             = fc$RMSEA,
+    SRMR              = fc$SRMR,
+    BIC               = fc$BIC,
     stringsAsFactors  = FALSE
+  )
+}
+
+# Extract fit indices from deepest converged non-anchor level.
+# Returns a one-row data.frame with columns CFI, TLI, RMSEA, SRMR, BIC.
+# Missing indices for a given engine are NA; PCA returns all NA.
+.glance_fit <- function(x) {
+  dc <- x$meta$deepest_converged
+  na_row <- data.frame(
+    CFI = NA_real_, TLI = NA_real_, RMSEA = NA_real_,
+    SRMR = NA_real_, BIC = NA_real_
+  )
+  if (is.null(dc) || dc < 2L) return(na_row)
+  fv <- x$levels[[as.character(dc)]]$fit
+  if (is.null(fv) || length(fv) == 0L) return(na_row)
+  data.frame(
+    CFI   = if ("CFI"   %in% names(fv)) fv[["CFI"]]   else NA_real_,
+    TLI   = if ("TLI"   %in% names(fv)) fv[["TLI"]]   else NA_real_,
+    RMSEA = if ("RMSEA" %in% names(fv)) fv[["RMSEA"]] else NA_real_,
+    SRMR  = if ("SRMR"  %in% names(fv)) fv[["SRMR"]]  else NA_real_,
+    BIC   = if ("BIC"   %in% names(fv)) fv[["BIC"]]   else NA_real_
   )
 }

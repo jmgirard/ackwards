@@ -179,3 +179,17 @@ test_that("tidy(x, what = 'loadings_se') errors for PCA (no SEs)", {
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_error(tidy(x, what = "loadings_se"), "standard error")
 })
+
+# ── glance() fit columns ───────────────────────────────────────────────────────
+
+test_that("glance() for PCA has fit columns present but all NA", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  g <- generics::glance(x)
+  expect_true(all(c("CFI", "TLI", "RMSEA", "SRMR", "BIC") %in% names(g)))
+  expect_true(is.na(g$CFI))
+  expect_true(is.na(g$TLI))
+  expect_true(is.na(g$RMSEA))
+  expect_true(is.na(g$SRMR))
+  expect_true(is.na(g$BIC))
+})

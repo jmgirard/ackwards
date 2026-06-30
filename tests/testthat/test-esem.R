@@ -432,3 +432,20 @@ test_that("ESEM results are identical across serial and parallel future plans", 
   }
   expect_equal(tidy(serial)$r, tidy(par)$r)
 })
+
+# ── glance() fit columns for ESEM ─────────────────────────────────────────────
+
+test_that("glance() for ESEM has CFI/TLI/RMSEA/SRMR at deepest level; BIC NA", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  g <- generics::glance(x)
+  expect_true(all(c("CFI", "TLI", "RMSEA", "SRMR", "BIC") %in% names(g)))
+  # ESEM carries CFI, TLI, RMSEA, SRMR but not BIC
+  expect_false(is.na(g$CFI))
+  expect_false(is.na(g$TLI))
+  expect_false(is.na(g$RMSEA))
+  expect_false(is.na(g$SRMR))
+  expect_true(is.na(g$BIC))
+  expect_equal(g$deepest_converged, 3L)
+})
