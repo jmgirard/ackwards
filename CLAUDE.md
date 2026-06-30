@@ -217,7 +217,50 @@ default output must reproduce Forbes's examples exactly.
 
 ## Current focus
 
-No milestone currently in progress. M24 complete (see Completed milestones).
+**M25 (in progress):** Deferred-items pass — three waves, cheapest first. Reactivates two of the
+three "M5 deferred improvements" parked in *Out of scope for now* (bootstrap CIs on edges stays
+deferred, DESIGN.md §14); **Wave 3 reverses a resolved default** (Forbes redundancy criterion) —
+flagged and owner-approved.
+
+**Wave 1 — `suggest_k(criteria=)` (additive, backward-compatible).** New arg
+`criteria = c("pa_pc","pa_fa","map","vss","cd")`, `rlang::arg_match(multiple = TRUE)`, default =
+all five (CD still gated on `EFAtools` installed → identical to current behaviour). Real speed win,
+not just filtering: `pa_pc`/`pa_fa` share one `fa.parallel(fa="both")` call — skipped if neither
+requested; `map`/`vss` share one `vss()` call — skipped if neither requested; `cd` runs `CD()` only
+if requested *and* available. `vss` toggles VSS-1+VSS-2 as a unit. Explicit `"cd"` with EFAtools
+absent → `cli_inform` (loud). Non-requested criteria's `k_*` fields → `NA`; `criteria` data.frame
+NA-fills non-run columns (stable schema); add `meta$criteria_requested`. `print.suggest_k()` /
+`autoplot.suggest_k()` render only requested criteria; consensus range from requested criteria only.
+*Acceptance:* (1) `criteria="map"` runs no `fa.parallel`/CD, only MAP row/panel; (2)
+`criteria=c("pa_pc","pa_fa")` makes the `fa.parallel` call, skips `vss()`+CD; (3) default call
+structurally matches current (regression); (4) `criteria="cd"` runs only CD (info msg + `k_cd=NA`
+when EFAtools absent); (5) invalid name → `arg_match` error; (6) consensus reflects requested only.
+Files: `R/suggest_k.R`, `test-suggest_k.R`, `vignettes/ackwards-suggest-k.Rmd`, NEWS, DESIGN §8.
+
+**Wave 2 — Structural artefact signals (additive to `prune="artefact"`).** Extend the artefact
+branch (today φ-table only) with `x$prune$structural`: one row per (level, factor) + three logical
+signals (Forbes Fig 2 / DESIGN §14): `few_items` (factor is primary parent for `< min_items`
+items; `min_items = 3L` arg), `orphan` (strongest cross-level `|r|` below `orphan_r = 0.5` arg →
+non-replicating), `split_merge` (items split across two factors at level k that reunite under one
+factor at k+1). **Flag/report only, never auto-prune** (artefact ID needs researcher judgment); cli
+points to `x$prune$structural`. *Acceptance:* (1) artefact mode populates `$structural`, φ table
+unchanged; (2) 2-item-factor fixture flags `few_items` on exactly that node; (3) weak-link fixture
+flags `orphan`, clean hierarchy flags none; (4) `redundant`/`none` leave `$structural` NULL; (5)
+print/summary report flagged count. Files: `R/prune.R`, `R/ackwards.R` (wiring), `test-prune.R` (or
+new `test-artefact.R`), `vignettes/ackwards-forbes.Rmd`, NEWS, DESIGN §14.
+
+**Wave 3 — Tucker's φ default for non-PCA redundancy ⚠️ resolved-default change.** Keep literal
+default `redundancy_phi = NULL` but reinterpret `NULL` as **auto**: `engine="pca"` → `|r|`-only
+(Waller algebra exact); `engine="efa"/"esem"` → `redundancy_phi = 0.95` (Lorenzo-Seva & ten Berge
+2006; score-correlation redundancy inherits factor-score indeterminacy off-PCA). Explicit numeric
+overrides; **`redundancy_phi = NA` is the explicit opt-out** (owner-approved). Loud announcement
+(Invariant 6) whenever auto-φ resolves for a non-PCA redundant prune. Intended behaviour change:
+existing non-PCA `prune="redundant"` calls become more conservative. *Acceptance:* (1) `efa` +
+`prune="redundant"` defaults applies φ>0.95 + announces, `redundancy_phi==0.95` recorded; (2) same
+with `pca` keeps `|r|`-only, no announcement; (3) explicit `0.8` overrides on all engines; (4)
+`redundancy_phi=NA` → `|r|`-only on non-PCA; (5) regression fixture documents changed non-PCA
+outcome. Files: `R/ackwards.R`, `R/prune.R`, tests, NEWS, **CLAUDE.md Resolved defaults**, DESIGN
+§9/§14. Also: update *Out of scope for now* to reflect Waves 2-3 reactivated (bootstrap stays).
 
 ## Invariants — do not violate without flagging
 
