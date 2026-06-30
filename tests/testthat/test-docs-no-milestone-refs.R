@@ -1,7 +1,14 @@
 # User-facing docs (NEWS, README, vignettes) must not leak internal milestone
 # numbers like "(M24)" -- they are meaningless outside this repo's dev process.
-# Only runs against a source checkout (skips under an installed-package check
-# where these files aren't present alongside tests/testthat).
+#
+# This is a source-tree hygiene check: it inspects repo files that are not part
+# of the installed package, so it runs under `devtools::test()` and the
+# test-coverage CI job (both execute in the source tree) and skips gracefully
+# when those files aren't reachable (e.g. an installed-package R CMD check). We
+# deliberately do NOT ship copies into inst/ to force it under R CMD check --
+# test-coverage CI already enforces the guard, so a reintroduced tag is caught.
+# README.Rmd (the source) is scanned alongside README.md (the rendered/shipped
+# file) so a leak is caught both at the source and in what users actually see.
 
 .pkg_root_file <- function(...) {
   candidate <- testthat::test_path("..", "..", ...)
@@ -16,11 +23,17 @@ test_that("NEWS.md has no milestone-number tags", {
   expect_length(hits, 0)
 })
 
-test_that("README.md has no milestone-number tags", {
-  path <- .pkg_root_file("README.md")
-  skip_if(is.null(path), "README.md not reachable from this test context")
+test_that("README files have no milestone-number tags", {
+  paths <- Filter(Negate(is.null), list(
+    .pkg_root_file("README.md"),
+    .pkg_root_file("README.Rmd")
+  ))
+  skip_if(length(paths) == 0, "README files not reachable from this test context")
 
-  hits <- grep("\\(M[0-9]+\\)", readLines(path), value = TRUE)
+  hits <- unlist(lapply(paths, function(p) {
+    lines <- grep("\\(M[0-9]+\\)", readLines(p), value = TRUE)
+    if (length(lines) > 0) paste0(basename(p), ": ", lines) else character(0)
+  }))
   expect_length(hits, 0)
 })
 
