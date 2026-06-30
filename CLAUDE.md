@@ -49,10 +49,11 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M25** — Deferred-items pass (`suggest_k` `criteria=`, artefact signals, φ auto-default)
 - **M26** — Faster ESEM on large item sets (cached sample stats + parallel per-level fits)
 - **M27** — ESEM fit & SEs as first-class output (glance fit, wide fit table, cutoff flags, loading CIs, fit plot, vignette framing)
+- **M28** — CD correctness & honesty fix (`cd_rmse` trailing-zero bug; "minimize" label/roxygen corrected to sequential-test framing)
 
 ## Current focus
 
-No active milestone. M27 completed 2026-06-30.
+No active milestone. M28 completed 2026-06-30.
 
 ## Invariants — do not violate without flagging
 
@@ -156,7 +157,7 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
 
 ## Out of scope for now
 
-- **EAP scoring** for ordinal ESEM — deferred; linear tenBerge scores cover the common case.
+- **EAP scoring** for ordinal ESEM — declined (M28): EAP's shrinkage attenuates the cross-level correlations that bass-ackwards exists to measure; tenBerge covers the common case. Seam preserved in `compute_edges()` but implementing EAP is not planned.
 - **Oblique rotation** — varimax is hardcoded; no `rotation` argument; oblique confounds the cross-level signal. No plans to add it.
 - **Higher-order SEM / Schmid-Leiman** — out of scope per §2; `ackwards` is correlation-based, not SEM-based.
 - **Bootstrap CIs on skip-level edges** — deferred from M5; still out of scope. Logged in

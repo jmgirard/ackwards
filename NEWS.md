@@ -1,5 +1,21 @@
 # ackwards (development)
 
+## CD criterion: bug fix and honest framing
+
+`suggest_k()` now correctly handles `EFAtools::CD`'s output. `EFAtools::CD`
+fills its `RMSE_eigenvalues` matrix only up to the level it actually tested;
+trailing columns were literal zeros, causing the plotted RMSE curve to dive
+spuriously to zero at higher k and `which.min()` to land on a fake value.
+The `cd_rmse` vector now has those unfilled positions set to `NA`, so the curve
+terminates at the last genuinely computed level.
+
+The CD plot panel is relabeled from `"CD (RMSE, minimize)"` to
+`"CD (RMSE; sequential test)"` to reflect how `EFAtools::CD` actually works: a
+sequential one-sided Wilcoxon test (default α = 0.30) that stops at the first
+non-significant RMSE improvement. The starred k is the last retained factor and
+need not be the visible minimum of the curve. The `autoplot.suggest_k()` and
+`suggest_k()` documentation has been updated accordingly.
+
 ## Per-level fit indices and loading SEs as first-class output
 
 **`glance()` now carries fit indices** from the deepest converged level. A

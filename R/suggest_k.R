@@ -396,6 +396,11 @@ suggest_k <- function(data, k_max = NULL,
       } else { # nocov start
         as.numeric(rmse_raw)[seq_len(k_max)]
       } # nocov end
+      # EFAtools fills only columns 1 … k_cd+1; the rest are literal zeros from
+      # matrix initialisation. Mask the unfilled tail to NA so the curve stops
+      # at the last genuinely computed level and argmin cannot land on a fake zero.
+      n_computed <- min(k_cd + 1L, k_max)
+      if (n_computed < k_max) cd_rmse[(n_computed + 1L):k_max] <- NA_real_
     } else { # nocov start
       cd_available <- FALSE
     } # nocov end
@@ -619,8 +624,11 @@ print.suggest_k <- function(x, ...) {
 #' PA-FA compares the teal "Observed (FA)" line to the dotted PA-FA threshold.
 #'
 #' The CD panel plots the mean RMSE between observed and comparison-data
-#' eigenvalues at each k; the retention threshold (star) is where this curve
-#' first crosses below the comparison-data average.
+#' eigenvalues at each k. CD uses a sequential one-sided Wilcoxon test
+#' (Ruscio & Roche, 2012): a factor is retained while adding it significantly
+#' reduces RMSE (default \eqn{\alpha = 0.30}); the starred k is the last
+#' retained factor. The curve is shown only over the levels that were actually
+#' computed; the starred k need not be the visible minimum of the plotted curve.
 #'
 #' Requires the \pkg{ggplot2} package.
 #'
@@ -708,15 +716,17 @@ autoplot.suggest_k <- function(object, ...) {
   }
 
   if (show_cd) {
-    all_frames$cd <- data.frame(
+    cd_vals <- object$cd_rmse
+    cd_frame <- data.frame(
       k = seq_len(k_max),
-      value = object$cd_rmse,
+      value = cd_vals,
       series = "CD (RMSE)",
-      panel = "CD (RMSE, minimize)",
+      panel = "CD (RMSE; sequential test)",
       stringsAsFactors = FALSE
     )
+    all_frames$cd <- cd_frame[!is.na(cd_vals), , drop = FALSE]
     active_series <- c(active_series, "CD (RMSE)")
-    panel_levels <- c(panel_levels, "CD (RMSE, minimize)")
+    panel_levels <- c(panel_levels, "CD (RMSE; sequential test)")
   }
 
   plot_data <- do.call(rbind, all_frames)
