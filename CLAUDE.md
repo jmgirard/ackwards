@@ -204,7 +204,16 @@ default output must reproduce Forbes's examples exactly.
   `` `r` `` expressions. `skip-edges`/`thresholds` tables migrated to gt for visual consistency.
   All presentation code in `echo = FALSE` — no plumbing visible to readers. Audit of the other four
   vignettes: no changes needed (raw console prints are pedagogically appropriate). `gt` added to
-  Suggests. 25 guard tests in `test-vignette-m24.R`. (1108 tests pass, 1 skip; 0/0/0 R CMD check.)
+  Suggests. Post-review (six findings): unified every Δ column to a **magnitude** convention
+  (`|x|−|y|`) so the directional captions read correctly for negatively-signed cells — fixes a
+  sign-trap where the polychoric-strengthened negative edge `m2f2→m3f2` had shown a negative signed
+  Δ (ordinal edges + loadings and engines edges switched from signed to `abs`; engines loadings was
+  already `abs`); derived the forbes redundant-level prose (`flagged_ids` + per-level `lvl_summary`)
+  inline instead of hard-coding "entire k=4 level / two factors at k=2,3"; converted the
+  `prune-artefact` raw print to a styled gt table (call still echoed) with inline `n_artefact`; added
+  guard tests for the `knitr::kable` fallback branch, the NA primary-parent-disagreement merge, the
+  magnitude-delta sign property, and the inline-derivation helpers. (1123 tests pass, 1 skip;
+  0/0/0 R CMD check.)
 
 ## Current focus
 

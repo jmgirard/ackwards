@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
   fig.height = 4.5
 )
 has_lavaan <- requireNamespace("lavaan", quietly = TRUE)
-has_gt     <- requireNamespace("gt",     quietly = TRUE)
+has_gt <- requireNamespace("gt", quietly = TRUE)
 ```
 
 Most psychological scales use ordinal response formats — Likert-type items with
@@ -106,8 +106,10 @@ eigenvalues.
 
 The table below compares primary loadings — the loading of each Neuroticism item
 on its dominant factor — under both correlation bases at k = 5. The Δ column is
-the attenuation: how much the Pearson basis suppresses each loading by treating
-ordinal responses as if they were continuous.
+the attenuation: how much larger each loading becomes (in absolute value) once
+the polychoric basis removes the coarse-category suppression. Using
+|Polychoric| − |Pearson| keeps the attenuation positive regardless of loading
+sign.
 
 ```{r load-compare, echo = FALSE}
 n_items <- c("N1", "N2", "N3", "N4", "N5")
@@ -119,7 +121,7 @@ primary_loading <- function(x, level_k, items) {
 }
 
 pear_p <- primary_loading(x_pearson, 5, n_items)
-poly_p <- primary_loading(x_poly,    5, n_items)
+poly_p <- primary_loading(x_poly, 5, n_items)
 
 # Verify factor and sign correspondence before differencing
 stopifnot(
@@ -129,10 +131,10 @@ stopifnot(
 
 wide <- merge(
   pear_p[, c("factor", "item", "loading")],
-  poly_p[, c("item",           "loading")],
+  poly_p[, c("item", "loading")],
   by = "item", suffixes = c("_pearson", "_poly")
 )
-wide$delta <- wide$loading_poly - wide$loading_pearson
+wide$delta <- abs(wide$loading_poly) - abs(wide$loading_pearson)
 wide <- wide[order(wide$item), c("item", "factor", "loading_pearson", "loading_poly", "delta")]
 
 if (has_gt) {
@@ -147,7 +149,7 @@ if (has_gt) {
       factor          = "Factor",
       loading_pearson = "Pearson",
       loading_poly    = "Polychoric",
-      delta           = "Δ (Poly − Pearson)"
+      delta           = "Δ (|Poly| − |Pearson|)"
     ) |>
     gt::fmt_number(columns = c(loading_pearson, loading_poly, delta), decimals = 2) |>
     gt::tab_style(
@@ -155,14 +157,17 @@ if (has_gt) {
       locations = gt::cells_column_labels(columns = delta)
     ) |>
     gt::tab_footnote(
-      footnote  = "Factor assignment and sign verified to match between bases for all five items.",
+      footnote = paste0(
+        "Factor assignment and sign verified to match between bases.",
+        " Delta uses |Poly| - |Pearson| so attenuation is positive regardless of loading sign."
+      ),
       locations = gt::cells_column_labels(columns = delta)
     )
 } else {
   knitr::kable(
     wide,
     digits = 2, row.names = FALSE,
-    col.names = c("Item", "Factor", "Pearson", "Polychoric", "Δ (Poly − Pearson)"),
+    col.names = c("Item", "Factor", "Pearson", "Polychoric", "Δ (|Poly| − |Pearson|)"),
     caption = "Neuroticism-item loadings at k = 5: Pearson vs polychoric"
   )
 }
@@ -174,27 +179,29 @@ removed.
 
 ### Between-level edges
 
-The same comparison for the primary-parent edges. The Δ column shows how much
-the polychoric basis strengthens each hierarchical connection by recovering the
-true latent correlation rather than the attenuated observed one.
+The same comparison for the primary-parent edges. The Δ column is the change in
+connection strength (|r|): positive where the polychoric basis recovers a
+stronger connection by undoing attenuation, negative in the few cases where the
+recovered structure is slightly looser. Using absolute values makes the
+direction read correctly even for the negatively-signed edge.
 
 ```{r edge-compare, echo = FALSE}
 pear_e <- tidy(x_pearson, what = "edges", primary_only = TRUE)
-poly_e <- tidy(x_poly,    what = "edges", primary_only = TRUE)
+poly_e <- tidy(x_poly, what = "edges", primary_only = TRUE)
 
 wide_e <- merge(
   pear_e[, c("from", "to", "r")],
   poly_e[, c("from", "to", "r")],
   by = c("from", "to"), all = TRUE, suffixes = c("_pearson", "_poly")
 )
-wide_e$delta <- wide_e$r_poly - wide_e$r_pearson
+wide_e$delta <- abs(wide_e$r_poly) - abs(wide_e$r_pearson)
 wide_e <- wide_e[order(wide_e$to), c("from", "to", "r_pearson", "r_poly", "delta")]
 
 if (has_gt) {
   gt::gt(wide_e) |>
     gt::tab_header(
       title    = "Primary-parent edges: Pearson vs polychoric",
-      subtitle = "Positive Δ = stronger hierarchical connection under polychoric basis"
+      subtitle = "Δ = change in |r|; positive = stronger connection under polychoric basis"
     ) |>
     gt::tab_spanner(label = "Edge strength (r)", columns = c(r_pearson, r_poly, delta)) |>
     gt::cols_label(
@@ -202,7 +209,7 @@ if (has_gt) {
       to        = "To",
       r_pearson = "Pearson",
       r_poly    = "Polychoric",
-      delta     = "Δ (Poly − Pearson)"
+      delta     = "Δ (|Poly| − |Pearson|)"
     ) |>
     gt::fmt_number(columns = c(r_pearson, r_poly, delta), decimals = 2) |>
     gt::tab_style(
@@ -217,7 +224,7 @@ if (has_gt) {
   knitr::kable(
     wide_e,
     digits = 2, row.names = FALSE,
-    col.names = c("From", "To", "Pearson", "Polychoric", "Δ (Poly − Pearson)"),
+    col.names = c("From", "To", "Pearson", "Polychoric", "Δ (|Poly| − |Pearson|)"),
     caption = "Primary-parent edges: Pearson vs polychoric"
   )
 }

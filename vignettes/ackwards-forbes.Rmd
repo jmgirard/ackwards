@@ -88,13 +88,13 @@ skip <- edges[
 skip_show <- head(skip, 12)
 
 # Pre-compute values used in inline R prose below
-top_from       <- skip_show$from[1]
-top_to         <- skip_show$to[1]
-top_r          <- round(skip_show$r[1], 2)
+top_from <- skip_show$from[1]
+top_to <- skip_show$to[1]
+top_r <- round(skip_show$r[1], 2)
 top_level_from <- skip_show$level_from[1]
-top_level_to   <- skip_show$level_to[1]
-top_fnum_from  <- sub("m[0-9]+f", "", top_from)
-top_fnum_to    <- sub("m[0-9]+f", "", top_to)
+top_level_to <- skip_show$level_to[1]
+top_fnum_from <- sub("m[0-9]+f", "", top_from)
+top_fnum_to <- sub("m[0-9]+f", "", top_to)
 
 if (has_gt) {
   gt::gt(skip_show) |>
@@ -149,6 +149,24 @@ x_prune <- ackwards(bfi,
 nodes <- tidy(x_prune, what = "nodes")
 n_redundant <- sum(nodes$pruned)
 
+# Derived, drift-proof prose helpers (used in inline R below)
+flagged_ids <- nodes$id[nodes$pruned]
+lvl_summary <- paste(
+  vapply(
+    sort(unique(nodes$level[nodes$pruned])),
+    function(L) {
+      ids_L <- nodes$id[nodes$pruned & nodes$level == L]
+      if (length(ids_L) == sum(nodes$level == L)) {
+        paste0("the entire k = ", L, " level")
+      } else {
+        paste0(length(ids_L), " factor at k = ", L)
+      }
+    },
+    character(1)
+  ),
+  collapse = ", "
+)
+
 if (has_gt) {
   gt::gt(nodes) |>
     gt::tab_header(
@@ -182,10 +200,9 @@ if (has_gt) {
 }
 ```
 
-`r n_redundant` factors are flagged as redundant. The entire k = 4 level is
-flagged, as are two factors at k = 2 and k = 3. This is a striking finding: for
-this dataset and this k, the four-factor level adds little beyond what you
-already know from k = 3 and k = 5.
+`r n_redundant` factors are flagged as redundant (`r paste(flagged_ids, collapse = ", ")`):
+`r lvl_summary`. This is a striking finding: for this dataset and this k, the
+four-factor level adds little beyond what you already know from k = 3 and k = 5.
 
 The flagged factors are not removed from the object — `prune` is purely a
 diagnostic annotation, not a deletion. You can still inspect their loadings, use
@@ -269,12 +286,44 @@ x_art <- ackwards(bfi,
   k_max = 5, cor = "polychoric",
   pairs = "all", prune = "artefact"
 )
-tidy(x_art, what = "nodes")
 ```
 
-For the BFI, the artefact criterion flags nothing — no factor at any level has a
-loading pattern more similar to a factor from a non-adjacent level than to its
-own-level solution. This is a good result for a well-validated instrument: it
+```{r prune-artefact-nodes, echo = FALSE}
+art_nodes <- tidy(x_art, what = "nodes")
+n_artefact <- sum(art_nodes$pruned)
+
+if (has_gt) {
+  gt::gt(art_nodes) |>
+    gt::tab_header(
+      title    = "Node-level artefact annotation",
+      subtitle = paste0(n_artefact, " of ", nrow(art_nodes), " factors flagged as artefacts")
+    ) |>
+    gt::cols_label(
+      id           = "Factor",
+      level        = "Level",
+      pruned       = "Flagged?",
+      prune_reason = "Reason"
+    ) |>
+    gt::tab_style(
+      style     = gt::cell_fill(color = "#FFF3CD"),
+      locations = gt::cells_body(rows = pruned)
+    ) |>
+    gt::sub_missing(missing_text = "—")
+} else {
+  knitr::kable(
+    art_nodes,
+    row.names = FALSE,
+    col.names = c("Factor", "Level", "Flagged?", "Reason"),
+    caption = paste0(
+      "Node-level artefact annotation (", n_artefact, " of ", nrow(art_nodes), " factors flagged)"
+    )
+  )
+}
+```
+
+For the BFI, the artefact criterion flags `r n_artefact` factors — no factor at
+any level has a loading pattern more similar to a factor from a non-adjacent
+level than to its own-level solution. This is a good result for a well-validated instrument: it
 suggests the rotation is producing genuinely distinct factors at each level,
 not recycling old ones.
 

@@ -161,7 +161,7 @@ if (has_gt) {
       locations = gt::cells_column_labels(columns = delta)
     ) |>
     gt::tab_footnote(
-      footnote  = paste0(
+      footnote = paste0(
         "Factor assignment and sign verified to match between engines.",
         " Delta uses |EFA| - |PCA| so attenuation is always negative regardless of loading sign."
       ),
@@ -240,9 +240,9 @@ well-structured, continuous data, all three engines should agree closely on the
 hierarchy.
 
 The table below compares the primary-parent edge strength for every adjacent
-level transition. The Δ column shows how much the EFA correlation differs from
-the PCA correlation for the same parent–child pair — a direct measure of how
-much the latent-variable model shifts your inference about the hierarchy.
+level transition. The Δ column is the shift in connection strength
+(|EFA| − |PCA|) — a direct, sign-robust measure of how much the latent-variable
+model changes your inference about the hierarchy.
 
 ```{r edges-compare, echo = FALSE}
 pca_e <- tidy(x_pca, what = "edges", primary_only = TRUE)
@@ -253,7 +253,7 @@ wide_e <- merge(
   efa_e[, c("from", "to", "r")],
   by = c("from", "to"), all = TRUE, suffixes = c("_pca", "_efa")
 )
-wide_e$delta <- wide_e$r_efa - wide_e$r_pca
+wide_e$delta <- abs(wide_e$r_efa) - abs(wide_e$r_pca)
 wide_e <- wide_e[order(wide_e$to), c("from", "to", "r_pca", "r_efa", "delta")]
 
 if (has_gt) {
@@ -280,7 +280,7 @@ if (has_gt) {
   knitr::kable(
     wide_e,
     digits = 2, row.names = FALSE,
-    col.names = c("From", "To", "PCA", "EFA", "Δ (EFA − PCA)"),
+    col.names = c("From", "To", "PCA", "EFA", "Δ (|EFA| − |PCA|)"),
     caption = "Primary-parent edges: PCA vs EFA"
   )
 }

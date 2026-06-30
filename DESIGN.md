@@ -804,18 +804,20 @@ that needs it. **No Rcpp dependency planned** (see §3).
 
 24. **M24 — Vignette communication pass (documentation-only).** Reworked stacked long-format
     `kable` comparison tables in `ackwards-engines` and `ackwards-ordinal` into wide gt tables:
-    one row per item/edge, one column per engine/basis, plus a Δ column (|EFA|−|PCA| for
-    loadings, polychoric−Pearson for ordinal comparisons, EFA−PCA for edges). A `stopifnot()`
-    in each hidden chunk asserts factor/sign alignment before differencing; edge tables expose
-    primary-parent disagreements as `NA` rather than hiding them. `ackwards-forbes`: replaced
+    one row per item/edge, one column per engine/basis, plus a Δ column using a uniform
+    **magnitude** convention (`|x|−|y|`) so the directional captions read correctly even for
+    negatively-signed loadings/edges. A `stopifnot()` in each hidden chunk asserts factor/sign
+    alignment before differencing; edge tables expose primary-parent disagreements as `NA` rather
+    than hiding them. `ackwards-forbes`: replaced
     the raw `tidy(what = "nodes")` print with a styled gt table (highlighted redundant rows),
     and replaced all narrated counts and specific correlation claims with inline `r` expressions.
     Also migrated `skip-edges` and `thresholds` tables to gt for visual consistency within the
     vignette. `gt` added to Suggests (vignette-only; never touches core). Audited the other
     four vignettes (intro, suggest-k, interpret, visualization): their raw `tidy()`/`glance()`/
     `summary()` prints are pedagogically appropriate for a console-first package — no changes
-    made. 25 new guard tests in `test-vignette-m24.R` verify alignment assertions, expected
-    columns, and delta direction. **Amends §7 (Documentation).**
+    made. Guard tests in `test-vignette-m24.R` verify alignment assertions, expected columns,
+    magnitude-delta sign behaviour, the `knitr::kable` fallback branch, the NA primary-parent
+    disagreement merge, and the inline-derivation helpers. **Amends §7 (Documentation).**
 
 ### Key references
 - Goldberg, L. R. (2006). Doing it all bass-ackwards. *J. Research in Personality*, 40(4), 347–358.
