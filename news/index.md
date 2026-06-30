@@ -200,3 +200,9 @@ unit diagonal).
 - `augment(x, data = ...)` — appends factor scores to a data frame;
   recomputes from stored weights when scores were not materialized at
   fit time.
+
+### Test coverage
+
+Test suite reaches **100% line coverage**. Genuinely unreachable
+defensive branches (engine fallbacks, lavaan error/warning handlers) are
+excluded via `# nocov` rather than brittle environment-dependent tests.
