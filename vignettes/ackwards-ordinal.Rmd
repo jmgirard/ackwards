@@ -264,8 +264,12 @@ Pearson-based fit indices on the same data, reflecting both the better model
 specification and the different reference distribution WLSMV uses.
 
 ```{r esem-fit, eval = has_lavaan}
-tidy(x_esem, what = "fit")
+tidy(x_esem, what = "fit", format = "wide")
 ```
+
+See `vignette("ackwards-engines")`, section "Per-level fit: what it tells you
+(and what it doesn't)", for how to interpret these indices in the bass-ackwards
+context and how to produce the `autoplot(what = "fit")` trajectory chart.
 
 ## Practical guidance: when to use polychoric
 

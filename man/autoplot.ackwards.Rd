@@ -3,10 +3,11 @@
 \name{autoplot.ackwards}
 \alias{autoplot.ackwards}
 \alias{plot.ackwards}
-\title{Plot a bass-ackwards diagram}
+\title{Plot a bass-ackwards diagram or per-level fit index chart}
 \usage{
 \method{autoplot}{ackwards}(
   object,
+  what = c("hierarchy", "fit"),
   cut_show = NULL,
   cut_strong = 0.5,
   color_pos = "#2166AC",
@@ -37,6 +38,10 @@
 }
 \arguments{
 \item{object}{An \code{ackwards} object.}
+
+\item{what}{One of \code{"hierarchy"} (default) or \code{"fit"}. Controls which
+visualisation is produced. All other parameters are ignored when
+\code{what = "fit"}.}
 
 \item{cut_show}{Edges with \verb{|r| < cut_show} are not drawn. Defaults to the
 value used when the object was created (\code{x$meta$cut_show}, typically 0.3).}
@@ -136,13 +141,21 @@ both \code{"black"}) to remove an otherwise redundant Direction key. Default
 A \code{ggplot} object.
 }
 \description{
-Renders the layered bass-ackwards hierarchy as a ggplot2 diagram. Factors
-appear as labelled boxes arranged in levels (level 1 at top, level k at
-bottom). Between-level edges are drawn as arrows coloured by sign and scaled
-by |r|. Edges below \code{cut_show} are hidden; edges above \code{cut_strong} are
-solid and those between the two thresholds are dashed.
+When \code{what = "hierarchy"} (default), renders the layered bass-ackwards
+hierarchy as a ggplot2 diagram. Factors appear as labelled boxes arranged
+in levels (level 1 at top, level k at bottom). Between-level edges are drawn
+as arrows coloured by sign and scaled by |r|. Edges below \code{cut_show} are
+hidden; edges above \code{cut_strong} are solid and those between the two
+thresholds are dashed.
 }
 \details{
+When \code{what = "fit"}, renders a two-panel line plot of per-level fit indices
+(CFI/TLI in the top panel; RMSEA/SRMR in the bottom panel) with horizontal
+reference lines at conventional Hu & Bentler (1999) thresholds. The anchor
+level (k = 1, saturated and always fits perfectly) is excluded. Requires an
+EFA or ESEM engine; returns an informative empty plot for PCA (which has no
+model-fit indices).
+
 Requires the \pkg{ggplot2} package.
 }
 \examples{
@@ -151,6 +164,10 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   x <- ackwards(bfi25, k_max = 5)
   autoplot(x)
   autoplot(x, cut_strong = 0.6, color_pos = "steelblue")
+
+  # Per-level fit index chart (EFA or ESEM only)
+  x_efa <- ackwards(bfi25, k_max = 5, engine = "efa")
+  autoplot(x_efa, what = "fit")
 
   # Monochrome with correlation labels (for greyscale figures)
   autoplot(x, mono = TRUE, show_r = TRUE)

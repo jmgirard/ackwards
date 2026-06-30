@@ -819,3 +819,67 @@ test_that("legend=FALSE is honoured on the degenerate drop_pruned plot", {
   expect_s3_class(p, "ggplot")
   expect_equal(p$theme$legend.position, "none")
 })
+
+# ── M27: autoplot(x, what = "fit") ────────────────────────────────────────────
+
+test_that("autoplot(x, what='fit') returns ggplot for EFA object", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
+  p <- ggplot2::autoplot(x, what = "fit")
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot(x, what='fit') returns ggplot for ESEM object", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("lavaan")
+  d <- data.frame(matrix(rnorm(300 * 6), 300, 6))
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  p <- ggplot2::autoplot(x, what = "fit")
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot(x, what='fit') returns ggplot with informative message for PCA", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  p <- ggplot2::autoplot(x, what = "fit")
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot(x, what='hierarchy') is unchanged from default", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  p_default <- ggplot2::autoplot(x)
+  p_explicit <- ggplot2::autoplot(x, what = "hierarchy")
+  # Both should be ggplots; data-level equality is already tested elsewhere
+  expect_s3_class(p_default, "ggplot")
+  expect_s3_class(p_explicit, "ggplot")
+})
+
+test_that("autoplot(what='fit') returns empty plot when no kept indices present", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
+  # Strip the EFA fit down to indices the plot does not chart (chi/dof only),
+  # forcing the "No fit indices available" branch.
+  for (ki in names(x$levels)) {
+    x$levels[[ki]]$fit <- c(chi = 1, dof = 1)
+  }
+  p <- ggplot2::autoplot(x, what = "fit")
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("autoplot(what='fit') panel titles are engine-aware (EFA: no CFI/SRMR)", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
+  p <- ggplot2::autoplot(x, what = "fit")
+  panels <- as.character(unique(p$data$panel))
+  # EFA charts TLI and RMSEA only; titles must not advertise CFI or SRMR.
+  expect_false(any(grepl("CFI", panels)))
+  expect_false(any(grepl("SRMR", panels)))
+  expect_true(any(grepl("TLI", panels)))
+  expect_true(any(grepl("RMSEA", panels)))
+})

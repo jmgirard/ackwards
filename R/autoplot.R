@@ -16,17 +16,28 @@
 #' @export
 autoplot <- function(object, ...) UseMethod("autoplot")
 
-#' Plot a bass-ackwards diagram
+#' Plot a bass-ackwards diagram or per-level fit index chart
 #'
-#' Renders the layered bass-ackwards hierarchy as a ggplot2 diagram. Factors
-#' appear as labelled boxes arranged in levels (level 1 at top, level k at
-#' bottom). Between-level edges are drawn as arrows coloured by sign and scaled
-#' by |r|. Edges below `cut_show` are hidden; edges above `cut_strong` are
-#' solid and those between the two thresholds are dashed.
+#' When `what = "hierarchy"` (default), renders the layered bass-ackwards
+#' hierarchy as a ggplot2 diagram. Factors appear as labelled boxes arranged
+#' in levels (level 1 at top, level k at bottom). Between-level edges are drawn
+#' as arrows coloured by sign and scaled by |r|. Edges below `cut_show` are
+#' hidden; edges above `cut_strong` are solid and those between the two
+#' thresholds are dashed.
+#'
+#' When `what = "fit"`, renders a two-panel line plot of per-level fit indices
+#' (CFI/TLI in the top panel; RMSEA/SRMR in the bottom panel) with horizontal
+#' reference lines at conventional Hu & Bentler (1999) thresholds. The anchor
+#' level (k = 1, saturated and always fits perfectly) is excluded. Requires an
+#' EFA or ESEM engine; returns an informative empty plot for PCA (which has no
+#' model-fit indices).
 #'
 #' Requires the \pkg{ggplot2} package.
 #'
 #' @param object An `ackwards` object.
+#' @param what One of `"hierarchy"` (default) or `"fit"`. Controls which
+#'   visualisation is produced. All other parameters are ignored when
+#'   `what = "fit"`.
 #' @param cut_show Edges with `|r| < cut_show` are not drawn. Defaults to the
 #'   value used when the object was created (`x$meta$cut_show`, typically 0.3).
 #' @param cut_strong Edges with `|r| >= cut_strong` are drawn solid; those
@@ -108,6 +119,10 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   autoplot(x)
 #'   autoplot(x, cut_strong = 0.6, color_pos = "steelblue")
 #'
+#'   # Per-level fit index chart (EFA or ESEM only)
+#'   x_efa <- ackwards(bfi25, k_max = 5, engine = "efa")
+#'   autoplot(x_efa, what = "fit")
+#'
 #'   # Monochrome with correlation labels (for greyscale figures)
 #'   autoplot(x, mono = TRUE, show_r = TRUE)
 #'
@@ -145,6 +160,7 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' @export
 autoplot.ackwards <- function(
   object,
+  what = c("hierarchy", "fit"),
   cut_show = NULL,
   cut_strong = 0.5,
   color_pos = "#2166AC",
@@ -171,6 +187,10 @@ autoplot.ackwards <- function(
   ...
 ) {
   rlang::check_installed("ggplot2", reason = "for autoplot.ackwards()")
+  what <- match.arg(what)
+  if (what == "fit") {
+    return(.ba_fit_plot(object))
+  }
 
   if (min_sep < node_width) {
     cli::cli_warn(
@@ -537,6 +557,98 @@ autoplot.ackwards <- function(
     hjust = 1,
     inherit.aes = FALSE
   )
+}
+
+# Build the per-level fit index chart (autoplot.ackwards(what = "fit")).
+# Two-panel: CFI/TLI (higher = better) on top; RMSEA/SRMR (lower = better)
+# on bottom. Anchor level k=1 excluded (saturated, always fits perfectly).
+# Horizontal reference lines at Hu & Bentler (1999) conventional thresholds.
+# Returns an empty annotated ggplot for PCA (no model-fit indices).
+.ba_fit_plot <- function(object) {
+  engine <- object$engine
+  if (engine == "pca") {
+    return(
+      ggplot2::ggplot() +
+        ggplot2::annotate(
+          "text",
+          x = 0.5, y = 0.5, size = 4, color = "grey40",
+          label = paste0(
+            "Fit indices are not available for engine = \"pca\".\n",
+            "Use engine = \"efa\" or \"esem\" to obtain model fit."
+          )
+        ) +
+        ggplot2::theme_void()
+    )
+  }
+
+  fit_long <- .tidy_fit(object)
+  # Panels split by direction of "good": higher-is-better vs lower-is-better.
+  # EFA reports only TLI / RMSEA; ESEM adds CFI / SRMR. Panel titles are built
+  # from the indices actually present so EFA is not mislabelled "CFI / TLI".
+  if (engine == "efa") {
+    hi_idx <- c("TLI")
+    lo_idx <- c("RMSEA")
+  } else {
+    hi_idx <- c("CFI", "TLI")
+    lo_idx <- c("RMSEA", "SRMR")
+  }
+  keep_idx <- c(hi_idx, lo_idx)
+  hi_lbl <- paste0(paste(hi_idx, collapse = " / "), "  (higher is better)")
+  lo_lbl <- paste0(paste(lo_idx, collapse = " / "), "  (lower is better)")
+
+  # Anchor level (k = 1) excluded: saturated baseline, always fits perfectly.
+  fd <- fit_long[fit_long$level > 1L & fit_long$index %in% keep_idx, , drop = FALSE]
+
+  if (nrow(fd) == 0L) {
+    return(
+      ggplot2::ggplot() +
+        ggplot2::annotate(
+          "text",
+          x = 0.5, y = 0.5, size = 4, color = "grey40",
+          label = "No fit indices available."
+        ) +
+        ggplot2::theme_void()
+    )
+  }
+
+  fd$panel <- ifelse(fd$index %in% hi_idx, hi_lbl, lo_lbl)
+  fd$panel <- factor(fd$panel, levels = c(hi_lbl, lo_lbl))
+
+  # Every index in keep_idx has a threshold in .fit_cutoffs(), so no NULL guard
+  # is needed here.
+  cuts <- .fit_cutoffs()
+  ref_df <- do.call(rbind, lapply(keep_idx, function(idx) {
+    panel_lbl <- if (idx %in% hi_idx) hi_lbl else lo_lbl
+    data.frame(panel = panel_lbl, yintercept = cuts[[idx]]$threshold, stringsAsFactors = FALSE)
+  }))
+  ref_df <- unique(ref_df)
+  ref_df$panel <- factor(ref_df$panel, levels = levels(fd$panel))
+
+  ggplot2::ggplot(fd, ggplot2::aes(x = .data$level, y = .data$value, color = .data$index)) +
+    ggplot2::geom_hline(
+      data = ref_df,
+      ggplot2::aes(yintercept = .data$yintercept),
+      linetype = "dashed", color = "grey60", linewidth = 0.5
+    ) +
+    ggplot2::geom_line(linewidth = 0.8) +
+    ggplot2::geom_point(size = 2) +
+    ggplot2::facet_wrap(~panel, ncol = 1L, scales = "free_y") +
+    ggplot2::scale_x_continuous(
+      name = "Number of factors (level)",
+      breaks = function(x) seq(ceiling(x[1L]), floor(x[2L]), by = 1L)
+    ) +
+    ggplot2::scale_color_brewer(palette = "Set1", name = "Index") +
+    ggplot2::labs(
+      y = "Value",
+      caption = "Dashed lines: Hu & Bentler (1999) thresholds (CFI/TLI >= .95, RMSEA <= .06, SRMR <= .08)"
+    ) +
+    ggplot2::theme_bw(base_size = 11) +
+    ggplot2::theme(
+      strip.background = ggplot2::element_rect(fill = "grey92"),
+      strip.text = ggplot2::element_text(face = "bold"),
+      panel.grid.minor = ggplot2::element_blank(),
+      legend.position = "right"
+    )
 }
 
 #' @rdname autoplot.ackwards

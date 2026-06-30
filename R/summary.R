@@ -103,16 +103,23 @@ print.summary_ackwards <- function(x, ...) {
       }
       fit_sub <- fit_rows[fit_rows$index %in% idx_show, , drop = FALSE]
       if (nrow(fit_sub) > 0L) {
+        cuts <- .fit_cutoffs()
         parts <- vapply(
           seq_len(nrow(fit_sub)),
           function(j) {
             val <- fit_sub$value[j]
             idx <- fit_sub$index[j]
-            if (idx %in% c("chi", "dof")) {
+            formatted <- if (idx %in% c("chi", "dof")) {
               paste0(idx, " = ", round(val, 1L))
             } else {
               paste0(idx, " = ", round(val, 3L))
             }
+            cut <- cuts[[idx]]
+            if (!is.null(cut) && !is.na(val)) {
+              ok <- if (cut$direction == "hi") val >= cut$threshold else val <= cut$threshold
+              formatted <- paste0(formatted, if (ok) " \u2714" else " \u2718")
+            }
+            formatted
           },
           character(1L)
         )
@@ -184,7 +191,10 @@ print.summary_ackwards <- function(x, ...) {
   cli::cli_text(
     cli::col_grey(
       "Note: This is a series of linked solutions, not a fitted hierarchical \\
-       model. Cross-level edges are descriptive score correlations."
+       model. Cross-level edges are descriptive score correlations. \\
+       Per-level fit indices (EFA/ESEM) describe how well a k-factor model \\
+       fits the items at that level -- they do not validate the edges or \\
+       the hierarchy itself."
     )
   )
 

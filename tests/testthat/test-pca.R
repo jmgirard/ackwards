@@ -172,10 +172,50 @@ test_that("tidy(x, primary_only = TRUE, what = 'loadings') errors informatively"
   )
 })
 
-# ── tidy(what = "loadings_se") ─────────────────────────────────────────────────
+# ── tidy(what = "loadings") has SE/CI columns, NA for PCA ──────────────────────
 
-test_that("tidy(x, what = 'loadings_se') errors for PCA (no SEs)", {
+test_that("tidy(x, what = 'loadings') has se/ci cols present but NA for PCA", {
   skip_if_not_installed("psych")
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
-  expect_error(tidy(x, what = "loadings_se"), "standard error")
+  ld <- tidy(x, what = "loadings")
+  expect_true(all(c("se", "ci_lower", "ci_upper") %in% names(ld)))
+  expect_true(all(is.na(ld$se)))
+})
+
+# ── glance() fit columns ───────────────────────────────────────────────────────
+
+test_that("glance() for PCA has fit columns present but all NA", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  g <- generics::glance(x)
+  expect_true(all(c("CFI", "TLI", "RMSEA", "SRMR", "BIC") %in% names(g)))
+  expect_true(is.na(g$CFI))
+  expect_true(is.na(g$TLI))
+  expect_true(is.na(g$RMSEA))
+  expect_true(is.na(g$SRMR))
+  expect_true(is.na(g$BIC))
+})
+
+# ── .glance_fit defensive branches (Invariant 7: truncation) ──────────────────
+
+test_that("glance() returns all-NA fit when deepest_converged < 2", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  # Simulate a run that truncated to the 1-factor anchor only.
+  x$meta$deepest_converged <- 1L
+  g <- generics::glance(x)
+  expect_true(is.na(g$CFI))
+  expect_true(is.na(g$RMSEA))
+  expect_true(is.na(g$BIC))
+})
+
+test_that("glance() returns all-NA fit when the deepest level carries no fit", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  # Force the empty-fit guard: deepest level has no stored fit vector.
+  x$levels[[as.character(x$meta$deepest_converged)]]$fit <- numeric(0)
+  g <- generics::glance(x)
+  expect_true(is.na(g$CFI))
+  expect_true(is.na(g$RMSEA))
+  expect_true(is.na(g$BIC))
 })

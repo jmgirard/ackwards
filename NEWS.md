@@ -1,5 +1,47 @@
 # ackwards (development)
 
+## Per-level fit indices and loading SEs as first-class output
+
+**`glance()` now carries fit indices** from the deepest converged level. A
+consistent five-column set (`CFI`, `TLI`, `RMSEA`, `SRMR`, `BIC`) is present
+for all engines; indices unavailable for a given engine are `NA` (e.g. `CFI`
+and `SRMR` for EFA; all five for PCA).
+
+**`tidy(what = "fit")` gains two new arguments:**
+- `format = "wide"`: returns one row per non-anchor level (k >= 2) with one
+  column per index — the natural shape for reporting tables. The saturated
+  1-factor anchor is dropped, matching `summary()` and `autoplot(what = "fit")`.
+- `cutoffs = TRUE`: appends a `meets` column flagging each index against Hu &
+  Bentler (1999) conventional thresholds (CFI/TLI >= .95, RMSEA <= .06,
+  SRMR <= .08). Indices without a defined threshold (chi, BIC, eigenvalues)
+  get `NA`. Thresholds are report-only and never gate any behaviour.
+
+**`tidy(what = "loadings")` now includes `se`, `ci_lower`, and `ci_upper`
+columns** for all engines. For ESEM these are populated from the rotation-aware
+loading SEs; for PCA and EFA they are `NA`. A `conf_level` argument (default
+`0.95`) controls the interval width. This replaces the need to compute CIs by
+hand, and supersedes the previous `tidy(what = "loadings_se")` accessor, which
+has been **removed** (the package is unreleased, so no deprecation cycle is
+needed).
+
+**`autoplot(x, what = "fit")`** produces a two-panel ggplot2 chart of per-level
+fit indices (CFI/TLI in the top panel; RMSEA/SRMR in the bottom panel) with
+Hu & Bentler (1999) reference lines. PCA objects return an informative empty
+plot. `what = "hierarchy"` (default) is unchanged.
+
+**`summary()` fit lines** now append a check (✔) or cross (✘) to each
+index compared against its Hu & Bentler (1999) threshold.
+
+**`print()` and `summary()` footer** extended: per-level fit indices describe
+how well a k-factor model fits the items at that level — they do not validate
+the edges or the hierarchy itself.
+
+**New vignette section** in `vignette("ackwards-engines")`: "Per-level fit:
+what it tells you (and what it doesn't)" — covers the level-vs-hierarchy
+distinction, reporting with the new wide table and fit plot, the ESEM
+cost/benefit tradeoff, and when to care about fit in exploratory vs publication
+workflows.
+
 ## Faster ESEM on large item sets
 
 The ESEM engine no longer recomputes lavaan's sample statistics (thresholds, the

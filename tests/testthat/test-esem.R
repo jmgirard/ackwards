@@ -206,31 +206,121 @@ test_that("tidy(x, what = 'fit') returns 7 indices per level for ESEM", {
   expect_equal(sort(unique(td$level)), 1:3)
 })
 
-test_that("tidy(x, what = 'loadings_se') returns one SE per loading for ESEM", {
+# ── M27: loading SEs/CIs folded into tidy(what = "loadings") ─────────────────
+
+test_that("tidy(what='loadings') for ESEM has se/ci_lower/ci_upper populated", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
-  se <- generics::tidy(x, what = "loadings_se")
-  expect_s3_class(se, "data.frame")
-  expect_identical(names(se), c("level", "factor", "item", "se"))
-  # Same number of rows as the loadings table (one SE per loading)
-  expect_identical(nrow(se), nrow(generics::tidy(x, what = "loadings")))
-  expect_true(all(is.finite(se$se)))
-  expect_true(all(se$se >= 0))
+  ld <- generics::tidy(x, what = "loadings")
+  expect_true(all(c("se", "ci_lower", "ci_upper") %in% names(ld)))
+  expect_true(all(is.finite(ld$se)))
+  expect_true(all(ld$se >= 0))
+  # CIs bracket the loading
+  expect_true(all(ld$ci_lower <= ld$loading))
+  expect_true(all(ld$ci_upper >= ld$loading))
 })
 
-test_that("tidy(x, what = 'loadings_se') skips levels with NULL loadings_se", {
-  # Covers the return(NULL) branch at tidy.R line 175 when a level is missing SE.
-  # Simulate a partially-SE object by nulling out one level's SE.
+test_that("tidy(what='loadings', conf_level=0.99) widens intervals vs 0.95", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x <- ackwards(d, k_max = 2, engine = "esem"))
+  ld95 <- generics::tidy(x, what = "loadings", conf_level = 0.95)
+  ld99 <- generics::tidy(x, what = "loadings", conf_level = 0.99)
+  width95 <- ld95$ci_upper - ld95$ci_lower
+  width99 <- ld99$ci_upper - ld99$ci_lower
+  expect_true(all(width99 >= width95, na.rm = TRUE))
+})
+
+test_that("tidy(what='loadings') for PCA/EFA has se/ci cols present but all NA", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x_pca <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  suppressWarnings(x_efa <- ackwards(psych::bfi[, 1:25], k_max = 2, engine = "efa"))
+  for (x in list(x_pca, x_efa)) {
+    ld <- generics::tidy(x, what = "loadings")
+    expect_true(all(c("se", "ci_lower", "ci_upper") %in% names(ld)))
+    expect_true(all(is.na(ld$se)))
+    expect_true(all(is.na(ld$ci_lower)))
+    expect_true(all(is.na(ld$ci_upper)))
+  }
+})
+
+test_that("conf_level passed with wrong what= errors", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  expect_error(tidy(x, what = "edges", conf_level = 0.90), "conf_level")
+})
+
+# ── M27: wide fit table ───────────────────────────────────────────────────────
+
+test_that("tidy(what='fit', format='wide') gives one row per non-anchor level", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
-  # Null out level-1 SE to force the return(NULL) branch for that level
-  x$levels[["1"]]$loadings_se <- NULL
-  se <- generics::tidy(x, what = "loadings_se")
-  # Levels 2 and 3 still have SE; level 1 is silently skipped
-  expect_s3_class(se, "data.frame")
-  expect_true(all(se$level >= 2L))
+  wide <- generics::tidy(x, what = "fit", format = "wide")
+  expect_s3_class(wide, "data.frame")
+  # Anchor (k = 1) dropped: levels 2 and 3 only.
+  expect_equal(nrow(wide), 2L)
+  expect_false(1L %in% wide$level)
+  expect_equal(sort(wide$level), c(2L, 3L))
+  expect_true("level" %in% names(wide))
+  expect_true(all(c("CFI", "TLI", "RMSEA", "SRMR") %in% names(wide)))
+})
+
+test_that("tidy(what='fit', format='long') is byte-identical to the default", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  expect_identical(
+    generics::tidy(x, what = "fit"),
+    generics::tidy(x, what = "fit", format = "long")
+  )
+})
+
+test_that("format passed with wrong what= errors", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  expect_error(tidy(x, what = "edges", format = "wide"), "format")
+})
+
+# ── M27: cutoff flags ─────────────────────────────────────────────────────────
+
+test_that("tidy(what='fit', cutoffs=TRUE) adds meets column for ESEM", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  td <- generics::tidy(x, what = "fit", cutoffs = TRUE)
+  expect_true("meets" %in% names(td))
+  # CFI/TLI/RMSEA/SRMR rows should have non-NA meets
+  idx_with_cutoff <- c("CFI", "TLI", "RMSEA", "SRMR")
+  meets_for_cutoff <- td$meets[td$index %in% idx_with_cutoff]
+  expect_true(all(!is.na(meets_for_cutoff)))
+  # chi/dof/p_value get NA
+  meets_no_cutoff <- td$meets[td$index %in% c("chi", "dof", "p_value")]
+  expect_true(all(is.na(meets_no_cutoff)))
+})
+
+test_that("tidy(what='fit', cutoffs=FALSE) has no meets column", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  td <- generics::tidy(x, what = "fit")
+  expect_false("meets" %in% names(td))
+})
+
+test_that("cutoffs=TRUE with format='wide' produces *_meets columns", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  wide <- generics::tidy(x, what = "fit", format = "wide", cutoffs = TRUE)
+  expect_true("CFI_meets" %in% names(wide))
+  expect_true("RMSEA_meets" %in% names(wide))
+})
+
+test_that("cutoffs passed with wrong what= errors", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  expect_error(tidy(x, what = "edges", cutoffs = TRUE), "cutoffs")
 })
 
 
@@ -431,4 +521,21 @@ test_that("ESEM results are identical across serial and parallel future plans", 
     )
   }
   expect_equal(tidy(serial)$r, tidy(par)$r)
+})
+
+# ── glance() fit columns for ESEM ─────────────────────────────────────────────
+
+test_that("glance() for ESEM has CFI/TLI/RMSEA/SRMR at deepest level; BIC NA", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  g <- generics::glance(x)
+  expect_true(all(c("CFI", "TLI", "RMSEA", "SRMR", "BIC") %in% names(g)))
+  # ESEM carries CFI, TLI, RMSEA, SRMR but not BIC
+  expect_false(is.na(g$CFI))
+  expect_false(is.na(g$TLI))
+  expect_false(is.na(g$RMSEA))
+  expect_false(is.na(g$SRMR))
+  expect_true(is.na(g$BIC))
+  expect_equal(g$deepest_converged, 3L)
 })

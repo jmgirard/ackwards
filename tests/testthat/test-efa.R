@@ -268,3 +268,20 @@ test_that("tidy(x, what = 'fit') returns one row per level with named indices", 
   expect_s3_class(td_pca, "data.frame")
   expect_equal(nrow(td_pca), 1L + 2L + 3L) # 1+2+3 eigenvalues across 3 levels
 })
+
+# ── glance() fit columns for EFA ──────────────────────────────────────────────
+
+test_that("glance() for EFA has TLI/RMSEA/BIC at deepest level; CFI/SRMR NA", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
+  g <- generics::glance(x)
+  expect_true(all(c("CFI", "TLI", "RMSEA", "SRMR", "BIC") %in% names(g)))
+  # EFA carries TLI, RMSEA, BIC but not CFI or SRMR
+  expect_true(is.na(g$CFI))
+  expect_true(is.na(g$SRMR))
+  expect_false(is.na(g$TLI))
+  expect_false(is.na(g$RMSEA))
+  expect_false(is.na(g$BIC))
+  # fit values come from the deepest converged level
+  expect_equal(g$deepest_converged, 3L)
+})
