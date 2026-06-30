@@ -16,16 +16,22 @@ generics::glance
 #'   * `"edges"` *(default)* -- one row per directed between-level edge:
 #'     `from`, `to`, `level_from`, `level_to`, `r`, `is_primary`, `above_cut`.
 #'   * `"loadings"` -- one row per item x factor x level:
-#'     `level`, `factor`, `item`, `loading`.
-#'   * `"loadings_se"` -- one row per item x factor x level with the rotation-aware
-#'     standard error of each loading: `level`, `factor`, `item`, `se`. Only the
-#'     ESEM engine (`engine = "esem"`) produces these; errors informatively for
-#'     PCA/EFA objects, which carry no loading standard errors.
+#'     `level`, `factor`, `item`, `loading`, `se`, `ci_lower`, `ci_upper`.
+#'     `se`, `ci_lower`, and `ci_upper` are populated only for
+#'     `engine = "esem"` (which produces rotation-aware loading SEs); they are
+#'     `NA` for PCA and EFA. The confidence level is controlled by `conf_level`.
 #'   * `"variance"` -- one row per factor x level:
 #'     `level`, `factor`, `variance_pct`, `cumulative_pct`.
 #'   * `"fit"` -- one row per fit index x level: `level`, `index`, `value`.
 #'     For PCA objects the indices are eigenvalues; for EFA objects they are
-#'     `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`.
+#'     `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`; for ESEM they are
+#'     `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`. Use
+#'     `format = "wide"` for one row per level with index columns. Add
+#'     `cutoffs = TRUE` to append a `meets` column flagging each index against
+#'     conventional thresholds (Hu & Bentler 1999: CFI/TLI ≥ .95,
+#'     RMSEA ≤ .06, SRMR ≤ .08); indices without a defined threshold (e.g.
+#'     `chi`, `BIC`, eigenvalues) return `NA` for `meets`. Thresholds are
+#'     conventional and contested; they are report-only and never gate anything.
 #'   * `"nodes"` -- Forbes-extension pruning annotations (requires `prune != "none"`
 #'     when the object was created). One row per factor across all levels:
 #'     `id`, `level`, `pruned`, `prune_reason`. Returns an empty data frame with
@@ -39,6 +45,17 @@ generics::glance
 #'   any other value of `what`.
 #' @param sort For `what = "edges"` only. One of `"none"` (default, natural order)
 #'   or `"strength"` (descending `|r|`). Ignored for all other values of `what`.
+#' @param format For `what = "fit"` only. One of `"long"` (default, one row per
+#'   index x level) or `"wide"` (one row per level, one column per index).
+#'   Errors for all other values of `what`.
+#' @param cutoffs For `what = "fit"` only. When `TRUE`, appends a logical `meets`
+#'   column indicating whether each index meets its conventional threshold (Hu &
+#'   Bentler 1999). `NA` when no threshold is defined for that index. Default
+#'   `FALSE`. Errors for all other values of `what`.
+#' @param conf_level For `what = "loadings"` only. Confidence level for the
+#'   loading intervals; default `0.95`. The intervals are computed as
+#'   `loading ± qnorm((1 + conf_level) / 2) * se` and are `NA` for engines
+#'   that carry no SEs (PCA, EFA). Errors for all other values of `what`.
 #' @param ... Ignored.
 #'
 #' @return A data frame (class `data.frame`).
@@ -52,6 +69,9 @@ generics::glance
 #' tidy(x, primary_only = TRUE) # just the primary-parent lineage
 #' tidy(x, what = "loadings")
 #' tidy(x, what = "variance")
+#' tidy(x, what = "fit")
+#' tidy(x, what = "fit", format = "wide")
+#' tidy(x, what = "fit", cutoffs = TRUE)
 #'
 #' @export
 tidy.ackwards <- function(
@@ -59,10 +79,14 @@ tidy.ackwards <- function(
   what = c("edges", "loadings", "loadings_se", "variance", "fit", "nodes", "scores"),
   primary_only = FALSE,
   sort = c("none", "strength"),
+  format = c("long", "wide"),
+  cutoffs = FALSE,
+  conf_level = 0.95,
   ...
 ) {
   what <- match.arg(what)
   sort <- match.arg(sort)
+  format <- match.arg(format)
   if (sort != "none" && what != "edges") {
     cli::cli_abort(
       "{.arg sort} is only supported for {.code what = \"edges\"}, \\
@@ -75,9 +99,27 @@ tidy.ackwards <- function(
        not {.code what = \"{what}\"}."
     )
   }
+  if (format != "long" && what != "fit") {
+    cli::cli_abort(
+      "{.arg format} is only supported for {.code what = \"fit\"}, \\
+       not {.code what = \"{what}\"}."
+    )
+  }
+  if (!isFALSE(cutoffs) && what != "fit") {
+    cli::cli_abort(
+      "{.arg cutoffs} is only supported for {.code what = \"fit\"}, \\
+       not {.code what = \"{what}\"}."
+    )
+  }
+  if (!identical(conf_level, 0.95) && what != "loadings") {
+    cli::cli_abort(
+      "{.arg conf_level} is only supported for {.code what = \"loadings\"}, \\
+       not {.code what = \"{what}\"}."
+    )
+  }
   out <- switch(what,
     edges       = .tidy_edges(x),
-    loadings    = .tidy_loadings(x),
+    loadings    = .tidy_loadings(x, conf_level = conf_level),
     loadings_se = .tidy_loadings_se(x),
     variance    = .tidy_variance(x),
     fit         = .tidy_fit(x),
@@ -92,6 +134,10 @@ tidy.ackwards <- function(
       out <- out[order(abs(out$r), decreasing = TRUE), , drop = FALSE]
     }
     rownames(out) <- NULL
+  }
+  if (what == "fit") {
+    if (isTRUE(cutoffs)) out <- .flag_fit(out)
+    if (format == "wide") out <- .fit_long_to_wide(out)
   }
   out
 }
@@ -139,17 +185,24 @@ tidy.ackwards <- function(
   out
 }
 
-.tidy_loadings <- function(x) {
+.tidy_loadings <- function(x, conf_level = 0.95) {
+  z <- stats::qnorm((1 + conf_level) / 2)
   rows <- lapply(names(x$levels), function(ki) {
     lev <- x$levels[[ki]]
     L <- lev$loadings
+    SE <- lev$loadings_se # NULL for PCA/EFA
     k <- as.integer(ki)
     do.call(rbind, lapply(seq_len(ncol(L)), function(j) {
+      se_col <- if (!is.null(SE)) SE[, j] else rep(NA_real_, nrow(L))
+      loading_col <- L[, j]
       data.frame(
-        level = k,
-        factor = colnames(L)[j],
-        item = rownames(L),
-        loading = L[, j],
+        level    = k,
+        factor   = colnames(L)[j],
+        item     = rownames(L),
+        loading  = loading_col,
+        se       = se_col,
+        ci_lower = loading_col - z * se_col,
+        ci_upper = loading_col + z * se_col,
         stringsAsFactors = FALSE
       )
     }))
@@ -201,6 +254,50 @@ tidy.ackwards <- function(
       value = unname(fv),
       stringsAsFactors = FALSE
     )
+  })
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
+  out
+}
+
+# Hu & Bentler (1999) conventional thresholds — direction "hi" means higher is
+# better (CFI/TLI), "lo" means lower is better (RMSEA/SRMR). Indices not in
+# this list (chi, dof, p_value, BIC, eigenvalues) receive NA for `meets`.
+.fit_cutoffs <- function() {
+  list(
+    CFI   = list(threshold = 0.95, direction = "hi"),
+    TLI   = list(threshold = 0.95, direction = "hi"),
+    RMSEA = list(threshold = 0.06, direction = "lo"),
+    SRMR  = list(threshold = 0.08, direction = "lo")
+  )
+}
+
+.flag_fit <- function(df) {
+  cuts <- .fit_cutoffs()
+  meets <- vapply(seq_len(nrow(df)), function(i) {
+    cut <- cuts[[df$index[i]]]
+    if (is.null(cut) || is.na(df$value[i])) return(NA)
+    if (cut$direction == "hi") df$value[i] >= cut$threshold else df$value[i] <= cut$threshold
+  }, logical(1L))
+  df$meets <- meets
+  df
+}
+
+.fit_long_to_wide <- function(df) {
+  has_meets <- "meets" %in% names(df)
+  levels <- sort(unique(df$level))
+  all_idx <- unique(df$index) # preserve original index order
+  rows <- lapply(levels, function(lv) {
+    sub <- df[df$level == lv, , drop = FALSE]
+    row_vals <- list(level = lv)
+    for (idx in all_idx) {
+      m <- match(idx, sub$index)
+      row_vals[[idx]] <- if (!is.na(m)) sub$value[m] else NA_real_
+      if (has_meets) {
+        row_vals[[paste0(idx, "_meets")]] <- if (!is.na(m)) sub$meets[m] else NA
+      }
+    }
+    as.data.frame(row_vals, stringsAsFactors = FALSE)
   })
   out <- do.call(rbind, rows)
   rownames(out) <- NULL
