@@ -1,3 +1,24 @@
+# ackwards (development)
+
+## `suggest_k()` criterion selection
+
+`suggest_k()` gains a `criteria` argument that controls which retention criteria are
+computed. Any subset of `c("pa_pc", "pa_fa", "map", "vss", "cd")` may be requested;
+the default runs all five (identical to prior behaviour). Criteria not requested are
+skipped entirely (no computation), delivering a real speed win:
+
+* `"pa_pc"` / `"pa_fa"` share one `psych::fa.parallel()` call — both skipped if neither
+  is requested.
+* `"map"` / `"vss"` share one `psych::vss()` call — both skipped if neither is
+  requested.
+* `"cd"` runs `EFAtools::CD()` only when explicitly requested **and** `EFAtools` is
+  installed; if requested but unavailable an informational message is emitted.
+
+`k_*` fields for non-requested criteria are `NA_integer_`; the `criteria` data frame
+uses `NA` for non-run columns (stable schema). The returned object gains a
+`criteria_requested` field. `print()` and `autoplot()` render only the requested
+criteria; the consensus range is computed from requested criteria only.
+
 # ackwards 0.1.0
 
 First public release. Licensed under MIT.

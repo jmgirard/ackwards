@@ -7,6 +7,7 @@
 suggest_k(
   data,
   k_max = NULL,
+  criteria = c("pa_pc", "pa_fa", "map", "vss", "cd"),
   cor = "pearson",
   n_obs = NULL,
   n_iter = 20L,
@@ -24,6 +25,13 @@ skipped (CD requires raw item distributions for resampling).}
 
 \item{k_max}{Maximum number of components to test. Defaults to
 \code{min(ncol(data) - 1, 8)}. Increase if you expect a deeper hierarchy.}
+
+\item{criteria}{Character vector of criteria to compute. Any subset of
+\code{c("pa_pc", "pa_fa", "map", "vss", "cd")}; default is all five.
+\code{"pa_pc"} and \code{"pa_fa"} share one parallel-analysis call (both or neither
+are fast); \code{"map"} and \code{"vss"} share one VSS call. Criteria not requested
+are skipped entirely (no computation) and their \verb{k_*} fields in the result
+are \code{NA}. \code{"vss"} selects both VSS-1 and VSS-2 as a unit.}
 
 \item{cor}{Correlation basis: \code{"pearson"} (default) or \code{"spearman"}. Should
 match the \code{cor} argument you plan to use in \code{\link[=ackwards]{ackwards()}}. Ignored when
@@ -49,53 +57,65 @@ regardless of \code{seed}.}
 An object of class \code{"suggest_k"}. Print it for a formatted summary;
 call \code{\link[=autoplot]{autoplot()}} on it for a diagnostic scree/criteria plot. The list
 contains:
-\item{k_parallel_pc}{Recommended k from PC-based parallel analysis.}
+\item{k_parallel_pc}{Recommended k from PC-based parallel analysis
+(\code{NA_integer_} when \code{"pa_pc"} not in \code{criteria}).}
 \item{k_parallel_fa}{Recommended k from FA-based parallel analysis
-(\code{NA_integer_} if no FA factor exceeded the random threshold).}
-\item{k_map}{Recommended k from MAP.}
-\item{k_vss1}{Recommended k from VSS complexity-1.}
-\item{k_vss2}{Recommended k from VSS complexity-2.}
+(\code{NA_integer_} if no FA factor exceeded the random threshold, or when
+\code{"pa_fa"} not in \code{criteria}).}
+\item{k_map}{Recommended k from MAP (\code{NA_integer_} when \code{"map"} not in
+\code{criteria}).}
+\item{k_vss1}{Recommended k from VSS complexity-1 (\code{NA_integer_} when
+\code{"vss"} not in \code{criteria}).}
+\item{k_vss2}{Recommended k from VSS complexity-2 (\code{NA_integer_} when
+\code{"vss"} not in \code{criteria}).}
 \item{k_cd}{Recommended k from Comparison Data (\code{NA_integer_} when
-\pkg{EFAtools} is not installed or CD fails).}
-\item{cd_available}{Logical; \code{TRUE} when \pkg{EFAtools} was found and CD
-ran successfully.}
+\code{"cd"} not in \code{criteria}, \pkg{EFAtools} is not installed, or CD fails).}
+\item{cd_available}{Logical; \code{TRUE} when \code{"cd"} was requested,
+\pkg{EFAtools} was found, and CD ran successfully.}
 \item{criteria}{Data frame with one row per k: \code{k}, \code{ev_obs} (observed PC
 eigenvalue), \code{ev_obs_fa} (observed FA eigenvalue),
 \code{pa_pc_quant} / \code{pa_fa_quant} (95th-pct simulated eigenvalue for each
 basis), \code{pa_pc_suggested} / \code{pa_fa_suggested} (logical retention),
-\code{map}, \code{vss1}, \code{vss2}.}
+\code{map}, \code{vss1}, \code{vss2}. Columns for non-requested criteria are \code{NA}.}
+\item{criteria_requested}{Character vector of the criteria that were
+requested (and therefore computed).}
 \item{k_max, n_obs, n_vars, cor}{Metadata.}
 }
 \description{
-Runs five complementary selection criteria and reports their recommendations.
-No single criterion is definitive; the goal is a consensus range to inform
-your choice of \code{k} in \code{\link[=ackwards]{ackwards()}}.
+Runs complementary factor-retention criteria and reports their
+recommendations. No single criterion is definitive; the goal is a consensus
+range to inform your choice of \code{k} in \code{\link[=ackwards]{ackwards()}}.
 }
 \details{
-\strong{Criteria computed:}
+\strong{Criteria available (controlled by the \code{criteria} argument):}
 \itemize{
-\item \strong{PA-PC} (Horn 1965, PC basis) -- parallel analysis on principal-component
-eigenvalues. Compares observed eigenvalues to those from random correlation
-matrices; suggests retaining components whose eigenvalues exceed the 95th
-percentile of chance. Tends to overextract; treat as an upper bound.
-\item \strong{PA-FA} (Horn 1965, FA basis) -- parallel analysis using common-factor
+\item \strong{PA-PC} (\code{"pa_pc"}) -- Horn (1965) parallel analysis on PC eigenvalues.
+Compares observed eigenvalues to those from random correlation matrices;
+suggests retaining components whose eigenvalues exceed the 95th percentile
+of chance. Tends to overextract; treat as an upper bound.
+\item \strong{PA-FA} (\code{"pa_fa"}) -- Horn (1965) parallel analysis using common-factor
 eigenvalues. More conservative than PA-PC and the better match for the EFA
-and ESEM engines in \code{\link[=ackwards]{ackwards()}}.
-\item \strong{MAP} (Velicer 1976) -- Minimum Average Partial criterion. Finds the k
-that minimises the average squared partial correlation remaining after
-extracting k components. Usually conservative.
-\item \strong{VSS-1 / VSS-2} (Revelle & Rocklin 1979) -- Very Simple Structure fit
-at complexities 1 and 2. Finds the k maximising the fit of a very simple
-loading structure.
-\item \strong{CD} (Ruscio & Roche 2012; optional) -- Comparison Data. Resamples
-from the observed item distributions to generate comparison eigenvalue
-profiles; retains factors until adding one no longer improves RMSE beyond
-chance. Requires the \pkg{EFAtools} package (install separately).
+and ESEM engines in \code{\link[=ackwards]{ackwards()}}. Shares one \code{psych::fa.parallel()} call
+with PA-PC.
+\item \strong{MAP} (\code{"map"}) -- Velicer (1976) Minimum Average Partial criterion.
+Finds the k that minimises the average squared partial correlation
+remaining after extracting k components. Usually conservative. Shares one
+\code{psych::vss()} call with VSS.
+\item \strong{VSS} (\code{"vss"}) -- Revelle & Rocklin (1979) Very Simple Structure fit
+at complexities 1 and 2 (VSS-1 and VSS-2). Finds the k maximising the
+fit of a very simple loading structure. Shares one \code{psych::vss()} call
+with MAP.
+\item \strong{CD} (\code{"cd"}) -- Ruscio & Roche (2012) Comparison Data. Resamples from
+the observed item distributions to generate comparison eigenvalue profiles;
+retains factors until adding one no longer improves RMSE beyond chance.
+Requires the \pkg{EFAtools} package (install separately). Skipped with an
+informational message when \pkg{EFAtools} is absent or when a correlation
+matrix is supplied.
 }
 
 PA (both bases), MAP, and VSS share the same correlation matrix as
 \code{\link[=ackwards]{ackwards()}}. CD operates on the raw data matrix directly (required for
-resampling) and is skipped gracefully when \pkg{EFAtools} is not installed.
+resampling).
 }
 \section{Interpreting the output}{
 
@@ -118,6 +138,12 @@ range: the true k is likely somewhere in the middle.
 sk <- suggest_k(bfi25)
 sk
 autoplot(sk)
+
+# Run only MAP (fast; skips parallel analysis and CD)
+suggest_k(bfi25, criteria = "map")
+
+# Run only the parallel-analysis criteria
+suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 
 # Faster exploratory run
 suggest_k(bfi25, k_max = 6, n_iter = 5)

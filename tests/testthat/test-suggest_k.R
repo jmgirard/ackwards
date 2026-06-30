@@ -36,7 +36,7 @@ test_that("suggest_k() returns a suggest_k object with expected fields", {
       "k_parallel_pc", "k_parallel_fa",
       "k_map", "k_vss1", "k_vss2",
       "k_cd", "cd_available", "cd_rmse",
-      "criteria",
+      "criteria", "criteria_requested",
       "k_max", "n_obs", "n_vars", "cor", "input_type"
     )
   )
@@ -416,4 +416,149 @@ test_that("print.suggest_k() shows single-value consensus when all criteria agre
   # the patched lo == hi still drives the single-value consensus branch.
   expect_no_error(print(sk))
   expect_invisible(print(sk))
+})
+
+# ---- Tests for the criteria= argument (Wave 1 / M25) -------------------------
+
+test_that("suggest_k() criteria='map' skips PA and CD, populates only MAP", {
+  skip_if_not_installed("psych")
+  sk <- suggest_k(.sk_small, k_max = 4L, criteria = "map", n_iter = 5L)
+
+  expect_equal(sk$criteria_requested, "map")
+  # PA fields must be NA (not run)
+  expect_identical(sk$k_parallel_pc, NA_integer_)
+  expect_identical(sk$k_parallel_fa, NA_integer_)
+  expect_true(all(is.na(sk$criteria$ev_obs)))
+  expect_true(all(is.na(sk$criteria$pa_pc_quant)))
+  # MAP must be populated
+  expect_false(is.na(sk$k_map))
+  expect_equal(sk$k_map, which.min(sk$criteria$map))
+  # VSS must be NA
+  expect_identical(sk$k_vss1, NA_integer_)
+  expect_identical(sk$k_vss2, NA_integer_)
+  expect_true(all(is.na(sk$criteria$vss1)))
+  # CD must be NA
+  expect_false(sk$cd_available)
+  expect_identical(sk$k_cd, NA_integer_)
+})
+
+test_that("suggest_k() criteria=c('pa_pc','pa_fa') skips vss() and CD", {
+  skip_if_not_installed("psych")
+  sk <- suggest_k(.sk_small,
+    k_max = 4L, criteria = c("pa_pc", "pa_fa"),
+    n_iter = 5L
+  )
+
+  expect_equal(sk$criteria_requested, c("pa_pc", "pa_fa"))
+  # PA fields must be populated
+  expect_false(is.na(sk$k_parallel_pc))
+  expect_true(all(!is.na(sk$criteria$ev_obs)))
+  # MAP and VSS must be NA (not run)
+  expect_identical(sk$k_map, NA_integer_)
+  expect_true(all(is.na(sk$criteria$map)))
+  expect_identical(sk$k_vss1, NA_integer_)
+  expect_true(all(is.na(sk$criteria$vss1)))
+  # CD must be NA
+  expect_false(sk$cd_available)
+})
+
+test_that("suggest_k() default criteria matches all-five structure", {
+  skip_if_not_installed("psych")
+  sk <- .get_sk(4L)
+  # Default should request all five criteria
+  expect_setequal(sk$criteria_requested, c("pa_pc", "pa_fa", "map", "vss", "cd"))
+  # All standard k_* fields non-NA (except k_parallel_fa and k_cd which may be NA)
+  expect_false(is.na(sk$k_parallel_pc))
+  expect_false(is.na(sk$k_map))
+  expect_false(is.na(sk$k_vss1))
+  expect_false(is.na(sk$k_vss2))
+})
+
+test_that("suggest_k() criteria='cd' with EFAtools absent emits info and returns NA", {
+  skip_if_not_installed("psych")
+  skip_if(rlang::is_installed("EFAtools"), "EFAtools installed; skipping absence test")
+  # When 'cd' requested but EFAtools absent, should inform (not error) and return NA
+  expect_message(
+    sk <- suggest_k(.sk_small, k_max = 3L, criteria = "cd", n_iter = 3L),
+    "EFAtools"
+  )
+  expect_false(sk$cd_available)
+  expect_identical(sk$k_cd, NA_integer_)
+  # All non-CD k_* fields are NA (only CD was requested)
+  expect_identical(sk$k_parallel_pc, NA_integer_)
+  expect_identical(sk$k_map, NA_integer_)
+})
+
+test_that("suggest_k() criteria='cd' with EFAtools available runs CD only", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("EFAtools")
+  sk <- suggest_k(.sk_small, k_max = 4L, criteria = "cd", n_iter = 3L, seed = 1L)
+
+  expect_equal(sk$criteria_requested, "cd")
+  expect_true(sk$cd_available)
+  expect_false(is.na(sk$k_cd))
+  # All non-CD k_* fields are NA
+  expect_identical(sk$k_parallel_pc, NA_integer_)
+  expect_identical(sk$k_map, NA_integer_)
+  expect_identical(sk$k_vss1, NA_integer_)
+})
+
+test_that("suggest_k() invalid criterion name errors via arg_match", {
+  skip_if_not_installed("psych")
+  expect_error(
+    suggest_k(.sk_small, k_max = 3L, criteria = "bad_criterion"),
+    "must be one of"
+  )
+})
+
+test_that("suggest_k() criteria='vss' consensus reflects VSS-1 and VSS-2 only", {
+  skip_if_not_installed("psych")
+  sk <- suggest_k(.sk_small, k_max = 4L, criteria = "vss", n_iter = 3L)
+
+  expect_equal(sk$criteria_requested, "vss")
+  expect_false(is.na(sk$k_vss1))
+  expect_false(is.na(sk$k_vss2))
+  # Consensus range must be within VSS-1/VSS-2 bounds
+  lo <- min(sk$k_vss1, sk$k_vss2)
+  hi <- max(sk$k_vss1, sk$k_vss2)
+  expect_gte(lo, 1L)
+  expect_lte(hi, 4L)
+  # print must run without error and consensus must reflect VSS only
+  expect_no_error(print(sk))
+})
+
+test_that("autoplot.suggest_k() shows only MAP panel when criteria='map'", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  sk <- suggest_k(.sk_small, k_max = 4L, criteria = "map", n_iter = 3L)
+  p <- autoplot(sk)
+  expect_s3_class(p, "gg")
+  expect_equal(levels(p$data$panel), "MAP (minimize)")
+})
+
+test_that("autoplot.suggest_k() shows only PA panel when criteria=c('pa_pc','pa_fa')", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  sk <- suggest_k(.sk_small,
+    k_max = 4L, criteria = c("pa_pc", "pa_fa"),
+    n_iter = 3L
+  )
+  p <- autoplot(sk)
+  expect_s3_class(p, "gg")
+  expect_equal(levels(p$data$panel), "Scree / Parallel Analysis")
+  # Both PC and FA series present
+  series_vals <- unique(as.character(p$data$series))
+  expect_true("Observed (PC)" %in% series_vals)
+  expect_true("Observed (FA)" %in% series_vals)
+})
+
+test_that("autoplot.suggest_k() shows only PA-PC series when criteria='pa_pc'", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  sk <- suggest_k(.sk_small, k_max = 4L, criteria = "pa_pc", n_iter = 3L)
+  p <- autoplot(sk)
+  expect_s3_class(p, "gg")
+  series_vals <- unique(as.character(p$data$series))
+  expect_true("Observed (PC)" %in% series_vals)
+  expect_false("Observed (FA)" %in% series_vals)
 })

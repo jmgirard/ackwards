@@ -15,19 +15,18 @@
 A \code{ggplot} object.
 }
 \description{
-Renders a ggplot2 diagnostic for a \code{suggest_k} object. When
-\pkg{EFAtools} is installed and CD was computed, the plot is a 2x2 grid:
-Scree/PA (top-left), MAP (top-right), VSS (bottom-left), and CD RMSE
-(bottom-right). When CD is unavailable, the plot is a single-column
-three-panel layout (Scree/PA, MAP, VSS). The recommended k for each
-criterion is marked with a star-shaped point.
+Renders a ggplot2 diagnostic for a \code{suggest_k} object. The plot shows one
+panel for each criterion group that was requested: Scree/PA (if \code{"pa_pc"} or
+\code{"pa_fa"} were requested), MAP (if \code{"map"}), VSS (if \code{"vss"}), and CD RMSE
+(if \code{"cd"} and \pkg{EFAtools} was available). When four panels are shown the
+layout is a 2x2 grid; otherwise a single-column layout is used. The
+recommended k for each criterion is marked with a star-shaped point.
 }
 \details{
 The scree panel shows both PC and FA observed eigenvalues alongside their
-respective random-data thresholds. PA-PC compares the blue "Observed (PC)"
-line to the dashed PA-PC threshold; PA-FA compares the teal "Observed (FA)"
-line to the dotted PA-FA threshold. Reading the lines on the same panel is
-informative but the two comparisons are independent.
+respective random-data thresholds (for whichever PA bases were requested).
+PA-PC compares the blue "Observed (PC)" line to the dashed PA-PC threshold;
+PA-FA compares the teal "Observed (FA)" line to the dotted PA-FA threshold.
 
 The CD panel plots the mean RMSE between observed and comparison-data
 eigenvalues at each k; the retention threshold (star) is where this curve
