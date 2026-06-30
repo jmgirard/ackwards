@@ -73,13 +73,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [296ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [322ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [184ms]
+#> ✔ Running MAP and VSS... [189ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.3s]
+#> ✔ Running Comparison Data (CD)... [10.7s]
 #> 
 sk
 #> 
@@ -185,7 +185,9 @@ x
 #> 14 of 40 edges have |r| ≥ 0.3
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
-#> Cross-level edges are descriptive score correlations.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 ```
 
 The “Levels” section confirms that all five models converged, and
@@ -251,7 +253,9 @@ summary(x)
 #> m4f4 → m5f5
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
-#> Cross-level edges are descriptive score correlations.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 ```
 
 [`glance()`](https://generics.r-lib.org/reference/glance.html) returns
@@ -261,8 +265,10 @@ comparisons across models:
 ``` r
 
 glance(x)
-#>   engine rotation        cor k_max n_obs deepest_converged n_edges
-#> 1    pca  varimax polychoric     5   875                 5      40
+#>   engine rotation        cor k_max n_obs deepest_converged n_edges CFI TLI
+#> 1    pca  varimax polychoric     5   875                 5      40  NA  NA
+#>   RMSEA SRMR BIC
+#> 1    NA   NA  NA
 ```
 
 ## Step 4: Visualize the hierarchy `autoplot()`
@@ -393,13 +399,13 @@ loading matrix in long format — one row per item × factor × level:
 
 loadings_df <- tidy(x, what = "loadings")
 head(loadings_df)
-#>   level factor item    loading
-#> 1     1   m1f1   A1 -0.3440908
-#> 2     1   m1f1   A2  0.5977210
-#> 3     1   m1f1   A3  0.6511387
-#> 4     1   m1f1   A4  0.4837850
-#> 5     1   m1f1   A5  0.6848262
-#> 6     1   m1f1   C1  0.4502778
+#>   level factor item    loading se ci_lower ci_upper
+#> 1     1   m1f1   A1 -0.3440908 NA       NA       NA
+#> 2     1   m1f1   A2  0.5977210 NA       NA       NA
+#> 3     1   m1f1   A3  0.6511387 NA       NA       NA
+#> 4     1   m1f1   A4  0.4837850 NA       NA       NA
+#> 5     1   m1f1   A5  0.6848262 NA       NA       NA
+#> 6     1   m1f1   C1  0.4502778 NA       NA       NA
 ```
 
 ### Between-level edges

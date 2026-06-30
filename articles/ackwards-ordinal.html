@@ -1334,36 +1334,23 @@ is the same method used by Mplus by default.</p>
 <span><span class="co">#&gt; 5 of 8 edges have |r| ≥ 0.3</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
 <p>The WLSMV fit indices (CFI, RMSEA, SRMR) are now computed on a model
 that respects the ordinal measurement level. They will typically look
 better than Pearson-based fit indices on the same data, reflecting both
 the better model specification and the different reference distribution
 WLSMV uses.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    level   index        value</span></span>
-<span><span class="co">#&gt; 1      1     chi 7.629329e+03</span></span>
-<span><span class="co">#&gt; 2      1     dof 2.750000e+02</span></span>
-<span><span class="co">#&gt; 3      1 p_value           NA</span></span>
-<span><span class="co">#&gt; 4      1     CFI 7.153139e-01</span></span>
-<span><span class="co">#&gt; 5      1     TLI 6.894333e-01</span></span>
-<span><span class="co">#&gt; 6      1   RMSEA 1.749240e-01</span></span>
-<span><span class="co">#&gt; 7      1    SRMR 1.443569e-01</span></span>
-<span><span class="co">#&gt; 8      2     chi 3.172628e+03</span></span>
-<span><span class="co">#&gt; 9      2     dof 2.510000e+02</span></span>
-<span><span class="co">#&gt; 10     2 p_value           NA</span></span>
-<span><span class="co">#&gt; 11     2     CFI 8.869038e-01</span></span>
-<span><span class="co">#&gt; 12     2     TLI 8.648252e-01</span></span>
-<span><span class="co">#&gt; 13     2   RMSEA 1.154037e-01</span></span>
-<span><span class="co">#&gt; 14     2    SRMR 9.547997e-02</span></span>
-<span><span class="co">#&gt; 15     3     chi 1.703232e+03</span></span>
-<span><span class="co">#&gt; 16     3     dof 2.280000e+02</span></span>
-<span><span class="co">#&gt; 17     3 p_value           NA</span></span>
-<span><span class="co">#&gt; 18     3     CFI 9.428938e-01</span></span>
-<span><span class="co">#&gt; 19     3     TLI 9.248602e-01</span></span>
-<span><span class="co">#&gt; 20     3   RMSEA 8.604131e-02</span></span>
-<span><span class="co">#&gt; 21     3    SRMR 7.172502e-02</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span>, format <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   level      chi dof p_value       CFI       TLI      RMSEA       SRMR</span></span>
+<span><span class="co">#&gt; 1     2 3172.628 251      NA 0.8869038 0.8648252 0.11540374 0.09547997</span></span>
+<span><span class="co">#&gt; 2     3 1703.232 228      NA 0.9428938 0.9248602 0.08604131 0.07172502</span></span></code></pre></div>
+<p>See <code><a href="../articles/ackwards-engines.html">vignette("ackwards-engines")</a></code>, section “Per-level
+fit: what it tells you (and what it doesn’t)”, for how to interpret
+these indices in the bass-ackwards context and how to produce the
+<code>autoplot(what = "fit")</code> trajectory chart.</p>
 </div>
 <div class="section level2">
 <h2 id="practical-guidance-when-to-use-polychoric">Practical guidance: when to use polychoric<a class="anchor" aria-label="anchor" href="#practical-guidance-when-to-use-polychoric"></a>

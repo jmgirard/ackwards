@@ -154,13 +154,13 @@ and reports a consensus range:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[296ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[322ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[184ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[189ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.3s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.7s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -284,7 +284,9 @@ measurement scale.</p>
 <span><span class="co">#&gt; 14 of 40 edges have |r| ≥ 0.3</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
 <p>The “Levels” section confirms that all five models converged, and
 reports the cumulative variance explained at each level. Notice that the
 jump from k = 1 to k = 2 is large (22.9% → 34.7%), while later jumps are
@@ -344,13 +346,17 @@ which factors at each level descend from which parents:</p>
 <span><span class="co">#&gt; m4f4 → m5f5</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
 <p><code><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance()</a></code> returns the same top-level information as a
 one-row data frame, convenient for comparisons across models:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   engine rotation        cor k_max n_obs deepest_converged n_edges</span></span>
-<span><span class="co">#&gt; 1    pca  varimax polychoric     5   875                 5      40</span></span></code></pre></div>
+<span><span class="co">#&gt;   engine rotation        cor k_max n_obs deepest_converged n_edges CFI TLI</span></span>
+<span><span class="co">#&gt; 1    pca  varimax polychoric     5   875                 5      40  NA  NA</span></span>
+<span><span class="co">#&gt;   RMSEA SRMR BIC</span></span>
+<span><span class="co">#&gt; 1    NA   NA  NA</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -479,13 +485,13 @@ level:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">loadings_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">loadings_df</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   level factor item    loading</span></span>
-<span><span class="co">#&gt; 1     1   m1f1   A1 -0.3440908</span></span>
-<span><span class="co">#&gt; 2     1   m1f1   A2  0.5977210</span></span>
-<span><span class="co">#&gt; 3     1   m1f1   A3  0.6511387</span></span>
-<span><span class="co">#&gt; 4     1   m1f1   A4  0.4837850</span></span>
-<span><span class="co">#&gt; 5     1   m1f1   A5  0.6848262</span></span>
-<span><span class="co">#&gt; 6     1   m1f1   C1  0.4502778</span></span></code></pre></div>
+<span><span class="co">#&gt;   level factor item    loading se ci_lower ci_upper</span></span>
+<span><span class="co">#&gt; 1     1   m1f1   A1 -0.3440908 NA       NA       NA</span></span>
+<span><span class="co">#&gt; 2     1   m1f1   A2  0.5977210 NA       NA       NA</span></span>
+<span><span class="co">#&gt; 3     1   m1f1   A3  0.6511387 NA       NA       NA</span></span>
+<span><span class="co">#&gt; 4     1   m1f1   A4  0.4837850 NA       NA       NA</span></span>
+<span><span class="co">#&gt; 5     1   m1f1   A5  0.6848262 NA       NA       NA</span></span>
+<span><span class="co">#&gt; 6     1   m1f1   C1  0.4502778 NA       NA       NA</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="between-level-edges">Between-level edges<a class="anchor" aria-label="anchor" href="#between-level-edges"></a>

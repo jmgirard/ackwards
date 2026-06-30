@@ -376,7 +376,9 @@ print(x)
 #> 14 of 40 edges have |r| ≥ 0.3
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
-#> Cross-level edges are descriptive score correlations.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 tidy(x)
 #>    from   to level_from level_to            r is_primary above_cut
 #> 1  m1f1 m2f1          1        2  0.878066713       TRUE      TRUE
@@ -420,8 +422,10 @@ tidy(x)
 #> 39 m4f4 m5f4          4        5 -0.185238698      FALSE     FALSE
 #> 40 m4f4 m5f5          4        5  0.963510734       TRUE      TRUE
 glance(x)
-#>   engine rotation     cor k_max n_obs deepest_converged n_edges
-#> 1    pca  varimax pearson     5  1000                 5      40
+#>   engine rotation     cor k_max n_obs deepest_converged n_edges CFI TLI RMSEA
+#> 1    pca  varimax pearson     5  1000                 5      40  NA  NA    NA
+#>   SRMR BIC
+#> 1   NA  NA
 
 # Correlation-matrix input (PCA engine; n_obs optional)
 R <- cor(bfi25, use = "pairwise.complete.obs")
@@ -451,5 +455,7 @@ print(x_R)
 #> 14 of 40 edges have |r| ≥ 0.3
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
-#> Cross-level edges are descriptive score correlations.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 ```

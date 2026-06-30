@@ -56,7 +56,7 @@ Diagram and layout helpers for the bass-ackwards hierarchy.
   : autoplot generic
 - [`autoplot(`*`<ackwards>`*`)`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md)
   [`plot(`*`<ackwards>`*`)`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md)
-  : Plot a bass-ackwards diagram
+  : Plot a bass-ackwards diagram or per-level fit index chart
 - [`ba_layout()`](https://jmgirard.github.io/ackwards/reference/ba_layout.md)
   : Compute a layered layout for a bass-ackwards diagram
 

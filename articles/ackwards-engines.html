@@ -193,7 +193,9 @@ scores.</p>
 <span><span class="co">#&gt; 5 of 8 edges have |r| ≥ 0.3</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
 <p>The “fit” for PCA is just the eigenvalue of each component — the
 amount of variance it captures. There are no chi-square tests, no RMSEA,
 no model rejection.</p>
@@ -238,7 +240,9 @@ rather than the constructs themselves.</p>
 <span><span class="co">#&gt; 5 of 8 edges have |r| ≥ 0.3</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
 <p>EFA produces genuine goodness-of-fit indices. These tell you whether
 the k factors are sufficient to reproduce the observed correlation
 matrix within sampling error.</p>
@@ -846,57 +850,132 @@ indicators. When <code>cor = "polychoric"</code> is set with
 <span><span class="co">#&gt; 5 of 8 edges have |r| ≥ 0.3</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
 <p>ESEM fit indices include CFI and SRMR in addition to RMSEA and TLI,
-giving a richer picture of model adequacy.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    level   index        value</span></span>
-<span><span class="co">#&gt; 1      1     chi 7.629329e+03</span></span>
-<span><span class="co">#&gt; 2      1     dof 2.750000e+02</span></span>
-<span><span class="co">#&gt; 3      1 p_value           NA</span></span>
-<span><span class="co">#&gt; 4      1     CFI 7.153139e-01</span></span>
-<span><span class="co">#&gt; 5      1     TLI 6.894333e-01</span></span>
-<span><span class="co">#&gt; 6      1   RMSEA 1.749240e-01</span></span>
-<span><span class="co">#&gt; 7      1    SRMR 1.443569e-01</span></span>
-<span><span class="co">#&gt; 8      2     chi 3.172628e+03</span></span>
-<span><span class="co">#&gt; 9      2     dof 2.510000e+02</span></span>
-<span><span class="co">#&gt; 10     2 p_value           NA</span></span>
-<span><span class="co">#&gt; 11     2     CFI 8.869038e-01</span></span>
-<span><span class="co">#&gt; 12     2     TLI 8.648252e-01</span></span>
-<span><span class="co">#&gt; 13     2   RMSEA 1.154037e-01</span></span>
-<span><span class="co">#&gt; 14     2    SRMR 9.547997e-02</span></span>
-<span><span class="co">#&gt; 15     3     chi 1.703232e+03</span></span>
-<span><span class="co">#&gt; 16     3     dof 2.280000e+02</span></span>
-<span><span class="co">#&gt; 17     3 p_value           NA</span></span>
-<span><span class="co">#&gt; 18     3     CFI 9.428938e-01</span></span>
-<span><span class="co">#&gt; 19     3     TLI 9.248602e-01</span></span>
-<span><span class="co">#&gt; 20     3   RMSEA 8.604131e-02</span></span>
-<span><span class="co">#&gt; 21     3    SRMR 7.172502e-02</span></span></code></pre></div>
+giving a richer picture of model adequacy. See the “Per-level fit”
+section below for how to report and interpret these indices.</p>
 <div class="section level3">
-<h3 id="loading-standard-errors">Loading standard errors<a class="anchor" aria-label="anchor" href="#loading-standard-errors"></a>
+<h3 id="loading-standard-errors-and-confidence-intervals">Loading standard errors and confidence intervals<a class="anchor" aria-label="anchor" href="#loading-standard-errors-and-confidence-intervals"></a>
 </h3>
 <p>The unique output from ESEM is the rotation-aware <strong>standard
-error</strong> of every loading. <code>tidy(what = "loadings_se")</code>
-returns them in the same long format as
-<code>tidy(what = "loadings")</code>, with an <code>se</code> column in
-place of <code>loading</code>:</p>
+error</strong> of every loading. These SEs are now returned as part of
+<code>tidy(what = "loadings")</code>, alongside <code>ci_lower</code>
+and <code>ci_upper</code> columns:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ld</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ld</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   level factor item    loading         se   ci_lower   ci_upper</span></span>
+<span><span class="co">#&gt; 1     1   m1f1   A1 -0.3155807 0.02831633 -0.3710796 -0.2600817</span></span>
+<span><span class="co">#&gt; 2     1   m1f1   A2  0.5584169 0.02316777  0.5130089  0.6038249</span></span>
+<span><span class="co">#&gt; 3     1   m1f1   A3  0.6424786 0.01971862  0.6038308  0.6811264</span></span>
+<span><span class="co">#&gt; 4     1   m1f1   A4  0.4261675 0.02777029  0.3717387  0.4805962</span></span>
+<span><span class="co">#&gt; 5     1   m1f1   A5  0.6588505 0.01870826  0.6221830  0.6955180</span></span>
+<span><span class="co">#&gt; 6     1   m1f1   C1  0.4138252 0.02754885  0.3598304  0.4678200</span></span></code></pre></div>
+<p>The intervals are computed as loading ± <em>z</em> × SE (default 95%;
+set <code>conf_level = 0.99</code> for wider intervals). For the BFI
+with &gt; 2,000 participants the SEs are small; with smaller samples
+they are important for judging which loadings are meaningfully non-zero.
+For PCA and EFA objects the <code>se</code>, <code>ci_lower</code>, and
+<code>ci_upper</code> columns are present but <code>NA</code> — those
+engines carry no loading SEs.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="per-level-fit-what-it-tells-you-and-what-it-doesnt">Per-level fit: what it tells you (and what it doesn’t)<a class="anchor" aria-label="anchor" href="#per-level-fit-what-it-tells-you-and-what-it-doesnt"></a>
+</h2>
+<div class="section level3">
+<h3 id="the-key-distinction">The key distinction<a class="anchor" aria-label="anchor" href="#the-key-distinction"></a>
+</h3>
+<p>Bass-ackwards produces a <strong>series of independent factor
+solutions</strong>, not a fitted hierarchical model. The between-level
+edges are descriptive correlations between factor scores — they have no
+sampling distribution of their own. Per-level fit indices therefore
+describe something narrower: <strong>does a k-factor model adequately
+reproduce the items at this level?</strong></p>
+<p>That is a real, bounded question. A level that fits terribly is one
+you shouldn’t over-interpret — the k factors are not cleanly separating
+the items. A level that fits well tells you the factor structure at that
+depth is stable. But good fit at k = 3 does <strong>not</strong>
+validate the edges connecting k = 3 to k = 2; it only says the k = 3
+solution itself is trustworthy. Keep that boundary in mind whenever you
+report or interpret fit.</p>
+</div>
+<div class="section level3">
+<h3 id="reporting-fit-with-tidy-and-autoplot">Reporting fit with <code>tidy()</code> and
+<code>autoplot()</code><a class="anchor" aria-label="anchor" href="#reporting-fit-with-tidy-and-autoplot"></a>
+</h3>
+<p><code>tidy(what = "fit")</code> returns the raw long table. For
+reporting, <code>format = "wide"</code> gives one row per level:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"loadings_se"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   level factor item         se</span></span>
-<span><span class="co">#&gt; 1     1   m1f1   A1 0.02831633</span></span>
-<span><span class="co">#&gt; 2     1   m1f1   A2 0.02316777</span></span>
-<span><span class="co">#&gt; 3     1   m1f1   A3 0.01971862</span></span>
-<span><span class="co">#&gt; 4     1   m1f1   A4 0.02777029</span></span>
-<span><span class="co">#&gt; 5     1   m1f1   A5 0.01870826</span></span>
-<span><span class="co">#&gt; 6     1   m1f1   C1 0.02754885</span></span></code></pre></div>
-<p>These SEs allow you to construct confidence intervals: loading ± 1.96
-× SE gives an approximate 95% CI. For the BFI with &gt; 2,000
-participants the SEs are small; with smaller samples they become
-important for judging which loadings are meaningfully non-zero.
-(<code>tidy(what = "loadings_se")</code> errors for PCA and EFA objects,
-which carry no loading standard errors.)</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span>, format <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   level      chi dof p_value       CFI       TLI      RMSEA       SRMR</span></span>
+<span><span class="co">#&gt; 1     2 3172.628 251      NA 0.8869038 0.8648252 0.11540374 0.09547997</span></span>
+<span><span class="co">#&gt; 2     3 1703.232 228      NA 0.9428938 0.9248602 0.08604131 0.07172502</span></span></code></pre></div>
+<p>Add <code>cutoffs = TRUE</code> to flag each index against the Hu
+&amp; Bentler (1999) conventional thresholds (CFI/TLI ≥ .95, RMSEA ≤
+.06, SRMR ≤ .08):</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span>, format <span class="op">=</span> <span class="st">"wide"</span>, cutoffs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   level      chi chi_meets dof dof_meets p_value p_value_meets       CFI</span></span>
+<span><span class="co">#&gt; 1     2 3172.628        NA 251        NA      NA            NA 0.8869038</span></span>
+<span><span class="co">#&gt; 2     3 1703.232        NA 228        NA      NA            NA 0.9428938</span></span>
+<span><span class="co">#&gt;   CFI_meets       TLI TLI_meets      RMSEA RMSEA_meets       SRMR SRMR_meets</span></span>
+<span><span class="co">#&gt; 1     FALSE 0.8648252     FALSE 0.11540374       FALSE 0.09547997      FALSE</span></span>
+<span><span class="co">#&gt; 2     FALSE 0.9248602     FALSE 0.08604131       FALSE 0.07172502       TRUE</span></span></code></pre></div>
+<blockquote>
+<p><strong>Thresholds are conventional and contested.</strong> They were
+derived from specific simulation conditions (continuous,
+well-distributed items; balanced designs). WLSMV fit for ordinal data
+tends to produce lower CFI and higher RMSEA than ML on the same
+underlying structure; do not interpret WLSMV cutoffs as strictly as
+ML-based rules. Use the cutoffs as a rough orientation, not a
+gatekeeping criterion.</p>
+</blockquote>
+<p><code>autoplot(x, what = "fit")</code> visualises the trajectory
+across levels, with cutoff reference lines:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="ackwards-engines_files/figure-html/fit-plot-1.png" class="r-plt" alt="" width="576"></p>
+<p>The shape of the trajectory matters as much as the absolute values: a
+sharp improvement from k = 2 to k = 3 suggests the third factor is
+capturing genuine signal; flat or worsening indices suggest adding
+another level is splitting noise.</p>
+<p><code><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance()</a></code> now also carries the deepest-level fit for
+quick inspection:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span><span class="va">x_esem</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   engine rotation        cor k_max n_obs deepest_converged n_edges       CFI</span></span>
+<span><span class="co">#&gt; 1   esem  varimax polychoric     3   875                 3       8 0.9428938</span></span>
+<span><span class="co">#&gt;         TLI      RMSEA       SRMR BIC</span></span>
+<span><span class="co">#&gt; 1 0.9248602 0.08604131 0.07172502  NA</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="should-you-care-about-fit-in-a-bass-ackwards-workflow">Should you care about fit in a bass-ackwards workflow?<a class="anchor" aria-label="anchor" href="#should-you-care-about-fit-in-a-bass-ackwards-workflow"></a>
+</h3>
+<p>It depends on your goal:</p>
+<ul>
+<li>
+<strong>Exploratory</strong> (finding the hierarchical structure):
+fit is a secondary check. Start with PCA for speed, confirm with EFA or
+ESEM. If a level’s fit is poor, consider whether you have too many
+factors at that depth, or whether the items at that level are genuinely
+multidimensional.</li>
+<li>
+<strong>Confirmatory / publication</strong>: fit is table-stakes for
+ESEM or EFA. Report per-level CFI, TLI, RMSEA (and SRMR for ESEM)
+alongside the hierarchy. The wide table and
+<code>autoplot(what = "fit")</code> are designed for this.</li>
+<li>
+<strong>Ordinal data</strong>: WLSMV (ESEM) gives fit indices
+appropriate for categorical items; EFA’s RMSEA/TLI under Pearson
+correlation is a rougher diagnostic.</li>
+</ul>
+<p>The bottom line: <strong>per-level fit qualifies each level of the
+hierarchy; it does not bless the hierarchy as a whole.</strong> Use it
+to decide how deep the structure is credibly resolved, not to claim the
+overall model is “good”.</p>
 </div>
 </div>
 <div class="section level2">
@@ -1504,7 +1583,7 @@ documented in <code>$meta</code>. Prefer <code>"listwise"</code> or
 </ul>
 <p>A warning is emitted whenever incomplete rows are detected with this
 option.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Default: pairwise (warns if NAs present)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">data_with_nas</span>, k_max <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <p><strong><code>"listwise"</code>.</strong> Data are reduced to
@@ -1512,7 +1591,7 @@ complete cases before <em>all</em> downstream steps — correlation
 matrix, engine fitting, and edges — so the three quantities are fully
 consistent. <code>x$n_obs</code> and <code>x$meta$n_complete</code> both
 reflect the reduced sample size. Valid for all three engines.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Consistent complete-case analysis</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">data_with_nas</span>, k_max <span class="op">=</span> <span class="fl">4</span>, missing <span class="op">=</span> <span class="st">"listwise"</span><span class="op">)</span></span>
 <span><span class="va">x</span><span class="op">$</span><span class="va">n_obs</span>         <span class="co"># complete-case N</span></span>
@@ -1527,12 +1606,12 @@ that fits and edges use the same information. Note: FIML improves
 <em>estimation</em> but does not impute item responses; score
 materialisation (<code>keep_scores = TRUE</code>) still yields
 <code>NA</code> for incomplete rows.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># FIML for ESEM with continuous data</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">data_with_nas</span>, k_max <span class="op">=</span> <span class="fl">4</span>, engine <span class="op">=</span> <span class="st">"esem"</span>,</span>
 <span>              estimator <span class="op">=</span> <span class="st">"ML"</span>, missing <span class="op">=</span> <span class="st">"fiml"</span><span class="op">)</span></span></code></pre></div>
 <p><code>"fiml"</code> errors clearly for unsupported combinations:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Errors: PCA and EFA are correlation-based, not raw-data likelihood</span></span>
 <span><span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">data</span>, k_max <span class="op">=</span> <span class="fl">4</span>, engine <span class="op">=</span> <span class="st">"pca"</span>, missing <span class="op">=</span> <span class="st">"fiml"</span><span class="op">)</span></span>
 <span></span>
@@ -1589,7 +1668,7 @@ a polychoric matrix computed externally, or a subset you want to analyse
 without refitting — you can pass it directly to <code><a href="../reference/ackwards.html">ackwards()</a></code>
 or <code><a href="../reference/suggest_k.html">suggest_k()</a></code>. The matrix is auto-detected from its shape
 (square, symmetric, unit diagonal).</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">bfi25</span>, use <span class="op">=</span> <span class="st">"pairwise.complete.obs"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># PCA from a correlation matrix (n_obs optional for PCA; required for EFA)</span></span>
@@ -1649,7 +1728,7 @@ errors (lavaan needs raw data)</td>
 <div class="section level3">
 <h3 id="suggest_k-with-a-correlation-matrix">suggest_k() with a correlation matrix<a class="anchor" aria-label="anchor" href="#suggest_k-with-a-correlation-matrix"></a>
 </h3>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk_R</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">R</span>, n_obs <span class="op">=</span> <span class="fl">875L</span><span class="op">)</span></span>
 <span><span class="co"># CD is skipped (resampling requires raw item distributions)</span></span>
 <span><span class="co"># PA, MAP, and VSS run normally</span></span></code></pre></div>
@@ -1676,7 +1755,7 @@ fits are independent. If you install the <code>future.apply</code>
 package, <code><a href="../reference/ackwards.html">ackwards()</a></code> dispatches them through the <a href="https://future.futureverse.org" class="external-link">future</a> framework. The default
 plan is sequential (no change in behaviour); to parallelize, set a plan
 once before your call:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages(c("future", "future.apply"))</span></span>
 <span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">multisession</a></span>, workers <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="co"># multicore on Linux/macOS</span></span>
 <span></span>

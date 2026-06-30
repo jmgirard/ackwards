@@ -175,7 +175,9 @@ x_esem
 #> 5 of 8 edges have |r| ≥ 0.3
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
-#> Cross-level edges are descriptive score correlations.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 ```
 
 The WLSMV fit indices (CFI, RMSEA, SRMR) are now computed on a model
@@ -186,30 +188,17 @@ WLSMV uses.
 
 ``` r
 
-tidy(x_esem, what = "fit")
-#>    level   index        value
-#> 1      1     chi 7.629329e+03
-#> 2      1     dof 2.750000e+02
-#> 3      1 p_value           NA
-#> 4      1     CFI 7.153139e-01
-#> 5      1     TLI 6.894333e-01
-#> 6      1   RMSEA 1.749240e-01
-#> 7      1    SRMR 1.443569e-01
-#> 8      2     chi 3.172628e+03
-#> 9      2     dof 2.510000e+02
-#> 10     2 p_value           NA
-#> 11     2     CFI 8.869038e-01
-#> 12     2     TLI 8.648252e-01
-#> 13     2   RMSEA 1.154037e-01
-#> 14     2    SRMR 9.547997e-02
-#> 15     3     chi 1.703232e+03
-#> 16     3     dof 2.280000e+02
-#> 17     3 p_value           NA
-#> 18     3     CFI 9.428938e-01
-#> 19     3     TLI 9.248602e-01
-#> 20     3   RMSEA 8.604131e-02
-#> 21     3    SRMR 7.172502e-02
+tidy(x_esem, what = "fit", format = "wide")
+#>   level      chi dof p_value       CFI       TLI      RMSEA       SRMR
+#> 1     2 3172.628 251      NA 0.8869038 0.8648252 0.11540374 0.09547997
+#> 2     3 1703.232 228      NA 0.9428938 0.9248602 0.08604131 0.07172502
 ```
+
+See
+[`vignette("ackwards-engines")`](https://jmgirard.github.io/ackwards/articles/ackwards-engines.md),
+section “Per-level fit: what it tells you (and what it doesn’t)”, for
+how to interpret these indices in the bass-ackwards context and how to
+produce the `autoplot(what = "fit")` trajectory chart.
 
 ## Practical guidance: when to use polychoric
 

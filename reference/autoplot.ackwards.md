@@ -1,10 +1,11 @@
-# Plot a bass-ackwards diagram
+# Plot a bass-ackwards diagram or per-level fit index chart
 
-Renders the layered bass-ackwards hierarchy as a ggplot2 diagram.
-Factors appear as labelled boxes arranged in levels (level 1 at top,
-level k at bottom). Between-level edges are drawn as arrows coloured by
-sign and scaled by \|r\|. Edges below `cut_show` are hidden; edges above
-`cut_strong` are solid and those between the two thresholds are dashed.
+When `what = "hierarchy"` (default), renders the layered bass-ackwards
+hierarchy as a ggplot2 diagram. Factors appear as labelled boxes
+arranged in levels (level 1 at top, level k at bottom). Between-level
+edges are drawn as arrows coloured by sign and scaled by \|r\|. Edges
+below `cut_show` are hidden; edges above `cut_strong` are solid and
+those between the two thresholds are dashed.
 
 ## Usage
 
@@ -12,6 +13,7 @@ sign and scaled by \|r\|. Edges below `cut_show` are hidden; edges above
 # S3 method for class 'ackwards'
 autoplot(
   object,
+  what = c("hierarchy", "fit"),
   cut_show = NULL,
   cut_strong = 0.5,
   color_pos = "#2166AC",
@@ -47,6 +49,12 @@ plot(x, ...)
 - object:
 
   An `ackwards` object.
+
+- what:
+
+  One of `"hierarchy"` (default) or `"fit"`. Controls which
+  visualisation is produced. All other parameters are ignored when
+  `what = "fit"`.
 
 - cut_show:
 
@@ -203,6 +211,13 @@ A `ggplot` object.
 
 ## Details
 
+When `what = "fit"`, renders a two-panel line plot of per-level fit
+indices (CFI/TLI in the top panel; RMSEA/SRMR in the bottom panel) with
+horizontal reference lines at conventional Hu & Bentler (1999)
+thresholds. The anchor level (k = 1, saturated and always fits
+perfectly) is excluded. Requires an EFA or ESEM engine; returns an
+informative empty plot for PCA (which has no model-fit indices).
+
 Requires the ggplot2 package.
 
 ## See also
@@ -218,6 +233,10 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   x <- ackwards(bfi25, k_max = 5)
   autoplot(x)
   autoplot(x, cut_strong = 0.6, color_pos = "steelblue")
+
+  # Per-level fit index chart (EFA or ESEM only)
+  x_efa <- ackwards(bfi25, k_max = 5, engine = "efa")
+  autoplot(x_efa, what = "fit")
 
   # Monochrome with correlation labels (for greyscale figures)
   autoplot(x, mono = TRUE, show_r = TRUE)
@@ -250,6 +269,8 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
     edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
   )
 }
+#> Warning: ! 125 rows have missing values; correlations are computed pairwise.
+#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
 #> Warning: ! 125 rows have missing values; correlations are computed pairwise.
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
 #> ℹ `pairs` upgraded to "all": pruning requires all-levels edges to assess

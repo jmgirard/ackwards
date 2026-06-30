@@ -83,10 +83,12 @@ as part of the definition of done.
   signals, φ auto-default)
 - **M26** — Faster ESEM on large item sets (cached sample stats +
   parallel per-level fits)
+- **M27** — ESEM fit & SEs as first-class output (glance fit, wide fit
+  table, cutoff flags, loading CIs, fit plot, vignette framing)
 
 ## Current focus
 
-No active milestone. M26 completed 2026-06-30.
+No active milestone. M27 completed 2026-06-30.
 
 ## Invariants — do not violate without flagging
 

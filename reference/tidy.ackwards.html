@@ -63,9 +63,12 @@ default (<code>what = "edges"</code>) returns the graph edge list that drives di
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'ackwards'</span></span>
 <span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
-<span>  what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"edges"</span>, <span class="st">"loadings"</span>, <span class="st">"loadings_se"</span>, <span class="st">"variance"</span>, <span class="st">"fit"</span>, <span class="st">"nodes"</span>, <span class="st">"scores"</span><span class="op">)</span>,</span>
+<span>  what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"edges"</span>, <span class="st">"loadings"</span>, <span class="st">"variance"</span>, <span class="st">"fit"</span>, <span class="st">"nodes"</span>, <span class="st">"scores"</span><span class="op">)</span>,</span>
 <span>  primary_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  sort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"strength"</span><span class="op">)</span>,</span>
+<span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"long"</span>, <span class="st">"wide"</span><span class="op">)</span>,</span>
+<span>  cutoffs <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  conf_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -82,16 +85,26 @@ default (<code>what = "edges"</code>) returns the graph edge list that drives di
 <dd><p>What to extract:</p><ul><li><p><code>"edges"</code> <em>(default)</em> – one row per directed between-level edge:
 <code>from</code>, <code>to</code>, <code>level_from</code>, <code>level_to</code>, <code>r</code>, <code>is_primary</code>, <code>above_cut</code>.</p></li>
 <li><p><code>"loadings"</code> – one row per item x factor x level:
-<code>level</code>, <code>factor</code>, <code>item</code>, <code>loading</code>.</p></li>
-<li><p><code>"loadings_se"</code> – one row per item x factor x level with the rotation-aware
-standard error of each loading: <code>level</code>, <code>factor</code>, <code>item</code>, <code>se</code>. Only the
-ESEM engine (<code>engine = "esem"</code>) produces these; errors informatively for
-PCA/EFA objects, which carry no loading standard errors.</p></li>
+<code>level</code>, <code>factor</code>, <code>item</code>, <code>loading</code>, <code>se</code>, <code>ci_lower</code>, <code>ci_upper</code>.
+<code>se</code>, <code>ci_lower</code>, and <code>ci_upper</code> are populated only for
+<code>engine = "esem"</code> (which produces rotation-aware loading SEs); they are
+<code>NA</code> for PCA and EFA. The confidence level is controlled by <code>conf_level</code>.</p></li>
 <li><p><code>"variance"</code> – one row per factor x level:
 <code>level</code>, <code>factor</code>, <code>variance_pct</code>, <code>cumulative_pct</code>.</p></li>
 <li><p><code>"fit"</code> – one row per fit index x level: <code>level</code>, <code>index</code>, <code>value</code>.
 For PCA objects the indices are eigenvalues; for EFA objects they are
-<code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>RMSEA</code>, <code>TLI</code>, <code>BIC</code>.</p></li>
+<code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>RMSEA</code>, <code>TLI</code>, <code>BIC</code>; for ESEM they are
+<code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>CFI</code>, <code>TLI</code>, <code>RMSEA</code>, <code>SRMR</code>. Use
+<code>format = "wide"</code> for one row per <strong>non-anchor</strong> level (k &gt;= 2; the
+saturated 1-factor anchor is dropped, matching <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and
+<code>autoplot(what = "fit")</code>), one column per index. Add <code>cutoffs = TRUE</code> to
+append a <code>meets</code> column flagging each index against conventional
+thresholds (Hu &amp; Bentler 1999: CFI/TLI &gt;= .95, RMSEA &lt;= .06,
+SRMR &lt;= .08); indices without a defined threshold (e.g. <code>chi</code>, <code>BIC</code>,
+eigenvalues) return <code>NA</code> for <code>meets</code>. Thresholds are conventional and
+contested; they are report-only and never gate anything. <code>format</code> and
+<code>cutoffs</code> are oriented to the EFA/ESEM model-fit indices; for PCA the
+"indices" are per-component eigenvalues.</p></li>
 <li><p><code>"nodes"</code> – Forbes-extension pruning annotations (requires <code>prune != "none"</code>
 when the object was created). One row per factor across all levels:
 <code>id</code>, <code>level</code>, <code>pruned</code>, <code>prune_reason</code>. Returns an empty data frame with
@@ -112,6 +125,26 @@ any other value of <code>what</code>.</p></dd>
 <dt id="arg-sort">sort<a class="anchor" aria-label="anchor" href="#arg-sort"></a></dt>
 <dd><p>For <code>what = "edges"</code> only. One of <code>"none"</code> (default, natural order)
 or <code>"strength"</code> (descending <code>|r|</code>). Ignored for all other values of <code>what</code>.</p></dd>
+
+
+<dt id="arg-format">format<a class="anchor" aria-label="anchor" href="#arg-format"></a></dt>
+<dd><p>For <code>what = "fit"</code> only. One of <code>"long"</code> (default, one row per
+index x level) or <code>"wide"</code> (one row per level, one column per index).
+Errors for all other values of <code>what</code>.</p></dd>
+
+
+<dt id="arg-cutoffs">cutoffs<a class="anchor" aria-label="anchor" href="#arg-cutoffs"></a></dt>
+<dd><p>For <code>what = "fit"</code> only. When <code>TRUE</code>, appends a logical <code>meets</code>
+column indicating whether each index meets its conventional threshold (Hu &amp;
+Bentler 1999). <code>NA</code> when no threshold is defined for that index. Default
+<code>FALSE</code>. Errors for all other values of <code>what</code>.</p></dd>
+
+
+<dt id="arg-conf-level">conf_level<a class="anchor" aria-label="anchor" href="#arg-conf-level"></a></dt>
+<dd><p>For <code>what = "loadings"</code> only. Confidence level for the
+loading intervals; default <code>0.95</code>. The intervals are computed as
+<code>loading ± qnorm((1 + conf_level) / 2) * se</code> and are <code>NA</code> for engines
+that carry no SEs (PCA, EFA). Errors for all other values of <code>what</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -233,382 +266,382 @@ or <code>"strength"</code> (descending <code>|r|</code>). Ignored for all other 
 <span class="r-out co"><span class="r-pr">#&gt;</span> 13 m4f3 m5f3          4        5  0.9847983       TRUE      TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 14 m4f4 m5f5          4        5  0.9635107       TRUE      TRUE</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     level factor item       loading</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1   m1f1   A1 -0.3061961995</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       1   m1f1   A2  0.5402566804</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       1   m1f1   A3  0.6024065155</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       1   m1f1   A4  0.4483209246</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5       1   m1f1   A5  0.6459661082</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6       1   m1f1   C1  0.3809485870</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7       1   m1f1   C2  0.4073284603</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8       1   m1f1   C3  0.3662536411</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9       1   m1f1   C4 -0.4996871502</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10      1   m1f1   C5 -0.5604936869</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11      1   m1f1   E1 -0.4424410074</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12      1   m1f1   E2 -0.6361801372</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13      1   m1f1   E3  0.5552669387</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14      1   m1f1   E4  0.5873197321</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15      1   m1f1   E5  0.5711174529</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16      1   m1f1   N1 -0.4328876727</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17      1   m1f1   N2 -0.3711237506</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18      1   m1f1   N3 -0.3678223061</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19      1   m1f1   N4 -0.4898668897</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20      1   m1f1   N5 -0.3149134890</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21      1   m1f1   O1  0.3536240085</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22      1   m1f1   O2 -0.1696017175</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23      1   m1f1   O3  0.4269569343</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24      1   m1f1   O4 -0.0450614665</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25      1   m1f1   O5 -0.2428184266</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26      2   m2f1   A1 -0.2974353300</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27      2   m2f1   A2  0.6192390413</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28      2   m2f1   A3  0.6903578930</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29      2   m2f1   A4  0.4356493140</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30      2   m2f1   A5  0.6611472978</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31      2   m2f1   C1  0.3410425462</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32      2   m2f1   C2  0.4253111751</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33      2   m2f1   C3  0.3332485909</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34      2   m2f1   C4 -0.3372972262</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35      2   m2f1   C5 -0.3773528609</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 36      2   m2f1   E1 -0.5092361988</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 37      2   m2f1   E2 -0.5951785530</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 38      2   m2f1   E3  0.6624432525</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 39      2   m2f1   E4  0.6300976720</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 40      2   m2f1   E5  0.6122939866</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 41      2   m2f1   N1 -0.0810478503</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 42      2   m2f1   N2 -0.0073626233</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 43      2   m2f1   N3  0.0061178407</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 44      2   m2f1   N4 -0.2068825134</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 45      2   m2f1   N5 -0.0186525984</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 46      2   m2f1   O1  0.4207181492</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 47      2   m2f1   O2 -0.0552477704</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 48      2   m2f1   O3  0.5201614551</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 49      2   m2f1   O4  0.1184274579</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 50      2   m2f1   O5 -0.1884883764</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 51      2   m2f2   A1 -0.0940951697</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 52      2   m2f2   A2 -0.0072648510</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 53      2   m2f2   A3 -0.0078860370</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 54      2   m2f2   A4  0.1374848610</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 55      2   m2f2   A5  0.1367386516</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 56      2   m2f2   C1  0.1702904231</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 57      2   m2f2   C2  0.0707924089</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 58      2   m2f2   C3  0.1538835145</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 59      2   m2f2   C4 -0.4252903243</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 60      2   m2f2   C5 -0.4788597467</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 61      2   m2f2   E1  0.0098264827</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 62      2   m2f2   E2 -0.2373345574</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 63      2   m2f2   E3 -0.0551730838</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 64      2   m2f2   E4  0.0711582430</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 65      2   m2f2   E5  0.0699682532</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 66      2   m2f2   N1 -0.7558899633</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 67      2   m2f2   N2 -0.7620266161</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 68      2   m2f2   N3 -0.7798628127</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 69      2   m2f2   N4 -0.6440660642</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 70      2   m2f2   N5 -0.6238482902</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 71      2   m2f2   O1 -0.0330059179</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 72      2   m2f2   O2 -0.2530424511</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 73      2   m2f2   O3 -0.0622301881</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 74      2   m2f2   O4 -0.3114665925</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 75      2   m2f2   O5 -0.1615608763</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 76      3   m3f1   A1 -0.3303815400</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 77      3   m3f1   A2  0.6115763242</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 78      3   m3f1   A3  0.7183590386</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 79      3   m3f1   A4  0.4230101783</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 80      3   m3f1   A5  0.7055300255</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 81      3   m3f1   C1  0.0812624767</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 82      3   m3f1   C2  0.1603434517</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 83      3   m3f1   C3  0.1206567726</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 84      3   m3f1   C4 -0.0851470599</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 85      3   m3f1   C5 -0.2032909896</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 86      3   m3f1   E1 -0.5777625170</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 87      3   m3f1   E2 -0.6574242246</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 88      3   m3f1   E3  0.6728364031</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 89      3   m3f1   E4  0.7349322733</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 90      3   m3f1   E5  0.4897306828</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 91      3   m3f1   N1 -0.0964706076</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 92      3   m3f1   N2 -0.0493075848</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 93      3   m3f1   N3 -0.0351947964</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 94      3   m3f1   N4 -0.2229928522</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 95      3   m3f1   N5 -0.0334413067</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 96      3   m3f1   O1  0.2989168015</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 97      3   m3f1   O2  0.1271938761</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 98      3   m3f1   O3  0.3963740430</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 99      3   m3f1   O4  0.0159519776</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 100     3   m3f1   O5 -0.0169511178</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 101     3   m3f2   A1  0.1039099166</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 102     3   m3f2   A2  0.0290454598</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 103     3   m3f2   A3  0.0102562844</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 104     3   m3f2   A4 -0.1153472243</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 105     3   m3f2   A5 -0.1425063110</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 106     3   m3f2   C1 -0.0020184624</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 107     3   m3f2   C2  0.1012245093</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 108     3   m3f2   C3 -0.0144123380</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 109     3   m3f2   C4  0.2572858865</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 110     3   m3f2   C5  0.3556383574</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 111     3   m3f2   E1  0.0172032498</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 112     3   m3f2   E2  0.2539180175</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 113     3   m3f2   E3  0.0665042347</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 114     3   m3f2   E4 -0.1151820137</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 115     3   m3f2   E5  0.0218610730</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 116     3   m3f2   N1  0.7497924042</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 117     3   m3f2   N2  0.7737882151</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 118     3   m3f2   N3  0.7913133924</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 119     3   m3f2   N4  0.6367982646</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 120     3   m3f2   N5  0.6213997894</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 121     3   m3f2   O1  0.1172407466</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 122     3   m3f2   O2  0.1377080454</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 123     3   m3f2   O3  0.1499302915</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 124     3   m3f2   O4  0.3708421618</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 125     3   m3f2   O5  0.0506242222</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 126     3   m3f3   A1 -0.0174112818</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 127     3   m3f3   A2  0.1518303860</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 128     3   m3f3   A3  0.0944272838</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 129     3   m3f3   A4  0.1502168591</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 130     3   m3f3   A5  0.0833234089</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 131     3   m3f3   C1  0.6421892585</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 132     3   m3f3   C2  0.6516225810</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 133     3   m3f3   C3  0.5404779292</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 134     3   m3f3   C4 -0.6767739810</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 135     3   m3f3   C5 -0.5363850435</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 136     3   m3f3   E1  0.0292443610</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 137     3   m3f3   E2 -0.0522024215</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 138     3   m3f3   E3  0.1148393306</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 139     3   m3f3   E4 -0.0605784374</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 140     3   m3f3   E5  0.4011960574</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 141     3   m3f3   N1 -0.1377348228</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 142     3   m3f3   N2 -0.0682444634</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 143     3   m3f3   N3 -0.0701159278</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 144     3   m3f3   N4 -0.1418965086</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 145     3   m3f3   N5 -0.0987360250</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 146     3   m3f3   O1  0.3364546181</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 147     3   m3f3   O2 -0.4367816880</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 148     3   m3f3   O3  0.3567679371</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 149     3   m3f3   O4  0.1739417937</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 150     3   m3f3   O5 -0.4257258220</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 151     4   m4f1   A1 -0.3313259612</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 152     4   m4f1   A2  0.6039367656</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 153     4   m4f1   A3  0.7147046980</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 154     4   m4f1   A4  0.4273539113</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 155     4   m4f1   A5  0.7021785549</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 156     4   m4f1   C1  0.0422291268</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 157     4   m4f1   C2  0.1231215140</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 158     4   m4f1   C3  0.0958302985</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 159     4   m4f1   C4 -0.0487939384</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 160     4   m4f1   C5 -0.1797876827</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 161     4   m4f1   E1 -0.5697606325</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 162     4   m4f1   E2 -0.6516925126</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 163     4   m4f1   E3  0.6532615369</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 164     4   m4f1   E4  0.7414915202</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 165     4   m4f1   E5  0.4594144547</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 166     4   m4f1   N1 -0.0941837756</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 167     4   m4f1   N2 -0.0553300908</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 168     4   m4f1   N3 -0.0406377287</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 169     4   m4f1   N4 -0.2240453960</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 170     4   m4f1   N5 -0.0274511387</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 171     4   m4f1   O1  0.2567842820</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 172     4   m4f1   O2  0.1711555605</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 173     4   m4f1   O3  0.3497320811</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 174     4   m4f1   O4 -0.0131031326</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 175     4   m4f1   O5  0.0321115985</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 176     4   m4f2   A1  0.0955211947</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 177     4   m4f2   A2  0.0446683588</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 178     4   m4f2   A3  0.0303498078</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 179     4   m4f2   A4 -0.0645877449</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 180     4   m4f2   A5 -0.1316413255</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 181     4   m4f2   C1 -0.0167405670</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 182     4   m4f2   C2  0.1023277576</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 183     4   m4f2   C3  0.0046958003</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 184     4   m4f2   C4  0.2673087704</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 185     4   m4f2   C5  0.3481249429</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 186     4   m4f2   E1  0.0441517470</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 187     4   m4f2   E2  0.2654751733</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 188     4   m4f2   E3  0.0311162926</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 189     4   m4f2   E4 -0.0942070452</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 190     4   m4f2   E5 -0.0007009622</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 191     4   m4f2   N1  0.7661581249</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 192     4   m4f2   N2  0.7746854036</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 193     4   m4f2   N3  0.7952344769</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 194     4   m4f2   N4  0.6311055866</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 195     4   m4f2   N5  0.6549982895</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 196     4   m4f2   O1  0.0363850621</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 197     4   m4f2   O2  0.2257924242</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 198     4   m4f2   O3  0.0594071797</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 199     4   m4f2   O4  0.3140180240</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 200     4   m4f2   O5  0.1535961414</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 201     4   m4f3   A1 -0.0525499338</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 202     4   m4f3   A2  0.2327708767</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 203     4   m4f3   A3  0.1881019714</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 204     4   m4f3   A4  0.3507576734</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 205     4   m4f3   A5  0.1387975421</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 206     4   m4f3   C1  0.6448308647</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 207     4   m4f3   C2  0.7160906394</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 208     4   m4f3   C3  0.6569091667</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 209     4   m4f3   C4 -0.6930818547</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 210     4   m4f3   C5 -0.6037711831</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 211     4   m4f3   E1  0.1188657289</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 212     4   m4f3   E2 -0.0205889366</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 213     4   m4f3   E3  0.0107474091</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 214     4   m4f3   E4  0.0203836671</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 215     4   m4f3   E5  0.3631598043</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 216     4   m4f3   N1 -0.0736905655</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 217     4   m4f3   N2 -0.0526571866</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 218     4   m4f3   N3 -0.0430977492</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 219     4   m4f3   N4 -0.1628048739</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 220     4   m4f3   N5  0.0287274682</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 221     4   m4f3   O1  0.0816460319</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 222     4   m4f3   O2 -0.1504248925</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 223     4   m4f3   O3  0.0713838170</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 224     4   m4f3   O4 -0.0068410908</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 225     4   m4f3   O5 -0.0894989674</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 226     4   m4f4   A1  0.0210757701</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 227     4   m4f4   A2 -0.0071811608</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 228     4   m4f4   A3 -0.0312817116</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 229     4   m4f4   A4 -0.2526735344</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 230     4   m4f4   A5  0.0098017544</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 231     4   m4f4   C1  0.1773942500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 232     4   m4f4   C2  0.0993324605</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 233     4   m4f4   C3 -0.0372129122</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 234     4   m4f4   C4 -0.1332430159</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 235     4   m4f4   C5 -0.0144851966</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 236     4   m4f4   E1 -0.2214795546</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 237     4   m4f4   E2 -0.1279460322</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 238     4   m4f4   E3  0.3075220245</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 239     4   m4f4   E4 -0.0639678547</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 240     4   m4f4   E5  0.2415681995</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 241     4   m4f4   N1 -0.0671574532</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 242     4   m4f4   N2  0.0423634074</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 243     4   m4f4   N3  0.0267094752</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 244     4   m4f4   N4  0.0434481315</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 245     4   m4f4   N5 -0.1702988944</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 246     4   m4f4   O1  0.5742195385</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 247     4   m4f4   O2 -0.5638093117</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 248     4   m4f4   O3  0.6486197349</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 249     4   m4f4   O4  0.3976634657</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 250     4   m4f4   O5 -0.6754313044</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 251     5   m5f1   A1  0.0646226924</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 252     5   m5f1   A2  0.2672782045</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 253     5   m5f1   A3  0.3820508243</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 254     5   m5f1   A4  0.1363548060</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 255     5   m5f1   A5  0.4646610567</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 256     5   m5f1   C1  0.0583256948</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 257     5   m5f1   C2  0.0431850468</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 258     5   m5f1   C3  0.0025303501</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 259     5   m5f1   C4 -0.0160723150</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 260     5   m5f1   C5 -0.1858360861</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 261     5   m5f1   E1 -0.6841842145</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 262     5   m5f1   E2 -0.7215885907</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 263     5   m5f1   E3  0.6535774970</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 264     5   m5f1   E4  0.7051005673</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 265     5   m5f1   E5  0.5747070478</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 266     5   m5f1   N1  0.0536435676</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 267     5   m5f1   N2  0.0840702661</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 268     5   m5f1   N3 -0.0250658759</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 269     5   m5f1   N4 -0.3018914765</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 270     5   m5f1   N5 -0.1617027467</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 271     5   m5f1   O1  0.3013971766</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 272     5   m5f1   O2  0.0929484238</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 273     5   m5f1   O3  0.3788252574</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 274     5   m5f1   O4 -0.1774937648</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 275     5   m5f1   O5 -0.0328080987</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 276     5   m5f2   A1  0.1256711315</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 277     5   m5f2   A2  0.0285960200</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 278     5   m5f2   A3  0.0162766653</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 279     5   m5f2   A4 -0.0760973347</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 280     5   m5f2   A5 -0.1383137204</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 281     5   m5f2   C1 -0.0051847203</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 282     5   m5f2   C2  0.1083356030</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 283     5   m5f2   C3  0.0088518694</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 284     5   m5f2   C4  0.2594918952</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 285     5   m5f2   C5  0.3346991836</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 286     5   m5f2   E1  0.0258185253</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 287     5   m5f2   E2  0.2470504064</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 288     5   m5f2   E3  0.0418378502</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 289     5   m5f2   E4 -0.0823275105</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 290     5   m5f2   E5  0.0233822649</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 291     5   m5f2   N1  0.7788020049</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 292     5   m5f2   N2  0.7867916446</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 293     5   m5f2   N3  0.7961909316</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 294     5   m5f2   N4  0.6172249847</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 295     5   m5f2   N5  0.6445215425</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 296     5   m5f2   O1  0.0425566548</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 297     5   m5f2   O2  0.2240602326</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 298     5   m5f2   O3  0.0652192570</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 299     5   m5f2   O4  0.2953825855</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 300     5   m5f2   O5  0.1521555346</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 301     5   m5f3   A1  0.0465825257</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 302     5   m5f3   A2  0.1721850162</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 303     5   m5f3   A3  0.1362534957</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 304     5   m5f3   A4  0.3037543655</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 305     5   m5f3   A5  0.1144396535</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 306     5   m5f3   C1  0.6581766639</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 307     5   m5f3   C2  0.7081232447</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 308     5   m5f3   C3  0.6471358944</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 309     5   m5f3   C4 -0.6954819104</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 310     5   m5f3   C5 -0.6299162649</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 311     5   m5f3   E1  0.0546615449</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 312     5   m5f3   E2 -0.0833393990</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 313     5   m5f3   E3  0.0438759226</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 314     5   m5f3   E4  0.0615241916</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 315     5   m5f3   E5  0.4279181649</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 316     5   m5f3   N1 -0.0373994780</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 317     5   m5f3   N2 -0.0198162758</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 318     5   m5f3   N3 -0.0472910889</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 319     5   m5f3   N4 -0.2100690587</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 320     5   m5f3   N5 -0.0124671510</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 321     5   m5f3   O1  0.0943080836</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 322     5   m5f3   O2 -0.1481708602</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 323     5   m5f3   O3  0.0825441466</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 324     5   m5f3   O4 -0.0744790766</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 325     5   m5f3   O5 -0.0870502848</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 326     5   m5f4   A1 -0.6608493873</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 327     5   m5f4   A2  0.6619262832</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 328     5   m5f4   A3  0.6899489715</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 329     5   m5f4   A4  0.5197398678</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 330     5   m5f4   A5  0.5565035029</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 331     5   m5f4   C1 -0.0028200627</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 332     5   m5f4   C2  0.1502576422</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 333     5   m5f4   C3  0.1500251371</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 334     5   m5f4   C4 -0.0644977888</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 335     5   m5f4   C5 -0.0427313221</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 336     5   m5f4   E1 -0.0394679906</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 337     5   m5f4   E2 -0.1191348980</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 338     5   m5f4   E3  0.2320593807</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 339     5   m5f4   E4  0.2806622823</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 340     5   m5f4   E5 -0.0014964851</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 341     5   m5f4   N1 -0.2452915782</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 342     5   m5f4   N2 -0.2121788489</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 343     5   m5f4   N3 -0.0344889973</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 344     5   m5f4   N4  0.0426402534</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 345     5   m5f4   N5  0.1637513829</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 346     5   m5f4   O1  0.0656490791</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 347     5   m5f4   O2  0.1181424307</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 348     5   m5f4   O3  0.1232896124</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 349     5   m5f4   O4  0.2602278049</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 350     5   m5f4   O5  0.0454013494</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 351     5   m5f5   A1 -0.1205757842</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 352     5   m5f5   A2  0.0618886113</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 353     5   m5f5   A3  0.0205631842</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 354     5   m5f5   A4 -0.1966166381</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 355     5   m5f5   A5  0.0233730897</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 356     5   m5f5   C1  0.1546256305</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 357     5   m5f5   C2  0.1035115928</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 358     5   m5f5   C3 -0.0275059206</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 359     5   m5f5   C4 -0.1318524854</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 360     5   m5f5   C5  0.0267485097</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 361     5   m5f5   E1 -0.1033688412</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 362     5   m5f5   E2 -0.0128878820</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 363     5   m5f5   E3  0.2324427219</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 364     5   m5f5   E4 -0.1531437588</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 365     5   m5f5   E5  0.1247753442</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 366     5   m5f5   N1 -0.1348113658</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 367     5   m5f5   N2 -0.0213668932</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 368     5   m5f5   N3  0.0188382240</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 369     5   m5f5   N4  0.1122029266</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 370     5   m5f5   N5 -0.1197031854</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 371     5   m5f5   O1  0.5458112825</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 372     5   m5f5   O2 -0.5793620831</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 373     5   m5f5   O3  0.6188115571</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 374     5   m5f5   O4  0.4968108232</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 375     5   m5f5   O5 -0.6850859719</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     level factor item       loading se ci_lower ci_upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       1   m1f1   A1 -0.3061961995 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       1   m1f1   A2  0.5402566804 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       1   m1f1   A3  0.6024065155 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       1   m1f1   A4  0.4483209246 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       1   m1f1   A5  0.6459661082 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       1   m1f1   C1  0.3809485870 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7       1   m1f1   C2  0.4073284603 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8       1   m1f1   C3  0.3662536411 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9       1   m1f1   C4 -0.4996871502 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10      1   m1f1   C5 -0.5604936869 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11      1   m1f1   E1 -0.4424410074 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12      1   m1f1   E2 -0.6361801372 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13      1   m1f1   E3  0.5552669387 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14      1   m1f1   E4  0.5873197321 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15      1   m1f1   E5  0.5711174529 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16      1   m1f1   N1 -0.4328876727 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17      1   m1f1   N2 -0.3711237506 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18      1   m1f1   N3 -0.3678223061 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19      1   m1f1   N4 -0.4898668897 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20      1   m1f1   N5 -0.3149134890 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21      1   m1f1   O1  0.3536240085 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22      1   m1f1   O2 -0.1696017175 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23      1   m1f1   O3  0.4269569343 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24      1   m1f1   O4 -0.0450614665 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25      1   m1f1   O5 -0.2428184266 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26      2   m2f1   A1 -0.2974353300 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27      2   m2f1   A2  0.6192390413 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28      2   m2f1   A3  0.6903578930 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29      2   m2f1   A4  0.4356493140 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30      2   m2f1   A5  0.6611472978 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31      2   m2f1   C1  0.3410425462 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32      2   m2f1   C2  0.4253111751 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33      2   m2f1   C3  0.3332485909 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34      2   m2f1   C4 -0.3372972262 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35      2   m2f1   C5 -0.3773528609 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36      2   m2f1   E1 -0.5092361988 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37      2   m2f1   E2 -0.5951785530 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38      2   m2f1   E3  0.6624432525 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39      2   m2f1   E4  0.6300976720 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40      2   m2f1   E5  0.6122939866 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 41      2   m2f1   N1 -0.0810478503 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 42      2   m2f1   N2 -0.0073626233 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43      2   m2f1   N3  0.0061178407 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 44      2   m2f1   N4 -0.2068825134 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 45      2   m2f1   N5 -0.0186525984 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 46      2   m2f1   O1  0.4207181492 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 47      2   m2f1   O2 -0.0552477704 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 48      2   m2f1   O3  0.5201614551 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 49      2   m2f1   O4  0.1184274579 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 50      2   m2f1   O5 -0.1884883764 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 51      2   m2f2   A1 -0.0940951697 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 52      2   m2f2   A2 -0.0072648510 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 53      2   m2f2   A3 -0.0078860370 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 54      2   m2f2   A4  0.1374848610 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 55      2   m2f2   A5  0.1367386516 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 56      2   m2f2   C1  0.1702904231 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 57      2   m2f2   C2  0.0707924089 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 58      2   m2f2   C3  0.1538835145 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 59      2   m2f2   C4 -0.4252903243 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 60      2   m2f2   C5 -0.4788597467 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 61      2   m2f2   E1  0.0098264827 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 62      2   m2f2   E2 -0.2373345574 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 63      2   m2f2   E3 -0.0551730838 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 64      2   m2f2   E4  0.0711582430 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 65      2   m2f2   E5  0.0699682532 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 66      2   m2f2   N1 -0.7558899633 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 67      2   m2f2   N2 -0.7620266161 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 68      2   m2f2   N3 -0.7798628127 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 69      2   m2f2   N4 -0.6440660642 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 70      2   m2f2   N5 -0.6238482902 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 71      2   m2f2   O1 -0.0330059179 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 72      2   m2f2   O2 -0.2530424511 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 73      2   m2f2   O3 -0.0622301881 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 74      2   m2f2   O4 -0.3114665925 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 75      2   m2f2   O5 -0.1615608763 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 76      3   m3f1   A1 -0.3303815400 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 77      3   m3f1   A2  0.6115763242 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 78      3   m3f1   A3  0.7183590386 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 79      3   m3f1   A4  0.4230101783 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 80      3   m3f1   A5  0.7055300255 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 81      3   m3f1   C1  0.0812624767 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 82      3   m3f1   C2  0.1603434517 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 83      3   m3f1   C3  0.1206567726 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 84      3   m3f1   C4 -0.0851470599 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 85      3   m3f1   C5 -0.2032909896 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 86      3   m3f1   E1 -0.5777625170 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 87      3   m3f1   E2 -0.6574242246 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 88      3   m3f1   E3  0.6728364031 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 89      3   m3f1   E4  0.7349322733 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 90      3   m3f1   E5  0.4897306828 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 91      3   m3f1   N1 -0.0964706076 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 92      3   m3f1   N2 -0.0493075848 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 93      3   m3f1   N3 -0.0351947964 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 94      3   m3f1   N4 -0.2229928522 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 95      3   m3f1   N5 -0.0334413067 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 96      3   m3f1   O1  0.2989168015 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 97      3   m3f1   O2  0.1271938761 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 98      3   m3f1   O3  0.3963740430 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 99      3   m3f1   O4  0.0159519776 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 100     3   m3f1   O5 -0.0169511178 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 101     3   m3f2   A1  0.1039099166 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 102     3   m3f2   A2  0.0290454598 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 103     3   m3f2   A3  0.0102562844 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 104     3   m3f2   A4 -0.1153472243 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 105     3   m3f2   A5 -0.1425063110 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 106     3   m3f2   C1 -0.0020184624 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 107     3   m3f2   C2  0.1012245093 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 108     3   m3f2   C3 -0.0144123380 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 109     3   m3f2   C4  0.2572858865 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 110     3   m3f2   C5  0.3556383574 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 111     3   m3f2   E1  0.0172032498 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 112     3   m3f2   E2  0.2539180175 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 113     3   m3f2   E3  0.0665042347 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 114     3   m3f2   E4 -0.1151820137 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 115     3   m3f2   E5  0.0218610730 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 116     3   m3f2   N1  0.7497924042 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 117     3   m3f2   N2  0.7737882151 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 118     3   m3f2   N3  0.7913133924 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 119     3   m3f2   N4  0.6367982646 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 120     3   m3f2   N5  0.6213997894 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 121     3   m3f2   O1  0.1172407466 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 122     3   m3f2   O2  0.1377080454 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 123     3   m3f2   O3  0.1499302915 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 124     3   m3f2   O4  0.3708421618 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 125     3   m3f2   O5  0.0506242222 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 126     3   m3f3   A1 -0.0174112818 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 127     3   m3f3   A2  0.1518303860 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 128     3   m3f3   A3  0.0944272838 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 129     3   m3f3   A4  0.1502168591 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 130     3   m3f3   A5  0.0833234089 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 131     3   m3f3   C1  0.6421892585 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 132     3   m3f3   C2  0.6516225810 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 133     3   m3f3   C3  0.5404779292 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 134     3   m3f3   C4 -0.6767739810 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 135     3   m3f3   C5 -0.5363850435 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 136     3   m3f3   E1  0.0292443610 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 137     3   m3f3   E2 -0.0522024215 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 138     3   m3f3   E3  0.1148393306 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 139     3   m3f3   E4 -0.0605784374 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 140     3   m3f3   E5  0.4011960574 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 141     3   m3f3   N1 -0.1377348228 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 142     3   m3f3   N2 -0.0682444634 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 143     3   m3f3   N3 -0.0701159278 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 144     3   m3f3   N4 -0.1418965086 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 145     3   m3f3   N5 -0.0987360250 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 146     3   m3f3   O1  0.3364546181 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 147     3   m3f3   O2 -0.4367816880 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 148     3   m3f3   O3  0.3567679371 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 149     3   m3f3   O4  0.1739417937 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 150     3   m3f3   O5 -0.4257258220 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 151     4   m4f1   A1 -0.3313259612 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 152     4   m4f1   A2  0.6039367656 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 153     4   m4f1   A3  0.7147046980 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 154     4   m4f1   A4  0.4273539113 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 155     4   m4f1   A5  0.7021785549 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 156     4   m4f1   C1  0.0422291268 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 157     4   m4f1   C2  0.1231215140 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 158     4   m4f1   C3  0.0958302985 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 159     4   m4f1   C4 -0.0487939384 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 160     4   m4f1   C5 -0.1797876827 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 161     4   m4f1   E1 -0.5697606325 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 162     4   m4f1   E2 -0.6516925126 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 163     4   m4f1   E3  0.6532615369 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 164     4   m4f1   E4  0.7414915202 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 165     4   m4f1   E5  0.4594144547 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 166     4   m4f1   N1 -0.0941837756 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 167     4   m4f1   N2 -0.0553300908 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 168     4   m4f1   N3 -0.0406377287 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 169     4   m4f1   N4 -0.2240453960 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 170     4   m4f1   N5 -0.0274511387 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 171     4   m4f1   O1  0.2567842820 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 172     4   m4f1   O2  0.1711555605 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 173     4   m4f1   O3  0.3497320811 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 174     4   m4f1   O4 -0.0131031326 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 175     4   m4f1   O5  0.0321115985 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 176     4   m4f2   A1  0.0955211947 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 177     4   m4f2   A2  0.0446683588 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 178     4   m4f2   A3  0.0303498078 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 179     4   m4f2   A4 -0.0645877449 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 180     4   m4f2   A5 -0.1316413255 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 181     4   m4f2   C1 -0.0167405670 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 182     4   m4f2   C2  0.1023277576 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 183     4   m4f2   C3  0.0046958003 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 184     4   m4f2   C4  0.2673087704 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 185     4   m4f2   C5  0.3481249429 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 186     4   m4f2   E1  0.0441517470 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 187     4   m4f2   E2  0.2654751733 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 188     4   m4f2   E3  0.0311162926 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 189     4   m4f2   E4 -0.0942070452 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 190     4   m4f2   E5 -0.0007009622 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 191     4   m4f2   N1  0.7661581249 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 192     4   m4f2   N2  0.7746854036 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 193     4   m4f2   N3  0.7952344769 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 194     4   m4f2   N4  0.6311055866 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 195     4   m4f2   N5  0.6549982895 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 196     4   m4f2   O1  0.0363850621 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 197     4   m4f2   O2  0.2257924242 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 198     4   m4f2   O3  0.0594071797 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 199     4   m4f2   O4  0.3140180240 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 200     4   m4f2   O5  0.1535961414 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 201     4   m4f3   A1 -0.0525499338 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 202     4   m4f3   A2  0.2327708767 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 203     4   m4f3   A3  0.1881019714 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 204     4   m4f3   A4  0.3507576734 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 205     4   m4f3   A5  0.1387975421 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 206     4   m4f3   C1  0.6448308647 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 207     4   m4f3   C2  0.7160906394 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 208     4   m4f3   C3  0.6569091667 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 209     4   m4f3   C4 -0.6930818547 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 210     4   m4f3   C5 -0.6037711831 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 211     4   m4f3   E1  0.1188657289 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 212     4   m4f3   E2 -0.0205889366 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 213     4   m4f3   E3  0.0107474091 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 214     4   m4f3   E4  0.0203836671 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 215     4   m4f3   E5  0.3631598043 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 216     4   m4f3   N1 -0.0736905655 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 217     4   m4f3   N2 -0.0526571866 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 218     4   m4f3   N3 -0.0430977492 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 219     4   m4f3   N4 -0.1628048739 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 220     4   m4f3   N5  0.0287274682 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 221     4   m4f3   O1  0.0816460319 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 222     4   m4f3   O2 -0.1504248925 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 223     4   m4f3   O3  0.0713838170 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 224     4   m4f3   O4 -0.0068410908 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 225     4   m4f3   O5 -0.0894989674 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 226     4   m4f4   A1  0.0210757701 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 227     4   m4f4   A2 -0.0071811608 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 228     4   m4f4   A3 -0.0312817116 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 229     4   m4f4   A4 -0.2526735344 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 230     4   m4f4   A5  0.0098017544 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 231     4   m4f4   C1  0.1773942500 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 232     4   m4f4   C2  0.0993324605 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 233     4   m4f4   C3 -0.0372129122 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 234     4   m4f4   C4 -0.1332430159 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 235     4   m4f4   C5 -0.0144851966 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 236     4   m4f4   E1 -0.2214795546 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 237     4   m4f4   E2 -0.1279460322 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 238     4   m4f4   E3  0.3075220245 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 239     4   m4f4   E4 -0.0639678547 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 240     4   m4f4   E5  0.2415681995 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 241     4   m4f4   N1 -0.0671574532 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 242     4   m4f4   N2  0.0423634074 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 243     4   m4f4   N3  0.0267094752 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 244     4   m4f4   N4  0.0434481315 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 245     4   m4f4   N5 -0.1702988944 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 246     4   m4f4   O1  0.5742195385 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 247     4   m4f4   O2 -0.5638093117 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 248     4   m4f4   O3  0.6486197349 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 249     4   m4f4   O4  0.3976634657 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 250     4   m4f4   O5 -0.6754313044 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 251     5   m5f1   A1  0.0646226924 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 252     5   m5f1   A2  0.2672782045 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 253     5   m5f1   A3  0.3820508243 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 254     5   m5f1   A4  0.1363548060 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 255     5   m5f1   A5  0.4646610567 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 256     5   m5f1   C1  0.0583256948 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 257     5   m5f1   C2  0.0431850468 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 258     5   m5f1   C3  0.0025303501 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 259     5   m5f1   C4 -0.0160723150 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 260     5   m5f1   C5 -0.1858360861 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 261     5   m5f1   E1 -0.6841842145 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 262     5   m5f1   E2 -0.7215885907 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 263     5   m5f1   E3  0.6535774970 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 264     5   m5f1   E4  0.7051005673 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 265     5   m5f1   E5  0.5747070478 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 266     5   m5f1   N1  0.0536435676 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 267     5   m5f1   N2  0.0840702661 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 268     5   m5f1   N3 -0.0250658759 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 269     5   m5f1   N4 -0.3018914765 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 270     5   m5f1   N5 -0.1617027467 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 271     5   m5f1   O1  0.3013971766 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 272     5   m5f1   O2  0.0929484238 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 273     5   m5f1   O3  0.3788252574 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 274     5   m5f1   O4 -0.1774937648 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 275     5   m5f1   O5 -0.0328080987 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 276     5   m5f2   A1  0.1256711315 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 277     5   m5f2   A2  0.0285960200 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 278     5   m5f2   A3  0.0162766653 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 279     5   m5f2   A4 -0.0760973347 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 280     5   m5f2   A5 -0.1383137204 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 281     5   m5f2   C1 -0.0051847203 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 282     5   m5f2   C2  0.1083356030 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 283     5   m5f2   C3  0.0088518694 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 284     5   m5f2   C4  0.2594918952 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 285     5   m5f2   C5  0.3346991836 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 286     5   m5f2   E1  0.0258185253 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 287     5   m5f2   E2  0.2470504064 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 288     5   m5f2   E3  0.0418378502 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 289     5   m5f2   E4 -0.0823275105 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 290     5   m5f2   E5  0.0233822649 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 291     5   m5f2   N1  0.7788020049 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 292     5   m5f2   N2  0.7867916446 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 293     5   m5f2   N3  0.7961909316 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 294     5   m5f2   N4  0.6172249847 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 295     5   m5f2   N5  0.6445215425 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 296     5   m5f2   O1  0.0425566548 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 297     5   m5f2   O2  0.2240602326 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 298     5   m5f2   O3  0.0652192570 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 299     5   m5f2   O4  0.2953825855 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 300     5   m5f2   O5  0.1521555346 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 301     5   m5f3   A1  0.0465825257 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 302     5   m5f3   A2  0.1721850162 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 303     5   m5f3   A3  0.1362534957 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 304     5   m5f3   A4  0.3037543655 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 305     5   m5f3   A5  0.1144396535 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 306     5   m5f3   C1  0.6581766639 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 307     5   m5f3   C2  0.7081232447 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 308     5   m5f3   C3  0.6471358944 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 309     5   m5f3   C4 -0.6954819104 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 310     5   m5f3   C5 -0.6299162649 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 311     5   m5f3   E1  0.0546615449 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 312     5   m5f3   E2 -0.0833393990 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 313     5   m5f3   E3  0.0438759226 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 314     5   m5f3   E4  0.0615241916 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 315     5   m5f3   E5  0.4279181649 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 316     5   m5f3   N1 -0.0373994780 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 317     5   m5f3   N2 -0.0198162758 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 318     5   m5f3   N3 -0.0472910889 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 319     5   m5f3   N4 -0.2100690587 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 320     5   m5f3   N5 -0.0124671510 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 321     5   m5f3   O1  0.0943080836 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 322     5   m5f3   O2 -0.1481708602 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 323     5   m5f3   O3  0.0825441466 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 324     5   m5f3   O4 -0.0744790766 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 325     5   m5f3   O5 -0.0870502848 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 326     5   m5f4   A1 -0.6608493873 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 327     5   m5f4   A2  0.6619262832 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 328     5   m5f4   A3  0.6899489715 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 329     5   m5f4   A4  0.5197398678 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 330     5   m5f4   A5  0.5565035029 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 331     5   m5f4   C1 -0.0028200627 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 332     5   m5f4   C2  0.1502576422 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 333     5   m5f4   C3  0.1500251371 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 334     5   m5f4   C4 -0.0644977888 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 335     5   m5f4   C5 -0.0427313221 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 336     5   m5f4   E1 -0.0394679906 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 337     5   m5f4   E2 -0.1191348980 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 338     5   m5f4   E3  0.2320593807 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 339     5   m5f4   E4  0.2806622823 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 340     5   m5f4   E5 -0.0014964851 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 341     5   m5f4   N1 -0.2452915782 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 342     5   m5f4   N2 -0.2121788489 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 343     5   m5f4   N3 -0.0344889973 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 344     5   m5f4   N4  0.0426402534 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 345     5   m5f4   N5  0.1637513829 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 346     5   m5f4   O1  0.0656490791 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 347     5   m5f4   O2  0.1181424307 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 348     5   m5f4   O3  0.1232896124 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 349     5   m5f4   O4  0.2602278049 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 350     5   m5f4   O5  0.0454013494 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 351     5   m5f5   A1 -0.1205757842 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 352     5   m5f5   A2  0.0618886113 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 353     5   m5f5   A3  0.0205631842 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 354     5   m5f5   A4 -0.1966166381 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 355     5   m5f5   A5  0.0233730897 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 356     5   m5f5   C1  0.1546256305 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 357     5   m5f5   C2  0.1035115928 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 358     5   m5f5   C3 -0.0275059206 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 359     5   m5f5   C4 -0.1318524854 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 360     5   m5f5   C5  0.0267485097 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 361     5   m5f5   E1 -0.1033688412 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 362     5   m5f5   E2 -0.0128878820 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 363     5   m5f5   E3  0.2324427219 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 364     5   m5f5   E4 -0.1531437588 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 365     5   m5f5   E5  0.1247753442 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 366     5   m5f5   N1 -0.1348113658 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 367     5   m5f5   N2 -0.0213668932 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 368     5   m5f5   N3  0.0188382240 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 369     5   m5f5   N4  0.1122029266 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 370     5   m5f5   N5 -0.1197031854 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 371     5   m5f5   O1  0.5458112825 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 372     5   m5f5   O2 -0.5793620831 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 373     5   m5f5   O3  0.6188115571 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 374     5   m5f5   O4  0.4968108232 NA       NA       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 375     5   m5f5   O5 -0.6850859719 NA       NA       NA</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    level factor variance_pct cumulative_pct</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      1   m1f1        20.61          20.61</span>
@@ -626,6 +659,61 @@ or <code>"strength"</code> (descending <code>|r|</code>). Ignored for all other 
 <span class="r-out co"><span class="r-pr">#&gt;</span> 13     5   m5f3        10.75          35.83</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 14     5   m5f4         9.47          45.30</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 15     5   m5f5         7.98          53.28</span>
+<span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    level           index    value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      1 eigenvalue.m1f1 5.152388</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      2 eigenvalue.m2f1 5.152388</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      2 eigenvalue.m2f2 2.801977</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      3 eigenvalue.m3f1 5.152388</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      3 eigenvalue.m3f2 2.801977</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      3 eigenvalue.m3f3 2.067404</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7      4 eigenvalue.m4f1 5.152388</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      4 eigenvalue.m4f2 2.801977</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9      4 eigenvalue.m4f3 2.067404</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10     4 eigenvalue.m4f4 1.799974</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11     5 eigenvalue.m5f1 5.152388</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12     5 eigenvalue.m5f2 2.801977</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13     5 eigenvalue.m5f3 2.067404</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14     5 eigenvalue.m5f4 1.799974</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15     5 eigenvalue.m5f5 1.497454</span>
+<span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"fit"</span>, format <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   level eigenvalue.m2f1 eigenvalue.m2f2 eigenvalue.m3f1 eigenvalue.m3f2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     2        5.152388        2.801977              NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     3              NA              NA        5.152388        2.801977</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     4              NA              NA              NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4     5              NA              NA              NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eigenvalue.m3f3 eigenvalue.m4f1 eigenvalue.m4f2 eigenvalue.m4f3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1              NA              NA              NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2.067404              NA              NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3              NA        5.152388        2.801977        2.067404</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4              NA              NA              NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eigenvalue.m4f4 eigenvalue.m5f1 eigenvalue.m5f2 eigenvalue.m5f3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1              NA              NA              NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2              NA              NA              NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3        1.799974              NA              NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4              NA        5.152388        2.801977        2.067404</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   eigenvalue.m5f4 eigenvalue.m5f5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1              NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2              NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3              NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4        1.799974        1.497454</span>
+<span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"fit"</span>, cutoffs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    level           index    value meets</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      1 eigenvalue.m1f1 5.152388    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      2 eigenvalue.m2f1 5.152388    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      2 eigenvalue.m2f2 2.801977    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      3 eigenvalue.m3f1 5.152388    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      3 eigenvalue.m3f2 2.801977    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      3 eigenvalue.m3f3 2.067404    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7      4 eigenvalue.m4f1 5.152388    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      4 eigenvalue.m4f2 2.801977    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9      4 eigenvalue.m4f3 2.067404    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10     4 eigenvalue.m4f4 1.799974    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11     5 eigenvalue.m5f1 5.152388    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12     5 eigenvalue.m5f2 2.801977    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13     5 eigenvalue.m5f3 2.067404    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14     5 eigenvalue.m5f4 1.799974    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15     5 eigenvalue.m5f5 1.497454    NA</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

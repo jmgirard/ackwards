@@ -387,7 +387,9 @@ Personality</em>, 41(4), 745–752. <a href="https://doi.org/10.1016/j.jrp.2006.
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 14 of 40 edges have |r| ≥ 0.3</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Cross-level edges are descriptive score correlations.</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to            r is_primary above_cut</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  m1f1 m2f1          1        2  0.878066713       TRUE      TRUE</span>
@@ -431,8 +433,10 @@ Personality</em>, 41(4), 745–752. <a href="https://doi.org/10.1016/j.jrp.2006.
 <span class="r-out co"><span class="r-pr">#&gt;</span> 39 m4f4 m5f4          4        5 -0.185238698      FALSE     FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 40 m4f4 m5f5          4        5  0.963510734       TRUE      TRUE</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   engine rotation     cor k_max n_obs deepest_converged n_edges</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    pca  varimax pearson     5  1000                 5      40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   engine rotation     cor k_max n_obs deepest_converged n_edges CFI TLI RMSEA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    pca  varimax pearson     5  1000                 5      40  NA  NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SRMR BIC</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   NA  NA</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Correlation-matrix input (PCA engine; n_obs optional)</span></span></span>
 <span class="r-in"><span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">bfi25</span>, use <span class="op">=</span> <span class="st">"pairwise.complete.obs"</span><span class="op">)</span></span></span>
@@ -462,7 +466,9 @@ Personality</em>, 41(4), 745–752. <a href="https://doi.org/10.1016/j.jrp.2006.
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 14 of 40 edges have |r| ≥ 0.3</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Cross-level edges are descriptive score correlations.</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

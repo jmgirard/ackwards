@@ -74,7 +74,9 @@ x_pca
 #> 5 of 8 edges have |r| ≥ 0.3
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
-#> Cross-level edges are descriptive score correlations.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 ```
 
 The “fit” for PCA is just the eigenvalue of each component — the amount
@@ -125,7 +127,9 @@ x_efa
 #> 5 of 8 edges have |r| ≥ 0.3
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
-#> Cross-level edges are descriptive score correlations.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 ```
 
 EFA produces genuine goodness-of-fit indices. These tell you whether the
@@ -220,65 +224,142 @@ x_esem
 #> 5 of 8 edges have |r| ≥ 0.3
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
-#> Cross-level edges are descriptive score correlations.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 ```
 
 ESEM fit indices include CFI and SRMR in addition to RMSEA and TLI,
-giving a richer picture of model adequacy.
+giving a richer picture of model adequacy. See the “Per-level fit”
+section below for how to report and interpret these indices.
 
-``` r
-
-tidy(x_esem, what = "fit")
-#>    level   index        value
-#> 1      1     chi 7.629329e+03
-#> 2      1     dof 2.750000e+02
-#> 3      1 p_value           NA
-#> 4      1     CFI 7.153139e-01
-#> 5      1     TLI 6.894333e-01
-#> 6      1   RMSEA 1.749240e-01
-#> 7      1    SRMR 1.443569e-01
-#> 8      2     chi 3.172628e+03
-#> 9      2     dof 2.510000e+02
-#> 10     2 p_value           NA
-#> 11     2     CFI 8.869038e-01
-#> 12     2     TLI 8.648252e-01
-#> 13     2   RMSEA 1.154037e-01
-#> 14     2    SRMR 9.547997e-02
-#> 15     3     chi 1.703232e+03
-#> 16     3     dof 2.280000e+02
-#> 17     3 p_value           NA
-#> 18     3     CFI 9.428938e-01
-#> 19     3     TLI 9.248602e-01
-#> 20     3   RMSEA 8.604131e-02
-#> 21     3    SRMR 7.172502e-02
-```
-
-### Loading standard errors
+### Loading standard errors and confidence intervals
 
 The unique output from ESEM is the rotation-aware **standard error** of
-every loading. `tidy(what = "loadings_se")` returns them in the same
-long format as `tidy(what = "loadings")`, with an `se` column in place
-of `loading`:
+every loading. These SEs are now returned as part of
+`tidy(what = "loadings")`, alongside `ci_lower` and `ci_upper` columns:
 
 ``` r
 
-se <- tidy(x_esem, what = "loadings_se")
-head(se)
-#>   level factor item         se
-#> 1     1   m1f1   A1 0.02831633
-#> 2     1   m1f1   A2 0.02316777
-#> 3     1   m1f1   A3 0.01971862
-#> 4     1   m1f1   A4 0.02777029
-#> 5     1   m1f1   A5 0.01870826
-#> 6     1   m1f1   C1 0.02754885
+ld <- tidy(x_esem, what = "loadings")
+head(ld)
+#>   level factor item    loading         se   ci_lower   ci_upper
+#> 1     1   m1f1   A1 -0.3155807 0.02831633 -0.3710796 -0.2600817
+#> 2     1   m1f1   A2  0.5584169 0.02316777  0.5130089  0.6038249
+#> 3     1   m1f1   A3  0.6424786 0.01971862  0.6038308  0.6811264
+#> 4     1   m1f1   A4  0.4261675 0.02777029  0.3717387  0.4805962
+#> 5     1   m1f1   A5  0.6588505 0.01870826  0.6221830  0.6955180
+#> 6     1   m1f1   C1  0.4138252 0.02754885  0.3598304  0.4678200
 ```
 
-These SEs allow you to construct confidence intervals: loading ± 1.96 ×
-SE gives an approximate 95% CI. For the BFI with \> 2,000 participants
-the SEs are small; with smaller samples they become important for
-judging which loadings are meaningfully non-zero.
-(`tidy(what = "loadings_se")` errors for PCA and EFA objects, which
-carry no loading standard errors.)
+The intervals are computed as loading ± *z* × SE (default 95%; set
+`conf_level = 0.99` for wider intervals). For the BFI with \> 2,000
+participants the SEs are small; with smaller samples they are important
+for judging which loadings are meaningfully non-zero. For PCA and EFA
+objects the `se`, `ci_lower`, and `ci_upper` columns are present but
+`NA` — those engines carry no loading SEs.
+
+## Per-level fit: what it tells you (and what it doesn’t)
+
+### The key distinction
+
+Bass-ackwards produces a **series of independent factor solutions**, not
+a fitted hierarchical model. The between-level edges are descriptive
+correlations between factor scores — they have no sampling distribution
+of their own. Per-level fit indices therefore describe something
+narrower: **does a k-factor model adequately reproduce the items at this
+level?**
+
+That is a real, bounded question. A level that fits terribly is one you
+shouldn’t over-interpret — the k factors are not cleanly separating the
+items. A level that fits well tells you the factor structure at that
+depth is stable. But good fit at k = 3 does **not** validate the edges
+connecting k = 3 to k = 2; it only says the k = 3 solution itself is
+trustworthy. Keep that boundary in mind whenever you report or interpret
+fit.
+
+### Reporting fit with `tidy()` and `autoplot()`
+
+`tidy(what = "fit")` returns the raw long table. For reporting,
+`format = "wide"` gives one row per level:
+
+``` r
+
+tidy(x_esem, what = "fit", format = "wide")
+#>   level      chi dof p_value       CFI       TLI      RMSEA       SRMR
+#> 1     2 3172.628 251      NA 0.8869038 0.8648252 0.11540374 0.09547997
+#> 2     3 1703.232 228      NA 0.9428938 0.9248602 0.08604131 0.07172502
+```
+
+Add `cutoffs = TRUE` to flag each index against the Hu & Bentler (1999)
+conventional thresholds (CFI/TLI ≥ .95, RMSEA ≤ .06, SRMR ≤ .08):
+
+``` r
+
+tidy(x_esem, what = "fit", format = "wide", cutoffs = TRUE)
+#>   level      chi chi_meets dof dof_meets p_value p_value_meets       CFI
+#> 1     2 3172.628        NA 251        NA      NA            NA 0.8869038
+#> 2     3 1703.232        NA 228        NA      NA            NA 0.9428938
+#>   CFI_meets       TLI TLI_meets      RMSEA RMSEA_meets       SRMR SRMR_meets
+#> 1     FALSE 0.8648252     FALSE 0.11540374       FALSE 0.09547997      FALSE
+#> 2     FALSE 0.9248602     FALSE 0.08604131       FALSE 0.07172502       TRUE
+```
+
+> **Thresholds are conventional and contested.** They were derived from
+> specific simulation conditions (continuous, well-distributed items;
+> balanced designs). WLSMV fit for ordinal data tends to produce lower
+> CFI and higher RMSEA than ML on the same underlying structure; do not
+> interpret WLSMV cutoffs as strictly as ML-based rules. Use the cutoffs
+> as a rough orientation, not a gatekeeping criterion.
+
+`autoplot(x, what = "fit")` visualises the trajectory across levels,
+with cutoff reference lines:
+
+``` r
+
+autoplot(x_esem, what = "fit")
+```
+
+![](ackwards-engines_files/figure-html/fit-plot-1.png)
+
+The shape of the trajectory matters as much as the absolute values: a
+sharp improvement from k = 2 to k = 3 suggests the third factor is
+capturing genuine signal; flat or worsening indices suggest adding
+another level is splitting noise.
+
+[`glance()`](https://generics.r-lib.org/reference/glance.html) now also
+carries the deepest-level fit for quick inspection:
+
+``` r
+
+glance(x_esem)
+#>   engine rotation        cor k_max n_obs deepest_converged n_edges       CFI
+#> 1   esem  varimax polychoric     3   875                 3       8 0.9428938
+#>         TLI      RMSEA       SRMR BIC
+#> 1 0.9248602 0.08604131 0.07172502  NA
+```
+
+### Should you care about fit in a bass-ackwards workflow?
+
+It depends on your goal:
+
+- **Exploratory** (finding the hierarchical structure): fit is a
+  secondary check. Start with PCA for speed, confirm with EFA or ESEM.
+  If a level’s fit is poor, consider whether you have too many factors
+  at that depth, or whether the items at that level are genuinely
+  multidimensional.
+- **Confirmatory / publication**: fit is table-stakes for ESEM or EFA.
+  Report per-level CFI, TLI, RMSEA (and SRMR for ESEM) alongside the
+  hierarchy. The wide table and `autoplot(what = "fit")` are designed
+  for this.
+- **Ordinal data**: WLSMV (ESEM) gives fit indices appropriate for
+  categorical items; EFA’s RMSEA/TLI under Pearson correlation is a
+  rougher diagnostic.
+
+The bottom line: **per-level fit qualifies each level of the hierarchy;
+it does not bless the hierarchy as a whole.** Use it to decide how deep
+the structure is credibly resolved, not to claim the overall model is
+“good”.
 
 ## How much do the edges differ?
 

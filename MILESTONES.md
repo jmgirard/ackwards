@@ -440,3 +440,62 @@ User-facing change notes live in `NEWS.md`.
   `local_mocked_bindings`; serial-vs-`multicore` identity, skipped on
   Windows / when future absent). Coverage held at 100%. (1225 tests
   pass, 2 skip; 0/0/0 R CMD check.)
+
+- **M27 (done):** ESEM fit & SEs as first-class output — CRAN-readiness
+  pass making per-level fit indices and rotation-aware loading SEs
+  usable and correctly framed. Additive surfacing + docs only; no
+  invariant or resolved-default change; no new `Imports`; version stays
+  `0.1.0`.
+
+  1.  **[`glance()`](https://generics.r-lib.org/reference/glance.html)
+      carries fit**: deepest-converged-level `CFI`, `TLI`, `RMSEA`,
+      `SRMR`, `BIC` appended as a consistent five-column set across all
+      engines (NA where unavailable: CFI/SRMR for EFA, all five for
+      PCA). `.glance_fit()` internal helper.
+  2.  **`tidy(what="fit")` gains `format` and `cutoffs`**:
+      `format="wide"` returns one row per **non-anchor** level (k \>= 2;
+      the saturated 1-factor anchor is dropped to match
+      [`summary()`](https://rdrr.io/r/base/summary.html) and
+      `autoplot(what="fit")`) with index columns (long default
+      byte-identical to previous output); `cutoffs=TRUE` appends a
+      `meets` flag against Hu & Bentler (1999) thresholds (CFI/TLI \>=
+      .95, RMSEA \<= .06, SRMR \<= .08) via `.fit_cutoffs()` /
+      `.flag_fit()` / `.fit_long_to_wide()` helpers; report-only, never
+      gates.
+  3.  **Loading CIs folded into `tidy(what="loadings")`**: added `se`,
+      `ci_lower`, `ci_upper` columns for all engines (NA for PCA/EFA,
+      populated for ESEM); `conf_level=0.95` argument controls width.
+      The now-redundant `tidy(what="loadings_se")` accessor was
+      **removed** (package unreleased, no deprecation needed); the
+      internal `lev$loadings_se` level-contract field is unchanged.
+  4.  **`autoplot(x, what="fit")`**: two-panel ggplot2 line chart
+      (CFI/TLI top panel; RMSEA/SRMR bottom panel; Hu & Bentler
+      reference lines). `what="hierarchy"` (default) unchanged. PCA
+      returns informative empty plot.
+  5.  **[`summary()`](https://rdrr.io/r/base/summary.html) fit lines**
+      annotated with `✔`/`✘` pass/fail marks for thresholded indices.
+  6.  **Honesty framing in
+      [`print()`](https://rdrr.io/r/base/print.html) and
+      [`summary()`](https://rdrr.io/r/base/summary.html) footer**:
+      per-level fit describes the k-factor solution at that level; does
+      not validate edges or the hierarchy.
+  7.  **Dedicated section “Per-level fit: what it tells you (and what it
+      doesn’t)”** in
+      [`vignette("ackwards-engines")`](https://jmgirard.github.io/ackwards/articles/ackwards-engines.md):
+      level-vs-hierarchy distinction, reporting workflow (wide table +
+      cutoffs + fit plot), ESEM cost/benefit, when to care (exploratory
+      vs publication).
+      [`vignette("ackwards-ordinal")`](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.md)
+      updated to use `format="wide"` and cross-reference. No new
+      `Imports`; no design invariant changed; version stays `0.1.0`.
+      Post-review fixes (from /post-milestone-review): removed the
+      redundant `tidy(what="loadings_se")` accessor (per the approved
+      plan; the implementation had kept it); wide fit table now drops
+      the anchor level for consistency with
+      [`summary()`](https://rdrr.io/r/base/summary.html)/the fit plot;
+      fit-plot panel titles made engine-aware (EFA shows “TLI”/“RMSEA”,
+      not “CFI / TLI”); removed dead `excl` variable and an unreachable
+      `is.null(cut)` guard in `.ba_fit_plot()`; added tests for the
+      `.glance_fit` truncation/empty-fit branches and the empty fit-plot
+      branch, restoring coverage to 100%. (1285 tests pass, 2 skip;
+      0/0/0 R CMD check; coverage 100%.)
