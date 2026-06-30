@@ -745,6 +745,18 @@ that needs it. **No Rcpp dependency planned** (see §3).
     document; `keep_scores` mirrors `keep_fits`; `align_signs` is self-documenting; `$cor` drops
     the redundant `_type` suffix.
 
+17. **GitHub 0.1.0 release prep** *(done)* — release-readiness milestone (not a feature). License
+    switched **CC BY 4.0 → MIT** (`LICENSE` stub + `LICENSE.md` + DESCRIPTION); version bumped
+    `0.0.0.9000 → 0.1.0`; README MIT badge + comment mismatch fixed. `inst/CITATION` added
+    (Goldberg 2006 + the package), version field dynamic via `meta[["Version"]]`; hand-written
+    Goldberg prose removed from README to avoid duplication, README rebuilt with the two-entry
+    citation output. `NEWS.md` restructured into a curated, capability-grouped summary
+    (development-history detail dropped — pre-release, fully captured in git). `_pkgdown.yml` 0.1.0
+    release URL registered; pkgdown rebuilt cleanly (0/0/0 R CMD check; URLs clean). Post-review: a
+    citation-guard test added to `test-utils.R`. Known cosmetic: pkgdown 2.2.0 renders all root
+    `.md` files (CLAUDE.md/DESIGN.md appear as unlinked pages) with no config exclusion — not
+    fixable without moving the files. Tagging is an owner action (`git tag -a v0.1.0`).
+
 18. **Factor interpretation & label scaffolding** *(done)* — two new exported helpers for the
     factor-naming workflow, both pure consumers of the existing light core.
 
@@ -774,6 +786,20 @@ that needs it. **No Rcpp dependency planned** (see §3).
     in the pkgdown "Deep dives" nav after `ackwards-suggest-k`. Intro Step 5 trimmed to a slim
     `top_items()` example + pointer; visualization vignette keeps the `node_labels`/`label_template`
     mechanic + cross-ref (naming-judgment treatment moved to the new vignette). **Amends §10, §11.**
+
+20. **CRAN submission readiness + example legibility** *(done)* — release-readiness milestone (not a
+    feature), five waves. **(1) Statistical/correctness:** new `.standardize()` (na.rm-aware)
+    replaces `scale()` in `.compute_scores()` and the `compute_edges()` scores route; `detect_ordinal()`
+    guarded against all-`NA` columns; stale "oblique rotations" wording in `compute_edges()` roxygen
+    fixed. **(2) Example conversions:** all `\dontrun{}` removed — fast examples use
+    `requireNamespace()` guards, slow/stochastic `suggest_k` blocks use `\donttest{}`. **(3)
+    Submission metadata:** three DOIs added to DESCRIPTION (Goldberg 2006, Waller 2007, Forbes 2023);
+    NEWS folded into a single `0.1.0` entry; `cran-comments.md` added. **(4) Example legibility:**
+    `tidy.ackwards()` gains `sort = c("none","strength")` for edges; README/vignettes rewrote
+    `order(-abs(...))` → `tidy(sort="strength")`, `identical(round(...))` → `all.equal()`,
+    `grep("^\\.m5",...)` → `startsWith()`, double-`rbind` → intermediate variable. **(5) Verify:**
+    styler + lintr clean; `R CMD check --as-cran` 0/0/0; README rebuilt. Owner next steps:
+    `check_win_devel()` / `rhub_check()` before upload. **Amends §15 (process).**
 
 21. **Onboarding & usability pass** *(done)* — pre-CRAN usability/polish; not a feature milestone.
     Correlation-matrix input deferred to M22. *(see M22 below)*
@@ -820,6 +846,19 @@ that needs it. **No Rcpp dependency planned** (see §3).
     the same matrix. `meta$input_type` records `"data"` | `"cor_matrix"` in every result. 36 new
     tests in `test-cor-input.R`. **Amends §6, §9.**
 
+23. **Test-coverage hardening** *(done)* — raised `covr` from **93.37% → 100%** (every file at
+    100%), **no behaviour change**. Strategy: test first; reserve `# nocov` for genuinely
+    unreachable defensives. New tests covered real branches — `suggest_k` cor-ignored / spearman+CD /
+    CD-dash; `label_template` k>26 guard; `prune.R` `.tucker_phi` all-zeros, `.phi_pairs` adjacent,
+    `print.ackwards` artefact+φ-note; `compute_edges` explicit-algebra path; `engine_esem`
+    NULL-SE skip in `tidy(what="loadings_se")`; `summary.R` EFA chi/dof row, empty-redundant
+    "(none)", φ-note, empty-lineage. `# nocov` markers added only to unreachable engine defensives
+    (PCA/EFA k=1 sign flip, EFA convergence-fail / tenBerge fallback, the ESEM lavaan-version guard,
+    convergence-fail, std_sol-NULL, tenBerge/W-NULL fallbacks, fit-measure error handlers, etc.),
+    with a documented covr limitation for the ESEM warning-muffler (live code covr cannot
+    instrument, not dead code). Local verification only (no CI coverage workflow). **No §-amendment
+    (internal quality milestone).** 1080 tests pass, 1 skip.
+
 24. **M24 — Vignette communication pass (documentation-only).** Reworked stacked long-format
     `kable` comparison tables in `ackwards-engines` and `ackwards-ordinal` into wide gt tables:
     one row per item/edge, one column per engine/basis, plus a Δ column using a uniform
@@ -836,6 +875,23 @@ that needs it. **No Rcpp dependency planned** (see §3).
     made. Guard tests in `test-vignette-m24.R` verify alignment assertions, expected columns,
     magnitude-delta sign behaviour, the `knitr::kable` fallback branch, the NA primary-parent
     disagreement merge, and the inline-derivation helpers. **Amends §7 (Documentation).**
+
+25. **M25 — Deferred-items pass** *(done)* — three previously-deferred enrichments, three waves.
+    **(1) Selective `suggest_k()` criteria.** New `criteria` arg (`rlang::arg_match(multiple=TRUE)`):
+    any subset of the five criteria (PA-PC, PA-FA, MAP, VSS-1, VSS-2 — CD handled separately) may be
+    requested; non-requested `k_*` fields return `NA`; the shared `fa.parallel(fa="both")` / `vss()`
+    computation runs at most once; `print()` / `autoplot()` render only the requested criteria and
+    consensus is taken over the requested set. **(2) Structural artefact signals.** `prune =
+    "artefact"` now populates `x$prune$structural` with per-factor `few_items` / `orphan` /
+    `split_merge` flags (Forbes Fig. 2); new args `min_items = 3L` (three-indicator rule) and
+    `orphan_r = 0.5` (moderate-correlation cutoff). Flag/report only — never auto-prunes;
+    `print()` / `summary()` report the flagged count. `split_merge` is `TRUE` when a factor's primary
+    items came from multiple different primary factors at the preceding level. **(3) Tucker's φ
+    auto-default.** `redundancy_phi = NULL` (default) auto-resolves: PCA → no φ filter (exact W'RW
+    algebra); EFA/ESEM → `0.95` (Lorenzo-Seva & ten Berge 2006 — factor-score indeterminacy off-PCA
+    makes `|r|`-only liberal). `NA` is the explicit opt-out; announced via cli when applied
+    (Invariant 6). Loud validation added for `min_items` / `orphan_r`. Bootstrap CIs on skip-level
+    edges remain deferred (§14). **Amends §8, §9, §14.20.** 1219 tests pass, 2 skip; 0/0/0 R CMD check.
 
 26. **M26 — ESEM performance for large item sets** *(done)* — two complementary speedups to the
     ESEM engine, **no behaviour change** (verified bit-identical). Motivated by bass-ackwards
