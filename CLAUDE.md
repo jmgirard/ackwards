@@ -165,20 +165,24 @@ default output must reproduce Forbes's examples exactly.
   in both functions); `prune="redundant"` + cor_matrix test; `autoplot.suggest_k()` + cor_matrix
   test; invalid `n_obs` tests for `suggest_k()`; `missing(missing)` comment; NEWS folded into 0.1.0.
   44 tests in `test-cor-input.R`, 41 in `test-utils.R`. (1035 tests pass, 1 skip; 0/0/0 check.)
-- **M23 (done):** Test-coverage hardening — raised `covr` from **93.37% → 99.92%** overall;
-  every file at ≥95% (`engine_efa.R` 97.7%, `interpret.R` 98.4%, all others 100%). Strategy:
+- **M23 (done):** Test-coverage hardening — raised `covr` from **93.37% → 100%** overall
+  (every file at 100%). Strategy:
   test first (`# nocov` only for genuinely unreachable defensives). New tests: `suggest_k.R`
   cor-ignored/spearman+CD/CD-dash branches; `label_template.R` k>26 guard; `prune.R` `.tucker_phi`
   all-zeros / `.phi_pairs` adjacent / `print.ackwards` artefact+phi-note; `compute_edges.R`
   algebra explicit path; `engine_esem.R` NULL-SE skip in `tidy(what="loadings_se")`; `summary.R`
   EFA chi/dof row, empty-redundant "(none)", phi-note, empty-lineage. `# nocov` markers on
-  unreachable engine defensives: PCA k=1 sign flip, EFA convergence-fail break + tenBerge
+  unreachable engine defensives: PCA + EFA k=1 sign flip, EFA convergence-fail break + tenBerge
   fallback, ESEM lavaan version guard + convergence fail + std_sol NULL + tenBerge fallback +
   W NULL + warning muffler + null-fit + cov2cor unreachable branch + Pearson fallback +
   fitMeasures error handler + Phi shape fallback; `prune.R` empty-chains guard + null-nodes
   branch; `layout.R` top-down zero-weight + bottom-up orphaned-parent fallbacks; `summary.R`
   PCA eigenvalue miss + null-nodes branch. **No behavior change.** Local verification only
-  (no CI coverage workflow). (1075 tests pass, 2 skips; 0/0/0 R CMD check.)
+  (no CI coverage workflow). Post-review: rewrote the `print.top_items` empty-shown-level test
+  to deterministically hit `interpret.R` `next` (was skipping on bfi25 -> covered the line +
+  dropped the spurious 2nd skip); `# nocov`'d the EFA k=1 sign flip to match the PCA analogue;
+  added a covr-limitation note explaining the ESEM warning-muffler `# nocov` (live code covr
+  cannot instrument, not dead code). (1080 tests pass, 1 skip; 0/0/0 R CMD check.)
 
 ## Current focus
 

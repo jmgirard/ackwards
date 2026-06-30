@@ -79,6 +79,10 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
           ordered   = ordered_cols,
           missing   = lav_missing
         ),
+        # nocov: this handler does run (lavaan emits warnings on some fits),
+        # but covr cannot instrument a withCallingHandlers body that exits via
+        # invokeRestart("muffleWarning") -- the lines never register as hit.
+        # Excluded as a tooling limitation, not as dead code.
         warning = function(w) { # nocov start
           warn_msgs <<- c(warn_msgs, conditionMessage(w))
           invokeRestart("muffleWarning")

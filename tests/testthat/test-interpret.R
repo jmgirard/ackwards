@@ -184,18 +184,19 @@ test_that("interpret vignette top_items idioms run", {
 })
 
 test_that("print.top_items skips levels with no items (nrow(df_k) == 0)", {
-  # Covers the `if (nrow(df_k) == 0L) next` branch: request multiple levels
-  # but with a cut so high that the general factor (level 1) has no salient
-  # items while specific factors at level 3 do.
+  # Covers the `if (nrow(df_k) == 0L) next` branch. Rather than rely on a cut
+  # that may or may not empty a level on a given dataset (the old version
+  # skipped on bfi25), build a real top_items object and deterministically
+  # drop one shown level's rows: df stays non-empty (level 3 remains), so the
+  # early return doesn't fire, but k = 1 hits `next`.
   skip_if_not_installed("psych")
   x <- suppressWarnings(ackwards(bfi25[, 1:6], k_max = 3))
-  # cut = 0.7: level-1 general factor loadings (~0.3-0.5) won't pass;
-  # at least some level-3 specific factors will have loadings >= 0.7.
-  ti <- top_items(x, level = c(1L, 3L), cut = 0.7)
-  # There must be SOME items (from level 3) for the early-return not to fire
-  # and the per-level loop to run (hitting `next` for level 1).
-  skip_if(nrow(ti$data) == 0L, "no items at cut=0.7 on this data -- skip")
-  skip_if(any(ti$data$level == 1L), "level 1 has items at cut=0.7 -- skip")
+  ti <- top_items(x, level = c(1L, 3L), cut = 0.3)
+  ti$data <- ti$data[ti$data$level != 1L, , drop = FALSE]
+  # Preconditions for the target branch:
+  expect_true(1L %in% ti$levels_shown) # level 1 still requested...
+  expect_false(any(ti$data$level == 1L)) # ...but has no rows -> `next`
+  expect_gt(nrow(ti$data), 0L) # df non-empty -> early return skipped
   expect_no_error(print(ti))
   expect_invisible(print(ti))
 })

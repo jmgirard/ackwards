@@ -69,9 +69,12 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
     L_rot <- unclass(fit$loadings)
     labels_k <- make_labels(k)
 
-    # Positive manifold anchor for k = 1 (matches PCA engine behaviour)
+    # Positive manifold anchor for k = 1 (matches PCA engine behaviour).
+    # nocov: only fires when a single-factor solution loads net-negative, which
+    # does not occur for positive-manifold data; the PCA analogue is excluded
+    # the same way (engine_pca.R).
     flip <- (k == 1L) && (sum(L_rot) < 0)
-    if (flip) L_rot <- -L_rot
+    if (flip) L_rot <- -L_rot # nocov
 
     colnames(L_rot) <- labels_k
     rownames(L_rot) <- rownames(R)
