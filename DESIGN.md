@@ -733,8 +733,6 @@ that needs it. **No Rcpp dependency planned** (see §3).
     to default call + pointer. README stale two-criteria description updated to five criteria.
     **Cross-references §8.** See `vignette("ackwards-suggest-k")`.
 
-16. **Estimator-aware missing-data handling** *(done)* — new `missing = c("pairwise", "listwise", "fiml")` argument on `ackwards()`. Default `"pairwise"` preserves all existing behaviour and now emits an advisory warning when incomplete rows are detected. `"listwise"` reduces data to complete cases before all downstream steps (correlation matrix, engine, edges) for full consistency. `"fiml"` passes `missing = "fiml"` to `lavaan::efa()` for ESEM ML/MLR and derives edge R from lavaan's FIML saturated model; errors for PCA, EFA, and WLSMV/ULSMV. Adds `.resolve_missing()` internal helper for validation. Records `$meta$missing` and `$meta$n_complete` in every result. Fixes the ESEM ML/MLR fit-vs-edges consistency for `"listwise"` and `"fiml"`. **Amends §9** (defaults table). See `vignette("ackwards-engines")` for usage.
-
 15. **Naming clarity & consistency pass** *(done)* — dev-mode rename with no behaviour changes.
     Renamed four `ackwards()` formals (`k`→`k_max`, `method`→`engine`, `scores`→`keep_scores`,
     `align`→`align_signs`), two result-object fields (`$method`→`$engine`, `$cor_type`→`$cor`),
@@ -744,6 +742,8 @@ that needs it. **No Rcpp dependency planned** (see §3).
     `compute_edges`'s algebra-vs-scores arg and matches "three engines" prose throughout this
     document; `keep_scores` mirrors `keep_fits`; `align_signs` is self-documenting; `$cor` drops
     the redundant `_type` suffix.
+
+16. **Estimator-aware missing-data handling** *(done)* — new `missing = c("pairwise", "listwise", "fiml")` argument on `ackwards()`. Default `"pairwise"` preserves all existing behaviour and now emits an advisory warning when incomplete rows are detected. `"listwise"` reduces data to complete cases before all downstream steps (correlation matrix, engine, edges) for full consistency. `"fiml"` passes `missing = "fiml"` to `lavaan::efa()` for ESEM ML/MLR and derives edge R from lavaan's FIML saturated model; errors for PCA, EFA, and WLSMV/ULSMV. Adds `.resolve_missing()` internal helper for validation. Records `$meta$missing` and `$meta$n_complete` in every result. Fixes the ESEM ML/MLR fit-vs-edges consistency for `"listwise"` and `"fiml"`. **Amends §9** (defaults table). See `vignette("ackwards-engines")` for usage.
 
 17. **GitHub 0.1.0 release prep** *(done)* — release-readiness milestone (not a feature). License
     switched **CC BY 4.0 → MIT** (`LICENSE` stub + `LICENSE.md` + DESCRIPTION); version bumped
