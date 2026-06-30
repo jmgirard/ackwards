@@ -310,3 +310,16 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   nice-to-have flagged; the vector-form EFAtools masking branch remains pre-existing `nocov`,
   untestable on a machine with current EFAtools).
   (1294 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+- **M29 (done):** Strip milestone numbers from user-facing documentation. Audit of
+  `vignettes/*.Rmd`, roxygen/`man/*.Rd`, and `README.Rmd`/`README.md` found them already free of
+  internal milestone tags (e.g. `(M24)`); the only leak was in `NEWS.md`, which ships with the
+  package and renders as the pkgdown changelog. Fixed: `NEWS.md`'s "Vignette comparison tables
+  reworked for legibility (M24)" heading reworded to drop the tag. Internal `R/*.R` code comments
+  (`# (M16)`, `# (M26)`, `# (M5)` — developer traceability back to `MILESTONES.md`) were
+  deliberately left alone; they are not user-facing and were out of scope per the approved plan.
+  New regression test `tests/testthat/test-docs-no-milestone-refs.R` asserts no `(M\d+)` tag
+  appears in `NEWS.md`, `README.md`, or `vignettes/*.Rmd`; it skips gracefully (rather than
+  failing) when those files aren't reachable from the test's working directory, which happens
+  under a full installed-package check cycle rather than `devtools::test()`/source-tree testing.
+  No invariant or resolved-default change; no new `Imports`; no DESIGN.md contract change; version
+  stays `0.1.0`. (1297 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
