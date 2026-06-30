@@ -279,3 +279,29 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   `excl` variable and an unreachable `is.null(cut)` guard in `.ba_fit_plot()`; added tests for the
   `.glance_fit` truncation/empty-fit branches and the empty fit-plot branch, restoring coverage to
   100%. (1285 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+- **M28 (done):** CD correctness & honesty fix — two verified defects in `suggest_k()`'s
+  Comparison Data (CD) output resolved. No invariant or resolved-default change; no new `Imports`;
+  version stays `0.1.0`.
+  (1) **Trailing-zero bug fixed.** `EFAtools::CD` fills its `RMSE_eigenvalues` matrix only up to
+  column `k_cd + 1`; remaining columns stayed at the matrix's zero initialisation. `suggest_k()`
+  was averaging all `k_max` columns and plotting them, so the RMSE curve plunged to 0 at higher k
+  and `which.min()` landed on a spurious zero (e.g. `bfi25`, `k_max = 8`: argmin = 8, star at 6).
+  Fix: after extracting `cd_rmse`, columns `(k_cd + 2) … k_max` are set to `NA_real_`; column
+  `k_cd + 1` (the tested-but-rejected level) is kept visible. The `autoplot()` CD data frame
+  filters NA rows before building plot data, so `ggplot2` sees no NA values and draws no
+  misleading zero-RMSE tail.
+  (2) **"minimize" label corrected.** `EFAtools::CD` uses a sequential one-sided Wilcoxon test
+  (default α = 0.30): retain a level while adding it *significantly* reduces RMSE; stop at the
+  first non-significant improvement. The starred k is the last retained level and need not be
+  the visible minimum. The plot facet was renamed from `"CD (RMSE, minimize)"` to
+  `"CD (RMSE; sequential test)"`. The `autoplot.suggest_k()` roxygen was corrected to describe
+  the stopping rule and to note that the star ≠ guaranteed minimum. The `vignettes/ackwards-suggest-k.Rmd`
+  "What it does" and plot-panel description sections were updated to match.
+  (3) **Deferred-item assessments recorded.** EAP scoring **declined** (DESIGN §14 item 13
+  updated): EAP's shrinkage attenuates cross-level correlations, the primary signal bass-ackwards
+  measures; `compute_edges()` seam preserved but implementation not planned. Bootstrap CIs on
+  skip-level edges **remain deferred** with rationale added (DESIGN §14 Forbes-extension bullet).
+  CLAUDE.md "Out of scope" updated to reflect the EAP decision.
+  Tests: 6 new tests (no spurious zeros in `cd_rmse`; NA masking correct; no NA in plot data;
+  panel label; star at `k_cd`; updated panel-level string in prior test).
+  (1290 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)

@@ -431,8 +431,10 @@ that needs it. **No Rcpp dependency planned** (see §3).
 12. ESEM scoring → self-compute tenBerge weights from lavaan's estimated loadings `Λ` and latent
     correlation matrix `R` via the existing `.tenBerge_weights(R, Λ)`. `lavPredict()` is not used
     for the default path (it lacks tenBerge); it is the eventual hook for EAP opt-in.
-13. EAP scoring → **deferred**; an EAP request returns `cli_abort("not yet implemented")`. The
-    scores-route seam in `compute_edges()` is preserved for when EAP lands.
+13. EAP scoring → **out of scope (declined M28).** EAP's shrinkage attenuates cross-level
+    correlations — the primary signal bass-ackwards measures — making it theoretically inferior to
+    tenBerge for this method. An EAP request still returns `cli_abort("not yet implemented")`.
+    The scores-route seam in `compute_edges()` is preserved, but implementing EAP is not planned.
 14. `cor = "polychoric"` → **general basis** for all engines (not ESEM-only). PCA/EFA compute `R`
     via `psych::polychoric()` in `ackwards()` then feed it to the engine as usual. ESEM uses
     lavaan's own latent correlation matrix as `R` for edges (do not mix psych-polychoric `R` with
@@ -461,7 +463,7 @@ that needs it. **No Rcpp dependency planned** (see §3).
 - **Forbes-extension improvements deferred past M5** (the published method has weaker spots worth strengthening later; M5 ships the faithful method + the §14.20 reporting enrichments):
   - ~~*Structural artefact signals.*~~ **Done M25 (Wave 2).** `prune = "artefact"` now populates `x$prune$structural` with per-factor `few_items` / `orphan` / `split_merge` signals (flag/report only; no auto-pruning). Args: `min_items = 3L`, `orphan_r = 0.5`. `split_merge` is `TRUE` when a factor's primary items came from multiple different primary factors at the preceding level. CLI and `print()`/`summary()` report the flagged count.
   - ~~*Factor-score-indeterminacy caveat for EFA/ESEM redundancy.*~~ **Done M25 (Wave 3).** `redundancy_phi = NULL` now auto-resolves: PCA → no φ filter; EFA/ESEM → `0.95`. `NA` is the explicit opt-out. Announces via cli when auto-applied (Invariant 6). See §9 defaults table.
-  - *Selection bias in the "strongest" edge.* Plotting the max correlation across many all-levels pairs capitalizes on chance (85 → 1,320 correlations as levels grow). Add bootstrap CIs / SEs on edges (reuse the `loadings_se` infrastructure) so the strongest-edge claim is inferentially honest. **Still deferred.**
+  - *Selection bias in the "strongest" edge.* Plotting the max correlation across many all-levels pairs capitalizes on chance (85 → 1,320 correlations as levels grow). Add bootstrap CIs / SEs on edges (reuse the `loadings_se` infrastructure) so the strongest-edge claim is inferentially honest. **Deferred; warrants its own milestone** (perf-heavy: each resample re-runs full extraction at every level; needs `{future}` parallelisation + print/plot/vignette integration).
 
 ## 15. Milestones
 

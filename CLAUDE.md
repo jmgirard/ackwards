@@ -49,36 +49,11 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M25** — Deferred-items pass (`suggest_k` `criteria=`, artefact signals, φ auto-default)
 - **M26** — Faster ESEM on large item sets (cached sample stats + parallel per-level fits)
 - **M27** — ESEM fit & SEs as first-class output (glance fit, wide fit table, cutoff flags, loading CIs, fit plot, vignette framing)
+- **M28** — CD correctness & honesty fix (`cd_rmse` trailing-zero bug; "minimize" label/roxygen corrected to sequential-test framing)
 
 ## Current focus
 
-**M28 — CD correctness & honesty fix.** Make `suggest_k()`'s Comparison Data (CD) output and
-plot faithfully represent `EFAtools::CD`'s sequential one-sided Wilcoxon test (`alpha = 0.3`),
-not a minimization.
-
-Two verified defects:
-1. **Trailing-zero bug.** `EFAtools::CD` fills `RMSE_eigenvalues` columns only up to `k_cd + 1`;
-   the rest stay literal `0`. `suggest_k()` averages/plots all `k_max` columns, so the RMSE curve
-   plunges to 0 on the right and `which.min()` lands on a fake zero (e.g. `bfi25`, `k_max = 8`:
-   argmin = 8, star at 6). Fix: mask `cd_rmse` columns beyond `min(k_cd + 1, k_max)` to `NA`
-   (keep the tested-but-rejected `k_cd + 1` level visible).
-2. **Mislabeling.** The plot facet `"CD (RMSE, minimize)"` and the `autoplot.suggest_k` roxygen
-   ("first crosses below the comparison-data average") falsely frame CD as minimization. Fix:
-   rename the facet to an honest label, correct the roxygen to describe the sequential-test
-   stopping rule and that the starred k need not be the visible minimum. (Vignette prose is
-   already correct.)
-
-Also: record the two deferred-item assessments in DESIGN.md §14 — **EAP scoring declined**
-(attenuates the cross-level signal the method measures; `compute_edges()` seam preserved,
-tenBerge-on-polychoric covers the case); **bootstrap CIs on skip-level edges remain deferred**
-(own milestone; perf-heavy, Forbes-only).
-
-Acceptance: (AC1) `cd_rmse` has no spurious `0`, entries beyond `k_cd + 1` are `NA`,
-`min(cd_rmse, na.rm=TRUE)` is a genuinely computed level. (AC2) CD panel draws only over
-computed levels (no plunge to 0), stars `k_cd`, facet no longer says "minimize". (AC3) roxygen +
-vignette describe the sequential-test rule; no doc claims CD minimizes RMSE. (AC4) DESIGN §14
-records EAP declined-with-rationale and bootstrap CIs still-deferred; CLAUDE.md "out of scope"
-reflects the EAP decision. (AC5) `check()` clean, styled, linted, coverage retained.
+No active milestone. M28 completed 2026-06-30.
 
 ## Invariants — do not violate without flagging
 
@@ -182,7 +157,7 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
 
 ## Out of scope for now
 
-- **EAP scoring** for ordinal ESEM — deferred; linear tenBerge scores cover the common case.
+- **EAP scoring** for ordinal ESEM — declined (M28): EAP's shrinkage attenuates the cross-level correlations that bass-ackwards exists to measure; tenBerge covers the common case. Seam preserved in `compute_edges()` but implementing EAP is not planned.
 - **Oblique rotation** — varimax is hardcoded; no `rotation` argument; oblique confounds the cross-level signal. No plans to add it.
 - **Higher-order SEM / Schmid-Leiman** — out of scope per §2; `ackwards` is correlation-based, not SEM-based.
 - **Bootstrap CIs on skip-level edges** — deferred from M5; still out of scope. Logged in
