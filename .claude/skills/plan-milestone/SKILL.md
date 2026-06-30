@@ -17,15 +17,24 @@ argument-hint: "[milestone-number]"
 
 Once they respond:
 
-3. Re-read CLAUDE.md and DESIGN.md fresh.
-4. Confirm this milestone's scope against DESIGN.md §15 and CLAUDE.md's "out of scope for now"
-   list; flag if the user's details conflict with either.
+3. Re-read CLAUDE.md and DESIGN.md fresh. For prior-milestone detail, the single log is
+   `MILESTONES.md` (CLAUDE.md carries only a one-line index); deferred/out-of-scope items are in
+   DESIGN.md §14 and CLAUDE.md's "Out of scope for now".
+4. Confirm this milestone's scope against the deferred items in DESIGN.md §14 and CLAUDE.md's
+   "out of scope for now" list (and that it isn't already done per the `MILESTONES.md` log); flag
+   if the user's details conflict with either.
 5. Propose a concrete plan: files to create/modify, the order of implementation, and testable
-   acceptance criteria in the same style as Milestone 1's.
+   acceptance criteria in the same style as Milestone 1's (see `MILESTONES.md`).
 6. Flag any design ambiguity the brief doesn't resolve — do not invent a resolution.
 7. Do not write any code. This is planning only; implementation happens via
    /implement-milestone afterward.
 
-8. Once the user explicitly approves the plan, update CLAUDE.md's "## Current focus" section
-   to replace the previous milestone's scope/acceptance criteria with Milestone $ARGUMENTS's,
-   and commit that change on its own (not bundled with any implementation commit).
+8. Once the user explicitly approves the plan:
+   a. Create the milestone's feature branch off an up-to-date `master`
+      (e.g. `git switch master && git pull && git switch -c m$ARGUMENTS-<short-slug>`).
+      All milestone work — planning commit and implementation — lands on this branch, not on
+      `master`. `master` is merged into only via a reviewed PR once CI is green (see
+      /implement-milestone). Do **not** commit milestone work directly to `master`.
+   b. On the branch, update CLAUDE.md's "## Current focus" section to replace the previous
+      milestone's scope/acceptance criteria with Milestone $ARGUMENTS's, and commit that change
+      on its own (not bundled with any implementation commit).

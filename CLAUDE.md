@@ -130,10 +130,16 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
 - `devtools::check()` clean.
 - Styled and linted.
 - Public-facing change reflected in NEWS.md and (if user-visible) the relevant `@examples`/vignette.
+- For a milestone: a detailed entry added to `MILESTONES.md` **in numeric order** + a one-line
+  index entry here under "Completed milestones". `MILESTONES.md` is the single source of truth for
+  milestone history — never re-log it in DESIGN.md §15 (a pointer) or duplicate it across files.
 
 ## Git
 
-- Default branch is **`master`**.
+- Default branch is **`master`**; it stays green and releasable. Milestone work happens on a
+  feature branch (`m{N}-<slug>`) and merges to `master` via a **PR** once CI is green — don't
+  commit milestone work (anything touching `R/`, `tests/`, `DESCRIPTION`, vignettes) straight to
+  `master`. Trivial isolated doc fixes may go direct at the user's discretion.
 - **Do not touch** the `legacy` branch or the `v0-legacy` tag — they preserve the pre-AI code.
 - Small, focused commits with imperative messages (e.g., `Add PCA engine and level contract`).
 - Don't force-push `master`. Don't commit data, credentials, or large binaries.

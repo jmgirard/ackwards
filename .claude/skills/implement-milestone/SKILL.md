@@ -7,6 +7,9 @@ argument-hint: "[milestone-number]"
 
 0. Confirm $ARGUMENTS matches the milestone number recorded in CLAUDE.md's "## Current focus"
    section. If it doesn't match, stop and flag the mismatch rather than proceeding.
+0b. Confirm you are on the milestone's feature branch (created by /plan-milestone, named
+    `m$ARGUMENTS-<slug>`), not on `master`. If you are on `master`, stop and flag — milestone
+    work must not be committed directly to `master`.
 
 # Implement Milestone $ARGUMENTS
 
@@ -23,5 +26,23 @@ Follow `CLAUDE.md`'s dev workflow and definition of done throughout:
 - Respect the ask-first guardrails in `CLAUDE.md`: flag before adding an `Imports` dependency, introducing Rcpp, changing a resolved default, or touching git history/tags.
 - If you hit a design ambiguity not covered by `DESIGN.md`, stop and ask rather than deciding unilaterally.
 - Update `NEWS.md` for user-visible changes.
+
+**Milestone documentation (do this before the final commit — it is part of the definition of done):**
+- **`MILESTONES.md` is the single source of truth for milestone history.** Add an `M$ARGUMENTS (done)`
+  entry **in numeric order** (place it immediately after `M{$ARGUMENTS − 1}`; never append out of
+  order or skip a number), in the same style as the existing entries (what shipped + the durable
+  decisions/amendments + final test count and R CMD check status).
+- Add the matching one-line index entry to CLAUDE.md's "## Completed milestones" list (numeric
+  order), and update "## Current focus" to record the milestone as completed.
+- Record any DESIGN.md contract changes in the relevant numbered section (§1–14) — **not** as a
+  second copy of the milestone log (DESIGN.md §15 is only a pointer to `MILESTONES.md`).
+- Do **not** duplicate the milestone narrative across files: detail in `MILESTONES.md`, one line in
+  CLAUDE.md, user-facing notes in `NEWS.md`, design-contract deltas in DESIGN.md §1–14.
+
+**Finishing the milestone (branch → PR, not direct to `master`):**
+- Push the feature branch and open a PR into `master`; let CI (R-CMD-check, test-coverage, rhub)
+  go green before merging. Do not push milestone commits straight to `master`.
+- Trivial, isolated doc-typo fixes may still go directly to `master` at the user's discretion;
+  anything touching `R/`, `tests/`, `DESCRIPTION`, or vignettes goes through a PR.
 
 Do not run `/post-milestone-review` yourself at the end — that's a separate, deliberate step you trigger after reviewing the work.
