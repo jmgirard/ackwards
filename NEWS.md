@@ -135,6 +135,20 @@ raw item data, detected automatically from the matrix shape (square, symmetric, 
 * `augment(x, data = ...)` — appends factor scores to a data frame; recomputes from stored
   weights when scores were not materialized at fit time.
 
+## Documentation
+
+Vignette comparison tables reworked for legibility (M24):
+
+* `ackwards-engines` and `ackwards-ordinal` — stacked long-format `kable` tables replaced
+  by **wide gt tables**: one row per item/edge, one column per engine/basis, plus an explicit
+  Δ column that is the teaching point (EFA/polychoric attenuation). Factor and sign
+  correspondence is asserted before differencing; edge tables surface primary-parent
+  disagreements as NA rather than hiding them.
+* `ackwards-forbes` — `prune-nodes` raw `tidy()` print replaced by a styled gt table;
+  narrated counts (`n_adj`, `n_all`, `n_redundant`, top skip-edge) are now computed via
+  inline R expressions so they can never go stale.
+* `gt` added to Suggests (vignette table formatting only; never loaded by core).
+
 ## Test coverage
 
 Test suite reaches **100% line coverage**. Genuinely unreachable defensive branches

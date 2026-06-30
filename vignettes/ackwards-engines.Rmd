@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
   fig.height = 4.5
 )
 has_lavaan <- requireNamespace("lavaan", quietly = TRUE)
-has_gt     <- requireNamespace("gt",     quietly = TRUE)
+has_gt <- requireNamespace("gt", quietly = TRUE)
 ```
 
 **ackwards** supports three factor extraction engines. They share the same
@@ -113,8 +113,9 @@ PCA inflates loadings by fitting noise alongside signal.
 The table below compares primary loadings — the loading of each item on its
 dominant factor — for six representative items (two each from the Neuroticism,
 Extraversion, and Conscientiousness families) at k = 3. The Δ column is the
-teaching point: how much smaller EFA loadings are once measurement error is
-partitioned into uniqueness.
+teaching point: how much smaller EFA loadings are in absolute value once
+measurement error is partitioned into uniqueness. Using |EFA| − |PCA| keeps
+the attenuation consistently negative regardless of loading sign.
 
 ```{r loadings-compare, echo = FALSE}
 # Primary loading = loading on the factor with the highest |loading| for that item
@@ -137,10 +138,10 @@ stopifnot(
 
 wide <- merge(
   pca_p[, c("factor", "item", "loading")],
-  efa_p[, c("item",           "loading")],
+  efa_p[, c("item", "loading")],
   by = "item", suffixes = c("_pca", "_efa")
 )
-wide$delta <- wide$loading_efa - wide$loading_pca
+wide$delta <- abs(wide$loading_efa) - abs(wide$loading_pca)
 wide <- wide[order(wide$factor, wide$item), c("item", "factor", "loading_pca", "loading_efa", "delta")]
 
 if (has_gt) {
@@ -148,11 +149,11 @@ if (has_gt) {
     gt::tab_header(title = "PCA vs EFA: primary loadings for anchor items (k = 3)") |>
     gt::tab_spanner(label = "Loading", columns = c(loading_pca, loading_efa, delta)) |>
     gt::cols_label(
-      item       = "Item",
-      factor     = "Factor",
+      item = "Item",
+      factor = "Factor",
       loading_pca = "PCA",
       loading_efa = "EFA",
-      delta      = "Δ (EFA − PCA)"
+      delta = "Δ (|EFA| − |PCA|)"
     ) |>
     gt::fmt_number(columns = c(loading_pca, loading_efa, delta), decimals = 2) |>
     gt::tab_style(
@@ -160,14 +161,17 @@ if (has_gt) {
       locations = gt::cells_column_labels(columns = delta)
     ) |>
     gt::tab_footnote(
-      footnote  = "Factor assignment and sign verified to match between engines for all six items.",
+      footnote  = paste0(
+        "Factor assignment and sign verified to match between engines.",
+        " Delta uses |EFA| - |PCA| so attenuation is always negative regardless of loading sign."
+      ),
       locations = gt::cells_column_labels(columns = delta)
     )
 } else {
   knitr::kable(
     wide,
     digits = 2, row.names = FALSE,
-    col.names = c("Item", "Factor", "PCA", "EFA", "Δ (EFA − PCA)"),
+    col.names = c("Item", "Factor", "PCA", "EFA", "Δ (|EFA| − |PCA|)"),
     caption = "PCA vs EFA: primary loadings for anchor items (k = 3)"
   )
 }
