@@ -197,8 +197,52 @@ default output must reproduce Forbes's examples exactly.
 
 ## Current focus
 
-No milestone currently in progress. M23 + post-M23 test-suite speedup complete (see Completed
-milestones).
+**M24 (in progress) — Vignette communication pass (documentation-only).** A legibility/polish
+milestone (not a DESIGN.md §15 feature): rework the weak comparison tables in three vignettes and
+audit the rest. No `R/` source, NAMESPACE, invariant, or resolved-default changes. One approved
+dependency change: **`gt` added to Suggests** (vignette-only table formatting; never loaded by
+core).
+
+**Root problem & fix.** The weak tables are stacked long-format (`rbind(cbind(engine=…,
+tidy(…)))`) that force the reader to mentally join two rows to make the comparison the table
+exists for. Fix: pivot to **wide — one row per item/edge, one column per engine/basis, plus an
+explicit delta column that *is* the teaching point** (`efa − pca`; `poly − pearson` = the
+attenuation).
+
+**Scope (resolved with owner):**
+- Rework `ackwards-engines.Rmd` (`loadings-compare`, `edges-compare`) and `ackwards-ordinal.Rmd`
+  (`load-compare`, `edge-compare`) to wide + delta. `ackwards-forbes.Rmd`: frame `prune-nodes` as a
+  table (was a raw `tidy()` dump) and inline its drift-prone narrated numbers ("Six factors", "40/85
+  edges", "m3f2…0.98"); keep `skip-edges` + `thresholds`.
+- Audit the other four vignettes (intro, suggest-k, interpret, visualization) — their raw
+  `tidy()`/`glance()`/`summary()` console prints are pedagogically appropriate for a console-first
+  package, so expect minimal/no change; record the audit conclusion.
+- Tables in the three named vignettes rendered with **`gt`** (column spanner `pca | efa | Δ`,
+  delta emphasis) for visual consistency, guarded with a `knitr::kable` fallback so vignettes build
+  when `gt` is absent (Suggests hygiene). gt appears only in those three (the others have no tables).
+- **Decision 1 (delta sign-correctness):** match factors + **assert** sign/alignment before
+  differencing, with a one-line caveat; where an edge's primary parent differs between engines,
+  surface it rather than hide it.
+- **Decision 3 (no reader distraction):** all reshape + gt presentation code lives in `echo = FALSE`
+  chunks (the comparison chunks already are); echoed teaching chunks stay clean `tidy()` one-liners.
+  Narrative numbers: inline `` `r` `` for counts (drift-proof), verified-hardcode for illustrative
+  phrasing ("roughly 0.59").
+
+**Acceptance criteria:**
+- Every comparison table in `ackwards-engines` + `ackwards-ordinal` is wide (one row per item/edge,
+  one column per engine/basis, explicit delta column); no `rbind(cbind(...))` stacking remains for
+  comparison tables.
+- The delta is sign-correct — compared cells are verified factor/sign-aligned; non-alignable cells
+  are stated, not silently differenced.
+- `ackwards-forbes` `prune-nodes` renders as a framed table; no raw `tidy()` dump where a table is
+  intended.
+- Every narrative number restating a rendered value is inline `` `r` `` or verified against the
+  fresh render — no stale hard-coded figures.
+- A guard test asserts each new wide-pivot/delta idiom runs and returns the expected columns/shape
+  (M19 precedent).
+- All 7 vignettes knit cleanly; `R CMD check --as-cran` → 0/0/0; styler + lintr clean.
+- No `R/` source change, no NAMESPACE change, no invariant or resolved default touched; only new dep
+  is `gt` in Suggests. NEWS.md + DESIGN.md §15 updated.
 
 ## Invariants — do not violate without flagging
 
