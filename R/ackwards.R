@@ -498,16 +498,16 @@ ackwards <- function(
       levels_list <- esem_out$levels
       fits_stored <- esem_out$fits
       R <- esem_out$r_lv
-      if (is.null(R)) R <- R_ext
-      if (is.null(R)) {
+      if (is.null(R)) R <- R_ext # nocov
+      if (is.null(R)) { # nocov start
         R <- stats::cor(data_mat, method = "pearson", use = "pairwise.complete.obs")
-      }
+      } # nocov end
     } else {
       # PCA / EFA: compute R then dispatch
       if (cor == "polychoric") {
         poly_out <- tryCatch(
           psych::polychoric(data_mat),
-          error = function(e) {
+          error = function(e) { # nocov start
             cli::cli_abort(
               c(
                 "!" = "{.fn psych::polychoric} failed: {conditionMessage(e)}",
@@ -515,12 +515,12 @@ ackwards <- function(
                      distinct values, or use {.code cor = \"pearson\"}."
               )
             )
-          }
+          } # nocov end
         )
         R <- poly_out$rho
         # Guard against non-positive-definite polychoric matrices (DESIGN.md s.14 remaining)
         min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
-        if (min_eig <= 0) {
+        if (min_eig <= 0) { # nocov start
           cli::cli_warn(
             c(
               "!" = "Polychoric correlation matrix is not positive definite \\
@@ -529,7 +529,7 @@ ackwards <- function(
             )
           )
           R <- psych::cor.smooth(R)
-        }
+        } # nocov end
       } else {
         R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
       }

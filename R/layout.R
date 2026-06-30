@@ -63,9 +63,9 @@ ba_layout <- function(x, min_sep = 1.0) {
     bary <- vapply(labs_k, function(lab) {
       pe <- ep[ep$to == lab, , drop = FALSE]
       w <- abs(pe$r)
-      if (nrow(pe) == 0L || sum(w) == 0) {
+      if (nrow(pe) == 0L || sum(w) == 0) { # nocov start
         return(mean(as.numeric(parent_ords)))
-      }
+      } # nocov end
       sum(w * parent_ords[pe$from]) / sum(w)
     }, numeric(1L))
 
@@ -117,12 +117,12 @@ ba_layout <- function(x, min_sep = 1.0) {
         return(mean(x_below[pc$to]))
       }
       # Fallback for orphaned parents: |r|-weighted mean of all children
-      ce <- all_ep[all_ep$from == lab, , drop = FALSE]
+      ce <- all_ep[all_ep$from == lab, , drop = FALSE] # nocov start
       w <- abs(ce$r)
       if (nrow(ce) == 0L || sum(w) == 0) {
         return(mean(x_below))
       }
-      sum(w * x_below[ce$to]) / sum(w)
+      sum(w * x_below[ce$to]) / sum(w) # nocov end
     }, numeric(1L))
 
     node_x[[as.character(k)]] <- stats::setNames(

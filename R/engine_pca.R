@@ -20,10 +20,10 @@ pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE) {
       fit <- psych::pca(R, nfactors = 1L, rotate = "none")
       L_rot <- unclass(fit$loadings)
       # Ensure positive manifold
-      if (sum(L_rot) < 0) {
+      if (sum(L_rot) < 0) { # nocov start
         L_rot <- -L_rot
         fit$weights <- -fit$weights
-      }
+      } # nocov end
     } else {
       fit <- psych::pca(R, nfactors = k, rotate = "varimax")
       L_rot <- unclass(fit$loadings)

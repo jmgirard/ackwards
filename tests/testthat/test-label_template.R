@@ -118,6 +118,15 @@ test_that("label_template forbes uses LETTERS correctly for deeper hierarchies",
   expect_true(all(grepl("^C", m3_vals)))
 })
 
+test_that("label_template style='forbes' errors when k_max > 26", {
+  skip_if_not_installed("psych")
+  # Build a minimal 27-variable PCA object so label_template sees 27 levels
+  set.seed(1L)
+  d27 <- as.data.frame(matrix(rnorm(100L * 27L), 100L, 27L))
+  x27 <- suppressWarnings(ackwards(d27, k_max = 27L, engine = "pca"))
+  expect_error(label_template(x27, style = "forbes"), "26 levels")
+})
+
 test_that("label_template works with engine = 'efa'", {
   skip_if_not_installed("psych")
   set.seed(1)

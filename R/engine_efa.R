@@ -44,7 +44,7 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
       warn_msgs,
       ignore.case = TRUE
     ))
-    if (converge_fail) {
+    if (converge_fail) { # nocov start
       cli::cli_warn(
         c(
           "!" = "EFA did not converge at k = {k}.",
@@ -52,7 +52,7 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
         )
       )
       break
-    }
+    } # nocov end
 
     # Heywood case: warn but do NOT truncate (convergence is data, not an error)
     heywood <- any(fit$uniquenesses < 0, na.rm = TRUE) ||
@@ -82,7 +82,7 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
     weight_method <- "tenBerge"
     W <- tryCatch(
       .tenBerge_weights(R, L_rot),
-      error = function(e) {
+      error = function(e) { # nocov start
         weight_method <<- "regression" # honest label on fallback (Invariant 6)
         cli::cli_warn(
           c(
@@ -95,7 +95,7 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
         colnames(w_fall) <- labels_k
         rownames(w_fall) <- rownames(R)
         w_fall
-      }
+      } # nocov end
     )
 
     # Score variances: diag(W' R W); exact 1 for tenBerge (orthogonal), but

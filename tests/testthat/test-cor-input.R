@@ -265,6 +265,55 @@ test_that("suggest_k() covariance matrix gives a targeted error", {
   expect_error(suggest_k(S), "covariance matrix")
 })
 
+# ---- ackwards(): additional validation for R-matrix branch ------------------
+
+test_that("ackwards() R-matrix: invalid n_obs (negative) errors", {
+  R <- .bfi6_R()
+  expect_error(
+    suppressMessages(ackwards(R, k_max = 3, n_obs = -1L)),
+    "positive integer"
+  )
+})
+
+test_that("ackwards() R-matrix: invalid n_obs (non-numeric) errors", {
+  R <- .bfi6_R()
+  expect_error(
+    suppressMessages(ackwards(R, k_max = 3, n_obs = "abc")),
+    "positive integer"
+  )
+})
+
+test_that("ackwards() R-matrix: k_max > p errors clearly", {
+  R <- .bfi6_R() # 6 x 6 matrix
+  expect_error(
+    suppressMessages(ackwards(R, k_max = 100L)),
+    "k_max.*exceed"
+  )
+})
+
+test_that("ackwards() R-matrix with seed runs without error", {
+  R <- .bfi6_R()
+  expect_no_error(suppressMessages(ackwards(R, k_max = 3, seed = 42L)))
+})
+
+# ---- ackwards(): raw data validation branches --------------------------------
+
+test_that("ackwards() errors on non-numeric raw data (character columns)", {
+  d <- data.frame(
+    x1 = c("a", "b", "c"),
+    x2 = c("d", "e", "f"),
+    x3 = c("g", "h", "i"),
+    stringsAsFactors = FALSE
+  )
+  expect_error(ackwards(d, k_max = 2), "numeric")
+})
+
+test_that("ackwards() raw data PCA with seed runs without error", {
+  set.seed(1L)
+  d <- as.data.frame(matrix(rnorm(120L), 20L, 6L))
+  expect_no_error(suppressWarnings(ackwards(d, k_max = 3, engine = "pca", seed = 7L)))
+})
+
 test_that("autoplot.suggest_k() works on R-matrix suggest_k object", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")

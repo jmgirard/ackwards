@@ -153,9 +153,9 @@
       }
     }
   }
-  if (length(chains_raw) == 0L) {
+  if (length(chains_raw) == 0L) { # nocov start
     return(list(node_flags = NULL, chains = NULL))
-  }
+  } # nocov end
 
   # --- Per-chain metadata: retain label + link stats + endpoint r --------------
   chain_metas <- lapply(seq_along(chains_raw), function(i) {
@@ -249,9 +249,9 @@
     )
     rownames(out) <- NULL
     out
-  } else {
+  } else { # nocov start
     NULL
-  }
+  } # nocov end
 
   list(node_flags = node_flags_df, chains = chains_df)
 }

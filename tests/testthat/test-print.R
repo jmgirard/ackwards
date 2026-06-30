@@ -174,3 +174,55 @@ test_that("summary.ackwards works for all three engines", {
   expect_no_error(summary(x_efa))
   expect_no_error(summary(x_esem))
 })
+
+# ── Branches added for M23 coverage hardening ──────────────────────────────────
+
+test_that("print.summary_ackwards EFA path shows chi/dof indices", {
+  # Covers summary.R lines 102 and 112: EFA idx_show and chi/dof formatting.
+  skip_if_not_installed("psych")
+  d <- .make_esem_data()
+  x_efa <- suppressWarnings(ackwards(d, k_max = 2, engine = "efa"))
+  s <- summary(x_efa)
+  expect_no_error(suppressMessages(print(s)))
+  expect_invisible(suppressMessages(print(s)))
+})
+
+test_that("print.summary_ackwards shows '(none)' when redundant pruning finds no flags", {
+  # Covers summary.R line 146: redundant pruning enabled but p$redundant is empty.
+  # redundancy_r = 1.0 means only |r| >= 1.0 qualifies — impossible → 0 flags.
+  skip_if_not_installed("psych")
+  set.seed(7L)
+  d <- as.data.frame(matrix(rnorm(300L), 50L, 6L))
+  x <- suppressWarnings(suppressMessages(
+    ackwards(d, k_max = 3, prune = "redundant", redundancy_r = 0.9999)
+  ))
+  s <- summary(x)
+  # No nodes flagged
+  expect_equal(length(s$prune$redundant), 0L)
+  expect_no_error(suppressMessages(print(s)))
+})
+
+test_that("print.summary_ackwards shows phi threshold note when redundancy_phi set", {
+  # Covers summary.R line 150: phi_note when redundancy_phi is non-NULL.
+  skip_if_not_installed("psych")
+  set.seed(42L)
+  d <- as.data.frame(matrix(rnorm(300L), 50L, 6L))
+  x <- suppressWarnings(suppressMessages(
+    ackwards(d, k_max = 3, prune = "redundant", redundancy_phi = 0.9)
+  ))
+  s <- summary(x)
+  expect_false(is.null(s$prune$redundancy_phi))
+  expect_no_error(suppressMessages(print(s)))
+})
+
+test_that("print.summary_ackwards shows empty lineage message for a no-edge object", {
+  # Covers summary.R lines 131, 199-204: both the empty-lineage print line and
+  # the .summary_lineage() early return when adj_primary is empty.
+  skip_if_not_installed("psych")
+  x <- suppressWarnings(ackwards(bfi25[, 1:6], k_max = 3))
+  # Patch out all edges so .summary_lineage() returns an empty data frame
+  x$edges$tidy <- x$edges$tidy[0L, , drop = FALSE]
+  s <- summary(x)
+  expect_equal(nrow(s$lineage), 0L)
+  expect_no_error(suppressMessages(print(s)))
+})

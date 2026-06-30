@@ -183,6 +183,23 @@ test_that("interpret vignette top_items idioms run", {
   expect_true(is.data.frame(ti$data)) # $data access shown in vignette
 })
 
+test_that("print.top_items skips levels with no items (nrow(df_k) == 0)", {
+  # Covers the `if (nrow(df_k) == 0L) next` branch: request multiple levels
+  # but with a cut so high that the general factor (level 1) has no salient
+  # items while specific factors at level 3 do.
+  skip_if_not_installed("psych")
+  x <- suppressWarnings(ackwards(bfi25[, 1:6], k_max = 3))
+  # cut = 0.7: level-1 general factor loadings (~0.3-0.5) won't pass;
+  # at least some level-3 specific factors will have loadings >= 0.7.
+  ti <- top_items(x, level = c(1L, 3L), cut = 0.7)
+  # There must be SOME items (from level 3) for the early-return not to fire
+  # and the per-level loop to run (hitting `next` for level 1).
+  skip_if(nrow(ti$data) == 0L, "no items at cut=0.7 on this data -- skip")
+  skip_if(any(ti$data$level == 1L), "level 1 has items at cut=0.7 -- skip")
+  expect_no_error(print(ti))
+  expect_invisible(print(ti))
+})
+
 test_that("interpret/visualization vignette idiom: label_template feeds autoplot cleanly", {
   # Guards the round-trip autoplot(x, node_labels = label_template(x, style)).
   # Every ID label_template emits must resolve to a real factor, so no

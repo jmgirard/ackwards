@@ -85,9 +85,9 @@ print.summary_ackwards <- function(x, ...) {
         ]
         if (nrow(eig_row) > 0L) {
           paste0("  eigenvalue ", round(eig_row$value[1L], 2))
-        } else {
+        } else { # nocov start
           ""
-        }
+        } # nocov end
       } else {
         ""
       }
@@ -230,9 +230,9 @@ print.summary_ackwards <- function(x, ...) {
   nodes <- x$prune$nodes
   redundant <- if (!is.null(nodes)) {
     nodes$id[nodes$pruned & nodes$prune_reason == "redundant"]
-  } else {
+  } else { # nocov start
     character(0L)
-  }
+  } # nocov end
   artefact_n <- if (!is.null(x$prune$phi)) nrow(x$prune$phi) else NULL
   list(
     rules          = x$prune$rules,

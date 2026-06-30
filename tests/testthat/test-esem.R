@@ -219,6 +219,20 @@ test_that("tidy(x, what = 'loadings_se') returns one SE per loading for ESEM", {
   expect_true(all(se$se >= 0))
 })
 
+test_that("tidy(x, what = 'loadings_se') skips levels with NULL loadings_se", {
+  # Covers the return(NULL) branch at tidy.R line 175 when a level is missing SE.
+  # Simulate a partially-SE object by nulling out one level's SE.
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  # Null out level-1 SE to force the return(NULL) branch for that level
+  x$levels[["1"]]$loadings_se <- NULL
+  se <- generics::tidy(x, what = "loadings_se")
+  # Levels 2 and 3 still have SE; level 1 is silently skipped
+  expect_s3_class(se, "data.frame")
+  expect_true(all(se$level >= 2L))
+})
+
 
 # ── estimator argument ────────────────────────────────────────────────────────
 

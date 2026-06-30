@@ -172,6 +172,40 @@ test_that(".check_maybe_cov_matrix() passes silently for a valid correlation mat
   expect_no_error(ackwards:::.check_maybe_cov_matrix(as.data.frame(bfi25)))
 })
 
+test_that(".check_maybe_cov_matrix() returns invisibly for a non-square numeric matrix", {
+  # Non-square: rows != cols, so not a square symmetric matrix → early return
+  m <- matrix(1:6, nrow = 2, ncol = 3)
+  expect_no_error(ackwards:::.check_maybe_cov_matrix(m))
+})
+
+test_that(".validate_cor_matrix() errors on matrix containing Inf", {
+  R <- diag(3L)
+  dimnames(R) <- list(c("a", "b", "c"), c("a", "b", "c"))
+  R[1L, 2L] <- R[2L, 1L] <- Inf
+  expect_error(
+    ackwards:::.validate_cor_matrix(R),
+    "non-finite"
+  )
+})
+
+test_that("validate_ackwards() errors when required fields are missing", {
+  x <- structure(list(call = NULL), class = "ackwards")
+  expect_error(validate_ackwards(x), "missing fields")
+})
+
+test_that("validate_ackwards() errors when object does not inherit ackwards class", {
+  required_fields <- c(
+    "call", "engine", "rotation", "cor", "n_obs", "k_max",
+    "seed", "pkg_version", "levels", "edges", "lineage",
+    "scores", "fits", "r", "data", "meta", "prune"
+  )
+  x <- structure(
+    stats::setNames(vector("list", length(required_fields)), required_fields),
+    class = "not_ackwards"
+  )
+  expect_error(validate_ackwards(x), "class")
+})
+
 test_that("inst/CITATION has two entries with correct years and no unknown year", {
   skip_if_not_installed("ackwards")
   cites <- citation("ackwards")

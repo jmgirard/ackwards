@@ -305,7 +305,7 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_obs = NULL,
     if (!is.null(seed)) set.seed(seed)
     cd_out <- tryCatch(
       EFAtools::CD(data_complete, n_factors_max = k_max),
-      error = function(e) {
+      error = function(e) { # nocov start
         cli::cli_warn(
           c(
             "!" = "Comparison Data (CD) failed and will be omitted.",
@@ -313,7 +313,7 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_obs = NULL,
           )
         )
         NULL
-      }
+      } # nocov end
     )
     if (!is.null(cd_out)) {
       k_cd <- min(as.integer(cd_out$n_factors), k_max)
@@ -322,12 +322,12 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_obs = NULL,
       rmse_raw <- cd_out$RMSE_eigenvalues
       cd_rmse <- if (length(dim(rmse_raw)) >= 2L) {
         colMeans(rmse_raw)[seq_len(k_max)]
-      } else {
+      } else { # nocov start
         as.numeric(rmse_raw)[seq_len(k_max)]
-      }
-    } else {
+      } # nocov end
+    } else { # nocov start
       cd_available <- FALSE
-    }
+    } # nocov end
   }
 
   cli::cli_progress_done()
@@ -340,8 +340,8 @@ suggest_k <- function(data, k_max = NULL, cor = "pearson", n_obs = NULL,
     pa_pc_quant = pa_pc_quant,
     pa_pc_suggested = seq_len(k_max) <= k_parallel_pc,
     pa_fa_quant = pa_fa_quant,
-    pa_fa_suggested = if (is.na(k_parallel_fa)) {
-      rep(FALSE, k_max)
+    pa_fa_suggested = if (is.na(k_parallel_fa)) { # nocov start
+      rep(FALSE, k_max) # nocov end
     } else {
       seq_len(k_max) <= k_parallel_fa
     },

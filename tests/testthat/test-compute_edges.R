@@ -45,6 +45,17 @@ test_that("compute_edges errors when algebra forced but R missing", {
   )
 })
 
+test_that("compute_edges with explicit edge_method='algebra' and valid R succeeds", {
+  # Covers the TRUE branch inside the algebra case of the switch,
+  # which is only reached when edge_method = "algebra" and algebra_ok = TRUE.
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(bfi25[, 1:6], k_max = 3))
+  R <- cor(bfi25[, 1:6], use = "pairwise.complete.obs")
+  result <- compute_edges(x$levels, R = R, edge_method = "algebra")
+  expect_type(result, "list")
+  expect_true(!is.null(result$matrices))
+})
+
 test_that("compute_edges errors when scores needed but data absent", {
   skip_if_not_installed("psych")
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))

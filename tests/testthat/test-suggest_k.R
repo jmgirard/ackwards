@@ -331,3 +331,49 @@ test_that("print.suggest_k() runs without error when cd_available = FALSE", {
   expect_no_error(print(sk))
   expect_invisible(print(sk))
 })
+
+# ---- Branches added for M23 coverage hardening -------------------------------
+
+test_that("suggest_k() R-matrix + explicit cor warns it is ignored", {
+  skip_if_not_installed("psych")
+  R <- cor(bfi25[, 1:6], use = "pairwise.complete.obs")
+  # 'cor' arg is explicitly set (not "pearson") alongside an R-matrix: warn
+  expect_warning(
+    suppressMessages(suggest_k(R, n_obs = 875L, n_iter = 3L, cor = "spearman")),
+    "cor.*ignored"
+  )
+})
+
+test_that("suggest_k() R-matrix: k_max >= p errors with helpful message", {
+  skip_if_not_installed("psych")
+  R <- cor(bfi25[, 1:6], use = "pairwise.complete.obs") # p = 6
+  expect_error(
+    suppressMessages(suggest_k(R, n_obs = 875L, k_max = 6L, n_iter = 3L)),
+    "k_max"
+  )
+})
+
+test_that("suggest_k() errors on non-numeric (character) data", {
+  d <- data.frame(x = c("a", "b", "c"), y = c("d", "e", "f"))
+  expect_error(suggest_k(d, k_max = 1L), "numeric")
+})
+
+test_that("suggest_k() warns when cor = 'spearman' and CD is available", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("EFAtools")
+  expect_warning(
+    suggest_k(bfi25[, 1:6], k_max = 3L, cor = "spearman", n_iter = 3L, seed = 1L),
+    "Pearson"
+  )
+})
+
+test_that("print.suggest_k() renders CD dash symbol when i > k_cd", {
+  skip_if_not_installed("psych")
+  sk <- .get_sk(4L)
+  # Force k_cd to 1 so that rows 2-4 hit the 'else' (dash) branch
+  sk$cd_available <- TRUE
+  sk$k_cd <- 1L
+  # Must print without error (rows 2-4 produce the dash branch at print.R line 418)
+  expect_no_error(print(sk))
+  expect_invisible(print(sk))
+})

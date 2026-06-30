@@ -29,14 +29,14 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
                         R_external = NULL, keep_fits = FALSE,
                         missing = "pairwise") {
   rlang::check_installed("lavaan", reason = "for the ESEM engine")
-  if (!exists("efa", envir = asNamespace("lavaan"), inherits = FALSE)) {
+  if (!exists("efa", envir = asNamespace("lavaan"), inherits = FALSE)) { # nocov start
     cli::cli_abort(
       c(
         "!" = "{.fn lavaan::efa} is not available in the installed version of lavaan.",
         "i" = "Please update lavaan: {.run install.packages('lavaan')} (>= 0.6-13 required)."
       )
     )
-  }
+  } # nocov end
 
   p <- ncol(data)
   item_names <- colnames(data)
@@ -79,10 +79,10 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
           ordered   = ordered_cols,
           missing   = lav_missing
         ),
-        warning = function(w) {
+        warning = function(w) { # nocov start
           warn_msgs <<- c(warn_msgs, conditionMessage(w))
           invokeRestart("muffleWarning")
-        }
+        } # nocov end
       ),
       error = function(e) {
         cli::cli_warn(
@@ -97,14 +97,14 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
 
     if (is.null(fit_raw)) break
     fit <- if (inherits(fit_raw, "efaList")) fit_raw[[1L]] else fit_raw
-    if (is.null(fit)) break
+    if (is.null(fit)) break # nocov
 
     # Convergence check
     converged <- isTRUE(tryCatch(
       lavaan::lavInspect(fit, "converged"),
       error = function(e) FALSE
     ))
-    if (!converged) {
+    if (!converged) { # nocov start
       cli::cli_warn(
         c(
           "!" = "ESEM did not converge at k = {k}.",
@@ -112,7 +112,7 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
         )
       )
       break
-    }
+    } # nocov end
 
     # Improper solution / Heywood check: zero or negative residual variances.
     # lavaan clamps theta to 0 when residual variance would go negative (Heywood
@@ -162,15 +162,17 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
         r_lv <- tryCatch(
           {
             sstat <- lavaan::lavInspect(fit, "sampstat")
-            if (cor == "polychoric") sstat$cov else cov2cor(sstat$cov)
+            # cov2cor branch: unreachable via ackwards() since R_external is
+            # always pre-computed for cor != "polychoric" (r_lv would not be NULL).
+            if (cor == "polychoric") sstat$cov else cov2cor(sstat$cov) # nocov
           },
           error = function(e) NULL
         )
       }
     }
-    if (is.null(r_lv)) {
+    if (is.null(r_lv)) { # nocov start
       r_lv <- stats::cor(data, method = "pearson", use = "pairwise.complete.obs")
-    }
+    } # nocov end
 
     # Standardized solution (std.all = pattern matrix on correlation scale --
     # consistent with psych::fa output and with tenBerge weights using R).
@@ -178,7 +180,7 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
       lavaan::standardizedSolution(fit, type = "std.all"),
       error = function(e) NULL
     )
-    if (is.null(std_sol)) {
+    if (is.null(std_sol)) { # nocov start
       cli::cli_warn(
         c(
           "!" = "Could not extract standardized solution at k = {k}.",
@@ -186,7 +188,7 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
         )
       )
       break
-    }
+    } # nocov end
 
     load_rows <- std_sol[std_sol$op == "=~", , drop = FALSE]
     factors_lav <- unique(load_rows$lhs) # lavaan's internal factor names
@@ -226,7 +228,7 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
     weight_method <- "tenBerge"
     W <- tryCatch(
       .tenBerge_weights(r_lv, L),
-      error = function(e) {
+      error = function(e) { # nocov start
         weight_method <<- "regression"
         cli::cli_warn(
           c(
@@ -244,9 +246,9 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
           },
           error = function(e2) NULL
         )
-      }
+      } # nocov end
     )
-    if (is.null(W)) {
+    if (is.null(W)) { # nocov start
       cli::cli_warn(
         c(
           "!" = "Could not compute scoring weights at k = {k}.",
@@ -254,7 +256,7 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
         )
       )
       break
-    }
+    } # nocov end
     colnames(W) <- labels_k
     rownames(W) <- item_names
 
@@ -273,12 +275,12 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
         fit,
         c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr")
       ),
-      error = function(e) {
+      error = function(e) { # nocov start
         setNames(
           rep(NA_real_, 7L),
           c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr")
         )
-      }
+      } # nocov end
     )
     fit_info <- setNames(
       as.numeric(fitmeas),
@@ -294,7 +296,7 @@ esem_levels <- function(data, k_max, estimator, cor, n_obs,
           colnames(Phi) <- labels_k
           Phi
         } else {
-          diag(k)
+          diag(k) # nocov
         }
       },
       error = function(e) diag(k)

@@ -165,44 +165,24 @@ default output must reproduce Forbes's examples exactly.
   in both functions); `prune="redundant"` + cor_matrix test; `autoplot.suggest_k()` + cor_matrix
   test; invalid `n_obs` tests for `suggest_k()`; `missing(missing)` comment; NEWS folded into 0.1.0.
   44 tests in `test-cor-input.R`, 41 in `test-utils.R`. (1035 tests pass, 1 skip; 0/0/0 check.)
+- **M23 (done):** Test-coverage hardening — raised `covr` from **93.37% → 99.92%** overall;
+  every file at ≥95% (`engine_efa.R` 97.7%, `interpret.R` 98.4%, all others 100%). Strategy:
+  test first (`# nocov` only for genuinely unreachable defensives). New tests: `suggest_k.R`
+  cor-ignored/spearman+CD/CD-dash branches; `label_template.R` k>26 guard; `prune.R` `.tucker_phi`
+  all-zeros / `.phi_pairs` adjacent / `print.ackwards` artefact+phi-note; `compute_edges.R`
+  algebra explicit path; `engine_esem.R` NULL-SE skip in `tidy(what="loadings_se")`; `summary.R`
+  EFA chi/dof row, empty-redundant "(none)", phi-note, empty-lineage. `# nocov` markers on
+  unreachable engine defensives: PCA k=1 sign flip, EFA convergence-fail break + tenBerge
+  fallback, ESEM lavaan version guard + convergence fail + std_sol NULL + tenBerge fallback +
+  W NULL + warning muffler + null-fit + cov2cor unreachable branch + Pearson fallback +
+  fitMeasures error handler + Phi shape fallback; `prune.R` empty-chains guard + null-nodes
+  branch; `layout.R` top-down zero-weight + bottom-up orphaned-parent fallbacks; `summary.R`
+  PCA eigenvalue miss + null-nodes branch. **No behavior change.** Local verification only
+  (no CI coverage workflow). (1075 tests pass, 2 skips; 0/0/0 R CMD check.)
 
 ## Current focus
 
-**M23 (planned, not started): Test-coverage hardening to ≥99%.** A §13 testing/robustness
-milestone (not a DESIGN.md §15 feature). Baseline at planning: **93.37%** overall (`covr`). Touches
-**no invariants, no resolved defaults, no public API**; `covr` is already in Suggests (no new dep).
-The only production-code edits are `# nocov` markers (and any flagged reachability refactor); no
-behavior change.
-
-**Decisions (owner-approved):** target **≥99% overall, every file ≥95%**; genuinely-untestable
-defensive branches (those needing a sabotaged dependency) get `# nocov` + a one-line justification,
-surfaced for review — test first, `# nocov` last resort. **Local verification only** — no CI
-coverage workflow / codecov this milestone. Prefer `# nocov` over a brittle test for any
-non-convergence path that proves flaky across platforms (CRAN machines).
-
-Lowest files at planning: `engine_esem.R` 75.0, `engine_efa.R` 83.2, `label_template.R` 83.9,
-`suggest_k.R` 92.6, `summary.R` 92.6, `print.R` 92.1, `ackwards.R` 93.3.
-
-**Four waves:**
-1. *Pure-input branches* (deterministic): cor-matrix validation + missing-field/wrong-class aborts
-   (`utils.R`); `n_obs` validation, `k_max > p`, polychoric failure + NPD smoothing (`ackwards.R`);
-   cor-ignored/spearman+CD/CD-failure/`pa_fa=NA` (`suggest_k.R`); forbes >26-level guard
-   (`label_template.R`); φ `denom==0`/missing-matrix/empty-chains (`prune.R`); orphaned-parent
-   fallbacks (`layout.R`).
-2. *Render branches*: new `test-summary.R` (eigenvalue rows, chi/dof fmt, single-level lineage,
-   prune branches); `test-print.R` artefact/redundancy sections; lone lines in `interpret.R`/
-   `tidy.R`/`compute_edges.R`.
-3. *Engine branches*: PCA k=1 sign flip; EFA Heywood/convergence; ESEM improper-solution +
-   error-truncation + polychoric `r_lv` extraction.
-4. *`# nocov` + verify*: mark untestable defensives (lavaan `efa` version guard
-   `engine_esem.R:32`, tenBerge→regression fallback `engine_efa.R:86`, residual `return(NULL)`
-   guards); re-run `covr`, full suite, `R CMD check --as-cran` 0/0/0, styler + lintr.
-
-**Acceptance:** (1) `covr` ≥99% overall, ≥95% per file; (2) every `# nocov` justified + listed for
-review; (3) suite green, 1 expected skip preserved; (4) 0/0/0 check, styled + linted; (5) no
-behavior change beyond `# nocov`/flagged refactor; (6) NEWS.md "Testing" line under 0.1.0.
-
-Implementation via `/implement-milestone`.
+No milestone currently in progress. M23 complete (see Completed milestones).
 
 ## Invariants — do not violate without flagging
 

@@ -292,6 +292,41 @@ test_that("print.ackwards() executes without error when pruning annotations are 
   expect_true(any(x$prune$nodes$pruned))
 })
 
+test_that("print.ackwards() shows artefact section (phi table) for prune='artefact'", {
+  # Covers print.R lines 70-74: the artefact phi-count section.
+  skip_if_not_installed("psych")
+  suppressMessages(x <- suppressWarnings(
+    ackwards(bfi25[, 1:6], k_max = 3, prune = "artefact")
+  ))
+  expect_no_error(print(x))
+  expect_invisible(print(x))
+  expect_false(is.null(x$prune$phi))
+})
+
+test_that("print.ackwards() shows phi threshold note when redundancy_phi is set", {
+  # Covers print.R line 61: phi_note when redundancy_phi is non-NULL.
+  skip_if_not_installed("psych")
+  set.seed(42L)
+  n <- 500L
+  g <- rnorm(n)
+  s1 <- rnorm(n)
+  s2 <- rnorm(n)
+  data <- data.frame(
+    x1 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x2 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x3 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x4 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x5 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
+  )
+  x <- suppressWarnings(suppressMessages(
+    ackwards(data, k_max = 4, prune = "redundant", redundancy_phi = 0.9)
+  ))
+  expect_false(is.null(x$prune$redundancy_phi))
+  expect_no_error(print(x))
+  expect_invisible(print(x))
+})
+
 # --- B1: sibling redundancy tracing ------------------------------------------
 
 test_that("B1 regression: parent with 2 strong-link children produces 2 chains", {
@@ -338,6 +373,73 @@ test_that("B1 regression: parent with 2 strong-link children produces 2 chains",
   # Both m2f1 and m2f2 are retained (chain reaches k_max = 2)
   expect_false("m2f1" %in% res$node_flags$id)
   expect_false("m2f2" %in% res$node_flags$id)
+})
+
+# --- B3: internal helper coverage (M23) --------------------------------------
+
+test_that(".tucker_phi() returns NA_real_ when one loading vector is all zeros", {
+  # denom = sqrt(0 * sum) = 0 -> defensive NA_real_ branch
+  expect_identical(ackwards:::.tucker_phi(c(0, 0, 0), c(0.7, 0.8, 0.9)), NA_real_)
+})
+
+test_that(".phi_pairs() handles 'adjacent' which_pairs correctly", {
+  # .phi_pairs() is only called with 'all' from .apply_pruning(); the 'adjacent'
+  # branch at line 39 requires a direct unit test.
+  levels_list <- list(
+    "1" = list(
+      loadings = matrix(c(.8, .8, .8),
+        ncol = 1L,
+        dimnames = list(paste0("x", 1:3), "m1f1")
+      ),
+      labels = "m1f1"
+    ),
+    "2" = list(
+      loadings = matrix(c(.7, .8, .9, .8, .7, .6),
+        ncol = 2L,
+        dimnames = list(paste0("x", 1:3), c("m2f1", "m2f2"))
+      ),
+      labels = c("m2f1", "m2f2")
+    )
+  )
+  out <- ackwards:::.phi_pairs(levels_list, which_pairs = "adjacent")
+  expect_s3_class(out, "data.frame")
+  expect_true("phi" %in% names(out))
+  # Only adjacent pairs: 1->2, giving 1*2=2 rows
+  expect_equal(nrow(out), 2L)
+})
+
+test_that(".find_redundant_chains() handles a missing edge matrix gracefully", {
+  # Simulates convergence truncation where the 2:3 edge matrix is absent.
+  mock_L1 <- matrix(c(.8, .8, .8),
+    ncol = 1L,
+    dimnames = list(paste0("x", 1:3), "m1f1")
+  )
+  mock_L2 <- matrix(c(.9, .9, .9, .1, .1, .1),
+    ncol = 2L,
+    dimnames = list(paste0("x", 1:3), c("m2f1", "m2f2"))
+  )
+  mock_L3 <- matrix(c(.85, .85, .85, .1, .1, .1, .1, .1, .1),
+    ncol = 3L,
+    dimnames = list(paste0("x", 1:3), c("m3f1", "m3f2", "m3f3"))
+  )
+  E_1_2 <- matrix(c(0.95, 0.93),
+    nrow = 1L,
+    dimnames = list("m1f1", c("m2f1", "m2f2"))
+  )
+  # "2:3" key is deliberately absent to trigger the NULL-edge-matrix branch
+  mock_x <- list(
+    k_max = 3L,
+    levels = list(
+      "1" = list(labels = "m1f1", loadings = mock_L1),
+      "2" = list(labels = c("m2f1", "m2f2"), loadings = mock_L2),
+      "3" = list(labels = c("m3f1", "m3f2", "m3f3"), loadings = mock_L3)
+    ),
+    lineage = list("1" = NULL, "2" = c(1L, 1L), "3" = c(1L, 2L, 2L)),
+    edges = list(matrices = list("1:2" = E_1_2)) # no "2:3"
+  )
+  res <- ackwards:::.find_redundant_chains(mock_x, threshold_r = 0.9, threshold_phi = NULL)
+  # Should not error; chains only reflect the 1->2 links
+  expect_type(res, "list")
 })
 
 # --- B4: pruning under convergence truncation --------------------------------
