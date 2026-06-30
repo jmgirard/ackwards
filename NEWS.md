@@ -27,7 +27,10 @@ W′RW algebra. Oblique rotation is unsupported by design.
 * **Comparison Data** (Ruscio & Roche 2012) via `EFAtools::CD()` — skipped gracefully when
   `EFAtools` is not installed.
 
-`autoplot.suggest_k()` produces a three-panel ggplot2 diagnostic (scree/PA, MAP, VSS).
+`autoplot.suggest_k()` produces a ggplot2 diagnostic: a four-panel 2×2 grid (scree/PA,
+MAP, VSS, CD RMSE) when `EFAtools` is installed, or a three-panel single-column layout
+(scree/PA, MAP, VSS) otherwise. The returned object also carries `cd_rmse` (column means
+of CD's RMSE eigenvalue matrix) for use in the CD panel.
 
 ## Between-level edges — exact W′RW algebra
 
@@ -97,14 +100,6 @@ pruned view (`drop_pruned`, `compress_levels`).
 * **`bfi25` example dataset** bundled — a 1 000-row, 25-item subset of the SAPA/IPIP Big Five
   data (sampled from `psych::bfi`). Used throughout examples and vignettes so they run without
   reaching into psych's namespace. See `?bfi25` for provenance and `@source`.
-
-## `autoplot.suggest_k()` — CD panel
-
-`suggest_k()` now stores `cd_rmse` (column means of `EFAtools::CD()`'s RMSE eigenvalue matrix)
-in the returned object. When CD is available, `autoplot(suggest_k(...))` renders a four-panel
-2×2 grid including a dedicated **"CD (RMSE, minimize)"** panel with the retention threshold
-marked — giving CD its own diagnostic space rather than sharing the MAP panel. The three-panel
-single-column layout is unchanged when EFAtools is absent.
 
 ## Correlation-matrix input
 
