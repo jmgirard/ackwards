@@ -14,6 +14,7 @@ knitr::opts_chunk$set(
   fig.width = 8,
   fig.height = 5
 )
+has_gt <- requireNamespace("gt", quietly = TRUE)
 ```
 
 The classic Goldberg (2006) method computes between-level factor-score
@@ -64,9 +65,14 @@ nrow(tidy(x_adj, what = "edges")) # adjacent only
 nrow(tidy(x_all, what = "edges")) # all pairs
 ```
 
-With k = 5, the adjacent-only model has 40 edges (1×2 + 2×3 + 3×4 + 4×5).
-The all-pairs model adds every non-adjacent pair — 1↔3, 1↔4, 1↔5, 2↔4, 2↔5,
-3↔5 — for 85 edges total.
+```{r edge-counts, include = FALSE}
+n_adj <- nrow(tidy(x_adj, what = "edges"))
+n_all <- nrow(tidy(x_all, what = "edges"))
+```
+
+With k = 5, the adjacent-only model has `r n_adj` edges (1×2 + 2×3 + 3×4 +
+4×5). The all-pairs model adds every non-adjacent pair — 1↔3, 1↔4, 1↔5, 2↔4,
+2↔5, 3↔5 — for `r n_all` edges total.
 
 ### Reading the skip-level edge table
 
@@ -79,18 +85,46 @@ skip <- edges[
   abs(edges$level_to - edges$level_from) > 1 & abs(edges$r) >= 0.5,
   c("from", "to", "level_from", "level_to", "r")
 ]
-knitr::kable(
-  head(skip, 12),
-  digits = 2, row.names = FALSE,
-  caption = "Strongest skip-level edges (|r| >= 0.5, non-adjacent levels)"
-)
+skip_show <- head(skip, 12)
+
+# Pre-compute values used in inline R prose below
+top_from       <- skip_show$from[1]
+top_to         <- skip_show$to[1]
+top_r          <- round(skip_show$r[1], 2)
+top_level_from <- skip_show$level_from[1]
+top_level_to   <- skip_show$level_to[1]
+top_fnum_from  <- sub("m[0-9]+f", "", top_from)
+top_fnum_to    <- sub("m[0-9]+f", "", top_to)
+
+if (has_gt) {
+  gt::gt(skip_show) |>
+    gt::tab_header(
+      title    = "Strongest skip-level edges (|r| ≥ 0.5, non-adjacent levels)",
+      subtitle = "Sorted by |r|; shows at most 12 rows"
+    ) |>
+    gt::cols_label(
+      from       = "From",
+      to         = "To",
+      level_from = "Level (from)",
+      level_to   = "Level (to)",
+      r          = "r"
+    ) |>
+    gt::fmt_number(columns = r, decimals = 2)
+} else {
+  knitr::kable(
+    skip_show,
+    digits = 2, row.names = FALSE,
+    caption = "Strongest skip-level edges (|r| >= 0.5, non-adjacent levels)"
+  )
+}
 ```
 
 Several factors connect across two or more levels with correlations above 0.90.
-`m3f2` (level 3, factor 2) correlates 0.98 with `m5f1` (level 5, factor 1),
-jumping *two* levels. This tells you that m3f2 and m5f1 are essentially the
-same construct — the intermediate levels are just refinements within a stable
-dimension.
+`r top_from` (level `r top_level_from`, factor `r top_fnum_from`) correlates
+`r top_r` with `r top_to` (level `r top_level_to`, factor `r top_fnum_to`),
+jumping *two* levels. This tells you that `r top_from` and `r top_to` are
+essentially the same construct — the intermediate levels are just refinements
+within a stable dimension.
 
 ## Pruning: identifying redundant factors
 
@@ -111,14 +145,47 @@ x_prune <- ackwards(bfi,
 )
 ```
 
-```{r prune-nodes}
-tidy(x_prune, what = "nodes")
+```{r prune-nodes, echo = FALSE}
+nodes <- tidy(x_prune, what = "nodes")
+n_redundant <- sum(nodes$pruned)
+
+if (has_gt) {
+  gt::gt(nodes) |>
+    gt::tab_header(
+      title    = "Node-level pruning annotation",
+      subtitle = paste0(n_redundant, " of ", nrow(nodes), " factors flagged as redundant")
+    ) |>
+    gt::cols_label(
+      id           = "Factor",
+      level        = "Level",
+      pruned       = "Flagged?",
+      prune_reason = "Reason"
+    ) |>
+    gt::tab_style(
+      style     = gt::cell_fill(color = "#FFF3CD"),
+      locations = gt::cells_body(rows = pruned)
+    ) |>
+    gt::tab_style(
+      style     = gt::cell_text(weight = "bold"),
+      locations = gt::cells_body(columns = id, rows = pruned)
+    ) |>
+    gt::sub_missing(missing_text = "—")
+} else {
+  knitr::kable(
+    nodes,
+    row.names = FALSE,
+    col.names = c("Factor", "Level", "Flagged?", "Reason"),
+    caption = paste0(
+      "Node-level pruning annotation (", n_redundant, " of ", nrow(nodes), " factors flagged)"
+    )
+  )
+}
 ```
 
-Six factors are flagged as redundant. The entire k = 4 level (m4f1 through
-m4f4) is flagged, as are m2f2 and m3f2. This is a striking finding: for this
-dataset and this k, the four-factor level adds little beyond what you already
-know from k = 3 and k = 5.
+`r n_redundant` factors are flagged as redundant. The entire k = 4 level is
+flagged, as are two factors at k = 2 and k = 3. This is a striking finding: for
+this dataset and this k, the four-factor level adds little beyond what you
+already know from k = 3 and k = 5.
 
 The flagged factors are not removed from the object — `prune` is purely a
 diagnostic annotation, not a deletion. You can still inspect their loadings, use
@@ -248,11 +315,24 @@ counts <- sapply(thresholds, function(thr) {
   )
   sum(tidy(x, what = "nodes")$pruned)
 })
-knitr::kable(
-  data.frame(redundancy_r = thresholds, n_flagged = counts),
-  row.names = FALSE,
-  caption = "Factors flagged redundant at each redundancy_r threshold"
-)
+thr_df <- data.frame(redundancy_r = thresholds, n_flagged = counts)
+
+if (has_gt) {
+  gt::gt(thr_df) |>
+    gt::tab_header(title = "Factors flagged redundant at each redundancy_r threshold") |>
+    gt::cols_label(
+      redundancy_r = "redundancy_r",
+      n_flagged    = "Factors flagged"
+    ) |>
+    gt::fmt_number(columns = redundancy_r, decimals = 2) |>
+    gt::fmt_integer(columns = n_flagged)
+} else {
+  knitr::kable(
+    thr_df,
+    row.names = FALSE,
+    caption = "Factors flagged redundant at each redundancy_r threshold"
+  )
+}
 ```
 
 For the BFI all thresholds agree: the flagged factors are robustly redundant, not

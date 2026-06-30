@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
   fig.height = 4.5
 )
 has_lavaan <- requireNamespace("lavaan", quietly = TRUE)
+has_gt     <- requireNamespace("gt",     quietly = TRUE)
 ```
 
 **ackwards** supports three factor extraction engines. They share the same
@@ -109,24 +110,67 @@ PCA loadings are highly correlated but not identical. EFA loadings are
 systematically somewhat smaller because they model only the common variance;
 PCA inflates loadings by fitting noise alongside signal.
 
-The table below pairs the `k = 3` loadings from each engine — built by stacking
-`tidy(x_pca, what = "loadings")` and the EFA equivalent — for six representative
-items (two each from the Neuroticism, Extraversion, and Conscientiousness
-families).
+The table below compares primary loadings — the loading of each item on its
+dominant factor — for six representative items (two each from the Neuroticism,
+Extraversion, and Conscientiousness families) at k = 3. The Δ column is the
+teaching point: how much smaller EFA loadings are once measurement error is
+partitioned into uniqueness.
 
 ```{r loadings-compare, echo = FALSE}
+# Primary loading = loading on the factor with the highest |loading| for that item
 anchors <- c("N1", "N2", "E1", "E2", "C1", "C2")
-loadings <- rbind(
-  cbind(engine = "pca", tidy(x_pca, what = "loadings")),
-  cbind(engine = "efa", tidy(x_efa, what = "loadings"))
+
+primary_loading <- function(x, level_k) {
+  d <- tidy(x, what = "loadings")
+  d <- d[d$level == level_k & d$item %in% anchors, ]
+  do.call(rbind, lapply(split(d, d$item), function(r) r[which.max(abs(r$loading)), ]))
+}
+
+pca_p <- primary_loading(x_pca, 3)
+efa_p <- primary_loading(x_efa, 3)
+
+# Verify factor and sign correspondence before differencing
+stopifnot(
+  all(pca_p$factor[order(pca_p$item)] == efa_p$factor[order(efa_p$item)]),
+  all(sign(pca_p$loading[order(pca_p$item)]) == sign(efa_p$loading[order(efa_p$item)]))
 )
-loadings <- loadings[loadings$level == 3 & loadings$item %in% anchors, ]
-loadings <- loadings[order(loadings$factor, loadings$item), ]
-knitr::kable(
-  loadings[, c("engine", "factor", "item", "loading")],
-  digits = 2, row.names = FALSE,
-  caption = "PCA vs EFA loadings for anchor items (k = 3)"
+
+wide <- merge(
+  pca_p[, c("factor", "item", "loading")],
+  efa_p[, c("item",           "loading")],
+  by = "item", suffixes = c("_pca", "_efa")
 )
+wide$delta <- wide$loading_efa - wide$loading_pca
+wide <- wide[order(wide$factor, wide$item), c("item", "factor", "loading_pca", "loading_efa", "delta")]
+
+if (has_gt) {
+  gt::gt(wide) |>
+    gt::tab_header(title = "PCA vs EFA: primary loadings for anchor items (k = 3)") |>
+    gt::tab_spanner(label = "Loading", columns = c(loading_pca, loading_efa, delta)) |>
+    gt::cols_label(
+      item       = "Item",
+      factor     = "Factor",
+      loading_pca = "PCA",
+      loading_efa = "EFA",
+      delta      = "Δ (EFA − PCA)"
+    ) |>
+    gt::fmt_number(columns = c(loading_pca, loading_efa, delta), decimals = 2) |>
+    gt::tab_style(
+      style     = gt::cell_text(weight = "bold"),
+      locations = gt::cells_column_labels(columns = delta)
+    ) |>
+    gt::tab_footnote(
+      footnote  = "Factor assignment and sign verified to match between engines for all six items.",
+      locations = gt::cells_column_labels(columns = delta)
+    )
+} else {
+  knitr::kable(
+    wide,
+    digits = 2, row.names = FALSE,
+    col.names = c("Item", "Factor", "PCA", "EFA", "Δ (EFA − PCA)"),
+    caption = "PCA vs EFA: primary loadings for anchor items (k = 3)"
+  )
+}
 ```
 
 EFA loadings for the same items are consistently a few points lower — the PCA
@@ -191,20 +235,51 @@ The primary output of bass-ackwards analysis is the between-level edges. For
 well-structured, continuous data, all three engines should agree closely on the
 hierarchy.
 
-The table stacks each engine's primary-parent edges — `tidy(what = "edges",
-primary_only = TRUE)` — at every level transition:
+The table below compares the primary-parent edge strength for every adjacent
+level transition. The Δ column shows how much the EFA correlation differs from
+the PCA correlation for the same parent–child pair — a direct measure of how
+much the latent-variable model shifts your inference about the hierarchy.
 
 ```{r edges-compare, echo = FALSE}
-edges <- rbind(
-  cbind(engine = "pca", tidy(x_pca, what = "edges", primary_only = TRUE)),
-  cbind(engine = "efa", tidy(x_efa, what = "edges", primary_only = TRUE))
+pca_e <- tidy(x_pca, what = "edges", primary_only = TRUE)
+efa_e <- tidy(x_efa, what = "edges", primary_only = TRUE)
+
+wide_e <- merge(
+  pca_e[, c("from", "to", "r")],
+  efa_e[, c("from", "to", "r")],
+  by = c("from", "to"), all = TRUE, suffixes = c("_pca", "_efa")
 )
-edges <- edges[order(edges$to), c("engine", "from", "to", "r")]
-knitr::kable(
-  edges,
-  digits = 2, row.names = FALSE,
-  caption = "Primary-parent edges: PCA vs EFA"
-)
+wide_e$delta <- wide_e$r_efa - wide_e$r_pca
+wide_e <- wide_e[order(wide_e$to), c("from", "to", "r_pca", "r_efa", "delta")]
+
+if (has_gt) {
+  gt::gt(wide_e) |>
+    gt::tab_header(title = "Primary-parent edges: PCA vs EFA") |>
+    gt::tab_spanner(label = "Edge strength (r)", columns = c(r_pca, r_efa, delta)) |>
+    gt::cols_label(
+      from  = "From",
+      to    = "To",
+      r_pca = "PCA",
+      r_efa = "EFA",
+      delta = "Δ (EFA − PCA)"
+    ) |>
+    gt::fmt_number(columns = c(r_pca, r_efa, delta), decimals = 2) |>
+    gt::tab_style(
+      style     = gt::cell_text(weight = "bold"),
+      locations = gt::cells_column_labels(columns = delta)
+    ) |>
+    gt::tab_footnote(
+      footnote  = "NA in either column means the engines disagree on the primary parent for that factor.",
+      locations = gt::cells_column_labels(columns = delta)
+    )
+} else {
+  knitr::kable(
+    wide_e,
+    digits = 2, row.names = FALSE,
+    col.names = c("From", "To", "PCA", "EFA", "Δ (EFA − PCA)"),
+    caption = "Primary-parent edges: PCA vs EFA"
+  )
+}
 ```
 
 The r values are very close between engines: the hierarchy that PCA reveals is
