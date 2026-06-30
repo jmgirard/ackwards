@@ -67,8 +67,11 @@ test_that("PCA + R-matrix with n_obs stores the supplied value", {
 })
 
 test_that("n_obs supplied with raw data warns and is ignored", {
+  # Continuous, complete data so the only warning is the n_obs one under test
+  # (bfi25 would also raise the NA-pairwise and ordinal-detection warnings,
+  # which are covered on their own in test-missing.R / test-scores.R).
   expect_warning(
-    ackwards(bfi25[, 1:6], k_max = 3, n_obs = 999L),
+    ackwards(.make_esem_data(), k_max = 3, n_obs = 999L),
     "n_obs.*ignored"
   )
 })
@@ -244,8 +247,10 @@ test_that("suggest_k() print works without error for R input", {
 
 test_that("suggest_k() n_obs ignored for raw data with warning", {
   skip_if_not_installed("psych")
+  # k_max = 2 stays within CD's extractable-factor limit for 6 vars, so the
+  # only warning raised is the n_obs one under test.
   expect_warning(
-    suggest_k(bfi25[, 1:6], n_obs = 999L, n_iter = 5L),
+    suggest_k(bfi25[, 1:6], k_max = 2L, n_obs = 999L, n_iter = 5L),
     "n_obs.*ignored"
   )
 })

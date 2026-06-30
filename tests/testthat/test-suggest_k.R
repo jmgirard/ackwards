@@ -1,14 +1,21 @@
-# Local fixture cache: compute each distinct (k_max, seed) once per test-run.
-# Without this, the 12 identical (k_max=4, seed=1) calls cost ~100 s total;
-# with the cache they reduce to one ~8 s computation for the whole file.
-# Scoped to this file via local(); other test files pay nothing.
+# Fast fixtures. `EFAtools::CD()` dominates suggest_k() cost (~8 s on the full
+# 2800x25 psych::bfi vs ~0.1 s for fa.parallel + vss combined) and scales hard
+# with both n_obs and n_vars. So the structural/logic/print/autoplot tests run
+# on a small subset of the bundled bfi25 (CD ~0.8 s), computed once and cached.
+# Nothing is mocked or skipped: PA, MAP, VSS, and CD all run for real on the
+# small fixture — only the data is smaller, which is sufficient to exercise the
+# wiring and table/print/plot logic. A single integration smoke (the
+# "expected fields" test) still runs the full 25-item psych::bfi instrument so
+# the realistic-scale path (incl. CD at 25 vars, n_obs = 2800) stays covered.
+.sk_small <- bfi25[, 1:8] # 1000 x 8; complete cases = 946
+
 .get_sk <- local({
   cache <- list()
   function(k_max, seed = 1L, n_iter = 5L) {
     key <- paste0("k", k_max, "s", seed)
     if (is.null(cache[[key]])) {
       cache[[key]] <<- suggest_k(
-        psych::bfi[, 1:25],
+        .sk_small,
         k_max = k_max, n_iter = n_iter, seed = seed
       )
     }
@@ -18,7 +25,9 @@
 
 test_that("suggest_k() returns a suggest_k object with expected fields", {
   skip_if_not_installed("psych")
-  sk <- .get_sk(4L)
+  # Integration smoke on the full 25-item instrument: this is the one test that
+  # asserts the realistic n_obs / n_vars and pays the full-data CD cost (~5 s).
+  sk <- suggest_k(psych::bfi[, 1:25], k_max = 3L, n_iter = 5L, seed = 1L)
 
   expect_s3_class(sk, "suggest_k")
   expect_named(
@@ -31,7 +40,7 @@ test_that("suggest_k() returns a suggest_k object with expected fields", {
       "k_max", "n_obs", "n_vars", "cor", "input_type"
     )
   )
-  expect_equal(sk$k_max, 4L)
+  expect_equal(sk$k_max, 3L)
   expect_equal(sk$n_obs, 2800L)
   expect_equal(sk$n_vars, 25L)
   expect_equal(sk$cor, "pearson")
@@ -40,11 +49,11 @@ test_that("suggest_k() returns a suggest_k object with expected fields", {
 
 test_that("suggest_k() criteria table has correct structure and row count", {
   skip_if_not_installed("psych")
-  sk <- .get_sk(5L)
+  sk <- .get_sk(4L)
   cr <- sk$criteria
 
   expect_s3_class(cr, "data.frame")
-  expect_equal(nrow(cr), 5L)
+  expect_equal(nrow(cr), 4L)
   expect_named(
     cr,
     c(
@@ -55,7 +64,7 @@ test_that("suggest_k() criteria table has correct structure and row count", {
       "map", "vss1", "vss2"
     )
   )
-  expect_equal(cr$k, 1:5)
+  expect_equal(cr$k, 1:4)
   expect_type(cr$ev_obs, "double")
   expect_type(cr$ev_obs_fa, "double")
   expect_type(cr$pa_pc_quant, "double")
@@ -70,40 +79,42 @@ test_that("suggest_k() criteria table has correct structure and row count", {
 test_that("suggest_k() FA eigenvalues are smaller than PC eigenvalues", {
   # Factor-analysis eigenvalues (communalities removed) are always < PC eigs.
   skip_if_not_installed("psych")
-  sk <- .get_sk(5L)
+  sk <- .get_sk(4L)
   expect_true(all(sk$criteria$ev_obs_fa <= sk$criteria$ev_obs))
 })
 
 test_that("suggest_k() MAP optimal is the row minimising map", {
   skip_if_not_installed("psych")
-  sk <- .get_sk(7L)
+  sk <- .get_sk(4L)
   expect_gte(sk$k_map, 1L)
-  expect_lte(sk$k_map, 7L)
+  expect_lte(sk$k_map, 4L)
   expect_equal(sk$k_map, which.min(sk$criteria$map))
 })
 
 test_that("suggest_k() VSS optima match which.max of vss columns", {
   skip_if_not_installed("psych")
-  sk <- .get_sk(7L)
+  sk <- .get_sk(4L)
   expect_equal(sk$k_vss1, which.max(sk$criteria$vss1))
   expect_equal(sk$k_vss2, which.max(sk$criteria$vss2))
 })
 
 test_that("suggest_k() PA-PC is capped at k_max; k_parallel_fa is integer or NA", {
   skip_if_not_installed("psych")
-  sk <- .get_sk(3L)
-  expect_lte(sk$k_parallel_pc, 3L)
+  # The clamp `min(raw_pa, k_max)` is only exercised when raw PA exceeds k_max.
+  # On bfi25[, 1:15] PA-PC suggests ~3 components, so k_max = 2 forces the clamp.
+  sk <- suggest_k(bfi25[, 1:15], k_max = 2L, n_iter = 5L, seed = 1L)
+  expect_lte(sk$k_parallel_pc, 2L)
   expect_gte(sk$k_parallel_pc, 1L)
   # PA-FA is either NA (undetermined) or a valid integer in [1, k_max]
   if (!is.na(sk$k_parallel_fa)) {
     expect_gte(sk$k_parallel_fa, 1L)
-    expect_lte(sk$k_parallel_fa, 3L)
+    expect_lte(sk$k_parallel_fa, 2L)
   }
 })
 
 test_that("suggest_k() pa_pc_suggested matches k_parallel_pc boundary", {
   skip_if_not_installed("psych")
-  sk <- .get_sk(5L)
+  sk <- .get_sk(4L)
   cr <- sk$criteria
   expect_equal(cr$pa_pc_suggested, cr$k <= sk$k_parallel_pc)
 })
@@ -123,8 +134,8 @@ test_that("suggest_k() deterministic criteria are identical across calls", {
   skip_if_not_installed("psych")
   # Two independent calls with the same seed — intentionally NOT cached so
   # reproducibility is actually exercised (not just comparing an object to itself).
-  sk1 <- suggest_k(psych::bfi[, 1:25], k_max = 4, n_iter = 5, seed = 99L)
-  sk2 <- suggest_k(psych::bfi[, 1:25], k_max = 4, n_iter = 5, seed = 99L)
+  sk1 <- suggest_k(.sk_small, k_max = 4, n_iter = 3, seed = 99L)
+  sk2 <- suggest_k(.sk_small, k_max = 4, n_iter = 3, seed = 99L)
   # MAP, VSS, and observed eigenvalues are computed from the correlation
   # matrix and are fully deterministic regardless of seed.
   expect_equal(sk1$criteria$ev_obs, sk2$criteria$ev_obs)
@@ -137,8 +148,17 @@ test_that("suggest_k() deterministic criteria are identical across calls", {
 test_that("suggest_k() errors on bad inputs", {
   skip_if_not_installed("psych")
   expect_error(suggest_k(list()), "data frame")
-  expect_error(suggest_k(psych::bfi[, 1:5], k_max = 100), "k_max")
-  expect_error(suggest_k(psych::bfi[, 1:5], k_max = 0), "k_max")
+  expect_error(suggest_k(bfi25[, 1:5], k_max = 100), "k_max")
+  expect_error(suggest_k(bfi25[, 1:5], k_max = 0), "k_max")
+})
+
+test_that("suggest_k() defaults k_max to min(p - 1, 8) for raw data", {
+  skip_if_not_installed("psych")
+  # No k_max supplied: the raw-data path sets k_max <- min(p - 1, 8). With p = 6
+  # vars that is 5. suppressWarnings swallows the incidental CD n_factors_max
+  # notice (CD caps at 2 factors for 6 vars).
+  sk <- suppressWarnings(suggest_k(bfi25[, 1:6], n_iter = 3L, seed = 1L))
+  expect_equal(sk$k_max, 5L)
 })
 
 test_that("suggest_k() k_cd is NA and cd_rmse is NULL when EFAtools not installed", {
@@ -153,14 +173,14 @@ test_that("suggest_k() k_cd is NA and cd_rmse is NULL when EFAtools not installe
 test_that("suggest_k() k_cd and cd_rmse populated when EFAtools is installed", {
   skip_if_not_installed("psych")
   skip_if_not_installed("EFAtools")
-  sk <- .get_sk(6L)
+  sk <- .get_sk(4L)
   expect_true(sk$cd_available)
   expect_false(is.na(sk$k_cd))
   expect_gte(sk$k_cd, 1L)
-  expect_lte(sk$k_cd, 6L)
+  expect_lte(sk$k_cd, 4L)
   # cd_rmse: length-k_max numeric vector of mean RMSE values
   expect_false(is.null(sk$cd_rmse))
-  expect_length(sk$cd_rmse, 6L)
+  expect_length(sk$cd_rmse, 4L)
   expect_true(is.numeric(sk$cd_rmse))
 })
 
@@ -189,8 +209,8 @@ test_that("suggest_k() CD degrades gracefully on EFAtools error", {
 
 test_that("suggest_k() handles data with missing values for PA/MAP/VSS", {
   skip_if_not_installed("psych")
-  # bfi has NA values; pairwise deletion should allow PA/MAP/VSS to run.
-  sk <- suggest_k(psych::bfi[, 1:10], k_max = 3, n_iter = 3, seed = 1L)
+  # bfi25 has NA values; pairwise deletion should allow PA/MAP/VSS to run.
+  sk <- suggest_k(bfi25[, 1:10], k_max = 3, n_iter = 3, seed = 1L)
   expect_s3_class(sk, "suggest_k")
   expect_equal(sk$n_vars, 10L)
 })
@@ -361,8 +381,10 @@ test_that("suggest_k() errors on non-numeric (character) data", {
 test_that("suggest_k() warns when cor = 'spearman' and CD is available", {
   skip_if_not_installed("psych")
   skip_if_not_installed("EFAtools")
+  # k_max = 2 stays within CD's extractable-factor limit for 6 vars, so the
+  # only warning raised is the spearman -> Pearson one under test.
   expect_warning(
-    suggest_k(bfi25[, 1:6], k_max = 3L, cor = "spearman", n_iter = 3L, seed = 1L),
+    suggest_k(bfi25[, 1:6], k_max = 2L, cor = "spearman", n_iter = 3L, seed = 1L),
     "Pearson"
   )
 })
@@ -370,10 +392,28 @@ test_that("suggest_k() warns when cor = 'spearman' and CD is available", {
 test_that("print.suggest_k() renders CD dash symbol when i > k_cd", {
   skip_if_not_installed("psych")
   sk <- .get_sk(4L)
-  # Force k_cd to 1 so that rows 2-4 hit the 'else' (dash) branch
+  # Force k_cd to 1 so that the later rows hit the 'else' (dash) branch
   sk$cd_available <- TRUE
   sk$k_cd <- 1L
-  # Must print without error (rows 2-4 produce the dash branch at print.R line 418)
+  # Must print without error (rows 2+ produce the dash branch at print.R line 418)
+  expect_no_error(print(sk))
+  expect_invisible(print(sk))
+})
+
+test_that("print.suggest_k() shows single-value consensus when all criteria agree", {
+  skip_if_not_installed("psych")
+  sk <- .get_sk(4L)
+  # Patch every criterion to the same k so lo == hi: this hits the degenerate
+  # "Consensus: k = {lo}" branch (rather than the usual "Consensus range").
+  sk$k_parallel_pc <- 2L
+  sk$k_parallel_fa <- 2L
+  sk$k_map <- 2L
+  sk$k_vss1 <- 2L
+  sk$k_vss2 <- 2L
+  sk$cd_available <- FALSE
+  sk$k_cd <- NA_integer_
+  # cli output is not reliably captured by expect_output (see other print tests);
+  # the patched lo == hi still drives the single-value consensus branch.
   expect_no_error(print(sk))
   expect_invisible(print(sk))
 })

@@ -183,10 +183,22 @@ default output must reproduce Forbes's examples exactly.
   dropped the spurious 2nd skip); `# nocov`'d the EFA k=1 sign flip to match the PCA analogue;
   added a covr-limitation note explaining the ESEM warning-muffler `# nocov` (live code covr
   cannot instrument, not dead code). (1080 tests pass, 1 skip; 0/0/0 R CMD check.)
+- **Test-suite speedup (post-M23, no source/behavior change):** `EFAtools::CD()` dominated test
+  time (~8 s/call on the full 2800×25 `psych::bfi` vs ~0.1 s for `fa.parallel` + `vss`).
+  `test-suggest_k.R` rewritten to run the CD-bound structural/logic/print/autoplot tests on small
+  `bfi25` subsets (CD ~0.8 s, cached), keeping CD/PA/MAP/VSS *real* — only the data is smaller — plus
+  one full-`psych::bfi` integration smoke for the `n_obs=2800`/`n_vars=25` assertion. PA-cap test
+  moved to `bfi25[, 1:15]`/`k_max=2` (genuine clamp). `devtools::test()` ~80 s → ~46 s; coverage
+  held at 100%. Also fixed three leaked secondary warnings so the suite is warning-free: the
+  spearman/CD `n_factors_max` notice (`test-suggest_k.R`) and the NA-pairwise + ordinal notices in
+  two `test-cor-input.R` `n_obs`-ignored tests (switched to continuous/complete data and within-CD
+  `k_max`); added a deterministic default-`k_max` test to preserve the `suggest_k.R:208` branch.
+  Comfortably within CRAN's check-time budget. (1083 tests pass, 1 skip; 100% coverage.)
 
 ## Current focus
 
-No milestone currently in progress. M23 complete (see Completed milestones).
+No milestone currently in progress. M23 + post-M23 test-suite speedup complete (see Completed
+milestones).
 
 ## Invariants — do not violate without flagging
 
