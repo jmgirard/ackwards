@@ -298,6 +298,28 @@ Scores are O(n x Sigmak) and often sensitive; raw engine fits can be large.
 Both are recomputable from the stored <code>r</code> matrix.</p></li>
 </ul></div>
     <div class="section level2">
+    <h2 id="performance-esem-large-item-sets-">Performance (ESEM, large item sets)<a class="anchor" aria-label="anchor" href="#performance-esem-large-item-sets-"></a></h2>
+
+
+<p>The ESEM engine fits a separate <code>lavaan</code> model at every level 1..<code>k_max</code>.
+For ordinal data (<code>cor = "polychoric"</code>, WLSMV) the costly sample statistics
+lavaan derives from the raw data – thresholds, the polychoric correlation
+matrix, and the asymptotic weight matrix – depend only on the data, not on
+the number of factors, so they are <strong>computed once</strong> at the first level and
+<strong>reused</strong> for every deeper level (identical solutions, much less work). This
+matters most when you have many items (hundreds), where recomputing those
+statistics at each level dominated the run time.</p>
+<p>The per-level model fits are mutually independent and are dispatched through
+the <span class="pkg">future</span> framework when <span class="pkg">future.apply</span> is installed. By default
+the plan is sequential (no behaviour change). To run the levels in parallel,
+set a plan once before calling <code>ackwards()</code>:</p><div class="sourceCode"><pre><code><span></span>
+<span>  <span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">multisession</a></span>, workers <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>  <span class="co"># or multicore on Unix</span></span>
+<span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">items</span>, k_max <span class="op">=</span> <span class="fl">8</span>, engine <span class="op">=</span> <span class="st">"esem"</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span></code></pre></div><p>Parallelism pays off when the per-level fits are heavy (large <code>p</code>, several
+levels); for small problems the worker startup cost can outweigh it. Results
+are reproducible across plans when <code>seed</code> is supplied. PCA and EFA already
+compute their correlation matrix once and are unaffected.</p>
+    </div>
+    <div class="section level2">
     <h2 id="correlation-matrix-input">Correlation-matrix input<a class="anchor" aria-label="anchor" href="#correlation-matrix-input"></a></h2>
 
 

@@ -267,6 +267,33 @@ for output methods.
   Scores are O(n x Sigmak) and often sensitive; raw engine fits can be
   large. Both are recomputable from the stored `r` matrix.
 
+## Performance (ESEM, large item sets)
+
+The ESEM engine fits a separate `lavaan` model at every level
+1..`k_max`. For ordinal data (`cor = "polychoric"`, WLSMV) the costly
+sample statistics lavaan derives from the raw data – thresholds, the
+polychoric correlation matrix, and the asymptotic weight matrix – depend
+only on the data, not on the number of factors, so they are **computed
+once** at the first level and **reused** for every deeper level
+(identical solutions, much less work). This matters most when you have
+many items (hundreds), where recomputing those statistics at each level
+dominated the run time.
+
+The per-level model fits are mutually independent and are dispatched
+through the future framework when future.apply is installed. By default
+the plan is sequential (no behaviour change). To run the levels in
+parallel, set a plan once before calling `ackwards()`:
+
+
+      future::plan(future::multisession, workers = 4)  # or multicore on Unix
+      x <- ackwards(items, k_max = 8, engine = "esem", cor = "polychoric")
+
+Parallelism pays off when the per-level fits are heavy (large `p`,
+several levels); for small problems the worker startup cost can outweigh
+it. Results are reproducible across plans when `seed` is supplied. PCA
+and EFA already compute their correlation matrix once and are
+unaffected.
+
 ## Correlation-matrix input
 
 When `data` is a pre-computed correlation matrix (square, symmetric,

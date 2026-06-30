@@ -445,6 +445,55 @@ sk_R <- suggest_k(R, n_obs = 875L)
 # PA, MAP, and VSS run normally
 ```
 
+## Performance with many items (ESEM)
+
+Bass-ackwards analyses often involve large item pools (sometimes
+hundreds of items), and the ESEM engine is the most expensive because it
+fits a separate `lavaan` model at every level. Two things keep this
+manageable:
+
+**Sample statistics are computed once.** For ordinal data
+(`cor = "polychoric"`, WLSMV), lavaan must estimate item thresholds, the
+polychoric correlation matrix, and an asymptotic weight matrix from the
+raw data. These depend only on the data — not on the number of factors —
+so
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+computes them once at the first level and reuses them for every deeper
+level. The solutions are identical; only the redundant recomputation is
+removed. This is the single biggest saving at large item counts, and it
+happens automatically.
+
+**Levels can be fit in parallel.** The per-level model fits are
+independent. If you install the `future.apply` package,
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+dispatches them through the [future](https://future.futureverse.org)
+framework. The default plan is sequential (no change in behaviour); to
+parallelize, set a plan once before your call:
+
+``` r
+
+# install.packages(c("future", "future.apply"))
+future::plan(future::multisession, workers = 4) # multicore on Linux/macOS
+
+x <- ackwards(items, k_max = 8, engine = "esem", cor = "polychoric", seed = 1)
+
+future::plan(future::sequential) # restore when done
+```
+
+Parallelism pays off when the per-level fits are genuinely heavy (large
+`p`, several levels); for small problems the worker startup cost can
+outweigh the gain. Results are reproducible across plans when you pass
+`seed`. PCA and EFA already compute their correlation matrix once and do
+not need this.
+
+If you only need the hierarchy (loadings and edges) and not ESEM’s
+rotation-aware standard errors and per-level fit indices,
+`engine = "efa"` with `cor = "polychoric"` computes the polychoric
+matrix once and runs
+[`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html) at each level —
+substantially cheaper than k WLSMV fits — and recovers the same
+structure.
+
 ## References
 
 Goldberg, L. R. (2006). Doing it all bass-ackwards. *Journal of Research
