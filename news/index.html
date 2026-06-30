@@ -74,7 +74,7 @@
 <strong>MAP</strong> (Velicer 1976) and <strong>VSS-1/VSS-2</strong> (Revelle &amp; Rocklin 1979) via <code><a href="https://rdrr.io/pkg/psych/man/VSS.html" class="external-link">psych::vss()</a></code>.</li>
 <li>
 <strong>Comparison Data</strong> (Ruscio &amp; Roche 2012) via <code><a href="https://rdrr.io/pkg/EFAtools/man/CD.html" class="external-link">EFAtools::CD()</a></code> — skipped gracefully when <code>EFAtools</code> is not installed.</li>
-</ul><p><code><a href="../reference/autoplot.suggest_k.html">autoplot.suggest_k()</a></code> produces a three-panel ggplot2 diagnostic (scree/PA, MAP, VSS).</p>
+</ul><p><code><a href="../reference/autoplot.suggest_k.html">autoplot.suggest_k()</a></code> produces a ggplot2 diagnostic: a four-panel 2×2 grid (scree/PA, MAP, VSS, CD RMSE) when <code>EFAtools</code> is installed, or a three-panel single-column layout (scree/PA, MAP, VSS) otherwise. The returned object also carries <code>cd_rmse</code> (column means of CD’s RMSE eigenvalue matrix) for use in the CD panel.</p>
 </div>
 <div class="section level3">
 <h3 id="between-level-edges--exact-wrw-algebra-0-1-0">Between-level edges — exact W′RW algebra<a class="anchor" aria-label="anchor" href="#between-level-edges--exact-wrw-algebra-0-1-0"></a></h3>
@@ -125,11 +125,6 @@
 <li>
 <strong><code>bfi25</code> example dataset</strong> bundled — a 1 000-row, 25-item subset of the SAPA/IPIP Big Five data (sampled from <code><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">psych::bfi</a></code>). Used throughout examples and vignettes so they run without reaching into psych’s namespace. See <code><a href="../reference/bfi25.html">?bfi25</a></code> for provenance and <code>@source</code>.</li>
 </ul></div>
-<div class="section level3">
-<h3 id="autoplotsuggest_k--cd-panel-0-1-0">
-<code>autoplot.suggest_k()</code> — CD panel<a class="anchor" aria-label="anchor" href="#autoplotsuggest_k--cd-panel-0-1-0"></a></h3>
-<p><code><a href="../reference/suggest_k.html">suggest_k()</a></code> now stores <code>cd_rmse</code> (column means of <code><a href="https://rdrr.io/pkg/EFAtools/man/CD.html" class="external-link">EFAtools::CD()</a></code>’s RMSE eigenvalue matrix) in the returned object. When CD is available, <code>autoplot(suggest_k(...))</code> renders a four-panel 2×2 grid including a dedicated <strong>“CD (RMSE, minimize)”</strong> panel with the retention threshold marked — giving CD its own diagnostic space rather than sharing the MAP panel. The three-panel single-column layout is unchanged when EFAtools is absent.</p>
-</div>
 <div class="section level3">
 <h3 id="correlation-matrix-input-0-1-0">Correlation-matrix input<a class="anchor" aria-label="anchor" href="#correlation-matrix-input-0-1-0"></a></h3>
 <p><code><a href="../reference/ackwards.html">ackwards()</a></code> and <code><a href="../reference/suggest_k.html">suggest_k()</a></code> now accept a pre-computed <strong>correlation matrix</strong> in place of raw item data, detected automatically from the matrix shape (square, symmetric, unit diagonal).</p>

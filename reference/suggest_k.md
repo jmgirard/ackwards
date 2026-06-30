@@ -198,14 +198,14 @@ matrix of partial correlations. *Psychometrika*, 41, 321–327.
 # \donttest{
 sk <- suggest_k(bfi25)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [190ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [244ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [82ms]
+#> ✔ Running MAP and VSS... [100ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [9.8s]
+#> ✔ Running Comparison Data (CD)... [12.5s]
 #> 
 sk
 #> 
@@ -250,10 +250,10 @@ suggest_k(bfi25, k_max = 6, n_iter = 5)
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [74ms]
+#> ✔ Running MAP and VSS... [105ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [8.9s]
+#> ✔ Running Comparison Data (CD)... [11s]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -292,10 +292,10 @@ suggest_k(R, n_obs = 875L)
 #> ℹ Comparison Data (CD) is skipped when a correlation matrix is supplied (CD
 #>   requires raw item distributions for resampling).
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [190ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [245ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [90ms]
+#> ✔ Running MAP and VSS... [97ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────

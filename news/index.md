@@ -40,7 +40,11 @@ range:
   gracefully when `EFAtools` is not installed.
 
 [`autoplot.suggest_k()`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md)
-produces a three-panel ggplot2 diagnostic (scree/PA, MAP, VSS).
+produces a ggplot2 diagnostic: a four-panel 2×2 grid (scree/PA, MAP,
+VSS, CD RMSE) when `EFAtools` is installed, or a three-panel
+single-column layout (scree/PA, MAP, VSS) otherwise. The returned object
+also carries `cd_rmse` (column means of CD’s RMSE eigenvalue matrix) for
+use in the CD panel.
 
 ### Between-level edges — exact W′RW algebra
 
@@ -136,18 +140,6 @@ toggle (`legend`); Forbes-style pruned view (`drop_pruned`,
   psych’s namespace. See
   [`?bfi25`](https://jmgirard.github.io/ackwards/reference/bfi25.md) for
   provenance and `@source`.
-
-### `autoplot.suggest_k()` — CD panel
-
-[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-now stores `cd_rmse` (column means of
-[`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html)’s RMSE
-eigenvalue matrix) in the returned object. When CD is available,
-`autoplot(suggest_k(...))` renders a four-panel 2×2 grid including a
-dedicated **“CD (RMSE, minimize)”** panel with the retention threshold
-marked — giving CD its own diagnostic space rather than sharing the MAP
-panel. The three-panel single-column layout is unchanged when EFAtools
-is absent.
 
 ### Correlation-matrix input
 
