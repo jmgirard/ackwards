@@ -63,28 +63,28 @@ The table below keeps the non-adjacent edges (levels more than one
 apart) with `|r| >= 0.5`, strongest first — drawn from
 `tidy(x_all, what = "edges")`:
 
-| from | to   | level_from | level_to |     r |
-|:-----|:-----|-----------:|---------:|------:|
-| m3f2 | m5f2 |          3 |        5 |  0.98 |
-| m2f2 | m4f2 |          2 |        4 | -0.97 |
-| m2f2 | m5f2 |          2 |        5 | -0.97 |
-| m2f1 | m4f1 |          2 |        4 |  0.85 |
-| m3f1 | m5f1 |          3 |        5 |  0.82 |
-| m1f1 | m3f1 |          1 |        3 |  0.77 |
-| m1f1 | m4f1 |          1 |        4 |  0.75 |
-| m3f3 | m5f3 |          3 |        5 |  0.73 |
-| m2f1 | m5f1 |          2 |        5 |  0.69 |
-| m3f3 | m5f5 |          3 |        5 |  0.68 |
-| m1f1 | m5f1 |          1 |        5 |  0.61 |
-| m3f1 | m5f4 |          3 |        5 |  0.56 |
-
-Strongest skip-level edges (\|r\| \>= 0.5, non-adjacent levels) {.table}
+| Strongest skip-level edges (\|r\| ≥ 0.5, non-adjacent levels) |  |  |  |  |
+|----|----|----|----|----|
+| Sorted by \|r\|; shows at most 12 rows |  |  |  |  |
+| From | To | Level (from) | Level (to) | r |
+| m3f2 | m5f2 | 3 | 5 | 0.98 |
+| m2f2 | m4f2 | 2 | 4 | −0.97 |
+| m2f2 | m5f2 | 2 | 5 | −0.97 |
+| m2f1 | m4f1 | 2 | 4 | 0.85 |
+| m3f1 | m5f1 | 3 | 5 | 0.82 |
+| m1f1 | m3f1 | 1 | 3 | 0.77 |
+| m1f1 | m4f1 | 1 | 4 | 0.75 |
+| m3f3 | m5f3 | 3 | 5 | 0.73 |
+| m2f1 | m5f1 | 2 | 5 | 0.69 |
+| m3f3 | m5f5 | 3 | 5 | 0.68 |
+| m1f1 | m5f1 | 1 | 5 | 0.61 |
+| m3f1 | m5f4 | 3 | 5 | 0.56 |
 
 Several factors connect across two or more levels with correlations
-above 0.90. `m3f2` (level 3, factor 2) correlates 0.98 with `m5f1`
-(level 5, factor 1), jumping *two* levels. This tells you that m3f2 and
-m5f1 are essentially the same construct — the intermediate levels are
-just refinements within a stable dimension.
+above 0.90. m3f2 (level 3, factor 2) correlates 0.98 with m5f2 (level 5,
+factor 2), jumping *two* levels. This tells you that m3f2 and m5f2 are
+essentially the same construct — the intermediate levels are just
+refinements within a stable dimension.
 
 ## Pruning: identifying redundant factors
 
@@ -111,31 +111,30 @@ x_prune <- ackwards(bfi,
 #>   `x$prune$chains`.
 ```
 
-``` r
+| Node-level pruning annotation        |       |          |           |
+|--------------------------------------|-------|----------|-----------|
+| 6 of 15 factors flagged as redundant |       |          |           |
+| Factor                               | Level | Flagged? | Reason    |
+| m1f1                                 | 1     | FALSE    | —         |
+| m2f1                                 | 2     | FALSE    | —         |
+| m2f2                                 | 2     | TRUE     | redundant |
+| m3f1                                 | 3     | FALSE    | —         |
+| m3f2                                 | 3     | TRUE     | redundant |
+| m3f3                                 | 3     | FALSE    | —         |
+| m4f1                                 | 4     | TRUE     | redundant |
+| m4f2                                 | 4     | TRUE     | redundant |
+| m4f3                                 | 4     | TRUE     | redundant |
+| m4f4                                 | 4     | TRUE     | redundant |
+| m5f1                                 | 5     | FALSE    | —         |
+| m5f2                                 | 5     | FALSE    | —         |
+| m5f3                                 | 5     | FALSE    | —         |
+| m5f4                                 | 5     | FALSE    | —         |
+| m5f5                                 | 5     | FALSE    | —         |
 
-tidy(x_prune, what = "nodes")
-#>      id level pruned prune_reason
-#> 1  m1f1     1  FALSE         <NA>
-#> 2  m2f1     2  FALSE         <NA>
-#> 3  m2f2     2   TRUE    redundant
-#> 4  m3f1     3  FALSE         <NA>
-#> 5  m3f2     3   TRUE    redundant
-#> 6  m3f3     3  FALSE         <NA>
-#> 7  m4f1     4   TRUE    redundant
-#> 8  m4f2     4   TRUE    redundant
-#> 9  m4f3     4   TRUE    redundant
-#> 10 m4f4     4   TRUE    redundant
-#> 11 m5f1     5  FALSE         <NA>
-#> 12 m5f2     5  FALSE         <NA>
-#> 13 m5f3     5  FALSE         <NA>
-#> 14 m5f4     5  FALSE         <NA>
-#> 15 m5f5     5  FALSE         <NA>
-```
-
-Six factors are flagged as redundant. The entire k = 4 level (m4f1
-through m4f4) is flagged, as are m2f2 and m3f2. This is a striking
-finding: for this dataset and this k, the four-factor level adds little
-beyond what you already know from k = 3 and k = 5.
+6 factors are flagged as redundant (m2f2, m3f2, m4f1, m4f2, m4f3, m4f4):
+1 factor at k = 2, 1 factor at k = 3, the entire k = 4 level. This is a
+striking finding: for this dataset and this k, the four-factor level
+adds little beyond what you already know from k = 3 and k = 5.
 
 The flagged factors are not removed from the object — `prune` is purely
 a diagnostic annotation, not a deletion. You can still inspect their
@@ -238,26 +237,29 @@ x_art <- ackwards(bfi,
 #> ℹ Artefact mode: Tucker's computed for all cross-level factor pairs.
 #> ℹ Inspect `x$prune$phi` to identify potential artefacts; removal is a
 #>   researcher judgment (Forbes, 2023).
-tidy(x_art, what = "nodes")
-#>      id level pruned prune_reason
-#> 1  m1f1     1  FALSE         <NA>
-#> 2  m2f1     2  FALSE         <NA>
-#> 3  m2f2     2  FALSE         <NA>
-#> 4  m3f1     3  FALSE         <NA>
-#> 5  m3f2     3  FALSE         <NA>
-#> 6  m3f3     3  FALSE         <NA>
-#> 7  m4f1     4  FALSE         <NA>
-#> 8  m4f2     4  FALSE         <NA>
-#> 9  m4f3     4  FALSE         <NA>
-#> 10 m4f4     4  FALSE         <NA>
-#> 11 m5f1     5  FALSE         <NA>
-#> 12 m5f2     5  FALSE         <NA>
-#> 13 m5f3     5  FALSE         <NA>
-#> 14 m5f4     5  FALSE         <NA>
-#> 15 m5f5     5  FALSE         <NA>
 ```
 
-For the BFI, the artefact criterion flags nothing — no factor at any
+| Node-level artefact annotation       |       |          |        |
+|--------------------------------------|-------|----------|--------|
+| 0 of 15 factors flagged as artefacts |       |          |        |
+| Factor                               | Level | Flagged? | Reason |
+| m1f1                                 | 1     | FALSE    | —      |
+| m2f1                                 | 2     | FALSE    | —      |
+| m2f2                                 | 2     | FALSE    | —      |
+| m3f1                                 | 3     | FALSE    | —      |
+| m3f2                                 | 3     | FALSE    | —      |
+| m3f3                                 | 3     | FALSE    | —      |
+| m4f1                                 | 4     | FALSE    | —      |
+| m4f2                                 | 4     | FALSE    | —      |
+| m4f3                                 | 4     | FALSE    | —      |
+| m4f4                                 | 4     | FALSE    | —      |
+| m5f1                                 | 5     | FALSE    | —      |
+| m5f2                                 | 5     | FALSE    | —      |
+| m5f3                                 | 5     | FALSE    | —      |
+| m5f4                                 | 5     | FALSE    | —      |
+| m5f5                                 | 5     | FALSE    | —      |
+
+For the BFI, the artefact criterion flags 0 factors — no factor at any
 level has a loading pattern more similar to a factor from a non-adjacent
 level than to its own-level solution. This is a good result for a
 well-validated instrument: it suggests the rotation is producing
@@ -303,14 +305,13 @@ factors at each shows how sensitive the pruning is:
     #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
     #>   `x$prune$chains`.
 
-| redundancy_r | n_flagged |
-|-------------:|----------:|
-|         0.80 |         9 |
-|         0.85 |         8 |
-|         0.90 |         6 |
-|         0.95 |         6 |
-
-Factors flagged redundant at each redundancy_r threshold {.table}
+| Factors flagged redundant at each redundancy_r threshold |                 |
+|----------------------------------------------------------|-----------------|
+| redundancy_r                                             | Factors flagged |
+| 0.80                                                     | 9               |
+| 0.85                                                     | 8               |
+| 0.90                                                     | 6               |
+| 0.95                                                     | 6               |
 
 For the BFI all thresholds agree: the flagged factors are robustly
 redundant, not borderline cases. In noisier datasets or smaller samples

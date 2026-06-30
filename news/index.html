@@ -157,6 +157,16 @@
 <code>augment(x, data = ...)</code> — appends factor scores to a data frame; recomputes from stored weights when scores were not materialized at fit time.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="documentation-0-1-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-1-0"></a></h3>
+<p>Vignette comparison tables reworked for legibility (M24):</p>
+<ul><li>
+<code>ackwards-engines</code> and <code>ackwards-ordinal</code> — stacked long-format <code>kable</code> tables replaced by <strong>wide gt tables</strong>: one row per item/edge, one column per engine/basis, plus an explicit Δ column that is the teaching point (EFA/polychoric attenuation). Factor and sign correspondence is asserted before differencing; edge tables surface primary-parent disagreements as NA rather than hiding them.</li>
+<li>
+<code>ackwards-forbes</code> — <code>prune-nodes</code> raw <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> print replaced by a styled gt table; narrated counts (<code>n_adj</code>, <code>n_all</code>, <code>n_redundant</code>, top skip-edge) are now computed via inline R expressions so they can never go stale.</li>
+<li>
+<code>gt</code> added to Suggests (vignette table formatting only; never loaded by core).</li>
+</ul></div>
+<div class="section level3">
 <h3 id="test-coverage-0-1-0">Test coverage<a class="anchor" aria-label="anchor" href="#test-coverage-0-1-0"></a></h3>
 <p>Test suite reaches <strong>100% line coverage</strong>. Genuinely unreachable defensive branches (engine fallbacks, lavaan error/warning handlers) are excluded via <code># nocov</code> rather than brittle environment-dependent tests.</p>
 </div>

@@ -328,11 +328,42 @@ exactly.
   within-CD `k_max`); added a deterministic default-`k_max` test to
   preserve the `suggest_k.R:208` branch. Comfortably within CRAN’s
   check-time budget. (1083 tests pass, 1 skip; 100% coverage.)
+- **M24 (done):** Vignette communication pass (documentation-only).
+  Stacked long-format `kable` comparison tables replaced by wide
+  **`gt`** tables (one row per item/edge, one column per engine/basis,
+  explicit Δ column) in `ackwards-engines` (loadings: `|EFA|−|PCA|`;
+  edges: `EFA−PCA`) and `ackwards-ordinal` (loadings: `poly−pearson`;
+  edges: `poly−pearson`). Factor/sign alignment asserted via
+  [`stopifnot()`](https://rdrr.io/r/base/stopifnot.html) before
+  differencing; engine disagreements on primary parents surface as `NA`.
+  `ackwards-forbes`: `prune-nodes` raw
+  [`tidy()`](https://generics.r-lib.org/reference/tidy.html) print
+  replaced by styled gt table; narrated counts and stale skip-edge claim
+  (m3f2→m5f1, now m3f2→m5f2 on bfi25) converted to inline `` `r` ``
+  expressions. `skip-edges`/`thresholds` tables migrated to gt for
+  visual consistency. All presentation code in `echo = FALSE` — no
+  plumbing visible to readers. Audit of the other four vignettes: no
+  changes needed (raw console prints are pedagogically appropriate).
+  `gt` added to Suggests. Post-review (six findings): unified every Δ
+  column to a **magnitude** convention (`|x|−|y|`) so the directional
+  captions read correctly for negatively-signed cells — fixes a
+  sign-trap where the polychoric-strengthened negative edge `m2f2→m3f2`
+  had shown a negative signed Δ (ordinal edges + loadings and engines
+  edges switched from signed to `abs`; engines loadings was already
+  `abs`); derived the forbes redundant-level prose (`flagged_ids` +
+  per-level `lvl_summary`) inline instead of hard-coding “entire k=4
+  level / two factors at k=2,3”; converted the `prune-artefact` raw
+  print to a styled gt table (call still echoed) with inline
+  `n_artefact`; added guard tests for the
+  [`knitr::kable`](https://rdrr.io/pkg/knitr/man/kable.html) fallback
+  branch, the NA primary-parent-disagreement merge, the magnitude-delta
+  sign property, and the inline-derivation helpers. (1123 tests pass, 1
+  skip; 0/0/0 R CMD check.)
 
 ## Current focus
 
-No milestone currently in progress. M23 + post-M23 test-suite speedup
-complete (see Completed milestones).
+No milestone currently in progress. M24 complete (see Completed
+milestones).
 
 ## Invariants — do not violate without flagging
 

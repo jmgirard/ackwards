@@ -186,320 +186,526 @@ difference large enough to shift loadings and change eigenvalues.</p>
 <div class="section level3">
 <h3 id="loadings">Loadings<a class="anchor" aria-label="anchor" href="#loadings"></a>
 </h3>
-<p>Stacking <code>tidy(what = "loadings")</code> from each basis lets us
-read the <code>k = 5</code> Neuroticism-item loadings side by side:</p>
-<table class="table">
-<caption>Neuroticism-item loadings (k = 5): Pearson vs
-polychoric</caption>
-<thead><tr class="header">
-<th align="left">basis</th>
-<th align="left">factor</th>
-<th align="left">item</th>
-<th align="right">loading</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f1</td>
-<td align="left">N1</td>
-<td align="right">0.05</td>
+<p>The table below compares primary loadings — the loading of each
+Neuroticism item on its dominant factor — under both correlation bases
+at k = 5. The Δ column is the attenuation: how much larger each loading
+becomes (in absolute value) once the polychoric basis removes the
+coarse-category suppression. Using |Polychoric| − |Pearson| keeps the
+attenuation positive regardless of loading sign.</p>
+<div id="mwlefoodfi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#mwlefoodfi table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#mwlefoodfi thead, #mwlefoodfi tbody, #mwlefoodfi tfoot, #mwlefoodfi tr, #mwlefoodfi td, #mwlefoodfi th {
+  border-style: none;
+}
+
+#mwlefoodfi p {
+  margin: 0;
+  padding: 0;
+}
+
+#mwlefoodfi .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#mwlefoodfi .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#mwlefoodfi .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#mwlefoodfi .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#mwlefoodfi .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#mwlefoodfi .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#mwlefoodfi .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#mwlefoodfi .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#mwlefoodfi .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#mwlefoodfi .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#mwlefoodfi .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#mwlefoodfi .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#mwlefoodfi .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#mwlefoodfi .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#mwlefoodfi .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mwlefoodfi .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#mwlefoodfi .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#mwlefoodfi .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#mwlefoodfi .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mwlefoodfi .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#mwlefoodfi .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mwlefoodfi .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#mwlefoodfi .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mwlefoodfi .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mwlefoodfi .gt_left {
+  text-align: left;
+}
+
+#mwlefoodfi .gt_center {
+  text-align: center;
+}
+
+#mwlefoodfi .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#mwlefoodfi .gt_font_normal {
+  font-weight: normal;
+}
+
+#mwlefoodfi .gt_font_bold {
+  font-weight: bold;
+}
+
+#mwlefoodfi .gt_font_italic {
+  font-style: italic;
+}
+
+#mwlefoodfi .gt_super {
+  font-size: 65%;
+}
+
+#mwlefoodfi .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#mwlefoodfi .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#mwlefoodfi .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#mwlefoodfi .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#mwlefoodfi .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#mwlefoodfi .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#mwlefoodfi .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#mwlefoodfi .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#mwlefoodfi div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading">
+<td colspan="5" class="gt_heading gt_title gt_font_normal" style>Neuroticism-item loadings at k = 5: Pearson vs polychoric</td>
+    </tr>
+<tr class="gt_heading">
+<td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Positive Δ = attenuation removed by the polychoric basis</td>
+    </tr>
+<tr class="gt_col_headings gt_spanner_row">
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="item">Item</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="factor">Factor</th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Primary loading">
+        <div class="gt_column_spanner">Primary loading</div>
+      </th>
+    </tr>
+<tr class="gt_col_headings">
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="loading_pearson">Pearson</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="loading_poly">Polychoric</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="delta">Δ (|Poly| − |Pearson|)<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
+</th>
+    </tr>
+</thead>
+<tbody class="gt_table_body">
+<tr>
+<td headers="item" class="gt_row gt_left">N1</td>
+<td headers="factor" class="gt_row gt_left">m5f2</td>
+<td headers="loading_pearson" class="gt_row gt_right">0.79</td>
+<td headers="loading_poly" class="gt_row gt_right">0.81</td>
+<td headers="delta" class="gt_row gt_right">0.02</td>
 </tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f1</td>
-<td align="left">N1</td>
-<td align="right">0.05</td>
+<tr>
+<td headers="item" class="gt_row gt_left">N2</td>
+<td headers="factor" class="gt_row gt_left">m5f2</td>
+<td headers="loading_pearson" class="gt_row gt_right">0.78</td>
+<td headers="loading_poly" class="gt_row gt_right">0.81</td>
+<td headers="delta" class="gt_row gt_right">0.02</td>
 </tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f1</td>
-<td align="left">N2</td>
-<td align="right">0.09</td>
+<tr>
+<td headers="item" class="gt_row gt_left">N3</td>
+<td headers="factor" class="gt_row gt_left">m5f2</td>
+<td headers="loading_pearson" class="gt_row gt_right">0.80</td>
+<td headers="loading_poly" class="gt_row gt_right">0.82</td>
+<td headers="delta" class="gt_row gt_right">0.03</td>
 </tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f1</td>
-<td align="left">N2</td>
-<td align="right">0.09</td>
+<tr>
+<td headers="item" class="gt_row gt_left">N4</td>
+<td headers="factor" class="gt_row gt_left">m5f2</td>
+<td headers="loading_pearson" class="gt_row gt_right">0.63</td>
+<td headers="loading_poly" class="gt_row gt_right">0.65</td>
+<td headers="delta" class="gt_row gt_right">0.02</td>
 </tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f1</td>
-<td align="left">N3</td>
-<td align="right">-0.04</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f1</td>
-<td align="left">N3</td>
-<td align="right">-0.04</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f1</td>
-<td align="left">N4</td>
-<td align="right">-0.30</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f1</td>
-<td align="left">N4</td>
-<td align="right">-0.31</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f1</td>
-<td align="left">N5</td>
-<td align="right">-0.14</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f1</td>
-<td align="left">N5</td>
-<td align="right">-0.15</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f2</td>
-<td align="left">N1</td>
-<td align="right">0.79</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f2</td>
-<td align="left">N1</td>
-<td align="right">0.81</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f2</td>
-<td align="left">N2</td>
-<td align="right">0.78</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f2</td>
-<td align="left">N2</td>
-<td align="right">0.81</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f2</td>
-<td align="left">N3</td>
-<td align="right">0.80</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f2</td>
-<td align="left">N3</td>
-<td align="right">0.82</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f2</td>
-<td align="left">N4</td>
-<td align="right">0.63</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f2</td>
-<td align="left">N4</td>
-<td align="right">0.65</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f2</td>
-<td align="left">N5</td>
-<td align="right">0.66</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f2</td>
-<td align="left">N5</td>
-<td align="right">0.69</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f3</td>
-<td align="left">N1</td>
-<td align="right">-0.06</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f3</td>
-<td align="left">N1</td>
-<td align="right">-0.07</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f3</td>
-<td align="left">N2</td>
-<td align="right">-0.04</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f3</td>
-<td align="left">N2</td>
-<td align="right">-0.05</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f3</td>
-<td align="left">N3</td>
-<td align="right">-0.03</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f3</td>
-<td align="left">N3</td>
-<td align="right">-0.04</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f3</td>
-<td align="left">N4</td>
-<td align="right">-0.21</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f3</td>
-<td align="left">N4</td>
-<td align="right">-0.21</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f3</td>
-<td align="left">N5</td>
-<td align="right">-0.01</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f3</td>
-<td align="left">N5</td>
-<td align="right">-0.02</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f4</td>
-<td align="left">N1</td>
-<td align="right">-0.23</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f4</td>
-<td align="left">N1</td>
-<td align="right">-0.25</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f4</td>
-<td align="left">N2</td>
-<td align="right">-0.21</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f4</td>
-<td align="left">N2</td>
-<td align="right">-0.22</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f4</td>
-<td align="left">N3</td>
-<td align="right">-0.03</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f4</td>
-<td align="left">N3</td>
-<td align="right">-0.03</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f4</td>
-<td align="left">N4</td>
-<td align="right">0.04</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f4</td>
-<td align="left">N4</td>
-<td align="right">0.05</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f4</td>
-<td align="left">N5</td>
-<td align="right">0.14</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f4</td>
-<td align="left">N5</td>
-<td align="right">0.17</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f5</td>
-<td align="left">N1</td>
-<td align="right">-0.13</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f5</td>
-<td align="left">N1</td>
-<td align="right">-0.13</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f5</td>
-<td align="left">N2</td>
-<td align="right">0.00</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f5</td>
-<td align="left">N2</td>
-<td align="right">0.00</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f5</td>
-<td align="left">N3</td>
-<td align="right">0.02</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f5</td>
-<td align="left">N3</td>
-<td align="right">0.01</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f5</td>
-<td align="left">N4</td>
-<td align="right">0.11</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f5</td>
-<td align="left">N4</td>
-<td align="right">0.13</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m5f5</td>
-<td align="left">N5</td>
-<td align="right">-0.14</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m5f5</td>
-<td align="left">N5</td>
-<td align="right">-0.15</td>
+<tr>
+<td headers="item" class="gt_row gt_left">N5</td>
+<td headers="factor" class="gt_row gt_left">m5f2</td>
+<td headers="loading_pearson" class="gt_row gt_right">0.66</td>
+<td headers="loading_poly" class="gt_row gt_right">0.69</td>
+<td headers="delta" class="gt_row gt_right">0.03</td>
 </tr>
 </tbody>
+<tfoot><tr class="gt_footnotes">
+<td class="gt_footnote" colspan="5">
+<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Factor assignment and sign verified to match between bases. Delta uses |Poly| - |Pearson| so attenuation is positive regardless of loading sign.</td>
+    </tr></tfoot>
 </table>
+</div>
 <p>Polychoric loadings for the Neuroticism items are noticeably higher —
 the latent structure is sharper when the attenuating effect of coarse
 categories is removed.</p>
@@ -507,188 +713,589 @@ categories is removed.</p>
 <div class="section level3">
 <h3 id="between-level-edges">Between-level edges<a class="anchor" aria-label="anchor" href="#between-level-edges"></a>
 </h3>
-<p>The same comparison for the primary-parent edges —
-<code>tidy(what = "edges", primary_only = TRUE)</code> under each
-basis:</p>
-<table class="table">
-<caption>Primary-parent edges: Pearson vs polychoric</caption>
-<thead><tr class="header">
-<th align="left">basis</th>
-<th align="left">from</th>
-<th align="left">to</th>
-<th align="right">r</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m1f1</td>
-<td align="left">m2f1</td>
-<td align="right">0.88</td>
+<p>The same comparison for the primary-parent edges. The Δ column is the
+change in connection strength (|r|): positive where the polychoric basis
+recovers a stronger connection by undoing attenuation, negative in the
+few cases where the recovered structure is slightly looser. Using
+absolute values makes the direction read correctly even for the
+negatively-signed edge.</p>
+<div id="eexombwkke" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#eexombwkke table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#eexombwkke thead, #eexombwkke tbody, #eexombwkke tfoot, #eexombwkke tr, #eexombwkke td, #eexombwkke th {
+  border-style: none;
+}
+
+#eexombwkke p {
+  margin: 0;
+  padding: 0;
+}
+
+#eexombwkke .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#eexombwkke .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#eexombwkke .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#eexombwkke .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#eexombwkke .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#eexombwkke .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eexombwkke .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#eexombwkke .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#eexombwkke .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#eexombwkke .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#eexombwkke .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#eexombwkke .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#eexombwkke .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#eexombwkke .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#eexombwkke .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#eexombwkke .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#eexombwkke .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#eexombwkke .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#eexombwkke .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eexombwkke .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#eexombwkke .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#eexombwkke .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#eexombwkke .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eexombwkke .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#eexombwkke .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#eexombwkke .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eexombwkke .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eexombwkke .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#eexombwkke .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eexombwkke .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#eexombwkke .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eexombwkke .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#eexombwkke .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eexombwkke .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#eexombwkke .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eexombwkke .gt_left {
+  text-align: left;
+}
+
+#eexombwkke .gt_center {
+  text-align: center;
+}
+
+#eexombwkke .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#eexombwkke .gt_font_normal {
+  font-weight: normal;
+}
+
+#eexombwkke .gt_font_bold {
+  font-weight: bold;
+}
+
+#eexombwkke .gt_font_italic {
+  font-style: italic;
+}
+
+#eexombwkke .gt_super {
+  font-size: 65%;
+}
+
+#eexombwkke .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#eexombwkke .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#eexombwkke .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#eexombwkke .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#eexombwkke .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#eexombwkke .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#eexombwkke .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#eexombwkke .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#eexombwkke div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading">
+<td colspan="5" class="gt_heading gt_title gt_font_normal" style>Primary-parent edges: Pearson vs polychoric</td>
+    </tr>
+<tr class="gt_heading">
+<td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Δ = change in |r|; positive = stronger connection under polychoric basis</td>
+    </tr>
+<tr class="gt_col_headings gt_spanner_row">
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="from">From</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="to">To</th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Edge strength (r)">
+        <div class="gt_column_spanner">Edge strength (r)</div>
+      </th>
+    </tr>
+<tr class="gt_col_headings">
+<th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="r_pearson">Pearson</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="r_poly">Polychoric</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="delta">Δ (|Poly| − |Pearson|)<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
+</th>
+    </tr>
+</thead>
+<tbody class="gt_table_body">
+<tr>
+<td headers="from" class="gt_row gt_left">m1f1</td>
+<td headers="to" class="gt_row gt_left">m2f1</td>
+<td headers="r_pearson" class="gt_row gt_right">0.88</td>
+<td headers="r_poly" class="gt_row gt_right">0.89</td>
+<td headers="delta" class="gt_row gt_right">0.01</td>
 </tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m1f1</td>
-<td align="left">m2f1</td>
-<td align="right">0.89</td>
+<tr>
+<td headers="from" class="gt_row gt_left">m1f1</td>
+<td headers="to" class="gt_row gt_left">m2f2</td>
+<td headers="r_pearson" class="gt_row gt_right">0.48</td>
+<td headers="r_poly" class="gt_row gt_right">0.46</td>
+<td headers="delta" class="gt_row gt_right">−0.02</td>
 </tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m1f1</td>
-<td align="left">m2f2</td>
-<td align="right">0.48</td>
+<tr>
+<td headers="from" class="gt_row gt_left">m2f1</td>
+<td headers="to" class="gt_row gt_left">m3f1</td>
+<td headers="r_pearson" class="gt_row gt_right">0.90</td>
+<td headers="r_poly" class="gt_row gt_right">0.87</td>
+<td headers="delta" class="gt_row gt_right">−0.02</td>
 </tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m1f1</td>
-<td align="left">m2f2</td>
-<td align="right">0.46</td>
+<tr>
+<td headers="from" class="gt_row gt_left">m2f2</td>
+<td headers="to" class="gt_row gt_left">m3f2</td>
+<td headers="r_pearson" class="gt_row gt_right">−0.97</td>
+<td headers="r_poly" class="gt_row gt_right">−0.99</td>
+<td headers="delta" class="gt_row gt_right">0.02</td>
 </tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m2f1</td>
-<td align="left">m3f1</td>
-<td align="right">0.90</td>
+<tr>
+<td headers="from" class="gt_row gt_left">m2f1</td>
+<td headers="to" class="gt_row gt_left">m3f3</td>
+<td headers="r_pearson" class="gt_row gt_right">0.43</td>
+<td headers="r_poly" class="gt_row gt_right">0.48</td>
+<td headers="delta" class="gt_row gt_right">0.05</td>
 </tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m2f1</td>
-<td align="left">m3f1</td>
-<td align="right">0.87</td>
+<tr>
+<td headers="from" class="gt_row gt_left">m3f1</td>
+<td headers="to" class="gt_row gt_left">m4f1</td>
+<td headers="r_pearson" class="gt_row gt_right">1.00</td>
+<td headers="r_poly" class="gt_row gt_right">0.99</td>
+<td headers="delta" class="gt_row gt_right">0.00</td>
 </tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m2f2</td>
-<td align="left">m3f2</td>
-<td align="right">-0.97</td>
+<tr>
+<td headers="from" class="gt_row gt_left">m3f2</td>
+<td headers="to" class="gt_row gt_left">m4f2</td>
+<td headers="r_pearson" class="gt_row gt_right">0.99</td>
+<td headers="r_poly" class="gt_row gt_right">0.98</td>
+<td headers="delta" class="gt_row gt_right">−0.01</td>
 </tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m2f2</td>
-<td align="left">m3f2</td>
-<td align="right">-0.99</td>
+<tr>
+<td headers="from" class="gt_row gt_left">m3f3</td>
+<td headers="to" class="gt_row gt_left">m4f3</td>
+<td headers="r_pearson" class="gt_row gt_right">0.80</td>
+<td headers="r_poly" class="gt_row gt_right">0.73</td>
+<td headers="delta" class="gt_row gt_right">−0.07</td>
 </tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m2f1</td>
-<td align="left">m3f3</td>
-<td align="right">0.43</td>
+<tr>
+<td headers="from" class="gt_row gt_left">m3f3</td>
+<td headers="to" class="gt_row gt_left">m4f4</td>
+<td headers="r_pearson" class="gt_row gt_right">0.59</td>
+<td headers="r_poly" class="gt_row gt_right">0.68</td>
+<td headers="delta" class="gt_row gt_right">0.09</td>
 </tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m2f1</td>
-<td align="left">m3f3</td>
-<td align="right">0.48</td>
+<tr>
+<td headers="from" class="gt_row gt_left">m4f1</td>
+<td headers="to" class="gt_row gt_left">m5f1</td>
+<td headers="r_pearson" class="gt_row gt_right">0.82</td>
+<td headers="r_poly" class="gt_row gt_right">0.84</td>
+<td headers="delta" class="gt_row gt_right">0.02</td>
 </tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m3f1</td>
-<td align="left">m4f1</td>
-<td align="right">1.00</td>
+<tr>
+<td headers="from" class="gt_row gt_left">m4f2</td>
+<td headers="to" class="gt_row gt_left">m5f2</td>
+<td headers="r_pearson" class="gt_row gt_right">1.00</td>
+<td headers="r_poly" class="gt_row gt_right">1.00</td>
+<td headers="delta" class="gt_row gt_right">0.00</td>
 </tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m3f1</td>
-<td align="left">m4f1</td>
-<td align="right">0.99</td>
+<tr>
+<td headers="from" class="gt_row gt_left">m4f3</td>
+<td headers="to" class="gt_row gt_left">m5f3</td>
+<td headers="r_pearson" class="gt_row gt_right">0.98</td>
+<td headers="r_poly" class="gt_row gt_right">0.98</td>
+<td headers="delta" class="gt_row gt_right">0.01</td>
 </tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m3f2</td>
-<td align="left">m4f2</td>
-<td align="right">0.99</td>
+<tr>
+<td headers="from" class="gt_row gt_left">m4f1</td>
+<td headers="to" class="gt_row gt_left">m5f4</td>
+<td headers="r_pearson" class="gt_row gt_right">0.58</td>
+<td headers="r_poly" class="gt_row gt_right">0.55</td>
+<td headers="delta" class="gt_row gt_right">−0.03</td>
 </tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m3f2</td>
-<td align="left">m4f2</td>
-<td align="right">0.98</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m3f3</td>
-<td align="left">m4f3</td>
-<td align="right">0.80</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m3f3</td>
-<td align="left">m4f3</td>
-<td align="right">0.73</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m3f3</td>
-<td align="left">m4f4</td>
-<td align="right">0.59</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m3f3</td>
-<td align="left">m4f4</td>
-<td align="right">0.68</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m4f1</td>
-<td align="left">m5f1</td>
-<td align="right">0.82</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m4f1</td>
-<td align="left">m5f1</td>
-<td align="right">0.84</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m4f2</td>
-<td align="left">m5f2</td>
-<td align="right">1.00</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m4f2</td>
-<td align="left">m5f2</td>
-<td align="right">1.00</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m4f3</td>
-<td align="left">m5f3</td>
-<td align="right">0.98</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m4f3</td>
-<td align="left">m5f3</td>
-<td align="right">0.98</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m4f1</td>
-<td align="left">m5f4</td>
-<td align="right">0.58</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m4f1</td>
-<td align="left">m5f4</td>
-<td align="right">0.55</td>
-</tr>
-<tr class="odd">
-<td align="left">pearson</td>
-<td align="left">m4f4</td>
-<td align="left">m5f5</td>
-<td align="right">0.96</td>
-</tr>
-<tr class="even">
-<td align="left">polychoric</td>
-<td align="left">m4f4</td>
-<td align="left">m5f5</td>
-<td align="right">0.99</td>
+<tr>
+<td headers="from" class="gt_row gt_left">m4f4</td>
+<td headers="to" class="gt_row gt_left">m5f5</td>
+<td headers="r_pearson" class="gt_row gt_right">0.96</td>
+<td headers="r_poly" class="gt_row gt_right">0.99</td>
+<td headers="delta" class="gt_row gt_right">0.03</td>
 </tr>
 </tbody>
+<tfoot><tr class="gt_footnotes">
+<td class="gt_footnote" colspan="5">
+<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> NA in either column means the bases disagree on the primary parent for that factor.</td>
+    </tr></tfoot>
 </table>
+</div>
 <p>The edges are broadly similar in sign and rank order — the hierarchy
 is the same — but polychoric edges are stronger. Factors that represent
 genuinely stable dimensions show near-perfect correlations with their

@@ -113,63 +113,14 @@ loadings and change eigenvalues.
 
 ### Loadings
 
-Stacking `tidy(what = "loadings")` from each basis lets us read the
-`k = 5` Neuroticism-item loadings side by side:
+The table below compares primary loadings — the loading of each
+Neuroticism item on its dominant factor — under both correlation bases
+at k = 5. The Δ column is the attenuation: how much larger each loading
+becomes (in absolute value) once the polychoric basis removes the
+coarse-category suppression. Using \|Polychoric\| − \|Pearson\| keeps
+the attenuation positive regardless of loading sign.
 
-| basis      | factor | item | loading |
-|:-----------|:-------|:-----|--------:|
-| pearson    | m5f1   | N1   |    0.05 |
-| polychoric | m5f1   | N1   |    0.05 |
-| pearson    | m5f1   | N2   |    0.09 |
-| polychoric | m5f1   | N2   |    0.09 |
-| pearson    | m5f1   | N3   |   -0.04 |
-| polychoric | m5f1   | N3   |   -0.04 |
-| pearson    | m5f1   | N4   |   -0.30 |
-| polychoric | m5f1   | N4   |   -0.31 |
-| pearson    | m5f1   | N5   |   -0.14 |
-| polychoric | m5f1   | N5   |   -0.15 |
-| pearson    | m5f2   | N1   |    0.79 |
-| polychoric | m5f2   | N1   |    0.81 |
-| pearson    | m5f2   | N2   |    0.78 |
-| polychoric | m5f2   | N2   |    0.81 |
-| pearson    | m5f2   | N3   |    0.80 |
-| polychoric | m5f2   | N3   |    0.82 |
-| pearson    | m5f2   | N4   |    0.63 |
-| polychoric | m5f2   | N4   |    0.65 |
-| pearson    | m5f2   | N5   |    0.66 |
-| polychoric | m5f2   | N5   |    0.69 |
-| pearson    | m5f3   | N1   |   -0.06 |
-| polychoric | m5f3   | N1   |   -0.07 |
-| pearson    | m5f3   | N2   |   -0.04 |
-| polychoric | m5f3   | N2   |   -0.05 |
-| pearson    | m5f3   | N3   |   -0.03 |
-| polychoric | m5f3   | N3   |   -0.04 |
-| pearson    | m5f3   | N4   |   -0.21 |
-| polychoric | m5f3   | N4   |   -0.21 |
-| pearson    | m5f3   | N5   |   -0.01 |
-| polychoric | m5f3   | N5   |   -0.02 |
-| pearson    | m5f4   | N1   |   -0.23 |
-| polychoric | m5f4   | N1   |   -0.25 |
-| pearson    | m5f4   | N2   |   -0.21 |
-| polychoric | m5f4   | N2   |   -0.22 |
-| pearson    | m5f4   | N3   |   -0.03 |
-| polychoric | m5f4   | N3   |   -0.03 |
-| pearson    | m5f4   | N4   |    0.04 |
-| polychoric | m5f4   | N4   |    0.05 |
-| pearson    | m5f4   | N5   |    0.14 |
-| polychoric | m5f4   | N5   |    0.17 |
-| pearson    | m5f5   | N1   |   -0.13 |
-| polychoric | m5f5   | N1   |   -0.13 |
-| pearson    | m5f5   | N2   |    0.00 |
-| polychoric | m5f5   | N2   |    0.00 |
-| pearson    | m5f5   | N3   |    0.02 |
-| polychoric | m5f5   | N3   |    0.01 |
-| pearson    | m5f5   | N4   |    0.11 |
-| polychoric | m5f5   | N4   |    0.13 |
-| pearson    | m5f5   | N5   |   -0.14 |
-| polychoric | m5f5   | N5   |   -0.15 |
-
-Neuroticism-item loadings (k = 5): Pearson vs polychoric {.table}
+[TABLE]
 
 Polychoric loadings for the Neuroticism items are noticeably higher —
 the latent structure is sharper when the attenuating effect of coarse
@@ -177,41 +128,14 @@ categories is removed.
 
 ### Between-level edges
 
-The same comparison for the primary-parent edges —
-`tidy(what = "edges", primary_only = TRUE)` under each basis:
+The same comparison for the primary-parent edges. The Δ column is the
+change in connection strength (\|r\|): positive where the polychoric
+basis recovers a stronger connection by undoing attenuation, negative in
+the few cases where the recovered structure is slightly looser. Using
+absolute values makes the direction read correctly even for the
+negatively-signed edge.
 
-| basis      | from | to   |     r |
-|:-----------|:-----|:-----|------:|
-| pearson    | m1f1 | m2f1 |  0.88 |
-| polychoric | m1f1 | m2f1 |  0.89 |
-| pearson    | m1f1 | m2f2 |  0.48 |
-| polychoric | m1f1 | m2f2 |  0.46 |
-| pearson    | m2f1 | m3f1 |  0.90 |
-| polychoric | m2f1 | m3f1 |  0.87 |
-| pearson    | m2f2 | m3f2 | -0.97 |
-| polychoric | m2f2 | m3f2 | -0.99 |
-| pearson    | m2f1 | m3f3 |  0.43 |
-| polychoric | m2f1 | m3f3 |  0.48 |
-| pearson    | m3f1 | m4f1 |  1.00 |
-| polychoric | m3f1 | m4f1 |  0.99 |
-| pearson    | m3f2 | m4f2 |  0.99 |
-| polychoric | m3f2 | m4f2 |  0.98 |
-| pearson    | m3f3 | m4f3 |  0.80 |
-| polychoric | m3f3 | m4f3 |  0.73 |
-| pearson    | m3f3 | m4f4 |  0.59 |
-| polychoric | m3f3 | m4f4 |  0.68 |
-| pearson    | m4f1 | m5f1 |  0.82 |
-| polychoric | m4f1 | m5f1 |  0.84 |
-| pearson    | m4f2 | m5f2 |  1.00 |
-| polychoric | m4f2 | m5f2 |  1.00 |
-| pearson    | m4f3 | m5f3 |  0.98 |
-| polychoric | m4f3 | m5f3 |  0.98 |
-| pearson    | m4f1 | m5f4 |  0.58 |
-| polychoric | m4f1 | m5f4 |  0.55 |
-| pearson    | m4f4 | m5f5 |  0.96 |
-| polychoric | m4f4 | m5f5 |  0.99 |
-
-Primary-parent edges: Pearson vs polychoric {.table}
+[TABLE]
 
 The edges are broadly similar in sign and rank order — the hierarchy is
 the same — but polychoric edges are stronger. Factors that represent

@@ -169,51 +169,15 @@ and PCA loadings are highly correlated but not identical. EFA loadings
 are systematically somewhat smaller because they model only the common
 variance; PCA inflates loadings by fitting noise alongside signal.
 
-The table below pairs the `k = 3` loadings from each engine — built by
-stacking `tidy(x_pca, what = "loadings")` and the EFA equivalent — for
-six representative items (two each from the Neuroticism, Extraversion,
-and Conscientiousness families).
+The table below compares primary loadings — the loading of each item on
+its dominant factor — for six representative items (two each from the
+Neuroticism, Extraversion, and Conscientiousness families) at k = 3. The
+Δ column is the teaching point: how much smaller EFA loadings are in
+absolute value once measurement error is partitioned into uniqueness.
+Using \|EFA\| − \|PCA\| keeps the attenuation consistently negative
+regardless of loading sign.
 
-| engine | factor | item | loading |
-|:-------|:-------|:-----|--------:|
-| pca    | m3f1   | C1   |    0.12 |
-| efa    | m3f1   | C1   |    0.13 |
-| pca    | m3f1   | C2   |    0.18 |
-| efa    | m3f1   | C2   |    0.17 |
-| pca    | m3f1   | E1   |   -0.61 |
-| efa    | m3f1   | E1   |   -0.55 |
-| pca    | m3f1   | E2   |   -0.70 |
-| efa    | m3f1   | E2   |   -0.67 |
-| pca    | m3f1   | N1   |   -0.08 |
-| efa    | m3f1   | N1   |   -0.09 |
-| pca    | m3f1   | N2   |   -0.04 |
-| efa    | m3f1   | N2   |   -0.04 |
-| pca    | m3f2   | C1   |   -0.06 |
-| efa    | m3f2   | C1   |   -0.02 |
-| pca    | m3f2   | C2   |    0.04 |
-| efa    | m3f2   | C2   |    0.07 |
-| pca    | m3f2   | E1   |    0.00 |
-| efa    | m3f2   | E1   |    0.02 |
-| pca    | m3f2   | E2   |    0.24 |
-| efa    | m3f2   | E2   |    0.23 |
-| pca    | m3f2   | N1   |    0.78 |
-| efa    | m3f2   | N1   |    0.75 |
-| pca    | m3f2   | N2   |    0.79 |
-| efa    | m3f2   | N2   |    0.76 |
-| pca    | m3f3   | C1   |    0.66 |
-| efa    | m3f3   | C1   |    0.62 |
-| pca    | m3f3   | C2   |    0.64 |
-| efa    | m3f3   | C2   |    0.61 |
-| pca    | m3f3   | E1   |    0.02 |
-| efa    | m3f3   | E1   |    0.01 |
-| pca    | m3f3   | E2   |   -0.04 |
-| efa    | m3f3   | E2   |   -0.05 |
-| pca    | m3f3   | N1   |   -0.15 |
-| efa    | m3f3   | N1   |   -0.17 |
-| pca    | m3f3   | N2   |   -0.05 |
-| efa    | m3f3   | N2   |   -0.09 |
-
-PCA vs EFA loadings for anchor items (k = 3) {.table}
+[TABLE]
 
 EFA loadings for the same items are consistently a few points lower —
 the PCA loadings include some noise variance that EFA partitions into
@@ -322,23 +286,12 @@ The primary output of bass-ackwards analysis is the between-level edges.
 For well-structured, continuous data, all three engines should agree
 closely on the hierarchy.
 
-The table stacks each engine’s primary-parent edges —
-`tidy(what = "edges", primary_only = TRUE)` — at every level transition:
+The table below compares the primary-parent edge strength for every
+adjacent level transition. The Δ column is the shift in connection
+strength (\|EFA\| − \|PCA\|) — a direct, sign-robust measure of how much
+the latent-variable model changes your inference about the hierarchy.
 
-| engine | from | to   |     r |
-|:-------|:-----|:-----|------:|
-| pca    | m1f1 | m2f1 |  0.89 |
-| efa    | m1f1 | m2f1 |  0.91 |
-| pca    | m1f1 | m2f2 |  0.46 |
-| efa    | m1f1 | m2f2 |  0.42 |
-| pca    | m2f1 | m3f1 |  0.87 |
-| efa    | m2f1 | m3f1 |  0.89 |
-| pca    | m2f2 | m3f2 | -0.99 |
-| efa    | m2f2 | m3f2 | -0.98 |
-| pca    | m2f1 | m3f3 |  0.48 |
-| efa    | m2f1 | m3f3 |  0.44 |
-
-Primary-parent edges: PCA vs EFA {.table}
+[TABLE]
 
 The r values are very close between engines: the hierarchy that PCA
 reveals is essentially the same hierarchy that EFA reveals. This

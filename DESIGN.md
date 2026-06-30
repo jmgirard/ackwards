@@ -1153,6 +1153,32 @@ claim is inferentially honest.
     `meta$input_type` records `"data"` \| `"cor_matrix"` in every
     result. 36 new tests in `test-cor-input.R`. **Amends §6, §9.**
 
+21. **M24 — Vignette communication pass (documentation-only).** Reworked
+    stacked long-format `kable` comparison tables in `ackwards-engines`
+    and `ackwards-ordinal` into wide gt tables: one row per item/edge,
+    one column per engine/basis, plus a Δ column using a uniform
+    **magnitude** convention (`|x|−|y|`) so the directional captions
+    read correctly even for negatively-signed loadings/edges. A
+    [`stopifnot()`](https://rdrr.io/r/base/stopifnot.html) in each
+    hidden chunk asserts factor/sign alignment before differencing; edge
+    tables expose primary-parent disagreements as `NA` rather than
+    hiding them. `ackwards-forbes`: replaced the raw
+    `tidy(what = "nodes")` print with a styled gt table (highlighted
+    redundant rows), and replaced all narrated counts and specific
+    correlation claims with inline `r` expressions. Also migrated
+    `skip-edges` and `thresholds` tables to gt for visual consistency
+    within the vignette. `gt` added to Suggests (vignette-only; never
+    touches core). Audited the other four vignettes (intro, suggest-k,
+    interpret, visualization): their raw
+    [`tidy()`](https://generics.r-lib.org/reference/tidy.html)/[`glance()`](https://generics.r-lib.org/reference/glance.html)/
+    [`summary()`](https://rdrr.io/r/base/summary.html) prints are
+    pedagogically appropriate for a console-first package — no changes
+    made. Guard tests in `test-vignette-m24.R` verify alignment
+    assertions, expected columns, magnitude-delta sign behaviour, the
+    [`knitr::kable`](https://rdrr.io/pkg/knitr/man/kable.html) fallback
+    branch, the NA primary-parent disagreement merge, and the
+    inline-derivation helpers. **Amends §7 (Documentation).**
+
 ### Key references
 
 - Goldberg, L. R. (2006). Doing it all bass-ackwards. *J. Research in
