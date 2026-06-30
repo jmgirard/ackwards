@@ -25,6 +25,8 @@ ackwards(
   prune = "none",
   redundancy_r = 0.9,
   redundancy_phi = NULL,
+  min_items = 3L,
+  orphan_r = 0.5,
   cut_show = 0.3,
   ...
 )
@@ -184,11 +186,40 @@ ackwards(
 
 - redundancy_phi:
 
-  Scalar in `(0, 1]` or `NULL` (default). If non-`NULL`, Tucker's phi
-  must *also* exceed this threshold for a link to be included in a
-  redundancy chain (conjunctive with `redundancy_r`). `NULL` means only
-  `redundancy_r` is used. Recommended: `0.95` (Lorenzo-Seva & ten Berge,
-  2006).
+  Scalar in `(0, 1]`, `NULL` (default, auto), or `NA` (explicit
+  opt-out). When `NULL`:
+
+  - `engine = "pca"` — no phi filter (the W'RW algebra is exact; phi
+    adds nothing that \|r\| does not already capture).
+
+  - `engine = "efa"` or `"esem"` — automatically set to `0.95`
+    (Lorenzo-Seva & ten Berge, 2006). Factor-score indeterminacy off-PCA
+    means \|r\|-alone is liberal; the conjunctive phi criterion is the
+    conservative default. A cli message announces the resolved value
+    (Invariant 6). Pass `NA` to disable phi filtering regardless of
+    engine (matches the old `NULL` behaviour). Pass a numeric value to
+    override on any engine.
+
+- min_items:
+
+  Minimum number of items for which a factor must be the primary loader
+  (highest `|loading|`). Factors with fewer than `min_items` primary
+  items are flagged `few_items = TRUE` in `x$prune$structural`. Only
+  used when `prune = "artefact"`. Default `3L` – a factor defined by one
+  or two items is under-identified and frequently an extraction artefact
+  rather than a replicable construct (the classic "three-indicator
+  rule"; Forbes, 2023, Fig. 2).
+
+- orphan_r:
+
+  Threshold for the `orphan` structural signal. A factor whose maximum
+  **adjacent-level** `|r|` (to the immediately shallower and deeper
+  levels) falls below `orphan_r` is flagged `orphan = TRUE` in
+  `x$prune$structural` – it does not connect to the neighbouring
+  solutions and so does not replicate across the hierarchy. Only used
+  when `prune = "artefact"`. Default `0.5` – a moderate correlation; a
+  factor that shares less than a quarter of its variance with every
+  neighbour is a structural outlier worth inspecting.
 
 - cut_show:
 

@@ -83,6 +83,8 @@ not a fitted higher-order SEM.</p>
 <span>  prune <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>  redundancy_r <span class="op">=</span> <span class="fl">0.9</span>,</span>
 <span>  redundancy_phi <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  min_items <span class="op">=</span> <span class="fl">3L</span>,</span>
+<span>  orphan_r <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  cut_show <span class="op">=</span> <span class="fl">0.3</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -224,10 +226,37 @@ threshold for redundancy chains. Default <code>0.9</code> (Forbes, 2023).</p></d
 
 
 <dt id="arg-redundancy-phi">redundancy_phi<a class="anchor" aria-label="anchor" href="#arg-redundancy-phi"></a></dt>
-<dd><p>Scalar in <code>(0, 1]</code> or <code>NULL</code> (default). If non-<code>NULL</code>,
-Tucker's phi must <em>also</em> exceed this threshold for a link to be included in
-a redundancy chain (conjunctive with <code>redundancy_r</code>). <code>NULL</code> means only
-<code>redundancy_r</code> is used. Recommended: <code>0.95</code> (Lorenzo-Seva &amp; ten Berge, 2006).</p></dd>
+<dd><p>Scalar in <code>(0, 1]</code>, <code>NULL</code> (default, auto), or <code>NA</code>
+(explicit opt-out). When <code>NULL</code>:</p><ul><li><p><code>engine = "pca"</code> — no phi filter (the W'RW algebra is exact; phi adds
+nothing that |r| does not already capture).</p></li>
+<li><p><code>engine = "efa"</code> or <code>"esem"</code> — automatically set to <code>0.95</code> (Lorenzo-Seva
+&amp; ten Berge, 2006). Factor-score indeterminacy off-PCA means |r|-alone
+is liberal; the conjunctive phi criterion is the conservative default.
+A cli message announces the resolved value (Invariant 6).
+Pass <code>NA</code> to disable phi filtering regardless of engine (matches the old
+<code>NULL</code> behaviour). Pass a numeric value to override on any engine.</p></li>
+</ul></dd>
+
+
+<dt id="arg-min-items">min_items<a class="anchor" aria-label="anchor" href="#arg-min-items"></a></dt>
+<dd><p>Minimum number of items for which a factor must be the
+primary loader (highest <code>|loading|</code>). Factors with fewer than <code>min_items</code>
+primary items are flagged <code>few_items = TRUE</code> in <code>x$prune$structural</code>. Only
+used when <code>prune = "artefact"</code>. Default <code>3L</code> – a factor defined by one or
+two items is under-identified and frequently an extraction artefact rather
+than a replicable construct (the classic "three-indicator rule"; Forbes,
+2023, Fig. 2).</p></dd>
+
+
+<dt id="arg-orphan-r">orphan_r<a class="anchor" aria-label="anchor" href="#arg-orphan-r"></a></dt>
+<dd><p>Threshold for the <code>orphan</code> structural signal. A factor whose
+maximum <strong>adjacent-level</strong> <code>|r|</code> (to the immediately shallower and deeper
+levels) falls below <code>orphan_r</code> is flagged <code>orphan = TRUE</code> in
+<code>x$prune$structural</code> – it does not connect to the neighbouring solutions
+and so does not replicate across the hierarchy. Only used when
+<code>prune = "artefact"</code>. Default <code>0.5</code> – a moderate correlation; a factor
+that shares less than a quarter of its variance with every neighbour is a
+structural outlier worth inspecting.</p></dd>
 
 
 <dt id="arg-cut-show">cut_show<a class="anchor" aria-label="anchor" href="#arg-cut-show"></a></dt>

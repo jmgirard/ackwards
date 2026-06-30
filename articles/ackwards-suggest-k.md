@@ -204,13 +204,13 @@ and citations — see
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [273ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [302ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [119ms]
+#> ✔ Running MAP and VSS... [179ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [9.8s]
+#> ✔ Running Comparison Data (CD)... [10.5s]
 #> 
 sk
 #> 
@@ -313,6 +313,39 @@ will see where the criteria agree and where they pull in different
 directions.
 
 ## The arguments
+
+### `criteria` — which criteria to compute
+
+By default
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+runs all five criteria (CD only if **EFAtools** is installed). The
+`criteria` argument lets you request a subset — useful when you only
+trust certain criteria for your data, or when you want a faster run:
+
+``` r
+
+# Just MAP (skips parallel analysis and CD entirely)
+suggest_k(bfi25, criteria = "map")
+
+# Only the two parallel-analysis criteria
+suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"))
+```
+
+Skipping is a genuine computational saving, not just output filtering:
+`"pa_pc"` and `"pa_fa"` share a single
+[`psych::fa.parallel()`](https://rdrr.io/pkg/psych/man/fa.parallel.html)
+call (so both run, or neither), and `"map"` and `"vss"` share a single
+[`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html) call.
+Requesting `"map"` alone therefore avoids the parallel-analysis
+simulation altogether. `"vss"` selects VSS-1 and VSS-2 together as a
+unit.
+
+Criteria you do not request are skipped, and their `k_*` fields in the
+result are `NA`. The [`print()`](https://rdrr.io/r/base/print.html)
+method and the
+[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+diagnostic render only the criteria you asked for, and the consensus
+range is computed from the requested criteria only.
 
 ### `cor` — correlation basis
 

@@ -1372,8 +1372,10 @@ artefact of the rotation rather than a genuine new dimension.</p>
 <span>  pairs <span class="op">=</span> <span class="st">"all"</span>, prune <span class="op">=</span> <span class="st">"artefact"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Artefact mode: Tucker's computed for all cross-level factor pairs.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Inspect `x$prune$phi` to identify potential artefacts; removal is a</span></span>
-<span><span class="co">#&gt;   researcher judgment (Forbes, 2023).</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Structural signals computed: 2 factors flagged (few_items / orphan /</span></span>
+<span><span class="co">#&gt;   split_merge).</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Inspect `x$prune$phi` and `x$prune$structural`; removal is a researcher</span></span>
+<span><span class="co">#&gt;   judgment (Forbes, 2023).</span></span></code></pre></div>
 <div id="ulbfdpbcyv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#ulbfdpbcyv table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -1953,33 +1955,33 @@ closely resembles a factor from a different, non-adjacent level — it
 looks like a copy rather than a refinement.</li>
 </ul>
 </div>
-</div>
-<div class="section level2">
-<h2 id="tuning-the-thresholds">Tuning the thresholds<a class="anchor" aria-label="anchor" href="#tuning-the-thresholds"></a>
-</h2>
-<p>The redundancy criterion has an adjustable <code>redundancy_r</code>
-threshold (default <code>0.90</code>) matching Forbes (2023). The
-artefact criterion has no auto-flag threshold —
-<code>prune = "artefact"</code> computes Tucker’s φ for researcher
-inspection; no factors are auto-flagged.</p>
-<p>For the BFI, the result is the same across a wide range of thresholds
-because the redundant chains all have correlations &gt; 0.97 — the
-flagging is unambiguous. With your own data you may find borderline
-cases where the threshold matters:</p>
-<p>Refitting at a few <code>redundancy_r</code> thresholds and counting
-flagged factors at each shows how sensitive the pruning is:</p>
-<pre><code><span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.8) flagged 9 nodes.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
-<span><span class="co">#&gt;   `x$prune$chains`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.85) flagged 8 nodes.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
-<span><span class="co">#&gt;   `x$prune$chains`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
-<span><span class="co">#&gt;   `x$prune$chains`.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
-<span><span class="co">#&gt;   `x$prune$chains`.</span></span></code></pre>
+<div class="section level3">
+<h3 id="structural-artefact-signals">Structural artefact signals<a class="anchor" aria-label="anchor" href="#structural-artefact-signals"></a>
+</h3>
+<p>Congruence (φ) is not the only fingerprint of an artefactual factor.
+Forbes (2023, Fig. 2) describes several <em>structural</em> signatures,
+and <code>prune = "artefact"</code> reports three of them per factor in
+<code>x$prune$structural</code>:</p>
+<ul>
+<li>
+<strong><code>few_items</code></strong> — the factor is the primary
+(highest-loading) home for fewer than <code>min_items</code> items
+(default <code>3</code>). A factor anchored by one or two items is
+under-identified and often an extraction artefact rather than a
+replicable construct.</li>
+<li>
+<strong><code>orphan</code></strong> — the factor’s strongest
+correlation to the immediately neighbouring levels is below
+<code>orphan_r</code> (default <code>0.5</code>). It does not connect to
+the solutions on either side, so it does not replicate across the
+hierarchy.</li>
+<li>
+<strong><code>split_merge</code></strong> — the factor’s primary
+items were spread across <em>two or more different</em> parent factors
+at the level above. Items that were separated at the coarser solution
+have been merged under one factor at the finer solution — the
+split-then-merge anomaly of Forbes Fig. 2.</li>
+</ul>
 <div id="kgufivjubq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#kgufivjubq table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -2426,6 +2428,638 @@ flagged factors at each shows how sensitive the pruning is:</p>
 }
 
 #kgufivjubq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading">
+<td colspan="5" class="gt_heading gt_title gt_font_normal" style>Structural artefact signals</td>
+    </tr>
+<tr class="gt_heading">
+<td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>2 of 15 factors raise a structural signal</td>
+    </tr>
+<tr class="gt_col_headings">
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="id">Factor</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="level">Level</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="few_items">Few items</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="orphan">Orphan</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="split_merge">Split/merge</th>
+    </tr>
+</thead>
+<tbody class="gt_table_body">
+<tr>
+<td headers="id" class="gt_row gt_left">m1f1</td>
+<td headers="level" class="gt_row gt_right">1</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m2f1</td>
+<td headers="level" class="gt_row gt_right">2</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m2f2</td>
+<td headers="level" class="gt_row gt_right">2</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m3f1</td>
+<td headers="level" class="gt_row gt_right">3</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m3f2</td>
+<td headers="level" class="gt_row gt_right">3</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m3f3</td>
+<td headers="level" class="gt_row gt_right">3</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">TRUE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m4f1</td>
+<td headers="level" class="gt_row gt_right">4</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m4f2</td>
+<td headers="level" class="gt_row gt_right">4</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m4f3</td>
+<td headers="level" class="gt_row gt_right">4</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m4f4</td>
+<td headers="level" class="gt_row gt_right">4</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">TRUE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m5f1</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m5f2</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m5f3</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m5f4</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td>
+</tr>
+<tr>
+<td headers="id" class="gt_row gt_left">m5f5</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Like Tucker’s φ, these signals are <strong>flag-and-report
+only</strong> — <code><a href="../reference/ackwards.html">ackwards()</a></code> never removes a factor on their
+basis. Identifying an artefact requires researcher judgment (Forbes is
+explicit that this step introduces investigator degrees of freedom); the
+signals simply point you to the factors worth a closer look. The two
+thresholds, <code>min_items</code> and <code>orphan_r</code>, are
+arguments to <code><a href="../reference/ackwards.html">ackwards()</a></code>.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="tuning-the-thresholds">Tuning the thresholds<a class="anchor" aria-label="anchor" href="#tuning-the-thresholds"></a>
+</h2>
+<p>The redundancy criterion has an adjustable <code>redundancy_r</code>
+threshold (default <code>0.90</code>) matching Forbes (2023). The
+artefact criterion has no auto-flag threshold —
+<code>prune = "artefact"</code> computes Tucker’s φ for researcher
+inspection; no factors are auto-flagged.</p>
+<p><strong>The <code>redundancy_phi</code> companion criterion.</strong>
+Redundancy can optionally require that linked factors also share a
+loading pattern (Tucker’s φ above a threshold), not just a high score
+correlation. The <code>redundancy_phi</code> argument controls this, and
+its default (<code>NULL</code>) <em>auto-resolves based on the
+engine</em>:</p>
+<ul>
+<li>
+<strong>PCA</strong> — no φ filter. The <code>W'RW</code> score
+algebra is exact for components, so the score correlation
+<code>|r|</code> alone is a sufficient redundancy signal.</li>
+<li>
+<strong>EFA / ESEM</strong> — φ is required to exceed
+<code>0.95</code> (Lorenzo-Seva &amp; ten Berge, 2006). Factor scores
+off the PCA basis are indeterminate, which makes a <code>|r|</code>-only
+rule too liberal; the loading-congruence guard makes the criterion
+conservative. <code><a href="../reference/ackwards.html">ackwards()</a></code> announces this auto-resolution in
+the console.</li>
+</ul>
+<p>The examples here use the default PCA engine, so no φ filter is
+applied. To disable the φ guard on an EFA/ESEM run, pass
+<code>redundancy_phi = NA</code>; to set your own threshold, pass a
+number in <code>(0, 1]</code>.</p>
+<p>For the BFI, the result is the same across a wide range of thresholds
+because the redundant chains all have correlations &gt; 0.97 — the
+flagging is unambiguous. With your own data you may find borderline
+cases where the threshold matters:</p>
+<p>Refitting at a few <code>redundancy_r</code> thresholds and counting
+flagged factors at each shows how sensitive the pruning is:</p>
+<pre><code><span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.8) flagged 9 nodes.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
+<span><span class="co">#&gt;   `x$prune$chains`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.85) flagged 8 nodes.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
+<span><span class="co">#&gt;   `x$prune$chains`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
+<span><span class="co">#&gt;   `x$prune$chains`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
+<span><span class="co">#&gt;   `x$prune$chains`.</span></span></code></pre>
+<div id="txvafbsnay" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#txvafbsnay table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#txvafbsnay thead, #txvafbsnay tbody, #txvafbsnay tfoot, #txvafbsnay tr, #txvafbsnay td, #txvafbsnay th {
+  border-style: none;
+}
+
+#txvafbsnay p {
+  margin: 0;
+  padding: 0;
+}
+
+#txvafbsnay .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#txvafbsnay .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#txvafbsnay .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#txvafbsnay .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#txvafbsnay .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#txvafbsnay .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#txvafbsnay .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#txvafbsnay .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#txvafbsnay .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#txvafbsnay .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#txvafbsnay .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#txvafbsnay .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#txvafbsnay .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#txvafbsnay .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#txvafbsnay .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#txvafbsnay .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#txvafbsnay .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#txvafbsnay .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#txvafbsnay .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#txvafbsnay .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#txvafbsnay .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#txvafbsnay .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#txvafbsnay .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#txvafbsnay .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#txvafbsnay .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#txvafbsnay .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#txvafbsnay .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#txvafbsnay .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#txvafbsnay .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#txvafbsnay .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#txvafbsnay .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#txvafbsnay .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#txvafbsnay .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#txvafbsnay .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#txvafbsnay .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#txvafbsnay .gt_left {
+  text-align: left;
+}
+
+#txvafbsnay .gt_center {
+  text-align: center;
+}
+
+#txvafbsnay .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#txvafbsnay .gt_font_normal {
+  font-weight: normal;
+}
+
+#txvafbsnay .gt_font_bold {
+  font-weight: bold;
+}
+
+#txvafbsnay .gt_font_italic {
+  font-style: italic;
+}
+
+#txvafbsnay .gt_super {
+  font-size: 65%;
+}
+
+#txvafbsnay .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#txvafbsnay .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#txvafbsnay .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#txvafbsnay .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#txvafbsnay .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#txvafbsnay .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#txvafbsnay .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#txvafbsnay .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#txvafbsnay div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>

@@ -310,13 +310,13 @@ structure, and citations — see <code><a href="../reference/suggest_k.html">?su
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[273ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[302ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[119ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[179ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[9.8s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.5s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -437,6 +437,33 @@ directions.</p>
 <h2 id="the-arguments">The arguments<a class="anchor" aria-label="anchor" href="#the-arguments"></a>
 </h2>
 <div class="section level3">
+<h3 id="criteria-which-criteria-to-compute">
+<code>criteria</code> — which criteria to compute<a class="anchor" aria-label="anchor" href="#criteria-which-criteria-to-compute"></a>
+</h3>
+<p>By default <code><a href="../reference/suggest_k.html">suggest_k()</a></code> runs all five criteria (CD only
+if <strong>EFAtools</strong> is installed). The <code>criteria</code>
+argument lets you request a subset — useful when you only trust certain
+criteria for your data, or when you want a faster run:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Just MAP (skips parallel analysis and CD entirely)</span></span>
+<span><span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi25</span>, criteria <span class="op">=</span> <span class="st">"map"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Only the two parallel-analysis criteria</span></span>
+<span><span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi25</span>, criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pa_pc"</span>, <span class="st">"pa_fa"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Skipping is a genuine computational saving, not just output
+filtering: <code>"pa_pc"</code> and <code>"pa_fa"</code> share a single
+<code><a href="https://rdrr.io/pkg/psych/man/fa.parallel.html" class="external-link">psych::fa.parallel()</a></code> call (so both run, or neither), and
+<code>"map"</code> and <code>"vss"</code> share a single
+<code><a href="https://rdrr.io/pkg/psych/man/VSS.html" class="external-link">psych::vss()</a></code> call. Requesting <code>"map"</code> alone
+therefore avoids the parallel-analysis simulation altogether.
+<code>"vss"</code> selects VSS-1 and VSS-2 together as a unit.</p>
+<p>Criteria you do not request are skipped, and their <code>k_*</code>
+fields in the result are <code>NA</code>. The <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>
+method and the <code><a href="../reference/autoplot.html">autoplot()</a></code> diagnostic render only the
+criteria you asked for, and the consensus range is computed from the
+requested criteria only.</p>
+</div>
+<div class="section level3">
 <h3 id="cor-correlation-basis">
 <code>cor</code> — correlation basis<a class="anchor" aria-label="anchor" href="#cor-correlation-basis"></a>
 </h3>
@@ -464,11 +491,11 @@ more.</p>
 <p><code>n_iter</code> controls how many random matrices are simulated
 for parallel analysis. The default is 20, which is fast but noisy. For a
 publication-ready result, increase to 100 or more:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk_hi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, n_iter <span class="op">=</span> <span class="fl">100</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span></code></pre></div>
 <p>For a quick initial exploration, <code>n_iter = 5</code> is often
 sufficient:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk_fast</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, n_iter <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -503,7 +530,7 @@ search ceiling for <code><a href="../reference/suggest_k.html">suggest_k()</a></
 </h2>
 <p>The BFI-25 has 25 items measuring five personality traits. The
 criteria do not all converge here, which is itself informative:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="co"># reproduced from earlier</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span></span>
@@ -558,7 +585,7 @@ MAP/VSS-2 consensus of 5. Setting <code>k_max = 6</code> lets
 <code><a href="../reference/ackwards.html">ackwards()</a></code> show whether a sixth level reveals interpretable
 sub-facets or merely splits the Big Five into arbitrary
 micro-factors.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">6</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
 <p>If the k = 6 level looks like overextraction (very thin arrows,

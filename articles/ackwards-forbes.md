@@ -235,8 +235,10 @@ x_art <- ackwards(bfi,
   pairs = "all", prune = "artefact"
 )
 #> ℹ Artefact mode: Tucker's computed for all cross-level factor pairs.
-#> ℹ Inspect `x$prune$phi` to identify potential artefacts; removal is a
-#>   researcher judgment (Forbes, 2023).
+#> ℹ Structural signals computed: 2 factors flagged (few_items / orphan /
+#>   split_merge).
+#> ℹ Inspect `x$prune$phi` and `x$prune$structural`; removal is a researcher
+#>   judgment (Forbes, 2023).
 ```
 
 | Node-level artefact annotation       |       |          |        |
@@ -277,12 +279,81 @@ not the other; the two criteria capture different flavors of redundancy:
   factor from a different, non-adjacent level — it looks like a copy
   rather than a refinement.
 
+### Structural artefact signals
+
+Congruence (φ) is not the only fingerprint of an artefactual factor.
+Forbes (2023, Fig. 2) describes several *structural* signatures, and
+`prune = "artefact"` reports three of them per factor in
+`x$prune$structural`:
+
+- **`few_items`** — the factor is the primary (highest-loading) home for
+  fewer than `min_items` items (default `3`). A factor anchored by one
+  or two items is under-identified and often an extraction artefact
+  rather than a replicable construct.
+- **`orphan`** — the factor’s strongest correlation to the immediately
+  neighbouring levels is below `orphan_r` (default `0.5`). It does not
+  connect to the solutions on either side, so it does not replicate
+  across the hierarchy.
+- **`split_merge`** — the factor’s primary items were spread across *two
+  or more different* parent factors at the level above. Items that were
+  separated at the coarser solution have been merged under one factor at
+  the finer solution — the split-then-merge anomaly of Forbes Fig. 2.
+
+| Structural artefact signals               |       |           |        |             |
+|-------------------------------------------|-------|-----------|--------|-------------|
+| 2 of 15 factors raise a structural signal |       |           |        |             |
+| Factor                                    | Level | Few items | Orphan | Split/merge |
+| m1f1                                      | 1     | FALSE     | FALSE  | FALSE       |
+| m2f1                                      | 2     | FALSE     | FALSE  | FALSE       |
+| m2f2                                      | 2     | FALSE     | FALSE  | FALSE       |
+| m3f1                                      | 3     | FALSE     | FALSE  | FALSE       |
+| m3f2                                      | 3     | FALSE     | FALSE  | FALSE       |
+| m3f3                                      | 3     | FALSE     | FALSE  | TRUE        |
+| m4f1                                      | 4     | FALSE     | FALSE  | FALSE       |
+| m4f2                                      | 4     | FALSE     | FALSE  | FALSE       |
+| m4f3                                      | 4     | FALSE     | FALSE  | FALSE       |
+| m4f4                                      | 4     | FALSE     | FALSE  | TRUE        |
+| m5f1                                      | 5     | FALSE     | FALSE  | FALSE       |
+| m5f2                                      | 5     | FALSE     | FALSE  | FALSE       |
+| m5f3                                      | 5     | FALSE     | FALSE  | FALSE       |
+| m5f4                                      | 5     | FALSE     | FALSE  | FALSE       |
+| m5f5                                      | 5     | FALSE     | FALSE  | FALSE       |
+
+Like Tucker’s φ, these signals are **flag-and-report only** —
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+never removes a factor on their basis. Identifying an artefact requires
+researcher judgment (Forbes is explicit that this step introduces
+investigator degrees of freedom); the signals simply point you to the
+factors worth a closer look. The two thresholds, `min_items` and
+`orphan_r`, are arguments to
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+
 ## Tuning the thresholds
 
 The redundancy criterion has an adjustable `redundancy_r` threshold
 (default `0.90`) matching Forbes (2023). The artefact criterion has no
 auto-flag threshold — `prune = "artefact"` computes Tucker’s φ for
 researcher inspection; no factors are auto-flagged.
+
+**The `redundancy_phi` companion criterion.** Redundancy can optionally
+require that linked factors also share a loading pattern (Tucker’s φ
+above a threshold), not just a high score correlation. The
+`redundancy_phi` argument controls this, and its default (`NULL`)
+*auto-resolves based on the engine*:
+
+- **PCA** — no φ filter. The `W'RW` score algebra is exact for
+  components, so the score correlation `|r|` alone is a sufficient
+  redundancy signal.
+- **EFA / ESEM** — φ is required to exceed `0.95` (Lorenzo-Seva & ten
+  Berge, 2006). Factor scores off the PCA basis are indeterminate, which
+  makes a `|r|`-only rule too liberal; the loading-congruence guard
+  makes the criterion conservative.
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  announces this auto-resolution in the console.
+
+The examples here use the default PCA engine, so no φ filter is applied.
+To disable the φ guard on an EFA/ESEM run, pass `redundancy_phi = NA`;
+to set your own threshold, pass a number in `(0, 1]`.
 
 For the BFI, the result is the same across a wide range of thresholds
 because the redundant chains all have correlations \> 0.97 — the

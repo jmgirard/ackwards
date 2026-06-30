@@ -300,6 +300,20 @@ a single number. The five criteria implemented (M12):
 | **VSS-1/VSS-2** | Revelle & Rocklin (1979) | same call (already returned) | Maximise very-simple-structure fit at complexities 1 and 2 |
 | **CD** | Ruscio & Roche (2012) | [`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html) (optional) | Resamples raw data; among top performers in simulation; skipped gracefully when `EFAtools` absent. M21: `cd_rmse = colMeans(RMSE_eigenvalues)` stored in object; dedicated 4th panel in [`autoplot.suggest_k()`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md) (2×2 grid when CD present; 3-panel single column otherwise). |
 
+**Selective computation (M25).** A `criteria` argument
+(`rlang::arg_match(multiple = TRUE)`, default all five) lets callers
+request any subset of `c("pa_pc", "pa_fa", "map", "vss", "cd")`.
+Skipping is a real compute saving, not output filtering: `pa_pc`/`pa_fa`
+share one `fa.parallel(fa = "both")` call (both or neither run) and
+`map`/`vss` share one `vss()` call, so e.g. `criteria = "map"` avoids
+the PA simulation entirely; `vss` toggles VSS-1+VSS-2 as a unit.
+Non-requested `k_*` fields are `NA`; the `criteria` data frame keeps a
+stable schema (NA-filled non-run columns); the object records
+`criteria_requested`.
+[`print()`](https://rdrr.io/r/base/print.html)/[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+render only requested criteria and the consensus range is computed from
+requested criteria only.
+
 Empirical Kaiser Criterion (EKC) and EGA ([EGAnet](https://r-ega.net))
 are **out of scope** — additional deps without sufficient incremental
 benefit over the five criteria above. Note:
@@ -338,6 +352,7 @@ with its rationale.
 | `edge_method` | `"auto"` | algebra when linear, scores otherwise. |
 | `pairs` | `"adjacent"` | classic Goldberg; `"all"` switched on with the Forbes extension. |
 | `extension` (Forbes pruning) | **off** | pruning is an interpretive choice with thresholds; turning it on silently would change results. Opt-in with documented thresholds ( |
+| `redundancy_phi` | **`NULL` (auto)** — PCA → no φ filter (W′RW algebra is exact; `|r|` alone is sufficient); EFA/ESEM → `0.95` (Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy off-PCA makes `|r|`-only liberal; φ adds a congruence guard). Explicit number overrides on any engine. `NA` is the opt-out (no φ filter regardless of engine). Announces auto-resolve via cli (Invariant 6). **Added M25.** |  |
 | sign `align_signs` | `TRUE` | unaligned signs make output unreadable. |
 | `keep_fits` / `keep_scores` | `FALSE` / `FALSE` | memory + privacy. |
 | `k_max` | required | force a deliberate choice; don’t silently pick. |
@@ -588,21 +603,23 @@ whenever NAs are detected. Use `missing = "listwise"` or `"fiml"` to
 resolve. *(Added M16; §9 `missing` row cross-references this.)* -
 **Forbes-extension improvements deferred past M5** (the published method
 has weaker spots worth strengthening later; M5 ships the faithful
-method + the §14.20 reporting enrichments): - *Structural artefact
-signals.* Beyond congruence, artefacts have detectable structural
-signatures — the split-then-merge pattern (indicators split at level k
-then reunite under a different parent at k+1; Forbes Fig. 2), factors
-with `< 3` primary-loading items, and orphaned/non-replicating factors.
-Surface these as diagnostics rather than relying on φ alone. -
-*Factor-score-indeterminacy caveat for EFA/ESEM redundancy.*
-Score-correlation-based redundancy is exact for PCA (Waller algebra) but
-inherits factor-score indeterminacy for EFA/ESEM; φ (loading-based) is
-the more stable criterion there. Consider making φ the default for
-non-PCA engines. - *Selection bias in the “strongest” edge.* Plotting
+method + the §14.20 reporting enrichments): - ~~*Structural artefact
+signals.*~~ **Done M25 (Wave 2).** `prune = "artefact"` now populates
+`x$prune$structural` with per-factor `few_items` / `orphan` /
+`split_merge` signals (flag/report only; no auto-pruning). Args:
+`min_items = 3L`, `orphan_r = 0.5`. `split_merge` is `TRUE` when a
+factor’s primary items came from multiple different primary factors at
+the preceding level. CLI and
+[`print()`](https://rdrr.io/r/base/print.html)/[`summary()`](https://rdrr.io/r/base/summary.html)
+report the flagged count. - ~~*Factor-score-indeterminacy caveat for
+EFA/ESEM redundancy.*~~ **Done M25 (Wave 3).** `redundancy_phi = NULL`
+now auto-resolves: PCA → no φ filter; EFA/ESEM → `0.95`. `NA` is the
+explicit opt-out. Announces via cli when auto-applied (Invariant 6). See
+§9 defaults table. - *Selection bias in the “strongest” edge.* Plotting
 the max correlation across many all-levels pairs capitalizes on chance
 (85 → 1,320 correlations as levels grow). Add bootstrap CIs / SEs on
 edges (reuse the `loadings_se` infrastructure) so the strongest-edge
-claim is inferentially honest.
+claim is inferentially honest. **Still deferred.**
 
 ## 15. Suggested milestones
 

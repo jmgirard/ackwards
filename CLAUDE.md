@@ -359,73 +359,40 @@ exactly.
   branch, the NA primary-parent-disagreement merge, the magnitude-delta
   sign property, and the inline-derivation helpers. (1123 tests pass, 1
   skip; 0/0/0 R CMD check.)
+- **M25 (done):** Deferred-items pass — three waves. (1)
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  gains `criteria` arg (`rlang::arg_match(multiple=TRUE)`); any subset
+  of five criteria may be requested; non-requested `k_*` fields → `NA`;
+  shared computation (`fa.parallel(fa="both")` / `vss()` called at most
+  once); [`print()`](https://rdrr.io/r/base/print.html) /
+  [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+  render only requested criteria; consensus from requested only. (2)
+  `prune="artefact"` now populates `x$prune$structural` — per-factor
+  `few_items` / `orphan` / `split_merge` signals (Forbes Fig 2); new
+  `min_items = 3L` and `orphan_r = 0.5` args; flag/report only, never
+  auto-prune;
+  [`print()`](https://rdrr.io/r/base/print.html)/[`summary()`](https://rdrr.io/r/base/summary.html)
+  report flagged count. (3) `redundancy_phi = NULL` auto-resolves: PCA →
+  no φ (exact algebra); EFA/ESEM → `0.95` (Lorenzo-Seva & ten Berge
+  2006; announced via cli, Invariant 6); `NA` is explicit opt-out.
+  Bootstrap CIs on edges remain deferred. `CLAUDE.md` Resolved
+  defaults + Out of scope updated; DESIGN §9/§14 updated. Post-review
+  hardening: added loud validation for `min_items` (positive integer) /
+  `orphan_r` (`[0,1]`); roxygen *why* for both defaults (three-indicator
+  rule; moderate-correlation rationale); deterministic unit tests for
+  the previously-untested `split_merge = TRUE` path (mock loadings) and
+  the Wave-3 φ-decision outcome change (`.find_redundant_chains` flags
+  under no-φ but not under φ\>0.95) plus an end-to-end EFA
+  subset-property test (auto-φ flagged set ⊆ \|r\|-only set); documented
+  `criteria=` in `ackwards-suggest-k.Rmd`, structural signals + φ
+  auto-default in `ackwards-forbes.Rmd`, `criteria=` in DESIGN §8;
+  simplified an unreachable `n_struct` branch and `# nocov`’d the
+  EFAtools-absent CD note (covered only when EFAtools missing). Coverage
+  back to 100%. (1219 tests pass, 2 skip; 0/0/0 R CMD check.)
 
 ## Current focus
 
-**M25 (in progress):** Deferred-items pass — three waves, cheapest
-first. Reactivates two of the three “M5 deferred improvements” parked in
-*Out of scope for now* (bootstrap CIs on edges stays deferred, DESIGN.md
-§14); **Wave 3 reverses a resolved default** (Forbes redundancy
-criterion) — flagged and owner-approved.
-
-**Wave 1 — `suggest_k(criteria=)` (additive, backward-compatible).** New
-arg `criteria = c("pa_pc","pa_fa","map","vss","cd")`,
-`rlang::arg_match(multiple = TRUE)`, default = all five (CD still gated
-on `EFAtools` installed → identical to current behaviour). Real speed
-win, not just filtering: `pa_pc`/`pa_fa` share one
-`fa.parallel(fa="both")` call — skipped if neither requested;
-`map`/`vss` share one `vss()` call — skipped if neither requested; `cd`
-runs `CD()` only if requested *and* available. `vss` toggles VSS-1+VSS-2
-as a unit. Explicit `"cd"` with EFAtools absent → `cli_inform` (loud).
-Non-requested criteria’s `k_*` fields → `NA`; `criteria` data.frame
-NA-fills non-run columns (stable schema); add `meta$criteria_requested`.
-[`print.suggest_k()`](https://jmgirard.github.io/ackwards/reference/print.suggest_k.md)
-/
-[`autoplot.suggest_k()`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md)
-render only requested criteria; consensus range from requested criteria
-only. *Acceptance:* (1) `criteria="map"` runs no `fa.parallel`/CD, only
-MAP row/panel; (2) `criteria=c("pa_pc","pa_fa")` makes the `fa.parallel`
-call, skips `vss()`+CD; (3) default call structurally matches current
-(regression); (4) `criteria="cd"` runs only CD (info msg + `k_cd=NA`
-when EFAtools absent); (5) invalid name → `arg_match` error; (6)
-consensus reflects requested only. Files: `R/suggest_k.R`,
-`test-suggest_k.R`, `vignettes/ackwards-suggest-k.Rmd`, NEWS, DESIGN §8.
-
-**Wave 2 — Structural artefact signals (additive to
-`prune="artefact"`).** Extend the artefact branch (today φ-table only)
-with `x$prune$structural`: one row per (level, factor) + three logical
-signals (Forbes Fig 2 / DESIGN §14): `few_items` (factor is primary
-parent for `< min_items` items; `min_items = 3L` arg), `orphan`
-(strongest cross-level `|r|` below `orphan_r = 0.5` arg →
-non-replicating), `split_merge` (items split across two factors at level
-k that reunite under one factor at k+1). **Flag/report only, never
-auto-prune** (artefact ID needs researcher judgment); cli points to
-`x$prune$structural`. *Acceptance:* (1) artefact mode populates
-`$structural`, φ table unchanged; (2) 2-item-factor fixture flags
-`few_items` on exactly that node; (3) weak-link fixture flags `orphan`,
-clean hierarchy flags none; (4) `redundant`/`none` leave `$structural`
-NULL; (5) print/summary report flagged count. Files: `R/prune.R`,
-`R/ackwards.R` (wiring), `test-prune.R` (or new `test-artefact.R`),
-`vignettes/ackwards-forbes.Rmd`, NEWS, DESIGN §14.
-
-**Wave 3 — Tucker’s φ default for non-PCA redundancy ⚠️ resolved-default
-change.** Keep literal default `redundancy_phi = NULL` but reinterpret
-`NULL` as **auto**: `engine="pca"` → `|r|`-only (Waller algebra exact);
-`engine="efa"/"esem"` → `redundancy_phi = 0.95` (Lorenzo-Seva & ten
-Berge 2006; score-correlation redundancy inherits factor-score
-indeterminacy off-PCA). Explicit numeric overrides;
-**`redundancy_phi = NA` is the explicit opt-out** (owner-approved). Loud
-announcement (Invariant 6) whenever auto-φ resolves for a non-PCA
-redundant prune. Intended behaviour change: existing non-PCA
-`prune="redundant"` calls become more conservative. *Acceptance:* (1)
-`efa` + `prune="redundant"` defaults applies φ\>0.95 + announces,
-`redundancy_phi==0.95` recorded; (2) same with `pca` keeps `|r|`-only,
-no announcement; (3) explicit `0.8` overrides on all engines; (4)
-`redundancy_phi=NA` → `|r|`-only on non-PCA; (5) regression fixture
-documents changed non-PCA outcome. Files: `R/ackwards.R`, `R/prune.R`,
-tests, NEWS, **CLAUDE.md Resolved defaults**, DESIGN §9/§14. Also:
-update *Out of scope for now* to reflect Waves 2-3 reactivated
-(bootstrap stays).
+No active milestone. M25 completed 2026-06-30.
 
 ## Invariants — do not violate without flagging
 
@@ -464,7 +431,11 @@ confounds the cross-level signal) · `cor = "pearson"` with
 ordinal-detection warning · `tenBerge` scoring (on the active basis) ·
 WLSMV estimator for ordinal ESEM · Forbes extension **off** · `k_max`
 required · sign `align_signs = TRUE` · `keep_scores`/`keep_fits` stored
-= `FALSE`. Don’t change these silently.
+= `FALSE` · `redundancy_phi`: `NULL` (default) auto-resolves — `"pca"` →
+no φ filter (exact W′RW algebra); `"efa"`/`"esem"` → `0.95`
+(Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy off-PCA makes
+`|r|`-only liberal). `NA` is the explicit opt-out. Announce auto-resolve
+loudly (Invariant 6). Don’t change these silently.
 
 ## Dependencies (see `DESIGN.md` §12)
 
@@ -550,7 +521,7 @@ default, runnable `@examples`, `@seealso` cross-links).
   oblique confounds the cross-level signal. No plans to add it.
 - **Higher-order SEM / Schmid-Leiman** — out of scope per §2; `ackwards`
   is correlation-based, not SEM-based.
-- **M5 deferred improvements** — structural artefact signals
-  (split-then-merge, \<3-item factors, orphans), φ as default for
-  non-PCA redundancy, bootstrap CIs on skip-level edges. Logged in
-  `DESIGN.md` §14.
+- **Bootstrap CIs on skip-level edges** — deferred from M5; still out of
+  scope. Logged in `DESIGN.md` §14. (Structural artefact signals and
+  φ-default for non-PCA redundancy were reactivated and completed in
+  M25.)
