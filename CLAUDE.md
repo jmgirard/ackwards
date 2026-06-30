@@ -53,7 +53,26 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-No active milestone. M28 completed 2026-06-30.
+**M29 — Strip milestone numbers from user-facing documentation.**
+
+User-facing docs (CRAN changelog, README, vignettes) must not reference internal milestone
+numbers — they are meaningless to package users. Audit found vignettes, roxygen/`man`, and README
+already clean; the lone leak is a `(M24)` tag in `NEWS.md`. Add a regression guard so it can't
+return. Internal `R/*.R` code comments keep their `(M16)`/`(M26)` traceability tags (developer-
+facing, deliberately out of scope).
+
+Scope:
+- Reword `NEWS.md` line ~275 to drop the `(M24)` tag.
+- New test `tests/testthat/test-docs-no-milestone-refs.R` asserting no parenthetical `(M\d+)`
+  milestone tag appears in `NEWS.md`, `README.md`, or `vignettes/*.Rmd` (test-first: must go red
+  on current `NEWS.md`, green after the fix).
+- NEWS.md entry; MILESTONES.md detailed entry + one-line index here.
+
+Acceptance criteria:
+- `grep -rE "\(M[0-9]+\)" NEWS.md README.md vignettes/*.Rmd` returns nothing.
+- Regression test passes and would fail if a `(M\d+)` tag is reintroduced into those docs.
+- Vignettes/roxygen/README confirmed unchanged (already clean).
+- `devtools::check()` clean; styled and linted.
 
 ## Invariants — do not violate without flagging
 
