@@ -816,3 +816,24 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   Files: `vignettes/ackwards-engines.Rmd`, `NEWS.md`, `CLAUDE.md` (Current focus + Completed index),
   `ROADMAP.md` (M38 insert + M39 renumber + corFiml speed note), `MILESTONES.md`.
   (1509 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+  Post-review (`/post-milestone-review`) follow-up, landed via branch `m37-followup-review` → PR:
+  the review returned **NOT READY** on one Should-fix and its clean-check re-run surfaced a
+  pre-existing blocking bug; this follow-up cleared both. (1) **EFA "Estimators" table cell
+  corrected.** `ackwards()` restricts `fm` via `arg_match(fm, c("minres", "ml", "pa"))`, but the new
+  M37 table cell read "OLS / minres / ML" — naming the invalid `fm = "ols"` (which errors) and
+  omitting principal-axis (`pa`). Now reads ``minres`` (OLS) / ``ml`` / ``pa`` via psych's `fm=`.
+  (2) **Pre-existing `suggest_k()` crash fixed** (`R/suggest_k.R:352`). The CD-unavailable branch
+  called `cli::cli_inform("i" = "…")` — a bare named bullet argument, which leaves `cli_inform()`'s
+  `message` parameter missing and errors with *"argument \"message\" is missing, with no default"*.
+  So `suggest_k()` crashed on **any machine without `EFAtools`** (the branch is reached only when
+  EFAtools is absent), which in turn broke the `intro`, `suggest-k`, and `visualization` vignette
+  builds (all call `suggest_k()`) and would fail CRAN's no-Suggests check. It was masked at the M37
+  gate because the dev machine has EFAtools installed (the covering test at
+  `test-suggest_k.R` L518 `skip_if(is_installed("EFAtools"))` skips there). Fix: wrap the bullet in
+  `c(...)`. A multiline-aware scan confirmed this was the only bare-bullet `cli_*()` call in `R/`;
+  coverage is unaffected (the line sits inside an existing `# nocov` block). Not an M37-introduced
+  bug, but M37's clean re-check is what exposed it.
+  Verified without EFAtools: `R CMD check` **Status OK** (0/0/0, `_R_CHECK_FORCE_SUGGESTS_=false`);
+  all vignettes re-build OK; full suite **1484 pass / 0 fail / 0 error / 8 skip**. (The "1509 pass,
+  2 skip" figure above is the EFAtools-*installed* count; the delta is the EFAtools-gated tests —
+  the suite total is environment-dependent on which Suggests are present.)

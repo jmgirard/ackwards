@@ -350,7 +350,7 @@ suggest_k <- function(data, k_max = NULL,
     # covr cannot instrument this line on a machine that has EFAtools.
     if (!cd_available) { # nocov start
       cli::cli_inform(
-        "i" = "CD requires {.pkg EFAtools} (install to enable)."
+        c("i" = "CD requires {.pkg EFAtools} (install to enable).")
       )
     } # nocov end
   }
