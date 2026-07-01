@@ -114,7 +114,7 @@ captured for reproducibility metadata). Default \code{NULL}.}
 
 \item{pairs}{Which level pairs to compute edges for: \code{"adjacent"} (default,
 classic Goldberg -- only consecutive levels) or \code{"all"} (Forbes extension --
-every pair of levels, including skip-level correlations). \code{\link[generics:prune]{prune()}}
+every pair of levels, including skip-level correlations). \code{\link[=prune]{prune()}}
 recomputes its own all-pairs edges on demand regardless of this setting,
 so pruning does not require \code{pairs = "all"} here.}
 
@@ -235,6 +235,6 @@ differences: An extension of Goldberg's bass-ackward method.
 }
 \seealso{
 \code{\link[=print.ackwards]{print.ackwards()}}, \code{\link[=tidy.ackwards]{tidy.ackwards()}}, \code{\link[=glance.ackwards]{glance.ackwards()}},
-\code{\link[generics:prune]{prune()}} (Forbes-extension redundancy/artifact flagging, piped off the
+\code{\link[=prune]{prune()}} (Forbes-extension redundancy/artifact flagging, piped off the
 result of this function)
 }

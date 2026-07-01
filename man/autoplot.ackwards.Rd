@@ -110,7 +110,7 @@ suppresses skip arcs. Ignored when \code{drop_pruned = TRUE}. Default \code{FALS
 rendering path: pruned nodes are removed from the diagram entirely and
 each retained node is connected to its single strongest kept ancestor by
 a straight arrow (even across level gaps). Requires the object to carry
-pruning annotations (\code{prune != "none"} at fit time); errors if not.
+pruning annotations (piped through \code{\link[=prune]{prune()}}); errors if not.
 Overrides \code{show_skip}, \code{curvature}, and \code{primary_only}. Default \code{FALSE}.}
 
 \item{compress_levels}{When \code{TRUE} under \code{drop_pruned = TRUE}, closes
@@ -179,7 +179,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   autoplot(x, primary_only = TRUE)
 
   # Forbes pruned view: omit redundant nodes, straight spanning arrows
-  xp <- ackwards(bfi25, k_max = 5, prune = "redundant")
+  xp <- ackwards(bfi25, k_max = 5) |> prune("redundant")
   autoplot(xp, drop_pruned = TRUE)
   autoplot(xp, drop_pruned = TRUE, show_r = TRUE)
   autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)

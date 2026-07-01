@@ -52,14 +52,14 @@ for "watch the method recover a structure we planted," \code{bfi25} for
 "reason about a hierarchy when the criteria disagree." Present \code{sim16}'s
 consensus as the ideal, not the norm.
 
-\strong{Deliberate overextraction artefact at k=5.} The population has exactly
+\strong{Deliberate overextraction artifact at k=5.} The population has exactly
 4 factors, so requesting a 5th finds no real dimension: EFA produces an
 orphan factor with zero primary-loading items. With
-\code{prune = "artefact"} (default \code{min_items = 3}, \code{orphan_r = 0.5}), that
+\code{prune(x, "artifact")} (default \code{min_items = 3}, \code{orphan_r = 0.5}), that
 factor is flagged both \code{few_items} and \code{orphan}. Because the true (non-
 splitting) factors persist essentially unchanged from \code{k=3} onward, their
 parent-child score correlations approach 1 and are flagged by
-\code{prune = "redundant"} (\verb{|r| >= .9} and, by default, Tucker's phi \verb{>= .95}). This is a textbook overextraction artefact, included so the
+\code{prune(x, "redundant")} (\verb{|r| >= .9} and, by default, Tucker's phi \verb{>= .95}). This is a textbook overextraction artifact, included so the
 Forbes/redundancy examples have a guaranteed finding to teach against
 (unlike \code{bfi25}, which does not reliably trigger one).
 
