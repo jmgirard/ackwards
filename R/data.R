@@ -77,6 +77,15 @@
 #' true group factors exactly; `suggest_k()` reaches a 6-criteria consensus
 #' of `k = 4`.
 #'
+#' **Idealized by design.** The planted signal is strong and clean, so all six
+#' `suggest_k()` criteria converge on `k = 4` -- deliberately the *easy* case,
+#' for building intuition about what recovering a known hierarchy looks like.
+#' Real data rarely agree this cleanly: on `bfi25` the same criteria span
+#' `k = 4`--`6`. The two datasets are complementary teaching foils -- `sim16`
+#' for "watch the method recover a structure we planted," `bfi25` for
+#' "reason about a hierarchy when the criteria disagree." Present `sim16`'s
+#' consensus as the ideal, not the norm.
+#'
 #' **Deliberate overextraction artefact at k=5.** The population has exactly
 #' 4 factors, so requesting a 5th finds no real dimension: EFA produces an
 #' orphan factor with zero primary-loading items. With

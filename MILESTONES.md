@@ -548,3 +548,20 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   string match rather than a literal `usethis::` token, to avoid an "unstated dependency in tests"
   `R CMD check` warning). No new test files.
   (1372 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+  Post-review (`/post-milestone-review`) follow-up, landed via branch
+  `m33-followup-realism` → PR (not reopening the merged M33 PR): resolved the review's
+  test-robustness / teaching-realism nice-to-haves. **Owner decision on realism:** keep `sim16`
+  clean rather than muddying it — its comparative advantage over `bfi25` is a *known, cleanly
+  recoverable* structure, and `bfi25` already carries the criterion-disagreement lesson (its six
+  `suggest_k()` criteria span `k = 4`–`6` vs. `sim16`'s unanimous `4`). `sim16` is now explicitly
+  framed as the *idealized* case in `?sim16`, `NEWS.md`, and the M37/M38 `ROADMAP.md` notes, to be
+  contrasted with `bfi25` in the vignettes (not presented as typical). Test changes to
+  `test-data.R`: (1) the `suggest_k` assertion was loosened from pinning all six criteria to `4`
+  exactly (brittle — PA-PC/PA-FA/CD resample and can wobble ±1 across platforms/RNG) to a
+  deterministic MAP anchor plus a majority-consensus check; (2) added an assertion that the k=5
+  artefact factor is a primary loader for *zero* items and is exactly the factor flagged
+  `few_items` + `orphan` (validating the `?sim16` claim). The `DESIGN.md` §14 non-entry is
+  confirmed intentional (the M21 `bfi25` precedent: data assets are documented in roxygen +
+  `MILESTONES.md`, not `DESIGN.md`). The Invariant-2 algebra-vs-scores cross-check on `sim16` was
+  deferred to M37 (recorded in `ROADMAP.md`), where the engines vignette naturally materializes
+  scores. (1370 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)

@@ -43,6 +43,15 @@ along the metatrait line (\code{i1}-\code{i8} vs. \code{i9}-\code{i16}); \code{k
 true group factors exactly; \code{suggest_k()} reaches a 6-criteria consensus
 of \code{k = 4}.
 
+\strong{Idealized by design.} The planted signal is strong and clean, so all six
+\code{suggest_k()} criteria converge on \code{k = 4} -- deliberately the \emph{easy} case,
+for building intuition about what recovering a known hierarchy looks like.
+Real data rarely agree this cleanly: on \code{bfi25} the same criteria span
+\code{k = 4}--\code{6}. The two datasets are complementary teaching foils -- \code{sim16}
+for "watch the method recover a structure we planted," \code{bfi25} for
+"reason about a hierarchy when the criteria disagree." Present \code{sim16}'s
+consensus as the ideal, not the norm.
+
 \strong{Deliberate overextraction artefact at k=5.} The population has exactly
 4 factors, so requesting a 5th finds no real dimension: EFA produces an
 orphan factor with zero primary-loading items. With
