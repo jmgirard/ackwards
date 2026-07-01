@@ -643,3 +643,57 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   an *opportunity* remains M38's (narrative/Quick-Start restructuring is M38's declared scope; the
   corrected prose already describes the feature accurately). (1412 tests pass, 2 skip; 0/0/0 R CMD
   check; coverage 100%.)
+
+- **M35 (done):** autoplot & visualization — the third milestone of the M31–M38 documentation/UX
+  epic. Combines one correctness fix with an `autoplot()` encoding overhaul plus code-coupled prose.
+  **Sign-propagation bugfix (the lead item).** `.align_signs()` chose each factor's flip from the
+  *raw* adjacent edge, ignoring the parent's own already-applied flip (`signs[[k-1]]`). When a
+  parent was itself flipped (e.g. `m2f2` on `bfi25`, whose sign-aligned loading colSum is negative
+  so its edge to `m1f1` reads positive), every child whose primary parent was that node inherited
+  the −1 on the display side — so the *primary* edge `m2f2 → m3f2` rendered −0.99. That violated
+  DESIGN §7 ("orient each factor so its correlation with its **primary parent** is positive,
+  *propagating top-down*"): the code propagated against the unflipped parent. Fix (one line in
+  `R/utils.R`): compute the child flip against the parent's *aligned* sign —
+  `sk[j] <- if (signs[[k-1L]][parents[j]] * E[parents[j], j] >= 0) 1L else -1L`. Now every
+  primary-parent edge is non-negative across pca/efa/esem; only genuinely-negative *secondary*
+  edges are red (Invariant 4; DESIGN §7 "non-primary edges may legitimately be negative"). This is
+  a conformance fix, not a resolved-default change — it restores the documented intent. Loading and
+  edge signs shift wherever a parent was flipped, so README/vignette rendered outputs regenerated;
+  no snapshot hardcoded the affected signs, so the ripple was mechanical.
+  **Configurable, always-legended encodings.** New `sign_by = c("color","linetype","both","none")`
+  (default `"color"`) and `magnitude_by = c("linewidth","none")` (default `"linewidth"`) let the
+  user assign sign and magnitude to specific aesthetics; every mapped aesthetic now carries its own
+  legend (the old color-mode `linetype` = strong/weak encoding was legend-less). `sign_by = "both"`
+  maps sign to color *and* linetype, drawing negatives as a distinct `twodash` so the redundant
+  pairing stays legible in greyscale, and shares the `"Direction"` scale name across both so
+  ggplot2 merges them into one legend key. Implemented with `utils::modifyList()` on a base `aes()`
+  so only active channels are mapped; inactive channels pass to each geom as constants.
+  **`cut_strong` retired** (soft-deprecated: still accepted, warns via cli, no effect) because it
+  double-encoded magnitude via linetype — the source of the legend-less-linetype confusion.
+  `mono = TRUE` kept as a thin convenience wrapper (= `sign_by = "linetype"` + black `color_edge`).
+  **Layout orientation.** New `direction = c("vertical","horizontal")`; `"horizontal"` transposes
+  the layered layout left-to-right (level 1 at left) for wide slides/posters. Edge face-attachment,
+  node coordinates, and the level-axis labels (which move to the bottom margin) are all
+  orientation-aware and compose with skip arcs, `mono`, `sign_by`, and the `drop_pruned` path. Fixes
+  the intro/README text that mis-described the vertical layout as left-to-right.
+  **British-spelling aliases.** `colour_pos`/`colour_neg`/`colour_edge`/`colour_pruned` accepted and
+  normalized to the canonical American `color_*` (favoring `color`, mirroring `artifact`/`artefact`);
+  new `color_edge` sets the single edge color when sign is not color-encoded.
+  **`ggsave` documented, not re-exported** (re-export would drag `ggplot2` from Suggests into
+  Imports — dependency guardrail): a roxygen "Saving plots" section plus a vignette section call
+  `ggplot2::ggsave()` directly.
+  **Code-coupled prose.** Visualization vignette rewritten around `sign_by`/`magnitude_by` (each
+  legended), `cut_strong` section dropped, layout-orientation and Saving-plots sections added, the
+  redundant `suggest_k` diagnostic section trimmed to a pointer, the "annotate with |r|" heading
+  corrected to "r" (edges show signed r), `r_digits = 1L` → `r_digits = 1` (drop the integer-`L`
+  convention readers may not know), and prose switched to American "color". README step 3 and the
+  intro vignette corrected (levels stack top-to-bottom, not left-to-right) with a `direction` note;
+  README.md regenerated (`m2f2 → m3f2` now +0.99). Broader narrative rewrites remain M38's.
+  Files: `R/utils.R` (sign fix), `R/autoplot.R` (encoding args, orientation, aliases, ggsave
+  roxygen), `tests/testthat/test-compute_edges.R` (`.align_signs` unit test + cross-engine
+  primary-edge-non-negative regression), `tests/testthat/test-layout.R` (encoding/alias/mono/
+  direction tests; `cut_strong` deprecation test), `NEWS.md`, `README.Rmd`/`README.md`/
+  `man/figures/README-plot-1.png`, `vignettes/ackwards-visualization.Rmd`,
+  `vignettes/ackwards-intro.Rmd`, `DESIGN.md` (§7 note; §11 autoplot contract), `ROADMAP.md` (M35
+  section deleted per its own maintenance rule).
+  (1447 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)

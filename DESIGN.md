@@ -245,7 +245,10 @@ question: neither — a structured light core, with the heavy bits nullable and 
   factor; you cannot make every cross-level correlation positive. Rule: anchor `m1f1` to a defined
   orientation (positive sum of loadings, or a substantive marker item), then orient each factor so
   its correlation with its **primary parent** is positive, propagating top-down. Document that
-  non-primary edges may legitimately be negative.
+  non-primary edges may legitimately be negative. *Implementation note (M35):* "propagating
+  top-down" means each child's flip is chosen against the parent's **already-aligned** sign, not the
+  parent's raw orientation — otherwise a flipped parent leaves its own primary edge displaying
+  negative. So every primary-parent edge is non-negative; only secondary edges may be red.
 
 ## 8. Suggesting k
 
@@ -362,12 +365,14 @@ footprint sane and lets users plot the layout however they like.
      with no primary children. Spreading enforces `min_sep` between adjacent nodes only when needed.
      The level-1 node is shifted to `x = 0` after both passes.
   This produces the "boxes aligned to their primary-child structure" look the owner wants.
-- **`autoplot.ackwards()` / `plot()` (Suggests: ggraph/ggplot2/igraph/tidygraph).** Renders the
-  layered diagram from `ba_layout()` + the edge tibble. Edge encodings: color by **sign**,
-  width/alpha by **|r|**; draw **solid** above a "strong" cut and **dashed** between the show-cut
-  and strong-cut (a real convention — strong between-level correlations solid, weaker primary
-  associations dashed). Nodes labeled `m{k}f{j}`, optionally with substantive labels and top-loading
-  items. Pyramid vs. tree-ish orientation as an option.
+- **`autoplot.ackwards()` / `plot()` (Suggests: ggplot2).** Renders the
+  layered diagram from `ba_layout()` + the edge tibble. Edge encodings are **user-assignable and
+  always legended** (M35): `sign_by` chooses the channel for **sign** (color by default; also
+  linetype, both, or none) and `magnitude_by` chooses the channel for **|r|** (linewidth by
+  default, or none). No aesthetic is mapped without a matching legend. (The pre-M35 strong/weak
+  `cut_strong` linetype split was retired — it double-encoded magnitude and was legend-less.)
+  Nodes labeled `m{k}f{j}`, optionally with substantive labels and top-loading items. `direction`
+  toggles vertical (default, level 1 at top) vs. horizontal (level 1 at left) orientation.
 - **Forbes extension rendering (more complex — phase it).** Keep the same layout; **annotate**
   rather than re-layout: fade/strike pruned (redundant/artifact) nodes, and allow **skip-level**
   edges (longer curves) since the extension correlates *all* levels, not just adjacent. Default to

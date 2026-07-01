@@ -56,41 +56,13 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M32** — API-shape & naming resolutions (`tidy(what="fit")` `index`→`statistic`; `k_max` kept in both `ackwards()`/`suggest_k()`, roxygen-disambiguated; cutoffs pass/fail flag output removed, `.fit_cutoffs()` kept for reference lines; variance reported as 0–1 `proportion`/`cumulative`; plus M31-deferred `$meta$estimator` + `summary()` scaled-fit footnote)
 - **M33** — simulated Gaussian dataset (`sim16`: 1000×16 continuous, known 1→2→4 hierarchy, no ordinal-detection warning, guaranteed redundant-chain + artefact signals at `k_max=5`)
 - **M34** — Pruning verb: extracted `prune()` as a standalone, pipeable S3 generic off `ackwards()` (five prune args removed from `ackwards()`; canonical `"artifact"` naming with `"artefact"` alias; manual + mixed pruning; edges recomputed fresh inside `prune()`, `x$edges` never mutated)
+- **M35** — autoplot & visualization: sign-propagation bugfix (primary-parent edges now always non-negative per DESIGN §7); `autoplot()` `sign_by`/`magnitude_by` configurable, always-legended encodings (`cut_strong` retired; `mono` kept as wrapper); `direction="horizontal"` layout; `colour_*` aliases + `color_edge`; `ggsave` documented (not re-exported); code-coupled viz/intro/README prose
 
 ## Current focus
 
-**M35 — autoplot & visualization** (planned; on branch `m35-autoplot-viz`). Scope:
-
-- **A. Sign-alignment bugfix (correctness, lead item).** `.align_signs()` computes each child's
-  flip from the *raw* edge, ignoring the parent's already-applied flip (`signs[[k-1]]`), so a
-  flipped parent makes its *primary* edge render negative (e.g. m2f2→m3f2 = −0.99 on `bfi25`). This
-  violates DESIGN §7 ("orient each factor so its correlation with its primary parent is positive,
-  *propagating top-down*"). Fix: `sk[j] <- if (signs[[k-1L]][parents[j]] * E[parents[j], j] >= 0)
-  1L else -1L`. Restores the spec: all *primary* edges non-negative; only *secondary* edges may be
-  red (Invariant 4). Ripples into snapshots/README/vignette outputs.
-- **B. Configurable, legend-explained encodings.** New `sign_by = c("color","linetype","both",
-  "none")` (default `"color"`) and `magnitude_by = c("linewidth","none")` (default `"linewidth"`,
-  subsumes `edge_linewidth`). Every mapped aesthetic gets a legend; nothing silently encoded.
-  `cut_strong` **retired** (soft-deprecated: accepted, warns, no effect — its strong/weak linetype
-  double-encoded magnitude). `sign_by = "both"` maps negative to a long/two-dash so it pairs with
-  dashed rather than colliding. `mono` kept as a thin wrapper (= `sign_by="linetype"` + black).
-- **C. Orientation arg.** `direction = c("vertical","horizontal")` (default vertical = current);
-  horizontal transposes the layout left-to-right (level 1 at left) for wide slides/posters.
-- **D. `colour`/`color` aliasing.** Accept `colour_*` aliases → normalize to `color_*` (favor
-  `color`), mirroring `artifact`/`artefact`.
-- **E. `ggsave` docs section.** No re-export (would drag ggplot2 into Imports); vignette + roxygen
-  section showing `ggplot2::ggsave()`.
-- **F. Code-coupled prose.** Visualization vignette (sign/linetype legend, "annotate with r"
-  heading, `r_digits = 1`, drop show_r-before-defining example, justify/trim `what="fit"` section,
-  ggsave section, colour→color); README step 3 (legend defines solid/dashed, correct
-  strong/dashed description, m2f2→m3f2 now positive); intro (fix "k=1 left/k=5 right" text, mention
-  `direction`). Broader narrative rewrites stay M38.
-
-Acceptance: every `is_primary` edge has `r >= 0` on pca/efa/esem × `sim16`/`bfi25` (regression
-test); Invariant-2 cross-check + lineage tests still green; every mapped aesthetic legended;
-`direction="horizontal"` transposes correctly and `"vertical"` is byte-identical; `colour_*`
-aliases normalized; vignette/README/intro prose updated; `check()` 0/0/0, coverage 100%,
-styled/linted, NEWS.md + MILESTONES.md entry + one-line index here.
+M35 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38 documentation/UX epic is
+**M36** (interpretation functions: `augment` scores-only, `top_items` labels + group-by-item); not
+yet planned; run `/plan-milestone 36` before starting.
 
 Remaining milestones in the epic:
 M36 interpretation functions (`augment` scores-only, `top_items` labels + group-by-item);
