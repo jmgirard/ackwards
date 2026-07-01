@@ -47,6 +47,25 @@ test_that("suggest_k() returns a suggest_k object with expected fields", {
   expect_type(sk$cd_available, "logical")
 })
 
+test_that("the six per-criterion k_* fields the suggest-k vignette reads stay available", {
+  # The "When the criteria agree — and when they don't" section of
+  # vignette("ackwards-suggest-k") computes a consensus range *inline* from these
+  # six fields (sim16 vs bfi25). Renaming any of them would silently break the
+  # vignette build rather than fail a test, so pin the contract here and mirror
+  # the vignette's own range computation.
+  skip_if_not_installed("psych")
+  sk <- .get_sk(4L)
+  ks <- c(
+    sk$k_parallel_pc, sk$k_parallel_fa, sk$k_map,
+    sk$k_vss1, sk$k_vss2, sk$k_cd
+  )
+  expect_length(ks, 6L) # all six fields resolved (NULL would drop entries)
+  finite_ks <- ks[!is.na(ks)]
+  expect_gte(length(finite_ks), 1L) # at least the non-CD criteria yield a value
+  expect_true(all(finite_ks >= 1L))
+  expect_true(is.finite(min(finite_ks)) && is.finite(max(finite_ks)))
+})
+
 test_that("suggest_k() criteria table has correct structure and row count", {
   skip_if_not_installed("psych")
   sk <- .get_sk(4L)

@@ -169,7 +169,8 @@ level (k = 1 at the top, k = 5 at the bottom). Arrows connect each factor to its
 **primary parent** — the factor at the level above with which it has the
 strongest correlation (|r|). Arrow thickness is proportional to |r|, and color
 shows direction (blue = positive, red = negative by default); both aesthetics
-come with a legend. For a left-to-right layout (handy for wide slides), pass
+come with a legend. In this clean solution every drawn edge is positive, so only
+blue appears here. For a left-to-right layout (handy for wide slides), pass
 `direction = "horizontal"`.
 
 ```{r autoplot, fig.width = 8, fig.height = 5, warning = FALSE}
