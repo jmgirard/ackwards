@@ -213,7 +213,11 @@ at each k:
 
 The **recommendations block** summarizes each criterion's single suggested k (or
 range for PA), and the **consensus range** spans the minimum to maximum across
-all available recommendations.
+all available recommendations. Note that this block lists **six** lines by
+default even though `suggest_k()` runs **five** criteria: `"vss"` is one entry
+in the `criteria` argument (they share a single `psych::vss()` call) but reports
+two numbers, VSS-1 and VSS-2, since it fits simple structure at two different
+complexities.
 
 ### The diagnostic plot
 

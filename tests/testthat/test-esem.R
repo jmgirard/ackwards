@@ -79,12 +79,12 @@ test_that("PCA and EFA engines have loadings_se = NULL", {
 
 # ── Fit indices ───────────────────────────────────────────────────────────────
 
-test_that("ESEM fit indices are named correctly (chi, dof, p_value, CFI, TLI, RMSEA, SRMR)", {
+test_that("ESEM fit indices are named correctly (chi, dof, p_value, CFI, TLI, RMSEA, SRMR, BIC)", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
 
-  expected_names <- c("chi", "dof", "p_value", "CFI", "TLI", "RMSEA", "SRMR")
+  expected_names <- c("chi", "dof", "p_value", "CFI", "TLI", "RMSEA", "SRMR", "BIC")
   for (ki in seq_len(x$k_max)) {
     expect_named(x$levels[[as.character(ki)]]$fit, expected_names,
       info = paste("fit names at level", ki)
@@ -196,13 +196,13 @@ test_that("print, tidy, glance work for ESEM objects", {
   expect_equal(nrow(generics::glance(x)), 1L)
 })
 
-test_that("tidy(x, what = 'fit') returns 7 indices per level for ESEM", {
+test_that("tidy(x, what = 'fit') returns 8 indices per level for ESEM", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
   td <- generics::tidy(x, what = "fit")
   expect_s3_class(td, "data.frame")
-  expect_equal(nrow(td), 3L * 7L) # 3 levels × 7 indices
+  expect_equal(nrow(td), 3L * 8L) # 3 levels × 8 indices (incl. BIC)
   expect_equal(sort(unique(td$level)), 1:3)
 })
 
@@ -308,13 +308,21 @@ test_that("tidy(what='fit', cutoffs=FALSE) has no meets column", {
   expect_false("meets" %in% names(td))
 })
 
-test_that("cutoffs=TRUE with format='wide' produces *_meets columns", {
+test_that("cutoffs=TRUE with format='wide' produces *_meets columns only for thresholded indices", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
   wide <- generics::tidy(x, what = "fit", format = "wide", cutoffs = TRUE)
   expect_true("CFI_meets" %in% names(wide))
+  expect_true("TLI_meets" %in% names(wide))
   expect_true("RMSEA_meets" %in% names(wide))
+  expect_true("SRMR_meets" %in% names(wide))
+  # chi/dof/p_value/BIC have no defined threshold; the pivot must not
+  # generate an always-NA *_meets column for them (M31 cleanup).
+  expect_false("chi_meets" %in% names(wide))
+  expect_false("dof_meets" %in% names(wide))
+  expect_false("p_value_meets" %in% names(wide))
+  expect_false("BIC_meets" %in% names(wide))
 })
 
 test_that("cutoffs passed with wrong what= errors", {
@@ -402,6 +410,48 @@ test_that("cor = 'polychoric' with method = 'esem' uses WLSMV and returns valid 
       info = paste("basis polychoric level", ki)
     )
   }
+})
+
+# ── M31: cor = "polychoric" + incompatible estimator guard ───────────────────
+
+test_that("cor = 'polychoric' with estimator = 'ML'/'MLR' errors loudly", {
+  skip_if_not_installed("lavaan")
+  skip_if_not_installed("psych")
+  d <- .make_ordinal_data()
+  expect_error(
+    ackwards(d, k_max = 3, engine = "esem", cor = "polychoric", estimator = "ML"),
+    "incompatible"
+  )
+  expect_error(
+    ackwards(d, k_max = 3, engine = "esem", cor = "polychoric", estimator = "MLR"),
+    "incompatible"
+  )
+})
+
+test_that("cor = 'polychoric' with estimator = 'WLSMV'/'ULSMV' is unaffected by the guard", {
+  skip_if_not_installed("lavaan")
+  skip_if_not_installed("psych")
+  d <- .make_ordinal_data()
+  expect_no_error(
+    suppressWarnings(
+      ackwards(d, k_max = 3, engine = "esem", cor = "polychoric", estimator = "WLSMV")
+    )
+  )
+  expect_no_error(
+    suppressWarnings(
+      ackwards(d, k_max = 3, engine = "esem", cor = "polychoric", estimator = "ULSMV")
+    )
+  )
+})
+
+test_that("estimator = 'WLSMV' with a continuous cor is allowed (not guarded)", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  expect_no_error(
+    suppressWarnings(
+      ackwards(d, k_max = 2, engine = "esem", cor = "pearson", estimator = "WLSMV")
+    )
+  )
 })
 
 # ── Ordinal warning suppressed when cor = "polychoric" ───────────────────────
@@ -525,17 +575,49 @@ test_that("ESEM results are identical across serial and parallel future plans", 
 
 # ── glance() fit columns for ESEM ─────────────────────────────────────────────
 
-test_that("glance() for ESEM has CFI/TLI/RMSEA/SRMR at deepest level; BIC NA", {
+test_that("glance() for ESEM has CFI/TLI/RMSEA/SRMR/BIC at deepest level (ML: BIC available)", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
+  # Default cor = "pearson" -> estimator = "ML", which has a proper
+  # log-likelihood, so BIC is a real number here.
   suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
   g <- generics::glance(x)
   expect_true(all(c("CFI", "TLI", "RMSEA", "SRMR", "BIC") %in% names(g)))
-  # ESEM carries CFI, TLI, RMSEA, SRMR but not BIC
   expect_false(is.na(g$CFI))
   expect_false(is.na(g$TLI))
   expect_false(is.na(g$RMSEA))
   expect_false(is.na(g$SRMR))
-  expect_true(is.na(g$BIC))
+  expect_false(is.na(g$BIC))
   expect_equal(g$deepest_converged, 3L)
+})
+
+test_that("ESEM under WLSMV: p_value uses the scaled test when df > 0; BIC genuinely NA", {
+  skip_if_not_installed("lavaan")
+  skip_if_not_installed("psych") # needed for detect_ordinal helper path
+  d <- .make_ordinal_data()
+  suppressWarnings(
+    x <- ackwards(d, k_max = 3, engine = "esem", cor = "polychoric")
+  )
+
+  for (ki in seq_len(x$k_max)) {
+    fv <- x$levels[[as.character(ki)]]$fit
+    if (fv[["dof"]] > 0) {
+      # lavaan's naive WLSMV p-value has no valid reference distribution
+      # (lavaan's own summary() reports it as "Unknown"/NA); ackwards falls
+      # back to the mean-and-variance-adjusted scaled test, which does.
+      expect_false(is.na(fv[["p_value"]]), info = paste("p_value level", ki))
+      expect_true(fv[["p_value"]] >= 0 && fv[["p_value"]] <= 1,
+        info = paste("p_value range level", ki)
+      )
+    } else {
+      # A saturated model (df = 0, e.g. k = 3 on 6 items here) has no
+      # chi-square test to perform under any estimator -- NA is correct.
+      expect_true(is.na(fv[["p_value"]]), info = paste("saturated level", ki))
+    }
+    # WLSMV has no proper log-likelihood -> BIC is genuinely unavailable.
+    expect_true(is.na(fv[["BIC"]]), info = paste("BIC level", ki))
+  }
+
+  g <- generics::glance(x)
+  expect_true(is.na(g$BIC))
 })

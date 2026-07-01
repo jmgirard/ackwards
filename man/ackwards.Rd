@@ -58,7 +58,10 @@ deep levels), or \code{"pa"} (principal axis). Ignored for \code{engine = "pca"}
 \item{estimator}{Estimation method for the ESEM engine. \code{NULL} (default)
 auto-selects: \code{"WLSMV"} when \code{cor = "polychoric"}, \code{"ML"} otherwise.
 Pass explicitly to override: \code{"ULSMV"} (unweighted WLS), \code{"MLR"}
-(robust ML). Ignored for PCA and EFA engines.}
+(robust ML). \code{cor = "polychoric"} with \code{estimator = "ML"}/\code{"MLR"} errors
+(lavaan itself does not support ML/MLR on ordered indicators); \code{"WLSMV"}/
+\code{"ULSMV"} with a continuous \code{cor} is allowed (a valid, if atypical,
+continuous WLS/ADF estimator). Ignored for PCA and EFA engines.}
 
 \item{missing}{How to handle missing item responses. One of:
 \itemize{

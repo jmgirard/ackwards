@@ -57,7 +57,10 @@
 #' @param estimator Estimation method for the ESEM engine. `NULL` (default)
 #'   auto-selects: `"WLSMV"` when `cor = "polychoric"`, `"ML"` otherwise.
 #'   Pass explicitly to override: `"ULSMV"` (unweighted WLS), `"MLR"`
-#'   (robust ML). Ignored for PCA and EFA engines.
+#'   (robust ML). `cor = "polychoric"` with `estimator = "ML"`/`"MLR"` errors
+#'   (lavaan itself does not support ML/MLR on ordered indicators); `"WLSMV"`/
+#'   `"ULSMV"` with a continuous `cor` is allowed (a valid, if atypical,
+#'   continuous WLS/ADF estimator). Ignored for PCA and EFA engines.
 #' @param missing How to handle missing item responses. One of:
 #'   * `"pairwise"` (default) -- use all available observations pairwise.
 #'     For PCA/EFA this feeds `stats::cor(use = "pairwise.complete.obs")`.
@@ -449,6 +452,28 @@ ackwards <- function(
       estimator <- rlang::arg_match(estimator, c("ML", "MLR", "WLSMV", "ULSMV"))
     }
     missing <- rlang::arg_match(missing, c("pairwise", "listwise", "fiml"))
+
+    # cor = "polychoric" marks every item `ordered` for lavaan; ML/MLR flatly
+    # do not support ordered indicators (lavaan itself errors with "estimator
+    # ML for ordered data is not supported yet"). Without this guard the
+    # failure surfaces many calls deep as a per-level ESEM warning, then a
+    # generic "failed to build at least 2 converged levels" abort that
+    # misdiagnoses the cause as multicollinearity (Invariant 6: loud, not
+    # buried). WLSMV/ULSMV with a continuous `cor` is left alone -- lavaan
+    # runs it as a valid (if atypical) continuous WLS/ADF estimator.
+    if (engine == "esem" && cor == "polychoric" && !is.null(estimator) &&
+      estimator %in% c("ML", "MLR")) {
+      cli::cli_abort(c(
+        "!" = "{.code cor = \"polychoric\"} is incompatible with \\
+               {.code estimator = \"{estimator}\"}.",
+        "i" = "Polychoric correlations require ordinal (WLS-family) estimation; \\
+               {.val {estimator}} assumes continuous indicators and lavaan \\
+               itself errors on the combination.",
+        "i" = "Use {.code estimator = \"WLSMV\"} (default) or \\
+               {.code \"ULSMV\"}, or switch to {.code cor = \"pearson\"} \\
+               to use {.val {estimator}}."
+      ))
+    }
 
     # Resolve effective estimator early (needed for missing= validation before
     # the engine dispatch block; also avoids repeating the logic below).

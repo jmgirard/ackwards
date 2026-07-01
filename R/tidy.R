@@ -25,17 +25,26 @@ generics::glance
 #'   * `"fit"` -- one row per fit index x level: `level`, `index`, `value`.
 #'     For PCA objects the indices are eigenvalues; for EFA objects they are
 #'     `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`; for ESEM they are
-#'     `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`. Use
+#'     `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`, `BIC`. For ESEM
+#'     under `estimator = "WLSMV"`/`"ULSMV"`, `chi`/`dof`/`p_value` report the
+#'     mean-and-variance-adjusted ("scaled") test rather than the naive one --
+#'     lavaan defines the naive test as having no valid reference distribution
+#'     for these limited-information estimators (its own `summary()` labels
+#'     that p-value "Unknown"). `BIC` is `NA` under WLSMV/ULSMV (no proper
+#'     log-likelihood for a limited-information estimator) and populated under
+#'     ML/MLR. Use
 #'     `format = "wide"` for one row per **non-anchor** level (k >= 2; the
 #'     saturated 1-factor anchor is dropped, matching `summary()` and
 #'     `autoplot(what = "fit")`), one column per index. Add `cutoffs = TRUE` to
 #'     append a `meets` column flagging each index against conventional
 #'     thresholds (Hu & Bentler 1999: CFI/TLI >= .95, RMSEA <= .06,
-#'     SRMR <= .08); indices without a defined threshold (e.g. `chi`, `BIC`,
-#'     eigenvalues) return `NA` for `meets`. Thresholds are conventional and
-#'     contested; they are report-only and never gate anything. `format` and
-#'     `cutoffs` are oriented to the EFA/ESEM model-fit indices; for PCA the
-#'     "indices" are per-component eigenvalues.
+#'     SRMR <= .08). In `format = "long"`, indices without a defined threshold
+#'     (`chi`, `dof`, `p_value`, `BIC`, eigenvalues) return `NA` for `meets`;
+#'     in `format = "wide"`, no `{index}_meets` column is emitted for them at
+#'     all (an always-`NA` column would just be noise). Thresholds are
+#'     conventional and contested; they are report-only and never gate
+#'     anything. `format` and `cutoffs` are oriented to the EFA/ESEM model-fit
+#'     indices; for PCA the "indices" are per-component eigenvalues.
 #'   * `"nodes"` -- Forbes-extension pruning annotations (requires `prune != "none"`
 #'     when the object was created). One row per factor across all levels:
 #'     `id`, `level`, `pruned`, `prune_reason`. Returns an empty data frame with
@@ -271,7 +280,10 @@ tidy.ackwards <- function(
     for (idx in all_idx) {
       m <- match(idx, sub$index)
       row_vals[[idx]] <- if (!is.na(m)) sub$value[m] else NA_real_
-      if (has_meets) {
+      # Only emit a _meets column for indices with a real threshold
+      # (.fit_cutoffs()) -- chi/dof/p_value/BIC/eigenvalues have none and
+      # would otherwise generate an always-NA column.
+      if (has_meets && idx %in% names(.fit_cutoffs())) {
         row_vals[[paste0(idx, "_meets")]] <- if (!is.na(m)) sub$meets[m] else NA
       }
     }
@@ -308,8 +320,11 @@ tidy.ackwards <- function(
 #' Returns a one-row data frame of top-level model metadata. For EFA and ESEM
 #' objects, fit indices at the deepest converged level are included. The same
 #' five columns (`CFI`, `TLI`, `RMSEA`, `SRMR`, `BIC`) are present across all
-#' engines; columns unavailable for a given engine are `NA` (e.g., `CFI` and
-#' `SRMR` are `NA` for EFA; all five are `NA` for PCA).
+#' engines; columns unavailable for a given engine or estimator are `NA`
+#' (e.g., `CFI` and `SRMR` are `NA` for EFA; all five are `NA` for PCA; for
+#' ESEM, `BIC` is `NA` under `estimator = "WLSMV"`/`"ULSMV"` -- these
+#' limited-information estimators have no proper log-likelihood -- and
+#' populated under `"ML"`/`"MLR"`).
 #'
 #' @param x An `ackwards` object.
 #' @param ... Ignored.

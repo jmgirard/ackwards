@@ -1,5 +1,54 @@
 # ackwards (development)
 
+## Vignette corrections: `ackwards-intro` and `ackwards-suggest-k`
+
+`vignette("ackwards-intro")` hardcoded a cumulative-variance jump ("22.9% →
+34.7%") that had drifted from the code's actual output (23.2% → 35.5%); it is
+now computed inline from the fitted object so it cannot drift again. The
+lineage walkthrough had `m4f1`'s primary children backwards (claimed
+`m5f2`/`m5f4`; the edge table shows `m5f1`/`m5f4`), and the diagram narrative
+misattributed which traits differentiate at which level (Conscientiousness/
+Openness split at k = 4, not Agreeableness/Extraversion, which split at
+k = 5) — both corrected to match a live run. `vignette("ackwards-suggest-k")`
+now clarifies why the printed "Recommendations" block shows six lines for
+five criteria (`"vss"` reports both VSS-1 and VSS-2).
+
+## Guard against `cor = "polychoric"` with an incompatible ESEM estimator
+
+`ackwards(engine = "esem", cor = "polychoric", estimator = "ML")` (or
+`"MLR"`) now errors immediately with a clear explanation instead of failing
+many calls deep inside the per-level ESEM fit and surfacing a misleading
+"failed to build at least 2 converged levels... check your data for
+multicollinearity" abort. Polychoric correlations mark every item `ordered`
+for lavaan, and lavaan itself does not support ML/MLR estimation on ordered
+indicators. `"WLSMV"`/`"ULSMV"` with a continuous `cor` remains allowed (a
+valid, if atypical, continuous WLS/ADF estimator).
+
+## ESEM fit indices: honest p-value and BIC
+
+Under `estimator = "WLSMV"`/`"ULSMV"`, lavaan's naive chi-square test has no
+valid reference distribution for these limited-information estimators —
+lavaan's own `summary()` reports that p-value as "Unknown" (`NA`). `chi`,
+`dof`, and `p_value` now fall back to lavaan's mean-and-variance-adjusted
+("scaled") test whenever the naive p-value is undefined, which does have a
+genuine null distribution; ML/MLR (whose naive p-value is already valid) are
+unaffected. A genuinely saturated level (`dof = 0`) still reports `NA` — there
+is no test to perform on a model that fits perfectly by construction.
+
+`BIC` is now a first-class ESEM fit index (previously silently absent):
+populated under `"ML"`/`"MLR"` (a proper log-likelihood exists), and `NA`
+under `"WLSMV"`/`"ULSMV"` (no proper log-likelihood for these estimators —
+genuinely inapplicable, not a bug). `tidy(x, what = "fit")` and `glance(x)`
+both surface it consistently across engines.
+
+## `tidy(what = "fit", cutoffs = TRUE)`: no more always-NA `_meets` columns
+
+`format = "wide"` no longer emits a `{index}_meets` column for indices with no
+defined threshold (`chi`, `dof`, `p_value`, `BIC`, PCA eigenvalues) — the pivot
+previously generated one for every index, and those columns were always `NA`.
+`format = "long"` is unaffected (`meets` is still `NA` for those rows, as
+documented).
+
 ## Citation hygiene
 
 `citation("ackwards")` now returns a single software entry (Girard) instead

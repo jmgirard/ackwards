@@ -32,17 +32,26 @@
 \item \code{"fit"} -- one row per fit index x level: \code{level}, \code{index}, \code{value}.
 For PCA objects the indices are eigenvalues; for EFA objects they are
 \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, \code{BIC}; for ESEM they are
-\code{chi}, \code{dof}, \code{p_value}, \code{CFI}, \code{TLI}, \code{RMSEA}, \code{SRMR}. Use
+\code{chi}, \code{dof}, \code{p_value}, \code{CFI}, \code{TLI}, \code{RMSEA}, \code{SRMR}, \code{BIC}. For ESEM
+under \code{estimator = "WLSMV"}/\code{"ULSMV"}, \code{chi}/\code{dof}/\code{p_value} report the
+mean-and-variance-adjusted ("scaled") test rather than the naive one --
+lavaan defines the naive test as having no valid reference distribution
+for these limited-information estimators (its own \code{summary()} labels
+that p-value "Unknown"). \code{BIC} is \code{NA} under WLSMV/ULSMV (no proper
+log-likelihood for a limited-information estimator) and populated under
+ML/MLR. Use
 \code{format = "wide"} for one row per \strong{non-anchor} level (k >= 2; the
 saturated 1-factor anchor is dropped, matching \code{summary()} and
 \code{autoplot(what = "fit")}), one column per index. Add \code{cutoffs = TRUE} to
 append a \code{meets} column flagging each index against conventional
 thresholds (Hu & Bentler 1999: CFI/TLI >= .95, RMSEA <= .06,
-SRMR <= .08); indices without a defined threshold (e.g. \code{chi}, \code{BIC},
-eigenvalues) return \code{NA} for \code{meets}. Thresholds are conventional and
-contested; they are report-only and never gate anything. \code{format} and
-\code{cutoffs} are oriented to the EFA/ESEM model-fit indices; for PCA the
-"indices" are per-component eigenvalues.
+SRMR <= .08). In \code{format = "long"}, indices without a defined threshold
+(\code{chi}, \code{dof}, \code{p_value}, \code{BIC}, eigenvalues) return \code{NA} for \code{meets};
+in \code{format = "wide"}, no \verb{\{index\}_meets} column is emitted for them at
+all (an always-\code{NA} column would just be noise). Thresholds are
+conventional and contested; they are report-only and never gate
+anything. \code{format} and \code{cutoffs} are oriented to the EFA/ESEM model-fit
+indices; for PCA the "indices" are per-component eigenvalues.
 \item \code{"nodes"} -- Forbes-extension pruning annotations (requires \code{prune != "none"}
 when the object was created). One row per factor across all levels:
 \code{id}, \code{level}, \code{pruned}, \code{prune_reason}. Returns an empty data frame with
