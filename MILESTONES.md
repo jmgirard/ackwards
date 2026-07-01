@@ -1012,5 +1012,6 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   `vignettes/ackwards-ordinal.Rmd`, `NEWS.md`, `DESIGN.md` (§11, §14), `CLAUDE.md` (Current focus +
   Completed index), `MILESTONES.md`. No new/removed exports (`autoplot.ackwards` signature unchanged);
   no dependency change; `_pkgdown.yml` reference index unchanged.
-- **Verified.** `R CMD check` **0/0/0** (all vignettes rebuilt); full suite **__PASS__ pass / 0 fail
-  / __SKIP__ skip**; coverage **100%**; `styler`/`lintr` clean; `pkgdown::check_pkgdown()` clean.
+- **Verified.** `R CMD check` **0/0/0** (all vignettes rebuilt); full suite **1561 pass / 0 fail /
+  0 skip** (EFAtools installed on the dev machine, so the CD-gated tests ran); coverage **100%**;
+  `styler` (no files changed) / `lintr` (0 lints) clean; `pkgdown::check_pkgdown()` clean.
