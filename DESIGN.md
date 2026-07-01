@@ -328,7 +328,16 @@ announced via cli and documented in roxygen with its rationale.
     f_j, r, is_primary, above_cut)`. This is the graph edge list and the primary plotting input.
   - `tidy(x, what = "loadings")` — long format `(level, factor, item, loading)`, sign-aligned;
     feeds loading heatmaps.
-  - `tidy(x, what = "variance")` — per-factor variance by level.
+  - `tidy(x, what = "variance")` — per-factor variance by level: `(level, factor, proportion,
+    cumulative)`, both on a 0-1 scale (M32; matches the engine's internal representation and
+    broom/psych convention — percent formatting is a display concern for `print`/`summary`, not
+    a `tidy()` concern).
+  - `tidy(x, what = "fit")` — per-level fit statistic: `(level, statistic, value)` (M32: column
+    renamed from `index`, which read like a row position rather than a fit-statistic name — it
+    holds fit-index names for EFA/ESEM and eigenvalue positions for PCA). `format = "wide"` pivots
+    to one row per level. No pass/fail `cutoffs=`/`meets` output (removed M32) — conventional Hu &
+    Bentler (1999) thresholds are conventional and contested, so `tidy()` reports values only;
+    `autoplot(what = "fit")` and `summary()` render them as reference lines/inline annotations.
   - `glance(x)` — one row of model-level meta (engine, k_max, n, deepest converged, cor basis).
   - `as_tibble(x)` → `tidy(x, "edges")`.
 
@@ -453,6 +462,36 @@ that needs it. **No Rcpp dependency planned** (see §3).
 19. Redundancy → faithful to Forbes (2023): score-correlation chains `|r| ≥ .9` (default, tunable), retention rule = keep the bottom node if the chain reaches level k (most-specific, best-defined), else keep the topmost node (broadest manifestation). Tucker's φ (`> .95`, Lorenzo-Seva & ten Berge 2006) computed on aligned loadings as an **optional conjunctive** criterion. φ formula `Σaᵢbᵢ / sqrt(Σaᵢ² · Σbᵢ²)`; base R, no new dependency.
 20. **Additive enrichments over the paper** (default output still matches Forbes's examples): always *report* both `r` and `φ` for every redundancy candidate (report-first, flag-second — borderline cases like the paper's own `.89`/`.93` alcohol component stay visible); report endpoint `r` (direct, from all-levels edges) alongside the chain and flag where they disagree (correlation is non-transitive: a clean adjacent chain neither implies nor is implied by endpoint identity — the chain answers "perpetuates at every level," endpoint `r` answers "same construct").
 21. Artefact → **never auto-flagged.** `prune = "artefact"` surfaces φ for inspection; removal is a documented researcher judgment (Forbes is explicit this introduces researcher DoF / confirmation bias; cf. Wicherts et al. 2016).
+
+**Resolved for M32 (API-shape & naming; owner-reviewed, no equivalent guidance elsewhere in this
+document):**
+22. `tidy(x, what = "fit")` long-format key column → **`statistic`**, replacing `index` (which read
+    as a row position; it actually held fit-index names for EFA/ESEM and eigenvalue positions for
+    PCA). Wide format (`format = "wide"`) unaffected — column names still come from the values of
+    this key.
+23. `k_max` naming collision (`ackwards()` = extraction depth vs. `suggest_k()` = max
+    factors/components evaluated) → **keep the shared name in both functions.** They're genuinely
+    the same dial applied at different workflow stages (`suggest_k(k_max = ...)` →
+    `ackwards(k_max = ...)`); renaming one would create vocabulary drift without removing any real
+    ambiguity. Resolved instead via roxygen: each function's `@param k_max` states its own meaning
+    and cross-references the other's.
+24. `tidy(what = "fit")` cutoff flags → **removed.** The `cutoffs = TRUE` argument and the
+    `meets`/`{statistic}_meets` columns it produced (`.flag_fit()`) are dropped; a pass/fail boolean
+    quietly endorsed Hu & Bentler (1999) thresholds that the package elsewhere (§9, this section)
+    treats as conventional and contested — continuing the M28/M31 output-honesty trajectory.
+    `.fit_cutoffs()` is retained as an internal helper: `autoplot(what = "fit")` still draws
+    threshold reference lines and `summary()` still annotates inline with a check/cross mark: both
+    are visual guides, not a returned pass/fail column a user could mistake for a computed
+    judgment.
+25. Variance scale → **proportion, 0-1** (`tidy(what = "variance")` columns renamed
+    `variance_pct`/`cumulative_pct` → `proportion`/`cumulative`, values divided by 100). This
+    aligns `tidy()` with the engine's internal `variance` slot (already 0-1; see `print.ackwards`,
+    which reads it directly) and with broom/psych convention (`psych` reports "Proportion Var" as
+    0-1). Percent formatting moves to the display layer (`print()`, `summary()`, vignette `gt`
+    tables) rather than living in the tidy data.
+
+All four M32 changes are breaking with no deprecation path (pre-CRAN, no users; consistent with the
+M34 pruning-verb precedent of clean moves over compatibility shims).
 
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.
