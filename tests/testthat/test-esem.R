@@ -283,52 +283,37 @@ test_that("format passed with wrong what= errors", {
   expect_error(tidy(x, what = "edges", format = "wide"), "format")
 })
 
-# ── M27: cutoff flags ─────────────────────────────────────────────────────────
+# ── M32: statistic column rename; cutoffs flag removed ───────────────────────
 
-test_that("tidy(what='fit', cutoffs=TRUE) adds meets column for ESEM", {
+test_that("tidy(what='fit') uses a statistic column, not index", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
-  td <- generics::tidy(x, what = "fit", cutoffs = TRUE)
-  expect_true("meets" %in% names(td))
-  # CFI/TLI/RMSEA/SRMR rows should have non-NA meets
-  idx_with_cutoff <- c("CFI", "TLI", "RMSEA", "SRMR")
-  meets_for_cutoff <- td$meets[td$index %in% idx_with_cutoff]
-  expect_true(all(!is.na(meets_for_cutoff)))
-  # chi/dof/p_value get NA
-  meets_no_cutoff <- td$meets[td$index %in% c("chi", "dof", "p_value")]
-  expect_true(all(is.na(meets_no_cutoff)))
+  td <- generics::tidy(x, what = "fit")
+  expect_true("statistic" %in% names(td))
+  expect_false("index" %in% names(td))
+  expect_true(all(c("CFI", "TLI", "RMSEA", "SRMR") %in% td$statistic))
 })
 
-test_that("tidy(what='fit', cutoffs=FALSE) has no meets column", {
+test_that("tidy(what='fit') has no meets column; cutoffs= is no longer a formal arg", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
   td <- generics::tidy(x, what = "fit")
   expect_false("meets" %in% names(td))
+  # cutoffs is no longer a formal parameter, so it's silently absorbed by
+  # `...` (same as any unrecognized argument) rather than erroring; the
+  # result is identical to calling without it.
+  td_with_cutoffs <- generics::tidy(x, what = "fit", cutoffs = TRUE)
+  expect_identical(td, td_with_cutoffs)
 })
 
-test_that("cutoffs=TRUE with format='wide' produces *_meets columns only for thresholded indices", {
+test_that("tidy(what='fit', format='wide') has no *_meets columns", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
-  wide <- generics::tidy(x, what = "fit", format = "wide", cutoffs = TRUE)
-  expect_true("CFI_meets" %in% names(wide))
-  expect_true("TLI_meets" %in% names(wide))
-  expect_true("RMSEA_meets" %in% names(wide))
-  expect_true("SRMR_meets" %in% names(wide))
-  # chi/dof/p_value/BIC have no defined threshold; the pivot must not
-  # generate an always-NA *_meets column for them (M31 cleanup).
-  expect_false("chi_meets" %in% names(wide))
-  expect_false("dof_meets" %in% names(wide))
-  expect_false("p_value_meets" %in% names(wide))
-  expect_false("BIC_meets" %in% names(wide))
-})
-
-test_that("cutoffs passed with wrong what= errors", {
-  skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
-  expect_error(tidy(x, what = "edges", cutoffs = TRUE), "cutoffs")
+  wide <- generics::tidy(x, what = "fit", format = "wide")
+  expect_false(any(grepl("_meets$", names(wide))))
 })
 
 

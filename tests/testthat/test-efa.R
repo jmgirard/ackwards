@@ -258,7 +258,7 @@ test_that("tidy(x, what = 'fit') returns one row per level with named indices", 
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3L, engine = "efa"))
   td <- generics::tidy(x, what = "fit")
   expect_s3_class(td, "data.frame")
-  expect_true(all(c("level", "index", "value") %in% names(td)))
+  expect_true(all(c("level", "statistic", "value") %in% names(td)))
   # 3 levels × 6 indices each
   expect_equal(nrow(td), 18L)
   expect_equal(sort(unique(td$level)), 1:3)
