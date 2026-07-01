@@ -54,19 +54,27 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M30** — Citation hygiene (`inst/CITATION` Girard-only; `ackwards()` `@references` gains Forbes; README citation prose corrected)
 - **M31** — Correctness & output-honesty sweep (ESEM fit row reports scaled variants under WLSMV/ULSMV/MLR — `p_value`/`CFI`/`TLI`/`RMSEA` + `BIC`; `_meets` cleanup; `cor = "polychoric"` + ML/MLR guard; `fa.parallel`/`seed` doc confirmed correct; intro/suggest_k vignette drift fixed)
 - **M32** — API-shape & naming resolutions (`tidy(what="fit")` `index`→`statistic`; `k_max` kept in both `ackwards()`/`suggest_k()`, roxygen-disambiguated; cutoffs pass/fail flag output removed, `.fit_cutoffs()` kept for reference lines; variance reported as 0–1 `proportion`/`cumulative`; plus M31-deferred `$meta$estimator` + `summary()` scaled-fit footnote)
+- **M33** — simulated Gaussian dataset (`sim16`: 1000×16 continuous, known 1→2→4 hierarchy, no ordinal-detection warning, guaranteed redundant-chain + artefact signals at `k_max=5`)
 
 ## Current focus
 
-M32 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38 documentation/UX epic is
-**M33** (simulated Gaussian dataset — foundation); not yet planned; run `/plan-milestone 33` before
-starting.
+M33 is complete (see `MILESTONES.md` for detail — including a plan deviation: the "thin branch /
+near-duplicate twin factor" mechanism proved unnecessary once prototyped, and no `DESIGN.md` §14
+entry was added, matching the `bfi25` precedent that dataset additions live in roxygen + here, not
+`DESIGN.md`). Next up in the M31–M38 documentation/UX epic is **M34** (pruning verb); not yet
+planned; run `/plan-milestone 34` before starting.
 
 Remaining milestones in the epic:
-M33 simulated Gaussian dataset (foundation); M34 pruning verb — extract `prune()` from `ackwards()`
+M34 pruning verb — extract `prune()` from `ackwards()`
 (clean move, no deprecation — pre-CRAN, no users) + manual/mixed flag-only pruning +
 `"artefact"`/`"tucker"` naming + DESIGN.md update; M35 autoplot & visualization;
 M36 interpretation functions (`augment` scores-only, `top_items` labels + group-by-item);
 M37 engines vignette; M38 narrative & remaining prose (intro, suggest_k, ordinal, forbes, README).
+
+These one-liners are a lossy index. The **full driving rationale, banked decisions, and the raw
+pkgdown-review notes** behind M34–M38 live in [`ROADMAP.md`](ROADMAP.md) — read it before running
+`/plan-milestone N` for any of them. `MILESTONES.md` remains the source of truth for *completed*
+milestones; `ROADMAP.md` is its forward-looking counterpart for *pending* ones.
 
 ## Invariants — do not violate without flagging
 

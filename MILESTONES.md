@@ -504,3 +504,47 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   decision — no deprecation shim needed with no users; consistent with the M34 clean-move
   precedent). The three nice-to-have test-hardening items the review raised were added (the extra
   estimator/footnote/reference-line assertions above); no Blocking or Should-fix findings.
+
+- **M33 (done):** simulated Gaussian dataset (foundation) — first data milestone of the M31–M38
+  pkgdown-review epic. Ships `sim16`: a 1 000×16, fully continuous dataset (`data-raw/sim16.R`,
+  `set.seed(42)`, base-R Cholesky sampling from an oblique 4-factor population model — no `MASS`
+  dependency) alongside `bfi25`.
+  **Population model.** 4 true group factors (`f1`–`f4`, 4 items each, loading `0.75`, no
+  cross-loadings); factor correlations `0.45` within a metatrait (`f1`-`f2`, `f3`-`f4`) and `0.15`
+  between metatraits (`{f1,f2}` = metatrait 1, `{f3,f4}` = metatrait 2); uniformly `0.4375`
+  uniquenesses by the design's symmetry.
+  **Two drivers, both realized without a contrived mechanism.** (1) *Clean Pearson showcase*: the
+  data are continuous (~1000 distinct values/column), so `ackwards(sim16, engine = "pca"/"efa")`
+  never triggers the ordinal-detection warning that `bfi25`'s Likert items do. (2) *Guaranteed
+  Tucker's φ / redundancy finding for the Forbes example*: because the population has **exactly 4**
+  factors, `k_max = 5` has no real 5th dimension to find. The originally planned mechanism (a
+  deliberately planted near-duplicate "twin" sub-factor) proved unnecessary once prototyped —
+  requesting a 5th factor from a genuinely 4-factor population organically produces both an orphan
+  factor with zero primary-loading items (flagged `few_items` + `orphan` under
+  `prune = "artefact"`, default `min_items = 3`) and, because the true (non-splitting) factors
+  persist essentially unchanged from `k = 3` onward, redundant parent-child chains (`|r| >= .9` and,
+  by default, Tucker's φ `>= .95`) under `prune = "redundant"`. This is a more honest illustration of
+  Forbes' redundancy concept than the originally planned twin-factor design, so the plan was revised
+  during implementation (recorded here, not silently).
+  **Verified ground truth.** `ackwards(sim16, engine = "efa")`: `k=1` general factor across all 16
+  items; `k=2` splits exactly along the metatrait line (`i1`-`i8` vs. `i9`-`i16`); `k=4` recovers
+  the 4 true group factors exactly. `suggest_k(sim16)` reaches unanimous 6-criteria consensus
+  (PA-PC, PA-FA, MAP, VSS-1, VSS-2, CD) of `k = 4`.
+  **No exported simulator and no vignette changes** — a saved dataset + reproducible generator only,
+  per the approved plan; the vignette restructuring that consumes `sim16` (clean-Pearson-first,
+  guaranteed-φ Forbes example) is M37/M38.
+  **Deviation from the approved plan (flagged, not silent):** no `DESIGN.md` §14 entry. `bfi25`
+  (M21) set the precedent that dataset additions with no API/behavioral contract change are
+  documented in roxygen (`R/data.R`) and here, not in `DESIGN.md`, which tracks design *decisions*
+  rather than data assets.
+  Files: `data-raw/sim16.R` (generator), `data/sim16.rda`, `R/data.R` (roxygen doc block with the
+  full population model and ground-truth table), `man/sim16.Rd` (generated). `.Rbuildignore` gained
+  `ROADMAP.md` (introduced during `/plan-milestone 33`, alongside the existing
+  `CLAUDE.md`/`DESIGN.md`/`MILESTONES.md` exclusions).
+  Tests: `test-data.R` gained six `sim16` tests — shape/type/no-NA; no ordinal-detection warning
+  under `pca`/`efa`; exact hierarchy recovery at `k=1/2/4`; `suggest_k()` 6-criteria consensus;
+  guaranteed redundant-chain + artefact signals at `k_max=5`; and bit-identical regeneration from
+  `data-raw/sim16.R` (parses the script, drops the `usethis::use_data()` call via a `deparse()`
+  string match rather than a literal `usethis::` token, to avoid an "unstated dependency in tests"
+  `R CMD check` warning). No new test files.
+  (1372 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
