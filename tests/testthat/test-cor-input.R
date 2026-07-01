@@ -202,10 +202,10 @@ test_that("covariance matrix gives a targeted error not a confusing one", {
 
 # ---- ackwards(): prune works with R-matrix input ----------------------------
 
-test_that("prune='redundant' works with R-matrix input", {
+test_that("prune(x, 'redundant') works on an object built from R-matrix input", {
   R <- .bfi6_R()
   x <- suppressMessages(
-    ackwards(R, k_max = 3, prune = "redundant")
+    ackwards(R, k_max = 3) |> prune("redundant")
   )
   expect_s3_class(x, "ackwards")
   expect_false(is.null(x$prune))

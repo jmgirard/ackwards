@@ -205,6 +205,24 @@ ackwards <- function(
 ) {
   cl <- match.call()
 
+  # M34: pruning moved to a standalone prune() verb; the five args below no
+  # longer exist here. Without this guard they would be silently absorbed by
+  # `...` (a masked-argument footgun, not a clean break) -- error loudly
+  # instead (Invariant 6).
+  dots <- list(...)
+  moved_args <- intersect(
+    names(dots),
+    c("prune", "redundancy_r", "redundancy_phi", "min_items", "orphan_r")
+  )
+  if (length(moved_args) > 0L) {
+    cli::cli_abort(c(
+      "!" = "{.arg {moved_args}} {?is/are} no longer {?an argument/arguments} \\
+             to {.fn ackwards}.",
+      "i" = "Pruning moved to a standalone verb (M34): use \\
+             {.code ackwards(...) |> prune(...)} instead."
+    ))
+  }
+
   # --- Detect correlation-matrix vs. raw-data input ---------------------------
   # Guard first: a square symmetric matrix with non-unit diagonal is almost
   # certainly a covariance matrix -- give a targeted error before it silently

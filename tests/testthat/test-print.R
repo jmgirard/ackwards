@@ -105,39 +105,39 @@ test_that("summary lineage: correct structure, ordering, and content", {
   expect_setequal(m1_children, c("m2f1", "m2f2"))
 })
 
-test_that("summary.ackwards shows pruning info when prune = 'redundant'", {
+test_that("summary.ackwards shows pruning info when prune(x, 'redundant') was applied", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k_max = 4, prune = "redundant"))
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k_max = 4) |> prune("redundant"))
   s <- summary(x)
   expect_false(is.null(s$prune))
   expect_equal(s$prune$rules, "redundant")
   expect_true(!is.null(s$prune$redundancy_r))
 })
 
-test_that("summary prune = 'artefact' carries rules and no spurious redundant info", {
+test_that("summary prune(x, 'artifact') carries rules and no spurious redundant info", {
   skip_if_not_installed("psych")
   suppressMessages(x <- suppressWarnings(
-    ackwards(psych::bfi[, 1:10], k_max = 3, prune = "artefact")
+    ackwards(psych::bfi[, 1:10], k_max = 3) |> prune("artifact")
   ))
   s <- summary(x)
   expect_false(is.null(s$prune))
-  expect_equal(s$prune$rules, "artefact")
-  # artefact-only: no node is flagged as redundant
+  expect_equal(s$prune$rules, "artifact")
+  # artifact-only: no node is flagged as redundant
   expect_equal(length(s$prune$redundant), 0L)
   # phi table exists
-  expect_true(!is.null(s$prune$artefact_n) && s$prune$artefact_n > 0L)
+  expect_true(!is.null(s$prune$artifact_n) && s$prune$artifact_n > 0L)
   # print does not error (was showing spurious "Redundant: 0 nodes" before fix)
   expect_no_error(suppressMessages(print(s)))
 })
 
-test_that("summary prune = c('redundant','artefact') shows both sections", {
+test_that("summary prune(x, c('redundant','artifact')) shows both sections", {
   skip_if_not_installed("psych")
   suppressMessages(x <- suppressWarnings(
-    ackwards(psych::bfi[, 1:10], k_max = 4, prune = c("redundant", "artefact"))
+    ackwards(psych::bfi[, 1:10], k_max = 4) |> prune(c("redundant", "artifact"))
   ))
   s <- summary(x)
-  expect_setequal(s$prune$rules, c("redundant", "artefact"))
-  expect_true(!is.null(s$prune$artefact_n))
+  expect_setequal(s$prune$rules, c("redundant", "artifact"))
+  expect_true(!is.null(s$prune$artifact_n))
   expect_no_error(suppressMessages(print(s)))
 })
 
@@ -196,7 +196,7 @@ test_that("print.summary_ackwards shows '(none)' when redundant pruning finds no
   set.seed(7L)
   d <- as.data.frame(matrix(rnorm(300L), 50L, 6L))
   x <- suppressWarnings(suppressMessages(
-    ackwards(d, k_max = 3, prune = "redundant", redundancy_r = 0.9999)
+    ackwards(d, k_max = 3) |> prune("redundant", redundancy_r = 0.9999)
   ))
   s <- summary(x)
   # No nodes flagged
@@ -210,7 +210,7 @@ test_that("print.summary_ackwards shows phi threshold note when redundancy_phi s
   set.seed(42L)
   d <- as.data.frame(matrix(rnorm(300L), 50L, 6L))
   x <- suppressWarnings(suppressMessages(
-    ackwards(d, k_max = 3, prune = "redundant", redundancy_phi = 0.9)
+    ackwards(d, k_max = 3) |> prune("redundant", redundancy_phi = 0.9)
   ))
   s <- summary(x)
   expect_false(is.null(s$prune$redundancy_phi))
