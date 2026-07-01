@@ -1,5 +1,20 @@
 # ackwards (development)
 
+## Engines vignette overhaul
+
+- The "Choosing an Engine" vignette now frames ESEM as a general engine for
+  **continuous** (ML/MLR, including FIML for missing data) *and* ordinal (WLSMV)
+  data, rather than implying it is ordinal-only. The at-a-glance comparison table
+  gains engine-substrate, correlation-type, and estimator rows.
+- New guidance on getting **MAR-valid missing-data handling into the PCA and EFA
+  engines**: estimate a FIML correlation matrix with `psych::corFiml()` and pass
+  it to `ackwards()`, with caveats on the `n_obs` choice and the multivariate-
+  normality (continuous-only) assumption.
+- Clarifies that a poorly-fitting level weakens the edges *incident to it* (its
+  factors are less well defined) even though the edge correlation itself is
+  computed faithfully; and that the running examples stop at `k_max = 3` for build
+  speed, not because the BFI hierarchy ends there.
+
 ## `augment()` scores-only output
 
 - New `append` argument: `augment(x, data, append = FALSE)` returns only the
