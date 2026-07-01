@@ -204,7 +204,8 @@ structure(list(
   r       = <p x p input correlation matrix>,   # cheap; kept so scores/edges recomputable
   data    = NULL,        # opt-in raw data
   meta    = <suggest_k output, timestamps, convergence summary, chosen defaults,
-             input_type = "data"|"cor_matrix">,
+             input_type = "data"|"cor_matrix",
+             item_labels = <named chr of column "label" attributes, or NULL> (M36)>,
   prune   = NULL         # Forbes extension: node flags + chain table + phi table;
                          # populated by prune(x, ...) -- a standalone verb piped off
                          # ackwards(), not an ackwards() argument (M34; see s.14)
@@ -324,10 +325,15 @@ announced via cli and documented in roxygen with its rationale.
 - **`summary.ackwards`** — per-level variance explained and fit indices (ESEM); a readable
   lineage list (`m1f1 → m2f1, m2f2 → …`); flagged redundant/artifact components when the object
   has been pruned via `prune()`.
-- **`top_items(x, level, cut, n, sort)`** (M18) — per-factor salient-item listing, filtered to
-  `|loading| >= cut` and sorted descending. Returns a `top_items` S3 object with a grouped cli print
-  method. Loadings reflect primary-parent sign alignment (Inv. 4). The `$data` field is a subset of
-  the `tidy(what = "loadings")` table.
+- **`top_items(x, level, cut, n, sort, by, show_labels)`** (M18; `by`/`show_labels` M36) —
+  salient-item listing, filtered to `|loading| >= cut` and sorted descending. Returns a `top_items`
+  S3 object with a grouped cli print method. `by = "factor"` (default) groups items under each
+  factor; `by = "item"` inverts to list, per item, the factors it loads on (cross-loading view);
+  `n`/`sort` apply within the chosen unit. When the fit data carried per-column `"label"` attributes
+  (captured into `meta$item_labels`), `show_labels = TRUE` (default) prints items as `label (code)`
+  with a per-item bare-code fallback. Loadings reflect primary-parent sign alignment (Inv. 4). The
+  `$data` field is a subset of the `tidy(what = "loadings")` table (plus a `label` column when
+  labels are available).
 - **broom-style tidiers:**
   - `tidy(x, what = "edges")` *(default)* — one row per directed edge `(from m_k f_i, to m_{k+1}
     f_j, r, is_primary, above_cut)`. This is the graph edge list and the primary plotting input.
