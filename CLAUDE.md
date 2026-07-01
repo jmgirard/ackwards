@@ -61,38 +61,34 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M37** — engines vignette (doc-only): at-a-glance table fixes (parallel EFA/ESEM, substrate/correlations/estimators rows, χ² symbol, no WLSMV parenthetical); ESEM reframed as continuous (ML/MLR/FIML) *and* ordinal (WLSMV); per-level-fit converse (bad fit weakens incident edges); autoplot `k_max=3` truncation note; sim16-vs-bfi25 framing; runnable `psych::corFiml()` MAR route for PCA/EFA (on continuous sim16, both caveats, forward-ref M38); Missing-data/Performance trims + `library(future)` style; Hu & Bentler citation. Epic renumbered M31–M39 (new code milestone M38 inserted).
 - **M38** — `missing = "fiml"` for PCA/EFA (code): `engine = "pca"/"efa"` + `cor = "pearson"` now routes `R` through `psych::corFiml()` (MAR-valid FIML) into the `W'RW` algebra (Invariant-1-clean, one corFiml call/run, no new dep), reversing the M16 "FIML errors for PCA/EFA" default; `.resolve_missing()` gains a `cor` guard (errors for non-Pearson PCA/EFA basis + WLSMV/ULSMV); `n_obs` string `"total"` (default, Enders 2010) / `"complete"` selects the approximate EFA fit-index N (Zhang & Savalei 2020; point estimates unaffected; announced via cli); `"effective"` dropped (no canonical formula); DESIGN §9/§14 (items 32–33) sign-off.
 - **M39** — narrative & remaining prose (doc-only; final milestone of the M31–M39 epic): clarity pass across intro/suggest_k/ordinal/forbes/README — `print(sk)`/`print(x)`; orthogonal-varimax≡CF(1/p) rationale; SE/CI-NA-under-PCA note; `top_items(cut = 0.5)`; dropped `keep_scores` demo; **removed the README+intro red-arrow explanation** (no red arrow exists after the M35 sign fix); de-indexed README score columns; dropped the Waller citation nudge; suggest_k `sim16`-idealized vs `bfi25`-realistic contrast (inline-computed); ordinal binary/tetrachoric + WLSMV-polychoric + scores-trustworthy clarifications; forbes verbatim-heading rewrites + visible `redundancy_r` chunk + structural-table gt highlight + Lorenzo-Seva ref; refs alphabetized. Three code/viz asks (ordinal `categorical` flag, ordinal corr-comparison viz, forbes pruned-level label styling) spun off to **M40** (`ROADMAP.md`, DESIGN §14). No `R/`/NAMESPACE/export change.
+- **M40** — deferred code/viz asks (final M31–M40 milestone): ordinal `categorical` flag **declined** (redundant — `cor = "polychoric"` already auto-selects WLSMV; would only add a conflict surface + §9 change for zero capability; discoverability handled in docs); ordinal corr-comparison now a **dodged bar chart** (ten `N1`–`N5` item pairs, `fill = basis`, hidden reshape code) replacing the two raw `round(x$r)` matrices (also fixed stale N1–N2 figures 0.73→0.79); `autoplot()` **italicises a fully-pruned level's** axis label (new `.fully_pruned_levels()`, `fontface` aesthetic through `.ba_level_labels()`, both directions) — partially-pruned levels stay plain. No new/removed export, no signature or dependency change.
 
 ## Current focus
 
-**M40 is planned and in progress** — the one pending milestone, spun off *from* M39's planning
-(three code/viz asks deliberately excluded from the doc-only M39). Owner decisions at plan time
-(2026-07-01) reshaped it:
+**M40 is complete** — and with it the entire M31–M40 arc (correctness sweep → documentation/UX
+epic → deferred code/viz asks) that grew out of the 2026-06-30 pkgdown-site review. **There are no
+pending milestones.** M40 resolved the three asks carved out of the doc-only M39:
 
-1. **Ordinal `categorical` convenience flag → DECLINED.** `cor = "polychoric"` already auto-selects
-   the WLSMV estimator (`estimator = NULL` auto-rule; see `R/ackwards.R` and §9), so a `categorical`
-   flag would be a pure synonym for `cor = "polychoric"`, not a two-settings-in-one shortcut — it adds
-   a conflict surface (`categorical = TRUE` + `cor = "pearson"`?) and a §9 defaults change for zero new
-   capability. Discoverability is handled at the docs layer (M39 already points ordinal users to
-   `cor = "polychoric"`). No `R/`/`DESCRIPTION`/§9 change; decline recorded in `DESIGN.md` §14.
-2. **Ordinal correlation-comparison viz → dodged bar chart** (viz-only). Replace the two raw
-   `round(x$r[1:5,1:5], 2)` matrix chunks in `vignettes/ackwards-ordinal.Rmd` with one dodged bar
-   chart: lower-triangle item pairs, `fill = basis` (Pearson vs polychoric), reshape code hidden. No
-   package-code or dependency change (`ggplot2` already in Suggests).
-3. **Forbes pruned-level axis labels → italic** (`autoplot()` code). A **fully-pruned** level (every
-   node flagged) gets an italicized axis label in the normal greyed-node path; automatic (no new arg),
-   mirroring the existing auto grey-fill. Under `drop_pruned = TRUE` a fully-pruned level renders no
-   label anyway. New helper `.fully_pruned_levels()`, threaded into `.ba_level_labels()` (both
-   directions), tested via layer data on a pruned `sim16` object.
+1. **Ordinal `categorical` convenience flag → DECLINED** (owner sign-off, 2026-07-01). `cor =
+   "polychoric"` already auto-selects the WLSMV estimator (`estimator = NULL` auto-rule; see
+   `R/ackwards.R` and §9), so a `categorical` flag would be a pure synonym for `cor = "polychoric"`,
+   not a two-settings-in-one shortcut — it would add a conflict surface and a §9 defaults change for
+   zero new capability. Discoverability is handled at the docs layer instead. No `R/`/`DESCRIPTION`/§9
+   change; decline recorded in `DESIGN.md` §14.
+2. **Ordinal correlation-comparison viz → dodged bar chart** (viz-only). The two raw
+   `round(x$r[1:5,1:5], 2)` matrix chunks in `vignettes/ackwards-ordinal.Rmd` are now one dodged bar
+   chart (ten `N1`–`N5` item pairs, `fill = basis`, hidden reshape code); also fixed stale N1–N2 prose
+   figures (0.73→0.79). No package-code or dependency change.
+3. **Forbes pruned-level axis labels → italic** (`autoplot()` code). A **fully-pruned** level now
+   gets an italic axis label in the normal render path (new `.fully_pruned_levels()` + a `fontface`
+   aesthetic through `.ba_level_labels()`, both directions); partially-pruned levels stay plain.
+   Automatic, no new argument.
 
-Acceptance: `.fully_pruned_levels()` correct + unit-tested; italic on the fully-pruned level, plain
-elsewhere, both `direction` values, no regression on un-pruned / `drop_pruned` paths; ordinal
-vignette knits with the raw matrices gone; §14 records the categorical decline (§9 unchanged);
-`document()` (if roxygen changed) + `check()` clean (0/0/0) once at the gate + coverage maintained +
-styled/linted + `pkgdown::check_pkgdown()` passes; `MILESTONES.md`/`CLAUDE.md` index/`NEWS.md`
-updated; `ROADMAP.md` §M40 retired at ship. **No new export, no signature change, no new dependency.**
+Detail in `MILESTONES.md` (M40 entry). No new/removed export, no signature change, no new dependency.
 
-`ROADMAP.md` §M40 holds the original spin-off brief; it is deleted when M40 ships (the last pending
-milestone). `MILESTONES.md` remains the source of truth for *completed* milestones.
+**Next up: nothing queued.** `ROADMAP.md` had held only the M40 spin-off brief; with M40 shipped it
+carries no pending milestones. For deferred/out-of-scope items see `DESIGN.md` §14 and the "Out of
+scope for now" list below. `MILESTONES.md` remains the source of truth for *completed* milestones.
 
 ## Invariants — do not violate without flagging
 

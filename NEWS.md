@@ -1,5 +1,20 @@
 # ackwards (development)
 
+## Visualization
+
+- `autoplot()` now italicises the axis label of a **fully-pruned level** (one
+  whose factors are *all* flagged by `prune()`), denoting its status alongside
+  the existing grey node fill. Partially-pruned levels keep a plain label. This
+  applies in the normal diagram; under `drop_pruned = TRUE` a fully-pruned
+  level's nodes are removed entirely.
+
+## Ordinal vignette
+
+- The "Ordinal Data" vignette now compares Pearson and polychoric item
+  correlations with a dodged bar chart (the ten `N1`–`N5` item pairs, coloured
+  by basis) instead of two raw correlation-matrix printouts, which were hard to
+  compare visually.
+
 ## FIML for PCA and EFA
 
 - `missing = "fiml"` is now a first-class option for `engine = "pca"` and
