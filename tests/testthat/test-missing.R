@@ -533,6 +533,20 @@ test_that("FIML n_obs = 'total' (default) uses all rows; 'complete' uses complet
   expect_lt(n_complete, nrow(d)) # sanity: missingness reduced the complete count
 })
 
+test_that("PCA FIML n_obs = 'complete' is honored (engine-agnostic switch)", {
+  skip_if_not_installed("psych")
+  d <- .make_fiml_data()
+  n_complete <- sum(stats::complete.cases(d))
+  x_total <- suppressMessages(ackwards(d, k_max = 3L, engine = "pca", missing = "fiml"))
+  x_comp <- suppressMessages(
+    ackwards(d, k_max = 3L, engine = "pca", missing = "fiml", n_obs = "complete")
+  )
+  expect_equal(x_total$n_obs, nrow(d))
+  expect_equal(x_comp$n_obs, n_complete)
+  # PCA fit does not use N, so the R matrix (and thus edges) is identical either way
+  expect_equal(x_total$r, x_comp$r, tolerance = 1e-10)
+})
+
 test_that("FIML point estimates (edges) are unchanged by the n_obs choice", {
   skip_if_not_installed("psych")
   d <- .make_fiml_data()
