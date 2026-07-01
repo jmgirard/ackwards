@@ -68,6 +68,11 @@ M33 simulated Gaussian dataset (foundation); M34 pruning verb — extract `prune
 M36 interpretation functions (`augment` scores-only, `top_items` labels + group-by-item);
 M37 engines vignette; M38 narrative & remaining prose (intro, suggest_k, ordinal, forbes, README).
 
+These one-liners are a lossy index. The **full driving rationale, banked decisions, and the raw
+pkgdown-review notes** behind M33–M38 live in [`ROADMAP.md`](ROADMAP.md) — read it before running
+`/plan-milestone N` for any of them. `MILESTONES.md` remains the source of truth for *completed*
+milestones; `ROADMAP.md` is its forward-looking counterpart for *pending* ones.
+
 ## Invariants — do not violate without flagging
 
 These encode hard-won reasoning from the design phase. Changing them is a design decision, not a

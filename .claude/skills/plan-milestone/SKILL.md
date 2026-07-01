@@ -19,7 +19,10 @@ Once they respond:
 
 3. Re-read CLAUDE.md and DESIGN.md fresh. For prior-milestone detail, the single log is
    `MILESTONES.md` (CLAUDE.md carries only a one-line index); deferred/out-of-scope items are in
-   DESIGN.md §14 and CLAUDE.md's "Out of scope for now".
+   DESIGN.md §14 and CLAUDE.md's "Out of scope for now". **If the milestone being planned is part of
+   the M33–M38 epic, also read [`ROADMAP.md`](../../../ROADMAP.md)** — it holds that milestone's
+   driving rationale, banked decisions, and the raw pkgdown-review notes that the CLAUDE.md
+   one-liner compresses. Treat it as the primary brief for step 2/5 for those milestones.
 4. Confirm this milestone's scope against the deferred items in DESIGN.md §14 and CLAUDE.md's
    "out of scope for now" list (and that it isn't already done per the `MILESTONES.md` log); flag
    if the user's details conflict with either.
