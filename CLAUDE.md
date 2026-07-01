@@ -58,16 +58,32 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-M33 is complete (see `MILESTONES.md` for detail — including a plan deviation: the "thin branch /
-near-duplicate twin factor" mechanism proved unnecessary once prototyped, and no `DESIGN.md` §14
-entry was added, matching the `bfi25` precedent that dataset additions live in roxygen + here, not
-`DESIGN.md`). Next up in the M31–M38 documentation/UX epic is **M34** (pruning verb); not yet
-planned; run `/plan-milestone 34` before starting.
+**M34 (pruning verb) is planned and in progress** on branch `m34-prune-verb`. Extract a standalone,
+pipeable `prune()` **S3 generic** (`prune.ackwards`; `UseMethod` for coexistence with `rpart::prune`)
+out of `ackwards()`: the five prune args (`prune`→renamed `rules`, `redundancy_r`, `redundancy_phi`,
+`min_items`, `orphan_r`) leave `ackwards()` entirely and live on the verb, so users re-prune with new
+thresholds **without re-extracting** (`ackwards(...) |> prune(...)`). Clean move, no deprecation shim
+(pre-CRAN, no users). Scope/decisions settled at planning:
+- **Flag-only, never removes** (Invariant 5 untouched); returns the same `ackwards` object with `$prune`
+  populated (**replaces** any prior `$prune`); **no new class** — existing `print`/`summary`/`tidy`/
+  `glance`/`augment`/`autoplot` methods work unchanged.
+- **Edges recomputed on the fly** inside `prune()` via `compute_edges(x$levels, x$R, pairs = "all")`
+  (object always carries `R` + weights, Invariant 3; single edge path, Invariant 1) — the only skip-level
+  consumer is the endpoint-`r` enrichment; `phi`/structural signals use loadings + adjacent edges. `prune()`
+  does **not** mutate `x$edges`; `pairs` stays a decoupled `ackwards()` display arg (its prune auto-upgrade
+  is removed). Turning `pairs` into a display-only filter is deferred to M35.
+- **Manual + mixed pruning:** `manual =` char vector of node ids (standalone or unioned onto an auto rule);
+  unknown ids error; reason `"manual"` for otherwise-unflagged nodes, auto reason wins on overlap.
+- **Naming:** canonical **`"artifact"`** (US) with **`"artefact"`** accepted as an alias (normalized to
+  `"artifact"`; nod to Commonwealth + Forbes). Existing `prune="artefact"` code keeps working via the alias.
+- **Engine-aware `redundancy_phi=NULL` auto-resolve** moves into `prune()` (reads `x$meta$engine`), still
+  announced via cli (Invariant 6).
+- **DESIGN.md update required** (§5, §9, §14 items 17–21): pruning becomes a standalone verb, not an
+  `ackwards()` arg. Regression-parity test: `ackwards(sim16, k_max=5) |> prune("redundant")` must match the
+  old fit-time `$prune`. Full rationale in `ROADMAP.md` §M34.
 
 Remaining milestones in the epic:
-M34 pruning verb — extract `prune()` from `ackwards()`
-(clean move, no deprecation — pre-CRAN, no users) + manual/mixed flag-only pruning +
-`"artefact"`/`"tucker"` naming + DESIGN.md update; M35 autoplot & visualization;
+M35 autoplot & visualization;
 M36 interpretation functions (`augment` scores-only, `top_items` labels + group-by-item);
 M37 engines vignette; M38 narrative & remaining prose (intro, suggest_k, ordinal, forbes, README).
 
