@@ -37,13 +37,24 @@
 #'   `k_max` means something related but distinct -- the max number of
 #'   factors/components it *evaluates* when recommending a depth, not a depth
 #'   itself; see that function's docs.)
-#' @param n_obs Number of observations. Used only when `data` is a
-#'   pre-computed correlation matrix. Ignored when raw data are supplied (N is
-#'   determined from `nrow(data)`). For `engine = "efa"`, `n_obs` is required --
-#'   [psych::fa()] needs N to compute fit indices (chi-square, RMSEA, TLI). For
-#'   `engine = "pca"`, `n_obs` is optional; edges use only the `W'RW` algebra
-#'   and never touch N (if `NULL`, stored as `NA_integer_` and fit statistics
-#'   requiring N are unavailable).
+#' @param n_obs Number of observations, or (on the raw-data FIML path) a string
+#'   selecting which N feeds the fit indices.
+#'
+#'   * **Correlation-matrix input:** a positive integer. Required for
+#'     `engine = "efa"` ([psych::fa()] needs N for chi-square / RMSEA / TLI);
+#'     optional for `"pca"` (stored as `NA_integer_` if omitted, disabling
+#'     N-dependent fit statistics).
+#'   * **Raw data:** N is normally taken from `nrow(data)` and a numeric `n_obs`
+#'     is ignored (with a warning). The exception is `missing = "fiml"` with
+#'     `engine = "pca"`/`"efa"` (M38): because [psych::corFiml()] estimates the
+#'     correlation matrix from incomplete rows, `n_obs` may be `"total"`
+#'     (default -- every row contributing to the FIML likelihood, matching the
+#'     FIML convention; Enders, 2010) or `"complete"` (complete-case N, a
+#'     conservative lower bound). Point estimates (loadings, edges) do not
+#'     depend on this choice; only the EFA fit indices do, and those are
+#'     *approximate* under this two-step (FIML matrix into normal-theory EFA)
+#'     route regardless of N (Zhang & Savalei, 2020). A string `n_obs` is
+#'     accepted only on this path.
 #' @param engine Extraction engine: `"pca"` (default), `"efa"`, or `"esem"`.
 #'   `"esem"` uses [lavaan::efa()] with rotation-aware SEs and per-level fit
 #'   indices; recommended for the clinical/HiTOP workflow (Kim & Eaton, 2015;
@@ -80,14 +91,18 @@
 #'     `stats::complete.cases()` before fitting, so the correlation matrix,
 #'     the engine fit, and the edges are all consistent. `n_obs` in the result
 #'     reflects the reduced N.
-#'   * `"fiml"` -- Full Information Maximum Likelihood. Passes
-#'     `missing = "fiml"` to [lavaan::efa()]; edge correlations are derived
-#'     from lavaan's FIML-estimated saturated model, ensuring consistency.
-#'     **Only valid for `engine = "esem"` with `estimator = "ML"` or
-#'     `"MLR"`** -- errors for PCA, EFA, and WLSMV/ULSMV. Note: FIML improves
-#'     factor estimation under missingness but does not impute item responses;
-#'     score materialisation (`keep_scores = TRUE`) still produces `NA` rows
-#'     for incomplete observations.
+#'   * `"fiml"` -- Full Information Maximum Likelihood. For `engine = "esem"`
+#'     (with `estimator = "ML"`/`"MLR"`), passes `missing = "fiml"` to
+#'     [lavaan::efa()] and derives edge correlations from lavaan's
+#'     FIML-estimated saturated model. For `engine = "pca"`/`"efa"` (M38), the
+#'     correlation matrix is estimated via [psych::corFiml()] and fed to the
+#'     usual `W'RW` algebra; this requires `cor = "pearson"` (corFiml estimates
+#'     a multivariate-normal matrix) and the route is announced via a cli
+#'     message. Errors for WLSMV/ULSMV and for a non-Pearson PCA/EFA basis.
+#'     Note: FIML improves estimation under missingness but does not impute item
+#'     responses; score materialisation (`keep_scores = TRUE`) still produces
+#'     `NA` rows for incomplete observations. See `n_obs` for the fit-index
+#'     sample size on the PCA/EFA path.
 #' @param align_signs Logical; sign-align factors to primary-parent lineage?
 #'   Default `TRUE`.
 #' @param keep_scores Logical; store factor scores in the result? Default
@@ -128,6 +143,13 @@
 #' Forbes, M. K. (2023). Improving hierarchical models of individual
 #'   differences: An extension of Goldberg's bass-ackward method.
 #'   *Psychological Methods*. \doi{10.1037/met0000546}
+#'
+#' Enders, C. K. (2010). *Applied Missing Data Analysis*. Guilford Press.
+#'
+#' Zhang, X., & Savalei, V. (2020). Examining the effect of missing data on
+#'   RMSEA and CFI under normal theory full-information maximum likelihood.
+#'   *Structural Equation Modeling*, 27(2), 219--239.
+#'   \doi{10.1080/10705511.2019.1642111}
 #'
 #' @section Performance (ESEM, large item sets):
 #' The ESEM engine fits a separate `lavaan` model at every level 1..`k_max`.
@@ -368,24 +390,54 @@ ackwards <- function(
     # BRANCH B -- raw data input (existing behaviour)
     # ============================================================
 
-    # Warn if n_obs supplied alongside raw data (N comes from nrow)
-    if (!is.null(n_obs)) {
-      cli::cli_warn(
-        c(
-          "!" = "{.arg n_obs} is ignored when raw data are supplied \\
-               (N is determined from {.code nrow(data)}).",
-          "i" = "Remove {.arg n_obs} from your call to suppress this warning."
-        ),
-        .frequency = "once",
-        .frequency_id = "ackwards_nobs_ignored"
-      )
-    }
+    # n_obs on the raw-data path is resolved after `missing`/`engine` below
+    # (its meaning depends on them); see the n_obs_mode block.
 
     cor <- rlang::arg_match(cor, c("pearson", "spearman", "polychoric"))
     if (!is.null(estimator)) {
       estimator <- rlang::arg_match(estimator, c("ML", "MLR", "WLSMV", "ULSMV"))
     }
     missing <- rlang::arg_match(missing, c("pairwise", "listwise", "fiml"))
+
+    # --- n_obs on the raw-data path (M38) ------------------------------------
+    # Numeric n_obs is for correlation-matrix input only; with raw data N comes
+    # from the data. Under missing = "fiml" (pca/efa) a *string* n_obs selects
+    # which N feeds the fit indices: "total" (all rows contributing to the FIML
+    # likelihood -- the FIML convention, Enders 2010) or "complete" (complete
+    # cases; a conservative lower bound). Default "total".
+    n_obs_mode <- "total"
+    fiml_pcaefa <- missing == "fiml" && engine %in% c("pca", "efa")
+    if (!is.null(n_obs)) {
+      if (is.character(n_obs)) {
+        n_obs <- rlang::arg_match(n_obs, c("total", "complete"))
+        if (!fiml_pcaefa) {
+          cli::cli_abort(c(
+            "!" = "{.code n_obs = \"{n_obs}\"} is only valid with \\
+                   {.code missing = \"fiml\"} and {.code engine = \"pca\"} or \\
+                   {.code \"efa\"}.",
+            "i" = "For correlation-matrix input pass a numeric N; with raw data \\
+                   and no FIML, N is taken from {.code nrow(data)}."
+          ))
+        }
+        n_obs_mode <- n_obs
+      } else {
+        cli::cli_warn(
+          c(
+            "!" = "{.arg n_obs} is ignored when raw data are supplied \\
+                 (N is determined from {.code nrow(data)}).",
+            if (fiml_pcaefa) {
+              c("i" = "Under {.code missing = \"fiml\"}, pass \\
+                       {.code n_obs = \"total\"} or {.code \"complete\"} to \\
+                       choose which N feeds the fit indices.")
+            } else {
+              c("i" = "Remove {.arg n_obs} from your call to suppress this warning.")
+            }
+          ),
+          .frequency = "once",
+          .frequency_id = "ackwards_nobs_ignored"
+        )
+      }
+    }
 
     # cor = "polychoric" marks every item `ordered` for lavaan; ML/MLR flatly
     # do not support ordered indicators (lavaan itself errors with "estimator
@@ -422,7 +474,7 @@ ackwards <- function(
     } else {
       NULL
     }
-    .resolve_missing(missing, engine, estimator_eff)
+    .resolve_missing(missing, engine, estimator_eff, cor)
 
     # cor = "spearman" + engine = "esem" is semantically inconsistent: lavaan fits
     # Pearson ML on raw data while compute_edges() uses Spearman R for scoring
@@ -572,6 +624,29 @@ ackwards <- function(
           )
           R <- psych::cor.smooth(R)
         } # nocov end
+      } else if (missing == "fiml") {
+        # M38: FIML correlation via psych::corFiml (cor is guaranteed "pearson"
+        # here by .resolve_missing). The estimated R feeds the normal W'RW
+        # algebra unchanged; only the fit-index N choice is FIML-specific.
+        R <- .corfiml_R(data_mat)
+        n_obs_eff <- switch(n_obs_mode,
+          total    = nrow(data_mat),
+          complete = n_complete
+        )
+        cli::cli_inform(c(
+          "i" = "{.code missing = \"fiml\"}: correlation matrix estimated via \\
+                 {.fn psych::corFiml} (full-information ML).",
+          if (engine == "efa") {
+            c(
+              "i" = "Fit indices use N = {n_obs_eff} \\
+                     ({.code n_obs = \"{n_obs_mode}\"}); point estimates \\
+                     (loadings, edges) are unaffected by this choice.",
+              "!" = "Fit indices are approximate: a FIML correlation matrix is \\
+                     fed into a normal-theory EFA (a two-step procedure). See \\
+                     {.code ?ackwards} ({.arg n_obs})."
+            )
+          }
+        ))
       } else {
         R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
       }

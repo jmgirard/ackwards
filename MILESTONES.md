@@ -837,3 +837,49 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   all vignettes re-build OK; full suite **1484 pass / 0 fail / 0 error / 8 skip**. (The "1509 pass,
   2 skip" figure above is the EFAtools-*installed* count; the delta is the EFAtools-gated tests —
   the suite total is environment-dependent on which Suggests are present.)
+
+- **M38 (done):** `missing = "fiml"` for PCA/EFA — the sixth milestone of the M31–M39 epic and its
+  first **code** milestone. Promotes FIML from an ESEM-only option to a first-class route for the
+  PCA and EFA engines, reversing the M16 contract that `missing = "fiml"` errors for those engines.
+  **The route.** Under `engine = "pca"/"efa"` with `cor = "pearson"`, `missing = "fiml"` now
+  estimates the correlation matrix via `psych::corFiml()` (full-information ML; multivariate-normal,
+  MAR-valid) and feeds it to the existing `W'RW` between-level algebra. Invariant-1-clean: it just
+  supplies a better `R` to the one edge path — no new edge path, no new dependency (`psych` already
+  Imports), and one `corFiml()` call per run by construction (PCA/EFA compute `R` once and reuse it
+  across all levels, unlike the per-level ESEM fits M26 had to hoist). Grew out of the M37
+  doc-planning observation that a user could already smuggle FIML in through the M22
+  correlation-matrix seam (`ackwards(psych::corFiml(x), …)`); M38 makes it discoverable and owns the
+  `n_obs` tradeoff. New internal helper `.corfiml_R()` wraps the call with the same non-PD
+  `psych::cor.smooth()` fallback the polychoric path uses.
+  **Guard matrix.** `.resolve_missing()` gained a `cor` argument: FIML is valid for
+  `{pca, efa}`-pearson and (unchanged) ESEM-ML/MLR; it **errors** for a non-Pearson PCA/EFA basis
+  (Spearman, polychoric — corFiml is MVN-only) and for WLSMV/ULSMV. A `cor = "fiml"` alternative was
+  rejected during M37 planning as a category error (corFiml returns a Pearson matrix; FIML is an
+  estimation-under-missingness method that belongs on the `missing=` axis, not the measurement-level
+  `cor=` axis).
+  **`n_obs` string option.** On the raw-data FIML PCA/EFA path, `n_obs` accepts `"total"` (default —
+  every row contributing to the FIML likelihood, matching the convention a genuine FIML analysis
+  reports, Enders 2010, and giving cross-engine parallelism with ESEM-ML FIML) or `"complete"`
+  (complete-case N, a conservative lower bound). Point estimates (loadings/edges) are unaffected by
+  the choice; only the EFA fit indices depend on N, and those are *approximate* under this two-step
+  (FIML matrix → normal-theory EFA) procedure regardless of N (Zhang & Savalei 2020), so the route
+  announces itself and the caveat via cli (Invariant 6). `"effective"` was considered and **dropped**
+  at plan time: no canonical formula exists for a corFiml→EFA route, so it would be a
+  package-invented convention masquerading as a standard. A string `n_obs` is rejected off this path;
+  correlation-matrix input still requires a numeric N. Score materialisation is unchanged — corFiml
+  estimates `R` but does not impute item responses, so `keep_scores = TRUE` still yields `NA` score
+  rows for incomplete cases (the existing `.compute_scores()` note already covers this generically).
+  **DESIGN sign-off.** §9 (`missing` + `n_obs` rows) and §14 (new resolved items 32–33) updated to
+  record the reversed default and the `n_obs` semantics; roxygen for `missing`/`n_obs` gained the
+  *why* plus Enders (2010) and Zhang & Savalei (2020) references. No new/removed exports (helpers are
+  internal; pkgdown reference index unchanged).
+  Files: `R/utils.R` (`.resolve_missing()` + `cor` guard, `.corfiml_R()`), `R/ackwards.R` (route,
+  `n_obs` string handling, cli announce, roxygen), `tests/testthat/test-missing.R`, `DESIGN.md`,
+  `NEWS.md`, `CLAUDE.md` (Current focus + Completed index), `MILESTONES.md`.
+  Verified: `R CMD check` **0/0/0**; full suite **1509 pass / 0 fail / 8 skip** (EFAtools absent on
+  the dev machine — 8 EFAtools/doc-context skips; higher with EFAtools installed); `R/` coverage
+  **100%** (`R/ackwards.R` and `R/utils.R` both 100%; the only package-wide uncovered lines are the
+  EFAtools-gated `suggest_k.R` block, which is covered when EFAtools is present); lint clean;
+  `pkgdown::check_pkgdown()` clean. (Two pre-existing defensive early-returns in `.is_cor_matrix()` /
+  `.check_maybe_cov_matrix()` were given direct unit tests here to keep `R/utils.R` at 100% after the
+  M38 additions.)

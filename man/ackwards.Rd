@@ -78,23 +78,39 @@ when incomplete rows are detected.
 \code{stats::complete.cases()} before fitting, so the correlation matrix,
 the engine fit, and the edges are all consistent. \code{n_obs} in the result
 reflects the reduced N.
-\item \code{"fiml"} -- Full Information Maximum Likelihood. Passes
-\code{missing = "fiml"} to \code{\link[lavaan:efa]{lavaan::efa()}}; edge correlations are derived
-from lavaan's FIML-estimated saturated model, ensuring consistency.
-\strong{Only valid for \code{engine = "esem"} with \code{estimator = "ML"} or
-\code{"MLR"}} -- errors for PCA, EFA, and WLSMV/ULSMV. Note: FIML improves
-factor estimation under missingness but does not impute item responses;
-score materialisation (\code{keep_scores = TRUE}) still produces \code{NA} rows
-for incomplete observations.
+\item \code{"fiml"} -- Full Information Maximum Likelihood. For \code{engine = "esem"}
+(with \code{estimator = "ML"}/\code{"MLR"}), passes \code{missing = "fiml"} to
+\code{\link[lavaan:efa]{lavaan::efa()}} and derives edge correlations from lavaan's
+FIML-estimated saturated model. For \code{engine = "pca"}/\code{"efa"} (M38), the
+correlation matrix is estimated via \code{\link[psych:corFiml]{psych::corFiml()}} and fed to the
+usual \verb{W'RW} algebra; this requires \code{cor = "pearson"} (corFiml estimates
+a multivariate-normal matrix) and the route is announced via a cli
+message. Errors for WLSMV/ULSMV and for a non-Pearson PCA/EFA basis.
+Note: FIML improves estimation under missingness but does not impute item
+responses; score materialisation (\code{keep_scores = TRUE}) still produces
+\code{NA} rows for incomplete observations. See \code{n_obs} for the fit-index
+sample size on the PCA/EFA path.
 }}
 
-\item{n_obs}{Number of observations. Used only when \code{data} is a
-pre-computed correlation matrix. Ignored when raw data are supplied (N is
-determined from \code{nrow(data)}). For \code{engine = "efa"}, \code{n_obs} is required --
-\code{\link[psych:fa]{psych::fa()}} needs N to compute fit indices (chi-square, RMSEA, TLI). For
-\code{engine = "pca"}, \code{n_obs} is optional; edges use only the \verb{W'RW} algebra
-and never touch N (if \code{NULL}, stored as \code{NA_integer_} and fit statistics
-requiring N are unavailable).}
+\item{n_obs}{Number of observations, or (on the raw-data FIML path) a string
+selecting which N feeds the fit indices.
+\itemize{
+\item \strong{Correlation-matrix input:} a positive integer. Required for
+\code{engine = "efa"} (\code{\link[psych:fa]{psych::fa()}} needs N for chi-square / RMSEA / TLI);
+optional for \code{"pca"} (stored as \code{NA_integer_} if omitted, disabling
+N-dependent fit statistics).
+\item \strong{Raw data:} N is normally taken from \code{nrow(data)} and a numeric \code{n_obs}
+is ignored (with a warning). The exception is \code{missing = "fiml"} with
+\code{engine = "pca"}/\code{"efa"} (M38): because \code{\link[psych:corFiml]{psych::corFiml()}} estimates the
+correlation matrix from incomplete rows, \code{n_obs} may be \code{"total"}
+(default -- every row contributing to the FIML likelihood, matching the
+FIML convention; Enders, 2010) or \code{"complete"} (complete-case N, a
+conservative lower bound). Point estimates (loadings, edges) do not
+depend on this choice; only the EFA fit indices do, and those are
+\emph{approximate} under this two-step (FIML matrix into normal-theory EFA)
+route regardless of N (Zhang & Savalei, 2020). A string \code{n_obs} is
+accepted only on this path.
+}}
 
 \item{align_signs}{Logical; sign-align factors to primary-parent lineage?
 Default \code{TRUE}.}
@@ -232,6 +248,13 @@ Personality}, 41(4), 745--752. \doi{10.1016/j.jrp.2006.08.005}
 Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg's bass-ackward method.
 \emph{Psychological Methods}. \doi{10.1037/met0000546}
+
+Enders, C. K. (2010). \emph{Applied Missing Data Analysis}. Guilford Press.
+
+Zhang, X., & Savalei, V. (2020). Examining the effect of missing data on
+RMSEA and CFI under normal theory full-information maximum likelihood.
+\emph{Structural Equation Modeling}, 27(2), 219--239.
+\doi{10.1080/10705511.2019.1642111}
 }
 \seealso{
 \code{\link[=print.ackwards]{print.ackwards()}}, \code{\link[=tidy.ackwards]{tidy.ackwards()}}, \code{\link[=glance.ackwards]{glance.ackwards()}},

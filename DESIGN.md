@@ -305,8 +305,8 @@ announced via cli and documented in roxygen with its rationale.
 | `keep_fits` / `keep_scores` | `FALSE` / `FALSE` | memory + privacy. |
 | `k_max` | required | force a deliberate choice; don't silently pick. |
 | `seed` | `NULL` but captured | stochastic engines (rotation starts, ML) need reproducibility; encourage setting. |
-| `missing` | **`"pairwise"`** | preserves existing behaviour (pairwise-complete correlations); warns when NAs present. `"listwise"` gives fully consistent N across fit and edges (reduces to complete cases pre-fit). `"fiml"` (ESEM ML/MLR only) uses Full Information ML and derives edge R from lavaan's FIML saturated model. FIML errors for PCA, EFA, and WLSMV/ULSMV. Added M16; **see §14 "ESEM ML/MLR pairwise" limitation entry** (the ML/MLR fit-vs-edges inconsistency under missingness is resolved for `"listwise"` and `"fiml"`; `"pairwise"` retains the existing minor inconsistency and now warns). Ignored (with a warning) when a correlation matrix is supplied — added M22. |
-| `n_obs` | `NULL` (new M22) | required for `engine = "efa"` when a correlation matrix is supplied (psych needs N for chi-square/RMSEA); optional for `"pca"` (stored as `NA_integer_`). Ignored (with a warning) when raw data are supplied (N comes from `nrow(data)`). |
+| `missing` | **`"pairwise"`** | preserves existing behaviour (pairwise-complete correlations); warns when NAs present. `"listwise"` gives fully consistent N across fit and edges (reduces to complete cases pre-fit). `"fiml"` uses Full Information ML: for ESEM (ML/MLR) it derives edge R from lavaan's FIML saturated model; for **PCA/EFA on the Pearson basis** (M38) it estimates R via `psych::corFiml()` and feeds it to the `W'RW` algebra (Invariant 1 — one edge path; no new dep). FIML **errors** for WLSMV/ULSMV and for a **non-Pearson PCA/EFA basis** (corFiml is MVN-only). Added M16; PCA/EFA route added M38; **see §14 "ESEM ML/MLR pairwise" limitation entry** (the ML/MLR fit-vs-edges inconsistency under missingness is resolved for `"listwise"` and `"fiml"`; `"pairwise"` retains the existing minor inconsistency and now warns). Ignored (with a warning) when a correlation matrix is supplied — added M22. |
+| `n_obs` | `NULL` (M22); **string `"total"`/`"complete"` on the raw-data FIML PCA/EFA path (M38)** | Correlation-matrix input: a positive integer, required for `engine = "efa"` (psych needs N for chi-square/RMSEA), optional for `"pca"` (stored as `NA_integer_`). Raw data: N normally comes from `nrow(data)` and a numeric `n_obs` is ignored (warning). Under `missing = "fiml"` (PCA/EFA), `n_obs` may be `"total"` (**default** — all rows contributing to the FIML likelihood, matching the FIML convention; Enders 2010) or `"complete"` (complete-case N, conservative lower bound). Point estimates are unaffected by the choice; only the EFA fit indices, which are *approximate* under this two-step (FIML matrix → normal-theory EFA) route regardless of N (Zhang & Savalei 2020). `"effective"` was considered and dropped — no canonical formula, so it would be a package-invented convention. A string `n_obs` is rejected off this path. |
 
 ### Documentation standard (owner priority)
 
@@ -545,6 +545,29 @@ users):**
 31. `ackwards()` explicitly rejects the five removed args if passed via `...` (rather than silently
     absorbing them) with a pointer to `prune()` — silent absorption would be a masked-argument
     footgun, not the clean break intended (Invariant 6: loud, not silent).
+
+**Resolved for M38 (`missing = "fiml"` for PCA/EFA; reverses a resolved default —
+owner-signed-off):**
+32. **FIML promoted to a first-class PCA/EFA route.** The M16 contract "`missing = "fiml"`
+    errors for PCA, EFA" is **reversed for the Pearson basis**: under `engine = "pca"/"efa"` with
+    `cor = "pearson"`, `missing = "fiml"` now routes R through `psych::corFiml()` (full-information
+    ML, MVN) and feeds it to the existing `W'RW` algebra — Invariant-1-clean (one edge path, one
+    corFiml call per run since R is computed once and reused across all levels; no new dependency,
+    `psych` already Imports). It **still errors** for a non-Pearson PCA/EFA basis (Spearman,
+    polychoric — corFiml cannot honor them) and for WLSMV/ULSMV. `.resolve_missing()` gained a `cor`
+    argument to enforce this guard matrix. Grew out of the M37 doc-planning observation that a user
+    could already smuggle FIML in via the M22 correlation-matrix seam (`ackwards(corFiml(x), …)`);
+    M38 makes the capability discoverable and owns the `n_obs` tradeoff.
+33. **`n_obs` string option + default.** On the raw-data FIML PCA/EFA path, `n_obs` accepts
+    `"total"` (**default**) or `"complete"`. `"total"` = every row contributing to the FIML
+    likelihood, matching the convention a genuine FIML analysis reports (Enders 2010) and giving
+    cross-engine parallelism with ESEM-ML FIML. Point estimates (loadings/edges) do not depend on
+    the choice; only the EFA fit indices do, and those are *approximate* under this two-step
+    (FIML matrix → normal-theory EFA) procedure regardless of N (Zhang & Savalei 2020) — so the
+    route announces itself and the caveat via cli (Invariant 6). `"effective"` was considered and
+    **dropped**: no canonical formula exists for a corFiml→EFA route, so it would be a
+    package-invented convention masquerading as a standard. A string `n_obs` is rejected off this
+    path; cor-matrix input still requires a numeric N.
 
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.

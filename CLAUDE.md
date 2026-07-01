@@ -59,20 +59,25 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M35** — autoplot & visualization: sign-propagation bugfix (primary-parent edges now always non-negative per DESIGN §7); `autoplot()` `sign_by`/`magnitude_by` configurable, always-legended encodings (`cut_strong` retired; `mono` kept as wrapper); `direction="horizontal"` layout; `colour_*` aliases + `color_edge`; `ggsave` documented (not re-exported); code-coupled viz/intro/README prose
 - **M36** — interpretation functions: `augment()` `append` (scores-only) + `id_cols` passthrough; `top_items()` `by=c("factor","item")` + variable-label display (`label (code)`, fit-time capture into `meta$item_labels`, `show_labels`); interpret-vignette prose edits (cut=0.5 lead, `by="item"`/label demos, metatrait/HiTOP naming advice) + intro score de-indexing
 - **M37** — engines vignette (doc-only): at-a-glance table fixes (parallel EFA/ESEM, substrate/correlations/estimators rows, χ² symbol, no WLSMV parenthetical); ESEM reframed as continuous (ML/MLR/FIML) *and* ordinal (WLSMV); per-level-fit converse (bad fit weakens incident edges); autoplot `k_max=3` truncation note; sim16-vs-bfi25 framing; runnable `psych::corFiml()` MAR route for PCA/EFA (on continuous sim16, both caveats, forward-ref M38); Missing-data/Performance trims + `library(future)` style; Hu & Bentler citation. Epic renumbered M31–M39 (new code milestone M38 inserted).
+- **M38** — `missing = "fiml"` for PCA/EFA (code): `engine = "pca"/"efa"` + `cor = "pearson"` now routes `R` through `psych::corFiml()` (MAR-valid FIML) into the `W'RW` algebra (Invariant-1-clean, one corFiml call/run, no new dep), reversing the M16 "FIML errors for PCA/EFA" default; `.resolve_missing()` gains a `cor` guard (errors for non-Pearson PCA/EFA basis + WLSMV/ULSMV); `n_obs` string `"total"` (default, Enders 2010) / `"complete"` selects the approximate EFA fit-index N (Zhang & Savalei 2020; point estimates unaffected; announced via cli); `"effective"` dropped (no canonical formula); DESIGN §9/§14 (items 32–33) sign-off.
 
 ## Current focus
 
-M37 is complete (see `MILESTONES.md` for detail). Next up in the M31–M39 documentation/UX epic is
-**M38** — a **code** milestone: promote `missing = "fiml"` to a first-class route for PCA/EFA that
-auto-routes to `psych::corFiml()` (currently `missing="fiml"` errors for PCA/EFA). Not yet planned;
-run `/plan-milestone 38` before starting. Its brief in `ROADMAP.md` carries the banked decisions —
-string-valued `n_obs` (`"total"`/`"complete"`/`"effective"`) + the FIML-fit-index literature task
-for the defensible default, the guard matrix, the DESIGN §9/§14 sign-off (it reverses a resolved
-default), and the corFiml-speed note.
+M38 is complete (see `MILESTONES.md` for detail): `missing = "fiml"` is now a first-class PCA/EFA
+route (`cor = "pearson"` → `psych::corFiml()` → `W'RW` algebra), reversing the M16 error contract;
+`.resolve_missing()` guards the basis; `n_obs = "total"`/`"complete"` selects the approximate EFA
+fit-index N; DESIGN §9/§14 signed off. The final scope narrowed the plan slightly: FIML for PCA/EFA
+is **Pearson-only** (Spearman also errors — corFiml returns a Pearson matrix), not
+pearson/spearman as the mid-planning note read.
 
-Remaining milestones in the epic:
-M38 `missing = "fiml"` for PCA/EFA (corFiml auto-route; **code milestone** — DESIGN sign-off +
-tests); M39 narrative & remaining prose (intro, suggest_k, ordinal, forbes, README).
+Next up (last in the M31–M39 epic) is **M39** — a **doc** milestone: narrative & remaining prose
+across the intro, suggest_k, ordinal, forbes, and README pages. Not yet planned; run
+`/plan-milestone 39` before starting. Its brief in `ROADMAP.md` carries the banked page-by-page
+review notes (e.g. the `sim16`-idealized vs. `bfi25`-realistic framing belongs in the suggest_k
+vignette; README sign-arrow explanation; ordinal binary-item / dodged-bar / alphabetical-refs asks;
+forbes verbatim-heading + pruned-level-label + gt-highlight asks). `MILESTONES.md` remains the
+source of truth for *completed* milestones; `ROADMAP.md` is its forward-looking counterpart for the
+one *pending* milestone.
 
 These one-liners are a lossy index. The **full driving rationale, banked decisions, and the raw
 pkgdown-review notes** behind M35–M39 live in [`ROADMAP.md`](ROADMAP.md) — read it before running

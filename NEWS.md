@@ -1,5 +1,22 @@
 # ackwards (development)
 
+## FIML for PCA and EFA
+
+- `missing = "fiml"` is now a first-class option for `engine = "pca"` and
+  `"efa"` (previously it errored for those engines). On the Pearson basis it
+  estimates the correlation matrix via `psych::corFiml()` — full-information
+  maximum likelihood, MAR-valid — and feeds it to the usual between-level
+  algebra. This promotes the previously manual `ackwards(psych::corFiml(x), …)`
+  pattern to a built-in route. It requires `cor = "pearson"` (corFiml estimates
+  a multivariate-normal matrix) and still errors for a non-Pearson PCA/EFA basis
+  and for WLSMV/ULSMV.
+- New string form of `n_obs` for this path: `"total"` (default — every row
+  contributing to the FIML likelihood, the standard FIML convention) or
+  `"complete"` (complete-case N, a conservative lower bound). This governs only
+  the EFA fit indices, which are approximate under this two-step route; the
+  loadings and edges are unaffected by the choice. The route and this caveat are
+  announced via a message.
+
 ## Bug fixes
 
 - `suggest_k()` no longer errors on machines without the optional **EFAtools**
