@@ -154,13 +154,13 @@ and reports a consensus range:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[307ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[314ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[184ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[191ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[8.3s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[11.2s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -564,11 +564,12 @@ a percentage.</p>
 They are useful for regression, clustering, or any downstream analysis
 where you want a continuous summary of a latent dimension.</p>
 <p><code>augment(x, data = bfi)</code> computes scores on the fly from
-the stored weight matrices and appends them to your data frame. The
-score columns are named <code>.m{k}f{j}</code> to distinguish them from
-the original variables.</p>
+the stored weight matrices. By default it appends them to your data
+frame; pass <code>append = FALSE</code> to get just the score columns,
+named <code>.m{k}f{j}</code>. Row order is preserved either way, so the
+scores line up with the input rows.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">scored</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x</span>, data <span class="op">=</span> <span class="va">bfi</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x</span>, data <span class="op">=</span> <span class="va">bfi</span>, append <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: <span style="color: #BBBB00;">!</span> Factor scores are standardized using model-implied SDs from a <span style="color: #0000BB;">"polychoric"</span></span></span>
 <span><span class="co">#&gt;   correlation matrix.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The raw projection uses `.standardize(data)` (Pearson z-scores), but</span></span>
@@ -576,9 +577,9 @@ the original variables.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Empirical score SDs will differ from 1.0. For non-Pearson analyses,</span></span>
 <span><span class="co">#&gt;   between-level edges from `tidy()` are the authoritative associations.</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span> <span class="co"># 25 original items + 15 score columns (1+2+3+4+5)</span></span>
-<span><span class="co">#&gt; [1] 875  40</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span><span class="op">[</span><span class="fl">26</span><span class="op">:</span><span class="fl">40</span><span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">scores</span><span class="op">)</span> <span class="co"># 15 score columns (1+2+3+4+5)</span></span>
+<span><span class="co">#&gt; [1] 875  15</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">scores</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"</span></span>
 <span><span class="co">#&gt; [10] ".m4f4" ".m5f1" ".m5f2" ".m5f3" ".m5f4" ".m5f5"</span></span></code></pre></div>
 <p>Scores are standardized so that the <strong>model-implied</strong>
@@ -593,8 +594,8 @@ store them at fit time with <code>keep_scores = TRUE</code> to avoid
 re-applying the weight matrices on every call:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, keep_scores <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">scored2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span> <span class="co"># uses stored matrices — no recomputation</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">scored2</span><span class="op">$</span><span class="va">.m5f1</span>, <span class="va">scored</span><span class="op">$</span><span class="va">.m5f1</span><span class="op">)</span></span>
+<span><span class="va">scores2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x2</span>, append <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="co"># uses stored matrices — no recomputation</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">scores2</span><span class="op">$</span><span class="va">.m5f1</span>, <span class="va">scores</span><span class="op">$</span><span class="va">.m5f1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="using-scores-for-downstream-analysis">Using scores for downstream analysis<a class="anchor" aria-label="anchor" href="#using-scores-for-downstream-analysis"></a>
@@ -606,7 +607,7 @@ consequence of orthogonal rotation — while scores across levels should
 be highly correlated along the primary-parent lineage:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Within-level correlations at k = 5: should be near zero (orthogonal rotation)</span></span>
-<span><span class="va">k5</span> <span class="op">&lt;-</span> <span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f3"</span>, <span class="st">".m5f4"</span>, <span class="st">".m5f5"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">k5</span> <span class="op">&lt;-</span> <span class="va">scores</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f3"</span>, <span class="st">".m5f4"</span>, <span class="st">".m5f5"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">k5</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       .m5f1 .m5f2 .m5f3 .m5f4 .m5f5</span></span>
 <span><span class="co">#&gt; .m5f1  1.00 -0.01 -0.01 -0.02  0.00</span></span>
@@ -616,7 +617,7 @@ be highly correlated along the primary-parent lineage:</p>
 <span><span class="co">#&gt; .m5f5  0.00  0.01 -0.02 -0.03  1.00</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Cross-level: m4f1 is the primary parent of m5f1 and m5f4 (from the edge table)</span></span>
-<span><span class="va">lineage</span> <span class="op">&lt;-</span> <span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m4f1"</span>, <span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f4"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">lineage</span> <span class="op">&lt;-</span> <span class="va">scores</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m4f1"</span>, <span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f4"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">lineage</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       .m4f1 .m5f1 .m5f2 .m5f4</span></span>
 <span><span class="co">#&gt; .m4f1  1.00  0.84  0.00  0.53</span></span>

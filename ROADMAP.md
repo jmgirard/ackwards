@@ -1,4 +1,4 @@
-# ROADMAP.md — planned milestones (M36–M38)
+# ROADMAP.md — planned milestones (M37–M38)
 
 Forward-looking counterpart to
 [`MILESTONES.md`](https://jmgirard.github.io/ackwards/MILESTONES.md).
@@ -51,37 +51,6 @@ spec — the concrete file-level plan and acceptance criteria are produced
 at `/plan-milestone` time. - When a milestone ships, delete its section
 here and rely on its `MILESTONES.md` entry. Keep this file scoped to
 *pending* work only.
-
-------------------------------------------------------------------------
-
-## M36 — Interpretation functions (`augment`, `top_items`)
-
-- **Type:** code + interpret vignette · **Depends on:** none ·
-  **Status:** pending.
-
-**Code changes (the two functional asks):** -
-**[`augment()`](https://generics.r-lib.org/reference/augment.html)
-scores-only option** — optionally return only the factor scores. Also
-removes the base-R indexing (`names(scored)[26:40]`, `[26:40]` for k5)
-the owner disliked in the intro. -
-**[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
-enhancements:** (a) if a column carries a variable label attribute (from
-`labelled`/`haven`), display that label instead of the bare colname
-(e.g. “How much do you like parties?” not `bfi1`); (b) a
-**group-by-item** mode that lists factors per item (inverse of the
-default group-by-factor), to make cross-loadings legible.
-
-**Interpret-vignette prose (rides with M36):** - “let’s adjust cut to
-0.5 for output clarity and parsimony … then no need to duplicate with
-another cut, could just mention in text that it is adjustable.” - “can
-probably drop the last part of this section about top_items returning an
-object with \$data — that’s detail better saved for reference docs.” -
-“probably remove the comment about why polychoric.” - “should we give
-advice on or examples of naming higher level factors? could reference
-metatraits in big five theory or spectra in hitop.” - “the where to go
-next section points to visualization but that is not next in the order
-of the menu … maybe remove that or make it a note rather than a full
-section.”
 
 ------------------------------------------------------------------------
 
@@ -167,15 +136,16 @@ could be estimated had we used the esem engine.” *(the machine behavior
 — SE/CI as NA + signal — was settled in M31; this is the prose note.)* -
 “in step 6, is the standardizing warning relevant or distracting
 here?” - “i dont think we need to show the keep_scores = TRUE part
-here.” *(dovetails with M36’s augment scores-only, which removes the
-base-R indexing.)* - “should we explain briefly why we use orthogonal
-rotations within each level in bassackwards? and specifically why we use
-varimax (and how that is equivalent to crawfer in case people see that
-reference in kim and eaton and get confused … like i did).” *(see the
-rotation-rationale memo.)* - **(✔ resolved in M31/M32):** “no warning
-this time” mismatch; drifted hardcoded percentages (now dynamic); 5-vs-6
-criteria count; `variance_pct` 0–100 → 0–1. Prose should reflect the
-fixes.
+here.” *(M36 shipped `augment(append = FALSE)` and already replaced the
+intro’s base-R score indexing with it; the remaining ask — whether to
+drop the `keep_scores = TRUE` demo chunk entirely — is still M38’s.)* -
+“should we explain briefly why we use orthogonal rotations within each
+level in bassackwards? and specifically why we use varimax (and how that
+is equivalent to crawfer in case people see that reference in kim and
+eaton and get confused … like i did).” *(see the rotation-rationale
+memo.)* - **(✔ resolved in M31/M32):** “no warning this time” mismatch;
+drifted hardcoded percentages (now dynamic); 5-vs-6 criteria count;
+`variance_pct` 0–100 → 0–1. Prose should reflect the fixes.
 
 **suggest_k vignette prose:** - “VSS limitation has an extra space in
 ‘cross- loadings’.” - “use print(sk) here.” / “what does the check vs

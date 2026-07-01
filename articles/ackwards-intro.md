@@ -73,13 +73,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [307ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [314ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [184ms]
+#> ✔ Running MAP and VSS... [191ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [8.3s]
+#> ✔ Running Comparison Data (CD)... [11.2s]
 #> 
 sk
 #> 
@@ -484,12 +484,14 @@ They are useful for regression, clustering, or any downstream analysis
 where you want a continuous summary of a latent dimension.
 
 `augment(x, data = bfi)` computes scores on the fly from the stored
-weight matrices and appends them to your data frame. The score columns
-are named `.m{k}f{j}` to distinguish them from the original variables.
+weight matrices. By default it appends them to your data frame; pass
+`append = FALSE` to get just the score columns, named `.m{k}f{j}`. Row
+order is preserved either way, so the scores line up with the input
+rows.
 
 ``` r
 
-scored <- augment(x, data = bfi)
+scores <- augment(x, data = bfi, append = FALSE)
 #> Warning: ! Factor scores are standardized using model-implied SDs from a "polychoric"
 #>   correlation matrix.
 #> ℹ The raw projection uses `.standardize(data)` (Pearson z-scores), but
@@ -497,9 +499,9 @@ scored <- augment(x, data = bfi)
 #> ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,
 #>   between-level edges from `tidy()` are the authoritative associations.
 #> This warning is displayed once per session.
-dim(scored) # 25 original items + 15 score columns (1+2+3+4+5)
-#> [1] 875  40
-names(scored)[26:40]
+dim(scores) # 15 score columns (1+2+3+4+5)
+#> [1] 875  15
+names(scores)
 #>  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"
 #> [10] ".m4f4" ".m5f1" ".m5f2" ".m5f3" ".m5f4" ".m5f5"
 ```
@@ -519,8 +521,8 @@ weight matrices on every call:
 ``` r
 
 x2 <- ackwards(bfi, k_max = 5, cor = "polychoric", keep_scores = TRUE)
-scored2 <- augment(x2) # uses stored matrices — no recomputation
-all.equal(scored2$.m5f1, scored$.m5f1)
+scores2 <- augment(x2, append = FALSE) # uses stored matrices — no recomputation
+all.equal(scores2$.m5f1, scores$.m5f1)
 #> [1] TRUE
 ```
 
@@ -536,7 +538,7 @@ the primary-parent lineage:
 ``` r
 
 # Within-level correlations at k = 5: should be near zero (orthogonal rotation)
-k5 <- scored[, c(".m5f1", ".m5f2", ".m5f3", ".m5f4", ".m5f5")]
+k5 <- scores[, c(".m5f1", ".m5f2", ".m5f3", ".m5f4", ".m5f5")]
 round(cor(k5), 2)
 #>       .m5f1 .m5f2 .m5f3 .m5f4 .m5f5
 #> .m5f1  1.00 -0.01 -0.01 -0.02  0.00
@@ -549,7 +551,7 @@ round(cor(k5), 2)
 ``` r
 
 # Cross-level: m4f1 is the primary parent of m5f1 and m5f4 (from the edge table)
-lineage <- scored[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]
+lineage <- scores[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]
 round(cor(lineage), 2)
 #>       .m4f1 .m5f1 .m5f2 .m5f4
 #> .m4f1  1.00  0.84  0.00  0.53

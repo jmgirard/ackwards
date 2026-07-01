@@ -66,7 +66,15 @@ matrix, which does not scale well to large <code>k</code> or many items.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">top_items</span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="cn">NULL</span>, cut <span class="op">=</span> <span class="fl">0.3</span>, n <span class="op">=</span> <span class="cn">NULL</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">top_items</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  level <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cut <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>  n <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sort <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"factor"</span>, <span class="st">"item"</span><span class="op">)</span>,</span>
+<span>  show_labels <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -94,17 +102,32 @@ kept after applying the cut.</p></dd>
 
 
 <dt id="arg-sort">sort<a class="anchor" aria-label="anchor" href="#arg-sort"></a></dt>
-<dd><p>Logical. When <code>TRUE</code> (default), items within each factor are
+<dd><p>Logical. When <code>TRUE</code> (default), items within each group are
 ordered by descending <code>|loading|</code>. Set to <code>FALSE</code> to keep the original
-item order (useful when items have a meaningful sequence).</p></dd>
+order (useful when items have a meaningful sequence).</p></dd>
+
+
+<dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
+<dd><p>One of <code>"factor"</code> (default) or <code>"item"</code>. <code>"factor"</code> groups the
+listing by factor (the salient items <em>of</em> each factor – "what is this
+factor about?"). <code>"item"</code> inverts the grouping to list, for each item, the
+factors it loads on – which makes cross-loadings legible ("where does this
+item go?"). <code>n</code> and <code>sort</code> apply within whichever unit <code>by</code> selects.</p></dd>
+
+
+<dt id="arg-show-labels">show_labels<a class="anchor" aria-label="anchor" href="#arg-show-labels"></a></dt>
+<dd><p>Logical. When <code>TRUE</code> (default) and the data carried a
+variable-label attribute at fit time (see <code><a href="ackwards.html">ackwards()</a></code>), items are shown as
+<code>label (id)</code>; items without a label fall back to the bare id. Set to
+<code>FALSE</code> to always show the bare <code>m{k}f{j}</code>-style item ids.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An object of class <code>"top_items"</code>. Print it for a grouped
-level-by-factor cli listing. The underlying data frame (one row per
-selected item) is accessible via <code>$data</code> and contains columns <code>level</code>,
-<code>factor</code>, <code>item</code>, and <code>loading</code>. The values equal the corresponding
+    <p>An object of class <code>"top_items"</code>. Print it for a grouped cli listing.
+The underlying data frame (one row per selected item) is accessible via
+<code>$data</code> and contains columns <code>level</code>, <code>factor</code>, <code>item</code>, and <code>loading</code> (plus
+<code>label</code> when labels are available). The values equal the corresponding
 <code>tidy(x, what = "loadings")</code> rows (after filtering and optional sorting).</p>
     </div>
     <div class="section level2">
@@ -339,6 +362,76 @@ orientation but not the other; this is expected and informative.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> O2 [-0.579]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> O1 [0.546]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> O4 [0.497]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">for the full matrix.</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Invert the grouping to read cross-loadings item-by-item</span></span></span>
+<span class="r-in"><span><span class="fu">top_items</span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">3</span>, cut <span class="op">=</span> <span class="fl">0.25</span>, by <span class="op">=</span> <span class="st">"item"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient factors by item (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Engine: pca</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Cut: |loading| &gt;= 0.25</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Top-n: all</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Level 3 (3 factors)</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">A1</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [-0.330]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">A2</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.612]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">A3</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.718]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">A4</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.423]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">A5</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.706]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">C1</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.642]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">C2</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.652]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">C3</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.540]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">C4</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [-0.677]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.257]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">C5</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [-0.536]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.356]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">E1</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [-0.578]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">E2</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [-0.657]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.254]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">E3</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.673]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">E4</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.735]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">E5</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.490]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.401]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">N1</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.750]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">N2</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.774]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">N3</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.791]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">N4</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.637]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">N5</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.621]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">O1</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.336]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.299]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">O2</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [-0.437]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">O3</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.396]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.357]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">O4</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.371]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">O5</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [-0.426]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">for the full matrix.</span></span>

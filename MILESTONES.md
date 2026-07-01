@@ -1179,3 +1179,76 @@ User-facing change notes live in `NEWS.md`.
     explaining *why* colour is the default `sign_by` channel
     (pre-attentive sign reading; leaves linetype free). (1457 tests
     pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+
+- **M36 (done):** interpretation functions — the fourth milestone of the
+  M31–M38 documentation/UX epic. Additive only: no new exported objects
+  (pkgdown reference index unchanged), no new dependency (labels read
+  via base [`attr()`](https://rdrr.io/r/base/attr.html) —
+  **labelled**/**haven** never enter Imports/Suggests).
+  **[`augment()`](https://generics.r-lib.org/reference/augment.html)
+  scores-only output.** New `append` argument (default `TRUE` = current
+  behaviour, scores appended to `data`); `append = FALSE` returns only
+  the `.m{k}f{j}` score columns. New `id_cols` names passthrough columns
+  (e.g. a subject id) to carry through under `append = FALSE` for a
+  rejoin that survives filtering; `NULL` (default) yields bare scores.
+  The assembly was refactored around a single `base` carrier (full
+  `data` / `.obs` index / `id_cols` subset / empty frame) so row order
+  and count are always preserved —
+  `cbind(data, augment(x, data, append = FALSE))` reproduces the
+  appended output exactly. Guards: `id_cols` requires `append = FALSE`
+  **and** `data` (errors otherwise, since with `append = TRUE` every
+  column is already kept and with `data = NULL` there are no source
+  columns), an absent `id_cols` column errors, and `append` must be a
+  scalar logical.
+  **[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+  grouping + variable labels.** New `by = c("factor", "item")`:
+  `"factor"` (default) is the existing group-items-under-each-factor
+  view; `"item"` inverts it to list, per item, the factors it loads on
+  (cross-loading view). The row-builder was restructured to first
+  assemble the full filtered long table (retaining
+  `.factor_ord`/`.item_ord` index columns) and then apply per-group
+  `sort` + `n` via [`order()`](https://rdrr.io/r/base/order.html) +
+  `stats::ave(..., FUN = seq_along)`, so both orientations and the
+  `sort = FALSE` “original order” mode work regardless of `by`. New
+  label support:
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  captures each data.frame column’s `"label"` attribute (the attribute
+  **labelled**/**haven** write) into `x$meta$item_labels` before
+  [`as.matrix()`](https://rdrr.io/r/base/matrix.html) strips it (new
+  internal `.capture_item_labels()`, `NULL` for matrix/cor-matrix input
+  or when nothing is labelled);
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+  then prints items as `label (code)` with a per-item bare-code fallback
+  (new internal `.format_item_label()`). `show_labels = FALSE` forces
+  bare codes; `$data` gains a `label` column when labels are available.
+  The `top_items` object grew two fields (`by`, `item_labels`).
+  **Vignettes.** Interpret vignette (`ackwards-interpret.Rmd`): lead
+  example moved to `cut = 0.5` with the duplicate-cut chunk dropped and
+  adjustability moved to prose; the `$data`-internals paragraph and the
+  “why polychoric” setup comment removed; cross-loadings section re-cast
+  around `by = "item"`; a new “Showing item wording” section
+  demonstrates the label interface; a new “Borrowing names for the upper
+  levels” subsection gives naming advice via Big Five metatraits
+  (Stability/Plasticity) and HiTOP spectra (with DeYoung 2006 and Kotov
+  et al. 2017 references); the “Where to go next” section demoted to a
+  blockquote note. Intro vignette (`ackwards-intro.Rmd`): the positional
+  `names(scored)[26:40]` / `scored[, c(...)]` score indexing replaced
+  with `augment(append = FALSE)` (mechanical touch only; broader intro
+  narrative remains M38’s). **Decisions banked.** `id_cols` subsumes
+  bare-scores (it *is* the escape hatch, not a separate mode) rather
+  than adding a passthrough-vs-bare toggle; labels captured at fit time
+  (so display “just works” and travels with the object) rather than
+  passed to
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+  each call; print format is `label (code)` (code retained for
+  cross-referencing `tidy(what = "loadings")`); `by = "item"` orders by
+  level then strongest loading within level. Files: `R/ackwards.R`
+  (label capture into meta), `R/utils.R` (`.capture_item_labels()`),
+  `R/augment.R` (`append`/`id_cols`), `R/interpret.R`
+  (`by`/`show_labels`/`.format_item_label()`),
+  `tests/testthat/test-utils.R`, `tests/testthat/test-scores.R`,
+  `tests/testthat/test-interpret.R`, `NEWS.md`, `DESIGN.md` (§10
+  `top_items` signature; object-spec `meta$item_labels`),
+  `vignettes/ackwards-interpret.Rmd`, `vignettes/ackwards-intro.Rmd`,
+  `ROADMAP.md` (M36 section deleted per its own maintenance rule). (1496
+  tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)

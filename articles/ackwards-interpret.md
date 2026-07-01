@@ -4,8 +4,6 @@
 
 library(ackwards)
 bfi <- na.omit(bfi25)
-# BFI items are ordinal, so use polychoric correlations (matches the intro and
-# visualization vignettes). This also avoids the ordinal-detection warning.
 x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 ```
 
@@ -38,11 +36,11 @@ than a full item-by-factor matrix, especially at deeper levels.
 
 ``` r
 
-top_items(x, level = 5)
+top_items(x, level = 5, cut = 0.5)
 #> 
 #> ── Salient items by factor (ackwards) ──────────────────────────────────────────
 #> Engine: pca
-#> Cut: |loading| >= 0.3
+#> Cut: |loading| >= 0.5
 #> Top-n: all
 #> 
 #> ── Level 5 (5 factors) ──
@@ -53,66 +51,6 @@ top_items(x, level = 5)
 #> E1 [-0.701]
 #> E3 [0.677]
 #> E5 [0.597]
-#> A5 [0.487]
-#> A3 [0.415]
-#> O3 [0.394]
-#> N4 [-0.314]
-#> O1 [0.302]
-#> m5f2
-#> N3 [-0.825]
-#> N1 [-0.810]
-#> N2 [-0.805]
-#> N5 [-0.688]
-#> N4 [-0.646]
-#> C5 [-0.344]
-#> O4 [-0.317]
-#> m5f3
-#> C2 [0.735]
-#> C4 [-0.716]
-#> C1 [0.690]
-#> C3 [0.679]
-#> C5 [-0.652]
-#> E5 [0.448]
-#> A4 [0.345]
-#> m5f4
-#> A1 [-0.704]
-#> A3 [0.703]
-#> A2 [0.692]
-#> A5 [0.580]
-#> A4 [0.522]
-#> m5f5
-#> O5 [-0.705]
-#> O3 [0.655]
-#> O1 [0.604]
-#> O2 [-0.595]
-#> O4 [0.551]
-#> ────────────────────────────────────────────────────────────────────────────────
-#> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
-#> for the full matrix.
-```
-
-The default `cut = 0.3` shows every item with `|loading| >= 0.3`. Raise
-it to isolate the items that most define each factor, or lower it to
-surface weaker cross-loadings.
-
-``` r
-
-top_items(x, level = 5, cut = 0.45)
-#> 
-#> ── Salient items by factor (ackwards) ──────────────────────────────────────────
-#> Engine: pca
-#> Cut: |loading| >= 0.45
-#> Top-n: all
-#> 
-#> ── Level 5 (5 factors) ──
-#> 
-#> m5f1
-#> E2 [-0.752]
-#> E4 [0.747]
-#> E1 [-0.701]
-#> E3 [0.677]
-#> E5 [0.597]
-#> A5 [0.487]
 #> m5f2
 #> N3 [-0.825]
 #> N1 [-0.810]
@@ -142,8 +80,13 @@ top_items(x, level = 5, cut = 0.45)
 #> for the full matrix.
 ```
 
-When a factor has many salient items, `n` caps the list at the strongest
-few so you can see the core of each factor at a glance:
+The `cut` threshold controls how inclusive the listing is. Here we raise
+it to `0.5` to keep each factor to its defining items; the default is
+`0.3`. Raise it further to isolate only the strongest markers, or lower
+it to surface weaker cross-loadings (see below). When a factor has many
+salient items, `n` caps the list at the strongest few, and
+`sort = FALSE` keeps items in their original order instead of sorting by
+`|loading|` — useful when your items follow a meaningful sequence.
 
 ``` r
 
@@ -186,80 +129,82 @@ top_items(x, level = 5, cut = 0.3, n = 4)
 #> for the full matrix.
 ```
 
-By default items are sorted by descending `|loading|`. If your items
-have a meaningful order (for example, a numbered scale you want to keep
-in sequence), set `sort = FALSE`.
-
-[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
-returns an object whose `$data` field is a plain data frame — a
-filtered, sorted slice of `tidy(x, what = "loadings")` — so you can
-compute on it if you need to:
-
-``` r
-
-ti <- top_items(x, level = 5, cut = 0.3)
-head(ti$data)
-#>   level factor item    loading
-#> 1     5   m5f1   E2 -0.7523369
-#> 2     5   m5f1   E4  0.7468932
-#> 3     5   m5f1   E1 -0.7011135
-#> 4     5   m5f1   E3  0.6769085
-#> 5     5   m5f1   E5  0.5974602
-#> 6     5   m5f1   A5  0.4869514
-```
-
 ### Cross-loadings are signal
 
 Items that load on more than one factor are not noise to be suppressed —
-they often tell you how two factors relate. Lowering the cut reveals
-them:
+they often tell you how two factors relate. The `by = "item"` mode
+inverts the grouping: instead of listing the items under each factor, it
+lists, for each item, the factors it loads on. Lowering the cut then
+makes cross-loadings easy to read item by item:
 
 ``` r
 
-top_items(x, level = 3, cut = 0.25)
+top_items(x, level = 3, cut = 0.25, by = "item")
 #> 
-#> ── Salient items by factor (ackwards) ──────────────────────────────────────────
+#> ── Salient factors by item (ackwards) ──────────────────────────────────────────
 #> Engine: pca
 #> Cut: |loading| >= 0.25
 #> Top-n: all
 #> 
 #> ── Level 3 (3 factors) ──
 #> 
-#> m3f1
-#> E4 [0.784]
-#> A3 [0.750]
-#> A5 [0.735]
-#> E2 [-0.698]
-#> E3 [0.664]
-#> A2 [0.650]
-#> E1 [-0.611]
-#> E5 [0.507]
-#> A4 [0.490]
-#> O3 [0.355]
-#> A1 [-0.354]
-#> O1 [0.253]
-#> C5 [-0.252]
-#> m3f2
-#> N3 [-0.812]
-#> N2 [-0.791]
-#> N1 [-0.777]
-#> N4 [-0.680]
-#> N5 [-0.650]
-#> C5 [-0.428]
-#> O4 [-0.414]
-#> C4 [-0.348]
-#> m3f3
-#> C1 [0.658]
-#> C2 [0.642]
-#> C4 [-0.609]
-#> O5 [-0.553]
-#> O2 [-0.520]
-#> O3 [0.504]
-#> O1 [0.493]
-#> C3 [0.476]
-#> C5 [-0.453]
-#> E5 [0.392]
-#> O4 [0.319]
+#> A1
+#> m3f1 [-0.354]
+#> A2
+#> m3f1 [0.650]
+#> A3
+#> m3f1 [0.750]
+#> A4
+#> m3f1 [0.490]
+#> A5
+#> m3f1 [0.735]
+#> C1
+#> m3f3 [0.658]
+#> C2
+#> m3f3 [0.642]
+#> C3
+#> m3f3 [0.476]
+#> C4
+#> m3f3 [-0.609]
+#> m3f2 [-0.348]
+#> C5
+#> m3f3 [-0.453]
+#> m3f2 [-0.428]
+#> m3f1 [-0.252]
+#> E1
+#> m3f1 [-0.611]
+#> E2
+#> m3f1 [-0.698]
+#> E3
+#> m3f1 [0.664]
+#> E4
+#> m3f1 [0.784]
+#> E5
+#> m3f1 [0.507]
+#> m3f3 [0.392]
+#> N1
+#> m3f2 [-0.777]
+#> N2
+#> m3f2 [-0.791]
+#> N3
+#> m3f2 [-0.812]
+#> N4
+#> m3f2 [-0.680]
+#> N5
+#> m3f2 [-0.650]
+#> O1
+#> m3f3 [0.493]
+#> m3f1 [0.253]
+#> O2
+#> m3f3 [-0.520]
+#> O3
+#> m3f3 [0.504]
+#> m3f1 [0.355]
+#> O4
+#> m3f2 [-0.414]
+#> m3f3 [0.319]
+#> O5
+#> m3f3 [-0.553]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.
@@ -270,6 +215,74 @@ where the constructs overlap. Whether that overlap is substantively
 meaningful or a sign of overextraction is a judgment call — see
 [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md)
 for the overextraction discussion.
+
+### Showing item wording instead of codes
+
+Item codes like `A1` or `N3` are compact but opaque. If your data
+carries variable labels — the `"label"` attribute that packages like
+**labelled** and **haven** attach to columns, and that survey exports
+often include —
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+captures them at fit time and
+[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+displays them as `label (code)`:
+
+``` r
+
+bfi_lab <- bfi
+attr(bfi_lab$A1, "label") <- "Am indifferent to the feelings of others"
+attr(bfi_lab$A2, "label") <- "Inquire about others' well-being"
+attr(bfi_lab$A3, "label") <- "Know how to comfort others"
+
+x_lab <- ackwards(bfi_lab, k_max = 5, cor = "polychoric")
+top_items(x_lab, level = 5, cut = 0.5)
+#> 
+#> ── Salient items by factor (ackwards) ──────────────────────────────────────────
+#> Engine: pca
+#> Cut: |loading| >= 0.5
+#> Top-n: all
+#> 
+#> ── Level 5 (5 factors) ──
+#> 
+#> m5f1
+#> E2 [-0.752]
+#> E4 [0.747]
+#> E1 [-0.701]
+#> E3 [0.677]
+#> E5 [0.597]
+#> m5f2
+#> N3 [-0.825]
+#> N1 [-0.810]
+#> N2 [-0.805]
+#> N5 [-0.688]
+#> N4 [-0.646]
+#> m5f3
+#> C2 [0.735]
+#> C4 [-0.716]
+#> C1 [0.690]
+#> C3 [0.679]
+#> C5 [-0.652]
+#> m5f4
+#> Am indifferent to the feelings of others (A1) [-0.704]
+#> Know how to comfort others (A3) [0.703]
+#> Inquire about others' well-being (A2) [0.692]
+#> A5 [0.580]
+#> A4 [0.522]
+#> m5f5
+#> O5 [-0.705]
+#> O3 [0.655]
+#> O1 [0.604]
+#> O2 [-0.595]
+#> O4 [0.551]
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
+#> for the full matrix.
+```
+
+Labelled items show their wording; unlabelled ones fall back to the bare
+code, so a partially labelled data set still prints cleanly. Pass
+`show_labels = FALSE` to force the bare codes even when labels are
+present.
 
 ## The sign convention: negative does not mean “low”
 
@@ -440,6 +453,34 @@ Edges with `|r|` near 1.0 are factors that pass through nearly unchanged
 bottom flag where a new, distinct construct is emerging and deserves its
 own name.
 
+### Borrowing names for the upper levels
+
+The hardest factors to name are usually the broad ones near the top,
+precisely because they blend several familiar constructs. Rather than
+inventing an ad-hoc label, it often helps to borrow a name from a theory
+that has already charted the level *above* your usual constructs. Two
+are especially handy for personality and psychopathology data:
+
+- **Big Five metatraits.** Above the five factors sit two higher-order
+  dimensions — **Stability** (the shared variance of Agreeableness,
+  Conscientiousness, and low Neuroticism) and **Plasticity**
+  (Extraversion and Openness) — from DeYoung’s work on the metatraits.
+  In a `bfi` hierarchy these are frequently what a two- or three-factor
+  level *is*, so “Stability” / “Plasticity” are ready-made names for
+  factors that would otherwise be an awkward “broad well-adjustment”.
+- **HiTOP spectra.** In clinical data, the Hierarchical Taxonomy of
+  Psychopathology names the broad bands directly — *internalizing*,
+  *externalizing (disinhibited and antagonistic)*, *thought disorder*,
+  *detachment*, and *somatoform* — with a general **p-factor** at the
+  apex. A level whose items span several disorders is usually one of
+  these spectra, and naming it as such keeps your hierarchy legible to
+  readers who already think in HiTOP terms.
+
+The point is not to force your data onto either scheme, but to recognise
+that an upper-level factor is often a *known* superordinate construct —
+and that reusing its established name communicates far more than a
+bespoke one.
+
 ## Applying your names
 
 Once you have decided on names, attach them to the diagram.
@@ -565,15 +606,24 @@ autoplot(x, node_labels = labs)
 
 ![](ackwards-interpret_files/figure-html/label-blank-1.png)
 
-## Where to go next
+This article is about *what* to put on the diagram.
 
-This article is about *what* to put on the diagram. For *how* the
-diagram looks — colours, edge thresholds, monochrome and publication
-styling, level labels, and the Forbes pruned-diagram mode — see
-[`vignette("ackwards-visualization")`](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.md).
+> **Note:** For *how* the diagram looks — colours, edge thresholds,
+> monochrome and publication styling, level labels, and the Forbes
+> pruned-diagram mode — see
+> [`vignette("ackwards-visualization")`](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.md).
 
 ## References
+
+DeYoung, C. G. (2006). Higher-order factors of the Big Five in a
+multi-informant sample. *Journal of Personality and Social Psychology,
+91*(6), 1138–1151. <https://doi.org/10.1037/0022-3514.91.6.1138>
 
 Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg’s bass-ackward method.
 *Psychological Methods*. <https://doi.org/10.1037/met0000546>
+
+Kotov, R., Krueger, R. F., Watson, D., et al. (2017). The Hierarchical
+Taxonomy of Psychopathology (HiTOP): A dimensional alternative to
+traditional nosologies. *Journal of Abnormal Psychology, 126*(4),
+454–477. <https://doi.org/10.1037/abn0000258>

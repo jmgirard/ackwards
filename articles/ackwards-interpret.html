@@ -84,8 +84,6 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmgirard.github.io/ackwards/">ackwards</a></span><span class="op">)</span></span>
 <span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span>
-<span><span class="co"># BFI items are ordinal, so use polychoric correlations (matches the intro and</span></span>
-<span><span class="co"># visualization vignettes). This also avoids the ordinal-detection warning.</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span></code></pre></div>
 <p>Fitting an <code>ackwards</code> model gives you a hierarchy of
 factors with stable but opaque IDs — <code>m1f1</code>,
@@ -121,11 +119,11 @@ absolute loading meets a threshold, sorted from strongest to weakest.
 This is far easier to read than a full item-by-factor matrix, especially
 at deeper levels.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">5</span>, cut <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient items by factor (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; Engine: pca</span></span>
-<span><span class="co">#&gt; Cut: |loading| &gt;= 0.3</span></span>
+<span><span class="co">#&gt; Cut: |loading| &gt;= 0.5</span></span>
 <span><span class="co">#&gt; Top-n: all</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Level 5 (5 factors)</span> ──</span></span>
@@ -136,27 +134,18 @@ at deeper levels.</p>
 <span><span class="co">#&gt; E1 [-0.701]</span></span>
 <span><span class="co">#&gt; E3 [0.677]</span></span>
 <span><span class="co">#&gt; E5 [0.597]</span></span>
-<span><span class="co">#&gt; A5 [0.487]</span></span>
-<span><span class="co">#&gt; A3 [0.415]</span></span>
-<span><span class="co">#&gt; O3 [0.394]</span></span>
-<span><span class="co">#&gt; N4 [-0.314]</span></span>
-<span><span class="co">#&gt; O1 [0.302]</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f2</span></span></span>
 <span><span class="co">#&gt; N3 [-0.825]</span></span>
 <span><span class="co">#&gt; N1 [-0.810]</span></span>
 <span><span class="co">#&gt; N2 [-0.805]</span></span>
 <span><span class="co">#&gt; N5 [-0.688]</span></span>
 <span><span class="co">#&gt; N4 [-0.646]</span></span>
-<span><span class="co">#&gt; C5 [-0.344]</span></span>
-<span><span class="co">#&gt; O4 [-0.317]</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f3</span></span></span>
 <span><span class="co">#&gt; C2 [0.735]</span></span>
 <span><span class="co">#&gt; C4 [-0.716]</span></span>
 <span><span class="co">#&gt; C1 [0.690]</span></span>
 <span><span class="co">#&gt; C3 [0.679]</span></span>
 <span><span class="co">#&gt; C5 [-0.652]</span></span>
-<span><span class="co">#&gt; E5 [0.448]</span></span>
-<span><span class="co">#&gt; A4 [0.345]</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f4</span></span></span>
 <span><span class="co">#&gt; A1 [-0.704]</span></span>
 <span><span class="co">#&gt; A3 [0.703]</span></span>
@@ -172,58 +161,15 @@ at deeper levels.</p>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">for the full matrix.</span></span></span></code></pre></div>
-<p>The default <code>cut = 0.3</code> shows every item with
-<code>|loading| &gt;= 0.3</code>. Raise it to isolate the items that
-most define each factor, or lower it to surface weaker
-cross-loadings.</p>
+<p>The <code>cut</code> threshold controls how inclusive the listing is.
+Here we raise it to <code>0.5</code> to keep each factor to its defining
+items; the default is <code>0.3</code>. Raise it further to isolate only
+the strongest markers, or lower it to surface weaker cross-loadings (see
+below). When a factor has many salient items, <code>n</code> caps the
+list at the strongest few, and <code>sort = FALSE</code> keeps items in
+their original order instead of sorting by <code>|loading|</code> —
+useful when your items follow a meaningful sequence.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">5</span>, cut <span class="op">=</span> <span class="fl">0.45</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient items by factor (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span></span>
-<span><span class="co">#&gt; Engine: pca</span></span>
-<span><span class="co">#&gt; Cut: |loading| &gt;= 0.45</span></span>
-<span><span class="co">#&gt; Top-n: all</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Level 5 (5 factors)</span> ──</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f1</span></span></span>
-<span><span class="co">#&gt; E2 [-0.752]</span></span>
-<span><span class="co">#&gt; E4 [0.747]</span></span>
-<span><span class="co">#&gt; E1 [-0.701]</span></span>
-<span><span class="co">#&gt; E3 [0.677]</span></span>
-<span><span class="co">#&gt; E5 [0.597]</span></span>
-<span><span class="co">#&gt; A5 [0.487]</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f2</span></span></span>
-<span><span class="co">#&gt; N3 [-0.825]</span></span>
-<span><span class="co">#&gt; N1 [-0.810]</span></span>
-<span><span class="co">#&gt; N2 [-0.805]</span></span>
-<span><span class="co">#&gt; N5 [-0.688]</span></span>
-<span><span class="co">#&gt; N4 [-0.646]</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f3</span></span></span>
-<span><span class="co">#&gt; C2 [0.735]</span></span>
-<span><span class="co">#&gt; C4 [-0.716]</span></span>
-<span><span class="co">#&gt; C1 [0.690]</span></span>
-<span><span class="co">#&gt; C3 [0.679]</span></span>
-<span><span class="co">#&gt; C5 [-0.652]</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f4</span></span></span>
-<span><span class="co">#&gt; A1 [-0.704]</span></span>
-<span><span class="co">#&gt; A3 [0.703]</span></span>
-<span><span class="co">#&gt; A2 [0.692]</span></span>
-<span><span class="co">#&gt; A5 [0.580]</span></span>
-<span><span class="co">#&gt; A4 [0.522]</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f5</span></span></span>
-<span><span class="co">#&gt; O5 [-0.705]</span></span>
-<span><span class="co">#&gt; O3 [0.655]</span></span>
-<span><span class="co">#&gt; O1 [0.604]</span></span>
-<span><span class="co">#&gt; O2 [-0.595]</span></span>
-<span><span class="co">#&gt; O4 [0.551]</span></span>
-<span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">for the full matrix.</span></span></span></code></pre></div>
-<p>When a factor has many salient items, <code>n</code> caps the list at
-the strongest few so you can see the core of each factor at a
-glance:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">5</span>, cut <span class="op">=</span> <span class="fl">0.3</span>, n <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient items by factor (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span></span>
@@ -261,74 +207,82 @@ glance:</p>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">for the full matrix.</span></span></span></code></pre></div>
-<p>By default items are sorted by descending <code>|loading|</code>. If
-your items have a meaningful order (for example, a numbered scale you
-want to keep in sequence), set <code>sort = FALSE</code>.</p>
-<p><code><a href="../reference/top_items.html">top_items()</a></code> returns an object whose <code>$data</code>
-field is a plain data frame — a filtered, sorted slice of
-<code>tidy(x, what = "loadings")</code> — so you can compute on it if
-you need to:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ti</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">5</span>, cut <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ti</span><span class="op">$</span><span class="va">data</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   level factor item    loading</span></span>
-<span><span class="co">#&gt; 1     5   m5f1   E2 -0.7523369</span></span>
-<span><span class="co">#&gt; 2     5   m5f1   E4  0.7468932</span></span>
-<span><span class="co">#&gt; 3     5   m5f1   E1 -0.7011135</span></span>
-<span><span class="co">#&gt; 4     5   m5f1   E3  0.6769085</span></span>
-<span><span class="co">#&gt; 5     5   m5f1   E5  0.5974602</span></span>
-<span><span class="co">#&gt; 6     5   m5f1   A5  0.4869514</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="cross-loadings-are-signal">Cross-loadings are signal<a class="anchor" aria-label="anchor" href="#cross-loadings-are-signal"></a>
 </h3>
 <p>Items that load on more than one factor are not noise to be
-suppressed — they often tell you how two factors relate. Lowering the
-cut reveals them:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">3</span>, cut <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span>
+suppressed — they often tell you how two factors relate. The
+<code>by = "item"</code> mode inverts the grouping: instead of listing
+the items under each factor, it lists, for each item, the factors it
+loads on. Lowering the cut then makes cross-loadings easy to read item
+by item:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">3</span>, cut <span class="op">=</span> <span class="fl">0.25</span>, by <span class="op">=</span> <span class="st">"item"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient items by factor (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient factors by item (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; Engine: pca</span></span>
 <span><span class="co">#&gt; Cut: |loading| &gt;= 0.25</span></span>
 <span><span class="co">#&gt; Top-n: all</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Level 3 (3 factors)</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m3f1</span></span></span>
-<span><span class="co">#&gt; E4 [0.784]</span></span>
-<span><span class="co">#&gt; A3 [0.750]</span></span>
-<span><span class="co">#&gt; A5 [0.735]</span></span>
-<span><span class="co">#&gt; E2 [-0.698]</span></span>
-<span><span class="co">#&gt; E3 [0.664]</span></span>
-<span><span class="co">#&gt; A2 [0.650]</span></span>
-<span><span class="co">#&gt; E1 [-0.611]</span></span>
-<span><span class="co">#&gt; E5 [0.507]</span></span>
-<span><span class="co">#&gt; A4 [0.490]</span></span>
-<span><span class="co">#&gt; O3 [0.355]</span></span>
-<span><span class="co">#&gt; A1 [-0.354]</span></span>
-<span><span class="co">#&gt; O1 [0.253]</span></span>
-<span><span class="co">#&gt; C5 [-0.252]</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m3f2</span></span></span>
-<span><span class="co">#&gt; N3 [-0.812]</span></span>
-<span><span class="co">#&gt; N2 [-0.791]</span></span>
-<span><span class="co">#&gt; N1 [-0.777]</span></span>
-<span><span class="co">#&gt; N4 [-0.680]</span></span>
-<span><span class="co">#&gt; N5 [-0.650]</span></span>
-<span><span class="co">#&gt; C5 [-0.428]</span></span>
-<span><span class="co">#&gt; O4 [-0.414]</span></span>
-<span><span class="co">#&gt; C4 [-0.348]</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m3f3</span></span></span>
-<span><span class="co">#&gt; C1 [0.658]</span></span>
-<span><span class="co">#&gt; C2 [0.642]</span></span>
-<span><span class="co">#&gt; C4 [-0.609]</span></span>
-<span><span class="co">#&gt; O5 [-0.553]</span></span>
-<span><span class="co">#&gt; O2 [-0.520]</span></span>
-<span><span class="co">#&gt; O3 [0.504]</span></span>
-<span><span class="co">#&gt; O1 [0.493]</span></span>
-<span><span class="co">#&gt; C3 [0.476]</span></span>
-<span><span class="co">#&gt; C5 [-0.453]</span></span>
-<span><span class="co">#&gt; E5 [0.392]</span></span>
-<span><span class="co">#&gt; O4 [0.319]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">A1</span></span></span>
+<span><span class="co">#&gt; m3f1 [-0.354]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">A2</span></span></span>
+<span><span class="co">#&gt; m3f1 [0.650]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">A3</span></span></span>
+<span><span class="co">#&gt; m3f1 [0.750]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">A4</span></span></span>
+<span><span class="co">#&gt; m3f1 [0.490]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">A5</span></span></span>
+<span><span class="co">#&gt; m3f1 [0.735]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">C1</span></span></span>
+<span><span class="co">#&gt; m3f3 [0.658]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">C2</span></span></span>
+<span><span class="co">#&gt; m3f3 [0.642]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">C3</span></span></span>
+<span><span class="co">#&gt; m3f3 [0.476]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">C4</span></span></span>
+<span><span class="co">#&gt; m3f3 [-0.609]</span></span>
+<span><span class="co">#&gt; m3f2 [-0.348]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">C5</span></span></span>
+<span><span class="co">#&gt; m3f3 [-0.453]</span></span>
+<span><span class="co">#&gt; m3f2 [-0.428]</span></span>
+<span><span class="co">#&gt; m3f1 [-0.252]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">E1</span></span></span>
+<span><span class="co">#&gt; m3f1 [-0.611]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">E2</span></span></span>
+<span><span class="co">#&gt; m3f1 [-0.698]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">E3</span></span></span>
+<span><span class="co">#&gt; m3f1 [0.664]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">E4</span></span></span>
+<span><span class="co">#&gt; m3f1 [0.784]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">E5</span></span></span>
+<span><span class="co">#&gt; m3f1 [0.507]</span></span>
+<span><span class="co">#&gt; m3f3 [0.392]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">N1</span></span></span>
+<span><span class="co">#&gt; m3f2 [-0.777]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">N2</span></span></span>
+<span><span class="co">#&gt; m3f2 [-0.791]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">N3</span></span></span>
+<span><span class="co">#&gt; m3f2 [-0.812]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">N4</span></span></span>
+<span><span class="co">#&gt; m3f2 [-0.680]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">N5</span></span></span>
+<span><span class="co">#&gt; m3f2 [-0.650]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">O1</span></span></span>
+<span><span class="co">#&gt; m3f3 [0.493]</span></span>
+<span><span class="co">#&gt; m3f1 [0.253]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">O2</span></span></span>
+<span><span class="co">#&gt; m3f3 [-0.520]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">O3</span></span></span>
+<span><span class="co">#&gt; m3f3 [0.504]</span></span>
+<span><span class="co">#&gt; m3f1 [0.355]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">O4</span></span></span>
+<span><span class="co">#&gt; m3f2 [-0.414]</span></span>
+<span><span class="co">#&gt; m3f3 [0.319]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">O5</span></span></span>
+<span><span class="co">#&gt; m3f3 [-0.553]</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">for the full matrix.</span></span></span></code></pre></div>
@@ -337,6 +291,69 @@ point where the constructs overlap. Whether that overlap is
 substantively meaningful or a sign of overextraction is a judgment call
 — see <code><a href="../articles/ackwards-suggest-k.html">vignette("ackwards-suggest-k")</a></code> for the overextraction
 discussion.</p>
+</div>
+<div class="section level3">
+<h3 id="showing-item-wording-instead-of-codes">Showing item wording instead of codes<a class="anchor" aria-label="anchor" href="#showing-item-wording-instead-of-codes"></a>
+</h3>
+<p>Item codes like <code>A1</code> or <code>N3</code> are compact but
+opaque. If your data carries variable labels — the <code>"label"</code>
+attribute that packages like <strong>labelled</strong> and
+<strong>haven</strong> attach to columns, and that survey exports often
+include — <code><a href="../reference/ackwards.html">ackwards()</a></code> captures them at fit time and
+<code><a href="../reference/top_items.html">top_items()</a></code> displays them as <code>label (code)</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">bfi_lab</span> <span class="op">&lt;-</span> <span class="va">bfi</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">bfi_lab</span><span class="op">$</span><span class="va">A1</span>, <span class="st">"label"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Am indifferent to the feelings of others"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">bfi_lab</span><span class="op">$</span><span class="va">A2</span>, <span class="st">"label"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Inquire about others' well-being"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">bfi_lab</span><span class="op">$</span><span class="va">A3</span>, <span class="st">"label"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Know how to comfort others"</span></span>
+<span></span>
+<span><span class="va">x_lab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi_lab</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x_lab</span>, level <span class="op">=</span> <span class="fl">5</span>, cut <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient items by factor (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span></span>
+<span><span class="co">#&gt; Engine: pca</span></span>
+<span><span class="co">#&gt; Cut: |loading| &gt;= 0.5</span></span>
+<span><span class="co">#&gt; Top-n: all</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── <span style="font-weight: bold;">Level 5 (5 factors)</span> ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">m5f1</span></span></span>
+<span><span class="co">#&gt; E2 [-0.752]</span></span>
+<span><span class="co">#&gt; E4 [0.747]</span></span>
+<span><span class="co">#&gt; E1 [-0.701]</span></span>
+<span><span class="co">#&gt; E3 [0.677]</span></span>
+<span><span class="co">#&gt; E5 [0.597]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">m5f2</span></span></span>
+<span><span class="co">#&gt; N3 [-0.825]</span></span>
+<span><span class="co">#&gt; N1 [-0.810]</span></span>
+<span><span class="co">#&gt; N2 [-0.805]</span></span>
+<span><span class="co">#&gt; N5 [-0.688]</span></span>
+<span><span class="co">#&gt; N4 [-0.646]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">m5f3</span></span></span>
+<span><span class="co">#&gt; C2 [0.735]</span></span>
+<span><span class="co">#&gt; C4 [-0.716]</span></span>
+<span><span class="co">#&gt; C1 [0.690]</span></span>
+<span><span class="co">#&gt; C3 [0.679]</span></span>
+<span><span class="co">#&gt; C5 [-0.652]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">m5f4</span></span></span>
+<span><span class="co">#&gt; Am indifferent to the feelings of others (A1) [-0.704]</span></span>
+<span><span class="co">#&gt; Know how to comfort others (A3) [0.703]</span></span>
+<span><span class="co">#&gt; Inquire about others' well-being (A2) [0.692]</span></span>
+<span><span class="co">#&gt; A5 [0.580]</span></span>
+<span><span class="co">#&gt; A4 [0.522]</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">m5f5</span></span></span>
+<span><span class="co">#&gt; O5 [-0.705]</span></span>
+<span><span class="co">#&gt; O3 [0.655]</span></span>
+<span><span class="co">#&gt; O1 [0.604]</span></span>
+<span><span class="co">#&gt; O2 [-0.595]</span></span>
+<span><span class="co">#&gt; O4 [0.551]</span></span>
+<span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">for the full matrix.</span></span></span></code></pre></div>
+<p>Labelled items show their wording; unlabelled ones fall back to the
+bare code, so a partially labelled data set still prints cleanly. Pass
+<code>show_labels = FALSE</code> to force the bare codes even when
+labels are present.</p>
 </div>
 </div>
 <div class="section level2">
@@ -355,7 +372,7 @@ So a column of negative loadings does <strong>not</strong> mean “low” on
 that construct — it means the construct’s positive pole was oriented the
 other way by the alignment step. Read the <em>pattern</em> of items, not
 the bare sign:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient items by factor (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span></span>
@@ -410,7 +427,7 @@ consistent with the diagram and the edge table.</p>
 bass-ackwards hierarchy you are naming factors at <em>every</em> level,
 and the levels are related — so the names should be related too. The
 lineage tells you how.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Summary: Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────</span></span></span>
@@ -485,7 +502,7 @@ well below the near-1.0 values of stable dimensions), is a place where
 the structure is genuinely rearranging. The edge table makes these
 visible:</p></li>
 </ul>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Primary-parent edges, weakest last: the bottom rows are where structure shifts</span></span>
 <span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"edges"</span>, primary_only <span class="op">=</span> <span class="cn">TRUE</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    from   to level_from level_to         r is_primary above_cut</span></span>
@@ -499,6 +516,39 @@ visible:</p></li>
 nearly unchanged — name the child the same as the parent. The smaller
 <code>|r|</code> values at the bottom flag where a new, distinct
 construct is emerging and deserves its own name.</p>
+<div class="section level3">
+<h3 id="borrowing-names-for-the-upper-levels">Borrowing names for the upper levels<a class="anchor" aria-label="anchor" href="#borrowing-names-for-the-upper-levels"></a>
+</h3>
+<p>The hardest factors to name are usually the broad ones near the top,
+precisely because they blend several familiar constructs. Rather than
+inventing an ad-hoc label, it often helps to borrow a name from a theory
+that has already charted the level <em>above</em> your usual constructs.
+Two are especially handy for personality and psychopathology data:</p>
+<ul>
+<li>
+<strong>Big Five metatraits.</strong> Above the five factors sit two
+higher-order dimensions — <strong>Stability</strong> (the shared
+variance of Agreeableness, Conscientiousness, and low Neuroticism) and
+<strong>Plasticity</strong> (Extraversion and Openness) — from DeYoung’s
+work on the metatraits. In a <code>bfi</code> hierarchy these are
+frequently what a two- or three-factor level <em>is</em>, so “Stability”
+/ “Plasticity” are ready-made names for factors that would otherwise be
+an awkward “broad well-adjustment”.</li>
+<li>
+<strong>HiTOP spectra.</strong> In clinical data, the Hierarchical
+Taxonomy of Psychopathology names the broad bands directly —
+<em>internalizing</em>, <em>externalizing (disinhibited and
+antagonistic)</em>, <em>thought disorder</em>, <em>detachment</em>, and
+<em>somatoform</em> — with a general <strong>p-factor</strong> at the
+apex. A level whose items span several disorders is usually one of these
+spectra, and naming it as such keeps your hierarchy legible to readers
+who already think in HiTOP terms.</li>
+</ul>
+<p>The point is not to force your data onto either scheme, but to
+recognise that an upper-level factor is often a <em>known</em>
+superordinate construct — and that reusing its established name
+communicates far more than a bespoke one.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="applying-your-names">Applying your names<a class="anchor" aria-label="anchor" href="#applying-your-names"></a>
@@ -510,7 +560,7 @@ named character vector mapping factor IDs to display strings.</p>
 <code><a href="../reference/label_template.html">label_template()</a></code> generates it for you, in the same order
 the diagram uses, and prints an editable <code>c(...)</code> literal you
 can paste straight into your script:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/label_template.html">label_template</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="co">#&gt; `label_template()` scaffold (id style):</span></span>
 <span><span class="co">#&gt; c(</span></span>
@@ -534,7 +584,7 @@ can paste straight into your script:</p>
 <code><a href="../reference/autoplot.html">autoplot()</a></code>. Unspecified IDs keep their default
 <code>m{k}f{j}</code> label, so you can label just the level you care
 about:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  m5f1 <span class="op">=</span> <span class="st">"Neuroticism"</span>,</span>
 <span>  m5f2 <span class="op">=</span> <span class="st">"Extraversion"</span>,</span>
@@ -551,7 +601,7 @@ about:</p>
 <code>B1</code>/<code>B2</code> at level 2, and so on.
 <code><a href="../reference/label_template.html">label_template()</a></code> produces this convention directly with
 <code>style = "forbes"</code>:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="fu"><a href="../reference/label_template.html">label_template</a></span><span class="op">(</span><span class="va">x</span>, style <span class="op">=</span> <span class="st">"forbes"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; `label_template()` scaffold (forbes style):</span></span>
 <span><span class="co">#&gt; c(</span></span>
@@ -582,7 +632,7 @@ through the hierarchy before interpreting it.</p>
 <p>If you would rather supply every label yourself with no defaults
 showing through, <code>style = "blank"</code> gives you an all-empty
 scaffold to fill in:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">labs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/label_template.html">label_template</a></span><span class="op">(</span><span class="va">x</span>, style <span class="op">=</span> <span class="st">"blank"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; `label_template()` scaffold (blank style):</span></span>
 <span><span class="co">#&gt; c(</span></span>
@@ -609,22 +659,28 @@ scaffold to fill in:</p>
 <span><span class="va">labs</span><span class="op">[</span><span class="st">"m5f5"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"O"</span></span>
 <span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="va">labs</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-interpret_files/figure-html/label-blank-1.png" class="r-plt" alt="" width="672"></p>
+<p>This article is about <em>what</em> to put on the diagram.</p>
+<blockquote>
+<p><strong>Note:</strong> For <em>how</em> the diagram looks — colours,
+edge thresholds, monochrome and publication styling, level labels, and
+the Forbes pruned-diagram mode — see
+<code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code>.</p>
+</blockquote>
 </div>
-</div>
-<div class="section level2">
-<h2 id="where-to-go-next">Where to go next<a class="anchor" aria-label="anchor" href="#where-to-go-next"></a>
-</h2>
-<p>This article is about <em>what</em> to put on the diagram. For
-<em>how</em> the diagram looks — colours, edge thresholds, monochrome
-and publication styling, level labels, and the Forbes pruned-diagram
-mode — see <code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
+<p>DeYoung, C. G. (2006). Higher-order factors of the Big Five in a
+multi-informant sample. <em>Journal of Personality and Social
+Psychology, 91</em>(6), 1138–1151. <a href="https://doi.org/10.1037/0022-3514.91.6.1138" class="external-link uri">https://doi.org/10.1037/0022-3514.91.6.1138</a></p>
 <p>Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg’s bass-ackward method.
 <em>Psychological Methods</em>. <a href="https://doi.org/10.1037/met0000546" class="external-link uri">https://doi.org/10.1037/met0000546</a></p>
+<p>Kotov, R., Krueger, R. F., Watson, D., et al. (2017). The
+Hierarchical Taxonomy of Psychopathology (HiTOP): A dimensional
+alternative to traditional nosologies. <em>Journal of Abnormal
+Psychology, 126</em>(4), 454–477. <a href="https://doi.org/10.1037/abn0000258" class="external-link uri">https://doi.org/10.1037/abn0000258</a></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

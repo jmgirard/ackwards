@@ -127,18 +127,23 @@ as part of the definition of done.
   `direction="horizontal"` layout; `colour_*` aliases + `color_edge`;
   `ggsave` documented (not re-exported); code-coupled viz/intro/README
   prose
+- **M36** — interpretation functions:
+  [`augment()`](https://generics.r-lib.org/reference/augment.html)
+  `append` (scores-only) + `id_cols` passthrough;
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+  `by=c("factor","item")` + variable-label display (`label (code)`,
+  fit-time capture into `meta$item_labels`, `show_labels`);
+  interpret-vignette prose edits (cut=0.5 lead, `by="item"`/label demos,
+  metatrait/HiTOP naming advice) + intro score de-indexing
 
 ## Current focus
 
-M35 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38
-documentation/UX epic is **M36** (interpretation functions: `augment`
-scores-only, `top_items` labels + group-by-item); not yet planned; run
-`/plan-milestone 36` before starting.
+M36 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38
+documentation/UX epic is **M37** (engines vignette); not yet planned;
+run `/plan-milestone 37` before starting.
 
-Remaining milestones in the epic: M36 interpretation functions
-(`augment` scores-only, `top_items` labels + group-by-item); M37 engines
-vignette; M38 narrative & remaining prose (intro, suggest_k, ordinal,
-forbes, README).
+Remaining milestones in the epic: M37 engines vignette; M38 narrative &
+remaining prose (intro, suggest_k, ordinal, forbes, README).
 
 These one-liners are a lossy index. The **full driving rationale, banked
 decisions, and the raw pkgdown-review notes** behind M35–M38 live in

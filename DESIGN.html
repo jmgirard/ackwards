@@ -191,11 +191,12 @@
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  <span class="at">r       =</span> <span class="sc">&lt;</span>p x p input correlation matrix<span class="sc">&gt;</span>,   <span class="co"># cheap; kept so scores/edges recomputable</span></span>
 <span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  <span class="at">data    =</span> <span class="cn">NULL</span>,        <span class="co"># opt-in raw data</span></span>
 <span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="at">meta    =</span> <span class="sc">&lt;</span>suggest_k output, timestamps, convergence summary, chosen defaults,</span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>             <span class="at">input_type =</span> <span class="st">"data"</span><span class="sc">|</span><span class="st">"cor_matrix"</span><span class="sc">&gt;</span>,</span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="at">prune   =</span> <span class="cn">NULL</span>         <span class="co"># Forbes extension: node flags + chain table + phi table;</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>                         <span class="co"># populated by prune(x, ...) -- a standalone verb piped off</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>                         <span class="co"># ackwards(), not an ackwards() argument (M34; see s.14)</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>), <span class="at">class =</span> <span class="st">"ackwards"</span>)</span></code></pre></div>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>             <span class="at">input_type =</span> <span class="st">"data"</span><span class="sc">|</span><span class="st">"cor_matrix"</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>             <span class="at">item_labels =</span> <span class="sc">&lt;</span>named chr of column <span class="st">"label"</span> attributes, or <span class="cn">NULL</span><span class="sc">&gt;</span> (M36)<span class="sc">&gt;</span>,</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  <span class="at">prune   =</span> <span class="cn">NULL</span>         <span class="co"># Forbes extension: node flags + chain table + phi table;</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>                         <span class="co"># populated by prune(x, ...) -- a standalone verb piped off</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>                         <span class="co"># ackwards(), not an ackwards() argument (M34; see s.14)</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>), <span class="at">class =</span> <span class="st">"ackwards"</span>)</span></code></pre></div>
 <p><strong>Storage rule.</strong> <em>Light tidy core always; heavy artifacts opt-in.</em> - <strong>Always:</strong> loadings, variance, fit/convergence, weight matrices, within-level correlations, edges, lineage, the <code>p x p</code> input <code>R</code>, meta. This is enough for diagram + interpretation and is small and shareable. - <strong>Opt-in:</strong> factor <code>scores</code> (O(n × Σk); also a privacy/sharing liability), raw <code>fits</code> (lavaan fits can be large), raw <code>data</code>. Defaults: <code>scores = FALSE</code>, <code>keep_fits = FALSE</code>, keep <code>R = TRUE</code>.</p>
 <p>This directly answers the “giant list of fitted models vs. just loadings/scores/correlations” question: neither — a structured light core, with the heavy bits nullable and recomputable.</p>
 </div>
@@ -328,7 +329,7 @@
 <li>
 <strong><code>summary.ackwards</code></strong> — per-level variance explained and fit indices (ESEM); a readable lineage list (<code>m1f1 → m2f1, m2f2 → …</code>); flagged redundant/artifact components when the object has been pruned via <code><a href="reference/prune.html">prune()</a></code>.</li>
 <li>
-<strong><code>top_items(x, level, cut, n, sort)</code></strong> (M18) — per-factor salient-item listing, filtered to <code>|loading| &gt;= cut</code> and sorted descending. Returns a <code>top_items</code> S3 object with a grouped cli print method. Loadings reflect primary-parent sign alignment (Inv. 4). The <code>$data</code> field is a subset of the <code>tidy(what = "loadings")</code> table.</li>
+<strong><code>top_items(x, level, cut, n, sort, by, show_labels)</code></strong> (M18; <code>by</code>/<code>show_labels</code> M36) — salient-item listing, filtered to <code>|loading| &gt;= cut</code> and sorted descending. Returns a <code>top_items</code> S3 object with a grouped cli print method. <code>by = "factor"</code> (default) groups items under each factor; <code>by = "item"</code> inverts to list, per item, the factors it loads on (cross-loading view); <code>n</code>/<code>sort</code> apply within the chosen unit. When the fit data carried per-column <code>"label"</code> attributes (captured into <code>meta$item_labels</code>), <code>show_labels = TRUE</code> (default) prints items as <code>label (code)</code> with a per-item bare-code fallback. Loadings reflect primary-parent sign alignment (Inv. 4). The <code>$data</code> field is a subset of the <code>tidy(what = "loadings")</code> table (plus a <code>label</code> column when labels are available).</li>
 <li>
 <strong>broom-style tidiers:</strong>
 <ul><li>

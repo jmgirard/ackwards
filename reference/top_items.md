@@ -9,7 +9,15 @@ items.
 ## Usage
 
 ``` r
-top_items(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE)
+top_items(
+  x,
+  level = NULL,
+  cut = 0.3,
+  n = NULL,
+  sort = TRUE,
+  by = c("factor", "item"),
+  show_labels = TRUE
+)
 ```
 
 ## Arguments
@@ -36,18 +44,36 @@ top_items(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE)
 
 - sort:
 
-  Logical. When `TRUE` (default), items within each factor are ordered
-  by descending `|loading|`. Set to `FALSE` to keep the original item
-  order (useful when items have a meaningful sequence).
+  Logical. When `TRUE` (default), items within each group are ordered by
+  descending `|loading|`. Set to `FALSE` to keep the original order
+  (useful when items have a meaningful sequence).
+
+- by:
+
+  One of `"factor"` (default) or `"item"`. `"factor"` groups the listing
+  by factor (the salient items *of* each factor – "what is this factor
+  about?"). `"item"` inverts the grouping to list, for each item, the
+  factors it loads on – which makes cross-loadings legible ("where does
+  this item go?"). `n` and `sort` apply within whichever unit `by`
+  selects.
+
+- show_labels:
+
+  Logical. When `TRUE` (default) and the data carried a variable-label
+  attribute at fit time (see
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)),
+  items are shown as `label (id)`; items without a label fall back to
+  the bare id. Set to `FALSE` to always show the bare `m{k}f{j}`-style
+  item ids.
 
 ## Value
 
-An object of class `"top_items"`. Print it for a grouped level-by-factor
-cli listing. The underlying data frame (one row per selected item) is
-accessible via `$data` and contains columns `level`, `factor`, `item`,
-and `loading`. The values equal the corresponding
-`tidy(x, what = "loadings")` rows (after filtering and optional
-sorting).
+An object of class `"top_items"`. Print it for a grouped cli listing.
+The underlying data frame (one row per selected item) is accessible via
+`$data` and contains columns `level`, `factor`, `item`, and `loading`
+(plus `label` when labels are available). The values equal the
+corresponding `tidy(x, what = "loadings")` rows (after filtering and
+optional sorting).
 
 ## Details
 
@@ -285,6 +311,76 @@ top_items(x, level = 5, cut = 0.4, n = 5)
 #> O2 [-0.579]
 #> O1 [0.546]
 #> O4 [0.497]
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
+#> for the full matrix.
+
+# Invert the grouping to read cross-loadings item-by-item
+top_items(x, level = 3, cut = 0.25, by = "item")
+#> 
+#> ── Salient factors by item (ackwards) ──────────────────────────────────────────
+#> Engine: pca
+#> Cut: |loading| >= 0.25
+#> Top-n: all
+#> 
+#> ── Level 3 (3 factors) ──
+#> 
+#> A1
+#> m3f1 [-0.330]
+#> A2
+#> m3f1 [0.612]
+#> A3
+#> m3f1 [0.718]
+#> A4
+#> m3f1 [0.423]
+#> A5
+#> m3f1 [0.706]
+#> C1
+#> m3f3 [0.642]
+#> C2
+#> m3f3 [0.652]
+#> C3
+#> m3f3 [0.540]
+#> C4
+#> m3f3 [-0.677]
+#> m3f2 [-0.257]
+#> C5
+#> m3f3 [-0.536]
+#> m3f2 [-0.356]
+#> E1
+#> m3f1 [-0.578]
+#> E2
+#> m3f1 [-0.657]
+#> m3f2 [-0.254]
+#> E3
+#> m3f1 [0.673]
+#> E4
+#> m3f1 [0.735]
+#> E5
+#> m3f1 [0.490]
+#> m3f3 [0.401]
+#> N1
+#> m3f2 [-0.750]
+#> N2
+#> m3f2 [-0.774]
+#> N3
+#> m3f2 [-0.791]
+#> N4
+#> m3f2 [-0.637]
+#> N5
+#> m3f2 [-0.621]
+#> O1
+#> m3f3 [0.336]
+#> m3f1 [0.299]
+#> O2
+#> m3f3 [-0.437]
+#> O3
+#> m3f1 [0.396]
+#> m3f3 [0.357]
+#> O4
+#> m3f2 [-0.371]
+#> O5
+#> m3f3 [-0.426]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.

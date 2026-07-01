@@ -8,7 +8,7 @@ matching the factor labels used throughout the object.
 
 ``` r
 # S3 method for class 'ackwards'
-augment(x, data = NULL, ...)
+augment(x, data = NULL, append = TRUE, id_cols = NULL, ...)
 ```
 
 ## Arguments
@@ -23,15 +23,31 @@ augment(x, data = NULL, ...)
   to fit `x`. When `NULL` (default), uses pre-stored scores if available
   (requires `keep_scores = TRUE` at fit time).
 
+- append:
+
+  Logical. When `TRUE` (default) the score columns are appended to
+  `data` (or to a `.obs` index when `data` is `NULL`). When `FALSE` only
+  the score columns are returned (plus any `id_cols`).
+
+- id_cols:
+
+  Optional character vector naming columns of `data` to carry through
+  alongside the scores when `append = FALSE` (for example a subject
+  identifier, so scores can be rejoined after filtering). Ignored – and
+  an error – when `append = TRUE` (all columns are already kept) or when
+  `data` is `NULL` (there are no source columns to carry). `NULL`
+  (default) returns the bare score columns.
+
 - ...:
 
   Ignored.
 
 ## Value
 
-A data frame. If `data` is supplied it is returned with score columns
-appended. If `data` is `NULL` the return is a minimal data frame with a
-`.obs` index column followed by score columns.
+A data frame. With `append = TRUE`: the supplied `data` (or a `.obs`
+index when `data` is `NULL`) with score columns appended. With
+`append = FALSE`: only the score columns, optionally prefixed by the
+`id_cols`. Row order and count always match the input.
 
 ## Details
 
@@ -54,6 +70,20 @@ from it using the stored weights – this is how to score new
 observations. If `data` is `NULL` and `keep_scores = TRUE` was set at
 fit time, the stored scores are returned. If neither is available an
 informative error is raised.
+
+**Scores-only output (`append = FALSE`).** By default (`append = TRUE`)
+the scores are appended to the supplied `data`, following the broom
+convention. Set `append = FALSE` to return *only* the score columns –
+convenient for feeding scores straight into
+[`cor()`](https://rdrr.io/r/stats/cor.html),
+[`lm()`](https://rdrr.io/r/stats/lm.html), or a clustering call without
+dragging the item columns along. Because
+[`augment()`](https://generics.r-lib.org/reference/augment.html) always
+preserves row order and row count,
+`cbind(data, augment(x, data, append = FALSE))` reproduces the appended
+output exactly. For a rejoin that survives *filtering* the scores
+afterwards, name identifier columns with `id_cols` so they travel with
+the scores.
 
 ## See also
 
@@ -95,6 +125,35 @@ head(scores_df[, startsWith(names(scores_df), ".m")])
 #> 4 -2.12703248  1.2472183  0.85014591
 #> 5  0.05521847  0.1890915 -0.33729526
 #> 6  0.56488072  0.7357341 -1.16642860
+
+# Scores-only: just the .m{k}f{j} columns, ready for cor()/lm()
+scores_only <- augment(x, data = bfi25, append = FALSE)
+#> Warning: ! 125 rows contain missing values and will produce NA scores.
+#> ℹ Score projection applies weights row-wise and propagates NAs listwise; FIML
+#>   estimation does not impute missing item responses.
+#> ℹ Use `missing = "listwise"` when fitting (so the model and scores share the
+#>   same complete rows), or call `na.omit(data)` before scoring.
+round(cor(scores_only[, c(".m5f1", ".m5f2")]), 2)
+#>       .m5f1 .m5f2
+#> .m5f1     1    NA
+#> .m5f2    NA     1
+
+# Carry an identifier through for a safe post-filter rejoin
+df <- data.frame(id = seq_len(nrow(bfi25)), bfi25)
+scored <- augment(x, data = df, append = FALSE, id_cols = "id")
+#> Warning: ! 125 rows contain missing values and will produce NA scores.
+#> ℹ Score projection applies weights row-wise and propagates NAs listwise; FIML
+#>   estimation does not impute missing item responses.
+#> ℹ Use `missing = "listwise"` when fitting (so the model and scores share the
+#>   same complete rows), or call `na.omit(data)` before scoring.
+head(scored[, c("id", ".m5f1")])
+#>   id       .m5f1
+#> 1  1  0.05797902
+#> 2  2  0.43531863
+#> 3  3  1.31520127
+#> 4  4 -0.70662078
+#> 5  5 -1.89416329
+#> 6  6 -0.16261206
 
 # Store at fit time and augment without re-supplying data
 x2 <- ackwards(bfi25, k_max = 5, keep_scores = TRUE)
