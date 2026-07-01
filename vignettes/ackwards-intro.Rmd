@@ -151,18 +151,21 @@ glance(x)
 
 ## Step 4: Visualize the hierarchy `autoplot()`
 
-The hierarchy diagram is the centerpiece of the method. Each column represents
-one level (k = 1 on the left, k = 5 on the right). Arrows connect each factor
-to its **primary parent** — the factor at the level above with which it has the
-strongest correlation (|r|). Arrow thickness is proportional to |r|; color shows
-direction (blue = positive, orange = negative by default); solid arrows indicate
-strong connections (|r| ≥ 0.6), dashed arrows show moderate ones (|r| ≥ 0.3).
+The hierarchy diagram is the centerpiece of the method. Each row represents one
+level (k = 1 at the top, k = 5 at the bottom). Arrows connect each factor to its
+**primary parent** — the factor at the level above with which it has the
+strongest correlation (|r|). Arrow thickness is proportional to |r|, and color
+shows direction (blue = positive, red = negative by default); both aesthetics
+come with a legend. Primary-parent edges are always positive after sign
+alignment, so a red arrow marks a genuine secondary relationship. For a
+left-to-right layout (handy for wide slides), pass `direction = "horizontal"`.
 
 ```{r autoplot, fig.width = 8, fig.height = 5, warning = FALSE}
 autoplot(x)
 ```
 
-Reading this diagram from left to right tells the story of the Big Five:
+Reading this diagram from broad (top) to narrow (bottom) tells the story of the
+Big Five:
 
 - **k = 1**: One broad factor. Given the polychoric basis, this captures shared
   variance across all 25 items.
