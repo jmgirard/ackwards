@@ -894,3 +894,66 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   matrix/edges are identical across `n_obs` choices for PCA (whose fit does not use N). The optional
   advisory-on-complete-data idea was deliberately **not** implemented — it would fire noise on
   legitimate always-FIML workflows for no correctness benefit.
+
+- **M39 (done):** narrative & remaining prose — the seventh and **final** milestone of the M31–M39
+  documentation/UX epic. **Doc-only:** no `R/`, `NAMESPACE`, export, `_pkgdown.yml`, or dependency
+  change; a prose/formatting clarity pass across the five remaining pkgdown pages (intro, suggest_k,
+  ordinal, forbes, README), resolving the banked page-by-page review notes that the M31–M39 epic
+  carried in `ROADMAP.md`.
+  **intro** (`vignettes/ackwards-intro.Rmd`): dropped the out-of-place EFA/ESEM pointer from the
+  framing note; switched bare `sk`/`x` to `print(sk)`/`print(x)` so the objects aren't lost in the
+  `#>` preamble; clarified that `suggest_k()` reports a *range* informing `k_max` (not a single k);
+  added a blockquote explaining why bass-ackwards rotates orthogonally with varimax — orthogonality
+  (T′ = T⁻¹) is what makes the `W′RW` edge algebra exact, and varimax ≡ CF(κ = 1/p) (the "CF-VARIMAX"
+  of Kim & Eaton 2015), so the two labels are not competing choices (see the rotation-rationale
+  memo); noted that loading `se`/`ci_lower`/`ci_upper` are `NA` under PCA/EFA and populated only by
+  `engine = "esem"`; `top_items(cut = 0.5)`; removed the `keep_scores = TRUE` demo chunk;
+  alphabetized references.
+  **README** (`README.Rmd` + regenerated `README.md`): **removed the red/negative-arrow explanation**
+  rather than adding one — the owner's note asked to explain why `m2f2 → m3f2` renders as a negative
+  arrow, but the M35 sign-propagation fix made every drawn edge in the bfi25 k = 5 polychoric plot
+  non-negative (all 14 drawn edges +0.46…+0.998; `m2f2 → m3f2` is +0.987, primary), so there is no
+  red arrow to explain; Step 3 now points to the visualization vignette for the sign encoding
+  (owner-confirmed 2026-07-01). Same trim applied to the intro's identical red-arrow sentence for
+  consistency. De-indexed the Step 4 score-column example (`grep("^\\.m", …)` replacing `[26:40]`).
+  Removed the "please also cite Waller (2007)" nudge from the citation block (the intro's two Waller
+  mentions stay — method exposition, not a citation nudge; owner-confirmed).
+  **suggest_k** (`vignettes/ackwards-suggest-k.Rmd`): fixed the "cross- loadings" line-wrap;
+  `print(sk)`; expanded the checkmark/dash-vs-star convention explanation; added a "When the criteria
+  agree — and when they don't" section contrasting `sim16` (idealized: all criteria converge, verified
+  consensus k = 4) against `bfi25` (realistic: criteria span k = 4–6), with both ranges computed
+  **inline** from the `suggest_k` objects (drift-proof — no hardcoded figures).
+  **ordinal** (`vignettes/ackwards-ordinal.Rmd`): reworded the opening (dropped the em dash and the
+  "4/5/6/7 options" list that implied binary/3-/8-category items were out of scope); added that a
+  two-category polychoric correlation *is* the tetrachoric correlation (`psych::polychoric()` handles
+  it — no separate step) and fixed the practical-guidance binary row to match; clarified that WLSMV
+  genuinely operates on the polychoric/threshold basis (and that ESEM edges come from lavaan's own
+  latent correlation matrix); reworded the score-computation note to lead with the answer — ordinal
+  scores *are* trustworthy downstream, the caveat is unit-variance *scaling* only, not validity;
+  alphabetized references.
+  **forbes** (`vignettes/ackwards-forbes.Rmd`): reworded the three headings that started with a
+  verbatim code span; split the `redundancy_r` thresholds chunk so the re-pruning loop is visible
+  (`echo = TRUE`) rather than a bare output block; highlighted the `TRUE` cells in the
+  structural-signals `gt` table (for bfi25, the two `split_merge` signals now stand out — matching the
+  redundant/artifact node-table highlighting); added the missing Lorenzo-Seva & ten Berge (2006)
+  reference; alphabetized references.
+  **M40 spin-off (owner decision, 2026-07-01).** Three review asks implying real code or non-trivial
+  in-vignette visualization were deliberately excluded from this doc-only milestone and parked in
+  `ROADMAP.md` §M40 + `DESIGN.md` §14: (1) an ordinal `categorical` convenience flag
+  (pearson↔polychoric / MLR↔WLSMV switch — **needs owner sign-off**, partly duplicates the explicit
+  `cor`/estimator surface, not a resolved default); (2) an ordinal correlation-comparison
+  visualization (dodged-bar or gt long-format replacing the raw matrix chunks — viz-only); (3) Forbes
+  pruned-level axis-label styling in `autoplot()` (M35-territory code). The M31–M39 epic's `ROADMAP.md`
+  sections (M37 stale-`pending` and the shipped M39) were retired per the file's maintenance rule; the
+  header was retitled to (M40).
+  Files: `vignettes/ackwards-{intro,suggest-k,ordinal,forbes}.Rmd`, `README.Rmd`, `README.md`,
+  `ROADMAP.md`, `DESIGN.md` (§14), `NEWS.md`, `CLAUDE.md` (Current focus + Completed index),
+  `MILESTONES.md`.
+  Verified: `R CMD check` **0/0/0** (all vignettes rebuilt); full suite **1512 pass / 0 fail / 8
+  skip** (EFAtools absent on the dev machine → 8 skips; `gt` installed so the gt-gated vignette/table
+  tests run); lint clean; `pkgdown::check_pkgdown()` clean. Coverage was **not** re-run: M39 changed
+  no `R/` code (docs/vignettes/`.md` only), so `R/` coverage is unchanged from M38's **100%** — a
+  covr pass would re-execute the suite a third time for no possible delta. Each page was also rendered
+  individually during implementation (`rmarkdown::render`) and the drift-sensitive values (the
+  `sim16`/`bfi25` consensus ranges; the README score-column list) confirmed to compute inline.
+  No new/removed exports; `_pkgdown.yml` reference index unchanged.

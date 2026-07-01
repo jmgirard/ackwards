@@ -39,6 +39,24 @@
   computed faithfully; and that the running examples stop at `k_max = 3` for build
   speed, not because the BFI hierarchy ends there.
 
+## Vignette and README prose pass
+
+- Documentation-only clarity pass across the introduction, choosing-k, ordinal,
+  Forbes, and README pages: clearer print calls (`print(sk)`/`print(x)` so
+  objects aren't buried in output), an explanation of why bass-ackwards uses
+  orthogonal varimax rotation (and that it equals the "CF-VARIMAX" some papers
+  report), a note that loading standard errors and confidence intervals are `NA`
+  under the PCA/EFA engines and populated only by ESEM, and reference lists put
+  in alphabetical order.
+- The choosing-k vignette gains a side-by-side contrast of an idealized dataset
+  (`sim16`, where the criteria agree) against a realistic one (`bfi25`, where
+  they span a band), so the clean case is not mistaken for the norm.
+- The ordinal vignette now states plainly that ordinal factor scores are
+  trustworthy for downstream use (the standardization caveat is about scaling,
+  not validity), that a two-category polychoric correlation *is* the tetrachoric
+  correlation (no separate step), and that WLSMV genuinely operates on the
+  polychoric basis.
+
 ## `augment()` scores-only output
 
 - New `append` argument: `augment(x, data, append = FALSE)` returns only the

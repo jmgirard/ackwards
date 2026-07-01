@@ -83,10 +83,10 @@ x
 `autoplot()` draws the hierarchical diagram. Each row is a level (k = 1 at top,
 k = 5 at bottom); arrows show which narrow factors inherit from which broad
 factor. Arrow **thickness** encodes |r| and arrow **color** encodes direction
-(blue = positive, red = negative), each with its own legend. Primary-parent
-edges are always positive after sign alignment, so a red arrow marks a genuine
-secondary (cross-branch) relationship. Pass `direction = "horizontal"` for a
-left-to-right layout.
+(blue = positive, red = negative), each with its own legend. Pass
+`direction = "horizontal"` for a left-to-right layout. The
+[visualization vignette](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html)
+covers the sign encoding and the rest of the styling options.
 
 ```{r plot, message = FALSE, warning = FALSE, dev = "png", dpi = 150}
 autoplot(x)
@@ -111,7 +111,9 @@ head(edges[edges$is_primary, c("from", "to", "r")], 8)
 # Append scores for all 5 levels to the original data frame
 scored <- augment(x, data = bfi)
 dim(scored) # original 25 items + 1+2+3+4+5 = 15 score columns
-names(scored)[26:40]
+
+# The appended score columns are named .m{k}f{j}
+grep("^\\.m", names(scored), value = TRUE)
 ```
 
 ## Learn more
@@ -135,8 +137,6 @@ citation("ackwards")
 ```
 
 Please also cite the relevant method paper(s): Goldberg (2006)
-<https://doi.org/10.1016/j.jrp.2006.01.001> for the bass-ackwards method itself;
-Waller (2007) <https://doi.org/10.1016/j.jrp.2006.08.005> if you rely on the
-exact `W'RW` edge algebra; and Forbes (2023)
-<https://doi.org/10.1037/met0000546> if you use the extended method
-(`pairs = "all"`, redundancy/artifact pruning).
+<https://doi.org/10.1016/j.jrp.2006.01.001> for the bass-ackwards method itself,
+and Forbes (2023) <https://doi.org/10.1037/met0000546> if you use the extended
+method (`pairs = "all"`, redundancy/artifact pruning).
