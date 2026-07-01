@@ -33,11 +33,16 @@
 For PCA objects the indices are eigenvalues; for EFA objects they are
 \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, \code{BIC}; for ESEM they are
 \code{chi}, \code{dof}, \code{p_value}, \code{CFI}, \code{TLI}, \code{RMSEA}, \code{SRMR}, \code{BIC}. For ESEM
-under \code{estimator = "WLSMV"}/\code{"ULSMV"}, \code{chi}/\code{dof}/\code{p_value} report the
-mean-and-variance-adjusted ("scaled") test rather than the naive one --
-lavaan defines the naive test as having no valid reference distribution
-for these limited-information estimators (its own \code{summary()} labels
-that p-value "Unknown"). \code{BIC} is \code{NA} under WLSMV/ULSMV (no proper
+under a scaled-test estimator (\code{"WLSMV"}/\code{"ULSMV"} for ordinal data,
+\code{"MLR"} for continuous), the whole row -- \code{chi}/\code{dof}/\code{p_value} \strong{and}
+\code{CFI}/\code{TLI}/\code{RMSEA} -- reports lavaan's mean-and-variance-adjusted
+("scaled") variant, so every quantity shares one scaling. This matters
+most for WLSMV/ULSMV: the naive chi-square has no valid reference
+distribution (lavaan's own \code{summary()} labels its p-value "Unknown"),
+and the naive \code{CFI}/\code{TLI} are badly optimistic for ordinal data
+(Xia & Yang, 2019). \code{"ML"} has no scaled variant, so it reports the
+naive values (the correct ones for ML). \code{SRMR} has no scaled variant and
+is reported as-is. \code{BIC} is \code{NA} under WLSMV/ULSMV (no proper
 log-likelihood for a limited-information estimator) and populated under
 ML/MLR. Use
 \code{format = "wide"} for one row per \strong{non-anchor} level (k >= 2; the

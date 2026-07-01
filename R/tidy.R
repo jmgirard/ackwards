@@ -26,11 +26,16 @@ generics::glance
 #'     For PCA objects the indices are eigenvalues; for EFA objects they are
 #'     `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`; for ESEM they are
 #'     `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`, `BIC`. For ESEM
-#'     under `estimator = "WLSMV"`/`"ULSMV"`, `chi`/`dof`/`p_value` report the
-#'     mean-and-variance-adjusted ("scaled") test rather than the naive one --
-#'     lavaan defines the naive test as having no valid reference distribution
-#'     for these limited-information estimators (its own `summary()` labels
-#'     that p-value "Unknown"). `BIC` is `NA` under WLSMV/ULSMV (no proper
+#'     under a scaled-test estimator (`"WLSMV"`/`"ULSMV"` for ordinal data,
+#'     `"MLR"` for continuous), the whole row -- `chi`/`dof`/`p_value` **and**
+#'     `CFI`/`TLI`/`RMSEA` -- reports lavaan's mean-and-variance-adjusted
+#'     ("scaled") variant, so every quantity shares one scaling. This matters
+#'     most for WLSMV/ULSMV: the naive chi-square has no valid reference
+#'     distribution (lavaan's own `summary()` labels its p-value "Unknown"),
+#'     and the naive `CFI`/`TLI` are badly optimistic for ordinal data
+#'     (Xia & Yang, 2019). `"ML"` has no scaled variant, so it reports the
+#'     naive values (the correct ones for ML). `SRMR` has no scaled variant and
+#'     is reported as-is. `BIC` is `NA` under WLSMV/ULSMV (no proper
 #'     log-likelihood for a limited-information estimator) and populated under
 #'     ML/MLR. Use
 #'     `format = "wide"` for one row per **non-anchor** level (k >= 2; the
@@ -324,7 +329,9 @@ tidy.ackwards <- function(
 #' (e.g., `CFI` and `SRMR` are `NA` for EFA; all five are `NA` for PCA; for
 #' ESEM, `BIC` is `NA` under `estimator = "WLSMV"`/`"ULSMV"` -- these
 #' limited-information estimators have no proper log-likelihood -- and
-#' populated under `"ML"`/`"MLR"`).
+#' populated under `"ML"`/`"MLR"`). Under a scaled-test estimator
+#' (`"WLSMV"`/`"ULSMV"`/`"MLR"`) the `CFI`/`TLI`/`RMSEA` reported here are the
+#' scaled variants (see [tidy.ackwards()] for the rationale).
 #'
 #' @param x An `ackwards` object.
 #' @param ... Ignored.

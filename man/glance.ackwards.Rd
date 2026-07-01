@@ -22,7 +22,9 @@ engines; columns unavailable for a given engine or estimator are \code{NA}
 (e.g., \code{CFI} and \code{SRMR} are \code{NA} for EFA; all five are \code{NA} for PCA; for
 ESEM, \code{BIC} is \code{NA} under \code{estimator = "WLSMV"}/\code{"ULSMV"} -- these
 limited-information estimators have no proper log-likelihood -- and
-populated under \code{"ML"}/\code{"MLR"}).
+populated under \code{"ML"}/\code{"MLR"}). Under a scaled-test estimator
+(\code{"WLSMV"}/\code{"ULSMV"}/\code{"MLR"}) the \code{CFI}/\code{TLI}/\code{RMSEA} reported here are the
+scaled variants (see \code{\link[=tidy.ackwards]{tidy.ackwards()}} for the rationale).
 }
 \examples{
 x <- ackwards(bfi25, k_max = 5)
