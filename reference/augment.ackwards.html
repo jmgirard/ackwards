@@ -129,9 +129,11 @@ Set <code>append = FALSE</code> to return <em>only</em> the score columns – co
 feeding scores straight into <code><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor()</a></code>, <code><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm()</a></code>, or a clustering call without
 dragging the item columns along. Because <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> always preserves row
 order and row count, <code>cbind(data, augment(x, data, append = FALSE))</code>
-reproduces the appended output exactly. For a rejoin that survives <em>filtering</em>
-the scores afterwards, name identifier columns with <code>id_cols</code> so they travel
-with the scores.</p>
+reproduces the appended output exactly. A row that scores <code>NA</code> (because it is
+missing an item – see <em>Missing data</em> above) is still returned in place, so the
+positional alignment holds even with <code>NA</code> scores. For a rejoin that survives
+<em>filtering</em> the scores afterwards, name identifier columns with <code>id_cols</code> so
+they travel with the scores.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

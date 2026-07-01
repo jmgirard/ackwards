@@ -81,9 +81,11 @@ dragging the item columns along. Because
 [`augment()`](https://generics.r-lib.org/reference/augment.html) always
 preserves row order and row count,
 `cbind(data, augment(x, data, append = FALSE))` reproduces the appended
-output exactly. For a rejoin that survives *filtering* the scores
-afterwards, name identifier columns with `id_cols` so they travel with
-the scores.
+output exactly. A row that scores `NA` (because it is missing an item –
+see *Missing data* above) is still returned in place, so the positional
+alignment holds even with `NA` scores. For a rejoin that survives
+*filtering* the scores afterwards, name identifier columns with
+`id_cols` so they travel with the scores.
 
 ## See also
 
