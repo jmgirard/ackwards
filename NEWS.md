@@ -1,5 +1,11 @@
 # ackwards (development)
 
+## Documentation: no internal milestone numbers
+
+User-facing docs (`NEWS.md`, `README.md`, vignettes) no longer reference internal
+development-milestone tags — they are meaningless outside this repo's own process.
+A regression test now guards against reintroducing them.
+
 ## CD criterion: bug fix and honest framing
 
 `suggest_k()` now correctly handles `EFAtools::CD`'s output. `EFAtools::CD`
@@ -272,7 +278,7 @@ raw item data, detected automatically from the matrix shape (square, symmetric, 
 
 ## Documentation
 
-Vignette comparison tables reworked for legibility (M24):
+Vignette comparison tables reworked for legibility:
 
 * `ackwards-engines` and `ackwards-ordinal` — stacked long-format `kable` tables replaced
   by **wide gt tables**: one row per item/edge, one column per engine/basis, plus an explicit

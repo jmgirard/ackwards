@@ -467,7 +467,7 @@ that needs it. **No Rcpp dependency planned** (see §3).
 
 ## 15. Milestones
 
-The milestone history (M1–M26, completed) is **no longer duplicated here** — it lives in a single
+The milestone history is **no longer duplicated here** — it lives in a single
 detailed log, [`MILESTONES.md`](MILESTONES.md), with a one-line index in `CLAUDE.md`. This section
 was originally a forward-looking roadmap; now that the roadmap is complete, keeping a second copy
 of the log invited drift (see the git history around 2026-06-30). For what remains / is deferred,
