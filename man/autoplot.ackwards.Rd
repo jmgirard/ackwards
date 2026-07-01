@@ -193,6 +193,20 @@ model-fit indices).
 
 Requires the \pkg{ggplot2} package.
 }
+\section{Saving plots}{
+
+\code{autoplot()} returns a standard \code{ggplot} object, so save it with
+\code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}:
+\preformatted{
+  p <- autoplot(x)
+  ggplot2::ggsave("hierarchy.png", p, width = 8, height = 6, dpi = 300)
+}
+\code{ggsave()} is not re-exported by \pkg{ackwards} (that would move
+\pkg{ggplot2} from Suggests into Imports); call it from \pkg{ggplot2}
+directly. For a wide slide or poster, pair it with
+\code{direction = "horizontal"}.
+}
+
 \examples{
 \donttest{
 if (requireNamespace("ggplot2", quietly = TRUE)) {

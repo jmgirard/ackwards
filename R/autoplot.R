@@ -37,6 +37,18 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'
 #' Requires the \pkg{ggplot2} package.
 #'
+#' @section Saving plots:
+#' `autoplot()` returns a standard `ggplot` object, so save it with
+#' [ggplot2::ggsave()]:
+#' \preformatted{
+#'   p <- autoplot(x)
+#'   ggplot2::ggsave("hierarchy.png", p, width = 8, height = 6, dpi = 300)
+#' }
+#' `ggsave()` is not re-exported by \pkg{ackwards} (that would move
+#' \pkg{ggplot2} from Suggests into Imports); call it from \pkg{ggplot2}
+#' directly. For a wide slide or poster, pair it with
+#' `direction = "horizontal"`.
+#'
 #' @param object An `ackwards` object.
 #' @param what One of `"hierarchy"` (default) or `"fit"`. Controls which
 #'   visualisation is produced. All other parameters are ignored when
