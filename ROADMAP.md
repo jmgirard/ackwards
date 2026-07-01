@@ -127,6 +127,18 @@ measurement-level axis (pearson ⇄ polychoric); FIML is an estimation-under-mis
 - **DESIGN.md update required** (§9 `missing` row + §14): reverse the "FIML errors for PCA, EFA"
   contract for the pearson path. This is a resolved-default change → flag/sign-off per CLAUDE.md.
 - **Loud default (Invariant 6):** announce the auto-route + the effective-N choice via cli.
+- **Speed of `corFiml()` itself — benchmark before shipping.** *Within-call reuse is already
+  structural:* the PCA/EFA path computes `R` **once** and reuses it across all `k` levels (unlike the
+  per-level ESEM fits that M26 had to hoist), so `corFiml()` would be called **once per run, not once
+  per level** by construction — no M26-style caching needed inside `ackwards()`. The open concern is
+  `corFiml()`'s **own** per-call cost: unlike `stats::cor(use = "pairwise")` (near-free), it runs an
+  iterative ML optimization over missing-data patterns and can dominate runtime on large `p` / heavy
+  missingness. **To do at plan time:** (1) benchmark corFiml on a realistic large-`p` + missingness
+  case to see if it's a practical bottleneck; (2) decide whether any mitigation is warranted (e.g.
+  documenting the existing M22 escape hatch — compute `corFiml()` once externally and pass the matrix
+  in to reuse it across *multiple* `ackwards()`/`suggest_k()` runs; a `progress`/timing message for
+  long fits; or leaving it as-is if the once-per-run cost is acceptable). No per-level caching is on
+  the table because there are no per-level corFiml calls to cache.
 
 **Acceptance criteria (sketch, firm up at `/plan-milestone 38`):** `ackwards(data, engine="efa",
 missing="fiml")` runs corFiml and builds; guard errors for polychoric/WLSMV + fiml; `n_obs` string
