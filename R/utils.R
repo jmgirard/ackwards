@@ -195,24 +195,31 @@ flip_weights <- function(W, sign_vec) {
   scores
 }
 
-# Validate the missing= argument against engine and estimator.
-# Errors clearly when the combination is unsupported (FIML is only valid for
-# ESEM with a full-information estimator -- ML or MLR). PCA and EFA work on a
-# pre-computed correlation matrix; WLSMV/ULSMV are limited-information WLS
-# and have no FIML extension.
-.resolve_missing <- function(missing, engine, estimator_eff) {
+# Validate the missing= argument against engine, estimator, and basis.
+# FIML is valid for (a) PCA/EFA on the Pearson basis -- routed through
+# psych::corFiml() (M38) -- and (b) ESEM with a full-information estimator
+# (ML/MLR). It errors for a non-Pearson PCA/EFA basis (corFiml is MVN-only)
+# and for WLSMV/ULSMV (limited-information WLS, no FIML extension).
+.resolve_missing <- function(missing, engine, estimator_eff, cor) {
   if (missing != "fiml") {
     return(invisible(NULL))
   }
   if (engine %in% c("pca", "efa")) {
-    cli::cli_abort(c(
-      "!" = "{.code missing = \"fiml\"} is not supported for \\
-             {.code engine = \"{engine}\"}.",
-      "i" = "FIML requires a raw-data likelihood; PCA and EFA operate on a \\
-             pre-computed correlation matrix.",
-      "i" = "Use {.code missing = \"pairwise\"} or \\
-             {.code missing = \"listwise\"} instead."
-    ))
+    # M38: FIML is now supported for PCA/EFA via psych::corFiml(), but only on
+    # the Pearson basis -- corFiml estimates a multivariate-normal (Pearson)
+    # correlation matrix and cannot honor a Spearman rank or polychoric basis.
+    if (cor != "pearson") {
+      cli::cli_abort(c(
+        "!" = "{.code missing = \"fiml\"} with {.code engine = \"{engine}\"} \\
+               requires {.code cor = \"pearson\"}.",
+        "i" = "{.fn psych::corFiml} estimates a multivariate-normal (Pearson) \\
+               correlation matrix; it cannot produce a {.val {cor}} basis.",
+        "i" = "Use {.code cor = \"pearson\"}, or \\
+               {.code missing = \"pairwise\"}/{.code \"listwise\"} to keep a \\
+               {.val {cor}} basis."
+      ))
+    }
+    return(invisible(NULL))
   }
   if (!is.null(estimator_eff) && estimator_eff %in% c("WLSMV", "ULSMV")) {
     cli::cli_abort(c(
@@ -226,6 +233,37 @@ flip_weights <- function(W, sign_vec) {
     ))
   }
   invisible(NULL)
+}
+
+# M38: estimate the correlation matrix under FIML for the PCA/EFA path.
+# psych::corFiml() finds the full-information ML (multivariate-normal, i.e.
+# Pearson) correlation matrix from raw data with missing values. The result
+# feeds the normal W'RW edge algebra unchanged -- FIML just supplies a better R
+# (Invariant 1: one edge path; no new dependency, psych already Imports).
+# Non-PD output is smoothed with the same psych::cor.smooth() fallback the
+# polychoric path uses.
+.corfiml_R <- function(data_mat) {
+  R <- tryCatch(
+    psych::corFiml(data_mat),
+    error = function(e) { # nocov start
+      cli::cli_abort(c(
+        "!" = "{.fn psych::corFiml} failed: {conditionMessage(e)}",
+        "i" = "Check that your data are continuous with recoverable covariance, \\
+               or use {.code missing = \"pairwise\"}/{.code \"listwise\"}."
+      ))
+    } # nocov end
+  )
+  R <- as.matrix(R)
+  min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
+  if (min_eig <= 0) { # nocov start
+    cli::cli_warn(c(
+      "!" = "FIML correlation matrix is not positive definite \\
+             (min eigenvalue = {round(min_eig, 4)}).",
+      "i" = "Applying smoothing via {.fn psych::cor.smooth}."
+    ))
+    R <- psych::cor.smooth(R)
+  } # nocov end
+  R
 }
 
 # If x is a square, symmetric, numeric matrix with non-unit diagonal, the user

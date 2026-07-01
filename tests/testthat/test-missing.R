@@ -5,38 +5,42 @@
 # ── .resolve_missing() validation ─────────────────────────────────────────────
 
 test_that(".resolve_missing() is silent for valid pairwise/listwise combinations", {
-  expect_silent(.resolve_missing("pairwise", "pca", NULL))
-  expect_silent(.resolve_missing("listwise", "pca", NULL))
-  expect_silent(.resolve_missing("pairwise", "efa", NULL))
-  expect_silent(.resolve_missing("listwise", "efa", NULL))
-  expect_silent(.resolve_missing("pairwise", "esem", "ML"))
-  expect_silent(.resolve_missing("listwise", "esem", "ML"))
-  expect_silent(.resolve_missing("pairwise", "esem", "WLSMV"))
-  expect_silent(.resolve_missing("listwise", "esem", "WLSMV"))
+  expect_silent(.resolve_missing("pairwise", "pca", NULL, "pearson"))
+  expect_silent(.resolve_missing("listwise", "pca", NULL, "pearson"))
+  expect_silent(.resolve_missing("pairwise", "efa", NULL, "pearson"))
+  expect_silent(.resolve_missing("listwise", "efa", NULL, "pearson"))
+  expect_silent(.resolve_missing("pairwise", "esem", "ML", "pearson"))
+  expect_silent(.resolve_missing("listwise", "esem", "ML", "pearson"))
+  expect_silent(.resolve_missing("pairwise", "esem", "WLSMV", "polychoric"))
+  expect_silent(.resolve_missing("listwise", "esem", "WLSMV", "polychoric"))
 })
 
-test_that(".resolve_missing() errors for fiml + pca", {
-  expect_error(.resolve_missing("fiml", "pca", NULL), "pca")
+# M38: fiml + pca/efa is now VALID on the Pearson basis (corFiml route),
+# but still errors for a non-Pearson basis.
+test_that(".resolve_missing() is silent for fiml + pca/efa + pearson", {
+  expect_silent(.resolve_missing("fiml", "pca", NULL, "pearson"))
+  expect_silent(.resolve_missing("fiml", "efa", NULL, "pearson"))
 })
 
-test_that(".resolve_missing() errors for fiml + efa", {
-  expect_error(.resolve_missing("fiml", "efa", NULL), "efa")
+test_that(".resolve_missing() errors for fiml + pca/efa + non-pearson basis", {
+  expect_error(.resolve_missing("fiml", "pca", NULL, "spearman"), "pearson")
+  expect_error(.resolve_missing("fiml", "efa", NULL, "polychoric"), "pearson")
 })
 
 test_that(".resolve_missing() errors for fiml + WLSMV", {
-  expect_error(.resolve_missing("fiml", "esem", "WLSMV"), "WLSMV")
+  expect_error(.resolve_missing("fiml", "esem", "WLSMV", "polychoric"), "WLSMV")
 })
 
 test_that(".resolve_missing() errors for fiml + ULSMV", {
-  expect_error(.resolve_missing("fiml", "esem", "ULSMV"), "ULSMV")
+  expect_error(.resolve_missing("fiml", "esem", "ULSMV", "polychoric"), "ULSMV")
 })
 
 test_that(".resolve_missing() is silent for fiml + ML", {
-  expect_silent(.resolve_missing("fiml", "esem", "ML"))
+  expect_silent(.resolve_missing("fiml", "esem", "ML", "pearson"))
 })
 
 test_that(".resolve_missing() is silent for fiml + MLR", {
-  expect_silent(.resolve_missing("fiml", "esem", "MLR"))
+  expect_silent(.resolve_missing("fiml", "esem", "MLR", "pearson"))
 })
 
 # ── ackwards() missing= argument validation via ackwards() ────────────────────
@@ -48,18 +52,18 @@ test_that("ackwards() accepts missing = 'pairwise' (default)", {
   expect_no_error(suppressWarnings(ackwards(d, k_max = 2L, missing = "pairwise")))
 })
 
-test_that("ackwards() errors for missing = 'fiml' with engine = 'pca'", {
+test_that("ackwards() errors for missing = 'fiml' with pca/efa + non-pearson basis", {
   skip_if_not_installed("psych")
   set.seed(1)
   d <- as.data.frame(matrix(rnorm(200 * 8), 200, 8))
-  expect_error(ackwards(d, k_max = 2L, missing = "fiml", engine = "pca"), "pca")
-})
-
-test_that("ackwards() errors for missing = 'fiml' with engine = 'efa'", {
-  skip_if_not_installed("psych")
-  set.seed(1)
-  d <- as.data.frame(matrix(rnorm(200 * 8), 200, 8))
-  expect_error(ackwards(d, k_max = 2L, missing = "fiml", engine = "efa"), "efa")
+  expect_error(
+    ackwards(d, k_max = 2L, missing = "fiml", engine = "pca", cor = "spearman"),
+    "pearson"
+  )
+  expect_error(
+    ackwards(d, k_max = 2L, missing = "fiml", engine = "efa", cor = "polychoric"),
+    "pearson"
+  )
 })
 
 test_that("ackwards() errors for missing = 'fiml' with esem + WLSMV", {
@@ -472,4 +476,123 @@ test_that("ESEM WLSMV pairwise (available.cases) R differs from listwise R with 
   # complete rows. With 10% missingness on one variable the polychoric
   # correlation matrices will differ.
   expect_false(isTRUE(all.equal(x_pw$r, x_lw$r, tolerance = 1e-3)))
+})
+
+# ── M38: FIML via psych::corFiml() for PCA/EFA ───────────────────────────────
+
+# Continuous data with MCAR missingness on non-overlapping rows/vars, so the
+# FIML matrix differs from the pairwise one and no ordinal warning fires.
+.make_fiml_data <- function(n = 300, p = 8, miss = 40) {
+  set.seed(7)
+  d <- as.data.frame(matrix(stats::rnorm(n * p), n, p))
+  for (j in seq_len(p)) d[sample(n, miss), j] <- NA_real_
+  d
+}
+
+test_that(".corfiml_R() returns a valid correlation matrix (unit diagonal, PD)", {
+  skip_if_not_installed("psych")
+  d <- as.matrix(.make_fiml_data())
+  R <- .corfiml_R(d)
+  expect_equal(dim(R), c(ncol(d), ncol(d)))
+  expect_equal(unname(diag(R)), rep(1, ncol(d)), tolerance = 1e-6)
+  expect_gt(min(eigen(R, symmetric = TRUE, only.values = TRUE)$values), 0)
+})
+
+test_that("EFA missing='fiml' builds and routes R through psych::corFiml()", {
+  skip_if_not_installed("psych")
+  d <- .make_fiml_data()
+  x <- suppressMessages(ackwards(d, k_max = 3L, engine = "efa", missing = "fiml"))
+  expect_s3_class(x, "ackwards")
+  expect_equal(x$meta$missing, "fiml")
+  # x$r should match a direct corFiml() call, not the pairwise cor()
+  expect_equal(x$r, .corfiml_R(as.matrix(d)), tolerance = 1e-8)
+  expect_false(isTRUE(all.equal(
+    x$r, stats::cor(as.matrix(d), use = "pairwise.complete.obs"),
+    tolerance = 1e-3
+  )))
+})
+
+test_that("PCA missing='fiml' builds and uses the corFiml matrix", {
+  skip_if_not_installed("psych")
+  d <- .make_fiml_data()
+  x <- suppressMessages(ackwards(d, k_max = 3L, engine = "pca", missing = "fiml"))
+  expect_s3_class(x, "ackwards")
+  expect_equal(x$r, .corfiml_R(as.matrix(d)), tolerance = 1e-8)
+})
+
+test_that("FIML n_obs = 'total' (default) uses all rows; 'complete' uses complete cases", {
+  skip_if_not_installed("psych")
+  d <- .make_fiml_data()
+  n_complete <- sum(stats::complete.cases(d))
+  x_total <- suppressMessages(ackwards(d, k_max = 3L, engine = "efa", missing = "fiml"))
+  x_comp <- suppressMessages(
+    ackwards(d, k_max = 3L, engine = "efa", missing = "fiml", n_obs = "complete")
+  )
+  expect_equal(x_total$n_obs, nrow(d))
+  expect_equal(x_comp$n_obs, n_complete)
+  expect_lt(n_complete, nrow(d)) # sanity: missingness reduced the complete count
+})
+
+test_that("FIML point estimates (edges) are unchanged by the n_obs choice", {
+  skip_if_not_installed("psych")
+  d <- .make_fiml_data()
+  x_total <- suppressMessages(ackwards(d, k_max = 3L, engine = "efa", missing = "fiml"))
+  x_comp <- suppressMessages(
+    ackwards(d, k_max = 3L, engine = "efa", missing = "fiml", n_obs = "complete")
+  )
+  # Only fit-index N differs; loadings/edges come from the same R.
+  expect_equal(x_total$edges$tidy$r, x_comp$edges$tidy$r, tolerance = 1e-10)
+  expect_equal(x_total$r, x_comp$r, tolerance = 1e-10)
+})
+
+test_that("FIML route announces itself and the approximate-fit caveat via cli", {
+  skip_if_not_installed("psych")
+  d <- .make_fiml_data()
+  expect_message(
+    suppressWarnings(ackwards(d, k_max = 3L, engine = "efa", missing = "fiml")),
+    "corFiml"
+  )
+  expect_message(
+    suppressWarnings(ackwards(d, k_max = 3L, engine = "efa", missing = "fiml")),
+    "approximate"
+  )
+})
+
+test_that("string n_obs errors when not on the raw-data FIML pca/efa path", {
+  skip_if_not_installed("psych")
+  d <- .make_fiml_data()
+  # non-FIML raw data
+  expect_error(
+    suppressMessages(ackwards(d, k_max = 3L, engine = "efa", n_obs = "total")),
+    "only valid"
+  )
+  # correlation-matrix input rejects a string n_obs (numeric only)
+  expect_error(
+    ackwards(stats::cor(as.matrix(d), use = "pairwise.complete.obs"),
+      k_max = 3L, engine = "efa", n_obs = "complete"
+    ),
+    "positive integer"
+  )
+})
+
+test_that("numeric n_obs with raw-data FIML warns and defaults to total", {
+  skip_if_not_installed("psych")
+  d <- .make_fiml_data()
+  expect_warning(
+    x <- suppressMessages(
+      ackwards(d, k_max = 3L, engine = "efa", missing = "fiml", n_obs = 999)
+    ),
+    "ignored"
+  )
+  expect_equal(x$n_obs, nrow(d))
+})
+
+test_that("PCA/EFA FIML keep_scores: incomplete rows still produce NA scores", {
+  skip_if_not_installed("psych")
+  d <- .make_fiml_data()
+  x <- suppressMessages(suppressWarnings(
+    ackwards(d, k_max = 2L, engine = "efa", missing = "fiml", keep_scores = TRUE)
+  ))
+  # corFiml estimates R but does not impute item responses -> NA score rows
+  expect_true(any(is.na(x$scores[["1"]])))
 })
