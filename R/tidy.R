@@ -21,35 +21,32 @@ generics::glance
 #'     `engine = "esem"` (which produces rotation-aware loading SEs); they are
 #'     `NA` for PCA and EFA. The confidence level is controlled by `conf_level`.
 #'   * `"variance"` -- one row per factor x level:
-#'     `level`, `factor`, `variance_pct`, `cumulative_pct`.
-#'   * `"fit"` -- one row per fit index x level: `level`, `index`, `value`.
-#'     For PCA objects the indices are eigenvalues; for EFA objects they are
-#'     `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`; for ESEM they are
-#'     `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`, `BIC`. For ESEM
-#'     under a scaled-test estimator (`"WLSMV"`/`"ULSMV"` for ordinal data,
-#'     `"MLR"` for continuous), the whole row -- `chi`/`dof`/`p_value` **and**
-#'     `CFI`/`TLI`/`RMSEA` -- reports lavaan's mean-and-variance-adjusted
-#'     ("scaled") variant, so every quantity shares one scaling. This matters
-#'     most for WLSMV/ULSMV: the naive chi-square has no valid reference
-#'     distribution (lavaan's own `summary()` labels its p-value "Unknown"),
-#'     and the naive `CFI`/`TLI` are badly optimistic for ordinal data
-#'     (Xia & Yang, 2019). `"ML"` has no scaled variant, so it reports the
-#'     naive values (the correct ones for ML). `SRMR` has no scaled variant and
-#'     is reported as-is. `BIC` is `NA` under WLSMV/ULSMV (no proper
-#'     log-likelihood for a limited-information estimator) and populated under
-#'     ML/MLR. Use
-#'     `format = "wide"` for one row per **non-anchor** level (k >= 2; the
-#'     saturated 1-factor anchor is dropped, matching `summary()` and
-#'     `autoplot(what = "fit")`), one column per index. Add `cutoffs = TRUE` to
-#'     append a `meets` column flagging each index against conventional
-#'     thresholds (Hu & Bentler 1999: CFI/TLI >= .95, RMSEA <= .06,
-#'     SRMR <= .08). In `format = "long"`, indices without a defined threshold
-#'     (`chi`, `dof`, `p_value`, `BIC`, eigenvalues) return `NA` for `meets`;
-#'     in `format = "wide"`, no `{index}_meets` column is emitted for them at
-#'     all (an always-`NA` column would just be noise). Thresholds are
-#'     conventional and contested; they are report-only and never gate
-#'     anything. `format` and `cutoffs` are oriented to the EFA/ESEM model-fit
-#'     indices; for PCA the "indices" are per-component eigenvalues.
+#'     `level`, `factor`, `proportion`, `cumulative`. Both are proportions of
+#'     total item variance on a 0-1 scale (multiply by 100 for a percentage).
+#'   * `"fit"` -- one row per fit statistic x level: `level`, `statistic`,
+#'     `value`. For PCA objects the statistics are eigenvalues; for EFA
+#'     objects they are `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`; for
+#'     ESEM they are `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`,
+#'     `BIC`. For ESEM under a scaled-test estimator (`"WLSMV"`/`"ULSMV"` for
+#'     ordinal data, `"MLR"` for continuous), the whole row -- `chi`/`dof`/
+#'     `p_value` **and** `CFI`/`TLI`/`RMSEA` -- reports lavaan's
+#'     mean-and-variance-adjusted ("scaled") variant, so every quantity shares
+#'     one scaling. This matters most for WLSMV/ULSMV: the naive chi-square
+#'     has no valid reference distribution (lavaan's own `summary()` labels
+#'     its p-value "Unknown"), and the naive `CFI`/`TLI` are badly optimistic
+#'     for ordinal data (Xia & Yang, 2019). `"ML"` has no scaled variant, so
+#'     it reports the naive values (the correct ones for ML). `SRMR` has no
+#'     scaled variant and is reported as-is. `BIC` is `NA` under WLSMV/ULSMV
+#'     (no proper log-likelihood for a limited-information estimator) and
+#'     populated under ML/MLR. Use `format = "wide"` for one row per
+#'     **non-anchor** level (k >= 2; the saturated 1-factor anchor is dropped,
+#'     matching `summary()` and `autoplot(what = "fit")`), one column per
+#'     statistic. Conventional fit cutoffs (Hu & Bentler 1999) are shown as
+#'     reference lines in `autoplot(what = "fit")` and inline in `summary()`,
+#'     but are not returned as a pass/fail column here -- they are contested
+#'     thresholds, report-only, and never gate anything (see those functions'
+#'     docs). `format` is oriented to the EFA/ESEM model-fit statistics; for
+#'     PCA the "statistics" are per-component eigenvalues.
 #'   * `"nodes"` -- Forbes-extension pruning annotations (requires `prune != "none"`
 #'     when the object was created). One row per factor across all levels:
 #'     `id`, `level`, `pruned`, `prune_reason`. Returns an empty data frame with
@@ -64,12 +61,8 @@ generics::glance
 #' @param sort For `what = "edges"` only. One of `"none"` (default, natural order)
 #'   or `"strength"` (descending `|r|`). Ignored for all other values of `what`.
 #' @param format For `what = "fit"` only. One of `"long"` (default, one row per
-#'   index x level) or `"wide"` (one row per level, one column per index).
-#'   Errors for all other values of `what`.
-#' @param cutoffs For `what = "fit"` only. When `TRUE`, appends a logical `meets`
-#'   column indicating whether each index meets its conventional threshold (Hu &
-#'   Bentler 1999). `NA` when no threshold is defined for that index. Default
-#'   `FALSE`. Errors for all other values of `what`.
+#'   statistic x level) or `"wide"` (one row per level, one column per
+#'   statistic). Errors for all other values of `what`.
 #' @param conf_level For `what = "loadings"` only. Confidence level for the
 #'   loading intervals; default `0.95`. The intervals are computed as
 #'   `loading ± qnorm((1 + conf_level) / 2) * se` and are `NA` for engines
@@ -89,7 +82,6 @@ generics::glance
 #' tidy(x, what = "variance")
 #' tidy(x, what = "fit")
 #' tidy(x, what = "fit", format = "wide")
-#' tidy(x, what = "fit", cutoffs = TRUE)
 #'
 #' @export
 tidy.ackwards <- function(
@@ -98,7 +90,6 @@ tidy.ackwards <- function(
   primary_only = FALSE,
   sort = c("none", "strength"),
   format = c("long", "wide"),
-  cutoffs = FALSE,
   conf_level = 0.95,
   ...
 ) {
@@ -120,12 +111,6 @@ tidy.ackwards <- function(
   if (format != "long" && what != "fit") {
     cli::cli_abort(
       "{.arg format} is only supported for {.code what = \"fit\"}, \\
-       not {.code what = \"{what}\"}."
-    )
-  }
-  if (!isFALSE(cutoffs) && what != "fit") {
-    cli::cli_abort(
-      "{.arg cutoffs} is only supported for {.code what = \"fit\"}, \\
        not {.code what = \"{what}\"}."
     )
   }
@@ -152,9 +137,8 @@ tidy.ackwards <- function(
     }
     rownames(out) <- NULL
   }
-  if (what == "fit") {
-    if (isTRUE(cutoffs)) out <- .flag_fit(out)
-    if (format == "wide") out <- .fit_long_to_wide(out)
+  if (what == "fit" && format == "wide") {
+    out <- .fit_long_to_wide(out)
   }
   out
 }
@@ -236,7 +220,7 @@ tidy.ackwards <- function(
     fv <- lev$fit
     data.frame(
       level = k,
-      index = names(fv),
+      statistic = names(fv),
       value = unname(fv),
       stringsAsFactors = FALSE
     )
@@ -247,8 +231,11 @@ tidy.ackwards <- function(
 }
 
 # Hu & Bentler (1999) conventional thresholds — direction "hi" means higher is
-# better (CFI/TLI), "lo" means lower is better (RMSEA/SRMR). Indices not in
-# this list (chi, dof, p_value, BIC, eigenvalues) receive NA for `meets`.
+# better (CFI/TLI), "lo" means lower is better (RMSEA/SRMR). Statistics not in
+# this list (chi, dof, p_value, BIC, eigenvalues) have no defined threshold.
+# Used internally as reference lines/inline annotations (autoplot, summary);
+# not exposed as a pass/fail column in tidy() -- these thresholds are
+# conventional and contested, report-only, and never gate anything.
 .fit_cutoffs <- function() {
   list(
     CFI   = list(threshold = 0.95, direction = "hi"),
@@ -258,39 +245,19 @@ tidy.ackwards <- function(
   )
 }
 
-.flag_fit <- function(df) {
-  cuts <- .fit_cutoffs()
-  meets <- vapply(seq_len(nrow(df)), function(i) {
-    cut <- cuts[[df$index[i]]]
-    if (is.null(cut) || is.na(df$value[i])) {
-      return(NA)
-    }
-    if (cut$direction == "hi") df$value[i] >= cut$threshold else df$value[i] <= cut$threshold
-  }, logical(1L))
-  df$meets <- meets
-  df
-}
-
 .fit_long_to_wide <- function(df) {
   # Exclude the anchor level (k = 1). The 1-factor anchor is the saturated
   # baseline; summary() and autoplot(what = "fit") both drop it, so the wide
   # reporting table matches them (one row per non-anchor level).
   df <- df[df$level > 1L, , drop = FALSE]
-  has_meets <- "meets" %in% names(df)
   levels <- sort(unique(df$level))
-  all_idx <- unique(df$index) # preserve original index order
+  all_stat <- unique(df$statistic) # preserve original statistic order
   rows <- lapply(levels, function(lv) {
     sub <- df[df$level == lv, , drop = FALSE]
     row_vals <- list(level = lv)
-    for (idx in all_idx) {
-      m <- match(idx, sub$index)
-      row_vals[[idx]] <- if (!is.na(m)) sub$value[m] else NA_real_
-      # Only emit a _meets column for indices with a real threshold
-      # (.fit_cutoffs()) -- chi/dof/p_value/BIC/eigenvalues have none and
-      # would otherwise generate an always-NA column.
-      if (has_meets && idx %in% names(.fit_cutoffs())) {
-        row_vals[[paste0(idx, "_meets")]] <- if (!is.na(m)) sub$meets[m] else NA
-      }
+    for (stat in all_stat) {
+      m <- match(stat, sub$statistic)
+      row_vals[[stat]] <- if (!is.na(m)) sub$value[m] else NA_real_
     }
     as.data.frame(row_vals, stringsAsFactors = FALSE)
   })
@@ -308,10 +275,8 @@ tidy.ackwards <- function(
     data.frame(
       level = k,
       factor = fac_labels,
-      variance_pct = round(var_vals * 100, 2),
-      cumulative_pct = round(
-        cumsum(var_vals) * 100, 2
-      ),
+      proportion = var_vals,
+      cumulative = cumsum(var_vals),
       stringsAsFactors = FALSE
     )
   })

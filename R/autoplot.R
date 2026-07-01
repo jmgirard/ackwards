@@ -597,7 +597,7 @@ autoplot.ackwards <- function(
   lo_lbl <- paste0(paste(lo_idx, collapse = " / "), "  (lower is better)")
 
   # Anchor level (k = 1) excluded: saturated baseline, always fits perfectly.
-  fd <- fit_long[fit_long$level > 1L & fit_long$index %in% keep_idx, , drop = FALSE]
+  fd <- fit_long[fit_long$level > 1L & fit_long$statistic %in% keep_idx, , drop = FALSE]
 
   if (nrow(fd) == 0L) {
     return(
@@ -611,7 +611,7 @@ autoplot.ackwards <- function(
     )
   }
 
-  fd$panel <- ifelse(fd$index %in% hi_idx, hi_lbl, lo_lbl)
+  fd$panel <- ifelse(fd$statistic %in% hi_idx, hi_lbl, lo_lbl)
   fd$panel <- factor(fd$panel, levels = c(hi_lbl, lo_lbl))
 
   # Every index in keep_idx has a threshold in .fit_cutoffs(), so no NULL guard
@@ -624,7 +624,7 @@ autoplot.ackwards <- function(
   ref_df <- unique(ref_df)
   ref_df$panel <- factor(ref_df$panel, levels = levels(fd$panel))
 
-  ggplot2::ggplot(fd, ggplot2::aes(x = .data$level, y = .data$value, color = .data$index)) +
+  ggplot2::ggplot(fd, ggplot2::aes(x = .data$level, y = .data$value, color = .data$statistic)) +
     ggplot2::geom_hline(
       data = ref_df,
       ggplot2::aes(yintercept = .data$yintercept),

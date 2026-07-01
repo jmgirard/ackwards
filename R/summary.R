@@ -66,8 +66,8 @@ print.summary_ackwards <- function(x, ...) {
 
   for (ki in seq_len(x$k_max)) {
     var_rows <- x$variance[x$variance$level == ki, , drop = FALSE]
-    # cumulative_pct is a running sum within the level; max gives the total.
-    cum_total <- max(var_rows$cumulative_pct)
+    # cumulative is a running proportion within the level; max gives the total.
+    cum_total <- round(max(var_rows$cumulative) * 100, 1)
     cli::cli_text(
       "{.strong k = {ki}}: {ki} factor{?s}  ({cum_total}% cumulative variance)"
     )
@@ -75,12 +75,12 @@ print.summary_ackwards <- function(x, ...) {
 
     for (i in seq_len(nrow(var_rows))) {
       fac <- var_rows$factor[i]
-      vpct <- var_rows$variance_pct[i]
+      vpct <- round(var_rows$proportion[i] * 100, 2)
 
-      # PCA: eigenvalue indices are "eigenvalue.<label>" (see engine_pca.R:65)
+      # PCA: eigenvalue statistics are "eigenvalue.<label>" (see engine_pca.R:65)
       suffix <- if (is_pca && nrow(fit_rows) > 0L) {
         eig_row <- fit_rows[
-          fit_rows$index == paste0("eigenvalue.", fac), ,
+          fit_rows$statistic == paste0("eigenvalue.", fac), ,
           drop = FALSE
         ]
         if (nrow(eig_row) > 0L) {
@@ -94,21 +94,21 @@ print.summary_ackwards <- function(x, ...) {
       cli::cli_text("  {fac}  {vpct}%{suffix}")
     }
 
-    # EFA / ESEM: append a fit-index line per level (not per-factor)
+    # EFA / ESEM: append a fit-statistic line per level (not per-factor)
     if ((is_efa || is_esem) && ki > 1L && nrow(fit_rows) > 0L) {
       idx_show <- if (is_esem) {
         c("CFI", "TLI", "RMSEA", "SRMR")
       } else {
         c("RMSEA", "TLI", "chi", "dof")
       }
-      fit_sub <- fit_rows[fit_rows$index %in% idx_show, , drop = FALSE]
+      fit_sub <- fit_rows[fit_rows$statistic %in% idx_show, , drop = FALSE]
       if (nrow(fit_sub) > 0L) {
         cuts <- .fit_cutoffs()
         parts <- vapply(
           seq_len(nrow(fit_sub)),
           function(j) {
             val <- fit_sub$value[j]
-            idx <- fit_sub$index[j]
+            idx <- fit_sub$statistic[j]
             formatted <- if (idx %in% c("chi", "dof")) {
               paste0(idx, " = ", round(val, 1L))
             } else {
