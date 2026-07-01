@@ -27,7 +27,11 @@ Once they respond:
    "out of scope for now" list (and that it isn't already done per the `MILESTONES.md` log); flag
    if the user's details conflict with either.
 5. Propose a concrete plan: files to create/modify, the order of implementation, and testable
-   acceptance criteria in the same style as Milestone 1's (see `MILESTONES.md`).
+   acceptance criteria in the same style as Milestone 1's (see `MILESTONES.md`). If the milestone
+   adds a new **exported** object (function, dataset, S3 generic), list `_pkgdown.yml`'s `reference:`
+   list among the files to modify and make "new export is in the pkgdown reference index
+   (`pkgdown::check_pkgdown()` passes)" an explicit acceptance criterion — a missing entry breaks the
+   pkgdown GHA but not local `R CMD check`, so it is easy to miss.
 6. Flag any design ambiguity the brief doesn't resolve — do not invent a resolution.
 7. Do not write any code. This is planning only; implementation happens via
    /implement-milestone afterward.

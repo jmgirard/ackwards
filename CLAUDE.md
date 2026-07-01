@@ -157,6 +157,13 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
 
 - Tests written/updated and passing; new behavior has a test.
 - `devtools::document()` run if roxygen changed; NAMESPACE committed.
+- **New/removed exported object → pkgdown reference updated.** Whenever `NAMESPACE` gains or loses
+  an `export()`/`S3method()`, or a dataset is added under `data/`, update the `reference:` list in
+  `_pkgdown.yml` to match, then verify with `pkgdown::check_pkgdown()`. This is the exact check the
+  pkgdown GitHub Action runs — an exported topic missing from the reference index fails that
+  workflow (and only that workflow; local `R CMD check` won't catch it). Run it at the DoD gate
+  unconditionally (it's sub-second and gated on `rlang::is_installed("pkgdown")`); it costs nothing
+  and closes a recurring CI-break.
 - `devtools::check()` clean (run **once** at the gate — it subsumes `devtools::test()`; see the
   efficiency note under *Dev workflow*). Coverage checked once, not per sub-step.
 - Styled and linted.

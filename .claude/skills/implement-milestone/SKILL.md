@@ -20,6 +20,12 @@ Implement Milestone $ARGUMENTS using the plan already established earlier in thi
 Follow `CLAUDE.md`'s dev workflow and definition of done throughout:
 - Build in small, reviewable increments: one coherent change → test → commit → repeat. Do not produce one large commit at the end.
 - After any roxygen change, run `devtools::document()` and commit the regenerated `NAMESPACE`/docs.
+- **When you add or remove an exported object** (a function, dataset, or S3 generic — i.e. the
+  regenerated `NAMESPACE` gained/lost an `export()`/`S3method()`, or you added a dataset under
+  `data/`), update the `reference:` list in `_pkgdown.yml` to cover it in the same commit. This is
+  easy to forget: it does **not** break local `R CMD check`, only the pkgdown GitHub Action ("Topics
+  missing from index"). Guard against it explicitly — see the `pkgdown::check_pkgdown()` step in the
+  gate below.
 - Write or update tests for new behavior.
 - **Verification cadence — the full suite takes minutes, so don't re-run it needlessly:**
   - *While iterating / before each commit:* run only the **relevant** test file(s) —
@@ -38,9 +44,14 @@ Follow `CLAUDE.md`'s dev workflow and definition of done throughout:
   - *Never run two package-touching R processes concurrently* (e.g. a background `check()` while a
     foreground `test()` runs) — they interfere and can produce spurious failures.
 - **The definition-of-done gate (run once, before the PR):** `devtools::check()` (0/0/0) →
-  `covr::package_coverage()` (target 100%) → `styler::style_pkg()` → `lintr::lint_package()`. This is
+  `covr::package_coverage()` (target 100%) → `styler::style_pkg()` → `lintr::lint_package()` →
+  `pkgdown::check_pkgdown()`. This is
   the only place the full suite must run end-to-end; there is no need for a separate `devtools::test()`
-  here because `check()` already ran it.
+  here because `check()` already ran it. `pkgdown::check_pkgdown()` is sub-second and mirrors the
+  pkgdown GHA — run it unconditionally at the gate (gated on `rlang::is_installed("pkgdown")`; if
+  pkgdown is absent, instead eyeball that every `export()` in `NAMESPACE` appears in `_pkgdown.yml`'s
+  `reference:` contents). It catches exported topics missing from the reference index, which local
+  `R CMD check` does not.
 - Respect the ask-first guardrails in `CLAUDE.md`: flag before adding an `Imports` dependency, introducing Rcpp, changing a resolved default, or touching git history/tags.
 - If you hit a design ambiguity not covered by `DESIGN.md`, stop and ask rather than deciding unilaterally.
 - Update `NEWS.md` for user-visible changes.
