@@ -1,4 +1,4 @@
-# ROADMAP.md — planned milestones (M35–M38)
+# ROADMAP.md — planned milestones (M36–M38)
 
 Forward-looking counterpart to [`MILESTONES.md`](MILESTONES.md). `MILESTONES.md` is the source of
 truth for **completed** milestones; this file captures the **intent and source notes** for the
@@ -11,6 +11,10 @@ planning sessions.
 M34 (the `prune()` verb) has shipped; see its `MILESTONES.md` entry. M38's forbes-vignette
 dependency on "final `prune()` API + artifact naming" is satisfied — canonical rule name is
 `"artifact"` (`"artefact"` accepted as an alias).
+
+M35 (autoplot & visualization) has shipped; see its `MILESTONES.md` entry. The M38 forbes-vignette
+display note about pruned-level labels can build on M35's orientation-aware `autoplot()`; the
+sign-propagation fix means primary-parent edges are now always non-negative.
 
 **Read this before running `/plan-milestone N` for any milestone below.** The one-line index in
 `CLAUDE.md` ("Remaining milestones in the epic") is a lossy pointer; the driving rationale and the
@@ -32,35 +36,6 @@ below so future planning doesn't re-litigate them.
   file-level plan and acceptance criteria are produced at `/plan-milestone` time.
 - When a milestone ships, delete its section here and rely on its `MILESTONES.md` entry. Keep this
   file scoped to *pending* work only.
-
----
-
-## M35 — autoplot & visualization
-
-- **Type:** code + viz/README · **Depends on:** none · **Status:** pending.
-
-**Banked decision:**
-- **`ggsave` cannot be re-exported** — doing so would drag `ggplot2` from Suggests into Imports,
-  violating the dependency guardrail. Instead, add a docs *section* that calls `ggplot2::ggsave()`.
-
-**Source notes (README + visualization vignette + intro layout):**
-- README: "should autoplot legend define what dashed vs solid line means?"
-- viz: "why doesnt linetype get a legend and why is m2f2 -> m3f2 red?"
-- viz: "i would prefer to use color not colour."
-- viz: "mono switching the meaning of dashed linetype seems like a recipe for confusion. is that
-  really a good idea? what if negative was one of those double-lines instead of dashed? then maybe
-  it could pair with dashed?" *(design Q — linetype encoding of sign)*
-- viz: "here you are using show_r before defining it, not good teaching. probably drop that example
-  and replace with a text reference and pointer below."
-- viz: "heading says annotate with |r| but we are annotating with r (no absolute value transformation)."
-- viz: "many readers wont know the R convention of L after integers, so just say r_digits = 1."
-- viz: "do we need this diagnostic plot section here? seems redundant with suggest_k vignette unless
-  we customize it in new ways."
-- viz: "we need a section at the end here about how to export the plots using ggsave, which we might
-  want to re-export?" *(see banked decision above)*
-- intro: "should we add an arg in autoplot to make it plot left-to-right instead of top-to-bottom?
-  might be useful for slideshows or posters that are wider than tall." *(also fixes the intro text
-  that says "k=1 to the left / k=5 to the right" while the layout is top-to-bottom.)*
 
 ---
 

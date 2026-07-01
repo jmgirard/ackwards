@@ -8,20 +8,29 @@
 \method{autoplot}{ackwards}(
   object,
   what = c("hierarchy", "fit"),
+  sign_by = c("color", "linetype", "both", "none"),
+  magnitude_by = c("linewidth", "none"),
   cut_show = NULL,
-  cut_strong = 0.5,
   color_pos = "#2166AC",
   color_neg = "#D6604D",
+  color_edge = "black",
+  colour_pos = NULL,
+  colour_neg = NULL,
+  colour_edge = NULL,
   node_width = 0.8,
   node_height = 0.4,
   min_sep = 1,
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
+  colour_pruned = NULL,
   show_r = FALSE,
   r_digits = 2L,
   r_label_size = 2.5,
   mono = FALSE,
+  edge_linewidth = NULL,
+  cut_strong = NULL,
+  direction = c("vertical", "horizontal"),
   show_level_labels = TRUE,
   level_label_size = 3,
   node_labels = NULL,
@@ -29,7 +38,6 @@
   drop_pruned = FALSE,
   compress_levels = FALSE,
   show_arrows = TRUE,
-  edge_linewidth = NULL,
   legend = TRUE,
   ...
 )
@@ -43,18 +51,33 @@
 visualisation is produced. All other parameters are ignored when
 \code{what = "fit"}.}
 
+\item{sign_by}{How edge \strong{sign} (positive vs negative correlation) is
+encoded. One of \code{"color"} (default; positive = \code{color_pos}, negative =
+\code{color_neg}), \code{"linetype"} (positive = solid, negative = dashed),
+\code{"both"} (colour \emph{and} linetype, with negative drawn as a distinct
+double-dash so it reads clearly in greyscale), or \code{"none"} (sign not
+encoded; all edges \code{color_edge} and solid). Whichever channel is used gets
+a "Direction" legend.}
+
+\item{magnitude_by}{How edge \strong{magnitude} (\verb{|r|}) is encoded. One of
+\code{"linewidth"} (default; thicker = stronger, with a \verb{|r|} legend) or
+\code{"none"} (constant width). A numeric \code{edge_linewidth} also forces constant
+width at that value.}
+
 \item{cut_show}{Edges with \verb{|r| < cut_show} are not drawn. Defaults to the
 value used when the object was created (\code{x$meta$cut_show}, typically 0.3).}
 
-\item{cut_strong}{Edges with \verb{|r| >= cut_strong} are drawn solid; those
-between \code{cut_show} and \code{cut_strong} are dashed. Ignored when
-\code{mono = TRUE}. Default \code{0.5}.}
+\item{color_pos, colour_pos}{Colour for positive edges when \code{sign_by} uses
+colour. Default \code{"#2166AC"} (blue). \code{colour_pos} is an accepted British
+alias.}
 
-\item{color_pos}{Colour for positive edges. Default \code{"#2166AC"} (blue).
-Ignored when \code{mono = TRUE}.}
+\item{color_neg, colour_neg}{Colour for negative edges when \code{sign_by} uses
+colour. Default \code{"#D6604D"} (red). \code{colour_neg} is an accepted British
+alias.}
 
-\item{color_neg}{Colour for negative edges. Default \code{"#D6604D"} (red).
-Ignored when \code{mono = TRUE}.}
+\item{color_edge, colour_edge}{Single colour for all edges when \code{sign_by}
+does not use colour (\code{"linetype"} or \code{"none"}). Default \code{"black"}.
+\code{colour_edge} is an accepted British alias.}
 
 \item{node_width}{Width of factor boxes in layout units. Default \code{0.8}.}
 
@@ -71,10 +94,11 @@ Ignored when \code{mono = TRUE}.}
 \code{\link[ggplot2:geom_curve]{ggplot2::geom_curve()}}. Positive values curve right; default \code{0.2}.
 Ignored when \code{drop_pruned = TRUE}.}
 
-\item{color_pruned}{Fill colour for nodes flagged as pruned/redundant.
-Default \code{"grey80"}. Only applied when the object carries pruning
-annotations (\code{x$prune} is non-\code{NULL}) and \code{drop_pruned = FALSE} (pruned
-nodes are omitted entirely when \code{drop_pruned = TRUE}).}
+\item{color_pruned, colour_pruned}{Fill colour for nodes flagged as
+pruned/redundant. Default \code{"grey80"}. Only applied when the object carries
+pruning annotations (\code{x$prune} is non-\code{NULL}) and \code{drop_pruned = FALSE}
+(pruned nodes are omitted entirely when \code{drop_pruned = TRUE}).
+\code{colour_pruned} is an accepted British alias.}
 
 \item{show_r}{Whether to label each drawn edge with its correlation
 coefficient. Default \code{FALSE}. When \code{TRUE}, labels are formatted in APA
@@ -88,10 +112,24 @@ edge using a white-background label that clears the arrowhead.}
 \code{show_r = TRUE}. Passed to \code{ggplot2::geom_label()} as \code{size}. Default
 \code{2.5}.}
 
-\item{mono}{Monochrome mode. When \code{TRUE}, all edges are drawn in black;
-\code{linewidth} still encodes \verb{|r|}; \code{linetype} encodes sign (\code{solid} =
-positive, \code{dashed} = negative). The \code{cut_strong} strong/weak linetype
-distinction is dropped in mono mode. Default \code{FALSE}.}
+\item{mono}{Monochrome convenience wrapper. When \code{TRUE}, equivalent to
+\code{sign_by = "linetype"} with black edges (it overrides \code{sign_by} and the
+colour arguments). \code{magnitude_by} still applies. Default \code{FALSE}.}
+
+\item{edge_linewidth}{\code{NULL} (default) uses \code{magnitude_by} to decide edge
+width. A numeric value forces every edge to that constant width (implying
+\code{magnitude_by = "none"}) and drops the \verb{|r|} legend. Forbes figures use
+uniform thin lines (~= 0.5--0.6).}
+
+\item{cut_strong}{\strong{Deprecated} in M35 and
+ignored (with a warning). Edge magnitude is now shown by \code{magnitude_by}
+(linewidth) and sign by \code{sign_by}; the old strong/weak linetype split
+double-encoded magnitude. Retained only so existing calls do not error.}
+
+\item{direction}{Layout orientation. \code{"vertical"} (default) stacks levels
+top-to-bottom (level 1 at top); \code{"horizontal"} lays them out left-to-right
+(level 1 at left), which suits wide slides or posters. Level-axis labels
+move to the bottom margin under \code{"horizontal"}.}
 
 \item{show_level_labels}{Whether to draw level axis labels
 ("1 factor", "2 factors", ...) to the left of the diagram. Default \code{TRUE}.}
@@ -122,12 +160,6 @@ level axis labels (d) still show the original level numbers. Ignored when
 of closed arrowheads (\code{arrow = NULL}). Applies to both straight and curved
 edge layers. Default \code{TRUE}. Forbes (2023) figures use plain line ends.}
 
-\item{edge_linewidth}{\code{NULL} (default) maps \verb{|r|} to \code{linewidth} via a
-continuous scale (current behaviour). A numeric value draws every edge at
-that constant width, removes the \code{linewidth} aesthetic mapping, and drops
-the \verb{|r|} linewidth legend. Applies in both colour and \code{mono} modes and in
-the \code{drop_pruned} path. Forbes figures use uniform thin lines (~= 0.5--0.6).}
-
 \item{legend}{When \code{FALSE}, suppresses all plot legends
 (\code{legend.position = "none"}). Useful when \code{color_pos == color_neg} (e.g.
 both \code{"black"}) to remove an otherwise redundant Direction key. Default
@@ -143,10 +175,13 @@ A \code{ggplot} object.
 \description{
 When \code{what = "hierarchy"} (default), renders the layered bass-ackwards
 hierarchy as a ggplot2 diagram. Factors appear as labelled boxes arranged
-in levels (level 1 at top, level k at bottom). Between-level edges are drawn
-as arrows coloured by sign and scaled by |r|. Edges below \code{cut_show} are
-hidden; edges above \code{cut_strong} are solid and those between the two
-thresholds are dashed.
+in levels (level 1 at top, level k at bottom by default; set
+\code{direction = "horizontal"} for a left-to-right layout). Between-level edges
+below \code{cut_show} are hidden. Two aesthetics carry the edge information, each
+explained by its own legend: \strong{sign} (positive/negative) is shown by
+\code{sign_by} (edge colour by default) and \strong{magnitude} (\verb{|r|}) by
+\code{magnitude_by} (line thickness by default). No aesthetic is ever mapped
+without a matching legend.
 }
 \details{
 When \code{what = "fit"}, renders a two-panel line plot of per-level fit indices
@@ -158,12 +193,33 @@ model-fit indices).
 
 Requires the \pkg{ggplot2} package.
 }
+\section{Saving plots}{
+
+\code{autoplot()} returns a standard \code{ggplot} object, so save it with
+\code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}:
+\preformatted{
+  p <- autoplot(x)
+  ggplot2::ggsave("hierarchy.png", p, width = 8, height = 6, dpi = 300)
+}
+\code{ggsave()} is not re-exported by \pkg{ackwards} (that would move
+\pkg{ggplot2} from Suggests into Imports); call it from \pkg{ggplot2}
+directly. For a wide slide or poster, pair it with
+\code{direction = "horizontal"}.
+}
+
 \examples{
 \donttest{
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   x <- ackwards(bfi25, k_max = 5)
   autoplot(x)
-  autoplot(x, cut_strong = 0.6, color_pos = "steelblue")
+  autoplot(x, color_pos = "steelblue")
+
+  # Encode sign by linetype instead of colour, or by both
+  autoplot(x, sign_by = "linetype")
+  autoplot(x, sign_by = "both")
+
+  # Left-to-right layout (wide slides / posters)
+  autoplot(x, direction = "horizontal")
 
   # Per-level fit index chart (EFA or ESEM only)
   x_efa <- ackwards(bfi25, k_max = 5, engine = "efa")

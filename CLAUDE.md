@@ -56,14 +56,15 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M32** — API-shape & naming resolutions (`tidy(what="fit")` `index`→`statistic`; `k_max` kept in both `ackwards()`/`suggest_k()`, roxygen-disambiguated; cutoffs pass/fail flag output removed, `.fit_cutoffs()` kept for reference lines; variance reported as 0–1 `proportion`/`cumulative`; plus M31-deferred `$meta$estimator` + `summary()` scaled-fit footnote)
 - **M33** — simulated Gaussian dataset (`sim16`: 1000×16 continuous, known 1→2→4 hierarchy, no ordinal-detection warning, guaranteed redundant-chain + artefact signals at `k_max=5`)
 - **M34** — Pruning verb: extracted `prune()` as a standalone, pipeable S3 generic off `ackwards()` (five prune args removed from `ackwards()`; canonical `"artifact"` naming with `"artefact"` alias; manual + mixed pruning; edges recomputed fresh inside `prune()`, `x$edges` never mutated)
+- **M35** — autoplot & visualization: sign-propagation bugfix (primary-parent edges now always non-negative per DESIGN §7); `autoplot()` `sign_by`/`magnitude_by` configurable, always-legended encodings (`cut_strong` retired; `mono` kept as wrapper); `direction="horizontal"` layout; `colour_*` aliases + `color_edge`; `ggsave` documented (not re-exported); code-coupled viz/intro/README prose
 
 ## Current focus
 
-M34 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38 documentation/UX epic is
-**M35** (autoplot & visualization); not yet planned; run `/plan-milestone 35` before starting.
+M35 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38 documentation/UX epic is
+**M36** (interpretation functions: `augment` scores-only, `top_items` labels + group-by-item); not
+yet planned; run `/plan-milestone 36` before starting.
 
 Remaining milestones in the epic:
-M35 autoplot & visualization;
 M36 interpretation functions (`augment` scores-only, `top_items` labels + group-by-item);
 M37 engines vignette; M38 narrative & remaining prose (intro, suggest_k, ordinal, forbes, README).
 

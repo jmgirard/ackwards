@@ -80,10 +80,13 @@ x
 
 ### Step 3 — Visualize
 
-`autoplot()` draws the hierarchical diagram. Each column is a level (k = 1 at
-left, k = 5 at right); arrows show which narrow factors inherit from which
-broad factor. Solid arrows indicate strong connections (|r| ≥ 0.6 by default);
-dashed arrows show weaker ones.
+`autoplot()` draws the hierarchical diagram. Each row is a level (k = 1 at top,
+k = 5 at bottom); arrows show which narrow factors inherit from which broad
+factor. Arrow **thickness** encodes |r| and arrow **color** encodes direction
+(blue = positive, red = negative), each with its own legend. Primary-parent
+edges are always positive after sign alignment, so a red arrow marks a genuine
+secondary (cross-branch) relationship. Pass `direction = "horizontal"` for a
+left-to-right layout.
 
 ```{r plot, message = FALSE, warning = FALSE, dev = "png", dpi = 150}
 autoplot(x)
@@ -120,7 +123,7 @@ names(scored)[26:40]
 | [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA; convergence and loading comparison |
 | [Ordinal data](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html) | Polychoric correlations, attenuation bias, and WLSMV estimation |
 | [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = "all"` |
-| [Visualization](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html) | Styling `autoplot()`: color, labels, mono mode, publication figures |
+| [Visualization](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html) | Styling `autoplot()`: sign/magnitude encoding, layout orientation, labels, publication figures |
 | [Interpreting & labeling](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.html) | `top_items()`, hierarchy-aware naming, `label_template()` round-trip |
 
 ## Citation
