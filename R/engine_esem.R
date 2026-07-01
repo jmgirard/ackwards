@@ -227,22 +227,47 @@
     cumulative = sum(var_per_factor)
   )
 
-  # Fit indices: chi, dof, p_value, CFI, TLI, RMSEA, SRMR
+  # Fit indices: chi, dof, p_value, CFI, TLI, RMSEA, SRMR, BIC.
+  # lavaan silently *omits* requested names that don't apply to the fitted
+  # estimator (e.g. chisq.scaled under ML) rather than erroring, so requesting
+  # the scaled variants alongside the naive ones is safe for every estimator.
   fitmeas <- tryCatch(
     lavaan::fitMeasures(
       fit,
-      c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr")
-    ),
-    error = function(e) { # nocov start
-      setNames(
-        rep(NA_real_, 7L),
-        c("chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr")
+      c(
+        "chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr", "bic",
+        "chisq.scaled", "df.scaled", "pvalue.scaled"
       )
-    } # nocov end
+    ),
+    error = function(e) NULL # nocov
   )
-  fit_info <- setNames(
-    as.numeric(fitmeas),
-    c("chi", "dof", "p_value", "CFI", "TLI", "RMSEA", "SRMR")
+  .fm <- function(nm) {
+    if (is.null(fitmeas) || !nm %in% names(fitmeas)) NA_real_ else unname(fitmeas[[nm]])
+  }
+  chi <- .fm("chisq")
+  dof <- .fm("df")
+  p_value <- .fm("pvalue")
+  # WLSMV/ULSMV: lavaan's naive chi-square test has no valid reference
+  # distribution for these limited-information estimators -- lavaan's own
+  # summary() literally labels the naive p-value "P-value (Unknown)" and
+  # returns NA. The mean-and-variance-adjusted "scaled" test is the one with a
+  # genuine null distribution; use it whenever the naive p-value is undefined
+  # (ML/MLR already have a valid naive p-value, so this branch never fires
+  # for them). Confirmed via lavaan::summary(fit, fit.measures = TRUE) on a
+  # WLSMV fit, where the "Standard" column's p-value is NA/"Unknown" and only
+  # the "Scaled" column reports a real p-value.
+  if (is.na(p_value) && !is.na(.fm("pvalue.scaled"))) {
+    chi <- .fm("chisq.scaled")
+    dof <- .fm("df.scaled")
+    p_value <- .fm("pvalue.scaled")
+  }
+  fit_info <- c(
+    chi = chi, dof = dof, p_value = p_value,
+    CFI = .fm("cfi"), TLI = .fm("tli"), RMSEA = .fm("rmsea"), SRMR = .fm("srmr"),
+    # BIC requires a proper log-likelihood; WLSMV/ULSMV are limited-information
+    # (weighted least squares) estimators with none, so lavaan itself returns
+    # NA here -- genuinely inapplicable, not a bug. Real for ML/MLR.
+    BIC = .fm("bic")
   )
 
   # Within-level factor correlations (identity for orthogonal rotation)

@@ -1,5 +1,30 @@
 # ackwards (development)
 
+## ESEM fit indices: honest p-value and BIC
+
+Under `estimator = "WLSMV"`/`"ULSMV"`, lavaan's naive chi-square test has no
+valid reference distribution for these limited-information estimators —
+lavaan's own `summary()` reports that p-value as "Unknown" (`NA`). `chi`,
+`dof`, and `p_value` now fall back to lavaan's mean-and-variance-adjusted
+("scaled") test whenever the naive p-value is undefined, which does have a
+genuine null distribution; ML/MLR (whose naive p-value is already valid) are
+unaffected. A genuinely saturated level (`dof = 0`) still reports `NA` — there
+is no test to perform on a model that fits perfectly by construction.
+
+`BIC` is now a first-class ESEM fit index (previously silently absent):
+populated under `"ML"`/`"MLR"` (a proper log-likelihood exists), and `NA`
+under `"WLSMV"`/`"ULSMV"` (no proper log-likelihood for these estimators —
+genuinely inapplicable, not a bug). `tidy(x, what = "fit")` and `glance(x)`
+both surface it consistently across engines.
+
+## `tidy(what = "fit", cutoffs = TRUE)`: no more always-NA `_meets` columns
+
+`format = "wide"` no longer emits a `{index}_meets` column for indices with no
+defined threshold (`chi`, `dof`, `p_value`, `BIC`, PCA eigenvalues) — the pivot
+previously generated one for every index, and those columns were always `NA`.
+`format = "long"` is unaffected (`meets` is still `NA` for those rows, as
+documented).
+
 ## Citation hygiene
 
 `citation("ackwards")` now returns a single software entry (Girard) instead

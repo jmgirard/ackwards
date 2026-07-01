@@ -18,8 +18,11 @@ A one-row \code{data.frame}.
 Returns a one-row data frame of top-level model metadata. For EFA and ESEM
 objects, fit indices at the deepest converged level are included. The same
 five columns (\code{CFI}, \code{TLI}, \code{RMSEA}, \code{SRMR}, \code{BIC}) are present across all
-engines; columns unavailable for a given engine are \code{NA} (e.g., \code{CFI} and
-\code{SRMR} are \code{NA} for EFA; all five are \code{NA} for PCA).
+engines; columns unavailable for a given engine or estimator are \code{NA}
+(e.g., \code{CFI} and \code{SRMR} are \code{NA} for EFA; all five are \code{NA} for PCA; for
+ESEM, \code{BIC} is \code{NA} under \code{estimator = "WLSMV"}/\code{"ULSMV"} -- these
+limited-information estimators have no proper log-likelihood -- and
+populated under \code{"ML"}/\code{"MLR"}).
 }
 \examples{
 x <- ackwards(bfi25, k_max = 5)
