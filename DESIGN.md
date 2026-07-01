@@ -571,7 +571,12 @@ owner-signed-off):**
 
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.
-- Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (see above).
+- Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (see above), nor the
+  `missing = "fiml"` PCA/EFA path (M38): there the algebra uses the `psych::corFiml()` matrix while
+  the scores route standardizes the raw, NA-bearing data (pairwise Pearson SDs), so the two bases
+  diverge under missingness by design — the same reason polychoric is excluded. The oracle tests
+  therefore run only on complete-data linear engines; no FIML/polychoric object is fed to them, so
+  there is no false-failure risk, but the cross-check does not *certify* those paths.
 - `cor = "spearman"` + `engine = "esem"` is semantically inconsistent (lavaan fits Pearson ML on raw data while edges use Spearman R); a warning is now emitted (M10).
 - ~~ESEM engine does not detect or warn on improper/Heywood solutions~~ — **resolved M10**: engine now inspects `lavaan::lavInspect(fit, "theta")` and warns when `any(diag(theta) <= 0)` (parity with EFA engine, Invariant 7).
 - **ESEM ML/MLR with `missing = "pairwise"`**: lavaan uses listwise deletion for the model fit while edges are computed from a separately-computed pairwise `stats::cor()` — a minor inconsistency (fit statistics at complete-case N, edges at full pairwise N). Documented in `$meta$missing`; a per-call advisory warning fires whenever NAs are detected. Use `missing = "listwise"` or `"fiml"` to resolve. *(Added M16; §9 `missing` row cross-references this.)*
