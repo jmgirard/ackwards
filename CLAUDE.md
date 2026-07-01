@@ -59,11 +59,40 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-M34 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38 documentation/UX epic is
-**M35** (autoplot & visualization); not yet planned; run `/plan-milestone 35` before starting.
+**M35 — autoplot & visualization** (planned; on branch `m35-autoplot-viz`). Scope:
+
+- **A. Sign-alignment bugfix (correctness, lead item).** `.align_signs()` computes each child's
+  flip from the *raw* edge, ignoring the parent's already-applied flip (`signs[[k-1]]`), so a
+  flipped parent makes its *primary* edge render negative (e.g. m2f2→m3f2 = −0.99 on `bfi25`). This
+  violates DESIGN §7 ("orient each factor so its correlation with its primary parent is positive,
+  *propagating top-down*"). Fix: `sk[j] <- if (signs[[k-1L]][parents[j]] * E[parents[j], j] >= 0)
+  1L else -1L`. Restores the spec: all *primary* edges non-negative; only *secondary* edges may be
+  red (Invariant 4). Ripples into snapshots/README/vignette outputs.
+- **B. Configurable, legend-explained encodings.** New `sign_by = c("color","linetype","both",
+  "none")` (default `"color"`) and `magnitude_by = c("linewidth","none")` (default `"linewidth"`,
+  subsumes `edge_linewidth`). Every mapped aesthetic gets a legend; nothing silently encoded.
+  `cut_strong` **retired** (soft-deprecated: accepted, warns, no effect — its strong/weak linetype
+  double-encoded magnitude). `sign_by = "both"` maps negative to a long/two-dash so it pairs with
+  dashed rather than colliding. `mono` kept as a thin wrapper (= `sign_by="linetype"` + black).
+- **C. Orientation arg.** `direction = c("vertical","horizontal")` (default vertical = current);
+  horizontal transposes the layout left-to-right (level 1 at left) for wide slides/posters.
+- **D. `colour`/`color` aliasing.** Accept `colour_*` aliases → normalize to `color_*` (favor
+  `color`), mirroring `artifact`/`artefact`.
+- **E. `ggsave` docs section.** No re-export (would drag ggplot2 into Imports); vignette + roxygen
+  section showing `ggplot2::ggsave()`.
+- **F. Code-coupled prose.** Visualization vignette (sign/linetype legend, "annotate with r"
+  heading, `r_digits = 1`, drop show_r-before-defining example, justify/trim `what="fit"` section,
+  ggsave section, colour→color); README step 3 (legend defines solid/dashed, correct
+  strong/dashed description, m2f2→m3f2 now positive); intro (fix "k=1 left/k=5 right" text, mention
+  `direction`). Broader narrative rewrites stay M38.
+
+Acceptance: every `is_primary` edge has `r >= 0` on pca/efa/esem × `sim16`/`bfi25` (regression
+test); Invariant-2 cross-check + lineage tests still green; every mapped aesthetic legended;
+`direction="horizontal"` transposes correctly and `"vertical"` is byte-identical; `colour_*`
+aliases normalized; vignette/README/intro prose updated; `check()` 0/0/0, coverage 100%,
+styled/linted, NEWS.md + MILESTONES.md entry + one-line index here.
 
 Remaining milestones in the epic:
-M35 autoplot & visualization;
 M36 interpretation functions (`augment` scores-only, `top_items` labels + group-by-item);
 M37 engines vignette; M38 narrative & remaining prose (intro, suggest_k, ordinal, forbes, README).
 
