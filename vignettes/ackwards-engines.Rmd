@@ -257,19 +257,17 @@ gives one row per level:
 tidy(x_esem, what = "fit", format = "wide")
 ```
 
-Add `cutoffs = TRUE` to flag each index against the Hu & Bentler (1999)
-conventional thresholds (CFI/TLI ≥ .95, RMSEA ≤ .06, SRMR ≤ .08):
-
-```{r fit-cutoffs, eval = has_lavaan}
-tidy(x_esem, what = "fit", format = "wide", cutoffs = TRUE)
-```
+`tidy()` does not flag rows against a threshold — the Hu & Bentler (1999)
+conventional cutoffs (CFI/TLI ≥ .95, RMSEA ≤ .06, SRMR ≤ .08) are conventional
+and contested, so a pass/fail column would overstate their authority. Instead
+they appear only as visual/inline reference points in `autoplot()` and
+`summary()`:
 
 > **Thresholds are conventional and contested.** They were derived from specific
 > simulation conditions (continuous, well-distributed items; balanced designs).
 > WLSMV fit for ordinal data tends to produce lower CFI and higher RMSEA than ML
 > on the same underlying structure; do not interpret WLSMV cutoffs as strictly as
-> ML-based rules. Use the cutoffs as a rough orientation, not a gatekeeping
-> criterion.
+> ML-based rules. Use them as a rough orientation, not a gatekeeping criterion.
 
 `autoplot(x, what = "fit")` visualises the trajectory across levels, with cutoff
 reference lines:

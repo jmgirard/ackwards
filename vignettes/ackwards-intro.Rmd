@@ -241,9 +241,9 @@ the structure is reorganizing.
 tidy(x, what = "variance")
 ```
 
-Each row is one factor at one level. `variance_pct` is the percentage of total
-item variance explained by that factor; `cumulative_pct` accumulates within a
-level.
+Each row is one factor at one level. `proportion` is the fraction (0-1) of total
+item variance explained by that factor; `cumulative` accumulates within a
+level. Multiply by 100 for a percentage.
 
 ## Step 6: Score observations `augment()`
 
