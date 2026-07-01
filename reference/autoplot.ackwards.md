@@ -75,7 +75,9 @@ plot(x, ...)
   `"both"` (colour *and* linetype, with negative drawn as a distinct
   double-dash so it reads clearly in greyscale), or `"none"` (sign not
   encoded; all edges `color_edge` and solid). Whichever channel is used
-  gets a "Direction" legend.
+  gets a "Direction" legend. Colour is the default because it reads sign
+  pre-attentively and leaves linetype free; switch to `"linetype"` or
+  `"both"` for greyscale or colour-blind-safe figures.
 
 - magnitude_by:
 

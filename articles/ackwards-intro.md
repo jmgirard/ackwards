@@ -73,13 +73,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [240ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [317ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [146ms]
+#> ✔ Running MAP and VSS... [182ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [8.2s]
+#> ✔ Running Comparison Data (CD)... [9.9s]
 #> 
 sk
 #> 
