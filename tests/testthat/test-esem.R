@@ -412,6 +412,48 @@ test_that("cor = 'polychoric' with method = 'esem' uses WLSMV and returns valid 
   }
 })
 
+# ── M31: cor = "polychoric" + incompatible estimator guard ───────────────────
+
+test_that("cor = 'polychoric' with estimator = 'ML'/'MLR' errors loudly", {
+  skip_if_not_installed("lavaan")
+  skip_if_not_installed("psych")
+  d <- .make_ordinal_data()
+  expect_error(
+    ackwards(d, k_max = 3, engine = "esem", cor = "polychoric", estimator = "ML"),
+    "incompatible"
+  )
+  expect_error(
+    ackwards(d, k_max = 3, engine = "esem", cor = "polychoric", estimator = "MLR"),
+    "incompatible"
+  )
+})
+
+test_that("cor = 'polychoric' with estimator = 'WLSMV'/'ULSMV' is unaffected by the guard", {
+  skip_if_not_installed("lavaan")
+  skip_if_not_installed("psych")
+  d <- .make_ordinal_data()
+  expect_no_error(
+    suppressWarnings(
+      ackwards(d, k_max = 3, engine = "esem", cor = "polychoric", estimator = "WLSMV")
+    )
+  )
+  expect_no_error(
+    suppressWarnings(
+      ackwards(d, k_max = 3, engine = "esem", cor = "polychoric", estimator = "ULSMV")
+    )
+  )
+})
+
+test_that("estimator = 'WLSMV' with a continuous cor is allowed (not guarded)", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  expect_no_error(
+    suppressWarnings(
+      ackwards(d, k_max = 2, engine = "esem", cor = "pearson", estimator = "WLSMV")
+    )
+  )
+})
+
 # ── Ordinal warning suppressed when cor = "polychoric" ───────────────────────
 
 test_that("ordinal warning is NOT emitted when cor = 'polychoric'", {

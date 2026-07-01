@@ -1,5 +1,16 @@
 # ackwards (development)
 
+## Guard against `cor = "polychoric"` with an incompatible ESEM estimator
+
+`ackwards(engine = "esem", cor = "polychoric", estimator = "ML")` (or
+`"MLR"`) now errors immediately with a clear explanation instead of failing
+many calls deep inside the per-level ESEM fit and surfacing a misleading
+"failed to build at least 2 converged levels... check your data for
+multicollinearity" abort. Polychoric correlations mark every item `ordered`
+for lavaan, and lavaan itself does not support ML/MLR estimation on ordered
+indicators. `"WLSMV"`/`"ULSMV"` with a continuous `cor` remains allowed (a
+valid, if atypical, continuous WLS/ADF estimator).
+
 ## ESEM fit indices: honest p-value and BIC
 
 Under `estimator = "WLSMV"`/`"ULSMV"`, lavaan's naive chi-square test has no
