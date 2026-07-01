@@ -59,7 +59,9 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   `"both"` (colour *and* linetype, with negative drawn as a distinct
 #'   double-dash so it reads clearly in greyscale), or `"none"` (sign not
 #'   encoded; all edges `color_edge` and solid). Whichever channel is used gets
-#'   a "Direction" legend.
+#'   a "Direction" legend. Colour is the default because it reads sign
+#'   pre-attentively and leaves linetype free; switch to `"linetype"` or
+#'   `"both"` for greyscale or colour-blind-safe figures.
 #' @param magnitude_by How edge **magnitude** (`|r|`) is encoded. One of
 #'   `"linewidth"` (default; thicker = stronger, with a `|r|` legend) or
 #'   `"none"` (constant width). A numeric `edge_linewidth` also forces constant
