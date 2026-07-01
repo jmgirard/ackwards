@@ -64,7 +64,10 @@ match_parents <- function(E) {
 #   1. Anchor m1f1: flip so sum of loadings column is positive.
 #      Extend to all factors in level 1: each flipped so sum > 0.
 #   2. For each subsequent level: flip each factor so its edge correlation
-#      with its primary parent (from match_parents) is positive.
+#      with its primary parent (from match_parents) is positive *after the
+#      parent's own flip is applied* -- i.e. sign propagates top-down. Using
+#      the raw (unflipped-parent) edge here would leave a flipped parent's
+#      primary edge displaying negative (DESIGN s.7: "propagating top-down").
 #
 # Arguments:
 #   loadings_list  -- list indexed by k (1..K) of pxk loading matrices
@@ -89,10 +92,13 @@ match_parents <- function(E) {
     key <- paste0(k - 1L, ":", k)
     E <- edges_list[[key]]
     parents <- lineage[[k]] # parent index in level k-1 for each factor in level k
-    # Flip factor j in level k if its correlation with its primary parent is negative
+    parent_signs <- signs[[k - 1L]] # flips already applied to the parent level
+    # Flip factor j in level k so its correlation with its *sign-aligned* primary
+    # parent is positive. Multiply the raw edge by the parent's own flip so a
+    # flipped parent does not leave its primary edge displaying negative.
     sk <- integer(ncol(E))
     for (j in seq_len(ncol(E))) {
-      sk[j] <- if (E[parents[j], j] >= 0) 1L else -1L
+      sk[j] <- if (parent_signs[parents[j]] * E[parents[j], j] >= 0) 1L else -1L
     }
     loadings_list[[k]] <- sweep(loadings_list[[k]], 2, sk, "*")
     edges_list[[key]] <- sweep(sweep(E, 2, sk, "*"), 1, signs[[k - 1L]], "*")

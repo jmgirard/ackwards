@@ -213,6 +213,73 @@ test_that("match_parents: square case assigns correct parents", {
   expect_equal(result, c(1L, 2L, 3L))
 })
 
+# --- .align_signs sign-propagation unit tests -----------------------------------
+# Regression (M35): a level-k factor's flip must be chosen against its primary
+# parent's *aligned* sign, so that a parent which is itself flipped does not leave
+# its children's PRIMARY edge displaying negative. Sign propagates top-down
+# (DESIGN s.7: "propagating top-down").
+
+test_that(".align_signs: a flipped parent keeps its child's primary edge positive", {
+  # Level 1: 1 factor (positive colSum -> no flip).
+  # Level 2: 2 factors; factor 2's raw edge to m1f1 is negative -> it is flipped.
+  # Level 3: 3 factors; factor 2's primary parent is the flipped level-2 factor 2,
+  #   with a raw positive edge (+0.9). Pre-fix this displayed as -0.9.
+  loadings_list <- list(
+    matrix(rep(0.7, 4), ncol = 1),
+    matrix(seq_len(8) / 10, ncol = 2),
+    matrix(seq_len(12) / 10, ncol = 3)
+  )
+  edges_list <- list(
+    "1:2" = matrix(c(0.8, -0.9), nrow = 1),
+    "2:3" = matrix(c(0.85, -0.1, 0.05, 0.90, 0.1, 0.7), nrow = 2)
+  )
+  lineage <- list(NULL, c(1L, 1L), c(1L, 2L, 1L))
+
+  aligned <- ackwards:::.align_signs(loadings_list, edges_list, lineage)
+
+  # Level-2 factor 2 was flipped negative (its raw edge to m1f1 was -0.9).
+  expect_equal(aligned$signs[[2]], c(1L, -1L))
+
+  # Every primary edge (child -> its aligned primary parent) is non-negative.
+  for (k in 2:3) {
+    E <- aligned$edges[[paste0(k - 1L, ":", k)]]
+    par <- lineage[[k]]
+    prim <- vapply(seq_len(ncol(E)), function(j) E[par[j], j], numeric(1))
+    expect_true(all(prim >= 0), label = paste("primary edges >= 0 at level", k))
+  }
+
+  # The flipped-parent child's primary edge is the +0.9 we set (not the pre-fix -0.9).
+  expect_equal(aligned$edges[["2:3"]][2, 2], 0.90)
+})
+
+test_that("ackwards(): every primary edge is non-negative across engines", {
+  skip_if_not_installed("psych")
+
+  check_primary_nonneg <- function(x, label) {
+    te <- x$edges$tidy
+    prim <- te[!is.na(te$is_primary) & te$is_primary, , drop = FALSE]
+    expect_gt(nrow(prim), 0L)
+    expect_true(all(prim$r >= 0), label = paste("primary edges >= 0:", label))
+  }
+
+  for (eng in c("pca", "efa")) {
+    check_primary_nonneg(
+      suppressWarnings(ackwards(sim16, k_max = 5, engine = eng)),
+      paste("sim16", eng)
+    )
+    check_primary_nonneg(
+      suppressWarnings(ackwards(bfi25, k_max = 5, engine = eng)),
+      paste("bfi25", eng)
+    )
+  }
+
+  skip_if_not_installed("lavaan")
+  check_primary_nonneg(
+    suppressWarnings(ackwards(.make_esem_data(), k_max = 3, engine = "esem")),
+    "esem"
+  )
+})
+
 test_that("ackwards() parent indices are always within bounds (regression: LSAP padding)", {
   skip_if_not_installed("psych")
   # This call previously triggered subscript OOB when clue was installed,
