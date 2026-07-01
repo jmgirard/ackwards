@@ -125,9 +125,15 @@ names(scored)[26:40]
 
 ## Citation
 
-If you use **ackwards** in your research, please cite both the method and the
-package:
+If you use **ackwards** in your research, please cite the package:
 
 ```{r citation}
 citation("ackwards")
 ```
+
+Please also cite the relevant method paper(s): Goldberg (2006)
+<https://doi.org/10.1016/j.jrp.2006.01.001> for the bass-ackwards method itself;
+Waller (2007) <https://doi.org/10.1016/j.jrp.2006.08.005> if you rely on the
+exact `W'RW` edge algebra; and Forbes (2023)
+<https://doi.org/10.1037/met0000546> if you use the extended method
+(`pairs = "all"`, redundancy/artefact pruning).

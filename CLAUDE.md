@@ -51,10 +51,11 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M27** — ESEM fit & SEs as first-class output (glance fit, wide fit table, cutoff flags, loading CIs, fit plot, vignette framing)
 - **M28** — CD correctness & honesty fix (`cd_rmse` trailing-zero bug; "minimize" label/roxygen corrected to sequential-test framing)
 - **M29** — Strip milestone numbers from user-facing docs (`NEWS.md` `(M24)` tag removed; regression test guards `NEWS.md`/`README.md`/vignettes)
+- **M30** — Citation hygiene (`inst/CITATION` Girard-only; `ackwards()` `@references` gains Forbes; README citation prose corrected)
 
 ## Current focus
 
-No active milestone. M29 completed 2026-06-30.
+No active milestone. M30 completed 2026-07-01.
 
 ## Invariants — do not violate without flagging
 

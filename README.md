@@ -131,7 +131,9 @@ x
 #> 14 of 40 edges have |r| ≥ 0.3
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
-#> Cross-level edges are descriptive score correlations.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 ```
 
 ### Step 3 — Visualize
@@ -203,24 +205,30 @@ names(scored)[26:40]
 
 ## Citation
 
-If you use **ackwards** in your research, please cite both the method
-and the package:
+If you use **ackwards** in your research, please cite the package:
 
 ``` r
 citation("ackwards")
 #> To cite package 'ackwards' in publications use:
 #> 
-#>   Goldberg L (2006). "Doing it all bass-ackwards: The development of
-#>   hierarchical factor structures from the top down." _Journal of
-#>   Research in Personality_, *40*(4), 347-358.
-#>   doi:10.1016/j.jrp.2006.01.001
-#>   <https://doi.org/10.1016/j.jrp.2006.01.001>.
-#> 
 #>   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural
 #>   Analysis_. R package version 0.1.0,
 #>   <https://github.com/jmgirard/ackwards>.
 #> 
-#> To see these entries in BibTeX format, use 'print(<citation>,
-#> bibtex=TRUE)', 'toBibtex(.)', or set
-#> 'options(citation.bibtex.max=999)'.
+#> A BibTeX entry for LaTeX users is
+#> 
+#>   @Manual{,
+#>     title = {ackwards: Bass-Ackwards Hierarchical Structural Analysis},
+#>     author = {Jeffrey M. Girard},
+#>     year = {2026},
+#>     note = {R package version 0.1.0},
+#>     url = {https://github.com/jmgirard/ackwards},
+#>   }
 ```
+
+Please also cite the relevant method paper(s): Goldberg (2006)
+<https://doi.org/10.1016/j.jrp.2006.01.001> for the bass-ackwards method
+itself; Waller (2007) <https://doi.org/10.1016/j.jrp.2006.08.005> if you
+rely on the exact `W'RW` edge algebra; and Forbes (2023)
+<https://doi.org/10.1037/met0000546> if you use the extended method
+(`pairs = "all"`, redundancy/artefact pruning).
