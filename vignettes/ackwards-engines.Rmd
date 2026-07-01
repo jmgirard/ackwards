@@ -28,12 +28,15 @@ what the differences look like in practice.
 
 | | `"pca"` | `"efa"` | `"esem"` |
 |-|---------|---------|----------|
-| **What it models** | Total item variance | Common (latent) variance | Common variance via lavaan |
+| **What it models** | Total item variance | Common (latent) variance | Common (latent) variance |
+| **Engine substrate** | `psych::principal()` | `psych::fa()` | `lavaan` |
 | **Communalities** | All 1.0 (by definition) | Estimated from data | Estimated from data |
-| **Fit indices** | Eigenvalues only | chi, RMSEA, TLI, BIC | CFI, TLI, RMSEA, SRMR + chi |
-| **Loading SEs** | No | No | Yes (WLSMV for ordinal) |
+| **Correlations** | Pearson or polychoric | Pearson or polychoric | Pearson or polychoric |
+| **Estimators** | Eigen-decomposition | OLS / minres / ML (via `psych`) | ML, MLR — continuous (+ FIML for missing data); WLSMV, ULSMV — ordinal |
+| **Fit indices** | Eigenvalues only | χ², RMSEA, TLI, BIC | CFI, TLI, RMSEA, SRMR, χ² |
+| **Loading SEs** | No | No | Yes |
 | **Speed** | Fast | Moderate | Slowest |
-| **Best for** | Exploration, large k | Latent-factor inference | Model evaluation, ordinal data |
+| **Best for** | Exploration, large k | Latent-factor inference | Model evaluation, loading SEs, ordinal *or* continuous |
 
 All three produce the same labels (`m{k}f{j}`), the same `tidy()` / `glance()`
 / `augment()` interface, and comparable between-level edges for well-structured
@@ -184,12 +187,17 @@ factor structure (which items define which factor) is unchanged.
 ## ESEM: EFA with full model diagnostics
 
 ESEM (exploratory structural equation modeling, Asparouhov & Muthén, 2009) fits
-the same common-factor model as EFA but uses **lavaan** as the engine. This
-unlocks two capabilities that EFA cannot provide:
+the same common-factor model as EFA but uses **lavaan** as the engine. ESEM is
+not an ordinal-only tool: it handles **continuous** items with maximum-likelihood
+estimators (ML, MLR — the default for continuous data) and **ordinal** items with
+WLSMV, and it unlocks three capabilities that EFA cannot provide:
 
 1. **Standard errors for every loading**, enabling confidence intervals and
-   significance tests.
-2. **The WLSMV estimator** for ordinal data, which is the appropriate
+   significance tests — for continuous *and* ordinal data.
+2. **Full maximum-likelihood estimation** for continuous data (ML/MLR), including
+   **FIML** for missing data (`missing = "fiml"`), which uses all partially
+   observed rows rather than deleting them.
+3. **The WLSMV estimator** for ordinal data, the appropriate
    maximum-likelihood-adjacent estimator for categorical indicators. When
    `cor = "polychoric"` is set with `engine = "esem"`, WLSMV is used
    automatically.
@@ -248,6 +256,18 @@ good fit at k = 3 does **not** validate the edges connecting k = 3 to k = 2; it
 only says the k = 3 solution itself is trustworthy. Keep that boundary in mind
 whenever you report or interpret fit.
 
+The converse question comes up often: *if the k = 3 solution fits badly, should I
+distrust the edges connecting k = 2 to k = 3?* The honest answer is nuanced. The
+edge correlation is still a **faithful description** of the relationship between
+the k = 2 and k = 3 factor scores as extracted — the arithmetic is not wrong. What
+poor fit undermines is the **interpretation** of the k = 3 factors themselves: if
+three factors don't cleanly reproduce the items, then "factor `m3f2`" is a shakier
+construct, and any edge *incident to it* inherits that shakiness. So a badly-fitting
+level does weaken the edges touching it — not because the correlation is
+miscomputed, but because one of the things it connects is poorly defined. The edges
+between two *well*-fitting levels are on firmer ground than edges touching a
+poorly-fitting one.
+
 ### Reporting fit with `tidy()` and `autoplot()`
 
 `tidy(what = "fit")` returns the raw long table. For reporting, `format = "wide"`
@@ -279,6 +299,14 @@ autoplot(x_esem, what = "fit")
 The shape of the trajectory matters as much as the absolute values: a sharp
 improvement from k = 2 to k = 3 suggests the third factor is capturing genuine
 signal; flat or worsening indices suggest adding another level is splitting noise.
+
+The examples in this vignette deliberately stop at `k_max = 3` so the ESEM chunks
+build quickly and the tables stay legible — not because the BFI hierarchy ends
+there. For these data `suggest_k()` points to roughly **k = 5** (see the
+`vignette("ackwards-suggest-k")`), so a real analysis would extend the trajectory
+further and read the fit curve across all five levels. The truncated plot here
+shows the *mechanics* of reading a fit trajectory, not the recommended depth for
+the BFI.
 
 `glance()` now also carries the deepest-level fit for quick inspection:
 
@@ -361,6 +389,14 @@ The r values are very close between engines: the hierarchy that PCA reveals is
 essentially the same hierarchy that EFA reveals. This convergence across methods
 is reassuring — it suggests the structure is real and not an artifact of the
 extraction method.
+
+How clean this convergence looks depends on how strong the underlying structure
+is. The simulated `sim16` dataset (`?sim16`) is an *idealized* case — its planted
+1 → 2 → 4 hierarchy is strong enough that engines and `suggest_k()` criteria agree
+almost perfectly. Real data is messier: for `bfi25` the `suggest_k()` criteria
+span k = 4–6 even though the engines agree on the edges. Treat clean cross-method
+consensus as the best case, not the norm; the `vignette("ackwards-suggest-k")`
+develops this idealized-vs-realistic contrast in full.
 
 When the engines disagree on edges, that is itself informative: it usually
 indicates factors whose definition depends on whether you account for
