@@ -83,7 +83,8 @@ x
 `autoplot()` draws the hierarchical diagram. Each row is a level (k = 1 at top,
 k = 5 at bottom); arrows show which narrow factors inherit from which broad
 factor. Arrow **thickness** encodes |r| and arrow **color** encodes direction
-(blue = positive, red = negative), each with its own legend. Pass
+(blue = positive, red = negative), each with its own legend — this clean solution
+happens to have no negative edges, so only blue appears here. Pass
 `direction = "horizontal"` for a left-to-right layout. The
 [visualization vignette](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html)
 covers the sign encoding and the rest of the styling options.
