@@ -17,14 +17,23 @@
 #' @param n Maximum number of items to show per factor. `NULL` (default) shows
 #'   all items meeting the cut. When set, the top-`n` items by `|loading|` are
 #'   kept after applying the cut.
-#' @param sort Logical. When `TRUE` (default), items within each factor are
+#' @param sort Logical. When `TRUE` (default), items within each group are
 #'   ordered by descending `|loading|`. Set to `FALSE` to keep the original
-#'   item order (useful when items have a meaningful sequence).
+#'   order (useful when items have a meaningful sequence).
+#' @param by One of `"factor"` (default) or `"item"`. `"factor"` groups the
+#'   listing by factor (the salient items *of* each factor -- "what is this
+#'   factor about?"). `"item"` inverts the grouping to list, for each item, the
+#'   factors it loads on -- which makes cross-loadings legible ("where does this
+#'   item go?"). `n` and `sort` apply within whichever unit `by` selects.
+#' @param show_labels Logical. When `TRUE` (default) and the data carried a
+#'   variable-label attribute at fit time (see [ackwards()]), items are shown as
+#'   `label (id)`; items without a label fall back to the bare id. Set to
+#'   `FALSE` to always show the bare `m{k}f{j}`-style item ids.
 #'
-#' @return An object of class `"top_items"`. Print it for a grouped
-#'   level-by-factor cli listing. The underlying data frame (one row per
-#'   selected item) is accessible via `$data` and contains columns `level`,
-#'   `factor`, `item`, and `loading`. The values equal the corresponding
+#' @return An object of class `"top_items"`. Print it for a grouped cli listing.
+#'   The underlying data frame (one row per selected item) is accessible via
+#'   `$data` and contains columns `level`, `factor`, `item`, and `loading` (plus
+#'   `label` when labels are available). The values equal the corresponding
 #'   `tidy(x, what = "loadings")` rows (after filtering and optional sorting).
 #'
 #' @seealso [tidy.ackwards()], [label_template()], [autoplot.ackwards()]
@@ -34,8 +43,12 @@
 #' top_items(x)
 #' top_items(x, level = 5, cut = 0.4, n = 5)
 #'
+#' # Invert the grouping to read cross-loadings item-by-item
+#' top_items(x, level = 3, cut = 0.25, by = "item")
+#'
 #' @export
-top_items <- function(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE) {
+top_items <- function(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE,
+                      by = c("factor", "item"), show_labels = TRUE) {
   if (!inherits(x, "ackwards")) {
     cli::cli_abort("{.arg x} must be an {.cls ackwards} object.")
   }
@@ -48,6 +61,13 @@ top_items <- function(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE) {
   if (!is.logical(sort) || length(sort) != 1L) {
     cli::cli_abort("{.arg sort} must be TRUE or FALSE.")
   }
+  if (!is.logical(show_labels) || length(show_labels) != 1L) {
+    cli::cli_abort("{.arg show_labels} must be TRUE or FALSE.")
+  }
+  by <- rlang::arg_match(by)
+
+  # Effective labels: only carried when the user opts in and the object has them.
+  eff_labels <- if (isTRUE(show_labels)) x$meta$item_labels else NULL
 
   available_levels <- as.integer(names(x$levels))
 
@@ -65,33 +85,25 @@ top_items <- function(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE) {
     keep_levels <- names(x$levels)
   }
 
+  # Build the full filtered long table first (one row per surviving
+  # item x factor x level), retaining the column/row indices so that both
+  # grouping orientations and the "keep original order" (sort = FALSE) mode can
+  # be honoured downstream regardless of `by`.
   rows <- lapply(keep_levels, function(ki) {
-    lev <- x$levels[[ki]]
-    L <- lev$loadings
+    L <- x$levels[[ki]]$loadings
     k <- as.integer(ki)
     do.call(rbind, lapply(seq_len(ncol(L)), function(j) {
-      loadings_j <- L[, j]
-      keep <- abs(loadings_j) >= cut
-      if (!any(keep)) {
+      keep <- which(abs(L[, j]) >= cut)
+      if (length(keep) == 0L) {
         return(NULL)
-      }
-      items <- rownames(L)[keep]
-      vals <- loadings_j[keep]
-      if (sort) {
-        ord <- order(abs(vals), decreasing = TRUE)
-        items <- items[ord]
-        vals <- vals[ord]
-      }
-      if (!is.null(n)) {
-        take <- seq_len(min(n, length(items)))
-        items <- items[take]
-        vals <- vals[take]
       }
       data.frame(
         level = k,
         factor = colnames(L)[j],
-        item = items,
-        loading = vals,
+        item = rownames(L)[keep],
+        loading = L[keep, j],
+        .factor_ord = j,
+        .item_ord = keep,
         stringsAsFactors = FALSE
       )
     }))
@@ -104,8 +116,32 @@ top_items <- function(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE) {
       factor = character(0L),
       item = character(0L),
       loading = numeric(0L),
+      .factor_ord = integer(0L),
+      .item_ord = integer(0L),
       stringsAsFactors = FALSE
     )
+  }
+
+  # Group by the chosen unit (factor or item); order groups by their original
+  # index within the level, then order rows within each group (by descending
+  # |loading| when sort = TRUE, else by the other dimension's original order).
+  grp_ord <- if (by == "factor") df$.factor_ord else df$.item_ord
+  sub_ord <- if (by == "factor") df$.item_ord else df$.factor_ord
+  within_key <- if (sort) -abs(df$loading) else sub_ord
+  df <- df[order(df$level, grp_ord, within_key, sub_ord), , drop = FALSE]
+
+  # Cap each group to the top-n rows (post-sort).
+  if (!is.null(n) && nrow(df) > 0L) {
+    grp_val <- if (by == "factor") df$factor else df$item
+    grp_key <- paste(df$level, grp_val, sep = "\r")
+    rank <- stats::ave(seq_len(nrow(df)), grp_key, FUN = seq_along)
+    df <- df[rank <= n, , drop = FALSE]
+  }
+
+  df$.factor_ord <- NULL
+  df$.item_ord <- NULL
+  if (!is.null(eff_labels)) {
+    df$label <- unname(eff_labels[df$item])
   }
   rownames(df) <- NULL
 
@@ -116,11 +152,23 @@ top_items <- function(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE) {
       cut            = cut,
       n              = n,
       sort           = sort,
+      by             = by,
+      item_labels    = eff_labels,
       engine         = x$engine,
       k_max          = x$k_max
     ),
     class = "top_items"
   )
+}
+
+# Format an item id for display: "label (id)" when a label is available,
+# otherwise the bare id. `labs` is the (possibly NULL) named label vector.
+.format_item_label <- function(id, labs) {
+  if (is.null(labs)) {
+    return(id)
+  }
+  lab <- unname(labs[id])
+  ifelse(is.na(lab), id, paste0(lab, " (", id, ")"))
 }
 
 #' Print a top_items object
@@ -130,7 +178,10 @@ top_items <- function(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE) {
 #' @return `x` invisibly.
 #' @export
 print.top_items <- function(x, ...) {
-  cli::cli_h1("Salient items by factor ({.pkg ackwards})")
+  by_item <- identical(x$by, "item")
+  cli::cli_h1(
+    "Salient {if (by_item) 'factors by item' else 'items by factor'} ({.pkg ackwards})"
+  )
   cli::cli_dl(c(
     "Engine"  = x$engine,
     "Cut"     = paste0("|loading| >= ", x$cut),
@@ -138,6 +189,7 @@ print.top_items <- function(x, ...) {
   ))
 
   df <- x$data
+  labs <- x$item_labels
 
   if (nrow(df) == 0L) {
     cli::cli_text(cli::col_grey(
@@ -151,13 +203,22 @@ print.top_items <- function(x, ...) {
     if (nrow(df_k) == 0L) next
     cli::cli_h2("Level {k} ({k} factor{?s})")
 
-    for (fac in unique(df_k$factor)) {
-      df_f <- df_k[df_k$factor == fac, , drop = FALSE]
-      cli::cli_text("{.strong {fac}}")
+    # Group header = factor (default) or item; body lists the other dimension.
+    group_col <- if (by_item) "item" else "factor"
+    body_col <- if (by_item) "factor" else "item"
+    for (grp in unique(df_k[[group_col]])) {
+      df_g <- df_k[df_k[[group_col]] == grp, , drop = FALSE]
+      header <- if (by_item) .format_item_label(grp, labs) else grp
+      cli::cli_text("{.strong {header}}")
 
-      for (i in seq_len(nrow(df_f))) {
-        loading_str <- formatC(df_f$loading[i], digits = 3L, format = "f")
-        cli::cli_text("  {df_f$item[i]}  [{loading_str}]")
+      for (i in seq_len(nrow(df_g))) {
+        loading_str <- formatC(df_g$loading[i], digits = 3L, format = "f")
+        entry <- if (by_item) {
+          df_g[[body_col]][i]
+        } else {
+          .format_item_label(df_g[[body_col]][i], labs)
+        }
+        cli::cli_text("  {entry}  [{loading_str}]")
       }
     }
   }

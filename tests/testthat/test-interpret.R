@@ -5,9 +5,15 @@ test_that("top_items returns correct S3 class and structure", {
 
   out <- top_items(x)
   expect_s3_class(out, "top_items")
-  expect_named(out, c("data", "levels_shown", "cut", "n", "sort", "engine", "k_max"))
+  expect_named(out, c(
+    "data", "levels_shown", "cut", "n", "sort", "by",
+    "item_labels", "engine", "k_max"
+  ))
   expect_true(is.data.frame(out$data))
+  # No labels on this fixture -> no label column, default grouping is by factor
   expect_named(out$data, c("level", "factor", "item", "loading"))
+  expect_identical(out$by, "factor")
+  expect_null(out$item_labels)
 })
 
 test_that("top_items cut filters correctly", {
@@ -129,6 +135,89 @@ test_that("top_items errors on bad cut/n/sort", {
   expect_error(top_items(x, cut = 1.5), class = "rlang_error")
   expect_error(top_items(x, n = 0), class = "rlang_error")
   expect_error(top_items(x, sort = "yes"), class = "rlang_error")
+})
+
+# ── by = "item" grouping + variable labels (M36) ──────────────────────────────
+
+test_that("top_items(by = 'item') keeps the same rows but inverts grouping", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+
+  by_fac <- top_items(x, level = 3, cut = 0.25)
+  by_item <- top_items(x, level = 3, cut = 0.25, by = "item")
+  expect_identical(by_item$by, "item")
+  # Same underlying (level, factor, item, loading) set, just reordered
+  key <- function(d) {
+    paste(d$level, d$factor, d$item, round(d$loading, 8))
+  }
+  expect_setequal(key(by_fac$data), key(by_item$data))
+})
+
+test_that("top_items(by = 'item', n = ) caps factors per item", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+
+  out <- top_items(x, cut = 0, n = 2, by = "item")
+  counts <- tapply(out$data$factor, list(out$data$level, out$data$item), length)
+  expect_true(all(counts[!is.na(counts)] <= 2L))
+})
+
+test_that("top_items exposes captured variable labels", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  d <- .make_esem_data()
+  attr(d$x1, "label") <- "First indicator"
+  attr(d$x4, "label") <- "Fourth indicator"
+  x <- ackwards(d, k_max = 3, engine = "pca")
+
+  out <- top_items(x, cut = 0)
+  expect_true("label" %in% names(out$data))
+  expect_identical(out$item_labels, c(x1 = "First indicator", x4 = "Fourth indicator"))
+  # Labelled items carry their text; unlabelled ones are NA in the column
+  expect_identical(out$data$label[out$data$item == "x1"][1L], "First indicator")
+  expect_true(all(is.na(out$data$label[out$data$item == "x2"])))
+})
+
+test_that("top_items(show_labels = FALSE) drops the label column and text", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  d <- .make_esem_data()
+  attr(d$x1, "label") <- "First indicator"
+  x <- ackwards(d, k_max = 3, engine = "pca")
+
+  out <- top_items(x, cut = 0, show_labels = FALSE)
+  expect_false("label" %in% names(out$data))
+  expect_null(out$item_labels)
+})
+
+test_that(".format_item_label formats 'label (id)' with bare-id fallback", {
+  fmt <- ackwards:::.format_item_label
+  labs <- c(x1 = "First indicator")
+  expect_identical(fmt("x1", labs), "First indicator (x1)")
+  expect_identical(fmt("x2", labs), "x2") # no label -> bare id
+  expect_identical(fmt("x1", NULL), "x1") # no labels at all -> bare id
+})
+
+test_that("top_items errors on bad by/show_labels", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  x <- ackwards(.make_esem_data(), k_max = 2, engine = "pca")
+
+  expect_error(top_items(x, by = "column"), class = "rlang_error")
+  expect_error(top_items(x, show_labels = "yes"), class = "rlang_error")
+})
+
+test_that("print.top_items(by = 'item') and label display run without error", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  d <- .make_esem_data()
+  attr(d$x1, "label") <- "First indicator"
+  x <- ackwards(d, k_max = 3, engine = "pca")
+
+  expect_no_error(print(top_items(x, level = 3, cut = 0.25, by = "item")))
+  expect_no_error(print(top_items(x, level = 3, cut = 0.25))) # label (id) path
 })
 
 test_that("print.top_items runs without error", {
