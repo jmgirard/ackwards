@@ -19,8 +19,6 @@ knitr::opts_chunk$set(
 ```{r packages, message = FALSE}
 library(ackwards)
 bfi <- na.omit(bfi25)
-# BFI items are ordinal, so use polychoric correlations (matches the intro and
-# visualization vignettes). This also avoids the ordinal-detection warning.
 x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 ```
 
@@ -48,50 +46,58 @@ strongest to weakest. This is far easier to read than a full item-by-factor
 matrix, especially at deeper levels.
 
 ```{r top-items-5}
-top_items(x, level = 5)
+top_items(x, level = 5, cut = 0.5)
 ```
 
-The default `cut = 0.3` shows every item with `|loading| >= 0.3`. Raise it to
-isolate the items that most define each factor, or lower it to surface weaker
-cross-loadings.
-
-```{r top-items-cut}
-top_items(x, level = 5, cut = 0.45)
-```
-
-When a factor has many salient items, `n` caps the list at the strongest few so
-you can see the core of each factor at a glance:
+The `cut` threshold controls how inclusive the listing is. Here we raise it to
+`0.5` to keep each factor to its defining items; the default is `0.3`. Raise it
+further to isolate only the strongest markers, or lower it to surface weaker
+cross-loadings (see below). When a factor has many salient items, `n` caps the
+list at the strongest few, and `sort = FALSE` keeps items in their original order
+instead of sorting by `|loading|` — useful when your items follow a meaningful
+sequence.
 
 ```{r top-items-n}
 top_items(x, level = 5, cut = 0.3, n = 4)
 ```
 
-By default items are sorted by descending `|loading|`. If your items have a
-meaningful order (for example, a numbered scale you want to keep in sequence),
-set `sort = FALSE`.
-
-`top_items()` returns an object whose `$data` field is a plain data frame — a
-filtered, sorted slice of `tidy(x, what = "loadings")` — so you can compute on it
-if you need to:
-
-```{r top-items-data}
-ti <- top_items(x, level = 5, cut = 0.3)
-head(ti$data)
-```
-
 ### Cross-loadings are signal
 
 Items that load on more than one factor are not noise to be suppressed — they
-often tell you how two factors relate. Lowering the cut reveals them:
+often tell you how two factors relate. The `by = "item"` mode inverts the
+grouping: instead of listing the items under each factor, it lists, for each
+item, the factors it loads on. Lowering the cut then makes cross-loadings easy to
+read item by item:
 
 ```{r top-items-cross}
-top_items(x, level = 3, cut = 0.25)
+top_items(x, level = 3, cut = 0.25, by = "item")
 ```
 
 An item that appears under two factors at the same level marks a point where the
 constructs overlap. Whether that overlap is substantively meaningful or a sign of
 overextraction is a judgment call — see `vignette("ackwards-suggest-k")` for the
 overextraction discussion.
+
+### Showing item wording instead of codes
+
+Item codes like `A1` or `N3` are compact but opaque. If your data carries
+variable labels — the `"label"` attribute that packages like **labelled** and
+**haven** attach to columns, and that survey exports often include — `ackwards()`
+captures them at fit time and `top_items()` displays them as `label (code)`:
+
+```{r labels}
+bfi_lab <- bfi
+attr(bfi_lab$A1, "label") <- "Am indifferent to the feelings of others"
+attr(bfi_lab$A2, "label") <- "Inquire about others' well-being"
+attr(bfi_lab$A3, "label") <- "Know how to comfort others"
+
+x_lab <- ackwards(bfi_lab, k_max = 5, cor = "polychoric")
+top_items(x_lab, level = 5, cut = 0.5)
+```
+
+Labelled items show their wording; unlabelled ones fall back to the bare code, so
+a partially labelled data set still prints cleanly. Pass `show_labels = FALSE` to
+force the bare codes even when labels are present.
 
 ## The sign convention: negative does not mean "low"
 
@@ -160,6 +166,32 @@ Edges with `|r|` near 1.0 are factors that pass through nearly unchanged — nam
 the child the same as the parent. The smaller `|r|` values at the bottom flag
 where a new, distinct construct is emerging and deserves its own name.
 
+### Borrowing names for the upper levels
+
+The hardest factors to name are usually the broad ones near the top, precisely
+because they blend several familiar constructs. Rather than inventing an ad-hoc
+label, it often helps to borrow a name from a theory that has already charted the
+level *above* your usual constructs. Two are especially handy for personality and
+psychopathology data:
+
+- **Big Five metatraits.** Above the five factors sit two higher-order
+  dimensions — **Stability** (the shared variance of Agreeableness,
+  Conscientiousness, and low Neuroticism) and **Plasticity** (Extraversion and
+  Openness) — from DeYoung's work on the metatraits. In a `bfi` hierarchy these
+  are frequently what a two- or three-factor level *is*, so "Stability" /
+  "Plasticity" are ready-made names for factors that would otherwise be an
+  awkward "broad well-adjustment".
+- **HiTOP spectra.** In clinical data, the Hierarchical Taxonomy of
+  Psychopathology names the broad bands directly — *internalizing*,
+  *externalizing (disinhibited and antagonistic)*, *thought disorder*, *detachment*,
+  and *somatoform* — with a general **p-factor** at the apex. A level whose items
+  span several disorders is usually one of these spectra, and naming it as such
+  keeps your hierarchy legible to readers who already think in HiTOP terms.
+
+The point is not to force your data onto either scheme, but to recognise that an
+upper-level factor is often a *known* superordinate construct — and that reusing
+its established name communicates far more than a bespoke one.
+
 ## Applying your names
 
 Once you have decided on names, attach them to the diagram. `autoplot()` takes a
@@ -217,14 +249,23 @@ labs["m5f5"] <- "O"
 autoplot(x, node_labels = labs)
 ```
 
-## Where to go next
+This article is about *what* to put on the diagram.
 
-This article is about *what* to put on the diagram. For *how* the diagram looks —
-colours, edge thresholds, monochrome and publication styling, level labels, and
-the Forbes pruned-diagram mode — see `vignette("ackwards-visualization")`.
+> **Note:** For *how* the diagram looks — colours, edge thresholds, monochrome
+> and publication styling, level labels, and the Forbes pruned-diagram mode — see
+> `vignette("ackwards-visualization")`.
 
 ## References
+
+DeYoung, C. G. (2006). Higher-order factors of the Big Five in a multi-informant
+sample. *Journal of Personality and Social Psychology, 91*(6), 1138–1151.
+https://doi.org/10.1037/0022-3514.91.6.1138
 
 Forbes, M. K. (2023). Improving hierarchical models of individual differences:
 An extension of Goldberg's bass-ackward method. *Psychological Methods*.
 https://doi.org/10.1037/met0000546
+
+Kotov, R., Krueger, R. F., Watson, D., et al. (2017). The Hierarchical Taxonomy
+of Psychopathology (HiTOP): A dimensional alternative to traditional nosologies.
+*Journal of Abnormal Psychology, 126*(4), 454–477.
+https://doi.org/10.1037/abn0000258

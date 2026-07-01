@@ -255,13 +255,14 @@ useful for regression, clustering, or any downstream analysis where you want a
 continuous summary of a latent dimension.
 
 `augment(x, data = bfi)` computes scores on the fly from the stored weight
-matrices and appends them to your data frame. The score columns are named
-`.m{k}f{j}` to distinguish them from the original variables.
+matrices. By default it appends them to your data frame; pass `append = FALSE` to
+get just the score columns, named `.m{k}f{j}`. Row order is preserved either way,
+so the scores line up with the input rows.
 
 ```{r augment}
-scored <- augment(x, data = bfi)
-dim(scored) # 25 original items + 15 score columns (1+2+3+4+5)
-names(scored)[26:40]
+scores <- augment(x, data = bfi, append = FALSE)
+dim(scores) # 15 score columns (1+2+3+4+5)
+names(scores)
 ```
 
 Scores are standardized so that the **model-implied** variance is 1 — meaning
@@ -277,8 +278,8 @@ call:
 
 ```{r scores-stored}
 x2 <- ackwards(bfi, k_max = 5, cor = "polychoric", keep_scores = TRUE)
-scored2 <- augment(x2) # uses stored matrices — no recomputation
-all.equal(scored2$.m5f1, scored$.m5f1)
+scores2 <- augment(x2, append = FALSE) # uses stored matrices — no recomputation
+all.equal(scores2$.m5f1, scores$.m5f1)
 ```
 
 ### Using scores for downstream analysis
@@ -291,13 +292,13 @@ lineage:
 
 ```{r downstream}
 # Within-level correlations at k = 5: should be near zero (orthogonal rotation)
-k5 <- scored[, c(".m5f1", ".m5f2", ".m5f3", ".m5f4", ".m5f5")]
+k5 <- scores[, c(".m5f1", ".m5f2", ".m5f3", ".m5f4", ".m5f5")]
 round(cor(k5), 2)
 ```
 
 ```{r downstream2}
 # Cross-level: m4f1 is the primary parent of m5f1 and m5f4 (from the edge table)
-lineage <- scored[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]
+lineage <- scores[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]
 round(cor(lineage), 2)
 ```
 

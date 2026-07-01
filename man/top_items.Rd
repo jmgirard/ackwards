@@ -4,7 +4,15 @@
 \alias{top_items}
 \title{Display the salient items for each factor}
 \usage{
-top_items(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE)
+top_items(
+  x,
+  level = NULL,
+  cut = 0.3,
+  n = NULL,
+  sort = TRUE,
+  by = c("factor", "item"),
+  show_labels = TRUE
+)
 }
 \arguments{
 \item{x}{An \code{ackwards} object.}
@@ -19,15 +27,26 @@ shown. Default \code{0.3}, matching the \code{cut_show} plotting default.}
 all items meeting the cut. When set, the top-\code{n} items by \verb{|loading|} are
 kept after applying the cut.}
 
-\item{sort}{Logical. When \code{TRUE} (default), items within each factor are
+\item{sort}{Logical. When \code{TRUE} (default), items within each group are
 ordered by descending \verb{|loading|}. Set to \code{FALSE} to keep the original
-item order (useful when items have a meaningful sequence).}
+order (useful when items have a meaningful sequence).}
+
+\item{by}{One of \code{"factor"} (default) or \code{"item"}. \code{"factor"} groups the
+listing by factor (the salient items \emph{of} each factor -- "what is this
+factor about?"). \code{"item"} inverts the grouping to list, for each item, the
+factors it loads on -- which makes cross-loadings legible ("where does this
+item go?"). \code{n} and \code{sort} apply within whichever unit \code{by} selects.}
+
+\item{show_labels}{Logical. When \code{TRUE} (default) and the data carried a
+variable-label attribute at fit time (see \code{\link[=ackwards]{ackwards()}}), items are shown as
+\code{label (id)}; items without a label fall back to the bare id. Set to
+\code{FALSE} to always show the bare \verb{m\{k\}f\{j\}}-style item ids.}
 }
 \value{
-An object of class \code{"top_items"}. Print it for a grouped
-level-by-factor cli listing. The underlying data frame (one row per
-selected item) is accessible via \verb{$data} and contains columns \code{level},
-\code{factor}, \code{item}, and \code{loading}. The values equal the corresponding
+An object of class \code{"top_items"}. Print it for a grouped cli listing.
+The underlying data frame (one row per selected item) is accessible via
+\verb{$data} and contains columns \code{level}, \code{factor}, \code{item}, and \code{loading} (plus
+\code{label} when labels are available). The values equal the corresponding
 \code{tidy(x, what = "loadings")} rows (after filtering and optional sorting).
 }
 \description{
@@ -45,6 +64,9 @@ orientation but not the other; this is expected and informative.
 x <- ackwards(bfi25, k_max = 5)
 top_items(x)
 top_items(x, level = 5, cut = 0.4, n = 5)
+
+# Invert the grouping to read cross-loadings item-by-item
+top_items(x, level = 3, cut = 0.25, by = "item")
 
 }
 \seealso{

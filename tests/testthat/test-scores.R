@@ -163,6 +163,75 @@ test_that("augment(x, data) and augment(x) [with stored scores] agree", {
   }
 })
 
+# ── augment(append=, id_cols=) : scores-only output (M36) ─────────────────────
+
+test_that("augment(append = FALSE) returns only score columns, row order preserved", {
+  skip_if_not_installed("psych")
+  bfi_items <- psych::bfi[, 1:25]
+  x <- suppressWarnings(ackwards(bfi_items, k_max = 3))
+  full <- suppressWarnings(augment(x, data = bfi_items))
+  only <- suppressWarnings(augment(x, data = bfi_items, append = FALSE))
+  # Only the .m score columns, none of the items
+  expect_true(all(grepl("^\\.m", names(only))))
+  expect_length(names(only), 1L + 2L + 3L)
+  expect_equal(nrow(only), nrow(bfi_items))
+  # cbind reproduces the appended output exactly (positional identity)
+  expect_equal(cbind(bfi_items, only), full, ignore_attr = TRUE)
+})
+
+test_that("augment(append = FALSE, id_cols = ) carries identifier columns through", {
+  skip_if_not_installed("psych")
+  bfi_items <- psych::bfi[, 1:25]
+  df <- data.frame(id = seq_len(nrow(bfi_items)), bfi_items)
+  x <- suppressWarnings(ackwards(bfi_items, k_max = 3))
+  out <- suppressWarnings(augment(x, data = df, append = FALSE, id_cols = "id"))
+  expect_identical(names(out)[1L], "id")
+  expect_identical(out$id, df$id)
+  expect_true(all(grepl("^\\.m", names(out)[-1L])))
+})
+
+test_that("augment(append = FALSE) on stored scores drops the .obs index", {
+  skip_if_not_installed("psych")
+  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 2, keep_scores = TRUE))
+  full <- augment(x)
+  only <- augment(x, append = FALSE)
+  expect_true(".obs" %in% names(full))
+  expect_false(".obs" %in% names(only))
+  expect_true(all(grepl("^\\.m", names(only))))
+})
+
+test_that("augment() argument guards fire", {
+  skip_if_not_installed("psych")
+  bfi_items <- psych::bfi[, 1:25]
+  x <- suppressWarnings(ackwards(bfi_items, k_max = 2))
+  x2 <- suppressWarnings(ackwards(bfi_items, k_max = 2, keep_scores = TRUE))
+  # id_cols with append = TRUE is a conflict
+  expect_error(
+    suppressWarnings(augment(x, data = bfi_items, id_cols = "A1")),
+    "append = FALSE"
+  )
+  # id_cols with no data has no source columns
+  expect_error(
+    augment(x2, append = FALSE, id_cols = "A1"),
+    "needs.*data|no source"
+  )
+  # id_cols naming an absent column
+  expect_error(
+    suppressWarnings(augment(x, data = bfi_items, append = FALSE, id_cols = "nope")),
+    "not found"
+  )
+  # append must be a scalar logical
+  expect_error(
+    suppressWarnings(augment(x, data = bfi_items, append = NA)),
+    "append"
+  )
+  # id_cols must be character
+  expect_error(
+    suppressWarnings(augment(x, data = bfi_items, append = FALSE, id_cols = 1L)),
+    "character vector"
+  )
+})
+
 # ── tidy(what = "scores") ─────────────────────────────────────────────────────
 
 test_that("tidy(x, what='scores') returns long data frame with correct columns", {

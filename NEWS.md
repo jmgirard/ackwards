@@ -1,5 +1,25 @@
 # ackwards (development)
 
+## `augment()` scores-only output
+
+- New `append` argument: `augment(x, data, append = FALSE)` returns only the
+  `.m{k}f{j}` score columns, convenient for feeding scores straight into `cor()`,
+  `lm()`, or a clustering call. The default `append = TRUE` is unchanged
+  (scores appended to `data`).
+- New `id_cols` argument names columns of `data` (e.g. a subject id) to carry
+  through alongside the scores when `append = FALSE`, so scores can be rejoined
+  after filtering. Row order and count are always preserved.
+
+## `top_items()`: item grouping and variable labels
+
+- New `by = "item"` inverts the listing to show, for each item, the factors it
+  loads on — making cross-loadings easy to read. The default `by = "factor"` is
+  unchanged.
+- Variable labels are now supported: when the data carries a `"label"` column
+  attribute (as **labelled** and **haven** set) at fit time, `ackwards()`
+  captures it and `top_items()` displays items as `label (code)`, with a
+  per-item fallback to the bare code. Set `show_labels = FALSE` to force codes.
+
 ## Sign alignment: primary-parent edges are now always non-negative
 
 `ackwards()` sign-aligns each factor to its primary parent. Previously a factor

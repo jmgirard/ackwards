@@ -4,7 +4,7 @@
 \alias{augment.ackwards}
 \title{Augment data with factor scores from an ackwards object}
 \usage{
-\method{augment}{ackwards}(x, data = NULL, ...)
+\method{augment}{ackwards}(x, data = NULL, append = TRUE, id_cols = NULL, ...)
 }
 \arguments{
 \item{x}{An \code{ackwards} object.}
@@ -13,12 +13,24 @@
 used to fit \code{x}. When \code{NULL} (default), uses pre-stored scores if
 available (requires \code{keep_scores = TRUE} at fit time).}
 
+\item{append}{Logical. When \code{TRUE} (default) the score columns are appended
+to \code{data} (or to a \code{.obs} index when \code{data} is \code{NULL}). When \code{FALSE} only
+the score columns are returned (plus any \code{id_cols}).}
+
+\item{id_cols}{Optional character vector naming columns of \code{data} to carry
+through alongside the scores when \code{append = FALSE} (for example a subject
+identifier, so scores can be rejoined after filtering). Ignored -- and an
+error -- when \code{append = TRUE} (all columns are already kept) or when \code{data}
+is \code{NULL} (there are no source columns to carry). \code{NULL} (default) returns
+the bare score columns.}
+
 \item{...}{Ignored.}
 }
 \value{
-A data frame. If \code{data} is supplied it is returned with score
-columns appended. If \code{data} is \code{NULL} the return is a minimal data frame
-with a \code{.obs} index column followed by score columns.
+A data frame. With \code{append = TRUE}: the supplied \code{data} (or a \code{.obs}
+index when \code{data} is \code{NULL}) with score columns appended. With
+\code{append = FALSE}: only the score columns, optionally prefixed by the
+\code{id_cols}. Row order and count always match the input.
 }
 \description{
 Appends per-observation factor scores for every level to a data frame.
@@ -42,12 +54,31 @@ Use \code{na.omit(data)} before scoring if NA rows are unwanted.
 it using the stored weights -- this is how to score new observations. If
 \code{data} is \code{NULL} and \code{keep_scores = TRUE} was set at fit time, the stored
 scores are returned. If neither is available an informative error is raised.
+
+\strong{Scores-only output (\code{append = FALSE}).} By default (\code{append = TRUE}) the
+scores are appended to the supplied \code{data}, following the broom convention.
+Set \code{append = FALSE} to return \emph{only} the score columns -- convenient for
+feeding scores straight into \code{\link[=cor]{cor()}}, \code{\link[=lm]{lm()}}, or a clustering call without
+dragging the item columns along. Because \code{augment()} always preserves row
+order and row count, \code{cbind(data, augment(x, data, append = FALSE))}
+reproduces the appended output exactly. For a rejoin that survives \emph{filtering}
+the scores afterwards, name identifier columns with \code{id_cols} so they travel
+with the scores.
 }
 \examples{
 # Score the training data on the fly (no keep_scores = TRUE needed)
 x <- ackwards(bfi25, k_max = 5)
 scores_df <- augment(x, data = bfi25)
 head(scores_df[, startsWith(names(scores_df), ".m")])
+
+# Scores-only: just the .m{k}f{j} columns, ready for cor()/lm()
+scores_only <- augment(x, data = bfi25, append = FALSE)
+round(cor(scores_only[, c(".m5f1", ".m5f2")]), 2)
+
+# Carry an identifier through for a safe post-filter rejoin
+df <- data.frame(id = seq_len(nrow(bfi25)), bfi25)
+scored <- augment(x, data = df, append = FALSE, id_cols = "id")
+head(scored[, c("id", ".m5f1")])
 
 # Store at fit time and augment without re-supplying data
 x2 <- ackwards(bfi25, k_max = 5, keep_scores = TRUE)
