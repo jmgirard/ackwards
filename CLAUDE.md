@@ -61,11 +61,47 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-M36 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38 documentation/UX epic is
-**M37** (engines vignette); not yet planned; run `/plan-milestone 37` before starting.
+**M37 — Engines vignette** (planned; in progress on branch `m37-engines-vignette`). Doc-only
+overhaul of `vignettes/ackwards-engines.Rmd` (no new exports, no `R/` changes). Scope:
+
+1. **"At a glance" table fixes** — parallelize the EFA/ESEM "what it models" rows (both = common
+   variance; note psych-vs-lavaan substrate separately); drop the confusing "WLSMV for ordinal"
+   parenthetical from the Loading-SEs row; render χ² as a proper symbol (not "chi"); add correlation-
+   type / estimator coverage per engine, making explicit that **ESEM unlocks ML/MLR/FIML for
+   continuous data** — not ordinal/WLSMV only.
+2. **ESEM framing** — kill the implication that ESEM ⇒ ordinal-only; it fits continuous (ML/MLR) too.
+3. **Per-level fit clarity** — explicitly answer "does bad fit at k invalidate that level's edges?"
+   (a poorly-fitting level makes its factor *definitions* shaky, weakening incident edges, but the
+   edge correlation is still a faithful descriptive of the shaky scores).
+4. **autoplot depth note** — examples stay at `k_max = 3` (build speed); add a sentence that they are
+   deliberately truncated and point to `suggest_k()` (~5 for BFI) for real depth.
+5. **sim16 vs bfi25 framing** — brief note that sim16's clean cross-engine consensus is the idealized
+   exception; real data (bfi25) shows criterion spread. (Deep version lives in the suggest_k vignette,
+   M38.)
+6. **future/plan readability** — switch the parallel chunk to `library(future); plan(multisession)`
+   style; note `plan()` is future's, not re-exported by future.apply.
+7. **Trim operational sections** — compress **Missing data**, **Correlation-matrix input**, and
+   **Performance** to a lead paragraph + one summary table each, demoting detail to `?ackwards`
+   (target ~⅓ off vignette length; no info lost that roxygen doesn't carry). No split into a second
+   vignette (`_pkgdown.yml` `articles:` unchanged).
+8. **corFiml MAR pattern** — document (don't build) `psych::corFiml()` → `ackwards(R, engine="efa",
+   n_obs=…)` as the MAR-valid continuous-data route (verified to work via the M22 correlation-matrix
+   seam; `psych` already an Import so the chunk is runnable). Caveats: `n_obs` is the user's call
+   (total N mildly anti-conservative for fit indices; point estimates unaffected) and MVN/continuous-
+   only. Add a row to the missing-data "which option" table. Framed as a caveated supported pattern,
+   not a headline recommendation.
+9. **Citations** — ensure Hu & Bentler (1999) is cited (cutoffs kept in M32); alphabetize references.
+
+Open ambiguity carried into implementation: whether the corFiml note lives under **Missing data**
+(leaning here) or **Correlation-matrix input** — resolve at implementation time.
+
+Acceptance criteria: vignette knits clean (build-vignettes green, corFiml chunk evals); table/ESEM/
+fit/autoplot/sim16/parallel edits all present; three operational sections materially shorter with
+`?ackwards` pointers; corFiml pattern runnable + both caveats + table row; Hu & Bentler cited;
+references alphabetical; `NEWS.md` bullet; `MILESTONES.md` M37 entry + one-line index here (at DoD).
 
 Remaining milestones in the epic:
-M37 engines vignette; M38 narrative & remaining prose (intro, suggest_k, ordinal, forbes, README).
+M38 narrative & remaining prose (intro, suggest_k, ordinal, forbes, README).
 
 These one-liners are a lossy index. The **full driving rationale, banked decisions, and the raw
 pkgdown-review notes** behind M35–M38 live in [`ROADMAP.md`](ROADMAP.md) — read it before running
