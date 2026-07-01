@@ -52,46 +52,15 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M28** — CD correctness & honesty fix (`cd_rmse` trailing-zero bug; "minimize" label/roxygen corrected to sequential-test framing)
 - **M29** — Strip milestone numbers from user-facing docs (`NEWS.md` `(M24)` tag removed; regression test guards `NEWS.md`/`README.md`/vignettes)
 - **M30** — Citation hygiene (`inst/CITATION` Girard-only; `ackwards()` `@references` gains Forbes; README citation prose corrected)
+- **M31** — Correctness & output-honesty sweep (ESEM `p_value`/BIC extraction fixed for WLSMV/ULSMV; `_meets` cleanup; `cor = "polychoric"` + ML/MLR guard; `fa.parallel`/`seed` doc confirmed correct; intro/suggest_k vignette drift fixed)
 
 ## Current focus
 
-**M31 — Correctness & output-honesty sweep** (branch `m31-correctness-sweep`). First milestone
-of a documentation/UX epic (M31–M38) driven by a pkgdown-website review. Sequenced correctness-first:
-fix output bugs and honesty issues before rewriting the vignettes that display them. No breaking
-renames here (deferred to M32).
+M31 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38 documentation/UX epic
+(driven by a pkgdown-website review) is **M32**, described below — not yet planned; run
+`/plan-milestone 32` before starting.
 
-Scope:
-
-1. **ESEM p-values NA** — live-repro root-cause on `bfi25`; fix if an extraction bug, else make
-   honest + document (likely a saturated low-`k` level).
-2. **BIC + loadings SE/CI schema** — keep these columns, `NA` where the engine/estimator does not
-   produce them (BIC under WLSMV; SE/CI under PCA/EFA), with a machine-legible signal so the
-   vignette notes are truthful. Never fabricate, never silently drop a *primary* column. (Consistent
-   rule: primary quantities stay NA + note; only always-NA derived decoration is dropped — see #3.)
-3. **`_meets` cleanup** — `tidy(what = "fit", cutoffs = TRUE)` emits `_meets` only for indices with
-   a real threshold (`CFI`/`TLI`/`RMSEA`/`SRMR`); drop the always-NA `chi`/`dof`/`p_value`/`BIC`
-   `_meets` columns (the pivot over-generated).
-4. **`cor = "polychoric"` + incompatible `estimator`** — currently `ackwards()` honours a
-   user-supplied non-WLSMV estimator alongside `polychoric` with no guard. Add a loud guard
-   (error or warn-and-override per Invariant 6).
-5. **`fa.parallel` / `set.seed` reproducibility** — investigate; fix seed plumbing if ours, else
-   document + resolve the bug-report question.
-6. **Doc-bugs mirroring output** — the "no warning this time" mismatch, drifted hardcoded
-   percentages (make inline/dynamic so they cannot drift), and the 5-vs-6 criteria miscount in the
-   intro/suggest_k vignettes.
-
-Acceptance criteria:
-
-- `glance()` / `tidy(what = "fit")` present BIC (and loadings SE/CI) as `NA` with a documented,
-  tested reason — never fabricated, never silently dropped.
-- `tidy(what = "fit", cutoffs = TRUE)` emits `_meets` only for thresholded indices; a test guards
-  the column set.
-- ESEM p-value behaviour is correct-or-documented, with a test capturing the resolved behaviour.
-- `ackwards(cor = "polychoric", estimator = "ML")` (and other non-WLSMV) triggers a loud, tested guard.
-- No driftable hardcoded fit/variance percentages remain in intro/suggest_k prose; criteria count correct.
-- `devtools::check()` clean; NEWS.md updated; MILESTONES.md entry + CLAUDE.md index line.
-
-Deferred to later milestones in the epic (do not scope-creep M31): M32 naming/API-shape decisions
+Remaining milestones in the epic: M32 naming/API-shape decisions
 (index column names, `k_max` collision, `cutoffs` keep/drop, `variance_pct` 0–100 vs 0–1);
 M33 simulated Gaussian dataset (foundation); M34 pruning verb — extract `prune()` from `ackwards()`
 (clean move, no deprecation — pre-CRAN, no users) + manual/mixed flag-only pruning +
