@@ -168,7 +168,11 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
   as an after-the-fact signal but does not block the merge; **don't** use `gh pr merge --auto`
   (silently no-ops without required checks) and **don't** synchronously watch or background-poll
   CI. Don't commit milestone work (anything touching `R/`, `tests/`, `DESCRIPTION`, vignettes)
-  straight to `master`. Trivial isolated doc fixes may go direct at the user's discretion.
+  straight to `master`. Trivial isolated doc fixes may go direct at the user's discretion — but
+  **push them immediately.** An unpushed commit on `master` leaves local ahead of `origin/master`;
+  `git pull` won't surface it (nothing to fetch), and the next milestone branch — cut from local
+  `master` — will bundle it into that milestone's squash-merge and force a post-merge divergence.
+  /plan-milestone step 8a now guards against branching from an ahead-of-origin `master`.
   - **Exception — release / CRAN-submission milestones** (e.g. CRAN-prep, version-bump/release):
     here you **do** wait for the *full* green CI matrix before merging, because CRAN runs exactly
     that matrix (macOS/Windows/Ubuntu × release/devel/oldrel) and will reject platform failures

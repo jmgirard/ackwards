@@ -35,6 +35,14 @@ Once they respond:
 8. Once the user explicitly approves the plan:
    a. Create the milestone's feature branch off an up-to-date `master`
       (e.g. `git switch master && git pull && git switch -c m$ARGUMENTS-<short-slug>`).
+      **Before branching, confirm local `master` is *in sync* with `origin/master`, not merely
+      "up to date".** Run `git fetch origin` then
+      `git rev-list --left-right --count origin/master...master` — it must return `0	0`. If the
+      right-hand count is > 0, local `master` is *ahead* of origin (unpushed commits — `git pull`
+      does **not** flag this, since there is nothing to fetch): **stop and flag.** Push or reconcile
+      those commits first. Branching from an ahead-of-origin `master` silently bundles those commits
+      into the milestone's squash-merge and forces a post-merge divergence (this bit us once — see
+      the recovery note in /implement-milestone's finishing steps).
       All milestone work — planning commit and implementation — lands on this branch, not on
       `master`. `master` is merged into only via a PR, squash-merged as soon as the local
       definition of done is green — not gated on remote CI (see /implement-milestone). Do **not**

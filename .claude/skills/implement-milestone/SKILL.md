@@ -48,7 +48,14 @@ Follow `CLAUDE.md`'s dev workflow and definition of done throughout:
   after-the-fact signal (glance at it later; fix-forward if a platform job goes red), but it does
   not block the merge. Don't spin up a synchronous CI watch or a background CI poller "to wait for
   green" — that reintroduces exactly the wait this workflow rejects. After merging, sync local:
-  `git switch master && git pull`. Do not push milestone commits straight to `master`.
+  `git switch master && git pull --ff-only`. **If that fast-forward fails**, local `master` held
+  commits that were not on the PR's base (typically unpushed direct-to-`master` edits, which get
+  bundled into the squash on the remote side). Do **not** force-push or `reset --hard`: stop,
+  inspect the divergence (`git log --oneline --left-right origin/master...master`), and reconcile
+  deliberately — merging `origin/master` into local `master` (a merge commit, then push) is the
+  non-destructive fix and preserves both sides. The clean prevention is /plan-milestone step 8a's
+  in-sync check; when that passes, this fast-forward always succeeds. Do not push milestone commits
+  straight to `master`.
   - **Exception — release / CRAN-submission milestones** (CRAN-prep, version bump, release): for
     these, **do** wait for the *full* green CI matrix before merging (CRAN runs exactly that
     matrix and rejects platform failures the local macOS `check()` can't see). Only here is a
