@@ -54,30 +54,15 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M30** — Citation hygiene (`inst/CITATION` Girard-only; `ackwards()` `@references` gains Forbes; README citation prose corrected)
 - **M31** — Correctness & output-honesty sweep (ESEM fit row reports scaled variants under WLSMV/ULSMV/MLR — `p_value`/`CFI`/`TLI`/`RMSEA` + `BIC`; `_meets` cleanup; `cor = "polychoric"` + ML/MLR guard; `fa.parallel`/`seed` doc confirmed correct; intro/suggest_k vignette drift fixed)
 - **M32** — API-shape & naming resolutions (`tidy(what="fit")` `index`→`statistic`; `k_max` kept in both `ackwards()`/`suggest_k()`, roxygen-disambiguated; cutoffs pass/fail flag output removed, `.fit_cutoffs()` kept for reference lines; variance reported as 0–1 `proportion`/`cumulative`; plus M31-deferred `$meta$estimator` + `summary()` scaled-fit footnote)
+- **M33** — simulated Gaussian dataset (`sim16`: 1000×16 continuous, known 1→2→4 hierarchy, no ordinal-detection warning, guaranteed redundant-chain + artefact signals at `k_max=5`)
 
 ## Current focus
 
-**M33 — simulated Gaussian dataset (foundation)** is planned and in progress on branch
-`m33-simulated-gaussian`. Full driver rationale + raw review notes: [`ROADMAP.md`](ROADMAP.md).
-
-**Scope:** ship a simulated *continuous* dataset **`sim16`** (1000×16) as `data/sim16.rda` plus a
-reproducible `data-raw/sim16.R` generator (base-R Cholesky MVN, fixed seed) encoding a **known
-3-tier hierarchy: 1 general → 2 metatraits → 4 group factors** (4 items each), with **one "thin"
-branch** so extracting `k_max = 5` forces a near-duplicate 5th factor. No exported simulator; no
-vignette changes (those consume `sim16` in M37/M38). Two drivers: (1) a clean Pearson PCA/EFA
-showcase that raises **no ordinal-detection warning** (unlike Likert `bfi25`); (2) a **guaranteed
-Tucker's φ ≥ .95 redundancy/artefact finding** for the Forbes example.
-
-**Acceptance criteria:**
-- `dim(sim16) == c(1000, 16)`; all columns `double` (continuous); no `NA`.
-- `ackwards(sim16, engine = "pca")` and `"efa"` raise **no ordinal-detection warning**.
-- `suggest_k(sim16)` / a fixed extraction recovers the true group-factor count (**4**) — loosely asserted.
-- `ackwards(sim16, k_max = 5, engine = "efa", pairs = "all") |> prune("redundant")` flags **≥ 1
-  redundant chain** (`|r| ≥ .9` **and** φ ≥ .95); **≥ 1 cross-level factor pair has φ ≥ .95**;
-  `prune("artefact")` surfaces **≥ 1** factor with an orphan or few-items signal.
-- Re-sourcing `data-raw/sim16.R` reproduces `data/sim16.rda` (fixed seed; test regenerates + compares).
-- `document()` run; `check()` clean 0/0/0; 100% coverage; styled + linted; NEWS + DESIGN §14 +
-  MILESTONES entry + CLAUDE index line updated; M33's section removed from `ROADMAP.md`.
+M33 is complete (see `MILESTONES.md` for detail — including a plan deviation: the "thin branch /
+near-duplicate twin factor" mechanism proved unnecessary once prototyped, and no `DESIGN.md` §14
+entry was added, matching the `bfi25` precedent that dataset additions live in roxygen + here, not
+`DESIGN.md`). Next up in the M31–M38 documentation/UX epic is **M34** (pruning verb); not yet
+planned; run `/plan-milestone 34` before starting.
 
 Remaining milestones in the epic:
 M34 pruning verb — extract `prune()` from `ackwards()`
@@ -87,7 +72,7 @@ M36 interpretation functions (`augment` scores-only, `top_items` labels + group-
 M37 engines vignette; M38 narrative & remaining prose (intro, suggest_k, ordinal, forbes, README).
 
 These one-liners are a lossy index. The **full driving rationale, banked decisions, and the raw
-pkgdown-review notes** behind M33–M38 live in [`ROADMAP.md`](ROADMAP.md) — read it before running
+pkgdown-review notes** behind M34–M38 live in [`ROADMAP.md`](ROADMAP.md) — read it before running
 `/plan-milestone N` for any of them. `MILESTONES.md` remains the source of truth for *completed*
 milestones; `ROADMAP.md` is its forward-looking counterpart for *pending* ones.
 

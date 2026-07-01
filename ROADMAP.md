@@ -1,9 +1,12 @@
-# ROADMAP.md — planned milestones (M33–M38)
+# ROADMAP.md — planned milestones (M34–M38)
 
 Forward-looking counterpart to [`MILESTONES.md`](MILESTONES.md). `MILESTONES.md` is the source of
 truth for **completed** milestones; this file captures the **intent and source notes** for the
 *not-yet-built* milestones in the M31–M38 documentation/UX epic, so their context survives across
 planning sessions.
+
+`sim16` (the M33 dataset — 1000×16 continuous, known 1→2→4 hierarchy) has shipped; see its
+`MILESTONES.md` entry and `?sim16`. M37/M38's dependency on M33 is satisfied.
 
 **Read this before running `/plan-milestone N` for any milestone below.** The one-line index in
 `CLAUDE.md` ("Remaining milestones in the epic") is a lossy pointer; the driving rationale and the
@@ -25,37 +28,6 @@ below so future planning doesn't re-litigate them.
   file-level plan and acceptance criteria are produced at `/plan-milestone` time.
 - When a milestone ships, delete its section here and rely on its `MILESTONES.md` entry. Keep this
   file scoped to *pending* work only.
-
----
-
-## M33 — Simulated Gaussian dataset (foundation)
-
-- **Type:** data + tests · **Depends on:** none · **Blocks:** M37 (engines vignette), M38 (narrative)
-- **Status:** planning now.
-
-**Why it exists — two drivers, both from vignette review notes:**
-
-1. **Clean Pearson-default showcase.** *(engines vignette note)* — "im wondering if it would be worth
-   it to simulate some gaussian data to showcase the pearson version by default. then bfi25 might
-   come in for a more realistic and ordinal example. or is it better to just stick with bfi25 and
-   ordinal from the start as we do now?" → **Decision: yes.** A continuous dataset lets the intro/
-   engines docs demonstrate the default Pearson PCA/EFA path *without* tripping the ordinal-detection
-   warning; `bfi25` is demoted to "the realistic ordinal example." This is why M33 is a *foundation*:
-   the vignettes that restructure around "clean Gaussian first, then ordinal `bfi25`" (M37, M38)
-   depend on it.
-2. **Guaranteed Tucker's φ / artefact finding.** *(forbes vignette note)* — "its a little strange
-   pedagogically to teach about tucker but then include an example where it doesnt catch anything.
-   maybe if we did use a simulated gaussian dataset we could set up the simulation to guarantee some
-   finding there?" → The sim must encode a **known hierarchy with a planted artefact factor** so the
-   redundancy / Tucker's φ pruning in the Forbes example is *guaranteed* to catch something. Hard
-   constraint on the data-generating design, not just "make some Gaussian data."
-
-**Open questions to resolve during `/plan-milestone 33` (never decided — deferred to this step):**
-- Generator function vs. a saved `data/` object vs. **both** (a seeded generator + a shipped `.rda`).
-- N, item count, factor count, number of hierarchy levels.
-- The exact hierarchical structure + how the artefact factor is planted so Driver 2 holds.
-- Dataset / generator name; seed and reproducibility guarantees.
-- Whether an ordinal counterpart is deliberately deferred (likely: `bfi25` already covers ordinal).
 
 ---
 
