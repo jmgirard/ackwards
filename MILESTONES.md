@@ -572,3 +572,60 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   `bfi25` fits in `test-vignette-m24.R` (`.vfit` memo, mirroring `test-suggest_k.R`'s `.get_sk`):
   14 `ackwards()` calls → 7 distinct fits, cutting that file from ~15.1s to ~8.0s (a general
   test-suite speedup surfaced while profiling for the workflow's new efficiency guidance).
+
+- **M34 (done):** pruning verb — extracted `prune()` as a standalone, pipeable S3 generic off
+  `ackwards()`, the second milestone of the M31–M38 documentation/UX epic.
+  **API extraction.** The five Forbes-extension pruning args (`prune` → renamed `rules`,
+  `redundancy_r`, `redundancy_phi`, `min_items`, `orphan_r`) leave `ackwards()` entirely and live
+  on `prune()`: `ackwards(...) |> prune(...)`. Clean move, no deprecation shim (pre-CRAN, no
+  users) — `ackwards()` now explicitly rejects the five removed args if passed (rather than
+  silently absorbing them via `...`, which would be a masked-argument footgun, not the intended
+  clean break; Invariant 6).
+  **Generic, not a plain function.** `prune <- function(x, ...) UseMethod("prune")` +
+  `prune.ackwards()`, so it coexists with the `prune` generics already defined by
+  recursive-partitioning packages (e.g. `rpart::prune`) regardless of package load order. No new
+  class or dispatch surface is needed beyond that: `prune()` returns the same `ackwards` object
+  with `$prune` populated (replacing any prior pruning), so `print`/`summary`/`tidy`/`glance`/
+  `augment`/`autoplot` all work unchanged.
+  **Edges recomputed fresh, `x$edges` untouched.** `prune()` calls
+  `compute_edges(levels = x$levels, R = x$r, pairs = "all")` internally on every call (cheap
+  `W'RW` algebra, not re-extraction — DESIGN.md §3) and passes the result to the existing
+  `.find_redundant_chains()`/`.compute_structural_signals()` helpers via a lightweight
+  `list(k_max, levels, lineage, edges = list(matrices = ...))` view, rather than reading
+  `x$edges` directly. This means: (1) `x$edges` is never mutated by pruning (Invariant 1: one
+  edge path); (2) `prune()` produces identical results regardless of whether the object was fit
+  with `pairs = "adjacent"` (the default) or `"all"` — including the endpoint-`r` enrichment for
+  chains spanning more than one level, which needs skip-level edges the fit-time object may not
+  carry. `ackwards()`'s old `pairs` auto-upgrade-to-`"all"`-when-pruning behavior is removed along
+  with it; `pairs` is now a pure display/storage setting on `ackwards()`, decoupled from pruning.
+  **Manual + mixed pruning.** `manual =` (character vector of factor labels) flags nodes directly
+  — standalone (`prune(x, manual = c("m4f3"))`, no auto rule needed) or unioned onto an auto rule
+  (`prune(x, "redundant", manual = c(...))`). Unknown labels error, listing the valid ones. On
+  overlap, the auto rule's `prune_reason` wins (more informative) over `"manual"`.
+  **Naming: canonical `"artifact"` (US spelling), `"artefact"` accepted as an alias** (owner
+  preference; nod to Commonwealth spelling and to Forbes' own usage), normalized internally.
+  Existing code passing `"artefact"` keeps working. `"tucker"` was considered and rejected as an
+  alias/rename during planning: the mode surfaces more than Tucker's φ (also the
+  `few_items`/`orphan`/`split_merge` structural signals), so naming it after the statistic would
+  mislabel the umbrella.
+  **`print()`/`summary()` gain a "Manual" pruning line** reporting the count and ids of
+  explicitly-flagged nodes, independent of which auto rule (if any) was also requested.
+  Files: `R/prune.R` (generic + method + refactored internal dispatcher — `.find_redundant_chains`,
+  `.phi_pairs`, `.compute_structural_signals` unchanged in signature/behavior), `R/ackwards.R`
+  (args + validation + auto-upgrade + auto-resolve blocks removed; new rejection guard added),
+  `R/print.R`/`R/summary.R` (artifact spelling + Manual line), `R/autoplot.R`/`R/data.R` (roxygen
+  examples updated to the piped form), `DESIGN.md` (§2, §5-6, §9, §10, §11, §14 items 27-31; item
+  17 struck through and superseded), `vignettes/ackwards-forbes.Rmd` (code chunks converted to the
+  piped API; the thresholds-sweep chunk now re-prunes one shared fit instead of refitting four
+  times, demonstrating the no-re-extraction design — deeper prose/formatting notes from
+  `ROADMAP.md` remain M38's to resolve), `ROADMAP.md` (M34 section deleted per its own maintenance
+  rule; M38's dependency note updated).
+  Tests: `test-prune.R` gained coverage for standalone/mixed manual pruning, unknown-label errors,
+  re-pruning without re-extraction (`x$levels`/`x$r`/`x$edges` identical across calls on the same
+  fitted object), the `"artefact"` alias canonicalizing to `"artifact"`, `ackwards()` rejecting the
+  removed args, and a regression guard confirming `prune()` recomputes all-pairs edges (including
+  the endpoint-`r` enrichment) even when the object was fit with the default `pairs = "adjacent"`.
+  Every other test file with a fit-time `ackwards(..., prune = ...)` call
+  (`test-cor-input.R`, `test-data.R`, `test-vignette-m24.R`, `test-print.R`, `test-layout.R`) was
+  migrated to the piped form.
+  (1402 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)

@@ -1,5 +1,35 @@
 # ackwards (development)
 
+## Pruning is now a standalone `prune()` verb (⚠ breaking, no deprecation)
+
+Forbes-extension pruning is extracted out of `ackwards()` into a standalone,
+pipeable S3 generic, `prune()`:
+
+```r
+x <- ackwards(bfi25, k_max = 5)
+xp <- prune(x, "redundant")
+```
+
+- The five pruning-related arguments — `prune` (renamed `rules`),
+  `redundancy_r`, `redundancy_phi`, `min_items`, `orphan_r` — are **removed
+  from `ackwards()` entirely** (clean move; the package is pre-CRAN with no
+  users, so there is no deprecation shim). Calling `ackwards()` with any of
+  these now errors with a pointer to `prune()`, rather than silently
+  discarding them.
+- Because extraction (expensive) and pruning (cheap, interpretive) are now
+  separate steps, you can re-prune with new thresholds without
+  re-extracting: `prune(x, "redundant", redundancy_r = 0.95)` reuses the
+  already-fit object.
+- New `manual =` argument flags user-named factors directly — standalone
+  (`prune(x, manual = c("m4f3"))`) or unioned onto an auto rule
+  (`prune(x, "redundant", manual = c("m4f3"))`).
+- The canonical rule name is now **`"artifact"`** (US spelling); `"artefact"`
+  is still accepted as an alias and normalizes to `"artifact"`.
+- `ackwards()`'s `pairs` argument no longer auto-upgrades to `"all"` when
+  pruning is requested — `prune()` recomputes its own all-pairs edges on
+  demand, so it works correctly regardless of the fit-time `pairs` setting,
+  and `x$edges` is never modified by pruning.
+
 ## New dataset: `sim16`
 
 A simulated, fully continuous 1 000×16 teaching dataset (`data(sim16)`) with
@@ -10,8 +40,8 @@ a known 1 → 2 → 4 bass-ackwards hierarchy, alongside `bfi25`. Two purposes:
   warning.
 - Deliberately exercises overextraction: the population has exactly 4
   factors, so requesting `k_max = 5` produces a guaranteed redundant chain
-  (`prune = "redundant"`) and an orphan/few-items artefact signal
-  (`prune = "artefact"`) for the Forbes/redundancy examples to teach
+  (`prune(x, "redundant")`) and an orphan/few-items artifact signal
+  (`prune(x, "artifact")`) for the Forbes/redundancy examples to teach
   against.
 
 `sim16` is deliberately the *idealized* case — its clean signal makes all
