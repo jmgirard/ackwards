@@ -61,9 +61,11 @@ Set \code{append = FALSE} to return \emph{only} the score columns -- convenient 
 feeding scores straight into \code{\link[=cor]{cor()}}, \code{\link[=lm]{lm()}}, or a clustering call without
 dragging the item columns along. Because \code{augment()} always preserves row
 order and row count, \code{cbind(data, augment(x, data, append = FALSE))}
-reproduces the appended output exactly. For a rejoin that survives \emph{filtering}
-the scores afterwards, name identifier columns with \code{id_cols} so they travel
-with the scores.
+reproduces the appended output exactly. A row that scores \code{NA} (because it is
+missing an item -- see \emph{Missing data} above) is still returned in place, so the
+positional alignment holds even with \code{NA} scores. For a rejoin that survives
+\emph{filtering} the scores afterwards, name identifier columns with \code{id_cols} so
+they travel with the scores.
 }
 \examples{
 # Score the training data on the fly (no keep_scores = TRUE needed)
