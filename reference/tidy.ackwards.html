@@ -95,11 +95,16 @@ default (<code>what = "edges"</code>) returns the graph edge list that drives di
 For PCA objects the indices are eigenvalues; for EFA objects they are
 <code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>RMSEA</code>, <code>TLI</code>, <code>BIC</code>; for ESEM they are
 <code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>CFI</code>, <code>TLI</code>, <code>RMSEA</code>, <code>SRMR</code>, <code>BIC</code>. For ESEM
-under <code>estimator = "WLSMV"</code>/<code>"ULSMV"</code>, <code>chi</code>/<code>dof</code>/<code>p_value</code> report the
-mean-and-variance-adjusted ("scaled") test rather than the naive one –
-lavaan defines the naive test as having no valid reference distribution
-for these limited-information estimators (its own <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> labels
-that p-value "Unknown"). <code>BIC</code> is <code>NA</code> under WLSMV/ULSMV (no proper
+under a scaled-test estimator (<code>"WLSMV"</code>/<code>"ULSMV"</code> for ordinal data,
+<code>"MLR"</code> for continuous), the whole row – <code>chi</code>/<code>dof</code>/<code>p_value</code> <strong>and</strong>
+<code>CFI</code>/<code>TLI</code>/<code>RMSEA</code> – reports lavaan's mean-and-variance-adjusted
+("scaled") variant, so every quantity shares one scaling. This matters
+most for WLSMV/ULSMV: the naive chi-square has no valid reference
+distribution (lavaan's own <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> labels its p-value "Unknown"),
+and the naive <code>CFI</code>/<code>TLI</code> are badly optimistic for ordinal data
+(Xia &amp; Yang, 2019). <code>"ML"</code> has no scaled variant, so it reports the
+naive values (the correct ones for ML). <code>SRMR</code> has no scaled variant and
+is reported as-is. <code>BIC</code> is <code>NA</code> under WLSMV/ULSMV (no proper
 log-likelihood for a limited-information estimator) and populated under
 ML/MLR. Use
 <code>format = "wide"</code> for one row per <strong>non-anchor</strong> level (k &gt;= 2; the

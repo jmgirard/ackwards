@@ -7,7 +7,11 @@ across all engines; columns unavailable for a given engine or estimator
 are `NA` (e.g., `CFI` and `SRMR` are `NA` for EFA; all five are `NA` for
 PCA; for ESEM, `BIC` is `NA` under `estimator = "WLSMV"`/`"ULSMV"` –
 these limited-information estimators have no proper log-likelihood – and
-populated under `"ML"`/`"MLR"`).
+populated under `"ML"`/`"MLR"`). Under a scaled-test estimator
+(`"WLSMV"`/`"ULSMV"`/`"MLR"`) the `CFI`/`TLI`/`RMSEA` reported here are
+the scaled variants (see
+[`tidy.ackwards()`](https://jmgirard.github.io/ackwards/reference/tidy.ackwards.md)
+for the rationale).
 
 ## Usage
 

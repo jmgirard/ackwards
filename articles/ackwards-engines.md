@@ -286,9 +286,9 @@ fit.
 ``` r
 
 tidy(x_esem, what = "fit", format = "wide")
-#>   level      chi dof p_value       CFI       TLI      RMSEA       SRMR BIC
-#> 1     2 3616.834 251       0 0.8869038 0.8648252 0.11540374 0.09547997  NA
-#> 2     3 2448.356 228       0 0.9428938 0.9248602 0.08604131 0.07172502  NA
+#>   level      chi dof p_value       CFI       TLI     RMSEA       SRMR BIC
+#> 1     2 3616.834 251       0 0.7117569 0.6554864 0.1238665 0.09547997  NA
+#> 2     3 2448.356 228       0 0.8098533 0.7498069 0.1055573 0.07172502  NA
 ```
 
 Add `cutoffs = TRUE` to flag each index against the Hu & Bentler (1999)
@@ -297,9 +297,9 @@ conventional thresholds (CFI/TLI ≥ .95, RMSEA ≤ .06, SRMR ≤ .08):
 ``` r
 
 tidy(x_esem, what = "fit", format = "wide", cutoffs = TRUE)
-#>   level      chi dof p_value       CFI CFI_meets       TLI TLI_meets      RMSEA
-#> 1     2 3616.834 251       0 0.8869038     FALSE 0.8648252     FALSE 0.11540374
-#> 2     3 2448.356 228       0 0.9428938     FALSE 0.9248602     FALSE 0.08604131
+#>   level      chi dof p_value       CFI CFI_meets       TLI TLI_meets     RMSEA
+#> 1     2 3616.834 251       0 0.7117569     FALSE 0.6554864     FALSE 0.1238665
+#> 2     3 2448.356 228       0 0.8098533     FALSE 0.7498069     FALSE 0.1055573
 #>   RMSEA_meets       SRMR SRMR_meets BIC
 #> 1       FALSE 0.09547997      FALSE  NA
 #> 2       FALSE 0.07172502       TRUE  NA
@@ -334,9 +334,9 @@ carries the deepest-level fit for quick inspection:
 
 glance(x_esem)
 #>   engine rotation        cor k_max n_obs deepest_converged n_edges       CFI
-#> 1   esem  varimax polychoric     3   875                 3       8 0.9428938
-#>         TLI      RMSEA       SRMR BIC
-#> 1 0.9248602 0.08604131 0.07172502  NA
+#> 1   esem  varimax polychoric     3   875                 3       8 0.8098533
+#>         TLI     RMSEA       SRMR BIC
+#> 1 0.7498069 0.1055573 0.07172502  NA
 ```
 
 ### Should you care about fit in a bass-ackwards workflow?

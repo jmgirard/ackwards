@@ -189,9 +189,9 @@ WLSMV uses.
 ``` r
 
 tidy(x_esem, what = "fit", format = "wide")
-#>   level      chi dof p_value       CFI       TLI      RMSEA       SRMR BIC
-#> 1     2 3616.834 251       0 0.8869038 0.8648252 0.11540374 0.09547997  NA
-#> 2     3 2448.356 228       0 0.9428938 0.9248602 0.08604131 0.07172502  NA
+#>   level      chi dof p_value       CFI       TLI     RMSEA       SRMR BIC
+#> 1     2 3616.834 251       0 0.7117569 0.6554864 0.1238665 0.09547997  NA
+#> 2     3 2448.356 228       0 0.8098533 0.7498069 0.1055573 0.07172502  NA
 ```
 
 See

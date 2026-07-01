@@ -93,8 +93,9 @@ as part of the definition of done.
 - **M30** — Citation hygiene (`inst/CITATION` Girard-only;
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
   `@references` gains Forbes; README citation prose corrected)
-- **M31** — Correctness & output-honesty sweep (ESEM `p_value`/BIC
-  extraction fixed for WLSMV/ULSMV; `_meets` cleanup;
+- **M31** — Correctness & output-honesty sweep (ESEM fit row reports
+  scaled variants under WLSMV/ULSMV/MLR —
+  `p_value`/`CFI`/`TLI`/`RMSEA` + `BIC`; `_meets` cleanup;
   `cor = "polychoric"` + ML/MLR guard; `fa.parallel`/`seed` doc
   confirmed correct; intro/suggest_k vignette drift fixed)
 

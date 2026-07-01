@@ -740,4 +740,33 @@ User-facing change notes live in `NEWS.md`.
       `test-esem.R` with fit-index-naming (`BIC` added), wide-format
       `_meets` column-set, WLSMV-scaled-p-value, and estimator-guard
       coverage. No new test files. (1323 tests pass, 2 skip; 0/0/0 R CMD
-      check; coverage 100%.)
+      check; coverage 100%.) Post-review (from /post-milestone-review):
+      the review’s Should-fix — that the ESEM fit row mixed a scaled
+      chi-square/p-value with *naive* CFI/TLI/RMSEA under WLSMV/ULSMV
+      (the naive incremental indices are badly optimistic for ordinal
+      data; Xia & Yang 2019: naive CFI ~0.89 vs scaled ~0.71 on BFI) —
+      was addressed. Owner decision: report the **scaled** variants
+      (over robust) for full internal consistency with the reported
+      scaled test and to match the Mplus output the reference clinical
+      workflows (Kim & Eaton 2015; Forbush 2024) use. `engine_esem.R`
+      now applies one unified `.fm_scaled()` rule to the whole row
+      (`chi`/`dof`/`p_value` + `CFI`/`TLI`/`RMSEA`): prefer the
+      `<index>.scaled` name whenever the estimator emits one, else the
+      naive value. This also fixed a latent MLR bug — MLR previously
+      reported the *naive* ML chi-square/p-value (its naive p-value is
+      non-NA, so the old p-value-only fallback never fired), defeating
+      the purpose of robust ML; the whole MLR row is now scaled. `SRMR`
+      (no scaled variant) and `BIC` (no scaling concept; NA under
+      WLSMV/ULSMV) are unchanged. Roxygen (`tidy`/`glance`) and
+      `NEWS.md` document the scaled reporting. The review’s nice-to-have
+      test gaps were closed: added ULSMV (scaled p-value + NA BIC), MLR
+      (asserts the row equals lavaan’s `*.scaled`, real BIC), and
+      continuous-`cor`+WLSMV (populated fit row) tests to `test-esem.R`.
+      Deliberately **deferred to M32** (the API-shape/`meta` pass):
+      storing the effective `estimator` in `$meta` and adding a
+      [`summary()`](https://rdrr.io/r/base/summary.html) footnote that
+      names the scaled reporting — a schema change better bundled with
+      M32’s meta/column decisions than bolted on here. Landed via
+      follow-up branch `m31-followup-fit-variants` → PR (not reopening
+      the merged M31 PR). (1340 tests pass, 2 skip; 0/0/0 R CMD check;
+      coverage 100%.)
