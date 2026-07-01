@@ -328,6 +328,42 @@ test_that("estimator argument is validated", {
   )
 })
 
+# ── M32: effective estimator recorded in $meta ────────────────────────────────
+
+test_that("$meta$estimator records the effective ESEM estimator (auto and explicit)", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x_default <- ackwards(d, k_max = 2, engine = "esem"))
+  expect_equal(x_default$meta$estimator, "ML") # cor = "pearson" auto-selects ML
+  suppressWarnings(
+    x_mlr <- ackwards(d, k_max = 2, engine = "esem", estimator = "MLR")
+  )
+  expect_equal(x_mlr$meta$estimator, "MLR")
+})
+
+test_that("$meta$estimator is NA for PCA and EFA", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x_pca <- ackwards(psych::bfi[, 1:10], k_max = 2, engine = "pca"))
+  suppressWarnings(x_efa <- ackwards(psych::bfi[, 1:10], k_max = 2, engine = "efa"))
+  expect_true(is.na(x_pca$meta$estimator))
+  expect_true(is.na(x_efa$meta$estimator))
+})
+
+test_that("summary() footnotes the scaled-fit reporting for WLSMV/ULSMV/MLR only", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x_ml <- ackwards(d, k_max = 3, engine = "esem"))
+  suppressWarnings(
+    x_mlr <- ackwards(d, k_max = 3, engine = "esem", estimator = "MLR")
+  )
+  # cli writes to stderr (the "message" stream) in non-interactive sessions;
+  # capture that stream, not stdout.
+  out_ml <- paste(capture.output(print(summary(x_ml)), type = "message"), collapse = " ")
+  out_mlr <- paste(capture.output(print(summary(x_mlr)), type = "message"), collapse = " ")
+  expect_false(grepl("scaled", out_ml, ignore.case = TRUE))
+  expect_true(grepl("scaled", out_mlr, ignore.case = TRUE))
+})
+
 # ── Polychoric basis: PCA and EFA ─────────────────────────────────────────────
 
 test_that("cor = 'polychoric' works for PCA engine", {

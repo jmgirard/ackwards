@@ -64,7 +64,9 @@ Pass explicitly to override: \code{"ULSMV"} (unweighted WLS), \code{"MLR"}
 (robust ML). \code{cor = "polychoric"} with \code{estimator = "ML"}/\code{"MLR"} errors
 (lavaan itself does not support ML/MLR on ordered indicators); \code{"WLSMV"}/
 \code{"ULSMV"} with a continuous \code{cor} is allowed (a valid, if atypical,
-continuous WLS/ADF estimator). Ignored for PCA and EFA engines.}
+continuous WLS/ADF estimator). Ignored for PCA and EFA engines. The
+effective value (after auto-selection) is recorded in \code{x$meta$estimator}
+(\code{NA} for PCA/EFA).}
 
 \item{missing}{How to handle missing item responses. One of:
 \itemize{

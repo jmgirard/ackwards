@@ -27,6 +27,7 @@ summary.ackwards <- function(object, ...) {
       cor        = object$cor,
       n_obs      = object$n_obs,
       k_max      = object$k_max,
+      estimator  = object$meta$estimator,
       variance   = .tidy_variance(object),
       fit        = .tidy_fit(object),
       lineage    = .summary_lineage(object),
@@ -128,6 +129,18 @@ print.summary_ackwards <- function(x, ...) {
         )
       }
     }
+  }
+
+  # ESEM under a scaled-test estimator: name the scaled reporting once (M32;
+  # see tidy(what = "fit") docs for the full rationale). Not shown for ML,
+  # which has no scaled variant and reports naive values.
+  if (is_esem && isTRUE(x$estimator %in% c("WLSMV", "ULSMV", "MLR"))) {
+    cli::cli_text(
+      cli::col_grey(
+        "  Fit indices above report lavaan's mean-and-variance-adjusted \\
+         (\"scaled\") variant, per the {.val {x$estimator}} estimator."
+      )
+    )
   }
 
   # --- Lineage ----------------------------------------------------------------
