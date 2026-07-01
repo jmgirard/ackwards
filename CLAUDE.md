@@ -161,6 +161,13 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
   (silently no-ops without required checks) and **don't** synchronously watch or background-poll
   CI. Don't commit milestone work (anything touching `R/`, `tests/`, `DESCRIPTION`, vignettes)
   straight to `master`. Trivial isolated doc fixes may go direct at the user's discretion.
+  - **Exception — release / CRAN-submission milestones** (e.g. CRAN-prep, version-bump/release):
+    here you **do** wait for the *full* green CI matrix before merging, because CRAN runs exactly
+    that matrix (macOS/Windows/Ubuntu × release/devel/oldrel) and will reject platform failures
+    the local macOS `check()` can't see. For these, don't merge on local-green alone. This
+    exception also reactivates once the package has real users or collaborators (a red `master`
+    then blocks others / ships bugs) — treat that transition as the trigger to reconsider branch
+    protection.
 - **Do not touch** the `legacy` branch or the `v0-legacy` tag — they preserve the pre-AI code.
 - Small, focused commits with imperative messages (e.g., `Add PCA engine and level contract`).
 - Don't force-push `master`. Don't commit data, credentials, or large binaries.

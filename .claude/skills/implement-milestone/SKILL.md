@@ -49,6 +49,10 @@ Follow `CLAUDE.md`'s dev workflow and definition of done throughout:
   not block the merge. Don't spin up a synchronous CI watch or a background CI poller "to wait for
   green" — that reintroduces exactly the wait this workflow rejects. After merging, sync local:
   `git switch master && git pull`. Do not push milestone commits straight to `master`.
+  - **Exception — release / CRAN-submission milestones** (CRAN-prep, version bump, release): for
+    these, **do** wait for the *full* green CI matrix before merging (CRAN runs exactly that
+    matrix and rejects platform failures the local macOS `check()` can't see). Only here is a
+    synchronous/polled CI wait warranted; flag it explicitly when you take it.
 - Trivial, isolated doc-typo fixes may still go directly to `master` at the user's discretion;
   anything touching `R/`, `tests/`, `DESCRIPTION`, or vignettes goes through a PR.
 
