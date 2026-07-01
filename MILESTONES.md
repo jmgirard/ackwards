@@ -876,4 +876,10 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   Files: `R/utils.R` (`.resolve_missing()` + `cor` guard, `.corfiml_R()`), `R/ackwards.R` (route,
   `n_obs` string handling, cli announce, roxygen), `tests/testthat/test-missing.R`, `DESIGN.md`,
   `NEWS.md`, `CLAUDE.md` (Current focus + Completed index), `MILESTONES.md`.
-  (<<FINAL_TESTS>> tests pass; 0/0/0 R CMD check; coverage 100%.)
+  Verified: `R CMD check` **0/0/0**; full suite **1509 pass / 0 fail / 8 skip** (EFAtools absent on
+  the dev machine — 8 EFAtools/doc-context skips; higher with EFAtools installed); `R/` coverage
+  **100%** (`R/ackwards.R` and `R/utils.R` both 100%; the only package-wide uncovered lines are the
+  EFAtools-gated `suggest_k.R` block, which is covered when EFAtools is present); lint clean;
+  `pkgdown::check_pkgdown()` clean. (Two pre-existing defensive early-returns in `.is_cor_matrix()` /
+  `.check_maybe_cov_matrix()` were given direct unit tests here to keep `R/utils.R` at 100% after the
+  M38 additions.)

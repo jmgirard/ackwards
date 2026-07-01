@@ -578,6 +578,9 @@ test_that("string n_obs errors when not on the raw-data FIML pca/efa path", {
 test_that("numeric n_obs with raw-data FIML warns and defaults to total", {
   skip_if_not_installed("psych")
   d <- .make_fiml_data()
+  # The advisory uses .frequency = "once"; force it to fire even if an earlier
+  # test in the suite already triggered the same frequency id.
+  rlang::local_options(rlib_warning_verbosity = "verbose")
   expect_warning(
     x <- suppressMessages(
       ackwards(d, k_max = 3L, engine = "efa", missing = "fiml", n_obs = 999)

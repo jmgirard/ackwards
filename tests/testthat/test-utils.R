@@ -83,6 +83,13 @@ test_that(".is_cor_matrix() returns FALSE for asymmetric matrix", {
   expect_false(ackwards:::.is_cor_matrix(R))
 })
 
+test_that(".is_cor_matrix() returns FALSE for a square, non-unit-diagonal matrix", {
+  # Square and symmetric but diagonal != 1 (e.g. a covariance-like matrix):
+  # the unit-diagonal check short-circuits before the symmetry check.
+  M <- matrix(c(2, 0.5, 0.5, 2), 2, 2)
+  expect_false(ackwards:::.is_cor_matrix(M))
+})
+
 test_that(".validate_cor_matrix() errors on non-matrix input", {
   expect_error(
     ackwards:::.validate_cor_matrix(list(a = 1)),
@@ -175,6 +182,13 @@ test_that(".check_maybe_cov_matrix() passes silently for a valid correlation mat
 test_that(".check_maybe_cov_matrix() returns invisibly for a non-square numeric matrix", {
   # Non-square: rows != cols, so not a square symmetric matrix → early return
   m <- matrix(1:6, nrow = 2, ncol = 3)
+  expect_no_error(ackwards:::.check_maybe_cov_matrix(m))
+})
+
+test_that(".check_maybe_cov_matrix() returns invisibly for a square, non-symmetric matrix", {
+  # Square but not symmetric: not covariance-like, so no error and no abort
+  # (the symmetry check short-circuits before the diagonal check).
+  m <- matrix(c(1, 0.5, 0.2, 1), nrow = 2, ncol = 2)
   expect_no_error(ackwards:::.check_maybe_cov_matrix(m))
 })
 
