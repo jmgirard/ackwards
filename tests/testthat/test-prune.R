@@ -1050,3 +1050,51 @@ test_that("prune() recomputes all-pairs edges even when fit with default pairs =
     expect_false(is.na(sub$endpoint_r[which.max(sub$level)]))
   }
 })
+
+# ---- M34 post-review follow-up: clear, de-dup, class, polychoric ESEM --------
+
+test_that("prune(x) clears pruning previously applied to the object", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  x <- suppressWarnings(ackwards(data, k_max = 3))
+  xp <- suppressMessages(prune(x, "redundant"))
+  expect_false(is.null(xp$prune))
+  # Re-pruning with no auto rule and no manual clears the annotation to NULL
+  xc <- prune(xp)
+  expect_null(xc$prune)
+  expect_s3_class(xc, "ackwards")
+})
+
+test_that("manual pruning de-duplicates repeated labels and preserves class", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  x <- suppressWarnings(ackwards(data, k_max = 3))
+  lab <- x$levels[["2"]]$labels[1]
+  xm <- prune(x, manual = c(lab, lab))
+  expect_s3_class(xm, "ackwards")
+  # Repeated label is stored once and flags the node exactly once
+  expect_equal(xm$prune$manual, lab)
+  nodes <- xm$prune$nodes
+  expect_equal(sum(nodes$pruned & nodes$id == lab), 1L)
+  expect_equal(nodes$prune_reason[nodes$id == lab], "manual")
+})
+
+test_that("prune() works on an ESEM object with a polychoric basis", {
+  skip_if_not_installed("lavaan")
+  # Exercises the polychoric-R path through compute_edges() inside prune()
+  # (edges recomputed from the stored lavaan polychoric matrix, not x$edges).
+  d <- .make_ordinal_data()
+  x <- suppressWarnings(suppressMessages(
+    ackwards(d, k_max = 2, engine = "esem", cor = "polychoric")
+  ))
+  xp <- suppressWarnings(suppressMessages(prune(x, c("redundant", "artifact"))))
+
+  expect_s3_class(xp, "ackwards")
+  expect_false(is.null(xp$prune))
+  expect_false(is.null(xp$prune$phi))
+  expect_false(is.null(xp$prune$structural))
+  # x$edges is never mutated even on the polychoric path
+  expect_identical(xp$edges, x$edges)
+})

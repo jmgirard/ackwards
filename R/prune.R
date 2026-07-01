@@ -265,7 +265,7 @@
   list(node_flags = node_flags_df, chains = chains_df)
 }
 
-# Compute structural artefact signals for each (level, factor).
+# Compute structural artifact signals for each (level, factor).
 # Returns a data frame: id, level, few_items, orphan, split_merge.
 #
 # few_items:   factor is primary parent for fewer than min_items items.
@@ -313,7 +313,7 @@
           adj_r <- c(adj_r, abs(E_dn[jlab, ]))
         }
       }
-      # Every factor has >= 1 adjacent level (k_max >= 2, artefact uses
+      # Every factor has >= 1 adjacent level (k_max >= 2, artifact uses
       # pairs = "all"), so the empty-adj_r guard is defensive only.
       orphan <- if (length(adj_r) == 0L) {
         NA # nocov
@@ -576,6 +576,7 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
         "i" = "Valid labels: {.val {all_ids}}."
       ))
     }
+    manual <- unique(manual) # flagging is idempotent; keep $manual dup-free
   }
 
   if (!is.numeric(redundancy_r) || length(redundancy_r) != 1L ||

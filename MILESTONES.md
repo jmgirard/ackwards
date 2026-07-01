@@ -628,4 +628,18 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   Every other test file with a fit-time `ackwards(..., prune = ...)` call
   (`test-cor-input.R`, `test-data.R`, `test-vignette-m24.R`, `test-print.R`, `test-layout.R`) was
   migrated to the piped form.
-  (1402 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+  (1400 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+  Post-review (`/post-milestone-review`) follow-up, landed via branch `m34-followup-review` → PR:
+  the review returned **READY** with no Blocking or Should-fix code findings; this follow-up
+  cleared the Nice-to-haves plus one prose consistency item. (1) Normalized the two remaining
+  internal `artefact` comments in `R/prune.R` and the two user-facing `artefact`/`artefactual`
+  prose mentions in `README.Rmd`/`README.md` to the canonical `artifact` spelling (the alias
+  input path is untouched — `"artefact"` still works). (2) `prune()` now de-duplicates `manual`
+  labels (`unique()`) so `$prune$manual` is dup-free; flagging was already idempotent. (3) Added
+  tests: clearing prior pruning (`prune(x)` on an already-pruned object → `$prune` NULL, class
+  preserved), `manual` de-duplication + class preservation, and `prune()` on an ESEM object with a
+  polychoric basis (exercises the polychoric-`R` path through `compute_edges()` inside `prune()`
+  and re-asserts `x$edges` is untouched). The README worked-`prune()`-example the review flagged as
+  an *opportunity* remains M38's (narrative/Quick-Start restructuring is M38's declared scope; the
+  corrected prose already describes the feature accurately). (1412 tests pass, 2 skip; 0/0/0 R CMD
+  check; coverage 100%.)
