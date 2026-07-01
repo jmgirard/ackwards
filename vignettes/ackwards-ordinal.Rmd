@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 )
 has_lavaan <- requireNamespace("lavaan", quietly = TRUE)
 has_gt <- requireNamespace("gt", quietly = TRUE)
+has_ggplot2 <- requireNamespace("ggplot2", quietly = TRUE)
 ```
 
 Most psychological scales use ordinal response formats: Likert-type items with a
@@ -90,23 +91,43 @@ x_poly <- ackwards(bfi, k_max = 5, cor = "polychoric")
 
 ### Correlation matrices
 
-The most direct way to see the impact of the basis is to compare the
-correlation matrices directly.
+The most direct way to see the impact of the basis is to compare the item
+correlations under each basis. Rather than read two 5×5 matrices side by side,
+the chart below plots the ten unique item-pair correlations among the five
+neuroticism items (`N1`–`N5`), Pearson against polychoric.
 
-```{r r-compare}
-# Pearson R (stored in x$r)
-round(x_pearson$r[1:5, 1:5], 2)
+```{r r-compare, echo = FALSE, eval = has_ggplot2, fig.alt = "Dodged bar chart comparing Pearson and polychoric correlations for the ten unique N1-N5 item pairs; every polychoric bar is taller than its Pearson counterpart."}
+n_items <- paste0("N", 1:5)
+Rp <- x_pearson$r[n_items, n_items]
+Rc <- x_poly$r[n_items, n_items]
+lt <- lower.tri(Rp)
+idx <- which(lt, arr.ind = TRUE)
+pair_lab <- paste(n_items[idx[, "row"]], n_items[idx[, "col"]], sep = "–")
+
+corr_df <- rbind(
+  data.frame(pair = pair_lab, basis = "Pearson", r = Rp[lt]),
+  data.frame(pair = pair_lab, basis = "Polychoric", r = Rc[lt])
+)
+
+ggplot2::ggplot(
+  corr_df,
+  ggplot2::aes(x = pair, y = r, fill = basis)
+) +
+  ggplot2::geom_col(
+    position = ggplot2::position_dodge(width = 0.7), width = 0.65
+  ) +
+  ggplot2::labs(
+    x = "Item pair", y = "Correlation", fill = "Basis",
+    title = "Pearson vs polychoric item correlations",
+    subtitle = "Ten unique pairs among the five neuroticism items"
+  ) +
+  ggplot2::theme_minimal()
 ```
 
-```{r r-compare2}
-# Polychoric R
-round(x_poly$r[1:5, 1:5], 2)
-```
-
-The polychoric correlations are consistently higher — sometimes substantially
-so. The `N1`–`N2` pair, for instance, goes from roughly 0.59 (Pearson) to 0.73
-(polychoric): a difference large enough to shift loadings and change
-eigenvalues.
+Every polychoric bar sits above its Pearson counterpart — the correlations are
+consistently higher. The `N1`–`N2` pair, for instance, goes from about 0.73
+(Pearson) to 0.79 (polychoric); across the block the increase runs to roughly
+0.05, enough to shift loadings and change eigenvalues.
 
 ### Loadings
 
