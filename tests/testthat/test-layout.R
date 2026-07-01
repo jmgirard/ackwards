@@ -161,12 +161,19 @@ test_that("autoplot(x) dispatches correctly without library(ggplot2)", {
   expect_s3_class(p, "ggplot")
 })
 
-test_that("autoplot.ackwards() respects cut_show and cut_strong", {
+test_that("autoplot.ackwards() respects cut_show", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
-  expect_no_error(ggplot2::autoplot(x, cut_show = 0.1, cut_strong = 0.4))
-  expect_no_error(ggplot2::autoplot(x, cut_show = 0.5, cut_strong = 0.7))
+  expect_no_error(ggplot2::autoplot(x, cut_show = 0.1))
+  expect_no_error(ggplot2::autoplot(x, cut_show = 0.5))
+})
+
+test_that("autoplot.ackwards() deprecates cut_strong (warns, no effect)", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  expect_warning(ggplot2::autoplot(x, cut_strong = 0.4), "deprecated")
 })
 
 test_that("autoplot.ackwards() warns when cut_show hides all edges", {
@@ -277,6 +284,75 @@ test_that("autoplot.ackwards() mono=TRUE + show_r=TRUE composes without error", 
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, mono = TRUE, show_r = TRUE))
   expect_s3_class(p, "ggplot")
+})
+
+# --- M35: configurable encodings (sign_by / magnitude_by / colour aliases) ------
+
+.ba_has_scale <- function(p, aesthetic) {
+  any(vapply(
+    p$scales$scales,
+    function(s) aesthetic %in% s$aesthetics,
+    logical(1)
+  ))
+}
+
+test_that("sign_by selects which aesthetic encodes edge sign", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+
+  # default "color": colour encodes sign, linetype does not
+  p <- ggplot2::autoplot(x)
+  expect_true(.ba_has_scale(p, "colour"))
+  expect_false(.ba_has_scale(p, "linetype"))
+
+  # "linetype": linetype encodes sign, colour does not
+  p <- ggplot2::autoplot(x, sign_by = "linetype")
+  expect_true(.ba_has_scale(p, "linetype"))
+  expect_false(.ba_has_scale(p, "colour"))
+
+  # "both": colour AND linetype (merged into one "Direction" legend)
+  p <- ggplot2::autoplot(x, sign_by = "both")
+  expect_true(.ba_has_scale(p, "colour"))
+  expect_true(.ba_has_scale(p, "linetype"))
+
+  # "none": neither encodes sign
+  p <- ggplot2::autoplot(x, sign_by = "none")
+  expect_false(.ba_has_scale(p, "colour"))
+  expect_false(.ba_has_scale(p, "linetype"))
+})
+
+test_that("magnitude_by / edge_linewidth control the |r| linewidth scale", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+
+  expect_true(.ba_has_scale(ggplot2::autoplot(x), "linewidth"))
+  expect_false(.ba_has_scale(ggplot2::autoplot(x, magnitude_by = "none"), "linewidth"))
+  # a numeric edge_linewidth also forces constant width (no scale)
+  expect_false(.ba_has_scale(ggplot2::autoplot(x, edge_linewidth = 0.6), "linewidth"))
+})
+
+test_that("colour_* aliases override the color_* arguments", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+
+  p <- ggplot2::autoplot(x, colour_pos = "darkgreen")
+  edge_colours <- ggplot2::ggplot_build(p)$data[[1]]$colour
+  expect_true("darkgreen" %in% edge_colours)
+})
+
+test_that("mono=TRUE is equivalent to sign_by='linetype' with black edges", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+
+  p <- ggplot2::autoplot(x, mono = TRUE)
+  expect_true(.ba_has_scale(p, "linetype"))
+  expect_false(.ba_has_scale(p, "colour"))
+  edge_colours <- ggplot2::ggplot_build(p)$data[[1]]$colour
+  expect_true(all(edge_colours == "black"))
 })
 
 test_that("autoplot.ackwards() show_level_labels=TRUE (default) returns a ggplot", {

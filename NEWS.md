@@ -1,5 +1,30 @@
 # ackwards (development)
 
+## Sign alignment: primary-parent edges are now always non-negative
+
+`ackwards()` sign-aligns each factor to its primary parent. Previously a factor
+whose *own* parent had been flipped could still display a **negative** primary
+edge (e.g. `m2f2 -> m3f2` on `bfi25`), because the flip was computed against the
+parent's unflipped orientation. Sign now propagates correctly top-down, so every
+primary-parent edge is non-negative and only genuinely-negative *secondary* edges
+appear red. Loading and edge signs may change wherever a parent was flipped.
+
+## `autoplot()`: configurable, always-legended edge encodings
+
+- New `sign_by` chooses how edge sign is shown: `"color"` (default),
+  `"linetype"`, `"both"` (redundant colour + a distinct double-dash for
+  negatives), or `"none"`. New `magnitude_by` (`"linewidth"` default, or
+  `"none"`) controls the `|r|` encoding. Every mapped aesthetic now gets its own
+  legend — nothing is silently encoded.
+- New `direction = "horizontal"` draws the hierarchy left-to-right (level 1 at
+  left) for wide slides and posters; the default `"vertical"` is unchanged.
+- Edge-colour arguments accept British-spelling aliases (`colour_pos`,
+  `colour_neg`, `colour_edge`, `colour_pruned`); a new `color_edge` sets the
+  single edge colour when sign is not colour-encoded.
+- `cut_strong` is **deprecated** and ignored (it double-encoded magnitude via
+  linetype); it warns if supplied. `mono = TRUE` is retained as a convenience
+  wrapper for `sign_by = "linetype"` with black edges.
+
 ## Pruning is now a standalone `prune()` verb (⚠ breaking, no deprecation)
 
 Forbes-extension pruning is extracted out of `ackwards()` into a standalone,

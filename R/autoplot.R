@@ -20,10 +20,13 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'
 #' When `what = "hierarchy"` (default), renders the layered bass-ackwards
 #' hierarchy as a ggplot2 diagram. Factors appear as labelled boxes arranged
-#' in levels (level 1 at top, level k at bottom). Between-level edges are drawn
-#' as arrows coloured by sign and scaled by |r|. Edges below `cut_show` are
-#' hidden; edges above `cut_strong` are solid and those between the two
-#' thresholds are dashed.
+#' in levels (level 1 at top, level k at bottom by default; set
+#' `direction = "horizontal"` for a left-to-right layout). Between-level edges
+#' below `cut_show` are hidden. Two aesthetics carry the edge information, each
+#' explained by its own legend: **sign** (positive/negative) is shown by
+#' `sign_by` (edge colour by default) and **magnitude** (`|r|`) by
+#' `magnitude_by` (line thickness by default). No aesthetic is ever mapped
+#' without a matching legend.
 #'
 #' When `what = "fit"`, renders a two-panel line plot of per-level fit indices
 #' (CFI/TLI in the top panel; RMSEA/SRMR in the bottom panel) with horizontal
@@ -38,15 +41,28 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' @param what One of `"hierarchy"` (default) or `"fit"`. Controls which
 #'   visualisation is produced. All other parameters are ignored when
 #'   `what = "fit"`.
+#' @param sign_by How edge **sign** (positive vs negative correlation) is
+#'   encoded. One of `"color"` (default; positive = `color_pos`, negative =
+#'   `color_neg`), `"linetype"` (positive = solid, negative = dashed),
+#'   `"both"` (colour *and* linetype, with negative drawn as a distinct
+#'   double-dash so it reads clearly in greyscale), or `"none"` (sign not
+#'   encoded; all edges `color_edge` and solid). Whichever channel is used gets
+#'   a "Direction" legend.
+#' @param magnitude_by How edge **magnitude** (`|r|`) is encoded. One of
+#'   `"linewidth"` (default; thicker = stronger, with a `|r|` legend) or
+#'   `"none"` (constant width). A numeric `edge_linewidth` also forces constant
+#'   width at that value.
 #' @param cut_show Edges with `|r| < cut_show` are not drawn. Defaults to the
 #'   value used when the object was created (`x$meta$cut_show`, typically 0.3).
-#' @param cut_strong Edges with `|r| >= cut_strong` are drawn solid; those
-#'   between `cut_show` and `cut_strong` are dashed. Ignored when
-#'   `mono = TRUE`. Default `0.5`.
-#' @param color_pos Colour for positive edges. Default `"#2166AC"` (blue).
-#'   Ignored when `mono = TRUE`.
-#' @param color_neg Colour for negative edges. Default `"#D6604D"` (red).
-#'   Ignored when `mono = TRUE`.
+#' @param color_pos,colour_pos Colour for positive edges when `sign_by` uses
+#'   colour. Default `"#2166AC"` (blue). `colour_pos` is an accepted British
+#'   alias.
+#' @param color_neg,colour_neg Colour for negative edges when `sign_by` uses
+#'   colour. Default `"#D6604D"` (red). `colour_neg` is an accepted British
+#'   alias.
+#' @param color_edge,colour_edge Single colour for all edges when `sign_by`
+#'   does not use colour (`"linetype"` or `"none"`). Default `"black"`.
+#'   `colour_edge` is an accepted British alias.
 #' @param node_width Width of factor boxes in layout units. Default `0.8`.
 #' @param node_height Height of factor boxes in layout units. Default `0.4`.
 #' @param min_sep Minimum horizontal separation between nodes; passed to
@@ -57,10 +73,11 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' @param curvature Curvature of skip-level edge arcs. Passed to
 #'   [ggplot2::geom_curve()]. Positive values curve right; default `0.2`.
 #'   Ignored when `drop_pruned = TRUE`.
-#' @param color_pruned Fill colour for nodes flagged as pruned/redundant.
-#'   Default `"grey80"`. Only applied when the object carries pruning
-#'   annotations (`x$prune` is non-`NULL`) and `drop_pruned = FALSE` (pruned
-#'   nodes are omitted entirely when `drop_pruned = TRUE`).
+#' @param color_pruned,colour_pruned Fill colour for nodes flagged as
+#'   pruned/redundant. Default `"grey80"`. Only applied when the object carries
+#'   pruning annotations (`x$prune` is non-`NULL`) and `drop_pruned = FALSE`
+#'   (pruned nodes are omitted entirely when `drop_pruned = TRUE`).
+#'   `colour_pruned` is an accepted British alias.
 #' @param show_r Whether to label each drawn edge with its correlation
 #'   coefficient. Default `FALSE`. When `TRUE`, labels are formatted in APA
 #'   style (leading zero stripped, e.g. `.23`, `-.30`) and placed beside each
@@ -70,10 +87,9 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' @param r_label_size Font size for edge correlation labels when
 #'   `show_r = TRUE`. Passed to `ggplot2::geom_label()` as `size`. Default
 #'   `2.5`.
-#' @param mono Monochrome mode. When `TRUE`, all edges are drawn in black;
-#'   `linewidth` still encodes `|r|`; `linetype` encodes sign (`solid` =
-#'   positive, `dashed` = negative). The `cut_strong` strong/weak linetype
-#'   distinction is dropped in mono mode. Default `FALSE`.
+#' @param mono Monochrome convenience wrapper. When `TRUE`, equivalent to
+#'   `sign_by = "linetype"` with black edges (it overrides `sign_by` and the
+#'   colour arguments). `magnitude_by` still applies. Default `FALSE`.
 #' @param show_level_labels Whether to draw level axis labels
 #'   ("1 factor", "2 factors", ...) to the left of the diagram. Default `TRUE`.
 #' @param level_label_size Font size for level axis labels. Default `3`.
@@ -97,11 +113,14 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' @param show_arrows When `FALSE`, edges are drawn with plain line ends instead
 #'   of closed arrowheads (`arrow = NULL`). Applies to both straight and curved
 #'   edge layers. Default `TRUE`. Forbes (2023) figures use plain line ends.
-#' @param edge_linewidth `NULL` (default) maps `|r|` to `linewidth` via a
-#'   continuous scale (current behaviour). A numeric value draws every edge at
-#'   that constant width, removes the `linewidth` aesthetic mapping, and drops
-#'   the `|r|` linewidth legend. Applies in both colour and `mono` modes and in
-#'   the `drop_pruned` path. Forbes figures use uniform thin lines (~= 0.5--0.6).
+#' @param edge_linewidth `NULL` (default) uses `magnitude_by` to decide edge
+#'   width. A numeric value forces every edge to that constant width (implying
+#'   `magnitude_by = "none"`) and drops the `|r|` legend. Forbes figures use
+#'   uniform thin lines (~= 0.5--0.6).
+#' @param cut_strong **Deprecated** in M35 and
+#'   ignored (with a warning). Edge magnitude is now shown by `magnitude_by`
+#'   (linewidth) and sign by `sign_by`; the old strong/weak linetype split
+#'   double-encoded magnitude. Retained only so existing calls do not error.
 #' @param legend When `FALSE`, suppresses all plot legends
 #'   (`legend.position = "none"`). Useful when `color_pos == color_neg` (e.g.
 #'   both `"black"`) to remove an otherwise redundant Direction key. Default
@@ -117,7 +136,14 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
 #'   x <- ackwards(bfi25, k_max = 5)
 #'   autoplot(x)
-#'   autoplot(x, cut_strong = 0.6, color_pos = "steelblue")
+#'   autoplot(x, color_pos = "steelblue")
+#'
+#'   # Encode sign by linetype instead of colour, or by both
+#'   autoplot(x, sign_by = "linetype")
+#'   autoplot(x, sign_by = "both")
+#'
+#'   # Left-to-right layout (wide slides / posters)
+#'   autoplot(x, direction = "horizontal")
 #'
 #'   # Per-level fit index chart (EFA or ESEM only)
 #'   x_efa <- ackwards(bfi25, k_max = 5, engine = "efa")
@@ -161,20 +187,29 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 autoplot.ackwards <- function(
   object,
   what = c("hierarchy", "fit"),
+  sign_by = c("color", "linetype", "both", "none"),
+  magnitude_by = c("linewidth", "none"),
   cut_show = NULL,
-  cut_strong = 0.5,
   color_pos = "#2166AC",
   color_neg = "#D6604D",
+  color_edge = "black",
+  colour_pos = NULL,
+  colour_neg = NULL,
+  colour_edge = NULL,
   node_width = 0.8,
   node_height = 0.4,
   min_sep = 1.0,
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
+  colour_pruned = NULL,
   show_r = FALSE,
   r_digits = 2L,
   r_label_size = 2.5,
   mono = FALSE,
+  edge_linewidth = NULL,
+  cut_strong = NULL,
+  direction = c("vertical", "horizontal"),
   show_level_labels = TRUE,
   level_label_size = 3,
   node_labels = NULL,
@@ -182,7 +217,6 @@ autoplot.ackwards <- function(
   drop_pruned = FALSE,
   compress_levels = FALSE,
   show_arrows = TRUE,
-  edge_linewidth = NULL,
   legend = TRUE,
   ...
 ) {
@@ -191,6 +225,39 @@ autoplot.ackwards <- function(
   if (what == "fit") {
     return(.ba_fit_plot(object))
   }
+  sign_by <- match.arg(sign_by)
+  magnitude_by <- match.arg(magnitude_by)
+  direction <- match.arg(direction)
+
+  # British-spelling aliases: colour_* overrides color_* when supplied.
+  color_pos <- colour_pos %||% color_pos
+  color_neg <- colour_neg %||% color_neg
+  color_edge <- colour_edge %||% color_edge
+  color_pruned <- colour_pruned %||% color_pruned
+
+  # cut_strong retired in M35: it double-encoded magnitude via linetype.
+  if (!is.null(cut_strong)) {
+    cli::cli_warn(c(
+      "!" = "{.arg cut_strong} is deprecated (M35) and has no effect.",
+      "i" = "Sign is encoded by {.arg sign_by}; magnitude by {.arg magnitude_by}."
+    ))
+  }
+
+  # mono is a convenience wrapper: sign by linetype, all edges black.
+  if (isTRUE(mono)) {
+    sign_by <- "linetype"
+    color_edge <- "black"
+  }
+
+  # Resolve which aesthetic carries which encoding.
+  map_color <- sign_by %in% c("color", "both")
+  map_linetype <- sign_by %in% c("linetype", "both")
+  const_width <- !is.null(edge_linewidth) || magnitude_by == "none"
+  map_linewidth <- !const_width
+  width_val <- edge_linewidth %||% 0.7
+  # sign_by = "both" draws negatives as a distinct double-dash so the redundant
+  # colour+linetype pairing stays legible; plain "linetype" uses dashed.
+  neg_linetype <- if (sign_by == "both") "twodash" else "dashed"
 
   if (min_sep < node_width) {
     cli::cli_warn(
@@ -235,12 +302,7 @@ autoplot.ackwards <- function(
 
   # Local helpers shared between rendering paths
   .ann <- function(e) {
-    if (mono) {
-      e$linetype <- ifelse(e$r >= 0, "solid", "dashed")
-    } else {
-      e$linetype <- ifelse(abs(e$r) >= cut_strong, "solid", "dashed")
-      e$color_group <- ifelse(e$r >= 0, "positive", "negative")
-    }
+    e$sign_group <- ifelse(e$r >= 0, "positive", "negative")
     e
   }
   .attach_coords <- function(e, nx, ny) {
@@ -350,66 +412,44 @@ autoplot.ackwards <- function(
     NULL
   }
 
-  # Build edge aesthetics. linewidth enters the mapping only when edge_linewidth
-  # is NULL (the dynamic |r|-scaled path); a numeric edge_linewidth is passed
-  # directly to each geom layer as a constant instead.
-  if (mono) {
-    if (is.null(edge_linewidth)) {
-      edge_aes <- ggplot2::aes(
-        x         = .data$x_from,
-        y         = .data$y_from,
-        xend      = .data$x_to,
-        yend      = .data$y_to,
-        linewidth = abs(.data$r),
-        linetype  = .data$linetype
-      )
-    } else {
-      edge_aes <- ggplot2::aes(
-        x        = .data$x_from,
-        y        = .data$y_from,
-        xend     = .data$x_to,
-        yend     = .data$y_to,
-        linetype = .data$linetype
-      )
-    }
-  } else {
-    if (is.null(edge_linewidth)) {
-      edge_aes <- ggplot2::aes(
-        x         = .data$x_from,
-        y         = .data$y_from,
-        xend      = .data$x_to,
-        yend      = .data$y_to,
-        color     = .data$color_group,
-        linewidth = abs(.data$r),
-        linetype  = .data$linetype
-      )
-    } else {
-      edge_aes <- ggplot2::aes(
-        x        = .data$x_from,
-        y        = .data$y_from,
-        xend     = .data$x_to,
-        yend     = .data$y_to,
-        color    = .data$color_group,
-        linetype = .data$linetype
-      )
-    }
+  # Build edge aesthetics. Each of sign (colour/linetype) and magnitude
+  # (linewidth) enters the mapping only when the corresponding channel is
+  # active; otherwise it is passed to each geom as a constant so no unmapped
+  # aesthetic ever produces a legend-less encoding.
+  edge_aes <- ggplot2::aes(
+    x    = .data$x_from,
+    y    = .data$y_from,
+    xend = .data$x_to,
+    yend = .data$y_to
+  )
+  if (map_color) {
+    edge_aes <- utils::modifyList(edge_aes, ggplot2::aes(color = .data$sign_group))
+  }
+  if (map_linetype) {
+    edge_aes <- utils::modifyList(edge_aes, ggplot2::aes(linetype = .data$sign_group))
+  }
+  if (map_linewidth) {
+    edge_aes <- utils::modifyList(edge_aes, ggplot2::aes(linewidth = abs(.data$r)))
   }
 
-  # Local helpers to add geom layers -- consolidates the mono x edge_linewidth
-  # argument matrix so each combination is not repeated for segment and curve.
+  # Constant (non-mapped) aesthetics passed directly to each geom layer.
+  const_args <- list()
+  if (!map_color) const_args[["color"]] <- color_edge
+  if (!map_linetype) const_args[["linetype"]] <- "solid"
+  if (!map_linewidth) const_args[["linewidth"]] <- width_val
+
   .add_seg <- function(p, data) {
-    args <- list(data = data, mapping = edge_aes, arrow = arrow_spec)
-    if (mono) args[["color"]] <- "black"
-    if (!is.null(edge_linewidth)) args[["linewidth"]] <- edge_linewidth
+    args <- c(list(data = data, mapping = edge_aes, arrow = arrow_spec), const_args)
     p + do.call(ggplot2::geom_segment, args)
   }
   .add_cur <- function(p, data) {
-    args <- list(
-      data = data, mapping = edge_aes, arrow = arrow_spec,
-      curvature = curvature
+    args <- c(
+      list(
+        data = data, mapping = edge_aes, arrow = arrow_spec,
+        curvature = curvature
+      ),
+      const_args
     )
-    if (mono) args[["color"]] <- "black"
-    if (!is.null(edge_linewidth)) args[["linewidth"]] <- edge_linewidth
     p + do.call(ggplot2::geom_curve, args)
   }
 
@@ -461,31 +501,30 @@ autoplot.ackwards <- function(
     ) +
     ggplot2::scale_fill_identity(guide = "none")
 
-  # Edge scales -- conditional on mono and edge_linewidth
-  if (mono) {
-    if (is.null(edge_linewidth)) {
-      p <- p + ggplot2::scale_linewidth_continuous(
-        range = c(0.4, 1.8), name = "|r|", limits = c(cut_show, 1)
-      )
-    }
-    p <- p + ggplot2::scale_linetype_manual(
-      values = c("solid" = "solid", "dashed" = "dashed"),
-      breaks = c("solid", "dashed"),
-      labels = c("solid" = "Positive", "dashed" = "Negative"),
-      name   = "Direction"
-    )
-  } else {
+  # Edge scales -- one per active encoding channel, each with its own legend.
+  # When sign_by = "both", the colour and linetype scales share the name
+  # "Direction" (and identical breaks/labels) so ggplot2 merges them into a
+  # single legend key.
+  if (map_color) {
     p <- p + ggplot2::scale_color_manual(
       values = c(positive = color_pos, negative = color_neg),
-      name   = "Direction",
-      labels = c(positive = "Positive", negative = "Negative")
+      breaks = c("positive", "negative"),
+      labels = c(positive = "Positive", negative = "Negative"),
+      name   = "Direction"
     )
-    if (is.null(edge_linewidth)) {
-      p <- p + ggplot2::scale_linewidth_continuous(
-        range = c(0.4, 1.8), name = "|r|", limits = c(cut_show, 1)
-      )
-    }
-    p <- p + ggplot2::scale_linetype_identity(guide = "none")
+  }
+  if (map_linetype) {
+    p <- p + ggplot2::scale_linetype_manual(
+      values = c(positive = "solid", negative = neg_linetype),
+      breaks = c("positive", "negative"),
+      labels = c(positive = "Positive", negative = "Negative"),
+      name   = "Direction"
+    )
+  }
+  if (map_linewidth) {
+    p <- p + ggplot2::scale_linewidth_continuous(
+      range = c(0.4, 1.8), name = "|r|", limits = c(cut_show, 1)
+    )
   }
 
   # (d) Level axis labels in left margin
