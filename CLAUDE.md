@@ -98,18 +98,23 @@ as part of the definition of done.
   `p_value`/`CFI`/`TLI`/`RMSEA` + `BIC`; `_meets` cleanup;
   `cor = "polychoric"` + ML/MLR guard; `fa.parallel`/`seed` doc
   confirmed correct; intro/suggest_k vignette drift fixed)
+- **M32** — API-shape & naming resolutions (`tidy(what="fit")`
+  `index`→`statistic`; `k_max` kept in both
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)/[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md),
+  roxygen-disambiguated; cutoffs pass/fail flag output removed,
+  `.fit_cutoffs()` kept for reference lines; variance reported as 0–1
+  `proportion`/`cumulative`; plus M31-deferred `$meta$estimator` +
+  [`summary()`](https://rdrr.io/r/base/summary.html) scaled-fit
+  footnote)
 
 ## Current focus
 
-M31 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38
-documentation/UX epic (driven by a pkgdown-website review) is **M32**,
-described below — not yet planned; run `/plan-milestone 32` before
-starting.
+M32 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38
+documentation/UX epic is **M33** (simulated Gaussian dataset —
+foundation); not yet planned; run `/plan-milestone 33` before starting.
 
-Remaining milestones in the epic: M32 naming/API-shape decisions (index
-column names, `k_max` collision, `cutoffs` keep/drop, `variance_pct`
-0–100 vs 0–1); M33 simulated Gaussian dataset (foundation); M34 pruning
-verb — extract `prune()` from
+Remaining milestones in the epic: M33 simulated Gaussian dataset
+(foundation); M34 pruning verb — extract `prune()` from
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 (clean move, no deprecation — pre-CRAN, no users) + manual/mixed
 flag-only pruning + `"artefact"`/`"tucker"` naming + DESIGN.md update;

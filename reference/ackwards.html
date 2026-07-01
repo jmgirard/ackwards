@@ -105,8 +105,11 @@ are ignored. See the <em>Correlation-matrix input</em> section below.</p></dd>
 
 <dt id="arg-k-max">k_max<a class="anchor" aria-label="anchor" href="#arg-k-max"></a></dt>
 <dd><p>Maximum number of factors/components to extract. Required; use
-<code><a href="suggest_k.html">suggest_k()</a></code> if uncertain. Sets the depth of the hierarchy: levels
-1 through <code>k_max</code> are all extracted.</p></dd>
+<code><a href="suggest_k.html">suggest_k()</a></code> if uncertain. Sets the <em>depth</em> of the hierarchy: levels
+1 through <code>k_max</code> are all extracted and retained. (Note: <code><a href="suggest_k.html">suggest_k()</a></code>'s
+<code>k_max</code> means something related but distinct – the max number of
+factors/components it <em>evaluates</em> when recommending a depth, not a depth
+itself; see that function's docs.)</p></dd>
 
 
 <dt id="arg-engine">engine<a class="anchor" aria-label="anchor" href="#arg-engine"></a></dt>
@@ -138,7 +141,9 @@ Pass explicitly to override: <code>"ULSMV"</code> (unweighted WLS), <code>"MLR"<
 (robust ML). <code>cor = "polychoric"</code> with <code>estimator = "ML"</code>/<code>"MLR"</code> errors
 (lavaan itself does not support ML/MLR on ordered indicators); <code>"WLSMV"</code>/
 <code>"ULSMV"</code> with a continuous <code>cor</code> is allowed (a valid, if atypical,
-continuous WLS/ADF estimator). Ignored for PCA and EFA engines.</p></dd>
+continuous WLS/ADF estimator). Ignored for PCA and EFA engines. The
+effective value (after auto-selection) is recorded in <code>x$meta$estimator</code>
+(<code>NA</code> for PCA/EFA).</p></dd>
 
 
 <dt id="arg-missing">missing<a class="anchor" aria-label="anchor" href="#arg-missing"></a></dt>

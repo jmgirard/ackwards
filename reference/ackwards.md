@@ -48,8 +48,12 @@ ackwards(
 
   Maximum number of factors/components to extract. Required; use
   [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-  if uncertain. Sets the depth of the hierarchy: levels 1 through
-  `k_max` are all extracted.
+  if uncertain. Sets the *depth* of the hierarchy: levels 1 through
+  `k_max` are all extracted and retained. (Note:
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)'s
+  `k_max` means something related but distinct – the max number of
+  factors/components it *evaluates* when recommending a depth, not a
+  depth itself; see that function's docs.)
 
 - engine:
 
@@ -86,7 +90,9 @@ ackwards(
   `cor = "polychoric"` with `estimator = "ML"`/`"MLR"` errors (lavaan
   itself does not support ML/MLR on ordered indicators); `"WLSMV"`/
   `"ULSMV"` with a continuous `cor` is allowed (a valid, if atypical,
-  continuous WLS/ADF estimator). Ignored for PCA and EFA engines.
+  continuous WLS/ADF estimator). Ignored for PCA and EFA engines. The
+  effective value (after auto-selection) is recorded in
+  `x$meta$estimator` (`NA` for PCA/EFA).
 
 - missing:
 

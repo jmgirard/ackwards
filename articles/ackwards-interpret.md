@@ -358,21 +358,21 @@ summary(x)
 #> 
 #> ── Levels ──
 #> 
-#> k = 1: 1 factor (23.21% cumulative variance)
+#> k = 1: 1 factor (23.2% cumulative variance)
 #> m1f1 23.21% eigenvalue 5.8
-#> k = 2: 2 factors (35.48% cumulative variance)
+#> k = 2: 2 factors (35.5% cumulative variance)
 #> m2f1 20.94% eigenvalue 5.8
 #> m2f2 14.54% eigenvalue 3.07
-#> k = 3: 3 factors (44.58% cumulative variance)
+#> k = 3: 3 factors (44.6% cumulative variance)
 #> m3f1 18.04% eigenvalue 5.8
 #> m3f2 13.89% eigenvalue 3.07
 #> m3f3 12.66% eigenvalue 2.28
-#> k = 4: 4 factors (52.17% cumulative variance)
+#> k = 4: 4 factors (52.2% cumulative variance)
 #> m4f1 17.5% eigenvalue 5.8
 #> m4f2 13.63% eigenvalue 3.07
 #> m4f3 11.83% eigenvalue 2.28
 #> m4f4 9.21% eigenvalue 1.9
-#> k = 5: 5 factors (58.42% cumulative variance)
+#> k = 5: 5 factors (58.4% cumulative variance)
 #> m5f1 13.75% eigenvalue 5.8
 #> m5f2 13.56% eigenvalue 3.07
 #> m5f3 11.9% eigenvalue 2.28

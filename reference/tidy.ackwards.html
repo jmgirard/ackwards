@@ -67,7 +67,6 @@ default (<code>what = "edges"</code>) returns the graph edge list that drives di
 <span>  primary_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  sort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"strength"</span><span class="op">)</span>,</span>
 <span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"long"</span>, <span class="st">"wide"</span><span class="op">)</span>,</span>
-<span>  cutoffs <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -90,35 +89,32 @@ default (<code>what = "edges"</code>) returns the graph edge list that drives di
 <code>engine = "esem"</code> (which produces rotation-aware loading SEs); they are
 <code>NA</code> for PCA and EFA. The confidence level is controlled by <code>conf_level</code>.</p></li>
 <li><p><code>"variance"</code> – one row per factor x level:
-<code>level</code>, <code>factor</code>, <code>variance_pct</code>, <code>cumulative_pct</code>.</p></li>
-<li><p><code>"fit"</code> – one row per fit index x level: <code>level</code>, <code>index</code>, <code>value</code>.
-For PCA objects the indices are eigenvalues; for EFA objects they are
-<code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>RMSEA</code>, <code>TLI</code>, <code>BIC</code>; for ESEM they are
-<code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>CFI</code>, <code>TLI</code>, <code>RMSEA</code>, <code>SRMR</code>, <code>BIC</code>. For ESEM
-under a scaled-test estimator (<code>"WLSMV"</code>/<code>"ULSMV"</code> for ordinal data,
-<code>"MLR"</code> for continuous), the whole row – <code>chi</code>/<code>dof</code>/<code>p_value</code> <strong>and</strong>
-<code>CFI</code>/<code>TLI</code>/<code>RMSEA</code> – reports lavaan's mean-and-variance-adjusted
-("scaled") variant, so every quantity shares one scaling. This matters
-most for WLSMV/ULSMV: the naive chi-square has no valid reference
-distribution (lavaan's own <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> labels its p-value "Unknown"),
-and the naive <code>CFI</code>/<code>TLI</code> are badly optimistic for ordinal data
-(Xia &amp; Yang, 2019). <code>"ML"</code> has no scaled variant, so it reports the
-naive values (the correct ones for ML). <code>SRMR</code> has no scaled variant and
-is reported as-is. <code>BIC</code> is <code>NA</code> under WLSMV/ULSMV (no proper
-log-likelihood for a limited-information estimator) and populated under
-ML/MLR. Use
-<code>format = "wide"</code> for one row per <strong>non-anchor</strong> level (k &gt;= 2; the
-saturated 1-factor anchor is dropped, matching <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and
-<code>autoplot(what = "fit")</code>), one column per index. Add <code>cutoffs = TRUE</code> to
-append a <code>meets</code> column flagging each index against conventional
-thresholds (Hu &amp; Bentler 1999: CFI/TLI &gt;= .95, RMSEA &lt;= .06,
-SRMR &lt;= .08). In <code>format = "long"</code>, indices without a defined threshold
-(<code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>BIC</code>, eigenvalues) return <code>NA</code> for <code>meets</code>;
-in <code>format = "wide"</code>, no <code>{index}_meets</code> column is emitted for them at
-all (an always-<code>NA</code> column would just be noise). Thresholds are
-conventional and contested; they are report-only and never gate
-anything. <code>format</code> and <code>cutoffs</code> are oriented to the EFA/ESEM model-fit
-indices; for PCA the "indices" are per-component eigenvalues.</p></li>
+<code>level</code>, <code>factor</code>, <code>proportion</code>, <code>cumulative</code>. Both are proportions of
+total item variance on a 0-1 scale (multiply by 100 for a percentage).</p></li>
+<li><p><code>"fit"</code> – one row per fit statistic x level: <code>level</code>, <code>statistic</code>,
+<code>value</code>. For PCA objects the statistics are eigenvalues; for EFA
+objects they are <code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>RMSEA</code>, <code>TLI</code>, <code>BIC</code>; for
+ESEM they are <code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>CFI</code>, <code>TLI</code>, <code>RMSEA</code>, <code>SRMR</code>,
+<code>BIC</code>. For ESEM under a scaled-test estimator (<code>"WLSMV"</code>/<code>"ULSMV"</code> for
+ordinal data, <code>"MLR"</code> for continuous), the whole row – <code>chi</code>/<code>dof</code>/
+<code>p_value</code> <strong>and</strong> <code>CFI</code>/<code>TLI</code>/<code>RMSEA</code> – reports lavaan's
+mean-and-variance-adjusted ("scaled") variant, so every quantity shares
+one scaling. This matters most for WLSMV/ULSMV: the naive chi-square
+has no valid reference distribution (lavaan's own <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> labels
+its p-value "Unknown"), and the naive <code>CFI</code>/<code>TLI</code> are badly optimistic
+for ordinal data (Xia &amp; Yang, 2019). <code>"ML"</code> has no scaled variant, so
+it reports the naive values (the correct ones for ML). <code>SRMR</code> has no
+scaled variant and is reported as-is. <code>BIC</code> is <code>NA</code> under WLSMV/ULSMV
+(no proper log-likelihood for a limited-information estimator) and
+populated under ML/MLR. Use <code>format = "wide"</code> for one row per
+<strong>non-anchor</strong> level (k &gt;= 2; the saturated 1-factor anchor is dropped,
+matching <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code>autoplot(what = "fit")</code>), one column per
+statistic. Conventional fit cutoffs (Hu &amp; Bentler 1999) are shown as
+reference lines in <code>autoplot(what = "fit")</code> and inline in <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>,
+but are not returned as a pass/fail column here – they are contested
+thresholds, report-only, and never gate anything (see those functions'
+docs). <code>format</code> is oriented to the EFA/ESEM model-fit statistics; for
+PCA the "statistics" are per-component eigenvalues.</p></li>
 <li><p><code>"nodes"</code> – Forbes-extension pruning annotations (requires <code>prune != "none"</code>
 when the object was created). One row per factor across all levels:
 <code>id</code>, <code>level</code>, <code>pruned</code>, <code>prune_reason</code>. Returns an empty data frame with
@@ -143,15 +139,8 @@ or <code>"strength"</code> (descending <code>|r|</code>). Ignored for all other 
 
 <dt id="arg-format">format<a class="anchor" aria-label="anchor" href="#arg-format"></a></dt>
 <dd><p>For <code>what = "fit"</code> only. One of <code>"long"</code> (default, one row per
-index x level) or <code>"wide"</code> (one row per level, one column per index).
-Errors for all other values of <code>what</code>.</p></dd>
-
-
-<dt id="arg-cutoffs">cutoffs<a class="anchor" aria-label="anchor" href="#arg-cutoffs"></a></dt>
-<dd><p>For <code>what = "fit"</code> only. When <code>TRUE</code>, appends a logical <code>meets</code>
-column indicating whether each index meets its conventional threshold (Hu &amp;
-Bentler 1999). <code>NA</code> when no threshold is defined for that index. Default
-<code>FALSE</code>. Errors for all other values of <code>what</code>.</p></dd>
+statistic x level) or <code>"wide"</code> (one row per level, one column per
+statistic). Errors for all other values of <code>what</code>.</p></dd>
 
 
 <dt id="arg-conf-level">conf_level<a class="anchor" aria-label="anchor" href="#arg-conf-level"></a></dt>
@@ -657,24 +646,24 @@ that carry no SEs (PCA, EFA). Errors for all other values of <code>what</code>.<
 <span class="r-out co"><span class="r-pr">#&gt;</span> 374     5   m5f5   O4  0.4968108232 NA       NA       NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 375     5   m5f5   O5 -0.6850859719 NA       NA       NA</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    level factor variance_pct cumulative_pct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      1   m1f1        20.61          20.61</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      2   m2f1        18.46          18.46</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      2   m2f2        13.36          31.82</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4      3   m3f1        16.39          16.39</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      3   m3f2        12.42          28.81</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6      3   m3f3        11.28          40.09</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7      4   m4f1        15.77          15.77</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8      4   m4f2        12.58          28.34</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9      4   m4f3        10.67          39.01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10     4   m4f4         8.28          47.29</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11     5   m5f1        12.57          12.57</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12     5   m5f2        12.51          25.08</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13     5   m5f3        10.75          35.83</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14     5   m5f4         9.47          45.30</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15     5   m5f5         7.98          53.28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    level factor proportion cumulative</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      1   m1f1 0.20609551  0.2060955</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      2   m2f1 0.18456586  0.1845659</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      2   m2f2 0.13360875  0.3181746</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      3   m3f1 0.16388269  0.1638827</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      3   m3f2 0.12421872  0.2881014</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      3   m3f3 0.11276933  0.4008707</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7      4   m4f1 0.15768276  0.1576828</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      4   m4f2 0.12576460  0.2834474</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9      4   m4f3 0.10665811  0.3901055</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10     4   m4f4 0.08276426  0.4728697</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11     5   m5f1 0.12571964  0.1257196</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12     5   m5f2 0.12505250  0.2507721</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13     5   m5f3 0.10750049  0.3582726</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14     5   m5f4 0.09473744  0.4530101</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15     5   m5f5 0.07975781  0.5327679</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    level           index    value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    level       statistic    value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      1 eigenvalue.m1f1 5.152388</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2      2 eigenvalue.m2f1 5.152388</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3      2 eigenvalue.m2f2 2.801977</span>
@@ -711,23 +700,6 @@ that carry no SEs (PCA, EFA). Errors for all other values of <code>what</code>.<
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2              NA              NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3              NA              NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4        1.799974        1.497454</span>
-<span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"fit"</span>, cutoffs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    level           index    value meets</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      1 eigenvalue.m1f1 5.152388    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      2 eigenvalue.m2f1 5.152388    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      2 eigenvalue.m2f2 2.801977    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4      3 eigenvalue.m3f1 5.152388    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      3 eigenvalue.m3f2 2.801977    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6      3 eigenvalue.m3f3 2.067404    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7      4 eigenvalue.m4f1 5.152388    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8      4 eigenvalue.m4f2 2.801977    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9      4 eigenvalue.m4f3 2.067404    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10     4 eigenvalue.m4f4 1.799974    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11     5 eigenvalue.m5f1 5.152388    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12     5 eigenvalue.m5f2 2.801977    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13     5 eigenvalue.m5f3 2.067404    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14     5 eigenvalue.m5f4 1.799974    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15     5 eigenvalue.m5f5 1.497454    NA</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

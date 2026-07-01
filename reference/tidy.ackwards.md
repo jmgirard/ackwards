@@ -14,7 +14,6 @@ tidy(
   primary_only = FALSE,
   sort = c("none", "strength"),
   format = c("long", "wide"),
-  cutoffs = FALSE,
   conf_level = 0.95,
   ...
 )
@@ -41,18 +40,20 @@ tidy(
     The confidence level is controlled by `conf_level`.
 
   - `"variance"` – one row per factor x level: `level`, `factor`,
-    `variance_pct`, `cumulative_pct`.
+    `proportion`, `cumulative`. Both are proportions of total item
+    variance on a 0-1 scale (multiply by 100 for a percentage).
 
-  - `"fit"` – one row per fit index x level: `level`, `index`, `value`.
-    For PCA objects the indices are eigenvalues; for EFA objects they
-    are `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`; for ESEM they
-    are `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`, `BIC`.
-    For ESEM under a scaled-test estimator (`"WLSMV"`/`"ULSMV"` for
-    ordinal data, `"MLR"` for continuous), the whole row –
-    `chi`/`dof`/`p_value` **and** `CFI`/`TLI`/`RMSEA` – reports lavaan's
-    mean-and-variance-adjusted ("scaled") variant, so every quantity
-    shares one scaling. This matters most for WLSMV/ULSMV: the naive
-    chi-square has no valid reference distribution (lavaan's own
+  - `"fit"` – one row per fit statistic x level: `level`, `statistic`,
+    `value`. For PCA objects the statistics are eigenvalues; for EFA
+    objects they are `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`; for
+    ESEM they are `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`,
+    `SRMR`, `BIC`. For ESEM under a scaled-test estimator
+    (`"WLSMV"`/`"ULSMV"` for ordinal data, `"MLR"` for continuous), the
+    whole row – `chi`/`dof`/ `p_value` **and** `CFI`/`TLI`/`RMSEA` –
+    reports lavaan's mean-and-variance-adjusted ("scaled") variant, so
+    every quantity shares one scaling. This matters most for
+    WLSMV/ULSMV: the naive chi-square has no valid reference
+    distribution (lavaan's own
     [`summary()`](https://rdrr.io/r/base/summary.html) labels its
     p-value "Unknown"), and the naive `CFI`/`TLI` are badly optimistic
     for ordinal data (Xia & Yang, 2019). `"ML"` has no scaled variant,
@@ -63,17 +64,14 @@ tidy(
     row per **non-anchor** level (k \>= 2; the saturated 1-factor anchor
     is dropped, matching
     [`summary()`](https://rdrr.io/r/base/summary.html) and
-    `autoplot(what = "fit")`), one column per index. Add
-    `cutoffs = TRUE` to append a `meets` column flagging each index
-    against conventional thresholds (Hu & Bentler 1999: CFI/TLI \>= .95,
-    RMSEA \<= .06, SRMR \<= .08). In `format = "long"`, indices without
-    a defined threshold (`chi`, `dof`, `p_value`, `BIC`, eigenvalues)
-    return `NA` for `meets`; in `format = "wide"`, no `{index}_meets`
-    column is emitted for them at all (an always-`NA` column would just
-    be noise). Thresholds are conventional and contested; they are
-    report-only and never gate anything. `format` and `cutoffs` are
-    oriented to the EFA/ESEM model-fit indices; for PCA the "indices"
-    are per-component eigenvalues.
+    `autoplot(what = "fit")`), one column per statistic. Conventional
+    fit cutoffs (Hu & Bentler 1999) are shown as reference lines in
+    `autoplot(what = "fit")` and inline in
+    [`summary()`](https://rdrr.io/r/base/summary.html), but are not
+    returned as a pass/fail column here – they are contested thresholds,
+    report-only, and never gate anything (see those functions' docs).
+    `format` is oriented to the EFA/ESEM model-fit statistics; for PCA
+    the "statistics" are per-component eigenvalues.
 
   - `"nodes"` – Forbes-extension pruning annotations (requires
     `prune != "none"` when the object was created). One row per factor
@@ -102,16 +100,9 @@ tidy(
 
 - format:
 
-  For `what = "fit"` only. One of `"long"` (default, one row per index x
-  level) or `"wide"` (one row per level, one column per index). Errors
-  for all other values of `what`.
-
-- cutoffs:
-
-  For `what = "fit"` only. When `TRUE`, appends a logical `meets` column
-  indicating whether each index meets its conventional threshold (Hu &
-  Bentler 1999). `NA` when no threshold is defined for that index.
-  Default `FALSE`. Errors for all other values of `what`.
+  For `what = "fit"` only. One of `"long"` (default, one row per
+  statistic x level) or `"wide"` (one row per level, one column per
+  statistic). Errors for all other values of `what`.
 
 - conf_level:
 
@@ -617,24 +608,24 @@ tidy(x, what = "loadings")
 #> 374     5   m5f5   O4  0.4968108232 NA       NA       NA
 #> 375     5   m5f5   O5 -0.6850859719 NA       NA       NA
 tidy(x, what = "variance")
-#>    level factor variance_pct cumulative_pct
-#> 1      1   m1f1        20.61          20.61
-#> 2      2   m2f1        18.46          18.46
-#> 3      2   m2f2        13.36          31.82
-#> 4      3   m3f1        16.39          16.39
-#> 5      3   m3f2        12.42          28.81
-#> 6      3   m3f3        11.28          40.09
-#> 7      4   m4f1        15.77          15.77
-#> 8      4   m4f2        12.58          28.34
-#> 9      4   m4f3        10.67          39.01
-#> 10     4   m4f4         8.28          47.29
-#> 11     5   m5f1        12.57          12.57
-#> 12     5   m5f2        12.51          25.08
-#> 13     5   m5f3        10.75          35.83
-#> 14     5   m5f4         9.47          45.30
-#> 15     5   m5f5         7.98          53.28
+#>    level factor proportion cumulative
+#> 1      1   m1f1 0.20609551  0.2060955
+#> 2      2   m2f1 0.18456586  0.1845659
+#> 3      2   m2f2 0.13360875  0.3181746
+#> 4      3   m3f1 0.16388269  0.1638827
+#> 5      3   m3f2 0.12421872  0.2881014
+#> 6      3   m3f3 0.11276933  0.4008707
+#> 7      4   m4f1 0.15768276  0.1576828
+#> 8      4   m4f2 0.12576460  0.2834474
+#> 9      4   m4f3 0.10665811  0.3901055
+#> 10     4   m4f4 0.08276426  0.4728697
+#> 11     5   m5f1 0.12571964  0.1257196
+#> 12     5   m5f2 0.12505250  0.2507721
+#> 13     5   m5f3 0.10750049  0.3582726
+#> 14     5   m5f4 0.09473744  0.4530101
+#> 15     5   m5f5 0.07975781  0.5327679
 tidy(x, what = "fit")
-#>    level           index    value
+#>    level       statistic    value
 #> 1      1 eigenvalue.m1f1 5.152388
 #> 2      2 eigenvalue.m2f1 5.152388
 #> 3      2 eigenvalue.m2f2 2.801977
@@ -671,21 +662,4 @@ tidy(x, what = "fit", format = "wide")
 #> 2              NA              NA
 #> 3              NA              NA
 #> 4        1.799974        1.497454
-tidy(x, what = "fit", cutoffs = TRUE)
-#>    level           index    value meets
-#> 1      1 eigenvalue.m1f1 5.152388    NA
-#> 2      2 eigenvalue.m2f1 5.152388    NA
-#> 3      2 eigenvalue.m2f2 2.801977    NA
-#> 4      3 eigenvalue.m3f1 5.152388    NA
-#> 5      3 eigenvalue.m3f2 2.801977    NA
-#> 6      3 eigenvalue.m3f3 2.067404    NA
-#> 7      4 eigenvalue.m4f1 5.152388    NA
-#> 8      4 eigenvalue.m4f2 2.801977    NA
-#> 9      4 eigenvalue.m4f3 2.067404    NA
-#> 10     4 eigenvalue.m4f4 1.799974    NA
-#> 11     5 eigenvalue.m5f1 5.152388    NA
-#> 12     5 eigenvalue.m5f2 2.801977    NA
-#> 13     5 eigenvalue.m5f3 2.067404    NA
-#> 14     5 eigenvalue.m5f4 1.799974    NA
-#> 15     5 eigenvalue.m5f5 1.497454    NA
 ```

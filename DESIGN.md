@@ -404,7 +404,23 @@ with its rationale.
   - `tidy(x, what = "loadings")` — long format
     `(level, factor, item, loading)`, sign-aligned; feeds loading
     heatmaps.
-  - `tidy(x, what = "variance")` — per-factor variance by level.
+  - `tidy(x, what = "variance")` — per-factor variance by level:
+    `(level, factor, proportion, cumulative)`, both on a 0-1 scale (M32;
+    matches the engine’s internal representation and broom/psych
+    convention — percent formatting is a display concern for
+    `print`/`summary`, not a
+    [`tidy()`](https://generics.r-lib.org/reference/tidy.html) concern).
+  - `tidy(x, what = "fit")` — per-level fit statistic:
+    `(level, statistic, value)` (M32: column renamed from `index`, which
+    read like a row position rather than a fit-statistic name — it holds
+    fit-index names for EFA/ESEM and eigenvalue positions for PCA).
+    `format = "wide"` pivots to one row per level. No pass/fail
+    `cutoffs=`/`meets` output (removed M32) — conventional Hu &
+    Bentler (1999) thresholds are conventional and contested, so
+    [`tidy()`](https://generics.r-lib.org/reference/tidy.html) reports
+    values only; `autoplot(what = "fit")` and
+    [`summary()`](https://rdrr.io/r/base/summary.html) render them as
+    reference lines/inline annotations.
   - `glance(x)` — one row of model-level meta (engine, k_max, n, deepest
     converged, cor basis).
   - `as_tibble(x)` → `tidy(x, "edges")`.
@@ -598,6 +614,56 @@ construct”). 21. Artefact → **never auto-flagged.** `prune = "artefact"`
 surfaces φ for inspection; removal is a documented researcher judgment
 (Forbes is explicit this introduces researcher DoF / confirmation bias;
 cf. Wicherts et al. 2016).
+
+**Resolved for M32 (API-shape & naming; owner-reviewed, no equivalent
+guidance elsewhere in this document):** 22. `tidy(x, what = "fit")`
+long-format key column → **`statistic`**, replacing `index` (which read
+as a row position; it actually held fit-index names for EFA/ESEM and
+eigenvalue positions for PCA). Wide format (`format = "wide"`)
+unaffected — column names still come from the values of this key. 23.
+`k_max` naming collision
+([`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+= extraction depth
+vs. [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+= max factors/components evaluated) → **keep the shared name in both
+functions.** They’re genuinely the same dial applied at different
+workflow stages (`suggest_k(k_max = ...)` → `ackwards(k_max = ...)`);
+renaming one would create vocabulary drift without removing any real
+ambiguity. Resolved instead via roxygen: each function’s `@param k_max`
+states its own meaning and cross-references the other’s. 24.
+`tidy(what = "fit")` cutoff flags → **removed.** The `cutoffs = TRUE`
+argument and the `meets`/`{statistic}_meets` columns it produced
+(`.flag_fit()`) are dropped; a pass/fail boolean quietly endorsed Hu &
+Bentler (1999) thresholds that the package elsewhere (§9, this section)
+treats as conventional and contested — continuing the M28/M31
+output-honesty trajectory. `.fit_cutoffs()` is retained as an internal
+helper: `autoplot(what = "fit")` still draws threshold reference lines
+and [`summary()`](https://rdrr.io/r/base/summary.html) still annotates
+inline with a check/cross mark: both are visual guides, not a returned
+pass/fail column a user could mistake for a computed judgment. 25.
+Variance scale → **proportion, 0-1** (`tidy(what = "variance")` columns
+renamed `variance_pct`/`cumulative_pct` → `proportion`/`cumulative`,
+values divided by 100). This aligns
+[`tidy()`](https://generics.r-lib.org/reference/tidy.html) with the
+engine’s internal `variance` slot (already 0-1; see `print.ackwards`,
+which reads it directly) and with broom/psych convention (`psych`
+reports “Proportion Var” as 0-1). Percent formatting moves to the
+display layer ([`print()`](https://rdrr.io/r/base/print.html),
+[`summary()`](https://rdrr.io/r/base/summary.html), vignette `gt`
+tables) rather than living in the tidy data. 26. **M31-deferred:
+effective ESEM estimator recorded in `$meta`.** M31 explicitly deferred
+this (“better bundled with M32’s meta/column decisions than bolted on
+here”): `x$meta$estimator` now stores the effective estimator after
+auto-selection (`"ML"`/`"MLR"`/`"WLSMV"`/`"ULSMV"`; `NA` for PCA/EFA).
+[`summary()`](https://rdrr.io/r/base/summary.html) gains a one-line
+footnote naming lavaan’s scaled-variant reporting (§14.M31 point
+2/Post-review) whenever the effective estimator is
+`"WLSMV"`/`"ULSMV"`/`"MLR"` — not shown for `"ML"`, which has no scaled
+variant.
+
+All five M32 changes are breaking with no deprecation path (pre-CRAN, no
+users; consistent with the M34 pruning-verb precedent of clean moves
+over compatibility shims).
 
 **Known limitations / deferred to future milestones:** - `factor_cor` in
 the ESEM engine is not permuted by the variance-sort `ord` vector. Safe

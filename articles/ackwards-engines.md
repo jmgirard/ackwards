@@ -86,7 +86,7 @@ model rejection.
 ``` r
 
 tidy(x_pca, what = "fit")
-#>   level           index    value
+#>   level       statistic    value
 #> 1     1 eigenvalue.m1f1 5.802803
 #> 2     2 eigenvalue.m2f1 5.802803
 #> 3     2 eigenvalue.m2f2 3.067627
@@ -139,25 +139,25 @@ within sampling error.
 ``` r
 
 tidy(x_efa, what = "fit")
-#>    level   index        value
-#> 1      1     chi 4939.7638666
-#> 2      1     dof  275.0000000
-#> 3      1 p_value    0.0000000
-#> 4      1   RMSEA    0.1448964
-#> 5      1     TLI    0.3429279
-#> 6      1     BIC 3464.3179512
-#> 7      2     chi 2483.1990595
-#> 8      2     dof  251.0000000
-#> 9      2 p_value    0.0000000
-#> 10     2   RMSEA    0.1220036
-#> 11     2     TLI    0.5337688
-#> 12     2     BIC 1820.0486615
-#> 13     3     chi 1407.2742765
-#> 14     3     dof  228.0000000
-#> 15     3 p_value    0.0000000
-#> 16     3   RMSEA    0.1077785
-#> 17     3     TLI    0.6358514
-#> 18     3     BIC 1001.1717891
+#>    level statistic        value
+#> 1      1       chi 4939.7638666
+#> 2      1       dof  275.0000000
+#> 3      1   p_value    0.0000000
+#> 4      1     RMSEA    0.1448964
+#> 5      1       TLI    0.3429279
+#> 6      1       BIC 3464.3179512
+#> 7      2       chi 2483.1990595
+#> 8      2       dof  251.0000000
+#> 9      2   p_value    0.0000000
+#> 10     2     RMSEA    0.1220036
+#> 11     2       TLI    0.5337688
+#> 12     2       BIC 1820.0486615
+#> 13     3       chi 1407.2742765
+#> 14     3       dof  228.0000000
+#> 15     3   p_value    0.0000000
+#> 16     3     RMSEA    0.1077785
+#> 17     3       TLI    0.6358514
+#> 18     3       BIC 1001.1717891
 ```
 
 The RMSEA values here are large (\> 0.10), indicating that 1–3 factors
@@ -291,26 +291,20 @@ tidy(x_esem, what = "fit", format = "wide")
 #> 2     3 2448.356 228       0 0.8098533 0.7498069 0.1055573 0.07172502  NA
 ```
 
-Add `cutoffs = TRUE` to flag each index against the Hu & Bentler (1999)
-conventional thresholds (CFI/TLI ≥ .95, RMSEA ≤ .06, SRMR ≤ .08):
-
-``` r
-
-tidy(x_esem, what = "fit", format = "wide", cutoffs = TRUE)
-#>   level      chi dof p_value       CFI CFI_meets       TLI TLI_meets     RMSEA
-#> 1     2 3616.834 251       0 0.7117569     FALSE 0.6554864     FALSE 0.1238665
-#> 2     3 2448.356 228       0 0.8098533     FALSE 0.7498069     FALSE 0.1055573
-#>   RMSEA_meets       SRMR SRMR_meets BIC
-#> 1       FALSE 0.09547997      FALSE  NA
-#> 2       FALSE 0.07172502       TRUE  NA
-```
+[`tidy()`](https://generics.r-lib.org/reference/tidy.html) does not flag
+rows against a threshold — the Hu & Bentler (1999) conventional cutoffs
+(CFI/TLI ≥ .95, RMSEA ≤ .06, SRMR ≤ .08) are conventional and contested,
+so a pass/fail column would overstate their authority. Instead they
+appear only as visual/inline reference points in
+[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+and [`summary()`](https://rdrr.io/r/base/summary.html):
 
 > **Thresholds are conventional and contested.** They were derived from
 > specific simulation conditions (continuous, well-distributed items;
 > balanced designs). WLSMV fit for ordinal data tends to produce lower
 > CFI and higher RMSEA than ML on the same underlying structure; do not
-> interpret WLSMV cutoffs as strictly as ML-based rules. Use the cutoffs
-> as a rough orientation, not a gatekeeping criterion.
+> interpret WLSMV cutoffs as strictly as ML-based rules. Use them as a
+> rough orientation, not a gatekeeping criterion.
 
 `autoplot(x, what = "fit")` visualises the trajectory across levels,
 with cutoff reference lines:

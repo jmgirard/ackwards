@@ -73,13 +73,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [295ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [290ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [177ms]
+#> ✔ Running MAP and VSS... [176ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10s]
+#> ✔ Running Comparison Data (CD)... [9.9s]
 #> 
 sk
 #> 
@@ -218,21 +218,21 @@ summary(x)
 #> 
 #> ── Levels ──
 #> 
-#> k = 1: 1 factor (23.21% cumulative variance)
+#> k = 1: 1 factor (23.2% cumulative variance)
 #> m1f1 23.21% eigenvalue 5.8
-#> k = 2: 2 factors (35.48% cumulative variance)
+#> k = 2: 2 factors (35.5% cumulative variance)
 #> m2f1 20.94% eigenvalue 5.8
 #> m2f2 14.54% eigenvalue 3.07
-#> k = 3: 3 factors (44.58% cumulative variance)
+#> k = 3: 3 factors (44.6% cumulative variance)
 #> m3f1 18.04% eigenvalue 5.8
 #> m3f2 13.89% eigenvalue 3.07
 #> m3f3 12.66% eigenvalue 2.28
-#> k = 4: 4 factors (52.17% cumulative variance)
+#> k = 4: 4 factors (52.2% cumulative variance)
 #> m4f1 17.5% eigenvalue 5.8
 #> m4f2 13.63% eigenvalue 3.07
 #> m4f3 11.83% eigenvalue 2.28
 #> m4f4 9.21% eigenvalue 1.9
-#> k = 5: 5 factors (58.42% cumulative variance)
+#> k = 5: 5 factors (58.4% cumulative variance)
 #> m5f1 13.75% eigenvalue 5.8
 #> m5f2 13.56% eigenvalue 3.07
 #> m5f3 11.9% eigenvalue 2.28
@@ -452,27 +452,27 @@ dimension. Smaller values indicate where the structure is reorganizing.
 ``` r
 
 tidy(x, what = "variance")
-#>    level factor variance_pct cumulative_pct
-#> 1      1   m1f1        23.21          23.21
-#> 2      2   m2f1        20.94          20.94
-#> 3      2   m2f2        14.54          35.48
-#> 4      3   m3f1        18.04          18.04
-#> 5      3   m3f2        13.89          31.93
-#> 6      3   m3f3        12.66          44.58
-#> 7      4   m4f1        17.50          17.50
-#> 8      4   m4f2        13.63          31.13
-#> 9      4   m4f3        11.83          42.96
-#> 10     4   m4f4         9.21          52.17
-#> 11     5   m5f1        13.75          13.75
-#> 12     5   m5f2        13.56          27.31
-#> 13     5   m5f3        11.90          39.21
-#> 14     5   m5f4        10.09          49.30
-#> 15     5   m5f5         9.12          58.42
+#>    level factor proportion cumulative
+#> 1      1   m1f1 0.23211212  0.2321121
+#> 2      2   m2f1 0.20937655  0.2093766
+#> 3      2   m2f2 0.14544064  0.3548172
+#> 4      3   m3f1 0.18038118  0.1803812
+#> 5      3   m3f2 0.13889810  0.3192793
+#> 6      3   m3f3 0.12655466  0.4458339
+#> 7      4   m4f1 0.17500851  0.1750085
+#> 8      4   m4f2 0.13632849  0.3113370
+#> 9      4   m4f3 0.11825358  0.4295906
+#> 10     4   m4f4 0.09208697  0.5216775
+#> 11     5   m5f1 0.13753091  0.1375309
+#> 12     5   m5f2 0.13556865  0.2730996
+#> 13     5   m5f3 0.11899787  0.3920974
+#> 14     5   m5f4 0.10086586  0.4929633
+#> 15     5   m5f5 0.09121399  0.5841773
 ```
 
-Each row is one factor at one level. `variance_pct` is the percentage of
-total item variance explained by that factor; `cumulative_pct`
-accumulates within a level.
+Each row is one factor at one level. `proportion` is the fraction (0-1)
+of total item variance explained by that factor; `cumulative`
+accumulates within a level. Multiply by 100 for a percentage.
 
 ## Step 6: Score observations `augment()`
 

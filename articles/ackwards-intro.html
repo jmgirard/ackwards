@@ -154,13 +154,13 @@ and reports a consensus range:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[295ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[290ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[177ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[176ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[9.9s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -311,21 +311,21 @@ which factors at each level descend from which parents:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">k = 1</span>: 1 factor (23.21% cumulative variance)</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 1</span>: 1 factor (23.2% cumulative variance)</span></span>
 <span><span class="co">#&gt; m1f1 23.21% eigenvalue 5.8</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">k = 2</span>: 2 factors (35.48% cumulative variance)</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 2</span>: 2 factors (35.5% cumulative variance)</span></span>
 <span><span class="co">#&gt; m2f1 20.94% eigenvalue 5.8</span></span>
 <span><span class="co">#&gt; m2f2 14.54% eigenvalue 3.07</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">k = 3</span>: 3 factors (44.58% cumulative variance)</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 3</span>: 3 factors (44.6% cumulative variance)</span></span>
 <span><span class="co">#&gt; m3f1 18.04% eigenvalue 5.8</span></span>
 <span><span class="co">#&gt; m3f2 13.89% eigenvalue 3.07</span></span>
 <span><span class="co">#&gt; m3f3 12.66% eigenvalue 2.28</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">k = 4</span>: 4 factors (52.17% cumulative variance)</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 4</span>: 4 factors (52.2% cumulative variance)</span></span>
 <span><span class="co">#&gt; m4f1 17.5% eigenvalue 5.8</span></span>
 <span><span class="co">#&gt; m4f2 13.63% eigenvalue 3.07</span></span>
 <span><span class="co">#&gt; m4f3 11.83% eigenvalue 2.28</span></span>
 <span><span class="co">#&gt; m4f4 9.21% eigenvalue 1.9</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">k = 5</span>: 5 factors (58.42% cumulative variance)</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 5</span>: 5 factors (58.4% cumulative variance)</span></span>
 <span><span class="co">#&gt; m5f1 13.75% eigenvalue 5.8</span></span>
 <span><span class="co">#&gt; m5f2 13.56% eigenvalue 3.07</span></span>
 <span><span class="co">#&gt; m5f3 11.9% eigenvalue 2.28</span></span>
@@ -533,25 +533,26 @@ values indicate where the structure is reorganizing.</p>
 </h3>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    level factor variance_pct cumulative_pct</span></span>
-<span><span class="co">#&gt; 1      1   m1f1        23.21          23.21</span></span>
-<span><span class="co">#&gt; 2      2   m2f1        20.94          20.94</span></span>
-<span><span class="co">#&gt; 3      2   m2f2        14.54          35.48</span></span>
-<span><span class="co">#&gt; 4      3   m3f1        18.04          18.04</span></span>
-<span><span class="co">#&gt; 5      3   m3f2        13.89          31.93</span></span>
-<span><span class="co">#&gt; 6      3   m3f3        12.66          44.58</span></span>
-<span><span class="co">#&gt; 7      4   m4f1        17.50          17.50</span></span>
-<span><span class="co">#&gt; 8      4   m4f2        13.63          31.13</span></span>
-<span><span class="co">#&gt; 9      4   m4f3        11.83          42.96</span></span>
-<span><span class="co">#&gt; 10     4   m4f4         9.21          52.17</span></span>
-<span><span class="co">#&gt; 11     5   m5f1        13.75          13.75</span></span>
-<span><span class="co">#&gt; 12     5   m5f2        13.56          27.31</span></span>
-<span><span class="co">#&gt; 13     5   m5f3        11.90          39.21</span></span>
-<span><span class="co">#&gt; 14     5   m5f4        10.09          49.30</span></span>
-<span><span class="co">#&gt; 15     5   m5f5         9.12          58.42</span></span></code></pre></div>
-<p>Each row is one factor at one level. <code>variance_pct</code> is the
-percentage of total item variance explained by that factor;
-<code>cumulative_pct</code> accumulates within a level.</p>
+<span><span class="co">#&gt;    level factor proportion cumulative</span></span>
+<span><span class="co">#&gt; 1      1   m1f1 0.23211212  0.2321121</span></span>
+<span><span class="co">#&gt; 2      2   m2f1 0.20937655  0.2093766</span></span>
+<span><span class="co">#&gt; 3      2   m2f2 0.14544064  0.3548172</span></span>
+<span><span class="co">#&gt; 4      3   m3f1 0.18038118  0.1803812</span></span>
+<span><span class="co">#&gt; 5      3   m3f2 0.13889810  0.3192793</span></span>
+<span><span class="co">#&gt; 6      3   m3f3 0.12655466  0.4458339</span></span>
+<span><span class="co">#&gt; 7      4   m4f1 0.17500851  0.1750085</span></span>
+<span><span class="co">#&gt; 8      4   m4f2 0.13632849  0.3113370</span></span>
+<span><span class="co">#&gt; 9      4   m4f3 0.11825358  0.4295906</span></span>
+<span><span class="co">#&gt; 10     4   m4f4 0.09208697  0.5216775</span></span>
+<span><span class="co">#&gt; 11     5   m5f1 0.13753091  0.1375309</span></span>
+<span><span class="co">#&gt; 12     5   m5f2 0.13556865  0.2730996</span></span>
+<span><span class="co">#&gt; 13     5   m5f3 0.11899787  0.3920974</span></span>
+<span><span class="co">#&gt; 14     5   m5f4 0.10086586  0.4929633</span></span>
+<span><span class="co">#&gt; 15     5   m5f5 0.09121399  0.5841773</span></span></code></pre></div>
+<p>Each row is one factor at one level. <code>proportion</code> is the
+fraction (0-1) of total item variance explained by that factor;
+<code>cumulative</code> accumulates within a level. Multiply by 100 for
+a percentage.</p>
 </div>
 </div>
 <div class="section level2">
