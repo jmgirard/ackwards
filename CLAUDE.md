@@ -60,9 +60,41 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-M35 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38 documentation/UX epic is
-**M36** (interpretation functions: `augment` scores-only, `top_items` labels + group-by-item); not
-yet planned; run `/plan-milestone 36` before starting.
+**M36 — Interpretation functions (`augment`, `top_items`)** is planned and in progress on branch
+`m36-interpretation`. Additive enhancements only; no new exported objects (pkgdown reference index
+unchanged), no new `Imports` (labels read via base `attr()` — no `labelled`/`haven` dependency).
+
+Scope:
+- **`augment()`** gains `append` (default `TRUE` = data + scores; `FALSE` = scores-only) and
+  `id_cols` (default `NULL`; names original columns to carry through under `append = FALSE` for a
+  safe post-filter rejoin — bare scores when `NULL`). Row order/count always preserved.
+- **`top_items()`** gains `by = c("factor", "item")` (default `"factor"` = current grouping;
+  `"item"` = factors-per-item, ordered by level then strongest loading within level) and
+  `show_labels` (default `TRUE`). When data columns carry a `"label"` attribute at fit time,
+  `ackwards()` captures them into `x$meta$item_labels`; `top_items()` prints `label (id)` with a
+  per-item fallback to the bare id; `show_labels = FALSE` forces bare ids. `$data` gains a `label`
+  column when labels exist.
+- **Interpret vignette** (`ackwards-interpret.Rmd`): five ROADMAP prose edits (`cut = 0.5` lead +
+  drop duplicate-cut chunk; remove `$data`-internals paragraph; drop "why polychoric" comment; add
+  higher-level-factor naming passage referencing Big-Five metatraits / HiTOP spectra; demote "Where
+  to go next" to a note) **plus** new `by = "item"` and label-interface demos.
+- **Intro vignette** (`ackwards-intro.Rmd`): *minimal mechanical touch only* — replace the
+  positional `names(scored)[26:40]` / `scored[, c(...)]` indexing with `append = FALSE` (+ `id_cols`
+  where a rejoin is shown). Broader intro narrative stays M38.
+- DESIGN.md §10 (top_items signature + augment note + `$meta$item_labels`), NEWS.md, regenerated
+  `man/`.
+
+Acceptance criteria:
+- `augment(append = FALSE)` returns only `.m{k}f{j}` cols; `id_cols = "id"` prepends the passthrough
+  column(s); both preserve positional identity with `append = TRUE`. `id_cols` with `data = NULL`,
+  or an absent column, errors with a clear cli message.
+- `top_items(by = "item")` groups factors under each item; default `by = "factor"` output unchanged.
+- Labels auto-display as `label (id)` when present; `show_labels = FALSE` forces bare ids;
+  partial/no labels fall back per-item to the id. No new package dependency.
+- Interpret vignette reflects all five prose edits + demos `by`/labels; intro augment section drops
+  positional indexing.
+- `devtools::check()` 0/0/0; coverage maintained (100% target); `pkgdown::check_pkgdown()` passes;
+  styled + linted; NEWS.md + DESIGN.md §10 updated.
 
 Remaining milestones in the epic:
 M36 interpretation functions (`augment` scores-only, `top_items` labels + group-by-item);
