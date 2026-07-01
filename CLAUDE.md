@@ -60,48 +60,33 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M36** — interpretation functions: `augment()` `append` (scores-only) + `id_cols` passthrough; `top_items()` `by=c("factor","item")` + variable-label display (`label (code)`, fit-time capture into `meta$item_labels`, `show_labels`); interpret-vignette prose edits (cut=0.5 lead, `by="item"`/label demos, metatrait/HiTOP naming advice) + intro score de-indexing
 - **M37** — engines vignette (doc-only): at-a-glance table fixes (parallel EFA/ESEM, substrate/correlations/estimators rows, χ² symbol, no WLSMV parenthetical); ESEM reframed as continuous (ML/MLR/FIML) *and* ordinal (WLSMV); per-level-fit converse (bad fit weakens incident edges); autoplot `k_max=3` truncation note; sim16-vs-bfi25 framing; runnable `psych::corFiml()` MAR route for PCA/EFA (on continuous sim16, both caveats, forward-ref M38); Missing-data/Performance trims + `library(future)` style; Hu & Bentler citation. Epic renumbered M31–M39 (new code milestone M38 inserted).
 - **M38** — `missing = "fiml"` for PCA/EFA (code): `engine = "pca"/"efa"` + `cor = "pearson"` now routes `R` through `psych::corFiml()` (MAR-valid FIML) into the `W'RW` algebra (Invariant-1-clean, one corFiml call/run, no new dep), reversing the M16 "FIML errors for PCA/EFA" default; `.resolve_missing()` gains a `cor` guard (errors for non-Pearson PCA/EFA basis + WLSMV/ULSMV); `n_obs` string `"total"` (default, Enders 2010) / `"complete"` selects the approximate EFA fit-index N (Zhang & Savalei 2020; point estimates unaffected; announced via cli); `"effective"` dropped (no canonical formula); DESIGN §9/§14 (items 32–33) sign-off.
+- **M39** — narrative & remaining prose (doc-only; final milestone of the M31–M39 epic): clarity pass across intro/suggest_k/ordinal/forbes/README — `print(sk)`/`print(x)`; orthogonal-varimax≡CF(1/p) rationale; SE/CI-NA-under-PCA note; `top_items(cut = 0.5)`; dropped `keep_scores` demo; **removed the README+intro red-arrow explanation** (no red arrow exists after the M35 sign fix); de-indexed README score columns; dropped the Waller citation nudge; suggest_k `sim16`-idealized vs `bfi25`-realistic contrast (inline-computed); ordinal binary/tetrachoric + WLSMV-polychoric + scores-trustworthy clarifications; forbes verbatim-heading rewrites + visible `redundancy_r` chunk + structural-table gt highlight + Lorenzo-Seva ref; refs alphabetized. Three code/viz asks (ordinal `categorical` flag, ordinal corr-comparison viz, forbes pruned-level label styling) spun off to **M40** (`ROADMAP.md`, DESIGN §14). No `R/`/NAMESPACE/export change.
 
 ## Current focus
 
-**M39 — Narrative & remaining prose (doc-only), planned and in progress.** Last milestone in the
-M31–M39 epic. Prose/formatting-only pass across the five remaining pkgdown pages — intro, suggest_k,
-ordinal, forbes, README — with **no `R/` behavior changes, no new exports, no dependency changes**.
-Scope (per the approved plan; owner-steered):
+**M39 is complete** — the final milestone of the M31–M39 documentation/UX epic, which has now
+shipped in full. M39 was a doc-only prose/formatting pass across the intro, suggest_k, ordinal,
+forbes, and README pages (`print(sk)`/`print(x)`; orthogonal-varimax rationale; SE/CI-NA note;
+`top_items(cut = 0.5)`; **removed** the README/intro red-arrow explanation since the M35 sign fix
+left no red arrow to explain; de-indexed README score columns; dropped the Waller citation nudge;
+`sim16`-vs-`bfi25` suggest_k contrast; ordinal binary/tetrachoric + WLSMV-polychoric +
+scores-trustworthy clarifications; forbes heading rewrites + visible thresholds chunk +
+structural-table gt highlight + Lorenzo-Seva ref; alphabetized refs). No `R/`/NAMESPACE/export
+change. See `MILESTONES.md` for detail.
 
-- **intro:** drop the out-of-place EFA/ESEM pointer in the framing note; `print(sk)`/`print(x)`
-  instead of bare objects; clarify `suggest_k()` suggests a *range for `k_max`*; note SE/CI are `NA`
-  under PCA (ESEM only); `top_items(cut = 0.5)`; add an orthogonal-rotation / varimax≡CF(κ=1/p)
-  blockquote (rotation-rationale memo); remove the `keep_scores = TRUE` demo; keep+explain the Step 6
-  standardizing warning (owner: keep); alphabetize refs.
-- **README:** explain the red/negative (secondary cross-branch) arrow in Step 3; de-index the Step 4
-  score-column example; **remove the "please also cite Waller (2007)" nudge** from the citation block
-  (intro's two Waller mentions stay — method exposition, not a nudge).
-- **suggest_k:** fix "cross- loadings" wrap; `print(sk)`; clarify the check/dash-vs-star convention;
-  add the banked `sim16` (idealized, converges on k=4) vs `bfi25` (realistic, spans 4–6) contrast
-  with inline-computed numbers.
-- **ordinal:** reword the "4/5/6/7 options" + em-dash framing to include binary/2-cat; clarify WLSMV
-  really works on the polychoric/threshold basis; note polychoric-at-2-cat ≡ tetrachoric; reword the
-  score note to say scores *are* trustworthy downstream (caveat is unit-variance scaling only);
-  alphabetize refs.
-- **forbes:** reword the three verbatim-span headings; `echo = TRUE` on the `redundancy_r` thresholds
-  chunk; gt cell-highlight the salient values in the skip-edge/artifact/structural tables; add the
-  missing **Lorenzo-Seva & ten Berge (2006)** reference; alphabetize refs.
-
-Acceptance: all five pages build clean (`build_vignettes()` + `build_readme()`), no broken inline-R,
-new `sim16`/`bfi25` numbers computed inline (drift-proof), M29 milestone-token guard still passes,
-refs alphabetical, no NAMESPACE/`_pkgdown.yml` change (`check_pkgdown()` still passes),
-`check()` 0/0/0 at the gate.
-
-**Deferred to a new M40 (code/viz, not this milestone):** ordinal `categorical` convenience flag
-(pearson↔polychoric / MLR↔WLSMV switch — API-design question, owner sign-off needed); ordinal
-correlation-comparison visualization (dodged-bar or gt long-format replacing the raw matrix chunks);
-Forbes pruned-level axis-label styling in `autoplot()`. Logged in `ROADMAP.md` (M40 section) and
+**Next up: M40** — the one pending milestone, spun off *from* M39's planning: three code/viz asks
+deliberately excluded from the doc-only M39. (1) an ordinal `categorical` convenience flag
+(pearson↔polychoric / MLR↔WLSMV switch — **needs owner sign-off**; it partly duplicates the explicit
+`cor`/estimator surface, so it is not a resolved default yet); (2) an ordinal correlation-comparison
+visualization (dodged-bar or gt long-format replacing the raw matrix chunks — viz-only); (3) Forbes
+pruned-level axis-label styling in `autoplot()` (code, M35 territory). Not yet planned — run
+`/plan-milestone 40` before starting. Full brief in [`ROADMAP.md`](ROADMAP.md) §M40; also logged in
 `DESIGN.md` §14.
 
-These one-liners are a lossy index. The **full driving rationale, banked decisions, and the raw
-pkgdown-review notes** behind M35–M40 live in [`ROADMAP.md`](ROADMAP.md) — read it before running
-`/plan-milestone N` for any of them. `MILESTONES.md` remains the source of truth for *completed*
-milestones; `ROADMAP.md` is its forward-looking counterpart for *pending* ones.
+`ROADMAP.md` is the forward-looking counterpart for the one *pending* milestone (M40); the
+epic-wide rationale and raw pkgdown-review notes it once held for M31–M39 have been retired into each
+milestone's `MILESTONES.md` entry as they shipped. `MILESTONES.md` remains the source of truth for
+*completed* milestones.
 
 ## Invariants — do not violate without flagging
 
