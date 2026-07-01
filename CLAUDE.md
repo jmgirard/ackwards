@@ -56,12 +56,38 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-M31 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38 documentation/UX epic
-(driven by a pkgdown-website review) is **M32**, described below — not yet planned; run
-`/plan-milestone 32` before starting.
+**M32 — API-shape & naming resolutions** (planned; part of the M31–M38 documentation/UX epic
+driven by a pkgdown-website review). Four owner-resolved decisions from the CLAUDE.md sketch, all
+to be **decided *and* implemented** this milestone, and recorded in DESIGN.md §14 ("Resolved for
+M32"):
 
-Remaining milestones in the epic: M32 naming/API-shape decisions
-(index column names, `k_max` collision, `cutoffs` keep/drop, `variance_pct` 0–100 vs 0–1);
+1. **Index column name** — `tidy(x, what = "fit")` long-format key column `index` → **`statistic`**
+   (covers both fit indices and PCA eigenvalue positions; `index` reads like a row position). Wide
+   format unchanged. Ripples: `autoplot.R` (`what = "fit"`), `summary.R`.
+2. **`k_max` collision** — keep `k_max` in **both** `ackwards()` and `suggest_k()` (same "upper bound
+   on k" dial; identical naming reinforces the `suggest_k → ackwards` workflow). Disambiguate in
+   **roxygen only**: `suggest_k` = max factors/components to *evaluate*; `ackwards` = max extraction
+   *depth*. No API change.
+3. **Cutoffs — drop the flag output** — remove the boolean pass/fail surface (`cutoffs=` arg,
+   `meets`/`{index}_meets` columns, `.flag_fit`) from `tidy(what = "fit")`; a `meets` boolean quietly
+   endorses bright-line thresholds the package elsewhere calls contested (M28/M31 honesty
+   trajectory). **Retain `.fit_cutoffs()`** as an internal helper — `autoplot(what = "fit")` and
+   `summary()` still use it for threshold *reference lines* (showing guides is legitimate; stamping
+   pass/fail is not).
+4. **Variance → proportion 0–1** — `tidy(what = "variance")` columns `variance_pct`/`cumulative_pct`
+   → **`proportion`/`cumulative`** on a 0–1 scale (drops `* 100`). Aligns `tidy()` with the engine
+   `variance` slot (already 0–1) and broom/psych convention; percent becomes a *presentation* concern
+   applied in `print()`/`summary()`/`gt`/plots at display time.
+
+Acceptance criteria (testable): `names(tidy(x, "fit"))` has `statistic`, not `index`; `cutoffs=`
+arg errors (removed) and no `meets`/`*_meets` columns emitted anywhere; `autoplot(x_efa, what =
+"fit")` still renders threshold reference lines via the retained `.fit_cutoffs()`;
+`tidy(x, "variance")$proportion`/`$cumulative` all lie in `[0,1]` and `variance_pct`/`cumulative_pct`
+are absent; `print()`/`summary()` still display percentages; `?ackwards` and `?suggest_k` roxygen
+each state the distinct `k_max` meaning. NEWS.md + affected vignettes (intro, engines) updated;
+`devtools::check()` clean; coverage stays at 100% (M23); styled + linted.
+
+Remaining milestones in the epic:
 M33 simulated Gaussian dataset (foundation); M34 pruning verb — extract `prune()` from `ackwards()`
 (clean move, no deprecation — pre-CRAN, no users) + manual/mixed flag-only pruning +
 `"artefact"`/`"tucker"` naming + DESIGN.md update; M35 autoplot & visualization;
