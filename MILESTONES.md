@@ -1274,3 +1274,76 @@ User-facing change notes live in `NEWS.md`.
   rows in place so positional alignment holds even with `NA` scores.
   Code change was documentation-only (the roxygen note); the rest are
   tests. (1509 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+
+- **M37 (done):** engines vignette — the fifth milestone of the M31–M39
+  documentation/UX epic (the epic was renumbered M31–M38 → M31–M39
+  during M37 planning; see below). **Doc-only:** the entire change is
+  `vignettes/ackwards-engines.Rmd` — no new/removed exports (pkgdown
+  reference index unchanged), no `R/` changes, no new dependency (the
+  new example uses
+  [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html), and
+  `psych` is already in Imports). **At-a-glance table.** Parallelised
+  the EFA/ESEM “what it models” rows (both now “Common (latent)
+  variance”); added *engine-substrate*
+  ([`psych::principal()`](https://rdrr.io/pkg/psych/man/principal.html)
+  / [`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html) / `lavaan`),
+  *correlations*, and *estimators* rows; rendered χ² as a proper symbol
+  (was “chi”); dropped the confusing “(WLSMV for ordinal)” parenthetical
+  from the Loading-SEs row (now just “Yes”). **ESEM reframed as a
+  general engine.** The section now states ESEM fits continuous items
+  (ML/MLR, the default, + FIML for missing data) *and* ordinal items
+  (WLSMV), correcting the prior impression that ESEM ⇒ ordinal-only; the
+  two-capability list grew to three (SEs; full ML incl. FIML; WLSMV).
+  **Per-level fit honesty.** Added the converse of the existing “good
+  fit doesn’t bless the edges” point: a poorly-fitting level weakens the
+  edges *incident to it* — its factors are less well defined — even
+  though the edge correlation itself is computed faithfully; edges
+  between two well-fitting levels are on firmer ground. **autoplot depth
+  note.** Added a paragraph that the running examples deliberately stop
+  at `k_max = 3` for build speed/legibility, that
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  points to ~5 for the BFI, and that the truncated fit plot shows the
+  *mechanics* of reading a trajectory, not the recommended depth.
+  **sim16 vs bfi25 framing.** In the cross-engine convergence
+  discussion, added a note that clean convergence is the best case
+  (idealized `sim16`), not the norm (bfi25’s
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  criteria span 4–6), with a pointer to the suggest_k vignette for the
+  full contrast. **corFiml MAR route (the substantive enrichment).** New
+  runnable example showing how to bring FIML-based missing-data handling
+  into the PCA/EFA engines via the M22 correlation-matrix seam:
+  [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html)
+  estimates the correlation matrix, which is passed to
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+  Demoed on the **continuous** `sim16` (with injected NAs) —
+  deliberately *not* the ordinal `bfi25`, since corFiml assumes
+  multivariate normality. Two caveats carried explicitly: (1) `n_obs` is
+  the user’s call — total N is mildly anti-conservative for the EFA fit
+  indices, complete-case N conservative, and the loading/edge **point
+  estimates are unaffected by `n_obs`**; (2) MVN → continuous-only,
+  ordinal items should use `engine = "esem"` + `cor = "polychoric"`.
+  Added a missing-data “which option” table row and a forward-reference
+  to M38 (which will promote this to a first-class `missing = "fiml"`
+  route for PCA/EFA); the Correlation-matrix-input section links to it.
+  **Trims.** The Missing-data and Performance sections were compressed
+  to a lead paragraph + summary, demoting the fine per-engine semantics
+  to
+  [`?ackwards`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+  The parallel-fit chunk switched to
+  [`library(future); plan(multisession)`](https://future.futureverse.org)
+  style with a note that `plan()` comes from **future** and is *not*
+  re-exported by `future.apply`. **Citations.** Added the missing Hu &
+  Bentler (1999) reference (cited in-text for the fit cutoffs; the
+  `cutoffs` arg was kept in M32) and alphabetised the References list.
+  **Epic renumber (planning-time decision).** During M37 planning the
+  owner elected to slot a new *code* milestone — **M38**
+  `missing = "fiml"` for PCA/EFA (auto-route via
+  [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html)) —
+  between the engines vignette and the prose milestone; the former “M38
+  — Narrative & remaining prose” became **M39**. `cor = "fiml"` was
+  rejected as a category error (corFiml returns a Pearson matrix; FIML
+  belongs on the `missing=` axis). Both are logged in `ROADMAP.md`.
+  Files: `vignettes/ackwards-engines.Rmd`, `NEWS.md`, `CLAUDE.md`
+  (Current focus + Completed index), `ROADMAP.md` (M38 insert + M39
+  renumber + corFiml speed note), `MILESTONES.md`. (1509 tests pass, 2
+  skip; 0/0/0 R CMD check; coverage 100%.)

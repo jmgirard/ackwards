@@ -135,18 +135,38 @@ as part of the definition of done.
   fit-time capture into `meta$item_labels`, `show_labels`);
   interpret-vignette prose edits (cut=0.5 lead, `by="item"`/label demos,
   metatrait/HiTOP naming advice) + intro score de-indexing
+- **M37** — engines vignette (doc-only): at-a-glance table fixes
+  (parallel EFA/ESEM, substrate/correlations/estimators rows, χ² symbol,
+  no WLSMV parenthetical); ESEM reframed as continuous (ML/MLR/FIML)
+  *and* ordinal (WLSMV); per-level-fit converse (bad fit weakens
+  incident edges); autoplot `k_max=3` truncation note; sim16-vs-bfi25
+  framing; runnable
+  [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html) MAR
+  route for PCA/EFA (on continuous sim16, both caveats, forward-ref
+  M38); Missing-data/Performance trims +
+  [`library(future)`](https://future.futureverse.org) style; Hu &
+  Bentler citation. Epic renumbered M31–M39 (new code milestone M38
+  inserted).
 
 ## Current focus
 
-M36 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38
-documentation/UX epic is **M37** (engines vignette); not yet planned;
-run `/plan-milestone 37` before starting.
+M37 is complete (see `MILESTONES.md` for detail). Next up in the M31–M39
+documentation/UX epic is **M38** — a **code** milestone: promote
+`missing = "fiml"` to a first-class route for PCA/EFA that auto-routes
+to [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html)
+(currently `missing="fiml"` errors for PCA/EFA). Not yet planned; run
+`/plan-milestone 38` before starting. Its brief in `ROADMAP.md` carries
+the banked decisions — string-valued `n_obs`
+(`"total"`/`"complete"`/`"effective"`) + the FIML-fit-index literature
+task for the defensible default, the guard matrix, the DESIGN §9/§14
+sign-off (it reverses a resolved default), and the corFiml-speed note.
 
-Remaining milestones in the epic: M37 engines vignette; M38 narrative &
-remaining prose (intro, suggest_k, ordinal, forbes, README).
+Remaining milestones in the epic: M38 `missing = "fiml"` for PCA/EFA
+(corFiml auto-route; **code milestone** — DESIGN sign-off + tests); M39
+narrative & remaining prose (intro, suggest_k, ordinal, forbes, README).
 
 These one-liners are a lossy index. The **full driving rationale, banked
-decisions, and the raw pkgdown-review notes** behind M35–M38 live in
+decisions, and the raw pkgdown-review notes** behind M35–M39 live in
 [`ROADMAP.md`](https://jmgirard.github.io/ackwards/ROADMAP.md) — read it
 before running `/plan-milestone N` for any of them. `MILESTONES.md`
 remains the source of truth for *completed* milestones; `ROADMAP.md` is

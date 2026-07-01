@@ -1,27 +1,32 @@
-# ROADMAP.md — planned milestones (M37–M38)
+# ROADMAP.md — planned milestones (M37–M39)
 
 Forward-looking counterpart to
 [`MILESTONES.md`](https://jmgirard.github.io/ackwards/MILESTONES.md).
 `MILESTONES.md` is the source of truth for **completed** milestones;
 this file captures the **intent and source notes** for the
-*not-yet-built* milestones in the M31–M38 documentation/UX epic, so
+*not-yet-built* milestones in the M31–M39 documentation/UX epic, so
 their context survives across planning sessions.
+
+> **Renumbering note (2026-07-01):** M38 was inserted as a new *code*
+> milestone (`missing = "fiml"` for PCA/EFA, see below); the former “M38
+> — Narrative & remaining prose” was renumbered to **M39**. The epic is
+> now M31–M39.
 
 `sim16` (the M33 dataset — 1000×16 continuous, known 1→2→4 hierarchy)
 has shipped; see its `MILESTONES.md` entry and
 [`?sim16`](https://jmgirard.github.io/ackwards/reference/sim16.md).
-M37/M38’s dependency on M33 is satisfied.
+M37/M39’s dependency on M33 is satisfied.
 
 M34 (the
 [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
-verb) has shipped; see its `MILESTONES.md` entry. M38’s forbes-vignette
+verb) has shipped; see its `MILESTONES.md` entry. M39’s forbes-vignette
 dependency on “final
 [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
 API + artifact naming” is satisfied — canonical rule name is
 `"artifact"` (`"artefact"` accepted as an alias).
 
 M35 (autoplot & visualization) has shipped; see its `MILESTONES.md`
-entry. The M38 forbes-vignette display note about pruned-level labels
+entry. The M39 forbes-vignette display note about pruned-level labels
 can build on M35’s orientation-aware
 [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md);
 the sign-propagation fix means primary-parent edges are now always
@@ -99,16 +104,103 @@ vignette should cite hu and bentler. do we need any other citations for
 this vignette?” *(cutoffs arg was kept — M32 — so the Hu & Bentler
 citation applies.)* - “if a user used psych::corFiml() and passed that
 to ackwards with engine = pca or efa, would that be a way to smuggle
-FIML into those engines?” *(open Q — relates to correlation-matrix
-input, M22.)* - **(✔ resolved in M31/M32):** index column names
-(`chi`/`dof`/`p_value` → `statistic`); ESEM p-values NA; `glance` BIC
-NA; the `*_meets` columns; whether to keep the `cutoffs` arg; and
-`cor="polychoric"` + non-WLSMV estimator behavior (now guarded). Don’t
-reopen these.
+FIML into those engines?” *(**resolved & promoted:** yes — verified to
+work through the M22 correlation-matrix seam. M37 documents it as a
+caveated manual pattern; the new **M38** below promotes it to a
+first-class `missing = "fiml"` route for PCA/EFA.)* - **(✔ resolved in
+M31/M32):** index column names (`chi`/`dof`/`p_value` → `statistic`);
+ESEM p-values NA; `glance` BIC NA; the `*_meets` columns; whether to
+keep the `cutoffs` arg; and `cor="polychoric"` + non-WLSMV estimator
+behavior (now guarded). Don’t reopen these.
 
 ------------------------------------------------------------------------
 
-## M38 — Narrative & remaining prose (intro, suggest_k, ordinal, forbes, README)
+## M38 — `missing = "fiml"` for PCA/EFA (corFiml auto-route)
+
+- **Type:** code (+ DESIGN sign-off + tests) · **Depends on:** M22
+  (correlation-matrix seam), M37 (documents the manual pattern first) ·
+  **Status:** pending · **Slots between M37 and M39.**
+
+**Origin.** Grew out of the M37 planning dialogue (owner, 2026-07-01).
+M37 documents the manual
+[`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html) →
+`ackwards(R, engine=…, n_obs=…)` pattern; M38 promotes it to a built-in
+so the capability is discoverable and the `n_obs` tradeoff is owned by
+the package, not the user.
+
+**Core decision (owner):** extend the existing `missing = "fiml"`
+argument — currently ESEM-ML/MLR only, and it **errors for PCA/EFA**
+(DESIGN §9/§14) — so that under `engine = "pca"`/`"efa"` it
+**auto-routes to
+[`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html)** to
+estimate the correlation matrix, then runs the normal `W'RW` algebra on
+it. Invariant-1-clean: it just supplies a better `R` to the one edge
+path; no new edge path, no new dependency (`psych` already Imports).
+Makes `missing=` *consistent across engines* instead of ESEM-only.
+
+**Why not `cor = "fiml"`:** rejected in the M37 dialogue as a category
+error — `cor` is the measurement-level axis (pearson ⇄ polychoric); FIML
+is an estimation-under-missingness method and `corFiml()` returns an
+ordinary *Pearson* matrix (assumes MVN). It belongs on the `missing=`
+axis.
+
+**Banked design questions to resolve at plan time:** - **`n_obs`
+semantics — the crux.** Under FIML with partial rows, what N feeds EFA’s
+χ²/RMSEA? Owner’s proposal: make it a **string-valued option** —
+`n_obs = "total"` / `"complete"` / `"effective"` (alongside the existing
+numeric form for cor-matrix input). **Open research task:** review the
+FIML-fit-index literature (Enders 2010; Enders 2001; Savalei 2010 on
+FIML/missing-data test-statistic corrections; Yuan–Bentler) to pick the
+most *defensible default* and document *why*. Honesty caveat to carry
+through: feeding a FIML `R` into a normal-theory EFA that assumes
+complete data is a two-step (ad hoc) procedure — the **point estimates
+(loadings/edges) are the real value and are unaffected**, but the *fit
+indices* are approximate whatever N is chosen; that argues for a
+conservative or loudly-caveated default. String option only applies to
+the raw-data path (the package can derive total/complete); cor-matrix
+input still takes a number. - **Guard matrix.** `missing = "fiml"` must
+still **error** for `cor = "polychoric"` / WLSMV/ULSMV (corFiml is
+MVN-only) and for any ordinal path; valid only for {PCA-pearson,
+EFA-pearson, ESEM-ML/MLR}. Handle corFiml non-convergence and non-PD
+output gracefully (existing `.validate_cor_matrix()` warns on non-PD). -
+**`keep_scores` behavior.** corFiml estimates `R` but does **not**
+impute item responses, so score materialisation still yields `NA` for
+incomplete rows — mirror the existing ESEM-FIML note; keep behavior
+consistent. - **DESIGN.md update required** (§9 `missing` row + §14):
+reverse the “FIML errors for PCA, EFA” contract for the pearson path.
+This is a resolved-default change → flag/sign-off per CLAUDE.md. -
+**Loud default (Invariant 6):** announce the auto-route + the
+effective-N choice via cli. - **Speed of `corFiml()` itself — benchmark
+before shipping.** *Within-call reuse is already structural:* the
+PCA/EFA path computes `R` **once** and reuses it across all `k` levels
+(unlike the per-level ESEM fits that M26 had to hoist), so `corFiml()`
+would be called **once per run, not once per level** by construction —
+no M26-style caching needed inside
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+The open concern is `corFiml()`’s **own** per-call cost: unlike
+`stats::cor(use = "pairwise")` (near-free), it runs an iterative ML
+optimization over missing-data patterns and can dominate runtime on
+large `p` / heavy missingness. **To do at plan time:** (1) benchmark
+corFiml on a realistic large-`p` + missingness case to see if it’s a
+practical bottleneck; (2) decide whether any mitigation is warranted
+(e.g. documenting the existing M22 escape hatch — compute `corFiml()`
+once externally and pass the matrix in to reuse it across *multiple*
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)/[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+runs; a `progress`/timing message for long fits; or leaving it as-is if
+the once-per-run cost is acceptable). No per-level caching is on the
+table because there are no per-level corFiml calls to cache.
+
+**Acceptance criteria (sketch, firm up at `/plan-milestone 38`):**
+`ackwards(data, engine="efa", missing="fiml")` runs corFiml and builds;
+guard errors for polychoric/WLSMV + fiml; `n_obs` string options
+implemented with a documented, literature-backed default; DESIGN §9/§14
+updated; roxygen for `missing` updated; tests for the route, the guard
+matrix, and score-NA behavior; NEWS bullet; `MILESTONES.md` entry +
+CLAUDE.md one-line index.
+
+------------------------------------------------------------------------
+
+## M39 — Narrative & remaining prose (intro, suggest_k, ordinal, forbes, README)
 
 - **Type:** doc · **Depends on:** M33, M34 (both shipped) · **Status:**
   pending.
@@ -138,7 +230,7 @@ could be estimated had we used the esem engine.” *(the machine behavior
 here?” - “i dont think we need to show the keep_scores = TRUE part
 here.” *(M36 shipped `augment(append = FALSE)` and already replaced the
 intro’s base-R score indexing with it; the remaining ask — whether to
-drop the `keep_scores = TRUE` demo chunk entirely — is still M38’s.)* -
+drop the `keep_scores = TRUE` demo chunk entirely — is still M39’s.)* -
 “should we explain briefly why we use orthogonal rotations within each
 level in bassackwards? and specifically why we use varimax (and how that
 is equivalent to crawfer in case people see that reference in kim and
@@ -186,4 +278,4 @@ API + artifact naming) — both shipped; the vignette’s code chunks were
 mechanically updated to the piped
 [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) API
 in M34 itself (see its `MILESTONES.md` entry), but the deeper
-prose/formatting notes above are still M38’s to resolve.*
+prose/formatting notes above are still M39’s to resolve.*

@@ -108,37 +108,56 @@ look like in practice.</p>
 <td><strong>What it models</strong></td>
 <td>Total item variance</td>
 <td>Common (latent) variance</td>
-<td>Common variance via lavaan</td>
+<td>Common (latent) variance</td>
 </tr>
 <tr class="even">
+<td><strong>Engine substrate</strong></td>
+<td><code><a href="https://rdrr.io/pkg/psych/man/principal.html" class="external-link">psych::principal()</a></code></td>
+<td><code><a href="https://rdrr.io/pkg/psych/man/fa.html" class="external-link">psych::fa()</a></code></td>
+<td><code>lavaan</code></td>
+</tr>
+<tr class="odd">
 <td><strong>Communalities</strong></td>
 <td>All 1.0 (by definition)</td>
 <td>Estimated from data</td>
 <td>Estimated from data</td>
 </tr>
+<tr class="even">
+<td><strong>Correlations</strong></td>
+<td>Pearson or polychoric</td>
+<td>Pearson or polychoric</td>
+<td>Pearson or polychoric</td>
+</tr>
 <tr class="odd">
-<td><strong>Fit indices</strong></td>
-<td>Eigenvalues only</td>
-<td>chi, RMSEA, TLI, BIC</td>
-<td>CFI, TLI, RMSEA, SRMR + chi</td>
+<td><strong>Estimators</strong></td>
+<td>Eigen-decomposition</td>
+<td>OLS / minres / ML (via <code>psych</code>)</td>
+<td>ML, MLR — continuous (+ FIML for missing data); WLSMV, ULSMV —
+ordinal</td>
 </tr>
 <tr class="even">
+<td><strong>Fit indices</strong></td>
+<td>Eigenvalues only</td>
+<td>χ², RMSEA, TLI, BIC</td>
+<td>CFI, TLI, RMSEA, SRMR, χ²</td>
+</tr>
+<tr class="odd">
 <td><strong>Loading SEs</strong></td>
 <td>No</td>
 <td>No</td>
-<td>Yes (WLSMV for ordinal)</td>
+<td>Yes</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><strong>Speed</strong></td>
 <td>Fast</td>
 <td>Moderate</td>
 <td>Slowest</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><strong>Best for</strong></td>
 <td>Exploration, large k</td>
 <td>Latent-factor inference</td>
-<td>Model evaluation, ordinal data</td>
+<td>Model evaluation, loading SEs, ordinal <em>or</em> continuous</td>
 </tr>
 </tbody>
 </table>
@@ -816,14 +835,23 @@ unchanged.</p>
 </h2>
 <p>ESEM (exploratory structural equation modeling, Asparouhov &amp;
 Muthén, 2009) fits the same common-factor model as EFA but uses
-<strong>lavaan</strong> as the engine. This unlocks two capabilities
-that EFA cannot provide:</p>
+<strong>lavaan</strong> as the engine. ESEM is not an ordinal-only tool:
+it handles <strong>continuous</strong> items with maximum-likelihood
+estimators (ML, MLR — the default for continuous data) and
+<strong>ordinal</strong> items with WLSMV, and it unlocks three
+capabilities that EFA cannot provide:</p>
 <ol style="list-style-type: decimal">
 <li>
 <strong>Standard errors for every loading</strong>, enabling
-confidence intervals and significance tests.</li>
+confidence intervals and significance tests — for continuous
+<em>and</em> ordinal data.</li>
 <li>
-<strong>The WLSMV estimator</strong> for ordinal data, which is the
+<strong>Full maximum-likelihood estimation</strong> for continuous
+data (ML/MLR), including <strong>FIML</strong> for missing data
+(<code>missing = "fiml"</code>), which uses all partially observed rows
+rather than deleting them.</li>
+<li>
+<strong>The WLSMV estimator</strong> for ordinal data, the
 appropriate maximum-likelihood-adjacent estimator for categorical
 indicators. When <code>cor = "polychoric"</code> is set with
 <code>engine = "esem"</code>, WLSMV is used automatically.</li>
@@ -901,6 +929,19 @@ depth is stable. But good fit at k = 3 does <strong>not</strong>
 validate the edges connecting k = 3 to k = 2; it only says the k = 3
 solution itself is trustworthy. Keep that boundary in mind whenever you
 report or interpret fit.</p>
+<p>The converse question comes up often: <em>if the k = 3 solution fits
+badly, should I distrust the edges connecting k = 2 to k = 3?</em> The
+honest answer is nuanced. The edge correlation is still a
+<strong>faithful description</strong> of the relationship between the k
+= 2 and k = 3 factor scores as extracted — the arithmetic is not wrong.
+What poor fit undermines is the <strong>interpretation</strong> of the k
+= 3 factors themselves: if three factors don’t cleanly reproduce the
+items, then “factor <code>m3f2</code>” is a shakier construct, and any
+edge <em>incident to it</em> inherits that shakiness. So a badly-fitting
+level does weaken the edges touching it — not because the correlation is
+miscomputed, but because one of the things it connects is poorly
+defined. The edges between two <em>well</em>-fitting levels are on
+firmer ground than edges touching a poorly-fitting one.</p>
 </div>
 <div class="section level3">
 <h3 id="reporting-fit-with-tidy-and-autoplot">Reporting fit with <code>tidy()</code> and
@@ -937,6 +978,14 @@ across levels, with cutoff reference lines:</p>
 sharp improvement from k = 2 to k = 3 suggests the third factor is
 capturing genuine signal; flat or worsening indices suggest adding
 another level is splitting noise.</p>
+<p>The examples in this vignette deliberately stop at
+<code>k_max = 3</code> so the ESEM chunks build quickly and the tables
+stay legible — not because the BFI hierarchy ends there. For these data
+<code><a href="../reference/suggest_k.html">suggest_k()</a></code> points to roughly <strong>k = 5</strong> (see
+the <code><a href="../articles/ackwards-suggest-k.html">vignette("ackwards-suggest-k")</a></code>), so a real analysis
+would extend the trajectory further and read the fit curve across all
+five levels. The truncated plot here shows the <em>mechanics</em> of
+reading a fit trajectory, not the recommended depth for the BFI.</p>
 <p><code><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance()</a></code> now also carries the deepest-level fit for
 quick inspection:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -1498,6 +1547,16 @@ latent-variable model changes your inference about the hierarchy.</p>
 reveals is essentially the same hierarchy that EFA reveals. This
 convergence across methods is reassuring — it suggests the structure is
 real and not an artifact of the extraction method.</p>
+<p>How clean this convergence looks depends on how strong the underlying
+structure is. The simulated <code>sim16</code> dataset
+(<code><a href="../reference/sim16.html">?sim16</a></code>) is an <em>idealized</em> case — its planted 1 → 2
+→ 4 hierarchy is strong enough that engines and <code><a href="../reference/suggest_k.html">suggest_k()</a></code>
+criteria agree almost perfectly. Real data is messier: for
+<code>bfi25</code> the <code><a href="../reference/suggest_k.html">suggest_k()</a></code> criteria span k = 4–6
+even though the engines agree on the edges. Treat clean cross-method
+consensus as the best case, not the norm; the
+<code><a href="../articles/ackwards-suggest-k.html">vignette("ackwards-suggest-k")</a></code> develops this
+idealized-vs-realistic contrast in full.</p>
 <p>When the engines disagree on edges, that is itself informative: it
 usually indicates factors whose definition depends on whether you
 account for measurement error (EFA/ESEM) or not (PCA).</p>
@@ -1552,67 +1611,85 @@ they disagree, investigate why.</p>
 <div class="section level2">
 <h2 id="missing-data">Missing data<a class="anchor" aria-label="anchor" href="#missing-data"></a>
 </h2>
-<p><code><a href="../reference/ackwards.html">ackwards()</a></code> accepts a <code>missing</code> argument with
-three options.</p>
-<p><strong><code>"pairwise"</code> (default).</strong> Use all available
-observations pairwise. The exact behaviour depends on the engine and
-estimator:</p>
+<p><code><a href="../reference/ackwards.html">ackwards()</a></code> accepts a <code>missing</code> argument
+controlling how incomplete rows are handled before the correlation
+matrix, engine fit, and edges are computed. The full per-engine
+semantics — including the minor ESEM ML/MLR pairwise fit-vs-edges
+inconsistency and the <code>$meta</code> fields that record it — are
+documented in <code><a href="../reference/ackwards.html">?ackwards</a></code>. In brief:</p>
 <ul>
 <li>
-<strong>PCA/EFA:</strong>
-<code>stats::cor(use = "pairwise.complete.obs")</code> — uses all rows
-that contribute to each variable pair. MCAR-valid; N = total rows.</li>
+<strong><code>"pairwise"</code> (default)</strong> — all available
+observations, pairwise. MCAR-valid, full N; warns when NAs are
+present.</li>
 <li>
-<strong>ESEM WLSMV/ULSMV (ordinal):</strong> lavaan
-<code>missing = "available.cases"</code> — computes polychoric
-thresholds and correlations from every row contributing to each pair.
-MCAR-valid; uses the full N, not just complete cases. This is the honest
-interpretation of “pairwise” for ordinal data.</li>
+<strong><code>"listwise"</code></strong> — complete cases only,
+applied before <em>all</em> steps, so the correlation matrix, fit, and
+edges are fully consistent. Valid for all engines.</li>
 <li>
-<strong>ESEM ML/MLR (continuous):</strong> lavaan uses listwise
-deletion internally while edge correlations are computed from a
-separately-computed pairwise correlation matrix. This minor
-inconsistency (fit statistics at complete-case N, edges at full N) is
-documented in <code>$meta</code>. Prefer <code>"listwise"</code> or
-<code>"fiml"</code> when missingness is substantial.</li>
+<strong><code>"fiml"</code></strong> — Full Information ML;
+<strong><code>engine = "esem"</code> with <code>estimator = "ML"</code>
+or <code>"MLR"</code> only</strong>. Uses partially observed rows for
+estimation and derives edges from lavaan’s FIML saturated model. Errors
+for PCA/EFA and for WLSMV/ULSMV. (FIML improves estimation but does not
+impute items, so <code>keep_scores = TRUE</code> still yields
+<code>NA</code> for incomplete rows.)</li>
 </ul>
-<p>A warning is emitted whenever incomplete rows are detected with this
-option.</p>
+<div class="section level3">
+<h3 id="fiml-for-continuous-pcaefa-via-a-fiml-correlation-matrix">FIML for continuous PCA/EFA via a FIML correlation matrix<a class="anchor" aria-label="anchor" href="#fiml-for-continuous-pcaefa-via-a-fiml-correlation-matrix"></a>
+</h3>
+<p>Built-in <code>"fiml"</code> is ESEM-only, but you can still bring
+FIML-based missing-data handling to the PCA and EFA engines through the
+<a href="#correlation-matrix-input">correlation-matrix seam</a>:
+estimate the correlations by FIML with <code><a href="https://rdrr.io/pkg/psych/man/corFiml.html" class="external-link">psych::corFiml()</a></code> and
+pass that matrix to <code><a href="../reference/ackwards.html">ackwards()</a></code>. Under MAR this is more
+principled than pairwise deletion, which is only MCAR-valid.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Default: pairwise (warns if NAs present)</span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">data_with_nas</span>, k_max <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
-<p><strong><code>"listwise"</code>.</strong> Data are reduced to
-complete cases before <em>all</em> downstream steps — correlation
-matrix, engine fitting, and edges — so the three quantities are fully
-consistent. <code>x$n_obs</code> and <code>x$meta$n_complete</code> both
-reflect the reduced sample size. Valid for all three engines.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Consistent complete-case analysis</span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">data_with_nas</span>, k_max <span class="op">=</span> <span class="fl">4</span>, missing <span class="op">=</span> <span class="st">"listwise"</span><span class="op">)</span></span>
-<span><span class="va">x</span><span class="op">$</span><span class="va">n_obs</span>         <span class="co"># complete-case N</span></span>
-<span><span class="va">x</span><span class="op">$</span><span class="va">meta</span><span class="op">$</span><span class="va">missing</span>  <span class="co"># "listwise"</span></span></code></pre></div>
-<p><strong><code>"fiml"</code>.</strong> Full Information Maximum
-Likelihood — available only for <code>engine = "esem"</code> with
-<code>estimator = "ML"</code> or <code>"MLR"</code>. FIML uses
-information from all rows (including those with partial data) when
-estimating loadings and fit. Edge correlations are derived from lavaan’s
-FIML-estimated saturated model (the h1 unrestricted model), ensuring
-that fits and edges use the same information. Note: FIML improves
-<em>estimation</em> but does not impute item responses; score
-materialisation (<code>keep_scores = TRUE</code>) still yields
-<code>NA</code> for incomplete rows.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># FIML for ESEM with continuous data</span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">data_with_nas</span>, k_max <span class="op">=</span> <span class="fl">4</span>, engine <span class="op">=</span> <span class="st">"esem"</span>,</span>
-<span>              estimator <span class="op">=</span> <span class="st">"ML"</span>, missing <span class="op">=</span> <span class="st">"fiml"</span><span class="op">)</span></span></code></pre></div>
-<p><code>"fiml"</code> errors clearly for unsupported combinations:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Errors: PCA and EFA are correlation-based, not raw-data likelihood</span></span>
-<span><span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">data</span>, k_max <span class="op">=</span> <span class="fl">4</span>, engine <span class="op">=</span> <span class="st">"pca"</span>, missing <span class="op">=</span> <span class="st">"fiml"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># sim16 is continuous, so corFiml's normality assumption is appropriate here.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">sim_na</span> <span class="op">&lt;-</span> <span class="va">sim16</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">sim_na</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="va">sim_na</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">sim_na</span><span class="op">)</span>, <span class="fl">60L</span><span class="op">)</span>, <span class="va">j</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
 <span></span>
-<span><span class="co"># Errors: WLSMV is limited-information WLS, no FIML extension</span></span>
-<span><span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">data</span>, k_max <span class="op">=</span> <span class="fl">4</span>, engine <span class="op">=</span> <span class="st">"esem"</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>,</span>
-<span>         missing <span class="op">=</span> <span class="st">"fiml"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">R_fiml</span> <span class="op">&lt;-</span> <span class="fu">psych</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/psych/man/corFiml.html" class="external-link">corFiml</a></span><span class="op">(</span><span class="va">sim_na</span><span class="op">)</span> <span class="co"># FIML estimate of the correlation matrix</span></span>
+<span><span class="va">x_fiml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">R_fiml</span>, k_max <span class="op">=</span> <span class="fl">4</span>, engine <span class="op">=</span> <span class="st">"efa"</span>, n_obs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">sim_na</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">x_fiml</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">───────────────────────────────────────────</span></span></span>
+<span><span class="co">#&gt; Engine: <span style="font-weight: bold;">efa</span></span></span>
+<span><span class="co">#&gt; Rotation: varimax</span></span>
+<span><span class="co">#&gt; Basis: (user-supplied matrix)</span></span>
+<span><span class="co">#&gt; n: 1,000</span></span>
+<span><span class="co">#&gt; k (max): 4</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 23.3% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 38.7% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 48.2% variance</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 56.8% variance</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── <span style="font-weight: bold;">Edges</span> ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 9 of 20 edges have |r| ≥ 0.3</span></span>
+<span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
+<p>Two caveats matter. First, <strong><code>n_obs</code> is your
+call.</strong> FIML draws information from every partially observed row,
+so there is no single “correct” N. Passing the total row count (as
+above) is mildly <em>anti-conservative</em> for the EFA fit indices — χ²
+and RMSEA then treat partial rows as if complete; the complete-case
+count is conservative. Crucially, the loading and edge <strong>point
+estimates are unaffected by <code>n_obs</code></strong> — only the fit
+indices depend on it. Second, <code>corFiml()</code> assumes
+<strong>multivariate normality</strong>, so this route is for
+<strong>continuous</strong> data only; for ordinal items use
+<code>engine = "esem"</code> with <code>cor = "polychoric"</code>
+instead. A future release may promote this pattern to a first-class
+<code>missing = "fiml"</code> route for PCA/EFA.</p>
+</div>
 <div class="section level3">
 <h3 id="which-option-to-use">Which option to use?<a class="anchor" aria-label="anchor" href="#which-option-to-use"></a>
 </h3>
@@ -1647,6 +1724,12 @@ estimation</td>
 <td><code>"fiml"</code></td>
 </tr>
 <tr class="odd">
+<td><strong>Continuous PCA/EFA, MAR missingness</strong></td>
+<td>
+<strong><code><a href="https://rdrr.io/pkg/psych/man/corFiml.html" class="external-link">psych::corFiml()</a></code> →
+<code>ackwards(R, …)</code></strong> (see above)</td>
+</tr>
+<tr class="even">
 <td>MAR-valid with ordinal (not yet built-in)</td>
 <td>MI via <code>lavaan.mi</code> or <code>mirt</code>
 </td>
@@ -1659,11 +1742,12 @@ estimation</td>
 <h2 id="correlation-matrix-input">Correlation-matrix input<a class="anchor" aria-label="anchor" href="#correlation-matrix-input"></a>
 </h2>
 <p>When you have a pre-computed correlation matrix — a published table,
-a polychoric matrix computed externally, or a subset you want to analyse
-without refitting — you can pass it directly to <code><a href="../reference/ackwards.html">ackwards()</a></code>
-or <code><a href="../reference/suggest_k.html">suggest_k()</a></code>. The matrix is auto-detected from its shape
+a polychoric matrix computed externally, a <a href="#fiml-for-continuous-pcaefa-via-a-fiml-correlation-matrix">FIML
+estimate for missing data</a>, or a subset you want to analyse without
+refitting — you can pass it directly to <code><a href="../reference/ackwards.html">ackwards()</a></code> or
+<code><a href="../reference/suggest_k.html">suggest_k()</a></code>. The matrix is auto-detected from its shape
 (square, symmetric, unit diagonal).</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">bfi25</span>, use <span class="op">=</span> <span class="st">"pairwise.complete.obs"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># PCA from a correlation matrix (n_obs optional for PCA; required for EFA)</span></span>
@@ -1723,7 +1807,7 @@ errors (lavaan needs raw data)</td>
 <div class="section level3">
 <h3 id="suggest_k-with-a-correlation-matrix">suggest_k() with a correlation matrix<a class="anchor" aria-label="anchor" href="#suggest_k-with-a-correlation-matrix"></a>
 </h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk_R</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">R</span>, n_obs <span class="op">=</span> <span class="fl">875L</span><span class="op">)</span></span>
 <span><span class="co"># CD is skipped (resampling requires raw item distributions)</span></span>
 <span><span class="co"># PA, MAP, and VSS run normally</span></span></code></pre></div>
@@ -1732,35 +1816,37 @@ errors (lavaan needs raw data)</td>
 <div class="section level2">
 <h2 id="performance-with-many-items-esem">Performance with many items (ESEM)<a class="anchor" aria-label="anchor" href="#performance-with-many-items-esem"></a>
 </h2>
-<p>Bass-ackwards analyses often involve large item pools (sometimes
-hundreds of items), and the ESEM engine is the most expensive because it
-fits a separate <code>lavaan</code> model at every level. Two things
-keep this manageable:</p>
-<p><strong>Sample statistics are computed once.</strong> For ordinal
-data (<code>cor = "polychoric"</code>, WLSMV), lavaan must estimate item
-thresholds, the polychoric correlation matrix, and an asymptotic weight
-matrix from the raw data. These depend only on the data — not on the
-number of factors — so <code><a href="../reference/ackwards.html">ackwards()</a></code> computes them once at the
-first level and reuses them for every deeper level. The solutions are
-identical; only the redundant recomputation is removed. This is the
-single biggest saving at large item counts, and it happens
-automatically.</p>
-<p><strong>Levels can be fit in parallel.</strong> The per-level model
-fits are independent. If you install the <code>future.apply</code>
-package, <code><a href="../reference/ackwards.html">ackwards()</a></code> dispatches them through the <a href="https://future.futureverse.org" class="external-link">future</a> framework. The default
-plan is sequential (no change in behaviour); to parallelize, set a plan
-once before your call:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages(c("future", "future.apply"))</span></span>
-<span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/multisession.html" class="external-link">multisession</a></span>, workers <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="co"># multicore on Linux/macOS</span></span>
+<p>Bass-ackwards analyses often involve large item pools, and ESEM is
+the most expensive engine because it fits a separate <code>lavaan</code>
+model at every level. Two automatic optimisations keep this
+manageable:</p>
+<ul>
+<li>
+<strong>Sample statistics are computed once.</strong> For ordinal
+data (<code>cor = "polychoric"</code>, WLSMV), lavaan’s thresholds,
+polychoric matrix, and asymptotic weight matrix depend only on the data
+— not on the number of factors — so <code><a href="../reference/ackwards.html">ackwards()</a></code> computes
+them at the first level and reuses them for every deeper level. This is
+the single biggest saving at large item counts.</li>
+<li>
+<strong>Levels can be fit in parallel.</strong> The per-level fits
+are independent. Install <code>future.apply</code> and set a <a href="https://future.futureverse.org" class="external-link">future</a> plan before your call;
+the default plan is sequential (no change in behaviour).</li>
+</ul>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span>, workers <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="co"># parallel across background R sessions</span></span>
 <span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">items</span>, k_max <span class="op">=</span> <span class="fl">8</span>, engine <span class="op">=</span> <span class="st">"esem"</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">future</span><span class="fu">::</span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="fu">future</span><span class="fu">::</span><span class="va"><a href="https://future.futureverse.org/reference/sequential.html" class="external-link">sequential</a></span><span class="op">)</span> <span class="co"># restore when done</span></span></code></pre></div>
-<p>Parallelism pays off when the per-level fits are genuinely heavy
-(large <code>p</code>, several levels); for small problems the worker
+<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">sequential</span><span class="op">)</span> <span class="co"># restore when done</span></span></code></pre></div>
+<p><code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan()</a></code> comes from <strong>future</strong> (it is
+<em>not</em> re-exported by <code>future.apply</code>), so load
+<code>future</code> directly rather than reaching for
+<code>future.apply::plan()</code>. Parallelism pays off only when the
+per-level fits are genuinely heavy; for small problems the worker
 startup cost can outweigh the gain. Results are reproducible across
-plans when you pass <code>seed</code>. PCA and EFA already compute their
+plans when you pass <code>seed</code>. PCA and EFA compute their
 correlation matrix once and do not need this.</p>
 <p>If you only need the hierarchy (loadings and edges) and not ESEM’s
 rotation-aware standard errors and per-level fit indices,
@@ -1772,14 +1858,18 @@ same structure.</p>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<p>Goldberg, L. R. (2006). Doing it all bass-ackwards. <em>Journal of
-Research in Personality</em>, <em>40</em>(4), 347–358.</p>
-<p>Waller, N. G. (2007). A general method for computing hierarchical
-component structures by Bass-Ackward factor analysis. <em>Journal of
-Research in Personality</em>, <em>41</em>(4), 745–752.</p>
 <p>Asparouhov, T., &amp; Muthén, B. (2009). Exploratory structural
 equation modeling. <em>Structural Equation Modeling</em>,
 <em>16</em>(3), 397–438.</p>
+<p>Goldberg, L. R. (2006). Doing it all bass-ackwards. <em>Journal of
+Research in Personality</em>, <em>40</em>(4), 347–358.</p>
+<p>Hu, L., &amp; Bentler, P. M. (1999). Cutoff criteria for fit indexes
+in covariance structure analysis: Conventional criteria versus new
+alternatives. <em>Structural Equation Modeling</em>, <em>6</em>(1),
+1–55.</p>
+<p>Waller, N. G. (2007). A general method for computing hierarchical
+component structures by Bass-Ackward factor analysis. <em>Journal of
+Research in Personality</em>, <em>41</em>(4), 745–752.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
