@@ -224,7 +224,7 @@ suppresses skip arcs. Ignored when <code>drop_pruned = TRUE</code>. Default <cod
 rendering path: pruned nodes are removed from the diagram entirely and
 each retained node is connected to its single strongest kept ancestor by
 a straight arrow (even across level gaps). Requires the object to carry
-pruning annotations (<code>prune != "none"</code> at fit time); errors if not.
+pruning annotations (piped through <code><a href="prune.html">prune()</a></code>); errors if not.
 Overrides <code>show_skip</code>, <code>curvature</code>, and <code>primary_only</code>. Default <code>FALSE</code>.</p></dd>
 
 
@@ -305,7 +305,7 @@ model-fit indices).</p>
 <span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, primary_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># Forbes pruned view: omit redundant nodes, straight spanning arrows</span></span></span>
-<span class="r-in"><span>  <span class="va">xp</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi25</span>, k_max <span class="op">=</span> <span class="fl">5</span>, prune <span class="op">=</span> <span class="st">"redundant"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">xp</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi25</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="prune.html">prune</a></span><span class="op">(</span><span class="st">"redundant"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">xp</span>, drop_pruned <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">xp</span>, drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>, show_r <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">xp</span>, drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>, compress_levels <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
@@ -330,8 +330,6 @@ model-fit indices).</p>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `missing = "listwise"` for consistent complete-case analysis.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 125 rows have missing values; correlations are computed pairwise.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `missing = "listwise"` for consistent complete-case analysis.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> `pairs` upgraded to <span style="color: #0000BB;">"all"</span>: pruning requires all-levels edges to assess</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   redundancy chains and artefact relationships.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 125 rows have missing values; correlations are computed pairwise.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `missing = "listwise"` for consistent complete-case analysis.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 7 nodes.</span>

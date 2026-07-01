@@ -86,7 +86,7 @@ factor-score correlations only for <em>adjacent</em> levels: 1↔︎2, 2↔︎3,
 3↔︎4, and so on. Forbes (2023) extended this in two ways: computing
 correlations across <em>all</em> level pairs (not just adjacent), and
 using those extra connections to identify and flag
-<strong>redundant</strong> or <strong>artefactual</strong> factors in
+<strong>redundant</strong> or <strong>artifactual</strong> factors in
 the hierarchy.</p>
 <p>This vignette covers both extensions: <code>pairs = "all"</code> and
 <code>prune</code>.</p>
@@ -706,13 +706,13 @@ just refinements within a stable dimension.</p>
 <div class="section level2">
 <h2 id="pruning-identifying-redundant-factors">Pruning: identifying redundant factors<a class="anchor" aria-label="anchor" href="#pruning-identifying-redundant-factors"></a>
 </h2>
-<p>The <code>prune</code> argument uses the skip-level correlations to
+<p>The <code><a href="../reference/prune.html">prune()</a></code> verb uses the skip-level correlations to
 automatically flag factors that may not be adding genuine information to
 the hierarchy.</p>
 <div class="section level3">
-<h3 id="prune-redundant-chains-of-near-identical-factors">
-<code>prune = "redundant"</code>: chains of near-identical
-factors<a class="anchor" aria-label="anchor" href="#prune-redundant-chains-of-near-identical-factors"></a>
+<h3 id="prunex-redundant-chains-of-near-identical-factors">
+<code>prune(x, "redundant")</code>: chains of near-identical
+factors<a class="anchor" aria-label="anchor" href="#prunex-redundant-chains-of-near-identical-factors"></a>
 </h3>
 <p>A <strong>redundant chain</strong> is a sequence of factors connected
 by near-perfect correlations (|r| ≥ 0.9 by default) across levels. If
@@ -720,10 +720,8 @@ m2f2 → m3f2 → m4f2 → m5f1 all share r &gt; 0.97, the intermediate nodes
 m3f2 and m4f2 are flagged as redundant: they repeat rather than refine
 the same dimension.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x_prune</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>,</span>
-<span>  k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>,</span>
-<span>  pairs <span class="op">=</span> <span class="st">"all"</span>, prune <span class="op">=</span> <span class="st">"redundant"</span></span>
-<span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">x_prune</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, pairs <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/prune.html">prune</a></span><span class="op">(</span><span class="st">"redundant"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span></code></pre></div>
@@ -1290,7 +1288,7 @@ m4f4): 1 factor at k = 2, 1 factor at k = 3, the entire k = 4 level.
 This is a striking finding: for this dataset and this k, the four-factor
 level adds little beyond what you already know from k = 3 and k = 5.</p>
 <p>The flagged factors are not removed from the object —
-<code>prune</code> is purely a diagnostic annotation, not a deletion.
+<code><a href="../reference/prune.html">prune()</a></code> is purely a diagnostic annotation, not a deletion.
 You can still inspect their loadings, use their scores, and include them
 in the diagram. Pruning flags guide interpretation; they do not alter
 the model.</p>
@@ -1352,11 +1350,11 @@ arrowheads, and more — see
 <code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code>.</p>
 </div>
 <div class="section level3">
-<h3 id="prune-artefact-factors-defined-by-structural-similarity">
-<code>prune = "artefact"</code>: factors defined by structural
-similarity<a class="anchor" aria-label="anchor" href="#prune-artefact-factors-defined-by-structural-similarity"></a>
+<h3 id="prunex-artifact-factors-defined-by-structural-similarity">
+<code>prune(x, "artifact")</code>: factors defined by structural
+similarity<a class="anchor" aria-label="anchor" href="#prunex-artifact-factors-defined-by-structural-similarity"></a>
 </h3>
-<p>An <strong>artefact</strong> factor is one whose loading pattern is
+<p>An <strong>artifact</strong> factor is one whose loading pattern is
 more similar to a factor at a <em>non-adjacent</em> level than to its
 own-level neighbors. Similarity is measured by Tucker’s congruence
 coefficient (φ):</p>
@@ -1365,13 +1363,11 @@ coefficient (φ):</p>
 <p>φ ranges from −1 to +1, with values &gt; 0.95 indicating
 near-identical loading patterns regardless of sign. A factor at k = 3
 that has φ &gt; 0.95 with a factor at k = 1 is suspected to be an
-artefact of the rotation rather than a genuine new dimension.</p>
+artifact of the rotation rather than a genuine new dimension.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x_art</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>,</span>
-<span>  k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>,</span>
-<span>  pairs <span class="op">=</span> <span class="st">"all"</span>, prune <span class="op">=</span> <span class="st">"artefact"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Artefact mode: Tucker's computed for all cross-level factor pairs.</span></span>
+<code class="sourceCode R"><span><span class="va">x_art</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, pairs <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/prune.html">prune</a></span><span class="op">(</span><span class="st">"artifact"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Artifact mode: Tucker's computed for all cross-level factor pairs.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Structural signals computed: 2 factors flagged (few_items / orphan /</span></span>
 <span><span class="co">#&gt;   split_merge).</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Inspect `x$prune$phi` and `x$prune$structural`; removal is a researcher</span></span>
@@ -1828,10 +1824,10 @@ artefact of the rotation rather than a genuine new dimension.</p>
 <table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_heading">
-<td colspan="4" class="gt_heading gt_title gt_font_normal" style>Node-level artefact annotation</td>
+<td colspan="4" class="gt_heading gt_title gt_font_normal" style>Node-level artifact annotation</td>
     </tr>
 <tr class="gt_heading">
-<td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>0 of 15 factors flagged as artefacts</td>
+<td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>0 of 15 factors flagged as artifacts</td>
     </tr>
 <tr class="gt_col_headings">
 <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="id">Factor</th>
@@ -1934,13 +1930,13 @@ artefact of the rotation rather than a genuine new dimension.</p>
 </tbody>
 </table>
 </div>
-<p>For the BFI, the artefact criterion flags 0 factors — no factor at
+<p>For the BFI, the artifact criterion flags 0 factors — no factor at
 any level has a loading pattern more similar to a factor from a
 non-adjacent level than to its own-level solution. This is a good result
 for a well-validated instrument: it suggests the rotation is producing
 genuinely distinct factors at each level, not recycling old ones.</p>
 <p>On data with weaker or noisier factor structure, or with rotations
-that struggle to separate highly correlated factors, the artefact
+that struggle to separate highly correlated factors, the artifact
 criterion will often flag some nodes. A node can be flagged by one
 criterion but not the other; the two criteria capture different flavors
 of redundancy:</p>
@@ -1950,24 +1946,24 @@ of redundancy:</p>
 with near-identical <em>score correlations</em> — it persists unchanged
 as k increases.</li>
 <li>
-<code>"artefact"</code>: this factor’s <em>loading pattern</em>
+<code>"artifact"</code>: this factor’s <em>loading pattern</em>
 closely resembles a factor from a different, non-adjacent level — it
 looks like a copy rather than a refinement.</li>
 </ul>
 </div>
 <div class="section level3">
-<h3 id="structural-artefact-signals">Structural artefact signals<a class="anchor" aria-label="anchor" href="#structural-artefact-signals"></a>
+<h3 id="structural-artifact-signals">Structural artifact signals<a class="anchor" aria-label="anchor" href="#structural-artifact-signals"></a>
 </h3>
-<p>Congruence (φ) is not the only fingerprint of an artefactual factor.
+<p>Congruence (φ) is not the only fingerprint of an artifactual factor.
 Forbes (2023, Fig. 2) describes several <em>structural</em> signatures,
-and <code>prune = "artefact"</code> reports three of them per factor in
-<code>x$prune$structural</code>:</p>
+and <code>prune(x, "artifact")</code> reports three of them per factor
+in <code>x$prune$structural</code>:</p>
 <ul>
 <li>
 <strong><code>few_items</code></strong> — the factor is the primary
 (highest-loading) home for fewer than <code>min_items</code> items
 (default <code>3</code>). A factor anchored by one or two items is
-under-identified and often an extraction artefact rather than a
+under-identified and often an extraction artifact rather than a
 replicable construct.</li>
 <li>
 <strong><code>orphan</code></strong> — the factor’s strongest
@@ -2434,7 +2430,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
 <table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_heading">
-<td colspan="5" class="gt_heading gt_title gt_font_normal" style>Structural artefact signals</td>
+<td colspan="5" class="gt_heading gt_title gt_font_normal" style>Structural artifact signals</td>
     </tr>
 <tr class="gt_heading">
 <td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>2 of 15 factors raise a structural signal</td>
@@ -2557,12 +2553,12 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
 </table>
 </div>
 <p>Like Tucker’s φ, these signals are <strong>flag-and-report
-only</strong> — <code><a href="../reference/ackwards.html">ackwards()</a></code> never removes a factor on their
-basis. Identifying an artefact requires researcher judgment (Forbes is
+only</strong> — <code><a href="../reference/prune.html">prune()</a></code> never removes a factor on their
+basis. Identifying an artifact requires researcher judgment (Forbes is
 explicit that this step introduces investigator degrees of freedom); the
 signals simply point you to the factors worth a closer look. The two
 thresholds, <code>min_items</code> and <code>orphan_r</code>, are
-arguments to <code><a href="../reference/ackwards.html">ackwards()</a></code>.</p>
+arguments to <code><a href="../reference/prune.html">prune()</a></code>.</p>
 </div>
 </div>
 <div class="section level2">
@@ -2570,8 +2566,8 @@ arguments to <code><a href="../reference/ackwards.html">ackwards()</a></code>.</
 </h2>
 <p>The redundancy criterion has an adjustable <code>redundancy_r</code>
 threshold (default <code>0.90</code>) matching Forbes (2023). The
-artefact criterion has no auto-flag threshold —
-<code>prune = "artefact"</code> computes Tucker’s φ for researcher
+artifact criterion has no auto-flag threshold —
+<code>prune(x, "artifact")</code> computes Tucker’s φ for researcher
 inspection; no factors are auto-flagged.</p>
 <p><strong>The <code>redundancy_phi</code> companion criterion.</strong>
 Redundancy can optionally require that linked factors also share a
@@ -2589,8 +2585,8 @@ algebra is exact for components, so the score correlation
 <code>0.95</code> (Lorenzo-Seva &amp; ten Berge, 2006). Factor scores
 off the PCA basis are indeterminate, which makes a <code>|r|</code>-only
 rule too liberal; the loading-congruence guard makes the criterion
-conservative. <code><a href="../reference/ackwards.html">ackwards()</a></code> announces this auto-resolution in
-the console.</li>
+conservative. <code><a href="../reference/prune.html">prune()</a></code> announces this auto-resolution in the
+console.</li>
 </ul>
 <p>The examples here use the default PCA engine, so no φ filter is
 applied. To disable the φ guard on an EFA/ESEM run, pass
@@ -2600,8 +2596,10 @@ number in <code>(0, 1]</code>.</p>
 because the redundant chains all have correlations &gt; 0.97 — the
 flagging is unambiguous. With your own data you may find borderline
 cases where the threshold matters:</p>
-<p>Refitting at a few <code>redundancy_r</code> thresholds and counting
-flagged factors at each shows how sensitive the pruning is:</p>
+<p>Because <code><a href="../reference/prune.html">prune()</a></code> is a cheap, standalone step, checking a
+few <code>redundancy_r</code> thresholds does not require refitting
+<code><a href="../reference/ackwards.html">ackwards()</a></code> each time — the already-fit <code>x_all</code>
+object is re-pruned directly:</p>
 <pre><code><span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.8) flagged 9 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span>
@@ -3110,13 +3108,13 @@ near 1.0 indicate stable dimensions that survive changes in k — exactly
 the kind of robust construct you want to report.</p></li>
 <li><p><strong>Are there levels where the factor structure is just
 reorganizing rather than genuinely differentiating?</strong>
-(<code>prune = "redundant"</code>) Flagged levels can often be removed
+(<code>prune(x, "redundant")</code>) Flagged levels can often be removed
 from the k range without losing interpretive content.</p></li>
 </ol>
 <p>A common workflow: fit with <code>pairs = "all"</code> first to
-examine the full picture, then apply <code>prune = "redundant"</code> to
-identify which levels add the most new information, and use that to
-guide your focus in reporting.</p>
+examine the full picture, then pipe the result through
+<code>prune(x, "redundant")</code> to identify which levels add the most
+new information, and use that to guide your focus in reporting.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>

@@ -22,11 +22,6 @@ ackwards(
   keep_fits = FALSE,
   seed = NULL,
   pairs = "adjacent",
-  prune = "none",
-  redundancy_r = 0.9,
-  redundancy_phi = NULL,
-  min_items = 3L,
-  orphan_r = 0.5,
   cut_show = 0.3,
   ...
 )
@@ -165,70 +160,10 @@ ackwards(
 
   Which level pairs to compute edges for: `"adjacent"` (default, classic
   Goldberg – only consecutive levels) or `"all"` (Forbes extension –
-  every pair of levels). `"all"` reveals associations that span multiple
-  levels and is required for redundancy pruning. Setting `prune` to
-  anything other than `"none"` automatically upgrades this to `"all"`
-  with a message.
-
-- prune:
-
-  Character vector controlling Forbes-extension pruning. Default
-  `"none"` (no pruning). Options:
-
-  - `"redundant"` – identify chains of factors connected by
-    primary-parent links with `|r| >= redundancy_r` (and optionally
-    `phi > redundancy_phi`). Applies Forbes's (2023) retention rule:
-    keep the bottom node when the chain reaches level `k` (most
-    specific); keep the top node otherwise. Pruning is *flag-only*:
-    flagged nodes stay in the object with `pruned = TRUE` and
-    `prune_reason = "redundant"` in `x$prune$nodes`.
-
-  - `"artefact"` – compute Tucker's congruence coefficient (phi) for all
-    cross-level factor pairs and store in `x$prune$phi` for researcher
-    inspection. No factors are auto-flagged; artefact identification
-    requires judgment (Forbes, 2023; Wicherts et al., 2016).
-
-- redundancy_r:
-
-  Scalar in `(0, 1]`. Adjacent primary-parent `|r|` threshold for
-  redundancy chains. Default `0.9` (Forbes, 2023).
-
-- redundancy_phi:
-
-  Scalar in `(0, 1]`, `NULL` (default, auto), or `NA` (explicit
-  opt-out). When `NULL`:
-
-  - `engine = "pca"` — no phi filter (the W'RW algebra is exact; phi
-    adds nothing that \|r\| does not already capture).
-
-  - `engine = "efa"` or `"esem"` — automatically set to `0.95`
-    (Lorenzo-Seva & ten Berge, 2006). Factor-score indeterminacy off-PCA
-    means \|r\|-alone is liberal; the conjunctive phi criterion is the
-    conservative default. A cli message announces the resolved value
-    (Invariant 6). Pass `NA` to disable phi filtering regardless of
-    engine (matches the old `NULL` behaviour). Pass a numeric value to
-    override on any engine.
-
-- min_items:
-
-  Minimum number of items for which a factor must be the primary loader
-  (highest `|loading|`). Factors with fewer than `min_items` primary
-  items are flagged `few_items = TRUE` in `x$prune$structural`. Only
-  used when `prune = "artefact"`. Default `3L` – a factor defined by one
-  or two items is under-identified and frequently an extraction artefact
-  rather than a replicable construct (the classic "three-indicator
-  rule"; Forbes, 2023, Fig. 2).
-
-- orphan_r:
-
-  Threshold for the `orphan` structural signal. A factor whose maximum
-  **adjacent-level** `|r|` (to the immediately shallower and deeper
-  levels) falls below `orphan_r` is flagged `orphan = TRUE` in
-  `x$prune$structural` – it does not connect to the neighbouring
-  solutions and so does not replicate across the hierarchy. Only used
-  when `prune = "artefact"`. Default `0.5` – a moderate correlation; a
-  factor that shares less than a quarter of its variance with every
-  neighbour is a structural outlier worth inspecting.
+  every pair of levels, including skip-level correlations).
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+  recomputes its own all-pairs edges on demand regardless of this
+  setting, so pruning does not require `pairs = "all"` here.
 
 - cut_show:
 
@@ -355,7 +290,10 @@ differences: An extension of Goldberg's bass-ackward method.
 
 [`print.ackwards()`](https://jmgirard.github.io/ackwards/reference/print.ackwards.md),
 [`tidy.ackwards()`](https://jmgirard.github.io/ackwards/reference/tidy.ackwards.md),
-[`glance.ackwards()`](https://jmgirard.github.io/ackwards/reference/glance.ackwards.md)
+[`glance.ackwards()`](https://jmgirard.github.io/ackwards/reference/glance.ackwards.md),
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+(Forbes-extension redundancy/artifact flagging, piped off the result of
+this function)
 
 ## Examples
 

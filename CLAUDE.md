@@ -109,29 +109,30 @@ as part of the definition of done.
 - **M33** — simulated Gaussian dataset (`sim16`: 1000×16 continuous,
   known 1→2→4 hierarchy, no ordinal-detection warning, guaranteed
   redundant-chain + artefact signals at `k_max=5`)
+- **M34** — Pruning verb: extracted
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) as
+  a standalone, pipeable S3 generic off
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  (five prune args removed from
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md);
+  canonical `"artifact"` naming with `"artefact"` alias; manual + mixed
+  pruning; edges recomputed fresh inside
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md),
+  `x$edges` never mutated)
 
 ## Current focus
 
-M33 is complete (see `MILESTONES.md` for detail — including a plan
-deviation: the “thin branch / near-duplicate twin factor” mechanism
-proved unnecessary once prototyped, and no `DESIGN.md` §14 entry was
-added, matching the `bfi25` precedent that dataset additions live in
-roxygen + here, not `DESIGN.md`). Next up in the M31–M38
-documentation/UX epic is **M34** (pruning verb); not yet planned; run
-`/plan-milestone 34` before starting.
+M34 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38
+documentation/UX epic is **M35** (autoplot & visualization); not yet
+planned; run `/plan-milestone 35` before starting.
 
-Remaining milestones in the epic: M34 pruning verb — extract `prune()`
-from
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-(clean move, no deprecation — pre-CRAN, no users) + manual/mixed
-flag-only pruning + `"artefact"`/`"tucker"` naming + DESIGN.md update;
-M35 autoplot & visualization; M36 interpretation functions (`augment`
-scores-only, `top_items` labels + group-by-item); M37 engines vignette;
-M38 narrative & remaining prose (intro, suggest_k, ordinal, forbes,
-README).
+Remaining milestones in the epic: M35 autoplot & visualization; M36
+interpretation functions (`augment` scores-only, `top_items` labels +
+group-by-item); M37 engines vignette; M38 narrative & remaining prose
+(intro, suggest_k, ordinal, forbes, README).
 
 These one-liners are a lossy index. The **full driving rationale, banked
-decisions, and the raw pkgdown-review notes** behind M34–M38 live in
+decisions, and the raw pkgdown-review notes** behind M35–M38 live in
 [`ROADMAP.md`](https://jmgirard.github.io/ackwards/ROADMAP.md) — read it
 before running `/plan-milestone N` for any of them. `MILESTONES.md`
 remains the source of truth for *completed* milestones; `ROADMAP.md` is

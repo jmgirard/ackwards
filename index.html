@@ -77,7 +77,7 @@
 </blockquote>
 <p><strong>ackwards</strong> implements Goldberg’s (2006) bass-ackwards method and its modern extensions for mapping the hierarchical structure of multivariate data.</p>
 <p>The core insight is simple: instead of asking <em>how many</em> factors best describe your data, ask <em>how the solutions at different levels of resolution are related to one another</em>. A 1-factor solution captures the broadest shared variance; a 5-factor solution captures narrower, more specific dimensions. Bass-ackwards analysis traces how broad factors split into narrow ones — and which narrow factors are redundant re-combinations of broader ones.</p>
-<p>The package supports three extraction engines (PCA, EFA, ESEM), polychoric correlations for ordinal data, and Forbes’s (2023) extension that reveals skip-level connections and flags redundant or artefactual factors.</p>
+<p>The package supports three extraction engines (PCA, EFA, ESEM), polychoric correlations for ordinal data, and Forbes’s (2023) extension that reveals skip-level connections and flags redundant or artifactual factors.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -284,7 +284,7 @@
 <span><span class="co">#&gt;     note = {R package version 0.1.0},</span></span>
 <span><span class="co">#&gt;     url = {https://github.com/jmgirard/ackwards},</span></span>
 <span><span class="co">#&gt;   }</span></span></code></pre></div>
-<p>Please also cite the relevant method paper(s): Goldberg (2006) <a href="https://doi.org/10.1016/j.jrp.2006.01.001" class="external-link uri">https://doi.org/10.1016/j.jrp.2006.01.001</a> for the bass-ackwards method itself; Waller (2007) <a href="https://doi.org/10.1016/j.jrp.2006.08.005" class="external-link uri">https://doi.org/10.1016/j.jrp.2006.08.005</a> if you rely on the exact <code>W'RW</code> edge algebra; and Forbes (2023) <a href="https://doi.org/10.1037/met0000546" class="external-link uri">https://doi.org/10.1037/met0000546</a> if you use the extended method (<code>pairs = "all"</code>, redundancy/artefact pruning).</p>
+<p>Please also cite the relevant method paper(s): Goldberg (2006) <a href="https://doi.org/10.1016/j.jrp.2006.01.001" class="external-link uri">https://doi.org/10.1016/j.jrp.2006.01.001</a> for the bass-ackwards method itself; Waller (2007) <a href="https://doi.org/10.1016/j.jrp.2006.08.005" class="external-link uri">https://doi.org/10.1016/j.jrp.2006.08.005</a> if you rely on the exact <code>W'RW</code> edge algebra; and Forbes (2023) <a href="https://doi.org/10.1037/met0000546" class="external-link uri">https://doi.org/10.1037/met0000546</a> if you use the extended method (<code>pairs = "all"</code>, redundancy/artifact pruning).</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

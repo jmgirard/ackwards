@@ -366,13 +366,13 @@ CD-suggested k.
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [253ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [263ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [170ms]
+#> ✔ Running MAP and VSS... [164ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.6s]
+#> ✔ Running Comparison Data (CD)... [10.3s]
 #> 
 autoplot(sk)
 ```

@@ -99,14 +99,14 @@ Real data rarely agree this cleanly: on <code>bfi25</code> the same criteria spa
 for "watch the method recover a structure we planted," <code>bfi25</code> for
 "reason about a hierarchy when the criteria disagree." Present <code>sim16</code>'s
 consensus as the ideal, not the norm.</p>
-<p><strong>Deliberate overextraction artefact at k=5.</strong> The population has exactly
+<p><strong>Deliberate overextraction artifact at k=5.</strong> The population has exactly
 4 factors, so requesting a 5th finds no real dimension: EFA produces an
 orphan factor with zero primary-loading items. With
-<code>prune = "artefact"</code> (default <code>min_items = 3</code>, <code>orphan_r = 0.5</code>), that
+<code>prune(x, "artifact")</code> (default <code>min_items = 3</code>, <code>orphan_r = 0.5</code>), that
 factor is flagged both <code>few_items</code> and <code>orphan</code>. Because the true (non-
 splitting) factors persist essentially unchanged from <code>k=3</code> onward, their
 parent-child score correlations approach 1 and are flagged by
-<code>prune = "redundant"</code> (<code>|r| &gt;= .9</code> and, by default, Tucker's phi <code>&gt;= .95</code>). This is a textbook overextraction artefact, included so the
+<code>prune(x, "redundant")</code> (<code>|r| &gt;= .9</code> and, by default, Tucker's phi <code>&gt;= .95</code>). This is a textbook overextraction artifact, included so the
 Forbes/redundancy examples have a guaranteed finding to teach against
 (unlike <code>bfi25</code>, which does not reliably trigger one).</p>
 <p>To regenerate this dataset, run <code>source("data-raw/sim16.R")</code> from the

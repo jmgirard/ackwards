@@ -39,10 +39,11 @@ and SEs, ordinal/Likert support — which
 does not provide. (Kim & Eaton 2015; Forbush et al. 2024 are the
 reference workflows.) - Proper **ordinal/Likert handling** (polychoric
 basis, ordinal estimators). - The **Forbes (2023) extended method**
-(redundancy + artefact pruning, all-levels correlations). - A clean,
-tidy, serializable **result object** with
-`print`/`summary`/`tidy`/`glance`/`autoplot`. - A **lineage-aligned
-layered diagram** rather than a misleading tree.
+(redundancy + artifact pruning via the standalone
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+verb, all-levels correlations). - A clean, tidy, serializable **result
+object** with `print`/`summary`/`tidy`/`glance`/`autoplot`. - A
+**lineage-aligned layered diagram** rather than a misleading tree.
 
 **Honesty caveat to state in docs and `print`.** A bass-ackwards result
 is a *series of linked solutions*, not a fitted hierarchical model. The
@@ -242,7 +243,8 @@ structure(list(
   meta    = <suggest_k output, timestamps, convergence summary, chosen defaults,
              input_type = "data"|"cor_matrix">,
   prune   = NULL         # Forbes extension: node flags + chain table + phi table;
-                         # populated by .apply_pruning() when prune != "none"
+                         # populated by prune(x, ...) -- a standalone verb piped off
+                         # ackwards(), not an ackwards() argument (M34; see s.14)
 ), class = "ackwards")
 ```
 
@@ -358,9 +360,9 @@ with its rationale.
 | `cor` (basis) | **`"pearson"`** (matches `psych`/`lavaan`); ordinal opt-in via `cor = "polychoric"` | No silent basis-switching (it can change the structure and break comparison to published work). Instead, **detect likely-ordinal columns and emit a suppressible cli warning** pointing to the polychoric option — loud *advice*, not silent action. |
 | scores (method) | **`"tenBerge"`** on the active basis (pearson or polychoric) for factor engines; `"components"` for PCA; `"EAP"` opt-in only | tenBerge preserves factor correlations (the property bass-ackwards cares about) and stays linear → algebra-eligible. For ordinal ESEM, tenBerge-on-polychoric gives the clean model-implied edge; EAP’s shrinkage attenuates cross-level correlations, so it’s an opt-in (triggers the scores route + raw-data requirement), not the default. |
 | `edge_method` | `"auto"` | algebra when linear, scores otherwise. |
-| `pairs` | `"adjacent"` | classic Goldberg; `"all"` switched on with the Forbes extension. |
-| `extension` (Forbes pruning) | **off** | pruning is an interpretive choice with thresholds; turning it on silently would change results. Opt-in with documented thresholds ( |
-| `redundancy_phi` | **`NULL` (auto)** — PCA → no φ filter (W′RW algebra is exact; `|r|` alone is sufficient); EFA/ESEM → `0.95` (Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy off-PCA makes `|r|`-only liberal; φ adds a congruence guard). Explicit number overrides on any engine. `NA` is the opt-out (no φ filter regardless of engine). Announces auto-resolve via cli (Invariant 6). **Added M25.** |  |
+| `pairs` ([`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)) | `"adjacent"` | classic Goldberg; `"all"` reveals skip-level correlations for inspection/plotting. Since M34, [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) recomputes its own all-pairs edges on demand regardless of this setting — pruning no longer requires (or auto-upgrades) `pairs = "all"` here. |
+| [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) `rules` (standalone verb, M34 — not an [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md) argument) | **`"none"`** | pruning is an interpretive choice with thresholds, kept as a separate, cheap, re-runnable step piped off an already-extracted object (`ackwards(...) |> prune(...)`) so new thresholds never require re-extraction. Turning it on silently would change results — opt-in with documented thresholds ( |
+| `redundancy_phi` ([`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) argument, M34) | **`NULL` (auto)** — PCA → no φ filter (W′RW algebra is exact; `|r|` alone is sufficient); EFA/ESEM → `0.95` (Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy off-PCA makes `|r|`-only liberal; φ adds a congruence guard). Explicit number overrides on any engine. `NA` is the opt-out (no φ filter regardless of engine). Announces auto-resolve via cli (Invariant 6). **Added M25**; moved from an [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md) argument to a [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) argument in M34. |  |
 | sign `align_signs` | `TRUE` | unaligned signs make output unreadable. |
 | `keep_fits` / `keep_scores` | `FALSE` / `FALSE` | memory + privacy. |
 | `k_max` | required | force a deliberate choice; don’t silently pick. |
@@ -391,7 +393,8 @@ with its rationale.
   of linked solutions, not a fitted hierarchy” caveat once.
 - **`summary.ackwards`** — per-level variance explained and fit indices
   (ESEM); a readable lineage list (`m1f1 → m2f1, m2f2 → …`); flagged
-  redundant/artefact components when the extension is on.
+  redundant/artifact components when the object has been pruned via
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md).
 - **`top_items(x, level, cut, n, sort)`** (M18) — per-factor
   salient-item listing, filtered to `|loading| >= cut` and sorted
   descending. Returns a `top_items` S3 object with a grouped cli print
@@ -462,7 +465,7 @@ however they like.
   Pyramid vs. tree-ish orientation as an option.
 - **Forbes extension rendering (more complex — phase it).** Keep the
   same layout; **annotate** rather than re-layout: fade/strike pruned
-  (redundant/artefact) nodes, and allow **skip-level** edges (longer
+  (redundant/artifact) nodes, and allow **skip-level** edges (longer
   curves) since the extension correlates *all* levels, not just
   adjacent. Default to showing only above-cut edges to control clutter.
   Treat as a later milestone; ship the clean adjacent-level Goldberg
@@ -586,34 +589,39 @@ Pearson/continuous paths only; polychoric ESEM edges (algebra uses
 lavaan polychoric R; scores route uses Pearson standardization) diverge
 by design and are excluded from the oracle.
 
-**Resolved for M5 (Forbes extension):** 17. API → two orthogonal args:
+**Resolved for M5 (Forbes extension):** 17. API → ~~two orthogonal args:
 `pairs = c("adjacent","all")` and
 `prune = c("none","redundant","artefact")` (char vector; default
 `"none"`). `prune != "none"` auto-upgrades `pairs` to `"all"` with a
-loud `cli_inform()` (chains need all-levels edges to assess). 18. Prune
-action → **flag-only, never remove.** Adds `pruned`/`prune_reason`
-annotation columns to the edge/node tidy structures; the object retains
-all levels (preserves Invariant 5 and the algebra-vs-scores oracle).
-Pruning is interpretive relabeling, **not** re-estimation — say so in
-`print`/docs (extends the §2 honesty caveat). 19. Redundancy → faithful
-to Forbes (2023): score-correlation chains `|r| ≥ .9` (default,
-tunable), retention rule = keep the bottom node if the chain reaches
-level k (most-specific, best-defined), else keep the topmost node
-(broadest manifestation). Tucker’s φ (`> .95`, Lorenzo-Seva & ten Berge
-2006) computed on aligned loadings as an **optional conjunctive**
-criterion. φ formula `Σaᵢbᵢ / sqrt(Σaᵢ² · Σbᵢ²)`; base R, no new
-dependency. 20. **Additive enrichments over the paper** (default output
-still matches Forbes’s examples): always *report* both `r` and `φ` for
-every redundancy candidate (report-first, flag-second — borderline cases
-like the paper’s own `.89`/`.93` alcohol component stay visible); report
+loud `cli_inform()` (chains need all-levels edges to assess).~~
+**Superseded by M34** (item 27 below): pruning is now a standalone
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+verb, not an
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+argument, and `pairs` no longer auto-upgrades. 18. Prune action →
+**flag-only, never remove.** Adds `pruned`/`prune_reason` annotation
+columns to the edge/node tidy structures; the object retains all levels
+(preserves Invariant 5 and the algebra-vs-scores oracle). Pruning is
+interpretive relabeling, **not** re-estimation — say so in `print`/docs
+(extends the §2 honesty caveat). 19. Redundancy → faithful to Forbes
+(2023): score-correlation chains `|r| ≥ .9` (default, tunable),
+retention rule = keep the bottom node if the chain reaches level k
+(most-specific, best-defined), else keep the topmost node (broadest
+manifestation). Tucker’s φ (`> .95`, Lorenzo-Seva & ten Berge 2006)
+computed on aligned loadings as an **optional conjunctive** criterion. φ
+formula `Σaᵢbᵢ / sqrt(Σaᵢ² · Σbᵢ²)`; base R, no new dependency. 20.
+**Additive enrichments over the paper** (default output still matches
+Forbes’s examples): always *report* both `r` and `φ` for every
+redundancy candidate (report-first, flag-second — borderline cases like
+the paper’s own `.89`/`.93` alcohol component stay visible); report
 endpoint `r` (direct, from all-levels edges) alongside the chain and
 flag where they disagree (correlation is non-transitive: a clean
 adjacent chain neither implies nor is implied by endpoint identity — the
 chain answers “perpetuates at every level,” endpoint `r` answers “same
-construct”). 21. Artefact → **never auto-flagged.** `prune = "artefact"`
-surfaces φ for inspection; removal is a documented researcher judgment
-(Forbes is explicit this introduces researcher DoF / confirmation bias;
-cf. Wicherts et al. 2016).
+construct”). 21. Artifact → **never auto-flagged.**
+`prune(x, "artifact")` surfaces φ for inspection; removal is a
+documented researcher judgment (Forbes is explicit this introduces
+researcher DoF / confirmation bias; cf. Wicherts et al. 2016).
 
 **Resolved for M32 (API-shape & naming; owner-reviewed, no equivalent
 guidance elsewhere in this document):** 22. `tidy(x, what = "fit")`
@@ -664,6 +672,63 @@ variant.
 All five M32 changes are breaking with no deprecation path (pre-CRAN, no
 users; consistent with the M34 pruning-verb precedent of clean moves
 over compatibility shims).
+
+**Resolved for M34 (pruning verb; owner-reviewed, breaking, no
+deprecation path — pre-CRAN, no users):** 27. Pruning extracted into a
+standalone, pipeable S3 generic
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+(`prune.ackwards`), not an
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+argument. The five prune-related args (`prune` → renamed `rules`,
+`redundancy_r`, `redundancy_phi`, `min_items`, `orphan_r`) leave
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+entirely: `ackwards(...) |> prune(...)`. Rationale: extraction is the
+expensive, deterministic step; pruning is cheap and interpretive.
+Separating them lets a researcher re-prune with new thresholds without
+re-extracting (re-running ESEM per level is the expensive path M26
+optimized).
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) is a
+generic (`UseMethod`), not a plain function, so it coexists with the
+`prune` generics already defined by recursive-partitioning packages
+(e.g. [`rpart::prune`](https://rdrr.io/pkg/rpart/man/prune.rpart.html))
+regardless of package load order. Returns the same `ackwards` object
+with `$prune` populated (replacing any prior pruning) — no new class, so
+`print`/`summary`/`tidy`/`glance`/`augment`/ `autoplot` all work
+unchanged. 28. Edges for redundancy chains and artifact φ are recomputed
+**fresh inside
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)**
+via `compute_edges(pairs = "all")` from the object’s stored `levels`/`r`
+(Invariant 3), and never written back to `x$edges` (Invariant 1: one
+edge path).
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)‘s
+`pairs` auto-upgrade to `"all"` when pruning was requested (M5 item 17)
+is removed along with it — `pairs` is now a pure display/storage setting
+on
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md),
+decoupled from pruning;
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+works correctly regardless of the fit-time `pairs` value. 29. Manual
+pruning: `prune(x, rules = "none", manual = c("m4f3", "m4f4"))` flags
+user-named nodes directly (standalone, no auto rule needed), or unions
+them onto an auto rule’s flags
+(`prune(x, "redundant", manual = c(...))`). Unknown labels error. On
+overlap between an auto rule and `manual`, the auto rule’s
+`prune_reason` wins (more informative); only otherwise-unflagged manual
+nodes get `prune_reason = "manual"`. 30. Naming: canonical rule name is
+**`"artifact"`** (US spelling, the owner’s preference), with
+`"artefact"` accepted as an alias (nod to Commonwealth spelling and to
+Forbes’ own usage) and normalized internally to `"artifact"`. Existing
+code passing `"artefact"` keeps working. `"tucker"` was considered and
+rejected as an alias/rename: the mode surfaces more than Tucker’s φ (it
+also computes the `few_items`/`orphan`/`split_merge` structural
+signals), so naming it after the statistic would mislabel the umbrella —
+`"artifact"` names what the mode is *for*. 31.
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+explicitly rejects the five removed args if passed via `...` (rather
+than silently absorbing them) with a pointer to
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) —
+silent absorption would be a masked-argument footgun, not the clean
+break intended (Invariant 6: loud, not silent).
 
 **Known limitations / deferred to future milestones:** - `factor_cor` in
 the ESEM engine is not permuted by the variance-sort `ord` vector. Safe

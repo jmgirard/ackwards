@@ -80,11 +80,6 @@ not a fitted higher-order SEM.</p>
 <span>  keep_fits <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pairs <span class="op">=</span> <span class="st">"adjacent"</span>,</span>
-<span>  prune <span class="op">=</span> <span class="st">"none"</span>,</span>
-<span>  redundancy_r <span class="op">=</span> <span class="fl">0.9</span>,</span>
-<span>  redundancy_phi <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  min_items <span class="op">=</span> <span class="fl">3L</span>,</span>
-<span>  orphan_r <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  cut_show <span class="op">=</span> <span class="fl">0.3</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -208,63 +203,9 @@ captured for reproducibility metadata). Default <code>NULL</code>.</p></dd>
 <dt id="arg-pairs">pairs<a class="anchor" aria-label="anchor" href="#arg-pairs"></a></dt>
 <dd><p>Which level pairs to compute edges for: <code>"adjacent"</code> (default,
 classic Goldberg – only consecutive levels) or <code>"all"</code> (Forbes extension –
-every pair of levels). <code>"all"</code> reveals associations that span multiple
-levels and is required for redundancy pruning. Setting <code>prune</code> to anything
-other than <code>"none"</code> automatically upgrades this to <code>"all"</code> with a message.</p></dd>
-
-
-<dt id="arg-prune">prune<a class="anchor" aria-label="anchor" href="#arg-prune"></a></dt>
-<dd><p>Character vector controlling Forbes-extension pruning. Default
-<code>"none"</code> (no pruning). Options:</p><ul><li><p><code>"redundant"</code> – identify chains of factors connected by primary-parent
-links with <code>|r| &gt;= redundancy_r</code> (and optionally <code>phi &gt; redundancy_phi</code>).
-Applies Forbes's (2023) retention rule: keep the bottom node when the
-chain reaches level <code>k</code> (most specific); keep the top node otherwise.
-Pruning is <em>flag-only</em>: flagged nodes stay in the object with
-<code>pruned = TRUE</code> and <code>prune_reason = "redundant"</code> in <code>x$prune$nodes</code>.</p></li>
-<li><p><code>"artefact"</code> – compute Tucker's congruence coefficient (phi) for all
-cross-level factor pairs and store in <code>x$prune$phi</code> for researcher
-inspection. No factors are auto-flagged; artefact identification requires
-judgment (Forbes, 2023; Wicherts et al., 2016).</p></li>
-</ul></dd>
-
-
-<dt id="arg-redundancy-r">redundancy_r<a class="anchor" aria-label="anchor" href="#arg-redundancy-r"></a></dt>
-<dd><p>Scalar in <code>(0, 1]</code>. Adjacent primary-parent <code>|r|</code>
-threshold for redundancy chains. Default <code>0.9</code> (Forbes, 2023).</p></dd>
-
-
-<dt id="arg-redundancy-phi">redundancy_phi<a class="anchor" aria-label="anchor" href="#arg-redundancy-phi"></a></dt>
-<dd><p>Scalar in <code>(0, 1]</code>, <code>NULL</code> (default, auto), or <code>NA</code>
-(explicit opt-out). When <code>NULL</code>:</p><ul><li><p><code>engine = "pca"</code> — no phi filter (the W'RW algebra is exact; phi adds
-nothing that |r| does not already capture).</p></li>
-<li><p><code>engine = "efa"</code> or <code>"esem"</code> — automatically set to <code>0.95</code> (Lorenzo-Seva
-&amp; ten Berge, 2006). Factor-score indeterminacy off-PCA means |r|-alone
-is liberal; the conjunctive phi criterion is the conservative default.
-A cli message announces the resolved value (Invariant 6).
-Pass <code>NA</code> to disable phi filtering regardless of engine (matches the old
-<code>NULL</code> behaviour). Pass a numeric value to override on any engine.</p></li>
-</ul></dd>
-
-
-<dt id="arg-min-items">min_items<a class="anchor" aria-label="anchor" href="#arg-min-items"></a></dt>
-<dd><p>Minimum number of items for which a factor must be the
-primary loader (highest <code>|loading|</code>). Factors with fewer than <code>min_items</code>
-primary items are flagged <code>few_items = TRUE</code> in <code>x$prune$structural</code>. Only
-used when <code>prune = "artefact"</code>. Default <code>3L</code> – a factor defined by one or
-two items is under-identified and frequently an extraction artefact rather
-than a replicable construct (the classic "three-indicator rule"; Forbes,
-2023, Fig. 2).</p></dd>
-
-
-<dt id="arg-orphan-r">orphan_r<a class="anchor" aria-label="anchor" href="#arg-orphan-r"></a></dt>
-<dd><p>Threshold for the <code>orphan</code> structural signal. A factor whose
-maximum <strong>adjacent-level</strong> <code>|r|</code> (to the immediately shallower and deeper
-levels) falls below <code>orphan_r</code> is flagged <code>orphan = TRUE</code> in
-<code>x$prune$structural</code> – it does not connect to the neighbouring solutions
-and so does not replicate across the hierarchy. Only used when
-<code>prune = "artefact"</code>. Default <code>0.5</code> – a moderate correlation; a factor
-that shares less than a quarter of its variance with every neighbour is a
-structural outlier worth inspecting.</p></dd>
+every pair of levels, including skip-level correlations). <code><a href="prune.html">prune()</a></code>
+recomputes its own all-pairs edges on demand regardless of this setting,
+so pruning does not require <code>pairs = "all"</code> here.</p></dd>
 
 
 <dt id="arg-cut-show">cut_show<a class="anchor" aria-label="anchor" href="#arg-cut-show"></a></dt>
@@ -363,7 +304,9 @@ differences: An extension of Goldberg's bass-ackward method.
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="print.ackwards.html">print.ackwards()</a></code>, <code><a href="tidy.ackwards.html">tidy.ackwards()</a></code>, <code><a href="glance.ackwards.html">glance.ackwards()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="print.ackwards.html">print.ackwards()</a></code>, <code><a href="tidy.ackwards.html">tidy.ackwards()</a></code>, <code><a href="glance.ackwards.html">glance.ackwards()</a></code>,
+<code><a href="prune.html">prune()</a></code> (Forbes-extension redundancy/artifact flagging, piped off the
+result of this function)</p></div>
     </div>
 
     <div class="section level2">

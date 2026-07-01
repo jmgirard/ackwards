@@ -4,7 +4,7 @@ The classic Goldberg (2006) method computes between-level factor-score
 correlations only for *adjacent* levels: 1↔︎2, 2↔︎3, 3↔︎4, and so on.
 Forbes (2023) extended this in two ways: computing correlations across
 *all* level pairs (not just adjacent), and using those extra connections
-to identify and flag **redundant** or **artefactual** factors in the
+to identify and flag **redundant** or **artifactual** factors in the
 hierarchy.
 
 This vignette covers both extensions: `pairs = "all"` and `prune`.
@@ -88,11 +88,11 @@ refinements within a stable dimension.
 
 ## Pruning: identifying redundant factors
 
-The `prune` argument uses the skip-level correlations to automatically
-flag factors that may not be adding genuine information to the
-hierarchy.
+The [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+verb uses the skip-level correlations to automatically flag factors that
+may not be adding genuine information to the hierarchy.
 
-### `prune = "redundant"`: chains of near-identical factors
+### `prune(x, "redundant")`: chains of near-identical factors
 
 A **redundant chain** is a sequence of factors connected by near-perfect
 correlations (\|r\| ≥ 0.9 by default) across levels. If m2f2 → m3f2 →
@@ -102,10 +102,8 @@ dimension.
 
 ``` r
 
-x_prune <- ackwards(bfi,
-  k_max = 5, cor = "polychoric",
-  pairs = "all", prune = "redundant"
-)
+x_prune <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all") |>
+  prune("redundant")
 #> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
@@ -136,10 +134,11 @@ x_prune <- ackwards(bfi,
 striking finding: for this dataset and this k, the four-factor level
 adds little beyond what you already know from k = 3 and k = 5.
 
-The flagged factors are not removed from the object — `prune` is purely
-a diagnostic annotation, not a deletion. You can still inspect their
-loadings, use their scores, and include them in the diagram. Pruning
-flags guide interpretation; they do not alter the model.
+The flagged factors are not removed from the object —
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) is
+purely a diagnostic annotation, not a deletion. You can still inspect
+their loadings, use their scores, and include them in the diagram.
+Pruning flags guide interpretation; they do not alter the model.
 
 ### The pruned-factor diagram
 
@@ -212,9 +211,9 @@ For further cosmetic customization — colours, node labels, arrowheads,
 and more — see
 [`vignette("ackwards-visualization")`](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.md).
 
-### `prune = "artefact"`: factors defined by structural similarity
+### `prune(x, "artifact")`: factors defined by structural similarity
 
-An **artefact** factor is one whose loading pattern is more similar to a
+An **artifact** factor is one whose loading pattern is more similar to a
 factor at a *non-adjacent* level than to its own-level neighbors.
 Similarity is measured by Tucker’s congruence coefficient (φ):
 
@@ -225,25 +224,23 @@ Similarity is measured by Tucker’s congruence coefficient (φ):
 
 φ ranges from −1 to +1, with values \> 0.95 indicating near-identical
 loading patterns regardless of sign. A factor at k = 3 that has φ \>
-0.95 with a factor at k = 1 is suspected to be an artefact of the
+0.95 with a factor at k = 1 is suspected to be an artifact of the
 rotation rather than a genuine new dimension.
 
 ``` r
 
-x_art <- ackwards(bfi,
-  k_max = 5, cor = "polychoric",
-  pairs = "all", prune = "artefact"
-)
-#> ℹ Artefact mode: Tucker's computed for all cross-level factor pairs.
+x_art <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all") |>
+  prune("artifact")
+#> ℹ Artifact mode: Tucker's computed for all cross-level factor pairs.
 #> ℹ Structural signals computed: 2 factors flagged (few_items / orphan /
 #>   split_merge).
 #> ℹ Inspect `x$prune$phi` and `x$prune$structural`; removal is a researcher
 #>   judgment (Forbes, 2023).
 ```
 
-| Node-level artefact annotation       |       |          |        |
+| Node-level artifact annotation       |       |          |        |
 |--------------------------------------|-------|----------|--------|
-| 0 of 15 factors flagged as artefacts |       |          |        |
+| 0 of 15 factors flagged as artifacts |       |          |        |
 | Factor                               | Level | Flagged? | Reason |
 | m1f1                                 | 1     | FALSE    | —      |
 | m2f1                                 | 2     | FALSE    | —      |
@@ -261,34 +258,34 @@ x_art <- ackwards(bfi,
 | m5f4                                 | 5     | FALSE    | —      |
 | m5f5                                 | 5     | FALSE    | —      |
 
-For the BFI, the artefact criterion flags 0 factors — no factor at any
+For the BFI, the artifact criterion flags 0 factors — no factor at any
 level has a loading pattern more similar to a factor from a non-adjacent
 level than to its own-level solution. This is a good result for a
 well-validated instrument: it suggests the rotation is producing
 genuinely distinct factors at each level, not recycling old ones.
 
 On data with weaker or noisier factor structure, or with rotations that
-struggle to separate highly correlated factors, the artefact criterion
+struggle to separate highly correlated factors, the artifact criterion
 will often flag some nodes. A node can be flagged by one criterion but
 not the other; the two criteria capture different flavors of redundancy:
 
 - `"redundant"`: this factor appears at multiple levels with
   near-identical *score correlations* — it persists unchanged as k
   increases.
-- `"artefact"`: this factor’s *loading pattern* closely resembles a
+- `"artifact"`: this factor’s *loading pattern* closely resembles a
   factor from a different, non-adjacent level — it looks like a copy
   rather than a refinement.
 
-### Structural artefact signals
+### Structural artifact signals
 
-Congruence (φ) is not the only fingerprint of an artefactual factor.
+Congruence (φ) is not the only fingerprint of an artifactual factor.
 Forbes (2023, Fig. 2) describes several *structural* signatures, and
-`prune = "artefact"` reports three of them per factor in
+`prune(x, "artifact")` reports three of them per factor in
 `x$prune$structural`:
 
 - **`few_items`** — the factor is the primary (highest-loading) home for
   fewer than `min_items` items (default `3`). A factor anchored by one
-  or two items is under-identified and often an extraction artefact
+  or two items is under-identified and often an extraction artifact
   rather than a replicable construct.
 - **`orphan`** — the factor’s strongest correlation to the immediately
   neighbouring levels is below `orphan_r` (default `0.5`). It does not
@@ -299,7 +296,7 @@ Forbes (2023, Fig. 2) describes several *structural* signatures, and
   separated at the coarser solution have been merged under one factor at
   the finer solution — the split-then-merge anomaly of Forbes Fig. 2.
 
-| Structural artefact signals               |       |           |        |             |
+| Structural artifact signals               |       |           |        |             |
 |-------------------------------------------|-------|-----------|--------|-------------|
 | 2 of 15 factors raise a structural signal |       |           |        |             |
 | Factor                                    | Level | Few items | Orphan | Split/merge |
@@ -320,19 +317,19 @@ Forbes (2023, Fig. 2) describes several *structural* signatures, and
 | m5f5                                      | 5     | FALSE     | FALSE  | FALSE       |
 
 Like Tucker’s φ, these signals are **flag-and-report only** —
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-never removes a factor on their basis. Identifying an artefact requires
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+never removes a factor on their basis. Identifying an artifact requires
 researcher judgment (Forbes is explicit that this step introduces
 investigator degrees of freedom); the signals simply point you to the
 factors worth a closer look. The two thresholds, `min_items` and
 `orphan_r`, are arguments to
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md).
 
 ## Tuning the thresholds
 
 The redundancy criterion has an adjustable `redundancy_r` threshold
-(default `0.90`) matching Forbes (2023). The artefact criterion has no
-auto-flag threshold — `prune = "artefact"` computes Tucker’s φ for
+(default `0.90`) matching Forbes (2023). The artifact criterion has no
+auto-flag threshold — `prune(x, "artifact")` computes Tucker’s φ for
 researcher inspection; no factors are auto-flagged.
 
 **The `redundancy_phi` companion criterion.** Redundancy can optionally
@@ -348,7 +345,7 @@ above a threshold), not just a high score correlation. The
   Berge, 2006). Factor scores off the PCA basis are indeterminate, which
   makes a `|r|`-only rule too liberal; the loading-congruence guard
   makes the criterion conservative.
-  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
   announces this auto-resolution in the console.
 
 The examples here use the default PCA engine, so no φ filter is applied.
@@ -360,8 +357,12 @@ because the redundant chains all have correlations \> 0.97 — the
 flagging is unambiguous. With your own data you may find borderline
 cases where the threshold matters:
 
-Refitting at a few `redundancy_r` thresholds and counting flagged
-factors at each shows how sensitive the pruning is:
+Because
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) is a
+cheap, standalone step, checking a few `redundancy_r` thresholds does
+not require refitting
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+each time — the already-fit `x_all` object is re-pruned directly:
 
     #> ℹ Redundancy pruning (|r| ≥ 0.8) flagged 9 nodes.
     #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
@@ -399,13 +400,14 @@ enriches it with two questions:
     construct you want to report.
 
 2.  **Are there levels where the factor structure is just reorganizing
-    rather than genuinely differentiating?** (`prune = "redundant"`)
+    rather than genuinely differentiating?** (`prune(x, "redundant")`)
     Flagged levels can often be removed from the k range without losing
     interpretive content.
 
 A common workflow: fit with `pairs = "all"` first to examine the full
-picture, then apply `prune = "redundant"` to identify which levels add
-the most new information, and use that to guide your focus in reporting.
+picture, then pipe the result through `prune(x, "redundant")` to
+identify which levels add the most new information, and use that to
+guide your focus in reporting.
 
 ## References
 

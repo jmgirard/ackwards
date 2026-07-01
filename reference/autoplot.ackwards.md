@@ -165,8 +165,10 @@ plot(x, ...)
   pruned nodes are removed from the diagram entirely and each retained
   node is connected to its single strongest kept ancestor by a straight
   arrow (even across level gaps). Requires the object to carry pruning
-  annotations (`prune != "none"` at fit time); errors if not. Overrides
-  `show_skip`, `curvature`, and `primary_only`. Default `FALSE`.
+  annotations (piped through
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md));
+  errors if not. Overrides `show_skip`, `curvature`, and `primary_only`.
+  Default `FALSE`.
 
 - compress_levels:
 
@@ -248,7 +250,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   autoplot(x, primary_only = TRUE)
 
   # Forbes pruned view: omit redundant nodes, straight spanning arrows
-  xp <- ackwards(bfi25, k_max = 5, prune = "redundant")
+  xp <- ackwards(bfi25, k_max = 5) |> prune("redundant")
   autoplot(xp, drop_pruned = TRUE)
   autoplot(xp, drop_pruned = TRUE, show_r = TRUE)
   autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
@@ -273,8 +275,6 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
 #> Warning: ! 125 rows have missing values; correlations are computed pairwise.
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
-#> ℹ `pairs` upgraded to "all": pruning requires all-levels edges to assess
-#>   redundancy chains and artefact relationships.
 #> Warning: ! 125 rows have missing values; correlations are computed pairwise.
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
 #> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 7 nodes.

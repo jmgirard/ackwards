@@ -1,4 +1,4 @@
-# ROADMAP.md — planned milestones (M34–M38)
+# ROADMAP.md — planned milestones (M35–M38)
 
 Forward-looking counterpart to
 [`MILESTONES.md`](https://jmgirard.github.io/ackwards/MILESTONES.md).
@@ -11,6 +11,14 @@ their context survives across planning sessions.
 has shipped; see its `MILESTONES.md` entry and
 [`?sim16`](https://jmgirard.github.io/ackwards/reference/sim16.md).
 M37/M38’s dependency on M33 is satisfied.
+
+M34 (the
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+verb) has shipped; see its `MILESTONES.md` entry. M38’s forbes-vignette
+dependency on “final
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+API + artifact naming” is satisfied — canonical rule name is
+`"artifact"` (`"artefact"` accepted as an alias).
 
 **Read this before running `/plan-milestone N` for any milestone
 below.** The one-line index in `CLAUDE.md` (“Remaining milestones in the
@@ -36,51 +44,6 @@ spec — the concrete file-level plan and acceptance criteria are produced
 at `/plan-milestone` time. - When a milestone ships, delete its section
 here and rely on its `MILESTONES.md` entry. Keep this file scoped to
 *pending* work only.
-
-------------------------------------------------------------------------
-
-## M34 — Pruning verb: extract `prune()` from `ackwards()`
-
-- **Type:** code (breaking, pre-CRAN) · **Depends on:** none ·
-  **Blocks:** M38 (forbes vignette)
-- **Status:** pending.
-
-**Banked design decisions (from the roadmap discussion — these are
-settled, not open):** - Pruning is already **flag-only, never removes**
-(`prune.R` writes `pruned`/`prune_reason` annotations into
-`x$prune$nodes`, preserving Invariant 5). That makes it architecturally
-a post-hoc annotation pass — the shape of a pipeable verb. - **Extract a
-`prune()` verb:** `ackwards(...) |> prune(...)`. The five prune args
-(`prune`, `redundancy_r`, `redundancy_phi`, `min_items`, `orphan_r`)
-**leave
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-entirely** and live on the new verb. Lets users re-prune with new
-thresholds *without re-extracting* (re-running ESEM is the expensive
-path M26 optimized). - **Clean move, no deprecation shim** — pre-CRAN,
-no users, so the old args don’t need to forward. - **Manual + mixed
-pruning:** `prune(x, "redundant", manual = c("m4f3","m4f4"))` runs the
-auto rules then unions in user-named nodes flagged
-`prune_reason = "manual"`. Stays flag-only; `.drop_pruned_nodes()` (M8)
-already handles display. Invariant 5 untouched. - The
-**`prune = "artefact"` vs `"tucker"` naming** decision moves *here* (the
-whole surface is being rebuilt), rather than staying in the M32 naming
-pass. Consider permitting either as aliases. - **DESIGN.md update
-required:** §5 and §14 currently frame pruning as *inside* the Forbes
-extension; moving it to a standalone verb is a genuine design change and
-must be reflected there.
-
-**Source notes (forbes vignette + design fork):** - “is ‘artefact’ a
-better option name for prune than ‘tucker’? any value in permitting
-either as equal alternatives?” - “still not clear what im supposed to do
-with the artefactual pruning, is this automatic and youre just
-explaining what happens under the hood? let’s clarify” - “where do
-artefactual factors come from? overextraction? misspecified data?” -
-design fork: “wondering if it is better to keep the pruning stuff folded
-into ackwards() … or have that be a separate follow-up step that you
-pipe the output of ackwards into. similarly, if the pruning decisions
-are … user determined, we need some way for them to manually prune
-factors not just have it done automatically (and probably allow a mix of
-automatic and defined prunes).”
 
 ------------------------------------------------------------------------
 
@@ -205,7 +168,8 @@ reopen these.
 
 ## M38 — Narrative & remaining prose (intro, suggest_k, ordinal, forbes, README)
 
-- **Type:** doc · **Depends on:** M33, M34 · **Status:** pending.
+- **Type:** doc · **Depends on:** M33, M34 (both shipped) · **Status:**
+  pending.
 
 **Banked decision (from the M33 post-review):** the suggest_k vignette
 is the natural home for the `sim16` (idealized, criteria converge on 4)
@@ -268,9 +232,15 @@ starts with a verbatim span - can we reorganize to avoid that?” -
 “should a pruned level (level 4 in this example) still have its level
 label on the left? maybe include but put its level label in parentheses
 or make it italic to denote its status?” *(display detail — coordinate
-with M34/M35.)* - “in these gt tables, the true values need to be
-colored or something - too hard to visually find.” - “the code is hidden
-in the redundancy_r chunk, only the output is displayed in a massive
-block. was that intentional? looks confusing.” - “lorenzo-seva citation
-mentioned but not realized at the end.” - *Depends on M33 (guaranteed
-Tucker finding) and M34 (final `prune()` API + artefact naming).*
+with M35; M34 did not touch rendering.)* - “in these gt tables, the true
+values need to be colored or something - too hard to visually find.” -
+“the code is hidden in the redundancy_r chunk, only the output is
+displayed in a massive block. was that intentional? looks confusing.” -
+“lorenzo-seva citation mentioned but not realized at the end.” -
+*Depended on M33 (guaranteed Tucker finding) and M34 (final
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+API + artifact naming) — both shipped; the vignette’s code chunks were
+mechanically updated to the piped
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) API
+in M34 itself (see its `MILESTONES.md` entry), but the deeper
+prose/formatting notes above are still M38’s to resolve.*

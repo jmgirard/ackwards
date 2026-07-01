@@ -2,10 +2,13 @@
 
 ## Fit the model
 
-The main modelling function and a helper for choosing k.
+The main modelling function, a Forbes-style pruning verb, and a helper
+for choosing k.
 
 - [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
   : Bass-ackwards hierarchical structural analysis
+- [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) :
+  Flag redundant or artifactual factors (Forbes 2023 extension)
 - [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
   : Suggest a maximum number of factors for bass-ackwards analysis
 - [`print(`*`<suggest_k>`*`)`](https://jmgirard.github.io/ackwards/reference/print.suggest_k.md)
