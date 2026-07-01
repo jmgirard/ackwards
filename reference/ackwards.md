@@ -109,27 +109,46 @@ ackwards(
     edges are all consistent. `n_obs` in the result reflects the reduced
     N.
 
-  - `"fiml"` – Full Information Maximum Likelihood. Passes
+  - `"fiml"` – Full Information Maximum Likelihood. For
+    `engine = "esem"` (with `estimator = "ML"`/`"MLR"`), passes
     `missing = "fiml"` to
-    [`lavaan::efa()`](https://rdrr.io/pkg/lavaan/man/efa.html); edge
-    correlations are derived from lavaan's FIML-estimated saturated
-    model, ensuring consistency. **Only valid for `engine = "esem"` with
-    `estimator = "ML"` or `"MLR"`** – errors for PCA, EFA, and
-    WLSMV/ULSMV. Note: FIML improves factor estimation under missingness
-    but does not impute item responses; score materialisation
-    (`keep_scores = TRUE`) still produces `NA` rows for incomplete
-    observations.
+    [`lavaan::efa()`](https://rdrr.io/pkg/lavaan/man/efa.html) and
+    derives edge correlations from lavaan's FIML-estimated saturated
+    model. For `engine = "pca"`/`"efa"` (M38), the correlation matrix is
+    estimated via
+    [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html) and
+    fed to the usual `W'RW` algebra; this requires `cor = "pearson"`
+    (corFiml estimates a multivariate-normal matrix) and the route is
+    announced via a cli message. Errors for WLSMV/ULSMV and for a
+    non-Pearson PCA/EFA basis. Note: FIML improves estimation under
+    missingness but does not impute item responses; score
+    materialisation (`keep_scores = TRUE`) still produces `NA` rows for
+    incomplete observations. See `n_obs` for the fit-index sample size
+    on the PCA/EFA path.
 
 - n_obs:
 
-  Number of observations. Used only when `data` is a pre-computed
-  correlation matrix. Ignored when raw data are supplied (N is
-  determined from `nrow(data)`). For `engine = "efa"`, `n_obs` is
-  required – [`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html)
-  needs N to compute fit indices (chi-square, RMSEA, TLI). For
-  `engine = "pca"`, `n_obs` is optional; edges use only the `W'RW`
-  algebra and never touch N (if `NULL`, stored as `NA_integer_` and fit
-  statistics requiring N are unavailable).
+  Number of observations, or (on the raw-data FIML path) a string
+  selecting which N feeds the fit indices.
+
+  - **Correlation-matrix input:** a positive integer. Required for
+    `engine = "efa"`
+    ([`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html) needs N for
+    chi-square / RMSEA / TLI); optional for `"pca"` (stored as
+    `NA_integer_` if omitted, disabling N-dependent fit statistics).
+
+  - **Raw data:** N is normally taken from `nrow(data)` and a numeric
+    `n_obs` is ignored (with a warning). The exception is
+    `missing = "fiml"` with `engine = "pca"`/`"efa"` (M38): because
+    [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html)
+    estimates the correlation matrix from incomplete rows, `n_obs` may
+    be `"total"` (default – every row contributing to the FIML
+    likelihood, matching the FIML convention; Enders, 2010) or
+    `"complete"` (complete-case N, a conservative lower bound). Point
+    estimates (loadings, edges) do not depend on this choice; only the
+    EFA fit indices do, and those are *approximate* under this two-step
+    (FIML matrix into normal-theory EFA) route regardless of N (Zhang &
+    Savalei, 2020). A string `n_obs` is accepted only on this path.
 
 - align_signs:
 
@@ -285,6 +304,13 @@ Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg's bass-ackward method.
 *Psychological Methods*.
 [doi:10.1037/met0000546](https://doi.org/10.1037/met0000546)
+
+Enders, C. K. (2010). *Applied Missing Data Analysis*. Guilford Press.
+
+Zhang, X., & Savalei, V. (2020). Examining the effect of missing data on
+RMSEA and CFI under normal theory full-information maximum likelihood.
+*Structural Equation Modeling*, 27(2), 219–239.
+[doi:10.1080/10705511.2019.1642111](https://doi.org/10.1080/10705511.2019.1642111)
 
 ## See also
 
