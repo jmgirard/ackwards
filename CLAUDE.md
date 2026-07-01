@@ -64,29 +64,35 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-**M39 is complete** — the final milestone of the M31–M39 documentation/UX epic, which has now
-shipped in full. M39 was a doc-only prose/formatting pass across the intro, suggest_k, ordinal,
-forbes, and README pages (`print(sk)`/`print(x)`; orthogonal-varimax rationale; SE/CI-NA note;
-`top_items(cut = 0.5)`; **removed** the README/intro red-arrow explanation since the M35 sign fix
-left no red arrow to explain; de-indexed README score columns; dropped the Waller citation nudge;
-`sim16`-vs-`bfi25` suggest_k contrast; ordinal binary/tetrachoric + WLSMV-polychoric +
-scores-trustworthy clarifications; forbes heading rewrites + visible thresholds chunk +
-structural-table gt highlight + Lorenzo-Seva ref; alphabetized refs). No `R/`/NAMESPACE/export
-change. See `MILESTONES.md` for detail.
+**M40 is planned and in progress** — the one pending milestone, spun off *from* M39's planning
+(three code/viz asks deliberately excluded from the doc-only M39). Owner decisions at plan time
+(2026-07-01) reshaped it:
 
-**Next up: M40** — the one pending milestone, spun off *from* M39's planning: three code/viz asks
-deliberately excluded from the doc-only M39. (1) an ordinal `categorical` convenience flag
-(pearson↔polychoric / MLR↔WLSMV switch — **needs owner sign-off**; it partly duplicates the explicit
-`cor`/estimator surface, so it is not a resolved default yet); (2) an ordinal correlation-comparison
-visualization (dodged-bar or gt long-format replacing the raw matrix chunks — viz-only); (3) Forbes
-pruned-level axis-label styling in `autoplot()` (code, M35 territory). Not yet planned — run
-`/plan-milestone 40` before starting. Full brief in [`ROADMAP.md`](ROADMAP.md) §M40; also logged in
-`DESIGN.md` §14.
+1. **Ordinal `categorical` convenience flag → DECLINED.** `cor = "polychoric"` already auto-selects
+   the WLSMV estimator (`estimator = NULL` auto-rule; see `R/ackwards.R` and §9), so a `categorical`
+   flag would be a pure synonym for `cor = "polychoric"`, not a two-settings-in-one shortcut — it adds
+   a conflict surface (`categorical = TRUE` + `cor = "pearson"`?) and a §9 defaults change for zero new
+   capability. Discoverability is handled at the docs layer (M39 already points ordinal users to
+   `cor = "polychoric"`). No `R/`/`DESCRIPTION`/§9 change; decline recorded in `DESIGN.md` §14.
+2. **Ordinal correlation-comparison viz → dodged bar chart** (viz-only). Replace the two raw
+   `round(x$r[1:5,1:5], 2)` matrix chunks in `vignettes/ackwards-ordinal.Rmd` with one dodged bar
+   chart: lower-triangle item pairs, `fill = basis` (Pearson vs polychoric), reshape code hidden. No
+   package-code or dependency change (`ggplot2` already in Suggests).
+3. **Forbes pruned-level axis labels → italic** (`autoplot()` code). A **fully-pruned** level (every
+   node flagged) gets an italicized axis label in the normal greyed-node path; automatic (no new arg),
+   mirroring the existing auto grey-fill. Under `drop_pruned = TRUE` a fully-pruned level renders no
+   label anyway. New helper `.fully_pruned_levels()`, threaded into `.ba_level_labels()` (both
+   directions), tested via layer data on a pruned `sim16` object.
 
-`ROADMAP.md` is the forward-looking counterpart for the one *pending* milestone (M40); the
-epic-wide rationale and raw pkgdown-review notes it once held for M31–M39 have been retired into each
-milestone's `MILESTONES.md` entry as they shipped. `MILESTONES.md` remains the source of truth for
-*completed* milestones.
+Acceptance: `.fully_pruned_levels()` correct + unit-tested; italic on the fully-pruned level, plain
+elsewhere, both `direction` values, no regression on un-pruned / `drop_pruned` paths; ordinal
+vignette knits with the raw matrices gone; §14 records the categorical decline (§9 unchanged);
+`document()` (if roxygen changed) + `check()` clean (0/0/0) once at the gate + coverage maintained +
+styled/linted + `pkgdown::check_pkgdown()` passes; `MILESTONES.md`/`CLAUDE.md` index/`NEWS.md`
+updated; `ROADMAP.md` §M40 retired at ship. **No new export, no signature change, no new dependency.**
+
+`ROADMAP.md` §M40 holds the original spin-off brief; it is deleted when M40 ships (the last pending
+milestone). `MILESTONES.md` remains the source of truth for *completed* milestones.
 
 ## Invariants — do not violate without flagging
 
