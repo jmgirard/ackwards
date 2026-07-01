@@ -195,7 +195,7 @@ unit diagonal).
 
 ### Documentation
 
-Vignette comparison tables reworked for legibility (M24):
+Vignette comparison tables reworked for legibility:
 
 - `ackwards-engines` and `ackwards-ordinal` — stacked long-format
   `kable` tables replaced by **wide gt tables**: one row per item/edge,

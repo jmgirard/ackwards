@@ -87,10 +87,13 @@ as part of the definition of done.
   table, cutoff flags, loading CIs, fit plot, vignette framing)
 - **M28** — CD correctness & honesty fix (`cd_rmse` trailing-zero bug;
   “minimize” label/roxygen corrected to sequential-test framing)
+- **M29** — Strip milestone numbers from user-facing docs (`NEWS.md`
+  `(M24)` tag removed; regression test guards
+  `NEWS.md`/`README.md`/vignettes)
 
 ## Current focus
 
-No active milestone. M28 completed 2026-06-30.
+No active milestone. M29 completed 2026-06-30.
 
 ## Invariants — do not violate without flagging
 

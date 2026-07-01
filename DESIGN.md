@@ -644,8 +644,8 @@ print/plot/vignette integration).
 
 ## 15. Milestones
 
-The milestone history (M1–M26, completed) is **no longer duplicated
-here** — it lives in a single detailed log,
+The milestone history is **no longer duplicated here** — it lives in a
+single detailed log,
 [`MILESTONES.md`](https://jmgirard.github.io/ackwards/MILESTONES.md),
 with a one-line index in `CLAUDE.md`. This section was originally a
 forward-looking roadmap; now that the roadmap is complete, keeping a
