@@ -154,6 +154,10 @@
 #'   structures by Goldberg's bass-ackwards method. *Journal of Research in
 #'   Personality*, 41(4), 745--752. \doi{10.1016/j.jrp.2006.08.005}
 #'
+#' Forbes, M. K. (2023). Improving hierarchical models of individual
+#'   differences: An extension of Goldberg's bass-ackward method.
+#'   *Psychological Methods*. \doi{10.1037/met0000546}
+#'
 #' @section Performance (ESEM, large item sets):
 #' The ESEM engine fits a separate `lavaan` model at every level 1..`k_max`.
 #' For ordinal data (`cor = "polychoric"`, WLSMV) the costly sample statistics

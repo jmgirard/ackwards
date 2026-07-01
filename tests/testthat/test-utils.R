@@ -206,16 +206,18 @@ test_that("validate_ackwards() errors when object does not inherit ackwards clas
   expect_error(validate_ackwards(x), "class")
 })
 
-test_that("inst/CITATION has two entries with correct years and no unknown year", {
+test_that("inst/CITATION has a single Girard software entry, no Goldberg", {
   skip_if_not_installed("ackwards")
   cites <- citation("ackwards")
-  expect_length(cites, 2)
-  # Goldberg (2006) method paper
-  expect_equal(cites[[1]]$year, "2006")
-  # Package entry: year is set, version note is present, no "????" fallback
-  pkg_year <- cites[[2]]$year
+  expect_length(cites, 1)
+  # Package entry: authored by Girard, not Goldberg -- the method paper is
+  # cited in DESCRIPTION and roxygen @references, not the software citation.
+  expect_match(paste(format(cites[[1]]), collapse = "\n"), "Girard")
+  expect_false(any(grepl("Goldberg", format(cites))))
+  # Year is set, version note is present, no "????" fallback
+  pkg_year <- cites[[1]]$year
   expect_false(is.null(pkg_year))
   expect_false(is.na(pkg_year))
   expect_match(pkg_year, "^[0-9]{4}$")
-  expect_match(cites[[2]]$note, "R package version")
+  expect_match(cites[[1]]$note, "R package version")
 })
