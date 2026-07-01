@@ -32,9 +32,11 @@ generics::augment
 #' feeding scores straight into [cor()], [lm()], or a clustering call without
 #' dragging the item columns along. Because `augment()` always preserves row
 #' order and row count, `cbind(data, augment(x, data, append = FALSE))`
-#' reproduces the appended output exactly. For a rejoin that survives *filtering*
-#' the scores afterwards, name identifier columns with `id_cols` so they travel
-#' with the scores.
+#' reproduces the appended output exactly. A row that scores `NA` (because it is
+#' missing an item -- see *Missing data* above) is still returned in place, so the
+#' positional alignment holds even with `NA` scores. For a rejoin that survives
+#' *filtering* the scores afterwards, name identifier columns with `id_cols` so
+#' they travel with the scores.
 #'
 #' @param x An `ackwards` object.
 #' @param data A data frame or numeric matrix with the same variables (columns)

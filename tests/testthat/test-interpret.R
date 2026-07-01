@@ -220,6 +220,27 @@ test_that("print.top_items(by = 'item') and label display run without error", {
   expect_no_error(print(top_items(x, level = 3, cut = 0.25))) # label (id) path
 })
 
+test_that("print.top_items renders 'label (code)' in header (by=item) and body (by=factor)", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  d <- .make_esem_data()
+  attr(d$x1, "label") <- "First indicator"
+  x <- ackwards(d, k_max = 3, engine = "pca")
+
+  # by = "item": the item is the group HEADER, so the label appears there.
+  by_item <- cli::cli_fmt(print(top_items(x, level = 2, cut = 0, by = "item")))
+  expect_true(any(grepl("First indicator (x1)", by_item, fixed = TRUE)))
+
+  # by = "factor": the item is a BODY entry under each factor.
+  by_factor <- cli::cli_fmt(print(top_items(x, level = 2, cut = 0)))
+  expect_true(any(grepl("First indicator (x1)", by_factor, fixed = TRUE)))
+
+  # show_labels = FALSE prints the bare code, never the label text.
+  bare <- cli::cli_fmt(print(top_items(x, level = 2, cut = 0, show_labels = FALSE)))
+  expect_false(any(grepl("First indicator", bare, fixed = TRUE)))
+  expect_true(any(grepl("x1", bare, fixed = TRUE)))
+})
+
 test_that("print.top_items runs without error", {
   skip_if_not_installed("psych")
   set.seed(1)

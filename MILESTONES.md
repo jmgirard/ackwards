@@ -756,3 +756,16 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   `vignettes/ackwards-interpret.Rmd`, `vignettes/ackwards-intro.Rmd`, `ROADMAP.md` (M36 section
   deleted per its own maintenance rule).
   (1496 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+  Post-review (`/post-milestone-review`) follow-up, landed via branch `m36-followup-review` → PR:
+  the review returned **READY** with no Blocking or Should-fix findings; this follow-up cleared the
+  three Nice-to-haves. (1) Locked the print *content* (previously only `expect_no_error`-smoke-tested)
+  with `cli::cli_fmt()` capture: asserts `top_items()` renders `label (code)` in the item **header**
+  under `by = "item"` and in the item **body** under `by = "factor"`, and that `show_labels = FALSE`
+  prints the bare code and never the label text. (2) Broadened the `augment(id_cols = )` coverage:
+  a matrix input carrying an extra numeric `id` column (previously only data.frame was exercised),
+  an `id_cols` that also names a model item (carried through verbatim *and* still scored), and an
+  NA-scored row (missing an item) confirmed retained in place with its `id` and `NA` scores — the
+  positional-rejoin guarantee. (3) Added a `?augment` roxygen sentence spelling out that
+  `append = FALSE` returns NA-scored rows in place so positional alignment holds even with `NA`
+  scores. Code change was documentation-only (the roxygen note); the rest are tests.
+  (1509 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)

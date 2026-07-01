@@ -232,6 +232,43 @@ test_that("augment() argument guards fire", {
   )
 })
 
+test_that("augment(id_cols) works with matrix input carrying an extra id column", {
+  skip_if_not_installed("psych")
+  bfi_items <- psych::bfi[, 1:25]
+  x <- suppressWarnings(ackwards(bfi_items, k_max = 3))
+  # Numeric matrix: the model item columns plus an extra numeric "id" column.
+  mat <- cbind(id = seq_len(nrow(bfi_items)), as.matrix(bfi_items))
+  out <- suppressWarnings(augment(x, data = mat, append = FALSE, id_cols = "id"))
+  expect_identical(names(out)[1L], "id")
+  expect_equal(out$id, seq_len(nrow(bfi_items)), ignore_attr = TRUE)
+  expect_true(all(grepl("^\\.m", names(out)[-1L])))
+})
+
+test_that("augment(id_cols) may name a column that is also a model item", {
+  skip_if_not_installed("psych")
+  bfi_items <- psych::bfi[, 1:25]
+  x <- suppressWarnings(ackwards(bfi_items, k_max = 3))
+  out <- suppressWarnings(augment(x, data = bfi_items, append = FALSE, id_cols = "A1"))
+  # A1 is carried through verbatim AND still contributes to the scores.
+  expect_identical(names(out)[1L], "A1")
+  expect_identical(out$A1, bfi_items$A1)
+  expect_true(all(grepl("^\\.m", names(out)[-1L])))
+})
+
+test_that("augment(append = FALSE) preserves NA-score rows and their id_cols", {
+  skip_if_not_installed("psych")
+  bfi_items <- psych::bfi[, 1:25]
+  df <- data.frame(id = seq_len(nrow(bfi_items)), bfi_items)
+  df$A1[1L] <- NA # force row 1 to score NA (listwise NA propagation)
+  x <- suppressWarnings(ackwards(bfi_items, k_max = 3))
+  out <- suppressWarnings(augment(x, data = df, append = FALSE, id_cols = "id"))
+  # Row count preserved; the NA-scored row is retained, not dropped...
+  expect_identical(nrow(out), nrow(df))
+  expect_identical(out$id[1L], 1L)
+  # ...with NA scores, so it still aligns positionally for a rejoin.
+  expect_true(is.na(out$.m1f1[1L]))
+})
+
 # ── tidy(what = "scores") ─────────────────────────────────────────────────────
 
 test_that("tidy(x, what='scores') returns long data frame with correct columns", {
