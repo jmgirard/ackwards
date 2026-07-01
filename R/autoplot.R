@@ -106,6 +106,10 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   colour arguments). `magnitude_by` still applies. Default `FALSE`.
 #' @param show_level_labels Whether to draw level axis labels
 #'   ("1 factor", "2 factors", ...) to the left of the diagram. Default `TRUE`.
+#'   When the object carries pruning annotations (`x$prune` non-`NULL`) and
+#'   `drop_pruned = FALSE`, a level whose factors are *all* pruned has its axis
+#'   label rendered in italic to denote its status (matching the grey node
+#'   fill); partially-pruned levels keep a plain label.
 #' @param level_label_size Font size for level axis labels. Default `3`.
 #' @param node_labels A named character vector mapping factor IDs (e.g.
 #'   `"m5f1"`) to custom display strings (e.g. `"General"`). Unspecified
@@ -566,11 +570,14 @@ autoplot.ackwards <- function(
     )
   }
 
-  # (d) Level axis labels: left margin when vertical, bottom margin when horizontal
+  # (d) Level axis labels: left margin when vertical, bottom margin when horizontal.
+  # Fully-pruned levels (M40) are italicised. Only the normal path retains such
+  # levels' nodes; under drop_pruned they were removed, so nothing matches.
   if (show_level_labels) {
     p <- p + .ba_level_labels(
       nodes, node_width, level_label_size,
-      direction = direction, node_height = node_height
+      direction = direction, node_height = node_height,
+      pruned_levels = if (drop_pruned) integer(0) else .fully_pruned_levels(object)
     )
   }
 
@@ -631,22 +638,46 @@ autoplot.ackwards <- function(
     )
 }
 
+# Levels for which *every* node is flagged pruned (M40). A fully-pruned level's
+# axis label is italicised in the normal render path to denote its status,
+# mirroring the automatic grey node fill (a partially-pruned level keeps a plain
+# label -- its retained factors are still substantive). Returns original level
+# numbers (matching nodes$level). integer(0) when the object carries no pruning
+# annotations or nothing is flagged.
+.fully_pruned_levels <- function(object) {
+  pn <- object$prune$nodes
+  if (is.null(object$prune) || is.null(pn) || !any(pn$pruned)) {
+    return(integer(0))
+  }
+  by_level <- tapply(pn$pruned, pn$level, FUN = all)
+  as.integer(names(by_level)[by_level])
+}
+
 # Compute the level-label geom_text layer from a nodes data frame.
 # The `level` column holds original level numbers (preserved even under
 # compress_levels so labels read "3 factors" not "2 factors" at a re-indexed y).
 # Labels sit to the left of the diagram when vertical, below it when horizontal.
 .ba_level_labels <- function(nodes, node_width, level_label_size,
-                             direction = "vertical", node_height = 0.4) {
+                             direction = "vertical", node_height = 0.4,
+                             pruned_levels = integer(0)) {
   labels_for <- function(level) {
     ifelse(level == 1L, "1 factor", paste(level, "factors"))
+  }
+  # Fully-pruned levels (M40) are italicised; all others plain. fontface is a
+  # per-row geom_text aesthetic, so it is carried as a column.
+  face_for <- function(level) {
+    ifelse(level %in% pruned_levels, "italic", "plain")
   }
   if (direction == "horizontal") {
     level_df <- unique(nodes[, c("level", "x"), drop = FALSE])
     level_df$ly <- min(nodes$y) - (node_height / 2 + 0.8)
     level_df$lt <- labels_for(level_df$level)
+    level_df$lf <- face_for(level_df$level)
     ggplot2::geom_text(
       data = level_df,
-      ggplot2::aes(x = .data$x, y = .data$ly, label = .data$lt),
+      ggplot2::aes(
+        x = .data$x, y = .data$ly, label = .data$lt, fontface = .data$lf
+      ),
       size = level_label_size,
       vjust = 1,
       inherit.aes = FALSE
@@ -655,9 +686,12 @@ autoplot.ackwards <- function(
     level_df <- unique(nodes[, c("level", "y"), drop = FALSE])
     level_df$lx <- min(nodes$x) - (node_width / 2 + 0.8)
     level_df$lt <- labels_for(level_df$level)
+    level_df$lf <- face_for(level_df$level)
     ggplot2::geom_text(
       data = level_df,
-      ggplot2::aes(x = .data$lx, y = .data$y, label = .data$lt),
+      ggplot2::aes(
+        x = .data$lx, y = .data$y, label = .data$lt, fontface = .data$lf
+      ),
       size = level_label_size,
       hjust = 1,
       inherit.aes = FALSE
