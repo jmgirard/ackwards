@@ -179,9 +179,9 @@ print.summary_ackwards <- function(x, ...) {
         cli::cli_text("  Flagged: {nodes_str}")
       }
     }
-    if ("artefact" %in% p$rules) {
+    if ("artifact" %in% p$rules) {
       cli::cli_text(
-        "  Artefact: Tucker's phi computed for {p$artefact_n} cross-level pair{?s}"
+        "  Artifact: Tucker's phi computed for {p$artifact_n} cross-level pair{?s}"
       )
       if (!is.null(p$structural_n)) {
         cli::cli_text(
@@ -189,6 +189,12 @@ print.summary_ackwards <- function(x, ...) {
            (inspect {.code x$prune$structural})"
         )
       }
+    }
+    if (!is.null(p$manual) && length(p$manual) > 0L) {
+      cli::cli_text(
+        "  Manual: {length(p$manual)} node{?s} explicitly flagged \\
+         ({paste(p$manual, collapse = ', ')})"
+      )
     }
     cli::cli_rule()
     cli::cli_text(
@@ -249,9 +255,9 @@ print.summary_ackwards <- function(x, ...) {
   do.call(rbind, rows)
 }
 
-# Extract pruning info for display: lists of flagged-node IDs and artefact count.
+# Extract pruning info for display: lists of flagged-node IDs and artifact count.
 # rules is carried through so print.summary_ackwards can gate on what was requested
-# (e.g. prune="artefact" never flags redundant nodes).
+# (e.g. rules="artifact" never flags redundant nodes).
 .summary_prune <- function(x) {
   if (is.null(x$prune)) {
     return(NULL)
@@ -262,7 +268,7 @@ print.summary_ackwards <- function(x, ...) {
   } else { # nocov start
     character(0L)
   } # nocov end
-  artefact_n <- if (!is.null(x$prune$phi)) nrow(x$prune$phi) else NULL
+  artifact_n <- if (!is.null(x$prune$phi)) nrow(x$prune$phi) else NULL
   structural_n <- if (!is.null(x$prune$structural)) {
     sum(
       x$prune$structural$few_items | x$prune$structural$orphan |
@@ -275,9 +281,10 @@ print.summary_ackwards <- function(x, ...) {
   list(
     rules          = x$prune$rules,
     redundant      = redundant,
-    artefact_n     = artefact_n,
+    artifact_n     = artifact_n,
     structural_n   = structural_n,
     redundancy_r   = x$prune$redundancy_r,
-    redundancy_phi = x$prune$redundancy_phi
+    redundancy_phi = x$prune$redundancy_phi,
+    manual         = x$prune$manual
   )
 }
