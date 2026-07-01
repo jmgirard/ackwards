@@ -20,9 +20,27 @@ Implement Milestone $ARGUMENTS using the plan already established earlier in thi
 Follow `CLAUDE.md`'s dev workflow and definition of done throughout:
 - Build in small, reviewable increments: one coherent change → test → commit → repeat. Do not produce one large commit at the end.
 - After any roxygen change, run `devtools::document()` and commit the regenerated `NAMESPACE`/docs.
-- Write or update tests for new behavior; run `devtools::test()` before each commit.
-- Run `devtools::check()` before considering any sub-step done; resolve errors/warnings, triage notes.
-- Style and lint (`styler::style_pkg()`, `lintr::lint_package()`).
+- Write or update tests for new behavior.
+- **Verification cadence — the full suite takes minutes, so don't re-run it needlessly:**
+  - *While iterating / before each commit:* run only the **relevant** test file(s) —
+    `devtools::test(filter = "<pattern>")` or `testthat::test_file("tests/testthat/test-<x>.R")` —
+    not the whole suite. Branches are squash-merged, so a momentarily-red intermediate commit never
+    ships; the full gate below catches everything before the PR.
+  - *Run tests in a single pass that surfaces failures **with** their details* — capture the result
+    (`res <- devtools::test(...)`; inspect `as.data.frame(res)`) or use a non-silent reporter. Never
+    run silently "to see if it's green" and then re-run "to see what broke."
+  - *`devtools::check()` already runs the entire test suite* (plus examples and vignette rebuild),
+    and `covr::package_coverage()` runs it **again**. So do **not** stack `test()` → `check()` →
+    `coverage()` at a gate — that executes the suite ~3×. Run `check()` once; it subsumes `test()`.
+  - *Mid-implementation `check()` runs* (when you just want the R CMD check signal) can skip the
+    ~74s vignette rebuild with `devtools::check(vignettes = FALSE)`. Do **one** full check
+    (vignettes included) before the PR.
+  - *Never run two package-touching R processes concurrently* (e.g. a background `check()` while a
+    foreground `test()` runs) — they interfere and can produce spurious failures.
+- **The definition-of-done gate (run once, before the PR):** `devtools::check()` (0/0/0) →
+  `covr::package_coverage()` (target 100%) → `styler::style_pkg()` → `lintr::lint_package()`. This is
+  the only place the full suite must run end-to-end; there is no need for a separate `devtools::test()`
+  here because `check()` already ran it.
 - Respect the ask-first guardrails in `CLAUDE.md`: flag before adding an `Imports` dependency, introducing Rcpp, changing a resolved default, or touching git history/tags.
 - If you hit a design ambiguity not covered by `DESIGN.md`, stop and ask rather than deciding unilaterally.
 - Update `NEWS.md` for user-visible changes.

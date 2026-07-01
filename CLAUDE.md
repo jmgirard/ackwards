@@ -142,6 +142,16 @@ styler::style_pkg()       # format
 lintr::lint_package()     # lint
 ```
 
+**Efficiency (the suite takes minutes — don't re-run it needlessly).** `check()` already runs the
+full test suite *and* examples *and* rebuilds vignettes (~3 min: ~90s tests + ~74s vignettes + ~20s
+examples), and `covr::package_coverage()` runs the suite *again* — so `test()` → `check()` →
+`coverage()` at one gate executes the suite ~3×. Instead: iterate with **targeted**
+`devtools::test(filter = "<x>")` / `testthat::test_file()`; run failing tests **once** in a way that
+shows the details (capture `res <-` or use a non-silent reporter — never silent-then-rerun); skip the
+vignette rebuild during mid-work checks with `check(vignettes = FALSE)`; and at the final gate run
+`check()` **once** (it subsumes `test()`) then `coverage()` once. Never run two package-touching R
+processes concurrently.
+
 Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_testthat(3)`,
 `use_github_action("check-standard")`. Use testthat 3e, roxygen2 for all exported functions
 (document the *why* of each default, runnable `@examples`, `@seealso` cross-links).
@@ -150,7 +160,8 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
 
 - Tests written/updated and passing; new behavior has a test.
 - `devtools::document()` run if roxygen changed; NAMESPACE committed.
-- `devtools::check()` clean.
+- `devtools::check()` clean (run **once** at the gate — it subsumes `devtools::test()`; see the
+  efficiency note under *Dev workflow*). Coverage checked once, not per sub-step.
 - Styled and linted.
 - Public-facing change reflected in NEWS.md and (if user-visible) the relevant `@examples`/vignette.
 - For a milestone: a detailed entry added to `MILESTONES.md` **in numeric order** + a one-line
