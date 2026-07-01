@@ -1449,4 +1449,22 @@ User-facing change notes live in `NEWS.md`.
   [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
   clean. (Two pre-existing defensive early-returns in `.is_cor_matrix()`
   / `.check_maybe_cov_matrix()` were given direct unit tests here to
-  keep `R/utils.R` at 100% after the M38 additions.)
+  keep `R/utils.R` at 100% after the M38 additions.) Post-review
+  (`/post-milestone-review`) follow-up, landed via branch
+  `m38-followup-review` → PR: the review returned **READY** with no
+  Blocking/Should-fix items; this cleared the two nice-to-haves.
+
+  1.  **Cross-check exclusion note** (`DESIGN.md` §14): the
+      algebra-vs-scores oracle now documents that it does not certify
+      the `missing = "fiml"` PCA/EFA path either (not just
+      `cor = "polychoric"`) — the algebra uses the `corFiml()` matrix
+      while the scores route standardizes raw NA-bearing data, so the
+      bases diverge under missingness by design; the oracle tests run
+      only on complete-data linear engines, so there is no false-failure
+      risk. (2) **`pca` + `fiml` + `n_obs = "complete"` test** added
+      (`test-missing.R`) confirming the effective-N `switch` is
+      engine-agnostic and that the R matrix/edges are identical across
+      `n_obs` choices for PCA (whose fit does not use N). The optional
+      advisory-on-complete-data idea was deliberately **not**
+      implemented — it would fire noise on legitimate always-FIML
+      workflows for no correctness benefit.
