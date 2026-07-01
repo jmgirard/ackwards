@@ -78,20 +78,19 @@ test_that("suggest_k(sim16) converges on the true k = 4 (idealized case)", {
   expect_equal(as.integer(names(which.max(table(ks)))), 4L)
 })
 
-test_that("sim16 at k_max = 5 guarantees a redundant chain and an artefact signal", {
+test_that("sim16 at k_max = 5 guarantees a redundant chain and an artifact signal", {
   skip_if_not_installed("psych")
-  x <- suppressMessages(ackwards(
-    sim16,
-    k_max = 5, engine = "efa", pairs = "all",
-    prune = c("redundant", "artefact")
-  ))
+  x <- suppressMessages(
+    ackwards(sim16, k_max = 5, engine = "efa") |>
+      prune(c("redundant", "artifact"))
+  )
 
   # Redundancy: the true (non-splitting) factors persist across levels, so at
   # least one adjacent-level chain is flagged (|r| >= .9 and phi >= .95).
   expect_gte(sum(x$prune$nodes$pruned), 1L)
   expect_gte(nrow(subset(x$prune$phi, abs_phi >= 0.95)), 1L)
 
-  # Artefact: k = 5 has no real 5th dimension, so the extra factor is an
+  # Artifact: k = 5 has no real 5th dimension, so the extra factor is an
   # orphan with too few primary-loading items.
   structural <- x$prune$structural
   expect_gte(sum(structural$few_items | structural$orphan), 1L)

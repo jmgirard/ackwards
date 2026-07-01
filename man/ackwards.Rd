@@ -18,11 +18,6 @@ ackwards(
   keep_fits = FALSE,
   seed = NULL,
   pairs = "adjacent",
-  prune = "none",
-  redundancy_r = 0.9,
-  redundancy_phi = NULL,
-  min_items = 3L,
-  orphan_r = 0.5,
   cut_show = 0.3,
   ...
 )
@@ -119,57 +114,9 @@ captured for reproducibility metadata). Default \code{NULL}.}
 
 \item{pairs}{Which level pairs to compute edges for: \code{"adjacent"} (default,
 classic Goldberg -- only consecutive levels) or \code{"all"} (Forbes extension --
-every pair of levels). \code{"all"} reveals associations that span multiple
-levels and is required for redundancy pruning. Setting \code{prune} to anything
-other than \code{"none"} automatically upgrades this to \code{"all"} with a message.}
-
-\item{prune}{Character vector controlling Forbes-extension pruning. Default
-\code{"none"} (no pruning). Options:
-\itemize{
-\item \code{"redundant"} -- identify chains of factors connected by primary-parent
-links with \verb{|r| >= redundancy_r} (and optionally \code{phi > redundancy_phi}).
-Applies Forbes's (2023) retention rule: keep the bottom node when the
-chain reaches level \code{k} (most specific); keep the top node otherwise.
-Pruning is \emph{flag-only}: flagged nodes stay in the object with
-\code{pruned = TRUE} and \code{prune_reason = "redundant"} in \code{x$prune$nodes}.
-\item \code{"artefact"} -- compute Tucker's congruence coefficient (phi) for all
-cross-level factor pairs and store in \code{x$prune$phi} for researcher
-inspection. No factors are auto-flagged; artefact identification requires
-judgment (Forbes, 2023; Wicherts et al., 2016).
-}}
-
-\item{redundancy_r}{Scalar in \verb{(0, 1]}. Adjacent primary-parent \verb{|r|}
-threshold for redundancy chains. Default \code{0.9} (Forbes, 2023).}
-
-\item{redundancy_phi}{Scalar in \verb{(0, 1]}, \code{NULL} (default, auto), or \code{NA}
-(explicit opt-out). When \code{NULL}:
-\itemize{
-\item \code{engine = "pca"} — no phi filter (the W'RW algebra is exact; phi adds
-nothing that |r| does not already capture).
-\item \code{engine = "efa"} or \code{"esem"} — automatically set to \code{0.95} (Lorenzo-Seva
-& ten Berge, 2006). Factor-score indeterminacy off-PCA means |r|-alone
-is liberal; the conjunctive phi criterion is the conservative default.
-A cli message announces the resolved value (Invariant 6).
-Pass \code{NA} to disable phi filtering regardless of engine (matches the old
-\code{NULL} behaviour). Pass a numeric value to override on any engine.
-}}
-
-\item{min_items}{Minimum number of items for which a factor must be the
-primary loader (highest \verb{|loading|}). Factors with fewer than \code{min_items}
-primary items are flagged \code{few_items = TRUE} in \code{x$prune$structural}. Only
-used when \code{prune = "artefact"}. Default \code{3L} -- a factor defined by one or
-two items is under-identified and frequently an extraction artefact rather
-than a replicable construct (the classic "three-indicator rule"; Forbes,
-2023, Fig. 2).}
-
-\item{orphan_r}{Threshold for the \code{orphan} structural signal. A factor whose
-maximum \strong{adjacent-level} \verb{|r|} (to the immediately shallower and deeper
-levels) falls below \code{orphan_r} is flagged \code{orphan = TRUE} in
-\code{x$prune$structural} -- it does not connect to the neighbouring solutions
-and so does not replicate across the hierarchy. Only used when
-\code{prune = "artefact"}. Default \code{0.5} -- a moderate correlation; a factor
-that shares less than a quarter of its variance with every neighbour is a
-structural outlier worth inspecting.}
+every pair of levels, including skip-level correlations). \code{\link[=prune]{prune()}}
+recomputes its own all-pairs edges on demand regardless of this setting,
+so pruning does not require \code{pairs = "all"} here.}
 
 \item{cut_show}{Edges with \verb{|r| >= cut_show} are flagged \code{above_cut} in
 \code{tidy()} output. Default \code{0.3}.}
@@ -287,5 +234,7 @@ differences: An extension of Goldberg's bass-ackward method.
 \emph{Psychological Methods}. \doi{10.1037/met0000546}
 }
 \seealso{
-\code{\link[=print.ackwards]{print.ackwards()}}, \code{\link[=tidy.ackwards]{tidy.ackwards()}}, \code{\link[=glance.ackwards]{glance.ackwards()}}
+\code{\link[=print.ackwards]{print.ackwards()}}, \code{\link[=tidy.ackwards]{tidy.ackwards()}}, \code{\link[=glance.ackwards]{glance.ackwards()}},
+\code{\link[=prune]{prune()}} (Forbes-extension redundancy/artifact flagging, piped off the
+result of this function)
 }

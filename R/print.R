@@ -55,7 +55,7 @@ print.ackwards <- function(x, ...) {
     cli::cli_h2("Pruning")
     rules <- x$prune$rules
     if ("redundant" %in% rules) {
-      n_flagged <- sum(x$prune$nodes$pruned)
+      n_flagged <- sum(x$prune$nodes$pruned & x$prune$nodes$prune_reason == "redundant")
       r_thr <- x$prune$redundancy_r
       phi_note <- if (!is.null(x$prune$redundancy_phi)) {
         paste0(", phi > ", x$prune$redundancy_phi)
@@ -67,10 +67,10 @@ print.ackwards <- function(x, ...) {
          {n_flagged} node{?s} flagged"
       )
     }
-    if ("artefact" %in% rules) {
+    if ("artifact" %in% rules) {
       n_phi <- if (!is.null(x$prune$phi)) nrow(x$prune$phi) else 0L
       cli::cli_text(
-        "  Artefact: Tucker's phi computed for {n_phi} cross-level factor pair{?s}"
+        "  Artifact: Tucker's phi computed for {n_phi} cross-level factor pair{?s}"
       )
       if (!is.null(x$prune$structural)) {
         n_struct <- sum(
@@ -83,6 +83,12 @@ print.ackwards <- function(x, ...) {
            (inspect {.code x$prune$structural})"
         )
       }
+    }
+    if (!is.null(x$prune$manual) && length(x$prune$manual) > 0L) {
+      cli::cli_text(
+        "  Manual: {length(x$prune$manual)} node{?s} explicitly flagged \\
+         ({paste(x$prune$manual, collapse = ', ')})"
+      )
     }
     cli::cli_rule()
     cli::cli_text(

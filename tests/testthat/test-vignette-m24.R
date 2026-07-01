@@ -147,12 +147,13 @@ test_that("ordinal vignette: edges wide-pivot produces expected columns and no N
 })
 
 test_that("forbes vignette: prune-nodes table idiom returns expected columns and n_redundant", {
-  # Guards prune-nodes chunk in ackwards-forbes.Rmd
+  # Guards prune-nodes chunk in ackwards-forbes.Rmd. prune() is cheap and
+  # re-runnable without re-extraction (M34), so this reuses the shared
+  # "poly5_all" base fit (see the pairs="all" test below) rather than
+  # re-fitting: only prune() itself needs to run here.
   skip_if_not_installed("psych")
-  x_prune <- .vfit("redundant5", suppressMessages(ackwards(.bfi_cc,
-    k_max = 5, cor = "polychoric",
-    pairs = "all", prune = "redundant"
-  )))
+  x_base <- .vfit("poly5_all", ackwards(.bfi_cc, k_max = 5, cor = "polychoric", pairs = "all"))
+  x_prune <- suppressMessages(prune(x_base, "redundant"))
 
   nodes <- tidy(x_prune, what = "nodes")
   n_redundant <- sum(nodes$pruned)
@@ -191,21 +192,20 @@ test_that("forbes vignette: prune-nodes table idiom returns expected columns and
   expect_match(lvl_summary, "the entire k = 4 level", fixed = TRUE)
 })
 
-test_that("forbes vignette: prune-artefact table idiom returns expected columns", {
-  # Guards the prune-artefact-nodes chunk in ackwards-forbes.Rmd
+test_that("forbes vignette: prune-artifact table idiom returns expected columns", {
+  # Guards the prune-artifact-nodes chunk in ackwards-forbes.Rmd. Reuses the
+  # shared "poly5_all" base fit (see note in the prune-nodes test above).
   skip_if_not_installed("psych")
-  x_art <- .vfit("artefact5", suppressMessages(ackwards(.bfi_cc,
-    k_max = 5, cor = "polychoric",
-    pairs = "all", prune = "artefact"
-  )))
+  x_base <- .vfit("poly5_all", ackwards(.bfi_cc, k_max = 5, cor = "polychoric", pairs = "all"))
+  x_art <- suppressMessages(prune(x_base, "artifact"))
 
   art_nodes <- tidy(x_art, what = "nodes")
-  n_artefact <- sum(art_nodes$pruned)
+  n_artifact <- sum(art_nodes$pruned)
 
   expect_named(art_nodes, c("id", "level", "pruned", "prune_reason"), ignore.order = TRUE)
-  expect_type(n_artefact, "integer")
-  # Artefact is never auto-flagged (DESIGN §14.21); BFI flags nothing
-  expect_equal(n_artefact, 0L)
+  expect_type(n_artifact, "integer")
+  # Artifact is never auto-flagged (DESIGN §14.21); BFI flags nothing
+  expect_equal(n_artifact, 0L)
 })
 
 test_that("forbes vignette: skip-edge inline-R values are computed correctly", {

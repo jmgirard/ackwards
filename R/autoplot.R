@@ -88,7 +88,7 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   rendering path: pruned nodes are removed from the diagram entirely and
 #'   each retained node is connected to its single strongest kept ancestor by
 #'   a straight arrow (even across level gaps). Requires the object to carry
-#'   pruning annotations (`prune != "none"` at fit time); errors if not.
+#'   pruning annotations (piped through [prune()]); errors if not.
 #'   Overrides `show_skip`, `curvature`, and `primary_only`. Default `FALSE`.
 #' @param compress_levels When `TRUE` under `drop_pruned = TRUE`, closes
 #'   vertical gaps left by pruned levels so retained levels are evenly spaced;
@@ -133,7 +133,7 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   autoplot(x, primary_only = TRUE)
 #'
 #'   # Forbes pruned view: omit redundant nodes, straight spanning arrows
-#'   xp <- ackwards(bfi25, k_max = 5, prune = "redundant")
+#'   xp <- ackwards(bfi25, k_max = 5) |> prune("redundant")
 #'   autoplot(xp, drop_pruned = TRUE)
 #'   autoplot(xp, drop_pruned = TRUE, show_r = TRUE)
 #'   autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
@@ -259,14 +259,14 @@ autoplot.ackwards <- function(
     if (is.null(object$prune)) {
       cli::cli_abort(c(
         "!" = "{.arg drop_pruned = TRUE} requires pruning annotations.",
-        "i" = "Refit with {.code prune = \"redundant\"} to flag factors."
+        "i" = "Pipe through {.code prune(x, \"redundant\")} to flag factors."
       ))
     }
     if (!any(object$prune$nodes$pruned)) {
       cli::cli_warn(c(
         "!" = "{.arg drop_pruned = TRUE}: no nodes are flagged for pruning.",
         "i" = "The pruned view will be identical to the full diagram.",
-        "i" = "Use {.code prune = \"redundant\"} to flag redundant factors."
+        "i" = "Use {.code prune(x, \"redundant\")} to flag redundant factors."
       ))
     }
 

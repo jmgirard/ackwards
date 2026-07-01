@@ -86,15 +86,15 @@
 #' "reason about a hierarchy when the criteria disagree." Present `sim16`'s
 #' consensus as the ideal, not the norm.
 #'
-#' **Deliberate overextraction artefact at k=5.** The population has exactly
+#' **Deliberate overextraction artifact at k=5.** The population has exactly
 #' 4 factors, so requesting a 5th finds no real dimension: EFA produces an
 #' orphan factor with zero primary-loading items. With
-#' `prune = "artefact"` (default `min_items = 3`, `orphan_r = 0.5`), that
+#' `prune(x, "artifact")` (default `min_items = 3`, `orphan_r = 0.5`), that
 #' factor is flagged both `few_items` and `orphan`. Because the true (non-
 #' splitting) factors persist essentially unchanged from `k=3` onward, their
 #' parent-child score correlations approach 1 and are flagged by
-#' `prune = "redundant"` (`|r| >= .9` and, by default, Tucker's phi `>=
-#' .95`). This is a textbook overextraction artefact, included so the
+#' `prune(x, "redundant")` (`|r| >= .9` and, by default, Tucker's phi `>=
+#' .95`). This is a textbook overextraction artifact, included so the
 #' Forbes/redundancy examples have a guaranteed finding to teach against
 #' (unlike `bfi25`, which does not reliably trigger one).
 #'

@@ -1,24 +1,43 @@
-test_that("prune='none' leaves x$prune as NULL", {
+test_that("ackwards() no longer accepts pruning args (clean move, M34)", {
+  skip_if_not_installed("psych")
+  data <- as.data.frame(matrix(rnorm(300), 100, 6))
+  expect_error(
+    suppressWarnings(ackwards(data, k_max = 3, prune = "redundant")),
+    "no longer"
+  )
+  expect_error(
+    suppressWarnings(ackwards(data, k_max = 3, redundancy_r = 0.9)),
+    "no longer"
+  )
+})
+
+test_that("rules='none' (default) leaves x$prune as NULL and does not touch pairs/edges", {
   skip_if_not_installed("psych")
   set.seed(10)
   data <- as.data.frame(matrix(rnorm(300), 100, 6))
   x <- suppressWarnings(ackwards(data, k_max = 3))
   expect_null(x$prune)
-  expect_equal(x$meta$prune, "none")
   expect_equal(x$meta$pairs, "adjacent")
+
+  x2 <- prune(x)
+  expect_null(x2$prune)
+  expect_equal(x2$meta$pairs, "adjacent")
 })
 
-test_that("prune='redundant' auto-upgrades pairs to 'all' with message", {
+test_that("prune(x, 'redundant') does not upgrade x$meta$pairs or mutate x$edges", {
+  # M34: edges needed for redundancy chains are recomputed fresh inside
+  # prune() itself; the fit-time object's pairs/edges are left untouched
+  # (single edge path, Invariant 1).
   skip_if_not_installed("psych")
   set.seed(10)
   data <- as.data.frame(matrix(rnorm(300), 100, 6))
 
-  expect_message(
-    x <- suppressWarnings(ackwards(data, k_max = 3, prune = "redundant")),
-    "upgraded"
-  )
-  expect_equal(x$meta$pairs, "all")
-  expect_false(is.null(x$prune))
+  x <- suppressWarnings(ackwards(data, k_max = 3))
+  xp <- suppressMessages(prune(x, "redundant"))
+
+  expect_equal(xp$meta$pairs, "adjacent")
+  expect_identical(xp$edges, x$edges)
+  expect_false(is.null(xp$prune))
 })
 
 test_that("prune='redundant' detects a known redundant chain and flags correctly", {
@@ -41,7 +60,7 @@ test_that("prune='redundant' detects a known redundant chain and flags correctly
   )
 
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 4, prune = "redundant", redundancy_r = 0.9)
+    ackwards(data, k_max = 4) |> prune("redundant", redundancy_r = 0.9)
   ))
 
   nodes <- x$prune$nodes
@@ -57,7 +76,7 @@ test_that("x$prune$nodes has one row per factor with correct structure", {
   set.seed(1)
   data <- as.data.frame(matrix(rnorm(900), 150, 6))
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 3, prune = "redundant")
+    ackwards(data, k_max = 3) |> prune("redundant")
   ))
 
   nodes <- x$prune$nodes
@@ -90,7 +109,7 @@ test_that("x$prune$chains has correct structure when chains are found", {
     x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
   )
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 4, prune = "redundant", redundancy_r = 0.9)
+    ackwards(data, k_max = 4) |> prune("redundant", redundancy_r = 0.9)
   ))
 
   if (!is.null(x$prune$chains)) {
@@ -126,7 +145,7 @@ test_that("retention rule: chain reaching k_max retains bottom node", {
   )
   k_max <- 4L
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = k_max, prune = "redundant", redundancy_r = 0.9)
+    ackwards(data, k_max = k_max) |> prune("redundant", redundancy_r = 0.9)
   ))
 
   if (!is.null(x$prune$chains)) {
@@ -162,12 +181,12 @@ test_that("Tucker's phi is computed correctly by .tucker_phi", {
   expect_equal(ackwards:::.tucker_phi(c(1, 0), c(0, 1)), 0.0)
 })
 
-test_that("prune='artefact' computes phi table without flagging nodes", {
+test_that("prune(x, 'artifact') computes phi table without flagging nodes", {
   skip_if_not_installed("psych")
   set.seed(5)
   data <- as.data.frame(matrix(rnorm(900), 150, 6))
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 3, prune = "artefact")
+    ackwards(data, k_max = 3) |> prune("artifact")
   ))
 
   expect_false(is.null(x$prune))
@@ -176,8 +195,18 @@ test_that("prune='artefact' computes phi table without flagging nodes", {
   expect_true(all(c("from", "to", "level_from", "level_to", "phi") %in% names(phi_df)))
   expect_true(all(phi_df$level_from < phi_df$level_to))
 
-  # No nodes should be auto-flagged in artefact-only mode
+  # No nodes should be auto-flagged in artifact-only mode
   expect_true(all(!x$prune$nodes$pruned))
+})
+
+test_that("prune(x, 'artefact') is accepted as an alias and canonicalizes to 'artifact'", {
+  skip_if_not_installed("psych")
+  set.seed(5)
+  data <- as.data.frame(matrix(rnorm(900), 150, 6))
+  x <- suppressWarnings(suppressMessages(
+    ackwards(data, k_max = 3) |> prune("artefact")
+  ))
+  expect_equal(x$prune$rules, "artifact")
 })
 
 test_that("redundancy_phi conjunctive criterion is applied when set", {
@@ -197,10 +226,8 @@ test_that("redundancy_phi conjunctive criterion is applied when set", {
   )
   # With phi threshold of 1 (impossible), no chains should survive
   x_strict <- suppressWarnings(suppressMessages(
-    ackwards(data,
-      k_max = 4, prune = "redundant",
-      redundancy_r = 0.9, redundancy_phi = 1.0
-    )
+    ackwards(data, k_max = 4) |>
+      prune("redundant", redundancy_r = 0.9, redundancy_phi = 1.0)
   ))
   expect_true(all(!x_strict$prune$nodes$pruned))
   expect_null(x_strict$prune$chains)
@@ -209,15 +236,13 @@ test_that("redundancy_phi conjunctive criterion is applied when set", {
 test_that("invalid redundancy_r and redundancy_phi are rejected", {
   skip_if_not_installed("psych")
   data <- as.data.frame(matrix(rnorm(300), 100, 6))
+  x <- suppressWarnings(ackwards(data, k_max = 3))
   expect_error(
-    suppressWarnings(ackwards(data, k_max = 3, prune = "redundant", redundancy_r = 1.5)),
+    prune(x, "redundant", redundancy_r = 1.5),
     "redundancy_r"
   )
   expect_error(
-    suppressWarnings(ackwards(data,
-      k_max = 3, prune = "redundant",
-      redundancy_phi = -0.1
-    )),
+    prune(x, "redundant", redundancy_phi = -0.1),
     "redundancy_phi"
   )
 })
@@ -240,7 +265,7 @@ test_that("tidy(x, what='nodes') returns prune$nodes when pruning was applied", 
     x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
   )
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 4, prune = "redundant")
+    ackwards(data, k_max = 4) |> prune("redundant")
   ))
 
   nodes <- tidy(x, what = "nodes")
@@ -283,7 +308,7 @@ test_that("print.ackwards() executes without error when pruning annotations are 
     x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
   )
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 4, prune = "redundant")
+    ackwards(data, k_max = 4) |> prune("redundant")
   ))
   expect_no_error(print(x))
   expect_invisible(print(x))
@@ -292,11 +317,11 @@ test_that("print.ackwards() executes without error when pruning annotations are 
   expect_true(any(x$prune$nodes$pruned))
 })
 
-test_that("print.ackwards() shows artefact section (phi table) for prune='artefact'", {
-  # Covers print.R lines 70-74: the artefact phi-count section.
+test_that("print.ackwards() shows artifact section (phi table) for prune(x, 'artifact')", {
+  # Covers print.R lines 70-74: the artifact phi-count section.
   skip_if_not_installed("psych")
   suppressMessages(x <- suppressWarnings(
-    ackwards(bfi25[, 1:6], k_max = 3, prune = "artefact")
+    ackwards(bfi25[, 1:6], k_max = 3) |> prune("artifact")
   ))
   expect_no_error(print(x))
   expect_invisible(print(x))
@@ -320,7 +345,7 @@ test_that("print.ackwards() shows phi threshold note when redundancy_phi is set"
     x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
   )
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 4, prune = "redundant", redundancy_phi = 0.9)
+    ackwards(data, k_max = 4) |> prune("redundant", redundancy_phi = 0.9)
   ))
   expect_false(is.null(x$prune$redundancy_phi))
   expect_no_error(print(x))
@@ -450,7 +475,7 @@ test_that("B4: prune works correctly when hierarchy is truncated (k_eff < k_requ
   d <- .make_esem_data()
 
   x <- suppressWarnings(suppressMessages(
-    ackwards(d, k_max = 5, engine = "esem", prune = "redundant")
+    ackwards(d, k_max = 5, engine = "esem") |> prune("redundant")
   ))
 
   expect_equal(x$k_max, 3L)
@@ -466,14 +491,14 @@ test_that("B4: prune works correctly when hierarchy is truncated (k_eff < k_requ
   expect_true(all(x$prune$nodes$level <= 3L))
 })
 
-# ---- Tests for structural artefact signals (Wave 2 / M25) --------------------
+# ---- Tests for structural artifact signals (Wave 2 / M25) --------------------
 
-test_that("prune='artefact' populates $structural with correct schema", {
+test_that("prune(x, 'artifact') populates $structural with correct schema", {
   skip_if_not_installed("psych")
   set.seed(5)
   data <- as.data.frame(matrix(rnorm(900), 150, 6))
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 3, prune = "artefact")
+    ackwards(data, k_max = 3) |> prune("artifact")
   ))
 
   expect_false(is.null(x$prune$structural))
@@ -486,30 +511,28 @@ test_that("prune='artefact' populates $structural with correct schema", {
   expect_type(struct$split_merge, "logical")
   # phi table still present and unchanged
   expect_false(is.null(x$prune$phi))
-  # No auto-flagging (artefact is flag/report only)
+  # No auto-flagging (artifact is flag/report only)
   expect_true(all(!x$prune$nodes$pruned))
 })
 
-test_that("prune='artefact' stores min_items and orphan_r in prune slot", {
+test_that("prune(x, 'artifact') stores min_items and orphan_r in prune slot", {
   skip_if_not_installed("psych")
   set.seed(5)
   data <- as.data.frame(matrix(rnorm(900), 150, 6))
   x <- suppressWarnings(suppressMessages(
-    ackwards(data,
-      k_max = 3, prune = "artefact",
-      min_items = 2L, orphan_r = 0.3
-    )
+    ackwards(data, k_max = 3) |>
+      prune("artifact", min_items = 2L, orphan_r = 0.3)
   ))
   expect_equal(x$prune$min_items, 2L)
   expect_equal(x$prune$orphan_r, 0.3)
 })
 
-test_that("prune='redundant' leaves $structural NULL", {
+test_that("prune(x, 'redundant') leaves $structural NULL", {
   skip_if_not_installed("psych")
   set.seed(1)
   data <- as.data.frame(matrix(rnorm(600), 100, 6))
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 3, prune = "redundant")
+    ackwards(data, k_max = 3) |> prune("redundant")
   ))
   expect_null(x$prune$structural)
 })
@@ -529,7 +552,7 @@ test_that("few_items flags 2-item factor when min_items = 3", {
     x5 = 0.9 * f2 + rnorm(n, sd = 0.2)
   )
   x <- suppressMessages(
-    ackwards(data_few, k_max = 2, prune = "artefact", min_items = 3L)
+    ackwards(data_few, k_max = 2) |> prune("artifact", min_items = 3L)
   )
   struct <- x$prune$structural
   k2 <- struct[struct$level == 2L, ]
@@ -547,13 +570,13 @@ test_that("orphan flags with very high orphan_r; none with zero threshold", {
 
   # orphan_r = 0.99: nearly impossible to satisfy; all factors should be orphans
   x_high <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 3, prune = "artefact", orphan_r = 0.99)
+    ackwards(data, k_max = 3) |> prune("artifact", orphan_r = 0.99)
   ))
   expect_true(any(x_high$prune$structural$orphan, na.rm = TRUE))
 
   # orphan_r = 0: any nonzero |r| clears the threshold; none should be flagged
   x_low <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 3, prune = "artefact", orphan_r = 0)
+    ackwards(data, k_max = 3) |> prune("artifact", orphan_r = 0)
   ))
   expect_false(any(x_low$prune$structural$orphan, na.rm = TRUE))
 })
@@ -563,7 +586,7 @@ test_that("split_merge is FALSE at level 1 and level 2 (no multi-parent possible
   set.seed(7)
   data <- as.data.frame(matrix(rnorm(600), 100, 6))
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 3, prune = "artefact")
+    ackwards(data, k_max = 3) |> prune("artifact")
   ))
   struct <- x$prune$structural
   # Level 1: no parent level exists -> always FALSE
@@ -572,24 +595,24 @@ test_that("split_merge is FALSE at level 1 and level 2 (no multi-parent possible
   expect_false(any(struct$split_merge[struct$level == 2L]))
 })
 
-test_that("print.ackwards() shows structural signal count for prune='artefact'", {
+test_that("print.ackwards() shows structural signal count for prune(x, 'artifact')", {
   skip_if_not_installed("psych")
   set.seed(5)
   data <- as.data.frame(matrix(rnorm(900), 150, 6))
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 3, prune = "artefact")
+    ackwards(data, k_max = 3) |> prune("artifact")
   ))
   # print must not error; structural count line present
   expect_no_error(print(x))
   expect_invisible(print(x))
 })
 
-test_that("summary.ackwards() shows structural signal count for prune='artefact'", {
+test_that("summary.ackwards() shows structural signal count for prune(x, 'artifact')", {
   skip_if_not_installed("psych")
   set.seed(5)
   data <- as.data.frame(matrix(rnorm(900), 150, 6))
   x <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 3, prune = "artefact")
+    ackwards(data, k_max = 3) |> prune("artifact")
   ))
   expect_no_error(summary(x))
   expect_no_error(print(summary(x)))
@@ -613,24 +636,24 @@ test_that("EFA prune='redundant' auto-applies redundancy_phi=0.95 and announces"
     x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
   )
   # Default redundancy_phi = NULL on EFA should auto-set to 0.95 and announce
+  x_fit <- suppressWarnings(ackwards(data, k_max = 4, engine = "efa"))
   expect_message(
-    x <- suppressWarnings(
-      ackwards(data, k_max = 4, engine = "efa", prune = "redundant")
-    ),
+    x <- prune(x_fit, "redundant"),
     "0.95"
   )
   expect_equal(x$prune$redundancy_phi, 0.95)
 })
 
-test_that("PCA prune='redundant' keeps NULL phi (no auto-phi announcement)", {
+test_that("PCA prune(x, 'redundant') keeps NULL phi (no auto-phi announcement)", {
   skip_if_not_installed("psych")
   set.seed(1)
   data <- as.data.frame(matrix(rnorm(600), 100, 6))
   # PCA: auto-resolve for NULL should stay NULL; the "0.95" announcement must
   # not appear. Capture messages and grep for absence of phi note.
+  x_fit <- suppressWarnings(ackwards(data, k_max = 3, engine = "pca"))
   msgs <- character(0L)
   x <- withCallingHandlers(
-    suppressWarnings(ackwards(data, k_max = 3, engine = "pca", prune = "redundant")),
+    prune(x_fit, "redundant"),
     message = function(m) {
       msgs <<- c(msgs, conditionMessage(m))
       invokeRestart("muffleMessage")
@@ -645,17 +668,13 @@ test_that("explicit redundancy_phi overrides auto on any engine", {
   set.seed(1)
   data <- as.data.frame(matrix(rnorm(600), 100, 6))
   x <- suppressMessages(
-    ackwards(data,
-      k_max = 3, engine = "pca", prune = "redundant",
-      redundancy_phi = 0.8
-    )
+    ackwards(data, k_max = 3, engine = "pca") |>
+      prune("redundant", redundancy_phi = 0.8)
   )
   expect_equal(x$prune$redundancy_phi, 0.8)
   x2 <- suppressMessages(
-    ackwards(data,
-      k_max = 3, engine = "efa", prune = "redundant",
-      redundancy_phi = 0.8
-    )
+    ackwards(data, k_max = 3, engine = "efa") |>
+      prune("redundant", redundancy_phi = 0.8)
   )
   expect_equal(x2$prune$redundancy_phi, 0.8)
 })
@@ -665,12 +684,10 @@ test_that("redundancy_phi = NA opts out on EFA (no phi filter, no announcement)"
   set.seed(1)
   data <- as.data.frame(matrix(rnorm(600), 100, 6))
   # NA = explicit opt-out: phi announcement must not appear
+  x_fit <- suppressWarnings(ackwards(data, k_max = 3, engine = "efa"))
   msgs <- character(0L)
   x <- withCallingHandlers(
-    suppressWarnings(ackwards(data,
-      k_max = 3, engine = "efa", prune = "redundant",
-      redundancy_phi = NA
-    )),
+    prune(x_fit, "redundant", redundancy_phi = NA),
     message = function(m) {
       msgs <<- c(msgs, conditionMessage(m))
       invokeRestart("muffleMessage")
@@ -684,16 +701,13 @@ test_that("redundancy_phi = NA opts out on EFA (no phi filter, no announcement)"
 test_that("invalid redundancy_phi value still errors (not NA or numeric in (0,1])", {
   skip_if_not_installed("psych")
   data <- as.data.frame(matrix(rnorm(300), 100, 6))
+  x <- suppressWarnings(ackwards(data, k_max = 3))
   expect_error(
-    suppressMessages(
-      ackwards(data, k_max = 3, prune = "redundant", redundancy_phi = 1.5)
-    ),
+    prune(x, "redundant", redundancy_phi = 1.5),
     "redundancy_phi"
   )
   expect_error(
-    suppressMessages(
-      ackwards(data, k_max = 3, prune = "redundant", redundancy_phi = 0)
-    ),
+    prune(x, "redundant", redundancy_phi = 0),
     "redundancy_phi"
   )
 })
@@ -773,12 +787,9 @@ test_that("auto-phi flagged set is a subset of the |r|-only set (EFA, end to end
     x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
   )
 
-  na_path <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 4, engine = "efa", prune = "redundant", redundancy_phi = NA)
-  ))
-  auto <- suppressWarnings(suppressMessages(
-    ackwards(data, k_max = 4, engine = "efa", prune = "redundant")
-  ))
+  x_fit <- suppressWarnings(ackwards(data, k_max = 4, engine = "efa"))
+  na_path <- suppressMessages(prune(x_fit, "redundant", redundancy_phi = NA))
+  auto <- suppressMessages(prune(x_fit, "redundant"))
 
   flagged_na <- na_path$prune$nodes$id[na_path$prune$nodes$pruned]
   flagged_auto <- auto$prune$nodes$id[auto$prune$nodes$pruned]
@@ -862,20 +873,180 @@ test_that("split_merge = TRUE for a factor whose items merge from two parents", 
 test_that("invalid min_items and orphan_r are rejected", {
   skip_if_not_installed("psych")
   data <- as.data.frame(matrix(rnorm(300), 100, 6))
+  x <- suppressWarnings(ackwards(data, k_max = 3))
   expect_error(
-    suppressMessages(ackwards(data, k_max = 3, prune = "artefact", min_items = 0)),
+    prune(x, "artifact", min_items = 0),
     "min_items"
   )
   expect_error(
-    suppressMessages(ackwards(data, k_max = 3, prune = "artefact", min_items = 2.5)),
+    prune(x, "artifact", min_items = 2.5),
     "min_items"
   )
   expect_error(
-    suppressMessages(ackwards(data, k_max = 3, prune = "artefact", orphan_r = 1.5)),
+    prune(x, "artifact", orphan_r = 1.5),
     "orphan_r"
   )
   expect_error(
-    suppressMessages(ackwards(data, k_max = 3, prune = "artefact", orphan_r = -0.1)),
+    prune(x, "artifact", orphan_r = -0.1),
     "orphan_r"
   )
+})
+
+# ---- M34: manual pruning, re-pruning, and edges-recomputed-fresh -----------
+
+test_that("manual pruning errors when manual is not a character vector", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  x <- suppressWarnings(ackwards(data, k_max = 3))
+  expect_error(
+    prune(x, manual = 1L),
+    "character vector"
+  )
+})
+
+test_that("print.ackwards() and print.summary_ackwards() show the Manual pruning line", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  x <- suppressWarnings(ackwards(data, k_max = 3))
+  lab <- x$levels[["2"]]$labels[1]
+  xm <- prune(x, manual = lab)
+
+  expect_no_error(print(xm))
+  expect_invisible(print(xm))
+  s <- summary(xm)
+  expect_equal(s$prune$manual, lab)
+  expect_no_error(print(s))
+  expect_invisible(print(s))
+})
+
+test_that("manual pruning works standalone (rules = 'none')", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  x <- suppressWarnings(ackwards(data, k_max = 3))
+
+  lab <- x$levels[["2"]]$labels[1]
+  xm <- prune(x, manual = lab)
+
+  expect_equal(xm$prune$rules, "none")
+  nodes <- xm$prune$nodes
+  expect_true(nodes$pruned[nodes$id == lab])
+  expect_equal(nodes$prune_reason[nodes$id == lab], "manual")
+  # No other nodes are flagged
+  expect_equal(sum(nodes$pruned), 1L)
+})
+
+test_that("manual pruning combines with an auto rule; auto reason wins on overlap", {
+  skip_if_not_installed("psych")
+  set.seed(42)
+  n <- 500
+  g <- rnorm(n)
+  s1 <- rnorm(n)
+  s2 <- rnorm(n)
+  data <- data.frame(
+    x1 = 0.9 * g + 0.3 * s1 + rnorm(n, sd = 0.1),
+    x2 = 0.9 * g + 0.3 * s1 + rnorm(n, sd = 0.1),
+    x3 = 0.9 * g + 0.3 * s1 + rnorm(n, sd = 0.1),
+    x4 = 0.9 * g + 0.3 * s2 + rnorm(n, sd = 0.1),
+    x5 = 0.9 * g + 0.3 * s2 + rnorm(n, sd = 0.1),
+    x6 = 0.9 * g + 0.3 * s2 + rnorm(n, sd = 0.1)
+  )
+  x <- suppressWarnings(ackwards(data, k_max = 4))
+  x_auto <- suppressMessages(prune(x, "redundant", redundancy_r = 0.9))
+  skip_if(!any(x_auto$prune$nodes$pruned), "no redundant nodes found for this seed")
+
+  auto_flagged <- x_auto$prune$nodes$id[x_auto$prune$nodes$pruned]
+  unflagged <- x_auto$prune$nodes$id[!x_auto$prune$nodes$pruned]
+  skip_if(length(unflagged) == 0L, "no unflagged node available to manually flag")
+
+  x_mixed <- suppressMessages(
+    prune(x, "redundant", redundancy_r = 0.9, manual = c(auto_flagged[1], unflagged[1]))
+  )
+  nodes <- x_mixed$prune$nodes
+  # Already-auto-flagged node keeps its "redundant" reason (auto wins on overlap)
+  expect_equal(nodes$prune_reason[nodes$id == auto_flagged[1]], "redundant")
+  # The otherwise-unflagged node gets prune_reason = "manual"
+  expect_true(nodes$pruned[nodes$id == unflagged[1]])
+  expect_equal(nodes$prune_reason[nodes$id == unflagged[1]], "manual")
+})
+
+test_that("manual pruning errors on unknown factor labels", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  x <- suppressWarnings(ackwards(data, k_max = 3))
+  expect_error(
+    prune(x, manual = "not_a_real_factor"),
+    "not_a_real_factor"
+  )
+})
+
+test_that("re-pruning with a new threshold does not mutate the input object or re-extract", {
+  skip_if_not_installed("psych")
+  set.seed(42)
+  n <- 500
+  g <- rnorm(n)
+  s1 <- rnorm(n)
+  s2 <- rnorm(n)
+  data <- data.frame(
+    x1 = 0.9 * g + 0.3 * s1 + rnorm(n, sd = 0.1),
+    x2 = 0.9 * g + 0.3 * s1 + rnorm(n, sd = 0.1),
+    x3 = 0.9 * g + 0.3 * s1 + rnorm(n, sd = 0.1),
+    x4 = 0.9 * g + 0.3 * s2 + rnorm(n, sd = 0.1),
+    x5 = 0.9 * g + 0.3 * s2 + rnorm(n, sd = 0.1),
+    x6 = 0.9 * g + 0.3 * s2 + rnorm(n, sd = 0.1)
+  )
+  x <- suppressWarnings(ackwards(data, k_max = 4))
+  x1 <- suppressMessages(prune(x, "redundant", redundancy_r = 0.99))
+  x2 <- suppressMessages(prune(x, "redundant", redundancy_r = 0.5))
+
+  # The original fitted object is never mutated by prune()
+  expect_null(x$prune)
+  # Re-pruning at a looser threshold flags at least as many nodes
+  expect_gte(sum(x2$prune$nodes$pruned), sum(x1$prune$nodes$pruned))
+  # No re-extraction: levels/R identical across both prune() calls
+  expect_identical(x1$levels, x$levels)
+  expect_identical(x2$levels, x$levels)
+  expect_identical(x1$r, x$r)
+  expect_identical(x2$r, x$r)
+  # x$edges is never touched by prune()
+  expect_identical(x1$edges, x$edges)
+  expect_identical(x2$edges, x$edges)
+})
+
+test_that("prune() recomputes all-pairs edges even when fit with default pairs = 'adjacent'", {
+  # Regression guard for the M34 design: prune() must not depend on the
+  # object having been fit with pairs = "all" -- it recomputes fresh
+  # all-pairs edges internally, so the endpoint-r enrichment is available
+  # for chains spanning more than one level even on a default-fit object.
+  skip_if_not_installed("psych")
+  set.seed(42)
+  n <- 500
+  g <- rnorm(n)
+  s1 <- rnorm(n)
+  s2 <- rnorm(n)
+  data <- data.frame(
+    x1 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x2 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x3 = 0.9 * g + 0.2 * s1 + rnorm(n, sd = 0.05),
+    x4 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x5 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05),
+    x6 = 0.9 * g + 0.2 * s2 + rnorm(n, sd = 0.05)
+  )
+  x <- suppressWarnings(ackwards(data, k_max = 4))
+  expect_equal(x$meta$pairs, "adjacent")
+  expect_true(all(nchar(names(x$edges$matrices)) == 3L)) # only "k:k+1" adjacent keys
+
+  xp <- suppressMessages(prune(x, "redundant", redundancy_r = 0.9))
+  skip_if(is.null(xp$prune$chains), "no chains found for this seed")
+
+  ch <- xp$prune$chains
+  long_chains <- unique(ch$chain_id[tapply(ch$level, ch$chain_id, length)[as.character(ch$chain_id)] >= 3L])
+  skip_if(length(long_chains) == 0L, "no chain of length >= 3 found for this seed")
+  for (cid in long_chains) {
+    sub <- ch[ch$chain_id == cid, ]
+    expect_false(is.na(sub$endpoint_r[which.max(sub$level)]))
+  }
 })

@@ -102,48 +102,9 @@
 #'   captured for reproducibility metadata). Default `NULL`.
 #' @param pairs Which level pairs to compute edges for: `"adjacent"` (default,
 #'   classic Goldberg -- only consecutive levels) or `"all"` (Forbes extension --
-#'   every pair of levels). `"all"` reveals associations that span multiple
-#'   levels and is required for redundancy pruning. Setting `prune` to anything
-#'   other than `"none"` automatically upgrades this to `"all"` with a message.
-#' @param prune Character vector controlling Forbes-extension pruning. Default
-#'   `"none"` (no pruning). Options:
-#'   * `"redundant"` -- identify chains of factors connected by primary-parent
-#'     links with `|r| >= redundancy_r` (and optionally `phi > redundancy_phi`).
-#'     Applies Forbes's (2023) retention rule: keep the bottom node when the
-#'     chain reaches level `k` (most specific); keep the top node otherwise.
-#'     Pruning is *flag-only*: flagged nodes stay in the object with
-#'     `pruned = TRUE` and `prune_reason = "redundant"` in `x$prune$nodes`.
-#'   * `"artefact"` -- compute Tucker's congruence coefficient (phi) for all
-#'     cross-level factor pairs and store in `x$prune$phi` for researcher
-#'     inspection. No factors are auto-flagged; artefact identification requires
-#'     judgment (Forbes, 2023; Wicherts et al., 2016).
-#' @param redundancy_r Scalar in `(0, 1]`. Adjacent primary-parent `|r|`
-#'   threshold for redundancy chains. Default `0.9` (Forbes, 2023).
-#' @param redundancy_phi Scalar in `(0, 1]`, `NULL` (default, auto), or `NA`
-#'   (explicit opt-out). When `NULL`:
-#'   * `engine = "pca"` — no phi filter (the W'RW algebra is exact; phi adds
-#'     nothing that |r| does not already capture).
-#'   * `engine = "efa"` or `"esem"` — automatically set to `0.95` (Lorenzo-Seva
-#'     & ten Berge, 2006). Factor-score indeterminacy off-PCA means |r|-alone
-#'     is liberal; the conjunctive phi criterion is the conservative default.
-#'     A cli message announces the resolved value (Invariant 6).
-#'   Pass `NA` to disable phi filtering regardless of engine (matches the old
-#'   `NULL` behaviour). Pass a numeric value to override on any engine.
-#' @param min_items Minimum number of items for which a factor must be the
-#'   primary loader (highest `|loading|`). Factors with fewer than `min_items`
-#'   primary items are flagged `few_items = TRUE` in `x$prune$structural`. Only
-#'   used when `prune = "artefact"`. Default `3L` -- a factor defined by one or
-#'   two items is under-identified and frequently an extraction artefact rather
-#'   than a replicable construct (the classic "three-indicator rule"; Forbes,
-#'   2023, Fig. 2).
-#' @param orphan_r Threshold for the `orphan` structural signal. A factor whose
-#'   maximum **adjacent-level** `|r|` (to the immediately shallower and deeper
-#'   levels) falls below `orphan_r` is flagged `orphan = TRUE` in
-#'   `x$prune$structural` -- it does not connect to the neighbouring solutions
-#'   and so does not replicate across the hierarchy. Only used when
-#'   `prune = "artefact"`. Default `0.5` -- a moderate correlation; a factor
-#'   that shares less than a quarter of its variance with every neighbour is a
-#'   structural outlier worth inspecting.
+#'   every pair of levels, including skip-level correlations). [prune()]
+#'   recomputes its own all-pairs edges on demand regardless of this setting,
+#'   so pruning does not require `pairs = "all"` here.
 #' @param cut_show Edges with `|r| >= cut_show` are flagged `above_cut` in
 #'   `tidy()` output. Default `0.3`.
 #' @param ... Reserved for future arguments.
@@ -152,7 +113,9 @@
 #'   [tidy.ackwards()], [glance.ackwards()], and [augment.ackwards()] for
 #'   output methods.
 #'
-#' @seealso [print.ackwards()], [tidy.ackwards()], [glance.ackwards()]
+#' @seealso [print.ackwards()], [tidy.ackwards()], [glance.ackwards()],
+#'   [prune()] (Forbes-extension redundancy/artifact flagging, piped off the
+#'   result of this function)
 #'
 #' @references
 #' Goldberg, L. R. (2006). Doing it all bass-ackwards. *Journal of Research in
@@ -237,15 +200,28 @@ ackwards <- function(
   keep_fits = FALSE,
   seed = NULL,
   pairs = "adjacent",
-  prune = "none",
-  redundancy_r = 0.9,
-  redundancy_phi = NULL,
-  min_items = 3L,
-  orphan_r = 0.5,
   cut_show = 0.3,
   ...
 ) {
   cl <- match.call()
+
+  # M34: pruning moved to a standalone prune() verb; the five args below no
+  # longer exist here. Without this guard they would be silently absorbed by
+  # `...` (a masked-argument footgun, not a clean break) -- error loudly
+  # instead (Invariant 6).
+  dots <- list(...)
+  moved_args <- intersect(
+    names(dots),
+    c("prune", "redundancy_r", "redundancy_phi", "min_items", "orphan_r")
+  )
+  if (length(moved_args) > 0L) {
+    cli::cli_abort(c(
+      "!" = "{.arg {moved_args}} {?is/are} no longer {?an argument/arguments} \\
+             to {.fn ackwards}.",
+      "i" = "Pruning moved to a standalone verb (M34): use \\
+             {.code ackwards(...) |> prune(...)} instead."
+    ))
+  }
 
   # --- Detect correlation-matrix vs. raw-data input ---------------------------
   # Guard first: a square symmetric matrix with non-unit diagonal is almost
@@ -262,68 +238,11 @@ ackwards <- function(
   engine <- rlang::arg_match(engine, c("pca", "efa", "esem"))
   fm <- rlang::arg_match(fm, c("minres", "ml", "pa"))
   pairs <- rlang::arg_match(pairs, c("adjacent", "all"))
-  prune <- rlang::arg_match(prune, c("none", "redundant", "artefact"),
-    multiple = TRUE
-  )
-
-  if (!is.numeric(redundancy_r) || length(redundancy_r) != 1L ||
-    redundancy_r <= 0 || redundancy_r > 1) {
-    cli::cli_abort("{.arg redundancy_r} must be a single number in (0, 1].")
-  }
-  # NA is the explicit opt-out ("no phi regardless of engine").
-  # NULL is auto (resolved below once engine and prune are known).
-  # Any other non-NULL, non-NA value must be numeric in (0, 1].
-  if (!is.null(redundancy_phi) && !isTRUE(is.na(redundancy_phi)) &&
-    (!is.numeric(redundancy_phi) || length(redundancy_phi) != 1L ||
-      redundancy_phi <= 0 || redundancy_phi > 1)) {
-    cli::cli_abort(
-      "{.arg redundancy_phi} must be a number in (0, 1], {.code NULL} (auto), or {.code NA} (opt-out)."
-    )
-  }
-  if (!is.numeric(min_items) || length(min_items) != 1L ||
-    is.na(min_items) || min_items < 1L || min_items != as.integer(min_items)) {
-    cli::cli_abort("{.arg min_items} must be a single positive integer.")
-  }
-  if (!is.numeric(orphan_r) || length(orphan_r) != 1L ||
-    is.na(orphan_r) || orphan_r < 0 || orphan_r > 1) {
-    cli::cli_abort("{.arg orphan_r} must be a single number in [0, 1].")
-  }
 
   if (!is.numeric(k_max) || length(k_max) != 1L || k_max < 2L || k_max != as.integer(k_max)) {
     cli::cli_abort("{.arg k_max} must be an integer >= 2 (need at least two levels for a hierarchy).")
   }
   k_max <- as.integer(k_max)
-
-  # Auto-upgrade pairs to "all" when pruning is requested (chains need all-levels
-  # edges for the endpoint-r enrichment; artefact phi is most informative across
-  # all pairs). Invariant 6: announce the upgrade rather than switching silently.
-  if (!identical(prune, "none") && pairs == "adjacent") {
-    pairs <- "all"
-    cli::cli_inform(c(
-      "i" = "{.arg pairs} upgraded to {.val all}: pruning requires all-levels \\
-             edges to assess redundancy chains and artefact relationships."
-    ))
-  }
-
-  # Auto-resolve redundancy_phi = NULL (Invariant 6: announce loud).
-  # NA is the explicit opt-out and maps to NULL internally.
-  if ("redundant" %in% prune) {
-    if (is.null(redundancy_phi)) {
-      if (engine %in% c("efa", "esem")) {
-        redundancy_phi <- 0.95
-        cli::cli_inform(c(
-          "i" = "{.arg redundancy_phi} auto-set to {.val 0.95} for {.val {engine}} engine \\
-                 (Lorenzo-Seva & ten Berge, 2006).",
-          "i" = "Factor-score indeterminacy off-PCA means {.code |r|}-only \\
-                 redundancy is liberal; phi adds a congruence guard.",
-          "i" = "To opt out: pass {.code redundancy_phi = NA}."
-        ))
-      }
-      # engine == "pca": keep NULL (|r|-only; W'RW algebra is exact)
-    } else if (isTRUE(is.na(redundancy_phi))) {
-      redundancy_phi <- NULL # explicit opt-out -> same as PCA default
-    }
-  }
 
   # ============================================================
   # BRANCH A -- correlation-matrix input
@@ -746,9 +665,6 @@ ackwards <- function(
     converged_levels  = conv,
     deepest_converged = max(which(conv)),
     pairs             = pairs,
-    prune             = prune,
-    redundancy_r      = redundancy_r,
-    redundancy_phi    = redundancy_phi,
     cut_show          = cut_show,
     ordinal_warned    = is_ordinal,
     missing           = missing_eff,
@@ -786,17 +702,6 @@ ackwards <- function(
     x$fits <- fits_stored
   }
 
-  # --- Forbes pruning (flag-only, never removes levels) -----------------------
-  # Pruning is applied post-assembly so .apply_pruning() can read the final
-  # aligned edges directly from the object.
-  if (!identical(prune, "none")) {
-    x$prune <- .apply_pruning(
-      x, prune, redundancy_r, redundancy_phi,
-      min_items = as.integer(min_items),
-      orphan_r = orphan_r
-    )
-  }
-
   x
 }
 
@@ -823,7 +728,7 @@ new_ackwards <- function(
       r           = r,
       data        = data,
       meta        = meta,
-      prune       = NULL # populated by .apply_pruning() when prune != "none"
+      prune       = NULL # populated by prune() (see R/prune.R); NULL until called
     ),
     class = "ackwards"
   )

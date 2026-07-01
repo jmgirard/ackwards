@@ -1,6 +1,9 @@
-# R/prune.R -- Forbes (2023) extension: redundancy/artefact pruning (internal)
+# R/prune.R -- Forbes (2023) extension: redundancy/artifact pruning
 #
-# Design (DESIGN.md s.14 items 17--21):
+# Design (DESIGN.md s.14 items 17--21; M34):
+#   - Standalone verb: prune(x, ...) pipes off ackwards(), not an ackwards()
+#     argument. Lets a researcher re-prune with new thresholds without
+#     re-running the (expensive) extraction.
 #   - Flag-only, never remove. Adds pruned/prune_reason annotations; the object
 #     retains all levels (preserves Invariant 5).
 #   - Redundancy: trace chains via ADJACENT primary-parent links with
@@ -13,9 +16,15 @@
 #     * Report direct endpoint r from all-levels edges and flag when it
 #       disagrees with the chain criterion (correlation is non-transitive:
 #       a clean adjacent chain neither implies nor is implied by endpoint identity).
-#   - Artefact: compute Tucker's phi for all cross-level factor pairs; never
-#     auto-flag. Researcher interprets (Forbes explicitly flags artefact
-#     identification as introducing researcher DoF; cf. Wicherts et al. 2016).
+#   - Artifact ("artefact" accepted as an alias): compute Tucker's phi for all
+#     cross-level factor pairs; never auto-flag. Researcher interprets (Forbes
+#     explicitly flags artifact identification as introducing researcher DoF;
+#     cf. Wicherts et al. 2016).
+#   - Manual pruning: `manual =` unions user-named nodes onto the auto rules
+#     (or works standalone with `rules = "none"`); auto reason wins on overlap.
+#   - Edges are recomputed fresh on every call via compute_edges(pairs = "all")
+#     from the stored levels/R (Invariant 3); x$edges is never mutated
+#     (Invariant 1: one edge path).
 
 # Tucker's congruence coefficient between two loading vectors (Lorenzo-Seva &
 # ten Berge, 2006). Formula: phi = sum(a*b) / sqrt(sum(a^2) * sum(b^2))
@@ -337,14 +346,9 @@
   out
 }
 
-# Main pruning dispatcher. Called from ackwards() when prune != "none".
-# Returns the $prune slot to attach to the ackwards object.
-.apply_pruning <- function(x, prune, redundancy_r, redundancy_phi,
-                           min_items, orphan_r) {
-  levels_list <- x$levels
-
-  # Baseline node table -- all nodes, initially not pruned
-  base_nodes <- data.frame(
+# Baseline node table -- all nodes, initially not pruned.
+.base_prune_nodes <- function(levels_list) {
+  out <- data.frame(
     id = unlist(lapply(levels_list, `[[`, "labels")),
     level = unlist(lapply(
       names(levels_list),
@@ -354,13 +358,25 @@
     prune_reason = NA_character_,
     stringsAsFactors = FALSE
   )
-  rownames(base_nodes) <- NULL
+  rownames(out) <- NULL
+  out
+}
+
+# Auto-rule pruning engine. `edges_view` is a lightweight stand-in for an
+# ackwards object -- list(k_max, levels, lineage, edges = list(matrices = ...))
+# -- built by prune.ackwards() from freshly recomputed all-pairs edges, so
+# these helpers can stay agnostic to whether x$edges holds adjacent or all
+# pairs. `rules` here is the auto-rule subset only (never "none"/"manual").
+# Returns the $prune slot (minus $manual, added by the caller).
+.apply_pruning <- function(levels_list, edges_view, rules, redundancy_r, redundancy_phi,
+                           min_items, orphan_r) {
+  base_nodes <- .base_prune_nodes(levels_list)
 
   chains_df <- NULL
   phi_df <- NULL
 
-  if ("redundant" %in% prune) {
-    chain_result <- .find_redundant_chains(x, redundancy_r, redundancy_phi)
+  if ("redundant" %in% rules) {
+    chain_result <- .find_redundant_chains(edges_view, redundancy_r, redundancy_phi)
     chains_df <- chain_result$chains
 
     if (!is.null(chain_result$node_flags) && nrow(chain_result$node_flags) > 0L) {
@@ -374,14 +390,14 @@
   }
 
   structural_df <- NULL
-  if ("artefact" %in% prune) {
+  if ("artifact" %in% rules) {
     # Compute phi for all cross-level pairs for researcher inspection.
-    # Pruning is not automated here -- artefact identification requires judgment
+    # Pruning is not automated here -- artifact identification requires judgment
     # (Forbes 2023 is explicit: this step introduces researcher DoF).
     phi_df <- .phi_pairs(levels_list, which_pairs = "all")
 
-    # Compute structural artefact signals: flag/report only, never auto-prune.
-    structural_df <- .compute_structural_signals(x, min_items, orphan_r)
+    # Compute structural artifact signals: flag/report only, never auto-prune.
+    structural_df <- .compute_structural_signals(edges_view, min_items, orphan_r)
   }
 
   n_flagged <- sum(base_nodes$pruned)
@@ -391,7 +407,7 @@
     ""
   }
 
-  if ("redundant" %in% prune) {
+  if ("redundant" %in% rules) {
     if (n_flagged > 0L) {
       cli::cli_inform(c(
         "i" = "Redundancy pruning (|r| {cli::symbol$geq} {redundancy_r}{phi_note}) \\
@@ -407,12 +423,12 @@
     }
   }
 
-  if ("artefact" %in% prune) {
-    # structural_df is always set above when artefact pruning runs.
+  if ("artifact" %in% rules) {
+    # structural_df is always set above when artifact pruning runs.
     n_struct <- sum(structural_df$few_items | structural_df$orphan |
       structural_df$split_merge, na.rm = TRUE)
     cli::cli_inform(c(
-      "i" = "Artefact mode: Tucker's {cli::symbol$phi} computed for all \\
+      "i" = "Artifact mode: Tucker's {cli::symbol$phi} computed for all \\
              cross-level factor pairs.",
       "i" = "Structural signals computed: {n_struct} factor{?s} flagged \\
              (few_items / orphan / split_merge).",
@@ -422,7 +438,7 @@
   }
 
   list(
-    rules          = prune,
+    rules          = rules,
     redundancy_r   = redundancy_r,
     redundancy_phi = redundancy_phi,
     min_items      = min_items,
@@ -432,4 +448,221 @@
     phi            = phi_df,
     structural     = structural_df
   )
+}
+
+#' Flag redundant or artifactual factors (Forbes 2023 extension)
+#'
+#' @description
+#' `prune()` never removes anything from an `ackwards` object -- it only
+#' annotates factors with `pruned`/`prune_reason` flags in `x$prune$nodes`
+#' (flag-only, never removes; the object keeps every level). Because it is a
+#' separate, cheap step from extraction, you can re-prune with new thresholds
+#' without re-running [ackwards()]:
+#' \preformatted{
+#'   x <- ackwards(bfi25, k_max = 6, engine = "esem")  # expensive
+#'   x |> prune("redundant")                            # cheap, repeatable
+#'   x |> prune("redundant", redundancy_r = 0.95)        # no re-extraction
+#' }
+#' `prune()` is an S3 generic (rather than a plain function) so it coexists
+#' with the `prune` generics already defined by recursive-partitioning
+#' packages (e.g. `rpart::prune`) regardless of package load order.
+#'
+#' @param x An `ackwards` object.
+#' @param rules Character vector controlling which auto-rules run. Default
+#'   `"none"` (no auto rule; combine with `manual` for pure manual pruning, or
+#'   call `prune(x)` with no arguments to clear any existing pruning). Options:
+#'   * `"redundant"` -- identify chains of factors connected by primary-parent
+#'     links with `|r| >= redundancy_r` (and optionally `phi > redundancy_phi`).
+#'     Applies Forbes's (2023) retention rule: keep the bottom node when the
+#'     chain reaches level `k_max` (most specific); keep the top node otherwise.
+#'     Flagged nodes get `pruned = TRUE` and `prune_reason = "redundant"` in
+#'     `x$prune$nodes`.
+#'   * `"artifact"` (or the alias `"artefact"`, normalized to `"artifact"`) --
+#'     compute Tucker's congruence coefficient (phi) for all cross-level factor
+#'     pairs and store in `x$prune$phi`, plus structural signals
+#'     (`few_items`/`orphan`/`split_merge`) in `x$prune$structural`. No factors
+#'     are auto-flagged; artifact identification requires judgment (Forbes,
+#'     2023; Wicherts et al., 2016).
+#' @param manual Character vector of factor labels (e.g. `c("m4f3", "m4f4")`)
+#'   to flag directly, in addition to or instead of an auto rule. Standalone
+#'   manual pruning is supported: `prune(x, manual = c("m4f3"))`. Unknown
+#'   labels error. A node already flagged by an auto rule keeps that
+#'   `prune_reason`; only otherwise-unflagged manual nodes get
+#'   `prune_reason = "manual"`.
+#' @param redundancy_r Scalar in `(0, 1]`. Adjacent primary-parent `|r|`
+#'   threshold for redundancy chains. Default `0.9` (Forbes, 2023).
+#' @param redundancy_phi Scalar in `(0, 1]`, `NULL` (default, auto), or `NA`
+#'   (explicit opt-out). When `NULL`:
+#'   * `x$engine == "pca"` -- no phi filter (the W'RW algebra is exact; phi
+#'     adds nothing that `|r|` does not already capture).
+#'   * `x$engine` is `"efa"` or `"esem"` -- automatically set to `0.95`
+#'     (Lorenzo-Seva & ten Berge, 2006). Factor-score indeterminacy off-PCA
+#'     means `|r|`-alone is liberal; the conjunctive phi criterion is the
+#'     conservative default. A cli message announces the resolved value.
+#'   Pass `NA` to disable phi filtering regardless of engine. Pass a numeric
+#'   value to override on any engine.
+#' @param min_items Minimum number of items for which a factor must be the
+#'   primary loader (highest `|loading|`). Factors with fewer than `min_items`
+#'   primary items are flagged `few_items = TRUE` in `x$prune$structural`. Only
+#'   used when `rules` includes `"artifact"`. Default `3L` -- a factor defined
+#'   by one or two items is under-identified and frequently an extraction
+#'   artifact rather than a replicable construct (the classic "three-indicator
+#'   rule"; Forbes, 2023, Fig. 2).
+#' @param orphan_r Threshold for the `orphan` structural signal. A factor whose
+#'   maximum **adjacent-level** `|r|` (to the immediately shallower and deeper
+#'   levels) falls below `orphan_r` is flagged `orphan = TRUE` in
+#'   `x$prune$structural` -- it does not connect to the neighbouring solutions
+#'   and so does not replicate across the hierarchy. Only used when `rules`
+#'   includes `"artifact"`. Default `0.5` -- a moderate correlation; a factor
+#'   that shares less than a quarter of its variance with every neighbour is a
+#'   structural outlier worth inspecting.
+#' @param ... Reserved for future methods/arguments.
+#'
+#' @return `x`, with `$prune` populated (replacing any prior pruning).
+#'
+#' @seealso [ackwards()], [tidy.ackwards()] (`what = "nodes"`),
+#'   [autoplot.ackwards()] (`drop_pruned`)
+#'
+#' @references
+#' Forbes, M. K. (2023). Improving hierarchical models of individual
+#'   differences: An extension of Goldberg's bass-ackward method.
+#'   *Psychological Methods*. \doi{10.1037/met0000546}
+#'
+#' Lorenzo-Seva, U., & ten Berge, J. M. F. (2006). Tucker's congruence
+#'   coefficient as a meaningful index of factor similarity.
+#'   *Methodology*, 2(2), 57--64. \doi{10.1027/1614-2241.2.2.57}
+#'
+#' @examples
+#' x <- ackwards(bfi25, k_max = 5)
+#'
+#' xp <- prune(x, "redundant")
+#' xp$prune$nodes
+#'
+#' # Re-prune with a new threshold -- no re-extraction needed
+#' prune(x, "redundant", redundancy_r = 0.95)
+#'
+#' # Manual pruning: standalone, or mixed with an auto rule
+#' prune(x, manual = "m4f2")
+#' prune(x, "redundant", manual = "m4f2")
+#'
+#' @export
+prune <- function(x, ...) {
+  UseMethod("prune")
+}
+
+#' @rdname prune
+#' @importFrom rlang `%||%`
+#' @export
+prune.ackwards <- function(x, rules = "none", manual = NULL,
+                           redundancy_r = 0.9, redundancy_phi = NULL,
+                           min_items = 3L, orphan_r = 0.5, ...) {
+  levels_list <- x$levels
+  all_ids <- unlist(lapply(levels_list, `[[`, "labels"))
+
+  rules <- rlang::arg_match(rules, c("none", "redundant", "artifact", "artefact"),
+    multiple = TRUE
+  )
+  rules[rules == "artefact"] <- "artifact"
+  rules <- unique(rules)
+
+  if (!is.null(manual)) {
+    if (!is.character(manual)) {
+      cli::cli_abort("{.arg manual} must be a character vector of factor labels.")
+    }
+    unknown <- setdiff(manual, all_ids)
+    if (length(unknown) > 0L) {
+      cli::cli_abort(c(
+        "!" = "{.arg manual} contains unknown factor label{?s}: {.val {unknown}}.",
+        "i" = "Valid labels: {.val {all_ids}}."
+      ))
+    }
+  }
+
+  if (!is.numeric(redundancy_r) || length(redundancy_r) != 1L ||
+    redundancy_r <= 0 || redundancy_r > 1) {
+    cli::cli_abort("{.arg redundancy_r} must be a single number in (0, 1].")
+  }
+  # NA is the explicit opt-out ("no phi regardless of engine").
+  # NULL is auto (resolved below once rules are known).
+  if (!is.null(redundancy_phi) && !isTRUE(is.na(redundancy_phi)) &&
+    (!is.numeric(redundancy_phi) || length(redundancy_phi) != 1L ||
+      redundancy_phi <= 0 || redundancy_phi > 1)) {
+    cli::cli_abort(
+      "{.arg redundancy_phi} must be a number in (0, 1], {.code NULL} (auto), or {.code NA} (opt-out)."
+    )
+  }
+  if (!is.numeric(min_items) || length(min_items) != 1L ||
+    is.na(min_items) || min_items < 1L || min_items != as.integer(min_items)) {
+    cli::cli_abort("{.arg min_items} must be a single positive integer.")
+  }
+  if (!is.numeric(orphan_r) || length(orphan_r) != 1L ||
+    is.na(orphan_r) || orphan_r < 0 || orphan_r > 1) {
+    cli::cli_abort("{.arg orphan_r} must be a single number in [0, 1].")
+  }
+  min_items <- as.integer(min_items)
+
+  auto_rules <- setdiff(rules, "none")
+
+  if (length(auto_rules) == 0L && is.null(manual)) {
+    x$prune <- NULL
+    return(x)
+  }
+
+  # Auto-resolve redundancy_phi = NULL (Invariant 6: announce loud).
+  # NA is the explicit opt-out and maps to NULL internally.
+  if ("redundant" %in% auto_rules) {
+    if (is.null(redundancy_phi)) {
+      if (x$engine %in% c("efa", "esem")) {
+        redundancy_phi <- 0.95
+        cli::cli_inform(c(
+          "i" = "{.arg redundancy_phi} auto-set to {.val 0.95} for {.val {x$engine}} engine \\
+                 (Lorenzo-Seva & ten Berge, 2006).",
+          "i" = "Factor-score indeterminacy off-PCA means {.code |r|}-only \\
+                 redundancy is liberal; phi adds a congruence guard.",
+          "i" = "To opt out: pass {.code redundancy_phi = NA}."
+        ))
+      }
+      # engine == "pca": keep NULL (|r|-only; W'RW algebra is exact)
+    } else if (isTRUE(is.na(redundancy_phi))) {
+      redundancy_phi <- NULL # explicit opt-out -> same as PCA default
+    }
+  }
+
+  if (length(auto_rules) > 0L) {
+    # Recompute all-pairs edges fresh from the stored levels/R (Invariant 3;
+    # Invariant 1 -- x$edges is never touched). Cheap: W'RW algebra, not
+    # re-extraction (DESIGN.md s.3).
+    all_edges <- compute_edges(
+      levels = levels_list, R = x$r, edge_method = "auto",
+      pairs = "all", align = FALSE,
+      cut_show = x$meta$cut_show %||% 0.3
+    )
+    edges_view <- list(
+      k_max = x$k_max, levels = levels_list, lineage = x$lineage,
+      edges = list(matrices = all_edges$matrices)
+    )
+    result <- .apply_pruning(
+      levels_list, edges_view, auto_rules, redundancy_r, redundancy_phi,
+      min_items = min_items, orphan_r = orphan_r
+    )
+  } else {
+    result <- list(
+      rules = "none", redundancy_r = redundancy_r, redundancy_phi = redundancy_phi,
+      min_items = min_items, orphan_r = orphan_r,
+      nodes = .base_prune_nodes(levels_list), chains = NULL, phi = NULL, structural = NULL
+    )
+  }
+
+  if (!is.null(manual)) {
+    idx <- match(manual, result$nodes$id)
+    to_add <- idx[!result$nodes$pruned[idx]]
+    if (length(to_add) > 0L) {
+      result$nodes$pruned[to_add] <- TRUE
+      result$nodes$prune_reason[to_add] <- "manual"
+    }
+  }
+  result$manual <- manual
+
+  x$prune <- result
+  x
 }
