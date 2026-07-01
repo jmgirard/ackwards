@@ -486,7 +486,12 @@ however they like.
   curves) since the extension correlates *all* levels, not just
   adjacent. Default to showing only above-cut edges to control clutter.
   Treat as a later milestone; ship the clean adjacent-level Goldberg
-  diagram first.
+  diagram first. **A fully-pruned level** (every factor flagged) has its
+  left/bottom axis label rendered in *italic* (M40) in the normal render
+  path, denoting its status alongside the grey node fill;
+  partially-pruned levels keep a plain label, and under
+  `drop_pruned = TRUE` a fully-pruned level’s nodes are removed so no
+  label is drawn.
 - **`label_template(x, style)` (M18, core, no heavy deps).** Generates
   the named-character-vector scaffold for `autoplot(node_labels=)`.
   Styles: `"id"` (round-trip identity), `"forbes"` (level- letter +
@@ -826,28 +831,36 @@ claim is inferentially honest. **Deferred; warrants its own milestone**
 (perf-heavy: each resample re-runs full extraction at every level; needs
 [future](https://future.futureverse.org) parallelisation +
 print/plot/vignette integration). - **M40 spin-off (code/viz deferred
-out of the doc-only M39; see `ROADMAP.md` §M40 for full context):** -
-*Ordinal `categorical` convenience flag.* A proposed
-`categorical = TRUE/FALSE` argument on
+out of the doc-only M39; shipped M40 except the declined flag):** -
+~~*Ordinal `categorical` convenience flag.*~~ **Declined M40 (owner
+sign-off, 2026-07-01).** A proposed `categorical = TRUE/FALSE` argument
+on
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 flipping `cor` (pearson→polychoric) and the ESEM estimator
-(ML/MLR→WLSMV) together. **Not yet a resolved default** — it partially
-duplicates the explicit `cor`/estimator surface (§9), so whether it is a
-genuine ergonomic win or redundant needs owner sign-off at plan time
-before any implementation. Do not build it as a silent addition. -
-*Ordinal correlation-comparison visualization.* Replace the two raw
-`round(x$r[...], 2)` matrix chunks in `vignettes/ackwards-ordinal.Rmd`
-with a clearer comparison (dodged bar chart of lower-triangle item-pair
-correlations by basis, **or** a gt long-format pearson/polychoric/Δ
-table). Viz-only; `ggplot2`/`gt` already in Suggests; no package-code or
-dependency change. - *Forbes pruned-level axis-label styling.* Mark a
-fully pruned level’s
+(ML/MLR→WLSMV) together. **Rejected as redundant:** `cor = "polychoric"`
+*already* auto-selects WLSMV (the `estimator = NULL` auto-rule, §9), so
+`categorical = TRUE` would be a pure synonym for `cor = "polychoric"` —
+not a two-settings-in-one shortcut. It would add a conflict surface
+(`categorical = TRUE` + `cor = "pearson"`?) and a §9 defaults change for
+zero new capability. Discoverability is handled at the docs layer
+instead (the ordinal vignette already states that `cor = "polychoric"`
+alone flips the estimator; the ordinal-detection cli warning names the
+option at runtime). No `R/`/`DESCRIPTION`/§9 change. - ~~*Ordinal
+correlation-comparison visualization.*~~ **Done M40.** The two raw
+`round(x$r[1:5,1:5], 2)` matrix chunks in
+`vignettes/ackwards-ordinal.Rmd` were replaced with one dodged bar chart
+of the ten `N1`–`N5` lower-triangle item-pair correlations,
+`fill = basis` (Pearson vs polychoric), reshape code hidden. Viz-only;
+`ggplot2` already in Suggests; no package-code or dependency change.
+(The gt long-format Δ-table alternative was set aside — the vignette
+already carries two gt Δ-tables, so a chart adds variety and directly
+addresses “matrices are hard to compare”.) - ~~*Forbes pruned-level
+axis-label styling.*~~ **Done M40.** A **fully-pruned** level (every
+factor flagged) now gets an *italic*
 [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
-axis label (parenthesized/italic) to denote its status under
-`drop_pruned`/`compress_levels`. Touches
-[`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md)
-label rendering (M35 territory) — code, not prose, which is why it was
-excluded from doc-only M39.
+axis label in the normal (non-`drop_pruned`) render path, denoting its
+status alongside the existing grey node fill; partially-pruned levels
+keep a plain label. Automatic (no new argument). See §11.
 
 ## 15. Milestones
 

@@ -167,29 +167,16 @@ and suppresses it:</p>
 <h3 id="correlation-matrices">Correlation matrices<a class="anchor" aria-label="anchor" href="#correlation-matrices"></a>
 </h3>
 <p>The most direct way to see the impact of the basis is to compare the
-correlation matrices directly.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Pearson R (stored in x$r)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">x_pearson</span><span class="op">$</span><span class="va">r</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       A1    A2    A3    A4    A5</span></span>
-<span><span class="co">#&gt; A1  1.00 -0.37 -0.33 -0.16 -0.24</span></span>
-<span><span class="co">#&gt; A2 -0.37  1.00  0.54  0.36  0.40</span></span>
-<span><span class="co">#&gt; A3 -0.33  0.54  1.00  0.39  0.57</span></span>
-<span><span class="co">#&gt; A4 -0.16  0.36  0.39  1.00  0.34</span></span>
-<span><span class="co">#&gt; A5 -0.24  0.40  0.57  0.34  1.00</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Polychoric R</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">x_poly</span><span class="op">$</span><span class="va">r</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       A1    A2    A3    A4    A5</span></span>
-<span><span class="co">#&gt; A1  1.00 -0.44 -0.38 -0.18 -0.29</span></span>
-<span><span class="co">#&gt; A2 -0.44  1.00  0.61  0.41  0.45</span></span>
-<span><span class="co">#&gt; A3 -0.38  0.61  1.00  0.44  0.64</span></span>
-<span><span class="co">#&gt; A4 -0.18  0.41  0.44  1.00  0.39</span></span>
-<span><span class="co">#&gt; A5 -0.29  0.45  0.64  0.39  1.00</span></span></code></pre></div>
-<p>The polychoric correlations are consistently higher — sometimes
-substantially so. The <code>N1</code>–<code>N2</code> pair, for
-instance, goes from roughly 0.59 (Pearson) to 0.73 (polychoric): a
-difference large enough to shift loadings and change eigenvalues.</p>
+item correlations under each basis. Rather than read two 5×5 matrices
+side by side, the chart below plots the ten unique item-pair
+correlations among the five neuroticism items
+(<code>N1</code>–<code>N5</code>), Pearson against polychoric.</p>
+<p><img src="ackwards-ordinal_files/figure-html/r-compare-1.png" class="r-plt" alt="Dodged bar chart comparing Pearson and polychoric correlations for the ten unique N1-N5 item pairs; every polychoric bar is taller than its Pearson counterpart." width="672"></p>
+<p>Every polychoric bar sits above its Pearson counterpart — the
+correlations are consistently higher. The
+<code>N1</code>–<code>N2</code> pair, for instance, goes from about 0.73
+(Pearson) to 0.79 (polychoric); across the block the increase runs to
+roughly 0.05, enough to shift loadings and change eigenvalues.</p>
 </div>
 <div class="section level3">
 <h3 id="loadings">Loadings<a class="anchor" aria-label="anchor" href="#loadings"></a>
@@ -1329,7 +1316,7 @@ polychoric structure is precisely what WLSMV is built to model, and the
 between-level edges are computed from lavaan’s own latent correlation
 matrix (not a separately estimated <code>psych</code> polychoric
 matrix).</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_esem</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">3</span>, engine <span class="op">=</span> <span class="st">"esem"</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
 <span><span class="va">x_esem</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -1359,7 +1346,7 @@ that respects the ordinal measurement level. They will typically look
 better than Pearson-based fit indices on the same data, reflecting both
 the better model specification and the different reference distribution
 WLSMV uses.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span>, format <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   level      chi dof p_value       CFI       TLI     RMSEA       SRMR BIC</span></span>
 <span><span class="co">#&gt; 1     2 3616.834 251       0 0.7117569 0.6554864 0.1238665 0.09547997  NA</span></span>

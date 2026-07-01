@@ -259,7 +259,11 @@ move to the bottom margin under <code>"horizontal"</code>.</p></dd>
 
 <dt id="arg-show-level-labels">show_level_labels<a class="anchor" aria-label="anchor" href="#arg-show-level-labels"></a></dt>
 <dd><p>Whether to draw level axis labels
-("1 factor", "2 factors", ...) to the left of the diagram. Default <code>TRUE</code>.</p></dd>
+("1 factor", "2 factors", ...) to the left of the diagram. Default <code>TRUE</code>.
+When the object carries pruning annotations (<code>x$prune</code> non-<code>NULL</code>) and
+<code>drop_pruned = FALSE</code>, a level whose factors are <em>all</em> pruned has its axis
+label rendered in italic to denote its status (matching the grey node
+fill); partially-pruned levels keep a plain label.</p></dd>
 
 
 <dt id="arg-level-label-size">level_label_size<a class="anchor" aria-label="anchor" href="#arg-level-label-size"></a></dt>

@@ -173,41 +173,55 @@ as part of the definition of done.
   Three code/viz asks (ordinal `categorical` flag, ordinal
   corr-comparison viz, forbes pruned-level label styling) spun off to
   **M40** (`ROADMAP.md`, DESIGN §14). No `R/`/NAMESPACE/export change.
+- **M40** — deferred code/viz asks (final M31–M40 milestone): ordinal
+  `categorical` flag **declined** (redundant — `cor = "polychoric"`
+  already auto-selects WLSMV; would only add a conflict surface + §9
+  change for zero capability; discoverability handled in docs); ordinal
+  corr-comparison now a **dodged bar chart** (ten `N1`–`N5` item pairs,
+  `fill = basis`, hidden reshape code) replacing the two raw
+  `round(x$r)` matrices (also fixed stale N1–N2 figures 0.73→0.79);
+  [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+  **italicises a fully-pruned level’s** axis label (new
+  `.fully_pruned_levels()`, `fontface` aesthetic through
+  `.ba_level_labels()`, both directions) — partially-pruned levels stay
+  plain. No new/removed export, no signature or dependency change.
 
 ## Current focus
 
-**M39 is complete** — the final milestone of the M31–M39
-documentation/UX epic, which has now shipped in full. M39 was a doc-only
-prose/formatting pass across the intro, suggest_k, ordinal, forbes, and
-README pages (`print(sk)`/`print(x)`; orthogonal-varimax rationale;
-SE/CI-NA note; `top_items(cut = 0.5)`; **removed** the README/intro
-red-arrow explanation since the M35 sign fix left no red arrow to
-explain; de-indexed README score columns; dropped the Waller citation
-nudge; `sim16`-vs-`bfi25` suggest_k contrast; ordinal
-binary/tetrachoric + WLSMV-polychoric + scores-trustworthy
-clarifications; forbes heading rewrites + visible thresholds chunk +
-structural-table gt highlight + Lorenzo-Seva ref; alphabetized refs). No
-`R/`/NAMESPACE/export change. See `MILESTONES.md` for detail.
+**M40 is complete** — and with it the entire M31–M40 arc (correctness
+sweep → documentation/UX epic → deferred code/viz asks) that grew out of
+the 2026-06-30 pkgdown-site review. **There are no pending milestones.**
+M40 resolved the three asks carved out of the doc-only M39:
 
-**Next up: M40** — the one pending milestone, spun off *from* M39’s
-planning: three code/viz asks deliberately excluded from the doc-only
-M39. (1) an ordinal `categorical` convenience flag (pearson↔︎polychoric /
-MLR↔︎WLSMV switch — **needs owner sign-off**; it partly duplicates the
-explicit `cor`/estimator surface, so it is not a resolved default yet);
-(2) an ordinal correlation-comparison visualization (dodged-bar or gt
-long-format replacing the raw matrix chunks — viz-only); (3) Forbes
-pruned-level axis-label styling in
-[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
-(code, M35 territory). Not yet planned — run `/plan-milestone 40` before
-starting. Full brief in
-[`ROADMAP.md`](https://jmgirard.github.io/ackwards/ROADMAP.md) §M40;
-also logged in `DESIGN.md` §14.
+1.  **Ordinal `categorical` convenience flag → DECLINED** (owner
+    sign-off, 2026-07-01). `cor = "polychoric"` already auto-selects the
+    WLSMV estimator (`estimator = NULL` auto-rule; see `R/ackwards.R`
+    and §9), so a `categorical` flag would be a pure synonym for
+    `cor = "polychoric"`, not a two-settings-in-one shortcut — it would
+    add a conflict surface and a §9 defaults change for zero new
+    capability. Discoverability is handled at the docs layer instead. No
+    `R/`/`DESCRIPTION`/§9 change; decline recorded in `DESIGN.md` §14.
+2.  **Ordinal correlation-comparison viz → dodged bar chart**
+    (viz-only). The two raw `round(x$r[1:5,1:5], 2)` matrix chunks in
+    `vignettes/ackwards-ordinal.Rmd` are now one dodged bar chart (ten
+    `N1`–`N5` item pairs, `fill = basis`, hidden reshape code); also
+    fixed stale N1–N2 prose figures (0.73→0.79). No package-code or
+    dependency change.
+3.  **Forbes pruned-level axis labels → italic**
+    ([`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+    code). A **fully-pruned** level now gets an italic axis label in the
+    normal render path (new `.fully_pruned_levels()` + a `fontface`
+    aesthetic through `.ba_level_labels()`, both directions);
+    partially-pruned levels stay plain. Automatic, no new argument.
 
-`ROADMAP.md` is the forward-looking counterpart for the one *pending*
-milestone (M40); the epic-wide rationale and raw pkgdown-review notes it
-once held for M31–M39 have been retired into each milestone’s
-`MILESTONES.md` entry as they shipped. `MILESTONES.md` remains the
-source of truth for *completed* milestones.
+Detail in `MILESTONES.md` (M40 entry). No new/removed export, no
+signature change, no new dependency.
+
+**Next up: nothing queued.** `ROADMAP.md` had held only the M40 spin-off
+brief; with M40 shipped it carries no pending milestones. For
+deferred/out-of-scope items see `DESIGN.md` §14 and the “Out of scope
+for now” list below. `MILESTONES.md` remains the source of truth for
+*completed* milestones.
 
 ## Invariants — do not violate without flagging
 

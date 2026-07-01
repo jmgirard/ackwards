@@ -190,7 +190,11 @@ plot(x, ...)
 - show_level_labels:
 
   Whether to draw level axis labels ("1 factor", "2 factors", ...) to
-  the left of the diagram. Default `TRUE`.
+  the left of the diagram. Default `TRUE`. When the object carries
+  pruning annotations (`x$prune` non-`NULL`) and `drop_pruned = FALSE`,
+  a level whose factors are *all* pruned has its axis label rendered in
+  italic to denote its status (matching the grey node fill);
+  partially-pruned levels keep a plain label.
 
 - level_label_size:
 

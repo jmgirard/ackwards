@@ -1558,3 +1558,91 @@ User-facing change notes live in `NEWS.md`.
   and the drift-sensitive values (the `sim16`/`bfi25` consensus ranges;
   the README score-column list) confirmed to compute inline. No
   new/removed exports; `_pkgdown.yml` reference index unchanged.
+
+## M40 (done) — Deferred code/viz asks (spun off from M39)
+
+- **Goal.** Resolve the three code/visualization asks carved out of the
+  doc-only M39: an ordinal `categorical` convenience flag, an ordinal
+  correlation-comparison visualization, and Forbes pruned-level
+  axis-label styling. Each was independent; two shipped as code/viz, one
+  was declined at plan time. This is the final milestone of the M31–M40
+  arc that grew out of the 2026-06-30 pkgdown-site review.
+- **Item 1 — ordinal `categorical` flag: DECLINED (owner sign-off,
+  2026-07-01).** The proposed `categorical = TRUE/FALSE` argument would
+  flip `cor` (pearson→polychoric) *and* the ESEM estimator
+  (ML/MLR→WLSMV) together. It was rejected as **redundant surface
+  area**: `cor = "polychoric"` *already* auto-selects WLSMV via the
+  `estimator = NULL` auto-rule (`R/ackwards.R`; §9), so
+  `categorical = TRUE` would be a pure synonym for `cor = "polychoric"`,
+  not a two-settings-in-one shortcut. Adding it would introduce a
+  conflict surface (what wins when `categorical = TRUE` and
+  `cor = "pearson"` are both passed?) and a §9 resolved-defaults change
+  for zero new capability. The genuine gap — discoverability (“my data
+  is categorical” ≠ “I want a polychoric correlation”) — is handled at
+  the docs layer: the ordinal vignette’s WLSMV section already states
+  that `cor = "polychoric"` alone switches the estimator, and the
+  ordinal-detection cli warning names the option at runtime. No
+  `R/`/`DESCRIPTION`/§9 change. Recorded in `DESIGN.md` §14 (struck
+  through).
+- **Item 2 — ordinal correlation-comparison viz: dodged bar chart.**
+  Replaced the two raw `round(x$r[1:5,1:5], 2)` matrix chunks in
+  `vignettes/ackwards-ordinal.Rmd` with one dodged bar chart of the ten
+  unique lower-triangle item-pair correlations among the five
+  neuroticism items (`N1`–`N5`), `fill = basis` (Pearson vs polychoric),
+  reshape/subsetting code hidden (`echo = FALSE`, gated on
+  `has_ggplot2`, `fig.alt` supplied). Chose the chart over the gt
+  long-format Δ-table alternative because the vignette already carries
+  two gt Δ-tables (loadings, edges) — a chart adds variety and directly
+  answers the owner’s “matrices are hard to compare visually” note.
+  **Corrected two pre-existing prose bugs surfaced by the rewrite:** the
+  section cited “N1–N2 goes from 0.59 (Pearson) to 0.73 (polychoric)”,
+  but (a) the `[1:5,1:5]` matrix actually showed A1–A5, not any N pair,
+  and (b) the true `bfi25` N1–N2 values are 0.73→0.79, not 0.59→0.73
+  (the old figures did not match this dataset). Repointed the chart at
+  the neuroticism block so it aligns with the loadings/edges sections
+  that follow, and fixed the figures. Viz-only; `ggplot2` already in
+  Suggests; no package-code or dependency change.
+- **Item 3 — Forbes pruned-level axis labels: italic.** A
+  **fully-pruned** level (every factor flagged by
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md))
+  now gets an *italic*
+  [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+  axis label in the normal (non-`drop_pruned`) render path, denoting its
+  status alongside the existing automatic grey node fill; a
+  partially-pruned level keeps a plain label (its retained factors are
+  still substantive). Automatic — no new argument, mirroring the auto
+  grey-fill. New internal `.fully_pruned_levels()` (`R/autoplot.R`)
+  aggregates `x$prune$nodes$pruned` by level; `.ba_level_labels()`
+  gained a `pruned_levels` argument and now carries a per-row `fontface`
+  geom_text aesthetic in both the vertical and horizontal branches.
+  Under `drop_pruned = TRUE` a fully-pruned level’s nodes are removed,
+  so it renders no label and the styling is moot (the main-path call
+  passes `integer(0)` there).
+- **Design decision (flagged at plan time).** Scoped the italic to
+  *fully*-pruned levels only (predicate: every node at that level
+  flagged), not “any level containing ≥1 pruned node” — matches the
+  owner’s “level 4 is gone” intent and avoids italicising levels that
+  still carry real factors.
+- **Tests.** Three new tests in `tests/testthat/test-layout.R`:
+  `.fully_pruned_levels()` returns the wholly-pruned level, `integer(0)`
+  for an un-pruned object, and `integer(0)` for a partially-pruned
+  level;
+  [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+  italicises the fully-pruned level’s label and leaves the others plain
+  in both `direction` values (verified via `layer_data()` `fontface`);
+  and an all-plain assertion for un-pruned and partially-pruned objects.
+  Fully-pruned levels are produced deterministically with
+  `prune(x, manual = c("m4f1","m4f2","m4f3","m4f4"))` rather than
+  relying on redundancy thresholds.
+- **Files.** `R/autoplot.R`, `man/autoplot.ackwards.Rd`,
+  `tests/testthat/test-layout.R`, `vignettes/ackwards-ordinal.Rmd`,
+  `NEWS.md`, `DESIGN.md` (§11, §14), `CLAUDE.md` (Current focus +
+  Completed index), `MILESTONES.md`. No new/removed exports
+  (`autoplot.ackwards` signature unchanged); no dependency change;
+  `_pkgdown.yml` reference index unchanged.
+- **Verified.** `R CMD check` **0/0/0** (all vignettes rebuilt); full
+  suite **1561 pass / 0 fail / 0 skip** (EFAtools installed on the dev
+  machine, so the CD-gated tests ran); coverage **100%**; `styler` (no
+  files changed) / `lintr` (0 lints) clean;
+  [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
+  clean.

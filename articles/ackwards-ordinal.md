@@ -89,36 +89,21 @@ x_poly <- ackwards(bfi, k_max = 5, cor = "polychoric")
 ### Correlation matrices
 
 The most direct way to see the impact of the basis is to compare the
-correlation matrices directly.
+item correlations under each basis. Rather than read two 5×5 matrices
+side by side, the chart below plots the ten unique item-pair
+correlations among the five neuroticism items (`N1`–`N5`), Pearson
+against polychoric.
 
-``` r
+![Dodged bar chart comparing Pearson and polychoric correlations for the
+ten unique N1-N5 item pairs; every polychoric bar is taller than its
+Pearson
+counterpart.](ackwards-ordinal_files/figure-html/r-compare-1.png)
 
-# Pearson R (stored in x$r)
-round(x_pearson$r[1:5, 1:5], 2)
-#>       A1    A2    A3    A4    A5
-#> A1  1.00 -0.37 -0.33 -0.16 -0.24
-#> A2 -0.37  1.00  0.54  0.36  0.40
-#> A3 -0.33  0.54  1.00  0.39  0.57
-#> A4 -0.16  0.36  0.39  1.00  0.34
-#> A5 -0.24  0.40  0.57  0.34  1.00
-```
-
-``` r
-
-# Polychoric R
-round(x_poly$r[1:5, 1:5], 2)
-#>       A1    A2    A3    A4    A5
-#> A1  1.00 -0.44 -0.38 -0.18 -0.29
-#> A2 -0.44  1.00  0.61  0.41  0.45
-#> A3 -0.38  0.61  1.00  0.44  0.64
-#> A4 -0.18  0.41  0.44  1.00  0.39
-#> A5 -0.29  0.45  0.64  0.39  1.00
-```
-
-The polychoric correlations are consistently higher — sometimes
-substantially so. The `N1`–`N2` pair, for instance, goes from roughly
-0.59 (Pearson) to 0.73 (polychoric): a difference large enough to shift
-loadings and change eigenvalues.
+Every polychoric bar sits above its Pearson counterpart — the
+correlations are consistently higher. The `N1`–`N2` pair, for instance,
+goes from about 0.73 (Pearson) to 0.79 (polychoric); across the block
+the increase runs to roughly 0.05, enough to shift loadings and change
+eigenvalues.
 
 ### Loadings
 
