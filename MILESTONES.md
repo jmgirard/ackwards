@@ -360,4 +360,14 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   `tests/testthat/test-docs-citations.R`, a source-tree regression test (same style as
   `test-docs-no-milestone-refs.R`) asserting `man/ackwards.Rd`'s `\references` block carries the
   Goldberg, Waller, and Forbes DOIs.
-  (1301 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+  Post-review (from /post-milestone-review): addressed the three nice-to-haves. (a) The
+  `test-docs-citations.R` `\references` extraction now bounds to the block's closing brace
+  (line-based: first lone `}` after `\references{`) instead of running to end-of-file, so a DOI
+  that ever moved into `@details` prose could no longer falsely satisfy it. (b) Added a
+  `## References` section citing Forbes (2023) to `vignettes/ackwards-interpret.Rmd` and
+  `vignettes/ackwards-visualization.Rmd`, which name "Forbes (2023)" in prose (letter convention /
+  publication style) but previously had no local reference entry. (c) Added a source-text guard to
+  `test-docs-citations.R` asserting `inst/CITATION` names Girard and not Goldberg, complementing
+  the runtime `citation()` check (catches a reintroduced Goldberg bibentry even where the package
+  cannot be loaded).
+  (1303 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)

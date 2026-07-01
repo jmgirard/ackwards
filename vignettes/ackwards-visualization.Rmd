@@ -294,3 +294,9 @@ Star-shaped markers (shape 8) identify the recommended k for each criterion.
 Use the consensus range across all panels — if they converge on the same k, that
 is strong evidence; if they spread over 2–3 values, fit the hierarchy at a
 few depths and compare interpretability.
+
+## References
+
+Forbes, M. K. (2023). Improving hierarchical models of individual differences:
+An extension of Goldberg's bass-ackward method. *Psychological Methods*.
+https://doi.org/10.1037/met0000546
