@@ -330,3 +330,34 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   re-stales every milestone; §15 remains a pointer to `MILESTONES.md`, not a log).
   No invariant or resolved-default change; no new `Imports`; no DESIGN.md contract change; version
   stays `0.1.0`. (1297 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+- **M30 (done):** Citation hygiene — put the right citation in the right role throughout the
+  package. No invariant or resolved-default change; no new `Imports`; no DESIGN.md contract
+  change; version stays `0.1.0`.
+  (1) **`inst/CITATION`: Goldberg entry removed.** It carried two `bibentry()`s — a Goldberg
+  (2006) *Article* and a Girard *Manual* — so `citation("ackwards")` returned both and conflated
+  "how do I cite this software" with "what's the method's source paper." Now it holds only the
+  Girard *Manual* entry; Goldberg's method paper remains cited in `DESCRIPTION` and roxygen
+  `@references`, not as a software co-citation.
+  (2) **`ackwards()` `@references` gains Forbes (2023).** It previously listed only Goldberg
+  (2006) and Waller (2007), but `ackwards()` implements all three algorithmic sources: the
+  original method (Goldberg), the exact `W'RW` edge algebra (Waller), and the extended method
+  (Forbes; `pairs = "all"`, `prune = `). Kim & Eaton (2015) and Forbush et al. (2024), named in
+  `@details` prose as application examples, were deliberately **not** promoted to `@references`
+  — they used the method, they aren't a source of it.
+  (3) **Audit sweep found the rest already correct.** `suggest_k()`'s Forbes citation (an
+  overextraction-caution reference, not an implementation claim), and the per-vignette
+  `## References` sections (`ackwards-intro`/`ackwards-engines` → Goldberg/Waller,
+  `ackwards-forbes` → Goldberg/Forbes/Tucker, `ackwards-suggest-k` → Forbes,
+  `ackwards-ordinal` → Pearson) were all already scoped correctly; no changes needed there.
+  (4) **README Citation section rebuilt.** The "please cite both the method and the package"
+  prose no longer matches a single-entry `citation()`; reworded to "please cite the package" plus
+  explicit guidance to also cite Goldberg (2006) for the method, Waller (2007) if relying on the
+  exact algebra, and Forbes (2023) if using the extended method. Rebuild incidentally picked up
+  an unrelated but genuine staleness fix already shipped in `print.ackwards()` (M27's per-level
+  fit-indices honesty note) that had never been re-knitted into `README.md`.
+  Tests: updated the existing `citation("ackwards")` test (`test-utils.R`) for the single-entry
+  state (was asserting two entries incl. a Goldberg year check); added
+  `tests/testthat/test-docs-citations.R`, a source-tree regression test (same style as
+  `test-docs-no-milestone-refs.R`) asserting `man/ackwards.Rd`'s `\references` block carries the
+  Goldberg, Waller, and Forbes DOIs.
+  (1301 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)

@@ -1,5 +1,16 @@
 # ackwards (development)
 
+## Citation hygiene
+
+`citation("ackwards")` now returns a single software entry (Girard) instead
+of also listing Goldberg (2006) as a package author — the method paper is
+cited in `DESCRIPTION` and roxygen `@references`, not as a software
+co-citation. `ackwards()`'s `@references` now also lists Forbes (2023)
+alongside Goldberg (2006) and Waller (2007), since `ackwards()` implements
+all three (original method, exact edge algebra, and the extended method).
+The README's Citation section is updated to guide users to the right
+paper(s) for what they used.
+
 ## Documentation: no internal milestone numbers
 
 User-facing docs (`NEWS.md`, `README.md`, vignettes) no longer reference internal
