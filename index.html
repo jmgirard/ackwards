@@ -99,11 +99,14 @@
 <span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span>
 <span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [212ms]</span></span>
+<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [197ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; ℹ CD requires EFAtools (install to enable).</span></span>
-<span><span class="co">#&gt; ✔ Running MAP and VSS... [64ms]</span></span>
+<span><span class="co">#&gt; ✔ Running MAP and VSS... [103ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Running Comparison Data (CD)...</span></span>
+<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [4.3s]</span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────</span></span>
@@ -114,15 +117,14 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Criteria (k = 1-8) ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000</span></span>
-<span><span class="co">#&gt; k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719</span></span>
-<span><span class="co">#&gt; k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354</span></span>
-<span><span class="co">#&gt; k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837</span></span>
-<span><span class="co">#&gt; k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950*</span></span>
-<span><span class="co">#&gt; k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629</span></span>
-<span><span class="co">#&gt; k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616</span></span>
-<span><span class="co">#&gt; k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215</span></span>
-<span><span class="co">#&gt; + CD requires EFAtools (install to enable).</span></span>
+<span><span class="co">#&gt; k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔</span></span>
+<span><span class="co">#&gt; k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔</span></span>
+<span><span class="co">#&gt; k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔</span></span>
+<span><span class="co">#&gt; k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔</span></span>
+<span><span class="co">#&gt; k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔</span></span>
+<span><span class="co">#&gt; k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*</span></span>
+<span><span class="co">#&gt; k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -</span></span>
+<span><span class="co">#&gt; k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Recommendations ──</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -131,6 +133,7 @@
 <span><span class="co">#&gt; • MAP: k = 5</span></span>
 <span><span class="co">#&gt; • VSS-1: k = 4</span></span>
 <span><span class="co">#&gt; • VSS-2: k = 5</span></span>
+<span><span class="co">#&gt; • CD: k = 6</span></span>
 <span><span class="co">#&gt; Consensus range: k = 4-6</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span>
@@ -174,7 +177,7 @@
 <div class="section level3">
 <h3 id="step-3--visualize">Step 3 — Visualize<a class="anchor" aria-label="anchor" href="#step-3--visualize"></a>
 </h3>
-<p><code><a href="reference/autoplot.html">autoplot()</a></code> draws the hierarchical diagram. Each row is a level (k = 1 at top, k = 5 at bottom); arrows show which narrow factors inherit from which broad factor. Arrow <strong>thickness</strong> encodes |r| and arrow <strong>color</strong> encodes direction (blue = positive, red = negative), each with its own legend. Pass <code>direction = "horizontal"</code> for a left-to-right layout. The <a href="https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html">visualization vignette</a> covers the sign encoding and the rest of the styling options.</p>
+<p><code><a href="reference/autoplot.html">autoplot()</a></code> draws the hierarchical diagram. Each row is a level (k = 1 at top, k = 5 at bottom); arrows show which narrow factors inherit from which broad factor. Arrow <strong>thickness</strong> encodes |r| and arrow <strong>color</strong> encodes direction (blue = positive, red = negative), each with its own legend — this clean solution happens to have no negative edges, so only blue appears here. Pass <code>direction = "horizontal"</code> for a left-to-right layout. The <a href="https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html">visualization vignette</a> covers the sign encoding and the rest of the styling options.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-plot-1.png" alt="" width="100%"></p>

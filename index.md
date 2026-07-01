@@ -56,11 +56,14 @@ library(ackwards)
 bfi <- na.omit(bfi25)
 sk <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [212ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [197ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ℹ CD requires EFAtools (install to enable).
-#> ✔ Running MAP and VSS... [64ms]
+#> ✔ Running MAP and VSS... [103ms]
+#> 
+#> ℹ Running Comparison Data (CD)...
+#> ✔ Running Comparison Data (CD)... [4.3s]
+#> 
 sk
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -71,15 +74,14 @@ sk
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950*
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629
-#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616
-#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215
-#> + CD requires EFAtools (install to enable).
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*
+#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -
+#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -
 #> 
 #> ── Recommendations ──
 #> 
@@ -88,6 +90,7 @@ sk
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
+#> • CD: k = 6
 #> Consensus range: k = 4-6
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
@@ -141,9 +144,10 @@ x
 draws the hierarchical diagram. Each row is a level (k = 1 at top, k = 5
 at bottom); arrows show which narrow factors inherit from which broad
 factor. Arrow **thickness** encodes \|r\| and arrow **color** encodes
-direction (blue = positive, red = negative), each with its own legend.
-Pass `direction = "horizontal"` for a left-to-right layout. The
-[visualization
+direction (blue = positive, red = negative), each with its own legend —
+this clean solution happens to have no negative edges, so only blue
+appears here. Pass `direction = "horizontal"` for a left-to-right
+layout. The [visualization
 vignette](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html)
 covers the sign encoding and the rest of the styling options.
 

@@ -72,13 +72,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [336ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [290ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [179ms]
+#> ✔ Running MAP and VSS... [173ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.1s]
+#> ✔ Running Comparison Data (CD)... [9.6s]
 #> 
 print(sk)
 #> 
@@ -295,8 +295,9 @@ connect each factor to its **primary parent** — the factor at the level
 above with which it has the strongest correlation (\|r\|). Arrow
 thickness is proportional to \|r\|, and color shows direction (blue =
 positive, red = negative by default); both aesthetics come with a
-legend. For a left-to-right layout (handy for wide slides), pass
-`direction = "horizontal"`.
+legend. In this clean solution every drawn edge is positive, so only
+blue appears here. For a left-to-right layout (handy for wide slides),
+pass `direction = "horizontal"`.
 
 ``` r
 
