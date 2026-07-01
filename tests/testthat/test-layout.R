@@ -515,6 +515,22 @@ test_that("autoplot() renders all level labels plain when nothing is fully prune
   expect_true(all(ld2$fontface == "plain"))
 })
 
+test_that("autoplot() italicises levels fully pruned by the auto 'redundant' rule", {
+  skip_if_not_installed("ggplot2")
+  # sim16's built-in redundant chains (M33) fully prune levels 3 and 4 at
+  # k_max = 5 with the |r| >= 0.9 threshold -- an *auto*-rule full prune (not
+  # manual), and two fully-pruned levels at once. Deterministic for this dataset.
+  suppressWarnings(suppressMessages(
+    xr <- ackwards(sim16, k_max = 5) |> prune("redundant", redundancy_r = 0.9)
+  ))
+  expect_identical(.fully_pruned_levels(xr), c(3L, 4L))
+
+  ld <- .level_label_data(ggplot2::autoplot(xr))
+  expect_false(is.null(ld))
+  expect_setequal(ld$label[ld$fontface == "italic"], c("3 factors", "4 factors"))
+  expect_setequal(ld$label[ld$fontface == "plain"], c("1 factor", "2 factors", "5 factors"))
+})
+
 test_that("autoplot.ackwards() node_labels applies custom labels", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")

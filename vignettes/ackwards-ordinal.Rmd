@@ -96,6 +96,16 @@ correlations under each basis. Rather than read two 5×5 matrices side by side,
 the chart below plots the ten unique item-pair correlations among the five
 neuroticism items (`N1`–`N5`), Pearson against polychoric.
 
+```{r ggplot-check, echo = FALSE, results = "asis"}
+if (!has_ggplot2) {
+  cat(
+    "> **Note:** The correlation-comparison chart below requires the",
+    "**ggplot2** package, which is not currently installed. Install it with",
+    "`install.packages(\"ggplot2\")` to render it.\n"
+  )
+}
+```
+
 ```{r r-compare, echo = FALSE, eval = has_ggplot2, fig.alt = "Dodged bar chart comparing Pearson and polychoric correlations for the ten unique N1-N5 item pairs; every polychoric bar is taller than its Pearson counterpart."}
 n_items <- paste0("N", 1:5)
 Rp <- x_pearson$r[n_items, n_items]
