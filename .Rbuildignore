@@ -2,6 +2,7 @@
 ^CLAUDE\.md$
 ^DESIGN\.md$
 ^MILESTONES\.md$
+^ROADMAP\.md$
 ^LICENSE\.md$
 ^\.lintr$
 ^cran-comments\.md$
