@@ -106,15 +106,22 @@ as part of the definition of done.
   `proportion`/`cumulative`; plus M31-deferred `$meta$estimator` +
   [`summary()`](https://rdrr.io/r/base/summary.html) scaled-fit
   footnote)
+- **M33** — simulated Gaussian dataset (`sim16`: 1000×16 continuous,
+  known 1→2→4 hierarchy, no ordinal-detection warning, guaranteed
+  redundant-chain + artefact signals at `k_max=5`)
 
 ## Current focus
 
-M32 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38
-documentation/UX epic is **M33** (simulated Gaussian dataset —
-foundation); not yet planned; run `/plan-milestone 33` before starting.
+M33 is complete (see `MILESTONES.md` for detail — including a plan
+deviation: the “thin branch / near-duplicate twin factor” mechanism
+proved unnecessary once prototyped, and no `DESIGN.md` §14 entry was
+added, matching the `bfi25` precedent that dataset additions live in
+roxygen + here, not `DESIGN.md`). Next up in the M31–M38
+documentation/UX epic is **M34** (pruning verb); not yet planned; run
+`/plan-milestone 34` before starting.
 
-Remaining milestones in the epic: M33 simulated Gaussian dataset
-(foundation); M34 pruning verb — extract `prune()` from
+Remaining milestones in the epic: M34 pruning verb — extract `prune()`
+from
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 (clean move, no deprecation — pre-CRAN, no users) + manual/mixed
 flag-only pruning + `"artefact"`/`"tucker"` naming + DESIGN.md update;
@@ -122,6 +129,13 @@ M35 autoplot & visualization; M36 interpretation functions (`augment`
 scores-only, `top_items` labels + group-by-item); M37 engines vignette;
 M38 narrative & remaining prose (intro, suggest_k, ordinal, forbes,
 README).
+
+These one-liners are a lossy index. The **full driving rationale, banked
+decisions, and the raw pkgdown-review notes** behind M34–M38 live in
+[`ROADMAP.md`](https://jmgirard.github.io/ackwards/ROADMAP.md) — read it
+before running `/plan-milestone N` for any of them. `MILESTONES.md`
+remains the source of truth for *completed* milestones; `ROADMAP.md` is
+its forward-looking counterpart for *pending* ones.
 
 ## Invariants — do not violate without flagging
 
@@ -217,6 +231,21 @@ styler::style_pkg()       # format
 lintr::lint_package()     # lint
 ```
 
+**Efficiency (the suite takes minutes — don’t re-run it needlessly).**
+`check()` already runs the full test suite *and* examples *and* rebuilds
+vignettes (~3 min: ~90s tests + ~74s vignettes + ~20s examples), and
+[`covr::package_coverage()`](http://covr.r-lib.org/reference/package_coverage.md)
+runs the suite *again* — so `test()` → `check()` → `coverage()` at one
+gate executes the suite ~3×. Instead: iterate with **targeted**
+`devtools::test(filter = "<x>")` /
+[`testthat::test_file()`](https://testthat.r-lib.org/reference/test_file.html);
+run failing tests **once** in a way that shows the details (capture
+`res <-` or use a non-silent reporter — never silent-then-rerun); skip
+the vignette rebuild during mid-work checks with
+`check(vignettes = FALSE)`; and at the final gate run `check()` **once**
+(it subsumes `test()`) then `coverage()` once. Never run two
+package-touching R processes concurrently.
+
 Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`,
 `use_testthat(3)`, `use_github_action("check-standard")`. Use testthat
 3e, roxygen2 for all exported functions (document the *why* of each
@@ -226,7 +255,9 @@ default, runnable `@examples`, `@seealso` cross-links).
 
 - Tests written/updated and passing; new behavior has a test.
 - `devtools::document()` run if roxygen changed; NAMESPACE committed.
-- `devtools::check()` clean.
+- `devtools::check()` clean (run **once** at the gate — it subsumes
+  `devtools::test()`; see the efficiency note under *Dev workflow*).
+  Coverage checked once, not per sub-step.
 - Styled and linted.
 - Public-facing change reflected in NEWS.md and (if user-visible) the
   relevant `@examples`/vignette.
@@ -240,10 +271,35 @@ default, runnable `@examples`, `@seealso` cross-links).
 
 - Default branch is **`master`**; it stays green and releasable.
   Milestone work happens on a feature branch (`m{N}-<slug>`) and merges
-  to `master` via a **PR** once CI is green — don’t commit milestone
-  work (anything touching `R/`, `tests/`, `DESCRIPTION`, vignettes)
-  straight to `master`. Trivial isolated doc fixes may go direct at the
-  user’s discretion.
+  to `master` via a **PR**, **squash-merged as soon as the local
+  definition of done is green** (`devtools::check()` 0/0/0 + tests +
+  coverage + style/lint) — *not* gated on remote CI. `master` is
+  deliberately **not branch-protected** (owner decision, 2026-07-01):
+  required checks would gate every merge on the ~8–15 min CI matrix,
+  pure latency for a solo pre-CRAN repo where local `check()` already
+  ran. CI still runs on every push as an after-the-fact signal but does
+  not block the merge; **don’t** use `gh pr merge --auto` (silently
+  no-ops without required checks) and **don’t** synchronously watch or
+  background-poll
+  101. Don’t commit milestone work (anything touching `R/`, `tests/`,
+       `DESCRIPTION`, vignettes) straight to `master`. Trivial isolated
+       doc fixes may go direct at the user’s discretion — but **push
+       them immediately.** An unpushed commit on `master` leaves local
+       ahead of `origin/master`; `git pull` won’t surface it (nothing to
+       fetch), and the next milestone branch — cut from local `master` —
+       will bundle it into that milestone’s squash-merge and force a
+       post-merge divergence. /plan-milestone step 8a now guards against
+       branching from an ahead-of-origin `master`.
+
+  - **Exception — release / CRAN-submission milestones**
+    (e.g. CRAN-prep, version-bump/release): here you **do** wait for the
+    *full* green CI matrix before merging, because CRAN runs exactly
+    that matrix (macOS/Windows/Ubuntu × release/devel/oldrel) and will
+    reject platform failures the local macOS `check()` can’t see. For
+    these, don’t merge on local-green alone. This exception also
+    reactivates once the package has real users or collaborators (a red
+    `master` then blocks others / ships bugs) — treat that transition as
+    the trigger to reconsider branch protection.
 - **Do not touch** the `legacy` branch or the `v0-legacy` tag — they
   preserve the pre-AI code.
 - Small, focused commits with imperative messages (e.g.,
