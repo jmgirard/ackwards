@@ -189,6 +189,8 @@
 <li>
 <code>devtools::document()</code> run if roxygen changed; NAMESPACE committed.</li>
 <li>
+<strong>New/removed exported object → pkgdown reference updated.</strong> Whenever <code>NAMESPACE</code> gains or loses an <code>export()</code>/<code>S3method()</code>, or a dataset is added under <code>data/</code>, update the <code>reference:</code> list in <code>_pkgdown.yml</code> to match, then verify with <code><a href="https://pkgdown.r-lib.org/reference/check_pkgdown.html" class="external-link">pkgdown::check_pkgdown()</a></code>. This is the exact check the pkgdown GitHub Action runs — an exported topic missing from the reference index fails that workflow (and only that workflow; local <code>R CMD check</code> won’t catch it). Run it at the DoD gate unconditionally (it’s sub-second and gated on <code>rlang::is_installed("pkgdown")</code>); it costs nothing and closes a recurring CI-break.</li>
+<li>
 <code>devtools::check()</code> clean (run <strong>once</strong> at the gate — it subsumes <code>devtools::test()</code>; see the efficiency note under <em>Dev workflow</em>). Coverage checked once, not per sub-step.</li>
 <li>Styled and linted.</li>
 <li>Public-facing change reflected in NEWS.md and (if user-visible) the relevant <code>@examples</code>/vignette.</li>
