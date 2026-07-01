@@ -33,7 +33,7 @@ library(ackwards)
 bfi <- na.omit(bfi25)
 ```
 
-## `pairs = "all"`: computing every between-level correlation
+## Computing every between-level correlation with `pairs = "all"`
 
 Adding `pairs = "all"` extends the edge table from adjacent pairs only
 to every combination of levels.
@@ -92,7 +92,7 @@ The [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
 verb uses the skip-level correlations to automatically flag factors that
 may not be adding genuine information to the hierarchy.
 
-### `prune(x, "redundant")`: chains of near-identical factors
+### Chains of near-identical factors with `prune(x, "redundant")`
 
 A **redundant chain** is a sequence of factors connected by near-perfect
 correlations (\|r\| ≥ 0.9 by default) across levels. If m2f2 → m3f2 →
@@ -211,7 +211,7 @@ For further cosmetic customization — colours, node labels, arrowheads,
 and more — see
 [`vignette("ackwards-visualization")`](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.md).
 
-### `prune(x, "artifact")`: factors defined by structural similarity
+### Factors defined by structural similarity with `prune(x, "artifact")`
 
 An **artifact** factor is one whose loading pattern is more similar to a
 factor at a *non-adjacent* level than to its own-level neighbors.
@@ -364,18 +364,27 @@ not require refitting
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 each time — the already-fit `x_all` object is re-pruned directly:
 
-    #> ℹ Redundancy pruning (|r| ≥ 0.8) flagged 9 nodes.
-    #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
-    #>   `x$prune$chains`.
-    #> ℹ Redundancy pruning (|r| ≥ 0.85) flagged 8 nodes.
-    #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
-    #>   `x$prune$chains`.
-    #> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
-    #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
-    #>   `x$prune$chains`.
-    #> ℹ Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.
-    #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
-    #>   `x$prune$chains`.
+``` r
+
+thresholds <- c(0.80, 0.85, 0.90, 0.95)
+counts <- sapply(thresholds, function(thr) {
+  x <- prune(x_all, "redundant", redundancy_r = thr)
+  sum(tidy(x, what = "nodes")$pruned)
+})
+#> ℹ Redundancy pruning (|r| ≥ 0.8) flagged 9 nodes.
+#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+#>   `x$prune$chains`.
+#> ℹ Redundancy pruning (|r| ≥ 0.85) flagged 8 nodes.
+#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+#>   `x$prune$chains`.
+#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
+#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+#>   `x$prune$chains`.
+#> ℹ Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.
+#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+#>   `x$prune$chains`.
+thr_df <- data.frame(redundancy_r = thresholds, n_flagged = counts)
+```
 
 | Factors flagged redundant at each redundancy_r threshold |                 |
 |----------------------------------------------------------|-----------------|
@@ -411,12 +420,16 @@ guide your focus in reporting.
 
 ## References
 
-Goldberg, L. R. (2006). Doing it all bass-ackwards. *Journal of Research
-in Personality*, *40*(4), 347–358.
-
 Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg’s bass-ackward method.
 *Psychological Methods*. <https://doi.org/10.1037/met0000546>
+
+Goldberg, L. R. (2006). Doing it all bass-ackwards. *Journal of Research
+in Personality*, *40*(4), 347–358.
+
+Lorenzo-Seva, U., & ten Berge, J. M. F. (2006). Tucker’s congruence
+coefficient as a meaningful index of factor similarity. *Methodology*,
+*2*(2), 57–64. <https://doi.org/10.1027/1614-2241.2.2.57>
 
 Tucker, L. R. (1951). *A method for synthesis of factor analysis
 studies* (Personnel Research Section Report No. 984). Department of the

@@ -825,7 +825,29 @@ edges (reuse the `loadings_se` infrastructure) so the strongest-edge
 claim is inferentially honest. **Deferred; warrants its own milestone**
 (perf-heavy: each resample re-runs full extraction at every level; needs
 [future](https://future.futureverse.org) parallelisation +
-print/plot/vignette integration).
+print/plot/vignette integration). - **M40 spin-off (code/viz deferred
+out of the doc-only M39; see `ROADMAP.md` §M40 for full context):** -
+*Ordinal `categorical` convenience flag.* A proposed
+`categorical = TRUE/FALSE` argument on
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+flipping `cor` (pearson→polychoric) and the ESEM estimator
+(ML/MLR→WLSMV) together. **Not yet a resolved default** — it partially
+duplicates the explicit `cor`/estimator surface (§9), so whether it is a
+genuine ergonomic win or redundant needs owner sign-off at plan time
+before any implementation. Do not build it as a silent addition. -
+*Ordinal correlation-comparison visualization.* Replace the two raw
+`round(x$r[...], 2)` matrix chunks in `vignettes/ackwards-ordinal.Rmd`
+with a clearer comparison (dodged bar chart of lower-triangle item-pair
+correlations by basis, **or** a gt long-format pearson/polychoric/Δ
+table). Viz-only; `ggplot2`/`gt` already in Suggests; no package-code or
+dependency change. - *Forbes pruned-level axis-label styling.* Mark a
+fully pruned level’s
+[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+axis label (parenthesized/italic) to denote its status under
+`drop_pruned`/`compress_levels`. Touches
+[`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md)
+label rendering (M35 territory) — code, not prose, which is why it was
+excluded from doc-only M39.
 
 ## 15. Milestones
 

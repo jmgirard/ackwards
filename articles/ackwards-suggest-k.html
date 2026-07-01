@@ -212,7 +212,7 @@ criteria. When VSS-1 and VSS-2 agree with MAP, the simple-structure
 interpretation is robust. When they disagree, the data may have a more
 complex loading structure.</p>
 <p><strong>Limitation.</strong> VSS criteria work poorly when items have
-meaningful cross- loadings (a common situation with personality scales).
+meaningful cross-loadings (a common situation with personality scales).
 In those cases, VSS-1 in particular may underestimate k.</p>
 <hr>
 </div>
@@ -313,15 +313,15 @@ structure, and citations — see <code><a href="../reference/suggest_k.html">?su
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[303ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[281ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[182ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[170ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.7s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[9.4s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="va">sk</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span></span>
 <span><span class="co">#&gt; Variables: 25</span></span>
@@ -355,14 +355,22 @@ structure, and citations — see <code><a href="../reference/suggest_k.html">?su
 <span><span class="co">#&gt; <span style="color: #555555;">Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">2023). PA-FA and CD are more conservative. Use the range.</span></span></span></code></pre></div>
 <p>The output prints in two sections. The <strong>criteria
-table</strong> shows the raw evidence at each k:</p>
+table</strong> shows the raw evidence at each k, using two display
+conventions:</p>
 <ul>
-<li>PA-PC and PA-FA mark a checkmark at each k they would retain (up to
-their recommended ceiling) and a dash above it.</li>
-<li>MAP, VSS-1, and VSS-2 show the numeric value at each k; the optimal
-k is starred (<code>*</code>).</li>
-<li>CD (if available) marks a checkmark up to its recommendation and
-stars the optimal k.</li>
+<li>
+<strong>Checkmark / dash</strong> (PA-PC, PA-FA, and CD): a
+checkmark (✔) marks each k the criterion <em>retains</em>, up to its
+recommended ceiling; a dash (-) marks the levels above that ceiling,
+which it does not retain. These criteria answer a yes/no “keep this
+level?” question at each k, so there is no number to show.</li>
+<li>
+<strong>Number with a star</strong> (MAP, VSS-1, VSS-2): these
+criteria produce a <em>score</em> at each k — a quantity to minimize
+(MAP) or maximize (VSS) — so the raw value is printed, and the single
+optimal k (the min or max) is starred (<code>*</code>). Reading the
+surrounding numbers tells you how sharp the optimum is: a lone tall peak
+is decisive, a near-flat plateau is not.</li>
 </ul>
 <p>The <strong>recommendations block</strong> summarizes each
 criterion’s single suggested k (or range for PA), and the
@@ -538,12 +546,39 @@ search ceiling for <code><a href="../reference/suggest_k.html">suggest_k()</a></
 </div>
 </div>
 <div class="section level2">
+<h2 id="when-the-criteria-agree-and-when-they-dont">When the criteria agree — and when they don’t<a class="anchor" aria-label="anchor" href="#when-the-criteria-agree-and-when-they-dont"></a>
+</h2>
+<p><code><a href="../reference/suggest_k.html">suggest_k()</a></code> earns its keep precisely when the criteria
+<em>disagree</em>, because the spread tells you how much the choice of k
+is a judgement call rather than a fact read off the data. It helps to
+see both extremes.</p>
+<p><strong>Idealized data.</strong> <code>sim16</code> is a built-in
+simulated dataset (1,000 cases, 16 continuous variables) with a known,
+cleanly separated 1 → 2 → 4 hierarchy (see <code><a href="../reference/sim16.html">?sim16</a></code>). When
+the planted signal is this strong and this clean, the criteria line
+up:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sk_sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">sim16</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk_sim</span><span class="op">)</span></span></code></pre></div>
+<p>The criteria collapse onto essentially one answer — the consensus is
+k = 4, recovering the four factors built into <code>sim16</code>. This
+is what “watch the method recover a known structure” looks like. It is
+<em>not</em>, however, what most real datasets look like, so do not
+treat this tidy consensus as the normal case.</p>
+<p><strong>Realistic data.</strong> The BFI-25, worked through next, is
+the contrast. Its criteria span k = 4–6, and no single value is
+obviously correct. That disagreement is not a defect in the criteria; it
+is a faithful signal that the data support a <em>band</em> of defensible
+depths. Reasoning under that kind of disagreement — not chasing a single
+number — is the skill this vignette is really about.</p>
+</div>
+<div class="section level2">
 <h2 id="a-worked-recommendation-for-the-bfi">A worked recommendation for the BFI<a class="anchor" aria-label="anchor" href="#a-worked-recommendation-for-the-bfi"></a>
 </h2>
 <p>The BFI-25 has 25 items measuring five personality traits. The
 criteria do not all converge here, which is itself informative:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sk</span> <span class="co"># reproduced from earlier</span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span> <span class="co"># reproduced from earlier</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span></span>
 <span><span class="co">#&gt; Variables: 25</span></span>
@@ -597,7 +632,7 @@ MAP/VSS-2 consensus of 5. Setting <code>k_max = 6</code> lets
 <code><a href="../reference/ackwards.html">ackwards()</a></code> show whether a sixth level reveals interpretable
 sub-facets or merely splits the Big Five into arbitrary
 micro-factors.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">6</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
 <p>If the k = 6 level looks like overextraction (very thin arrows,

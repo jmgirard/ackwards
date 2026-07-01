@@ -144,7 +144,7 @@ robust. When they disagree, the data may have a more complex loading
 structure.
 
 **Limitation.** VSS criteria work poorly when items have meaningful
-cross- loadings (a common situation with personality scales). In those
+cross-loadings (a common situation with personality scales). In those
 cases, VSS-1 in particular may underestimate k.
 
 ------------------------------------------------------------------------
@@ -207,15 +207,15 @@ and citations — see
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [303ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [281ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [182ms]
+#> ✔ Running MAP and VSS... [170ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.7s]
+#> ✔ Running Comparison Data (CD)... [9.4s]
 #> 
-sk
+print(sk)
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
 #> Variables: 25
@@ -251,14 +251,19 @@ sk
 ```
 
 The output prints in two sections. The **criteria table** shows the raw
-evidence at each k:
+evidence at each k, using two display conventions:
 
-- PA-PC and PA-FA mark a checkmark at each k they would retain (up to
-  their recommended ceiling) and a dash above it.
-- MAP, VSS-1, and VSS-2 show the numeric value at each k; the optimal k
-  is starred (`*`).
-- CD (if available) marks a checkmark up to its recommendation and stars
-  the optimal k.
+- **Checkmark / dash** (PA-PC, PA-FA, and CD): a checkmark (✔) marks
+  each k the criterion *retains*, up to its recommended ceiling; a dash
+  (-) marks the levels above that ceiling, which it does not retain.
+  These criteria answer a yes/no “keep this level?” question at each k,
+  so there is no number to show.
+- **Number with a star** (MAP, VSS-1, VSS-2): these criteria produce a
+  *score* at each k — a quantity to minimize (MAP) or maximize (VSS) —
+  so the raw value is printed, and the single optimal k (the min or max)
+  is starred (`*`). Reading the surrounding numbers tells you how sharp
+  the optimum is: a lone tall peak is decisive, a near-flat plateau is
+  not.
 
 The **recommendations block** summarizes each criterion’s single
 suggested k (or range for PA), and the **consensus range** spans the
@@ -428,6 +433,39 @@ Note that `k_max` here is a search ceiling for
 and need not equal the `k_max` you ultimately pass to
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
 
+## When the criteria agree — and when they don’t
+
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+earns its keep precisely when the criteria *disagree*, because the
+spread tells you how much the choice of k is a judgement call rather
+than a fact read off the data. It helps to see both extremes.
+
+**Idealized data.** `sim16` is a built-in simulated dataset (1,000
+cases, 16 continuous variables) with a known, cleanly separated 1 → 2 →
+4 hierarchy (see
+[`?sim16`](https://jmgirard.github.io/ackwards/reference/sim16.md)).
+When the planted signal is this strong and this clean, the criteria line
+up:
+
+``` r
+
+sk_sim <- suggest_k(sim16, seed = 42)
+print(sk_sim)
+```
+
+The criteria collapse onto essentially one answer — the consensus is k =
+4, recovering the four factors built into `sim16`. This is what “watch
+the method recover a known structure” looks like. It is *not*, however,
+what most real datasets look like, so do not treat this tidy consensus
+as the normal case.
+
+**Realistic data.** The BFI-25, worked through next, is the contrast.
+Its criteria span k = 4–6, and no single value is obviously correct.
+That disagreement is not a defect in the criteria; it is a faithful
+signal that the data support a *band* of defensible depths. Reasoning
+under that kind of disagreement — not chasing a single number — is the
+skill this vignette is really about.
+
 ## A worked recommendation for the BFI
 
 The BFI-25 has 25 items measuring five personality traits. The criteria
@@ -435,7 +473,7 @@ do not all converge here, which is itself informative:
 
 ``` r
 
-sk # reproduced from earlier
+print(sk) # reproduced from earlier
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
 #> Variables: 25

@@ -1,11 +1,12 @@
 # Ordinal Data: Polychoric Correlations and WLSMV
 
-Most psychological scales use ordinal response formats — Likert-type
-items with 4, 5, 6, or 7 response options. Treating these as continuous
-and computing Pearson correlations between them is ubiquitous in
-practice, but it introduces systematic bias that can distort both
-loadings and the between-level edges that bass-ackwards analysis depends
-on. This vignette explains the problem and how `ackwards` addresses it.
+Most psychological scales use ordinal response formats: Likert-type
+items with a handful of ordered categories, binary (yes/no) items, and
+everything in between. Treating these as continuous and computing
+Pearson correlations between them is ubiquitous in practice, but it
+introduces systematic bias that can distort both loadings and the
+between-level edges that bass-ackwards analysis depends on. This
+vignette explains the problem and how `ackwards` addresses it.
 
 ## Why Pearson underestimates for ordinal items
 
@@ -34,6 +35,14 @@ Pearson correlation that *would* exist between their underlying
 continuous latent variables, if those variables had been measured
 without discretization. It does this by fitting a bivariate normal model
 with thresholds at each category boundary.
+
+For binary (two-category) items this same estimate is traditionally
+called a *tetrachoric* correlation, but it is not a separate method —
+tetrachoric is simply the two-category special case of polychoric.
+`cor = "polychoric"` handles binary items automatically:
+[`psych::polychoric()`](https://rdrr.io/pkg/psych/man/tetrachor.html)
+detects the two-level case and returns the tetrachoric estimate, so you
+never request tetrachoric separately.
 
 Setting `cor = "polychoric"` in
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
@@ -152,6 +161,15 @@ weighted least squares, mean- and variance-adjusted). This is the
 standard estimator for structural equation models with categorical or
 ordinal indicators, and is the same method used by Mplus by default.
 
+WLSMV genuinely operates on the polychoric basis: lavaan estimates the
+item thresholds and the polychoric correlations among the ordinal
+indicators, then fits the factor model to *that* matrix using a diagonal
+weight matrix. So combining `cor = "polychoric"` with the ESEM engine is
+not stacking two separate corrections — the polychoric structure is
+precisely what WLSMV is built to model, and the between-level edges are
+computed from lavaan’s own latent correlation matrix (not a separately
+estimated `psych` polychoric matrix).
+
 ``` r
 
 x_esem <- ackwards(bfi, k_max = 3, engine = "esem", cor = "polychoric")
@@ -207,41 +225,44 @@ produce the `autoplot(what = "fit")` trajectory chart.
 | Continuous or many categories (\> 7) | `cor = "pearson"` (default) |
 | 5–7 ordered categories (typical Likert) | `cor = "polychoric"` — recommended |
 | 3–4 categories | `cor = "polychoric"` — strongly recommended |
-| Binary (2 categories) | `cor = "polychoric"` — essential; consider tetrachoric specifically |
+| Binary (2 categories) | `cor = "polychoric"` — essential (this is the tetrachoric case) |
 
 Polychoric estimation requires fitting a bivariate normal model for
 every item pair. With p items that is p(p−1)/2 pairs — about 300 for a
 25-item scale. Computation is usually fast (seconds), but scales as
 O(p²) and can be slow for very large item pools.
 
-> **A note on score computation.** When `cor = "polychoric"`, the weight
-> matrices stored in the object are derived from the polychoric `R`.
-> Materializing factor scores via
+> **A note on score computation.** The short answer: yes, you can use
+> the factor scores from an ordinal analysis in downstream work — the
+> caveat below is about *scaling*, not validity. When
+> `cor = "polychoric"`, the weight matrices stored in the object are
+> derived from the polychoric `R`, but
 > [`augment()`](https://generics.r-lib.org/reference/augment.html)
-> applies those weights to Pearson-standardized raw data
-> (`.standardize(data)`). The resulting scores are calibrated to have
-> *model-implied* unit variance, not empirically unit variance. For
-> downstream analysis this distinction rarely matters — the scores are
-> still well-scaled — but it is why
-> [`augment()`](https://generics.r-lib.org/reference/augment.html)
-> issues a warning when `cor != "pearson"`. The between-level edges from
-> `tidy(what = "edges")` are always exact because they come from the
-> algebra, not materialized scores.
+> materializes scores by applying those weights to Pearson-standardized
+> raw data (`.standardize(data)`). The resulting scores are calibrated
+> to *model-implied* unit variance rather than exactly empirical unit
+> variance, so their empirical standard deviations will be close to but
+> not precisely 1. That scaling nuance is the only reason
+> [`augment()`](https://generics.r-lib.org/reference/augment.html) warns
+> when `cor != "pearson"`; the warning does not mean the scores are
+> biased or unusable. The between-level edges from
+> `tidy(what = "edges")` are unaffected either way — they come from the
+> exact algebra, not from materialized scores.
 
 ## References
 
-Pearson, K. (1900). Mathematical contributions to the theory of
-evolution. VII. On the correlation of characters not quantitatively
-measurable. *Philosophical Transactions of the Royal Society of London,
-Series A*, *195*, 1–47.
-
-Olsson, U. (1979). Maximum likelihood estimation of the polychoric
-correlation coefficient. *Psychometrika*, *44*(4), 443–460.
+Flora, D. B., & Curran, P. J. (2004). An empirical evaluation of
+alternative methods of estimation for confirmatory factor analysis with
+ordinal data. *Psychological Methods*, *9*(4), 466–491.
 
 Muthén, B. O. (1984). A general structural equation model with
 dichotomous, ordered categorical, and continuous latent variable
 indicators. *Psychometrika*, *49*(1), 115–132.
 
-Flora, D. B., & Curran, P. J. (2004). An empirical evaluation of
-alternative methods of estimation for confirmatory factor analysis with
-ordinal data. *Psychological Methods*, *9*(4), 466–491.
+Olsson, U. (1979). Maximum likelihood estimation of the polychoric
+correlation coefficient. *Psychometrika*, *44*(4), 443–460.
+
+Pearson, K. (1900). Mathematical contributions to the theory of
+evolution. VII. On the correlation of characters not quantitatively
+measurable. *Philosophical Transactions of the Royal Society of London,
+Series A*, *195*, 1–47.

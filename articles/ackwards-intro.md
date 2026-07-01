@@ -35,8 +35,7 @@ how the factor structure of your data builds from broad to narrow.
 > *Note: This is a descriptive, data-driven hierarchy, not a
 > confirmatory hierarchical model like Schmid–Leiman or higher-order
 > SEM. The between-level correlations are score correlations (or their
-> algebraic equivalents), not model parameters. See
-> `vignette("engines")` for when to use EFA or ESEM instead of PCA.*
+> algebraic equivalents), not model parameters.*
 
 ## Data
 
@@ -73,15 +72,15 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [308ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [279ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [184ms]
+#> ✔ Running MAP and VSS... [173ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.7s]
+#> ✔ Running Comparison Data (CD)... [9.5s]
 #> 
-sk
+print(sk)
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
 #> Variables: 25
@@ -123,13 +122,16 @@ autoplot(sk)
 
 ![](ackwards-intro_files/figure-html/suggest_k_plot-1.png)
 
-No single criterion is decisive — look at where they converge. `k_max`
-in
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-is an *upper bound*; setting `k_max` one or two levels above the
-consensus to watch factors fragment is intentional and informative. For
-a full explanation of each criterion, its bias direction, and how to
-match it to your engine, see
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+does not return a single “correct” k — it reports what several criteria
+each recommend, so you can read a plausible *range* rather than a point
+estimate. That range informs `k_max` in
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md),
+which is itself an *upper bound* on the hierarchy depth, not a claim
+about the true number of factors: setting `k_max` one or two levels
+above the consensus to watch factors fragment is intentional and
+informative. For a full explanation of each criterion, its bias
+direction, and how to match it to your engine, see
 [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md).
 
 ## Step 2: Fit the hierarchy `ackwards()`
@@ -155,6 +157,20 @@ No warning this time — specifying `cor = "polychoric"` tells
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 that you have already thought about the measurement scale.
 
+> *Why varimax? Within each level,
+> [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+> rotates the factors orthogonally using varimax, and this is not merely
+> a cosmetic default. Orthogonality is what gives the between-level
+> score correlations a closed form: an orthonormal rotation satisfies T′
+> = T⁻¹, which is exactly what makes the `W′RW` edge algebra exact
+> rather than an approximation. Varimax is the orthogonal rotation
+> Goldberg (2006) used, and it is the same rotation as the “CF-VARIMAX”
+> reported by Mplus-based papers such as Kim & Eaton (2015) —
+> `CF(κ = 1/p)` is varimax — so the two labels are not competing
+> choices. Oblique rotations are deliberately not offered: correlated
+> factors would confound the cross-level signal the method exists to
+> measure.*
+
 ## Step 3: Summarize the result
 
 ### High-level summary
@@ -163,7 +179,7 @@ that you have already thought about the measurement scale.
 
 ``` r
 
-x
+print(x)
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
 #> Engine: pca
@@ -279,9 +295,7 @@ connect each factor to its **primary parent** — the factor at the level
 above with which it has the strongest correlation (\|r\|). Arrow
 thickness is proportional to \|r\|, and color shows direction (blue =
 positive, red = negative by default); both aesthetics come with a
-legend. Primary-parent edges are always positive after sign alignment,
-so a red arrow marks a genuine secondary relationship. For a
-left-to-right layout (handy for wide slides), pass
+legend. For a left-to-right layout (handy for wide slides), pass
 `direction = "horizontal"`.
 
 ``` r
@@ -339,11 +353,11 @@ item-by-factor matrix, especially for deep hierarchies.
 
 ``` r
 
-top_items(x, level = 5, cut = 0.3)
+top_items(x, level = 5, cut = 0.5)
 #> 
 #> ── Salient items by factor (ackwards) ──────────────────────────────────────────
 #> Engine: pca
-#> Cut: |loading| >= 0.3
+#> Cut: |loading| >= 0.5
 #> Top-n: all
 #> 
 #> ── Level 5 (5 factors) ──
@@ -354,27 +368,18 @@ top_items(x, level = 5, cut = 0.3)
 #> E1 [-0.701]
 #> E3 [0.677]
 #> E5 [0.597]
-#> A5 [0.487]
-#> A3 [0.415]
-#> O3 [0.394]
-#> N4 [-0.314]
-#> O1 [0.302]
 #> m5f2
 #> N3 [-0.825]
 #> N1 [-0.810]
 #> N2 [-0.805]
 #> N5 [-0.688]
 #> N4 [-0.646]
-#> C5 [-0.344]
-#> O4 [-0.317]
 #> m5f3
 #> C2 [0.735]
 #> C4 [-0.716]
 #> C1 [0.690]
 #> C3 [0.679]
 #> C5 [-0.652]
-#> E5 [0.448]
-#> A4 [0.345]
 #> m5f4
 #> A1 [-0.704]
 #> A3 [0.703]
@@ -415,6 +420,13 @@ head(loadings_df)
 #> 5     1   m1f1   A5  0.6848262 NA       NA       NA
 #> 6     1   m1f1   C1  0.4502778 NA       NA       NA
 ```
+
+The `se`, `ci_lower`, and `ci_upper` columns are `NA` here. PCA (and
+EFA) return point loadings with no standard errors, so there is nothing
+to report. These columns are populated only by `engine = "esem"`, which
+fits each level in lavaan and can attach model-based standard errors and
+confidence intervals to the loadings; see
+[`vignette("ackwards-engines")`](https://jmgirard.github.io/ackwards/articles/ackwards-engines.md).
 
 ### Between-level edges
 
@@ -514,18 +526,6 @@ close to but not exactly 1 when a non-Pearson basis is used; see
 for details. For pure PCA on Pearson correlations the model-implied and
 empirical variances agree exactly.
 
-If you need scores repeatedly (e.g., in a cross-validation loop), store
-them at fit time with `keep_scores = TRUE` to avoid re-applying the
-weight matrices on every call:
-
-``` r
-
-x2 <- ackwards(bfi, k_max = 5, cor = "polychoric", keep_scores = TRUE)
-scores2 <- augment(x2, append = FALSE) # uses stored matrices — no recomputation
-all.equal(scores2$.m5f1, scores$.m5f1)
-#> [1] TRUE
-```
-
 ### Using scores for downstream analysis
 
 Because [`augment()`](https://generics.r-lib.org/reference/augment.html)
@@ -601,13 +601,13 @@ hierarchical factor structures from the top down. *Journal of Research
 in Personality*, *40*(4), 347–358.
 <https://doi.org/10.1016/j.jrp.2006.01.001>
 
-Waller, N. G. (2007). A general method for computing hierarchical
-component structures by *Bass-Ackward* factor analysis. *Journal of
-Research in Personality*, *41*(4), 745–752.
-<https://doi.org/10.1016/j.jrp.2006.08.005>
-
 Horn, J. L. (1965). A rationale and test for the number of factors in
 factor analysis. *Psychometrika*, *30*(2), 179–185.
 
 Velicer, W. F. (1976). Determining the number of components from the
 matrix of partial correlations. *Psychometrika*, *41*(3), 321–327.
+
+Waller, N. G. (2007). A general method for computing hierarchical
+component structures by *Bass-Ackward* factor analysis. *Journal of
+Research in Personality*, *41*(4), 745–752.
+<https://doi.org/10.1016/j.jrp.2006.08.005>

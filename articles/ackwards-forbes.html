@@ -116,9 +116,8 @@ neighbors.</p>
 <span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="pairs-all-computing-every-between-level-correlation">
-<code>pairs = "all"</code>: computing every between-level
-correlation<a class="anchor" aria-label="anchor" href="#pairs-all-computing-every-between-level-correlation"></a>
+<h2 id="computing-every-between-level-correlation-with-pairs-all">Computing every between-level correlation with
+<code>pairs = "all"</code><a class="anchor" aria-label="anchor" href="#computing-every-between-level-correlation-with-pairs-all"></a>
 </h2>
 <p>Adding <code>pairs = "all"</code> extends the edge table from
 adjacent pairs only to every combination of levels.</p>
@@ -710,9 +709,8 @@ just refinements within a stable dimension.</p>
 automatically flag factors that may not be adding genuine information to
 the hierarchy.</p>
 <div class="section level3">
-<h3 id="prunex-redundant-chains-of-near-identical-factors">
-<code>prune(x, "redundant")</code>: chains of near-identical
-factors<a class="anchor" aria-label="anchor" href="#prunex-redundant-chains-of-near-identical-factors"></a>
+<h3 id="chains-of-near-identical-factors-with-prunex-redundant">Chains of near-identical factors with
+<code>prune(x, "redundant")</code><a class="anchor" aria-label="anchor" href="#chains-of-near-identical-factors-with-prunex-redundant"></a>
 </h3>
 <p>A <strong>redundant chain</strong> is a sequence of factors connected
 by near-perfect correlations (|r| ≥ 0.9 by default) across levels. If
@@ -1350,9 +1348,8 @@ arrowheads, and more — see
 <code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code>.</p>
 </div>
 <div class="section level3">
-<h3 id="prunex-artifact-factors-defined-by-structural-similarity">
-<code>prune(x, "artifact")</code>: factors defined by structural
-similarity<a class="anchor" aria-label="anchor" href="#prunex-artifact-factors-defined-by-structural-similarity"></a>
+<h3 id="factors-defined-by-structural-similarity-with-prunex-artifact">Factors defined by structural similarity with
+<code>prune(x, "artifact")</code><a class="anchor" aria-label="anchor" href="#factors-defined-by-structural-similarity-with-prunex-artifact"></a>
 </h3>
 <p>An <strong>artifact</strong> factor is one whose loading pattern is
 more similar to a factor at a <em>non-adjacent</em> level than to its
@@ -2484,7 +2481,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
 <td headers="level" class="gt_row gt_right">3</td>
 <td headers="few_items" class="gt_row gt_center">FALSE</td>
 <td headers="orphan" class="gt_row gt_center">FALSE</td>
-<td headers="split_merge" class="gt_row gt_center">TRUE</td>
+<td headers="split_merge" class="gt_row gt_center" style="background-color: #FFF3CD;">TRUE</td>
 </tr>
 <tr>
 <td headers="id" class="gt_row gt_left">m4f1</td>
@@ -2512,7 +2509,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
 <td headers="level" class="gt_row gt_right">4</td>
 <td headers="few_items" class="gt_row gt_center">FALSE</td>
 <td headers="orphan" class="gt_row gt_center">FALSE</td>
-<td headers="split_merge" class="gt_row gt_center">TRUE</td>
+<td headers="split_merge" class="gt_row gt_center" style="background-color: #FFF3CD;">TRUE</td>
 </tr>
 <tr>
 <td headers="id" class="gt_row gt_left">m5f1</td>
@@ -2600,7 +2597,13 @@ cases where the threshold matters:</p>
 few <code>redundancy_r</code> thresholds does not require refitting
 <code><a href="../reference/ackwards.html">ackwards()</a></code> each time — the already-fit <code>x_all</code>
 object is re-pruned directly:</p>
-<pre><code><span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.8) flagged 9 nodes.</span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">thresholds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.80</span>, <span class="fl">0.85</span>, <span class="fl">0.90</span>, <span class="fl">0.95</span><span class="op">)</span></span>
+<span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">thresholds</span>, <span class="kw">function</span><span class="op">(</span><span class="va">thr</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prune.html">prune</a></span><span class="op">(</span><span class="va">x_all</span>, <span class="st">"redundant"</span>, redundancy_r <span class="op">=</span> <span class="va">thr</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"nodes"</span><span class="op">)</span><span class="op">$</span><span class="va">pruned</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.8) flagged 9 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.85) flagged 8 nodes.</span></span>
@@ -2611,7 +2614,8 @@ object is re-pruned directly:</p>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
-<span><span class="co">#&gt;   `x$prune$chains`.</span></span></code></pre>
+<span><span class="co">#&gt;   `x$prune$chains`.</span></span>
+<span><span class="va">thr_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>redundancy_r <span class="op">=</span> <span class="va">thresholds</span>, n_flagged <span class="op">=</span> <span class="va">counts</span><span class="op">)</span></span></code></pre></div>
 <div id="txvafbsnay" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#txvafbsnay table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -3119,11 +3123,14 @@ new information, and use that to guide your focus in reporting.</p>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<p>Goldberg, L. R. (2006). Doing it all bass-ackwards. <em>Journal of
-Research in Personality</em>, <em>40</em>(4), 347–358.</p>
 <p>Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg’s bass-ackward method.
 <em>Psychological Methods</em>. <a href="https://doi.org/10.1037/met0000546" class="external-link uri">https://doi.org/10.1037/met0000546</a></p>
+<p>Goldberg, L. R. (2006). Doing it all bass-ackwards. <em>Journal of
+Research in Personality</em>, <em>40</em>(4), 347–358.</p>
+<p>Lorenzo-Seva, U., &amp; ten Berge, J. M. F. (2006). Tucker’s
+congruence coefficient as a meaningful index of factor similarity.
+<em>Methodology</em>, <em>2</em>(2), 57–64. <a href="https://doi.org/10.1027/1614-2241.2.2.57" class="external-link uri">https://doi.org/10.1027/1614-2241.2.2.57</a></p>
 <p>Tucker, L. R. (1951). <em>A method for synthesis of factor analysis
 studies</em> (Personnel Research Section Report No. 984). Department of
 the Army.</p>
