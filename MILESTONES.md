@@ -565,3 +565,10 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   `MILESTONES.md`, not `DESIGN.md`). The Invariant-2 algebra-vs-scores cross-check on `sim16` was
   deferred to M37 (recorded in `ROADMAP.md`), where the engines vignette naturally materializes
   scores. (1370 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+  Second follow-up (branch `m33-followup-testperf-pkgdown` → PR): fixed a pkgdown gap M33
+  introduced — `sim16` was added to `man/` but not to `_pkgdown.yml`'s reference index, so
+  `pkgdown::check_pkgdown()` failed on an undocumented topic; added it to the "Data" section
+  (now `pkgdown::check_pkgdown()` → "No problems found"). Also cached the shared polychoric
+  `bfi25` fits in `test-vignette-m24.R` (`.vfit` memo, mirroring `test-suggest_k.R`'s `.get_sk`):
+  14 `ackwards()` calls → 7 distinct fits, cutting that file from ~15.1s to ~8.0s (a general
+  test-suite speedup surfaced while profiling for the workflow's new efficiency guidance).

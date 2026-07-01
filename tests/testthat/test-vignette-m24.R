@@ -8,12 +8,25 @@
   do.call(rbind, lapply(split(d, d$item), function(r) r[which.max(abs(r$loading)), ]))
 }
 
+# The bfi25 fits below are shared across several tests; polychoric correlation
+# on 25 items is the dominant cost, and the same fit was previously recomputed
+# up to 3x. Compute each distinct fit once and cache it (nothing here mutates
+# the returned objects, so sharing is safe). Mirrors the `.get_sk` memo in
+# test-suggest_k.R. `expr` is lazy (an R promise) -> only evaluated on a miss.
+.bfi_cc <- na.omit(bfi25)
+.vfit <- local({
+  cache <- list()
+  function(key, expr) {
+    if (is.null(cache[[key]])) cache[[key]] <<- expr
+    cache[[key]]
+  }
+})
+
 test_that("engines vignette: loadings wide-pivot produces expected columns and shape", {
   # Guards loadings-compare chunk in ackwards-engines.Rmd
   skip_if_not_installed("psych")
-  bfi <- na.omit(bfi25)
-  x_pca <- ackwards(bfi, k_max = 3, cor = "polychoric")
-  x_efa <- ackwards(bfi, k_max = 3, engine = "efa", cor = "polychoric")
+  x_pca <- .vfit("pca3", ackwards(.bfi_cc, k_max = 3, cor = "polychoric"))
+  x_efa <- .vfit("efa3", ackwards(.bfi_cc, k_max = 3, engine = "efa", cor = "polychoric"))
 
   anchors <- c("N1", "N2", "E1", "E2", "C1", "C2")
   pca_p <- .primary_loading(x_pca, 3, anchors)
@@ -44,9 +57,8 @@ test_that("engines vignette: loadings wide-pivot produces expected columns and s
 test_that("engines vignette: edges wide-pivot produces expected columns and no NA mismatch", {
   # Guards edges-compare chunk in ackwards-engines.Rmd
   skip_if_not_installed("psych")
-  bfi <- na.omit(bfi25)
-  x_pca <- ackwards(bfi, k_max = 3, cor = "polychoric")
-  x_efa <- ackwards(bfi, k_max = 3, engine = "efa", cor = "polychoric")
+  x_pca <- .vfit("pca3", ackwards(.bfi_cc, k_max = 3, cor = "polychoric"))
+  x_efa <- .vfit("efa3", ackwards(.bfi_cc, k_max = 3, engine = "efa", cor = "polychoric"))
 
   pca_e <- tidy(x_pca, what = "edges", primary_only = TRUE)
   efa_e <- tidy(x_efa, what = "edges", primary_only = TRUE)
@@ -70,9 +82,8 @@ test_that("engines vignette: edges wide-pivot produces expected columns and no N
 test_that("ordinal vignette: loadings wide-pivot produces expected columns and positive deltas", {
   # Guards load-compare chunk in ackwards-ordinal.Rmd
   skip_if_not_installed("psych")
-  bfi <- na.omit(bfi25)
-  x_pearson <- suppressWarnings(ackwards(bfi, k_max = 5))
-  x_poly <- ackwards(bfi, k_max = 5, cor = "polychoric")
+  x_pearson <- .vfit("pearson5", suppressWarnings(ackwards(.bfi_cc, k_max = 5)))
+  x_poly <- .vfit("poly5", ackwards(.bfi_cc, k_max = 5, cor = "polychoric"))
 
   n_items <- c("N1", "N2", "N3", "N4", "N5")
   pear_p <- .primary_loading(x_pearson, 5, n_items)
@@ -103,9 +114,8 @@ test_that("ordinal vignette: loadings wide-pivot produces expected columns and p
 test_that("ordinal vignette: edges wide-pivot produces expected columns and no NA mismatch", {
   # Guards edge-compare chunk in ackwards-ordinal.Rmd
   skip_if_not_installed("psych")
-  bfi <- na.omit(bfi25)
-  x_pearson <- suppressWarnings(ackwards(bfi, k_max = 5))
-  x_poly <- ackwards(bfi, k_max = 5, cor = "polychoric")
+  x_pearson <- .vfit("pearson5", suppressWarnings(ackwards(.bfi_cc, k_max = 5)))
+  x_poly <- .vfit("poly5", ackwards(.bfi_cc, k_max = 5, cor = "polychoric"))
 
   pear_e <- tidy(x_pearson, what = "edges", primary_only = TRUE)
   poly_e <- tidy(x_poly, what = "edges", primary_only = TRUE)
@@ -139,11 +149,10 @@ test_that("ordinal vignette: edges wide-pivot produces expected columns and no N
 test_that("forbes vignette: prune-nodes table idiom returns expected columns and n_redundant", {
   # Guards prune-nodes chunk in ackwards-forbes.Rmd
   skip_if_not_installed("psych")
-  bfi <- na.omit(bfi25)
-  x_prune <- ackwards(bfi,
+  x_prune <- .vfit("redundant5", suppressMessages(ackwards(.bfi_cc,
     k_max = 5, cor = "polychoric",
     pairs = "all", prune = "redundant"
-  )
+  )))
 
   nodes <- tidy(x_prune, what = "nodes")
   n_redundant <- sum(nodes$pruned)
@@ -185,11 +194,10 @@ test_that("forbes vignette: prune-nodes table idiom returns expected columns and
 test_that("forbes vignette: prune-artefact table idiom returns expected columns", {
   # Guards the prune-artefact-nodes chunk in ackwards-forbes.Rmd
   skip_if_not_installed("psych")
-  bfi <- na.omit(bfi25)
-  x_art <- ackwards(bfi,
+  x_art <- .vfit("artefact5", suppressMessages(ackwards(.bfi_cc,
     k_max = 5, cor = "polychoric",
     pairs = "all", prune = "artefact"
-  )
+  )))
 
   art_nodes <- tidy(x_art, what = "nodes")
   n_artefact <- sum(art_nodes$pruned)
@@ -203,9 +211,8 @@ test_that("forbes vignette: prune-artefact table idiom returns expected columns"
 test_that("forbes vignette: skip-edge inline-R values are computed correctly", {
   # Guards the edge-counts and top-skip-edge inline R in ackwards-forbes.Rmd
   skip_if_not_installed("psych")
-  bfi <- na.omit(bfi25)
-  x_adj <- ackwards(bfi, k_max = 5, cor = "polychoric")
-  x_all <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all")
+  x_adj <- .vfit("poly5", ackwards(.bfi_cc, k_max = 5, cor = "polychoric"))
+  x_all <- .vfit("poly5_all", ackwards(.bfi_cc, k_max = 5, cor = "polychoric", pairs = "all"))
 
   n_adj <- nrow(tidy(x_adj, what = "edges"))
   n_all <- nrow(tidy(x_all, what = "edges"))
@@ -229,9 +236,8 @@ test_that("vignette table idiom: knitr::kable fallback renders without gt", {
   # gt is installed in dev/CI so that branch never runs during vignette builds;
   # this exercises the fallback idiom directly so it cannot rot unnoticed.
   skip_if_not_installed("psych")
-  bfi <- na.omit(bfi25)
-  x_pca <- ackwards(bfi, k_max = 3, cor = "polychoric")
-  x_efa <- ackwards(bfi, k_max = 3, engine = "efa", cor = "polychoric")
+  x_pca <- .vfit("pca3", ackwards(.bfi_cc, k_max = 3, cor = "polychoric"))
+  x_efa <- .vfit("efa3", ackwards(.bfi_cc, k_max = 3, engine = "efa", cor = "polychoric"))
 
   pca_e <- tidy(x_pca, what = "edges", primary_only = TRUE)
   efa_e <- tidy(x_efa, what = "edges", primary_only = TRUE)
