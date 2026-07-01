@@ -52,7 +52,7 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M28** — CD correctness & honesty fix (`cd_rmse` trailing-zero bug; "minimize" label/roxygen corrected to sequential-test framing)
 - **M29** — Strip milestone numbers from user-facing docs (`NEWS.md` `(M24)` tag removed; regression test guards `NEWS.md`/`README.md`/vignettes)
 - **M30** — Citation hygiene (`inst/CITATION` Girard-only; `ackwards()` `@references` gains Forbes; README citation prose corrected)
-- **M31** — Correctness & output-honesty sweep (ESEM `p_value`/BIC extraction fixed for WLSMV/ULSMV; `_meets` cleanup; `cor = "polychoric"` + ML/MLR guard; `fa.parallel`/`seed` doc confirmed correct; intro/suggest_k vignette drift fixed)
+- **M31** — Correctness & output-honesty sweep (ESEM fit row reports scaled variants under WLSMV/ULSMV/MLR — `p_value`/`CFI`/`TLI`/`RMSEA` + `BIC`; `_meets` cleanup; `cor = "polychoric"` + ML/MLR guard; `fa.parallel`/`seed` doc confirmed correct; intro/suggest_k vignette drift fixed)
 
 ## Current focus
 

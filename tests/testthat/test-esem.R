@@ -621,3 +621,62 @@ test_that("ESEM under WLSMV: p_value uses the scaled test when df > 0; BIC genui
   g <- generics::glance(x)
   expect_true(is.na(g$BIC))
 })
+
+test_that("ESEM under ULSMV: p_value uses the scaled test when df > 0; BIC genuinely NA", {
+  skip_if_not_installed("lavaan")
+  skip_if_not_installed("psych")
+  d <- .make_ordinal_data()
+  suppressWarnings(
+    x <- ackwards(d, k_max = 3, engine = "esem", cor = "polychoric", estimator = "ULSMV")
+  )
+  for (ki in seq_len(x$k_max)) {
+    fv <- x$levels[[as.character(ki)]]$fit
+    if (fv[["dof"]] > 0) {
+      expect_false(is.na(fv[["p_value"]]), info = paste("p_value level", ki))
+      expect_true(fv[["p_value"]] >= 0 && fv[["p_value"]] <= 1)
+    } else {
+      expect_true(is.na(fv[["p_value"]]), info = paste("saturated level", ki))
+    }
+    # ULSMV, like WLSMV, is limited-information -> no BIC.
+    expect_true(is.na(fv[["BIC"]]), info = paste("BIC level", ki))
+  }
+})
+
+test_that("ESEM under MLR: fit row reports the scaled (not naive) test + indices; BIC real", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem", estimator = "MLR"))
+
+  # Reference: fit level 2 directly and confirm ackwards reports the *scaled*
+  # variant, i.e. it matches chisq.scaled/cfi.scaled and (when they differ)
+  # not the naive chisq/cfi.
+  fit2 <- lavaan::efa(
+    data = as.data.frame(d), nfactors = 2L, rotation = "varimax",
+    estimator = "MLR", missing = "listwise"
+  )[[1L]]
+  fm <- lavaan::fitMeasures(
+    fit2, c("chisq", "chisq.scaled", "cfi", "cfi.scaled", "bic")
+  )
+  fv2 <- x$levels[["2"]]$fit
+  expect_equal(fv2[["chi"]], unname(fm[["chisq.scaled"]]), tolerance = 1e-6)
+  expect_equal(fv2[["CFI"]], unname(fm[["cfi.scaled"]]), tolerance = 1e-6)
+  # MLR retains a proper log-likelihood -> BIC is a real number.
+  expect_false(is.na(fv2[["BIC"]]))
+  expect_equal(fv2[["BIC"]], unname(fm[["bic"]]), tolerance = 1e-6)
+  expect_false(is.na(generics::glance(x)$BIC))
+})
+
+test_that("ESEM with a continuous cor + WLSMV is allowed and yields a populated fit row", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  suppressWarnings(
+    x <- ackwards(d, k_max = 3, engine = "esem", cor = "pearson", estimator = "WLSMV")
+  )
+  fv <- x$levels[["2"]]$fit
+  expect_named(fv, c("chi", "dof", "p_value", "CFI", "TLI", "RMSEA", "SRMR", "BIC"))
+  # A non-saturated level carries real fit indices.
+  expect_false(is.na(fv[["CFI"]]))
+  expect_false(is.na(fv[["RMSEA"]]))
+  # Continuous WLSMV is still a limited-information estimator -> no BIC.
+  expect_true(is.na(fv[["BIC"]]))
+})

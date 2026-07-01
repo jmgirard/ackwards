@@ -236,7 +236,8 @@
       fit,
       c(
         "chisq", "df", "pvalue", "cfi", "tli", "rmsea", "srmr", "bic",
-        "chisq.scaled", "df.scaled", "pvalue.scaled"
+        "chisq.scaled", "df.scaled", "pvalue.scaled",
+        "cfi.scaled", "tli.scaled", "rmsea.scaled"
       )
     ),
     error = function(e) NULL # nocov
@@ -244,29 +245,34 @@
   .fm <- function(nm) {
     if (is.null(fitmeas) || !nm %in% names(fitmeas)) NA_real_ else unname(fitmeas[[nm]])
   }
-  chi <- .fm("chisq")
-  dof <- .fm("df")
-  p_value <- .fm("pvalue")
-  # WLSMV/ULSMV: lavaan's naive chi-square test has no valid reference
-  # distribution for these limited-information estimators -- lavaan's own
-  # summary() literally labels the naive p-value "P-value (Unknown)" and
-  # returns NA. The mean-and-variance-adjusted "scaled" test is the one with a
-  # genuine null distribution; use it whenever the naive p-value is undefined
-  # (ML/MLR already have a valid naive p-value, so this branch never fires
-  # for them). Confirmed via lavaan::summary(fit, fit.measures = TRUE) on a
-  # WLSMV fit, where the "Standard" column's p-value is NA/"Unknown" and only
-  # the "Scaled" column reports a real p-value.
-  if (is.na(p_value) && !is.na(.fm("pvalue.scaled"))) {
-    chi <- .fm("chisq.scaled")
-    dof <- .fm("df.scaled")
-    p_value <- .fm("pvalue.scaled")
+  # Prefer the scaled variant for every scale-sensitive index whenever the
+  # estimator produces one. lavaan only emits `<index>.scaled` names under a
+  # scaled test (WLSMV/ULSMV mean-and-variance-adjusted; MLR Yuan-Bentler), so
+  # the presence of the scaled name is the discriminator:
+  #   * WLSMV/ULSMV -- the naive chi-square has no valid reference distribution
+  #     (lavaan's own summary() labels its p-value "Unknown"/NA); the naive
+  #     CFI/TLI/RMSEA are known to be badly optimistic (Xia & Yang 2019). Only
+  #     the scaled test/indices are defensible here.
+  #   * MLR -- the whole point of robust ML is the scaled (Yuan-Bentler) test;
+  #     reporting the naive ML statistics for an MLR fit would defeat it.
+  #   * ML -- no scaled names emitted, so this falls through to the naive
+  #     values, which are the correct ones for ML.
+  # SRMR has no scaled variant (unaffected). BIC needs a proper log-likelihood,
+  # which WLSMV/ULSMV lack -- lavaan returns NA there (inapplicable, not a bug)
+  # and a real value for ML/MLR. Keeping one rule for the whole row guarantees
+  # chi/dof/p_value and CFI/TLI/RMSEA never mix scaled and naive framings.
+  .fm_scaled <- function(base) {
+    scaled <- paste0(base, ".scaled")
+    if (!is.null(fitmeas) && scaled %in% names(fitmeas)) .fm(scaled) else .fm(base)
   }
   fit_info <- c(
-    chi = chi, dof = dof, p_value = p_value,
-    CFI = .fm("cfi"), TLI = .fm("tli"), RMSEA = .fm("rmsea"), SRMR = .fm("srmr"),
-    # BIC requires a proper log-likelihood; WLSMV/ULSMV are limited-information
-    # (weighted least squares) estimators with none, so lavaan itself returns
-    # NA here -- genuinely inapplicable, not a bug. Real for ML/MLR.
+    chi = .fm_scaled("chisq"),
+    dof = .fm_scaled("df"),
+    p_value = .fm_scaled("pvalue"),
+    CFI = .fm_scaled("cfi"),
+    TLI = .fm_scaled("tli"),
+    RMSEA = .fm_scaled("rmsea"),
+    SRMR = .fm("srmr"),
     BIC = .fm("bic")
   )
 

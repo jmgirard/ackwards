@@ -24,16 +24,31 @@ for lavaan, and lavaan itself does not support ML/MLR estimation on ordered
 indicators. `"WLSMV"`/`"ULSMV"` with a continuous `cor` remains allowed (a
 valid, if atypical, continuous WLS/ADF estimator).
 
-## ESEM fit indices: honest p-value and BIC
+## ESEM fit indices: scaled variants, honest p-value, and BIC
 
-Under `estimator = "WLSMV"`/`"ULSMV"`, lavaan's naive chi-square test has no
-valid reference distribution for these limited-information estimators —
-lavaan's own `summary()` reports that p-value as "Unknown" (`NA`). `chi`,
-`dof`, and `p_value` now fall back to lavaan's mean-and-variance-adjusted
-("scaled") test whenever the naive p-value is undefined, which does have a
-genuine null distribution; ML/MLR (whose naive p-value is already valid) are
-unaffected. A genuinely saturated level (`dof = 0`) still reports `NA` — there
-is no test to perform on a model that fits perfectly by construction.
+For ESEM under a **scaled-test estimator** (`"WLSMV"`/`"ULSMV"` for ordinal
+data; `"MLR"` for continuous), the entire fit row — `chi`/`dof`/`p_value`
+**and** `CFI`/`TLI`/`RMSEA` — now reports lavaan's mean-and-variance-adjusted
+("scaled") variant, so every quantity in the row shares one scaling framework.
+Three consequences:
+
+* **WLSMV/ULSMV p-value.** The naive chi-square test has no valid reference
+  distribution for these limited-information estimators (lavaan's own
+  `summary()` labels its p-value "Unknown"/`NA`); the scaled test does, and is
+  now what `p_value` reports. A genuinely saturated level (`dof = 0`) still
+  reports `NA` — there is no test to perform on a model that fits perfectly by
+  construction.
+* **WLSMV/ULSMV CFI/TLI/RMSEA.** These previously reported the *naive* indices,
+  which are known to be badly optimistic for ordinal data (Xia & Yang, 2019) —
+  e.g. on the BFI the naive CFI (~0.89) sat right next to a scaled p-value,
+  overstating fit. They now report the scaled variants (~0.71 in that example),
+  consistent with the reported test.
+* **MLR.** Previously the fit row showed the *naive* ML statistics for an MLR
+  fit, defeating the purpose of robust ML; it now reports the scaled
+  (Yuan-Bentler) test and indices.
+
+`"ML"` has no scaled variant and continues to report its naive values (the
+correct ones for ML). `SRMR` has no scaled variant and is reported as-is.
 
 `BIC` is now a first-class ESEM fit index (previously silently absent):
 populated under `"ML"`/`"MLR"` (a proper log-likelihood exists), and `NA`
