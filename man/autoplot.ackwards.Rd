@@ -57,7 +57,9 @@ encoded. One of \code{"color"} (default; positive = \code{color_pos}, negative =
 \code{"both"} (colour \emph{and} linetype, with negative drawn as a distinct
 double-dash so it reads clearly in greyscale), or \code{"none"} (sign not
 encoded; all edges \code{color_edge} and solid). Whichever channel is used gets
-a "Direction" legend.}
+a "Direction" legend. Colour is the default because it reads sign
+pre-attentively and leaves linetype free; switch to \code{"linetype"} or
+\code{"both"} for greyscale or colour-blind-safe figures.}
 
 \item{magnitude_by}{How edge \strong{magnitude} (\verb{|r|}) is encoded. One of
 \code{"linewidth"} (default; thicker = stronger, with a \verb{|r|} legend) or

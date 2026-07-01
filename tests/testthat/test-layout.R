@@ -296,6 +296,13 @@ test_that("autoplot.ackwards() mono=TRUE + show_r=TRUE composes without error", 
   ))
 }
 
+.ba_get_scale <- function(p, aesthetic) {
+  for (s in p$scales$scales) if (aesthetic %in% s$aesthetics) {
+    return(s)
+  }
+  NULL
+}
+
 test_that("sign_by selects which aesthetic encodes edge sign", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
@@ -311,10 +318,13 @@ test_that("sign_by selects which aesthetic encodes edge sign", {
   expect_true(.ba_has_scale(p, "linetype"))
   expect_false(.ba_has_scale(p, "colour"))
 
-  # "both": colour AND linetype (merged into one "Direction" legend)
+  # "both": colour AND linetype, merged into one legend. ggplot2 merges guides
+  # that share a scale name, so both scales must be titled "Direction".
   p <- ggplot2::autoplot(x, sign_by = "both")
   expect_true(.ba_has_scale(p, "colour"))
   expect_true(.ba_has_scale(p, "linetype"))
+  expect_identical(.ba_get_scale(p, "colour")$name, "Direction")
+  expect_identical(.ba_get_scale(p, "linetype")$name, "Direction")
 
   # "none": neither encodes sign
   p <- ggplot2::autoplot(x, sign_by = "none")
@@ -336,11 +346,41 @@ test_that("magnitude_by / edge_linewidth control the |r| linewidth scale", {
 test_that("colour_* aliases override the color_* arguments", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
+
+  # colour_pos / colour_neg feed the Direction colour scale (break order
+  # positive, negative) -- readable even when no negative edge is drawn.
+  p <- ggplot2::autoplot(x, colour_pos = "darkgreen", colour_neg = "darkorange")
+  expect_equal(
+    unname(.ba_get_scale(p, "colour")$palette(2L)),
+    c("darkgreen", "darkorange")
+  )
+
+  # colour_edge sets the single edge colour when sign is not colour-encoded.
+  pe <- ggplot2::autoplot(x, sign_by = "linetype", colour_edge = "darkgreen")
+  expect_true(all(ggplot2::ggplot_build(pe)$data[[1]]$colour == "darkgreen"))
+
+  # colour_pruned sets the pruned-node fill (use manual pruning for determinism).
+  xp <- prune(x, manual = "m4f4")
+  pp <- ggplot2::autoplot(xp, colour_pruned = "pink")
+  tile_fill <- unlist(lapply(
+    ggplot2::ggplot_build(pp)$data,
+    function(l) if ("fill" %in% names(l)) l$fill
+  ))
+  expect_true("pink" %in% tile_fill)
+})
+
+test_that("sign_by='none' + magnitude_by='none' renders with no encoding scales", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
 
-  p <- ggplot2::autoplot(x, colour_pos = "darkgreen")
-  edge_colours <- ggplot2::ggplot_build(p)$data[[1]]$colour
-  expect_true("darkgreen" %in% edge_colours)
+  p <- ggplot2::autoplot(x, sign_by = "none", magnitude_by = "none")
+  expect_s3_class(p, "ggplot")
+  expect_false(.ba_has_scale(p, "colour"))
+  expect_false(.ba_has_scale(p, "linetype"))
+  expect_false(.ba_has_scale(p, "linewidth"))
+  expect_s3_class(ggplot2::ggplot_build(p), "ggplot_built")
 })
 
 test_that("mono=TRUE is equivalent to sign_by='linetype' with black edges", {
@@ -387,6 +427,9 @@ test_that("direction='horizontal' composes with skip, mono, and drop_pruned", {
   suppressWarnings(xa <- ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
   expect_s3_class(ggplot2::autoplot(xa, direction = "horizontal", show_skip = TRUE), "ggplot")
   expect_s3_class(ggplot2::autoplot(xa, direction = "horizontal", mono = TRUE), "ggplot")
+  # show_r places perpendicular-offset labels; the offset math is orientation-
+  # agnostic, so it must compose with the transposed layout.
+  expect_s3_class(ggplot2::autoplot(xa, direction = "horizontal", show_r = TRUE), "ggplot")
 
   xp <- prune(xa, "redundant")
   expect_s3_class(

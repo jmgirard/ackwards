@@ -697,3 +697,15 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   `vignettes/ackwards-intro.Rmd`, `DESIGN.md` (§7 note; §11 autoplot contract), `ROADMAP.md` (M35
   section deleted per its own maintenance rule).
   (1447 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+  Post-review (`/post-milestone-review`) follow-up, landed via branch `m35-followup-review` → PR:
+  the review returned **READY** with no Blocking or Should-fix findings; this follow-up cleared the
+  three Nice-to-haves. (1) Locked two visual behaviors that were previously only smoke-verified:
+  a test asserting `sign_by = "both"` titles *both* the colour and linetype scales `"Direction"`
+  (the mechanism by which ggplot2 merges them into one legend key), and a `direction = "horizontal"`
+  + `show_r` composition test. (2) Broadened the encoding tests: a `sign_by = "none"` +
+  `magnitude_by = "none"` case (asserts no colour/linetype/linewidth scales and that it still
+  builds), and coverage of the remaining three British aliases — `colour_neg` (read off the manual
+  colour scale's palette, so it is checked even with no negative edge drawn), `colour_edge`, and
+  `colour_pruned` (via deterministic `manual =` pruning). (3) Added a roxygen sentence explaining
+  *why* colour is the default `sign_by` channel (pre-attentive sign reading; leaves linetype free).
+  (1457 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
