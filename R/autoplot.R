@@ -121,6 +121,10 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   ignored (with a warning). Edge magnitude is now shown by `magnitude_by`
 #'   (linewidth) and sign by `sign_by`; the old strong/weak linetype split
 #'   double-encoded magnitude. Retained only so existing calls do not error.
+#' @param direction Layout orientation. `"vertical"` (default) stacks levels
+#'   top-to-bottom (level 1 at top); `"horizontal"` lays them out left-to-right
+#'   (level 1 at left), which suits wide slides or posters. Level-axis labels
+#'   move to the bottom margin under `"horizontal"`.
 #' @param legend When `FALSE`, suppresses all plot legends
 #'   (`legend.position = "none"`). Useful when `color_pos == color_neg` (e.g.
 #'   both `"black"`) to remove an otherwise redundant Direction key. Default
@@ -305,12 +309,31 @@ autoplot.ackwards <- function(
     e$sign_group <- ifelse(e$r >= 0, "positive", "negative")
     e
   }
+  # Edge endpoints attach to the box faces that point toward the child:
+  # bottom->top faces when vertical, right->left faces when horizontal.
   .attach_coords <- function(e, nx, ny) {
-    e$x_from <- nx[e$from]
-    e$y_from <- ny[e$from] - node_height / 2 # bottom of parent box
-    e$x_to <- nx[e$to]
-    e$y_to <- ny[e$to] + node_height / 2 # top of child box
+    if (direction == "horizontal") {
+      e$x_from <- nx[e$from] + node_width / 2 # right face of parent box
+      e$y_from <- ny[e$from]
+      e$x_to <- nx[e$to] - node_width / 2 # left face of child box
+      e$y_to <- ny[e$to]
+    } else {
+      e$x_from <- nx[e$from]
+      e$y_from <- ny[e$from] - node_height / 2 # bottom of parent box
+      e$x_to <- nx[e$to]
+      e$y_to <- ny[e$to] + node_height / 2 # top of child box
+    }
     e
+  }
+  # Transpose the layered layout to left-to-right when direction = "horizontal":
+  # the level axis (encoded as -y) becomes x, the within-level spread becomes y.
+  .orient_nodes <- function(nd) {
+    if (direction == "horizontal") {
+      old_x <- nd$x
+      nd$x <- -nd$y
+      nd$y <- old_x
+    }
+    nd
   }
 
   # --------------------------------------------------------------------------
@@ -344,9 +367,9 @@ autoplot.ackwards <- function(
          no edges possible. Returning a node-only plot."
       )
       return(.ba_degenerate_plot(
-        nodes, node_width, node_height,
+        .orient_nodes(nodes), node_width, node_height,
         show_level_labels, level_label_size,
-        legend = legend
+        legend = legend, direction = direction
       ))
     }
 
@@ -358,6 +381,7 @@ autoplot.ackwards <- function(
       )
     }
 
+    nodes <- .orient_nodes(nodes)
     nx <- stats::setNames(nodes$x, nodes$id)
     ny <- stats::setNames(nodes$y, nodes$id)
     edges <- .ann(.attach_coords(edges, nx, ny))
@@ -384,6 +408,7 @@ autoplot.ackwards <- function(
       )
     }
 
+    nodes <- .orient_nodes(nodes)
     nx <- stats::setNames(nodes$x, nodes$id)
     ny <- stats::setNames(nodes$y, nodes$id)
 
@@ -527,26 +552,38 @@ autoplot.ackwards <- function(
     )
   }
 
-  # (d) Level axis labels in left margin
+  # (d) Level axis labels: left margin when vertical, bottom margin when horizontal
   if (show_level_labels) {
-    p <- p + .ba_level_labels(nodes, node_width, level_label_size)
+    p <- p + .ba_level_labels(
+      nodes, node_width, level_label_size,
+      direction = direction, node_height = node_height
+    )
   }
-
-  left_margin <- if (show_level_labels) 50 else 10
 
   p +
     ggplot2::coord_cartesian(clip = "off") +
     ggplot2::theme_void(base_size = 11) +
     ggplot2::theme(
       legend.position = if (legend) "right" else "none",
-      plot.margin     = ggplot2::margin(10, 10, 10, left_margin)
+      plot.margin     = .ba_label_margin(show_level_labels, direction)
     )
+}
+
+# Plot margin that leaves room for the level-axis labels: on the left when
+# vertical, along the bottom when horizontal.
+.ba_label_margin <- function(show_level_labels, direction) {
+  pad <- if (show_level_labels) 50 else 10
+  if (direction == "horizontal") {
+    ggplot2::margin(10, 10, pad, 10)
+  } else {
+    ggplot2::margin(10, 10, 10, pad)
+  }
 }
 
 # Build a node-only plot for the drop_pruned degenerate case (<=1 kept level).
 .ba_degenerate_plot <- function(
   nodes, node_width, node_height, show_level_labels, level_label_size,
-  legend = TRUE
+  legend = TRUE, direction = "vertical"
 ) {
   p <- ggplot2::ggplot() +
     ggplot2::geom_tile(
@@ -565,37 +602,53 @@ autoplot.ackwards <- function(
     ggplot2::scale_fill_identity(guide = "none")
 
   if (show_level_labels && nrow(nodes) > 0L) {
-    p <- p + .ba_level_labels(nodes, node_width, level_label_size)
+    p <- p + .ba_level_labels(
+      nodes, node_width, level_label_size,
+      direction = direction, node_height = node_height
+    )
   }
-
-  left_margin <- if (show_level_labels) 50 else 10
 
   p +
     ggplot2::coord_cartesian(clip = "off") +
     ggplot2::theme_void(base_size = 11) +
     ggplot2::theme(
       legend.position = if (legend) "right" else "none",
-      plot.margin     = ggplot2::margin(10, 10, 10, left_margin)
+      plot.margin     = .ba_label_margin(show_level_labels, direction)
     )
 }
 
 # Compute the level-label geom_text layer from a nodes data frame.
 # The `level` column holds original level numbers (preserved even under
 # compress_levels so labels read "3 factors" not "2 factors" at a re-indexed y).
-.ba_level_labels <- function(nodes, node_width, level_label_size) {
-  level_df <- unique(nodes[, c("level", "y"), drop = FALSE])
-  pad <- node_width / 2 + 0.8
-  level_df$lx <- min(nodes$x) - pad
-  level_df$lt <- ifelse(
-    level_df$level == 1L, "1 factor", paste(level_df$level, "factors")
-  )
-  ggplot2::geom_text(
-    data = level_df,
-    ggplot2::aes(x = .data$lx, y = .data$y, label = .data$lt),
-    size = level_label_size,
-    hjust = 1,
-    inherit.aes = FALSE
-  )
+# Labels sit to the left of the diagram when vertical, below it when horizontal.
+.ba_level_labels <- function(nodes, node_width, level_label_size,
+                             direction = "vertical", node_height = 0.4) {
+  labels_for <- function(level) {
+    ifelse(level == 1L, "1 factor", paste(level, "factors"))
+  }
+  if (direction == "horizontal") {
+    level_df <- unique(nodes[, c("level", "x"), drop = FALSE])
+    level_df$ly <- min(nodes$y) - (node_height / 2 + 0.8)
+    level_df$lt <- labels_for(level_df$level)
+    ggplot2::geom_text(
+      data = level_df,
+      ggplot2::aes(x = .data$x, y = .data$ly, label = .data$lt),
+      size = level_label_size,
+      vjust = 1,
+      inherit.aes = FALSE
+    )
+  } else {
+    level_df <- unique(nodes[, c("level", "y"), drop = FALSE])
+    level_df$lx <- min(nodes$x) - (node_width / 2 + 0.8)
+    level_df$lt <- labels_for(level_df$level)
+    ggplot2::geom_text(
+      data = level_df,
+      ggplot2::aes(x = .data$lx, y = .data$y, label = .data$lt),
+      size = level_label_size,
+      hjust = 1,
+      inherit.aes = FALSE
+    )
+  }
 }
 
 # Build the per-level fit index chart (autoplot.ackwards(what = "fit")).

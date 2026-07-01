@@ -355,6 +355,46 @@ test_that("mono=TRUE is equivalent to sign_by='linetype' with black edges", {
   expect_true(all(edge_colours == "black"))
 })
 
+test_that("direction='horizontal' transposes the level axis to x", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4))
+
+  tile_layer <- function(p) {
+    d <- ggplot2::ggplot_build(p)$data
+    idx <- which(vapply(
+      d,
+      function(l) all(c("fill", "width") %in% names(l)),
+      logical(1)
+    ))[[1L]]
+    d[[idx]]
+  }
+
+  v <- tile_layer(ggplot2::autoplot(x, direction = "vertical"))
+  h <- tile_layer(ggplot2::autoplot(x, direction = "horizontal"))
+
+  # Vertical: levels run down the y-axis (level 1 at top, y = -1 is the max).
+  expect_equal(max(v$y), -1)
+  # Horizontal: levels run along the x-axis (level 1 at left, x = 1 is the min).
+  expect_equal(min(h$x), 1)
+  # The two layouts are transposes of one another.
+  expect_equal(sort(range(v$x)), sort(range(h$y)))
+})
+
+test_that("direction='horizontal' composes with skip, mono, and drop_pruned", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(xa <- ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
+  expect_s3_class(ggplot2::autoplot(xa, direction = "horizontal", show_skip = TRUE), "ggplot")
+  expect_s3_class(ggplot2::autoplot(xa, direction = "horizontal", mono = TRUE), "ggplot")
+
+  xp <- prune(xa, "redundant")
+  expect_s3_class(
+    suppressWarnings(ggplot2::autoplot(xp, direction = "horizontal", drop_pruned = TRUE)),
+    "ggplot"
+  )
+})
+
 test_that("autoplot.ackwards() show_level_labels=TRUE (default) returns a ggplot", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")

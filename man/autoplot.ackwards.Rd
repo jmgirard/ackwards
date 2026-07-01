@@ -126,6 +126,11 @@ ignored (with a warning). Edge magnitude is now shown by \code{magnitude_by}
 (linewidth) and sign by \code{sign_by}; the old strong/weak linetype split
 double-encoded magnitude. Retained only so existing calls do not error.}
 
+\item{direction}{Layout orientation. \code{"vertical"} (default) stacks levels
+top-to-bottom (level 1 at top); \code{"horizontal"} lays them out left-to-right
+(level 1 at left), which suits wide slides or posters. Level-axis labels
+move to the bottom margin under \code{"horizontal"}.}
+
 \item{show_level_labels}{Whether to draw level axis labels
 ("1 factor", "2 factors", ...) to the left of the diagram. Default \code{TRUE}.}
 
