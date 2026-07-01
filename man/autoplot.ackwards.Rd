@@ -134,7 +134,11 @@ top-to-bottom (level 1 at top); \code{"horizontal"} lays them out left-to-right
 move to the bottom margin under \code{"horizontal"}.}
 
 \item{show_level_labels}{Whether to draw level axis labels
-("1 factor", "2 factors", ...) to the left of the diagram. Default \code{TRUE}.}
+("1 factor", "2 factors", ...) to the left of the diagram. Default \code{TRUE}.
+When the object carries pruning annotations (\code{x$prune} non-\code{NULL}) and
+\code{drop_pruned = FALSE}, a level whose factors are \emph{all} pruned has its axis
+label rendered in italic to denote its status (matching the grey node
+fill); partially-pruned levels keep a plain label.}
 
 \item{level_label_size}{Font size for level axis labels. Default \code{3}.}
 

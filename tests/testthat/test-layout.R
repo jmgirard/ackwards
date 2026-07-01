@@ -454,6 +454,67 @@ test_that("autoplot.ackwards() show_level_labels=FALSE omits labels without erro
   expect_s3_class(p, "ggplot")
 })
 
+# --- M40: fully-pruned level axis labels rendered in italic -------------------
+
+# Locate the level-axis-label GeomText layer (labels like "3 factors"), as
+# opposed to the node-label GeomText layer (labels like "m3f1").
+.level_label_data <- function(p) {
+  gt_idx <- which(vapply(
+    p$layers, function(l) inherits(l$geom, "GeomText"), logical(1L)
+  ))
+  for (i in gt_idx) {
+    ld <- ggplot2::layer_data(p, i)
+    if (any(grepl("factor", ld$label))) {
+      return(ld)
+    }
+  }
+  NULL
+}
+
+test_that(".fully_pruned_levels() detects a wholly-pruned level, not partial ones", {
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4))
+  # No pruning annotations -> integer(0)
+  expect_identical(.fully_pruned_levels(x), integer(0))
+  # Prune every factor at level 4 -> level 4 fully pruned
+  xp <- prune(x, manual = c("m4f1", "m4f2", "m4f3", "m4f4"))
+  expect_identical(.fully_pruned_levels(xp), 4L)
+  # Prune only some of level 4 -> not fully pruned
+  xpart <- prune(x, manual = c("m4f1", "m4f2"))
+  expect_identical(.fully_pruned_levels(xpart), integer(0))
+})
+
+test_that("autoplot() italicises a fully-pruned level's axis label (both directions)", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4))
+  xp <- prune(x, manual = c("m4f1", "m4f2", "m4f3", "m4f4"))
+
+  for (dir in c("vertical", "horizontal")) {
+    p <- ggplot2::autoplot(xp, direction = dir)
+    ld <- .level_label_data(p)
+    expect_false(is.null(ld))
+    italic <- ld$label[ld$fontface == "italic"]
+    plain <- ld$label[ld$fontface == "plain"]
+    expect_identical(italic, "4 factors")
+    expect_true(all(c("1 factor", "2 factors", "3 factors") %in% plain))
+  }
+})
+
+test_that("autoplot() renders all level labels plain when nothing is fully pruned", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  # Un-pruned object
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4))
+  ld <- .level_label_data(ggplot2::autoplot(x))
+  expect_false(is.null(ld))
+  expect_true(all(ld$fontface == "plain"))
+  # Partially-pruned level stays plain
+  xpart <- prune(x, manual = c("m4f1", "m4f2"))
+  ld2 <- .level_label_data(ggplot2::autoplot(xpart))
+  expect_true(all(ld2$fontface == "plain"))
+})
+
 test_that("autoplot.ackwards() node_labels applies custom labels", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
