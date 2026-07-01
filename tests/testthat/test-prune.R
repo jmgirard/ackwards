@@ -894,6 +894,33 @@ test_that("invalid min_items and orphan_r are rejected", {
 
 # ---- M34: manual pruning, re-pruning, and edges-recomputed-fresh -----------
 
+test_that("manual pruning errors when manual is not a character vector", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  x <- suppressWarnings(ackwards(data, k_max = 3))
+  expect_error(
+    prune(x, manual = 1L),
+    "character vector"
+  )
+})
+
+test_that("print.ackwards() and print.summary_ackwards() show the Manual pruning line", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  x <- suppressWarnings(ackwards(data, k_max = 3))
+  lab <- x$levels[["2"]]$labels[1]
+  xm <- prune(x, manual = lab)
+
+  expect_no_error(print(xm))
+  expect_invisible(print(xm))
+  s <- summary(xm)
+  expect_equal(s$prune$manual, lab)
+  expect_no_error(print(s))
+  expect_invisible(print(s))
+})
+
 test_that("manual pruning works standalone (rules = 'none')", {
   skip_if_not_installed("psych")
   set.seed(1)
