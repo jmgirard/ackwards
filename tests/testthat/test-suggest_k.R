@@ -161,10 +161,18 @@ test_that("suggest_k() defaults k_max to min(p - 1, 8) for raw data", {
   expect_equal(sk$k_max, 5L)
 })
 
-test_that("suggest_k() k_cd is NA and cd_rmse is NULL when EFAtools not installed", {
+test_that("suggest_k() k_cd is NA and cd_rmse is NULL when EFAtools is unavailable", {
   skip_if_not_installed("psych")
-  skip_if(rlang::is_installed("EFAtools"), "EFAtools is installed; skipping absence test")
-  sk <- .get_sk(4L)
+  # Force the EFAtools availability check to report it missing, so this absence
+  # branch runs regardless of whether EFAtools is actually installed (mirrors the
+  # future.apply pattern in test-esem.R). Call suggest_k() directly rather than
+  # via the memoised .get_sk() so the mocked-absence result never shares a cache
+  # key with the EFAtools-present tests.
+  testthat::local_mocked_bindings(
+    is_installed = function(pkg, ...) if (identical(pkg, "EFAtools")) FALSE else TRUE,
+    .package = "rlang"
+  )
+  sk <- suggest_k(.sk_small, k_max = 4L, n_iter = 3L, seed = 1L)
   expect_false(sk$cd_available)
   expect_identical(sk$k_cd, NA_integer_)
   expect_null(sk$cd_rmse)
@@ -515,9 +523,14 @@ test_that("suggest_k() default criteria matches all-five structure", {
   expect_false(is.na(sk$k_vss2))
 })
 
-test_that("suggest_k() criteria='cd' with EFAtools absent emits info and returns NA", {
+test_that("suggest_k() criteria='cd' with EFAtools unavailable emits info and returns NA", {
   skip_if_not_installed("psych")
-  skip_if(rlang::is_installed("EFAtools"), "EFAtools installed; skipping absence test")
+  # Mock EFAtools as missing (see the note on the first absence test above) so the
+  # graceful-degradation branch runs even when EFAtools is installed.
+  testthat::local_mocked_bindings(
+    is_installed = function(pkg, ...) if (identical(pkg, "EFAtools")) FALSE else TRUE,
+    .package = "rlang"
+  )
   # When 'cd' requested but EFAtools absent, should inform (not error) and return NA
   expect_message(
     sk <- suggest_k(.sk_small, k_max = 3L, criteria = "cd", n_iter = 3L),

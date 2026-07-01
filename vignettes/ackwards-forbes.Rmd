@@ -370,7 +370,7 @@ if (has_gt) {
       split_merge = "Split/merge"
     ) |>
     gt::tab_style(
-      style     = gt::cell_fill(color = "#FFF3CD"),
+      style = gt::cell_fill(color = "#FFF3CD"),
       locations = list(
         gt::cells_body(columns = few_items, rows = few_items),
         gt::cells_body(columns = orphan, rows = orphan),
