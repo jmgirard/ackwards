@@ -493,6 +493,14 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   reframed around `autoplot()`/`summary()` reference lines); `DESIGN.md` §14 gained items 22–26 and
   §10's tidy-column reference was refreshed; `NEWS.md` documents all five changes.
   Tests: `test-print.R`, `test-efa.R`, `test-esem.R` updated for the renamed/removed columns;
-  `test-esem.R` gained `$meta$estimator` (auto + explicit + NA-for-PCA/EFA) and `summary()`
-  footnote coverage. No new test files.
-  (1341 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+  `test-esem.R` gained `$meta$estimator` coverage (ML default, explicit MLR, polychoric-auto WLSMV
+  + explicit ULSMV, NA-for-PCA/EFA) and `summary()` scaled-fit-footnote coverage (present for
+  MLR/WLSMV, absent for ML); `test-layout.R` asserts `autoplot(what = "fit")` draws the Hu & Bentler
+  `geom_hline` reference lines at the charted thresholds (post-review nice-to-haves). No new test
+  files.
+  (1346 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+  Post-review (`/post-milestone-review`): clean — all acceptance criteria met (the one
+  "`cutoffs=` errors" criterion resolved to a silent `...`-absorb no-op, an accepted pre-CRAN
+  decision — no deprecation shim needed with no users; consistent with the M34 clean-move
+  precedent). The three nice-to-have test-hardening items the review raised were added (the extra
+  estimator/footnote/reference-line assertions above); no Blocking or Should-fix findings.

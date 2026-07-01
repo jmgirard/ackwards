@@ -341,6 +341,23 @@ test_that("$meta$estimator records the effective ESEM estimator (auto and explic
   expect_equal(x_mlr$meta$estimator, "MLR")
 })
 
+test_that("$meta$estimator records WLSMV (polychoric auto) and ULSMV (explicit)", {
+  skip_if_not_installed("lavaan")
+  d <- .make_ordinal_data()
+  # cor = "polychoric" auto-selects WLSMV.
+  suppressWarnings(
+    x_wlsmv <- ackwards(d, k_max = 3, engine = "esem", cor = "polychoric")
+  )
+  expect_equal(x_wlsmv$meta$estimator, "WLSMV")
+  suppressWarnings(
+    x_ulsmv <- ackwards(
+      d,
+      k_max = 3, engine = "esem", cor = "polychoric", estimator = "ULSMV"
+    )
+  )
+  expect_equal(x_ulsmv$meta$estimator, "ULSMV")
+})
+
 test_that("$meta$estimator is NA for PCA and EFA", {
   skip_if_not_installed("psych")
   suppressWarnings(x_pca <- ackwards(psych::bfi[, 1:10], k_max = 2, engine = "pca"))
@@ -362,6 +379,17 @@ test_that("summary() footnotes the scaled-fit reporting for WLSMV/ULSMV/MLR only
   out_mlr <- paste(capture.output(print(summary(x_mlr)), type = "message"), collapse = " ")
   expect_false(grepl("scaled", out_ml, ignore.case = TRUE))
   expect_true(grepl("scaled", out_mlr, ignore.case = TRUE))
+
+  # The ordinal WLSMV path (the most common scaled case) also triggers it.
+  d_ord <- .make_ordinal_data()
+  suppressWarnings(
+    x_wlsmv <- ackwards(d_ord, k_max = 3, engine = "esem", cor = "polychoric")
+  )
+  out_wlsmv <- paste(
+    capture.output(print(summary(x_wlsmv)), type = "message"),
+    collapse = " "
+  )
+  expect_true(grepl("scaled", out_wlsmv, ignore.case = TRUE))
 })
 
 # ── Polychoric basis: PCA and EFA ─────────────────────────────────────────────
