@@ -43,3 +43,58 @@
 #' dim(bfi25)
 #' head(bfi25)
 "bfi25"
+
+#' Simulated continuous bass-ackwards teaching example (16 items, known hierarchy)
+#'
+#' A 1 000-row, fully continuous dataset simulated from a population model
+#' with a known 1 -> 2 -> 4 bass-ackwards hierarchy, for showcasing the
+#' default `cor = "pearson"` extraction path without the ordinal-detection
+#' warning that `bfi25`'s Likert items trigger.
+#'
+#' @format A data frame with 1 000 rows and 16 numeric columns (`i1`--`i16`,
+#'   continuous, no missing values).
+#'
+#' @details
+#' **Population model.** `Sigma = Lambda %*% Phi %*% t(Lambda) + Psi`, an
+#' oblique common-factor model with 4 true group factors, sampled via a
+#' Cholesky factorization (base R; no `MASS` dependency):
+#'
+#' | Factor | Items | Metatrait |
+#' |---|---|---|
+#' | `f1` | `i1`--`i4`   | 1 (with `f2`) |
+#' | `f2` | `i5`--`i8`   | 1 (with `f1`) |
+#' | `f3` | `i9`--`i12`  | 2 (with `f4`) |
+#' | `f4` | `i13`--`i16` | 2 (with `f3`) |
+#'
+#' All items load `0.75` on their true factor (no cross-loadings). Factor
+#' correlations: `0.45` within a metatrait (`f1`-`f2`, `f3`-`f4`), `0.15`
+#' between metatraits. Uniquenesses are `1 - communality` (uniform `0.4375`
+#' by the symmetry of the design above).
+#'
+#' **Ground-truth hierarchy** (verified against `ackwards(engine = "efa")`):
+#' `k=1` recovers a single general factor across all 16 items; `k=2` splits
+#' along the metatrait line (`i1`-`i8` vs. `i9`-`i16`); `k=4` recovers the 4
+#' true group factors exactly; `suggest_k()` reaches a 6-criteria consensus
+#' of `k = 4`.
+#'
+#' **Deliberate overextraction artefact at k=5.** The population has exactly
+#' 4 factors, so requesting a 5th finds no real dimension: EFA produces an
+#' orphan factor with zero primary-loading items. With
+#' `prune = "artefact"` (default `min_items = 3`, `orphan_r = 0.5`), that
+#' factor is flagged both `few_items` and `orphan`. Because the true (non-
+#' splitting) factors persist essentially unchanged from `k=3` onward, their
+#' parent-child score correlations approach 1 and are flagged by
+#' `prune = "redundant"` (`|r| >= .9` and, by default, Tucker's phi `>=
+#' .95`). This is a textbook overextraction artefact, included so the
+#' Forbes/redundancy examples have a guaranteed finding to teach against
+#' (unlike `bfi25`, which does not reliably trigger one).
+#'
+#' To regenerate this dataset, run `source("data-raw/sim16.R")` from the
+#' package root (`set.seed(42)`).
+#'
+#' @source Simulated; see `data-raw/sim16.R` for the full generative model.
+#'
+#' @examples
+#' dim(sim16)
+#' head(sim16)
+"sim16"

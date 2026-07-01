@@ -19,7 +19,10 @@ Once they respond:
 
 3. Re-read CLAUDE.md and DESIGN.md fresh. For prior-milestone detail, the single log is
    `MILESTONES.md` (CLAUDE.md carries only a one-line index); deferred/out-of-scope items are in
-   DESIGN.md §14 and CLAUDE.md's "Out of scope for now".
+   DESIGN.md §14 and CLAUDE.md's "Out of scope for now". **If the milestone being planned is part of
+   the M33–M38 epic, also read [`ROADMAP.md`](../../../ROADMAP.md)** — it holds that milestone's
+   driving rationale, banked decisions, and the raw pkgdown-review notes that the CLAUDE.md
+   one-liner compresses. Treat it as the primary brief for step 2/5 for those milestones.
 4. Confirm this milestone's scope against the deferred items in DESIGN.md §14 and CLAUDE.md's
    "out of scope for now" list (and that it isn't already done per the `MILESTONES.md` log); flag
    if the user's details conflict with either.
@@ -33,8 +36,9 @@ Once they respond:
    a. Create the milestone's feature branch off an up-to-date `master`
       (e.g. `git switch master && git pull && git switch -c m$ARGUMENTS-<short-slug>`).
       All milestone work — planning commit and implementation — lands on this branch, not on
-      `master`. `master` is merged into only via a reviewed PR once CI is green (see
-      /implement-milestone). Do **not** commit milestone work directly to `master`.
+      `master`. `master` is merged into only via a PR, squash-merged as soon as the local
+      definition of done is green — not gated on remote CI (see /implement-milestone). Do **not**
+      commit milestone work directly to `master`.
    b. On the branch, update CLAUDE.md's "## Current focus" section to replace the previous
       milestone's scope/acceptance criteria with Milestone $ARGUMENTS's, and commit that change
       on its own (not bundled with any implementation commit).

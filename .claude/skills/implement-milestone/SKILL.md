@@ -40,8 +40,19 @@ Follow `CLAUDE.md`'s dev workflow and definition of done throughout:
   CLAUDE.md, user-facing notes in `NEWS.md`, design-contract deltas in DESIGN.md §1–14.
 
 **Finishing the milestone (branch → PR, not direct to `master`):**
-- Push the feature branch and open a PR into `master`; let CI (R-CMD-check, test-coverage, rhub)
-  go green before merging. Do not push milestone commits straight to `master`.
+- Push the feature branch and open a PR into `master`, then **squash-merge it immediately** once
+  the local definition of done is green (`devtools::check()` 0/0/0 + tests + coverage +
+  style/lint): `gh pr merge <n> --squash --delete-branch`. Do **not** gate the merge on remote CI,
+  and do **not** use `gh pr merge --auto` — `master` is deliberately unprotected, so auto-merge has
+  no required check to wait on and silently no-ops. CI still runs on the PR/push as an
+  after-the-fact signal (glance at it later; fix-forward if a platform job goes red), but it does
+  not block the merge. Don't spin up a synchronous CI watch or a background CI poller "to wait for
+  green" — that reintroduces exactly the wait this workflow rejects. After merging, sync local:
+  `git switch master && git pull`. Do not push milestone commits straight to `master`.
+  - **Exception — release / CRAN-submission milestones** (CRAN-prep, version bump, release): for
+    these, **do** wait for the *full* green CI matrix before merging (CRAN runs exactly that
+    matrix and rejects platform failures the local macOS `check()` can't see). Only here is a
+    synchronous/polled CI wait warranted; flag it explicitly when you take it.
 - Trivial, isolated doc-typo fixes may still go directly to `master` at the user's discretion;
   anything touching `R/`, `tests/`, `DESCRIPTION`, or vignettes goes through a PR.
 
