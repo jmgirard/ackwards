@@ -90,10 +90,13 @@ as part of the definition of done.
 - **M29** — Strip milestone numbers from user-facing docs (`NEWS.md`
   `(M24)` tag removed; regression test guards
   `NEWS.md`/`README.md`/vignettes)
+- **M30** — Citation hygiene (`inst/CITATION` Girard-only;
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  `@references` gains Forbes; README citation prose corrected)
 
 ## Current focus
 
-No active milestone. M29 completed 2026-06-30.
+No active milestone. M30 completed 2026-07-01.
 
 ## Invariants — do not violate without flagging
 

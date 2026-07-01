@@ -337,6 +337,11 @@ component structures by Goldberg's bass-ackwards method. *Journal of
 Research in Personality*, 41(4), 745–752.
 [doi:10.1016/j.jrp.2006.08.005](https://doi.org/10.1016/j.jrp.2006.08.005)
 
+Forbes, M. K. (2023). Improving hierarchical models of individual
+differences: An extension of Goldberg's bass-ackward method.
+*Psychological Methods*.
+[doi:10.1037/met0000546](https://doi.org/10.1037/met0000546)
+
 ## See also
 
 [`print.ackwards()`](https://jmgirard.github.io/ackwards/reference/print.ackwards.md),

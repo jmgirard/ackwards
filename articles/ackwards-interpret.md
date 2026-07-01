@@ -571,3 +571,9 @@ This article is about *what* to put on the diagram. For *how* the
 diagram looks — colours, edge thresholds, monochrome and publication
 styling, level labels, and the Forbes pruned-diagram mode — see
 [`vignette("ackwards-visualization")`](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.md).
+
+## References
+
+Forbes, M. K. (2023). Improving hierarchical models of individual
+differences: An extension of Goldberg’s bass-ackward method.
+*Psychological Methods*. <https://doi.org/10.1037/met0000546>

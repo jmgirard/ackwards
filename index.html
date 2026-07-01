@@ -170,7 +170,9 @@
 <span><span class="co">#&gt; 14 of 40 edges have |r| ≥ 0.3</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
-<span><span class="co">#&gt; Cross-level edges are descriptive score correlations.</span></span></code></pre></div>
+<span><span class="co">#&gt; Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>
+<span><span class="co">#&gt; (EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
+<span><span class="co">#&gt; they do not validate the edges or the hierarchy itself.</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-3--visualize">Step 3 — Visualize<a class="anchor" aria-label="anchor" href="#step-3--visualize"></a>
@@ -264,24 +266,25 @@
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>If you use <strong>ackwards</strong> in your research, please cite both the method and the package:</p>
+<p>If you use <strong>ackwards</strong> in your research, please cite the package:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"ackwards"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; To cite package 'ackwards' in publications use:</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Goldberg L (2006). "Doing it all bass-ackwards: The development of</span></span>
-<span><span class="co">#&gt;   hierarchical factor structures from the top down." _Journal of</span></span>
-<span><span class="co">#&gt;   Research in Personality_, *40*(4), 347-358.</span></span>
-<span><span class="co">#&gt;   doi:10.1016/j.jrp.2006.01.001</span></span>
-<span><span class="co">#&gt;   &lt;https://doi.org/10.1016/j.jrp.2006.01.001&gt;.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural</span></span>
 <span><span class="co">#&gt;   Analysis_. R package version 0.1.0,</span></span>
 <span><span class="co">#&gt;   &lt;https://github.com/jmgirard/ackwards&gt;.</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; To see these entries in BibTeX format, use 'print(&lt;citation&gt;,</span></span>
-<span><span class="co">#&gt; bibtex=TRUE)', 'toBibtex(.)', or set</span></span>
-<span><span class="co">#&gt; 'options(citation.bibtex.max=999)'.</span></span></code></pre></div>
+<span><span class="co">#&gt; A BibTeX entry for LaTeX users is</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   @Manual{,</span></span>
+<span><span class="co">#&gt;     title = {ackwards: Bass-Ackwards Hierarchical Structural Analysis},</span></span>
+<span><span class="co">#&gt;     author = {Jeffrey M. Girard},</span></span>
+<span><span class="co">#&gt;     year = {2026},</span></span>
+<span><span class="co">#&gt;     note = {R package version 0.1.0},</span></span>
+<span><span class="co">#&gt;     url = {https://github.com/jmgirard/ackwards},</span></span>
+<span><span class="co">#&gt;   }</span></span></code></pre></div>
+<p>Please also cite the relevant method paper(s): Goldberg (2006) <a href="https://doi.org/10.1016/j.jrp.2006.01.001" class="external-link uri">https://doi.org/10.1016/j.jrp.2006.01.001</a> for the bass-ackwards method itself; Waller (2007) <a href="https://doi.org/10.1016/j.jrp.2006.08.005" class="external-link uri">https://doi.org/10.1016/j.jrp.2006.08.005</a> if you rely on the exact <code>W'RW</code> edge algebra; and Forbes (2023) <a href="https://doi.org/10.1037/met0000546" class="external-link uri">https://doi.org/10.1037/met0000546</a> if you use the extended method (<code>pairs = "all"</code>, redundancy/artefact pruning).</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

@@ -366,13 +366,13 @@ CD-suggested k.
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [265ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [253ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [163ms]
+#> ✔ Running MAP and VSS... [172ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [8.3s]
+#> ✔ Running Comparison Data (CD)... [10.9s]
 #> 
 autoplot(sk)
 ```
@@ -383,3 +383,9 @@ Star-shaped markers (shape 8) identify the recommended k for each
 criterion. Use the consensus range across all panels — if they converge
 on the same k, that is strong evidence; if they spread over 2–3 values,
 fit the hierarchy at a few depths and compare interpretability.
+
+## References
+
+Forbes, M. K. (2023). Improving hierarchical models of individual
+differences: An extension of Goldberg’s bass-ackward method.
+*Psychological Methods*. <https://doi.org/10.1037/met0000546>
