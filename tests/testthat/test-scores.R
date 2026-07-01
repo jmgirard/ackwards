@@ -225,6 +225,11 @@ test_that("augment() argument guards fire", {
     suppressWarnings(augment(x, data = bfi_items, append = NA)),
     "append"
   )
+  # id_cols must be character
+  expect_error(
+    suppressWarnings(augment(x, data = bfi_items, append = FALSE, id_cols = 1L)),
+    "character vector"
+  )
 })
 
 # ── tidy(what = "scores") ─────────────────────────────────────────────────────
