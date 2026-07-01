@@ -489,8 +489,14 @@ document):**
     which reads it directly) and with broom/psych convention (`psych` reports "Proportion Var" as
     0-1). Percent formatting moves to the display layer (`print()`, `summary()`, vignette `gt`
     tables) rather than living in the tidy data.
+26. **M31-deferred: effective ESEM estimator recorded in `$meta`.** M31 explicitly deferred this
+    ("better bundled with M32's meta/column decisions than bolted on here"): `x$meta$estimator`
+    now stores the effective estimator after auto-selection (`"ML"`/`"MLR"`/`"WLSMV"`/`"ULSMV"`;
+    `NA` for PCA/EFA). `summary()` gains a one-line footnote naming lavaan's scaled-variant
+    reporting (§14.M31 point 2/Post-review) whenever the effective estimator is
+    `"WLSMV"`/`"ULSMV"`/`"MLR"` — not shown for `"ML"`, which has no scaled variant.
 
-All four M32 changes are breaking with no deprecation path (pre-CRAN, no users; consistent with the
+All five M32 changes are breaking with no deprecation path (pre-CRAN, no users; consistent with the
 M34 pruning-verb precedent of clean moves over compatibility shims).
 
 **Known limitations / deferred to future milestones:**

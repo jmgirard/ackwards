@@ -23,6 +23,16 @@ package is pre-CRAN with no users):
 `suggest_k()` (max factors/components evaluated); the two functions' roxygen
 now cross-reference the distinct meanings sharing that name.
 
+## Effective ESEM estimator recorded in `$meta`; `summary()` footnote
+
+`x$meta$estimator` now stores the effective ESEM estimator after
+auto-selection (`"ML"`, `"MLR"`, `"WLSMV"`, or `"ULSMV"`; `NA` for PCA/EFA).
+`summary()` adds a one-line footnote naming lavaan's mean-and-variance-adjusted
+("scaled") fit-index reporting whenever the effective estimator is
+`"WLSMV"`/`"ULSMV"`/`"MLR"` (not shown for `"ML"`, which has no scaled
+variant) — making the scaled-reporting decision visible in the printed
+summary, not just in `tidy()`/roxygen documentation.
+
 ## Vignette corrections: `ackwards-intro` and `ackwards-suggest-k`
 
 `vignette("ackwards-intro")` hardcoded a cumulative-variance jump ("22.9% →
