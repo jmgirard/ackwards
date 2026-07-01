@@ -58,47 +58,17 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M34** — Pruning verb: extracted `prune()` as a standalone, pipeable S3 generic off `ackwards()` (five prune args removed from `ackwards()`; canonical `"artifact"` naming with `"artefact"` alias; manual + mixed pruning; edges recomputed fresh inside `prune()`, `x$edges` never mutated)
 - **M35** — autoplot & visualization: sign-propagation bugfix (primary-parent edges now always non-negative per DESIGN §7); `autoplot()` `sign_by`/`magnitude_by` configurable, always-legended encodings (`cut_strong` retired; `mono` kept as wrapper); `direction="horizontal"` layout; `colour_*` aliases + `color_edge`; `ggsave` documented (not re-exported); code-coupled viz/intro/README prose
 - **M36** — interpretation functions: `augment()` `append` (scores-only) + `id_cols` passthrough; `top_items()` `by=c("factor","item")` + variable-label display (`label (code)`, fit-time capture into `meta$item_labels`, `show_labels`); interpret-vignette prose edits (cut=0.5 lead, `by="item"`/label demos, metatrait/HiTOP naming advice) + intro score de-indexing
+- **M37** — engines vignette (doc-only): at-a-glance table fixes (parallel EFA/ESEM, substrate/correlations/estimators rows, χ² symbol, no WLSMV parenthetical); ESEM reframed as continuous (ML/MLR/FIML) *and* ordinal (WLSMV); per-level-fit converse (bad fit weakens incident edges); autoplot `k_max=3` truncation note; sim16-vs-bfi25 framing; runnable `psych::corFiml()` MAR route for PCA/EFA (on continuous sim16, both caveats, forward-ref M38); Missing-data/Performance trims + `library(future)` style; Hu & Bentler citation. Epic renumbered M31–M39 (new code milestone M38 inserted).
 
 ## Current focus
 
-**M37 — Engines vignette** (planned; in progress on branch `m37-engines-vignette`). Doc-only
-overhaul of `vignettes/ackwards-engines.Rmd` (no new exports, no `R/` changes). Scope:
-
-1. **"At a glance" table fixes** — parallelize the EFA/ESEM "what it models" rows (both = common
-   variance; note psych-vs-lavaan substrate separately); drop the confusing "WLSMV for ordinal"
-   parenthetical from the Loading-SEs row; render χ² as a proper symbol (not "chi"); add correlation-
-   type / estimator coverage per engine, making explicit that **ESEM unlocks ML/MLR/FIML for
-   continuous data** — not ordinal/WLSMV only.
-2. **ESEM framing** — kill the implication that ESEM ⇒ ordinal-only; it fits continuous (ML/MLR) too.
-3. **Per-level fit clarity** — explicitly answer "does bad fit at k invalidate that level's edges?"
-   (a poorly-fitting level makes its factor *definitions* shaky, weakening incident edges, but the
-   edge correlation is still a faithful descriptive of the shaky scores).
-4. **autoplot depth note** — examples stay at `k_max = 3` (build speed); add a sentence that they are
-   deliberately truncated and point to `suggest_k()` (~5 for BFI) for real depth.
-5. **sim16 vs bfi25 framing** — brief note that sim16's clean cross-engine consensus is the idealized
-   exception; real data (bfi25) shows criterion spread. (Deep version lives in the suggest_k vignette,
-   M39.)
-6. **future/plan readability** — switch the parallel chunk to `library(future); plan(multisession)`
-   style; note `plan()` is future's, not re-exported by future.apply.
-7. **Trim operational sections** — compress **Missing data**, **Correlation-matrix input**, and
-   **Performance** to a lead paragraph + one summary table each, demoting detail to `?ackwards`
-   (target ~⅓ off vignette length; no info lost that roxygen doesn't carry). No split into a second
-   vignette (`_pkgdown.yml` `articles:` unchanged).
-8. **corFiml MAR pattern** — document (don't build) `psych::corFiml()` → `ackwards(R, engine="efa",
-   n_obs=…)` as the MAR-valid continuous-data route (verified to work via the M22 correlation-matrix
-   seam; `psych` already an Import so the chunk is runnable). Place it **mostly under Missing data**
-   with a **brief pointer from Correlation-matrix input** (placement resolved). Caveats: `n_obs` is the
-   user's call (total N mildly anti-conservative for fit indices; point estimates unaffected) and
-   MVN/continuous-only. Add a row to the missing-data "which option" table. Framed as a caveated
-   supported pattern, not a headline recommendation — and **forward-reference M38**, which promotes
-   this to a first-class `missing = "fiml"` route for PCA/EFA.
-9. **Citations** — ensure Hu & Bentler (1999) is cited (cutoffs kept in M32); alphabetize references.
-
-Acceptance criteria: vignette knits clean (build-vignettes green, corFiml chunk evals); table/ESEM/
-fit/autoplot/sim16/parallel edits all present; three operational sections materially shorter with
-`?ackwards` pointers; corFiml pattern runnable + both caveats + table row + M38 forward-reference;
-Hu & Bentler cited; references alphabetical; `NEWS.md` bullet; `MILESTONES.md` M37 entry + one-line
-index here (at DoD).
+M37 is complete (see `MILESTONES.md` for detail). Next up in the M31–M39 documentation/UX epic is
+**M38** — a **code** milestone: promote `missing = "fiml"` to a first-class route for PCA/EFA that
+auto-routes to `psych::corFiml()` (currently `missing="fiml"` errors for PCA/EFA). Not yet planned;
+run `/plan-milestone 38` before starting. Its brief in `ROADMAP.md` carries the banked decisions —
+string-valued `n_obs` (`"total"`/`"complete"`/`"effective"`) + the FIML-fit-index literature task
+for the defensible default, the guard matrix, the DESIGN §9/§14 sign-off (it reverses a resolved
+default), and the corFiml-speed note.
 
 Remaining milestones in the epic:
 M38 `missing = "fiml"` for PCA/EFA (corFiml auto-route; **code milestone** — DESIGN sign-off +
