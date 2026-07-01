@@ -1,5 +1,18 @@
 # ackwards (development)
 
+## Vignette corrections: `ackwards-intro` and `ackwards-suggest-k`
+
+`vignette("ackwards-intro")` hardcoded a cumulative-variance jump ("22.9% →
+34.7%") that had drifted from the code's actual output (23.2% → 35.5%); it is
+now computed inline from the fitted object so it cannot drift again. The
+lineage walkthrough had `m4f1`'s primary children backwards (claimed
+`m5f2`/`m5f4`; the edge table shows `m5f1`/`m5f4`), and the diagram narrative
+misattributed which traits differentiate at which level (Conscientiousness/
+Openness split at k = 4, not Agreeableness/Extraversion, which split at
+k = 5) — both corrected to match a live run. `vignette("ackwards-suggest-k")`
+now clarifies why the printed "Recommendations" block shows six lines for
+five criteria (`"vss"` reports both VSS-1 and VSS-2).
+
 ## Guard against `cor = "polychoric"` with an incompatible ESEM estimator
 
 `ackwards(engine = "esem", cor = "polychoric", estimator = "ML")` (or
