@@ -63,24 +63,43 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-M38 is complete (see `MILESTONES.md` for detail): `missing = "fiml"` is now a first-class PCA/EFA
-route (`cor = "pearson"` → `psych::corFiml()` → `W'RW` algebra), reversing the M16 error contract;
-`.resolve_missing()` guards the basis; `n_obs = "total"`/`"complete"` selects the approximate EFA
-fit-index N; DESIGN §9/§14 signed off. The final scope narrowed the plan slightly: FIML for PCA/EFA
-is **Pearson-only** (Spearman also errors — corFiml returns a Pearson matrix), not
-pearson/spearman as the mid-planning note read.
+**M39 — Narrative & remaining prose (doc-only), planned and in progress.** Last milestone in the
+M31–M39 epic. Prose/formatting-only pass across the five remaining pkgdown pages — intro, suggest_k,
+ordinal, forbes, README — with **no `R/` behavior changes, no new exports, no dependency changes**.
+Scope (per the approved plan; owner-steered):
 
-Next up (last in the M31–M39 epic) is **M39** — a **doc** milestone: narrative & remaining prose
-across the intro, suggest_k, ordinal, forbes, and README pages. Not yet planned; run
-`/plan-milestone 39` before starting. Its brief in `ROADMAP.md` carries the banked page-by-page
-review notes (e.g. the `sim16`-idealized vs. `bfi25`-realistic framing belongs in the suggest_k
-vignette; README sign-arrow explanation; ordinal binary-item / dodged-bar / alphabetical-refs asks;
-forbes verbatim-heading + pruned-level-label + gt-highlight asks). `MILESTONES.md` remains the
-source of truth for *completed* milestones; `ROADMAP.md` is its forward-looking counterpart for the
-one *pending* milestone.
+- **intro:** drop the out-of-place EFA/ESEM pointer in the framing note; `print(sk)`/`print(x)`
+  instead of bare objects; clarify `suggest_k()` suggests a *range for `k_max`*; note SE/CI are `NA`
+  under PCA (ESEM only); `top_items(cut = 0.5)`; add an orthogonal-rotation / varimax≡CF(κ=1/p)
+  blockquote (rotation-rationale memo); remove the `keep_scores = TRUE` demo; keep+explain the Step 6
+  standardizing warning (owner: keep); alphabetize refs.
+- **README:** explain the red/negative (secondary cross-branch) arrow in Step 3; de-index the Step 4
+  score-column example; **remove the "please also cite Waller (2007)" nudge** from the citation block
+  (intro's two Waller mentions stay — method exposition, not a nudge).
+- **suggest_k:** fix "cross- loadings" wrap; `print(sk)`; clarify the check/dash-vs-star convention;
+  add the banked `sim16` (idealized, converges on k=4) vs `bfi25` (realistic, spans 4–6) contrast
+  with inline-computed numbers.
+- **ordinal:** reword the "4/5/6/7 options" + em-dash framing to include binary/2-cat; clarify WLSMV
+  really works on the polychoric/threshold basis; note polychoric-at-2-cat ≡ tetrachoric; reword the
+  score note to say scores *are* trustworthy downstream (caveat is unit-variance scaling only);
+  alphabetize refs.
+- **forbes:** reword the three verbatim-span headings; `echo = TRUE` on the `redundancy_r` thresholds
+  chunk; gt cell-highlight the salient values in the skip-edge/artifact/structural tables; add the
+  missing **Lorenzo-Seva & ten Berge (2006)** reference; alphabetize refs.
+
+Acceptance: all five pages build clean (`build_vignettes()` + `build_readme()`), no broken inline-R,
+new `sim16`/`bfi25` numbers computed inline (drift-proof), M29 milestone-token guard still passes,
+refs alphabetical, no NAMESPACE/`_pkgdown.yml` change (`check_pkgdown()` still passes),
+`check()` 0/0/0 at the gate.
+
+**Deferred to a new M40 (code/viz, not this milestone):** ordinal `categorical` convenience flag
+(pearson↔polychoric / MLR↔WLSMV switch — API-design question, owner sign-off needed); ordinal
+correlation-comparison visualization (dodged-bar or gt long-format replacing the raw matrix chunks);
+Forbes pruned-level axis-label styling in `autoplot()`. Logged in `ROADMAP.md` (M40 section) and
+`DESIGN.md` §14.
 
 These one-liners are a lossy index. The **full driving rationale, banked decisions, and the raw
-pkgdown-review notes** behind M35–M39 live in [`ROADMAP.md`](ROADMAP.md) — read it before running
+pkgdown-review notes** behind M35–M40 live in [`ROADMAP.md`](ROADMAP.md) — read it before running
 `/plan-milestone N` for any of them. `MILESTONES.md` remains the source of truth for *completed*
 milestones; `ROADMAP.md` is its forward-looking counterpart for *pending* ones.
 
