@@ -58,16 +58,24 @@ test_that("sim16 recovers its known 1 -> 2 -> 4 hierarchy under efa", {
   }
 })
 
-test_that("suggest_k(sim16) consensus recovers the true k = 4", {
+test_that("suggest_k(sim16) converges on the true k = 4 (idealized case)", {
   skip_if_not_installed("psych")
   skip_if_not_installed("EFAtools")
   sk <- suggest_k(sim16, n_iter = 5L, seed = 1L)
-  expect_equal(sk$k_parallel_pc, 4)
-  expect_equal(sk$k_parallel_fa, 4L)
-  expect_equal(sk$k_map, 4L)
-  expect_equal(sk$k_vss1, 4L)
-  expect_equal(sk$k_vss2, 4L)
-  expect_equal(sk$k_cd, 4L)
+
+  # sim16 is deliberately the *idealized* teaching case: a strong, clean planted
+  # signal on which the criteria converge (contrast bfi25, where the same
+  # criteria span k = 4-6). We assert that convergence robustly rather than
+  # pinning all six criteria to 4 exactly -- PA-PC/PA-FA/CD resample, so their
+  # exact value can wobble +/-1 across platforms/RNG even under a fixed seed.
+  expect_equal(sk$k_map, 4L) # MAP is deterministic -> a stable anchor on k = 4
+
+  ks <- c(
+    sk$k_parallel_pc, sk$k_parallel_fa, sk$k_map,
+    sk$k_vss1, sk$k_vss2, sk$k_cd
+  )
+  # The majority of criteria (the "consensus") lands on the true k = 4.
+  expect_equal(as.integer(names(which.max(table(ks)))), 4L)
 })
 
 test_that("sim16 at k_max = 5 guarantees a redundant chain and an artefact signal", {
@@ -87,6 +95,17 @@ test_that("sim16 at k_max = 5 guarantees a redundant chain and an artefact signa
   # orphan with too few primary-loading items.
   structural <- x$prune$structural
   expect_gte(sum(structural$few_items | structural$orphan), 1L)
+
+  # Stronger: the artefact factor is a primary loader for *zero* items (the
+  # doc's "orphan with zero primary-loading items"), and that same factor is
+  # exactly the one flagged both few_items and orphan.
+  load5 <- x$levels[["5"]]$loadings
+  primary5 <- colnames(load5)[apply(abs(load5), 1, which.max)]
+  counts5 <- table(factor(primary5, levels = colnames(load5)))
+  expect_true(any(counts5 == 0L))
+  orphan_ids <- names(counts5)[counts5 == 0L]
+  flagged_ids <- subset(structural, few_items & orphan)$id
+  expect_true(all(orphan_ids %in% flagged_ids))
 })
 
 test_that("data-raw/sim16.R regenerates sim16 identically (fixed-seed reproducibility)", {

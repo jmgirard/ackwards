@@ -124,6 +124,17 @@ below so future planning doesn't re-litigate them.
 
 - **Type:** doc-heavy · **Depends on:** M31, M32, M33 · **Status:** pending.
 
+**Banked decisions (from the M33 post-review):**
+- **Frame `sim16` as the *idealized* case, not the norm.** Its `suggest_k()` criteria all agree on
+  `k = 4` because the planted signal is clean/strong; real data doesn't. Whenever a vignette shows
+  `sim16`'s consensus, contrast it explicitly with `bfi25`, where the same six criteria span
+  `k = 4`–`6` (PA-PC 5, PA-FA 6, MAP 5, VSS-1 4, VSS-2 5, CD 6). Teaching arc: `sim16` = "watch the
+  method recover a known structure"; `bfi25` = "reason under criterion disagreement." (The `?sim16`
+  doc already states this; carry it into the prose.) Decision: keep `sim16` clean rather than
+  muddying it for realism — `bfi25` already carries the realism lesson.
+- **Deferred M33 nice-to-have:** add an Invariant-2 algebra-vs-scores cross-check on `sim16` (a clean
+  continuous fixture) if the engines vignette materializes scores — folded here from the M33 review.
+
 **Source notes (engines vignette):**
 - "the 'what it models' row should be the same for efa and esem, no? ... aim for parallelism (either
   common variance for both or common variance via psych/lavaan if the package underlying it matters)."
@@ -153,6 +164,10 @@ below so future planning doesn't re-litigate them.
 ## M38 — Narrative & remaining prose (intro, suggest_k, ordinal, forbes, README)
 
 - **Type:** doc · **Depends on:** M33, M34 · **Status:** pending.
+
+**Banked decision (from the M33 post-review):** the suggest_k vignette is the natural home for the
+`sim16` (idealized, criteria converge on 4) vs. `bfi25` (realistic, criteria span 4–6) contrast — see
+the M37 note above for the numbers and framing. Don't present `sim16`'s clean consensus as typical.
 
 **README prose:**
 - "should the step 3 explanation explain why m2f2 -> m3f2 gets a negative sign arrow?"

@@ -14,6 +14,12 @@ a known 1 → 2 → 4 bass-ackwards hierarchy, alongside `bfi25`. Two purposes:
   (`prune = "artefact"`) for the Forbes/redundancy examples to teach
   against.
 
+`sim16` is deliberately the *idealized* case — its clean signal makes all
+`suggest_k()` criteria agree on `k = 4`, in contrast to `bfi25` (real data),
+where they span `k = 4`–`6`. The two are complementary teaching foils: `sim16`
+for recovering a known structure, `bfi25` for reasoning under criterion
+disagreement.
+
 See `?sim16` for the full generative model and ground-truth hierarchy.
 
 ## `tidy()` API-shape cleanup: renamed/removed columns
