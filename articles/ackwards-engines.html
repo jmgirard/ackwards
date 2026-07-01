@@ -910,20 +910,20 @@ report or interpret fit.</p>
 reporting, <code>format = "wide"</code> gives one row per level:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span>, format <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   level      chi dof p_value       CFI       TLI      RMSEA       SRMR</span></span>
-<span><span class="co">#&gt; 1     2 3172.628 251      NA 0.8869038 0.8648252 0.11540374 0.09547997</span></span>
-<span><span class="co">#&gt; 2     3 1703.232 228      NA 0.9428938 0.9248602 0.08604131 0.07172502</span></span></code></pre></div>
+<span><span class="co">#&gt;   level      chi dof p_value       CFI       TLI      RMSEA       SRMR BIC</span></span>
+<span><span class="co">#&gt; 1     2 3616.834 251       0 0.8869038 0.8648252 0.11540374 0.09547997  NA</span></span>
+<span><span class="co">#&gt; 2     3 2448.356 228       0 0.9428938 0.9248602 0.08604131 0.07172502  NA</span></span></code></pre></div>
 <p>Add <code>cutoffs = TRUE</code> to flag each index against the Hu
 &amp; Bentler (1999) conventional thresholds (CFI/TLI ≥ .95, RMSEA ≤
 .06, SRMR ≤ .08):</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span>, format <span class="op">=</span> <span class="st">"wide"</span>, cutoffs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   level      chi chi_meets dof dof_meets p_value p_value_meets       CFI</span></span>
-<span><span class="co">#&gt; 1     2 3172.628        NA 251        NA      NA            NA 0.8869038</span></span>
-<span><span class="co">#&gt; 2     3 1703.232        NA 228        NA      NA            NA 0.9428938</span></span>
-<span><span class="co">#&gt;   CFI_meets       TLI TLI_meets      RMSEA RMSEA_meets       SRMR SRMR_meets</span></span>
-<span><span class="co">#&gt; 1     FALSE 0.8648252     FALSE 0.11540374       FALSE 0.09547997      FALSE</span></span>
-<span><span class="co">#&gt; 2     FALSE 0.9248602     FALSE 0.08604131       FALSE 0.07172502       TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt;   level      chi dof p_value       CFI CFI_meets       TLI TLI_meets      RMSEA</span></span>
+<span><span class="co">#&gt; 1     2 3616.834 251       0 0.8869038     FALSE 0.8648252     FALSE 0.11540374</span></span>
+<span><span class="co">#&gt; 2     3 2448.356 228       0 0.9428938     FALSE 0.9248602     FALSE 0.08604131</span></span>
+<span><span class="co">#&gt;   RMSEA_meets       SRMR SRMR_meets BIC</span></span>
+<span><span class="co">#&gt; 1       FALSE 0.09547997      FALSE  NA</span></span>
+<span><span class="co">#&gt; 2       FALSE 0.07172502       TRUE  NA</span></span></code></pre></div>
 <blockquote>
 <p><strong>Thresholds are conventional and contested.</strong> They were
 derived from specific simulation conditions (continuous,

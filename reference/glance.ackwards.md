@@ -3,8 +3,11 @@
 Returns a one-row data frame of top-level model metadata. For EFA and
 ESEM objects, fit indices at the deepest converged level are included.
 The same five columns (`CFI`, `TLI`, `RMSEA`, `SRMR`, `BIC`) are present
-across all engines; columns unavailable for a given engine are `NA`
-(e.g., `CFI` and `SRMR` are `NA` for EFA; all five are `NA` for PCA).
+across all engines; columns unavailable for a given engine or estimator
+are `NA` (e.g., `CFI` and `SRMR` are `NA` for EFA; all five are `NA` for
+PCA; for ESEM, `BIC` is `NA` under `estimator = "WLSMV"`/`"ULSMV"` –
+these limited-information estimators have no proper log-likelihood – and
+populated under `"ML"`/`"MLR"`).
 
 ## Usage
 

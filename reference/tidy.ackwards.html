@@ -94,17 +94,26 @@ default (<code>what = "edges"</code>) returns the graph edge list that drives di
 <li><p><code>"fit"</code> – one row per fit index x level: <code>level</code>, <code>index</code>, <code>value</code>.
 For PCA objects the indices are eigenvalues; for EFA objects they are
 <code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>RMSEA</code>, <code>TLI</code>, <code>BIC</code>; for ESEM they are
-<code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>CFI</code>, <code>TLI</code>, <code>RMSEA</code>, <code>SRMR</code>. Use
+<code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>CFI</code>, <code>TLI</code>, <code>RMSEA</code>, <code>SRMR</code>, <code>BIC</code>. For ESEM
+under <code>estimator = "WLSMV"</code>/<code>"ULSMV"</code>, <code>chi</code>/<code>dof</code>/<code>p_value</code> report the
+mean-and-variance-adjusted ("scaled") test rather than the naive one –
+lavaan defines the naive test as having no valid reference distribution
+for these limited-information estimators (its own <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> labels
+that p-value "Unknown"). <code>BIC</code> is <code>NA</code> under WLSMV/ULSMV (no proper
+log-likelihood for a limited-information estimator) and populated under
+ML/MLR. Use
 <code>format = "wide"</code> for one row per <strong>non-anchor</strong> level (k &gt;= 2; the
 saturated 1-factor anchor is dropped, matching <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and
 <code>autoplot(what = "fit")</code>), one column per index. Add <code>cutoffs = TRUE</code> to
 append a <code>meets</code> column flagging each index against conventional
 thresholds (Hu &amp; Bentler 1999: CFI/TLI &gt;= .95, RMSEA &lt;= .06,
-SRMR &lt;= .08); indices without a defined threshold (e.g. <code>chi</code>, <code>BIC</code>,
-eigenvalues) return <code>NA</code> for <code>meets</code>. Thresholds are conventional and
-contested; they are report-only and never gate anything. <code>format</code> and
-<code>cutoffs</code> are oriented to the EFA/ESEM model-fit indices; for PCA the
-"indices" are per-component eigenvalues.</p></li>
+SRMR &lt;= .08). In <code>format = "long"</code>, indices without a defined threshold
+(<code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>BIC</code>, eigenvalues) return <code>NA</code> for <code>meets</code>;
+in <code>format = "wide"</code>, no <code>{index}_meets</code> column is emitted for them at
+all (an always-<code>NA</code> column would just be noise). Thresholds are
+conventional and contested; they are report-only and never gate
+anything. <code>format</code> and <code>cutoffs</code> are oriented to the EFA/ESEM model-fit
+indices; for PCA the "indices" are per-component eigenvalues.</p></li>
 <li><p><code>"nodes"</code> – Forbes-extension pruning annotations (requires <code>prune != "none"</code>
 when the object was created). One row per factor across all levels:
 <code>id</code>, <code>level</code>, <code>pruned</code>, <code>prune_reason</code>. Returns an empty data frame with

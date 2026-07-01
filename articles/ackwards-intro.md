@@ -73,13 +73,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [312ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [291ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [184ms]
+#> ✔ Running MAP and VSS... [176ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.1s]
+#> ✔ Running Comparison Data (CD)... [9.8s]
 #> 
 sk
 #> 
@@ -192,7 +192,7 @@ x
 
 The “Levels” section confirms that all five models converged, and
 reports the cumulative variance explained at each level. Notice that the
-jump from k = 1 to k = 2 is large (22.9% → 34.7%), while later jumps are
+jump from k = 1 to k = 2 is large (23.2% → 35.5%), while later jumps are
 smaller — characteristic of data with a strong general factor and
 several specific dimensions.
 
@@ -293,12 +293,17 @@ Reading this diagram from left to right tells the story of the Big Five:
 
 - **k = 1**: One broad factor. Given the polychoric basis, this captures
   shared variance across all 25 items.
-- **k = 2**: The broad factor splits into two: one that will become
-  Extraversion/Agreeableness/Conscientiousness and one that will become
-  Neuroticism/Openness.
-- **k = 3**: Three factors emerge, with Neuroticism separating out.
-- **k = 4**: Agreeableness and Extraversion begin to differentiate.
-- **k = 5**: The canonical Big Five appear.
+- **k = 2**: The broad factor splits into two: Neuroticism separates
+  from a mixed cluster of Extraversion, Agreeableness,
+  Conscientiousness, and Openness items (Extraversion items load most
+  strongly within that cluster).
+- **k = 3**: The non-Neuroticism cluster splits again, separating
+  Extraversion/Agreeableness from Conscientiousness/Openness;
+  Neuroticism stays intact and sheds its residual cross-loadings.
+- **k = 4**: Conscientiousness and Openness differentiate into their own
+  factors.
+- **k = 5**: Extraversion and Agreeableness finally differentiate,
+  completing the canonical Big Five.
 
 The factors are labeled `m{k}f{j}` (level k, factor j). These stable IDs
 are used throughout the object, so `m5f1` at k = 5 refers to the same
@@ -540,7 +545,7 @@ round(cor(k5), 2)
 
 ``` r
 
-# Cross-level: m4f1 is the primary parent of m5f2 and m5f4 (from the edge table)
+# Cross-level: m4f1 is the primary parent of m5f1 and m5f4 (from the edge table)
 lineage <- scored[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]
 round(cor(lineage), 2)
 #>       .m4f1 .m5f1 .m5f2 .m5f4
@@ -551,8 +556,8 @@ round(cor(lineage), 2)
 ```
 
 The cross-level block confirms lineage: `.m4f1` correlates strongly with
-`.m5f2` and `.m5f4` (the k = 5 factors it spawned) and near-zero with
-`.m5f1` (which descends from a different k = 4 factor). This is a sanity
+`.m5f1` and `.m5f4` (the k = 5 factors it spawned) and near-zero with
+`.m5f2` (which descends from a different k = 4 factor). This is a sanity
 check you can run on any result — strong parent–child correlations
 should appear exactly where the `tidy(what = "edges")` table says they
 should.

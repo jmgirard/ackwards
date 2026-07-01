@@ -647,3 +647,97 @@ User-facing change notes live in `NEWS.md`.
       (catches a reintroduced Goldberg bibentry even where the package
       cannot be loaded). (1303 tests pass, 2 skip; 0/0/0 R CMD check;
       coverage 100%.)
+
+- **M31 (done):** Correctness & output-honesty sweep — first milestone
+  of the M31–M38 pkgdown-review epic, sequenced correctness-first (fix
+  output bugs before rewriting the vignettes that display them). No
+  breaking renames; no invariant or resolved-default change; no new
+  `Imports`; no DESIGN.md contract change; version stays `0.1.0`.
+
+  1.  **ESEM `p_value` NA, root-caused and fixed.** Live-repro on
+      `bfi25` with `cor = "polychoric"` (WLSMV) showed `p_value` NA at
+      every level. Root cause: lavaan’s naive chi-square test has no
+      valid reference distribution under WLSMV/ULSMV — lavaan’s own
+      `summary(fit, fit.measures = TRUE)` literally labels that column
+      “P-value (Unknown)” and reports NA; only the
+      mean-and-variance-adjusted “scaled” test (`pvalue.scaled`) has a
+      genuine null distribution for these limited-information
+      estimators. `engine_esem.R`’s `.esem_fit_one()` now falls back to
+      `chisq.scaled`/`df.scaled`/`pvalue.scaled` whenever the naive
+      `pvalue` is NA and the scaled variant exists — a no-op for ML/MLR,
+      whose naive p-value is already valid. A genuinely saturated level
+      (`dof = 0`, e.g. a small item set at high k) still reports NA on
+      both tests — there is no chi-square test to perform on a model
+      that fits perfectly by construction; this is the “saturated low-k
+      level” case the milestone brief anticipated, and it coexists with
+      (rather than replaces) the WLSMV-naive-test cause found on the
+      non-saturated `bfi25` case.
+  2.  **BIC promoted to a first-class ESEM fit index.** Previously
+      absent from `fit_info` entirely (not even as NA) —
+      `tidy(what = "fit")` silently had no BIC row for ESEM and
+      [`glance()`](https://generics.r-lib.org/reference/glance.html)
+      only happened to show NA because the key was missing. Now always
+      requested: real value under `"ML"`/`"MLR"` (proper
+      log-likelihood), genuine `NA` under `"WLSMV"`/`"ULSMV"` (no proper
+      log-likelihood for a limited-information estimator — inapplicable,
+      not a bug). Loadings SE/CI were already correctly NA-safe for
+      PCA/EFA in `tidy(what = "loadings")`; no change needed there.
+  3.  **`_meets` cleanup.**
+      `tidy(what = "fit", cutoffs = TRUE, format = "wide")`’s pivot
+      (`.fit_long_to_wide()`) generated a `{index}_meets` column for
+      every index present, including `chi`/`dof`/`p_value`/`BIC`, which
+      have no defined threshold and were therefore always NA. Now
+      restricted to indices in `.fit_cutoffs()`
+      (`CFI`/`TLI`/`RMSEA`/`SRMR`). `format = "long"` is unaffected
+      (`meets` stays NA for those rows, as already documented).
+  4.  **Guard: `cor = "polychoric"` + `estimator = "ML"`/`"MLR"`.**
+      Previously unguarded: polychoric correlations mark every item
+      `ordered` for lavaan, and lavaan itself errors on ML/MLR with
+      ordered indicators (“estimator ML for ordered data is not
+      supported yet”) — but the failure surfaced many calls deep as a
+      per-level ESEM warning, then a generic
+      [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+      abort that misdiagnosed the cause as multicollinearity.
+      [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+      now errors immediately with a targeted message naming the
+      incompatibility and the fix. `"WLSMV"`/`"ULSMV"` with a continuous
+      `cor` is deliberately left unguarded — lavaan runs it as a valid
+      (if atypical) continuous WLS/ADF estimator, confirmed by a passing
+      test.
+  5.  **`fa.parallel`/`set.seed` reproducibility — confirmed correct,
+      already documented, no code bug.**
+      [`psych::fa.parallel()`](https://rdrr.io/pkg/psych/man/fa.parallel.html)
+      genuinely does not respond to
+      [`set.seed()`](https://rdrr.io/r/base/Random.html);
+      [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)’s
+      roxygen, `DESIGN.md` §8, and
+      [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md)
+      already state this honestly (the `seed` argument governs the CD
+      step only). Swept all `seed` mentions across vignettes/man pages
+      for an implied-but-false PA-reproducibility claim; found none.
+  6.  **Doc-bugs mirroring output, fixed in `ackwards-intro.Rmd` and
+      `ackwards-suggest-k.Rmd`.** A hardcoded cumulative-variance jump
+      (“22.9% → 34.7%”) had drifted from the code’s actual live output
+      (23.2% → 35.5%) — replaced with inline `` `r ...` `` expressions
+      so it cannot drift again. The lineage walkthrough had `m4f1`’s
+      primary children backwards (claimed `m5f2`/`m5f4`; the edge table
+      shows `m5f1`/`m5f4`, confirmed via
+      `tidy(x, what = "edges", primary_only = TRUE)` and a live
+      [`augment()`](https://generics.r-lib.org/reference/augment.html)
+      correlation check). The k-by-k diagram narrative misattributed
+      which traits differentiate at which level (claimed
+      Agreeableness/Extraversion split at k = 4; the live
+      [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+      output shows Conscientiousness/Openness split at k = 4, and
+      Agreeableness/ Extraversion don’t split until k = 5) — both
+      corrected to match a live run. The “no warning this time” claim
+      after switching to `cor = "polychoric"` was checked and is still
+      accurate. Added a clarifying note to `ackwards-suggest-k.Rmd`
+      explaining why the printed “Recommendations” block shows six lines
+      for five criteria (`"vss"` is one `criteria` entry sharing one
+      [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html) call, but
+      reports two numbers, VSS-1 and VSS-2). Tests: extended
+      `test-esem.R` with fit-index-naming (`BIC` added), wide-format
+      `_meets` column-set, WLSMV-scaled-p-value, and estimator-guard
+      coverage. No new test files. (1323 tests pass, 2 skip; 0/0/0 R CMD
+      check; coverage 100%.)

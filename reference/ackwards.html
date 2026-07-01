@@ -135,7 +135,10 @@ deep levels), or <code>"pa"</code> (principal axis). Ignored for <code>engine = 
 <dd><p>Estimation method for the ESEM engine. <code>NULL</code> (default)
 auto-selects: <code>"WLSMV"</code> when <code>cor = "polychoric"</code>, <code>"ML"</code> otherwise.
 Pass explicitly to override: <code>"ULSMV"</code> (unweighted WLS), <code>"MLR"</code>
-(robust ML). Ignored for PCA and EFA engines.</p></dd>
+(robust ML). <code>cor = "polychoric"</code> with <code>estimator = "ML"</code>/<code>"MLR"</code> errors
+(lavaan itself does not support ML/MLR on ordered indicators); <code>"WLSMV"</code>/
+<code>"ULSMV"</code> with a continuous <code>cor</code> is allowed (a valid, if atypical,
+continuous WLS/ADF estimator). Ignored for PCA and EFA engines.</p></dd>
 
 
 <dt id="arg-missing">missing<a class="anchor" aria-label="anchor" href="#arg-missing"></a></dt>

@@ -207,13 +207,13 @@ and citations — see
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [300ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [292ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [181ms]
+#> ✔ Running MAP and VSS... [175ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [9.9s]
+#> ✔ Running Comparison Data (CD)... [9.7s]
 #> 
 sk
 #> 
@@ -262,7 +262,14 @@ evidence at each k:
 
 The **recommendations block** summarizes each criterion’s single
 suggested k (or range for PA), and the **consensus range** spans the
-minimum to maximum across all available recommendations.
+minimum to maximum across all available recommendations. Note that this
+block lists **six** lines by default even though
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+runs **five** criteria: `"vss"` is one entry in the `criteria` argument
+(they share a single
+[`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html) call) but
+reports two numbers, VSS-1 and VSS-2, since it fits simple structure at
+two different complexities.
 
 ### The diagnostic plot
 

@@ -126,10 +126,13 @@
 <strong>M29</strong> — Strip milestone numbers from user-facing docs (<code>NEWS.md</code> <code>(M24)</code> tag removed; regression test guards <code>NEWS.md</code>/<code>README.md</code>/vignettes)</li>
 <li>
 <strong>M30</strong> — Citation hygiene (<code>inst/CITATION</code> Girard-only; <code><a href="reference/ackwards.html">ackwards()</a></code> <code>@references</code> gains Forbes; README citation prose corrected)</li>
+<li>
+<strong>M31</strong> — Correctness &amp; output-honesty sweep (ESEM <code>p_value</code>/BIC extraction fixed for WLSMV/ULSMV; <code>_meets</code> cleanup; <code>cor = "polychoric"</code> + ML/MLR guard; <code>fa.parallel</code>/<code>seed</code> doc confirmed correct; intro/suggest_k vignette drift fixed)</li>
 </ul></div>
 <div class="section level2">
 <h2 id="current-focus">Current focus<a class="anchor" aria-label="anchor" href="#current-focus"></a></h2>
-<p>No active milestone. M30 completed 2026-07-01.</p>
+<p>M31 is complete (see <code>MILESTONES.md</code> for detail). Next up in the M31–M38 documentation/UX epic (driven by a pkgdown-website review) is <strong>M32</strong>, described below — not yet planned; run <code>/plan-milestone 32</code> before starting.</p>
+<p>Remaining milestones in the epic: M32 naming/API-shape decisions (index column names, <code>k_max</code> collision, <code>cutoffs</code> keep/drop, <code>variance_pct</code> 0–100 vs 0–1); M33 simulated Gaussian dataset (foundation); M34 pruning verb — extract <code>prune()</code> from <code><a href="reference/ackwards.html">ackwards()</a></code> (clean move, no deprecation — pre-CRAN, no users) + manual/mixed flag-only pruning + <code>"artefact"</code>/<code>"tucker"</code> naming + DESIGN.md update; M35 autoplot &amp; visualization; M36 interpretation functions (<code>augment</code> scores-only, <code>top_items</code> labels + group-by-item); M37 engines vignette; M38 narrative &amp; remaining prose (intro, suggest_k, ordinal, forbes, README).</p>
 </div>
 <div class="section level2">
 <h2 id="invariants--do-not-violate-without-flagging">Invariants — do not violate without flagging<a class="anchor" aria-label="anchor" href="#invariants--do-not-violate-without-flagging"></a></h2>

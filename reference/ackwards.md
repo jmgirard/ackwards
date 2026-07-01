@@ -82,8 +82,11 @@ ackwards(
 
   Estimation method for the ESEM engine. `NULL` (default) auto-selects:
   `"WLSMV"` when `cor = "polychoric"`, `"ML"` otherwise. Pass explicitly
-  to override: `"ULSMV"` (unweighted WLS), `"MLR"` (robust ML). Ignored
-  for PCA and EFA engines.
+  to override: `"ULSMV"` (unweighted WLS), `"MLR"` (robust ML).
+  `cor = "polychoric"` with `estimator = "ML"`/`"MLR"` errors (lavaan
+  itself does not support ML/MLR on ordered indicators); `"WLSMV"`/
+  `"ULSMV"` with a continuous `cor` is allowed (a valid, if atypical,
+  continuous WLS/ADF estimator). Ignored for PCA and EFA engines.
 
 - missing:
 

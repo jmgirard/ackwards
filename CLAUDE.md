@@ -93,10 +93,29 @@ as part of the definition of done.
 - **M30** — Citation hygiene (`inst/CITATION` Girard-only;
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
   `@references` gains Forbes; README citation prose corrected)
+- **M31** — Correctness & output-honesty sweep (ESEM `p_value`/BIC
+  extraction fixed for WLSMV/ULSMV; `_meets` cleanup;
+  `cor = "polychoric"` + ML/MLR guard; `fa.parallel`/`seed` doc
+  confirmed correct; intro/suggest_k vignette drift fixed)
 
 ## Current focus
 
-No active milestone. M30 completed 2026-07-01.
+M31 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38
+documentation/UX epic (driven by a pkgdown-website review) is **M32**,
+described below — not yet planned; run `/plan-milestone 32` before
+starting.
+
+Remaining milestones in the epic: M32 naming/API-shape decisions (index
+column names, `k_max` collision, `cutoffs` keep/drop, `variance_pct`
+0–100 vs 0–1); M33 simulated Gaussian dataset (foundation); M34 pruning
+verb — extract `prune()` from
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+(clean move, no deprecation — pre-CRAN, no users) + manual/mixed
+flag-only pruning + `"artefact"`/`"tucker"` naming + DESIGN.md update;
+M35 autoplot & visualization; M36 interpretation functions (`augment`
+scores-only, `top_items` labels + group-by-item); M37 engines vignette;
+M38 narrative & remaining prose (intro, suggest_k, ordinal, forbes,
+README).
 
 ## Invariants — do not violate without flagging
 

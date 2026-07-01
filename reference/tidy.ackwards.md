@@ -46,19 +46,29 @@ tidy(
   - `"fit"` – one row per fit index x level: `level`, `index`, `value`.
     For PCA objects the indices are eigenvalues; for EFA objects they
     are `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`; for ESEM they
-    are `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`. Use
-    `format = "wide"` for one row per **non-anchor** level (k \>= 2; the
-    saturated 1-factor anchor is dropped, matching
+    are `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`, `BIC`.
+    For ESEM under `estimator = "WLSMV"`/`"ULSMV"`,
+    `chi`/`dof`/`p_value` report the mean-and-variance-adjusted
+    ("scaled") test rather than the naive one – lavaan defines the naive
+    test as having no valid reference distribution for these
+    limited-information estimators (its own
+    [`summary()`](https://rdrr.io/r/base/summary.html) labels that
+    p-value "Unknown"). `BIC` is `NA` under WLSMV/ULSMV (no proper
+    log-likelihood for a limited-information estimator) and populated
+    under ML/MLR. Use `format = "wide"` for one row per **non-anchor**
+    level (k \>= 2; the saturated 1-factor anchor is dropped, matching
     [`summary()`](https://rdrr.io/r/base/summary.html) and
     `autoplot(what = "fit")`), one column per index. Add
     `cutoffs = TRUE` to append a `meets` column flagging each index
     against conventional thresholds (Hu & Bentler 1999: CFI/TLI \>= .95,
-    RMSEA \<= .06, SRMR \<= .08); indices without a defined threshold
-    (e.g. `chi`, `BIC`, eigenvalues) return `NA` for `meets`. Thresholds
-    are conventional and contested; they are report-only and never gate
-    anything. `format` and `cutoffs` are oriented to the EFA/ESEM
-    model-fit indices; for PCA the "indices" are per-component
-    eigenvalues.
+    RMSEA \<= .06, SRMR \<= .08). In `format = "long"`, indices without
+    a defined threshold (`chi`, `dof`, `p_value`, `BIC`, eigenvalues)
+    return `NA` for `meets`; in `format = "wide"`, no `{index}_meets`
+    column is emitted for them at all (an always-`NA` column would just
+    be noise). Thresholds are conventional and contested; they are
+    report-only and never gate anything. `format` and `cutoffs` are
+    oriented to the EFA/ESEM model-fit indices; for PCA the "indices"
+    are per-component eigenvalues.
 
   - `"nodes"` – Forbes-extension pruning annotations (requires
     `prune != "none"` when the object was created). One row per factor

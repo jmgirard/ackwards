@@ -286,9 +286,9 @@ fit.
 ``` r
 
 tidy(x_esem, what = "fit", format = "wide")
-#>   level      chi dof p_value       CFI       TLI      RMSEA       SRMR
-#> 1     2 3172.628 251      NA 0.8869038 0.8648252 0.11540374 0.09547997
-#> 2     3 1703.232 228      NA 0.9428938 0.9248602 0.08604131 0.07172502
+#>   level      chi dof p_value       CFI       TLI      RMSEA       SRMR BIC
+#> 1     2 3616.834 251       0 0.8869038 0.8648252 0.11540374 0.09547997  NA
+#> 2     3 2448.356 228       0 0.9428938 0.9248602 0.08604131 0.07172502  NA
 ```
 
 Add `cutoffs = TRUE` to flag each index against the Hu & Bentler (1999)
@@ -297,12 +297,12 @@ conventional thresholds (CFI/TLI ≥ .95, RMSEA ≤ .06, SRMR ≤ .08):
 ``` r
 
 tidy(x_esem, what = "fit", format = "wide", cutoffs = TRUE)
-#>   level      chi chi_meets dof dof_meets p_value p_value_meets       CFI
-#> 1     2 3172.628        NA 251        NA      NA            NA 0.8869038
-#> 2     3 1703.232        NA 228        NA      NA            NA 0.9428938
-#>   CFI_meets       TLI TLI_meets      RMSEA RMSEA_meets       SRMR SRMR_meets
-#> 1     FALSE 0.8648252     FALSE 0.11540374       FALSE 0.09547997      FALSE
-#> 2     FALSE 0.9248602     FALSE 0.08604131       FALSE 0.07172502       TRUE
+#>   level      chi dof p_value       CFI CFI_meets       TLI TLI_meets      RMSEA
+#> 1     2 3616.834 251       0 0.8869038     FALSE 0.8648252     FALSE 0.11540374
+#> 2     3 2448.356 228       0 0.9428938     FALSE 0.9248602     FALSE 0.08604131
+#>   RMSEA_meets       SRMR SRMR_meets BIC
+#> 1       FALSE 0.09547997      FALSE  NA
+#> 2       FALSE 0.07172502       TRUE  NA
 ```
 
 > **Thresholds are conventional and contested.** They were derived from

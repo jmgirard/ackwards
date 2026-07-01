@@ -154,13 +154,13 @@ and reports a consensus range:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[312ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[291ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[184ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[176ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.1s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[9.8s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -289,7 +289,7 @@ measurement scale.</p>
 <span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
 <p>The “Levels” section confirms that all five models converged, and
 reports the cumulative variance explained at each level. Notice that the
-jump from k = 1 to k = 2 is large (22.9% → 34.7%), while later jumps are
+jump from k = 1 to k = 2 is large (23.2% → 35.5%), while later jumps are
 smaller — characteristic of data with a strong general factor and
 several specific dimensions.</p>
 <p>The “Edges” section reports how many of the 40 possible between-level
@@ -380,17 +380,20 @@ Five:</p>
 <strong>k = 1</strong>: One broad factor. Given the polychoric
 basis, this captures shared variance across all 25 items.</li>
 <li>
-<strong>k = 2</strong>: The broad factor splits into two: one that
-will become Extraversion/Agreeableness/Conscientiousness and one that
-will become Neuroticism/Openness.</li>
+<strong>k = 2</strong>: The broad factor splits into two:
+Neuroticism separates from a mixed cluster of Extraversion,
+Agreeableness, Conscientiousness, and Openness items (Extraversion items
+load most strongly within that cluster).</li>
 <li>
-<strong>k = 3</strong>: Three factors emerge, with Neuroticism
-separating out.</li>
+<strong>k = 3</strong>: The non-Neuroticism cluster splits again,
+separating Extraversion/Agreeableness from Conscientiousness/Openness;
+Neuroticism stays intact and sheds its residual cross-loadings.</li>
 <li>
-<strong>k = 4</strong>: Agreeableness and Extraversion begin to
-differentiate.</li>
+<strong>k = 4</strong>: Conscientiousness and Openness differentiate
+into their own factors.</li>
 <li>
-<strong>k = 5</strong>: The canonical Big Five appear.</li>
+<strong>k = 5</strong>: Extraversion and Agreeableness finally
+differentiate, completing the canonical Big Five.</li>
 </ul>
 <p>The factors are labeled <code>m{k}f{j}</code> (level k, factor j).
 These stable IDs are used throughout the object, so <code>m5f1</code> at
@@ -609,7 +612,7 @@ be highly correlated along the primary-parent lineage:</p>
 <span><span class="co">#&gt; .m5f4 -0.02 -0.01 -0.02  1.00 -0.03</span></span>
 <span><span class="co">#&gt; .m5f5  0.00 -0.01 -0.02 -0.03  1.00</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Cross-level: m4f1 is the primary parent of m5f2 and m5f4 (from the edge table)</span></span>
+<code class="sourceCode R"><span><span class="co"># Cross-level: m4f1 is the primary parent of m5f1 and m5f4 (from the edge table)</span></span>
 <span><span class="va">lineage</span> <span class="op">&lt;-</span> <span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m4f1"</span>, <span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f4"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">lineage</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       .m4f1 .m5f1 .m5f2 .m5f4</span></span>
@@ -618,8 +621,8 @@ be highly correlated along the primary-parent lineage:</p>
 <span><span class="co">#&gt; .m5f2  0.00  0.01  1.00 -0.01</span></span>
 <span><span class="co">#&gt; .m5f4  0.53 -0.02 -0.01  1.00</span></span></code></pre></div>
 <p>The cross-level block confirms lineage: <code>.m4f1</code> correlates
-strongly with <code>.m5f2</code> and <code>.m5f4</code> (the k = 5
-factors it spawned) and near-zero with <code>.m5f1</code> (which
+strongly with <code>.m5f1</code> and <code>.m5f4</code> (the k = 5
+factors it spawned) and near-zero with <code>.m5f2</code> (which
 descends from a different k = 4 factor). This is a sanity check you can
 run on any result — strong parent–child correlations should appear
 exactly where the <code>tidy(what = "edges")</code> table says they
