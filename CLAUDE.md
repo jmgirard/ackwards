@@ -59,33 +59,25 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M35** — autoplot & visualization: sign-propagation bugfix (primary-parent edges now always non-negative per DESIGN §7); `autoplot()` `sign_by`/`magnitude_by` configurable, always-legended encodings (`cut_strong` retired; `mono` kept as wrapper); `direction="horizontal"` layout; `colour_*` aliases + `color_edge`; `ggsave` documented (not re-exported); code-coupled viz/intro/README prose
 - **M36** — interpretation functions: `augment()` `append` (scores-only) + `id_cols` passthrough; `top_items()` `by=c("factor","item")` + variable-label display (`label (code)`, fit-time capture into `meta$item_labels`, `show_labels`); interpret-vignette prose edits (cut=0.5 lead, `by="item"`/label demos, metatrait/HiTOP naming advice) + intro score de-indexing
 - **M37** — engines vignette (doc-only): at-a-glance table fixes (parallel EFA/ESEM, substrate/correlations/estimators rows, χ² symbol, no WLSMV parenthetical); ESEM reframed as continuous (ML/MLR/FIML) *and* ordinal (WLSMV); per-level-fit converse (bad fit weakens incident edges); autoplot `k_max=3` truncation note; sim16-vs-bfi25 framing; runnable `psych::corFiml()` MAR route for PCA/EFA (on continuous sim16, both caveats, forward-ref M38); Missing-data/Performance trims + `library(future)` style; Hu & Bentler citation. Epic renumbered M31–M39 (new code milestone M38 inserted).
+- **M38** — `missing = "fiml"` for PCA/EFA (code): `engine = "pca"/"efa"` + `cor = "pearson"` now routes `R` through `psych::corFiml()` (MAR-valid FIML) into the `W'RW` algebra (Invariant-1-clean, one corFiml call/run, no new dep), reversing the M16 "FIML errors for PCA/EFA" default; `.resolve_missing()` gains a `cor` guard (errors for non-Pearson PCA/EFA basis + WLSMV/ULSMV); `n_obs` string `"total"` (default, Enders 2010) / `"complete"` selects the approximate EFA fit-index N (Zhang & Savalei 2020; point estimates unaffected; announced via cli); `"effective"` dropped (no canonical formula); DESIGN §9/§14 (items 32–33) sign-off.
 
 ## Current focus
 
-**M38 is planned and in progress** (branch `m38-fiml-pca-efa`; see `ROADMAP.md` for the full brief).
-A **code** milestone: promote `missing = "fiml"` to a first-class route for PCA/EFA. Under
-`engine = "pca"/"efa"` with `cor = "pearson"/"spearman"`, `missing = "fiml"` now routes `R` through
-`psych::corFiml()` (currently it *errors* for PCA/EFA) and then runs the normal `W'RW` algebra on
-it — Invariant-1-clean (one corFiml call per run; no new edge path, no new dependency). Scope /
-acceptance criteria:
+M38 is complete (see `MILESTONES.md` for detail): `missing = "fiml"` is now a first-class PCA/EFA
+route (`cor = "pearson"` → `psych::corFiml()` → `W'RW` algebra), reversing the M16 error contract;
+`.resolve_missing()` guards the basis; `n_obs = "total"`/`"complete"` selects the approximate EFA
+fit-index N; DESIGN §9/§14 signed off. The final scope narrowed the plan slightly: FIML for PCA/EFA
+is **Pearson-only** (Spearman also errors — corFiml returns a Pearson matrix), not
+pearson/spearman as the mid-planning note read.
 
-- **Guard matrix.** `missing = "fiml"` still **errors** for `cor = "polychoric"` (any engine — corFiml
-  is MVN/Pearson-only) and for WLSMV/ULSMV; valid only for `{pca, efa}`-pearson/spearman and the
-  existing ESEM-ML/MLR path. Handle corFiml non-PD output via the existing smoothing/validation.
-- **`n_obs` string option (raw-data FIML path only).** `n_obs = c("total", "complete")`, default
-  **`"total"`** (the N a genuine FIML analysis reports — Enders 2010 — giving cross-engine
-  parallelism with ESEM-ML FIML; fit indices are *approximate* under this two-step route per Zhang &
-  Savalei 2020, but point estimates/edges are exact). `"effective"` was **dropped** (no canonical
-  formula → would be a package-invented convention). Numeric `n_obs` still governs cor-matrix input;
-  a string `n_obs` with a supplied cor-matrix errors. Auto-route + effective-N choice announced via
-  cli (Invariant 6).
-- **Score-NA behavior.** corFiml estimates `R` but does not impute; `keep_scores = TRUE` still yields
-  `NA` score rows for incomplete cases — mirror the existing ESEM-FIML advisory note.
-- **DESIGN §9/§14 sign-off** (reverses the resolved "FIML errors for PCA, EFA" default for the pearson
-  path); roxygen for `missing`/`n_obs` documents the *why* + citations; tests for the route, the guard
-  matrix, and score-NA behavior; NEWS bullet; `MILESTONES.md` entry + one-line index here.
-
-Remaining after M38: M39 narrative & remaining prose (intro, suggest_k, ordinal, forbes, README).
+Next up (last in the M31–M39 epic) is **M39** — a **doc** milestone: narrative & remaining prose
+across the intro, suggest_k, ordinal, forbes, and README pages. Not yet planned; run
+`/plan-milestone 39` before starting. Its brief in `ROADMAP.md` carries the banked page-by-page
+review notes (e.g. the `sim16`-idealized vs. `bfi25`-realistic framing belongs in the suggest_k
+vignette; README sign-arrow explanation; ordinal binary-item / dodged-bar / alphabetical-refs asks;
+forbes verbatim-heading + pruned-level-label + gt-highlight asks). `MILESTONES.md` remains the
+source of truth for *completed* milestones; `ROADMAP.md` is its forward-looking counterpart for the
+one *pending* milestone.
 
 These one-liners are a lossy index. The **full driving rationale, banked decisions, and the raw
 pkgdown-review notes** behind M35–M39 live in [`ROADMAP.md`](ROADMAP.md) — read it before running
