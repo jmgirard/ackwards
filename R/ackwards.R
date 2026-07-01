@@ -32,8 +32,11 @@
 #'   or `"efa"` (ESEM requires raw data), and the `missing` and `cor` arguments
 #'   are ignored. See the *Correlation-matrix input* section below.
 #' @param k_max Maximum number of factors/components to extract. Required; use
-#'   [suggest_k()] if uncertain. Sets the depth of the hierarchy: levels
-#'   1 through `k_max` are all extracted.
+#'   [suggest_k()] if uncertain. Sets the *depth* of the hierarchy: levels
+#'   1 through `k_max` are all extracted and retained. (Note: `suggest_k()`'s
+#'   `k_max` means something related but distinct -- the max number of
+#'   factors/components it *evaluates* when recommending a depth, not a depth
+#'   itself; see that function's docs.)
 #' @param n_obs Number of observations. Used only when `data` is a
 #'   pre-computed correlation matrix. Ignored when raw data are supplied (N is
 #'   determined from `nrow(data)`). For `engine = "efa"`, `n_obs` is required --

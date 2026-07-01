@@ -23,8 +23,13 @@ correlation matrix is supplied, \code{n_obs} is required (PA and VSS need N),
 the \code{cor} argument is ignored, and the Comparison Data (CD) criterion is
 skipped (CD requires raw item distributions for resampling).}
 
-\item{k_max}{Maximum number of components to test. Defaults to
-\code{min(ncol(data) - 1, 8)}. Increase if you expect a deeper hierarchy.}
+\item{k_max}{Maximum number of factors/components to \emph{evaluate} when
+recommending a depth -- not a depth itself. Defaults to
+\code{min(ncol(data) - 1, 8)}. Increase if you expect a deeper hierarchy. (Note:
+this is a distinct meaning from \code{ackwards()}'s \code{k_max}, which \emph{is} the
+extraction depth; the two share a name because they're the same dial in
+the \code{suggest_k() -> ackwards()} workflow, just applied at different
+stages.)}
 
 \item{criteria}{Character vector of criteria to compute. Any subset of
 \code{c("pa_pc", "pa_fa", "map", "vss", "cd")}; default is all five.
