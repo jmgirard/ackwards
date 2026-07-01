@@ -188,6 +188,46 @@ test_that(".validate_cor_matrix() errors on matrix containing Inf", {
   )
 })
 
+test_that(".capture_item_labels() returns named labels only for labelled columns", {
+  cap <- ackwards:::.capture_item_labels
+  d <- data.frame(a = 1:3, b = 4:6, c = 7:9)
+  attr(d$a, "label") <- "First item"
+  attr(d$c, "label") <- "Third item"
+  labs <- cap(d)
+  expect_equal(labs, c(a = "First item", c = "Third item"))
+})
+
+test_that(".capture_item_labels() returns NULL when nothing is labelled or input is not a data.frame", {
+  cap <- ackwards:::.capture_item_labels
+  # Unlabelled data.frame
+  expect_null(cap(data.frame(a = 1:3, b = 4:6)))
+  # Matrix input (labels can't survive a matrix)
+  expect_null(cap(matrix(1:6, nrow = 3)))
+  # Non-scalar / empty / NA labels are ignored
+  d <- data.frame(a = 1:3, b = 4:6, e = 7:9)
+  attr(d$a, "label") <- ""
+  attr(d$b, "label") <- NA_character_
+  attr(d$e, "label") <- c("two", "labels")
+  expect_null(cap(d))
+})
+
+test_that("ackwards() captures data.frame variable labels into meta$item_labels", {
+  d <- as.data.frame(na.omit(bfi25)[, 1:6])
+  attr(d$A1, "label") <- "Am indifferent to the feelings of others"
+  attr(d$A3, "label") <- "Know how to comfort others"
+  x <- suppressWarnings(ackwards(d, k_max = 3))
+  expect_equal(
+    x$meta$item_labels,
+    c(
+      A1 = "Am indifferent to the feelings of others",
+      A3 = "Know how to comfort others"
+    )
+  )
+  # No labels -> NULL
+  x2 <- suppressWarnings(ackwards(as.data.frame(na.omit(bfi25)[, 1:6]), k_max = 3))
+  expect_null(x2$meta$item_labels)
+})
+
 test_that("validate_ackwards() errors when required fields are missing", {
   x <- structure(list(call = NULL), class = "ackwards")
   expect_error(validate_ackwards(x), "missing fields")

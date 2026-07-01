@@ -14,6 +14,33 @@
   sweep(sweep(x, 2, m, "-"), 2, s, "/")
 }
 
+# Capture per-column variable labels from a data.frame (M36). Reads each
+# column's "label" attribute -- the attribute that labelled::var_label() and
+# haven set -- so top_items() can display a human-readable item description
+# instead of the bare colname. Returns a named character vector holding only the
+# columns that actually carry a non-empty scalar label, or NULL when the input
+# is not a data.frame (matrix / correlation-matrix input) or no column is
+# labelled. Names are the column names; values are the labels.
+.capture_item_labels <- function(data) {
+  if (!is.data.frame(data)) {
+    return(NULL)
+  }
+  labs <- vapply(
+    data,
+    function(col) {
+      lab <- attr(col, "label", exact = TRUE)
+      if (is.character(lab) && length(lab) == 1L && !is.na(lab) && nzchar(lab)) {
+        lab
+      } else {
+        NA_character_
+      }
+    },
+    character(1L)
+  )
+  labs <- labs[!is.na(labs)]
+  if (length(labs) == 0L) NULL else labs
+}
+
 # Format a correlation as an APA-style string: strip the leading zero, pad
 # trailing zeros to `digits` decimal places. Does not prepend "-" when the
 # magnitude rounds to zero at the requested precision (avoids "-.00").

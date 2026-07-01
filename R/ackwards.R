@@ -234,6 +234,12 @@ ackwards <- function(
   # "esem" before reaching this point). Recorded in $meta$estimator (M32).
   estimator_eff <- NULL
 
+  # Variable labels (M36): captured from a data.frame's per-column "label"
+  # attribute (the attribute labelled/haven write) before as.matrix() strips it,
+  # so top_items() can display "How much..." instead of the bare colname. NULL
+  # for matrix / correlation-matrix input, or when no column carries a label.
+  item_labels <- .capture_item_labels(data)
+
   # --- Shared argument validation ---------------------------------------------
   engine <- rlang::arg_match(engine, c("pca", "efa", "esem"))
   fm <- rlang::arg_match(fm, c("minres", "ml", "pa"))
@@ -670,7 +676,8 @@ ackwards <- function(
     missing           = missing_eff,
     n_complete        = n_complete,
     input_type        = input_type,
-    estimator         = estimator_eff %||% NA_character_
+    estimator         = estimator_eff %||% NA_character_,
+    item_labels       = item_labels
   )
 
   # --- Assemble result --------------------------------------------------------
