@@ -1,5 +1,21 @@
 # ackwards (development)
 
+## New dataset: `sim16`
+
+A simulated, fully continuous 1 000×16 teaching dataset (`data(sim16)`) with
+a known 1 → 2 → 4 bass-ackwards hierarchy, alongside `bfi25`. Two purposes:
+
+- Showcases the default `cor = "pearson"` extraction path cleanly — unlike
+  `bfi25`'s Likert items, `sim16` never triggers the ordinal-detection
+  warning.
+- Deliberately exercises overextraction: the population has exactly 4
+  factors, so requesting `k_max = 5` produces a guaranteed redundant chain
+  (`prune = "redundant"`) and an orphan/few-items artefact signal
+  (`prune = "artefact"`) for the Forbes/redundancy examples to teach
+  against.
+
+See `?sim16` for the full generative model and ground-truth hierarchy.
+
 ## `tidy()` API-shape cleanup: renamed/removed columns
 
 Three `tidy.ackwards()` output changes, all breaking (no deprecation; the
