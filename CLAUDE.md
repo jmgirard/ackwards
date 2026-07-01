@@ -65,30 +65,54 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-**M40 is complete** — and with it the entire M31–M40 arc (correctness sweep → documentation/UX
-epic → deferred code/viz asks) that grew out of the 2026-06-30 pkgdown-site review. **There are no
-pending milestones.** M40 resolved the three asks carved out of the doc-only M39:
+**M41 — Fable review: statistical correctness, software design, vignette quality, decision audit.**
+A **review-only** milestone (owner-approved 2026-07-01): the package was planned by Opus,
+implemented by Sonnet, and reviewed by Opus; M41 is an independent Fable-led audit. Deliverable is
+a **severity-ranked findings report** (Critical / Major / Minor / Enhancement) written into
+`ROADMAP.md` (per its maintenance rule) — **no `R/`, `NAMESPACE`, test, or vignette changes in
+M41**; fixes are triaged into M42+ briefs, mirroring how the 2026-06-30 pkgdown review spawned
+M31–M40. The review may re-argue a declined item (EAP, oblique, `categorical` flag, bootstrap CIs)
+with new evidence but never reopens one — declines stand unless the owner reverses them; any such
+collision is flagged as such.
 
-1. **Ordinal `categorical` convenience flag → DECLINED** (owner sign-off, 2026-07-01). `cor =
-   "polychoric"` already auto-selects the WLSMV estimator (`estimator = NULL` auto-rule; see
-   `R/ackwards.R` and §9), so a `categorical` flag would be a pure synonym for `cor = "polychoric"`,
-   not a two-settings-in-one shortcut — it would add a conflict surface and a §9 defaults change for
-   zero new capability. Discoverability is handled at the docs layer instead. No `R/`/`DESCRIPTION`/§9
-   change; decline recorded in `DESIGN.md` §14.
-2. **Ordinal correlation-comparison viz → dodged bar chart** (viz-only). The two raw
-   `round(x$r[1:5,1:5], 2)` matrix chunks in `vignettes/ackwards-ordinal.Rmd` are now one dodged bar
-   chart (ten `N1`–`N5` item pairs, `fill = basis`, hidden reshape code); also fixed stale N1–N2 prose
-   figures (0.73→0.79). No package-code or dependency change.
-3. **Forbes pruned-level axis labels → italic** (`autoplot()` code). A **fully-pruned** level now
-   gets an italic axis label in the normal render path (new `.fully_pruned_levels()` + a `fontface`
-   aesthetic through `.ba_level_labels()`, both directions); partially-pruned levels stay plain.
-   Automatic, no new argument.
+Four phases:
 
-Detail in `MILESTONES.md` (M40 entry). No new/removed export, no signature change, no new dependency.
+1. **Statistical correctness** (`R/`, verified numerically in a scratch R session): W′RW algebra +
+   `sqrt(diag(W'RW))` standardization re-derived independently; tenBerge weights vs
+   `psych::factor.scores`; PCA path vs `psych::bassAckward()`; ESEM lavaan→tenBerge self-compute,
+   WLSMV/polychoric-R consistency, scaled fit extraction, Heywood detection; sign-alignment
+   propagation + greedy matching on adversarial cases; Forbes fidelity in `prune.R` (φ formula,
+   chain enumeration, retention rule) incl. whether the "reproduce Forbes exactly" contract is
+   actually tested; `suggest_k` criterion→field mappings; M16/M38 missing-data guard matrix.
+2. **Software design** (`R/`, `NAMESPACE`, `DESCRIPTION`, tests): API/arg-validation consistency,
+   S3 contract completeness, Invariants 1–7 adherence (is the algebra-vs-scores oracle still a real
+   oracle?), test quality (values vs shapes), edge cases (`k_max = 1`, tiny p, all-NA, cor-matrix
+   input), dependency hygiene.
+3. **Vignette & doc quality** (7 vignettes + README + roxygen): statistical accuracy of prose,
+   inline numbers vs freshly computed output, pedagogy, omissions/uncaveated claims, cross-file
+   consistency, roxygen why-not-just-what standard.
+4. **Defaults & decision audit**: every DESIGN.md §9 defaults-table row and every §14 numbered
+   decision (1–33) gets an explicit verdict (*sound / sound-but-misjustified / questionable /
+   wrong*) — choice **and** justification audited, cited literature spot-checked; the arbitrary
+   thresholds (≤7-integer ordinal heuristic, `cut_show = 0.3`, `|r| ≥ .9` chains, φ 0.95,
+   `min_items = 3`, `orphan_r = 0.5`, greedy argmax, `"total"` n_obs) explicitly examined; decline
+   rationales audited; undocumented in-code constants inventoried; rationale-drift across
+   CLAUDE.md/DESIGN.md/MILESTONES.md/roxygen checked.
 
-**Next up: nothing queued.** `ROADMAP.md` had held only the M40 spin-off brief; with M40 shipped it
-carries no pending milestones. For deferred/out-of-scope items see `DESIGN.md` §14 and the "Out of
-scope for now" list below. `MILESTONES.md` remains the source of truth for *completed* milestones.
+**Acceptance criteria:** every `R/` file reviewed and every Phase-1 item has a verified/finding
+outcome (no silent skips) · PCA path compared numerically against `psych::bassAckward()` and the
+algebra-vs-scores cross-check independently re-derived · Forbes-fidelity test coverage assessed
+against the CLAUDE.md baseline contract · all 7 vignettes + README read end-to-end with inline
+numbers spot-checked · every §9 row and §14 decision has an audit verdict; literature claims
+spot-checked (unverifiable sources flagged, not guessed) · in-code constants inventoried with a
+documented/undocumented disposition · findings report in `ROADMAP.md` with every Critical/Major
+finding backed by a runnable reproduction · `MILESTONES.md` M41 entry + CLAUDE.md index line ·
+`devtools::check()` still 0/0/0 (tree untouched-green; no pkgdown-reference change — no export
+changes).
+
+Known scope notes: Forbes's example data may not be obtainable — if her examples can't be run, the
+fidelity assessment argues from code-reading and flags the gap rather than fabricating a
+reproduction. Verification scripts live in the session scratchpad, not the repo.
 
 ## Invariants — do not violate without flagging
 
