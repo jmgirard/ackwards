@@ -55,14 +55,11 @@ library(ackwards)
 bfi <- na.omit(bfi25)
 sk <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [200ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [212ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [178ms]
-#> 
-#> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [4s]
-#> 
+#> ℹ CD requires EFAtools (install to enable).
+#> ✔ Running MAP and VSS... [64ms]
 sk
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -73,14 +70,15 @@ sk
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*
-#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -
-#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950*
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629
+#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616
+#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215
+#> + CD requires EFAtools (install to enable).
 #> 
 #> ── Recommendations ──
 #> 
@@ -89,7 +87,6 @@ sk
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
-#> • CD: k = 6
 #> Consensus range: k = 4-6
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
@@ -142,10 +139,10 @@ x
 at top, k = 5 at bottom); arrows show which narrow factors inherit from
 which broad factor. Arrow **thickness** encodes \|r\| and arrow
 **color** encodes direction (blue = positive, red = negative), each with
-its own legend. Primary-parent edges are always positive after sign
-alignment, so a red arrow marks a genuine secondary (cross-branch)
-relationship. Pass `direction = "horizontal"` for a left-to-right
-layout.
+its own legend. Pass `direction = "horizontal"` for a left-to-right
+layout. The [visualization
+vignette](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html)
+covers the sign encoding and the rest of the styling options.
 
 ``` r
 autoplot(x)
@@ -190,7 +187,9 @@ scored <- augment(x, data = bfi)
 #> This warning is displayed once per session.
 dim(scored) # original 25 items + 1+2+3+4+5 = 15 score columns
 #> [1] 875  40
-names(scored)[26:40]
+
+# The appended score columns are named .m{k}f{j}
+grep("^\\.m", names(scored), value = TRUE)
 #>  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"
 #> [10] ".m4f4" ".m5f1" ".m5f2" ".m5f3" ".m5f4" ".m5f5"
 ```
@@ -232,7 +231,5 @@ citation("ackwards")
 
 Please also cite the relevant method paper(s): Goldberg (2006)
 <https://doi.org/10.1016/j.jrp.2006.01.001> for the bass-ackwards method
-itself; Waller (2007) <https://doi.org/10.1016/j.jrp.2006.08.005> if you
-rely on the exact `W'RW` edge algebra; and Forbes (2023)
-<https://doi.org/10.1037/met0000546> if you use the extended method
-(`pairs = "all"`, redundancy/artifact pruning).
+itself, and Forbes (2023) <https://doi.org/10.1037/met0000546> if you
+use the extended method (`pairs = "all"`, redundancy/artifact pruning).
