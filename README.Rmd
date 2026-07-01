@@ -36,7 +36,7 @@ factors are redundant re-combinations of broader ones.
 
 The package supports three extraction engines (PCA, EFA, ESEM), polychoric
 correlations for ordinal data, and Forbes's (2023) extension that reveals
-skip-level connections and flags redundant or artefactual factors.
+skip-level connections and flags redundant or artifactual factors.
 
 ## Installation
 
@@ -136,4 +136,4 @@ Please also cite the relevant method paper(s): Goldberg (2006)
 Waller (2007) <https://doi.org/10.1016/j.jrp.2006.08.005> if you rely on the
 exact `W'RW` edge algebra; and Forbes (2023)
 <https://doi.org/10.1037/met0000546> if you use the extended method
-(`pairs = "all"`, redundancy/artefact pruning).
+(`pairs = "all"`, redundancy/artifact pruning).
