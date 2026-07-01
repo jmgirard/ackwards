@@ -15,7 +15,7 @@ practice.
 | **Engine substrate** | [`psych::principal()`](https://rdrr.io/pkg/psych/man/principal.html) | [`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html) | `lavaan` |
 | **Communalities** | All 1.0 (by definition) | Estimated from data | Estimated from data |
 | **Correlations** | Pearson or polychoric | Pearson or polychoric | Pearson or polychoric |
-| **Estimators** | Eigen-decomposition | OLS / minres / ML (via `psych`) | ML, MLR — continuous (+ FIML for missing data); WLSMV, ULSMV — ordinal |
+| **Estimators** | Eigen-decomposition | `minres` (OLS), `ml`, or `pa` — via `psych`’s `fm=` | ML, MLR — continuous (+ FIML for missing data); WLSMV, ULSMV — ordinal |
 | **Fit indices** | Eigenvalues only | χ², RMSEA, TLI, BIC | CFI, TLI, RMSEA, SRMR, χ² |
 | **Loading SEs** | No | No | Yes |
 | **Speed** | Fast | Moderate | Slowest |
