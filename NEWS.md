@@ -1,5 +1,38 @@
 # ackwards (development)
 
+## `tidy()` API-shape cleanup: renamed/removed columns
+
+Three `tidy.ackwards()` output changes, all breaking (no deprecation; the
+package is pre-CRAN with no users):
+
+- `tidy(x, what = "fit")` — the long-format key column `index` is renamed
+  **`statistic`** (it held fit-index names for EFA/ESEM and eigenvalue
+  positions for PCA; `index` read like a row position).
+- `tidy(x, what = "fit")` — the `cutoffs = TRUE` argument, and the `meets`/
+  `{statistic}_meets` columns it produced, are **removed**. A pass/fail
+  boolean quietly endorsed Hu & Bentler (1999) thresholds the package
+  elsewhere treats as conventional and contested. Conventional-threshold
+  reference lines/annotations remain available via `autoplot(what = "fit")`
+  and `summary()`.
+- `tidy(x, what = "variance")` — `variance_pct`/`cumulative_pct` (0-100) are
+  renamed **`proportion`**/**`cumulative`** and now report a 0-1 scale,
+  matching the engine's internal variance representation and broom/psych
+  convention. `print()` and `summary()` still display percentages.
+
+`k_max` is retained, unchanged, in both `ackwards()` (extraction depth) and
+`suggest_k()` (max factors/components evaluated); the two functions' roxygen
+now cross-reference the distinct meanings sharing that name.
+
+## Effective ESEM estimator recorded in `$meta`; `summary()` footnote
+
+`x$meta$estimator` now stores the effective ESEM estimator after
+auto-selection (`"ML"`, `"MLR"`, `"WLSMV"`, or `"ULSMV"`; `NA` for PCA/EFA).
+`summary()` adds a one-line footnote naming lavaan's mean-and-variance-adjusted
+("scaled") fit-index reporting whenever the effective estimator is
+`"WLSMV"`/`"ULSMV"`/`"MLR"` (not shown for `"ML"`, which has no scaled
+variant) — making the scaled-reporting decision visible in the printed
+summary, not just in `tidy()`/roxygen documentation.
+
 ## Vignette corrections: `ackwards-intro` and `ackwards-suggest-k`
 
 `vignette("ackwards-intro")` hardcoded a cumulative-variance jump ("22.9% →

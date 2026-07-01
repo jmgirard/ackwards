@@ -44,8 +44,13 @@
 #'   correlation matrix is supplied, `n_obs` is required (PA and VSS need N),
 #'   the `cor` argument is ignored, and the Comparison Data (CD) criterion is
 #'   skipped (CD requires raw item distributions for resampling).
-#' @param k_max Maximum number of components to test. Defaults to
-#'   `min(ncol(data) - 1, 8)`. Increase if you expect a deeper hierarchy.
+#' @param k_max Maximum number of factors/components to *evaluate* when
+#'   recommending a depth -- not a depth itself. Defaults to
+#'   `min(ncol(data) - 1, 8)`. Increase if you expect a deeper hierarchy. (Note:
+#'   this is a distinct meaning from `ackwards()`'s `k_max`, which *is* the
+#'   extraction depth; the two share a name because they're the same dial in
+#'   the `suggest_k() -> ackwards()` workflow, just applied at different
+#'   stages.)
 #' @param criteria Character vector of criteria to compute. Any subset of
 #'   `c("pa_pc", "pa_fa", "map", "vss", "cd")`; default is all five.
 #'   `"pa_pc"` and `"pa_fa"` share one parallel-analysis call (both or neither

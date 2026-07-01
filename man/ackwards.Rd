@@ -36,8 +36,11 @@ or \code{"efa"} (ESEM requires raw data), and the \code{missing} and \code{cor} 
 are ignored. See the \emph{Correlation-matrix input} section below.}
 
 \item{k_max}{Maximum number of factors/components to extract. Required; use
-\code{\link[=suggest_k]{suggest_k()}} if uncertain. Sets the depth of the hierarchy: levels
-1 through \code{k_max} are all extracted.}
+\code{\link[=suggest_k]{suggest_k()}} if uncertain. Sets the \emph{depth} of the hierarchy: levels
+1 through \code{k_max} are all extracted and retained. (Note: \code{suggest_k()}'s
+\code{k_max} means something related but distinct -- the max number of
+factors/components it \emph{evaluates} when recommending a depth, not a depth
+itself; see that function's docs.)}
 
 \item{engine}{Extraction engine: \code{"pca"} (default), \code{"efa"}, or \code{"esem"}.
 \code{"esem"} uses \code{\link[lavaan:efa]{lavaan::efa()}} with rotation-aware SEs and per-level fit
@@ -61,7 +64,9 @@ Pass explicitly to override: \code{"ULSMV"} (unweighted WLS), \code{"MLR"}
 (robust ML). \code{cor = "polychoric"} with \code{estimator = "ML"}/\code{"MLR"} errors
 (lavaan itself does not support ML/MLR on ordered indicators); \code{"WLSMV"}/
 \code{"ULSMV"} with a continuous \code{cor} is allowed (a valid, if atypical,
-continuous WLS/ADF estimator). Ignored for PCA and EFA engines.}
+continuous WLS/ADF estimator). Ignored for PCA and EFA engines. The
+effective value (after auto-selection) is recorded in \code{x$meta$estimator}
+(\code{NA} for PCA/EFA).}
 
 \item{missing}{How to handle missing item responses. One of:
 \itemize{

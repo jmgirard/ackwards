@@ -830,6 +830,23 @@ test_that("autoplot(x, what='fit') returns ggplot for EFA object", {
   expect_s3_class(p, "ggplot")
 })
 
+test_that("autoplot(x, what='fit') draws Hu & Bentler threshold reference lines", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
+  p <- ggplot2::autoplot(x, what = "fit")
+  # The cutoff reference lines are a geom_hline layer (retained .fit_cutoffs()).
+  has_hline <- vapply(
+    p$layers,
+    function(l) inherits(l$geom, "GeomHline"),
+    logical(1L)
+  )
+  expect_true(any(has_hline))
+  # The reference y-intercepts are the EFA-charted thresholds (TLI .95, RMSEA .06).
+  hline_layer <- p$layers[[which(has_hline)[1L]]]
+  expect_setequal(hline_layer$data$yintercept, c(0.95, 0.06))
+})
+
 test_that("autoplot(x, what='fit') returns ggplot for ESEM object", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("lavaan")

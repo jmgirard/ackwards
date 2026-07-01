@@ -32,8 +32,11 @@
 #'   or `"efa"` (ESEM requires raw data), and the `missing` and `cor` arguments
 #'   are ignored. See the *Correlation-matrix input* section below.
 #' @param k_max Maximum number of factors/components to extract. Required; use
-#'   [suggest_k()] if uncertain. Sets the depth of the hierarchy: levels
-#'   1 through `k_max` are all extracted.
+#'   [suggest_k()] if uncertain. Sets the *depth* of the hierarchy: levels
+#'   1 through `k_max` are all extracted and retained. (Note: `suggest_k()`'s
+#'   `k_max` means something related but distinct -- the max number of
+#'   factors/components it *evaluates* when recommending a depth, not a depth
+#'   itself; see that function's docs.)
 #' @param n_obs Number of observations. Used only when `data` is a
 #'   pre-computed correlation matrix. Ignored when raw data are supplied (N is
 #'   determined from `nrow(data)`). For `engine = "efa"`, `n_obs` is required --
@@ -60,7 +63,9 @@
 #'   (robust ML). `cor = "polychoric"` with `estimator = "ML"`/`"MLR"` errors
 #'   (lavaan itself does not support ML/MLR on ordered indicators); `"WLSMV"`/
 #'   `"ULSMV"` with a continuous `cor` is allowed (a valid, if atypical,
-#'   continuous WLS/ADF estimator). Ignored for PCA and EFA engines.
+#'   continuous WLS/ADF estimator). Ignored for PCA and EFA engines. The
+#'   effective value (after auto-selection) is recorded in `x$meta$estimator`
+#'   (`NA` for PCA/EFA).
 #' @param missing How to handle missing item responses. One of:
 #'   * `"pairwise"` (default) -- use all available observations pairwise.
 #'     For PCA/EFA this feeds `stats::cor(use = "pairwise.complete.obs")`.
@@ -248,6 +253,10 @@ ackwards <- function(
   # routes to the raw-data branch and produces a confusing message.
   if (is.matrix(data)) .check_maybe_cov_matrix(data)
   input_type <- if (.is_cor_matrix(data)) "cor_matrix" else "data"
+  # Effective ESEM estimator, resolved in BRANCH B below; stays NULL for
+  # PCA/EFA and for BRANCH A (cor_matrix input, which errors for engine =
+  # "esem" before reaching this point). Recorded in $meta$estimator (M32).
+  estimator_eff <- NULL
 
   # --- Shared argument validation ---------------------------------------------
   engine <- rlang::arg_match(engine, c("pca", "efa", "esem"))
@@ -744,7 +753,8 @@ ackwards <- function(
     ordinal_warned    = is_ordinal,
     missing           = missing_eff,
     n_complete        = n_complete,
-    input_type        = input_type
+    input_type        = input_type,
+    estimator         = estimator_eff %||% NA_character_
   )
 
   # --- Assemble result --------------------------------------------------------

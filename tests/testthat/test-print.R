@@ -32,7 +32,9 @@ test_that("tidy(x, what = 'variance') returns expected structure", {
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
   vr <- generics::tidy(x, what = "variance")
   expect_s3_class(vr, "data.frame")
-  expect_true(all(c("level", "factor", "variance_pct", "cumulative_pct") %in% names(vr)))
+  expect_true(all(c("level", "factor", "proportion", "cumulative") %in% names(vr)))
+  expect_true(all(vr$proportion >= 0 & vr$proportion <= 1))
+  expect_true(all(vr$cumulative >= 0 & vr$cumulative <= 1))
   # k=1 has 1 row, k=2 has 2, k=3 has 3 → 6 total
   expect_equal(nrow(vr), 6L)
 })
@@ -80,9 +82,9 @@ test_that("summary fit table carries eigenvalues for PCA", {
   skip_if_not_installed("psych")
   suppressWarnings(x <- ackwards(psych::bfi[, 1:10], k_max = 2))
   s <- summary(x)
-  # PCA fit indices are named "eigenvalue.<label>"; verify they exist
+  # PCA fit statistics are named "eigenvalue.<label>"; verify they exist
   fit_k1 <- s$fit[s$fit$level == 1L, ]
-  expect_true(any(startsWith(fit_k1$index, "eigenvalue.")))
+  expect_true(any(startsWith(fit_k1$statistic, "eigenvalue.")))
   expect_true(all(is.finite(fit_k1$value)))
 })
 

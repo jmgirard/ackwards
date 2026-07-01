@@ -446,3 +446,61 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   reporting — a schema change better bundled with M32's meta/column decisions than bolted on here.
   Landed via follow-up branch `m31-followup-fit-variants` → PR (not reopening the merged M31 PR).
   (1340 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+
+- **M32 (done):** API-shape & naming resolutions — second milestone of the M31–M38 pkgdown-review
+  epic. Four owner-reviewed naming/API decisions, all decided *and* implemented (no
+  decide-only/defer split), plus one M31-deferred item folded in mid-milestone. All changes are
+  breaking with no deprecation path (pre-CRAN, no users).
+  (1) **`tidy(x, what = "fit")` long-format key column `index` → `statistic`.** `index` read like a
+  row position; it actually held fit-index names for EFA/ESEM and eigenvalue positions for PCA.
+  Ripples updated: `autoplot.R` (`.ba_fit_plot()`, `what = "fit"`), `summary.R` (per-level fit line,
+  PCA eigenvalue lookup). Wide format (`format = "wide"`) column names are unaffected (they come
+  from the values of this key, not its name).
+  (2) **`k_max` naming collision, resolved by keeping the shared name.** `ackwards()`'s `k_max`
+  (extraction depth) and `suggest_k()`'s `k_max` (max factors/components evaluated) are genuinely
+  the same dial applied at different stages of the `suggest_k() → ackwards()` workflow; renaming
+  either would create vocabulary drift without removing real ambiguity. Resolved via roxygen only —
+  each function's `@param k_max` now states its own meaning and cross-references the other's. No
+  API change.
+  (3) **`tidy(what = "fit")` cutoff-flag output removed.** The `cutoffs = TRUE` argument and the
+  `meets`/`{statistic}_meets` columns it produced (`.flag_fit()`) are dropped — a pass/fail boolean
+  quietly endorsed Hu & Bentler (1999) thresholds the package elsewhere treats as conventional and
+  contested (continuing the M28/M31 output-honesty trajectory). `.fit_cutoffs()` is retained
+  internally: `autoplot(what = "fit")` still draws threshold reference lines and `summary()` still
+  annotates inline with a check/cross mark — both are visual guides, not a returned column a caller
+  could mistake for a computed judgment. Because `cutoffs` is no longer a formal parameter, passing
+  it is now silently absorbed by `tidy.ackwards()`'s `...` (same as any unrecognized argument)
+  rather than erroring.
+  (4) **Variance reported as a 0-1 proportion.** `tidy(x, what = "variance")` columns
+  `variance_pct`/`cumulative_pct` (0-100) → `proportion`/`cumulative` (0-1). Aligns `tidy()` with
+  the engine's internal `variance` slot (already 0-1 — `print.ackwards` reads it directly) and with
+  broom/psych convention. Percent formatting moves to the display layer: `print()` and `summary()`
+  compute `* 100` at render time rather than storing a percent in tidy data.
+  (5) **M31-deferred: effective ESEM estimator recorded in `$meta`.** M31's log explicitly deferred
+  this ("better bundled with M32's meta/column decisions than bolted on here") — caught during M32
+  planning by re-reading the full M31 `MILESTONES.md` entry (not just the CLAUDE.md one-liner) and
+  confirmed with the owner before folding it in. `x$meta$estimator` now stores the effective
+  estimator after auto-selection (`"ML"`/`"MLR"`/`"WLSMV"`/`"ULSMV"`; `NA` for PCA/EFA, including
+  the `cor_matrix`-input branch, which errors for `engine = "esem"` before reaching this point).
+  `summary()` gains a one-line grey footnote naming lavaan's scaled-variant fit reporting whenever
+  the effective estimator is `"WLSMV"`/`"ULSMV"`/`"MLR"` (silent for `"ML"`, which has no scaled
+  variant). Tests capture `summary()`'s printed output via
+  `capture.output(..., type = "message")` — cli writes to the message/stderr stream in
+  non-interactive sessions, not stdout, so plain `capture.output()` silently captures nothing.
+  Updated: `R/tidy.R`, `R/autoplot.R`, `R/summary.R`, `R/ackwards.R`, `R/suggest_k.R`; roxygen
+  regenerated (`man/tidy.ackwards.Rd`, `man/ackwards.Rd`, `man/suggest_k.Rd`); vignette prose fixed
+  in `ackwards-intro.Rmd` (variance columns) and `ackwards-engines.Rmd` (cutoffs example removed,
+  reframed around `autoplot()`/`summary()` reference lines); `DESIGN.md` §14 gained items 22–26 and
+  §10's tidy-column reference was refreshed; `NEWS.md` documents all five changes.
+  Tests: `test-print.R`, `test-efa.R`, `test-esem.R` updated for the renamed/removed columns;
+  `test-esem.R` gained `$meta$estimator` coverage (ML default, explicit MLR, polychoric-auto WLSMV
+  + explicit ULSMV, NA-for-PCA/EFA) and `summary()` scaled-fit-footnote coverage (present for
+  MLR/WLSMV, absent for ML); `test-layout.R` asserts `autoplot(what = "fit")` draws the Hu & Bentler
+  `geom_hline` reference lines at the charted thresholds (post-review nice-to-haves). No new test
+  files.
+  (1346 tests pass, 2 skip; 0/0/0 R CMD check; coverage 100%.)
+  Post-review (`/post-milestone-review`): clean — all acceptance criteria met (the one
+  "`cutoffs=` errors" criterion resolved to a silent `...`-absorb no-op, an accepted pre-CRAN
+  decision — no deprecation shim needed with no users; consistent with the M34 clean-move
+  precedent). The three nice-to-have test-hardening items the review raised were added (the extra
+  estimator/footnote/reference-line assertions above); no Blocking or Should-fix findings.
