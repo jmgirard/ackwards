@@ -345,14 +345,14 @@ suggest_k <- function(data, k_max = NULL,
 
   if (run_cd && !cd_blocked_by_matrix) {
     cd_available <- rlang::is_installed("EFAtools")
-    # Reachable only when EFAtools is absent; the covering test
-    # (criteria='cd' with EFAtools absent) skips when it is installed, so
-    # covr cannot instrument this line on a machine that has EFAtools.
-    if (!cd_available) { # nocov start
+    # The absence branch is covered by tests that mock rlang::is_installed() to
+    # report EFAtools missing (see test-suggest_k.R), so covr instruments it even
+    # on a machine where EFAtools is installed.
+    if (!cd_available) {
       cli::cli_inform(
         c("i" = "CD requires {.pkg EFAtools} (install to enable).")
       )
-    } # nocov end
+    }
   }
 
   if (cd_available) {
