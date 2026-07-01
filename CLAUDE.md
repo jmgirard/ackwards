@@ -54,7 +54,30 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-No active milestone. M29 completed 2026-06-30.
+**M30 — Citation hygiene.** Put the right citation in the right role throughout the docs.
+
+Scope:
+- **`inst/CITATION`**: remove the Goldberg (2006) *Article* bibentry; keep **only** the Girard
+  *Manual* entry. The package citation answers "how do I cite this software" (Girard); Goldberg
+  remains cited as the *method* in `DESCRIPTION` and roxygen, not as the software.
+- **`R/ackwards.R` `@references`**: add **Forbes (2023)** alongside the existing Goldberg (2006)
+  + Waller (2007), so all three algorithmic sources `ackwards()` implements (original method /
+  component algebra / extension) are listed.
+- **Audit sweep** (fix only genuine misattributions): `suggest_k()`, README, vignettes. Kim &
+  Eaton (2015) and Forbush et al. (2024) stay **prose-only** in `ackwards()` `@details` — they are
+  application examples, not the implemented algorithm's source, so they are *not* promoted to
+  `@references`.
+- Regression test (alongside the M29 docs guard) asserting `citation("ackwards")` returns a
+  single Girard/software entry with no "Goldberg", and that `?ackwards` `\references` carries the
+  Goldberg, Waller, and Forbes DOIs.
+- NEWS.md bullet.
+
+Acceptance criteria:
+- `citation("ackwards")` returns a single Girard/software entry; no Goldberg entry.
+- `?ackwards` `\references` lists Goldberg (2006), Waller (2007), and Forbes (2023) with correct DOIs.
+- No method the package implements is missing its source; no misattributions remain in R docs,
+  README, or vignettes.
+- New regression test passes; `devtools::check()` clean.
 
 ## Invariants — do not violate without flagging
 
