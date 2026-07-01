@@ -36,9 +36,11 @@ articles:
 reference:
 - title: Fit the model
   desc: |
-    The main modelling function and a helper for choosing k.
+    The main modelling function, a Forbes-style pruning verb, and a helper for
+    choosing k.
   contents:
   - ackwards
+  - prune
   - suggest_k
   - print.suggest_k
   - autoplot.suggest_k
