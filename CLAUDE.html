@@ -134,11 +134,13 @@
 <strong>M33</strong> — simulated Gaussian dataset (<code>sim16</code>: 1000×16 continuous, known 1→2→4 hierarchy, no ordinal-detection warning, guaranteed redundant-chain + artefact signals at <code>k_max=5</code>)</li>
 <li>
 <strong>M34</strong> — Pruning verb: extracted <code><a href="reference/prune.html">prune()</a></code> as a standalone, pipeable S3 generic off <code><a href="reference/ackwards.html">ackwards()</a></code> (five prune args removed from <code><a href="reference/ackwards.html">ackwards()</a></code>; canonical <code>"artifact"</code> naming with <code>"artefact"</code> alias; manual + mixed pruning; edges recomputed fresh inside <code><a href="reference/prune.html">prune()</a></code>, <code>x$edges</code> never mutated)</li>
+<li>
+<strong>M35</strong> — autoplot &amp; visualization: sign-propagation bugfix (primary-parent edges now always non-negative per DESIGN §7); <code><a href="reference/autoplot.html">autoplot()</a></code> <code>sign_by</code>/<code>magnitude_by</code> configurable, always-legended encodings (<code>cut_strong</code> retired; <code>mono</code> kept as wrapper); <code>direction="horizontal"</code> layout; <code>colour_*</code> aliases + <code>color_edge</code>; <code>ggsave</code> documented (not re-exported); code-coupled viz/intro/README prose</li>
 </ul></div>
 <div class="section level2">
 <h2 id="current-focus">Current focus<a class="anchor" aria-label="anchor" href="#current-focus"></a></h2>
-<p>M34 is complete (see <code>MILESTONES.md</code> for detail). Next up in the M31–M38 documentation/UX epic is <strong>M35</strong> (autoplot &amp; visualization); not yet planned; run <code>/plan-milestone 35</code> before starting.</p>
-<p>Remaining milestones in the epic: M35 autoplot &amp; visualization; M36 interpretation functions (<code>augment</code> scores-only, <code>top_items</code> labels + group-by-item); M37 engines vignette; M38 narrative &amp; remaining prose (intro, suggest_k, ordinal, forbes, README).</p>
+<p>M35 is complete (see <code>MILESTONES.md</code> for detail). Next up in the M31–M38 documentation/UX epic is <strong>M36</strong> (interpretation functions: <code>augment</code> scores-only, <code>top_items</code> labels + group-by-item); not yet planned; run <code>/plan-milestone 36</code> before starting.</p>
+<p>Remaining milestones in the epic: M36 interpretation functions (<code>augment</code> scores-only, <code>top_items</code> labels + group-by-item); M37 engines vignette; M38 narrative &amp; remaining prose (intro, suggest_k, ordinal, forbes, README).</p>
 <p>These one-liners are a lossy index. The <strong>full driving rationale, banked decisions, and the raw pkgdown-review notes</strong> behind M35–M38 live in <a href="ROADMAP.html"><code>ROADMAP.md</code></a> — read it before running <code>/plan-milestone N</code> for any of them. <code>MILESTONES.md</code> remains the source of truth for <em>completed</em> milestones; <code>ROADMAP.md</code> is its forward-looking counterpart for <em>pending</em> ones.</p>
 </div>
 <div class="section level2">

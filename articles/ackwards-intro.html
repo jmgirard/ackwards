@@ -154,13 +154,13 @@ and reports a consensus range:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[312ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[240ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[174ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[146ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[9.8s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[8.2s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -362,19 +362,21 @@ one-row data frame, convenient for comparisons across models:</p>
 <div class="section level2">
 <h2 id="step-4-visualize-the-hierarchy-autoplot">Step 4: Visualize the hierarchy <code>autoplot()</code><a class="anchor" aria-label="anchor" href="#step-4-visualize-the-hierarchy-autoplot"></a>
 </h2>
-<p>The hierarchy diagram is the centerpiece of the method. Each column
-represents one level (k = 1 on the left, k = 5 on the right). Arrows
+<p>The hierarchy diagram is the centerpiece of the method. Each row
+represents one level (k = 1 at the top, k = 5 at the bottom). Arrows
 connect each factor to its <strong>primary parent</strong> — the factor
 at the level above with which it has the strongest correlation (|r|).
-Arrow thickness is proportional to |r|; color shows direction (blue =
-positive, orange = negative by default); solid arrows indicate strong
-connections (|r| ≥ 0.6), dashed arrows show moderate ones (|r| ≥
-0.3).</p>
+Arrow thickness is proportional to |r|, and color shows direction (blue
+= positive, red = negative by default); both aesthetics come with a
+legend. Primary-parent edges are always positive after sign alignment,
+so a red arrow marks a genuine secondary relationship. For a
+left-to-right layout (handy for wide slides), pass
+<code>direction = "horizontal"</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-intro_files/figure-html/autoplot-1.png" class="r-plt" alt="" width="768"></p>
-<p>Reading this diagram from left to right tells the story of the Big
-Five:</p>
+<p>Reading this diagram from broad (top) to narrow (bottom) tells the
+story of the Big Five:</p>
 <ul>
 <li>
 <strong>k = 1</strong>: One broad factor. Given the polychoric
@@ -444,13 +446,13 @@ item-by-factor matrix, especially for deep hierarchies.</p>
 <span><span class="co">#&gt; N4 [-0.314]</span></span>
 <span><span class="co">#&gt; O1 [0.302]</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f2</span></span></span>
-<span><span class="co">#&gt; N3 [0.825]</span></span>
-<span><span class="co">#&gt; N1 [0.810]</span></span>
-<span><span class="co">#&gt; N2 [0.805]</span></span>
-<span><span class="co">#&gt; N5 [0.688]</span></span>
-<span><span class="co">#&gt; N4 [0.646]</span></span>
-<span><span class="co">#&gt; C5 [0.344]</span></span>
-<span><span class="co">#&gt; O4 [0.317]</span></span>
+<span><span class="co">#&gt; N3 [-0.825]</span></span>
+<span><span class="co">#&gt; N1 [-0.810]</span></span>
+<span><span class="co">#&gt; N2 [-0.805]</span></span>
+<span><span class="co">#&gt; N5 [-0.688]</span></span>
+<span><span class="co">#&gt; N4 [-0.646]</span></span>
+<span><span class="co">#&gt; C5 [-0.344]</span></span>
+<span><span class="co">#&gt; O4 [-0.317]</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f3</span></span></span>
 <span><span class="co">#&gt; C2 [0.735]</span></span>
 <span><span class="co">#&gt; C4 [-0.716]</span></span>
@@ -506,21 +508,21 @@ correlation matrix.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Each factor's primary-parent edge, strongest first</span></span>
 <span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"edges"</span>, primary_only <span class="op">=</span> <span class="cn">TRUE</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    from   to level_from level_to          r is_primary above_cut</span></span>
-<span><span class="co">#&gt; 1  m4f2 m5f2          4        5  0.9984791       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 2  m3f1 m4f1          3        4  0.9938371       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 3  m4f4 m5f5          4        5  0.9894063       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 4  m2f2 m3f2          2        3 -0.9873651       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 5  m4f3 m5f3          4        5  0.9824895       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 6  m3f2 m4f2          3        4  0.9761484       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 7  m1f1 m2f1          1        2  0.8900522       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 8  m2f1 m3f1          2        3  0.8740850       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 9  m4f1 m5f1          4        5  0.8377659       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 10 m3f3 m4f3          3        4  0.7316162       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 11 m3f3 m4f4          3        4  0.6802343       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 12 m4f1 m5f4          4        5  0.5458269       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 13 m2f1 m3f3          2        3  0.4814452       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 14 m1f1 m2f2          1        2  0.4558587       TRUE      TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt;    from   to level_from level_to         r is_primary above_cut</span></span>
+<span><span class="co">#&gt; 1  m4f2 m5f2          4        5 0.9984791       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 2  m3f1 m4f1          3        4 0.9938371       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 3  m4f4 m5f5          4        5 0.9894063       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 4  m2f2 m3f2          2        3 0.9873651       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 5  m4f3 m5f3          4        5 0.9824895       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 6  m3f2 m4f2          3        4 0.9761484       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 7  m1f1 m2f1          1        2 0.8900522       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 8  m2f1 m3f1          2        3 0.8740850       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 9  m4f1 m5f1          4        5 0.8377659       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 10 m3f3 m4f3          3        4 0.7316162       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 11 m3f3 m4f4          3        4 0.6802343       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 12 m4f1 m5f4          4        5 0.5458269       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 13 m2f1 m3f3          2        3 0.4814452       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 14 m1f1 m2f2          1        2 0.4558587       TRUE      TRUE</span></span></code></pre></div>
 <p><code>primary_only = TRUE</code> keeps just the strongest-connecting
 edge for each factor — its primary parent — and
 <code>sort = "strength"</code> orders them by <code>|r|</code>. The r
@@ -607,20 +609,20 @@ be highly correlated along the primary-parent lineage:</p>
 <span><span class="va">k5</span> <span class="op">&lt;-</span> <span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f3"</span>, <span class="st">".m5f4"</span>, <span class="st">".m5f5"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">k5</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       .m5f1 .m5f2 .m5f3 .m5f4 .m5f5</span></span>
-<span><span class="co">#&gt; .m5f1  1.00  0.01 -0.01 -0.02  0.00</span></span>
-<span><span class="co">#&gt; .m5f2  0.01  1.00  0.01 -0.01 -0.01</span></span>
-<span><span class="co">#&gt; .m5f3 -0.01  0.01  1.00 -0.02 -0.02</span></span>
-<span><span class="co">#&gt; .m5f4 -0.02 -0.01 -0.02  1.00 -0.03</span></span>
-<span><span class="co">#&gt; .m5f5  0.00 -0.01 -0.02 -0.03  1.00</span></span></code></pre></div>
+<span><span class="co">#&gt; .m5f1  1.00 -0.01 -0.01 -0.02  0.00</span></span>
+<span><span class="co">#&gt; .m5f2 -0.01  1.00 -0.01  0.01  0.01</span></span>
+<span><span class="co">#&gt; .m5f3 -0.01 -0.01  1.00 -0.02 -0.02</span></span>
+<span><span class="co">#&gt; .m5f4 -0.02  0.01 -0.02  1.00 -0.03</span></span>
+<span><span class="co">#&gt; .m5f5  0.00  0.01 -0.02 -0.03  1.00</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Cross-level: m4f1 is the primary parent of m5f1 and m5f4 (from the edge table)</span></span>
 <span><span class="va">lineage</span> <span class="op">&lt;-</span> <span class="va">scored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">".m4f1"</span>, <span class="st">".m5f1"</span>, <span class="st">".m5f2"</span>, <span class="st">".m5f4"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">lineage</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       .m4f1 .m5f1 .m5f2 .m5f4</span></span>
 <span><span class="co">#&gt; .m4f1  1.00  0.84  0.00  0.53</span></span>
-<span><span class="co">#&gt; .m5f1  0.84  1.00  0.01 -0.02</span></span>
-<span><span class="co">#&gt; .m5f2  0.00  0.01  1.00 -0.01</span></span>
-<span><span class="co">#&gt; .m5f4  0.53 -0.02 -0.01  1.00</span></span></code></pre></div>
+<span><span class="co">#&gt; .m5f1  0.84  1.00 -0.01 -0.02</span></span>
+<span><span class="co">#&gt; .m5f2  0.00 -0.01  1.00  0.01</span></span>
+<span><span class="co">#&gt; .m5f4  0.53 -0.02  0.01  1.00</span></span></code></pre></div>
 <p>The cross-level block confirms lineage: <code>.m4f1</code> correlates
 strongly with <code>.m5f1</code> and <code>.m5f4</code> (the k = 5
 factors it spawned) and near-zero with <code>.m5f2</code> (which

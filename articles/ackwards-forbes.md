@@ -68,8 +68,8 @@ apart) with `|r| >= 0.5`, strongest first — drawn from
 | Sorted by \|r\|; shows at most 12 rows |  |  |  |  |
 | From | To | Level (from) | Level (to) | r |
 | m3f2 | m5f2 | 3 | 5 | 0.98 |
-| m2f2 | m4f2 | 2 | 4 | −0.97 |
-| m2f2 | m5f2 | 2 | 5 | −0.97 |
+| m2f2 | m4f2 | 2 | 4 | 0.97 |
+| m2f2 | m5f2 | 2 | 5 | 0.97 |
 | m2f1 | m4f1 | 2 | 4 | 0.85 |
 | m3f1 | m5f1 | 3 | 5 | 0.82 |
 | m1f1 | m3f1 | 1 | 3 | 0.77 |

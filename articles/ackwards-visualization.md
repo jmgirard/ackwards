@@ -32,11 +32,57 @@ autoplot(x)
 
 ![](ackwards-visualization_files/figure-html/base-1.png)
 
-Factors are labeled `m{k}f{j}` (level k, factor j). Arrow **thickness**
-encodes \|r\|; **colour** encodes direction (blue = positive, red–orange
-= negative); **linetype** encodes strength (solid: \|r\| ≥ `cut_strong`;
-dashed: `cut_show` ≤ \|r\| \< `cut_strong`). Level labels on the left
-count factors per level.
+Factors are labeled `m{k}f{j}` (level k, factor j). Two edge aesthetics
+carry the between-level correlations, and each one comes with its own
+legend: arrow **thickness** encodes the magnitude \|r\|, and edge
+**color** encodes the direction (blue = positive, red–orange =
+negative). Level labels on the left count factors per level.
+
+Primary-parent edges are always positive after sign alignment; a red
+(negative) edge is therefore a genuine *secondary* relationship, not an
+artifact.
+
+## Encoding sign and magnitude
+
+You choose which aesthetic carries which piece of information. `sign_by`
+picks the channel for direction and `magnitude_by` picks the channel for
+\|r\|. No aesthetic is ever mapped without a matching legend.
+
+### `sign_by` — how direction is shown
+
+`sign_by = "color"` (the default) uses `color_pos`/`color_neg`.
+`"linetype"` draws positive edges solid and negative edges dashed,
+freeing color for a single-hue figure. `"both"` uses color *and*
+linetype together — negatives get a distinct double-dash so they still
+read in greyscale — and merges the two into a single “Direction” legend.
+`"none"` drops sign encoding entirely.
+
+``` r
+
+autoplot(x, sign_by = "linetype")
+```
+
+![](ackwards-visualization_files/figure-html/sign-by-1.png)
+
+``` r
+
+autoplot(x, sign_by = "both")
+```
+
+![](ackwards-visualization_files/figure-html/sign-by-2.png)
+
+### `magnitude_by` — how \|r\| is shown
+
+By default `magnitude_by = "linewidth"` maps \|r\| to arrow thickness
+with a `|r|` legend. Set `magnitude_by = "none"` for uniform-width edges
+(see also `edge_linewidth`, below, to pin a specific width).
+
+``` r
+
+autoplot(x, magnitude_by = "none")
+```
+
+![](ackwards-visualization_files/figure-html/magnitude-by-1.png)
 
 ## Filtering edges
 
@@ -53,25 +99,13 @@ autoplot(x, cut_show = 0.5)
 
 ![](ackwards-visualization_files/figure-html/cut-show-1.png)
 
-### `cut_strong` — solid vs dashed threshold
+## Edge colors
 
-Edges at or above `cut_strong` are drawn solid; edges below it (but
-above `cut_show`) are dashed. Raising `cut_strong` makes only the very
-strongest connections solid.
+### `color_pos` / `color_neg` — custom direction colors
 
-``` r
-
-autoplot(x, cut_show = 0.3, cut_strong = 0.8)
-```
-
-![](ackwards-visualization_files/figure-html/cut-strong-1.png)
-
-## Edge colours
-
-### `color_pos` / `color_neg` — custom direction colours
-
-The default blue/red palette can be replaced with any colours recognised
-by R.
+The default blue/red palette can be replaced with any colors recognised
+by R. British spellings (`colour_pos`, `colour_neg`) are accepted as
+aliases.
 
 ``` r
 
@@ -80,20 +114,18 @@ autoplot(x, color_pos = "darkorchid", color_neg = "darkorange")
 
 ![](ackwards-visualization_files/figure-html/colours-1.png)
 
-Setting both to the same colour produces uniformly coloured edges while
-retaining the linetype-based strength distinction from `cut_strong`.
-This is the basis for the Forbes (2023) publication style (see the
-worked example at the end of this vignette).
+When sign is *not* encoded by color (`sign_by = "linetype"` or
+`"none"`), all edges take the single `color_edge` (default black) — the
+basis for the Forbes (2023) publication style (see the worked example at
+the end of this vignette).
 
 ## Monochrome mode
 
-### `mono = TRUE` — encode direction on linetype
+### `mono = TRUE` — a black-and-white convenience wrapper
 
-`mono = TRUE` switches the direction encoding from colour to linetype:
-solid lines are positive correlations and dashed lines are negative
-correlations. `linewidth` still encodes \|r\|. The `cut_strong` strength
-distinction is dropped in this mode because linewidth already conveys
-magnitude.
+`mono = TRUE` is shorthand for `sign_by = "linetype"` with black edges:
+solid lines are positive correlations, dashed lines are negative.
+`magnitude_by` still applies, so `linewidth` continues to encode \|r\|.
 
 ``` r
 
@@ -102,30 +134,16 @@ autoplot(x, mono = TRUE)
 
 ![](ackwards-visualization_files/figure-html/mono-1.png)
 
-`mono` is suited for black-and-white figures where the reader must
-distinguish positive from negative edges. Note that the linetype
-semantics differ from the colour-mode dashing: here dashed = *negative
-sign*, not *weak connection*. For the Forbes-style uniform-line look
-(dashed = weak, regardless of sign), use
-`color_pos = color_neg = "black"` in colour mode instead — see the
-worked example below.
-
-Combining `mono` with `show_r` labels the edges with their exact values,
-removing any ambiguity about magnitude:
-
-``` r
-
-autoplot(x, mono = TRUE, show_r = TRUE)
-```
-
-![](ackwards-visualization_files/figure-html/mono-show-r-1.png)
+`mono` suits black-and-white figures where the reader must distinguish
+positive from negative edges. To label the edges with their exact values
+as well, add `show_r = TRUE` (documented next).
 
 ## Correlation labels
 
-### `show_r` / `r_digits` — annotate edges with \|r\| values
+### `show_r` / `r_digits` — annotate edges with r values
 
-`show_r = TRUE` draws the rounded correlation at each edge midpoint.
-`r_digits` controls the number of decimal places (default 2).
+`show_r = TRUE` draws the rounded (signed) correlation at each edge
+midpoint. `r_digits` controls the number of decimal places (default 2).
 
 ``` r
 
@@ -136,7 +154,7 @@ autoplot(x, show_r = TRUE)
 
 ``` r
 
-autoplot(x, show_r = TRUE, r_digits = 1L)
+autoplot(x, show_r = TRUE, r_digits = 1)
 ```
 
 ![](ackwards-visualization_files/figure-html/show-r-digits-1.png)
@@ -267,9 +285,10 @@ autoplot(x, show_arrows = FALSE)
 
 ### `edge_linewidth` — uniform vs. \|r\|-scaled width
 
-By default, edge width is proportional to \|r\|. A numeric
-`edge_linewidth` draws every edge at that constant width and removes the
-linewidth legend.
+By default, edge width is proportional to \|r\| (via `magnitude_by`). A
+numeric `edge_linewidth` draws every edge at that constant width and
+removes the `|r|` legend — like `magnitude_by = "none"`, but at a width
+you choose.
 
 ``` r
 
@@ -277,6 +296,22 @@ autoplot(x, edge_linewidth = 0.7)
 ```
 
 ![](ackwards-visualization_files/figure-html/edge-linewidth-1.png)
+
+## Layout orientation
+
+### `direction = "horizontal"` — left-to-right layout
+
+By default levels stack top-to-bottom (level 1 at top).
+`direction = "horizontal"` lays them out left-to-right (level 1 at
+left), which fits wide slides and posters; the level labels move to the
+bottom margin.
+
+``` r
+
+autoplot(x, direction = "horizontal")
+```
+
+![](ackwards-visualization_files/figure-html/direction-1.png)
 
 ## Legend
 
@@ -297,8 +332,8 @@ autoplot(x, legend = FALSE)
 
 The following call reproduces the visual style of Forbes (2023): black
 lines of uniform weight, plain line ends, correlation labels, and no
-legend. It uses colour mode (not `mono`) so that the dashing retains its
-`cut_strong` weak/secondary-connection semantics.
+legend. Setting both direction colors to black yields a single-hue
+figure, and `legend = FALSE` suppresses the now-redundant key.
 
 ``` r
 
@@ -341,48 +376,51 @@ For the pruned-factor variant of this figure (nodes omitted, spanning
 arrows) see
 [`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md).
 
+## Saving plots
+
+[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+returns an ordinary `ggplot` object, so save it with
+[`ggplot2::ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html):
+
+``` r
+
+p <- autoplot(x, direction = "horizontal")
+ggplot2::ggsave("hierarchy.png", p, width = 9, height = 5, dpi = 300)
+```
+
+`ackwards` does not re-export `ggsave()` — that would move `ggplot2`
+from Suggests into Imports — so call it from `ggplot2` directly.
+
 ------------------------------------------------------------------------
 
 ## Diagnostic scree / criteria plot: `autoplot.suggest_k()`
 
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-returns a multi-criterion object that has its own
+also has its own
 [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
-method. It produces a three-panel ggplot2 diagnostic:
-
-- **Scree / Parallel Analysis** — observed PC eigenvalues vs. the PA-PC
-  and PA-FA simulated thresholds (95th percentile from random data).
-- **MAP (minimize)** — Velicer’s MAP criterion; a star marks the optimal
-  k.
-- **VSS (maximize)** — VSS-1 and VSS-2 fit curves; stars mark each
-  optimum.
-
-If `EFAtools` is installed and
-[`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html) ran
-successfully, a dotted vertical line in the MAP panel indicates the
-CD-suggested k.
+method, producing a multi-panel scree / parallel-analysis / VSS
+diagnostic. It is documented in depth in
+[`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md);
+here we only note that the same
+[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+generic covers it.
 
 ``` r
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [263ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [246ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [164ms]
+#> ✔ Running MAP and VSS... [142ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.3s]
+#> ✔ Running Comparison Data (CD)... [8.9s]
 #> 
 autoplot(sk)
 ```
 
 ![](ackwards-visualization_files/figure-html/suggest_k_plot-1.png)
-
-Star-shaped markers (shape 8) identify the recommended k for each
-criterion. Use the consensus range across all panels — if they converge
-on the same k, that is strong evidence; if they spread over 2–3 values,
-fit the hierarchy at a few depths and compare interpretability.
 
 ## References
 

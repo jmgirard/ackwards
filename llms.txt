@@ -56,13 +56,13 @@ library(ackwards)
 bfi <- na.omit(bfi25)
 sk <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [212ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [200ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [108ms]
+#> ✔ Running MAP and VSS... [178ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [4.5s]
+#> ✔ Running Comparison Data (CD)... [4s]
 #> 
 sk
 #> 
@@ -141,10 +141,13 @@ x
 ### Step 3 — Visualize
 
 [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
-draws the hierarchical diagram. Each column is a level (k = 1 at left, k
-= 5 at right); arrows show which narrow factors inherit from which broad
-factor. Solid arrows indicate strong connections (\|r\| ≥ 0.6 by
-default); dashed arrows show weaker ones.
+draws the hierarchical diagram. Each row is a level (k = 1 at top, k = 5
+at bottom); arrows show which narrow factors inherit from which broad
+factor. Arrow **thickness** encodes \|r\| and arrow **color** encodes
+direction (blue = positive, red = negative), each with its own legend.
+Primary-parent edges are always positive after sign alignment, so a red
+arrow marks a genuine secondary (cross-branch) relationship. Pass
+`direction = "horizontal"` for a left-to-right layout.
 
 ``` r
 
@@ -170,15 +173,15 @@ factor scores to your data for downstream analysis.
 # Eight strongest adjacent-level primary edges
 edges <- tidy(x, what = "edges", sort = "strength")
 head(edges[edges$is_primary, c("from", "to", "r")], 8)
-#>   from   to          r
-#> 1 m4f2 m5f2  0.9984791
-#> 2 m3f1 m4f1  0.9938371
-#> 3 m4f4 m5f5  0.9894063
-#> 4 m2f2 m3f2 -0.9873651
-#> 5 m4f3 m5f3  0.9824895
-#> 6 m3f2 m4f2  0.9761484
-#> 7 m1f1 m2f1  0.8900522
-#> 8 m2f1 m3f1  0.8740850
+#>   from   to         r
+#> 1 m4f2 m5f2 0.9984791
+#> 2 m3f1 m4f1 0.9938371
+#> 3 m4f4 m5f5 0.9894063
+#> 4 m2f2 m3f2 0.9873651
+#> 5 m4f3 m5f3 0.9824895
+#> 6 m3f2 m4f2 0.9761484
+#> 7 m1f1 m2f1 0.8900522
+#> 8 m2f1 m3f1 0.8740850
 ```
 
 ``` r
@@ -208,7 +211,7 @@ names(scored)[26:40]
 | [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA; convergence and loading comparison |
 | [Ordinal data](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html) | Polychoric correlations, attenuation bias, and WLSMV estimation |
 | [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = "all"` |
-| [Visualization](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html) | Styling [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md): color, labels, mono mode, publication figures |
+| [Visualization](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html) | Styling [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md): sign/magnitude encoding, layout orientation, labels, publication figures |
 | [Interpreting & labeling](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.html) | [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md), hierarchy-aware naming, [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md) round-trip |
 
 ## Citation

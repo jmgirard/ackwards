@@ -73,13 +73,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [312ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [240ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [174ms]
+#> ✔ Running MAP and VSS... [146ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [9.8s]
+#> ✔ Running Comparison Data (CD)... [8.2s]
 #> 
 sk
 #> 
@@ -273,14 +273,16 @@ glance(x)
 
 ## Step 4: Visualize the hierarchy `autoplot()`
 
-The hierarchy diagram is the centerpiece of the method. Each column
-represents one level (k = 1 on the left, k = 5 on the right). Arrows
+The hierarchy diagram is the centerpiece of the method. Each row
+represents one level (k = 1 at the top, k = 5 at the bottom). Arrows
 connect each factor to its **primary parent** — the factor at the level
 above with which it has the strongest correlation (\|r\|). Arrow
-thickness is proportional to \|r\|; color shows direction (blue =
-positive, orange = negative by default); solid arrows indicate strong
-connections (\|r\| ≥ 0.6), dashed arrows show moderate ones (\|r\| ≥
-0.3).
+thickness is proportional to \|r\|, and color shows direction (blue =
+positive, red = negative by default); both aesthetics come with a
+legend. Primary-parent edges are always positive after sign alignment,
+so a red arrow marks a genuine secondary relationship. For a
+left-to-right layout (handy for wide slides), pass
+`direction = "horizontal"`.
 
 ``` r
 
@@ -289,7 +291,8 @@ autoplot(x)
 
 ![](ackwards-intro_files/figure-html/autoplot-1.png)
 
-Reading this diagram from left to right tells the story of the Big Five:
+Reading this diagram from broad (top) to narrow (bottom) tells the story
+of the Big Five:
 
 - **k = 1**: One broad factor. Given the polychoric basis, this captures
   shared variance across all 25 items.
@@ -357,13 +360,13 @@ top_items(x, level = 5, cut = 0.3)
 #> N4 [-0.314]
 #> O1 [0.302]
 #> m5f2
-#> N3 [0.825]
-#> N1 [0.810]
-#> N2 [0.805]
-#> N5 [0.688]
-#> N4 [0.646]
-#> C5 [0.344]
-#> O4 [0.317]
+#> N3 [-0.825]
+#> N1 [-0.810]
+#> N2 [-0.805]
+#> N5 [-0.688]
+#> N4 [-0.646]
+#> C5 [-0.344]
+#> O4 [-0.317]
 #> m5f3
 #> C2 [0.735]
 #> C4 [-0.716]
@@ -424,21 +427,21 @@ correlation matrix.
 
 # Each factor's primary-parent edge, strongest first
 tidy(x, what = "edges", primary_only = TRUE, sort = "strength")
-#>    from   to level_from level_to          r is_primary above_cut
-#> 1  m4f2 m5f2          4        5  0.9984791       TRUE      TRUE
-#> 2  m3f1 m4f1          3        4  0.9938371       TRUE      TRUE
-#> 3  m4f4 m5f5          4        5  0.9894063       TRUE      TRUE
-#> 4  m2f2 m3f2          2        3 -0.9873651       TRUE      TRUE
-#> 5  m4f3 m5f3          4        5  0.9824895       TRUE      TRUE
-#> 6  m3f2 m4f2          3        4  0.9761484       TRUE      TRUE
-#> 7  m1f1 m2f1          1        2  0.8900522       TRUE      TRUE
-#> 8  m2f1 m3f1          2        3  0.8740850       TRUE      TRUE
-#> 9  m4f1 m5f1          4        5  0.8377659       TRUE      TRUE
-#> 10 m3f3 m4f3          3        4  0.7316162       TRUE      TRUE
-#> 11 m3f3 m4f4          3        4  0.6802343       TRUE      TRUE
-#> 12 m4f1 m5f4          4        5  0.5458269       TRUE      TRUE
-#> 13 m2f1 m3f3          2        3  0.4814452       TRUE      TRUE
-#> 14 m1f1 m2f2          1        2  0.4558587       TRUE      TRUE
+#>    from   to level_from level_to         r is_primary above_cut
+#> 1  m4f2 m5f2          4        5 0.9984791       TRUE      TRUE
+#> 2  m3f1 m4f1          3        4 0.9938371       TRUE      TRUE
+#> 3  m4f4 m5f5          4        5 0.9894063       TRUE      TRUE
+#> 4  m2f2 m3f2          2        3 0.9873651       TRUE      TRUE
+#> 5  m4f3 m5f3          4        5 0.9824895       TRUE      TRUE
+#> 6  m3f2 m4f2          3        4 0.9761484       TRUE      TRUE
+#> 7  m1f1 m2f1          1        2 0.8900522       TRUE      TRUE
+#> 8  m2f1 m3f1          2        3 0.8740850       TRUE      TRUE
+#> 9  m4f1 m5f1          4        5 0.8377659       TRUE      TRUE
+#> 10 m3f3 m4f3          3        4 0.7316162       TRUE      TRUE
+#> 11 m3f3 m4f4          3        4 0.6802343       TRUE      TRUE
+#> 12 m4f1 m5f4          4        5 0.5458269       TRUE      TRUE
+#> 13 m2f1 m3f3          2        3 0.4814452       TRUE      TRUE
+#> 14 m1f1 m2f2          1        2 0.4558587       TRUE      TRUE
 ```
 
 `primary_only = TRUE` keeps just the strongest-connecting edge for each
@@ -536,11 +539,11 @@ the primary-parent lineage:
 k5 <- scored[, c(".m5f1", ".m5f2", ".m5f3", ".m5f4", ".m5f5")]
 round(cor(k5), 2)
 #>       .m5f1 .m5f2 .m5f3 .m5f4 .m5f5
-#> .m5f1  1.00  0.01 -0.01 -0.02  0.00
-#> .m5f2  0.01  1.00  0.01 -0.01 -0.01
-#> .m5f3 -0.01  0.01  1.00 -0.02 -0.02
-#> .m5f4 -0.02 -0.01 -0.02  1.00 -0.03
-#> .m5f5  0.00 -0.01 -0.02 -0.03  1.00
+#> .m5f1  1.00 -0.01 -0.01 -0.02  0.00
+#> .m5f2 -0.01  1.00 -0.01  0.01  0.01
+#> .m5f3 -0.01 -0.01  1.00 -0.02 -0.02
+#> .m5f4 -0.02  0.01 -0.02  1.00 -0.03
+#> .m5f5  0.00  0.01 -0.02 -0.03  1.00
 ```
 
 ``` r
@@ -550,9 +553,9 @@ lineage <- scored[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]
 round(cor(lineage), 2)
 #>       .m4f1 .m5f1 .m5f2 .m5f4
 #> .m4f1  1.00  0.84  0.00  0.53
-#> .m5f1  0.84  1.00  0.01 -0.02
-#> .m5f2  0.00  0.01  1.00 -0.01
-#> .m5f4  0.53 -0.02 -0.01  1.00
+#> .m5f1  0.84  1.00 -0.01 -0.02
+#> .m5f2  0.00 -0.01  1.00  0.01
+#> .m5f4  0.53 -0.02  0.01  1.00
 ```
 
 The cross-level block confirms lineage: `.m4f1` correlates strongly with

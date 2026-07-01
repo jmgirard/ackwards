@@ -119,17 +119,26 @@ as part of the definition of done.
   pruning; edges recomputed fresh inside
   [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md),
   `x$edges` never mutated)
+- **M35** — autoplot & visualization: sign-propagation bugfix
+  (primary-parent edges now always non-negative per DESIGN §7);
+  [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+  `sign_by`/`magnitude_by` configurable, always-legended encodings
+  (`cut_strong` retired; `mono` kept as wrapper);
+  `direction="horizontal"` layout; `colour_*` aliases + `color_edge`;
+  `ggsave` documented (not re-exported); code-coupled viz/intro/README
+  prose
 
 ## Current focus
 
-M34 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38
-documentation/UX epic is **M35** (autoplot & visualization); not yet
-planned; run `/plan-milestone 35` before starting.
+M35 is complete (see `MILESTONES.md` for detail). Next up in the M31–M38
+documentation/UX epic is **M36** (interpretation functions: `augment`
+scores-only, `top_items` labels + group-by-item); not yet planned; run
+`/plan-milestone 36` before starting.
 
-Remaining milestones in the epic: M35 autoplot & visualization; M36
-interpretation functions (`augment` scores-only, `top_items` labels +
-group-by-item); M37 engines vignette; M38 narrative & remaining prose
-(intro, suggest_k, ordinal, forbes, README).
+Remaining milestones in the epic: M36 interpretation functions
+(`augment` scores-only, `top_items` labels + group-by-item); M37 engines
+vignette; M38 narrative & remaining prose (intro, suggest_k, ordinal,
+forbes, README).
 
 These one-liners are a lossy index. The **full driving rationale, banked
 decisions, and the raw pkgdown-review notes** behind M35–M38 live in

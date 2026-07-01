@@ -104,13 +104,53 @@ specific to the Forbes pruning extension and are covered in
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/base-1.png" class="r-plt" alt="" width="768"></p>
-<p>Factors are labeled <code>m{k}f{j}</code> (level k, factor j). Arrow
-<strong>thickness</strong> encodes |r|; <strong>colour</strong> encodes
-direction (blue = positive, red–orange = negative);
-<strong>linetype</strong> encodes strength (solid: |r| ≥
-<code>cut_strong</code>; dashed: <code>cut_show</code> ≤ |r| &lt;
-<code>cut_strong</code>). Level labels on the left count factors per
-level.</p>
+<p>Factors are labeled <code>m{k}f{j}</code> (level k, factor j). Two
+edge aesthetics carry the between-level correlations, and each one comes
+with its own legend: arrow <strong>thickness</strong> encodes the
+magnitude |r|, and edge <strong>color</strong> encodes the direction
+(blue = positive, red–orange = negative). Level labels on the left count
+factors per level.</p>
+<p>Primary-parent edges are always positive after sign alignment; a red
+(negative) edge is therefore a genuine <em>secondary</em> relationship,
+not an artifact.</p>
+</div>
+<div class="section level2">
+<h2 id="encoding-sign-and-magnitude">Encoding sign and magnitude<a class="anchor" aria-label="anchor" href="#encoding-sign-and-magnitude"></a>
+</h2>
+<p>You choose which aesthetic carries which piece of information.
+<code>sign_by</code> picks the channel for direction and
+<code>magnitude_by</code> picks the channel for |r|. No aesthetic is
+ever mapped without a matching legend.</p>
+<div class="section level3">
+<h3 id="sign_by-how-direction-is-shown">
+<code>sign_by</code> — how direction is shown<a class="anchor" aria-label="anchor" href="#sign_by-how-direction-is-shown"></a>
+</h3>
+<p><code>sign_by = "color"</code> (the default) uses
+<code>color_pos</code>/<code>color_neg</code>. <code>"linetype"</code>
+draws positive edges solid and negative edges dashed, freeing color for
+a single-hue figure. <code>"both"</code> uses color <em>and</em>
+linetype together — negatives get a distinct double-dash so they still
+read in greyscale — and merges the two into a single “Direction” legend.
+<code>"none"</code> drops sign encoding entirely.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, sign_by <span class="op">=</span> <span class="st">"linetype"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="ackwards-visualization_files/figure-html/sign-by-1.png" class="r-plt" alt="" width="768"></p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, sign_by <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="ackwards-visualization_files/figure-html/sign-by-2.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="magnitude_by-how-r-is-shown">
+<code>magnitude_by</code> — how |r| is shown<a class="anchor" aria-label="anchor" href="#magnitude_by-how-r-is-shown"></a>
+</h3>
+<p>By default <code>magnitude_by = "linewidth"</code> maps |r| to arrow
+thickness with a <code>|r|</code> legend. Set
+<code>magnitude_by = "none"</code> for uniform-width edges (see also
+<code>edge_linewidth</code>, below, to pin a specific width).</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, magnitude_by <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="ackwards-visualization_files/figure-html/magnitude-by-1.png" class="r-plt" alt="" width="768"></p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="filtering-edges">Filtering edges<a class="anchor" aria-label="anchor" href="#filtering-edges"></a>
@@ -122,71 +162,53 @@ level.</p>
 <p>Edges below <code>cut_show</code> are hidden entirely. Raising it
 produces a sparser diagram that emphasises only the strongest
 connections.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Default cut_show = 0.3 (already shown above)</span></span>
 <span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, cut_show <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/cut-show-1.png" class="r-plt" alt="" width="768"></p>
 </div>
-<div class="section level3">
-<h3 id="cut_strong-solid-vs-dashed-threshold">
-<code>cut_strong</code> — solid vs dashed threshold<a class="anchor" aria-label="anchor" href="#cut_strong-solid-vs-dashed-threshold"></a>
-</h3>
-<p>Edges at or above <code>cut_strong</code> are drawn solid; edges
-below it (but above <code>cut_show</code>) are dashed. Raising
-<code>cut_strong</code> makes only the very strongest connections
-solid.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, cut_show <span class="op">=</span> <span class="fl">0.3</span>, cut_strong <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/cut-strong-1.png" class="r-plt" alt="" width="768"></p>
-</div>
 </div>
 <div class="section level2">
-<h2 id="edge-colours">Edge colours<a class="anchor" aria-label="anchor" href="#edge-colours"></a>
+<h2 id="edge-colors">Edge colors<a class="anchor" aria-label="anchor" href="#edge-colors"></a>
 </h2>
 <div class="section level3">
-<h3 id="color_pos-color_neg-custom-direction-colours">
+<h3 id="color_pos-color_neg-custom-direction-colors">
 <code>color_pos</code> / <code>color_neg</code> — custom direction
-colours<a class="anchor" aria-label="anchor" href="#color_pos-color_neg-custom-direction-colours"></a>
+colors<a class="anchor" aria-label="anchor" href="#color_pos-color_neg-custom-direction-colors"></a>
 </h3>
-<p>The default blue/red palette can be replaced with any colours
-recognised by R.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>The default blue/red palette can be replaced with any colors
+recognised by R. British spellings (<code>colour_pos</code>,
+<code>colour_neg</code>) are accepted as aliases.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, color_pos <span class="op">=</span> <span class="st">"darkorchid"</span>, color_neg <span class="op">=</span> <span class="st">"darkorange"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/colours-1.png" class="r-plt" alt="" width="768"></p>
-<p>Setting both to the same colour produces uniformly coloured edges
-while retaining the linetype-based strength distinction from
-<code>cut_strong</code>. This is the basis for the Forbes (2023)
-publication style (see the worked example at the end of this
-vignette).</p>
+<p>When sign is <em>not</em> encoded by color
+(<code>sign_by = "linetype"</code> or <code>"none"</code>), all edges
+take the single <code>color_edge</code> (default black) — the basis for
+the Forbes (2023) publication style (see the worked example at the end
+of this vignette).</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="monochrome-mode">Monochrome mode<a class="anchor" aria-label="anchor" href="#monochrome-mode"></a>
 </h2>
 <div class="section level3">
-<h3 id="mono-true-encode-direction-on-linetype">
-<code>mono = TRUE</code> — encode direction on linetype<a class="anchor" aria-label="anchor" href="#mono-true-encode-direction-on-linetype"></a>
+<h3 id="mono-true-a-black-and-white-convenience-wrapper">
+<code>mono = TRUE</code> — a black-and-white convenience
+wrapper<a class="anchor" aria-label="anchor" href="#mono-true-a-black-and-white-convenience-wrapper"></a>
 </h3>
-<p><code>mono = TRUE</code> switches the direction encoding from colour
-to linetype: solid lines are positive correlations and dashed lines are
-negative correlations. <code>linewidth</code> still encodes |r|. The
-<code>cut_strong</code> strength distinction is dropped in this mode
-because linewidth already conveys magnitude.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p><code>mono = TRUE</code> is shorthand for
+<code>sign_by = "linetype"</code> with black edges: solid lines are
+positive correlations, dashed lines are negative.
+<code>magnitude_by</code> still applies, so <code>linewidth</code>
+continues to encode |r|.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, mono <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/mono-1.png" class="r-plt" alt="" width="768"></p>
-<p><code>mono</code> is suited for black-and-white figures where the
-reader must distinguish positive from negative edges. Note that the
-linetype semantics differ from the colour-mode dashing: here dashed =
-<em>negative sign</em>, not <em>weak connection</em>. For the
-Forbes-style uniform-line look (dashed = weak, regardless of sign), use
-<code>color_pos = color_neg = "black"</code> in colour mode instead —
-see the worked example below.</p>
-<p>Combining <code>mono</code> with <code>show_r</code> labels the edges
-with their exact values, removing any ambiguity about magnitude:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, mono <span class="op">=</span> <span class="cn">TRUE</span>, show_r <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/mono-show-r-1.png" class="r-plt" alt="" width="768"></p>
+<p><code>mono</code> suits black-and-white figures where the reader must
+distinguish positive from negative edges. To label the edges with their
+exact values as well, add <code>show_r = TRUE</code> (documented
+next).</p>
 </div>
 </div>
 <div class="section level2">
@@ -194,17 +216,17 @@ with their exact values, removing any ambiguity about magnitude:</p>
 </h2>
 <div class="section level3">
 <h3 id="show_r-r_digits-annotate-edges-with-r-values">
-<code>show_r</code> / <code>r_digits</code> — annotate edges with
-|r| values<a class="anchor" aria-label="anchor" href="#show_r-r_digits-annotate-edges-with-r-values"></a>
+<code>show_r</code> / <code>r_digits</code> — annotate edges with r
+values<a class="anchor" aria-label="anchor" href="#show_r-r_digits-annotate-edges-with-r-values"></a>
 </h3>
-<p><code>show_r = TRUE</code> draws the rounded correlation at each edge
-midpoint. <code>r_digits</code> controls the number of decimal places
-(default 2).</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<p><code>show_r = TRUE</code> draws the rounded (signed) correlation at
+each edge midpoint. <code>r_digits</code> controls the number of decimal
+places (default 2).</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_r <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/show-r-1.png" class="r-plt" alt="" width="768"></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_r <span class="op">=</span> <span class="cn">TRUE</span>, r_digits <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_r <span class="op">=</span> <span class="cn">TRUE</span>, r_digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/show-r-digits-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
@@ -218,7 +240,7 @@ midpoint. <code>r_digits</code> controls the number of decimal places
 <p><code>node_labels</code> is a named character vector mapping factor
 IDs to display strings. Unspecified factors keep their
 <code>m{k}f{j}</code> labels.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  m5f1 <span class="op">=</span> <span class="st">"Neuro."</span>,</span>
 <span>  m5f2 <span class="op">=</span> <span class="st">"Extra."</span>,</span>
@@ -228,7 +250,7 @@ IDs to display strings. Unspecified factors keep their
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/node-labels-1.png" class="r-plt" alt="" width="768"></p>
 <p>Multi-line labels are supported via <code>\n</code>:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  m5f1 <span class="op">=</span> <span class="st">"Neuro-\nticism"</span>,</span>
 <span>  m5f2 <span class="op">=</span> <span class="st">"Extra-\nversion"</span></span>
@@ -245,7 +267,7 @@ canonical diagram order and prints a copy-pasteable <code>c(...)</code>
 literal you can edit and pass back to <code>node_labels</code>. It also
 offers the Forbes (2023) letter convention (<code>"A1"</code>,
 <code>"B1"</code>, <code>"B2"</code>, …) as a built-in style:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="fu"><a href="../reference/label_template.html">label_template</a></span><span class="op">(</span><span class="va">x</span>, style <span class="op">=</span> <span class="st">"forbes"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; `label_template()` scaffold (forbes style):</span></span>
 <span><span class="co">#&gt; c(</span></span>
@@ -283,7 +305,7 @@ edges<a class="anchor" aria-label="anchor" href="#primary_only-true-show-only-pr
 strongest edge per factor (its primary parent), producing a clean tree.
 Because skip-level edges are never primary, this also suppresses curved
 arcs when <code>pairs = "all"</code> was used.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, primary_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/primary-only-1.png" class="r-plt" alt="" width="768"></p>
 </div>
@@ -297,10 +319,10 @@ arcs when <code>pairs = "all"</code> was used.</p>
 </h3>
 <p>Level labels (“1 factor”, “2 factors”, …) are shown by default on the
 left margin. They can be hidden or resized.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_level_labels <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/level-labels-off-1.png" class="r-plt" alt="" width="768"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_level_labels <span class="op">=</span> <span class="cn">TRUE</span>, level_label_size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/level-labels-size-1.png" class="r-plt" alt="" width="768"></p>
 </div>
@@ -315,7 +337,7 @@ left margin. They can be hidden or resized.</p>
 <p>By default, edges end with closed arrowheads. Setting
 <code>show_arrows = FALSE</code> draws plain line ends. This applies to
 both straight edges and curved skip-level arcs.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_arrows <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/no-arrows-1.png" class="r-plt" alt="" width="768"></p>
 </div>
@@ -327,12 +349,30 @@ both straight edges and curved skip-level arcs.</p>
 <h3 id="edge_linewidth-uniform-vs--r-scaled-width">
 <code>edge_linewidth</code> — uniform vs. |r|-scaled width<a class="anchor" aria-label="anchor" href="#edge_linewidth-uniform-vs--r-scaled-width"></a>
 </h3>
-<p>By default, edge width is proportional to |r|. A numeric
-<code>edge_linewidth</code> draws every edge at that constant width and
-removes the linewidth legend.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<p>By default, edge width is proportional to |r| (via
+<code>magnitude_by</code>). A numeric <code>edge_linewidth</code> draws
+every edge at that constant width and removes the <code>|r|</code>
+legend — like <code>magnitude_by = "none"</code>, but at a width you
+choose.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, edge_linewidth <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/edge-linewidth-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="layout-orientation">Layout orientation<a class="anchor" aria-label="anchor" href="#layout-orientation"></a>
+</h2>
+<div class="section level3">
+<h3 id="direction-horizontal-left-to-right-layout">
+<code>direction = "horizontal"</code> — left-to-right layout<a class="anchor" aria-label="anchor" href="#direction-horizontal-left-to-right-layout"></a>
+</h3>
+<p>By default levels stack top-to-bottom (level 1 at top).
+<code>direction = "horizontal"</code> lays them out left-to-right (level
+1 at left), which fits wide slides and posters; the level labels move to
+the bottom margin.</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, direction <span class="op">=</span> <span class="st">"horizontal"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="ackwards-visualization_files/figure-html/direction-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
 <div class="section level2">
@@ -345,7 +385,7 @@ removes the linewidth legend.</p>
 <p><code>legend = FALSE</code> removes all legends from the plot. Most
 useful when the diagram is self-explanatory or the legend duplicates
 information conveyed by labels.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/no-legend-1.png" class="r-plt" alt="" width="768"></p>
 </div>
@@ -355,10 +395,10 @@ information conveyed by labels.</p>
 </h2>
 <p>The following call reproduces the visual style of Forbes (2023):
 black lines of uniform weight, plain line ends, correlation labels, and
-no legend. It uses colour mode (not <code>mono</code>) so that the
-dashing retains its <code>cut_strong</code> weak/secondary-connection
-semantics.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+no legend. Setting both direction colors to black yields a single-hue
+figure, and <code>legend = FALSE</code> suppresses the now-redundant
+key.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>,</span>
 <span>  color_pos      <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  color_neg      <span class="op">=</span> <span class="st">"black"</span>,</span>
@@ -370,7 +410,7 @@ semantics.</p>
 <p><img src="ackwards-visualization_files/figure-html/pub-figure-1.png" class="r-plt" alt="" width="768"></p>
 <p>Combining with <code>node_labels</code> names the factors for the
 final figure:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>,</span>
 <span>  color_pos <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  color_neg <span class="op">=</span> <span class="st">"black"</span>,</span>
@@ -389,47 +429,42 @@ final figure:</p>
 <p><img src="ackwards-visualization_files/figure-html/pub-figure-labeled-1.png" class="r-plt" alt="" width="768"></p>
 <p>For the pruned-factor variant of this figure (nodes omitted, spanning
 arrows) see <code><a href="../articles/ackwards-forbes.html">vignette("ackwards-forbes")</a></code>.</p>
+</div>
+<div class="section level2">
+<h2 id="saving-plots">Saving plots<a class="anchor" aria-label="anchor" href="#saving-plots"></a>
+</h2>
+<p><code><a href="../reference/autoplot.html">autoplot()</a></code> returns an ordinary <code>ggplot</code>
+object, so save it with <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggplot2::ggsave()</a></code>:</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, direction <span class="op">=</span> <span class="st">"horizontal"</span><span class="op">)</span></span>
+<span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggsave</a></span><span class="op">(</span><span class="st">"hierarchy.png"</span>, <span class="va">p</span>, width <span class="op">=</span> <span class="fl">9</span>, height <span class="op">=</span> <span class="fl">5</span>, dpi <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span></code></pre></div>
+<p><code>ackwards</code> does not re-export <code>ggsave()</code> — that
+would move <code>ggplot2</code> from Suggests into Imports — so call it
+from <code>ggplot2</code> directly.</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="diagnostic-scree-criteria-plot-autoplot-suggest_k">Diagnostic scree / criteria plot:
 <code>autoplot.suggest_k()</code><a class="anchor" aria-label="anchor" href="#diagnostic-scree-criteria-plot-autoplot-suggest_k"></a>
 </h2>
-<p><code><a href="../reference/suggest_k.html">suggest_k()</a></code> returns a multi-criterion object that has
-its own <code><a href="../reference/autoplot.html">autoplot()</a></code> method. It produces a three-panel
-ggplot2 diagnostic:</p>
-<ul>
-<li>
-<strong>Scree / Parallel Analysis</strong> — observed PC eigenvalues
-vs. the PA-PC and PA-FA simulated thresholds (95th percentile from
-random data).</li>
-<li>
-<strong>MAP (minimize)</strong> — Velicer’s MAP criterion; a star
-marks the optimal k.</li>
-<li>
-<strong>VSS (maximize)</strong> — VSS-1 and VSS-2 fit curves; stars
-mark each optimum.</li>
-</ul>
-<p>If <code>EFAtools</code> is installed and <code><a href="https://rdrr.io/pkg/EFAtools/man/CD.html" class="external-link">EFAtools::CD()</a></code>
-ran successfully, a dotted vertical line in the MAP panel indicates the
-CD-suggested k.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<p><code><a href="../reference/suggest_k.html">suggest_k()</a></code> also has its own <code><a href="../reference/autoplot.html">autoplot()</a></code>
+method, producing a multi-panel scree / parallel-analysis / VSS
+diagnostic. It is documented in depth in
+<code><a href="../articles/ackwards-suggest-k.html">vignette("ackwards-suggest-k")</a></code>; here we only note that the
+same <code><a href="../reference/autoplot.html">autoplot()</a></code> generic covers it.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[263ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[246ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[164ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[142ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.3s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[8.9s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/suggest_k_plot-1.png" class="r-plt" alt="" width="768"></p>
-<p>Star-shaped markers (shape 8) identify the recommended k for each
-criterion. Use the consensus range across all panels — if they converge
-on the same k, that is strong evidence; if they spread over 2–3 values,
-fit the hierarchy at a few depths and compare interpretability.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>

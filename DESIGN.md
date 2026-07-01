@@ -294,7 +294,12 @@ core, with the heavy bits nullable and recomputable.
   (positive sum of loadings, or a substantive marker item), then orient
   each factor so its correlation with its **primary parent** is
   positive, propagating top-down. Document that non-primary edges may
-  legitimately be negative.
+  legitimately be negative. *Implementation note (M35):* “propagating
+  top-down” means each child’s flip is chosen against the parent’s
+  **already-aligned** sign, not the parent’s raw orientation — otherwise
+  a flipped parent leaves its own primary edge displaying negative. So
+  every primary-parent edge is non-negative; only secondary edges may be
+  red.
 
 ## 8. Suggesting k
 
@@ -455,14 +460,18 @@ however they like.
       primary-child structure” look the owner wants.
 - **[`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md)
   / [`plot()`](https://rdrr.io/r/graphics/plot.default.html) (Suggests:
-  ggraph/ggplot2/igraph/tidygraph).** Renders the layered diagram from
+  ggplot2).** Renders the layered diagram from
   [`ba_layout()`](https://jmgirard.github.io/ackwards/reference/ba_layout.md) +
-  the edge tibble. Edge encodings: color by **sign**, width/alpha by
-  **\|r\|**; draw **solid** above a “strong” cut and **dashed** between
-  the show-cut and strong-cut (a real convention — strong between-level
-  correlations solid, weaker primary associations dashed). Nodes labeled
-  `m{k}f{j}`, optionally with substantive labels and top-loading items.
-  Pyramid vs. tree-ish orientation as an option.
+  the edge tibble. Edge encodings are **user-assignable and always
+  legended** (M35): `sign_by` chooses the channel for **sign** (color by
+  default; also linetype, both, or none) and `magnitude_by` chooses the
+  channel for **\|r\|** (linewidth by default, or none). No aesthetic is
+  mapped without a matching legend. (The pre-M35 strong/weak
+  `cut_strong` linetype split was retired — it double-encoded magnitude
+  and was legend-less.) Nodes labeled `m{k}f{j}`, optionally with
+  substantive labels and top-loading items. `direction` toggles vertical
+  (default, level 1 at top) vs. horizontal (level 1 at left)
+  orientation.
 - **Forbes extension rendering (more complex — phase it).** Keep the
   same layout; **annotate** rather than re-layout: fade/strike pruned
   (redundant/artifact) nodes, and allow **skip-level** edges (longer
