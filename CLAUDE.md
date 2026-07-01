@@ -152,9 +152,15 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
 ## Git
 
 - Default branch is **`master`**; it stays green and releasable. Milestone work happens on a
-  feature branch (`m{N}-<slug>`) and merges to `master` via a **PR** once CI is green — don't
-  commit milestone work (anything touching `R/`, `tests/`, `DESCRIPTION`, vignettes) straight to
-  `master`. Trivial isolated doc fixes may go direct at the user's discretion.
+  feature branch (`m{N}-<slug>`) and merges to `master` via a **PR**, **squash-merged as soon as
+  the local definition of done is green** (`devtools::check()` 0/0/0 + tests + coverage +
+  style/lint) — *not* gated on remote CI. `master` is deliberately **not branch-protected** (owner
+  decision, 2026-07-01): required checks would gate every merge on the ~8–15 min CI matrix, pure
+  latency for a solo pre-CRAN repo where local `check()` already ran. CI still runs on every push
+  as an after-the-fact signal but does not block the merge; **don't** use `gh pr merge --auto`
+  (silently no-ops without required checks) and **don't** synchronously watch or background-poll
+  CI. Don't commit milestone work (anything touching `R/`, `tests/`, `DESCRIPTION`, vignettes)
+  straight to `master`. Trivial isolated doc fixes may go direct at the user's discretion.
 - **Do not touch** the `legacy` branch or the `v0-legacy` tag — they preserve the pre-AI code.
 - Small, focused commits with imperative messages (e.g., `Add PCA engine and level contract`).
 - Don't force-push `master`. Don't commit data, credentials, or large binaries.

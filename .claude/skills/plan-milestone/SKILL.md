@@ -33,8 +33,9 @@ Once they respond:
    a. Create the milestone's feature branch off an up-to-date `master`
       (e.g. `git switch master && git pull && git switch -c m$ARGUMENTS-<short-slug>`).
       All milestone work — planning commit and implementation — lands on this branch, not on
-      `master`. `master` is merged into only via a reviewed PR once CI is green (see
-      /implement-milestone). Do **not** commit milestone work directly to `master`.
+      `master`. `master` is merged into only via a PR, squash-merged as soon as the local
+      definition of done is green — not gated on remote CI (see /implement-milestone). Do **not**
+      commit milestone work directly to `master`.
    b. On the branch, update CLAUDE.md's "## Current focus" section to replace the previous
       milestone's scope/acceptance criteria with Milestone $ARGUMENTS's, and commit that change
       on its own (not bundled with any implementation commit).
