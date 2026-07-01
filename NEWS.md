@@ -1,5 +1,12 @@
 # ackwards (development)
 
+## Bug fixes
+
+- `suggest_k()` no longer errors on machines without the optional **EFAtools**
+  package. The "CD requires EFAtools" info message was malformed and raised
+  *"argument \"message\" is missing"* instead of informing, crashing any
+  `suggest_k()` call (and the vignettes that use it) when EFAtools was absent.
+
 ## Engines vignette overhaul
 
 - The "Choosing an Engine" vignette now frames ESEM as a general engine for
