@@ -76,7 +76,13 @@ and no one of them substitutes for another.
 ## Setup
 
 We use the `bfi25` Big Five data (25 items, n = 875 after removing incomplete
-rows), analyzed with the default PCA engine throughout.
+rows), analyzed with the default PCA engine on the Pearson basis throughout.
+That basis is deliberate: `comparability()` and `boot_edges()` screen on
+Pearson/Spearman by design — polychoric estimation in every split-half or
+bootstrap resample is slow and unstable — so the ordinal-detection warning
+`bfi25` triggers is *expected* here and suppressed below for readability. You
+screen structure and depth on Pearson, then fit the model you actually *report*
+with `cor = "polychoric"`.
 
 ```{r data}
 library(ackwards)
@@ -85,7 +91,7 @@ bfi <- na.omit(bfi25)
 
 ## Step 1: Screen the plausible depth range with `suggest_k()`
 
-```{r suggest-k}
+```{r suggest-k, warning = FALSE}
 sk <- suggest_k(bfi, seed = 1)
 print(sk)
 ```
@@ -112,7 +118,7 @@ next step is that you can now do so safely.
 This is the step the workflow is named for. We evaluate every level up to one
 past the ceiling, across ten random split-halves:
 
-```{r comparability}
+```{r comparability, warning = FALSE}
 cmp <- comparability(bfi, k_max = sk_hi + 1, n_splits = 10, seed = 2026)
 print(cmp)
 ```
