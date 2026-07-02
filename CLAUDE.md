@@ -182,7 +182,9 @@ process; `test()`/`check()` load the package themselves), and `cd <repo> && …`
 trigger avoidable permission prompts — use absolute paths. In tests, reuse the `cached()` fit memo
 (`tests/testthat/helper-data.R`) instead of refitting identical `ackwards()` objects — but never
 for reproducibility/serial-vs-parallel oracles (a cached second call asserts nothing) or fits
-wrapped in condition expectations.
+wrapped in condition expectations; and treat cached objects as read-only — rebinding a returned
+value is copy-on-modify safe, but environment-bearing components (e.g. lavaan fits under
+`keep_fits = TRUE`) are shared by reference across cache hits.
 
 Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_testthat(3)`,
 `use_github_action("check-standard")`. Use testthat 3e, roxygen2 for all exported functions
