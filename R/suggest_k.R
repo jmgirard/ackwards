@@ -166,6 +166,10 @@ suggest_k <- function(data, k_max = NULL,
   if (is.matrix(data)) .check_maybe_cov_matrix(data)
   input_type <- if (.is_cor_matrix(data)) "cor_matrix" else "data"
 
+  if (!is.numeric(n_iter) || length(n_iter) != 1L || is.na(n_iter) ||
+    n_iter < 1L || n_iter != as.integer(n_iter)) {
+    cli::cli_abort("{.arg n_iter} must be a single positive integer.")
+  }
   n_iter <- as.integer(n_iter)
 
   if (input_type == "cor_matrix") {

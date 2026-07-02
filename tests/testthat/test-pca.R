@@ -69,6 +69,12 @@ test_that("ackwards() errors informatively on bad inputs", {
   expect_error(ackwards(d, k_max = 100), "cannot exceed")
   expect_error(ackwards(d, k_max = 1.5), "integer >= 2")
   expect_error(ackwards(list(), k_max = 2), "data frame")
+  # cut_show thresholds |r|, so it must be a single number in [0, 1] (M42/m8)
+  expect_error(ackwards(d, k_max = 2, cut_show = 5), "\\[0, 1\\]")
+  expect_error(ackwards(d, k_max = 2, cut_show = -0.1), "\\[0, 1\\]")
+  expect_error(ackwards(d, k_max = 2, cut_show = c(0.3, 0.5)), "\\[0, 1\\]")
+  expect_error(ackwards(d, k_max = 2, cut_show = NA), "\\[0, 1\\]")
+  expect_error(ackwards(d, k_max = 2, cut_show = "0.3"), "\\[0, 1\\]")
 })
 
 test_that("keep_scores = TRUE stores a named list of score matrices", {

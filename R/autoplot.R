@@ -297,6 +297,13 @@ autoplot.ackwards <- function(
     )
   }
 
+  if (!is.null(cut_show) &&
+    (!is.numeric(cut_show) || length(cut_show) != 1L || is.na(cut_show) ||
+      cut_show < 0 || cut_show > 1)) {
+    cli::cli_abort(
+      "{.arg cut_show} must be a single number in [0, 1] or {.val NULL}."
+    )
+  }
   cut_show <- cut_show %||% object$meta$cut_show %||% 0.3
   show_skip <- show_skip %||% isTRUE(object$meta$pairs == "all")
 

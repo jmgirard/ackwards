@@ -272,6 +272,13 @@ ackwards <- function(
   }
   k_max <- as.integer(k_max)
 
+  if (!is.numeric(cut_show) || length(cut_show) != 1L || is.na(cut_show) ||
+    cut_show < 0 || cut_show > 1) {
+    cli::cli_abort(
+      "{.arg cut_show} must be a single number in [0, 1] (it thresholds |r|)."
+    )
+  }
+
   # ============================================================
   # BRANCH A -- correlation-matrix input
   # ============================================================
@@ -586,7 +593,7 @@ ackwards <- function(
       # estimator_eff already computed above for .resolve_missing() validation.
       esem_out <- esem_levels(data_mat,
         k_max = k_max, estimator = estimator_eff, cor = cor,
-        n_obs = n_obs_eff, R_external = R_ext, keep_fits = keep_fits,
+        R_external = R_ext, keep_fits = keep_fits,
         missing = missing
       )
       levels_list <- esem_out$levels

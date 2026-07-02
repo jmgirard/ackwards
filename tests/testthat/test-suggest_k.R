@@ -169,6 +169,11 @@ test_that("suggest_k() errors on bad inputs", {
   expect_error(suggest_k(list()), "data frame")
   expect_error(suggest_k(bfi25[, 1:5], k_max = 100), "k_max")
   expect_error(suggest_k(bfi25[, 1:5], k_max = 0), "k_max")
+  # n_iter drives the PA simulation; 0/fractional/vector values fail deep
+  # inside psych without this guard (M42/m8)
+  expect_error(suggest_k(bfi25[, 1:5], n_iter = 0), "positive integer")
+  expect_error(suggest_k(bfi25[, 1:5], n_iter = 2.5), "positive integer")
+  expect_error(suggest_k(bfi25[, 1:5], n_iter = c(5, 10)), "positive integer")
 })
 
 test_that("suggest_k() defaults k_max to min(p - 1, 8) for raw data", {

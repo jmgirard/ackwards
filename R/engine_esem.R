@@ -321,7 +321,7 @@
 }
 
 # --- Driver: fit all levels 1..k_max -----------------------------------------
-esem_levels <- function(data, k_max, estimator, cor, n_obs,
+esem_levels <- function(data, k_max, estimator, cor,
                         R_external = NULL, keep_fits = FALSE,
                         missing = "pairwise") {
   rlang::check_installed("lavaan", reason = "for the ESEM engine")

@@ -176,6 +176,15 @@ test_that("autoplot.ackwards() deprecates cut_strong (warns, no effect)", {
   expect_warning(ggplot2::autoplot(x, cut_strong = 0.4), "deprecated")
 })
 
+test_that("autoplot.ackwards() validates cut_show (M42/m8)", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  expect_error(ggplot2::autoplot(x, cut_show = 5), "\\[0, 1\\]")
+  expect_error(ggplot2::autoplot(x, cut_show = c(0.3, 0.5)), "\\[0, 1\\]")
+  expect_error(ggplot2::autoplot(x, cut_show = NA), "\\[0, 1\\]")
+})
+
 test_that("autoplot.ackwards() warns when cut_show hides all edges", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
