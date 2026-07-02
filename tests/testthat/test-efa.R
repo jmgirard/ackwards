@@ -363,3 +363,39 @@ test_that("correct is validated as a single non-negative number", {
     "single non-negative"
   )
 })
+
+# --- Near-singular polychoric matrix: one clear warning, no psych flood -------
+.triplicate_ordinal <- function(n = 250, seed = 3) {
+  set.seed(seed)
+  mk <- function(p) sample(seq_along(p), n, replace = TRUE, prob = p)
+  base <- as.data.frame(lapply(1:6, function(i) mk(c(.5, .25, .15, .07, .03))))
+  d <- cbind(base, base, base) # triplicate -> perfectly collinear -> rank-deficient
+  names(d) <- paste0("v", 1:18)
+  d
+}
+
+test_that("ackwards() warns once on a near-singular polychoric matrix", {
+  skip_if_not_installed("psych")
+  d <- .triplicate_ordinal()
+  rlang::reset_warning_verbosity("ackwards_near_singular")
+  w <- testthat::capture_warnings(
+    x <- suppressMessages(
+      ackwards(d, k_max = 2, engine = "efa", cor = "polychoric", correct = 0)
+    )
+  )
+  expect_true(any(grepl("near-singular", w)))
+  expect_s3_class(x, "ackwards")
+})
+
+test_that("ackwards() does not leak psych's per-level chatter to the console", {
+  skip_if_not_installed("psych")
+  d <- .triplicate_ordinal()
+  rlang::reset_warning_verbosity("ackwards_near_singular")
+  msgs <- capture.output(
+    suppressWarnings(
+      ackwards(d, k_max = 2, engine = "efa", cor = "polychoric", correct = 0)
+    ),
+    type = "message"
+  )
+  expect_false(any(grepl("determinant|smcs|objective function", msgs)))
+})

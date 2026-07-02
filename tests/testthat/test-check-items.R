@@ -76,6 +76,24 @@ test_that("check_items() validates its input", {
   expect_error(check_items(data.frame()), "no columns")
 })
 
+test_that("subsetting a check_items report returns a plain data frame", {
+  d <- .mk_items()
+  d$const <- rep(1L, nrow(d))
+  out <- check_items(d)
+  # Row + column subset -> a plain data frame (not the report's print summary),
+  # even when the `flag` column is not selected.
+  sub <- out[out$flag != "ok", c("item", "min_count")]
+  expect_false(inherits(sub, "check_items"))
+  expect_s3_class(sub, "data.frame")
+  expect_named(sub, c("item", "min_count"))
+  expect_equal(nrow(sub), sum(out$flag != "ok"))
+  expect_null(attr(sub, "basis"))
+  # The un-subset object keeps its class (and its summary print).
+  expect_s3_class(out, "check_items")
+  # Column access still works on the full object.
+  expect_type(out$flag, "character")
+})
+
 test_that("ackwards() errors on a constant item, naming it", {
   skip_if_not_installed("psych")
   n <- 300

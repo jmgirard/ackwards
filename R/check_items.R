@@ -104,6 +104,20 @@ check_items <- function(data, cor = c("polychoric", "pearson", "spearman")) {
   do.call(rbind, rows)
 }
 
+# Subsetting a check_items report returns a plain data frame: the print method
+# is a whole-report summary (item counts, flag groups), which is meaningless on
+# an arbitrary row/column subset -- and would silently miscount if the `flag`
+# column were dropped. Users treat the report as a data frame, so give them one.
+#' @export
+`[.check_items` <- function(x, ...) {
+  out <- NextMethod()
+  if (is.data.frame(out)) {
+    attr(out, "basis") <- NULL
+    class(out) <- "data.frame"
+  }
+  out
+}
+
 #' Print an item quality check
 #'
 #' @param x A `check_items` object (produced by [check_items()]).

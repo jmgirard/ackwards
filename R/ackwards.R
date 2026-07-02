@@ -703,18 +703,44 @@ ackwards <- function(
             )
           )
         } # nocov end
-        # Guard against non-positive-definite polychoric matrices (DESIGN.md s.14 remaining)
+        # Non-positive-definite polychoric matrices (DESIGN.md s.14 remaining):
+        # smooth them back to PD. cor.smooth prints its own notes -- ackwards
+        # owns the messaging.
         min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
         if (min_eig <= 0) { # nocov start
           cli::cli_warn(
-            c(
-              "!" = "Polychoric correlation matrix is not positive definite \\
-                     (min eigenvalue = {round(min_eig, 4)}).",
-              "i" = "Applying smoothing via {.fn psych::cor.smooth}."
-            )
+            "Polychoric correlation matrix is not positive definite \\
+             (min eigenvalue = {round(min_eig, 4)}); smoothing via \\
+             {.fn psych::cor.smooth}."
           )
-          R <- psych::cor.smooth(R)
+          R <- suppressMessages(suppressWarnings(psych::cor.smooth(R)))
+          min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
         } # nocov end
+
+        # Near-singular check, whether or not smoothing ran: a tiny smallest
+        # eigenvalue means the matrix is rank-deficient for practical purposes
+        # (healthy correlation matrices sit well above this). psych then cannot
+        # define the ML objective -- per-level fit indices come back NA (CFI) or
+        # from a residual-based fallback, and the tenBerge inverse is
+        # ill-conditioned. Say so once, clearly, instead of letting psych repeat
+        # it at every level (its message-stream chatter is muffled in the engine).
+        if (min_eig < 1e-4) {
+          cli::cli_warn(
+            c(
+              "!" = "The polychoric correlation matrix is near-singular \\
+                     (min eigenvalue {signif(min_eig, 2)}).",
+              "i" = "Per-level fit indices (especially CFI) and factor scores \\
+                     may be unreliable -- the loadings and edges rest on a \\
+                     rank-deficient matrix.",
+              "i" = "Usual causes are sparse response categories or redundant \\
+                     items. Consider collapsing rare categories, \\
+                     {.code missing = \"listwise\"}, or trimming items; \\
+                     {.fn check_items} shows which items are involved."
+            ),
+            .frequency = "once",
+            .frequency_id = "ackwards_near_singular"
+          )
+        }
       } else if (missing == "fiml") {
         # M38: FIML correlation via psych::corFiml (cor is guaranteed "pearson"
         # here by .resolve_missing). The estimated R feeds the normal W'RW
