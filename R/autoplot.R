@@ -156,7 +156,8 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' @examples
 #' \donttest{
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   x <- ackwards(bfi25, k_max = 5)
+#'   # bfi25 is ordinal; fit on the polychoric basis (best practice)
+#'   x <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric")
 #'   autoplot(x)
 #'   autoplot(x, color_pos = "steelblue")
 #'
@@ -168,7 +169,7 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   autoplot(x, direction = "horizontal")
 #'
 #'   # Per-level fit index chart (EFA or ESEM only)
-#'   x_efa <- ackwards(bfi25, k_max = 5, engine = "efa")
+#'   x_efa <- ackwards(na.omit(bfi25), k_max = 5, engine = "efa", cor = "polychoric")
 #'   autoplot(x_efa, what = "fit")
 #'
 #'   # Monochrome with correlation labels (for greyscale figures)
@@ -181,7 +182,7 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   autoplot(x, primary_only = TRUE)
 #'
 #'   # Forbes pruned view: omit redundant nodes, straight spanning arrows
-#'   xp <- ackwards(bfi25, k_max = 5) |> prune("redundant")
+#'   xp <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric") |> prune("redundant")
 #'   autoplot(xp, drop_pruned = TRUE)
 #'   autoplot(xp, drop_pruned = TRUE, show_r = TRUE)
 #'   autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)

@@ -105,8 +105,8 @@
 #'
 #' @examples
 #' \donttest{
-#' x <- ackwards(bfi25, k_max = 3)
-#' x <- boot_edges(x, bfi25, n_boot = 100, seed = 1)
+#' x <- ackwards(sim16, k_max = 3)
+#' x <- boot_edges(x, sim16, n_boot = 100, seed = 1)
 #' x$boot$edges
 #' head(tidy(x)) # now carries se / lo / hi
 #' }

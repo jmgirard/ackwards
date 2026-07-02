@@ -14,7 +14,7 @@
 #' @seealso [print.ackwards()], [tidy.ackwards()], [glance.ackwards()]
 #'
 #' @examples
-#' x <- ackwards(bfi25, k_max = 5)
+#' x <- ackwards(sim16, k_max = 5)
 #' summary(x)
 #'
 #' @export
