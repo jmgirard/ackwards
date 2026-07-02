@@ -1976,4 +1976,21 @@ User-facing change notes live in `NEWS.md`.
   0 fail / 0 skip** (+33 over M44); coverage **100%**; `styler` (0 files
   changed) / `lintr` (0 lints) clean;
   [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
-  clean (new export indexed).
+  clean (new export indexed). **Post-review follow-up** (same day;
+  addressed all four /post-milestone-review findings):
+  engine-agnosticism tests for the new scoring path (EFA value-level
+  against the hand formula; polychoric metric-consistency +
+  model-implied-SD warning; truncated-hierarchy
+  [`predict()`](https://rdrr.io/r/stats/predict.html) smoke test — M18
+  precedent);
+  [`augment()`](https://generics.r-lib.org/reference/augment.html) now
+  **errors** when `scaling` is supplied without `data` (was silently
+  ignored; matches the package’s strict-guard precedent; NEWS + roxygen
+  updated); a roxygen sentence on FIML-fit objects under
+  `scaling = "fit"` (observed `na.rm` moments are the consistent frame;
+  scoring does not impute); a unit test for the zero/non-finite
+  supplied-scale guard in `.standardize()`. The pre-existing non-Pearson
+  warning test was made order-independent (`reset_warning_verbosity`)
+  after the new polychoric test exposed its session-order dependence.
+  Post-follow-up gate: `R CMD check` 0/0/0; **1703 pass / 0 fail / 0
+  skip**; coverage 100%; style/lint/`check_pkgdown()` clean.
