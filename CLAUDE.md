@@ -68,19 +68,37 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-**M43 is complete** (2026-07-01) — the doc-fix milestone off the M41 review, and with it the
-**entire M41 review remediation is done except one scoping question**. All doc findings shipped:
-engines-vignette FIML rewrite (M2, m4, m5), suggest-k CD mechanism + drift-proof worked example
-(M3, m11), Forbes artifact-section rewrite + `cut_strong` remnant + chain-retention example
-(M4, M5, m3), the `redundancy_phi` determinacy rationale across all four surfaces (e1), and
-sim16 doc modernization (m9). Doc-only: no behavior/export change. Gate: full `check()` 0/0/0
-with all vignettes rebuilt, 1591 pass / 0 fail / 0 skip, coverage 100%, style/lint clean,
-`check_pkgdown()` clean. Detail in `MILESTONES.md` (M43 entry).
+**M44 — Forbes fidelity: fixture or deferral.** Resolves the last pending M41 finding (M6: the
+"reproduce Forbes's examples exactly" contract is untested). Owner-approved shape (2026-07-01,
+amended: owner knows Forbes personally and can request materials directly):
 
-**Next up:** one item remains from the M41 review — **M44** (scoping decision: obtain Forbes
-(2023) materials for an exact-reproduction fixture test, or amend this file's "reproduce
-Forbes's examples exactly" contract wording to "faithful to the published algorithm"). See
-`ROADMAP.md`. Unscheduled: e2 (dual EFA chi-squares), e4 (bootstrap edge CIs, DESIGN §14).
+- **Phase A — materials investigation.** Search for Forbes (2023, *Psychological Methods*)
+  supplemental/OSF materials: (a) input (raw data or correlation matrix for her worked examples),
+  (b) published output values precise enough for numeric assertions. Feasibility check in a
+  scratch session (`ackwards() |> prune("redundant")` vs. published values). **Decision rule
+  (owner-approved):** fixture path requires BOTH obtainable input whose license permits
+  committing a derived correlation matrix AND published outputs supporting ≥ 2-dp value-level
+  assertions; anything less → deferral path. Ambiguous license cases (data downloadable but
+  non-redistributable, where a skip-if-offline download test could work) fold into the deferral
+  brief as an option for the owner's outreach, not a stall.
+- **Phase B1 — fixture path** (rule met): fixture `.rds` under `tests/testthat/fixtures/`
+  (< 100 KB, source cited, license cleared) + `test-forbes-fidelity.R` asserting default-output
+  reproduction (edge values to published precision, chain membership, retention/flag sets);
+  CLAUDE.md contract annotated as test-backed; one-line NEWS; ROADMAP → no pending milestones.
+- **Phase B2 — deferral path** (rule not met): the fixture question stays OPEN — ROADMAP keeps a
+  pending fixture brief updated with Phase A's findings, noting the owner will contact Forbes for
+  materials; CLAUDE.md contract wording softened *interim* ("faithful to the published algorithm,
+  verified against the paper's description; exact-reproduction fixture planned pending materials
+  from the author"); DESIGN.md §14 item 20 gets the matching interim note. Doc-only on this path.
+
+Both paths: investigation documented in the `MILESTONES.md` M44 entry; CLAUDE.md index +
+Current focus; gate `check()` 0/0/0 (+ coverage/style/lint/`check_pkgdown()`; meaningful mainly
+on the fixture path). No new export on either path → `_pkgdown.yml` untouched.
+
+**Acceptance criteria:** investigation documented (searched where, found what, which branch and
+why) · fixture path: value-level test passes against published numbers, fixture small/cited/
+licensed, suite green · deferral path: interim wording in CLAUDE.md + DESIGN.md §14.20, ROADMAP
+carries the deferred fixture brief with findings · MILESTONES/CLAUDE updated · gate green.
 
 ## Invariants — do not violate without flagging
 
