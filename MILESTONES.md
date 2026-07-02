@@ -1479,3 +1479,12 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   (The new `suggest_k()` warning surfaces once in the intro/girard/suggest-k vignettes, which call
   it on ordinal `bfi25`; non-fatal for the build — the prose reconciliation belongs to M49
   Phase B, which already scopes the intro's "No warning this time" fix.)
+  **Post-review follow-up** (same day; review verdict READY with 1 should-fix + 3 nice-to-haves):
+  `suggest_k()` roxygen gained an "Ordinal (Likert) data" `@section` documenting the warning and
+  *why* the advice targets the final `ackwards()` fit (the should-fix — the behaviour was tested
+  but undocumented in the function's own help); three edge-case guards added — bfi25 labels survive
+  both the pairwise and listwise routes and base row-subsetting drops the plain attributes
+  (contract test for the "fit direct" guidance), the `suggest_k()` ordinal warning fires on the
+  Spearman basis too, and a regression guard that the pruned `print()`/`summary()` footer stays a
+  single consolidated rule (char-agnostic detection to survive locale/`cli.unicode` differences).
+  No behaviour change; check still 0/0/0, coverage 100%.

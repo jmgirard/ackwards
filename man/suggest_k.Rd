@@ -130,6 +130,23 @@ watch higher-level factors fragment -- this is a feature of the method, not
 overextraction.
 }
 
+\section{Ordinal (Likert) data}{
+
+\code{suggest_k()} screens on the Pearson or Spearman basis by design and never
+computes polychoric correlations itself, so when the raw data look ordinal
+(at most 7 distinct integer values per column) it emits a one-per-session
+warning -- the same \code{detect_ordinal()} signal \code{ackwards()} and
+\code{comparability()} use (Invariant 6: announce consequential defaults loudly).
+Crucially, the advice points at the \emph{final} \code{\link[=ackwards]{ackwards()}} fit
+(\code{cor = "polychoric"}), \strong{not} at \code{suggest_k()} itself: the screening basis
+is intentional. The plausible-k \emph{range} is robust to the Pearson-vs-polychoric
+choice, so screening on Pearson and fitting the final model polychoric is the
+recommended workflow -- computing polychoric correlations at the screening
+stage would only add cost and NPD risk without changing the range. The
+warning is skipped for correlation-matrix input (there are no items to
+inspect).
+}
+
 \section{A note on overextraction}{
 
 PA-PC in particular tends to recommend more factors than replicate across
