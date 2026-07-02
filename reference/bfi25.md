@@ -57,7 +57,7 @@ a `label` attribute, so
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 captures it at fit time and
 [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
-prints the wording as `label (code)` (e.g. `Make friends easily (E4)`)
+prints the wording as `code: label` (e.g. `E4: Make friends easily`)
 with no setup. These are plain attributes: base row-subsetting (e.g.
 `na.omit(bfi25)`, `bfi25[rows, ]`) drops them, as base R does for any
 non-`labelled`-class vector, so fit on `bfi25` **directly** – its `NA`s

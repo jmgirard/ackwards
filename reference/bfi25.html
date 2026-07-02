@@ -23,13 +23,17 @@ and vignettes run without reaching into psych's namespace directly."></head><bod
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>The workflow</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Model choices</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interpretation &amp; presentation</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-visualization.html">Customizing the Hierarchy Diagram</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -93,7 +97,7 @@ The full dataset (<code><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="
 collected via the SAPA project.</p>
 <p>Each item column carries its public-domain IPIP stem (Goldberg, 1999) as a
 <code>label</code> attribute, so <code><a href="ackwards.html">ackwards()</a></code> captures it at fit time and <code><a href="top_items.html">top_items()</a></code>
-prints the wording as <code>label (code)</code> (e.g. <code>Make friends easily (E4)</code>) with
+prints the wording as <code>code: label</code> (e.g. <code>E4: Make friends easily</code>) with
 no setup. These are plain attributes: base row-subsetting (e.g.
 <code>na.omit(bfi25)</code>, <code>bfi25[rows, ]</code>) drops them, as base R does for any
 non-<code>labelled</code>-class vector, so fit on <code>bfi25</code> <strong>directly</strong> – its <code>NA</code>s are

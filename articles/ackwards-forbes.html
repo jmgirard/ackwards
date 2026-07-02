@@ -34,13 +34,17 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>The workflow</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Model choices</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interpretation &amp; presentation</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-visualization.html">Customizing the Hierarchy Diagram</a></li>
   </ul>
 </li>
@@ -703,65 +707,15 @@ m5f2 are essentially the same construct — the intermediate levels are
 just refinements within a stable dimension.</p>
 </div>
 <div class="section level3">
-<h3 id="how-certain-is-the-strongest-edge-boot_edges">How certain is the strongest edge? <code>boot_edges()</code><a class="anchor" aria-label="anchor" href="#how-certain-is-the-strongest-edge-boot_edges"></a>
+<h3 id="reading-the-strongest-edge-with-care">Reading the strongest edge with care<a class="anchor" aria-label="anchor" href="#reading-the-strongest-edge-with-care"></a>
 </h3>
 <p>Reading the <em>strongest</em> edge off a table of many correlations
-is a form of selection. With k = 5 the all-pairs table holds 85 edges;
-the maximum of that many correlations is biased upward even when every
-individual estimate is honest. Before leaning on “m3f2 and m5f2 are the
-same construct,” it is worth asking how precisely each edge is
-estimated.</p>
-<p><code><a href="../reference/boot_edges.html">boot_edges()</a></code> attaches a nonparametric bootstrap standard
-error and percentile confidence interval to every edge. Each replicate
-resamples respondents, recomputes the correlations, refits the whole
-hierarchy, and — importantly — re-anchors each replicate’s factors to
-the full-sample solution (matching and sign-orienting them) so that
-factor label-switching across replicates does not contaminate the
-intervals.</p>
-<p><code><a href="../reference/boot_edges.html">boot_edges()</a></code> runs on the PCA and EFA engines with a
-Pearson or Spearman basis; it does not bootstrap a polychoric matrix in
-every replicate (slow and unstable, the same scope as
-<code><a href="../reference/comparability.html">comparability()</a></code>). For an ordinal instrument like the BFI,
-fit the final model with <code>cor = "polychoric"</code> but screen edge
-stability on a Pearson-basis EFA of the same items:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">x_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, engine <span class="op">=</span> <span class="st">"efa"</span>, pairs <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/boot_edges.html">boot_edges</a></span><span class="op">(</span><span class="va">bfi</span>, n_boot <span class="op">=</span> <span class="fl">200</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: <span style="color: #BBBB00;">!</span> 25 columns look like ordinal/Likert items (&lt;= 7 distinct integer values):</span></span>
-<span><span class="co">#&gt;   <span style="color: #0000BB;">"A1"</span>, <span style="color: #0000BB;">"A2"</span>, <span style="color: #0000BB;">"A3"</span>, <span style="color: #0000BB;">"A4"</span>, <span style="color: #0000BB;">"A5"</span>, <span style="color: #0000BB;">"C1"</span>, …, <span style="color: #0000BB;">"O4"</span>, and <span style="color: #0000BB;">"O5"</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Results use a <span style="color: #0000BB;">"pearson"</span> basis. Consider `cor = "polychoric"` for ordinal</span></span>
-<span><span class="co">#&gt;   data.</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fitting 200 bootstrap replicates (efa, k = 1-5)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fitting 200 bootstrap replicates (efa, k = 1-5)... <span style="color: #B2B2B2;">[20.6s]</span></span></span>
-<span><span class="co">#&gt; </span></span>
-<span></span>
-<span><span class="va">boot_tbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_boot</span>, what <span class="op">=</span> <span class="st">"edges"</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span></span>
-<span><span class="va">skip_boot</span> <span class="op">&lt;-</span> <span class="va">boot_tbl</span><span class="op">[</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">boot_tbl</span><span class="op">$</span><span class="va">level_to</span> <span class="op">-</span> <span class="va">boot_tbl</span><span class="op">$</span><span class="va">level_from</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">boot_tbl</span><span class="op">$</span><span class="va">r</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">0.5</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span>, <span class="st">"lo"</span>, <span class="st">"hi"</span><span class="op">)</span></span>
-<span><span class="op">]</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">skip_boot</span>, <span class="fl">6</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    from   to         r        lo        hi</span></span>
-<span><span class="co">#&gt; 4  m3f2 m5f1 0.9897391 0.9673909 0.9973950</span></span>
-<span><span class="co">#&gt; 6  m2f2 m4f2 0.9759641 0.9183303 0.9932987</span></span>
-<span><span class="co">#&gt; 7  m2f2 m5f1 0.9733982 0.9138369 0.9901712</span></span>
-<span><span class="co">#&gt; 11 m3f3 m5f3 0.8960495 0.6732509 0.9768403</span></span>
-<span><span class="co">#&gt; 14 m2f1 m4f1 0.8806961 0.7226635 0.9256204</span></span>
-<span><span class="co">#&gt; 15 m1f1 m3f1 0.7974610 0.7248725 0.8533350</span></span></code></pre></div>
-<p>The <code>lo</code>/<code>hi</code> columns are the 95% percentile
-interval. A skip-level edge whose interval sits comfortably above
-<code><a href="../reference/prune.html">prune()</a></code>’s <code>redundancy_r</code> threshold (0.9 by
-default) is a defensible “same construct” claim; one whose interval
-straddles the threshold should not be treated as decisively
-redundant.</p>
-<p>A caution the intervals <strong>cannot</strong> resolve: they
-describe each edge on its own. They do not correct for having
-<em>searched</em> the 85-edge table for the largest value. Treat them as
-per-edge error bars, not a familywise guarantee — if the strongest-edge
-claim is load-bearing, pre-specify which pair you care about rather than
-reporting whichever came out largest.</p>
+is itself a form of selection. With k = 5 the all-pairs table holds 85
+edges, and the maximum of that many correlations is biased upward even
+when every individual estimate is honest. Treat a “strongest link” claim
+as descriptive rather than inferential: if it is load-bearing,
+pre-specify which pair of factors you care about rather than reporting
+whichever correlation came out largest.</p>
 </div>
 </div>
 <div class="section level2">
@@ -783,29 +737,29 @@ flagged as redundant: they repeat rather than refine the same dimension.
 A chain that stops <em>short</em> of the deepest level instead keeps its
 <strong>top</strong> node, the broadest manifestation (Forbes,
 2023).</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_prune</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, pairs <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/prune.html">prune</a></span><span class="op">(</span><span class="st">"redundant"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span></code></pre></div>
-<div id="mzwfstpiad" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#mzwfstpiad table {
+<div id="eexombwkke" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#eexombwkke table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#mzwfstpiad thead, #mzwfstpiad tbody, #mzwfstpiad tfoot, #mzwfstpiad tr, #mzwfstpiad td, #mzwfstpiad th {
+#eexombwkke thead, #eexombwkke tbody, #eexombwkke tfoot, #eexombwkke tr, #eexombwkke td, #eexombwkke th {
   border-style: none;
 }
 
-#mzwfstpiad p {
+#eexombwkke p {
   margin: 0;
   padding: 0;
 }
 
-#mzwfstpiad .gt_table {
+#eexombwkke .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -831,12 +785,12 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   border-left-color: #D3D3D3;
 }
 
-#mzwfstpiad .gt_caption {
+#eexombwkke .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#mzwfstpiad .gt_title {
+#eexombwkke .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -848,7 +802,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   border-bottom-width: 0;
 }
 
-#mzwfstpiad .gt_subtitle {
+#eexombwkke .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -860,7 +814,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   border-top-width: 0;
 }
 
-#mzwfstpiad .gt_heading {
+#eexombwkke .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -872,13 +826,13 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   border-right-color: #D3D3D3;
 }
 
-#mzwfstpiad .gt_bottom_border {
+#eexombwkke .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#mzwfstpiad .gt_col_headings {
+#eexombwkke .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -893,7 +847,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   border-right-color: #D3D3D3;
 }
 
-#mzwfstpiad .gt_col_heading {
+#eexombwkke .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -913,7 +867,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   overflow-x: hidden;
 }
 
-#mzwfstpiad .gt_column_spanner_outer {
+#eexombwkke .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -925,15 +879,15 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   padding-right: 4px;
 }
 
-#mzwfstpiad .gt_column_spanner_outer:first-child {
+#eexombwkke .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#mzwfstpiad .gt_column_spanner_outer:last-child {
+#eexombwkke .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#mzwfstpiad .gt_column_spanner {
+#eexombwkke .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -945,11 +899,11 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   width: 100%;
 }
 
-#mzwfstpiad .gt_spanner_row {
+#eexombwkke .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#mzwfstpiad .gt_group_heading {
+#eexombwkke .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -975,7 +929,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   text-align: left;
 }
 
-#mzwfstpiad .gt_empty_group_heading {
+#eexombwkke .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -990,15 +944,15 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   vertical-align: middle;
 }
 
-#mzwfstpiad .gt_from_md > :first-child {
+#eexombwkke .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#mzwfstpiad .gt_from_md > :last-child {
+#eexombwkke .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#mzwfstpiad .gt_row {
+#eexombwkke .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1017,7 +971,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   overflow-x: hidden;
 }
 
-#mzwfstpiad .gt_stub {
+#eexombwkke .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1030,7 +984,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   padding-right: 5px;
 }
 
-#mzwfstpiad .gt_stub_row_group {
+#eexombwkke .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1044,15 +998,15 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   vertical-align: top;
 }
 
-#mzwfstpiad .gt_row_group_first td {
+#eexombwkke .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#mzwfstpiad .gt_row_group_first th {
+#eexombwkke .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#mzwfstpiad .gt_summary_row {
+#eexombwkke .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1062,16 +1016,16 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   padding-right: 5px;
 }
 
-#mzwfstpiad .gt_first_summary_row {
+#eexombwkke .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#mzwfstpiad .gt_first_summary_row.thick {
+#eexombwkke .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#mzwfstpiad .gt_last_summary_row {
+#eexombwkke .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1081,7 +1035,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   border-bottom-color: #D3D3D3;
 }
 
-#mzwfstpiad .gt_grand_summary_row {
+#eexombwkke .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1091,7 +1045,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   padding-right: 5px;
 }
 
-#mzwfstpiad .gt_first_grand_summary_row {
+#eexombwkke .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1101,7 +1055,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   border-top-color: #D3D3D3;
 }
 
-#mzwfstpiad .gt_last_grand_summary_row_top {
+#eexombwkke .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1111,11 +1065,11 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   border-bottom-color: #D3D3D3;
 }
 
-#mzwfstpiad .gt_striped {
+#eexombwkke .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#mzwfstpiad .gt_table_body {
+#eexombwkke .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1124,7 +1078,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   border-bottom-color: #D3D3D3;
 }
 
-#mzwfstpiad .gt_footnotes {
+#eexombwkke .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1138,7 +1092,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   border-right-color: #D3D3D3;
 }
 
-#mzwfstpiad .gt_footnote {
+#eexombwkke .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1147,7 +1101,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   padding-right: 5px;
 }
 
-#mzwfstpiad .gt_sourcenotes {
+#eexombwkke .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1161,7 +1115,7 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   border-right-color: #D3D3D3;
 }
 
-#mzwfstpiad .gt_sourcenote {
+#eexombwkke .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1169,72 +1123,72 @@ A chain that stops <em>short</em> of the deepest level instead keeps its
   padding-right: 5px;
 }
 
-#mzwfstpiad .gt_left {
+#eexombwkke .gt_left {
   text-align: left;
 }
 
-#mzwfstpiad .gt_center {
+#eexombwkke .gt_center {
   text-align: center;
 }
 
-#mzwfstpiad .gt_right {
+#eexombwkke .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#mzwfstpiad .gt_font_normal {
+#eexombwkke .gt_font_normal {
   font-weight: normal;
 }
 
-#mzwfstpiad .gt_font_bold {
+#eexombwkke .gt_font_bold {
   font-weight: bold;
 }
 
-#mzwfstpiad .gt_font_italic {
+#eexombwkke .gt_font_italic {
   font-style: italic;
 }
 
-#mzwfstpiad .gt_super {
+#eexombwkke .gt_super {
   font-size: 65%;
 }
 
-#mzwfstpiad .gt_footnote_marks {
+#eexombwkke .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#mzwfstpiad .gt_asterisk {
+#eexombwkke .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#mzwfstpiad .gt_indent_1 {
+#eexombwkke .gt_indent_1 {
   text-indent: 5px;
 }
 
-#mzwfstpiad .gt_indent_2 {
+#eexombwkke .gt_indent_2 {
   text-indent: 10px;
 }
 
-#mzwfstpiad .gt_indent_3 {
+#eexombwkke .gt_indent_3 {
   text-indent: 15px;
 }
 
-#mzwfstpiad .gt_indent_4 {
+#eexombwkke .gt_indent_4 {
   text-indent: 20px;
 }
 
-#mzwfstpiad .gt_indent_5 {
+#eexombwkke .gt_indent_5 {
   text-indent: 25px;
 }
 
-#mzwfstpiad .katex-display {
+#eexombwkke .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#mzwfstpiad div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#eexombwkke div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1373,7 +1327,7 @@ publication style — black lines, uniform width, plain line ends, and no
 legend.</p>
 <p><strong>With correlation labels</strong>
 (<code>show_r = TRUE</code>):</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x_prune</span>,</span>
 <span>  drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>, show_r <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  color_pos <span class="op">=</span> <span class="st">"black"</span>, color_neg <span class="op">=</span> <span class="st">"black"</span>,</span>
@@ -1382,7 +1336,7 @@ legend.</p>
 <p><img src="ackwards-forbes_files/figure-html/drop-pruned-1.png" class="r-plt" alt="" width="768"></p>
 <p><strong>Without labels</strong> (cleaner for slides or when the exact
 values are not the focus):</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x_prune</span>,</span>
 <span>  drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  color_pos <span class="op">=</span> <span class="st">"black"</span>, color_neg <span class="op">=</span> <span class="st">"black"</span>,</span>
@@ -1399,7 +1353,7 @@ above the display threshold (<code>cut_show</code>, default 0.3) are
 drawn at all.</p>
 <p>To close the gaps and compact the layout while retaining the original
 level numbers on the axis:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x_prune</span>,</span>
 <span>  drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>, compress_levels <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  color_pos <span class="op">=</span> <span class="st">"black"</span>, color_neg <span class="op">=</span> <span class="st">"black"</span>,</span>
@@ -1436,7 +1390,7 @@ would manufacture investigator degrees of freedom — so
 <em>you</em> to weigh: Tucker’s φ for <strong>every</strong> cross-level
 factor pair in <code>x$prune$phi</code>, plus the structural signals of
 the next section in <code>x$prune$structural</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_art</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, pairs <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/prune.html">prune</a></span><span class="op">(</span><span class="st">"artifact"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Artifact mode: Tucker's φ computed for all cross-level factor pairs.</span></span>
@@ -1448,23 +1402,23 @@ the next section in <code>x$prune$structural</code>.</p>
 is the <strong>non-adjacent</strong> pairs with the highest |φ| — a deep
 factor whose loading pattern nearly duplicates a factor two or more
 levels up is the classic candidate:</p>
-<div id="grvaunxtoj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#grvaunxtoj table {
+<div id="ulbfdpbcyv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ulbfdpbcyv table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#grvaunxtoj thead, #grvaunxtoj tbody, #grvaunxtoj tfoot, #grvaunxtoj tr, #grvaunxtoj td, #grvaunxtoj th {
+#ulbfdpbcyv thead, #ulbfdpbcyv tbody, #ulbfdpbcyv tfoot, #ulbfdpbcyv tr, #ulbfdpbcyv td, #ulbfdpbcyv th {
   border-style: none;
 }
 
-#grvaunxtoj p {
+#ulbfdpbcyv p {
   margin: 0;
   padding: 0;
 }
 
-#grvaunxtoj .gt_table {
+#ulbfdpbcyv .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1490,12 +1444,12 @@ levels up is the classic candidate:</p>
   border-left-color: #D3D3D3;
 }
 
-#grvaunxtoj .gt_caption {
+#ulbfdpbcyv .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#grvaunxtoj .gt_title {
+#ulbfdpbcyv .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1507,7 +1461,7 @@ levels up is the classic candidate:</p>
   border-bottom-width: 0;
 }
 
-#grvaunxtoj .gt_subtitle {
+#ulbfdpbcyv .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1519,7 +1473,7 @@ levels up is the classic candidate:</p>
   border-top-width: 0;
 }
 
-#grvaunxtoj .gt_heading {
+#ulbfdpbcyv .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1531,13 +1485,13 @@ levels up is the classic candidate:</p>
   border-right-color: #D3D3D3;
 }
 
-#grvaunxtoj .gt_bottom_border {
+#ulbfdpbcyv .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#grvaunxtoj .gt_col_headings {
+#ulbfdpbcyv .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1552,7 +1506,7 @@ levels up is the classic candidate:</p>
   border-right-color: #D3D3D3;
 }
 
-#grvaunxtoj .gt_col_heading {
+#ulbfdpbcyv .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1572,7 +1526,7 @@ levels up is the classic candidate:</p>
   overflow-x: hidden;
 }
 
-#grvaunxtoj .gt_column_spanner_outer {
+#ulbfdpbcyv .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1584,15 +1538,15 @@ levels up is the classic candidate:</p>
   padding-right: 4px;
 }
 
-#grvaunxtoj .gt_column_spanner_outer:first-child {
+#ulbfdpbcyv .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#grvaunxtoj .gt_column_spanner_outer:last-child {
+#ulbfdpbcyv .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#grvaunxtoj .gt_column_spanner {
+#ulbfdpbcyv .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1604,11 +1558,11 @@ levels up is the classic candidate:</p>
   width: 100%;
 }
 
-#grvaunxtoj .gt_spanner_row {
+#ulbfdpbcyv .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#grvaunxtoj .gt_group_heading {
+#ulbfdpbcyv .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1634,7 +1588,7 @@ levels up is the classic candidate:</p>
   text-align: left;
 }
 
-#grvaunxtoj .gt_empty_group_heading {
+#ulbfdpbcyv .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1649,15 +1603,15 @@ levels up is the classic candidate:</p>
   vertical-align: middle;
 }
 
-#grvaunxtoj .gt_from_md > :first-child {
+#ulbfdpbcyv .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#grvaunxtoj .gt_from_md > :last-child {
+#ulbfdpbcyv .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#grvaunxtoj .gt_row {
+#ulbfdpbcyv .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1676,7 +1630,7 @@ levels up is the classic candidate:</p>
   overflow-x: hidden;
 }
 
-#grvaunxtoj .gt_stub {
+#ulbfdpbcyv .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1689,7 +1643,7 @@ levels up is the classic candidate:</p>
   padding-right: 5px;
 }
 
-#grvaunxtoj .gt_stub_row_group {
+#ulbfdpbcyv .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1703,15 +1657,15 @@ levels up is the classic candidate:</p>
   vertical-align: top;
 }
 
-#grvaunxtoj .gt_row_group_first td {
+#ulbfdpbcyv .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#grvaunxtoj .gt_row_group_first th {
+#ulbfdpbcyv .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#grvaunxtoj .gt_summary_row {
+#ulbfdpbcyv .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1721,16 +1675,16 @@ levels up is the classic candidate:</p>
   padding-right: 5px;
 }
 
-#grvaunxtoj .gt_first_summary_row {
+#ulbfdpbcyv .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#grvaunxtoj .gt_first_summary_row.thick {
+#ulbfdpbcyv .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#grvaunxtoj .gt_last_summary_row {
+#ulbfdpbcyv .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1740,7 +1694,7 @@ levels up is the classic candidate:</p>
   border-bottom-color: #D3D3D3;
 }
 
-#grvaunxtoj .gt_grand_summary_row {
+#ulbfdpbcyv .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1750,7 +1704,7 @@ levels up is the classic candidate:</p>
   padding-right: 5px;
 }
 
-#grvaunxtoj .gt_first_grand_summary_row {
+#ulbfdpbcyv .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1760,7 +1714,7 @@ levels up is the classic candidate:</p>
   border-top-color: #D3D3D3;
 }
 
-#grvaunxtoj .gt_last_grand_summary_row_top {
+#ulbfdpbcyv .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1770,11 +1724,11 @@ levels up is the classic candidate:</p>
   border-bottom-color: #D3D3D3;
 }
 
-#grvaunxtoj .gt_striped {
+#ulbfdpbcyv .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#grvaunxtoj .gt_table_body {
+#ulbfdpbcyv .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1783,7 +1737,7 @@ levels up is the classic candidate:</p>
   border-bottom-color: #D3D3D3;
 }
 
-#grvaunxtoj .gt_footnotes {
+#ulbfdpbcyv .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1797,7 +1751,7 @@ levels up is the classic candidate:</p>
   border-right-color: #D3D3D3;
 }
 
-#grvaunxtoj .gt_footnote {
+#ulbfdpbcyv .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1806,7 +1760,7 @@ levels up is the classic candidate:</p>
   padding-right: 5px;
 }
 
-#grvaunxtoj .gt_sourcenotes {
+#ulbfdpbcyv .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1820,7 +1774,7 @@ levels up is the classic candidate:</p>
   border-right-color: #D3D3D3;
 }
 
-#grvaunxtoj .gt_sourcenote {
+#ulbfdpbcyv .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1828,72 +1782,72 @@ levels up is the classic candidate:</p>
   padding-right: 5px;
 }
 
-#grvaunxtoj .gt_left {
+#ulbfdpbcyv .gt_left {
   text-align: left;
 }
 
-#grvaunxtoj .gt_center {
+#ulbfdpbcyv .gt_center {
   text-align: center;
 }
 
-#grvaunxtoj .gt_right {
+#ulbfdpbcyv .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#grvaunxtoj .gt_font_normal {
+#ulbfdpbcyv .gt_font_normal {
   font-weight: normal;
 }
 
-#grvaunxtoj .gt_font_bold {
+#ulbfdpbcyv .gt_font_bold {
   font-weight: bold;
 }
 
-#grvaunxtoj .gt_font_italic {
+#ulbfdpbcyv .gt_font_italic {
   font-style: italic;
 }
 
-#grvaunxtoj .gt_super {
+#ulbfdpbcyv .gt_super {
   font-size: 65%;
 }
 
-#grvaunxtoj .gt_footnote_marks {
+#ulbfdpbcyv .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#grvaunxtoj .gt_asterisk {
+#ulbfdpbcyv .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#grvaunxtoj .gt_indent_1 {
+#ulbfdpbcyv .gt_indent_1 {
   text-indent: 5px;
 }
 
-#grvaunxtoj .gt_indent_2 {
+#ulbfdpbcyv .gt_indent_2 {
   text-indent: 10px;
 }
 
-#grvaunxtoj .gt_indent_3 {
+#ulbfdpbcyv .gt_indent_3 {
   text-indent: 15px;
 }
 
-#grvaunxtoj .gt_indent_4 {
+#ulbfdpbcyv .gt_indent_4 {
   text-indent: 20px;
 }
 
-#grvaunxtoj .gt_indent_5 {
+#ulbfdpbcyv .gt_indent_5 {
   text-indent: 25px;
 }
 
-#grvaunxtoj .katex-display {
+#ulbfdpbcyv .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#grvaunxtoj div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#ulbfdpbcyv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2021,23 +1975,23 @@ at the level above. Items that were separated at the coarser solution
 have been merged under one factor at the finer solution — the
 split-then-merge anomaly of Forbes Fig. 2.</li>
 </ul>
-<div id="uttbusnnjn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#uttbusnnjn table {
+<div id="kgufivjubq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#kgufivjubq table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#uttbusnnjn thead, #uttbusnnjn tbody, #uttbusnnjn tfoot, #uttbusnnjn tr, #uttbusnnjn td, #uttbusnnjn th {
+#kgufivjubq thead, #kgufivjubq tbody, #kgufivjubq tfoot, #kgufivjubq tr, #kgufivjubq td, #kgufivjubq th {
   border-style: none;
 }
 
-#uttbusnnjn p {
+#kgufivjubq p {
   margin: 0;
   padding: 0;
 }
 
-#uttbusnnjn .gt_table {
+#kgufivjubq .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2063,12 +2017,12 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   border-left-color: #D3D3D3;
 }
 
-#uttbusnnjn .gt_caption {
+#kgufivjubq .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#uttbusnnjn .gt_title {
+#kgufivjubq .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2080,7 +2034,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   border-bottom-width: 0;
 }
 
-#uttbusnnjn .gt_subtitle {
+#kgufivjubq .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2092,7 +2046,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   border-top-width: 0;
 }
 
-#uttbusnnjn .gt_heading {
+#kgufivjubq .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2104,13 +2058,13 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   border-right-color: #D3D3D3;
 }
 
-#uttbusnnjn .gt_bottom_border {
+#kgufivjubq .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#uttbusnnjn .gt_col_headings {
+#kgufivjubq .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2125,7 +2079,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   border-right-color: #D3D3D3;
 }
 
-#uttbusnnjn .gt_col_heading {
+#kgufivjubq .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2145,7 +2099,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   overflow-x: hidden;
 }
 
-#uttbusnnjn .gt_column_spanner_outer {
+#kgufivjubq .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2157,15 +2111,15 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   padding-right: 4px;
 }
 
-#uttbusnnjn .gt_column_spanner_outer:first-child {
+#kgufivjubq .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#uttbusnnjn .gt_column_spanner_outer:last-child {
+#kgufivjubq .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#uttbusnnjn .gt_column_spanner {
+#kgufivjubq .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2177,11 +2131,11 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   width: 100%;
 }
 
-#uttbusnnjn .gt_spanner_row {
+#kgufivjubq .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#uttbusnnjn .gt_group_heading {
+#kgufivjubq .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2207,7 +2161,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   text-align: left;
 }
 
-#uttbusnnjn .gt_empty_group_heading {
+#kgufivjubq .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2222,15 +2176,15 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   vertical-align: middle;
 }
 
-#uttbusnnjn .gt_from_md > :first-child {
+#kgufivjubq .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#uttbusnnjn .gt_from_md > :last-child {
+#kgufivjubq .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#uttbusnnjn .gt_row {
+#kgufivjubq .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2249,7 +2203,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   overflow-x: hidden;
 }
 
-#uttbusnnjn .gt_stub {
+#kgufivjubq .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2262,7 +2216,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   padding-right: 5px;
 }
 
-#uttbusnnjn .gt_stub_row_group {
+#kgufivjubq .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2276,15 +2230,15 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   vertical-align: top;
 }
 
-#uttbusnnjn .gt_row_group_first td {
+#kgufivjubq .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#uttbusnnjn .gt_row_group_first th {
+#kgufivjubq .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#uttbusnnjn .gt_summary_row {
+#kgufivjubq .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2294,16 +2248,16 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   padding-right: 5px;
 }
 
-#uttbusnnjn .gt_first_summary_row {
+#kgufivjubq .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#uttbusnnjn .gt_first_summary_row.thick {
+#kgufivjubq .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#uttbusnnjn .gt_last_summary_row {
+#kgufivjubq .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2313,7 +2267,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   border-bottom-color: #D3D3D3;
 }
 
-#uttbusnnjn .gt_grand_summary_row {
+#kgufivjubq .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2323,7 +2277,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   padding-right: 5px;
 }
 
-#uttbusnnjn .gt_first_grand_summary_row {
+#kgufivjubq .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2333,7 +2287,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   border-top-color: #D3D3D3;
 }
 
-#uttbusnnjn .gt_last_grand_summary_row_top {
+#kgufivjubq .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2343,11 +2297,11 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   border-bottom-color: #D3D3D3;
 }
 
-#uttbusnnjn .gt_striped {
+#kgufivjubq .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#uttbusnnjn .gt_table_body {
+#kgufivjubq .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2356,7 +2310,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   border-bottom-color: #D3D3D3;
 }
 
-#uttbusnnjn .gt_footnotes {
+#kgufivjubq .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2370,7 +2324,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   border-right-color: #D3D3D3;
 }
 
-#uttbusnnjn .gt_footnote {
+#kgufivjubq .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2379,7 +2333,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   padding-right: 5px;
 }
 
-#uttbusnnjn .gt_sourcenotes {
+#kgufivjubq .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2393,7 +2347,7 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   border-right-color: #D3D3D3;
 }
 
-#uttbusnnjn .gt_sourcenote {
+#kgufivjubq .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2401,72 +2355,72 @@ split-then-merge anomaly of Forbes Fig. 2.</li>
   padding-right: 5px;
 }
 
-#uttbusnnjn .gt_left {
+#kgufivjubq .gt_left {
   text-align: left;
 }
 
-#uttbusnnjn .gt_center {
+#kgufivjubq .gt_center {
   text-align: center;
 }
 
-#uttbusnnjn .gt_right {
+#kgufivjubq .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#uttbusnnjn .gt_font_normal {
+#kgufivjubq .gt_font_normal {
   font-weight: normal;
 }
 
-#uttbusnnjn .gt_font_bold {
+#kgufivjubq .gt_font_bold {
   font-weight: bold;
 }
 
-#uttbusnnjn .gt_font_italic {
+#kgufivjubq .gt_font_italic {
   font-style: italic;
 }
 
-#uttbusnnjn .gt_super {
+#kgufivjubq .gt_super {
   font-size: 65%;
 }
 
-#uttbusnnjn .gt_footnote_marks {
+#kgufivjubq .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#uttbusnnjn .gt_asterisk {
+#kgufivjubq .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#uttbusnnjn .gt_indent_1 {
+#kgufivjubq .gt_indent_1 {
   text-indent: 5px;
 }
 
-#uttbusnnjn .gt_indent_2 {
+#kgufivjubq .gt_indent_2 {
   text-indent: 10px;
 }
 
-#uttbusnnjn .gt_indent_3 {
+#kgufivjubq .gt_indent_3 {
   text-indent: 15px;
 }
 
-#uttbusnnjn .gt_indent_4 {
+#kgufivjubq .gt_indent_4 {
   text-indent: 20px;
 }
 
-#uttbusnnjn .gt_indent_5 {
+#kgufivjubq .gt_indent_5 {
   text-indent: 25px;
 }
 
-#uttbusnnjn .katex-display {
+#kgufivjubq .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#uttbusnnjn div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#kgufivjubq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2646,7 +2600,7 @@ cases where the threshold matters:</p>
 few <code>redundancy_r</code> thresholds does not require refitting
 <code><a href="../reference/ackwards.html">ackwards()</a></code> each time — the already-fit <code>x_all</code>
 object is re-pruned directly:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">thresholds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.80</span>, <span class="fl">0.85</span>, <span class="fl">0.90</span>, <span class="fl">0.95</span><span class="op">)</span></span>
 <span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">thresholds</span>, <span class="kw">function</span><span class="op">(</span><span class="va">thr</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prune.html">prune</a></span><span class="op">(</span><span class="va">x_all</span>, <span class="st">"redundant"</span>, redundancy_r <span class="op">=</span> <span class="va">thr</span><span class="op">)</span></span>
@@ -2665,23 +2619,23 @@ object is re-pruned directly:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span>
 <span><span class="va">thr_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>redundancy_r <span class="op">=</span> <span class="va">thresholds</span>, n_flagged <span class="op">=</span> <span class="va">counts</span><span class="op">)</span></span></code></pre></div>
-<div id="pwbrzxecwe" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#pwbrzxecwe table {
+<div id="txvafbsnay" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#txvafbsnay table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#pwbrzxecwe thead, #pwbrzxecwe tbody, #pwbrzxecwe tfoot, #pwbrzxecwe tr, #pwbrzxecwe td, #pwbrzxecwe th {
+#txvafbsnay thead, #txvafbsnay tbody, #txvafbsnay tfoot, #txvafbsnay tr, #txvafbsnay td, #txvafbsnay th {
   border-style: none;
 }
 
-#pwbrzxecwe p {
+#txvafbsnay p {
   margin: 0;
   padding: 0;
 }
 
-#pwbrzxecwe .gt_table {
+#txvafbsnay .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2707,12 +2661,12 @@ object is re-pruned directly:</p>
   border-left-color: #D3D3D3;
 }
 
-#pwbrzxecwe .gt_caption {
+#txvafbsnay .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#pwbrzxecwe .gt_title {
+#txvafbsnay .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2724,7 +2678,7 @@ object is re-pruned directly:</p>
   border-bottom-width: 0;
 }
 
-#pwbrzxecwe .gt_subtitle {
+#txvafbsnay .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2736,7 +2690,7 @@ object is re-pruned directly:</p>
   border-top-width: 0;
 }
 
-#pwbrzxecwe .gt_heading {
+#txvafbsnay .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2748,13 +2702,13 @@ object is re-pruned directly:</p>
   border-right-color: #D3D3D3;
 }
 
-#pwbrzxecwe .gt_bottom_border {
+#txvafbsnay .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#pwbrzxecwe .gt_col_headings {
+#txvafbsnay .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2769,7 +2723,7 @@ object is re-pruned directly:</p>
   border-right-color: #D3D3D3;
 }
 
-#pwbrzxecwe .gt_col_heading {
+#txvafbsnay .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2789,7 +2743,7 @@ object is re-pruned directly:</p>
   overflow-x: hidden;
 }
 
-#pwbrzxecwe .gt_column_spanner_outer {
+#txvafbsnay .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2801,15 +2755,15 @@ object is re-pruned directly:</p>
   padding-right: 4px;
 }
 
-#pwbrzxecwe .gt_column_spanner_outer:first-child {
+#txvafbsnay .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#pwbrzxecwe .gt_column_spanner_outer:last-child {
+#txvafbsnay .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#pwbrzxecwe .gt_column_spanner {
+#txvafbsnay .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2821,11 +2775,11 @@ object is re-pruned directly:</p>
   width: 100%;
 }
 
-#pwbrzxecwe .gt_spanner_row {
+#txvafbsnay .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#pwbrzxecwe .gt_group_heading {
+#txvafbsnay .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2851,7 +2805,7 @@ object is re-pruned directly:</p>
   text-align: left;
 }
 
-#pwbrzxecwe .gt_empty_group_heading {
+#txvafbsnay .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2866,15 +2820,15 @@ object is re-pruned directly:</p>
   vertical-align: middle;
 }
 
-#pwbrzxecwe .gt_from_md > :first-child {
+#txvafbsnay .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#pwbrzxecwe .gt_from_md > :last-child {
+#txvafbsnay .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#pwbrzxecwe .gt_row {
+#txvafbsnay .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2893,7 +2847,7 @@ object is re-pruned directly:</p>
   overflow-x: hidden;
 }
 
-#pwbrzxecwe .gt_stub {
+#txvafbsnay .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2906,7 +2860,7 @@ object is re-pruned directly:</p>
   padding-right: 5px;
 }
 
-#pwbrzxecwe .gt_stub_row_group {
+#txvafbsnay .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2920,15 +2874,15 @@ object is re-pruned directly:</p>
   vertical-align: top;
 }
 
-#pwbrzxecwe .gt_row_group_first td {
+#txvafbsnay .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#pwbrzxecwe .gt_row_group_first th {
+#txvafbsnay .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#pwbrzxecwe .gt_summary_row {
+#txvafbsnay .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2938,16 +2892,16 @@ object is re-pruned directly:</p>
   padding-right: 5px;
 }
 
-#pwbrzxecwe .gt_first_summary_row {
+#txvafbsnay .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#pwbrzxecwe .gt_first_summary_row.thick {
+#txvafbsnay .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#pwbrzxecwe .gt_last_summary_row {
+#txvafbsnay .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2957,7 +2911,7 @@ object is re-pruned directly:</p>
   border-bottom-color: #D3D3D3;
 }
 
-#pwbrzxecwe .gt_grand_summary_row {
+#txvafbsnay .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2967,7 +2921,7 @@ object is re-pruned directly:</p>
   padding-right: 5px;
 }
 
-#pwbrzxecwe .gt_first_grand_summary_row {
+#txvafbsnay .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2977,7 +2931,7 @@ object is re-pruned directly:</p>
   border-top-color: #D3D3D3;
 }
 
-#pwbrzxecwe .gt_last_grand_summary_row_top {
+#txvafbsnay .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2987,11 +2941,11 @@ object is re-pruned directly:</p>
   border-bottom-color: #D3D3D3;
 }
 
-#pwbrzxecwe .gt_striped {
+#txvafbsnay .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#pwbrzxecwe .gt_table_body {
+#txvafbsnay .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3000,7 +2954,7 @@ object is re-pruned directly:</p>
   border-bottom-color: #D3D3D3;
 }
 
-#pwbrzxecwe .gt_footnotes {
+#txvafbsnay .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3014,7 +2968,7 @@ object is re-pruned directly:</p>
   border-right-color: #D3D3D3;
 }
 
-#pwbrzxecwe .gt_footnote {
+#txvafbsnay .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3023,7 +2977,7 @@ object is re-pruned directly:</p>
   padding-right: 5px;
 }
 
-#pwbrzxecwe .gt_sourcenotes {
+#txvafbsnay .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3037,7 +2991,7 @@ object is re-pruned directly:</p>
   border-right-color: #D3D3D3;
 }
 
-#pwbrzxecwe .gt_sourcenote {
+#txvafbsnay .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3045,72 +2999,72 @@ object is re-pruned directly:</p>
   padding-right: 5px;
 }
 
-#pwbrzxecwe .gt_left {
+#txvafbsnay .gt_left {
   text-align: left;
 }
 
-#pwbrzxecwe .gt_center {
+#txvafbsnay .gt_center {
   text-align: center;
 }
 
-#pwbrzxecwe .gt_right {
+#txvafbsnay .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#pwbrzxecwe .gt_font_normal {
+#txvafbsnay .gt_font_normal {
   font-weight: normal;
 }
 
-#pwbrzxecwe .gt_font_bold {
+#txvafbsnay .gt_font_bold {
   font-weight: bold;
 }
 
-#pwbrzxecwe .gt_font_italic {
+#txvafbsnay .gt_font_italic {
   font-style: italic;
 }
 
-#pwbrzxecwe .gt_super {
+#txvafbsnay .gt_super {
   font-size: 65%;
 }
 
-#pwbrzxecwe .gt_footnote_marks {
+#txvafbsnay .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#pwbrzxecwe .gt_asterisk {
+#txvafbsnay .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#pwbrzxecwe .gt_indent_1 {
+#txvafbsnay .gt_indent_1 {
   text-indent: 5px;
 }
 
-#pwbrzxecwe .gt_indent_2 {
+#txvafbsnay .gt_indent_2 {
   text-indent: 10px;
 }
 
-#pwbrzxecwe .gt_indent_3 {
+#txvafbsnay .gt_indent_3 {
   text-indent: 15px;
 }
 
-#pwbrzxecwe .gt_indent_4 {
+#txvafbsnay .gt_indent_4 {
   text-indent: 20px;
 }
 
-#pwbrzxecwe .gt_indent_5 {
+#txvafbsnay .gt_indent_5 {
   text-indent: 25px;
 }
 
-#pwbrzxecwe .katex-display {
+#txvafbsnay .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#pwbrzxecwe div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#txvafbsnay div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>

@@ -2,8 +2,9 @@
 
 ## Fit the model
 
-The main modelling function, a Forbes-style pruning verb, and helpers
-for choosing k and gating hierarchy depth on replicability.
+The main modelling function, a Forbes-style pruning verb, and
+pre-analysis helpers for screening items, choosing k, and gating
+hierarchy depth on replicability.
 
 - [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
   : Bass-ackwards hierarchical structural analysis
@@ -11,6 +12,10 @@ for choosing k and gating hierarchy depth on replicability.
   Flag redundant or artifactual factors (Forbes 2023 extension)
 - [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
   : Bootstrap confidence intervals for between-level edges
+- [`check_items()`](https://jmgirard.github.io/ackwards/reference/check_items.md)
+  : Screen items for problems before factor analysis
+- [`print(`*`<check_items>`*`)`](https://jmgirard.github.io/ackwards/reference/print.check_items.md)
+  : Print an item quality check
 - [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
   : Suggest a maximum number of factors for bass-ackwards analysis
 - [`print(`*`<suggest_k>`*`)`](https://jmgirard.github.io/ackwards/reference/print.suggest_k.md)

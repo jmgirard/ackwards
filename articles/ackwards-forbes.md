@@ -86,73 +86,15 @@ factor 2), jumping *two* levels. This tells you that m3f2 and m5f2 are
 essentially the same construct — the intermediate levels are just
 refinements within a stable dimension.
 
-### How certain is the strongest edge? `boot_edges()`
+### Reading the strongest edge with care
 
-Reading the *strongest* edge off a table of many correlations is a form
-of selection. With k = 5 the all-pairs table holds 85 edges; the maximum
-of that many correlations is biased upward even when every individual
-estimate is honest. Before leaning on “m3f2 and m5f2 are the same
-construct,” it is worth asking how precisely each edge is estimated.
-
-[`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
-attaches a nonparametric bootstrap standard error and percentile
-confidence interval to every edge. Each replicate resamples respondents,
-recomputes the correlations, refits the whole hierarchy, and —
-importantly — re-anchors each replicate’s factors to the full-sample
-solution (matching and sign-orienting them) so that factor
-label-switching across replicates does not contaminate the intervals.
-
-[`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
-runs on the PCA and EFA engines with a Pearson or Spearman basis; it
-does not bootstrap a polychoric matrix in every replicate (slow and
-unstable, the same scope as
-[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)).
-For an ordinal instrument like the BFI, fit the final model with
-`cor = "polychoric"` but screen edge stability on a Pearson-basis EFA of
-the same items:
-
-``` r
-
-set.seed(1)
-x_boot <- ackwards(bfi, k_max = 5, engine = "efa", pairs = "all") |>
-  boot_edges(bfi, n_boot = 200, seed = 1)
-#> Warning: ! 25 columns look like ordinal/Likert items (<= 7 distinct integer values):
-#>   "A1", "A2", "A3", "A4", "A5", "C1", …, "O4", and "O5".
-#> ℹ Results use a "pearson" basis. Consider `cor = "polychoric"` for ordinal
-#>   data.
-#> This warning is displayed once per session.
-#> ℹ Fitting 200 bootstrap replicates (efa, k = 1-5)...
-#> ✔ Fitting 200 bootstrap replicates (efa, k = 1-5)... [20.6s]
-#> 
-
-boot_tbl <- tidy(x_boot, what = "edges", sort = "strength")
-skip_boot <- boot_tbl[
-  abs(boot_tbl$level_to - boot_tbl$level_from) > 1 & abs(boot_tbl$r) >= 0.5,
-  c("from", "to", "r", "lo", "hi")
-]
-head(skip_boot, 6)
-#>    from   to         r        lo        hi
-#> 4  m3f2 m5f1 0.9897391 0.9673909 0.9973950
-#> 6  m2f2 m4f2 0.9759641 0.9183303 0.9932987
-#> 7  m2f2 m5f1 0.9733982 0.9138369 0.9901712
-#> 11 m3f3 m5f3 0.8960495 0.6732509 0.9768403
-#> 14 m2f1 m4f1 0.8806961 0.7226635 0.9256204
-#> 15 m1f1 m3f1 0.7974610 0.7248725 0.8533350
-```
-
-The `lo`/`hi` columns are the 95% percentile interval. A skip-level edge
-whose interval sits comfortably above
-[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)’s
-`redundancy_r` threshold (0.9 by default) is a defensible “same
-construct” claim; one whose interval straddles the threshold should not
-be treated as decisively redundant.
-
-A caution the intervals **cannot** resolve: they describe each edge on
-its own. They do not correct for having *searched* the 85-edge table for
-the largest value. Treat them as per-edge error bars, not a familywise
-guarantee — if the strongest-edge claim is load-bearing, pre-specify
-which pair you care about rather than reporting whichever came out
-largest.
+Reading the *strongest* edge off a table of many correlations is itself
+a form of selection. With k = 5 the all-pairs table holds 85 edges, and
+the maximum of that many correlations is biased upward even when every
+individual estimate is honest. Treat a “strongest link” claim as
+descriptive rather than inferential: if it is load-bearing, pre-specify
+which pair of factors you care about rather than reporting whichever
+correlation came out largest.
 
 ## Pruning: identifying redundant factors
 

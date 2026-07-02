@@ -34,13 +34,17 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>The workflow</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Model choices</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interpretation &amp; presentation</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-visualization.html">Customizing the Hierarchy Diagram</a></li>
   </ul>
 </li>
@@ -1397,6 +1401,21 @@ case)</td>
 every item pair. With p items that is p(p−1)/2 pairs — about 300 for a
 25-item scale. Computation is usually fast (seconds), but scales as
 O(p²) and can be slow for very large item pools.</p>
+<p><strong>Screen skewed or sparse scales first.</strong> Clinical
+symptom scales and other right-skewed items often have a response
+category endorsed by only a handful of people. That can make
+<code><a href="https://rdrr.io/pkg/psych/man/tetrachor.html" class="external-link">psych::polychoric()</a></code> fail under its default continuity
+correction (set <code>correct = 0</code>), and — with many such items —
+drive the correlation matrix <em>near-singular</em>, in which case
+per-level fit indices (especially CFI, which comes back <code>NA</code>)
+and factor scores become unreliable. Run
+[<code><a href="../reference/check_items.html">check_items()</a></code>][ackwards::check_items] before fitting to
+see which items are degenerate or sparse, and read the <strong>“When to
+trust the result”</strong> section of <code><a href="../reference/ackwards.html">?ackwards</a></code> for how
+each warning maps to whether you should report the solution. When a
+matrix is near-singular, <code><a href="../reference/ackwards.html">ackwards()</a></code> says so once and
+records it on the object, so <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>/<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
+keep reminding you.</p>
 <blockquote>
 <p><strong>A note on score computation.</strong> The short answer: yes,
 you can use the factor scores from an ordinal analysis in downstream

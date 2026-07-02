@@ -25,13 +25,17 @@ not a fitted higher-order SEM.'></head><body>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>The workflow</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Model choices</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interpretation &amp; presentation</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-visualization.html">Customizing the Hierarchy Diagram</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -82,6 +86,7 @@ not a fitted higher-order SEM.</p>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pairs <span class="op">=</span> <span class="st">"adjacent"</span>,</span>
 <span>  cut_show <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>  correct <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -228,6 +233,18 @@ so pruning does not require <code>pairs = "all"</code> here.</p></dd>
 <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> output. Default <code>0.3</code>.</p></dd>
 
 
+<dt id="arg-correct">correct<a class="anchor" aria-label="anchor" href="#arg-correct"></a></dt>
+<dd><p>Continuity correction passed to <code><a href="https://rdrr.io/pkg/psych/man/tetrachor.html" class="external-link">psych::polychoric()</a></code> on the
+PCA/EFA polychoric path (<code>engine = "pca"</code>/<code>"efa"</code> with
+<code>cor = "polychoric"</code>). Default <code>0.5</code> (psych's own default), which adds that
+value to zero cells before estimating thresholds. <strong>Set <code>correct = 0</code></strong> if
+<code><a href="https://rdrr.io/pkg/psych/man/tetrachor.html" class="external-link">psych::polychoric()</a></code> fails on your data (its error suggests exactly this) –
+this typically happens when an item has a near-empty response category or
+when items with unequal category counts produce a sparse cross-cell. Ignored
+on other paths: ESEM computes its own polychoric correlations inside lavaan,
+and the Pearson/Spearman bases do not use it.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Reserved for future arguments.</p></dd>
 
@@ -306,6 +323,35 @@ require row-level item responses.</p></li>
 <li><p><strong><code>$cor</code> field:</strong> stored as <code>NA_character_</code>; printed as
 <code>"(user-supplied matrix)"</code>.</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="when-to-trust-the-result">When to trust the result<a class="anchor" aria-label="anchor" href="#when-to-trust-the-result"></a></h2>
+
+
+<p><code>ackwards()</code> raises diagnostics as it fits. They fall into three tiers by
+what they mean for whether you should trust and report the solution:</p>
+<p><strong>Fatal – fix before trusting.</strong> The result is undefined or rests on a
+broken correlation matrix:</p><ul><li><p>A <strong>constant item</strong> (no variance) errors – drop it (see <code><a href="check_items.html">check_items()</a></code>).</p></li>
+<li><p><strong><code><a href="https://rdrr.io/pkg/psych/man/tetrachor.html" class="external-link">psych::polychoric()</a></code> fails</strong> – usually a near-empty response category;
+set <code>correct = 0</code> or collapse rare categories.</p></li>
+<li><p>A <strong>level fails to converge</strong> – the hierarchy is truncated to the deepest
+level that did; do not interpret beyond it.</p></li>
+<li><p>A <strong>near-singular correlation matrix</strong> (smallest eigenvalue <code>&lt; 1e-4</code>,
+recorded in <code>meta$near_singular</code> / <code>meta$min_eigenvalue</code> and re-surfaced by
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>/<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>) means per-level fit indices (especially CFI, which
+comes back <code>NA</code>) and factor scores are unreliable and the loadings/edges
+rest on a rank-deficient matrix. Collapse sparse categories, use
+<code>missing = "listwise"</code>, or trim redundant items.</p></li>
+</ul><p><strong>Caution – interpret carefully.</strong> The solution exists but may be unstable:</p><ul><li><p>A <strong>Heywood case</strong> (communality <code>&gt; 1</code> / negative uniqueness) at a level –
+check that level's loadings make substantive sense; consider fewer factors.</p></li>
+<li><p>A <strong>near-constant item</strong> (one response category dominates) can drive a
+meaningless factor – inspect it with <code><a href="check_items.html">check_items()</a></code>.</p></li>
+<li><p><strong>Ordinal data on a Pearson basis</strong> attenuates correlations – fine for a
+quick look or <code><a href="suggest_k.html">suggest_k()</a></code> screening, but report the final model on
+<code>cor = "polychoric"</code>.</p></li>
+</ul><p><strong>Informational – usually fine.</strong> Proceed, just be aware: the
+pairwise-missing note, a merely <em>sparse</em> (rare-but-present) response
+category, and the ordinal-detection warning when you did intend Pearson.</p>
+    </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Goldberg, L. R. (2006). Doing it all bass-ackwards. <em>Journal of Research in

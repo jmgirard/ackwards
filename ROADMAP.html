@@ -19,13 +19,17 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>The workflow</h6></li>
     <li><a class="dropdown-item" href="articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
-    <li><a class="dropdown-item" href="articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
+    <li><a class="dropdown-item" href="articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Model choices</h6></li>
     <li><a class="dropdown-item" href="articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
-    <li><a class="dropdown-item" href="articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interpretation &amp; presentation</h6></li>
+    <li><a class="dropdown-item" href="articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-visualization.html">Customizing the Hierarchy Diagram</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
@@ -75,7 +79,7 @@
 </ul><hr></div>
 <div class="section level2">
 <h2 id="findings">Findings<a class="anchor" aria-label="anchor" href="#findings"></a></h2>
-<p><strong>All findings are resolved.</strong> Critical: C1 fixed in M42. Major: M2–M5 fixed in M43; M6 (the untested Forbes-fidelity contract) fixed in M44 via a fixture test reproducing the paper’s three simulation studies against Forbes’s own reference implementation. Minor: m1, m2, m6, m7, m8, m10 in M42; m3, m4, m5, m9, m11 in M43. Enhancements: e3 in M42; e1 in M43; e4 (bootstrap edge CIs) shipped as M47; e2 remains as an unscheduled idea (above).</p>
+<p><strong>All findings are resolved.</strong> Critical: C1 fixed in M42. Major: M2–M5 fixed in M43; M6 (the untested Forbes-fidelity contract) fixed in M44 via a fixture test reproducing the paper’s three simulation studies against Forbes’s own reference implementation. Minor: m1, m2, m6, m7, m8, m10 in M42; m3, m4, m5, m9, m11 in M43. Enhancements: e3 in M42; e1 in M43; e4 (bootstrap edge CIs) shipped as M47; e2 (dual EFA chi-squares) <strong>declined in M49</strong> (DESIGN §14 item 40).</p>
 <hr></div>
 <div class="section level2">
 <h2 id="defaults--decision-audit-phase-4-verdicts">Defaults &amp; decision audit (Phase 4 verdicts)<a class="anchor" aria-label="anchor" href="#defaults--decision-audit-phase-4-verdicts"></a></h2>
@@ -91,12 +95,17 @@
 <ul><li>
 <strong>AMH applied-example fidelity extension.</strong> The M44 feasibility study verified <code>ackwards</code> against Forbes’s reference implementation on her full 155-variable AMH applied example (max deviation 3.9e-14 across all 45 level-pairs at <code>k_max = 10</code>), but the AMH Spearman matrix (<code>corSpearman_AMH.csv</code>, OSF <code>pcwm8</code>) carries <strong>no license</strong>, so it was not committed. Options when the owner contacts Forbes: (a) she adds a license/permission → commit a fixture like the simulation one; (b) keep it uncommitted and add a <code>skip_if_offline()</code>/<code>skip_on_cran()</code> test that downloads the matrix from OSF at test time (no redistribution; expected values from the M44 feasibility run). The download URLs and comparison script survive in the M44 milestone entry.</li>
 <li>
-<strong>e2</strong> — dual chi-squares for EFA (<code>chi</code> = likelihood — the M42/C1 fix, <code>chi_empirical</code> = psych’s residual-based; psych prints both for a reason). Owner set aside at M42.</li>
+<strong><code><a href="reference/comparability.html">comparability()</a></code> and <code><a href="reference/boot_edges.html">boot_edges()</a></code> engine/basis extensions</strong> (deferred from M46/M47, DESIGN §14.35/§14.36) — <strong>feasible but demand-gated; keep off the schedule until asked.</strong> Feasibility verdict (M49 Phase A):
+<ul><li>
+<strong>ESEM <code><a href="reference/comparability.html">comparability()</a></code></strong> is the plausible one: <code>2 * n_splits</code> (~20) lavaan hierarchies per call, minutes with the M26 cached-sample-stats + <code>future.apply</code> machinery; the matching / anchoring code is already engine-agnostic. Main work is per-half convergence handling (Invariant 7).</li>
 <li>
-<strong><code><a href="reference/comparability.html">comparability()</a></code> and <code><a href="reference/boot_edges.html">boot_edges()</a></code> engine/basis extensions</strong> (deferred from M46/M47, DESIGN §14.35/§14.36): (a) <strong>ESEM support</strong> — for both verbs, the per-half / per-replicate lavaan hierarchies (<code>2 * n_splits</code> for comparability; <code>n_boot</code> for boot_edges) need their own performance treatment (reuse the M26 cached-sample-stats + <code>future.apply</code> machinery per fit);
-<ol start="2" style="list-style-type: lower-alpha"><li>
-<strong>polychoric basis</strong> — polychoric estimation in every half/resample is slow and NPD-prone, so both verbs mirror <code><a href="reference/suggest_k.html">suggest_k()</a></code>’s Pearson/Spearman-only scope. Both only if demand materialises; the EFA-on-Pearson screen covers the common case for each. <code><a href="reference/boot_edges.html">boot_edges()</a></code> adds no new consideration beyond these two (its Pearson/Spearman + PCA/EFA scope is identical to <code><a href="reference/comparability.html">comparability()</a></code>’s).</li>
-</ol></li>
+<strong>ESEM <code><a href="reference/boot_edges.html">boot_edges()</a></code></strong> is painful: <code>n_boot</code> (~1000) × (k_max − 1) WLSMV fits — tens of minutes to hours even parallel; users would have to cut <code>n_boot</code>, undermining the percentile CIs, and resample non-convergence / Heywood cases inflate the dropped-replicate count.</li>
+<li>
+<strong>Polychoric basis</strong> (both verbs) is the least realistic — not just slow: a bootstrap resample can drop an entire response category, changing the threshold structure mid-replicate (a drop-or-merge policy question — a genuine statistical wrinkle, not just performance). Mirror <code><a href="reference/suggest_k.html">suggest_k()</a></code>’s Pearson/Spearman-only scope; screen on Pearson, fit the final model polychoric.</li>
+</ul>
+Net: only ESEM-<code><a href="reference/comparability.html">comparability()</a></code> is worth reconsidering if demand appears; the EFA-on-Pearson screen covers the common case for each verb.</li>
+<li>
+<strong>Factor-label pipeline</strong> (headline 0.2.0 candidate; owner-approved deferral 2026-07-02) — persistent <em>factor</em> labels (distinct from M50’s <em>item</em> / variable labels): a <code>set_factor_labels()</code>-style setter storing user names on the <code>ackwards</code> object, honored by <code><a href="reference/autoplot.html">autoplot()</a></code> (node labels), <code>print</code>/<code>summary</code> (cli), and <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code>; <code><a href="reference/label_template.html">label_template()</a></code> remains the scaffold that seeds them. <strong>Purely additive</strong> (no signature/default change), so nothing is lost by shipping 0.1.0 without it; the naming/storage/precedence design gets proper DESIGN §14 treatment when scoped. Keep the item-vs-factor “label” vocabulary split (DESIGN §14 item 39) front of mind — the two concepts must not blur.</li>
 </ul></div>
 <div class="section level2">
 <h2 id="provenance">Provenance<a class="anchor" aria-label="anchor" href="#provenance"></a></h2>

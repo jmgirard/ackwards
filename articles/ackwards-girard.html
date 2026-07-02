@@ -34,13 +34,17 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>The workflow</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Model choices</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interpretation &amp; presentation</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-visualization.html">Customizing the Hierarchy Diagram</a></li>
   </ul>
 </li>
@@ -170,8 +174,15 @@ all three answers, and no one of them substitutes for another.</p>
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
 <p>We use the <code>bfi25</code> Big Five data (25 items, n = 875 after
-removing incomplete rows), analyzed with the default PCA engine
-throughout.</p>
+removing incomplete rows), analyzed with the default PCA engine on the
+Pearson basis throughout. That basis is deliberate:
+<code><a href="../reference/comparability.html">comparability()</a></code> and <code><a href="../reference/boot_edges.html">boot_edges()</a></code> screen on
+Pearson/Spearman by design — polychoric estimation in every split-half
+or bootstrap resample is slow and unstable — so the ordinal-detection
+warning <code>bfi25</code> triggers is <em>expected</em> here and
+suppressed below for readability. You screen structure and depth on
+Pearson, then fit the model you actually <em>report</em> with
+<code>cor = "polychoric"</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmgirard.github.io/ackwards/">ackwards</a></span><span class="op">)</span></span>
 <span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span></code></pre></div>
@@ -182,19 +193,14 @@ throughout.</p>
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: <span style="color: #BBBB00;">!</span> 25 columns look like ordinal/Likert items (&lt;= 7 distinct integer values):</span></span>
-<span><span class="co">#&gt;   <span style="color: #0000BB;">"A1"</span>, <span style="color: #0000BB;">"A2"</span>, <span style="color: #0000BB;">"A3"</span>, <span style="color: #0000BB;">"A4"</span>, <span style="color: #0000BB;">"A5"</span>, <span style="color: #0000BB;">"C1"</span>, …, <span style="color: #0000BB;">"O4"</span>, and <span style="color: #0000BB;">"O5"</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> `suggest_k()` screens on the <span style="color: #0000BB;">"pearson"</span> basis by design; use `cor =</span></span>
-<span><span class="co">#&gt;   "polychoric"` in the final `ackwards()` fit.</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[188ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[314ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[86ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[150ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[5.9s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -246,13 +252,8 @@ step is that you can now do so safely.</p>
 up to one past the ceiling, across ten random split-halves:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/comparability.html">comparability</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="va">sk_hi</span> <span class="op">+</span> <span class="fl">1</span>, n_splits <span class="op">=</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">2026</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: <span style="color: #BBBB00;">!</span> 25 columns look like ordinal/Likert items (&lt;= 7 distinct integer values):</span></span>
-<span><span class="co">#&gt;   <span style="color: #0000BB;">"A1"</span>, <span style="color: #0000BB;">"A2"</span>, <span style="color: #0000BB;">"A3"</span>, <span style="color: #0000BB;">"A4"</span>, <span style="color: #0000BB;">"A5"</span>, <span style="color: #0000BB;">"C1"</span>, …, <span style="color: #0000BB;">"O4"</span>, and <span style="color: #0000BB;">"O5"</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Results use a <span style="color: #0000BB;">"pearson"</span> basis. Consider `cor = "polychoric"` for ordinal</span></span>
-<span><span class="co">#&gt;   data.</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fitting 10 split-half replicates (pca, k = 1-7)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fitting 10 split-half replicates (pca, k = 1-7)... <span style="color: #B2B2B2;">[1.3s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fitting 10 split-half replicates (pca, k = 1-7)... <span style="color: #B2B2B2;">[2.7s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">cmp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -387,11 +388,59 @@ different questions, and reporting both gives the honest picture: which
 levels are real, and which levels are new. See
 <code><a href="../articles/ackwards-forbes.html">vignette("ackwards-forbes")</a></code> for chain mechanics,
 thresholds, and the retention rule.</p>
+<div class="section level3">
+<h3 id="how-sure-are-we-about-these-edges-boot_edges">How sure are we about these edges? <code>boot_edges()</code><a class="anchor" aria-label="anchor" href="#how-sure-are-we-about-these-edges-boot_edges"></a>
+</h3>
+<p><code><a href="../reference/prune.html">prune()</a></code>’s redundancy rule and the Forbes practice of
+reading off the strongest skip-level correlation both consume a point
+estimate at a hard threshold, so the natural follow-up is how precisely
+each edge is estimated. <code><a href="../reference/boot_edges.html">boot_edges()</a></code> attaches a
+nonparametric bootstrap standard error and percentile confidence
+interval to every edge. Each replicate resamples respondents, recomputes
+the correlations, refits the whole hierarchy, and — importantly —
+re-anchors each replicate’s factors to the full-sample solution (the
+same matching and sign-orientation <code><a href="../reference/comparability.html">comparability()</a></code> uses),
+so factor label-switching across replicates does not contaminate the
+intervals. It runs on the PCA and EFA engines with a Pearson or Spearman
+basis — a polychoric matrix is too slow and unstable to re-estimate in
+every replicate (the same scope as <code><a href="../reference/comparability.html">comparability()</a></code>), so
+screen edge stability on the Pearson basis even when the final model is
+polychoric.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">x_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, pairs <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/boot_edges.html">boot_edges</a></span><span class="op">(</span><span class="va">bfi</span>, n_boot <span class="op">=</span> <span class="fl">200</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fitting 200 bootstrap replicates (pca, k = 1-5)...</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fitting 200 bootstrap replicates (pca, k = 1-5)... <span style="color: #B2B2B2;">[19.3s]</span></span></span>
+<span><span class="co">#&gt; </span></span>
+<span></span>
+<span><span class="va">boot_tbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_boot</span>, what <span class="op">=</span> <span class="st">"edges"</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span></span>
+<span><span class="va">skip_boot</span> <span class="op">&lt;-</span> <span class="va">boot_tbl</span><span class="op">[</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">boot_tbl</span><span class="op">$</span><span class="va">level_to</span> <span class="op">-</span> <span class="va">boot_tbl</span><span class="op">$</span><span class="va">level_from</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">boot_tbl</span><span class="op">$</span><span class="va">r</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">0.5</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span>, <span class="st">"lo"</span>, <span class="st">"hi"</span><span class="op">)</span></span>
+<span><span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">skip_boot</span>, <span class="fl">6</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    from   to         r        lo        hi</span></span>
+<span><span class="co">#&gt; 4  m3f2 m5f2 0.9852300 0.9541520 0.9984825</span></span>
+<span><span class="co">#&gt; 7  m2f2 m4f2 0.9673808 0.8942028 0.9916158</span></span>
+<span><span class="co">#&gt; 8  m2f2 m5f2 0.9648941 0.8883935 0.9893501</span></span>
+<span><span class="co">#&gt; 12 m2f1 m4f1 0.8700141 0.7593997 0.9290617</span></span>
+<span><span class="co">#&gt; 14 m3f3 m5f3 0.8084301 0.5312592 0.9636492</span></span>
+<span><span class="co">#&gt; 15 m3f1 m5f1 0.8080606 0.6585810 0.9044025</span></span></code></pre></div>
+<p>The <code>lo</code>/<code>hi</code> columns are the 95% percentile
+interval. A skip-level edge whose interval sits comfortably above
+<code><a href="../reference/prune.html">prune()</a></code>’s <code>redundancy_r</code> threshold (0.9 by
+default) is a defensible “same construct” claim; one whose interval
+straddles the threshold should not be treated as decisively redundant.
+The intervals are per-edge error bars, not a familywise guarantee: they
+do not correct for having <em>searched</em> the full edge table for the
+largest value, so a strongest-edge claim should still be pre-specified
+rather than selected after the fact.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="step-5-interpret-with-the-built-in-guardrails">Step 5: Interpret with the built-in guardrails<a class="anchor" aria-label="anchor" href="#step-5-interpret-with-the-built-in-guardrails"></a>
 </h2>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">5</span>, cut <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient items by factor (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span></span>
@@ -461,7 +510,7 @@ higher-order SEM), and should be reported as such.</li>
 <p>The final step closes the loop the same way it opened: with data the
 model has not seen. Scores for new observations use the fit-time metric,
 so training and test scores are directly comparable:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">train</span> <span class="op">&lt;-</span> <span class="va">bfi</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">600</span>, <span class="op">]</span></span>
 <span><span class="va">test</span> <span class="op">&lt;-</span> <span class="va">bfi</span><span class="op">[</span><span class="fl">601</span><span class="op">:</span><span class="fl">875</span>, <span class="op">]</span></span>
 <span></span>
@@ -495,12 +544,11 @@ splits are as informative as the medians.</p>
 grows fast, and reporting the most dramatic one capitalizes on chance.
 Report full edge tables (or the complete diagram), and treat any
 “strongest link” claim as descriptive rather than inferential.
-<code><a href="../reference/boot_edges.html">boot_edges()</a></code> attaches a bootstrap confidence interval to
-every edge, which makes each estimate’s precision visible — useful for
-judging whether an edge clears <code><a href="../reference/prune.html">prune()</a></code>’s redundancy
-threshold — but note that per-edge intervals do not undo the selection
-bias of scanning many edges for the largest; see
-<code><a href="../articles/ackwards-forbes.html">vignette("ackwards-forbes")</a></code>.</p>
+<code><a href="../reference/boot_edges.html">boot_edges()</a></code> (Step 4 above) attaches a bootstrap confidence
+interval to every edge, which makes each estimate’s precision visible —
+useful for judging whether an edge clears <code><a href="../reference/prune.html">prune()</a></code>’s
+redundancy threshold — but per-edge intervals do not undo the selection
+bias of scanning many edges for the largest.</p>
 <p><strong>Mistaking persistence for structure.</strong> A chain of
 near-1.0 correlations down the hierarchy looks impressive but means the
 levels are restating one construct. That is a <code><a href="../reference/prune.html">prune()</a></code>

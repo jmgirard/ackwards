@@ -66,7 +66,17 @@ all three answers, and no one of them substitutes for another.
 ## Setup
 
 We use the `bfi25` Big Five data (25 items, n = 875 after removing
-incomplete rows), analyzed with the default PCA engine throughout.
+incomplete rows), analyzed with the default PCA engine on the Pearson
+basis throughout. That basis is deliberate:
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+and
+[`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
+screen on Pearson/Spearman by design — polychoric estimation in every
+split-half or bootstrap resample is slow and unstable — so the
+ordinal-detection warning `bfi25` triggers is *expected* here and
+suppressed below for readability. You screen structure and depth on
+Pearson, then fit the model you actually *report* with
+`cor = "polychoric"`.
 
 ``` r
 
@@ -79,19 +89,14 @@ bfi <- na.omit(bfi25)
 ``` r
 
 sk <- suggest_k(bfi, seed = 1)
-#> Warning: ! 25 columns look like ordinal/Likert items (<= 7 distinct integer values):
-#>   "A1", "A2", "A3", "A4", "A5", "C1", …, "O4", and "O5".
-#> ℹ `suggest_k()` screens on the "pearson" basis by design; use `cor =
-#>   "polychoric"` in the final `ackwards()` fit.
-#> This warning is displayed once per session.
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [188ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [314ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [86ms]
+#> ✔ Running MAP and VSS... [150ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [5.9s]
+#> ✔ Running Comparison Data (CD)... [10s]
 #> 
 print(sk)
 #> 
@@ -145,13 +150,8 @@ to one past the ceiling, across ten random split-halves:
 ``` r
 
 cmp <- comparability(bfi, k_max = sk_hi + 1, n_splits = 10, seed = 2026)
-#> Warning: ! 25 columns look like ordinal/Likert items (<= 7 distinct integer values):
-#>   "A1", "A2", "A3", "A4", "A5", "C1", …, "O4", and "O5".
-#> ℹ Results use a "pearson" basis. Consider `cor = "polychoric"` for ordinal
-#>   data.
-#> This warning is displayed once per session.
 #> ℹ Fitting 10 split-half replicates (pca, k = 1-7)...
-#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [1.3s]
+#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [2.7s]
 #> 
 print(cmp)
 #> 
@@ -306,6 +306,62 @@ levels are real, and which levels are new. See
 [`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md)
 for chain mechanics, thresholds, and the retention rule.
 
+### How sure are we about these edges? `boot_edges()`
+
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)’s
+redundancy rule and the Forbes practice of reading off the strongest
+skip-level correlation both consume a point estimate at a hard
+threshold, so the natural follow-up is how precisely each edge is
+estimated.
+[`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
+attaches a nonparametric bootstrap standard error and percentile
+confidence interval to every edge. Each replicate resamples respondents,
+recomputes the correlations, refits the whole hierarchy, and —
+importantly — re-anchors each replicate’s factors to the full-sample
+solution (the same matching and sign-orientation
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+uses), so factor label-switching across replicates does not contaminate
+the intervals. It runs on the PCA and EFA engines with a Pearson or
+Spearman basis — a polychoric matrix is too slow and unstable to
+re-estimate in every replicate (the same scope as
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)),
+so screen edge stability on the Pearson basis even when the final model
+is polychoric.
+
+``` r
+
+x_boot <- ackwards(bfi, k_max = 5, pairs = "all") |>
+  boot_edges(bfi, n_boot = 200, seed = 1)
+#> ℹ Fitting 200 bootstrap replicates (pca, k = 1-5)...
+#> ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [19.3s]
+#> 
+
+boot_tbl <- tidy(x_boot, what = "edges", sort = "strength")
+skip_boot <- boot_tbl[
+  abs(boot_tbl$level_to - boot_tbl$level_from) > 1 & abs(boot_tbl$r) >= 0.5,
+  c("from", "to", "r", "lo", "hi")
+]
+head(skip_boot, 6)
+#>    from   to         r        lo        hi
+#> 4  m3f2 m5f2 0.9852300 0.9541520 0.9984825
+#> 7  m2f2 m4f2 0.9673808 0.8942028 0.9916158
+#> 8  m2f2 m5f2 0.9648941 0.8883935 0.9893501
+#> 12 m2f1 m4f1 0.8700141 0.7593997 0.9290617
+#> 14 m3f3 m5f3 0.8084301 0.5312592 0.9636492
+#> 15 m3f1 m5f1 0.8080606 0.6585810 0.9044025
+```
+
+The `lo`/`hi` columns are the 95% percentile interval. A skip-level edge
+whose interval sits comfortably above
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)’s
+`redundancy_r` threshold (0.9 by default) is a defensible “same
+construct” claim; one whose interval straddles the threshold should not
+be treated as decisively redundant. The intervals are per-edge error
+bars, not a familywise guarantee: they do not correct for having
+*searched* the full edge table for the largest value, so a
+strongest-edge claim should still be pre-specified rather than selected
+after the fact.
+
 ## Step 5: Interpret with the built-in guardrails
 
 ``` r
@@ -417,12 +473,12 @@ dramatic one capitalizes on chance. Report full edge tables (or the
 complete diagram), and treat any “strongest link” claim as descriptive
 rather than inferential.
 [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
-attaches a bootstrap confidence interval to every edge, which makes each
-estimate’s precision visible — useful for judging whether an edge clears
+(Step 4 above) attaches a bootstrap confidence interval to every edge,
+which makes each estimate’s precision visible — useful for judging
+whether an edge clears
 [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)’s
-redundancy threshold — but note that per-edge intervals do not undo the
-selection bias of scanning many edges for the largest; see
-[`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md).
+redundancy threshold — but per-edge intervals do not undo the selection
+bias of scanning many edges for the largest.
 
 **Mistaking persistence for structure.** A chain of near-1.0
 correlations down the hierarchy looks impressive but means the levels

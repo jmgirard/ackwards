@@ -3,8 +3,9 @@
 ``` r
 
 library(ackwards)
-bfi <- na.omit(bfi25)
-x <- ackwards(bfi, k_max = 5, cor = "polychoric")
+# Fit the raw dataset (not na.omit()) so bfi25's built-in IPIP item labels are
+# captured and shown by top_items(); missing = "listwise" drops incomplete rows.
+x <- ackwards(bfi25, k_max = 5, cor = "polychoric", missing = "listwise")
 ```
 
 Fitting an `ackwards` model gives you a hierarchy of factors with stable
@@ -46,39 +47,39 @@ top_items(x, level = 5, cut = 0.5)
 #> ── Level 5 (5 factors) ──
 #> 
 #> m5f1
-#> E2 [-0.752]
-#> E4 [0.747]
-#> E1 [-0.701]
-#> E3 [0.677]
-#> E5 [0.597]
+#> E2: Find it difficult to approach others [-0.752]
+#> E4: Make friends easily [0.747]
+#> E1: Don't talk a lot [-0.701]
+#> E3: Know how to captivate people [0.677]
+#> E5: Take charge [0.597]
 #> 
 #> m5f2
-#> N3 [-0.825]
-#> N1 [-0.810]
-#> N2 [-0.805]
-#> N5 [-0.688]
-#> N4 [-0.646]
+#> N3: Have frequent mood swings [-0.825]
+#> N1: Get angry easily [-0.810]
+#> N2: Get irritated easily [-0.805]
+#> N5: Panic easily [-0.688]
+#> N4: Often feel blue [-0.646]
 #> 
 #> m5f3
-#> C2 [0.735]
-#> C4 [-0.716]
-#> C1 [0.690]
-#> C3 [0.679]
-#> C5 [-0.652]
+#> C2: Continue until everything is perfect [0.735]
+#> C4: Do things in a half-way manner [-0.716]
+#> C1: Am exacting in my work [0.690]
+#> C3: Do things according to a plan [0.679]
+#> C5: Waste my time [-0.652]
 #> 
 #> m5f4
-#> A1 [-0.704]
-#> A3 [0.703]
-#> A2 [0.692]
-#> A5 [0.580]
-#> A4 [0.522]
+#> A1: Am indifferent to the feelings of others [-0.704]
+#> A3: Know how to comfort others [0.703]
+#> A2: Inquire about others' well-being [0.692]
+#> A5: Make people feel at ease [0.580]
+#> A4: Love children [0.522]
 #> 
 #> m5f5
-#> O5 [-0.705]
-#> O3 [0.655]
-#> O1 [0.604]
-#> O2 [-0.595]
-#> O4 [0.551]
+#> O5: Will not probe deeply into a subject [-0.705]
+#> O3: Carry the conversation to a higher level [0.655]
+#> O1: Am full of ideas [0.604]
+#> O2: Avoid difficult reading material [-0.595]
+#> O4: Spend time reflecting on things [0.551]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.
@@ -104,34 +105,34 @@ top_items(x, level = 5, cut = 0.3, n = 4)
 #> ── Level 5 (5 factors) ──
 #> 
 #> m5f1
-#> E2 [-0.752]
-#> E4 [0.747]
-#> E1 [-0.701]
-#> E3 [0.677]
+#> E2: Find it difficult to approach others [-0.752]
+#> E4: Make friends easily [0.747]
+#> E1: Don't talk a lot [-0.701]
+#> E3: Know how to captivate people [0.677]
 #> 
 #> m5f2
-#> N3 [-0.825]
-#> N1 [-0.810]
-#> N2 [-0.805]
-#> N5 [-0.688]
+#> N3: Have frequent mood swings [-0.825]
+#> N1: Get angry easily [-0.810]
+#> N2: Get irritated easily [-0.805]
+#> N5: Panic easily [-0.688]
 #> 
 #> m5f3
-#> C2 [0.735]
-#> C4 [-0.716]
-#> C1 [0.690]
-#> C3 [0.679]
+#> C2: Continue until everything is perfect [0.735]
+#> C4: Do things in a half-way manner [-0.716]
+#> C1: Am exacting in my work [0.690]
+#> C3: Do things according to a plan [0.679]
 #> 
 #> m5f4
-#> A1 [-0.704]
-#> A3 [0.703]
-#> A2 [0.692]
-#> A5 [0.580]
+#> A1: Am indifferent to the feelings of others [-0.704]
+#> A3: Know how to comfort others [0.703]
+#> A2: Inquire about others' well-being [0.692]
+#> A5: Make people feel at ease [0.580]
 #> 
 #> m5f5
-#> O5 [-0.705]
-#> O3 [0.655]
-#> O1 [0.604]
-#> O2 [-0.595]
+#> O5: Will not probe deeply into a subject [-0.705]
+#> O3: Carry the conversation to a higher level [0.655]
+#> O1: Am full of ideas [0.604]
+#> O2: Avoid difficult reading material [-0.595]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.
@@ -156,86 +157,86 @@ top_items(x, level = 3, cut = 0.25, by = "item")
 #> 
 #> ── Level 3 (3 factors) ──
 #> 
-#> A1
+#> A1: Am indifferent to the feelings of others
 #> m3f1 [-0.354]
 #> 
-#> A2
+#> A2: Inquire about others' well-being
 #> m3f1 [0.650]
 #> 
-#> A3
+#> A3: Know how to comfort others
 #> m3f1 [0.750]
 #> 
-#> A4
+#> A4: Love children
 #> m3f1 [0.490]
 #> 
-#> A5
+#> A5: Make people feel at ease
 #> m3f1 [0.735]
 #> 
-#> C1
+#> C1: Am exacting in my work
 #> m3f3 [0.658]
 #> 
-#> C2
+#> C2: Continue until everything is perfect
 #> m3f3 [0.642]
 #> 
-#> C3
+#> C3: Do things according to a plan
 #> m3f3 [0.476]
 #> 
-#> C4
+#> C4: Do things in a half-way manner
 #> m3f3 [-0.609]
 #> m3f2 [-0.348]
 #> 
-#> C5
+#> C5: Waste my time
 #> m3f3 [-0.453]
 #> m3f2 [-0.428]
 #> m3f1 [-0.252]
 #> 
-#> E1
+#> E1: Don't talk a lot
 #> m3f1 [-0.611]
 #> 
-#> E2
+#> E2: Find it difficult to approach others
 #> m3f1 [-0.698]
 #> 
-#> E3
+#> E3: Know how to captivate people
 #> m3f1 [0.664]
 #> 
-#> E4
+#> E4: Make friends easily
 #> m3f1 [0.784]
 #> 
-#> E5
+#> E5: Take charge
 #> m3f1 [0.507]
 #> m3f3 [0.392]
 #> 
-#> N1
+#> N1: Get angry easily
 #> m3f2 [-0.777]
 #> 
-#> N2
+#> N2: Get irritated easily
 #> m3f2 [-0.791]
 #> 
-#> N3
+#> N3: Have frequent mood swings
 #> m3f2 [-0.812]
 #> 
-#> N4
+#> N4: Often feel blue
 #> m3f2 [-0.680]
 #> 
-#> N5
+#> N5: Panic easily
 #> m3f2 [-0.650]
 #> 
-#> O1
+#> O1: Am full of ideas
 #> m3f3 [0.493]
 #> m3f1 [0.253]
 #> 
-#> O2
+#> O2: Avoid difficult reading material
 #> m3f3 [-0.520]
 #> 
-#> O3
+#> O3: Carry the conversation to a higher level
 #> m3f3 [0.504]
 #> m3f1 [0.355]
 #> 
-#> O4
+#> O4: Spend time reflecting on things
 #> m3f2 [-0.414]
 #> m3f3 [0.319]
 #> 
-#> O5
+#> O5: Will not probe deeply into a subject
 #> m3f3 [-0.553]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
@@ -250,75 +251,42 @@ for the overextraction discussion.
 
 ### Showing item wording instead of codes
 
-Item codes like `A1` or `N3` are compact but opaque. If your data
-carries variable labels — the `"label"` attribute that packages like
-**labelled** and **haven** attach to columns, and that survey exports
-often include —
+Item codes like `A1` or `N3` are compact but opaque. The wording you
+have been seeing above — `E4: Make friends easily` — comes for free:
+`bfi25` ships each item’s IPIP stem as a **variable label** (a `"label"`
+column attribute),
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-captures them at fit time and
+captures those labels at fit time, and
 [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
-displays them as `label (code)`:
+prints them as `code: label`.
+
+Your own data often carries the same attribute (packages like
+**labelled** and **haven** set it, and survey exports frequently include
+it). If it does *not*, attach the wording yourself — with
+`labelled::var_label()` or base
+[`attr()`](https://rdrr.io/r/base/attr.html) — on the data you actually
+fit (base row-subsetting such as
+[`na.omit()`](https://rdrr.io/r/stats/na.fail.html) drops plain
+attributes, which is why we fit the raw `bfi25` above):
 
 ``` r
 
-bfi_lab <- bfi
-attr(bfi_lab$A1, "label") <- "Am indifferent to the feelings of others"
-attr(bfi_lab$A2, "label") <- "Inquire about others' well-being"
-attr(bfi_lab$A3, "label") <- "Know how to comfort others"
+# tidyverse idiom:
+labelled::var_label(my_data$item1) <- "Full wording of item 1"
 
-x_lab <- ackwards(bfi_lab, k_max = 5, cor = "polychoric")
-top_items(x_lab, level = 5, cut = 0.5)
-#> 
-#> ── Salient items by factor (ackwards) ──────────────────────────────────────────
-#> Engine: pca
-#> Cut: |loading| >= 0.5
-#> Top-n: all
-#> 
-#> ── Level 5 (5 factors) ──
-#> 
-#> m5f1
-#> E2 [-0.752]
-#> E4 [0.747]
-#> E1 [-0.701]
-#> E3 [0.677]
-#> E5 [0.597]
-#> 
-#> m5f2
-#> N3 [-0.825]
-#> N1 [-0.810]
-#> N2 [-0.805]
-#> N5 [-0.688]
-#> N4 [-0.646]
-#> 
-#> m5f3
-#> C2 [0.735]
-#> C4 [-0.716]
-#> C1 [0.690]
-#> C3 [0.679]
-#> C5 [-0.652]
-#> 
-#> m5f4
-#> Am indifferent to the feelings of others (A1) [-0.704]
-#> Know how to comfort others (A3) [0.703]
-#> Inquire about others' well-being (A2) [0.692]
-#> A5 [0.580]
-#> A4 [0.522]
-#> 
-#> m5f5
-#> O5 [-0.705]
-#> O3 [0.655]
-#> O1 [0.604]
-#> O2 [-0.595]
-#> O4 [0.551]
-#> ────────────────────────────────────────────────────────────────────────────────
-#> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
-#> for the full matrix.
+# or base R, no extra package:
+attr(my_data$item1, "label") <- "Full wording of item 1"
 ```
 
 Labelled items show their wording; unlabelled ones fall back to the bare
 code, so a partially labelled data set still prints cleanly. Pass
 `show_labels = FALSE` to force the bare codes even when labels are
 present.
+
+These *variable* labels (item wording) are distinct from the *factor*
+labels (the names you give `m1f1`, `m2f1`, … below): one describes your
+measured items, the other names the latent factors the hierarchy
+discovers. Keep the two ideas — and the word “label” — separate.
 
 ## The sign convention: negative does not mean “low”
 
@@ -348,33 +316,33 @@ top_items(x, level = 2)
 #> ── Level 2 (2 factors) ──
 #> 
 #> m2f1
-#> A3 [0.730]
-#> A5 [0.694]
-#> E3 [0.684]
-#> A2 [0.661]
-#> E4 [0.638]
-#> E5 [0.630]
-#> E2 [-0.614]
-#> O3 [0.565]
-#> E1 [-0.525]
-#> A4 [0.471]
-#> C2 [0.468]
-#> O1 [0.467]
-#> C1 [0.421]
-#> C5 [-0.411]
-#> C4 [-0.389]
-#> C3 [0.365]
-#> A1 [-0.335]
+#> A3: Know how to comfort others [0.730]
+#> A5: Make people feel at ease [0.694]
+#> E3: Know how to captivate people [0.684]
+#> A2: Inquire about others' well-being [0.661]
+#> E4: Make friends easily [0.638]
+#> E5: Take charge [0.630]
+#> E2: Find it difficult to approach others [-0.614]
+#> O3: Carry the conversation to a higher level [0.565]
+#> E1: Don't talk a lot [-0.525]
+#> A4: Love children [0.471]
+#> C2: Continue until everything is perfect [0.468]
+#> O1: Am full of ideas [0.467]
+#> C1: Am exacting in my work [0.421]
+#> C5: Waste my time [-0.411]
+#> C4: Do things in a half-way manner [-0.389]
+#> C3: Do things according to a plan [0.365]
+#> A1: Am indifferent to the feelings of others [-0.335]
 #> 
 #> m2f2
-#> N3 [-0.806]
-#> N1 [-0.790]
-#> N2 [-0.789]
-#> N4 [-0.677]
-#> N5 [-0.659]
-#> C5 [-0.491]
-#> C4 [-0.438]
-#> O4 [-0.358]
+#> N3: Have frequent mood swings [-0.806]
+#> N1: Get angry easily [-0.790]
+#> N2: Get irritated easily [-0.789]
+#> N4: Often feel blue [-0.677]
+#> N5: Panic easily [-0.659]
+#> C5: Waste my time [-0.491]
+#> C4: Do things in a half-way manner [-0.438]
+#> O4: Spend time reflecting on things [-0.358]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.
@@ -457,13 +425,13 @@ children. Use it to name **top-down**:
 
 - **Upper-level factors are broader.** A level-2 factor that is the
   primary parent of two level-3 factors is the construct they share.
-  Name it for the blend, not for one child. In the `bfi` data above, the
-  level-1 factor is a single broad dimension; at level 2 it separates
-  into a Neuroticism factor (`m2f2`, defined by the N items) and a broad
-  factor blending the remaining four trait families (`m2f1`). The Big
-  Five themselves do not appear cleanly until level 5 — so a substantive
-  name for `m2f1` (“broad well-adjustment”, say) is necessarily coarser
-  than the names you give its descendants.
+  Name it for the blend, not for one child. In the `bfi25` data above,
+  the level-1 factor is a single broad dimension; at level 2 it
+  separates into a Neuroticism factor (`m2f2`, defined by the N items)
+  and a broad factor blending the remaining four trait families
+  (`m2f1`). The Big Five themselves do not appear cleanly until level 5
+  — so a substantive name for `m2f1` (“broad well-adjustment”, say) is
+  necessarily coarser than the names you give its descendants.
 
 - **A split is a refinement, not a contradiction.** When a parent factor
   splits into two children, the children carve up the parent’s content.
@@ -506,9 +474,10 @@ are especially handy for personality and psychopathology data:
   dimensions — **Stability** (the shared variance of Agreeableness,
   Conscientiousness, and low Neuroticism) and **Plasticity**
   (Extraversion and Openness) — from DeYoung’s work on the metatraits.
-  In a `bfi` hierarchy these are frequently what a two- or three-factor
-  level *is*, so “Stability” / “Plasticity” are ready-made names for
-  factors that would otherwise be an awkward “broad well-adjustment”.
+  In a `bfi25` hierarchy these are frequently what a two- or
+  three-factor level *is*, so “Stability” / “Plasticity” are ready-made
+  names for factors that would otherwise be an awkward “broad
+  well-adjustment”.
 - **HiTOP spectra.** In clinical data, the Hierarchical Taxonomy of
   Psychopathology names the broad bands directly — *internalizing*,
   *externalizing (disinhibited and antagonistic)*, *thought disorder*,

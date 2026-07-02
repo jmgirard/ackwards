@@ -34,13 +34,17 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>The workflow</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Model choices</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interpretation &amp; presentation</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-visualization.html">Customizing the Hierarchy Diagram</a></li>
   </ul>
 </li>
@@ -860,6 +864,14 @@ appropriate maximum-likelihood-adjacent estimator for categorical
 indicators. When <code>cor = "polychoric"</code> is set with
 <code>engine = "esem"</code>, WLSMV is used automatically.</li>
 </ol>
+<p>Those three are the <em>only</em> reasons to pay ESEM’s cost (a
+lavaan fit per level, occasional convergence trouble). EFA is otherwise
+a first-class reporting engine: it returns the same loadings, variance,
+and between-level edges <em>plus</em> per-level RMSEA and TLI — enough
+to report a hierarchy. Reach for ESEM when you specifically need loading
+standard errors (especially at smaller <em>n</em>), the field-standard
+WLSMV estimator for ordinal indicators, or true FIML for missing data;
+otherwise EFA is the simpler, faster choice.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_esem</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">3</span>, engine <span class="op">=</span> <span class="st">"esem"</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
 <span><span class="va">x_esem</span></span>
@@ -1584,13 +1596,26 @@ account for measurement error (EFA/ESEM) or not (PCA).</p>
 </td>
 </tr>
 <tr class="even">
-<td>Latent-variable theory, want to test model fit</td>
-<td><code>"efa"</code></td>
+<td>Report a hierarchy with per-level fit (RMSEA/TLI)</td>
+<td>
+<code>"efa"</code> — a complete reporting engine</td>
 </tr>
 <tr class="odd">
-<td>Ordinal items + model fit + loading SEs</td>
+<td>You specifically need loading SEs / CIs (especially smaller
+<em>n</em>)</td>
+<td><code>"esem"</code></td>
+</tr>
+<tr class="even">
+<td>Ordinal items and you want the field-standard WLSMV estimator</td>
 <td>
 <code>"esem"</code> with <code>cor = "polychoric"</code>
+</td>
+</tr>
+<tr class="odd">
+<td>Missing data you want handled by true FIML</td>
+<td>
+<code>"esem"</code> (ML/MLR) or PCA/EFA with
+<code>missing = "fiml"</code>
 </td>
 </tr>
 <tr class="even">
@@ -1601,16 +1626,15 @@ account for measurement error (EFA/ESEM) or not (PCA).</p>
 <code>"pca"</code> (the default engine; <code>fm</code> applies only
 to <code>"efa"</code>)</td>
 </tr>
-<tr class="odd">
-<td>Publication with formal model evaluation</td>
-<td><code>"esem"</code></td>
-</tr>
 </tbody>
 </table>
 <p>A practical workflow: start with PCA to get a feel for the hierarchy
-and choose k. Switch to EFA or ESEM to confirm and report. If PCA and
-EFA/ESEM edges agree, you have robust evidence for the hierarchy; if
-they disagree, investigate why.</p>
+and choose k. EFA is enough to <em>confirm and report</em> — it returns
+loadings, variance, edges, and per-level RMSEA/TLI. Reach for ESEM only
+when you need one of the three things it adds (loading SEs, WLSMV, or
+FIML); it is not a required “publication” upgrade. If PCA and EFA/ESEM
+edges agree, you have robust evidence for the hierarchy; if they
+disagree, investigate why.</p>
 </div>
 <div class="section level2">
 <h2 id="missing-data">Missing data<a class="anchor" aria-label="anchor" href="#missing-data"></a>

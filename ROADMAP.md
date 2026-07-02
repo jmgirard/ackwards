@@ -72,8 +72,8 @@ fixed in M43; M6 (the untested Forbes-fidelity contract) fixed in M44
 via a fixture test reproducing the paper’s three simulation studies
 against Forbes’s own reference implementation. Minor: m1, m2, m6, m7,
 m8, m10 in M42; m3, m4, m5, m9, m11 in M43. Enhancements: e3 in M42; e1
-in M43; e4 (bootstrap edge CIs) shipped as M47; e2 remains as an
-unscheduled idea (above).
+in M43; e4 (bootstrap edge CIs) shipped as M47; e2 (dual EFA
+chi-squares) **declined in M49** (DESIGN §14 item 40).
 
 ------------------------------------------------------------------------
 
@@ -146,26 +146,51 @@ every audited decision.
   redistribution; expected values from the M44 feasibility run). The
   download URLs and comparison script survive in the M44 milestone
   entry.
-- **e2** — dual chi-squares for EFA (`chi` = likelihood — the M42/C1
-  fix, `chi_empirical` = psych’s residual-based; psych prints both for a
-  reason). Owner set aside at M42.
 - **[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
   and
   [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
   engine/basis extensions** (deferred from M46/M47, DESIGN
-  §14.35/§14.36): (a) **ESEM support** — for both verbs, the per-half /
-  per-replicate lavaan hierarchies (`2 * n_splits` for comparability;
-  `n_boot` for boot_edges) need their own performance treatment (reuse
-  the M26 cached-sample-stats + `future.apply` machinery per fit);
-  2.  **polychoric basis** — polychoric estimation in every
-      half/resample is slow and NPD-prone, so both verbs mirror
-      [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)’s
-      Pearson/Spearman-only scope. Both only if demand materialises; the
-      EFA-on-Pearson screen covers the common case for each.
-      [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
-      adds no new consideration beyond these two (its Pearson/Spearman +
-      PCA/EFA scope is identical to
-      [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)’s).
+  §14.35/§14.36) — **feasible but demand-gated; keep off the schedule
+  until asked.** Feasibility verdict (M49 Phase A):
+  - **ESEM
+    [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)**
+    is the plausible one: `2 * n_splits` (~20) lavaan hierarchies per
+    call, minutes with the M26 cached-sample-stats + `future.apply`
+    machinery; the matching / anchoring code is already engine-agnostic.
+    Main work is per-half convergence handling (Invariant 7).
+  - **ESEM
+    [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)**
+    is painful: `n_boot` (~1000) × (k_max − 1) WLSMV fits — tens of
+    minutes to hours even parallel; users would have to cut `n_boot`,
+    undermining the percentile CIs, and resample non-convergence /
+    Heywood cases inflate the dropped-replicate count.
+  - **Polychoric basis** (both verbs) is the least realistic — not just
+    slow: a bootstrap resample can drop an entire response category,
+    changing the threshold structure mid-replicate (a drop-or-merge
+    policy question — a genuine statistical wrinkle, not just
+    performance). Mirror
+    [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)’s
+    Pearson/Spearman-only scope; screen on Pearson, fit the final model
+    polychoric.
+
+  Net: only
+  ESEM-[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+  is worth reconsidering if demand appears; the EFA-on-Pearson screen
+  covers the common case for each verb.
+- **Factor-label pipeline** (headline 0.2.0 candidate; owner-approved
+  deferral 2026-07-02) — persistent *factor* labels (distinct from M50’s
+  *item* / variable labels): a `set_factor_labels()`-style setter
+  storing user names on the `ackwards` object, honored by
+  [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+  (node labels), `print`/`summary` (cli), and
+  [`tidy()`](https://generics.r-lib.org/reference/tidy.html);
+  [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
+  remains the scaffold that seeds them. **Purely additive** (no
+  signature/default change), so nothing is lost by shipping 0.1.0
+  without it; the naming/storage/precedence design gets proper DESIGN
+  §14 treatment when scoped. Keep the item-vs-factor “label” vocabulary
+  split (DESIGN §14 item 39) front of mind — the two concepts must not
+  blur.
 
 ## Provenance
 

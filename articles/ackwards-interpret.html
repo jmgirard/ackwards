@@ -34,13 +34,17 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>The workflow</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Model choices</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interpretation &amp; presentation</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-visualization.html">Customizing the Hierarchy Diagram</a></li>
   </ul>
 </li>
@@ -84,8 +88,9 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmgirard.github.io/ackwards/">ackwards</a></span><span class="op">)</span></span>
-<span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Fit the raw dataset (not na.omit()) so bfi25's built-in IPIP item labels are</span></span>
+<span><span class="co"># captured and shown by top_items(); missing = "listwise" drops incomplete rows.</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi25</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, missing <span class="op">=</span> <span class="st">"listwise"</span><span class="op">)</span></span></code></pre></div>
 <p>Fitting an <code>ackwards</code> model gives you a hierarchy of
 factors with stable but opaque IDs — <code>m1f1</code>,
 <code>m2f1</code>, <code>m2f2</code>, and so on. Turning those IDs into
@@ -130,39 +135,39 @@ at deeper levels.</p>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Level 5 (5 factors)</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f1</span></span></span>
-<span><span class="co">#&gt; E2 [-0.752]</span></span>
-<span><span class="co">#&gt; E4 [0.747]</span></span>
-<span><span class="co">#&gt; E1 [-0.701]</span></span>
-<span><span class="co">#&gt; E3 [0.677]</span></span>
-<span><span class="co">#&gt; E5 [0.597]</span></span>
+<span><span class="co">#&gt; E2: Find it difficult to approach others [-0.752]</span></span>
+<span><span class="co">#&gt; E4: Make friends easily [0.747]</span></span>
+<span><span class="co">#&gt; E1: Don't talk a lot [-0.701]</span></span>
+<span><span class="co">#&gt; E3: Know how to captivate people [0.677]</span></span>
+<span><span class="co">#&gt; E5: Take charge [0.597]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f2</span></span></span>
-<span><span class="co">#&gt; N3 [-0.825]</span></span>
-<span><span class="co">#&gt; N1 [-0.810]</span></span>
-<span><span class="co">#&gt; N2 [-0.805]</span></span>
-<span><span class="co">#&gt; N5 [-0.688]</span></span>
-<span><span class="co">#&gt; N4 [-0.646]</span></span>
+<span><span class="co">#&gt; N3: Have frequent mood swings [-0.825]</span></span>
+<span><span class="co">#&gt; N1: Get angry easily [-0.810]</span></span>
+<span><span class="co">#&gt; N2: Get irritated easily [-0.805]</span></span>
+<span><span class="co">#&gt; N5: Panic easily [-0.688]</span></span>
+<span><span class="co">#&gt; N4: Often feel blue [-0.646]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f3</span></span></span>
-<span><span class="co">#&gt; C2 [0.735]</span></span>
-<span><span class="co">#&gt; C4 [-0.716]</span></span>
-<span><span class="co">#&gt; C1 [0.690]</span></span>
-<span><span class="co">#&gt; C3 [0.679]</span></span>
-<span><span class="co">#&gt; C5 [-0.652]</span></span>
+<span><span class="co">#&gt; C2: Continue until everything is perfect [0.735]</span></span>
+<span><span class="co">#&gt; C4: Do things in a half-way manner [-0.716]</span></span>
+<span><span class="co">#&gt; C1: Am exacting in my work [0.690]</span></span>
+<span><span class="co">#&gt; C3: Do things according to a plan [0.679]</span></span>
+<span><span class="co">#&gt; C5: Waste my time [-0.652]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f4</span></span></span>
-<span><span class="co">#&gt; A1 [-0.704]</span></span>
-<span><span class="co">#&gt; A3 [0.703]</span></span>
-<span><span class="co">#&gt; A2 [0.692]</span></span>
-<span><span class="co">#&gt; A5 [0.580]</span></span>
-<span><span class="co">#&gt; A4 [0.522]</span></span>
+<span><span class="co">#&gt; A1: Am indifferent to the feelings of others [-0.704]</span></span>
+<span><span class="co">#&gt; A3: Know how to comfort others [0.703]</span></span>
+<span><span class="co">#&gt; A2: Inquire about others' well-being [0.692]</span></span>
+<span><span class="co">#&gt; A5: Make people feel at ease [0.580]</span></span>
+<span><span class="co">#&gt; A4: Love children [0.522]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f5</span></span></span>
-<span><span class="co">#&gt; O5 [-0.705]</span></span>
-<span><span class="co">#&gt; O3 [0.655]</span></span>
-<span><span class="co">#&gt; O1 [0.604]</span></span>
-<span><span class="co">#&gt; O2 [-0.595]</span></span>
-<span><span class="co">#&gt; O4 [0.551]</span></span>
+<span><span class="co">#&gt; O5: Will not probe deeply into a subject [-0.705]</span></span>
+<span><span class="co">#&gt; O3: Carry the conversation to a higher level [0.655]</span></span>
+<span><span class="co">#&gt; O1: Am full of ideas [0.604]</span></span>
+<span><span class="co">#&gt; O2: Avoid difficult reading material [-0.595]</span></span>
+<span><span class="co">#&gt; O4: Spend time reflecting on things [0.551]</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">for the full matrix.</span></span></span></code></pre></div>
@@ -185,34 +190,34 @@ useful when your items follow a meaningful sequence.</p>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Level 5 (5 factors)</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f1</span></span></span>
-<span><span class="co">#&gt; E2 [-0.752]</span></span>
-<span><span class="co">#&gt; E4 [0.747]</span></span>
-<span><span class="co">#&gt; E1 [-0.701]</span></span>
-<span><span class="co">#&gt; E3 [0.677]</span></span>
+<span><span class="co">#&gt; E2: Find it difficult to approach others [-0.752]</span></span>
+<span><span class="co">#&gt; E4: Make friends easily [0.747]</span></span>
+<span><span class="co">#&gt; E1: Don't talk a lot [-0.701]</span></span>
+<span><span class="co">#&gt; E3: Know how to captivate people [0.677]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f2</span></span></span>
-<span><span class="co">#&gt; N3 [-0.825]</span></span>
-<span><span class="co">#&gt; N1 [-0.810]</span></span>
-<span><span class="co">#&gt; N2 [-0.805]</span></span>
-<span><span class="co">#&gt; N5 [-0.688]</span></span>
+<span><span class="co">#&gt; N3: Have frequent mood swings [-0.825]</span></span>
+<span><span class="co">#&gt; N1: Get angry easily [-0.810]</span></span>
+<span><span class="co">#&gt; N2: Get irritated easily [-0.805]</span></span>
+<span><span class="co">#&gt; N5: Panic easily [-0.688]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f3</span></span></span>
-<span><span class="co">#&gt; C2 [0.735]</span></span>
-<span><span class="co">#&gt; C4 [-0.716]</span></span>
-<span><span class="co">#&gt; C1 [0.690]</span></span>
-<span><span class="co">#&gt; C3 [0.679]</span></span>
+<span><span class="co">#&gt; C2: Continue until everything is perfect [0.735]</span></span>
+<span><span class="co">#&gt; C4: Do things in a half-way manner [-0.716]</span></span>
+<span><span class="co">#&gt; C1: Am exacting in my work [0.690]</span></span>
+<span><span class="co">#&gt; C3: Do things according to a plan [0.679]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f4</span></span></span>
-<span><span class="co">#&gt; A1 [-0.704]</span></span>
-<span><span class="co">#&gt; A3 [0.703]</span></span>
-<span><span class="co">#&gt; A2 [0.692]</span></span>
-<span><span class="co">#&gt; A5 [0.580]</span></span>
+<span><span class="co">#&gt; A1: Am indifferent to the feelings of others [-0.704]</span></span>
+<span><span class="co">#&gt; A3: Know how to comfort others [0.703]</span></span>
+<span><span class="co">#&gt; A2: Inquire about others' well-being [0.692]</span></span>
+<span><span class="co">#&gt; A5: Make people feel at ease [0.580]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m5f5</span></span></span>
-<span><span class="co">#&gt; O5 [-0.705]</span></span>
-<span><span class="co">#&gt; O3 [0.655]</span></span>
-<span><span class="co">#&gt; O1 [0.604]</span></span>
-<span><span class="co">#&gt; O2 [-0.595]</span></span>
+<span><span class="co">#&gt; O5: Will not probe deeply into a subject [-0.705]</span></span>
+<span><span class="co">#&gt; O3: Carry the conversation to a higher level [0.655]</span></span>
+<span><span class="co">#&gt; O1: Am full of ideas [0.604]</span></span>
+<span><span class="co">#&gt; O2: Avoid difficult reading material [-0.595]</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">for the full matrix.</span></span></span></code></pre></div>
@@ -235,86 +240,86 @@ by item:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Level 3 (3 factors)</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">A1</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">A1: Am indifferent to the feelings of others</span></span></span>
 <span><span class="co">#&gt; m3f1 [-0.354]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">A2</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">A2: Inquire about others' well-being</span></span></span>
 <span><span class="co">#&gt; m3f1 [0.650]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">A3</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">A3: Know how to comfort others</span></span></span>
 <span><span class="co">#&gt; m3f1 [0.750]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">A4</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">A4: Love children</span></span></span>
 <span><span class="co">#&gt; m3f1 [0.490]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">A5</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">A5: Make people feel at ease</span></span></span>
 <span><span class="co">#&gt; m3f1 [0.735]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">C1</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">C1: Am exacting in my work</span></span></span>
 <span><span class="co">#&gt; m3f3 [0.658]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">C2</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">C2: Continue until everything is perfect</span></span></span>
 <span><span class="co">#&gt; m3f3 [0.642]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">C3</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">C3: Do things according to a plan</span></span></span>
 <span><span class="co">#&gt; m3f3 [0.476]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">C4</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">C4: Do things in a half-way manner</span></span></span>
 <span><span class="co">#&gt; m3f3 [-0.609]</span></span>
 <span><span class="co">#&gt; m3f2 [-0.348]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">C5</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">C5: Waste my time</span></span></span>
 <span><span class="co">#&gt; m3f3 [-0.453]</span></span>
 <span><span class="co">#&gt; m3f2 [-0.428]</span></span>
 <span><span class="co">#&gt; m3f1 [-0.252]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">E1</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">E1: Don't talk a lot</span></span></span>
 <span><span class="co">#&gt; m3f1 [-0.611]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">E2</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">E2: Find it difficult to approach others</span></span></span>
 <span><span class="co">#&gt; m3f1 [-0.698]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">E3</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">E3: Know how to captivate people</span></span></span>
 <span><span class="co">#&gt; m3f1 [0.664]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">E4</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">E4: Make friends easily</span></span></span>
 <span><span class="co">#&gt; m3f1 [0.784]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">E5</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">E5: Take charge</span></span></span>
 <span><span class="co">#&gt; m3f1 [0.507]</span></span>
 <span><span class="co">#&gt; m3f3 [0.392]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">N1</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">N1: Get angry easily</span></span></span>
 <span><span class="co">#&gt; m3f2 [-0.777]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">N2</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">N2: Get irritated easily</span></span></span>
 <span><span class="co">#&gt; m3f2 [-0.791]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">N3</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">N3: Have frequent mood swings</span></span></span>
 <span><span class="co">#&gt; m3f2 [-0.812]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">N4</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">N4: Often feel blue</span></span></span>
 <span><span class="co">#&gt; m3f2 [-0.680]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">N5</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">N5: Panic easily</span></span></span>
 <span><span class="co">#&gt; m3f2 [-0.650]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">O1</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">O1: Am full of ideas</span></span></span>
 <span><span class="co">#&gt; m3f3 [0.493]</span></span>
 <span><span class="co">#&gt; m3f1 [0.253]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">O2</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">O2: Avoid difficult reading material</span></span></span>
 <span><span class="co">#&gt; m3f3 [-0.520]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">O3</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">O3: Carry the conversation to a higher level</span></span></span>
 <span><span class="co">#&gt; m3f3 [0.504]</span></span>
 <span><span class="co">#&gt; m3f1 [0.355]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">O4</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">O4: Spend time reflecting on things</span></span></span>
 <span><span class="co">#&gt; m3f2 [-0.414]</span></span>
 <span><span class="co">#&gt; m3f3 [0.319]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">O5</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">O5: Will not probe deeply into a subject</span></span></span>
 <span><span class="co">#&gt; m3f3 [-0.553]</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span></span>
@@ -329,68 +334,34 @@ discussion.</p>
 <h3 id="showing-item-wording-instead-of-codes">Showing item wording instead of codes<a class="anchor" aria-label="anchor" href="#showing-item-wording-instead-of-codes"></a>
 </h3>
 <p>Item codes like <code>A1</code> or <code>N3</code> are compact but
-opaque. If your data carries variable labels — the <code>"label"</code>
-attribute that packages like <strong>labelled</strong> and
-<strong>haven</strong> attach to columns, and that survey exports often
-include — <code><a href="../reference/ackwards.html">ackwards()</a></code> captures them at fit time and
-<code><a href="../reference/top_items.html">top_items()</a></code> displays them as <code>label (code)</code>:</p>
+opaque. The wording you have been seeing above —
+<code>E4: Make friends easily</code> — comes for free:
+<code>bfi25</code> ships each item’s IPIP stem as a <strong>variable
+label</strong> (a <code>"label"</code> column attribute),
+<code><a href="../reference/ackwards.html">ackwards()</a></code> captures those labels at fit time, and
+<code><a href="../reference/top_items.html">top_items()</a></code> prints them as <code>code: label</code>.</p>
+<p>Your own data often carries the same attribute (packages like
+<strong>labelled</strong> and <strong>haven</strong> set it, and survey
+exports frequently include it). If it does <em>not</em>, attach the
+wording yourself — with <code>labelled::var_label()</code> or base
+<code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code> — on the data you actually fit (base row-subsetting
+such as <code><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit()</a></code> drops plain attributes, which is why we
+fit the raw <code>bfi25</code> above):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">bfi_lab</span> <span class="op">&lt;-</span> <span class="va">bfi</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">bfi_lab</span><span class="op">$</span><span class="va">A1</span>, <span class="st">"label"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Am indifferent to the feelings of others"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">bfi_lab</span><span class="op">$</span><span class="va">A2</span>, <span class="st">"label"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Inquire about others' well-being"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">bfi_lab</span><span class="op">$</span><span class="va">A3</span>, <span class="st">"label"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Know how to comfort others"</span></span>
+<code class="sourceCode R"><span><span class="co"># tidyverse idiom:</span></span>
+<span><span class="fu">labelled</span><span class="fu">::</span><span class="fu">var_label</span><span class="op">(</span><span class="va">my_data</span><span class="op">$</span><span class="va">item1</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Full wording of item 1"</span></span>
 <span></span>
-<span><span class="va">x_lab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi_lab</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x_lab</span>, level <span class="op">=</span> <span class="fl">5</span>, cut <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient items by factor (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span></span>
-<span><span class="co">#&gt; Engine: <span style="font-weight: bold;">pca</span></span></span>
-<span><span class="co">#&gt; Cut: |loading| &gt;= 0.5</span></span>
-<span><span class="co">#&gt; Top-n: all</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Level 5 (5 factors)</span> ──</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f1</span></span></span>
-<span><span class="co">#&gt; E2 [-0.752]</span></span>
-<span><span class="co">#&gt; E4 [0.747]</span></span>
-<span><span class="co">#&gt; E1 [-0.701]</span></span>
-<span><span class="co">#&gt; E3 [0.677]</span></span>
-<span><span class="co">#&gt; E5 [0.597]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f2</span></span></span>
-<span><span class="co">#&gt; N3 [-0.825]</span></span>
-<span><span class="co">#&gt; N1 [-0.810]</span></span>
-<span><span class="co">#&gt; N2 [-0.805]</span></span>
-<span><span class="co">#&gt; N5 [-0.688]</span></span>
-<span><span class="co">#&gt; N4 [-0.646]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f3</span></span></span>
-<span><span class="co">#&gt; C2 [0.735]</span></span>
-<span><span class="co">#&gt; C4 [-0.716]</span></span>
-<span><span class="co">#&gt; C1 [0.690]</span></span>
-<span><span class="co">#&gt; C3 [0.679]</span></span>
-<span><span class="co">#&gt; C5 [-0.652]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f4</span></span></span>
-<span><span class="co">#&gt; Am indifferent to the feelings of others (A1) [-0.704]</span></span>
-<span><span class="co">#&gt; Know how to comfort others (A3) [0.703]</span></span>
-<span><span class="co">#&gt; Inquire about others' well-being (A2) [0.692]</span></span>
-<span><span class="co">#&gt; A5 [0.580]</span></span>
-<span><span class="co">#&gt; A4 [0.522]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f5</span></span></span>
-<span><span class="co">#&gt; O5 [-0.705]</span></span>
-<span><span class="co">#&gt; O3 [0.655]</span></span>
-<span><span class="co">#&gt; O1 [0.604]</span></span>
-<span><span class="co">#&gt; O2 [-0.595]</span></span>
-<span><span class="co">#&gt; O4 [0.551]</span></span>
-<span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">for the full matrix.</span></span></span></code></pre></div>
+<span><span class="co"># or base R, no extra package:</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">my_data</span><span class="op">$</span><span class="va">item1</span>, <span class="st">"label"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"Full wording of item 1"</span></span></code></pre></div>
 <p>Labelled items show their wording; unlabelled ones fall back to the
 bare code, so a partially labelled data set still prints cleanly. Pass
 <code>show_labels = FALSE</code> to force the bare codes even when
 labels are present.</p>
+<p>These <em>variable</em> labels (item wording) are distinct from the
+<em>factor</em> labels (the names you give <code>m1f1</code>,
+<code>m2f1</code>, … below): one describes your measured items, the
+other names the latent factors the hierarchy discovers. Keep the two
+ideas — and the word “label” — separate.</p>
 </div>
 </div>
 <div class="section level2">
@@ -420,33 +391,33 @@ the bare sign:</p>
 <span><span class="co">#&gt; ── <span style="font-weight: bold;">Level 2 (2 factors)</span> ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m2f1</span></span></span>
-<span><span class="co">#&gt; A3 [0.730]</span></span>
-<span><span class="co">#&gt; A5 [0.694]</span></span>
-<span><span class="co">#&gt; E3 [0.684]</span></span>
-<span><span class="co">#&gt; A2 [0.661]</span></span>
-<span><span class="co">#&gt; E4 [0.638]</span></span>
-<span><span class="co">#&gt; E5 [0.630]</span></span>
-<span><span class="co">#&gt; E2 [-0.614]</span></span>
-<span><span class="co">#&gt; O3 [0.565]</span></span>
-<span><span class="co">#&gt; E1 [-0.525]</span></span>
-<span><span class="co">#&gt; A4 [0.471]</span></span>
-<span><span class="co">#&gt; C2 [0.468]</span></span>
-<span><span class="co">#&gt; O1 [0.467]</span></span>
-<span><span class="co">#&gt; C1 [0.421]</span></span>
-<span><span class="co">#&gt; C5 [-0.411]</span></span>
-<span><span class="co">#&gt; C4 [-0.389]</span></span>
-<span><span class="co">#&gt; C3 [0.365]</span></span>
-<span><span class="co">#&gt; A1 [-0.335]</span></span>
+<span><span class="co">#&gt; A3: Know how to comfort others [0.730]</span></span>
+<span><span class="co">#&gt; A5: Make people feel at ease [0.694]</span></span>
+<span><span class="co">#&gt; E3: Know how to captivate people [0.684]</span></span>
+<span><span class="co">#&gt; A2: Inquire about others' well-being [0.661]</span></span>
+<span><span class="co">#&gt; E4: Make friends easily [0.638]</span></span>
+<span><span class="co">#&gt; E5: Take charge [0.630]</span></span>
+<span><span class="co">#&gt; E2: Find it difficult to approach others [-0.614]</span></span>
+<span><span class="co">#&gt; O3: Carry the conversation to a higher level [0.565]</span></span>
+<span><span class="co">#&gt; E1: Don't talk a lot [-0.525]</span></span>
+<span><span class="co">#&gt; A4: Love children [0.471]</span></span>
+<span><span class="co">#&gt; C2: Continue until everything is perfect [0.468]</span></span>
+<span><span class="co">#&gt; O1: Am full of ideas [0.467]</span></span>
+<span><span class="co">#&gt; C1: Am exacting in my work [0.421]</span></span>
+<span><span class="co">#&gt; C5: Waste my time [-0.411]</span></span>
+<span><span class="co">#&gt; C4: Do things in a half-way manner [-0.389]</span></span>
+<span><span class="co">#&gt; C3: Do things according to a plan [0.365]</span></span>
+<span><span class="co">#&gt; A1: Am indifferent to the feelings of others [-0.335]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">m2f2</span></span></span>
-<span><span class="co">#&gt; N3 [-0.806]</span></span>
-<span><span class="co">#&gt; N1 [-0.790]</span></span>
-<span><span class="co">#&gt; N2 [-0.789]</span></span>
-<span><span class="co">#&gt; N4 [-0.677]</span></span>
-<span><span class="co">#&gt; N5 [-0.659]</span></span>
-<span><span class="co">#&gt; C5 [-0.491]</span></span>
-<span><span class="co">#&gt; C4 [-0.438]</span></span>
-<span><span class="co">#&gt; O4 [-0.358]</span></span>
+<span><span class="co">#&gt; N3: Have frequent mood swings [-0.806]</span></span>
+<span><span class="co">#&gt; N1: Get angry easily [-0.790]</span></span>
+<span><span class="co">#&gt; N2: Get irritated easily [-0.789]</span></span>
+<span><span class="co">#&gt; N4: Often feel blue [-0.677]</span></span>
+<span><span class="co">#&gt; N5: Panic easily [-0.659]</span></span>
+<span><span class="co">#&gt; C5: Waste my time [-0.491]</span></span>
+<span><span class="co">#&gt; C4: Do things in a half-way manner [-0.438]</span></span>
+<span><span class="co">#&gt; O4: Spend time reflecting on things [-0.358]</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">for the full matrix.</span></span></span></code></pre></div>
@@ -525,7 +496,7 @@ factor’s primary children. Use it to name <strong>top-down</strong>:</p>
 <li><p><strong>Upper-level factors are broader.</strong> A level-2
 factor that is the primary parent of two level-3 factors is the
 construct they share. Name it for the blend, not for one child. In the
-<code>bfi</code> data above, the level-1 factor is a single broad
+<code>bfi25</code> data above, the level-1 factor is a single broad
 dimension; at level 2 it separates into a Neuroticism factor
 (<code>m2f2</code>, defined by the N items) and a broad factor blending
 the remaining four trait families (<code>m2f1</code>). The Big Five
@@ -572,7 +543,7 @@ Two are especially handy for personality and psychopathology data:</p>
 higher-order dimensions — <strong>Stability</strong> (the shared
 variance of Agreeableness, Conscientiousness, and low Neuroticism) and
 <strong>Plasticity</strong> (Extraversion and Openness) — from DeYoung’s
-work on the metatraits. In a <code>bfi</code> hierarchy these are
+work on the metatraits. In a <code>bfi25</code> hierarchy these are
 frequently what a two- or three-factor level <em>is</em>, so “Stability”
 / “Plasticity” are ready-made names for factors that would otherwise be
 an awkward “broad well-adjustment”.</li>

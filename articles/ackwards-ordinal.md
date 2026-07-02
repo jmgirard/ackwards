@@ -217,6 +217,25 @@ every item pair. With p items that is p(p−1)/2 pairs — about 300 for a
 25-item scale. Computation is usually fast (seconds), but scales as
 O(p²) and can be slow for very large item pools.
 
+**Screen skewed or sparse scales first.** Clinical symptom scales and
+other right-skewed items often have a response category endorsed by only
+a handful of people. That can make
+[`psych::polychoric()`](https://rdrr.io/pkg/psych/man/tetrachor.html)
+fail under its default continuity correction (set `correct = 0`), and —
+with many such items — drive the correlation matrix *near-singular*, in
+which case per-level fit indices (especially CFI, which comes back `NA`)
+and factor scores become unreliable. Run
+\[[`check_items()`](https://jmgirard.github.io/ackwards/reference/check_items.md)\]\[ackwards::check_items\]
+before fitting to see which items are degenerate or sparse, and read the
+**“When to trust the result”** section of
+[`?ackwards`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+for how each warning maps to whether you should report the solution.
+When a matrix is near-singular,
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+says so once and records it on the object, so
+[`print()`](https://rdrr.io/r/base/print.html)/[`summary()`](https://rdrr.io/r/base/summary.html)
+keep reminding you.
+
 > **A note on score computation.** The short answer: yes, you can use
 > the factor scores from an ordinal analysis in downstream work — the
 > caveat below is about *scaling*, not validity. When

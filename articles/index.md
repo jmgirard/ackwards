@@ -5,19 +5,25 @@
 - [Introduction to Bass-Ackwards
   Analysis](https://jmgirard.github.io/ackwards/articles/ackwards-intro.md):
 
-### Deep dives
+### The workflow
 
 - [Replicability-Gated Hierarchies: A Recommended
   Workflow](https://jmgirard.github.io/ackwards/articles/ackwards-girard.md):
 - [Choosing k: How Many
   Factors?](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md):
-- [Interpreting and Labeling
-  Factors](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md):
+- [The Forbes Extension: Skip-Level Connections and
+  Pruning](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md):
+
+### Model choices
+
 - [Choosing an Engine: PCA, EFA, and
   ESEM](https://jmgirard.github.io/ackwards/articles/ackwards-engines.md):
 - [Ordinal Data: Polychoric Correlations and
   WLSMV](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.md):
-- [The Forbes Extension: Skip-Level Connections and
-  Pruning](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md):
+
+### Interpretation & presentation
+
+- [Interpreting and Labeling
+  Factors](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md):
 - [Customizing the Hierarchy
   Diagram](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.md):

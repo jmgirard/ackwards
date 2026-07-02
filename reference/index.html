@@ -19,13 +19,17 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>The workflow</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Model choices</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interpretation &amp; presentation</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-visualization.html">Customizing the Hierarchy Diagram</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -53,7 +57,7 @@
     <div class="section level2">
       <h2 id="fit-the-model">Fit the model<a class="anchor" aria-label="anchor" href="#fit-the-model"></a></h2>
 
-      <div class="section-desc"><p>The main modelling function, a Forbes-style pruning verb, and helpers for choosing k and gating hierarchy depth on replicability.</p></div>
+      <div class="section-desc"><p>The main modelling function, a Forbes-style pruning verb, and pre-analysis helpers for screening items, choosing k, and gating hierarchy depth on replicability.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -80,6 +84,20 @@
 
         </dt>
         <dd>Bootstrap confidence intervals for between-level edges</dd>
+
+        <dt>
+
+          <code><a href="check_items.html">check_items()</a></code>
+
+        </dt>
+        <dd>Screen items for problems before factor analysis</dd>
+
+        <dt>
+
+          <code><a href="print.check_items.html">print(<i>&lt;check_items&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print an item quality check</dd>
 
         <dt>
 

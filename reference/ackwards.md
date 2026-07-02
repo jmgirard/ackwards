@@ -23,6 +23,7 @@ ackwards(
   seed = NULL,
   pairs = "adjacent",
   cut_show = 0.3,
+  correct = 0.5,
   ...
 )
 ```
@@ -190,6 +191,21 @@ ackwards(
   [`tidy()`](https://generics.r-lib.org/reference/tidy.html) output.
   Default `0.3`.
 
+- correct:
+
+  Continuity correction passed to
+  [`psych::polychoric()`](https://rdrr.io/pkg/psych/man/tetrachor.html)
+  on the PCA/EFA polychoric path (`engine = "pca"`/`"efa"` with
+  `cor = "polychoric"`). Default `0.5` (psych's own default), which adds
+  that value to zero cells before estimating thresholds. **Set
+  `correct = 0`** if
+  [`psych::polychoric()`](https://rdrr.io/pkg/psych/man/tetrachor.html)
+  fails on your data (its error suggests exactly this) – this typically
+  happens when an item has a near-empty response category or when items
+  with unequal category counts produce a sparse cross-cell. Ignored on
+  other paths: ESEM computes its own polychoric correlations inside
+  lavaan, and the Pearson/Spearman bases do not use it.
+
 - ...:
 
   Reserved for future arguments.
@@ -288,6 +304,53 @@ Constraints and behaviour when a correlation matrix is supplied:
 
 - **`$cor` field:** stored as `NA_character_`; printed as
   `"(user-supplied matrix)"`.
+
+## When to trust the result
+
+`ackwards()` raises diagnostics as it fits. They fall into three tiers
+by what they mean for whether you should trust and report the solution:
+
+**Fatal – fix before trusting.** The result is undefined or rests on a
+broken correlation matrix:
+
+- A **constant item** (no variance) errors – drop it (see
+  [`check_items()`](https://jmgirard.github.io/ackwards/reference/check_items.md)).
+
+- **[`psych::polychoric()`](https://rdrr.io/pkg/psych/man/tetrachor.html)
+  fails** – usually a near-empty response category; set `correct = 0` or
+  collapse rare categories.
+
+- A **level fails to converge** – the hierarchy is truncated to the
+  deepest level that did; do not interpret beyond it.
+
+- A **near-singular correlation matrix** (smallest eigenvalue `< 1e-4`,
+  recorded in `meta$near_singular` / `meta$min_eigenvalue` and
+  re-surfaced by
+  [`print()`](https://rdrr.io/r/base/print.html)/[`summary()`](https://rdrr.io/r/base/summary.html))
+  means per-level fit indices (especially CFI, which comes back `NA`)
+  and factor scores are unreliable and the loadings/edges rest on a
+  rank-deficient matrix. Collapse sparse categories, use
+  `missing = "listwise"`, or trim redundant items.
+
+**Caution – interpret carefully.** The solution exists but may be
+unstable:
+
+- A **Heywood case** (communality `> 1` / negative uniqueness) at a
+  level – check that level's loadings make substantive sense; consider
+  fewer factors.
+
+- A **near-constant item** (one response category dominates) can drive a
+  meaningless factor – inspect it with
+  [`check_items()`](https://jmgirard.github.io/ackwards/reference/check_items.md).
+
+- **Ordinal data on a Pearson basis** attenuates correlations – fine for
+  a quick look or
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  screening, but report the final model on `cor = "polychoric"`.
+
+**Informational – usually fine.** Proceed, just be aware: the
+pairwise-missing note, a merely *sparse* (rare-but-present) response
+category, and the ordinal-detection warning when you did intend Pearson.
 
 ## References
 

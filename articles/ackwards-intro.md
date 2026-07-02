@@ -77,13 +77,13 @@ sk <- suggest_k(bfi, seed = 42)
 #>   "polychoric"` in the final `ackwards()` fit.
 #> This warning is displayed once per session.
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [163ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [287ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [90ms]
+#> ✔ Running MAP and VSS... [151ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [5.9s]
+#> ✔ Running Comparison Data (CD)... [11s]
 #> 
 print(sk)
 #> 
@@ -130,13 +130,24 @@ autoplot(sk)
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
 does not return a single “correct” k — it reports what several criteria
 each recommend, so you can read a plausible *range* rather than a point
-estimate. That range informs `k_max` in
+estimate. It also warns that these items look ordinal:
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+screens on the Pearson basis by design, so the warning points you at
+`cor = "polychoric"` for the *final* fit (which we use in Step 2), not
+at
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+itself. That range informs `k_max` in
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md),
 which is itself an *upper bound* on the hierarchy depth, not a claim
 about the true number of factors: setting `k_max` one or two levels
 above the consensus to watch factors fragment is intentional and
-informative. For a full explanation of each criterion, its bias
-direction, and how to match it to your engine, see
+informative — and before you *interpret* those deeper levels, gate them
+on replicability with
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+(the recommended-workflow vignette,
+[`vignette("ackwards-girard")`](https://jmgirard.github.io/ackwards/articles/ackwards-girard.md),
+is built around exactly this). For a full explanation of each criterion,
+its bias direction, and how to match it to your engine, see
 [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md).
 
 ## Step 2: Fit the hierarchy `ackwards()`
@@ -158,9 +169,12 @@ giving a more accurate representation of the latent structure.
 x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 ```
 
-No warning this time — specifying `cor = "polychoric"` tells
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-that you have already thought about the measurement scale.
+does not repeat the ordinal-detection warning
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+raised: setting `cor = "polychoric"` is exactly how you heed it, telling
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+that you have accounted for the ordinal measurement scale.
 
 > *Why varimax? Within each level,
 > [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
@@ -472,9 +486,14 @@ tidy(x, what = "edges", primary_only = TRUE, sort = "strength")
 
 `primary_only = TRUE` keeps just the strongest-connecting edge for each
 factor — its primary parent — and `sort = "strength"` orders them by
-`|r|`. The r values close to 1.0 indicate factors that are nearly
-identical across adjacent levels — a sign of a stable, replicable
-dimension. Smaller values indicate where the structure is reorganizing.
+`|r|`. An r close to 1.0 means a factor is nearly identical to its
+parent one level up: the dimension is stable across that step. But a
+factor that stays near-1.0 at *every* level is also a candidate for
+pruning — it is persisting without differentiating, Forbes’s redundancy
+question (see
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) and
+[`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md)).
+Smaller values indicate where the structure is reorganizing.
 
 ### Variance explained
 
@@ -632,9 +651,9 @@ and the *Scoring new observations* section of
 for the full semantics (including `scaling = "sample"` for deliberately
 re-standardizing in a new population).
 
-## Summary
+## Summary: the basic toolkit
 
-The bass-ackwards workflow in **ackwards** has six steps:
+These six functions are the basic **ackwards** toolkit:
 
 1.  **`suggest_k(data)`** — identify a plausible range for the hierarchy
     depth.
@@ -644,10 +663,18 @@ The bass-ackwards workflow in **ackwards** has six steps:
     read the per-level variance and fit indices, and inspect the lineage
     list.
 4.  **`autoplot(x)`** — visualize the hierarchy as a lineage diagram.
-5.  **`tidy(x, what = ...)`** — extract loadings, edges, or variance in
-    a form ready for tables or further analysis.
-6.  **`augment(x, data = ...)`** — generate factor scores for downstream
-    use.
+5.  **`tidy(x, what = ...)`** / **`top_items(x)`** — extract loadings,
+    edges, or variance, and read what each factor means.
+6.  **`augment(x, data = ...)`** / **`predict(x, newdata)`** — generate
+    factor scores for downstream use, in or out of sample.
+
+Fitting is only half of a defensible analysis. For the *recommended
+workflow* — which gates hierarchy depth on split-half replicability with
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+and flags non-differentiating factors with
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+before you interpret — see
+[`vignette("ackwards-girard")`](https://jmgirard.github.io/ackwards/articles/ackwards-girard.md).
 
 ## Next steps
 
@@ -655,9 +682,10 @@ The bass-ackwards workflow in **ackwards** has six steps:
 |----|----|
 | The recommended end-to-end workflow, with a split-half replicability gate on hierarchy depth | [`vignette("ackwards-girard")`](https://jmgirard.github.io/ackwards/articles/ackwards-girard.md) |
 | Choosing k: the five criteria in depth, pros/cons, and best practices | [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md) |
+| Skip-level connections and pruning with the Forbes extension | [`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md) |
 | When PCA is not enough: comparing EFA and ESEM engines | [`vignette("ackwards-engines")`](https://jmgirard.github.io/ackwards/articles/ackwards-engines.md) |
 | Ordinal data: polychoric correlations and WLSMV estimation | [`vignette("ackwards-ordinal")`](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.md) |
-| Skip-level connections and pruning with the Forbes extension | [`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md) |
+| Interpreting and labeling factors: [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md), naming across levels | [`vignette("ackwards-interpret")`](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md) |
 | Customizing the hierarchy diagram | [`vignette("ackwards-visualization")`](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.md) |
 
 ## References

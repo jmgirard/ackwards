@@ -36,13 +36,17 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>The workflow</h6></li>
     <li><a class="dropdown-item" href="articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
-    <li><a class="dropdown-item" href="articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
+    <li><a class="dropdown-item" href="articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Model choices</h6></li>
     <li><a class="dropdown-item" href="articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
-    <li><a class="dropdown-item" href="articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interpretation &amp; presentation</h6></li>
+    <li><a class="dropdown-item" href="articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-visualization.html">Customizing the Hierarchy Diagram</a></li>
   </ul>
 </li>
@@ -72,60 +76,55 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="ackwards">ackwards<a class="anchor" aria-label="anchor" href="#ackwards"></a>
 </h1></div>
-<p><a href="https://github.com/jmgirard/ackwards/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/jmgirard/ackwards/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <a href="https://app.codecov.io/gh/jmgirard/ackwards?branch=master" class="external-link"><img src="https://codecov.io/gh/jmgirard/ackwards/branch/master/graph/badge.svg" alt="Codecov test coverage"></a> <a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
+<p><a href="https://github.com/jmgirard/ackwards/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/jmgirard/ackwards/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <a href="https://app.codecov.io/gh/jmgirard/ackwards?branch=master" class="external-link"><img src="https://codecov.io/gh/jmgirard/ackwards/branch/master/graph/badge.svg" alt="Codecov test coverage"></a> <a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
 <blockquote>
 <p>Bass-ackwards hierarchical structural analysis in R</p>
 </blockquote>
 <p><strong>ackwards</strong> implements Goldberg’s (2006) bass-ackwards method and its modern extensions for mapping the hierarchical structure of multivariate data.</p>
 <p>The core insight is simple: instead of asking <em>how many</em> factors best describe your data, ask <em>how the solutions at different levels of resolution are related to one another</em>. A 1-factor solution captures the broadest shared variance; a 5-factor solution captures narrower, more specific dimensions. Bass-ackwards analysis traces how broad factors split into narrow ones — and which narrow factors are redundant re-combinations of broader ones.</p>
-<p>The package supports three extraction engines (PCA, EFA, ESEM), polychoric correlations for ordinal data, and Forbes’s (2023) extension that reveals skip-level connections and flags redundant or artifactual factors.</p>
+<p>The package supports three extraction engines (PCA, EFA, ESEM) and polychoric correlations for ordinal data. Beyond fitting, it is a full analysis toolkit: <code><a href="reference/suggest_k.html">suggest_k()</a></code> brackets the plausible depth, <code><a href="reference/comparability.html">comparability()</a></code> gates that depth on split-half replicability, Forbes’s (2023) <code><a href="reference/prune.html">prune()</a></code> flags redundant or artifactual factors from the skip-level connections, <code><a href="reference/boot_edges.html">boot_edges()</a></code> puts bootstrap confidence intervals on every edge, and <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> scores new observations out of sample.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
+<p>Install the released version from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ackwards"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the development version from GitHub:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"jmgirard/ackwards"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
-<p>We use <code>bfi25</code>, the built-in 25-item Big Five example dataset (see <code><a href="reference/bfi25.html">?bfi25</a></code> for provenance). Because BFI items are recorded on a 6-point ordinal scale, we set <code>cor = "polychoric"</code>.</p>
+<p>We use <code>bfi25</code>, the built-in 25-item Big Five example dataset (see <code><a href="reference/bfi25.html">?bfi25</a></code> for provenance). Because its items are recorded on a 6-point ordinal scale, we set <code>cor = "polychoric"</code>, and we fit the dataset directly (rather than <code><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit()</a></code>-ing it first) so its built-in IPIP item labels flow through to <code><a href="reference/top_items.html">top_items()</a></code>.</p>
 <div class="section level3">
 <h3 id="step-1--suggest-a-range-of-k">Step 1 — Suggest a range of k<a class="anchor" aria-label="anchor" href="#step-1--suggest-a-range-of-k"></a>
 </h3>
 <p><code><a href="reference/suggest_k.html">suggest_k()</a></code> runs five complementary criteria — two forms of parallel analysis (PC and FA basis), MAP, VSS, and optionally Comparison Data — to help you choose an upper bound for the hierarchy depth.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmgirard.github.io/ackwards/">ackwards</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span>
-<span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [178ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; ✔ Running MAP and VSS... [98ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [4.6s]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="va">sk</span></span>
+<span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────</span></span>
 <span><span class="co">#&gt; Variables: 25</span></span>
-<span><span class="co">#&gt; n: 875</span></span>
+<span><span class="co">#&gt; n: 1,000</span></span>
 <span><span class="co">#&gt; Basis: pearson</span></span>
 <span><span class="co">#&gt; Tested k: 1-8</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Criteria (k = 1-8) ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔</span></span>
-<span><span class="co">#&gt; k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔</span></span>
-<span><span class="co">#&gt; k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔</span></span>
-<span><span class="co">#&gt; k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔</span></span>
-<span><span class="co">#&gt; k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔</span></span>
-<span><span class="co">#&gt; k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*</span></span>
-<span><span class="co">#&gt; k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -</span></span>
-<span><span class="co">#&gt; k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -</span></span>
+<span><span class="co">#&gt; k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0246 VSS-1 0.5121 VSS-2 0.0000 CD ✔</span></span>
+<span><span class="co">#&gt; k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0190 VSS-1 0.5761 VSS-2 0.6636 CD ✔</span></span>
+<span><span class="co">#&gt; k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288 CD ✔</span></span>
+<span><span class="co">#&gt; k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6198* VSS-2 0.7781 CD ✔</span></span>
+<span><span class="co">#&gt; k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5730 VSS-2 0.7912* CD ✔</span></span>
+<span><span class="co">#&gt; k = 6: PA-PC - PA-FA ✔ MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530 CD ✔*</span></span>
+<span><span class="co">#&gt; k = 7: PA-PC - PA-FA - MAP 0.0201 VSS-1 0.5698 VSS-2 0.7290 CD -</span></span>
+<span><span class="co">#&gt; k = 8: PA-PC - PA-FA - MAP 0.0231 VSS-1 0.5615 VSS-2 0.7252 CD -</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Recommendations ──</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -147,8 +146,8 @@
 <h3 id="step-2--fit-the-hierarchy">Step 2 — Fit the hierarchy<a class="anchor" aria-label="anchor" href="#step-2--fit-the-hierarchy"></a>
 </h3>
 <p><code><a href="reference/ackwards.html">ackwards()</a></code> fits factor models at every level from 1 to <code>k_max</code> and computes the between-level factor-score correlations that define the hierarchy.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi25</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, missing <span class="op">=</span> <span class="st">"listwise"</span><span class="op">)</span></span>
 <span><span class="va">x</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────</span></span>
@@ -178,46 +177,86 @@
 <div class="section level3">
 <h3 id="step-3--visualize">Step 3 — Visualize<a class="anchor" aria-label="anchor" href="#step-3--visualize"></a>
 </h3>
-<p><code><a href="reference/autoplot.html">autoplot()</a></code> draws the hierarchical diagram. Each row is a level (k = 1 at top, k = 5 at bottom); arrows show which narrow factors inherit from which broad factor. Arrow <strong>thickness</strong> encodes |r| and arrow <strong>color</strong> encodes direction (blue = positive, red = negative), each with its own legend — this clean solution happens to have no negative edges, so only blue appears here. Pass <code>direction = "horizontal"</code> for a left-to-right layout. The <a href="https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html">visualization vignette</a> covers the sign encoding and the rest of the styling options.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p><code><a href="reference/autoplot.html">autoplot()</a></code> draws the hierarchical diagram. Each row is a level (k = 1 at top, k = 5 at bottom); arrows connect each narrow factor to the broad factor it inherits from, with thickness encoding |r| and colour encoding sign (both legended). The <a href="https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html">visualization vignette</a> covers the encodings, <code>direction = "horizontal"</code>, and the rest of the styling.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-plot-1.png" alt="" width="100%"></p>
 <p>The five-factor level cleanly splits into the Big Five. The single broad factor at k = 1 (roughly <em>general positive character</em>) differentiates first into positive vs. negative affect (k = 2), then into successively narrower traits.</p>
 </div>
 <div class="section level3">
-<h3 id="step-4--inspect-and-score">Step 4 — Inspect and score<a class="anchor" aria-label="anchor" href="#step-4--inspect-and-score"></a>
+<h3 id="step-4--interpret-and-score">Step 4 — Interpret and score<a class="anchor" aria-label="anchor" href="#step-4--interpret-and-score"></a>
 </h3>
-<p><code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> extracts any part of the object into a tidy data frame; <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> appends factor scores to your data for downstream analysis.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Eight strongest adjacent-level primary edges</span></span>
-<span><span class="va">edges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"edges"</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">edges</span><span class="op">[</span><span class="va">edges</span><span class="op">$</span><span class="va">is_primary</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"from"</span>, <span class="st">"to"</span>, <span class="st">"r"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">8</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   from   to         r</span></span>
-<span><span class="co">#&gt; 1 m4f2 m5f2 0.9984791</span></span>
-<span><span class="co">#&gt; 2 m3f1 m4f1 0.9938371</span></span>
-<span><span class="co">#&gt; 3 m4f4 m5f5 0.9894063</span></span>
-<span><span class="co">#&gt; 4 m2f2 m3f2 0.9873651</span></span>
-<span><span class="co">#&gt; 5 m4f3 m5f3 0.9824895</span></span>
-<span><span class="co">#&gt; 6 m3f2 m4f2 0.9761484</span></span>
-<span><span class="co">#&gt; 7 m1f1 m2f1 0.8900522</span></span>
-<span><span class="co">#&gt; 8 m2f1 m3f1 0.8740850</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Append scores for all 5 levels to the original data frame</span></span>
-<span><span class="va">scored</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x</span>, data <span class="op">=</span> <span class="va">bfi</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: ! Factor scores are standardized using model-implied SDs from a "polychoric"</span></span>
-<span><span class="co">#&gt;   correlation matrix.</span></span>
-<span><span class="co">#&gt; ℹ The raw projection uses `.standardize(data)` (Pearson z-scores), but</span></span>
-<span><span class="co">#&gt;   `score_var` comes from the "polychoric" R.</span></span>
-<span><span class="co">#&gt; ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,</span></span>
-<span><span class="co">#&gt;   between-level edges from `tidy()` are the authoritative associations.</span></span>
-<span><span class="co">#&gt; This warning is displayed once per session.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span> <span class="co"># original 25 items + 1+2+3+4+5 = 15 score columns</span></span>
-<span><span class="co">#&gt; [1] 875  40</span></span>
-<span></span>
-<span><span class="co"># The appended score columns are named .m{k}f{j}</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"^\\.m"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"</span></span>
-<span><span class="co">#&gt; [10] ".m4f4" ".m5f1" ".m5f2" ".m5f3" ".m5f4" ".m5f5"</span></span></code></pre></div>
+<p><code><a href="reference/top_items.html">top_items()</a></code> lists each factor’s salient items — printed with <code>bfi25</code>’s built-in IPIP labels — so you can read what a factor means; <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> turns the hierarchy into factor scores for downstream analysis.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># What does each of the five factors mean? (salient items, |loading| &gt;= 0.5)</span></span>
+<span><span class="fu"><a href="reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">5</span>, cut <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Salient items by factor (ackwards) ──────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Engine: pca</span></span>
+<span><span class="co">#&gt; Cut: |loading| &gt;= 0.5</span></span>
+<span><span class="co">#&gt; Top-n: all</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Level 5 (5 factors) ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; m5f1</span></span>
+<span><span class="co">#&gt; E2: Find it difficult to approach others [-0.752]</span></span>
+<span><span class="co">#&gt; E4: Make friends easily [0.747]</span></span>
+<span><span class="co">#&gt; E1: Don't talk a lot [-0.701]</span></span>
+<span><span class="co">#&gt; E3: Know how to captivate people [0.677]</span></span>
+<span><span class="co">#&gt; E5: Take charge [0.597]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; m5f2</span></span>
+<span><span class="co">#&gt; N3: Have frequent mood swings [-0.825]</span></span>
+<span><span class="co">#&gt; N1: Get angry easily [-0.810]</span></span>
+<span><span class="co">#&gt; N2: Get irritated easily [-0.805]</span></span>
+<span><span class="co">#&gt; N5: Panic easily [-0.688]</span></span>
+<span><span class="co">#&gt; N4: Often feel blue [-0.646]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; m5f3</span></span>
+<span><span class="co">#&gt; C2: Continue until everything is perfect [0.735]</span></span>
+<span><span class="co">#&gt; C4: Do things in a half-way manner [-0.716]</span></span>
+<span><span class="co">#&gt; C1: Am exacting in my work [0.690]</span></span>
+<span><span class="co">#&gt; C3: Do things according to a plan [0.679]</span></span>
+<span><span class="co">#&gt; C5: Waste my time [-0.652]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; m5f4</span></span>
+<span><span class="co">#&gt; A1: Am indifferent to the feelings of others [-0.704]</span></span>
+<span><span class="co">#&gt; A3: Know how to comfort others [0.703]</span></span>
+<span><span class="co">#&gt; A2: Inquire about others' well-being [0.692]</span></span>
+<span><span class="co">#&gt; A5: Make people feel at ease [0.580]</span></span>
+<span><span class="co">#&gt; A4: Love children [0.522]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; m5f5</span></span>
+<span><span class="co">#&gt; O5: Will not probe deeply into a subject [-0.705]</span></span>
+<span><span class="co">#&gt; O3: Carry the conversation to a higher level [0.655]</span></span>
+<span><span class="co">#&gt; O1: Am full of ideas [0.604]</span></span>
+<span><span class="co">#&gt; O2: Avoid difficult reading material [-0.595]</span></span>
+<span><span class="co">#&gt; O4: Spend time reflecting on things [0.551]</span></span>
+<span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span>
+<span><span class="co">#&gt; for the full matrix.</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Append factor scores for all 15 factors (1+2+3+4+5) to your data</span></span>
+<span><span class="co"># (incomplete rows score as NA -- see ?augment)</span></span>
+<span><span class="va">scored</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x</span>, data <span class="op">=</span> <span class="va">bfi25</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">scored</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span> <span class="co"># 15 new .m{k}f{j} score columns</span></span>
+<span><span class="co">#&gt; [1] 15</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="beyond-the-basics">Beyond the basics<a class="anchor" aria-label="anchor" href="#beyond-the-basics"></a>
+</h3>
+<p>A serious analysis rarely stops at one fit. Three verbs turn the hierarchy from a picture into a defensible result, and one scores new data:</p>
+<ul>
+<li>
+<strong><code>comparability(bfi25, k_max = 6)</code></strong> gates hierarchy <em>depth</em> on split-half replicability — the deepest level at which every factor re-emerges in random halves of the sample (Everett 1983; Goldberg 1990).</li>
+<li>
+<strong><code>prune(x, "redundant")</code></strong> flags factors that persist across levels without differentiating — Forbes’s (2023) redundancy question.</li>
+<li>
+<strong><code>boot_edges(x, bfi25)</code></strong> attaches bootstrap confidence intervals to every between-level edge.</li>
+<li>
+<strong><code>predict(x, newdata)</code></strong> scores observations the model never saw, in the training metric — the standard cross-validation pattern.</li>
+</ul>
+<p>The <a href="https://jmgirard.github.io/ackwards/articles/ackwards-girard.html">recommended-workflow vignette</a> strings these into a six-step analysis.</p>
 </div>
 </div>
 <div class="section level2">
@@ -235,7 +274,7 @@
 <tbody>
 <tr>
 <td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-intro.html">Introduction</a></td>
-<td>Full PCA walkthrough: <code>suggest_k</code> → <code>ackwards</code> → inspect → plot → score</td>
+<td>The basics end-to-end: <code>suggest_k</code> → <code>ackwards</code> → summarize → plot → interpret → score</td>
 </tr>
 <tr>
 <td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-girard.html">Recommended workflow</a></td>
@@ -247,6 +286,11 @@
 <td>Five criteria explained: pros/cons, bias direction, engine pairing</td>
 </tr>
 <tr>
+<td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html">Forbes extension</a></td>
+<td>Skip-level edges, redundancy pruning, <code>pairs = "all"</code>
+</td>
+</tr>
+<tr>
 <td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-engines.html">Engines &amp; rotation</a></td>
 <td>When to choose EFA or ESEM over PCA; convergence and loading comparison</td>
 </tr>
@@ -255,18 +299,13 @@
 <td>Polychoric correlations, attenuation bias, and WLSMV estimation</td>
 </tr>
 <tr>
-<td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html">Forbes extension</a></td>
-<td>Skip-level edges, redundancy pruning, <code>pairs = "all"</code>
-</td>
+<td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-interpret.html">Interpreting &amp; labeling</a></td>
+<td>
+<code><a href="reference/top_items.html">top_items()</a></code>, hierarchy-aware naming, <code><a href="reference/label_template.html">label_template()</a></code> round-trip</td>
 </tr>
 <tr>
 <td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html">Visualization</a></td>
 <td>Styling <code><a href="reference/autoplot.html">autoplot()</a></code>: sign/magnitude encoding, layout orientation, labels, publication figures</td>
-</tr>
-<tr>
-<td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-interpret.html">Interpreting &amp; labeling</a></td>
-<td>
-<code><a href="reference/top_items.html">top_items()</a></code>, hierarchy-aware naming, <code><a href="reference/label_template.html">label_template()</a></code> round-trip</td>
 </tr>
 </tbody>
 </table>
@@ -275,7 +314,7 @@
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
 <p>If you use <strong>ackwards</strong> in your research, please cite the package:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"ackwards"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; To cite package 'ackwards' in publications use:</span></span>
 <span><span class="co">#&gt; </span></span>

@@ -289,6 +289,30 @@ as part of the definition of done.
   expanded read-only permission allowlist staged for owner review
   (auto-mode classifier correctly blocked agent self-widening).
   Report-only: forbes vignette (23.9s) dominates rebuilds.
+- **M49** — Initial CRAN release (0.1.0) + a robustness arc from
+  real-data testing: **Phase A** roadmap cleanup (e2 declined §14.40;
+  `label_items()`/third-dataset declines + factor-label 0.2.0 banked
+  §14.41); **Phase B** doc/pedagogy pass (README tighten + labels
+  showcase; intro reframed “basic toolkit”;
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+  label format → **`code: label`**; pkgdown regroup; girard
+  Pearson-basis; engines ESEM reframe; interpret real-labels +
+  `labelled::var_label()`; vocab); **robustness** (owner hit a
+  142-item/n=222 clinical-scale polychoric failure) — new **`correct`**
+  arg (psych continuity correction; `correct = 0` fix + actionable
+  errors §14.42), new exported
+  **[`check_items()`](https://jmgirard.github.io/ackwards/reference/check_items.md)**
+  (+ `print`/`[`; internal screen errors on constant, warns on
+  near-constant §14.43), muffled psych’s flood + a single
+  **near-singular** warning + durable
+  `meta$near_singular`/`min_eigenvalue` re-surfaced by
+  `print`/`summary` + a **“When to trust the result”**
+  [`?ackwards`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  section (§14.44); **Phase C** release mechanics (NEWS → dated `0.1.0`;
+  cran-comments refresh; README CRAN line + lifecycle→**stable**;
+  DESCRIPTION/CITATION/DOIs). New exports: `check_items` (+ methods),
+  `correct` arg, `meta` conditioning fields. Full-CI-matrix merge;
+  `v0.1.0` retagged. No new dependency.
 - **M50** — release polish (code; interleaved before M49’s CRAN
   mechanics): `bfi25` ships 25 public-domain IPIP variable labels
   (Goldberg 1999; `data-raw/bfi25.R`) →
@@ -311,36 +335,41 @@ as part of the definition of done.
 
 ## Current focus
 
-**M50 is complete** (2026-07-02) — release polish (code): `bfi25` ships
-25 public-domain IPIP variable labels (so
+**M49 is complete** (2026-07-02) — Initial CRAN release (0.1.0). All
+three phases landed plus a robustness arc from the owner testing the
+release candidate on real data: **Phase A** roadmap cleanup (e2
+declined; factor-label 0.2.0 + declines banked; DESIGN §14.40–41);
+**Phase B** doc/pedagogy pass (README/intro reframe,
 [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
-prints `label (code)` free); cli consistency (lowercase engine name
-everywhere, fixed-decimal
-[`summary()`](https://rdrr.io/r/base/summary.html) percentages + level
-spacing,
-[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
-group spacing, single consolidated pruned footer); roxygen examples
-split by intent (mechanics → continuous `sim16`, content →
-`bfi25`+polychoric);
-[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-gains the ordinal-detection warning (Invariant-6 symmetry,
-screening-context wording). Suite 1883 pass / 0 fail; coverage 100%;
-`R CMD check` 0/0/0. Detail in `MILESTONES.md` (M50); decisions in
-DESIGN §14 items 37–39.
+→ `code: label`, pkgdown regroup, girard/engines/interpret vignette
+prose, vocab); **robustness** (a 142-item/n=222 clinical-scale
+polychoric failure) — the `correct` argument (§14.42), the exported
+[`check_items()`](https://jmgirard.github.io/ackwards/reference/check_items.md)
+verb (§14.43), muffled psych chatter + a single near-singular warning +
+durable `meta$near_singular`/ `min_eigenvalue` + a “When to trust the
+result”
+[`?ackwards`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+section (§14.44); **Phase C** release mechanics (NEWS → one dated
+`# ackwards 0.1.0`; `cran-comments.md` refreshed; README CRAN install
+line + lifecycle→**stable**; DESCRIPTION/CITATION/DOIs verified). Merged
+to `master` on the full green CI matrix; `v0.1.0` retagged onto the
+release commit. Detail in `MILESTONES.md` (M49).
 
-**Next up: resume M49 — Initial CRAN release (0.1.0).** M49 is paused on
-`m49-cran-release` with its full scope committed there (Phase A roadmap
-cleanup + e2 decline + factor-label 0.2.0 banking; Phase B doc/pedagogy
-pass; Phase C release mechanics). After M50 merges to `master`, the m49
-branch does `git merge master` to pick up M50’s code (resolving the
-Current-focus conflict in favor of restoring M49’s block), then
-continues Phase B (its doc pass must now also reconcile the new
-[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-ordinal warning surfacing in the intro/girard/suggest-k vignettes) and
-Phase C. The lifecycle badge flips experimental→stable in Phase C. M49
-Phase C is the release milestone that waits for the full green CI matrix
-before merging; **M50 itself is a normal milestone** (squash-merge on
-local green).
+**Owner-only afterward (not automatable):** win-builder/R-hub remote
+checks (they email the maintainer) and the interactive
+`devtools::submit_cran()`. Until CRAN accepts, the
+`install.packages("ackwards")` line in the README points at a package
+not yet on CRAN — update the release date / any “on CRAN” phrasing when
+it lands.
+
+**Next up: nothing queued.** `ROADMAP.md` carries the 0.2.0 candidates —
+the **factor-label pipeline** (headline; persistent
+`set_factor_labels()`-style names honored by
+autoplot/print/summary/tidy) and the demand-gated
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)/[`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
+ESEM/polychoric extensions — plus the AMH-fidelity item pending the
+owner’s Forbes outreach. `MILESTONES.md` remains the source of truth for
+completed milestones.
 
 ## Invariants — do not violate without flagging
 

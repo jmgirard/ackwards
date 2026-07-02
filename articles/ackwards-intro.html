@@ -34,13 +34,17 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>The workflow</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Model choices</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-ordinal.html">Ordinal Data: Polychoric Correlations and WLSMV</a></li>
-    <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Interpretation &amp; presentation</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-visualization.html">Customizing the Hierarchy Diagram</a></li>
   </ul>
 </li>
@@ -158,13 +162,13 @@ and reports a consensus range:</p>
 <span><span class="co">#&gt;   "polychoric"` in the final `ackwards()` fit.</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[163ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[287ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[90ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[151ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[5.9s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[11s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -204,13 +208,20 @@ and reports a consensus range:</p>
 <p><img src="ackwards-intro_files/figure-html/suggest_k_plot-1.png" class="r-plt" alt="" width="576"></p>
 <p><code><a href="../reference/suggest_k.html">suggest_k()</a></code> does not return a single “correct” k — it
 reports what several criteria each recommend, so you can read a
-plausible <em>range</em> rather than a point estimate. That range
-informs <code>k_max</code> in <code><a href="../reference/ackwards.html">ackwards()</a></code>, which is itself
-an <em>upper bound</em> on the hierarchy depth, not a claim about the
-true number of factors: setting <code>k_max</code> one or two levels
-above the consensus to watch factors fragment is intentional and
-informative. For a full explanation of each criterion, its bias
-direction, and how to match it to your engine, see
+plausible <em>range</em> rather than a point estimate. It also warns
+that these items look ordinal: <code><a href="../reference/suggest_k.html">suggest_k()</a></code> screens on the
+Pearson basis by design, so the warning points you at
+<code>cor = "polychoric"</code> for the <em>final</em> fit (which we use
+in Step 2), not at <code><a href="../reference/suggest_k.html">suggest_k()</a></code> itself. That range informs
+<code>k_max</code> in <code><a href="../reference/ackwards.html">ackwards()</a></code>, which is itself an
+<em>upper bound</em> on the hierarchy depth, not a claim about the true
+number of factors: setting <code>k_max</code> one or two levels above
+the consensus to watch factors fragment is intentional and informative —
+and before you <em>interpret</em> those deeper levels, gate them on
+replicability with <code><a href="../reference/comparability.html">comparability()</a></code> (the
+recommended-workflow vignette, <code><a href="../articles/ackwards-girard.html">vignette("ackwards-girard")</a></code>,
+is built around exactly this). For a full explanation of each criterion,
+its bias direction, and how to match it to your engine, see
 <code><a href="../articles/ackwards-suggest-k.html">vignette("ackwards-suggest-k")</a></code>.</p>
 </div>
 <div class="section level2">
@@ -257,9 +268,10 @@ between items before factor extraction, giving a more accurate
 representation of the latent structure.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span></code></pre></div>
-<p>No warning this time — specifying <code>cor = "polychoric"</code>
-tells <code><a href="../reference/ackwards.html">ackwards()</a></code> that you have already thought about the
-measurement scale.</p>
+<p><code><a href="../reference/ackwards.html">ackwards()</a></code> does not repeat the ordinal-detection warning
+<code><a href="../reference/suggest_k.html">suggest_k()</a></code> raised: setting <code>cor = "polychoric"</code>
+is exactly how you heed it, telling <code><a href="../reference/ackwards.html">ackwards()</a></code> that you
+have accounted for the ordinal measurement scale.</p>
 <blockquote>
 <p><em>Why varimax? Within each level, <code><a href="../reference/ackwards.html">ackwards()</a></code> rotates
 the factors orthogonally using varimax, and this is not merely a
@@ -551,10 +563,13 @@ correlation matrix.</p>
 <span><span class="co">#&gt; 14 m1f1 m2f2          1        2 0.4558587       TRUE      TRUE</span></span></code></pre></div>
 <p><code>primary_only = TRUE</code> keeps just the strongest-connecting
 edge for each factor — its primary parent — and
-<code>sort = "strength"</code> orders them by <code>|r|</code>. The r
-values close to 1.0 indicate factors that are nearly identical across
-adjacent levels — a sign of a stable, replicable dimension. Smaller
-values indicate where the structure is reorganizing.</p>
+<code>sort = "strength"</code> orders them by <code>|r|</code>. An r
+close to 1.0 means a factor is nearly identical to its parent one level
+up: the dimension is stable across that step. But a factor that stays
+near-1.0 at <em>every</em> level is also a candidate for pruning — it is
+persisting without differentiating, Forbes’s redundancy question (see
+<code><a href="../reference/prune.html">prune()</a></code> and <code><a href="../articles/ackwards-forbes.html">vignette("ackwards-forbes")</a></code>).
+Smaller values indicate where the structure is reorganizing.</p>
 </div>
 <div class="section level3">
 <h3 id="variance-explained">Variance explained<a class="anchor" aria-label="anchor" href="#variance-explained"></a>
@@ -695,10 +710,10 @@ re-standardizing in a new population).</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
+<h2 id="summary-the-basic-toolkit">Summary: the basic toolkit<a class="anchor" aria-label="anchor" href="#summary-the-basic-toolkit"></a>
 </h2>
-<p>The bass-ackwards workflow in <strong>ackwards</strong> has six
-steps:</p>
+<p>These six functions are the basic <strong>ackwards</strong>
+toolkit:</p>
 <ol style="list-style-type: decimal">
 <li>
 <strong><code>suggest_k(data)</code></strong> — identify a plausible
@@ -714,13 +729,19 @@ variance and fit indices, and inspect the lineage list.</li>
 <strong><code>autoplot(x)</code></strong> — visualize the hierarchy
 as a lineage diagram.</li>
 <li>
-<strong><code>tidy(x, what = ...)</code></strong> — extract
-loadings, edges, or variance in a form ready for tables or further
-analysis.</li>
+<strong><code>tidy(x, what = ...)</code></strong> /
+<strong><code>top_items(x)</code></strong> — extract loadings, edges, or
+variance, and read what each factor means.</li>
 <li>
-<strong><code>augment(x, data = ...)</code></strong> — generate
-factor scores for downstream use.</li>
+<strong><code>augment(x, data = ...)</code></strong> /
+<strong><code>predict(x, newdata)</code></strong> — generate factor
+scores for downstream use, in or out of sample.</li>
 </ol>
+<p>Fitting is only half of a defensible analysis. For the
+<em>recommended workflow</em> — which gates hierarchy depth on
+split-half replicability with <code><a href="../reference/comparability.html">comparability()</a></code> and flags
+non-differentiating factors with <code><a href="../reference/prune.html">prune()</a></code> before you
+interpret — see <code><a href="../articles/ackwards-girard.html">vignette("ackwards-girard")</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
@@ -746,18 +767,23 @@ practices</td>
 <td><code><a href="../articles/ackwards-suggest-k.html">vignette("ackwards-suggest-k")</a></code></td>
 </tr>
 <tr class="odd">
-<td>When PCA is not enough: comparing EFA and ESEM engines</td>
-<td><code><a href="../articles/ackwards-engines.html">vignette("ackwards-engines")</a></code></td>
-</tr>
-<tr class="even">
-<td>Ordinal data: polychoric correlations and WLSMV estimation</td>
-<td><code><a href="../articles/ackwards-ordinal.html">vignette("ackwards-ordinal")</a></code></td>
-</tr>
-<tr class="odd">
 <td>Skip-level connections and pruning with the Forbes extension</td>
 <td><code><a href="../articles/ackwards-forbes.html">vignette("ackwards-forbes")</a></code></td>
 </tr>
 <tr class="even">
+<td>When PCA is not enough: comparing EFA and ESEM engines</td>
+<td><code><a href="../articles/ackwards-engines.html">vignette("ackwards-engines")</a></code></td>
+</tr>
+<tr class="odd">
+<td>Ordinal data: polychoric correlations and WLSMV estimation</td>
+<td><code><a href="../articles/ackwards-ordinal.html">vignette("ackwards-ordinal")</a></code></td>
+</tr>
+<tr class="even">
+<td>Interpreting and labeling factors: <code><a href="../reference/top_items.html">top_items()</a></code>, naming
+across levels</td>
+<td><code><a href="../articles/ackwards-interpret.html">vignette("ackwards-interpret")</a></code></td>
+</tr>
+<tr class="odd">
 <td>Customizing the hierarchy diagram</td>
 <td><code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code></td>
 </tr>
