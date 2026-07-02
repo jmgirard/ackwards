@@ -1191,3 +1191,49 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   **Verified.** `R CMD check` **0/0/0** (full, vignettes rebuilt); suite **1656 pass / 0 fail /
   0 skip** (+65 fidelity assertions over M43); coverage 100% (no `R/` change); `styler` (0 files
   changed) / `lintr` (0 lints) clean; `pkgdown::check_pkgdown()` clean.
+- **M45 (done):** out-of-sample scoring (train/test) via fit-time moments — owner-requested
+  (2026-07-01) for an upcoming cross-validation project others may replicate: fit `ackwards()` on
+  a training split, score a held-out test split **without retraining**, on the training metric.
+  The plan-time statistical finding driving the design: `augment(x, data = new)` already accepted
+  new data but standardized it by the *new data's own* means/SDs, so a test observation's score
+  depended on its split's composition and train/test metrics diverged — and the object stored no
+  fit-time moments to do better with (the light core keeps only the scale-free `R`).
+  **Moment storage.** `meta$item_means`/`meta$item_sds` (named, 2×p, always stored — Invariant 3)
+  computed from the post-`missing`-handling `data_mat` (after listwise reduction, consistent with
+  the `R` actually fit; na.rm under pairwise/FIML); `NULL` for correlation-matrix input. DESIGN §6
+  object spec updated.
+  **Scoring engine.** `.standardize()` gains optional `center`/`scale` moments (`NULL` = sample,
+  all prior call sites unchanged); `.compute_scores()` passes them through.
+  **`augment(scaling = c("fit", "sample"))`, default `"fit"`** (owner-approved; DESIGN §14 item
+  34): supplied data standardized by the training moments, aligned by column name after the
+  existing validation/reorder (positionally for unnamed matrices); `"sample"` = the pre-M45
+  behaviour, kept as an explicit opt-in (re-standardize a different population in its own metric)
+  and the only option for cor-matrix objects, which error informatively under `"fit"`. Deliberate
+  behaviour change: subsets/new data now score on the fit metric (values shift; scoring the full
+  training set is unchanged — verified identical to `keep_scores` fit-time scores). New roxygen
+  section "Scoring new observations (cross-validation)" incl. the non-Pearson-basis caveat.
+  **`predict.ackwards(object, newdata, scaling)`** — new exported S3 method (owner weighed
+  augment-only vs both; chose both for replicator discoverability: `psych::predict.psych` /
+  `lavPredict` precedent): a thin wrapper returning exactly
+  `augment(object, data = newdata, append = FALSE, scaling = scaling)` (equivalence
+  test-asserted so the two entry points cannot drift). `NAMESPACE` +1 S3method; `_pkgdown.yml`
+  reference updated in the same commit; `pkgdown::check_pkgdown()` clean.
+  **Tests** (new `test-predict.R` + `test-scores.R` additions): test-split scores under `"fit"`
+  equal hand-computed `(X_test − mean_train)/sd_train %*% W / sqrt(score_var)` (1e-12); subset
+  rows ≡ full-set rows under `"fit"` (and deliberately ≠ under `"sample"`); training re-score ≡
+  fit-time stored scores; `"sample"` ≡ pre-M45 sample-moment formula; cor-matrix `"fit"` error +
+  `"sample"` fallback; unnamed-matrix positional moments; `predict ≡ augment(append = FALSE)`
+  (both scalings); newdata required; NA rows propagate in place; moment-storage tests (raw,
+  listwise-reduced, cor-matrix NULL).
+  **Docs.** Intro vignette Step 6 gains "Scoring new data (train/test)" (bfi25 split demo, pooled
+  train/test means on one metric); `augment()`/`predict()` roxygen + CV examples; NEWS
+  ("Out-of-sample scoring" feature + prominent behaviour-change note); DESIGN §6/§10 + §14 item
+  34 (the `"fit"`-default decision and rationale).
+  **Files.** `R/ackwards.R`, `R/utils.R`, `R/augment.R`, `R/predict.R` (new), `NAMESPACE`,
+  `_pkgdown.yml`, `man/augment.ackwards.Rd`, `man/predict.ackwards.Rd` (new),
+  `tests/testthat/test-scores.R`, `tests/testthat/test-predict.R` (new),
+  `vignettes/ackwards-intro.Rmd`, `NEWS.md`, `DESIGN.md`, `CLAUDE.md`, `MILESTONES.md`. No new
+  dependency.
+  **Verified.** `R CMD check` **0/0/0** (full, vignettes rebuilt); suite **1689 pass / 0 fail /
+  0 skip** (+33 over M44); coverage **100%**; `styler` (0 files changed) / `lintr` (0 lints)
+  clean; `pkgdown::check_pkgdown()` clean (new export indexed).

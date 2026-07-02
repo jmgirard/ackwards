@@ -71,52 +71,23 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M42** — review fixes, code: EFA `chi` now the likelihood-ratio `STATISTIC` matching `p_value`/RMSEA/TLI (C1); `.drop_pruned_nodes()` recomputes all-pairs edges fresh, fixing the M34 `pairs = "adjacent"` regression (M1); `print.suggest_k` "undetermined" consensus (m1) + PA-cap announcements (m2); `cut_show`/`n_iter` validation (m8); ordinal warning names flagged columns (e3, `detect_ordinal()` returns names); dead `esem_levels(n_obs)` removed (m7); stale comments fixed (m6); EFA-aware fit-plot caption (m10). No export/signature/dependency change.
 - **M43** — review fixes, docs (doc-only): engines vignette rewritten around first-class `missing = "fiml"` for PCA/EFA + `fm = "pca"`/sample-size fixes (M2, m4, m5); suggest-k CD mechanism corrected + worked-BFI prose inline-computed/drift-proof (M3, m11); Forbes artifact section rewritten to report-and-judge with a top-|φ| table, `cut_strong` remnant removed, chain-retention example corrected (M4, M5, m3); `redundancy_phi` PCA rationale corrected to score *determinacy* across DESIGN §9/CLAUDE/roxygen/vignette (e1); sim16 doc comments modernized (m9). No behavior/export change.
 - **M44** — Forbes-fidelity fixture (closes the M41→M44 review arc): found the paper's own OSF project (`pcwm8`: simulations script, reference implementation, AMH matrix); head-to-head vs her own functions matched edges to 3.9e-14 incl. the full 155-variable AMH example; shipped a 3.7 KB license-clean fixture (three seed-regenerated simulations + her implementation's expected outputs) and `test-forbes-fidelity.R` (65 assertions: edges/φ/chase paths/retention); contract annotated **test-backed**; AMH commit deferred (no OSF license — options logged for owner outreach). No export/dependency change.
+- **M45** — out-of-sample scoring (train/test): fit-time item moments stored (`meta$item_means`/`item_sds`; NULL for cor-matrix input); `augment()` gains `scaling = c("fit", "sample")` with **`"fit"` default** (training moments — one metric across train/test/subsets; `"sample"` = pre-M45 opt-in and the cor-matrix route; DESIGN §14 item 34); new exported **`predict.ackwards(object, newdata, scaling)`** ≡ `augment(append = FALSE)` (equivalence test-asserted; `_pkgdown.yml` updated); intro-vignette train/test subsection. New export, no new dependency.
 
 ## Current focus
 
-**M45 — out-of-sample scoring (train/test) via fit-time moments.** Owner-requested
-(2026-07-01) for an upcoming cross-validation project others may replicate: fit `ackwards()` on a
-training split, score a test split **without retraining**, on the training metric. The key
-statistical fix: `augment(x, data = new)` today standardizes new data by the *new data's own*
-means/SDs (test scores depend on the test-split composition; train/test metrics diverge). M45
-stores the **fit-time item moments** and standardizes by them.
+**M45 is complete** (2026-07-01) — out-of-sample (train/test) scoring via fit-time moments,
+owner-requested for an upcoming cross-validation project. Every acceptance criterion met: fit-time
+item moments stored in the object; `augment()` gained `scaling = c("fit", "sample")` with the
+`"fit"` default (training metric everywhere; test scores hand-verified to 1e-12; training
+re-score ≡ `keep_scores` fit-time scores; the behavior change is prominent in NEWS); new exported
+`predict.ackwards()` is test-asserted identical to `augment(append = FALSE)` and indexed in
+`_pkgdown.yml`; intro vignette gained the train/test subsection; DESIGN §6/§10 + §14 item 34
+record the contract. Gate: `check()` 0/0/0 (vignettes rebuilt), 1689 pass / 0 fail / 0 skip
+(+33), coverage 100%, style/lint clean, `check_pkgdown()` clean. Detail in `MILESTONES.md` (M45).
 
-1. **Moment storage** (`R/ackwards.R`): `meta$item_means`/`meta$item_sds` computed from the
-   post-`missing`-handling `data_mat` (na.rm; after listwise reduction, consistent with the `R`
-   actually fit); `NULL` for correlation-matrix input; tiny (2×p), always stored (Invariant 3);
-   DESIGN §6 object spec updated.
-2. **Scoring engine** (`R/utils.R`): `.standardize()` gains optional `center`/`scale` args
-   (`NULL` = sample moments; all other call sites unchanged); `.compute_scores()` passes through.
-3. **`augment()` gains `scaling = c("fit", "sample")`, default `"fit"`** (owner-approved):
-   training moments matched by column name after existing validation/reorder; `"sample"` = old
-   behavior (documented for deliberate re-standardization in a new population); cor-matrix
-   objects error informatively under `"fit"` (no moments) pointing to `"sample"`. New roxygen
-   section "Scoring new observations (cross-validation)". Deliberate behavior change: subsets of
-   training data now score with full-fit moments (a consistency fix; NEWS).
-4. **`predict.ackwards(object, newdata, scaling, ...)`** — new exported S3 method (owner chose
-   augment + predict for discoverability: `psych::predict.psych`/`lavPredict` precedent), a thin
-   wrapper returning exactly `augment(object, data = newdata, append = FALSE, scaling = scaling)`
-   (equivalence test-asserted). **New export → NAMESPACE + `_pkgdown.yml` reference +
-   `pkgdown::check_pkgdown()`.**
-5. **Tests** (new `test-predict.R` + `test-scores.R` additions): manual-formula equality under
-   `"fit"` (1e-12); re-scoring training data ≡ `keep_scores` fit-time scores; subset-row
-   consistency under `"fit"` (deliberate failure under `"sample"`); `"sample"` ≡ pre-M45 values;
-   cor-matrix error; `predict ≡ augment(append = FALSE)`; NA/`id_cols`/superset behavior
-   unchanged; non-Pearson warning still fires.
-6. **Docs**: intro vignette Step 6 "Scoring new data (train/test)" subsection (bfi25 split demo);
-   NEWS (feature + default change); DESIGN §6/§10 + new §14 resolved item (the `"fit"` default
-   decision + rationale); MILESTONES/CLAUDE bookkeeping.
-
-**Acceptance criteria:** test-set scores under `"fit"` equal hand-computed
-`(X_test − mean_train)/sd_train %*% W / sqrt(score_var)` (1e-12) · training re-score ≡ fit-time
-stored scores; subset rows ≡ full-set rows · `"sample"` reproduces pre-M45 output; cor-matrix +
-`"fit"` errors informatively · `predict()` output `identical()` to `augment(append = FALSE)`;
-export in `_pkgdown.yml`, `check_pkgdown()` passes · NEWS + DESIGN §6/§10/§14 + intro vignette
-updated · gate: `check()` 0/0/0 → coverage 100% → styler/lintr → `check_pkgdown()`.
-
-Flagged: polychoric/Spearman-basis objects keep the existing model-implied-SD caveat (documented
-in the new roxygen section, not hidden); the `"fit"` default is a user-visible behavior change
-(pre-CRAN, no deprecation path, M32/M34 precedent; NEWS carries it prominently).
+**Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas (AMH fidelity extension
+pending the owner's Forbes outreach; e2 dual EFA chi-squares; e4 bootstrap edge CIs per DESIGN
+§14). `MILESTONES.md` remains the source of truth for *completed* milestones.
 
 ## Invariants — do not violate without flagging
 
