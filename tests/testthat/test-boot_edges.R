@@ -306,3 +306,113 @@ test_that("print() and summary() note the bootstrap coverage", {
   summ_out <- cli::cli_fmt(print(summary(xb)))
   expect_true(any(grepl("bootstrap", summ_out, ignore.case = TRUE)))
 })
+
+# ---- Remaining validation + missing-data branches ----------------------------
+
+test_that("boot_edges() rejects non-data-frame/matrix and non-numeric data", {
+  x <- suppressMessages(suppressWarnings(ackwards(sim16, k_max = 3)))
+  expect_error(boot_edges(x, data = 1:5, n_boot = 10), "data frame or numeric matrix")
+  expect_error(
+    boot_edges(x, data = data.frame(a = "x", b = "y"), n_boot = 10),
+    "only numeric columns"
+  )
+})
+
+test_that("boot_edges() reports a column-count mismatch for an unnamed matrix", {
+  x <- suppressMessages(suppressWarnings(ackwards(sim16, k_max = 3)))
+  wrong <- unname(as.matrix(sim16))[, 1:10]
+  expect_error(boot_edges(x, wrong, n_boot = 10), "10 columns but the model")
+})
+
+test_that("boot_edges() handles listwise and FIML fits", {
+  d <- as.matrix(sim16)
+  d[1:20, 1] <- NA # induce missingness
+
+  x_lw <- suppressMessages(suppressWarnings(
+    ackwards(d, k_max = 3, missing = "listwise")
+  ))
+  xb_lw <- suppressMessages(suppressWarnings(
+    boot_edges(x_lw, d, n_boot = 20, seed = 2)
+  ))
+  expect_false(is.null(xb_lw$boot))
+
+  x_fiml <- suppressMessages(suppressWarnings(
+    ackwards(d, k_max = 3, missing = "fiml")
+  ))
+  # The FIML cost note fires; each replicate re-estimates via corFiml.
+  xb_fiml <- suppressMessages(suppressWarnings(
+    boot_edges(x_fiml, d, n_boot = 15, seed = 2)
+  ))
+  expect_false(is.null(xb_fiml$boot))
+  expect_true(all(xb_fiml$boot$edges$lo <= xb_fiml$boot$edges$hi))
+})
+
+# ---- Internal dispatch + anchoring edge branches -----------------------------
+
+test_that(".boot_lapply falls back to serial lapply when future.apply is absent", {
+  testthat::local_mocked_bindings(
+    is_installed = function(...) FALSE,
+    .package = "rlang"
+  )
+  out <- ackwards:::.boot_lapply(1:3, function(x) x^2)
+  expect_identical(out, list(1, 4, 9))
+})
+
+test_that(".anchor_levels() skips missing levels and NA cross-correlations", {
+  x <- suppressMessages(suppressWarnings(ackwards(sim16, k_max = 3)))
+
+  # A replicate missing its middle level: that level anchors to NULL.
+  lr <- x$levels
+  lr["2"] <- list(NULL)
+  a <- ackwards:::.anchor_levels(x$levels, lr, x$r)
+  expect_null(a[["2"]])
+  expect_false(is.null(a[["1"]]))
+
+  # An NA in the pooled R makes every cross-correlation NA -> all levels skip.
+  Rna <- x$r
+  Rna[1, 2] <- NA
+  a2 <- ackwards:::.anchor_levels(x$levels, x$levels, Rna)
+  expect_true(all(vapply(a2, is.null, logical(1L))))
+})
+
+test_that(".boot_replicate returns all-NA when fewer than two levels anchor", {
+  x <- suppressMessages(suppressWarnings(ackwards(sim16, k_max = 3)))
+  keys <- names(x$edges$matrices)
+  dims <- lapply(x$edges$matrices, dim)
+  dm <- as.matrix(sim16)
+  n_edges <- sum(vapply(dims, prod, numeric(1L)))
+
+  # An all-NA anchor matrix: refit succeeds, but no level can anchor.
+  Rna <- matrix(NA_real_, ncol(dm), ncol(dm))
+  res <- ackwards:::.boot_replicate(
+    seq_len(nrow(dm)), dm, x$levels, Rna, keys, dims,
+    engine = "pca", cor = "pearson", fm = "minres",
+    missing_eff = "pairwise", k_max = 3, pairs = "adjacent"
+  )
+  expect_length(res, n_edges)
+  expect_true(all(is.na(res)))
+})
+
+test_that(".boot_replicate NA-fills edges whose level did not anchor", {
+  x <- suppressMessages(suppressWarnings(ackwards(sim16, k_max = 3)))
+  keys <- names(x$edges$matrices)
+  dims <- lapply(x$edges$matrices, dim)
+  dm <- as.matrix(sim16)
+
+  # Anchor only levels 1 and 3 (drop 2): the object's 1:2 and 2:3 keys are then
+  # absent from the replicate edges and must be NA-filled.
+  real_anchor <- ackwards:::.anchor_levels
+  drop_mid <- function(x_levels, levels_rep, R_full) {
+    a <- real_anchor(x_levels, levels_rep, R_full)
+    a["2"] <- list(NULL)
+    a
+  }
+  testthat::local_mocked_bindings(.anchor_levels = drop_mid)
+  res <- ackwards:::.boot_replicate(
+    seq_len(nrow(dm)), dm, x$levels, x$r, keys, dims,
+    engine = "pca", cor = "pearson", fm = "minres",
+    missing_eff = "pairwise", k_max = 3, pairs = "adjacent"
+  )
+  # Edges incident on level 2 (the 1:2 and 2:3 blocks) are NA.
+  expect_true(anyNA(res))
+})

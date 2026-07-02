@@ -1363,5 +1363,6 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   `ackwards-girard.Rmd`, `_pkgdown.yml` (1 reference entry), `NEWS.md`, `DESIGN.md` (§14 item 36 +
   e4 marked done), `NAMESPACE` (+1 export, +1 S3method), 1 new `man/` page. No new dependency
   (`future.apply` already Suggests).
-  **Verified.** `R CMD check` **0/0/0** (full, vignettes rebuilt); suite **{TESTPASS} pass / 0
-  fail / 0 skip**; coverage **100%**; `styler`/`lintr` clean; `pkgdown::check_pkgdown()` clean.
+  **Verified.** `R CMD check` **0/0/0** (full, vignettes rebuilt); suite **1859 pass / 0 fail /
+  0 skip** (+68 over M46); coverage **100%**; `styler`/`lintr` clean; `pkgdown::check_pkgdown()`
+  clean.
