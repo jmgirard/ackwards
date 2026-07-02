@@ -78,24 +78,34 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-**M48 is complete** (2026-07-02) — performance & workflow efficiency pass (meta/process
-milestone; no package-code change, no export, no NEWS entry by owner-approved deviation).
-Phase A: suite-wide `cached()` test-fit memo + parallel testthat — suite 93.6s → 81.2s serial →
-**26.9s** with `TESTTHAT_CPUS=8`; full `devtools::check()` 319.8s → **241s**; 1859 assertions
-and 100% coverage unchanged (the boot reproducibility / serial≡parallel oracles and all
-Monte-Carlo test sizes deliberately untouched). Phase B: scripted audit of 45 session
-transcripts (30k messages) surfaced 249 full-suite runs, ~600 `cd`-compound prompts, and 308
-useless bare `load_all()`s → shipped `tools/dod-gate.R` (one-command DoD gate, dogfooded at this
-milestone's own gate) and lockstep cadence-text updates in CLAUDE.md + the implement-milestone
-skill; the expanded read-only permission allowlist is **staged for owner review** in the session
-scratchpad (`proposed_settings.local.json`) after the auto-mode classifier correctly refused to
-let the agent widen its own permissions. Report-only: `ackwards-forbes.Rmd` (23.9s) dominates
-vignette rebuilds; CI workflows untouched. Detail in `MILESTONES.md` (M48).
+**M49 — Initial CRAN release (0.1.0).** The first actual CRAN submission (M17/M20 built the
+infrastructure; this milestone ships it). Two work-packages. **A — roadmap cleanup:** decline the
+e2 dual-EFA-chi-squares idea (re-opens the M42/C1 chi/p mispairing risk, an NA-heavy EFA-only
+schema column, zero downstream consumer) — remove it from `ROADMAP.md` and record the decline in
+`DESIGN.md §14`; bank the `comparability()`/`boot_edges()` ESEM/polychoric feasibility verdict
+(demand-gated: ESEM-`comparability()` plausible, polychoric-`boot_edges()` least realistic + the
+dropped-response-category wrinkle). **B — release mechanics:** consolidate `NEWS.md` into one
+dated `# ackwards 0.1.0` first-release entry (it never shipped, so there is no basis for a
+separate `(development)` tier); refresh `cran-comments.md` (fresh platform re-run + corrected
+`\donttest{}` list now that `comparability`/`boot_edges`/`autoplot.comparability` are wrapped);
+add the `install.packages("ackwards")` line to `README.Rmd` → regenerate `README.md`; verify
+DESCRIPTION (maintainer `me@jmgirard.com` confirmed correct)/CITATION/DOIs; `pkgdown::check_pkgdown()`.
+No `R/`, NAMESPACE, or dependency change — packaging + docs only.
 
-**Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas (AMH fidelity extension
-pending the owner's Forbes outreach; e2 dual EFA chi-squares; `comparability()`/`boot_edges()`
-ESEM/polychoric extensions). `MILESTONES.md` remains the source of truth for *completed*
-milestones.
+**Release-milestone CI exception applies** (Git section): merge to `master` only on the **full
+green CI matrix** (macOS/Windows/Ubuntu × release/devel/oldrel), not local-green alone, because
+CRAN runs exactly that matrix. After merge, **retag `v0.1.0`** onto the release commit (the
+existing tag is 87 commits stale — it points at a Jun 29 commit that was never shipped): delete
+the stale local + remote tag, recreate on the merge commit, push. Owner-only afterward:
+win-builder/R-hub remote checks (they email the maintainer) and the final
+`devtools::submit_cran()` (interactive email-token confirmation — not automatable).
+
+**Acceptance criteria.** `R CMD check --as-cran` = 0 errors / 0 warnings locally *and* across the
+full CI matrix, notes limited to the known DESCRIPTION misspelled-words note; `NEWS.md` a single
+dated 0.1.0 changelog; `cran-comments.md` reflects the fresh re-run (platforms, donttest list,
+notes); e2 removed from `ROADMAP.md` + decline in DESIGN §14 + ESEM/polychoric verdict banked;
+`README` carries the CRAN install line; `v0.1.0` tag moved to the release commit and pushed;
+`Rscript tools/dod-gate.R` green; `MILESTONES.md` M49 entry + this index updated.
 
 ## Invariants — do not violate without flagging
 
