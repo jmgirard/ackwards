@@ -152,6 +152,7 @@ suggest_k <- function(data, k_max = NULL,
                       criteria = c("pa_pc", "pa_fa", "map", "vss", "cd"),
                       cor = "pearson", n_obs = NULL,
                       n_iter = 20L, seed = NULL, ...) {
+  .check_unknown_dots(list(...), "suggest_k")
   criteria <- rlang::arg_match(
     criteria,
     c("pa_pc", "pa_fa", "map", "vss", "cd"),

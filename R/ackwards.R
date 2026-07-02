@@ -244,6 +244,10 @@ ackwards <- function(
              {.code ackwards(...) |> prune(...)} instead."
     ))
   }
+  # Any other stray argument (typically a typo like `kmax = 6`) errors too --
+  # silently running with the default instead would be the same masked-argument
+  # footgun the moved-args guard exists for.
+  .check_unknown_dots(dots, "ackwards")
 
   # --- Detect correlation-matrix vs. raw-data input ---------------------------
   # Guard first: a square symmetric matrix with non-unit diagonal is almost

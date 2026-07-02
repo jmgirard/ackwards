@@ -63,6 +63,31 @@ make_labels <- function(k) {
   paste0("m", k, "f", seq_len(k))
 }
 
+# Reject anything passed through a reserved `...` (Invariant 6: loud, not
+# silent). Without this, a misspelled argument -- ackwards(d, 5, kmax = 6),
+# comparability(d, 5, nsplits = 20) -- would be silently absorbed and the
+# function would run with the default instead. Plain exported functions call
+# this with list(...); S3 methods keep permissive dots (generic contracts).
+.check_unknown_dots <- function(dots, fn) {
+  if (length(dots) == 0L) {
+    return(invisible(NULL))
+  }
+  nms <- names(dots)
+  nms <- nms[nzchar(nms)]
+  if (length(nms) > 0L) {
+    cli::cli_abort(c(
+      "!" = "{cli::qty(nms)}Unknown argument{?s} passed to {.fn {fn}}: \\
+             {.arg {nms}}.",
+      "i" = "Check the spelling against {.code ?{fn}}."
+    ))
+  }
+  cli::cli_abort(c(
+    "!" = "{.fn {fn}} received {length(dots)} unnamed extra argument{?s}.",
+    "i" = "All arguments beyond the signature must be named; check \\
+           {.code ?{fn}}."
+  ))
+}
+
 # Detect which columns of a data frame look ordinal (Likert-scale).
 # Heuristic: a column is flagged if it is integer-like and has <= max_levels
 # distinct values. Returns the flagged column names (character(0) when none),
