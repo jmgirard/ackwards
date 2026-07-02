@@ -162,11 +162,21 @@ ba_layout <- function(x, min_sep = 1.0) {
 # on the reduced graph. The original is_primary must NOT be reused (it was
 # computed on the full adjacent lineage).
 #
-# Requires x$edges$tidy to carry all-levels edges, which is guaranteed
-# whenever prune != "none" (M5 auto-upgrades pairs = "all").
+# All-pairs edges are recomputed fresh from the stored levels/R (M42, fixing
+# an M34 regression): x$edges$tidy holds only adjacent pairs under the default
+# pairs = "adjacent", so a kept node whose adjacent ancestors were all pruned
+# would find no skip-level candidate there and render edge-less. Recomputing
+# mirrors prune.ackwards() (Invariant 1: one edge path via compute_edges();
+# Invariant 3: recomputable from the light core) and is cheap (W'RW algebra).
+# The stored weights are already sign-aligned, so recomputed adjacent edges
+# are identical to x$edges$tidy's.
 .drop_pruned_nodes <- function(x, nodes, compress_levels = FALSE) {
   prune_tbl <- x$prune$nodes
-  tidy_edges <- x$edges$tidy
+  tidy_edges <- compute_edges(
+    levels = x$levels, R = x$r, edge_method = "auto",
+    pairs = "all", align = FALSE,
+    cut_show = x$meta$cut_show %||% 0.3
+  )$tidy
 
   kept_ids <- prune_tbl$id[!prune_tbl$pruned]
   nodes_kept <- nodes[nodes$id %in% kept_ids, , drop = FALSE]

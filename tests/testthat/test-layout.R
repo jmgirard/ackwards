@@ -235,6 +235,35 @@ test_that("autoplot.ackwards() fades pruned nodes", {
   expect_no_error(ggplot2::autoplot(x, color_pruned = "pink"))
 })
 
+test_that(".drop_pruned_nodes() bridges fully-pruned levels on pairs='adjacent' objects (M42/M1)", {
+  skip_if_not_installed("psych")
+  d <- na.omit(ackwards::bfi25)
+  # Default pairs = "adjacent": the stored tidy edges hold no skip-level rows.
+  suppressWarnings(x <- ackwards(d, k_max = 4))
+  xp <- prune(x, manual = c("m2f1", "m2f2")) # level 2 fully pruned
+
+  lay <- ba_layout(xp)
+  dp <- ackwards:::.drop_pruned_nodes(xp, lay$nodes)
+
+  # Pre-M42 regression: kept level-3 nodes had no candidate ancestor edges
+  # (their only stored parents were the pruned level-2 nodes; no 1:3 skip
+  # edges existed in the adjacent-only tidy table). Every kept node below the
+  # apex must now have exactly one incoming edge, bridging the pruned level.
+  kept_below_apex <- dp$nodes$id[dp$nodes$level > 1L]
+  expect_setequal(dp$edges$to, kept_below_apex)
+  # The level-3 bridges must come from level 1 (level 2 is gone).
+  lvl3_edges <- dp$edges[dp$edges$level_to == 3L, , drop = FALSE]
+  expect_true(nrow(lvl3_edges) == 3L && all(lvl3_edges$level_from == 1L))
+
+  # And the reduced edge set must be identical whether the object was fit
+  # with pairs = "adjacent" or pairs = "all" (edges are recomputed fresh).
+  suppressWarnings(x_all <- ackwards(d, k_max = 4, pairs = "all"))
+  xp_all <- prune(x_all, manual = c("m2f1", "m2f2"))
+  dp_all <- ackwards:::.drop_pruned_nodes(xp_all, ba_layout(xp_all)$nodes)
+  cols <- c("from", "to", "level_from", "level_to", "r")
+  expect_equal(dp$edges[, cols], dp_all$edges[, cols], tolerance = 1e-12)
+})
+
 test_that("autoplot.ackwards() handles objects with prune=NULL (no pruning)", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
