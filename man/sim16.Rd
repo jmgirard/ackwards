@@ -40,11 +40,12 @@ by the symmetry of the design above).
 \strong{Ground-truth hierarchy} (verified against \code{ackwards(engine = "efa")}):
 \code{k=1} recovers a single general factor across all 16 items; \code{k=2} splits
 along the metatrait line (\code{i1}-\code{i8} vs. \code{i9}-\code{i16}); \code{k=4} recovers the 4
-true group factors exactly; \code{suggest_k()} reaches a 6-criteria consensus
-of \code{k = 4}.
+true group factors exactly; all six \code{suggest_k()} recommendations (five
+criteria -- VSS reports at complexities 1 and 2) reach a consensus of
+\code{k = 4}.
 
 \strong{Idealized by design.} The planted signal is strong and clean, so all six
-\code{suggest_k()} criteria converge on \code{k = 4} -- deliberately the \emph{easy} case,
+\code{suggest_k()} recommendations converge on \code{k = 4} -- deliberately the \emph{easy} case,
 for building intuition about what recovering a known hierarchy looks like.
 Real data rarely agree this cleanly: on \code{bfi25} the same criteria span
 \code{k = 4}--\code{6}. The two datasets are complementary teaching foils -- \code{sim16}
@@ -59,7 +60,8 @@ orphan factor with zero primary-loading items. With
 factor is flagged both \code{few_items} and \code{orphan}. Because the true (non-
 splitting) factors persist essentially unchanged from \code{k=3} onward, their
 parent-child score correlations approach 1 and are flagged by
-\code{prune(x, "redundant")} (\verb{|r| >= .9} and, by default, Tucker's phi \verb{>= .95}). This is a textbook overextraction artifact, included so the
+\code{prune(x, "redundant")} (\verb{|r| >= .9} and, under the EFA auto-default,
+Tucker's phi \verb{> .95}). This is a textbook overextraction artifact, included so the
 Forbes/redundancy examples have a guaranteed finding to teach against
 (unlike \code{bfi25}, which does not reliably trigger one).
 

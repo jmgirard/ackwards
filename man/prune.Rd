@@ -54,8 +54,11 @@ threshold for redundancy chains. Default \code{0.9} (Forbes, 2023).}
 \item{redundancy_phi}{Scalar in \verb{(0, 1]}, \code{NULL} (default, auto), or \code{NA}
 (explicit opt-out). When \code{NULL}:
 \itemize{
-\item \code{x$engine == "pca"} -- no phi filter (the W'RW algebra is exact; phi
-adds nothing that \verb{|r|} does not already capture).
+\item \code{x$engine == "pca"} -- no phi filter. Component scores are
+\emph{determinate} (exact linear functions of the data, with no
+factor-score indeterminacy), so the score correlation \verb{|r|} is the
+true correlation between the components themselves; phi adds nothing
+that \verb{|r|} does not already capture.
 \item \code{x$engine} is \code{"efa"} or \code{"esem"} -- automatically set to \code{0.95}
 (Lorenzo-Seva & ten Berge, 2006). Factor-score indeterminacy off-PCA
 means \verb{|r|}-alone is liberal; the conjunctive phi criterion is the

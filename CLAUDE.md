@@ -64,22 +64,23 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M40** — deferred code/viz asks (final M31–M40 milestone): ordinal `categorical` flag **declined** (redundant — `cor = "polychoric"` already auto-selects WLSMV; would only add a conflict surface + §9 change for zero capability; discoverability handled in docs); ordinal corr-comparison now a **dodged bar chart** (ten `N1`–`N5` item pairs, `fill = basis`, hidden reshape code) replacing the two raw `round(x$r)` matrices (also fixed stale N1–N2 figures 0.73→0.79); `autoplot()` **italicises a fully-pruned level's** axis label (new `.fully_pruned_levels()`, `fontface` aesthetic through `.ba_level_labels()`, both directions) — partially-pruned levels stay plain. No new/removed export, no signature or dependency change.
 - **M41** — independent Fable review (review-only): statistical core verified clean numerically (tenBerge/W′RW/signs/Forbes/ESEM-fit/suggest_k); findings — 1 Critical (EFA chi/p-value pairing), 6 Major (drop_pruned adjacent-pairs M34 regression, pre-M38 engines-vignette FIML prose, CD-mechanism misstatement, Forbes artifact-zero framing, `cut_strong` remnant, untested Forbes-fidelity contract), 11 Minor, 4 enhancements; full §9/§14 defaults audit (all sound; one sound-but-misjustified wording); report + M42/M43/M44 triage in `ROADMAP.md`. No code change.
 - **M42** — review fixes, code: EFA `chi` now the likelihood-ratio `STATISTIC` matching `p_value`/RMSEA/TLI (C1); `.drop_pruned_nodes()` recomputes all-pairs edges fresh, fixing the M34 `pairs = "adjacent"` regression (M1); `print.suggest_k` "undetermined" consensus (m1) + PA-cap announcements (m2); `cut_show`/`n_iter` validation (m8); ordinal warning names flagged columns (e3, `detect_ordinal()` returns names); dead `esem_levels(n_obs)` removed (m7); stale comments fixed (m6); EFA-aware fit-plot caption (m10). No export/signature/dependency change.
+- **M43** — review fixes, docs (doc-only): engines vignette rewritten around first-class `missing = "fiml"` for PCA/EFA + `fm = "pca"`/sample-size fixes (M2, m4, m5); suggest-k CD mechanism corrected + worked-BFI prose inline-computed/drift-proof (M3, m11); Forbes artifact section rewritten to report-and-judge with a top-|φ| table, `cut_strong` remnant removed, chain-retention example corrected (M4, M5, m3); `redundancy_phi` PCA rationale corrected to score *determinacy* across DESIGN §9/CLAUDE/roxygen/vignette (e1); sim16 doc comments modernized (m9). No behavior/export change.
 
 ## Current focus
 
-**M42 is complete** (2026-07-01) — the code-fix milestone off the M41 review. All nine planned
-items shipped (C1 chi/p pairing, M1 drop_pruned recompute, m1/m2 suggest_k output, m6/m7 hygiene,
-m8 validation, m10 caption, e3 actionable ordinal warning), each with a regression test; the M41
-reproductions are now encoded in the suite. Gate: `check()` 0/0/0, 1591 pass / 0 fail / 0 skip,
-coverage 100%, style/lint clean, `check_pkgdown()` clean. Detail in `MILESTONES.md` (M42 entry);
-`ROADMAP.md` pruned of the shipped items per its maintenance rule.
+**M43 is complete** (2026-07-01) — the doc-fix milestone off the M41 review, and with it the
+**entire M41 review remediation is done except one scoping question**. All doc findings shipped:
+engines-vignette FIML rewrite (M2, m4, m5), suggest-k CD mechanism + drift-proof worked example
+(M3, m11), Forbes artifact-section rewrite + `cut_strong` remnant + chain-retention example
+(M4, M5, m3), the `redundancy_phi` determinacy rationale across all four surfaces (e1), and
+sim16 doc modernization (m9). Doc-only: no behavior/export change. Gate: full `check()` 0/0/0
+with all vignettes rebuilt, 1591 pass / 0 fail / 0 skip, coverage 100%, style/lint clean,
+`check_pkgdown()` clean. Detail in `MILESTONES.md` (M43 entry).
 
-**Next up:** two proposed follow-ups from the M41 review remain in `ROADMAP.md`, each awaiting
-its own `/plan-milestone` run — **M43** (doc fixes: engines-vignette FIML rewrite, CD mechanism,
-Forbes artifact/`cut_strong` prose, doc minors, §9 `redundancy_phi` wording; note the engines
-vignette's EFA fit tables pick up the M42 chi values on rebuild) and **M44** (scoping: Forbes
-exact-reproduction fixture or contract-wording amendment). Unscheduled: e2 (dual EFA
-chi-squares), e4 (bootstrap edge CIs, DESIGN §14).
+**Next up:** one item remains from the M41 review — **M44** (scoping decision: obtain Forbes
+(2023) materials for an exact-reproduction fixture test, or amend this file's "reproduce
+Forbes's examples exactly" contract wording to "faithful to the published algorithm"). See
+`ROADMAP.md`. Unscheduled: e2 (dual EFA chi-squares), e4 (bootstrap edge CIs, DESIGN §14).
 
 ## Invariants — do not violate without flagging
 
@@ -108,10 +109,11 @@ refactor.
 oblique rotation **out of scope** (it confounds the cross-level signal) · `cor = "pearson"` with ordinal-detection
 warning · `tenBerge` scoring (on the active basis) · WLSMV estimator for ordinal ESEM ·
 Forbes extension **off** · `k_max` required · sign `align_signs = TRUE` · `keep_scores`/`keep_fits` stored =
-`FALSE` · `redundancy_phi`: `NULL` (default) auto-resolves — `"pca"` → no φ filter (exact W′RW
-algebra); `"efa"`/`"esem"` → `0.95` (Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy
-off-PCA makes `|r|`-only liberal). `NA` is the explicit opt-out. Announce auto-resolve loudly
-(Invariant 6). Don't change these silently.
+`FALSE` · `redundancy_phi`: `NULL` (default) auto-resolves — `"pca"` → no φ filter (component
+scores are determinate, so `|r|` is the true between-component correlation); `"efa"`/`"esem"` →
+`0.95` (Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy makes `|r|`-only liberal).
+`NA` is the explicit opt-out. Announce auto-resolve loudly (Invariant 6). Don't change these
+silently.
 
 ## Dependencies (see `DESIGN.md` §12)
 
