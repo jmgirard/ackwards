@@ -31,6 +31,20 @@ test_that(".standardize() honours supplied center/scale moments (M45)", {
   # NULL default unchanged: sample moments
   Z0 <- ackwards:::.standardize(x)
   expect_equal(unname(colMeans(Z0)), c(0, 0))
+  # A supplied zero/non-finite scale falls back to 1 (same guard as sample SDs)
+  Zg <- ackwards:::.standardize(x, center = c(a = 0, b = 0), scale = c(a = 0, b = 2))
+  expect_equal(Zg[, "a"], x[, "a"])
+  expect_equal(Zg[, "b"], x[, "b"] / 2)
+})
+
+test_that("augment() rejects scaling supplied without data (M45 follow-up)", {
+  skip_if_not_installed("psych")
+  d <- na.omit(ackwards::bfi25)
+  suppressWarnings(x <- ackwards(d, k_max = 2, keep_scores = TRUE))
+  expect_error(augment(x, scaling = "sample"), "only used when")
+  expect_error(augment(x, scaling = "fit"), "only used when")
+  # Default call with stored scores is unaffected
+  expect_no_error(augment(x))
 })
 
 # ── M45: out-of-sample scoring via augment(scaling =) ─────────────────────────────
@@ -580,6 +594,9 @@ test_that("scoring with non-Pearson basis warns about basis mismatch", {
     sample(1L:5L, 150L * 6L, replace = TRUE), 150L, 6L
   ))
   x <- suppressWarnings(ackwards(d, k_max = 2, cor = "polychoric"))
+  # The warning is once-per-session; reset so this test is order-independent
+  # (other tests -- e.g. test-predict.R's polychoric case -- also trigger it).
+  rlang::reset_warning_verbosity("ackwards_nonpearson_scores")
   expect_warning(augment(x, data = d), "polychoric")
 })
 

@@ -35,7 +35,12 @@ generics::augment
 #' caveat applies either way: the weights derive from the non-Pearson `R`
 #' while `Z` is a linear standardization, so empirical score SDs are close to
 #' but not exactly 1 (a one-time warning says so); train/test comparability
-#' under `scaling = "fit"` is unaffected.
+#' under `scaling = "fit"` is unaffected. For objects fit with
+#' `missing = "fiml"` (PCA/EFA), the stored moments are the observed
+#' (`na.rm`) means/SDs of the training items — the correlation matrix was
+#' FIML-estimated, but scoring operates on observed responses, so the
+#' observed moments are the consistent frame; incomplete rows still score
+#' `NA` (scoring does not impute).
 #'
 #' **Missing data.** Score projection applies weights row-wise and propagates
 #' NAs listwise: any observation with at least one missing item variable will
@@ -79,7 +84,8 @@ generics::augment
 #'   cross-validation test split) or subsets on the training metric. `"sample"`
 #'   standardizes by the supplied data's own moments (the only option for
 #'   objects fit from a correlation matrix, which carry no raw-data moments).
-#'   Only used when `data` is supplied; stored scores are returned as-is.
+#'   Only used when `data` is supplied; passing it without `data` is an error
+#'   (stored scores are returned exactly as computed at fit time).
 #' @param ... Ignored.
 #'
 #' @return A data frame. With `append = TRUE`: the supplied `data` (or a `.obs`
@@ -118,7 +124,18 @@ generics::augment
 #' @export
 augment.ackwards <- function(x, data = NULL, append = TRUE, id_cols = NULL,
                              scaling = c("fit", "sample"), ...) {
+  # Capture before arg_match() touches the promise: missing() is unreliable
+  # after the formal has been reassigned.
+  scaling_supplied <- !missing(scaling)
   scaling <- rlang::arg_match(scaling)
+  if (is.null(data) && scaling_supplied) {
+    cli::cli_abort(c(
+      "!" = "{.arg scaling} is only used when {.arg data} is supplied.",
+      "i" = "Without {.arg data}, stored scores ({.code keep_scores = TRUE}) \\
+             are returned exactly as computed at fit time.",
+      "i" = "Supply {.arg data} to re-score under the requested scaling."
+    ))
+  }
   if (!is.logical(append) || length(append) != 1L || is.na(append)) {
     cli::cli_abort("{.arg append} must be a single {.code TRUE} or {.code FALSE}.")
   }
