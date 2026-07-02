@@ -768,6 +768,9 @@ ackwards <- function(
     n_complete        = n_complete,
     input_type        = input_type,
     estimator         = estimator_eff %||% NA_character_,
+    # Chosen EFA extraction method (M47): boot_edges() refits replicate
+    # hierarchies and must reuse the same fm; NA for PCA/ESEM (not applicable).
+    fm                = if (engine == "efa") fm else NA_character_,
     item_labels       = item_labels,
     # Fit-time item moments (M45): the frame of reference for out-of-sample
     # scoring. Computed from the post-`missing`-handling data (i.e. after any
@@ -832,7 +835,8 @@ new_ackwards <- function(
       r           = r,
       data        = data,
       meta        = meta,
-      prune       = NULL # populated by prune() (see R/prune.R); NULL until called
+      prune       = NULL, # populated by prune() (see R/prune.R); NULL until called
+      boot        = NULL # populated by boot_edges() (see R/boot_edges.R)
     ),
     class = "ackwards"
   )

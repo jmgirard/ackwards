@@ -15,6 +15,9 @@ generics::glance
 #' @param what What to extract:
 #'   * `"edges"` *(default)* -- one row per directed between-level edge:
 #'     `from`, `to`, `level_from`, `level_to`, `r`, `is_primary`, `above_cut`.
+#'     If [boot_edges()] has been run on the object, four bootstrap columns are
+#'     appended: `se`, `lo`, `hi` (bootstrap standard error and percentile
+#'     confidence-interval endpoints), and `n_boot_ok` (usable replicates).
 #'   * `"loadings"` -- one row per item x factor x level:
 #'     `level`, `factor`, `item`, `loading`, `se`, `ci_lower`, `ci_upper`.
 #'     `se`, `ci_lower`, and `ci_upper` are populated only for
@@ -148,7 +151,21 @@ tidy.ackwards <- function(
 }
 
 .tidy_edges <- function(x) {
-  x$edges$tidy
+  out <- x$edges$tidy
+  # M47: when boot_edges() has run, expose its SE + percentile-CI columns on
+  # the edge table. Joined on the directed (from, to) key -- boot rows are in
+  # the same order, but match by key so the merge is robust to reordering.
+  if (!is.null(x$boot)) {
+    be <- x$boot$edges
+    key_out <- paste(out$from, out$to, sep = "\r")
+    key_be <- paste(be$from, be$to, sep = "\r")
+    m <- match(key_out, key_be)
+    out$se <- be$se[m]
+    out$lo <- be$lo[m]
+    out$hi <- be$hi[m]
+    out$n_boot_ok <- be$n_boot_ok[m]
+  }
+  out
 }
 
 .tidy_nodes <- function(x) {

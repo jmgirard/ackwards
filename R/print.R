@@ -49,6 +49,16 @@ print.ackwards <- function(x, ...) {
   cli::cli_text(
     "{n_above} of {n_edges_total} edges have |r| {cli::symbol$geq} {cut_show}"
   )
+  # --- Bootstrap edge CIs (M47) -----------------------------------------------
+  if (!is.null(x$boot)) {
+    pct <- round(100 * x$boot$conf)
+    cli::cli_text(
+      cli::col_grey(
+        "  {pct}% bootstrap CIs on all edges ({x$boot$n_boot} replicates); \\
+         see {.code tidy(x)} or {.code x$boot$edges}."
+      )
+    )
+  }
 
   # --- Pruning summary (Forbes extension; DESIGN.md s14.18) -------------------
   if (!is.null(x$prune)) {
