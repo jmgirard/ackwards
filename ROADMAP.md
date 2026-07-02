@@ -10,13 +10,14 @@ sessions.
 This file currently holds the **still-pending findings of the M41
 independent review** (statistical correctness, software design, vignette
 quality, and a defaults/decision audit; conducted 2026-07-01 by Claude
-Fable 5). Each Critical/Major finding was verified with a runnable
-reproduction before being recorded. **M42 (shipped 2026-07-01) fixed the
-code findings** — C1, M1, m1, m2, m6, m7, m8, m10, e3; see its
-`MILESTONES.md` entry — and those items have been removed below per this
-file’s maintenance rule. What remains is the doc-fix set (proposed M43)
-and the Forbes-fixture scoping question (proposed M44), each needing its
-own `/plan-milestone` run.
+Fable 5). **M42 fixed the code findings** (C1, M1, m1, m2, m6, m7, m8,
+m10, e3) and **M43 fixed the doc findings** (M2–M5, m3, m4, m5, m9, m11,
+e1) — see their `MILESTONES.md` entries; fixed items are removed below
+per this file’s maintenance rule. What remains pending is the
+Forbes-fixture scoping question (proposed M44) and two unscheduled
+enhancements. The “verified clean” and defaults-audit sections at the
+bottom are **reference results** of the completed review (the M41
+`MILESTONES.md` entry points here for their detail), not pending work.
 
 ------------------------------------------------------------------------
 
@@ -74,61 +75,7 @@ numerically on `na.omit(bfi25)` (n = 816) and `sim16` unless noted:
 
 ### Major
 
-**M2. Engines vignette “Missing data” section documents pre-M38
-behavior.** `vignettes/ackwards-engines.Rmd` (Missing data + FIML
-subsection + “Which option to use?” table) still states `"fiml"` is
-**ESEM-only** and “Errors for PCA/EFA”, presents the manual
-[`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html) →
-cor-matrix route as the only PCA/EFA option, and says “A future release
-may promote this pattern to a first-class `missing = 'fiml'` route” —
-**M38 shipped exactly that**. The vignette now contradicts
-[`?ackwards`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-and actual behavior (`missing = "fiml"` works for PCA/EFA on the Pearson
-basis and announces itself via cli). M37 wrote this section with a
-forward reference; M38 (code) never circled back to it, and M39’s prose
-pass didn’t cover the engines vignette. **Fix:** rewrite the section
-around the first-class route; keep the corFiml seam as a “what it does
-under the hood / non-Pearson caveat” note; update the recommendation
-table row.
-
-**M3. suggest-k vignette misstates the Comparison Data mechanism.** “CD
-resamples from the marginal item distributions **without preserving
-inter-item correlations**, so on datasets with strong structure it can
-over-retain” (worked-recommendation section). Ruscio & Roche (2012)
-comparison data are generated to reproduce the observed **correlation
-structure under a known k-factor model** (plus the marginal
-distributions) — preserving the correlational structure is precisely the
-method’s advance over PA. The earlier five-criteria description in the
-same vignette is fine; this later sentence is wrong and the “therefore
-it can over-retain” causal claim built on it is unsupported. **Fix:**
-correct the mechanism sentence and re-derive (or drop) the
-over-retention aside.
-
-**M4. Forbes vignette presents the artifact rule’s by-construction zero
-as an empirical finding.** “For the BFI, the artifact criterion flags
-`r n_artifact` factors — no factor at any level has a loading pattern
-more similar to a factor from a non-adjacent level… This is a good
-result for a well-validated instrument.” But `prune(x, "artifact")`
-**never auto-flags** (DESIGN §14.21), so `n_artifact` is 0 for every
-dataset; the same vignette’s “Tuning the thresholds” section states this
-correctly (“no factors are auto-flagged”), making the vignette
-internally contradictory. The opening definition (“a factor whose
-loading pattern is more similar to a factor at a non-adjacent level than
-to its own-level neighbors”) also implies a specific automated
-comparison that is not what the code computes (it reports φ for *all*
-cross-level pairs, plus structural signals, for researcher judgment).
-**Fix:** rewrite the artifact section around report-and-judge semantics
-— show `x$prune$phi` extremes instead of the vacuous zero-count table.
-
-**M5. Forbes vignette still describes the retired `cut_strong` linetype
-split.** “Solid lines indicate strong connections (\|r\| ≥ 0.5 by
-default); dashed lines indicate weaker ones — the same `cut_strong`
-threshold used throughout” — `cut_strong` was retired in **M35**
-(deprecated arg, warning, no effect), and the figures above that
-sentence are drawn with uniform black lines (`edge_linewidth = 0.6`).
-Nothing in the current render produces a solid/dashed split. **Fix:**
-delete/replace the sentence (and audit the paragraph for other pre-M35
-remnants).
+*(M2–M5, the vignette findings, were fixed in M43; M6 below remains.)*
 
 **M6. The Forbes fidelity contract is untested.** CLAUDE.md states “the
 default output must reproduce Forbes’s examples exactly” as the baseline
@@ -146,46 +93,13 @@ doesn’t exist.
 
 ### Minor
 
-*(m1, m2, m6, m7, m8, and m10 were fixed in M42; the doc-facing minors
-below remain.)*
-
-- **m3.** Forbes vignette chain example: “the intermediate nodes m3f2
-  and m4f2 are flagged” — for a chain reaching `k_max` the retention
-  rule keeps only the bottom node, so the **top** node is flagged too.
-  The illustrative sentence misstates the rule the code (correctly)
-  implements.
-- **m4.** Engines vignette “Choosing an engine” table recommends
-  `"pca", fm = "pca"` for replicating Goldberg — `fm = "pca"` is not a
-  legal value (`minres`/`ml`/`pa`) and errors; `fm` is EFA-only anyway.
-  Should read plain `engine = "pca"`.
-- **m5.** Engines vignette says “the BFI with \> 2,000 participants” —
-  the vignette fits `na.omit(bfi25)` (1,000 rows, 816 complete). Stale
-  from a [`psych::bfi`](https://rdrr.io/pkg/psych/man/bfi.html) (n =
-  2,800) draft.
-- **m9.** `data-raw/sim16.R` header comments use the pre-M34 API
-  (`prune(artefact = TRUE)`, `prune(redundant = TRUE)`) and “phi \>=
-  .95” (the filter is strict `>`); `R/data.R`
-  ([`?sim16`](https://jmgirard.github.io/ackwards/reference/sim16.md))
-  says “6-criteria consensus,” counting VSS twice without saying so.
-- **m11.** suggest-k vignette hardcodes stochastic PA outcomes in prose
-  (“PA-FA exceeds PA-PC in this run (6 vs. 5)”, “CD agrees with PA-FA (k
-  = 6)”); `fa.parallel` ignores `seed`, so a vignette rebuild can
-  contradict its own prose. Compute these inline (the sim16 section
-  already does it right) or hedge harder.
+*(all fixed: m1, m2, m6, m7, m8, m10 in M42; m3, m4, m5, m9, m11 in
+M43.)*
 
 ### Enhancements / justification fixes (no behavior change)
 
-- **e1.** §9’s PCA rationale for `redundancy_phi = NULL` (“no φ filter —
-  the W’RW algebra is exact”) conflates two properties. The algebra is
-  equally exact for tenBerge-scored EFA; the *actual* reason PCA needs
-  no congruence guard is that **component scores are determinate** (no
-  factor-score indeterminacy), so `|r|` between component scores is the
-  true correlation between the components themselves. The EFA/ESEM half
-  of the rationale (indeterminacy) is correct — the PCA half should say
-  determinacy, not algebra-exactness. Fix wording in DESIGN §9,
-  CLAUDE.md, and
-  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
-  roxygen.
+*(e1 fixed in M43; e3 in M42.)*
+
 - **e2.** Consider exposing both chi-squares for EFA (`chi` = likelihood
   — the M42/C1 fix, `chi_empirical` = psych’s residual-based) — psych
   prints both for a reason (the empirical one is robust to
@@ -255,12 +169,6 @@ every audited decision.
 
 ## Proposed follow-up milestones (each needs its own /plan-milestone)
 
-- **M43 — review fixes, docs:** M2 (engines missing-data rewrite), M3
-  (CD mechanism), M4 (artifact section rewrite), M5 (cut_strong
-  remnant), m3, m4, m5, m9, m11, e1 (§9/roxygen justification wording).
-  Doc-only; no export/signature change. Note: the engines vignette’s
-  rendered EFA fit tables will also pick up the M42 chi values on
-  rebuild.
 - **M44 — Forbes fixture (scoping):** M6 — owner decides: obtain
   Forbes (2023) materials and add an exact-reproduction test, or amend
   the CLAUDE.md contract wording.

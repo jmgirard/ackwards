@@ -96,9 +96,12 @@ may not be adding genuine information to the hierarchy.
 
 A **redundant chain** is a sequence of factors connected by near-perfect
 correlations (\|r\| ≥ 0.9 by default) across levels. If m2f2 → m3f2 →
-m4f2 → m5f1 all share r \> 0.97, the intermediate nodes m3f2 and m4f2
-are flagged as redundant: they repeat rather than refine the same
-dimension.
+m4f2 → m5f1 all share r \> 0.97, the chain reaches the deepest level, so
+its bottom node m5f1 — the most specific, best-defined manifestation —
+is retained and the others (m2f2, m3f2, m4f2) are flagged as redundant:
+they repeat rather than refine the same dimension. A chain that stops
+*short* of the deepest level instead keeps its **top** node, the
+broadest manifestation (Forbes, 2023).
 
 ``` r
 
@@ -184,9 +187,10 @@ autoplot(x_prune,
 Level 4 is entirely pruned, leaving a visible gap in the y-axis. The gap
 is intentional: it shows *which* level was removed. Spanning arrows
 bridge directly from level 3 factors to level 5 factors (and from level
-2 to level 5 where intermediate levels were flagged). Solid lines
-indicate strong connections (\|r\| ≥ 0.5 by default); dashed lines
-indicate weaker ones — the same `cut_strong` threshold used throughout.
+2 to level 5 where intermediate levels were flagged). In this
+publication style every drawn line has the same uniform weight
+(`edge_linewidth = 0.6`); only connections with \|r\| at or above the
+display threshold (`cut_show`, default 0.3) are drawn at all.
 
 To close the gaps and compact the layout while retaining the original
 level numbers on the axis:
@@ -211,21 +215,29 @@ For further cosmetic customization — colours, node labels, arrowheads,
 and more — see
 [`vignette("ackwards-visualization")`](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.md).
 
-### Factors defined by structural similarity with `prune(x, "artifact")`
+### Inspecting structural similarity with `prune(x, "artifact")`
 
-An **artifact** factor is one whose loading pattern is more similar to a
-factor at a *non-adjacent* level than to its own-level neighbors.
-Similarity is measured by Tucker’s congruence coefficient (φ):
+An **artifact** factor is one that looks like a *copy* of a factor from
+another level rather than a genuine refinement — its loading pattern
+closely resembles a factor elsewhere in the hierarchy. Similarity is
+measured by Tucker’s congruence coefficient (φ):
 
 ``` math
 \phi(F_a, F_b) = \frac{\sum_i \lambda_{ia}\lambda_{ib}}
 {\sqrt{\sum_i \lambda_{ia}^2 \cdot \sum_i \lambda_{ib}^2}}
 ```
 
-φ ranges from −1 to +1, with values \> 0.95 indicating near-identical
-loading patterns regardless of sign. A factor at k = 3 that has φ \>
-0.95 with a factor at k = 1 is suspected to be an artifact of the
-rotation rather than a genuine new dimension.
+φ ranges from −1 to +1, with values above 0.95 conventionally read as
+near-identical loading patterns regardless of sign (Lorenzo-Seva & ten
+Berge, 2006).
+
+Unlike `"redundant"`, the artifact mode **never flags anything
+automatically**. Forbes (2023) is explicit that identifying an artifact
+requires researcher judgment — automating it would manufacture
+investigator degrees of freedom — so `prune(x, "artifact")` computes and
+stores the evidence for *you* to weigh: Tucker’s φ for **every**
+cross-level factor pair in `x$prune$phi`, plus the structural signals of
+the next section in `x$prune$structural`.
 
 ``` r
 
@@ -238,43 +250,41 @@ x_art <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all") |>
 #>   judgment (Forbes, 2023).
 ```
 
-| Node-level artifact annotation       |       |          |        |
-|--------------------------------------|-------|----------|--------|
-| 0 of 15 factors flagged as artifacts |       |          |        |
-| Factor                               | Level | Flagged? | Reason |
-| m1f1                                 | 1     | FALSE    | —      |
-| m2f1                                 | 2     | FALSE    | —      |
-| m2f2                                 | 2     | FALSE    | —      |
-| m3f1                                 | 3     | FALSE    | —      |
-| m3f2                                 | 3     | FALSE    | —      |
-| m3f3                                 | 3     | FALSE    | —      |
-| m4f1                                 | 4     | FALSE    | —      |
-| m4f2                                 | 4     | FALSE    | —      |
-| m4f3                                 | 4     | FALSE    | —      |
-| m4f4                                 | 4     | FALSE    | —      |
-| m5f1                                 | 5     | FALSE    | —      |
-| m5f2                                 | 5     | FALSE    | —      |
-| m5f3                                 | 5     | FALSE    | —      |
-| m5f4                                 | 5     | FALSE    | —      |
-| m5f5                                 | 5     | FALSE    | —      |
+The table to read is `x$prune$phi`. The natural first cut is the
+**non-adjacent** pairs with the highest \|φ\| — a deep factor whose
+loading pattern nearly duplicates a factor two or more levels up is the
+classic candidate:
 
-For the BFI, the artifact criterion flags 0 factors — no factor at any
-level has a loading pattern more similar to a factor from a non-adjacent
-level than to its own-level solution. This is a good result for a
-well-validated instrument: it suggests the rotation is producing
-genuinely distinct factors at each level, not recycling old ones.
+| Strongest non-adjacent loading congruences |  |  |  |  |
+|----|----|----|----|----|
+| Top 8 pairs by \|φ\|, from x\$prune\$phi — evidence, not flags |  |  |  |  |
+| From | To | Level (from) | Level (to) | φ |
+| m3f2 | m5f2 | 3 | 5 | 0.99 |
+| m2f2 | m4f2 | 2 | 4 | 0.98 |
+| m2f2 | m5f2 | 2 | 5 | 0.98 |
+| m2f1 | m4f1 | 2 | 4 | 0.93 |
+| m3f1 | m5f1 | 3 | 5 | 0.92 |
+| m1f1 | m3f1 | 1 | 3 | 0.88 |
+| m1f1 | m4f1 | 1 | 4 | 0.86 |
+| m2f1 | m5f1 | 2 | 5 | 0.85 |
 
-On data with weaker or noisier factor structure, or with rotations that
-struggle to separate highly correlated factors, the artifact criterion
-will often flag some nodes. A node can be flagged by one criterion but
-not the other; the two criteria capture different flavors of redundancy:
+For these data the strongest non-adjacent congruence is \|φ\| = 0.99.
+Values near 1 mean the deeper factor recycles an earlier loading
+pattern; whether that makes it a rotation artifact — or a faithfully
+*persisting* construct, which is the redundancy view of the same fact —
+is a judgment made with the substantive content of the items in view,
+not a threshold the package applies for you.
+
+The two modes surface different fingerprints of the same underlying
+question:
 
 - `"redundant"`: this factor appears at multiple levels with
   near-identical *score correlations* — it persists unchanged as k
-  increases.
+  increases. Auto-flagged (with Forbes’s retention rule), because the
+  score-correlation chain is a sharp, replicable criterion.
 - `"artifact"`: this factor’s *loading pattern* closely resembles a
-  factor from a different, non-adjacent level — it looks like a copy
-  rather than a refinement.
+  factor elsewhere in the hierarchy, or its structure looks
+  under-identified (next section). Reported only — the call is yours.
 
 ### Structural artifact signals
 
@@ -338,13 +348,15 @@ above a threshold), not just a high score correlation. The
 `redundancy_phi` argument controls this, and its default (`NULL`)
 *auto-resolves based on the engine*:
 
-- **PCA** — no φ filter. The `W'RW` score algebra is exact for
-  components, so the score correlation `|r|` alone is a sufficient
-  redundancy signal.
+- **PCA** — no φ filter. Component scores are **determinate**: unlike
+  factor scores they are exact linear functions of the observed data, so
+  the score correlation `|r|` *is* the correlation between the
+  components themselves and suffices as the redundancy signal.
 - **EFA / ESEM** — φ is required to exceed `0.95` (Lorenzo-Seva & ten
-  Berge, 2006). Factor scores off the PCA basis are indeterminate, which
-  makes a `|r|`-only rule too liberal; the loading-congruence guard
-  makes the criterion conservative.
+  Berge, 2006). Factor scores are **indeterminate** — any factor admits
+  infinitely many score series consistent with the model — which makes
+  an `|r|`-only rule too liberal; the loading-congruence guard makes the
+  criterion conservative.
   [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
   announces this auto-resolution in the console.
 

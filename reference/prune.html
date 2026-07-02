@@ -147,8 +147,11 @@ threshold for redundancy chains. Default <code>0.9</code> (Forbes, 2023).</p></d
 
 <dt id="arg-redundancy-phi">redundancy_phi<a class="anchor" aria-label="anchor" href="#arg-redundancy-phi"></a></dt>
 <dd><p>Scalar in <code>(0, 1]</code>, <code>NULL</code> (default, auto), or <code>NA</code>
-(explicit opt-out). When <code>NULL</code>:</p><ul><li><p><code>x$engine == "pca"</code> – no phi filter (the W'RW algebra is exact; phi
-adds nothing that <code>|r|</code> does not already capture).</p></li>
+(explicit opt-out). When <code>NULL</code>:</p><ul><li><p><code>x$engine == "pca"</code> – no phi filter. Component scores are
+<em>determinate</em> (exact linear functions of the data, with no
+factor-score indeterminacy), so the score correlation <code>|r|</code> is the
+true correlation between the components themselves; phi adds nothing
+that <code>|r|</code> does not already capture.</p></li>
 <li><p><code>x$engine</code> is <code>"efa"</code> or <code>"esem"</code> – automatically set to <code>0.95</code>
 (Lorenzo-Seva &amp; ten Berge, 2006). Factor-score indeterminacy off-PCA
 means <code>|r|</code>-alone is liberal; the conjunctive phi criterion is the

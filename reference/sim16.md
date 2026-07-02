@@ -42,14 +42,16 @@ by the symmetry of the design above).
 **Ground-truth hierarchy** (verified against
 `ackwards(engine = "efa")`): `k=1` recovers a single general factor
 across all 16 items; `k=2` splits along the metatrait line (`i1`-`i8`
-vs. `i9`-`i16`); `k=4` recovers the 4 true group factors exactly;
+vs. `i9`-`i16`); `k=4` recovers the 4 true group factors exactly; all
+six
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-reaches a 6-criteria consensus of `k = 4`.
+recommendations (five criteria – VSS reports at complexities 1 and 2)
+reach a consensus of `k = 4`.
 
 **Idealized by design.** The planted signal is strong and clean, so all
 six
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-criteria converge on `k = 4` – deliberately the *easy* case, for
+recommendations converge on `k = 4` – deliberately the *easy* case, for
 building intuition about what recovering a known hierarchy looks like.
 Real data rarely agree this cleanly: on `bfi25` the same criteria span
 `k = 4`–`6`. The two datasets are complementary teaching foils – `sim16`
@@ -64,10 +66,10 @@ produces an orphan factor with zero primary-loading items. With
 factor is flagged both `few_items` and `orphan`. Because the true (non-
 splitting) factors persist essentially unchanged from `k=3` onward,
 their parent-child score correlations approach 1 and are flagged by
-`prune(x, "redundant")` (`|r| >= .9` and, by default, Tucker's phi
-`>= .95`). This is a textbook overextraction artifact, included so the
-Forbes/redundancy examples have a guaranteed finding to teach against
-(unlike `bfi25`, which does not reliably trigger one).
+`prune(x, "redundant")` (`|r| >= .9` and, under the EFA auto-default,
+Tucker's phi `> .95`). This is a textbook overextraction artifact,
+included so the Forbes/redundancy examples have a guaranteed finding to
+teach against (unlike `bfi25`, which does not reliably trigger one).
 
 To regenerate this dataset, run `source("data-raw/sim16.R")` from the
 package root (`set.seed(42)`).

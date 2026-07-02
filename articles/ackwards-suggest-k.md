@@ -207,13 +207,13 @@ and citations — see
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [307ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [313ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [181ms]
+#> ✔ Running MAP and VSS... [177ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.4s]
+#> ✔ Running Comparison Data (CD)... [9.7s]
 #> 
 print(sk)
 #> 
@@ -508,42 +508,48 @@ print(sk) # reproduced from earlier
 #> 2023). PA-FA and CD are more conservative. Use the range.
 ```
 
-Reading the rendered table:
+Reading the rendered table (the numbers below are computed from the `sk`
+object, so they always match the table above — PA values can vary across
+builds):
 
-**MAP and VSS-2 agree on k = 5**, with VSS-1 slightly more conservative
-at k = 4. Two conservative criteria converging is a meaningful signal;
-the modal answer from the non-PA criteria is 5.
+**The conservative criteria.** MAP recommends k = 5; VSS-1 and VSS-2
+peak at k = 4 and 5. Where two of these converge, that value is a
+meaningful signal — they err on the side of too few factors, so their
+answer is a floor worth taking seriously.
 
-**PA-FA exceeds PA-PC in this run** (6 vs. 5). Normally PA-PC
-over-extracts relative to PA-FA, making PA-PC the liberal upper bound.
-Here the relationship inverts — a nuance in this dataset’s eigenvalue
-geometry, not a contradiction. Read both, but trust PA-FA as the
+**The liberal criteria.** PA-PC retains k ≤ 5 and PA-FA k ≤ 6. In this
+run PA-FA (6) exceeds PA-PC (5). Normally PA-PC over-extracts relative
+to PA-FA, making PA-PC the liberal upper bound; an inversion like this
+one reflects the dataset’s eigenvalue geometry plus PA’s run-to-run
+simulation noise, not a contradiction. Read both, but trust PA-FA as the
 model-consistent criterion for EFA and ESEM engines.
 
-**CD agrees with PA-FA** (k = 6, when `EFAtools` is available). Both
-point to a sixth factor worth examining. CD resamples from the marginal
-item distributions without preserving inter-item correlations, so on
-datasets with strong structure it can over-retain; here it lands
-conservatively at 6, in line with the other liberal criterion.
+**CD recommends k = 6.** CD generates comparison data that reproduce the
+observed correlation structure under a k-factor model (as well as the
+items’ marginal distributions), so its recommendation reflects how many
+factors are needed to mimic the data’s actual eigenvalue profile. In
+simulation it is among the most accurate criteria, though it can
+over-retain on large, highly correlated samples.
 
-**Defensible choice: `k_max = 6`.** This matches the PA-FA and CD
-recommendations and sits one level above the MAP/VSS-2 consensus of 5.
-Setting `k_max = 6` lets
+**Defensible choice: the top of the range (here 6).** Taking the maximum
+across criteria covers every recommendation and sits above the
+conservative floor. Setting `k_max` there lets
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-show whether a sixth level reveals interpretable sub-facets or merely
-splits the Big Five into arbitrary micro-factors.
+show whether the deepest level reveals interpretable sub-facets or
+merely splits the Big Five into arbitrary micro-factors:
 
 ``` r
 
-x <- ackwards(bfi, k_max = 6, cor = "polychoric")
+k_upper <- 6 # the top of your criterion range
+x <- ackwards(bfi, k_max = k_upper, cor = "polychoric")
 autoplot(x)
 ```
 
-If the k = 6 level looks like overextraction (very thin arrows, factors
-that split and immediately re-merge, between-level r ≈ 1), you can
-interpret down to k = 5 with confidence that you have not missed
-structure. If k = 6 reveals interpretable sub-facets, you have found
-something worth reporting.
+If the deepest level looks like overextraction (very thin arrows,
+factors that split and immediately re-merge, between-level r ≈ 1), you
+can interpret one level down with confidence that you have not missed
+structure. If it reveals interpretable sub-facets instead, you have
+found something worth reporting.
 
 This “set k slightly high, then interpret down” approach is the standard
 bass-ackwards workflow. The method is specifically designed for this

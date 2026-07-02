@@ -262,11 +262,11 @@ head(ld)
 ```
 
 The intervals are computed as loading ± *z* × SE (default 95%; set
-`conf_level = 0.99` for wider intervals). For the BFI with \> 2,000
-participants the SEs are small; with smaller samples they are important
-for judging which loadings are meaningfully non-zero. For PCA and EFA
-objects the `se`, `ci_lower`, and `ci_upper` columns are present but
-`NA` — those engines carry no loading SEs.
+`conf_level = 0.99` for wider intervals). With the 875 complete cases
+used here the SEs are fairly small; with smaller samples they become
+important for judging which loadings are meaningfully non-zero. For PCA
+and EFA objects the `se`, `ci_lower`, and `ci_upper` columns are present
+but `NA` — those engines carry no loading SEs.
 
 ## Per-level fit: what it tells you (and what it doesn’t)
 
@@ -431,7 +431,7 @@ account for measurement error (EFA/ESEM) or not (PCA).
 | Exploratory, large k, unknown structure | Start with `"pca"` |
 | Latent-variable theory, want to test model fit | `"efa"` |
 | Ordinal items + model fit + loading SEs | `"esem"` with `cor = "polychoric"` |
-| Replicating Goldberg (2006) or [`psych::bassAckward()`](https://rdrr.io/pkg/psych/man/bassAckward.html) | `"pca"`, `fm = "pca"` |
+| Replicating Goldberg (2006) or [`psych::bassAckward()`](https://rdrr.io/pkg/psych/man/bassAckward.html) | `"pca"` (the default engine; `fm` applies only to `"efa"`) |
 | Publication with formal model evaluation | `"esem"` |
 
 A practical workflow: start with PCA to get a feel for the hierarchy and
@@ -455,40 +455,46 @@ In brief:
 - **`"listwise"`** — complete cases only, applied before *all* steps, so
   the correlation matrix, fit, and edges are fully consistent. Valid for
   all engines.
-- **`"fiml"`** — Full Information ML; **`engine = "esem"` with
-  `estimator = "ML"` or `"MLR"` only**. Uses partially observed rows for
-  estimation and derives edges from lavaan’s FIML saturated model.
-  Errors for PCA/EFA and for WLSMV/ULSMV. (FIML improves estimation but
+- **`"fiml"`** — Full Information ML, on two routes. For
+  **`engine = "esem"`** (with `estimator = "ML"` or `"MLR"`), lavaan
+  estimates under FIML and the edges derive from its FIML saturated
+  model. For **`engine = "pca"` or `"efa"`** on the Pearson basis, the
+  correlation matrix is estimated by
+  [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html) —
+  full-information ML under multivariate normality, MAR-valid — and fed
+  to the usual between-level algebra; the route announces itself via a
+  message. Errors for WLSMV/ULSMV (limited-information estimators have
+  no FIML extension) and for a non-Pearson PCA/EFA basis (`corFiml()`
+  estimates a multivariate-normal matrix). FIML improves estimation but
   does not impute items, so `keep_scores = TRUE` still yields `NA` for
-  incomplete rows.)
+  incomplete rows.
 
-### FIML for continuous PCA/EFA via a FIML correlation matrix
+### FIML for continuous PCA/EFA
 
-Built-in `"fiml"` is ESEM-only, but you can still bring FIML-based
-missing-data handling to the PCA and EFA engines through the
-[correlation-matrix seam](#correlation-matrix-input): estimate the
-correlations by FIML with
-[`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html) and
-pass that matrix to
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
-Under MAR this is more principled than pairwise deletion, which is only
-MCAR-valid.
+For continuous data with MAR missingness, pass `missing = "fiml"`
+directly — more principled than pairwise deletion, which is only
+MCAR-valid:
 
 ``` r
 
-# sim16 is continuous, so corFiml's normality assumption is appropriate here.
+# sim16 is continuous, so FIML's normality assumption is appropriate here.
 set.seed(1)
 sim_na <- sim16
 for (j in seq_len(ncol(sim_na))) sim_na[sample(nrow(sim_na), 60L), j] <- NA
 
-R_fiml <- psych::corFiml(sim_na) # FIML estimate of the correlation matrix
-x_fiml <- ackwards(R_fiml, k_max = 4, engine = "efa", n_obs = nrow(sim_na))
+x_fiml <- ackwards(sim_na, k_max = 4, engine = "efa", missing = "fiml")
+#> ℹ `missing = "fiml"`: correlation matrix estimated via `psych::corFiml()`
+#>   (full-information ML).
+#> ℹ Fit indices use N = 1000 (`n_obs = "total"`); point estimates (loadings,
+#>   edges) are unaffected by this choice.
+#> ! Fit indices are approximate: a FIML correlation matrix is fed into a
+#>   normal-theory EFA (a two-step procedure). See `?ackwards` (`n_obs`).
 x_fiml
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
 #> Engine: efa
 #> Rotation: varimax
-#> Basis: (user-supplied matrix)
+#> Basis: pearson
 #> n: 1,000
 #> k (max): 4
 #> 
@@ -509,17 +515,27 @@ x_fiml
 #> they do not validate the edges or the hierarchy itself.
 ```
 
-Two caveats matter. First, **`n_obs` is your call.** FIML draws
+Under the hood this estimates the correlation matrix with
+[`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html) and
+runs the normal `W'RW` algebra on it, so the loadings and edges are
+exactly what the manual `ackwards(psych::corFiml(sim_na), …)`
+correlation-matrix call would give (that
+[seam](#correlation-matrix-input) remains available for non-standard
+cases, e.g. a FIML matrix you have already computed elsewhere).
+
+Two caveats matter. First, **the fit-index N is your call.** FIML draws
 information from every partially observed row, so there is no single
-“correct” N. Passing the total row count (as above) is mildly
-*anti-conservative* for the EFA fit indices — χ² and RMSEA then treat
-partial rows as if complete; the complete-case count is conservative.
-Crucially, the loading and edge **point estimates are unaffected by
-`n_obs`** — only the fit indices depend on it. Second, `corFiml()`
-assumes **multivariate normality**, so this route is for **continuous**
-data only; for ordinal items use `engine = "esem"` with
-`cor = "polychoric"` instead. A future release may promote this pattern
-to a first-class `missing = "fiml"` route for PCA/EFA.
+“correct” N for the EFA fit indices, and the `n_obs` argument selects it
+on this route: `"total"` (the default — every row contributing to the
+FIML likelihood, the convention a FIML analysis reports) is mildly
+*anti-conservative* — χ² and RMSEA then treat partial rows as if
+complete — while `"complete"` (the complete-case count) is conservative.
+Crucially, the loading and edge **point estimates are unaffected by this
+choice** — only the fit indices depend on it, and those are approximate
+under this two-step (FIML matrix into normal-theory EFA) route
+regardless of N. Second, the route assumes **multivariate normality**,
+so it is for **continuous** data only; for ordinal items use
+`engine = "esem"` with `cor = "polychoric"` instead.
 
 ### Which option to use?
 
@@ -529,7 +545,7 @@ to a first-class `missing = "fiml"` route for PCA/EFA.
 | Ordinal data + WLSMV, any missingness | `"pairwise"` (uses `available.cases` — MCAR-valid, full N) |
 | Want consistent fit statistics and edges (continuous ML/MLR) | `"listwise"` |
 | ESEM ML/MLR, meaningful missingness, want all rows used in estimation | `"fiml"` |
-| **Continuous PCA/EFA, MAR missingness** | **[`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html) → `ackwards(R, …)`** (see above) |
+| **Continuous PCA/EFA, MAR missingness** | **`"fiml"`** (via [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html); see above) |
 | MAR-valid with ordinal (not yet built-in) | MI via `lavaan.mi` or `mirt` |
 
 ## Correlation-matrix input

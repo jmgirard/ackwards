@@ -905,12 +905,12 @@ and <code>ci_upper</code> columns:</p>
 <span><span class="co">#&gt; 5     1   m1f1   A5  0.6588505 0.01870826  0.6221830  0.6955180</span></span>
 <span><span class="co">#&gt; 6     1   m1f1   C1  0.4138252 0.02754885  0.3598304  0.4678200</span></span></code></pre></div>
 <p>The intervals are computed as loading ± <em>z</em> × SE (default 95%;
-set <code>conf_level = 0.99</code> for wider intervals). For the BFI
-with &gt; 2,000 participants the SEs are small; with smaller samples
-they are important for judging which loadings are meaningfully non-zero.
-For PCA and EFA objects the <code>se</code>, <code>ci_lower</code>, and
-<code>ci_upper</code> columns are present but <code>NA</code> — those
-engines carry no loading SEs.</p>
+set <code>conf_level = 0.99</code> for wider intervals). With the 875
+complete cases used here the SEs are fairly small; with smaller samples
+they become important for judging which loadings are meaningfully
+non-zero. For PCA and EFA objects the <code>se</code>,
+<code>ci_lower</code>, and <code>ci_upper</code> columns are present but
+<code>NA</code> — those engines carry no loading SEs.</p>
 </div>
 </div>
 <div class="section level2">
@@ -1597,8 +1597,8 @@ account for measurement error (EFA/ESEM) or not (PCA).</p>
 <code><a href="https://rdrr.io/pkg/psych/man/bassAckward.html" class="external-link">psych::bassAckward()</a></code>
 </td>
 <td>
-<code>"pca"</code>, <code>fm = "pca"</code>
-</td>
+<code>"pca"</code> (the default engine; <code>fm</code> applies only
+to <code>"efa"</code>)</td>
 </tr>
 <tr class="odd">
 <td>Publication with formal model evaluation</td>
@@ -1630,37 +1630,46 @@ present.</li>
 applied before <em>all</em> steps, so the correlation matrix, fit, and
 edges are fully consistent. Valid for all engines.</li>
 <li>
-<strong><code>"fiml"</code></strong> — Full Information ML;
-<strong><code>engine = "esem"</code> with <code>estimator = "ML"</code>
-or <code>"MLR"</code> only</strong>. Uses partially observed rows for
-estimation and derives edges from lavaan’s FIML saturated model. Errors
-for PCA/EFA and for WLSMV/ULSMV. (FIML improves estimation but does not
+<strong><code>"fiml"</code></strong> — Full Information ML, on two
+routes. For <strong><code>engine = "esem"</code></strong> (with
+<code>estimator = "ML"</code> or <code>"MLR"</code>), lavaan estimates
+under FIML and the edges derive from its FIML saturated model. For
+<strong><code>engine = "pca"</code> or <code>"efa"</code></strong> on
+the Pearson basis, the correlation matrix is estimated by
+<code><a href="https://rdrr.io/pkg/psych/man/corFiml.html" class="external-link">psych::corFiml()</a></code> — full-information ML under multivariate
+normality, MAR-valid — and fed to the usual between-level algebra; the
+route announces itself via a message. Errors for WLSMV/ULSMV
+(limited-information estimators have no FIML extension) and for a
+non-Pearson PCA/EFA basis (<code>corFiml()</code> estimates a
+multivariate-normal matrix). FIML improves estimation but does not
 impute items, so <code>keep_scores = TRUE</code> still yields
-<code>NA</code> for incomplete rows.)</li>
+<code>NA</code> for incomplete rows.</li>
 </ul>
 <div class="section level3">
-<h3 id="fiml-for-continuous-pcaefa-via-a-fiml-correlation-matrix">FIML for continuous PCA/EFA via a FIML correlation matrix<a class="anchor" aria-label="anchor" href="#fiml-for-continuous-pcaefa-via-a-fiml-correlation-matrix"></a>
+<h3 id="fiml-for-continuous-pcaefa">FIML for continuous PCA/EFA<a class="anchor" aria-label="anchor" href="#fiml-for-continuous-pcaefa"></a>
 </h3>
-<p>Built-in <code>"fiml"</code> is ESEM-only, but you can still bring
-FIML-based missing-data handling to the PCA and EFA engines through the
-<a href="#correlation-matrix-input">correlation-matrix seam</a>:
-estimate the correlations by FIML with <code><a href="https://rdrr.io/pkg/psych/man/corFiml.html" class="external-link">psych::corFiml()</a></code> and
-pass that matrix to <code><a href="../reference/ackwards.html">ackwards()</a></code>. Under MAR this is more
-principled than pairwise deletion, which is only MCAR-valid.</p>
+<p>For continuous data with MAR missingness, pass
+<code>missing = "fiml"</code> directly — more principled than pairwise
+deletion, which is only MCAR-valid:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># sim16 is continuous, so corFiml's normality assumption is appropriate here.</span></span>
+<code class="sourceCode R"><span><span class="co"># sim16 is continuous, so FIML's normality assumption is appropriate here.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">sim_na</span> <span class="op">&lt;-</span> <span class="va">sim16</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">sim_na</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="va">sim_na</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">sim_na</span><span class="op">)</span>, <span class="fl">60L</span><span class="op">)</span>, <span class="va">j</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
 <span></span>
-<span><span class="va">R_fiml</span> <span class="op">&lt;-</span> <span class="fu">psych</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/psych/man/corFiml.html" class="external-link">corFiml</a></span><span class="op">(</span><span class="va">sim_na</span><span class="op">)</span> <span class="co"># FIML estimate of the correlation matrix</span></span>
-<span><span class="va">x_fiml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">R_fiml</span>, k_max <span class="op">=</span> <span class="fl">4</span>, engine <span class="op">=</span> <span class="st">"efa"</span>, n_obs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">sim_na</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">x_fiml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">sim_na</span>, k_max <span class="op">=</span> <span class="fl">4</span>, engine <span class="op">=</span> <span class="st">"efa"</span>, missing <span class="op">=</span> <span class="st">"fiml"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> `missing = "fiml"`: correlation matrix estimated via `psych::corFiml()`</span></span>
+<span><span class="co">#&gt;   (full-information ML).</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fit indices use N = 1000 (`n_obs = "total"`); point estimates (loadings,</span></span>
+<span><span class="co">#&gt;   edges) are unaffected by this choice.</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Fit indices are approximate: a FIML correlation matrix is fed into a</span></span>
+<span><span class="co">#&gt;   normal-theory EFA (a two-step procedure). See `?ackwards` (`n_obs`).</span></span>
 <span><span class="va">x_fiml</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">───────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; Engine: <span style="font-weight: bold;">efa</span></span></span>
 <span><span class="co">#&gt; Rotation: varimax</span></span>
-<span><span class="co">#&gt; Basis: (user-supplied matrix)</span></span>
+<span><span class="co">#&gt; Basis: pearson</span></span>
 <span><span class="co">#&gt; n: 1,000</span></span>
 <span><span class="co">#&gt; k (max): 4</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -1679,19 +1688,29 @@ principled than pairwise deletion, which is only MCAR-valid.</p>
 <span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
-<p>Two caveats matter. First, <strong><code>n_obs</code> is your
+<p>Under the hood this estimates the correlation matrix with
+<code><a href="https://rdrr.io/pkg/psych/man/corFiml.html" class="external-link">psych::corFiml()</a></code> and runs the normal <code>W'RW</code>
+algebra on it, so the loadings and edges are exactly what the manual
+<code>ackwards(psych::corFiml(sim_na), …)</code> correlation-matrix call
+would give (that <a href="#correlation-matrix-input">seam</a> remains
+available for non-standard cases, e.g. a FIML matrix you have already
+computed elsewhere).</p>
+<p>Two caveats matter. First, <strong>the fit-index N is your
 call.</strong> FIML draws information from every partially observed row,
-so there is no single “correct” N. Passing the total row count (as
-above) is mildly <em>anti-conservative</em> for the EFA fit indices — χ²
-and RMSEA then treat partial rows as if complete; the complete-case
-count is conservative. Crucially, the loading and edge <strong>point
-estimates are unaffected by <code>n_obs</code></strong> — only the fit
-indices depend on it. Second, <code>corFiml()</code> assumes
-<strong>multivariate normality</strong>, so this route is for
+so there is no single “correct” N for the EFA fit indices, and the
+<code>n_obs</code> argument selects it on this route:
+<code>"total"</code> (the default — every row contributing to the FIML
+likelihood, the convention a FIML analysis reports) is mildly
+<em>anti-conservative</em> — χ² and RMSEA then treat partial rows as if
+complete — while <code>"complete"</code> (the complete-case count) is
+conservative. Crucially, the loading and edge <strong>point estimates
+are unaffected by this choice</strong> — only the fit indices depend on
+it, and those are approximate under this two-step (FIML matrix into
+normal-theory EFA) route regardless of N. Second, the route assumes
+<strong>multivariate normality</strong>, so it is for
 <strong>continuous</strong> data only; for ordinal items use
 <code>engine = "esem"</code> with <code>cor = "polychoric"</code>
-instead. A future release may promote this pattern to a first-class
-<code>missing = "fiml"</code> route for PCA/EFA.</p>
+instead.</p>
 </div>
 <div class="section level3">
 <h3 id="which-option-to-use">Which option to use?<a class="anchor" aria-label="anchor" href="#which-option-to-use"></a>
@@ -1729,8 +1748,8 @@ estimation</td>
 <tr class="odd">
 <td><strong>Continuous PCA/EFA, MAR missingness</strong></td>
 <td>
-<strong><code><a href="https://rdrr.io/pkg/psych/man/corFiml.html" class="external-link">psych::corFiml()</a></code> →
-<code>ackwards(R, …)</code></strong> (see above)</td>
+<strong><code>"fiml"</code></strong> (via
+<code><a href="https://rdrr.io/pkg/psych/man/corFiml.html" class="external-link">psych::corFiml()</a></code>; see above)</td>
 </tr>
 <tr class="even">
 <td>MAR-valid with ordinal (not yet built-in)</td>

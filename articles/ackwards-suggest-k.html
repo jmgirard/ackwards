@@ -313,13 +313,13 @@ structure, and citations — see <code><a href="../reference/suggest_k.html">?su
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[307ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[313ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[181ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[177ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.4s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[9.7s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -611,35 +611,42 @@ criteria do not all converge here, which is itself informative:</p>
 <span><span class="co">#&gt; <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">2023). PA-FA and CD are more conservative. Use the range.</span></span></span></code></pre></div>
-<p>Reading the rendered table:</p>
-<p><strong>MAP and VSS-2 agree on k = 5</strong>, with VSS-1 slightly
-more conservative at k = 4. Two conservative criteria converging is a
-meaningful signal; the modal answer from the non-PA criteria is 5.</p>
-<p><strong>PA-FA exceeds PA-PC in this run</strong> (6 vs. 5). Normally
-PA-PC over-extracts relative to PA-FA, making PA-PC the liberal upper
-bound. Here the relationship inverts — a nuance in this dataset’s
-eigenvalue geometry, not a contradiction. Read both, but trust PA-FA as
-the model-consistent criterion for EFA and ESEM engines.</p>
-<p><strong>CD agrees with PA-FA</strong> (k = 6, when
-<code>EFAtools</code> is available). Both point to a sixth factor worth
-examining. CD resamples from the marginal item distributions without
-preserving inter-item correlations, so on datasets with strong structure
-it can over-retain; here it lands conservatively at 6, in line with the
-other liberal criterion.</p>
-<p><strong>Defensible choice: <code>k_max = 6</code>.</strong> This
-matches the PA-FA and CD recommendations and sits one level above the
-MAP/VSS-2 consensus of 5. Setting <code>k_max = 6</code> lets
-<code><a href="../reference/ackwards.html">ackwards()</a></code> show whether a sixth level reveals interpretable
-sub-facets or merely splits the Big Five into arbitrary
-micro-factors.</p>
+<p>Reading the rendered table (the numbers below are computed from the
+<code>sk</code> object, so they always match the table above — PA values
+can vary across builds):</p>
+<p><strong>The conservative criteria.</strong> MAP recommends k = 5;
+VSS-1 and VSS-2 peak at k = 4 and 5. Where two of these converge, that
+value is a meaningful signal — they err on the side of too few factors,
+so their answer is a floor worth taking seriously.</p>
+<p><strong>The liberal criteria.</strong> PA-PC retains k ≤ 5 and PA-FA
+k ≤ 6. In this run PA-FA (6) exceeds PA-PC (5). Normally PA-PC
+over-extracts relative to PA-FA, making PA-PC the liberal upper bound;
+an inversion like this one reflects the dataset’s eigenvalue geometry
+plus PA’s run-to-run simulation noise, not a contradiction. Read both,
+but trust PA-FA as the model-consistent criterion for EFA and ESEM
+engines.</p>
+<p><strong>CD recommends k = 6.</strong> CD generates comparison data
+that reproduce the observed correlation structure under a k-factor model
+(as well as the items’ marginal distributions), so its recommendation
+reflects how many factors are needed to mimic the data’s actual
+eigenvalue profile. In simulation it is among the most accurate
+criteria, though it can over-retain on large, highly correlated
+samples.</p>
+<p><strong>Defensible choice: the top of the range (here 6).</strong>
+Taking the maximum across criteria covers every recommendation and sits
+above the conservative floor. Setting <code>k_max</code> there lets
+<code><a href="../reference/ackwards.html">ackwards()</a></code> show whether the deepest level reveals
+interpretable sub-facets or merely splits the Big Five into arbitrary
+micro-factors:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">6</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">k_upper</span> <span class="op">&lt;-</span> <span class="fl">6</span> <span class="co"># the top of your criterion range</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="va">k_upper</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
-<p>If the k = 6 level looks like overextraction (very thin arrows,
+<p>If the deepest level looks like overextraction (very thin arrows,
 factors that split and immediately re-merge, between-level r ≈ 1), you
-can interpret down to k = 5 with confidence that you have not missed
-structure. If k = 6 reveals interpretable sub-facets, you have found
-something worth reporting.</p>
+can interpret one level down with confidence that you have not missed
+structure. If it reveals interpretable sub-facets instead, you have
+found something worth reporting.</p>
 <p>This “set k slightly high, then interpret down” approach is the
 standard bass-ackwards workflow. The method is specifically designed for
 this kind of structured exploration.</p>

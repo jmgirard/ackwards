@@ -85,8 +85,11 @@ prune(
   Scalar in `(0, 1]`, `NULL` (default, auto), or `NA` (explicit
   opt-out). When `NULL`:
 
-  - `x$engine == "pca"` – no phi filter (the W'RW algebra is exact; phi
-    adds nothing that `|r|` does not already capture).
+  - `x$engine == "pca"` – no phi filter. Component scores are
+    *determinate* (exact linear functions of the data, with no
+    factor-score indeterminacy), so the score correlation `|r|` is the
+    true correlation between the components themselves; phi adds nothing
+    that `|r|` does not already capture.
 
   - `x$engine` is `"efa"` or `"esem"` – automatically set to `0.95`
     (Lorenzo-Seva & ten Berge, 2006). Factor-score indeterminacy off-PCA

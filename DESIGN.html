@@ -286,7 +286,8 @@
 </tr><tr><td>
 <code>redundancy_phi</code> (<code><a href="reference/prune.html">prune()</a></code> argument, M34)</td>
 <td>
-<strong><code>NULL</code> (auto)</strong> — PCA → no φ filter (W′RW algebra is exact; <code>|r|</code> alone is sufficient); EFA/ESEM → <code>0.95</code> (Lorenzo-Seva &amp; ten Berge 2006; factor-score indeterminacy off-PCA makes <code>|r|</code>-only liberal; φ adds a congruence guard). Explicit number overrides on any engine. <code>NA</code> is the opt-out (no φ filter regardless of engine). Announces auto-resolve via cli (Invariant 6). <strong>Added M25</strong>; moved from an <code><a href="reference/ackwards.html">ackwards()</a></code> argument to a <code><a href="reference/prune.html">prune()</a></code> argument in M34.</td>
+<strong><code>NULL</code> (auto)</strong> — PCA → no φ filter (component scores are <strong>determinate</strong> — exact linear functions of the data — so <code>|r|</code> is the true correlation between the components themselves and suffices alone); EFA/ESEM → <code>0.95</code> (Lorenzo-Seva &amp; ten Berge 2006; factor-score indeterminacy makes <code>|r|</code>-only liberal; φ adds a congruence guard). Explicit number overrides on any engine. <code>NA</code> is the opt-out (no φ filter regardless of engine). Announces auto-resolve via cli (Invariant 6). <strong>Added M25</strong>; moved from an <code><a href="reference/ackwards.html">ackwards()</a></code> argument to a <code><a href="reference/prune.html">prune()</a></code> argument in M34. <em>(Rationale wording corrected M43: the earlier “W′RW algebra is exact” phrasing conflated algebra-exactness — equally true of tenBerge EFA — with score determinacy, the actual reason.)</em>
+</td>
 <td></td>
 </tr><tr><td>sign <code>align_signs</code>
 </td>

@@ -89,10 +89,11 @@ by the symmetry of the design above).</p>
 <p><strong>Ground-truth hierarchy</strong> (verified against <code>ackwards(engine = "efa")</code>):
 <code>k=1</code> recovers a single general factor across all 16 items; <code>k=2</code> splits
 along the metatrait line (<code>i1</code>-<code>i8</code> vs. <code>i9</code>-<code>i16</code>); <code>k=4</code> recovers the 4
-true group factors exactly; <code><a href="suggest_k.html">suggest_k()</a></code> reaches a 6-criteria consensus
-of <code>k = 4</code>.</p>
+true group factors exactly; all six <code><a href="suggest_k.html">suggest_k()</a></code> recommendations (five
+criteria – VSS reports at complexities 1 and 2) reach a consensus of
+<code>k = 4</code>.</p>
 <p><strong>Idealized by design.</strong> The planted signal is strong and clean, so all six
-<code><a href="suggest_k.html">suggest_k()</a></code> criteria converge on <code>k = 4</code> – deliberately the <em>easy</em> case,
+<code><a href="suggest_k.html">suggest_k()</a></code> recommendations converge on <code>k = 4</code> – deliberately the <em>easy</em> case,
 for building intuition about what recovering a known hierarchy looks like.
 Real data rarely agree this cleanly: on <code>bfi25</code> the same criteria span
 <code>k = 4</code>–<code>6</code>. The two datasets are complementary teaching foils – <code>sim16</code>
@@ -106,7 +107,8 @@ orphan factor with zero primary-loading items. With
 factor is flagged both <code>few_items</code> and <code>orphan</code>. Because the true (non-
 splitting) factors persist essentially unchanged from <code>k=3</code> onward, their
 parent-child score correlations approach 1 and are flagged by
-<code>prune(x, "redundant")</code> (<code>|r| &gt;= .9</code> and, by default, Tucker's phi <code>&gt;= .95</code>). This is a textbook overextraction artifact, included so the
+<code>prune(x, "redundant")</code> (<code>|r| &gt;= .9</code> and, under the EFA auto-default,
+Tucker's phi <code>&gt; .95</code>). This is a textbook overextraction artifact, included so the
 Forbes/redundancy examples have a guaranteed finding to teach against
 (unlike <code>bfi25</code>, which does not reliably trigger one).</p>
 <p>To regenerate this dataset, run <code>source("data-raw/sim16.R")</code> from the

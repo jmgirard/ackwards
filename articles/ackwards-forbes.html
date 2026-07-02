@@ -714,9 +714,13 @@ the hierarchy.</p>
 </h3>
 <p>A <strong>redundant chain</strong> is a sequence of factors connected
 by near-perfect correlations (|r| ≥ 0.9 by default) across levels. If
-m2f2 → m3f2 → m4f2 → m5f1 all share r &gt; 0.97, the intermediate nodes
-m3f2 and m4f2 are flagged as redundant: they repeat rather than refine
-the same dimension.</p>
+m2f2 → m3f2 → m4f2 → m5f1 all share r &gt; 0.97, the chain reaches the
+deepest level, so its bottom node m5f1 — the most specific, best-defined
+manifestation — is retained and the others (m2f2, m3f2, m4f2) are
+flagged as redundant: they repeat rather than refine the same dimension.
+A chain that stops <em>short</em> of the deepest level instead keeps its
+<strong>top</strong> node, the broadest manifestation (Forbes,
+2023).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_prune</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, pairs <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/prune.html">prune</a></span><span class="op">(</span><span class="st">"redundant"</span><span class="op">)</span></span>
@@ -1326,10 +1330,11 @@ values are not the focus):</p>
 <p>Level 4 is entirely pruned, leaving a visible gap in the y-axis. The
 gap is intentional: it shows <em>which</em> level was removed. Spanning
 arrows bridge directly from level 3 factors to level 5 factors (and from
-level 2 to level 5 where intermediate levels were flagged). Solid lines
-indicate strong connections (|r| ≥ 0.5 by default); dashed lines
-indicate weaker ones — the same <code>cut_strong</code> threshold used
-throughout.</p>
+level 2 to level 5 where intermediate levels were flagged). In this
+publication style every drawn line has the same uniform weight
+(<code>edge_linewidth = 0.6</code>); only connections with |r| at or
+above the display threshold (<code>cut_show</code>, default 0.3) are
+drawn at all.</p>
 <p>To close the gaps and compact the layout while retaining the original
 level numbers on the axis:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -1348,19 +1353,27 @@ arrowheads, and more — see
 <code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code>.</p>
 </div>
 <div class="section level3">
-<h3 id="factors-defined-by-structural-similarity-with-prunex-artifact">Factors defined by structural similarity with
-<code>prune(x, "artifact")</code><a class="anchor" aria-label="anchor" href="#factors-defined-by-structural-similarity-with-prunex-artifact"></a>
+<h3 id="inspecting-structural-similarity-with-prunex-artifact">Inspecting structural similarity with
+<code>prune(x, "artifact")</code><a class="anchor" aria-label="anchor" href="#inspecting-structural-similarity-with-prunex-artifact"></a>
 </h3>
-<p>An <strong>artifact</strong> factor is one whose loading pattern is
-more similar to a factor at a <em>non-adjacent</em> level than to its
-own-level neighbors. Similarity is measured by Tucker’s congruence
-coefficient (φ):</p>
+<p>An <strong>artifact</strong> factor is one that looks like a
+<em>copy</em> of a factor from another level rather than a genuine
+refinement — its loading pattern closely resembles a factor elsewhere in
+the hierarchy. Similarity is measured by Tucker’s congruence coefficient
+(φ):</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>F</mi><mi>a</mi></msub><mo>,</mo><msub><mi>F</mi><mi>b</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>λ</mi><mrow><mi>i</mi><mi>a</mi></mrow></msub><msub><mi>λ</mi><mrow><mi>i</mi><mi>b</mi></mrow></msub></mrow><msqrt><mrow><munder><mo>∑</mo><mi>i</mi></munder><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>a</mi></mrow><mn>2</mn></msubsup><mo>⋅</mo><munder><mo>∑</mo><mi>i</mi></munder><msubsup><mi>λ</mi><mrow><mi>i</mi><mi>b</mi></mrow><mn>2</mn></msubsup></mrow></msqrt></mfrac></mrow><annotation encoding="application/x-tex">\phi(F_a, F_b) = \frac{\sum_i \lambda_{ia}\lambda_{ib}}
 {\sqrt{\sum_i \lambda_{ia}^2 \cdot \sum_i \lambda_{ib}^2}}</annotation></semantics></math></p>
-<p>φ ranges from −1 to +1, with values &gt; 0.95 indicating
-near-identical loading patterns regardless of sign. A factor at k = 3
-that has φ &gt; 0.95 with a factor at k = 1 is suspected to be an
-artifact of the rotation rather than a genuine new dimension.</p>
+<p>φ ranges from −1 to +1, with values above 0.95 conventionally read as
+near-identical loading patterns regardless of sign (Lorenzo-Seva &amp;
+ten Berge, 2006).</p>
+<p>Unlike <code>"redundant"</code>, the artifact mode <strong>never
+flags anything automatically</strong>. Forbes (2023) is explicit that
+identifying an artifact requires researcher judgment — automating it
+would manufacture investigator degrees of freedom — so
+<code>prune(x, "artifact")</code> computes and stores the evidence for
+<em>you</em> to weigh: Tucker’s φ for <strong>every</strong> cross-level
+factor pair in <code>x$prune$phi</code>, plus the structural signals of
+the next section in <code>x$prune$structural</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_art</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, pairs <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/prune.html">prune</a></span><span class="op">(</span><span class="st">"artifact"</span><span class="op">)</span></span>
@@ -1369,6 +1382,10 @@ artifact of the rotation rather than a genuine new dimension.</p>
 <span><span class="co">#&gt;   split_merge).</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Inspect `x$prune$phi` and `x$prune$structural`; removal is a researcher</span></span>
 <span><span class="co">#&gt;   judgment (Forbes, 2023).</span></span></code></pre></div>
+<p>The table to read is <code>x$prune$phi</code>. The natural first cut
+is the <strong>non-adjacent</strong> pairs with the highest |φ| — a deep
+factor whose loading pattern nearly duplicates a factor two or more
+levels up is the classic candidate:</p>
 <div id="ulbfdpbcyv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#ulbfdpbcyv table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -1821,131 +1838,98 @@ artifact of the rotation rather than a genuine new dimension.</p>
 <table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_heading">
-<td colspan="4" class="gt_heading gt_title gt_font_normal" style>Node-level artifact annotation</td>
+<td colspan="5" class="gt_heading gt_title gt_font_normal" style>Strongest non-adjacent loading congruences</td>
     </tr>
 <tr class="gt_heading">
-<td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>0 of 15 factors flagged as artifacts</td>
+<td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Top 8 pairs by |φ|, from x$prune$phi — evidence, not flags</td>
     </tr>
 <tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="id">Factor</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="level">Level</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="pruned">Flagged?</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="prune_reason">Reason</th>
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="from">From</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="to">To</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="level_from">Level (from)</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="level_to">Level (to)</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="phi">φ</th>
     </tr>
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<td headers="id" class="gt_row gt_left">m1f1</td>
-<td headers="level" class="gt_row gt_right">1</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
+<td headers="from" class="gt_row gt_left">m3f2</td>
+<td headers="to" class="gt_row gt_left">m5f2</td>
+<td headers="level_from" class="gt_row gt_right">3</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="phi" class="gt_row gt_right">0.99</td>
 </tr>
 <tr>
-<td headers="id" class="gt_row gt_left">m2f1</td>
-<td headers="level" class="gt_row gt_right">2</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
+<td headers="from" class="gt_row gt_left">m2f2</td>
+<td headers="to" class="gt_row gt_left">m4f2</td>
+<td headers="level_from" class="gt_row gt_right">2</td>
+<td headers="level_to" class="gt_row gt_right">4</td>
+<td headers="phi" class="gt_row gt_right">0.98</td>
 </tr>
 <tr>
-<td headers="id" class="gt_row gt_left">m2f2</td>
-<td headers="level" class="gt_row gt_right">2</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
+<td headers="from" class="gt_row gt_left">m2f2</td>
+<td headers="to" class="gt_row gt_left">m5f2</td>
+<td headers="level_from" class="gt_row gt_right">2</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="phi" class="gt_row gt_right">0.98</td>
 </tr>
 <tr>
-<td headers="id" class="gt_row gt_left">m3f1</td>
-<td headers="level" class="gt_row gt_right">3</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
+<td headers="from" class="gt_row gt_left">m2f1</td>
+<td headers="to" class="gt_row gt_left">m4f1</td>
+<td headers="level_from" class="gt_row gt_right">2</td>
+<td headers="level_to" class="gt_row gt_right">4</td>
+<td headers="phi" class="gt_row gt_right">0.93</td>
 </tr>
 <tr>
-<td headers="id" class="gt_row gt_left">m3f2</td>
-<td headers="level" class="gt_row gt_right">3</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
+<td headers="from" class="gt_row gt_left">m3f1</td>
+<td headers="to" class="gt_row gt_left">m5f1</td>
+<td headers="level_from" class="gt_row gt_right">3</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="phi" class="gt_row gt_right">0.92</td>
 </tr>
 <tr>
-<td headers="id" class="gt_row gt_left">m3f3</td>
-<td headers="level" class="gt_row gt_right">3</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
+<td headers="from" class="gt_row gt_left">m1f1</td>
+<td headers="to" class="gt_row gt_left">m3f1</td>
+<td headers="level_from" class="gt_row gt_right">1</td>
+<td headers="level_to" class="gt_row gt_right">3</td>
+<td headers="phi" class="gt_row gt_right">0.88</td>
 </tr>
 <tr>
-<td headers="id" class="gt_row gt_left">m4f1</td>
-<td headers="level" class="gt_row gt_right">4</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
+<td headers="from" class="gt_row gt_left">m1f1</td>
+<td headers="to" class="gt_row gt_left">m4f1</td>
+<td headers="level_from" class="gt_row gt_right">1</td>
+<td headers="level_to" class="gt_row gt_right">4</td>
+<td headers="phi" class="gt_row gt_right">0.86</td>
 </tr>
 <tr>
-<td headers="id" class="gt_row gt_left">m4f2</td>
-<td headers="level" class="gt_row gt_right">4</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
-</tr>
-<tr>
-<td headers="id" class="gt_row gt_left">m4f3</td>
-<td headers="level" class="gt_row gt_right">4</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
-</tr>
-<tr>
-<td headers="id" class="gt_row gt_left">m4f4</td>
-<td headers="level" class="gt_row gt_right">4</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
-</tr>
-<tr>
-<td headers="id" class="gt_row gt_left">m5f1</td>
-<td headers="level" class="gt_row gt_right">5</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
-</tr>
-<tr>
-<td headers="id" class="gt_row gt_left">m5f2</td>
-<td headers="level" class="gt_row gt_right">5</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
-</tr>
-<tr>
-<td headers="id" class="gt_row gt_left">m5f3</td>
-<td headers="level" class="gt_row gt_right">5</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
-</tr>
-<tr>
-<td headers="id" class="gt_row gt_left">m5f4</td>
-<td headers="level" class="gt_row gt_right">5</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
-</tr>
-<tr>
-<td headers="id" class="gt_row gt_left">m5f5</td>
-<td headers="level" class="gt_row gt_right">5</td>
-<td headers="pruned" class="gt_row gt_center">FALSE</td>
-<td headers="prune_reason" class="gt_row gt_left">—</td>
+<td headers="from" class="gt_row gt_left">m2f1</td>
+<td headers="to" class="gt_row gt_left">m5f1</td>
+<td headers="level_from" class="gt_row gt_right">2</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="phi" class="gt_row gt_right">0.85</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>For the BFI, the artifact criterion flags 0 factors — no factor at
-any level has a loading pattern more similar to a factor from a
-non-adjacent level than to its own-level solution. This is a good result
-for a well-validated instrument: it suggests the rotation is producing
-genuinely distinct factors at each level, not recycling old ones.</p>
-<p>On data with weaker or noisier factor structure, or with rotations
-that struggle to separate highly correlated factors, the artifact
-criterion will often flag some nodes. A node can be flagged by one
-criterion but not the other; the two criteria capture different flavors
-of redundancy:</p>
+<p>For these data the strongest non-adjacent congruence is |φ| = 0.99.
+Values near 1 mean the deeper factor recycles an earlier loading
+pattern; whether that makes it a rotation artifact — or a faithfully
+<em>persisting</em> construct, which is the redundancy view of the same
+fact — is a judgment made with the substantive content of the items in
+view, not a threshold the package applies for you.</p>
+<p>The two modes surface different fingerprints of the same underlying
+question:</p>
 <ul>
 <li>
 <code>"redundant"</code>: this factor appears at multiple levels
 with near-identical <em>score correlations</em> — it persists unchanged
-as k increases.</li>
+as k increases. Auto-flagged (with Forbes’s retention rule), because the
+score-correlation chain is a sharp, replicable criterion.</li>
 <li>
 <code>"artifact"</code>: this factor’s <em>loading pattern</em>
-closely resembles a factor from a different, non-adjacent level — it
-looks like a copy rather than a refinement.</li>
+closely resembles a factor elsewhere in the hierarchy, or its structure
+looks under-identified (next section). Reported only — the call is
+yours.</li>
 </ul>
 </div>
 <div class="section level3">
@@ -2574,16 +2558,19 @@ its default (<code>NULL</code>) <em>auto-resolves based on the
 engine</em>:</p>
 <ul>
 <li>
-<strong>PCA</strong> — no φ filter. The <code>W'RW</code> score
-algebra is exact for components, so the score correlation
-<code>|r|</code> alone is a sufficient redundancy signal.</li>
+<strong>PCA</strong> — no φ filter. Component scores are
+<strong>determinate</strong>: unlike factor scores they are exact linear
+functions of the observed data, so the score correlation
+<code>|r|</code> <em>is</em> the correlation between the components
+themselves and suffices as the redundancy signal.</li>
 <li>
 <strong>EFA / ESEM</strong> — φ is required to exceed
 <code>0.95</code> (Lorenzo-Seva &amp; ten Berge, 2006). Factor scores
-off the PCA basis are indeterminate, which makes a <code>|r|</code>-only
-rule too liberal; the loading-congruence guard makes the criterion
-conservative. <code><a href="../reference/prune.html">prune()</a></code> announces this auto-resolution in the
-console.</li>
+are <strong>indeterminate</strong> — any factor admits infinitely many
+score series consistent with the model — which makes an
+<code>|r|</code>-only rule too liberal; the loading-congruence guard
+makes the criterion conservative. <code><a href="../reference/prune.html">prune()</a></code> announces this
+auto-resolution in the console.</li>
 </ul>
 <p>The examples here use the default PCA engine, so no φ filter is
 applied. To disable the φ guard on an EFA/ESEM run, pass
