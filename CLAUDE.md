@@ -77,30 +77,51 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-**M47 is complete** (2026-07-02) — bootstrap edge CIs. Exported `boot_edges(x, data,
-n_boot = 1000, conf = 0.95, seed)`: nonparametric bootstrap SEs + percentile CIs on every
-between-level edge, resurrecting the DESIGN §14 e4 deferral (the M41 review's highest-value
-deferred statistical addition). A standalone pipeable verb re-supplying `data` (Invariant 3);
-per replicate it resamples rows, recomputes `R` with the fit's `cor`/`missing` routine, refits,
-**anchors** each level to the full-sample solution (the M46 matching + sign-orientation
-machinery), and computes edges via `compute_edges()` (Invariant 1). Resample indices drawn
-upfront from `seed`, so serial and `future.apply`-parallel dispatch agree bit-for-bit
-(test-asserted); failed replicates drop to `NA` and are counted per edge (`n_boot_ok`,
-Invariant 7). `tidy(what = "edges")` gains `se`/`lo`/`hi`/`n_boot_ok`; `print`/`summary` note
-coverage; `meta$fm` now stored for EFA replicate refits. Scope: PCA/EFA + pearson/spearman only
-(ESEM/polychoric deferred to `ROADMAP.md`, mirroring `comparability()`); cor-matrix/esem/
-polychoric objects error with pointers. Two design amendments in DESIGN §14.36: the "reuse
-`loadings_se`" phrasing corrected (bootstrap *is* the SE method; only the storage/tidy pattern is
-reused), and the statistical oracle stated honestly — the full-pipeline bootstrap SE exceeds the
-Fisher-z analytic SE (replicates re-extract factors), so exact Fisher-z equivalence is asserted
-only for a *fixed-weights* bootstrap. Forbes vignette gains a strongest-edge honesty subsection
-(per-edge CIs make precision visible but do not correct scan-for-the-largest multiplicity).
-Detail in `MILESTONES.md` (M47).
+**M48 (in progress)** — performance & workflow efficiency pass (branch `m48-perf-workflow`;
+approved 2026-07-02). A meta/process milestone in two phases; no new export, no `_pkgdown.yml`
+change, no NEWS.md entry (no user-visible package change — owner-approved deviation from the
+DoD's "public-facing change" line).
 
-**Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas (AMH fidelity extension
-pending the owner's Forbes outreach; e2 dual EFA chi-squares; `comparability()`/`boot_edges()`
-ESEM/polychoric extensions). `MILESTONES.md` remains the source of truth for *completed*
-milestones.
+**Phase A — profile `R CMD check` + test suite, then optimize (rigor-preserving).**
+Measure first (DESIGN §3): per-test/per-file timings via a captured `devtools::test()` result;
+per-phase check timings (tests / examples via `ackwards-Ex.timings` / per-vignette renders).
+Then apply only data-justified levers: (1) shared lazily-memoized fixtures in
+`tests/testthat/helper-data.R` for identical repeated `ackwards()` fits; (2) testthat parallel
+execution (`Config/testthat/parallel` + `start-first` in `DESCRIPTION`) — approved, keep-if-green;
+(3) `\donttest{}` on examples measured > ~5s whose paths are test-covered; (4) Monte-Carlo test
+sizes (`n_boot`/`n_splits`/PA iterations) **not touched** without per-instance owner sign-off;
+(5) vignette/CI findings **report-only** (no CI edits this milestone).
+
+**Phase B — audit `.claude` skills + session history for workflow friction.** Scripted mining of
+the ~45 session transcripts (command frequencies, permission prompts/denials, error-retry loops,
+full-suite reruns) + cross-read of the three SKILL.md files, CLAUDE.md process sections, and
+`settings.local.json`. Known candidates: proper read-only permission allowlist (current one is
+ten ad-hoc entries); reconcile the CLAUDE.md ↔ implement-milestone duplicated
+verification-cadence text; a single DoD-gate helper script (e.g. `tools/dod-gate.R`,
+Rbuildignored); delete the stray `.claude/skills/post-milestone-review/.Rhistory`. Findings
+triaged **applied / owner-decide / rejected**; low-risk edits applied on the branch.
+
+**Acceptance criteria:**
+1. Baseline captured before any change: top-10 slowest tests, per-file suite timings, per-phase
+   check timings, per-example timings.
+2. Every applied optimization cites its measured baseline; after-vs-before wall-clock for
+   `devtools::test()` and full `devtools::check()` reported in the M48 entry (no invented target).
+3. Rigor preserved: assertion count ≥ baseline; coverage still 100%; `check()` 0/0/0; the
+   algebra-vs-scores, serial≡parallel, and Forbes-fidelity oracles byte-untouched.
+4. If parallel testthat ships: suite green under both parallel and serial execution.
+5. Workflow audit delivered as a triaged list with transcript-derived evidence (frequencies,
+   prompt counts); applied edits committed on the branch.
+6. Allowlist additions specific and read-only-safe (no broad patterns).
+7. Any CLAUDE.md process-text change reconciled with the skill that echoes it (no divergent
+   copies).
+8. `MILESTONES.md` M48 entry in numeric order + one-line index entry here + this section updated
+   on completion; DESIGN.md untouched; condensed profiling findings live in the M48 entry (no new
+   repo report file).
+
+Prior milestone (M47, bootstrap edge CIs) is complete — detail in `MILESTONES.md` (M47).
+`ROADMAP.md` carries only unscheduled ideas (AMH fidelity extension pending the owner's Forbes
+outreach; e2 dual EFA chi-squares; `comparability()`/`boot_edges()` ESEM/polychoric extensions).
+`MILESTONES.md` remains the source of truth for *completed* milestones.
 
 ## Invariants — do not violate without flagging
 
