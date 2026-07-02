@@ -236,12 +236,10 @@ test_that("ESEM FIML result has valid edges (no NAs in r)", {
   set.seed(42)
   d <- .make_esem_data()
   d[1:5, 1] <- NA_real_
-  x <- suppressWarnings(
-    ackwards(d,
-      k_max = 2L, engine = "esem", missing = "fiml",
-      estimator = "ML"
-    )
-  )
+  x <- cached(ackwards(d,
+    k_max = 2L, engine = "esem", missing = "fiml",
+    estimator = "ML"
+  ))
   expect_false(any(is.na(x$edges$tidy$r)))
 })
 
@@ -250,12 +248,10 @@ test_that("ESEM FIML n_obs equals total rows (all rows used)", {
   set.seed(42)
   d <- .make_esem_data()
   d[1:5, 1] <- NA_real_
-  x <- suppressWarnings(
-    ackwards(d,
-      k_max = 2L, engine = "esem", missing = "fiml",
-      estimator = "ML"
-    )
-  )
+  x <- cached(ackwards(d,
+    k_max = 2L, engine = "esem", missing = "fiml",
+    estimator = "ML"
+  ))
   expect_equal(x$n_obs, nrow(d))
 })
 
@@ -266,9 +262,7 @@ test_that("ESEM listwise: n_obs equals complete-case count", {
   set.seed(42)
   d <- .make_esem_data()
   d[1:10, 1] <- NA_real_ # 10 incomplete rows
-  x <- suppressWarnings(
-    ackwards(d, k_max = 2L, engine = "esem", missing = "listwise")
-  )
+  x <- cached(ackwards(d, k_max = 2L, engine = "esem", missing = "listwise"))
   expect_equal(x$n_obs, 190L)
   expect_equal(x$meta$n_complete, 190L)
 })
@@ -278,9 +272,7 @@ test_that("ESEM listwise: correlation matrix has no NAs", {
   set.seed(42)
   d <- .make_esem_data()
   d[1:10, 1] <- NA_real_
-  x <- suppressWarnings(
-    ackwards(d, k_max = 2L, engine = "esem", missing = "listwise")
-  )
+  x <- cached(ackwards(d, k_max = 2L, engine = "esem", missing = "listwise"))
   expect_false(any(is.na(x$r)))
 })
 
