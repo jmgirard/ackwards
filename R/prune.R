@@ -428,7 +428,8 @@
     n_struct <- sum(structural_df$few_items | structural_df$orphan |
       structural_df$split_merge, na.rm = TRUE)
     cli::cli_inform(c(
-      "i" = "Artifact mode: Tucker's {cli::symbol$phi} computed for all \\
+      # cli::symbol has no $phi entry (renders empty); use the escaped glyph.
+      "i" = "Artifact mode: Tucker's \u03c6 computed for all \\
              cross-level factor pairs.",
       "i" = "Structural signals computed: {n_struct} factor{?s} flagged \\
              (few_items / orphan / split_merge).",

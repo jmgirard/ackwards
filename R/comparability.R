@@ -414,7 +414,7 @@ print.comparability <- function(x, ...) {
   cli::cli_rule()
   cli::cli_text(
     cli::col_grey(
-      "Per-factor detail (incl. Tucker's {cli::symbol$phi}) in \\
+      "Per-factor detail (incl. Tucker's \u03c6) in \\
        {.code $summary}; per-split values in {.code $coefficients}."
     )
   )
