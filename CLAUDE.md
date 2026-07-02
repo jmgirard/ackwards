@@ -67,19 +67,45 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-**M42 is complete** (2026-07-01) — the code-fix milestone off the M41 review. All nine planned
-items shipped (C1 chi/p pairing, M1 drop_pruned recompute, m1/m2 suggest_k output, m6/m7 hygiene,
-m8 validation, m10 caption, e3 actionable ordinal warning), each with a regression test; the M41
-reproductions are now encoded in the suite. Gate: `check()` 0/0/0, 1591 pass / 0 fail / 0 skip,
-coverage 100%, style/lint clean, `check_pkgdown()` clean. Detail in `MILESTONES.md` (M42 entry);
-`ROADMAP.md` pruned of the shipped items per its maintenance rule.
+**M43 — review fixes (docs).** Second fix milestone off the M41 review (owner-approved
+2026-07-01): implements the `ROADMAP.md` M43 brief — all remaining doc findings. **Doc-only**: no
+behavior change; `R/` is touched only for roxygen/comments (`prune()` roxygen, `R/data.R`,
+`data-raw/sim16.R`); no export/signature/dependency change, `_pkgdown.yml` untouched. m11 shape
+owner-approved: stochastic PA prose becomes **inline-computed** from the `sk` object.
 
-**Next up:** two proposed follow-ups from the M41 review remain in `ROADMAP.md`, each awaiting
-its own `/plan-milestone` run — **M43** (doc fixes: engines-vignette FIML rewrite, CD mechanism,
-Forbes artifact/`cut_strong` prose, doc minors, §9 `redundancy_phi` wording; note the engines
-vignette's EFA fit tables pick up the M42 chi values on rebuild) and **M44** (scoping: Forbes
-exact-reproduction fixture or contract-wording amendment). Unscheduled: e2 (dual EFA
-chi-squares), e4 (bootstrap edge CIs, DESIGN §14).
+1. **Engines vignette (M2 + m4 + m5).** "Missing data" + FIML sections rewritten around the
+   first-class `missing = "fiml"` PCA/EFA route (runnable chunk switches to it; corFiml seam kept
+   as an under-the-hood note; "future release may promote" deleted; `n_obs = "total"/"complete"`
+   caveats retained); "Which option to use?" MAR row updated; `fm = "pca"` recommendation
+   corrected to plain `engine = "pca"`; "> 2,000 participants" fixed to the fitted sample.
+2. **suggest-k vignette (M3 + m11).** CD mechanism corrected (comparison data reproduce the
+   observed correlation structure under a k-factor model + marginals; drop the false
+   "without preserving inter-item correlations" claim); worked-BFI PA-PC/PA-FA/CD comparisons and
+   the defensible-`k_max` derivation computed inline from `sk` (hidden scalar chunk), with the
+   this-run ordering observation conditional and the PA-PC-as-upper-bound teaching point
+   unconditional.
+3. **Forbes vignette (M4 + M5 + m3 + e1 surface).** Artifact section rewritten to
+   report-and-judge semantics (φ for all cross-level pairs, never auto-flagged; zero-count table
+   replaced by a top-|φ| pairs table from `x$prune$phi` with reading guidance; "flags 0 — good
+   result" framing deleted); `cut_strong` solid/dashed sentence replaced with the actual uniform
+   line rendering; chain example corrected (chain reaching `k_max` retains only the bottom node);
+   `redundancy_phi` PCA explanation switched to determinacy.
+4. **e1 core surfaces.** DESIGN.md §9 + §14 and CLAUDE.md "Resolved defaults" + `prune()` roxygen:
+   PCA needs no φ guard because **component scores are determinate** (not "the algebra is exact",
+   which is equally true of tenBerge EFA); `document()` → `man/prune.Rd`.
+5. **m9.** `data-raw/sim16.R` comments to the M34 API (`prune(x, "artifact")`, strict `phi > .95`);
+   `?sim16` "6-criteria consensus" reworded (five criteria, six recommendations); `man/sim16.Rd`.
+6. Bookkeeping: NEWS "Documentation" section; `MILESTONES.md` M43 entry; CLAUDE.md;
+   `ROADMAP.md` pruned to M44 + unscheduled per its maintenance rule.
+
+**Acceptance criteria:** engines vignette nowhere claims FIML errors for PCA/EFA and its FIML
+chunk runs the built-in route · CD description mechanism-accurate; no hardcoded stochastic
+PA/CD numbers in prose · Forbes vignette free of `cut_strong`; artifact section demonstrates
+reading `x$prune$phi`, never presents the by-construction zero as empirical; retention rule
+stated correctly · all four e1 surfaces say determinacy; `man/prune.Rd` committed · doc-only
+(NAMESPACE unchanged, M29 no-milestone-refs test passes — new prose avoids M-number strings) ·
+gate: full `check()` 0/0/0 with vignette rebuild → coverage 100% → styler/lintr →
+`check_pkgdown()`. Note: rebuilt engines fit tables show the new chi values (expected).
 
 ## Invariants — do not violate without flagging
 
