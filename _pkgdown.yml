@@ -24,15 +24,21 @@ articles:
 - title: Getting started
   navbar: ~
   contents: ackwards-intro
-- title: Deep dives
-  navbar: Deep dives
+- title: The workflow
+  navbar: The workflow
   contents:
   - ackwards-girard
   - ackwards-suggest-k
-  - ackwards-interpret
+  - ackwards-forbes
+- title: Model choices
+  navbar: Model choices
+  contents:
   - ackwards-engines
   - ackwards-ordinal
-  - ackwards-forbes
+- title: Interpretation & presentation
+  navbar: Interpretation & presentation
+  contents:
+  - ackwards-interpret
   - ackwards-visualization
 reference:
 - title: Fit the model
