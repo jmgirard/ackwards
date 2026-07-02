@@ -23,7 +23,7 @@
   `n_boot_ok` columns, and `print(x)` / `summary(x)` note the interval
   coverage. The intervals are per-edge error bars: they make sampling
   uncertainty visible but do **not** correct the selection bias of scanning
-  many edges for the strongest one (documented in the object and the Forbes
+  many edges for the strongest one (documented in the object and the girard
   vignette).
 
 ## Split-half factor comparability (replicability gate)

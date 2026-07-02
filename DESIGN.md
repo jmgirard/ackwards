@@ -662,7 +662,7 @@ owner-signed-off):**
     exact Fisher-z match holds only for a *fixed-weights* percentile bootstrap (both halves are
     test-asserted). The intervals are **per-edge error bars, not a familywise correction** — they
     make each edge's precision visible but do not undo the selection bias of scanning many edges for
-    the strongest (stated in the object docs + Forbes vignette).
+    the strongest (stated in the object docs + girard vignette).
 
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.
@@ -681,7 +681,7 @@ owner-signed-off):**
   - ~~*Selection bias in the "strongest" edge.*~~ **Done M47 (item 36).** `boot_edges()` adds
     nonparametric bootstrap SEs + percentile CIs on every edge (PCA/EFA + pearson/spearman; upfront
     seeded indices → serial ≡ parallel; full-sample anchoring per replicate; `future.apply`
-    dispatch; `tidy`/`print`/`summary` integration; Forbes-vignette honesty section). The intervals
+    dispatch; `tidy`/`print`/`summary` integration; girard-vignette honesty section). The intervals
     quantify *per-edge* precision but by design do **not** correct the multiplicity of scanning many
     edges for the strongest — that caveat is documented, not silently "fixed".
 - **M40 spin-off (code/viz deferred out of the doc-only M39; shipped M40 except the declined flag):**
