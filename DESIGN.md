@@ -687,6 +687,30 @@ owner-signed-off):**
     continuous `sim16` (no ordinal warning, faster checks), content demos keep `bfi25` on the
     polychoric basis. These are display/documentation choices, not behavioural defaults.
 
+**Resolved for M49 Phase A (roadmap cleanup; owner-approved 2026-07-02):**
+40. **Dual EFA chi-squares (review enhancement e2) — declined.** A proposed `chi_empirical` column
+    (psych's residual-based `$chi`) reported alongside the likelihood-ratio `chi` the EFA fit row
+    now carries (the M42/C1 fix). **Rejected as net-negative:** it re-opens the exact mispairing C1
+    fixed (a second chi-square inviting users to pair it with the wrong p-value); it is an
+    NA-heavy, EFA-only column in a fit schema shared with ESEM (which has no empirical chi-square),
+    adding asymmetry + doc burden; and it has **zero downstream consumer** in the package (anyone
+    who wants it can read it off a `keep_fits = TRUE` object). Same shape as the M40 `categorical`
+    decline: a confusion surface for no capability. Removed from `ROADMAP.md`.
+41. **Item-label ecosystem — one shipped, two declined, one deferred.** M50 shipped bfi25's
+    public-domain IPIP variable labels (item 37). Three adjacent asks were resolved here to avoid
+    double-logging: (a) a **`label_items()` setter** is **declined** — it would duplicate
+    `labelled::var_label()` (the established idiom `.capture_item_labels()` already reads) and, worse,
+    deepen the `label` overload between *item* labels and `label_template()`'s *factor* labels; the
+    `attr(col, "label") <- ...` / `labelled::var_label()` route is documented instead. (b) A **third
+    teaching dataset** is **declined** — `sim16` (idealized continuous) and `bfi25` (realistic
+    ordinal) are a deliberate two-foil pair; a third dilutes that contrast without adding a distinct
+    teaching case. (c) A persistent **factor-label pipeline** (a `set_factor_labels()`-style setter
+    honored by `autoplot`/`print`/`summary`/`tidy`, with `label_template()` as scaffold) is
+    **deferred to 0.2.0** (not declined): it is purely additive, so 0.1.0 loses nothing, and it
+    deserves its own naming/storage/precedence design. The **item-vs-factor "label" vocabulary
+    split** is load-bearing for all of the above — the two concepts must stay lexically distinct in
+    docs and any future API. (Banked in `ROADMAP.md`.)
+
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.
 - Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (see above), nor the
