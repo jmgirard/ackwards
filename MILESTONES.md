@@ -1383,7 +1383,13 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   `test-vignette-m24.R`'s local `.vfit` memo (`test-suggest_k.R`'s `.get_sk` kept — `suggest_k()`
   consumes RNG). **Deliberately not cached:** the reproducibility and serial≡parallel oracles in
   `test-boot_edges.R` (a cached second call asserts nothing) and all fits inside condition
-  expectations; `test-suggest_k.R`'s Monte-Carlo sizes untouched (owner-guarded). Serial suite
+  expectations; `test-suggest_k.R`'s Monte-Carlo sizes untouched (owner-guarded). *Plan deviation
+  (post-review disclosure):* the fit call sites inside `test-forbes-fidelity.R` (2) and the
+  algebra-vs-scores cross-check in `test-scores.R` (1) were converted to `cached()` although the
+  plan had named those oracles byte-untouched — assertion-equivalent in both (the fidelity
+  assertions still compare freshly computed edges/φ/retention against Forbes's expected values;
+  the cross-check compares two routes off the *same* fit object), but recorded here for the
+  letter of the plan. Serial suite
   93.6s → **81.2s**. **(2) Parallel testthat** (`Config/testthat/parallel: true`,
   `Config/testthat/start-first:` slowest six files): suite **26.9s** with `TESTTHAT_CPUS=8`
   (testthat defaults to 2 workers), green under both parallel and forced-serial
@@ -1412,3 +1418,16 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   rebuilt, 241s); suite **1859 pass / 0 fail / 0 skip** (assertion count identical to the M47
   baseline — rigor preserved by construction); coverage **100%**; `styler`/`lintr` clean;
   `pkgdown::check_pkgdown()` clean.
+  **Post-review follow-up** (same day; review verdict READY with 2 should-fixes + 3
+  nice-to-haves): `cached()` key hardened — symbols collected via `all.names()` (not `all.vars()`)
+  so same-named local functions with different bodies can't collide, functions keyed by
+  formals + body (hashing a closure's *value* serializes its environment, which mutates —
+  caught by the new unit test's first failure); new `test-cached-helper.R` (5 tests, 13
+  assertions: memo hit/miss counting, same-text/different-data keys, same-name/different-body
+  functions, mutation isolation, identical condition-muffling on miss and hit); read-only
+  caution (environment-bearing components shared by reference across hits) added to the
+  helper comment + CLAUDE.md + implement-milestone skill in lockstep; `TESTTHAT_CPUS: 4` added
+  to the R-CMD-check and test-coverage workflow envs (runners have 4 vCPUs; testthat otherwise
+  runs 2 workers — the one CI edit deferred out of the milestone proper); the plan-deviation
+  disclosure above. The expanded permission allowlist remains an owner action (classifier
+  correctly blocks agent self-application).

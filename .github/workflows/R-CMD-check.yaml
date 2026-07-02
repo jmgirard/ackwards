@@ -27,6 +27,9 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
+      # Parallel testthat (M48): hosted runners have 4 vCPUs; testthat
+      # otherwise defaults to 2 workers.
+      TESTTHAT_CPUS: 4
 
     steps:
       - uses: actions/checkout@v4

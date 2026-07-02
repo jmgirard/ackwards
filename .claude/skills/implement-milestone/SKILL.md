@@ -50,7 +50,10 @@ Follow `CLAUDE.md`'s dev workflow and definition of done throughout:
     `cd <repo> && …` compounds (permission-prompt noise) — use absolute paths.
   - *In tests, reuse the `cached()` fit memo* (`tests/testthat/helper-data.R`) instead of refitting
     identical `ackwards()` objects — but never for reproducibility / serial-vs-parallel oracles
-    (a cached second call asserts nothing) or fits wrapped in condition expectations.
+    (a cached second call asserts nothing) or fits wrapped in condition expectations; and treat
+    cached objects as read-only — rebinding a returned value is copy-on-modify safe, but
+    environment-bearing components (e.g. lavaan fits under `keep_fits = TRUE`) are shared by
+    reference across cache hits.
 - **The definition-of-done gate (run once, before the PR):** `Rscript tools/dod-gate.R` — it runs
   `devtools::check()` (0/0/0) → `covr::package_coverage()` (target 100%) → `styler::style_pkg()` →
   `lintr::lint_package()` → `pkgdown::check_pkgdown()` serially in one process with sensible

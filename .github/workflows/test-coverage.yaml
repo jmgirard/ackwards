@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # Parallel testthat (M48): hosted runners have 4 vCPUs; testthat
+      # otherwise defaults to 2 workers.
+      TESTTHAT_CPUS: 4
 
     steps:
       - uses: actions/checkout@v4

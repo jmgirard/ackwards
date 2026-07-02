@@ -7,18 +7,30 @@
 # cached() where the surrounding test does not expect_warning()/expect_message()
 # on the fit itself. Do not use for calls that consume RNG the test relies on
 # afterwards (e.g. unseeded suggest_k()); ackwards() fits are deterministic.
+# Treat returned objects as read-only: rebinding/modifying the returned value
+# is copy-on-modify safe, but environment-bearing components (e.g. lavaan fits
+# under keep_fits = TRUE) are shared by reference across cache hits.
 .fit_cache <- new.env(parent = emptyenv())
 
 cached <- function(call) {
   expr <- substitute(call)
   env <- parent.frame()
-  # Key on the deparsed call text plus the *values* of any variables it
-  # references (so `ackwards(d, ...)` on different `d` never collides), without
-  # evaluating any nested call twice or outside the suppress wrappers below.
-  vars <- all.vars(expr)
-  vars <- vars[vapply(vars, exists, logical(1), envir = env)]
-  vals <- lapply(vars, get, envir = env)
-  key <- rlang::hash(list(deparse(expr), vars, vals))
+  # Key on the deparsed call text plus the *values* of every symbol it
+  # references -- variables AND functions (all.names, not all.vars) -- so
+  # `ackwards(d, ...)` on different `d` never collides, and neither do two
+  # same-named local helpers called with identical text and data. Functions
+  # are keyed by formals + body (hashing a closure's value would serialize
+  # its environment, which is unstable whenever anything in the enclosing
+  # test frame mutates). Nothing in the expression is evaluated for the key
+  # (a nested call evaluated here would run twice and outside the suppress
+  # wrappers below).
+  syms <- unique(all.names(expr))
+  syms <- syms[vapply(syms, exists, logical(1), envir = env)]
+  vals <- lapply(syms, function(s) {
+    v <- get(s, envir = env)
+    if (is.function(v)) list(formals(v), body(v)) else v
+  })
+  key <- rlang::hash(list(deparse(expr), syms, vals))
   if (is.null(.fit_cache[[key]])) {
     .fit_cache[[key]] <- suppressMessages(suppressWarnings(eval(expr, env)))
   }
