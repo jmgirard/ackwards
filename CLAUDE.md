@@ -15,7 +15,12 @@ rationale, contracts, object spec, and resolved defaults are in `DESIGN.md`.
 **Note:** Forbes (2023) footnote 3 cites this package (`github.com/jmgirard/ackwards`) as the
 reference implementation of the extended bass-ackwards approach. Fidelity to the paper's algorithm
 is the baseline contract for anything Forbes-related; additive enrichments are acceptable but the
-default output must reproduce Forbes's examples exactly.
+default output must reproduce Forbes's examples exactly. **This contract is test-backed** (M44):
+`tests/testthat/test-forbes-fidelity.R` reproduces the paper's three simulation studies against
+expected values computed with Forbes's own reference implementation (OSF `pcwm8`; provenance in
+the fixture), and the M44 feasibility study additionally verified the 155-variable AMH applied
+example to 3.9e-14 (not committed as a test — the AMH matrix carries no OSF license; see
+`ROADMAP.md` unscheduled items).
 
 ## Completed milestones
 

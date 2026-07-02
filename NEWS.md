@@ -1,5 +1,14 @@
 # ackwards (development)
 
+## Validation
+
+- The package's fidelity to Forbes's (2023) extended bass-ackward method is
+  now test-backed: a fixture test reproduces the paper's three simulation
+  studies against expected values computed with Forbes's own reference
+  implementation (public OSF materials), covering the between-level
+  correlations, loading congruences, redundancy chase paths, and `prune()`'s
+  retention decisions.
+
 ## Statistical correctness
 
 - **EFA fit rows now report a consistent chi-square/p-value pair.** The `chi`
