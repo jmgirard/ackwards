@@ -42,6 +42,7 @@ reference:
   contents:
   - ackwards
   - prune
+  - boot_edges
   - suggest_k
   - print.suggest_k
   - autoplot.suggest_k

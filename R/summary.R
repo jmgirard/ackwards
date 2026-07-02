@@ -31,7 +31,8 @@ summary.ackwards <- function(object, ...) {
       variance   = .tidy_variance(object),
       fit        = .tidy_fit(object),
       lineage    = .summary_lineage(object),
-      prune      = .summary_prune(object)
+      prune      = .summary_prune(object),
+      boot       = object$boot
     ),
     class = "summary_ackwards"
   )
@@ -153,6 +154,22 @@ print.summary_ackwards <- function(x, ...) {
     for (i in seq_len(nrow(lin))) {
       cli::cli_text("  {lin$parent[i]} {cli::symbol$arrow_right} {lin$children[i]}")
     }
+  }
+
+  # --- Bootstrap edge CIs (M47) -----------------------------------------------
+  if (!is.null(x$boot)) {
+    cli::cli_h2("Bootstrap edge CIs")
+    pct <- round(100 * x$boot$conf)
+    n_ok_min <- min(x$boot$edges$n_boot_ok)
+    cli::cli_text(
+      "  {pct}% percentile CIs from {x$boot$n_boot} replicate{?s} \\
+       ({n_ok_min}+ usable per edge)"
+    )
+    cli::cli_text(
+      cli::col_grey(
+        "  Per-edge se / lo / hi in {.code x$boot$edges} or {.code tidy(x)}."
+      )
+    )
   }
 
   # --- Pruning ----------------------------------------------------------------

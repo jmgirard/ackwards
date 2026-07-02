@@ -1310,3 +1310,59 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   dropped from plot data). Post-follow-up gate: `R CMD check` 0/0/0 (full); **1791 pass / 0 fail /
   0 skip** (+22); coverage 100% (no remaining `# nocov` in comparability.R); style/lint/
   `check_pkgdown()` clean.
+- **M47 (done):** bootstrap edge CIs (owner-approved 2026-07-02) — resurrects the standing §14 e4
+  deferral ("selection bias in the strongest edge"), re-affirmed by the M41 review as the
+  highest-value deferred statistical addition. Every edge `ackwards()` reports is a point
+  estimate; **`boot_edges(x, data, n_boot = 1000, conf = 0.95, seed)`** (new export) attaches a
+  nonparametric bootstrap SE + **percentile** CI to each one — the inferential-honesty companion
+  to `prune()`'s `|r| ≥ redundancy_r` rule and the Forbes strongest-all-pairs-edge practice.
+  **A standalone pipeable verb** (not an `ackwards()` arg — M34 direction), with `data`
+  re-supplied because the light core stores none (Invariant 3). **Mechanics per replicate:**
+  resample rows with replacement → recompute `R` with the fit's `cor`/`missing` routine (incl.
+  per-replicate `psych::corFiml()` under `missing = "fiml"`, with a cli cost note) → refit levels
+  1..k_max via the engine internals (muffled — the `.fit_half()` pattern; a failed replicate → NA,
+  never an abort, Invariant 7) → **anchor** each replicate level to the full-sample solution
+  (reusing the M46 `.cross_cor()` + `.match_square()` greedy-max-|r| matching, then permute +
+  sign-orient the replicate's weights/loadings into the anchor's factor order) → edges via
+  `compute_edges()` on the replicate `R` (**Invariant 1 — the one edge path**), same `pairs` as
+  the object. **Anchoring is load-bearing:** without it, factor label-switching and sign-flipping
+  across replicates corrupt the pooled edge distributions. **All resample indices are drawn
+  upfront from `seed`** — each replicate is then deterministic given its indices, so the serial
+  and `future.apply`-parallel dispatch (M26 pattern; serial fallback) agree bit-for-bit, the
+  design choice that makes *serial ≡ parallel* test-assertable. Percentile CIs + bootstrap SE read
+  off each edge's replicate distribution; `n_boot_ok` counts usable replicates per edge.
+  **Output/integration:** `x$boot` (edge table + `n_boot`/`conf`/`seed`); `tidy(what = "edges")`
+  gains `se`/`lo`/`hi`/`n_boot_ok` (joined on the directed key, robust to sort); `print(x)` and
+  `summary(x)` note coverage; `meta$fm` now stored so EFA replicate refits reuse the fit's
+  extraction method. **Scope (owner decisions, mirroring M46):** PCA/EFA + pearson/spearman only —
+  ESEM (`n_boot` lavaan hierarchies) and polychoric (per-resample polychoric estimation, slow +
+  NPD-prone) deferred to `ROADMAP.md`; cor-matrix input, ESEM, and polychoric objects each error
+  with a pointer. **Two design amendments recorded in DESIGN §14.36:** (1) the original "reuse the
+  `loadings_se` infrastructure" phrasing is corrected — `loadings_se` is lavaan's analytic
+  delta-method SE with no analogue for edges of varimax-rotated hierarchies; bootstrap *is* the SE
+  method, and only the storage/tidy display pattern is reused; (2) the **statistical oracle** is
+  the honest one: the full-pipeline bootstrap SE legitimately *exceeds* the Fisher-z analytic SE
+  of the materialized-score correlation (each replicate re-extracts the factors — loading
+  uncertainty — while Fisher-z treats scores as fixed), so the exact Fisher-z match is asserted
+  only for a *fixed-weights* percentile bootstrap, and the full pipeline is asserted to center on
+  the estimate with SE ∈ (Fisher-z SE, 4× Fisher-z SE). **Percentile (not Fisher-z/normal-approx)
+  CIs** respect the [-1, 1] bound and `r`'s skew near the 0.9 prune threshold. Tests (55
+  assertions, 17 `test_that`): object/`$boot` shape + tidy/print/summary exposure, seed
+  reproducibility and **serial ≡ multicore** equality, `.anchor_levels()` undoing a
+  permutation+sign-scramble (cross-cor → identity + edge recovery to 1e-8), the two-part Fisher-z
+  oracle, strong-vs-near-zero edge discrimination (primary CIs exclude 0; the near-zero edge
+  covers 0), a **mocked** failing replicate dropped without abort (Invariant 7, via
+  `local_mocked_bindings(pca_levels = …)`), and the cor-matrix/ESEM/polychoric/data/arg-validation
+  guards + the "data don't look like the fit" warning. **Vignettes:** Forbes gains a
+  strongest-edge honesty subsection (screens on a Pearson-basis EFA since `boot_edges()` declines
+  polychoric; shows an interval straddling the 0.9 threshold; states plainly that per-edge CIs do
+  **not** correct the multiplicity of scanning many edges); Girard's common-mistakes section
+  cross-links it. **Files.** `R/boot_edges.R` (new), `R/ackwards.R` (`meta$fm` + `$boot` slot),
+  `R/tidy.R` (edge CI join), `R/print.R` + `R/summary.R` (coverage line),
+  `tests/testthat/test-boot_edges.R` (new), `vignettes/ackwards-forbes.Rmd` +
+  `ackwards-girard.Rmd`, `_pkgdown.yml` (1 reference entry), `NEWS.md`, `DESIGN.md` (§14 item 36 +
+  e4 marked done), `NAMESPACE` (+1 export, +1 S3method), 1 new `man/` page. No new dependency
+  (`future.apply` already Suggests).
+  **Verified.** `R CMD check` **0/0/0** (full, vignettes rebuilt); suite **1859 pass / 0 fail /
+  0 skip** (+68 over M46); coverage **100%**; `styler`/`lintr` clean; `pkgdown::check_pkgdown()`
+  clean.
