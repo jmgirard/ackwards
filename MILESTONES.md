@@ -1096,3 +1096,55 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   **Verified.** `R CMD check` **0/0/0** (full, vignettes rebuilt); suite **1591 pass / 0 fail /
   0 skip** (+26 over M41); coverage **100%**; `styler` (0 files changed) / `lintr` (0 lints)
   clean; `pkgdown::check_pkgdown()` clean.
+- **M43 (done):** review fixes, docs — second and final fix milestone off the M41 review (scope
+  owner-approved 2026-07-01: the `ROADMAP.md` M43 brief; m11 shape = inline-computed PA prose).
+  **Doc-only:** no behavior change; `R/` touched only for roxygen/comments; no export/signature/
+  dependency change; `_pkgdown.yml` untouched.
+  **Engines vignette (M2 + m4 + m5).** The "Missing data" section and FIML subsection rewritten
+  around the first-class M38 `missing = "fiml"` route for PCA/EFA (the pre-M38 "ESEM-only /
+  errors for PCA/EFA / a future release may promote" prose was contradicting `?ackwards` and
+  actual behavior): the runnable chunk now calls `ackwards(sim_na, …, missing = "fiml")`, the
+  corFiml correlation-matrix seam is kept as an under-the-hood note, the `n_obs =
+  "total"/"complete"` fit-index caveats are expressed through the built-in argument, and the
+  "Which option to use?" MAR row points at `"fiml"`. Also: the engine-choice table no longer
+  recommends the invalid `fm = "pca"` (plain `engine = "pca"`, with a note that `fm` is
+  EFA-only), and the stale "> 2,000 participants" claim now derives from the fitted sample via
+  inline R.
+  **suggest-k vignette (M3 + m11).** The CD mechanism corrected: comparison data reproduce the
+  observed correlation structure under a k-factor model as well as the marginals (Ruscio & Roche
+  2012) — the false "without preserving inter-item correlations" claim and the over-retention
+  inference built on it removed (the vetted "accurate in simulation; can over-retain on large,
+  correlated samples" behavioral note stays). The worked-BFI recommendation is now drift-proof:
+  a hidden scalar chunk pulls every number from the `sk` object, the PA-PC/PA-FA ordering
+  observation is conditional text (PA ignores `set.seed()`, so builds vary), the CD sentence
+  degrades gracefully when EFAtools is absent, and the "defensible choice" derives from the
+  computed top of the range; the follow-up interpret-down paragraph de-hardcoded.
+  **Forbes vignette (M4 + M5 + m3 + e1 surface).** The artifact section rewritten to its actual
+  report-and-judge semantics: retitled ("Inspecting structural similarity"), the definition
+  corrected (φ computed for *every* cross-level pair; nothing auto-flagged — automating it would
+  manufacture investigator DoF, per Forbes), and the by-construction zero-count node table —
+  previously presented as an empirical "good result" — replaced with a top-8 |φ| non-adjacent
+  pairs table read from `x$prune$phi`, plus reading guidance and a sharpened redundant-vs-artifact
+  contrast (auto-flagged vs reported-only). The retired-`cut_strong` solid/dashed prose replaced
+  with the actual uniform-linewidth rendering description. The chain example now states the full
+  retention rule (chain reaching `k_max` keeps only its bottom node; the top is flagged too).
+  The `redundancy_phi` PCA bullet switched to the determinacy rationale.
+  **e1 (core surfaces).** DESIGN §9 (`redundancy_phi` row, with a correction note), CLAUDE.md
+  "Resolved defaults", `prune()` roxygen, and the internal auto-resolve comment now give the
+  correct rationale: PCA needs no φ guard because **component scores are determinate** (exact
+  linear functions of the data), so `|r|` is the true between-component correlation — not because
+  "the W'RW algebra is exact", which is equally true of tenBerge EFA. `man/prune.Rd` regenerated.
+  **m9.** `data-raw/sim16.R` header comments updated to the M34 API (`prune(x, "artifact")` /
+  `prune(x, "redundant")`, strict `phi > .95` under the EFA auto-default); `?sim16` reworded
+  ("all six recommendations — five criteria; VSS reports at complexities 1 and 2") and its
+  `phi >= .95` corrected to `> .95`; `man/sim16.Rd` regenerated.
+  **Files.** `vignettes/ackwards-engines.Rmd`, `vignettes/ackwards-suggest-k.Rmd`,
+  `vignettes/ackwards-forbes.Rmd`, `R/prune.R` + `R/data.R` (roxygen/comments only),
+  `data-raw/sim16.R`, `man/prune.Rd`, `man/sim16.Rd`, `DESIGN.md` (§9), `NEWS.md` ("Documentation
+  corrections"), `ROADMAP.md` (M43 items removed; now holds only M44 + unscheduled e2/e4 + the
+  M41 reference sections), `CLAUDE.md`, `MILESTONES.md`. Rebuilt engines fit tables show the M42
+  chi values (expected).
+  **Verified.** `R CMD check` **0/0/0** (full, all vignettes rebuilt — the real gate for this
+  milestone); suite 1591 pass / 0 fail / 0 skip (unchanged — doc-only); coverage **100%**;
+  `styler` (0 files changed) / `lintr` (0 lints) clean; `pkgdown::check_pkgdown()` clean; the
+  M29 no-milestone-refs guard passes (new prose carries no M-number strings).
