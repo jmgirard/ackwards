@@ -5,7 +5,7 @@
 test_that("ackwards() with method = 'esem' returns a valid ackwards object", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
 
   expect_s3_class(x, "ackwards")
   validate_ackwards(x)
@@ -18,7 +18,7 @@ test_that("ackwards() with method = 'esem' returns a valid ackwards object", {
 test_that("ESEM levels have correct structure and label formats", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
 
   for (ki in 1:3) {
     lev <- x$levels[[as.character(ki)]]
@@ -45,7 +45,7 @@ test_that("ESEM levels have correct structure and label formats", {
 test_that("ESEM levels have a loadings_se matrix with correct dimensions", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
 
   for (ki in seq_len(x$k_max)) {
     lev <- x$levels[[as.character(ki)]]
@@ -64,8 +64,8 @@ test_that("ESEM levels have a loadings_se matrix with correct dimensions", {
 test_that("PCA and EFA engines have loadings_se = NULL", {
   skip_if_not_installed("psych")
   d <- .make_esem_data()
-  xp <- suppressWarnings(ackwards(d, k_max = 2, engine = "pca"))
-  xe <- suppressWarnings(ackwards(d, k_max = 2, engine = "efa"))
+  xp <- cached(ackwards(d, k_max = 2, engine = "pca"))
+  xe <- cached(ackwards(d, k_max = 2, engine = "efa"))
 
   for (ki in 1:2) {
     expect_null(xp$levels[[as.character(ki)]]$loadings_se,
@@ -82,7 +82,7 @@ test_that("PCA and EFA engines have loadings_se = NULL", {
 test_that("ESEM fit indices are named correctly (chi, dof, p_value, CFI, TLI, RMSEA, SRMR, BIC)", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
 
   expected_names <- c("chi", "dof", "p_value", "CFI", "TLI", "RMSEA", "SRMR", "BIC")
   for (ki in seq_len(x$k_max)) {
@@ -97,7 +97,7 @@ test_that("ESEM fit indices are named correctly (chi, dof, p_value, CFI, TLI, RM
 test_that("ESEM levels use tenBerge scoring (linear, method = 'tenBerge')", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
 
   for (ki in seq_len(x$k_max)) {
     sc <- x$levels[[as.character(ki)]]$scoring
@@ -111,7 +111,7 @@ test_that("ESEM levels use tenBerge scoring (linear, method = 'tenBerge')", {
 test_that("ESEM factor_cor is identity (orthogonal rotation)", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
 
   for (ki in seq_len(x$k_max)) {
     Phi <- unname(x$levels[[as.character(ki)]]$factor_cor)
@@ -127,7 +127,7 @@ test_that("ESEM factor_cor is identity (orthogonal rotation)", {
 test_that("ESEM algebra and scores paths agree (algebra-vs-scores cross-check)", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
 
   # Scope: continuous (Pearson) paths only. For polychoric ESEM the algebra side
   # uses lavaan's polychoric R while the scores route applies Pearson
@@ -188,7 +188,7 @@ test_that("ESEM warns and truncates when deep levels fail to converge", {
 test_that("print, tidy, glance work for ESEM objects", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
 
   expect_no_error(print(x))
   expect_s3_class(generics::tidy(x), "data.frame")
@@ -199,7 +199,7 @@ test_that("print, tidy, glance work for ESEM objects", {
 test_that("tidy(x, what = 'fit') returns 8 indices per level for ESEM", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
   td <- generics::tidy(x, what = "fit")
   expect_s3_class(td, "data.frame")
   expect_equal(nrow(td), 3L * 8L) # 3 levels × 8 indices (incl. BIC)
@@ -211,7 +211,7 @@ test_that("tidy(x, what = 'fit') returns 8 indices per level for ESEM", {
 test_that("tidy(what='loadings') for ESEM has se/ci_lower/ci_upper populated", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
   ld <- generics::tidy(x, what = "loadings")
   expect_true(all(c("se", "ci_lower", "ci_upper") %in% names(ld)))
   expect_true(all(is.finite(ld$se)))
@@ -224,7 +224,7 @@ test_that("tidy(what='loadings') for ESEM has se/ci_lower/ci_upper populated", {
 test_that("tidy(what='loadings', conf_level=0.99) widens intervals vs 0.95", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 2, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 2, engine = "esem"))
   ld95 <- generics::tidy(x, what = "loadings", conf_level = 0.95)
   ld99 <- generics::tidy(x, what = "loadings", conf_level = 0.99)
   width95 <- ld95$ci_upper - ld95$ci_lower
@@ -234,8 +234,8 @@ test_that("tidy(what='loadings', conf_level=0.99) widens intervals vs 0.95", {
 
 test_that("tidy(what='loadings') for PCA/EFA has se/ci cols present but all NA", {
   skip_if_not_installed("psych")
-  suppressWarnings(x_pca <- ackwards(psych::bfi[, 1:25], k_max = 2))
-  suppressWarnings(x_efa <- ackwards(psych::bfi[, 1:25], k_max = 2, engine = "efa"))
+  x_pca <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
+  x_efa <- cached(ackwards(psych::bfi[, 1:25], k_max = 2, engine = "efa"))
   for (x in list(x_pca, x_efa)) {
     ld <- generics::tidy(x, what = "loadings")
     expect_true(all(c("se", "ci_lower", "ci_upper") %in% names(ld)))
@@ -247,7 +247,7 @@ test_that("tidy(what='loadings') for PCA/EFA has se/ci cols present but all NA",
 
 test_that("conf_level passed with wrong what= errors", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_error(tidy(x, what = "edges", conf_level = 0.90), "conf_level")
 })
 
@@ -256,7 +256,7 @@ test_that("conf_level passed with wrong what= errors", {
 test_that("tidy(what='fit', format='wide') gives one row per non-anchor level", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
   wide <- generics::tidy(x, what = "fit", format = "wide")
   expect_s3_class(wide, "data.frame")
   # Anchor (k = 1) dropped: levels 2 and 3 only.
@@ -270,7 +270,7 @@ test_that("tidy(what='fit', format='wide') gives one row per non-anchor level", 
 test_that("tidy(what='fit', format='long') is byte-identical to the default", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
   expect_identical(
     generics::tidy(x, what = "fit"),
     generics::tidy(x, what = "fit", format = "long")
@@ -279,7 +279,7 @@ test_that("tidy(what='fit', format='long') is byte-identical to the default", {
 
 test_that("format passed with wrong what= errors", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_error(tidy(x, what = "edges", format = "wide"), "format")
 })
 
@@ -288,7 +288,7 @@ test_that("format passed with wrong what= errors", {
 test_that("tidy(what='fit') uses a statistic column, not index", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
   td <- generics::tidy(x, what = "fit")
   expect_true("statistic" %in% names(td))
   expect_false("index" %in% names(td))
@@ -298,7 +298,7 @@ test_that("tidy(what='fit') uses a statistic column, not index", {
 test_that("tidy(what='fit') has no meets column; cutoffs= is no longer a formal arg", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
   td <- generics::tidy(x, what = "fit")
   expect_false("meets" %in% names(td))
   # cutoffs is no longer a formal parameter, so it's silently absorbed by
@@ -311,7 +311,7 @@ test_that("tidy(what='fit') has no meets column; cutoffs= is no longer a formal 
 test_that("tidy(what='fit', format='wide') has no *_meets columns", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
   wide <- generics::tidy(x, what = "fit", format = "wide")
   expect_false(any(grepl("_meets$", names(wide))))
 })
@@ -333,10 +333,10 @@ test_that("estimator argument is validated", {
 test_that("$meta$estimator records the effective ESEM estimator (auto and explicit)", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x_default <- ackwards(d, k_max = 2, engine = "esem"))
+  x_default <- cached(ackwards(d, k_max = 2, engine = "esem"))
   expect_equal(x_default$meta$estimator, "ML") # cor = "pearson" auto-selects ML
   suppressWarnings(
-    x_mlr <- ackwards(d, k_max = 2, engine = "esem", estimator = "MLR")
+    x_mlr <- cached(ackwards(d, k_max = 2, engine = "esem", estimator = "MLR"))
   )
   expect_equal(x_mlr$meta$estimator, "MLR")
 })
@@ -346,7 +346,7 @@ test_that("$meta$estimator records WLSMV (polychoric auto) and ULSMV (explicit)"
   d <- .make_ordinal_data()
   # cor = "polychoric" auto-selects WLSMV.
   suppressWarnings(
-    x_wlsmv <- ackwards(d, k_max = 3, engine = "esem", cor = "polychoric")
+    x_wlsmv <- cached(ackwards(d, k_max = 3, engine = "esem", cor = "polychoric"))
   )
   expect_equal(x_wlsmv$meta$estimator, "WLSMV")
   suppressWarnings(
@@ -360,8 +360,8 @@ test_that("$meta$estimator records WLSMV (polychoric auto) and ULSMV (explicit)"
 
 test_that("$meta$estimator is NA for PCA and EFA", {
   skip_if_not_installed("psych")
-  suppressWarnings(x_pca <- ackwards(psych::bfi[, 1:10], k_max = 2, engine = "pca"))
-  suppressWarnings(x_efa <- ackwards(psych::bfi[, 1:10], k_max = 2, engine = "efa"))
+  x_pca <- cached(ackwards(psych::bfi[, 1:10], k_max = 2, engine = "pca"))
+  x_efa <- cached(ackwards(psych::bfi[, 1:10], k_max = 2, engine = "efa"))
   expect_true(is.na(x_pca$meta$estimator))
   expect_true(is.na(x_efa$meta$estimator))
 })
@@ -369,9 +369,9 @@ test_that("$meta$estimator is NA for PCA and EFA", {
 test_that("summary() footnotes the scaled-fit reporting for WLSMV/ULSMV/MLR only", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x_ml <- ackwards(d, k_max = 3, engine = "esem"))
+  x_ml <- cached(ackwards(d, k_max = 3, engine = "esem"))
   suppressWarnings(
-    x_mlr <- ackwards(d, k_max = 3, engine = "esem", estimator = "MLR")
+    x_mlr <- cached(ackwards(d, k_max = 3, engine = "esem", estimator = "MLR"))
   )
   # cli writes to stderr (the "message" stream) in non-interactive sessions;
   # capture that stream, not stdout.
@@ -383,7 +383,7 @@ test_that("summary() footnotes the scaled-fit reporting for WLSMV/ULSMV/MLR only
   # The ordinal WLSMV path (the most common scaled case) also triggers it.
   d_ord <- .make_ordinal_data()
   suppressWarnings(
-    x_wlsmv <- ackwards(d_ord, k_max = 3, engine = "esem", cor = "polychoric")
+    x_wlsmv <- cached(ackwards(d_ord, k_max = 3, engine = "esem", cor = "polychoric"))
   )
   out_wlsmv <- paste(
     capture.output(print(summary(x_wlsmv)), type = "message"),
@@ -397,7 +397,7 @@ test_that("summary() footnotes the scaled-fit reporting for WLSMV/ULSMV/MLR only
 test_that("cor = 'polychoric' works for PCA engine", {
   skip_if_not_installed("psych")
   d <- .make_ordinal_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "pca", cor = "polychoric"))
+  x <- cached(ackwards(d, k_max = 3, engine = "pca", cor = "polychoric"))
 
   expect_s3_class(x, "ackwards")
   validate_ackwards(x)
@@ -420,7 +420,7 @@ test_that("cor = 'polychoric' works for PCA engine", {
 test_that("cor = 'polychoric' works for EFA engine", {
   skip_if_not_installed("psych")
   d <- .make_ordinal_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "efa", cor = "polychoric"))
+  x <- cached(ackwards(d, k_max = 3, engine = "efa", cor = "polychoric"))
 
   expect_s3_class(x, "ackwards")
   validate_ackwards(x)
@@ -441,7 +441,7 @@ test_that("cor = 'polychoric' with method = 'esem' uses WLSMV and returns valid 
   skip_if_not_installed("psych") # needed for detect_ordinal helper path
   d <- .make_ordinal_data()
   suppressWarnings(
-    x <- ackwards(d, k_max = 3, engine = "esem", cor = "polychoric")
+    x <- cached(ackwards(d, k_max = 3, engine = "esem", cor = "polychoric"))
   )
 
   expect_s3_class(x, "ackwards")
@@ -629,7 +629,7 @@ test_that("glance() for ESEM has CFI/TLI/RMSEA/SRMR/BIC at deepest level (ML: BI
   d <- .make_esem_data()
   # Default cor = "pearson" -> estimator = "ML", which has a proper
   # log-likelihood, so BIC is a real number here.
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
   g <- generics::glance(x)
   expect_true(all(c("CFI", "TLI", "RMSEA", "SRMR", "BIC") %in% names(g)))
   expect_false(is.na(g$CFI))
@@ -645,7 +645,7 @@ test_that("ESEM under WLSMV: p_value uses the scaled test when df > 0; BIC genui
   skip_if_not_installed("psych") # needed for detect_ordinal helper path
   d <- .make_ordinal_data()
   suppressWarnings(
-    x <- ackwards(d, k_max = 3, engine = "esem", cor = "polychoric")
+    x <- cached(ackwards(d, k_max = 3, engine = "esem", cor = "polychoric"))
   )
 
   for (ki in seq_len(x$k_max)) {
@@ -676,7 +676,7 @@ test_that("ESEM under ULSMV: p_value uses the scaled test when df > 0; BIC genui
   skip_if_not_installed("psych")
   d <- .make_ordinal_data()
   suppressWarnings(
-    x <- ackwards(d, k_max = 3, engine = "esem", cor = "polychoric", estimator = "ULSMV")
+    x <- cached(ackwards(d, k_max = 3, engine = "esem", cor = "polychoric", estimator = "ULSMV"))
   )
   for (ki in seq_len(x$k_max)) {
     fv <- x$levels[[as.character(ki)]]$fit
@@ -694,7 +694,7 @@ test_that("ESEM under ULSMV: p_value uses the scaled test when df > 0; BIC genui
 test_that("ESEM under MLR: fit row reports the scaled (not naive) test + indices; BIC real", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem", estimator = "MLR"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem", estimator = "MLR"))
 
   # Reference: fit level 2 directly and confirm ackwards reports the *scaled*
   # variant, i.e. it matches chisq.scaled/cfi.scaled and (when they differ)
@@ -719,7 +719,7 @@ test_that("ESEM with a continuous cor + WLSMV is allowed and yields a populated 
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   suppressWarnings(
-    x <- ackwards(d, k_max = 3, engine = "esem", cor = "pearson", estimator = "WLSMV")
+    x <- cached(ackwards(d, k_max = 3, engine = "esem", cor = "pearson", estimator = "WLSMV"))
   )
   fv <- x$levels[["2"]]$fit
   expect_named(fv, c("chi", "dof", "p_value", "CFI", "TLI", "RMSEA", "SRMR", "BIC"))

@@ -1,7 +1,7 @@
 test_that("label_template returns named character vector of correct length", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   out <- label_template(x)
   expect_type(out, "character")
@@ -13,7 +13,7 @@ test_that("label_template returns named character vector of correct length", {
 test_that("label_template names match ba_layout node ids", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   layout_ids <- ba_layout(x)$nodes$id
   out <- label_template(x)
@@ -24,7 +24,7 @@ test_that("label_template style='id' is a round-trip no-op for node_labels", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   labs <- label_template(x, style = "id")
   # values equal names
@@ -40,7 +40,7 @@ test_that("label_template style='id' is a round-trip no-op for node_labels", {
 test_that("label_template style='forbes' assigns letter+index values", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   out <- label_template(x, style = "forbes")
   # Level 1: one factor -> "A1"
@@ -59,7 +59,7 @@ test_that("label_template style='forbes' assigns letter+index values", {
 test_that("label_template style='blank' returns all empty strings", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   out <- label_template(x, style = "blank")
   expect_true(all(out == ""))
@@ -73,14 +73,14 @@ test_that("label_template errors on non-ackwards input", {
 test_that("label_template errors on invalid style", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 2, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 2, engine = "pca"))
   expect_error(label_template(x, style = "bad"), class = "error")
 })
 
 test_that("label_template returns invisibly", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 2, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 2, engine = "pca"))
   # Should print but return the vector invisibly
   out <- withVisible(label_template(x))
   expect_false(out$visible)
@@ -90,7 +90,7 @@ test_that("label_template returns invisibly", {
 test_that("label_template includes level-1 factor in all styles", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 2, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 2, engine = "pca"))
   # Level 1 always has exactly one factor
   out_id <- label_template(x, style = "id")
   expect_true("m1f1" %in% names(out_id))
@@ -106,7 +106,7 @@ test_that("label_template includes level-1 factor in all styles", {
 test_that("label_template forbes uses LETTERS correctly for deeper hierarchies", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   out <- label_template(x, style = "forbes")
   # Check level prefixes: names starting with m1 -> "A", m2 -> "B", m3 -> "C"
@@ -123,14 +123,14 @@ test_that("label_template style='forbes' errors when k_max > 26", {
   # Build a minimal 27-variable PCA object so label_template sees 27 levels
   set.seed(1L)
   d27 <- as.data.frame(matrix(rnorm(100L * 27L), 100L, 27L))
-  x27 <- suppressWarnings(ackwards(d27, k_max = 27L, engine = "pca"))
+  x27 <- cached(ackwards(d27, k_max = 27L, engine = "pca"))
   expect_error(label_template(x27, style = "forbes"), "26 levels")
 })
 
 test_that("label_template works with engine = 'efa'", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "efa")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "efa"))
 
   out <- label_template(x, style = "id")
   expect_type(out, "character")

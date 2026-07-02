@@ -1,7 +1,7 @@
 test_that("top_items returns correct S3 class and structure", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   out <- top_items(x)
   expect_s3_class(out, "top_items")
@@ -19,7 +19,7 @@ test_that("top_items returns correct S3 class and structure", {
 test_that("top_items cut filters correctly", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   out <- top_items(x, cut = 0.3)
   expect_true(all(abs(out$data$loading) >= 0.3))
@@ -36,7 +36,7 @@ test_that("top_items cut filters correctly", {
 test_that("top_items level argument subsets levels", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   out1 <- top_items(x, level = 1)
   expect_equal(unique(out1$data$level), 1L)
@@ -49,14 +49,14 @@ test_that("top_items level argument subsets levels", {
 test_that("top_items errors on invalid level", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
   expect_error(top_items(x, level = 99), class = "rlang_error")
 })
 
 test_that("top_items n caps items per factor", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   out <- top_items(x, cut = 0, n = 2)
   counts <- tapply(out$data$item, out$data$factor, length)
@@ -66,7 +66,7 @@ test_that("top_items n caps items per factor", {
 test_that("top_items sort = FALSE preserves item order", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 2, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 2, engine = "pca"))
 
   out_unsorted <- top_items(x, cut = 0, sort = FALSE)
   full_loadings <- tidy(x, what = "loadings")
@@ -89,7 +89,7 @@ test_that("top_items sort = FALSE preserves item order", {
 test_that("top_items works with engine = 'efa'", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "efa")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "efa"))
 
   out <- top_items(x)
   expect_s3_class(out, "top_items")
@@ -102,7 +102,7 @@ test_that("top_items works with engine = 'efa'", {
 test_that("top_items data matches tidy(what = 'loadings')", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   full_loadings <- tidy(x, what = "loadings")
   out <- top_items(x, cut = 0, sort = FALSE)
@@ -129,7 +129,7 @@ test_that("top_items errors on non-ackwards input", {
 test_that("top_items errors on bad cut/n/sort", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 2, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 2, engine = "pca"))
 
   expect_error(top_items(x, cut = -0.1), class = "rlang_error")
   expect_error(top_items(x, cut = 1.5), class = "rlang_error")
@@ -142,7 +142,7 @@ test_that("top_items errors on bad cut/n/sort", {
 test_that("top_items(by = 'item') keeps the same rows but inverts grouping", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   by_fac <- top_items(x, level = 3, cut = 0.25)
   by_item <- top_items(x, level = 3, cut = 0.25, by = "item")
@@ -157,7 +157,7 @@ test_that("top_items(by = 'item') keeps the same rows but inverts grouping", {
 test_that("top_items(by = 'item', n = ) caps factors per item", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   out <- top_items(x, cut = 0, n = 2, by = "item")
   counts <- tapply(out$data$factor, list(out$data$level, out$data$item), length)
@@ -170,7 +170,7 @@ test_that("top_items exposes captured variable labels", {
   d <- .make_esem_data()
   attr(d$x1, "label") <- "First indicator"
   attr(d$x4, "label") <- "Fourth indicator"
-  x <- ackwards(d, k_max = 3, engine = "pca")
+  x <- cached(ackwards(d, k_max = 3, engine = "pca"))
 
   out <- top_items(x, cut = 0)
   expect_true("label" %in% names(out$data))
@@ -185,7 +185,7 @@ test_that("top_items(show_labels = FALSE) drops the label column and text", {
   set.seed(1)
   d <- .make_esem_data()
   attr(d$x1, "label") <- "First indicator"
-  x <- ackwards(d, k_max = 3, engine = "pca")
+  x <- cached(ackwards(d, k_max = 3, engine = "pca"))
 
   out <- top_items(x, cut = 0, show_labels = FALSE)
   expect_false("label" %in% names(out$data))
@@ -203,7 +203,7 @@ test_that(".format_item_label formats 'label (id)' with bare-id fallback", {
 test_that("top_items errors on bad by/show_labels", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 2, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 2, engine = "pca"))
 
   expect_error(top_items(x, by = "column"), class = "rlang_error")
   expect_error(top_items(x, show_labels = "yes"), class = "rlang_error")
@@ -214,7 +214,7 @@ test_that("print.top_items(by = 'item') and label display run without error", {
   set.seed(1)
   d <- .make_esem_data()
   attr(d$x1, "label") <- "First indicator"
-  x <- ackwards(d, k_max = 3, engine = "pca")
+  x <- cached(ackwards(d, k_max = 3, engine = "pca"))
 
   expect_no_error(print(top_items(x, level = 3, cut = 0.25, by = "item")))
   expect_no_error(print(top_items(x, level = 3, cut = 0.25))) # label (id) path
@@ -225,7 +225,7 @@ test_that("print.top_items renders 'label (code)' in header (by=item) and body (
   set.seed(1)
   d <- .make_esem_data()
   attr(d$x1, "label") <- "First indicator"
-  x <- ackwards(d, k_max = 3, engine = "pca")
+  x <- cached(ackwards(d, k_max = 3, engine = "pca"))
 
   # by = "item": the item is the group HEADER, so the label appears there.
   by_item <- cli::cli_fmt(print(top_items(x, level = 2, cut = 0, by = "item")))
@@ -244,7 +244,7 @@ test_that("print.top_items renders 'label (code)' in header (by=item) and body (
 test_that("print.top_items runs without error", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
   out <- top_items(x)
   expect_no_error(print(out))
   # returns invisibly
@@ -254,7 +254,7 @@ test_that("print.top_items runs without error", {
 test_that("print.top_items handles zero-row result gracefully", {
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 2, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 2, engine = "pca"))
   out <- top_items(x, cut = 0.99)
   expect_no_error(print(out))
 })
@@ -264,7 +264,7 @@ test_that("interpret vignette edges idiom: adjacent primary filter and column se
   #   edges[edges$is_primary & edges$level_to == edges$level_from + 1, c("from","to","r")]
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   edges <- tidy(x, what = "edges")
   primary <- edges[edges$is_primary & edges$level_to == edges$level_from + 1, ]
@@ -282,7 +282,7 @@ test_that("interpret vignette top_items idioms run", {
   # Guards the top_items() signatures shown in ackwards-interpret.Rmd.
   skip_if_not_installed("psych")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   expect_no_error(top_items(x, level = 3))
   expect_no_error(top_items(x, level = 3, cut = 0.45))
@@ -300,7 +300,7 @@ test_that("print.top_items skips levels with no items (nrow(df_k) == 0)", {
   # drop one shown level's rows: df stays non-empty (level 3 remains), so the
   # early return doesn't fire, but k = 1 hits `next`.
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(bfi25[, 1:6], k_max = 3))
+  x <- cached(ackwards(bfi25[, 1:6], k_max = 3))
   ti <- top_items(x, level = c(1L, 3L), cut = 0.3)
   ti$data <- ti$data[ti$data$level != 1L, , drop = FALSE]
   # Preconditions for the target branch:
@@ -318,7 +318,7 @@ test_that("interpret/visualization vignette idiom: label_template feeds autoplot
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
   set.seed(1)
-  x <- ackwards(.make_esem_data(), k_max = 3, engine = "pca")
+  x <- cached(ackwards(.make_esem_data(), k_max = 3, engine = "pca"))
 
   for (style in c("id", "forbes", "blank")) {
     labs <- suppressMessages(label_template(x, style = style))

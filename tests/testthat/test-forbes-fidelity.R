@@ -55,7 +55,7 @@ test_that("default output reproduces Forbes's simulation examples exactly", {
   for (nm in names(sims)) {
     sim <- sims[[nm]]
     suppressWarnings(suppressMessages(
-      x <- ackwards(sim$R, k_max = 4, pairs = "all")
+      x <- cached(ackwards(sim$R, k_max = 4, pairs = "all"))
     ))
 
     # (1) Between-level correlations: |ours| == |hers| entrywise, all 6 pairs.
@@ -110,7 +110,7 @@ test_that("prune('redundant') flags Forbes's Simulation 1 chains with her retent
   skip_if_not_installed("psych")
   sims <- .forbes_fixture()
   suppressWarnings(suppressMessages({
-    x <- ackwards(sims$sim1$R, k_max = 4, pairs = "all")
+    x <- cached(ackwards(sims$sim1$R, k_max = 4, pairs = "all"))
     xp <- prune(x, "redundant")
   }))
 
