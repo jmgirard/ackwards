@@ -228,34 +228,40 @@ as part of the definition of done.
   paths/retention); contract annotated **test-backed**; AMH commit
   deferred (no OSF license — options logged for owner outreach). No
   export/dependency change.
+- **M45** — out-of-sample scoring (train/test): fit-time item moments
+  stored (`meta$item_means`/`item_sds`; NULL for cor-matrix input);
+  [`augment()`](https://generics.r-lib.org/reference/augment.html) gains
+  `scaling = c("fit", "sample")` with **`"fit"` default** (training
+  moments — one metric across train/test/subsets; `"sample"` = pre-M45
+  opt-in and the cor-matrix route; DESIGN §14 item 34); new exported
+  **`predict.ackwards(object, newdata, scaling)`** ≡
+  `augment(append = FALSE)` (equivalence test-asserted; `_pkgdown.yml`
+  updated); intro-vignette train/test subsection. New export, no new
+  dependency.
 
 ## Current focus
 
-**M44 is complete** (2026-07-01) — and with it the **entire M41→M44
-review arc**: independent review (M41) → code fixes (M42) → doc fixes
-(M43) → fidelity fixture (M44). **The fixture path fired.** Phase A
-found the 2023 paper’s own public OSF project (`pcwm8`) with Forbes’s
-analysis script, her reference implementation, and the AMH
-applied-example matrix; the head-to-head feasibility study matched
-`ackwards` to her own functions at 5e-15 (Simulation 1) and **3.9e-14
-across all 45 level-pairs of the 155-variable AMH example**. Shipped: a
-3.7 KB license-clean fixture (the paper’s three seed-regenerated
-simulations + expected outputs from her reference implementation,
-provenance recorded) and `test-forbes-fidelity.R` (65 assertions
-covering edges, congruences, redundancy chase paths, and
-[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
-retention). The CLAUDE.md fidelity contract is now annotated
-**test-backed**. The AMH matrix was *not* committed (no OSF license —
-per the approved decision rule); the two options (license from Forbes →
-fixture, or a skip-if-offline download test) are logged in `ROADMAP.md`
-for the owner’s outreach. Gate: `check()` 0/0/0, 1656 pass / 0 fail / 0
-skip (+65), coverage 100%, style/lint/`check_pkgdown()` clean.
+**M45 is complete** (2026-07-01) — out-of-sample (train/test) scoring
+via fit-time moments, owner-requested for an upcoming cross-validation
+project. Every acceptance criterion met: fit-time item moments stored in
+the object;
+[`augment()`](https://generics.r-lib.org/reference/augment.html) gained
+`scaling = c("fit", "sample")` with the `"fit"` default (training metric
+everywhere; test scores hand-verified to 1e-12; training re-score ≡
+`keep_scores` fit-time scores; the behavior change is prominent in
+NEWS); new exported
+[`predict.ackwards()`](https://jmgirard.github.io/ackwards/reference/predict.ackwards.md)
+is test-asserted identical to `augment(append = FALSE)` and indexed in
+`_pkgdown.yml`; intro vignette gained the train/test subsection; DESIGN
+§6/§10 + §14 item 34 record the contract. Gate: `check()` 0/0/0
+(vignettes rebuilt), 1689 pass / 0 fail / 0 skip (+33), coverage 100%,
+style/lint clean, `check_pkgdown()` clean. Detail in `MILESTONES.md`
+(M45).
 
-**Next up: nothing queued.** `ROADMAP.md` carries no pending milestones
-— only unscheduled ideas (AMH fidelity extension pending the owner’s
-Forbes outreach; e2 dual EFA chi-squares; e4 bootstrap edge CIs per
-DESIGN §14). `MILESTONES.md` remains the source of truth for *completed*
-milestones.
+**Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas
+(AMH fidelity extension pending the owner’s Forbes outreach; e2 dual EFA
+chi-squares; e4 bootstrap edge CIs per DESIGN §14). `MILESTONES.md`
+remains the source of truth for *completed* milestones.
 
 ## Invariants — do not violate without flagging
 

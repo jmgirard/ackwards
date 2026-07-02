@@ -72,13 +72,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [293ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [297ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [180ms]
+#> ✔ Running MAP and VSS... [184ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.7s]
+#> ✔ Running Comparison Data (CD)... [10.3s]
 #> 
 print(sk)
 #> 
@@ -567,6 +567,57 @@ The cross-level block confirms lineage: `.m4f1` correlates strongly with
 check you can run on any result — strong parent–child correlations
 should appear exactly where the `tidy(what = "edges")` table says they
 should.
+
+### Scoring new data (train/test)
+
+Because scoring needs only the stored weight matrices and the fit-time
+item means/SDs, you can apply a fitted hierarchy to observations the
+model never saw — the standard cross-validation pattern of fitting on a
+training split and scoring a held-out test split **without retraining**.
+[`predict()`](https://rdrr.io/r/stats/predict.html) is the front door
+(`augment(x, data = ..., append = FALSE)` is equivalent):
+
+``` r
+
+set.seed(11)
+idx <- sample(nrow(bfi), 500)
+x_train <- ackwards(bfi[idx, ], k_max = 5, cor = "polychoric")
+
+test_scores <- predict(x_train, bfi[-idx, ])
+head(round(test_scores[, 1:5], 2))
+#>   .m1f1 .m2f1 .m2f2 .m3f1 .m3f2
+#> 1 -1.25 -1.18 -0.42 -1.21 -0.37
+#> 2  1.23  0.56  1.68  0.63  1.65
+#> 3 -0.93 -1.37  0.69 -1.17  0.78
+#> 4  0.05 -0.16  0.44  0.01  0.47
+#> 5 -0.62 -0.33 -0.76 -0.23 -0.72
+#> 6 -0.17 -0.44  0.54  0.01  0.63
+```
+
+The test observations are standardized by the *training* moments (the
+default `scaling = "fit"`), so a person’s score does not depend on who
+else landed in the test split, and train and test scores share one
+metric — compare like with like across splits, feed them to the same
+downstream model, or pool them:
+
+``` r
+
+train_scores <- predict(x_train, bfi[idx, ])
+# Same construct, same scale: pooled scores line up with the fitted solution
+round(colMeans(train_scores[, 1:3]), 3) # ~0 by construction (training data)
+#> .m1f1 .m2f1 .m2f2 
+#>     0     0     0
+round(colMeans(test_scores[, 1:3]), 3) # near 0: test split scored on the same metric
+#>  .m1f1  .m2f1  .m2f2 
+#> -0.046 -0.043 -0.018
+```
+
+See
+[`?predict.ackwards`](https://jmgirard.github.io/ackwards/reference/predict.ackwards.md)
+and the *Scoring new observations* section of
+[`?augment.ackwards`](https://jmgirard.github.io/ackwards/reference/augment.ackwards.md)
+for the full semantics (including `scaling = "sample"` for deliberately
+re-standardizing in a new population).
 
 ## Summary
 

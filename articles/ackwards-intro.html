@@ -152,13 +152,13 @@ and reports a consensus range:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[293ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[297ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[180ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[184ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.7s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.3s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -635,6 +635,49 @@ descends from a different k = 4 factor). This is a sanity check you can
 run on any result — strong parent–child correlations should appear
 exactly where the <code>tidy(what = "edges")</code> table says they
 should.</p>
+</div>
+<div class="section level3">
+<h3 id="scoring-new-data-traintest">Scoring new data (train/test)<a class="anchor" aria-label="anchor" href="#scoring-new-data-traintest"></a>
+</h3>
+<p>Because scoring needs only the stored weight matrices and the
+fit-time item means/SDs, you can apply a fitted hierarchy to
+observations the model never saw — the standard cross-validation pattern
+of fitting on a training split and scoring a held-out test split
+<strong>without retraining</strong>. <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> is the front
+door (<code>augment(x, data = ..., append = FALSE)</code> is
+equivalent):</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span>
+<span><span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">bfi</span><span class="op">)</span>, <span class="fl">500</span><span class="op">)</span></span>
+<span><span class="va">x_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span><span class="op">[</span><span class="va">idx</span>, <span class="op">]</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">test_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">x_train</span>, <span class="va">bfi</span><span class="op">[</span><span class="op">-</span><span class="va">idx</span>, <span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">test_scores</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   .m1f1 .m2f1 .m2f2 .m3f1 .m3f2</span></span>
+<span><span class="co">#&gt; 1 -1.25 -1.18 -0.42 -1.21 -0.37</span></span>
+<span><span class="co">#&gt; 2  1.23  0.56  1.68  0.63  1.65</span></span>
+<span><span class="co">#&gt; 3 -0.93 -1.37  0.69 -1.17  0.78</span></span>
+<span><span class="co">#&gt; 4  0.05 -0.16  0.44  0.01  0.47</span></span>
+<span><span class="co">#&gt; 5 -0.62 -0.33 -0.76 -0.23 -0.72</span></span>
+<span><span class="co">#&gt; 6 -0.17 -0.44  0.54  0.01  0.63</span></span></code></pre></div>
+<p>The test observations are standardized by the <em>training</em>
+moments (the default <code>scaling = "fit"</code>), so a person’s score
+does not depend on who else landed in the test split, and train and test
+scores share one metric — compare like with like across splits, feed
+them to the same downstream model, or pool them:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">train_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">x_train</span>, <span class="va">bfi</span><span class="op">[</span><span class="va">idx</span>, <span class="op">]</span><span class="op">)</span></span>
+<span><span class="co"># Same construct, same scale: pooled scores line up with the fitted solution</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">train_scores</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span> <span class="co"># ~0 by construction (training data)</span></span>
+<span><span class="co">#&gt; .m1f1 .m2f1 .m2f2 </span></span>
+<span><span class="co">#&gt;     0     0     0</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">test_scores</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span> <span class="co"># near 0: test split scored on the same metric</span></span>
+<span><span class="co">#&gt;  .m1f1  .m2f1  .m2f2 </span></span>
+<span><span class="co">#&gt; -0.046 -0.043 -0.018</span></span></code></pre></div>
+<p>See <code><a href="../reference/predict.ackwards.html">?predict.ackwards</a></code> and the <em>Scoring new
+observations</em> section of <code><a href="../reference/augment.ackwards.html">?augment.ackwards</a></code> for the full
+semantics (including <code>scaling = "sample"</code> for deliberately
+re-standardizing in a new population).</p>
 </div>
 </div>
 <div class="section level2">

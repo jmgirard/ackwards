@@ -242,7 +242,10 @@ structure(list(
   data    = NULL,        # opt-in raw data
   meta    = <suggest_k output, timestamps, convergence summary, chosen defaults,
              input_type = "data"|"cor_matrix",
-             item_labels = <named chr of column "label" attributes, or NULL> (M36)>,
+             item_labels = <named chr of column "label" attributes, or NULL> (M36),
+             item_means/item_sds = <fit-time item moments from the
+             post-missing-handling data; NULL for cor_matrix input> (M45 --
+             the frame of reference for out-of-sample scoring)>,
   prune   = NULL         # Forbes extension: node flags + chain table + phi table;
                          # populated by prune(x, ...) -- a standalone verb piped off
                          # ackwards(), not an ackwards() argument (M34; see s.14)
@@ -440,6 +443,20 @@ with its rationale.
   - `glance(x)` — one row of model-level meta (engine, k_max, n, deepest
     converged, cor basis).
   - `as_tibble(x)` → `tidy(x, "edges")`.
+- **`augment(x, data, append, id_cols, scaling)` /
+  `predict(x, newdata, scaling)` (M45)** — per-observation factor
+  scores, including **out-of-sample scoring** (fit on a training split,
+  score a test split without retraining). `scaling = "fit"` (default)
+  standardizes the supplied data by the **fit-time item moments** stored
+  in `meta` so all scores share the training metric; `"sample"`
+  re-standardizes by the supplied data’s own moments (the pre-M45
+  behaviour; the only option for cor-matrix objects, which carry no
+  moments). [`predict()`](https://rdrr.io/r/stats/predict.html) is a
+  thin exported wrapper returning exactly
+  `augment(x, data = newdata, append = FALSE, scaling = scaling)` — the
+  idiomatic front door
+  ([`psych::predict.psych`](https://rdrr.io/pkg/psych/man/predict.psych.html)
+  / `lavPredict` precedent).
 
 ## 11. Visualization
 
@@ -780,6 +797,25 @@ Savalei 2020) — so the route announces itself and the caveat via cli
 canonical formula exists for a corFiml→EFA route, so it would be a
 package-invented convention masquerading as a standard. A string `n_obs`
 is rejected off this path; cor-matrix input still requires a numeric N.
+
+**Resolved for M45 (out-of-sample scoring; owner-approved 2026-07-01):**
+34. **Scoring standardizes by fit-time moments by default.**
+[`augment()`](https://generics.r-lib.org/reference/augment.html)’s
+`scaling` argument defaults to `"fit"`: supplied data are standardized
+by the training means/SDs (stored in `meta$item_means`/`item_sds` since
+M45) before the weight matrices apply. Rationale: this is what “applying
+the trained model” means — a test observation’s score must not depend on
+which other observations share its split, and train/test scores must
+share one metric (the cross-validation use case that motivated the
+milestone). `"sample"` (the pre-M45 behaviour) remains as an explicit
+opt-in for deliberately re-standardizing a sample from a different
+population in its own metric, and is the only option for cor-matrix
+objects. Breaking for subset/new-data scoring values (pre-CRAN, no
+deprecation path; M32/M34 precedent). The companion
+[`predict.ackwards()`](https://jmgirard.github.io/ackwards/reference/predict.ackwards.md)
+export was chosen over an augment-only surface for discoverability by
+replicators (`psych`/`lavaan` users reach for
+[`predict()`](https://rdrr.io/r/stats/predict.html)).
 
 **Known limitations / deferred to future milestones:** - `factor_cor` in
 the ESEM engine is not permuted by the variance-sort `ord` vector. Safe

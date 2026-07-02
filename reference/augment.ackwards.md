@@ -8,7 +8,14 @@ matching the factor labels used throughout the object.
 
 ``` r
 # S3 method for class 'ackwards'
-augment(x, data = NULL, append = TRUE, id_cols = NULL, ...)
+augment(
+  x,
+  data = NULL,
+  append = TRUE,
+  id_cols = NULL,
+  scaling = c("fit", "sample"),
+  ...
+)
 ```
 
 ## Arguments
@@ -38,6 +45,17 @@ augment(x, data = NULL, append = TRUE, id_cols = NULL, ...)
   `data` is `NULL` (there are no source columns to carry). `NULL`
   (default) returns the bare score columns.
 
+- scaling:
+
+  Which item means/SDs standardize `data` before the weights are
+  applied. `"fit"` (default) uses the **fit-time** moments stored in the
+  object – the correct choice for scoring new observations (e.g. a
+  cross-validation test split) or subsets on the training metric.
+  `"sample"` standardizes by the supplied data's own moments (the only
+  option for objects fit from a correlation matrix, which carry no
+  raw-data moments). Only used when `data` is supplied; stored scores
+  are returned as-is.
+
 - ...:
 
   Ignored.
@@ -51,12 +69,35 @@ index when `data` is `NULL`) with score columns appended. With
 
 ## Details
 
-**Score computation.** Scores are `S = Z W / sqrt(score_var)`, where
-`Z = .standardize(data)` (item z-scores), `W` is the per-level weight
-matrix stored in the object, and `sqrt(score_var)` standardizes by the
-real score standard deviations (Invariant 1: never assume unit
-variance). For PCA the method is `"components"`; for EFA/ESEM it is
-`"tenBerge"`.
+**Score computation.** Scores are `S = Z W / sqrt(score_var)`, where `Z`
+is the item z-scores, `W` is the per-level weight matrix stored in the
+object, and `sqrt(score_var)` standardizes by the real score standard
+deviations (Invariant 1: never assume unit variance). For PCA the method
+is `"components"`; for EFA/ESEM it is `"tenBerge"`. The `scaling`
+argument controls which means/SDs build `Z`: by default the **fit-time**
+moments stored in the object, so any data you score — the training data,
+a subset of it, or entirely new observations — lands on the same metric
+the model was estimated in.
+
+**Scoring new observations (cross-validation).** Because scoring only
+needs the stored weight matrices and the fit-time moments, you can fit
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+on a training split and score a held-out test split *without
+retraining*: `augment(x, data = test_set)` (or, equivalently,
+[`predict.ackwards()`](https://jmgirard.github.io/ackwards/reference/predict.ackwards.md)).
+Under the default `scaling = "fit"` the test observations are
+standardized by the *training* means/SDs, which is what "applying the
+trained model" means: a test observation's score does not depend on
+which other observations happen to share its split, and train and test
+scores are directly comparable. `scaling = "sample"` instead
+re-standardizes by the supplied data's own moments — a deliberate choice
+when scoring a sample from a different population in its own metric, and
+the only option for objects fit from a correlation matrix (which carry
+no raw-data moments). For non-Pearson bases (polychoric, Spearman) the
+usual caveat applies either way: the weights derive from the non-Pearson
+`R` while `Z` is a linear standardization, so empirical score SDs are
+close to but not exactly 1 (a one-time warning says so); train/test
+comparability under `scaling = "fit"` is unaffected.
 
 **Missing data.** Score projection applies weights row-wise and
 propagates NAs listwise: any observation with at least one missing item
@@ -167,4 +208,39 @@ x2 <- ackwards(bfi25, k_max = 5, keep_scores = TRUE)
 #> ℹ Use `missing = "listwise"` when fitting (so the model and scores share the
 #>   same complete rows), or call `na.omit(data)` before scoring.
 scores_df2 <- augment(x2)
+
+# Cross-validation: fit on a training split, score the test split on the
+# training metric (no retraining; see also predict.ackwards())
+train_idx <- seq_len(500)
+x_train <- ackwards(bfi25[train_idx, ], k_max = 5)
+#> Warning: ! 58 rows have missing values; correlations are computed pairwise.
+#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
+test_scores <- augment(x_train, data = bfi25[-train_idx, ], append = FALSE)
+#> Warning: ! 67 rows contain missing values and will produce NA scores.
+#> ℹ Score projection applies weights row-wise and propagates NAs listwise; FIML
+#>   estimation does not impute missing item responses.
+#> ℹ Use `missing = "listwise"` when fitting (so the model and scores share the
+#>   same complete rows), or call `na.omit(data)` before scoring.
+head(test_scores)
+#>         .m1f1      .m2f1      .m2f2      .m3f1      .m3f2     .m3f3      .m4f1
+#> 1  1.31327917  1.2430095  0.4608252  0.6680509  0.1248161 1.4375648  0.7088025
+#> 2  0.16529258  1.2321417 -1.9494198  1.0643443 -2.0400056 0.2062707  1.2228552
+#> 3          NA         NA         NA         NA         NA        NA         NA
+#> 4  0.66782843  0.3087139  0.8378206  0.3044256  0.8063030 0.2575057  0.4353962
+#> 5 -0.02123811 -0.6503492  1.1686927 -0.8540634  1.0730075 0.4449248 -0.9429296
+#> 6          NA         NA         NA         NA         NA        NA         NA
+#>        .m4f2     .m4f3      .m4f4      .m5f1      .m5f2     .m5f3       .m5f4
+#> 1  0.1179912 1.6867161 -0.3149617  0.1303632  1.6548929 1.5959910 -0.69755418
+#> 2 -2.1590779 0.7967761 -1.0174953 -2.1501813  1.2787053 0.7224308  0.39711553
+#> 3         NA        NA         NA         NA         NA        NA          NA
+#> 4  0.7197966 0.5967368 -0.9248642  0.7224354  0.5193448 0.5700356  0.03266355
+#> 5  1.1502964 0.1572142  0.5246276  1.1329384 -1.3643529 0.2357785  0.11707246
+#> 6         NA        NA         NA         NA         NA        NA          NA
+#>        .m5f5
+#> 1 -0.8091157
+#> 2 -1.2663365
+#> 3         NA
+#> 4 -1.0712061
+#> 5  0.8709454
+#> 6         NA
 ```
