@@ -7,9 +7,14 @@
 # linear map S = Z W). Contrast with base scale(), which returns a fully-NA
 # column when any value is missing, making ALL scores NA.
 # A zero-variance or all-NA column gets scale factor 1 (avoids Inf/NaN).
-.standardize <- function(x) {
-  m <- colMeans(x, na.rm = TRUE)
-  s <- apply(x, 2, stats::sd, na.rm = TRUE)
+#
+# `center`/`scale` (M45): optional externally supplied moments (aligned with
+# the columns of x). Used for out-of-sample scoring, where new observations
+# must be standardized by the *fit-time* means/SDs so train and test scores
+# share one metric; NULL (the default) keeps the sample-moment behaviour.
+.standardize <- function(x, center = NULL, scale = NULL) {
+  m <- center %||% colMeans(x, na.rm = TRUE)
+  s <- scale %||% apply(x, 2, stats::sd, na.rm = TRUE)
   s[!is.finite(s) | s == 0] <- 1
   sweep(sweep(x, 2, m, "-"), 2, s, "/")
 }
@@ -143,7 +148,9 @@ flip_weights <- function(W, sign_vec) {
 }
 
 # Materialize per-observation factor scores for all levels.
-# Z = .standardize(data_mat): standardizes observed items by their sample mean/SD.
+# Z = .standardize(data_mat): standardizes observed items by their sample
+# mean/SD, or by externally supplied `center`/`scale` moments (M45: fit-time
+# moments for out-of-sample scoring, aligned with data_mat's columns).
 # S_k = Z W_k, then each column divided by sqrt(score_var_k) (Invariant 1:
 # standardize by real score SDs, never assume unit variance).
 # Returns a named list (by level character key) of n x k_j matrices.
@@ -153,7 +160,7 @@ flip_weights <- function(W, sign_vec) {
 # Non-Pearson basis (polychoric, Spearman): .standardize() still uses Pearson
 # standardization, but score_var comes from the non-Pearson R. Empirical score
 # SDs will differ from 1.0; a warning is issued to alert the user.
-.compute_scores <- function(levels_list, data_mat) {
+.compute_scores <- function(levels_list, data_mat, center = NULL, scale = NULL) {
   bases <- unique(vapply(levels_list, function(lev) lev$scoring$basis, character(1L)))
   if (!all(bases == "pearson")) {
     non_pearson <- bases[bases != "pearson"]
@@ -182,7 +189,7 @@ flip_weights <- function(W, sign_vec) {
              {.code na.omit(data)} before scoring."
     ))
   }
-  Z <- .standardize(data_mat)
+  Z <- .standardize(data_mat, center = center, scale = scale)
   scores <- lapply(names(levels_list), function(ki) {
     lev <- levels_list[[ki]]
     W <- lev$scoring$weights

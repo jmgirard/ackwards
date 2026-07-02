@@ -764,7 +764,13 @@ ackwards <- function(
     n_complete        = n_complete,
     input_type        = input_type,
     estimator         = estimator_eff %||% NA_character_,
-    item_labels       = item_labels
+    item_labels       = item_labels,
+    # Fit-time item moments (M45): the frame of reference for out-of-sample
+    # scoring. Computed from the post-`missing`-handling data (i.e. after any
+    # listwise reduction, consistent with the R actually fit); NULL for
+    # correlation-matrix input, where raw-data moments do not exist.
+    item_means        = if (!is.null(data_mat)) colMeans(data_mat, na.rm = TRUE) else NULL,
+    item_sds          = if (!is.null(data_mat)) apply(data_mat, 2, stats::sd, na.rm = TRUE) else NULL
   )
 
   # --- Assemble result --------------------------------------------------------

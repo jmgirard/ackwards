@@ -1,6 +1,38 @@
 # tests/testthat/test-scores.R
 # M6: scores storage, keep_fits, augment.ackwards(), tidy(what="scores")
 
+# ── M45: fit-time moments + externally supplied standardization ───────────────────
+
+test_that("fit-time item moments are stored in meta (M45)", {
+  skip_if_not_installed("psych")
+  d <- na.omit(ackwards::bfi25)
+  suppressWarnings(x <- ackwards(d, k_max = 2))
+  expect_equal(x$meta$item_means, colMeans(as.matrix(d)))
+  expect_equal(x$meta$item_sds, apply(as.matrix(d), 2, stats::sd))
+
+  # listwise: moments reflect the reduced data actually fit
+  suppressWarnings(xl <- ackwards(ackwards::bfi25, k_max = 2, missing = "listwise"))
+  cc <- as.matrix(na.omit(ackwards::bfi25))
+  expect_equal(unname(xl$meta$item_means), unname(colMeans(cc)))
+
+  # correlation-matrix input: raw-data moments do not exist
+  suppressWarnings(suppressMessages(xr <- ackwards(cor(d), k_max = 2)))
+  expect_null(xr$meta$item_means)
+  expect_null(xr$meta$item_sds)
+})
+
+test_that(".standardize() honours supplied center/scale moments (M45)", {
+  set.seed(1)
+  x <- matrix(rnorm(40, mean = 5, sd = 3), 20, 2, dimnames = list(NULL, c("a", "b")))
+  ctr <- c(a = 1, b = 2)
+  scl <- c(a = 2, b = 4)
+  Z <- ackwards:::.standardize(x, center = ctr, scale = scl)
+  expect_equal(Z, sweep(sweep(x, 2, ctr, "-"), 2, scl, "/"))
+  # NULL default unchanged: sample moments
+  Z0 <- ackwards:::.standardize(x)
+  expect_equal(unname(colMeans(Z0)), c(0, 0))
+})
+
 # ── keep_scores = FALSE (default) ──────────────────────────────────────────────────
 
 test_that("keep_scores = FALSE (default) leaves x$scores as NULL", {
