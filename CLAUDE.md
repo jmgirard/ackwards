@@ -238,30 +238,55 @@ as part of the definition of done.
   `augment(append = FALSE)` (equivalence test-asserted; `_pkgdown.yml`
   updated); intro-vignette train/test subsection. New export, no new
   dependency.
+- **M46** — Girard extension (replicability-gated hierarchies): new
+  exported
+  **[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)**
+  — Everett (1983)/Goldberg (1990) split-half factor comparability per
+  level per factor (full-sample-anchored labels, greedy-with-removal
+  matching, cross-solution correlations through
+  [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+  on the pooled R, Tucker’s φ alongside, report-first/nothing
+  auto-flagged; PCA/EFA + pearson/spearman, `n_splits = 10`, seeded) +
+  `print`/`autoplot` methods; capstone vignette `ackwards-girard`
+  (“Replicability-Gated Hierarchies: A Recommended Workflow”) with the
+  six-step workflow + common-mistakes section; completes the triad
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  (range) ·
+  [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+  (floor) ·
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+  (differentiation); DESIGN §14 item 35; ESEM/polychoric extensions
+  deferred to `ROADMAP.md`. In passing: `cli::symbol$phi` glyph fix in
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md).
+  New export, no new dependency.
 
 ## Current focus
 
-**M45 is complete** (2026-07-01) — out-of-sample (train/test) scoring
-via fit-time moments, owner-requested for an upcoming cross-validation
-project. Every acceptance criterion met: fit-time item moments stored in
-the object;
-[`augment()`](https://generics.r-lib.org/reference/augment.html) gained
-`scaling = c("fit", "sample")` with the `"fit"` default (training metric
-everywhere; test scores hand-verified to 1e-12; training re-score ≡
-`keep_scores` fit-time scores; the behavior change is prominent in
-NEWS); new exported
-[`predict.ackwards()`](https://jmgirard.github.io/ackwards/reference/predict.ackwards.md)
-is test-asserted identical to `augment(append = FALSE)` and indexed in
-`_pkgdown.yml`; intro vignette gained the train/test subsection; DESIGN
-§6/§10 + §14 item 34 record the contract. Gate: `check()` 0/0/0
-(vignettes rebuilt), 1689 pass / 0 fail / 0 skip (+33), coverage 100%,
-style/lint clean, `check_pkgdown()` clean. Detail in `MILESTONES.md`
-(M45).
+**M46 is complete** (2026-07-01) — the Girard extension:
+replicability-gated hierarchies. Every acceptance criterion met:
+exported
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+(Everett 1983 / Goldberg 1990 split-half factor comparability,
+full-sample-anchored labels, cross-solution correlations through
+[`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+on the pooled R — Invariant 1; Tucker’s φ alongside; report-first,
+nothing auto-flagged) with print/autoplot methods; self-comparability ≡
+1, matching invariance, seed reproducibility, and the Invariant-2
+cross-solution oracle all test-asserted; discriminating tests pass
+strikingly (sim16’s true 1→2→4 levels ≈ .99 vs. the overextracted m5f5
+at .14; bfi25’s floor lands exactly on the Big Five); capstone vignette
+`ackwards-girard` + cross-links from intro/suggest-k/forbes + README;
+DESIGN §14 item 35; ESEM/polychoric extensions logged in `ROADMAP.md`.
+Gate: `check()` 0/0/0 (vignettes rebuilt), 1769 pass / 0 fail / 0 skip
+(+66), coverage 100%, style/lint clean, `check_pkgdown()` clean. Detail
+in `MILESTONES.md` (M46).
 
 **Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas
 (AMH fidelity extension pending the owner’s Forbes outreach; e2 dual EFA
-chi-squares; e4 bootstrap edge CIs per DESIGN §14). `MILESTONES.md`
-remains the source of truth for *completed* milestones.
+chi-squares; e4 bootstrap edge CIs;
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+ESEM/polychoric extensions). `MILESTONES.md` remains the source of truth
+for *completed* milestones.
 
 ## Invariants — do not violate without flagging
 

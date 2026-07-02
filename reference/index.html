@@ -20,6 +20,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
@@ -52,7 +53,7 @@
     <div class="section level2">
       <h2 id="fit-the-model">Fit the model<a class="anchor" aria-label="anchor" href="#fit-the-model"></a></h2>
 
-      <div class="section-desc"><p>The main modelling function, a Forbes-style pruning verb, and a helper for choosing k.</p></div>
+      <div class="section-desc"><p>The main modelling function, a Forbes-style pruning verb, and helpers for choosing k and gating hierarchy depth on replicability.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -93,6 +94,27 @@
 
         </dt>
         <dd>Plot a suggest_k diagnostic</dd>
+
+        <dt>
+
+          <code><a href="comparability.html">comparability()</a></code>
+
+        </dt>
+        <dd>Split-half factor comparability</dd>
+
+        <dt>
+
+          <code><a href="print.comparability.html">print(<i>&lt;comparability&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print a comparability object</dd>
+
+        <dt>
+
+          <code><a href="autoplot.comparability.html">autoplot(<i>&lt;comparability&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Plot a comparability diagnostic</dd>
       </dl></div><div class="section level2">
       <h2 id="interpret-factors">Interpret factors<a class="anchor" aria-label="anchor" href="#interpret-factors"></a></h2>
 

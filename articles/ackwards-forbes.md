@@ -243,7 +243,7 @@ the next section in `x$prune$structural`.
 
 x_art <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all") |>
   prune("artifact")
-#> ℹ Artifact mode: Tucker's computed for all cross-level factor pairs.
+#> ℹ Artifact mode: Tucker's φ computed for all cross-level factor pairs.
 #> ℹ Structural signals computed: 2 factors flagged (few_items / orphan /
 #>   split_merge).
 #> ℹ Inspect `x$prune$phi` and `x$prune$structural`; removal is a researcher
@@ -428,7 +428,12 @@ enriches it with two questions:
 A common workflow: fit with `pairs = "all"` first to examine the full
 picture, then pipe the result through `prune(x, "redundant")` to
 identify which levels add the most new information, and use that to
-guide your focus in reporting.
+guide your focus in reporting. For where redundancy pruning sits in the
+full recommended workflow — alongside a split-half replicability gate on
+hierarchy depth
+([`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md))
+— see
+[`vignette("ackwards-girard")`](https://jmgirard.github.io/ackwards/articles/ackwards-girard.md).
 
 ## References
 

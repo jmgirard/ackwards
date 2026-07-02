@@ -151,6 +151,15 @@ every audited decision.
 - **e4** — bootstrap CIs on (skip-level) edges; the standing DESIGN §14
   deferral, re-affirmed by the M41 review as the highest-value
   statistical addition. Perf-heavy; own milestone.
+- **[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+  engine/basis extensions** (deferred from M46, DESIGN §14.35): (a) ESEM
+  support — `2 * n_splits` lavaan hierarchies per run need their own
+  performance treatment (reuse the M26 cached-sample-stats +
+  `future.apply` machinery per half); (b) polychoric basis — polychoric
+  estimation in every half-sample is slow and NPD-prone, so M46 mirrored
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)’s
+  Pearson/Spearman-only scope. Both only if demand materialises; the
+  EFA-on-Pearson screen covers the common case.
 
 ## Provenance
 

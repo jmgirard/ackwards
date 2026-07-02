@@ -2,8 +2,8 @@
 
 ## Fit the model
 
-The main modelling function, a Forbes-style pruning verb, and a helper
-for choosing k.
+The main modelling function, a Forbes-style pruning verb, and helpers
+for choosing k and gating hierarchy depth on replicability.
 
 - [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
   : Bass-ackwards hierarchical structural analysis
@@ -15,6 +15,12 @@ for choosing k.
   : Print a suggest_k object
 - [`autoplot(`*`<suggest_k>`*`)`](https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.md)
   : Plot a suggest_k diagnostic
+- [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+  : Split-half factor comparability
+- [`print(`*`<comparability>`*`)`](https://jmgirard.github.io/ackwards/reference/print.comparability.md)
+  : Print a comparability object
+- [`autoplot(`*`<comparability>`*`)`](https://jmgirard.github.io/ackwards/reference/autoplot.comparability.md)
+  : Plot a comparability diagnostic
 
 ## Interpret factors
 

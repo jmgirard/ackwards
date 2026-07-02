@@ -72,13 +72,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [305ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [190ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [175ms]
+#> ✔ Running MAP and VSS... [111ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [9.6s]
+#> ✔ Running Comparison Data (CD)... [6.2s]
 #> 
 print(sk)
 #> 
@@ -640,6 +640,7 @@ The bass-ackwards workflow in **ackwards** has six steps:
 
 | Topic | Vignette |
 |----|----|
+| The recommended end-to-end workflow, with a split-half replicability gate on hierarchy depth | [`vignette("ackwards-girard")`](https://jmgirard.github.io/ackwards/articles/ackwards-girard.md) |
 | Choosing k: the five criteria in depth, pros/cons, and best practices | [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md) |
 | When PCA is not enough: comparing EFA and ESEM engines | [`vignette("ackwards-engines")`](https://jmgirard.github.io/ackwards/articles/ackwards-engines.md) |
 | Ordinal data: polychoric correlations and WLSMV estimation | [`vignette("ackwards-ordinal")`](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.md) |

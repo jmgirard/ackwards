@@ -60,14 +60,14 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   autoplot(sk)
 }
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [130ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [57ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [96ms]
+#> ✔ Running MAP and VSS... [89ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [15.9s]
+#> ✔ Running Comparison Data (CD)... [8.9s]
 #> 
 
 # }

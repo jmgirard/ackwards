@@ -43,7 +43,12 @@ content). Forbes (2023) documents this explicitly for the bass-ackwards
 context: non-replicable structure tends to appear at the deeper levels
 of an overextracted hierarchy. Use the criteria below to identify the
 upper end of the plausible range, and treat levels near that ceiling
-with appropriate skepticism.
+with appropriate skepticism. Replicability near the ceiling can also be
+measured directly, with split-half
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+— see
+[`vignette("ackwards-girard")`](https://jmgirard.github.io/ackwards/articles/ackwards-girard.md)
+for that workflow.
 
 **No criterion is decisive on its own.** Each of the five criteria below
 captures a different aspect of the data, tends to err in a different
@@ -207,13 +212,13 @@ and citations — see
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [288ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [198ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [175ms]
+#> ✔ Running MAP and VSS... [122ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [9.8s]
+#> ✔ Running Comparison Data (CD)... [6.2s]
 #> 
 print(sk)
 #> 

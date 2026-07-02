@@ -37,6 +37,7 @@
 <li><a class="dropdown-item" href="articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><a class="dropdown-item" href="articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
@@ -99,13 +100,13 @@
 <span><span class="va">bfi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span>
 <span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [197ms]</span></span>
+<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [178ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; ✔ Running MAP and VSS... [103ms]</span></span>
+<span><span class="co">#&gt; ✔ Running MAP and VSS... [98ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [4.3s]</span></span>
+<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [4.6s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -235,6 +236,11 @@
 <tr>
 <td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-intro.html">Introduction</a></td>
 <td>Full PCA walkthrough: <code>suggest_k</code> → <code>ackwards</code> → inspect → plot → score</td>
+</tr>
+<tr>
+<td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-girard.html">Recommended workflow</a></td>
+<td>Replicability-gated hierarchies: gate depth on split-half <code><a href="reference/comparability.html">comparability()</a></code>
+</td>
 </tr>
 <tr>
 <td><a href="https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.html">Choosing k</a></td>

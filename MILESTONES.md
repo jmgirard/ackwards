@@ -1994,3 +1994,79 @@ User-facing change notes live in `NEWS.md`.
   after the new polychoric test exposed its session-order dependence.
   Post-follow-up gate: `R CMD check` 0/0/0; **1703 pass / 0 fail / 0
   skip**; coverage 100%; style/lint/`check_pkgdown()` clean.
+
+- **M46 (done):** Girard extension — replicability-gated hierarchies
+  (owner-approved 2026-07-01): split-half **factor comparability**
+  (Everett 1983; Goldberg 1990 — the method inventor’s own depth gate,
+  dropped by the modern ESEM/HiTOP lineage and untooled in R) as the
+  standalone
+  [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+  verb, plus the capstone workflow vignette. Completes the triad:
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  = plausible depth *range* (eigenstructure) ·
+  [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+  = which factors *replicate* (the depth floor) ·
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) =
+  which factors *differentiate* (Forbes redundancy).
+  **`comparability(data, k_max, engine, cor, fm, n_splits = 10, seed)`**
+  (new export): a full-sample
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  fit anchors labels (results report the user’s own `m{k}f{j}`); per
+  split, levels 1..k are fit independently in each random half via the
+  engine internals (cli noise muffled; convergence shortfalls summarised
+  once via `summary$n_splits_ok`); each half-solution is matched to the
+  anchor by greedy-with-removal max-\|r\| bijection (square, same-k —
+  well-posed unlike §7 parent matching; no `clue` dependency); the
+  coefficient is the correlation between the two matched half-solution
+  scores on the **pooled** correlation matrix, computed by
+  [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+  on a two-element levels list (**Invariant 1 — the one edge path
+  computes it**), signed after orienting both matched factors positively
+  toward the anchor; Tucker’s φ on the matched loading columns reported
+  alongside. **Report-first, judge-never**: nothing auto-flagged;
+  .90/.95 appear only as reference lines/footer prose (M32 cutoff
+  philosophy). Scope (owner decisions): PCA/EFA + pearson/spearman only
+  (ESEM’s `2 * n_splits` lavaan fits and polychoric-on-halves each
+  deferred to `ROADMAP.md`;
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  precedent for the basis restriction, with targeted pointer errors for
+  both). New
+  [`print.comparability()`](https://jmgirard.github.io/ackwards/reference/print.comparability.md)
+  (per-level median/min + weakest factor) and
+  [`autoplot.comparability()`](https://jmgirard.github.io/ackwards/reference/autoplot.comparability.md)
+  (per-split + median points, r and φ panels via plotmath — UTF-8 φ
+  strip text fails R CMD check’s pdf device). **Discriminating behaviour
+  (test-backed):** sim16’s designed 1→2→4 levels replicate at ~.99 while
+  the blend level 3 degrades (min median .58) and the overextracted m5f5
+  collapses (.14); bfi25 puts the floor exactly at the Big Five (k ≤ 5 ≥
+  .97, k = 6 degrades, k = 7 collapses with a negative worst-split
+  coefficient). Tests (66 assertions): identity (self-comparability ≡
+  1), matching invariance (permute + sign-flip a half),
+  algebra-vs-materialised-scores oracle extended to cross-solution
+  correlations (Invariant 2, 1e-12), seed reproducibility, both engines,
+  validation errors, mocked convergence-shortfall paths, print/autoplot.
+  **Vignette** `ackwards-girard.Rmd` (“Replicability-Gated Hierarchies:
+  A Recommended Workflow” — method-first title per the planning
+  discussion; “Girard” the secondary handle, Forbes-parallel filename):
+  the six-step workflow (suggest_k ceiling → comparability floor → fit →
+  prune → guarded interpretation → out-of-sample
+  [`predict()`](https://rdrr.io/r/stats/predict.html)), Everett/Goldberg
+  lineage, and a common-mistakes section (non-replicable deep factors,
+  single-split luck, strongest-edge cherry-picking, persistence ≠
+  structure, replicability ≠ validity); drift-proof inline-computed
+  prose. Cross-links from intro/suggest-k/forbes vignettes + README
+  table. **In passing:** fixed `cli::symbol$phi` (no such entry —
+  rendered empty) in
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)’s
+  artifact-mode message. **Files.** `R/comparability.R` (new),
+  `R/prune.R` (glyph fix), `tests/testthat/test-comparability.R` (new),
+  `vignettes/ackwards-girard.Rmd` (new) + 3 vignette cross-links,
+  `README.Rmd`/`README.md`, `_pkgdown.yml` (3 reference entries +
+  article), `NEWS.md`, `DESIGN.md` (§2, §8, §14 item 35, key refs),
+  `ROADMAP.md` (deferred extensions), `NAMESPACE` (+1 export, +2
+  S3methods), 3 new `man/` pages. No new dependency. **Verified.**
+  `R CMD check` **0/0/0** (full, vignettes rebuilt); suite **1769 pass /
+  0 fail / 0 skip** (+66 over M45); coverage **100%**; `styler` (0 files
+  changed) / `lintr` (0 lints) clean;
+  [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
+  clean (new exports + article indexed).

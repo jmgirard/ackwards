@@ -8,6 +8,7 @@
 <url><loc>https://jmgirard.github.io/ackwards/ROADMAP.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/articles/ackwards-engines.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html</loc></url>
+<url><loc>https://jmgirard.github.io/ackwards/articles/ackwards-girard.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/articles/ackwards-interpret.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/articles/ackwards-intro.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html</loc></url>
@@ -20,16 +21,19 @@
 <url><loc>https://jmgirard.github.io/ackwards/reference/ackwards.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/augment.ackwards.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.html</loc></url>
+<url><loc>https://jmgirard.github.io/ackwards/reference/autoplot.comparability.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/autoplot.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/autoplot.suggest_k.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/ba_layout.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/bfi25.html</loc></url>
+<url><loc>https://jmgirard.github.io/ackwards/reference/comparability.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/compute_edges.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/glance.ackwards.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/index.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/label_template.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/predict.ackwards.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/print.ackwards.html</loc></url>
+<url><loc>https://jmgirard.github.io/ackwards/reference/print.comparability.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/print.suggest_k.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/print.summary_ackwards.html</loc></url>
 <url><loc>https://jmgirard.github.io/ackwards/reference/print.top_items.html</loc></url>

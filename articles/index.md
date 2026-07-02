@@ -7,6 +7,8 @@
 
 ### Deep dives
 
+- [Replicability-Gated Hierarchies: A Recommended
+  Workflow](https://jmgirard.github.io/ackwards/articles/ackwards-girard.md):
 - [Choosing k: How Many
   Factors?](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md):
 - [Interpreting and Labeling

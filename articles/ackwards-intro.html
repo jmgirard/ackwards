@@ -35,6 +35,7 @@
 <li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
@@ -152,13 +153,13 @@ and reports a consensus range:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[305ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[190ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[175ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[111ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[9.6s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[6.2s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -722,23 +723,28 @@ factor scores for downstream use.</li>
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td>The recommended end-to-end workflow, with a split-half replicability
+gate on hierarchy depth</td>
+<td><code><a href="../articles/ackwards-girard.html">vignette("ackwards-girard")</a></code></td>
+</tr>
+<tr class="even">
 <td>Choosing k: the five criteria in depth, pros/cons, and best
 practices</td>
 <td><code><a href="../articles/ackwards-suggest-k.html">vignette("ackwards-suggest-k")</a></code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>When PCA is not enough: comparing EFA and ESEM engines</td>
 <td><code><a href="../articles/ackwards-engines.html">vignette("ackwards-engines")</a></code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Ordinal data: polychoric correlations and WLSMV estimation</td>
 <td><code><a href="../articles/ackwards-ordinal.html">vignette("ackwards-ordinal")</a></code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Skip-level connections and pruning with the Forbes extension</td>
 <td><code><a href="../articles/ackwards-forbes.html">vignette("ackwards-forbes")</a></code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Customizing the hierarchy diagram</td>
 <td><code><a href="../articles/ackwards-visualization.html">vignette("ackwards-visualization")</a></code></td>
 </tr>

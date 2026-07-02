@@ -35,6 +35,7 @@
 <li><a class="dropdown-item" href="../articles/ackwards-intro.html">Introduction to Bass-Ackwards Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Deep dives</h6></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-interpret.html">Interpreting and Labeling Factors</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
@@ -1377,7 +1378,7 @@ the next section in <code>x$prune$structural</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_art</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, pairs <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/prune.html">prune</a></span><span class="op">(</span><span class="st">"artifact"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Artifact mode: Tucker's computed for all cross-level factor pairs.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Artifact mode: Tucker's φ computed for all cross-level factor pairs.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Structural signals computed: 2 factors flagged (few_items / orphan /</span></span>
 <span><span class="co">#&gt;   split_merge).</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Inspect `x$prune$phi` and `x$prune$structural`; removal is a researcher</span></span>
@@ -3105,7 +3106,11 @@ from the k range without losing interpretive content.</p></li>
 <p>A common workflow: fit with <code>pairs = "all"</code> first to
 examine the full picture, then pipe the result through
 <code>prune(x, "redundant")</code> to identify which levels add the most
-new information, and use that to guide your focus in reporting.</p>
+new information, and use that to guide your focus in reporting. For
+where redundancy pruning sits in the full recommended workflow —
+alongside a split-half replicability gate on hierarchy depth
+(<code><a href="../reference/comparability.html">comparability()</a></code>) — see
+<code><a href="../articles/ackwards-girard.html">vignette("ackwards-girard")</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
