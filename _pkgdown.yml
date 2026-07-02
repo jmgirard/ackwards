@@ -27,6 +27,7 @@ articles:
 - title: Deep dives
   navbar: Deep dives
   contents:
+  - ackwards-girard
   - ackwards-suggest-k
   - ackwards-interpret
   - ackwards-engines

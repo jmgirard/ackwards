@@ -55,13 +55,13 @@ library(ackwards)
 bfi <- na.omit(bfi25)
 sk <- suggest_k(bfi)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [197ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [178ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [103ms]
+#> ✔ Running MAP and VSS... [98ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [4.3s]
+#> ✔ Running Comparison Data (CD)... [4.6s]
 #> 
 sk
 #> 
@@ -203,6 +203,7 @@ grep("^\\.m", names(scored), value = TRUE)
 | Vignette | Topic |
 |----|----|
 | [Introduction](https://jmgirard.github.io/ackwards/articles/ackwards-intro.html) | Full PCA walkthrough: `suggest_k` → `ackwards` → inspect → plot → score |
+| [Recommended workflow](https://jmgirard.github.io/ackwards/articles/ackwards-girard.html) | Replicability-gated hierarchies: gate depth on split-half `comparability()` |
 | [Choosing k](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.html) | Five criteria explained: pros/cons, bias direction, engine pairing |
 | [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA; convergence and loading comparison |
 | [Ordinal data](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html) | Polychoric correlations, attenuation bias, and WLSMV estimation |
