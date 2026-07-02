@@ -7,16 +7,14 @@ this file captures the **intent and source notes** for the
 *not-yet-built* milestones, so their context survives across planning
 sessions.
 
-This file currently holds the **still-pending findings of the M41
-independent review** (statistical correctness, software design, vignette
-quality, and a defaults/decision audit; conducted 2026-07-01 by Claude
-Fable 5). **M42 fixed the code findings** (C1, M1, m1, m2, m6, m7, m8,
-m10, e3) and **M43 fixed the doc findings** (M2–M5, m3, m4, m5, m9, m11,
-e1) — see their `MILESTONES.md` entries; fixed items are removed below
-per this file’s maintenance rule. What remains pending is the
-Forbes-fixture scoping question (proposed M44) and two unscheduled
-enhancements. The “verified clean” and defaults-audit sections at the
-bottom are **reference results** of the completed review (the M41
+**The M41 review remediation is complete.** M42 fixed the code findings
+(C1, M1, m1, m2, m6, m7, m8, m10, e3), M43 fixed the doc findings
+(M2–M5, m3, m4, m5, m9, m11, e1), and M44 resolved the last finding (M6)
+by shipping a Forbes-fidelity fixture test — see their `MILESTONES.md`
+entries. **There are currently no pending milestones**; the unscheduled
+ideas below would each need a scoping discussion before a
+`/plan-milestone` run. The “verified clean” and defaults-audit sections
+at the bottom are **reference results** of the completed review (the M41
 `MILESTONES.md` entry points here for their detail), not pending work.
 
 ------------------------------------------------------------------------
@@ -69,46 +67,12 @@ numerically on `na.omit(bfi25)` (n = 816) and `sim16` unless noted:
 
 ## Findings
 
-### Critical
-
-*(none pending — C1, the EFA chi/p-value pairing, was fixed in M42.)*
-
-### Major
-
-*(M2–M5, the vignette findings, were fixed in M43; M6 below remains.)*
-
-**M6. The Forbes fidelity contract is untested.** CLAUDE.md states “the
-default output must reproduce Forbes’s examples exactly” as the baseline
-contract, but no test anywhere reproduces any Forbes (2023) example —
-`test-prune.R` asserts the retention rule and chain structure on
-constructed/simulated cases only (good tests, wrong question). The
-algorithm matches the paper’s *description* (thresholds, conjunctive φ,
-retention rule — verified in this review), but “reproduces her examples
-exactly” is an empirical claim no one has checked. **Fix (scoping
-decision for the owner):** if Forbes’s OSF materials/data are
-obtainable, add a fixture test reproducing a published chain/pruning
-table; if not, soften the CLAUDE.md contract wording to “faithful to the
-published algorithm” so the docs don’t promise a verification that
-doesn’t exist.
-
-### Minor
-
-*(all fixed: m1, m2, m6, m7, m8, m10 in M42; m3, m4, m5, m9, m11 in
-M43.)*
-
-### Enhancements / justification fixes (no behavior change)
-
-*(e1 fixed in M43; e3 in M42.)*
-
-- **e2.** Consider exposing both chi-squares for EFA (`chi` = likelihood
-  — the M42/C1 fix, `chi_empirical` = psych’s residual-based) — psych
-  prints both for a reason (the empirical one is robust to
-  non-normality/NPD matrices). Owner set this aside when approving M42
-  (“can be revisited later”).
-- **e4.** Bootstrap CIs on (skip-level) edges — the standing DESIGN §14
-  deferral; this review re-affirms it as the highest-value statistical
-  addition (the selection-bias concern about “strongest edge” claims is
-  real) and as its own perf-heavy milestone.
+**All findings are resolved.** Critical: C1 fixed in M42. Major: M2–M5
+fixed in M43; M6 (the untested Forbes-fidelity contract) fixed in M44
+via a fixture test reproducing the paper’s three simulation studies
+against Forbes’s own reference implementation. Minor: m1, m2, m6, m7,
+m8, m10 in M42; m3, m4, m5, m9, m11 in M43. Enhancements: e3 in M42; e1
+in M43; e2 and e4 remain as unscheduled ideas (above).
 
 ------------------------------------------------------------------------
 
@@ -167,13 +131,26 @@ every audited decision.
 
 ------------------------------------------------------------------------
 
-## Proposed follow-up milestones (each needs its own /plan-milestone)
+## Unscheduled ideas (each needs a scoping discussion before /plan-milestone)
 
-- **M44 — Forbes fixture (scoping):** M6 — owner decides: obtain
-  Forbes (2023) materials and add an exact-reproduction test, or amend
-  the CLAUDE.md contract wording.
-- **(Unscheduled)** e2 (dual chi-squares for EFA) and e4 (bootstrap-CI
-  milestone, deferred in DESIGN §14).
+- **AMH applied-example fidelity extension.** The M44 feasibility study
+  verified `ackwards` against Forbes’s reference implementation on her
+  full 155-variable AMH applied example (max deviation 3.9e-14 across
+  all 45 level-pairs at `k_max = 10`), but the AMH Spearman matrix
+  (`corSpearman_AMH.csv`, OSF `pcwm8`) carries **no license**, so it was
+  not committed. Options when the owner contacts Forbes: (a) she adds a
+  license/permission → commit a fixture like the simulation one; (b)
+  keep it uncommitted and add a `skip_if_offline()`/`skip_on_cran()`
+  test that downloads the matrix from OSF at test time (no
+  redistribution; expected values from the M44 feasibility run). The
+  download URLs and comparison script survive in the M44 milestone
+  entry.
+- **e2** — dual chi-squares for EFA (`chi` = likelihood — the M42/C1
+  fix, `chi_empirical` = psych’s residual-based; psych prints both for a
+  reason). Owner set aside at M42.
+- **e4** — bootstrap CIs on (skip-level) edges; the standing DESIGN §14
+  deferral, re-affirmed by the M41 review as the highest-value
+  statistical addition. Perf-heavy; own milestone.
 
 ## Provenance
 
