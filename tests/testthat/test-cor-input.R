@@ -247,10 +247,11 @@ test_that("suggest_k() print works without error for R input", {
 
 test_that("suggest_k() n_obs ignored for raw data with warning", {
   skip_if_not_installed("psych")
+  # Continuous sim16 keeps the ordinal-detection warning out of the way, and
   # k_max = 2 stays within CD's extractable-factor limit for 6 vars, so the
   # only warning raised is the n_obs one under test.
   expect_warning(
-    suggest_k(bfi25[, 1:6], k_max = 2L, n_obs = 999L, n_iter = 5L),
+    suggest_k(sim16[, 1:6], k_max = 2L, n_obs = 999L, n_iter = 5L),
     "n_obs.*ignored"
   )
 })
