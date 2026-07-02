@@ -1293,3 +1293,20 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   **Verified.** `R CMD check` **0/0/0** (full, vignettes rebuilt); suite **1769 pass / 0 fail /
   0 skip** (+66 over M45); coverage **100%**; `styler` (0 files changed) / `lintr` (0 lints)
   clean; `pkgdown::check_pkgdown()` clean (new exports + article indexed).
+  **Post-review follow-up** (same day; addressed all five /post-milestone-review findings — 1
+  should-fix + 4 nice-to-haves): cross-solution matrices carrying NA cells (pathological pairwise
+  missingness reaching the pooled R) now degrade to NA coefficients for the level instead of an
+  opaque subscript error (guard in `.level_comparability()`, Invariant-7 framing); new
+  `.check_unknown_dots()` (utils.R) makes `ackwards()`, `suggest_k()`, and `comparability()`
+  error loudly on anything unknown passed through reserved `...` — named typos (`kmax = 6`,
+  `nsplits = 20`) and unnamed extras both — closing the masked-argument footgun package-wide for
+  plain functions (S3 methods keep permissive dots per generic contracts; `ackwards()`'s specific
+  moved-to-`prune()` pointer retained; NEWS "Stricter argument checking"); `.fit_half()`'s error
+  handler exercised with a real zero-variance-column half (both engines return an empty levels
+  list; `# nocov` removed); `comparability` objects gain **`k_requested`** alongside the
+  effective `k_max` and `print()` appends "(requested 1-K; full-sample fit truncated)" when the
+  anchor truncated (mocked-anchor smoke test); new tests for `n_splits = 1` (median ≡ min),
+  the `cor = "spearman"` fit path, and `autoplot()` on an all-NA-level shortfall object (NA rows
+  dropped from plot data). Post-follow-up gate: `R CMD check` 0/0/0 (full); **1791 pass / 0 fail /
+  0 skip** (+22); coverage 100% (no remaining `# nocov` in comparability.R); style/lint/
+  `check_pkgdown()` clean.

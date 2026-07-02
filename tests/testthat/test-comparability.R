@@ -21,11 +21,12 @@ test_that("comparability() returns a well-formed object", {
   expect_named(
     cmp,
     c(
-      "coefficients", "summary", "k_max", "n_splits", "n_half", "engine",
-      "cor", "fm", "n_obs", "n_vars", "seed", "call"
+      "coefficients", "summary", "k_max", "k_requested", "n_splits", "n_half",
+      "engine", "cor", "fm", "n_obs", "n_vars", "seed", "call"
     )
   )
   expect_equal(cmp$k_max, 5L)
+  expect_equal(cmp$k_requested, 5L)
   expect_equal(cmp$n_splits, 4L)
   expect_equal(cmp$n_half, 500L)
   expect_equal(cmp$engine, "pca")
@@ -285,4 +286,83 @@ test_that("autoplot.comparability() builds a ggplot", {
   # Both panels present: score comparability and loading congruence.
   built <- ggplot2::ggplot_build(p)
   expect_equal(length(levels(built$plot$data$panel)), 2L)
+})
+
+# ---- Post-review follow-up coverage ---------------------------------------------
+
+test_that(".level_comparability() returns NA rows when cross matrices carry NA", {
+  R <- stats::cor(sim16)
+  lev <- pca_levels(R, k_max = 2L)$levels[["2"]]
+  # An NA cell in the pooled R (pathological pairwise missingness) propagates
+  # into the cross-solution matrices; matching must degrade to NA, not crash.
+  R_bad <- R
+  R_bad[1L, 2L] <- R_bad[2L, 1L] <- NA_real_
+  out <- .level_comparability(lev, lev, lev, R_bad)
+  expect_equal(out$factor, lev$labels)
+  expect_true(all(is.na(out$r)))
+  expect_true(all(is.na(out$phi)))
+})
+
+test_that(".fit_half() returns an empty levels list when a half cannot be factored", {
+  d <- as.matrix(sim16[1:100, 1:6])
+  d[, 6] <- 1 # zero-variance column -> NA row/col in the half R
+  expect_identical(.fit_half(d, k_max = 3L, engine = "pca", cor = "pearson", fm = "minres"), list())
+  expect_identical(.fit_half(d, k_max = 3L, engine = "efa", cor = "pearson", fm = "minres"), list())
+})
+
+test_that("unknown arguments in ... error loudly (typo guard)", {
+  expect_error(comparability(sim16, k_max = 3, nsplits = 20), "Unknown argument")
+  expect_error(suggest_k(sim16, kmax = 4), "Unknown argument")
+  expect_error(ackwards(sim16, k_max = 3, alignsigns = FALSE), "Unknown argument")
+  # Unnamed extras are rejected too.
+  expect_error(comparability(sim16, 3, "pca", "pearson", "minres", 2, NULL, 42), "unnamed extra")
+  # The M34 moved-args guard keeps its more specific message.
+  expect_error(ackwards(sim16, k_max = 3, prune = "redundant"), "no longer")
+})
+
+test_that("comparability() works with a single split and the spearman basis", {
+  cmp1 <- suppressMessages(comparability(sim16, k_max = 2, n_splits = 1, seed = 5))
+  expect_equal(cmp1$n_splits, 1L)
+  # With one split the median and min across splits coincide.
+  expect_identical(cmp1$summary$r_median, cmp1$summary$r_min)
+
+  cmp_sp <- suppressMessages(
+    comparability(sim16, k_max = 2, cor = "spearman", n_splits = 2, seed = 5)
+  )
+  expect_equal(cmp_sp$cor, "spearman")
+  expect_true(all(cmp_sp$summary$r_median > 0.9)) # sim16's 2-level structure
+})
+
+test_that("a truncated full-sample anchor is recorded and printed", {
+  real_ackwards <- ackwards
+  testthat::local_mocked_bindings(
+    # Simulate the anchor truncating (non-convergence below the request):
+    # whatever k_max comparability() asks for, the full-sample fit stops at 2.
+    ackwards = function(data, k_max, ...) real_ackwards(data, k_max = 2L, ...),
+    .package = "ackwards"
+  )
+  cmp <- suppressMessages(comparability(sim16, k_max = 3, n_splits = 2, seed = 1))
+  expect_equal(cmp$k_max, 2L)
+  expect_equal(cmp$k_requested, 3L)
+  expect_true(all(cmp$coefficients$level <= 2L))
+  expect_no_error(print(cmp)) # "(requested 1-3; ...)" suffix branch
+})
+
+test_that("autoplot.comparability() handles all-NA levels from shortfalls", {
+  skip_if_not_installed("ggplot2")
+  real_fit_half <- .fit_half
+  testthat::local_mocked_bindings(
+    .fit_half = function(data_half, k_max, engine, cor, fm) {
+      out <- real_fit_half(data_half, k_max, engine, cor, fm)
+      out[["3"]] <- NULL # level 3 "fails" in every half
+      out
+    },
+    .package = "ackwards"
+  )
+  cmp <- suppressMessages(comparability(sim16, k_max = 3, n_splits = 2, seed = 1))
+  p <- autoplot(cmp)
+  expect_s3_class(p, "ggplot")
+  # NA coefficients are dropped from the plot data, not drawn.
+  expect_false(anyNA(p$data$value))
+  expect_true(all(p$data$level <= 2L))
 })

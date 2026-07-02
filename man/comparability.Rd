@@ -60,8 +60,11 @@ columns). \code{NA} when the level did not converge in one of the halves.}
 \item{summary}{Data frame with one row per level x factor: \code{level},
 \code{factor}, \code{r_median}, \code{r_min}, \code{phi_median}, \code{phi_min} (across splits),
 and \code{n_splits_ok} (splits in which both halves converged).}
-\item{k_max}{Deepest level evaluated (after any full-sample truncation).}
-\item{n_splits, n_half, engine, cor, fm, n_obs, n_vars, seed}{Metadata.}
+\item{k_max}{Deepest level evaluated. Can be lower than the \code{k_max} you
+asked for when the full-sample fit truncated (non-convergence at deep
+levels); the original request is kept in \code{k_requested}.}
+\item{k_requested, n_splits, n_half, engine, cor, fm, n_obs, n_vars,
+seed}{Metadata.}
 }
 \description{
 Measures how well each factor at each level of a bass-ackwards hierarchy

@@ -88,8 +88,11 @@
 #'   \item{summary}{Data frame with one row per level x factor: `level`,
 #'     `factor`, `r_median`, `r_min`, `phi_median`, `phi_min` (across splits),
 #'     and `n_splits_ok` (splits in which both halves converged).}
-#'   \item{k_max}{Deepest level evaluated (after any full-sample truncation).}
-#'   \item{n_splits, n_half, engine, cor, fm, n_obs, n_vars, seed}{Metadata.}
+#'   \item{k_max}{Deepest level evaluated. Can be lower than the `k_max` you
+#'     asked for when the full-sample fit truncated (non-convergence at deep
+#'     levels); the original request is kept in `k_requested`.}
+#'   \item{k_requested, n_splits, n_half, engine, cor, fm, n_obs, n_vars,
+#'     seed}{Metadata.}
 #'
 #' @seealso [suggest_k()] for the plausible depth *range* (eigenstructure),
 #'   [prune()] for factors that perpetuate without differentiating
@@ -119,6 +122,7 @@
 comparability <- function(data, k_max, engine = "pca", cor = "pearson",
                           fm = "minres", n_splits = 10L, seed = NULL, ...) {
   cl <- match.call()
+  .check_unknown_dots(list(...), "comparability")
 
   # Targeted messages for the two deliberately unsupported values before the
   # generic arg_match errors (both are documented scope decisions, not typos).
@@ -259,6 +263,7 @@ comparability <- function(data, k_max, engine = "pca", cor = "pearson",
       coefficients = coefficients,
       summary = summary_df,
       k_max = k_eff,
+      k_requested = as.integer(k_max),
       n_splits = n_splits,
       n_half = n_half,
       engine = engine,
@@ -277,7 +282,8 @@ comparability <- function(data, k_max, engine = "pca", cor = "pearson",
 # Engine warnings (Heywood, per-level truncation) are muffled here: across
 # 2 * n_splits fits they would repeat unusably, and their aggregate signal is
 # exactly what the coefficients + n_splits_ok report. A half whose correlation
-# matrix cannot be factored at all yields an empty list (all-NA split).
+# matrix cannot be factored at all (e.g. a zero-variance column) yields an
+# empty list (all-NA split).
 .fit_half <- function(data_half, k_max, engine, cor, fm) {
   out <- tryCatch(
     suppressMessages(suppressWarnings({
@@ -289,7 +295,7 @@ comparability <- function(data, k_max, engine = "pca", cor = "pearson",
         )
       )
     })),
-    error = function(e) list(levels = list()) # nocov
+    error = function(e) list(levels = list())
   )
   out$levels
 }
@@ -347,6 +353,13 @@ comparability <- function(data, k_max, engine = "pca", cor = "pearson",
   e_fb <- .cross_cor(lev_f, lev_b, R)
   e_ab <- .cross_cor(lev_a, lev_b, R)
 
+  # Pathological pairwise missingness can leave NA cells in the pooled R and
+  # hence here; matching is then undefined, so report NA for the level rather
+  # than crash mid-run (estimability is data, not an error -- Invariant 7).
+  if (anyNA(e_fa) || anyNA(e_fb) || anyNA(e_ab)) {
+    return(na_out)
+  }
+
   ja <- .match_square(e_fa)
   jb <- .match_square(e_fb)
 
@@ -378,7 +391,16 @@ print.comparability <- function(x, ...) {
       " (", format(x$n_half, big.mark = ","), " per half)"
     ),
     "Splits" = as.character(x$n_splits),
-    "Levels" = paste0("1-", x$k_max)
+    "Levels" = paste0(
+      "1-", x$k_max,
+      # k_requested absent on pre-follow-up objects; show the suffix only when
+      # the full-sample anchor genuinely truncated below the request.
+      if (!is.null(x$k_requested) && x$k_requested > x$k_max) {
+        paste0(" (requested 1-", x$k_requested, "; full-sample fit truncated)")
+      } else {
+        ""
+      }
+    )
   ))
 
   cli::cli_h2("Comparability by level (median across splits)")

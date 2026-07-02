@@ -24,6 +24,19 @@
   replicability (`comparability()`), fit (`ackwards()`), separate persistence
   from differentiation (`prune()`), interpret with guardrails, and validate
   downstream out of sample (`predict()`). Includes a common-mistakes section.
+- `comparability` objects record `k_requested` alongside the effective
+  `k_max`, and `print()` notes when the full-sample fit truncated below the
+  request. Cross-solution matrices carrying `NA` cells (pathological pairwise
+  missingness) now degrade to `NA` coefficients for the level instead of
+  erroring mid-run.
+
+## Stricter argument checking
+
+- `ackwards()`, `suggest_k()`, and `comparability()` now error on unknown
+  arguments passed through `...`. Previously a misspelled argument — e.g.
+  `kmax = 6` or `nsplits = 20` — was silently absorbed and the function ran
+  with the default instead. (`ackwards()`'s pointer for the arguments that
+  moved to `prune()` is unchanged.)
 
 ## Out-of-sample scoring (cross-validation)
 
