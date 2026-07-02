@@ -1,4 +1,4 @@
-# ROADMAP.md — planned milestones (none pending)
+# ROADMAP.md — planned milestones (M41 review findings; follow-ups to be scoped)
 
 Forward-looking counterpart to
 [`MILESTONES.md`](https://jmgirard.github.io/ackwards/MILESTONES.md).
@@ -7,34 +7,333 @@ this file captures the **intent and source notes** for the
 *not-yet-built* milestones, so their context survives across planning
 sessions.
 
-**There are currently no pending milestones.** The M31–M40 arc — the
-correctness sweep (M31–M32), the documentation/UX epic (M33–M39), and
-the deferred code/viz asks (M40) — has shipped in full. The last pending
-item, M40’s three spin-off asks, was completed on **2026-07-01**: the
-ordinal correlation-comparison viz (dodged bar chart) and the Forbes
-pruned-level italic axis labels shipped as code/viz; the ordinal
-`categorical` convenience flag was **declined** as redundant
-(`cor = "polychoric"` already auto-selects WLSMV). See M40’s
-`MILESTONES.md` entry.
+This file currently holds the **findings of the M41 independent review**
+(statistical correctness, software design, vignette quality, and a
+defaults/decision audit; conducted 2026-07-01 by Claude Fable 5 — the
+package was planned by Opus, implemented by Sonnet, and previously
+reviewed by Opus). Each Critical/Major finding was verified with a
+runnable reproduction before being recorded; the verification scripts
+lived in the session scratchpad and their key numbers are quoted inline.
+Fixes are **not** applied by M41 (review-only); they are grouped into
+proposed follow-up milestones at the end, each of which needs its own
+`/plan-milestone` run.
 
-For deferred / out-of-scope work that is *not* scheduled, see
-`DESIGN.md` §14 (“Decisions resolved & remaining”) and the “Out of scope
-for now” list in `CLAUDE.md` — e.g. bootstrap CIs on skip-level edges,
-EAP scoring for ordinal ESEM, oblique rotation, higher-order SEM. None
-of these is a planned milestone; each would need its own scoping
-discussion before a `/plan-milestone` run.
+------------------------------------------------------------------------
+
+## What was verified clean (no action needed)
+
+The statistical core survives independent re-derivation. Verified
+numerically on `na.omit(bfi25)` (n = 816) and `sim16` unless noted:
+
+- **tenBerge weights** — `.tenBerge_weights()`’s
+  `W = R⁻¹L(L'R⁻¹L)^{-1/2}` matches the ten Berge et al. (1999)
+  orthogonal-case formula and agrees with
+  `psych::factor.scores(method = "tenBerge")` to 1.6e-15; `W'RW = I`
+  holds to 1e-8.
+- **Edge algebra & standardization** —
+  [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)’s
+  `W'RW` with `sqrt(diag(W'RW))` standardization re-derived
+  independently; algebra vs. materialized-scores agreement 2.3e-15
+  (PCA), and the existing suite carries the same oracle plus a
+  [`psych::bassAckward()`](https://rdrr.io/pkg/psych/man/bassAckward.html)
+  comparison for both PCA and EFA.
+- **Sign alignment (M35 contract)** — every primary-parent edge ≥ 0 on
+  PCA and EFA, `pairs = "all"` included; the skip-level recompute path
+  (`ackwards.R` final
+  [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+  from flipped weights) is algebraically identical to sweeping, so
+  skip-level signs are correct.
+- **Forbes machinery** — Tucker’s φ formula exact; DFS chain enumeration
+  and the retention rule (bottom iff chain reaches `k_max`, else top)
+  verified on all five sim16 chains; the primary-parent-only restriction
+  on chain links is **mathematically lossless** for thresholds \> √.5: a
+  child’s squared correlations with its orthogonal parents sum to ≤ 1,
+  so only the primary parent can reach \|r\| ≥ .9.
+- **ESEM fit extraction** — engine fit rows match
+  [`lavaan::fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)
+  exactly: naive values under ML, scaled variants under WLSMV (chi/CFI
+  verified to 1e-8), `BIC = NA` under WLSMV; polychoric edge `R` is
+  bit-identical to lavaan’s `sampstat$cov` (never psych’s polychoric);
+  `factor_cor = I` under varimax; per-level variance sorted descending.
+- **`suggest_k` mappings** — MAP/VSS-1/VSS-2 recommendations match
+  direct [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html)
+  output; MAP correctly computed on components (`fm = "pc"`, per
+  Velicer’s definition).
+- **Missing-data guard matrix (M16/M38)** — `.resolve_missing()`
+  enforces exactly the documented combinations; PCA cumulative variance
+  equals the top-k eigenvalue share; `detect_ordinal()` boundary
+  behavior (8-level integer not flagged, binary flagged) as documented.
+
+------------------------------------------------------------------------
+
+## Findings
+
+### Critical
+
+**C1. EFA fit row pairs the empirical chi-square with the
+likelihood-ratio p-value.** `engine_efa.R:117-127` reports `fit$chi` as
+`chi` but `fit$PVAL` as `p_value`. In
+[`psych::fa`](https://rdrr.io/pkg/psych/man/fa.html), `$chi` is the
+*empirically derived* chi-square while `$PVAL` is the p-value of
+`$STATISTIC` (the normal-theory/ML chi-square); `$RMSEA` and `$TLI` also
+derive from `$STATISTIC`. Reproduction (`na.omit(bfi25)`, k = 3):
+`STATISTIC = 1763.4`, `chi = 1085.1`, reported pair = (1085.1, p =
+4.2e-235) — but `pchisq(1085.1, 272)` gives p = 1.3e-111. A user quoting
+the `tidy(what = "fit")` row as “χ²(272) = 1085.1, p = 4.2e-235”
+misreports; the pair is internally inconsistent and inconsistent with
+the RMSEA/TLI in the same row. **Fix:** report `$STATISTIC` as `chi`
+(making the whole row one statistical framing, mirroring the M31 ESEM
+scaled-row rationale); optionally also expose the empirical chi-square
+under its own name. Surfaces in `tidy(what = "fit")`,
+[`summary()`](https://rdrr.io/r/base/summary.html) (which prints `chi`
+for EFA), and the engines vignette’s rendered fit tables.
+
+### Major
+
+**M1. `drop_pruned = TRUE` regression for `pairs = "adjacent"` objects
+(M34).** `.drop_pruned_nodes()` (`layout.R:167`) selects each kept
+node’s strongest edge *from the object’s stored tidy edges* and its
+comment still claims all-pairs edges are “guaranteed whenever prune !=
+‘none’ (M5 auto-upgrades pairs = ‘all’)” — an invariant **M34 removed**
+([`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) now
+recomputes all-pairs edges internally and never writes them back).
+Reproduction: `ackwards(d, k_max = 4)` (default adjacent)
+`|> prune(manual = c("m2f1", "m2f2"))`, then `drop_pruned` — the kept
+level-3 nodes have **zero incoming edges** (their only stored parents
+were pruned, and no 1:3 skip edges exist in the adjacent-only tidy
+table). The Forbes vignette doesn’t trip this only because its examples
+happen to use `pairs = "all"`. **Fix:** recompute all-pairs edges inside
+the drop-pruned path (mirror
+[`prune.ackwards()`](https://jmgirard.github.io/ackwards/reference/prune.md)’s
+`compute_edges(pairs = "all")` recompute), and delete the stale comment.
+Display-layer only; no stored numbers are wrong.
+
+**M2. Engines vignette “Missing data” section documents pre-M38
+behavior.** `vignettes/ackwards-engines.Rmd` (Missing data + FIML
+subsection + “Which option to use?” table) still states `"fiml"` is
+**ESEM-only** and “Errors for PCA/EFA”, presents the manual
+[`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html) →
+cor-matrix route as the only PCA/EFA option, and says “A future release
+may promote this pattern to a first-class `missing = 'fiml'` route” —
+**M38 shipped exactly that**. The vignette now contradicts
+[`?ackwards`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+and actual behavior (`missing = "fiml"` works for PCA/EFA on the Pearson
+basis and announces itself via cli). M37 wrote this section with a
+forward reference; M38 (code) never circled back to it, and M39’s prose
+pass didn’t cover the engines vignette. **Fix:** rewrite the section
+around the first-class route; keep the corFiml seam as a “what it does
+under the hood / non-Pearson caveat” note; update the recommendation
+table row.
+
+**M3. suggest-k vignette misstates the Comparison Data mechanism.** “CD
+resamples from the marginal item distributions **without preserving
+inter-item correlations**, so on datasets with strong structure it can
+over-retain” (worked-recommendation section). Ruscio & Roche (2012)
+comparison data are generated to reproduce the observed **correlation
+structure under a known k-factor model** (plus the marginal
+distributions) — preserving the correlational structure is precisely the
+method’s advance over PA. The earlier five-criteria description in the
+same vignette is fine; this later sentence is wrong and the “therefore
+it can over-retain” causal claim built on it is unsupported. **Fix:**
+correct the mechanism sentence and re-derive (or drop) the
+over-retention aside.
+
+**M4. Forbes vignette presents the artifact rule’s by-construction zero
+as an empirical finding.** “For the BFI, the artifact criterion flags
+`r n_artifact` factors — no factor at any level has a loading pattern
+more similar to a factor from a non-adjacent level… This is a good
+result for a well-validated instrument.” But `prune(x, "artifact")`
+**never auto-flags** (DESIGN §14.21), so `n_artifact` is 0 for every
+dataset; the same vignette’s “Tuning the thresholds” section states this
+correctly (“no factors are auto-flagged”), making the vignette
+internally contradictory. The opening definition (“a factor whose
+loading pattern is more similar to a factor at a non-adjacent level than
+to its own-level neighbors”) also implies a specific automated
+comparison that is not what the code computes (it reports φ for *all*
+cross-level pairs, plus structural signals, for researcher judgment).
+**Fix:** rewrite the artifact section around report-and-judge semantics
+— show `x$prune$phi` extremes instead of the vacuous zero-count table.
+
+**M5. Forbes vignette still describes the retired `cut_strong` linetype
+split.** “Solid lines indicate strong connections (\|r\| ≥ 0.5 by
+default); dashed lines indicate weaker ones — the same `cut_strong`
+threshold used throughout” — `cut_strong` was retired in **M35**
+(deprecated arg, warning, no effect), and the figures above that
+sentence are drawn with uniform black lines (`edge_linewidth = 0.6`).
+Nothing in the current render produces a solid/dashed split. **Fix:**
+delete/replace the sentence (and audit the paragraph for other pre-M35
+remnants).
+
+**M6. The Forbes fidelity contract is untested.** CLAUDE.md states “the
+default output must reproduce Forbes’s examples exactly” as the baseline
+contract, but no test anywhere reproduces any Forbes (2023) example —
+`test-prune.R` asserts the retention rule and chain structure on
+constructed/simulated cases only (good tests, wrong question). The
+algorithm matches the paper’s *description* (thresholds, conjunctive φ,
+retention rule — verified in this review), but “reproduces her examples
+exactly” is an empirical claim no one has checked. **Fix (scoping
+decision for the owner):** if Forbes’s OSF materials/data are
+obtainable, add a fixture test reproducing a published chain/pruning
+table; if not, soften the CLAUDE.md contract wording to “faithful to the
+published algorithm” so the docs don’t promise a verification that
+doesn’t exist.
+
+### Minor
+
+- **m1.**
+  [`print.suggest_k()`](https://jmgirard.github.io/ackwards/reference/print.suggest_k.md)
+  emits `min()/max()` warnings and an `Inf` consensus when every
+  requested criterion is NA (e.g. `criteria = "pa_fa"` with an
+  undetermined PA-FA). Reproduced. Guard the consensus block when
+  `all_k` is empty.
+- **m2.**
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  silently caps `pa$ncomp`/`pa$nfact` at `k_max` — a PA recommendation
+  above the evaluated ceiling prints as `k <= k_max` with no hint the
+  criterion wanted more. Announce the cap (Invariant 6) or report the
+  uncapped value with a note.
+- **m3.** Forbes vignette chain example: “the intermediate nodes m3f2
+  and m4f2 are flagged” — for a chain reaching `k_max` the retention
+  rule keeps only the bottom node, so the **top** node is flagged too.
+  The illustrative sentence misstates the rule the code (correctly)
+  implements.
+- **m4.** Engines vignette “Choosing an engine” table recommends
+  `"pca", fm = "pca"` for replicating Goldberg — `fm = "pca"` is not a
+  legal value (`minres`/`ml`/`pa`) and errors; `fm` is EFA-only anyway.
+  Should read plain `engine = "pca"`.
+- **m5.** Engines vignette says “the BFI with \> 2,000 participants” —
+  the vignette fits `na.omit(bfi25)` (1,000 rows, 816 complete). Stale
+  from a [`psych::bfi`](https://rdrr.io/pkg/psych/man/bfi.html) (n =
+  2,800) draft.
+- **m6.** `.summary_lineage()` comment says `fill_primary()` “leaves
+  is_primary = NA on skip-level edges” — it converts all remaining NAs
+  to FALSE (`compute_edges.R:169`); the
+  [`which()`](https://rdrr.io/r/base/which.html) NA-guard is dead
+  protection with a misleading justification.
+- **m7.** `esem_levels()` accepts an `n_obs` argument it never uses
+  (dead parameter).
+- **m8.** `ackwards(cut_show = )`, `autoplot(cut_show = )`, and
+  `suggest_k(n_iter = )` are unvalidated (e.g. `cut_show = 5` silently
+  yields an edgeless-looking tidy table; `n_iter = 0` fails deep inside
+  psych). Cheap `(0, 1]` / positive-integer guards.
+- **m9.** `data-raw/sim16.R` header comments use the pre-M34 API
+  (`prune(artefact = TRUE)`, `prune(redundant = TRUE)`) and “phi \>=
+  .95” (the filter is strict `>`); `R/data.R`
+  ([`?sim16`](https://jmgirard.github.io/ackwards/reference/sim16.md))
+  says “6-criteria consensus,” counting VSS twice without saying so.
+- **m10.** `.ba_fit_plot()`’s caption names all four Hu-Bentler
+  thresholds even for EFA panels that show only TLI/RMSEA.
+- **m11.** suggest-k vignette hardcodes stochastic PA outcomes in prose
+  (“PA-FA exceeds PA-PC in this run (6 vs. 5)”, “CD agrees with PA-FA (k
+  = 6)”); `fa.parallel` ignores `seed`, so a vignette rebuild can
+  contradict its own prose. Compute these inline (the sim16 section
+  already does it right) or hedge harder.
+
+### Enhancements / justification fixes (no behavior change)
+
+- **e1.** §9’s PCA rationale for `redundancy_phi = NULL` (“no φ filter —
+  the W’RW algebra is exact”) conflates two properties. The algebra is
+  equally exact for tenBerge-scored EFA; the *actual* reason PCA needs
+  no congruence guard is that **component scores are determinate** (no
+  factor-score indeterminacy), so `|r|` between component scores is the
+  true correlation between the components themselves. The EFA/ESEM half
+  of the rationale (indeterminacy) is correct — the PCA half should say
+  determinacy, not algebra-exactness. Fix wording in DESIGN §9,
+  CLAUDE.md, and
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+  roxygen.
+- **e2.** Consider exposing both chi-squares for EFA (`chi` =
+  likelihood, `chi_empirical` = psych’s residual-based) once C1 is fixed
+  — psych prints both for a reason (the empirical one is robust to
+  non-normality/NPD matrices).
+- **e3.** `detect_ordinal()` could name the offending columns in its
+  warning (currently a dataset-level yes/no), making the advice
+  actionable for mixed data.
+- **e4.** Bootstrap CIs on (skip-level) edges — the standing DESIGN §14
+  deferral; this review re-affirms it as the highest-value statistical
+  addition (the selection-bias concern about “strongest edge” claims is
+  real) and as its own perf-heavy milestone.
+
+------------------------------------------------------------------------
+
+## Defaults & decision audit (Phase 4 verdicts)
+
+Every DESIGN §9 defaults-table row and §14 numbered decision was audited
+for both the choice and its stated justification. Verdicts: **sound**
+unless listed below.
+
+**§9 rows — all sound**, with two annotations: `redundancy_phi`
+auto-rule is **sound-but-misjustified** on the PCA side (see e1; the
+0.95 value itself is a defensible borrow of Lorenzo-Seva & ten Berge’s
+equivalence threshold, applied conjunctively — conservative by
+construction); `missing = "pairwise"` is sound *given* the documented
+ESEM ML/MLR inconsistency and its per-call warning (the M16 disclosure
+regime is the right call).
+
+**§14 decisions 1–33 — all sound.** Spot-checked in detail: item 6 (≤ 7
+distinct integer values) is an honest, documented heuristic with the
+expected false-positive (integer-coded counts) and false-negative (8+
+category Likert) edges — acceptable for a warning-only signal; item
+7/§14.1 (CF(κ=1/p) ≡ varimax, kappa removal) verified against Crawford &
+Ferguson (1970)/Browne (2001); item 19 (\|r\| ≥ .9, retention rule, φ \>
+.95 conjunctive) verified faithful to Forbes both in code and output;
+items 27–31 (prune verb) sound as a design but shipped the M1 regression
+above — the *decision* was right, the migration missed one consumer;
+items 32–33 (M38 FIML + `n_obs` strings) sound and well-cited (Enders
+2010; Zhang & Savalei 2020), but shipped the M2 doc gap.
+
+**Declined decisions — all declines hold.** EAP (shrinkage attenuates
+the cross-level signal — statistically correct reasoning); oblique
+rotation (T′ = T⁻¹ is load-bearing for the algebra; oblique would
+confound the method’s core signal); `categorical` flag (pure synonym,
+correctly refused); EKC/EGA (dependency cost, defensible); Hungarian
+matching removal (bijection is ill-posed under the pigeonhole argument —
+and this review adds the stronger Σr² ≤ 1 argument that greedy argmax
+and “the ≥ .9 link” necessarily coincide).
+
+**Arbitrary-constant inventory.** Documented with rationale:
+`cut_show = 0.3`, `redundancy_r = 0.9`, `redundancy_phi = 0.95`,
+`min_items = 3`, `orphan_r = 0.5`, ordinal ≤ 7, `k_max` default
+`min(p−1, 8)`, `n_iter = 20`, PA quantile 0.95, Hu-Bentler reference
+lines, CD α = 0.30 (inherited from EFAtools, named in the vignette).
+Undocumented but acceptable (cosmetic/numeric-hygiene):
+symmetry/diagonal tolerances `1e-8` (utils.R), the eigenvalue floor
+`.Machine$double.eps` in `.tenBerge_weights()`, linewidth legend range
+`c(0.4, 1.8)`, edge-label nudge `0.15`, level-label offset `0.8`,
+arrowhead `0.15 cm`. None warrants promotion to an argument; the two
+numeric-hygiene constants deserve a one-line comment at most.
+
+**Rationale drift.** Three stale in-code comments found (M1’s layout.R
+comment, m6’s summary.R comment, m9’s data-raw comments); CLAUDE.md /
+DESIGN.md / MILESTONES.md / roxygen otherwise tell the same story for
+every audited decision.
+
+------------------------------------------------------------------------
+
+## Proposed follow-up milestones (each needs its own /plan-milestone)
+
+- **M42 — review fixes, code:** C1 (EFA chi/p pairing; + e2 if owner
+  wants both statistics), M1 (drop_pruned all-pairs recompute), m1, m2,
+  m6, m7, m8, m10 (+ regression tests for each). Small, sharply-scoped,
+  test-first.
+- **M43 — review fixes, docs:** M2 (engines missing-data rewrite), M3
+  (CD mechanism), M4 (artifact section rewrite), M5 (cut_strong
+  remnant), m3, m4, m5, m9, m11, e1 (§9/roxygen justification wording),
+  e3. Doc-only; no export/signature change.
+- **M44 — Forbes fixture (scoping):** M6 — owner decides: obtain
+  Forbes (2023) materials and add an exact-reproduction test, or amend
+  the CLAUDE.md contract wording.
+- **(Unscheduled)** e4 bootstrap-CI milestone remains deferred in DESIGN
+  §14.
 
 ## Provenance
 
 The M31–M40 arc was decomposed from a page-by-page pkgdown-site review
-the owner did on **2026-06-30**: ~90 doc/function notes across the
-README and eight vignettes, grouped into milestones correctness-first.
-Origin session transcript: `9a5dc6bd-40ca-4f66-9f11-5bf0c0a4e19a.jsonl`
-(under `~/.claude/projects/-Users-jmgirard-GitHub-ackwards/`). The
-roadmap was first committed with M31’s `## Current focus` update (commit
-`28513da` on the `m31-correctness-sweep` branch). Review notes and
-banked decisions were retired into each milestone’s `MILESTONES.md`
-entry as it shipped, per the maintenance rule below.
+the owner did on **2026-06-30** (origin transcript
+`9a5dc6bd-40ca-4f66-9f11-5bf0c0a4e19a.jsonl`). The M41 findings above
+were produced by the model-led review milestone (branch
+`m41-fable-review`, 2026-07-01); its scope and acceptance criteria are
+logged in `MILESTONES.md` (M41 entry).
 
 **How to maintain this file:** when a future milestone is scoped,
 capture its intent and source notes here (raw review questions + banked

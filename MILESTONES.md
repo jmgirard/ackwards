@@ -1646,3 +1646,57 @@ User-facing change notes live in `NEWS.md`.
   **100%**; `styler` (no files changed) / `lintr` (0 lints) clean;
   [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
   clean.
+
+- **M41 (done):** independent Fable review — statistical correctness,
+  software design, vignette quality, and a defaults/decision audit.
+  **Review-only** (owner-approved 2026-07-01): the package was planned
+  by Opus, implemented by Sonnet, and previously reviewed by Opus; M41
+  was an independent audit by Claude Fable 5. **No `R/`, `NAMESPACE`,
+  test, or vignette changes** — the deliverable is a severity-ranked
+  findings report in `ROADMAP.md`, with fixes triaged into proposed
+  follow-up milestones (M42 code / M43 docs / M44 Forbes-fixture
+  scoping), mirroring how the 2026-06-30 pkgdown review spawned M31–M40.
+  **Verified clean (numerically, in scratch R sessions):** tenBerge
+  weights ≡
+  [`psych::factor.scores`](https://rdrr.io/pkg/psych/man/factor.scores.html)
+  (1.6e-15) and ≡ ten Berge et al. (1999); `W'RW` algebra ≡ materialized
+  scores (2.3e-15); sign alignment (all primary edges ≥ 0, PCA+EFA+ESEM,
+  incl. the skip-level recompute path); Forbes chains/retention/φ
+  faithful (all five sim16 chains; plus a new mathematical argument that
+  primary-parent-only chain links are lossless at thresholds \> √.5,
+  since Σr² ≤ 1 across orthogonal parents); ESEM fit rows exactly match
+  lavaan (naive-ML / scaled-WLSMV discrimination correct; polychoric
+  edge R bit-identical to lavaan’s `sampstat$cov`); `suggest_k`
+  criterion→field mappings match direct
+  [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html); M16/M38
+  missing-data guard matrix as documented. **Findings (full detail +
+  reproductions in `ROADMAP.md`):** 1 Critical — EFA fit row pairs
+  psych’s *empirical* chi-square (`$chi`) with the *likelihood* p-value
+  (`$PVAL`), an internally inconsistent pair (`engine_efa.R`); 6 Major —
+  `drop_pruned` loses edges on `pairs = "adjacent"` objects (M34
+  regression; stale all-pairs comment in `layout.R`), engines vignette
+  still documents pre-M38 FIML behavior, suggest-k vignette misstates
+  the CD mechanism (“without preserving inter-item correlations” — false
+  per Ruscio & Roche 2012), Forbes vignette presents the artifact rule’s
+  by-construction 0 flags as an empirical finding, Forbes vignette
+  retains retired-`cut_strong` prose (M35 drift), and the “reproduce
+  Forbes exactly” baseline contract is untested (no fixture; scoping
+  decision M44); 11 Minor (incl. `print.suggest_k` Inf consensus on
+  all-NA criteria, silent `ncomp` capping, dead `esem_levels(n_obs)`
+  param, three stale comments, unvalidated `cut_show`/`n_iter`,
+  `fm = "pca"` doc error, stochastic-PA numbers hardcoded in prose); 4
+  enhancements (incl. the §9 `redundancy_phi` PCA rationale conflating
+  algebra-exactness with score *determinacy* — the value is right, the
+  justification wording isn’t; and re-affirming bootstrap edge CIs as
+  the highest-value deferred statistical addition). **Defaults/decision
+  audit:** every §9 row and §14 decision (1–33) received a verdict — all
+  sound (one sound-but-misjustified: the `redundancy_phi` PCA wording
+  above); all declines (EAP, oblique, `categorical` flag, EKC/EGA,
+  Hungarian matching) hold; arbitrary-constant inventory (documented
+  vs. cosmetic-undocumented) recorded in `ROADMAP.md`. **Files.**
+  `ROADMAP.md` (findings report), `MILESTONES.md`, `CLAUDE.md` (Current
+  focus + Completed index). No NEWS entry (no user-facing change), no
+  DESIGN contract change, no export/ signature/dependency change.
+  **Verified.** `R CMD check` **0/0/0** (full, vignettes rebuilt); suite
+  1565 pass / 0 fail / 0 skip; no style/lint surface (no `R/` change);
+  `_pkgdown.yml` untouched (no export change).

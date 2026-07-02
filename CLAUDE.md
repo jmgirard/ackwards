@@ -185,43 +185,38 @@ as part of the definition of done.
   `.fully_pruned_levels()`, `fontface` aesthetic through
   `.ba_level_labels()`, both directions) — partially-pruned levels stay
   plain. No new/removed export, no signature or dependency change.
+- **M41** — independent Fable review (review-only): statistical core
+  verified clean numerically
+  (tenBerge/W′RW/signs/Forbes/ESEM-fit/suggest_k); findings — 1 Critical
+  (EFA chi/p-value pairing), 6 Major (drop_pruned adjacent-pairs M34
+  regression, pre-M38 engines-vignette FIML prose, CD-mechanism
+  misstatement, Forbes artifact-zero framing, `cut_strong` remnant,
+  untested Forbes-fidelity contract), 11 Minor, 4 enhancements; full
+  §9/§14 defaults audit (all sound; one sound-but-misjustified wording);
+  report + M42/M43/M44 triage in `ROADMAP.md`. No code change.
 
 ## Current focus
 
-**M40 is complete** — and with it the entire M31–M40 arc (correctness
-sweep → documentation/UX epic → deferred code/viz asks) that grew out of
-the 2026-06-30 pkgdown-site review. **There are no pending milestones.**
-M40 resolved the three asks carved out of the doc-only M39:
+**M41 is complete** (2026-07-01) — the independent Fable review of
+statistical correctness, software design, vignette quality, and the
+§9/§14 defaults/decision audit. Review-only: no
+`R/`/`NAMESPACE`/test/vignette change. The statistical core verified
+clean under independent numeric re-derivation (tenBerge, W′RW, sign
+alignment, Forbes chains/retention/φ, ESEM fit extraction, suggest_k
+mappings). The findings — **1 Critical** (EFA fit row pairs psych’s
+empirical chi-square with the likelihood p-value), **6 Major** (incl. a
+`drop_pruned` + `pairs = "adjacent"` M34 regression and the engines
+vignette still documenting pre-M38 FIML behavior), **11 Minor**, **4
+enhancements** — live in `ROADMAP.md` with runnable reproductions, plus
+the full defaults-audit verdicts (all sound; one sound-but-misjustified
+rationale wording).
 
-1.  **Ordinal `categorical` convenience flag → DECLINED** (owner
-    sign-off, 2026-07-01). `cor = "polychoric"` already auto-selects the
-    WLSMV estimator (`estimator = NULL` auto-rule; see `R/ackwards.R`
-    and §9), so a `categorical` flag would be a pure synonym for
-    `cor = "polychoric"`, not a two-settings-in-one shortcut — it would
-    add a conflict surface and a §9 defaults change for zero new
-    capability. Discoverability is handled at the docs layer instead. No
-    `R/`/`DESCRIPTION`/§9 change; decline recorded in `DESIGN.md` §14.
-2.  **Ordinal correlation-comparison viz → dodged bar chart**
-    (viz-only). The two raw `round(x$r[1:5,1:5], 2)` matrix chunks in
-    `vignettes/ackwards-ordinal.Rmd` are now one dodged bar chart (ten
-    `N1`–`N5` item pairs, `fill = basis`, hidden reshape code); also
-    fixed stale N1–N2 prose figures (0.73→0.79). No package-code or
-    dependency change.
-3.  **Forbes pruned-level axis labels → italic**
-    ([`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
-    code). A **fully-pruned** level now gets an italic axis label in the
-    normal render path (new `.fully_pruned_levels()` + a `fontface`
-    aesthetic through `.ba_level_labels()`, both directions);
-    partially-pruned levels stay plain. Automatic, no new argument.
-
-Detail in `MILESTONES.md` (M40 entry). No new/removed export, no
-signature change, no new dependency.
-
-**Next up: nothing queued.** `ROADMAP.md` had held only the M40 spin-off
-brief; with M40 shipped it carries no pending milestones. For
-deferred/out-of-scope items see `DESIGN.md` §14 and the “Out of scope
-for now” list below. `MILESTONES.md` remains the source of truth for
-*completed* milestones.
+**Next up:** the findings are triaged into three proposed follow-ups
+awaiting their own `/plan-milestone` runs — **M42** (code fixes: C1, M1,
+minors + regression tests), **M43** (doc fixes: M2–M5, doc minors, §9
+wording), **M44** (scoping: Forbes exact-reproduction fixture or
+contract-wording amendment). See `ROADMAP.md` for the briefs.
+`MILESTONES.md` remains the source of truth for *completed* milestones.
 
 ## Invariants — do not violate without flagging
 
