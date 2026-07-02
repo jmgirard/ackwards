@@ -1700,3 +1700,68 @@ User-facing change notes live in `NEWS.md`.
   **Verified.** `R CMD check` **0/0/0** (full, vignettes rebuilt); suite
   1565 pass / 0 fail / 0 skip; no style/lint surface (no `R/` change);
   `_pkgdown.yml` untouched (no export change).
+
+- **M42 (done):** review fixes, code — first fix milestone off the M41
+  review (scope owner-approved 2026-07-01: the `ROADMAP.md` M42 brief
+  plus e3; pairing-only for C1, announce-the-cap for m2). One commit per
+  item, test-first; doc-Major fixes deferred to M43. **C1 (Critical).**
+  EFA fit rows now report `psych::fa()$STATISTIC` — the likelihood-ratio
+  chi-square that `$PVAL`, `$RMSEA`, and `$TLI` all derive from — as
+  `chi`, replacing psych’s residual-based *empirical* `$chi`, which had
+  been paired with the likelihood p-value (internally inconsistent;
+  e.g. bfi k=3: reported 1085.1 with p = 4.2e-235, but
+  `pchisq(1085.1, 272)` gives 1.3e-111). The whole EFA fit row now
+  shares one statistical framing, mirroring the M31 ESEM scaled-row
+  rationale. Tests assert `pchisq(chi, dof)` reproduces `p_value` and
+  `chi ≡ STATISTIC` (and ≢ the empirical chi). Roxygen note in
+  `tidy(what = "fit")`; NEWS entry (values change). e2 (also exposing
+  the empirical chi-square) set aside by owner — logged unscheduled in
+  ROADMAP. **M1 (Major, M34 regression).** `.drop_pruned_nodes()` now
+  recomputes all-pairs edges fresh via
+  `compute_edges(pairs = "all", align = FALSE)` from the stored
+  levels/`r` (mirroring
+  [`prune.ackwards()`](https://jmgirard.github.io/ackwards/reference/prune.md);
+  Invariants 1 + 3), instead of reading `x$edges$tidy` — which holds
+  only adjacent pairs under the default `pairs = "adjacent"`, so a kept
+  node below a fully-pruned level rendered edge-less. Stale “M5
+  auto-upgrades pairs” comment deleted. Tests: the review reproduction
+  (level 2 fully pruned on an adjacent-pairs object → every kept node
+  below the apex has exactly one incoming edge, level-3 bridges come
+  from level 1) and adjacent-vs-all edge-set identity. Two pre-existing
+  tests that forced the “No edges” warning via `cut_show = 1.01`
+  (exploiting the missing validation) were moved to the legal boundary
+  `cut_show = 1`. **Minors.** m1:
+  [`print.suggest_k()`](https://jmgirard.github.io/ackwards/reference/print.suggest_k.md)
+  reports “Consensus: undetermined” instead of a
+  [`min()`](https://rdrr.io/r/base/Extremes.html) warning + `Inf` range
+  when every requested criterion is NA (constructed-object test captures
+  the cli message stream). m2:
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  announces via `cli_inform` when PA-PC/PA-FA suggest more than `k_max`
+  (Invariant 6), naming the uncapped value; stored recommendation stays
+  capped (stable `criteria` schema). m6: corrected the stale
+  `.summary_lineage()` NA-safety comment (`fill_primary()` converts NAs
+  to FALSE). m7: removed the dead `n_obs` parameter from `esem_levels()`
+  (+ call site). m8:
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)/[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+  validate `cut_show` (single number in \[0, 1\]) and
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  validates `n_iter` (single positive integer); error tests for all.
+  m10: `.ba_fit_plot()` caption built from the indices actually plotted
+  (EFA: TLI/RMSEA only). **e3.** `detect_ordinal()` now returns the
+  flagged column *names* (internal-only signature change;
+  `meta$ordinal_warned` stays logical) and the ordinal-detection warning
+  names the columns (cli vec-trunc at 8), making the
+  `cor = "polychoric"` advice actionable for mixed data. **Files.**
+  `R/engine_efa.R`, `R/layout.R`, `R/engine_esem.R`, `R/ackwards.R`,
+  `R/autoplot.R`, `R/suggest_k.R`, `R/summary.R`, `R/utils.R`,
+  `R/tidy.R` (roxygen), `man/tidy.ackwards.Rd`, tests
+  (efa/layout/pca/suggest_k/utils), `NEWS.md`, `ROADMAP.md` (M42
+  section + fixed findings removed per maintenance rule; M43/M44 briefs
+  remain). No new/removed export, no signature or dependency change,
+  `_pkgdown.yml` untouched. **Verified.** `R CMD check` **0/0/0** (full,
+  vignettes rebuilt); suite **1591 pass / 0 fail / 0 skip** (+26 over
+  M41); coverage **100%**; `styler` (0 files changed) / `lintr` (0
+  lints) clean;
+  [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
+  clean.

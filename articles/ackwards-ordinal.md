@@ -68,8 +68,8 @@ bfi <- na.omit(bfi25)
 
 # The warning fires with the default Pearson basis
 x_pearson <- ackwards(bfi, k_max = 5)
-#> Warning: ! One or more columns look like ordinal/Likert items (… "<= 7" distinct integer
-#>   values).
+#> Warning: ! 25 columns look like ordinal/Likert items (<= 7 distinct integer values):
+#>   "A1", "A2", "A3", "A4", "A5", "C1", …, "O4", and "O5".
 #> ℹ Results use a "pearson" basis. Consider `cor = "polychoric"` for ordinal
 #>   data.
 #> This warning is displayed once per session.

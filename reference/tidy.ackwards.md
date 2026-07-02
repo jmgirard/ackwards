@@ -45,15 +45,19 @@ tidy(
 
   - `"fit"` – one row per fit statistic x level: `level`, `statistic`,
     `value`. For PCA objects the statistics are eigenvalues; for EFA
-    objects they are `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`; for
-    ESEM they are `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`,
-    `SRMR`, `BIC`. For ESEM under a scaled-test estimator
-    (`"WLSMV"`/`"ULSMV"` for ordinal data, `"MLR"` for continuous), the
-    whole row – `chi`/`dof`/ `p_value` **and** `CFI`/`TLI`/`RMSEA` –
-    reports lavaan's mean-and-variance-adjusted ("scaled") variant, so
-    every quantity shares one scaling. This matters most for
-    WLSMV/ULSMV: the naive chi-square has no valid reference
-    distribution (lavaan's own
+    objects they are `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC` –
+    where `chi` is the likelihood-ratio chi-square
+    ([`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html)'s
+    `STATISTIC`), so `chi`, `dof`, `p_value`, `RMSEA`, and `TLI` all
+    share one statistical framing (psych's residual-based *empirical*
+    chi-square is a different statistic and is not reported); for ESEM
+    they are `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`,
+    `BIC`. For ESEM under a scaled-test estimator (`"WLSMV"`/`"ULSMV"`
+    for ordinal data, `"MLR"` for continuous), the whole row –
+    `chi`/`dof`/ `p_value` **and** `CFI`/`TLI`/`RMSEA` – reports
+    lavaan's mean-and-variance-adjusted ("scaled") variant, so every
+    quantity shares one scaling. This matters most for WLSMV/ULSMV: the
+    naive chi-square has no valid reference distribution (lavaan's own
     [`summary()`](https://rdrr.io/r/base/summary.html) labels its
     p-value "Unknown"), and the naive `CFI`/`TLI` are badly optimistic
     for ordinal data (Xia & Yang, 2019). `"ML"` has no scaled variant,

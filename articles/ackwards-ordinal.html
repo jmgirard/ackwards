@@ -149,8 +149,8 @@ levels, the data is flagged and a warning is issued when
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The warning fires with the default Pearson basis</span></span>
 <span><span class="va">x_pearson</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: <span style="color: #BBBB00;">!</span> One or more columns look like ordinal/Likert items (… <span style="color: #0000BB;">"&lt;= 7"</span> distinct integer</span></span>
-<span><span class="co">#&gt;   values).</span></span>
+<span><span class="co">#&gt; Warning: <span style="color: #BBBB00;">!</span> 25 columns look like ordinal/Likert items (&lt;= 7 distinct integer values):</span></span>
+<span><span class="co">#&gt;   <span style="color: #0000BB;">"A1"</span>, <span style="color: #0000BB;">"A2"</span>, <span style="color: #0000BB;">"A3"</span>, <span style="color: #0000BB;">"A4"</span>, <span style="color: #0000BB;">"A5"</span>, <span style="color: #0000BB;">"C1"</span>, …, <span style="color: #0000BB;">"O4"</span>, and <span style="color: #0000BB;">"O5"</span>.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Results use a <span style="color: #0000BB;">"pearson"</span> basis. Consider `cor = "polychoric"` for ordinal</span></span>
 <span><span class="co">#&gt;   data.</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span></code></pre></div>

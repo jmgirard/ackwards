@@ -93,7 +93,11 @@ default (<code>what = "edges"</code>) returns the graph edge list that drives di
 total item variance on a 0-1 scale (multiply by 100 for a percentage).</p></li>
 <li><p><code>"fit"</code> – one row per fit statistic x level: <code>level</code>, <code>statistic</code>,
 <code>value</code>. For PCA objects the statistics are eigenvalues; for EFA
-objects they are <code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>RMSEA</code>, <code>TLI</code>, <code>BIC</code>; for
+objects they are <code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>RMSEA</code>, <code>TLI</code>, <code>BIC</code> –
+where <code>chi</code> is the likelihood-ratio chi-square (<code><a href="https://rdrr.io/pkg/psych/man/fa.html" class="external-link">psych::fa()</a></code>'s
+<code>STATISTIC</code>), so <code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>RMSEA</code>, and <code>TLI</code> all share
+one statistical framing (psych's residual-based <em>empirical</em> chi-square
+is a different statistic and is not reported); for
 ESEM they are <code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>CFI</code>, <code>TLI</code>, <code>RMSEA</code>, <code>SRMR</code>,
 <code>BIC</code>. For ESEM under a scaled-test estimator (<code>"WLSMV"</code>/<code>"ULSMV"</code> for
 ordinal data, <code>"MLR"</code> for continuous), the whole row – <code>chi</code>/<code>dof</code>/
