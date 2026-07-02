@@ -53,11 +53,13 @@ reference:
   - label_template
 - title: Extract results
   desc: |
-    Tidy, glance, augment, summary, and print methods for ackwards objects.
+    Tidy, glance, augment, predict, summary, and print methods for ackwards
+    objects.
   contents:
   - tidy.ackwards
   - glance.ackwards
   - augment.ackwards
+  - predict.ackwards
   - summary.ackwards
   - print.ackwards
   - print.summary_ackwards
