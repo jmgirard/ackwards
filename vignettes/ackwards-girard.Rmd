@@ -1,0 +1,295 @@
+---
+title: "Replicability-Gated Hierarchies: A Recommended Workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Replicability-Gated Hierarchies: A Recommended Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 5
+)
+```
+
+The other vignettes in this package document its individual verbs. This one
+takes a position: it lays out the workflow we recommend for answering the
+questions bass-ackwards analysis exists to answer, and explains why each step
+is there. We refer to it as the **replicability-gated** (or Girard) workflow,
+because its central move is to let *replication*, not fit, decide how deep the
+hierarchy you interpret goes.
+
+## The problem: depth is where bass-ackwards analyses go wrong
+
+A bass-ackwards analysis asks two questions: *how does the structure of this
+domain organize hierarchically*, and *how deep is that hierarchy meaningful?*
+The first question is what the method computes. The second is where published
+applications most often stumble, and the failure mode is consistent:
+**overextraction**, followed by substantive interpretation of deep-level
+factors that would not re-emerge in a new sample. Forbes (2023) documents this
+directly for the bass-ackwards context — non-replicable structure concentrates
+in the deeper levels of an overextracted hierarchy.
+
+The standard tooling half-addresses this. Retention criteria like parallel
+analysis (`suggest_k()`) estimate a *plausible range* for k from the
+eigenstructure, and they are the right first screen. But
+they do not measure the thing the caution is actually about: whether the
+specific factors in *your* solution would show up again in another sample from
+the same population. A level can sit comfortably inside the plausible range
+and still contain a factor that is pure sample idiosyncrasy.
+
+There was, historically, a direct instrument for exactly this. Everett (1983)
+proposed **factor comparability coefficients**: split the sample in half, fit
+the solution in each half independently, apply *both* halves' scoring weights
+to the full sample, and correlate the matched factor scores. A factor that is
+real re-emerges in both halves and its two score estimates correlate near 1; a
+factor that is noise does not. Goldberg's lab used this as a routine gate —
+Goldberg (1990) retained factor solutions only when they held up across
+repeated random split-halves — and the practice runs through the research
+program that produced the bass-ackwards method itself (Goldberg, 2006). The
+modern bass-ackwards literature largely dropped it.
+
+`comparability()` restores that gate as a first-class verb, extended to the
+bass-ackwards setting: coefficients for every factor at every level, computed
+through the same score-correlation algebra as the hierarchy's own edges.
+
+## Three verbs, three different questions
+
+The workflow below leans on the fact that this package now separates three
+questions that are easy to conflate:
+
+| Question | Verb | What it measures |
+|---|---|---|
+| What depth range is *plausible*? | `suggest_k()` | Eigenstructure retention criteria (consensus range) |
+| Which factors *replicate*? | `comparability()` | Split-half score comparability per factor per level |
+| Which factors *differentiate*? | `prune()` | Forbes (2023) redundancy: factors that persist without adding resolution |
+
+These are genuinely different. A factor can replicate perfectly and still be
+redundant (the same construct restated at every level); a level can sit inside
+the plausible range and still fail to replicate. You need all three answers,
+and no one of them substitutes for another.
+
+## Setup
+
+We use the `bfi25` Big Five data (25 items, n = 875 after removing incomplete
+rows), analyzed with the default PCA engine throughout.
+
+```{r data}
+library(ackwards)
+bfi <- na.omit(bfi25)
+```
+
+## Step 1: Screen the plausible depth range with `suggest_k()`
+
+```{r suggest-k}
+sk <- suggest_k(bfi, seed = 1)
+print(sk)
+```
+
+```{r sk-inline, include = FALSE}
+sk_ks <- na.omit(c(
+  sk$k_parallel_pc, sk$k_parallel_fa, sk$k_map, sk$k_vss1, sk$k_vss2,
+  if (isTRUE(sk$cd_available)) sk$k_cd
+))
+sk_lo <- min(sk_ks)
+sk_hi <- max(sk_ks)
+```
+
+The criteria disagree — they always do — but they bracket a range (here
+k = `r sk_lo`–`r sk_hi`). Treat the top of that range as a ceiling worth
+*probing*, not a depth worth *asserting*: parallel analysis on the PC basis in
+particular tends to overextract, and `vignette("ackwards-suggest-k")` explains
+each criterion's bias direction in detail. Deliberately looking one or two
+levels past the consensus is a normal part of the method — the point of the
+next step is that you can now do so safely.
+
+## Step 2: Gate the depth on replicability with `comparability()`
+
+This is the step the workflow is named for. We evaluate every level up to one
+past the ceiling, across ten random split-halves:
+
+```{r comparability}
+cmp <- comparability(bfi, k_max = sk_hi + 1, n_splits = 10, seed = 2026)
+print(cmp)
+```
+
+```{r cmp-inline, include = FALSE}
+lv_min <- tapply(cmp$summary$r_median, cmp$summary$level, min)
+gate <- max(as.integer(names(lv_min))[cumsum(lv_min < 0.9) == 0])
+worst_top <- cmp$summary[cmp$summary$level == cmp$k_max, ]
+worst_top <- worst_top[which.min(worst_top$r_median), ]
+fmt <- function(v) sub("^(-?)0\\.", "\\1.", sprintf("%.2f", v))
+```
+
+Read the per-level minima, not the medians: a level is only as interpretable
+as its least replicable factor. Here every factor through k = `r gate` clears
+the conventional floor (the weakest median comparability at any of those
+levels is `r fmt(min(lv_min[seq_len(gate)]))`), and the structure degrades
+past it — at k = `r cmp$k_max`, `r worst_top$factor` reaches a median of only
+`r fmt(worst_top$r_median)` and dips to `r fmt(worst_top$r_min)` on its worst
+split. Those deep factors are not stable dimensions of the data; they are
+different factors in every half-sample that happen to occupy the same slot.
+
+```{r comparability-plot, fig.height = 6}
+autoplot(cmp)
+```
+
+Two honesty notes. First, the conventional benchmarks marked on the plot
+(.90 and .95, following Everett's and Goldberg's practice) are conventions,
+not tests — `comparability()` reports every coefficient and flags nothing, so
+borderline cases stay visible and the judgment stays yours. Second,
+comparability is *internal* replication: it asks whether the structure
+re-emerges in halves of the *same* sample. That is the right gate for "is this
+factor real here," and a necessary condition for — but not a demonstration
+of — replication in a new population.
+
+The result is a **hierarchy floor**: the deepest level at which every factor
+replicates. For these data that is k = `r gate` — the Big Five, as it should
+be.
+
+## Step 3: Fit the hierarchy to the gated depth
+
+```{r fit}
+x <- ackwards(bfi, k_max = 5)
+print(x)
+```
+
+```{r hierarchy-plot}
+autoplot(x)
+```
+
+If you prefer to *display* the fragmentation beyond the floor (it can be
+substantively interesting to show a factor dissolving), fit one level deeper
+and say explicitly in your report which levels passed the replicability gate.
+What the gate rules out is interpreting the deeper factors as constructs.
+
+## Step 4: Find what perpetuates without differentiating — `prune()`
+
+Replicability is necessary but not sufficient: a factor can re-emerge in every
+half-sample and still add nothing, because it is the same construct restated
+level after level. That is Forbes's (2023) redundancy question, and it is
+`prune()`'s job, not `comparability()`'s:
+
+```{r prune}
+pr <- prune(x, "redundant")
+pr$prune$chains
+```
+
+Here the chains tell us that several of the Big Five arrive early and simply
+persist — for example one factor emerges at k = 2 and travels essentially
+unchanged (r ≥ .97 at every link) down to k = 5. Every node on that chain
+*replicates* beautifully; the chain flags that the intermediate appearances
+add no resolution. The two verbs answer different questions, and reporting
+both gives the honest picture: which levels are real, and which levels are
+new. See `vignette("ackwards-forbes")` for chain mechanics, thresholds, and
+the retention rule.
+
+## Step 5: Interpret with the built-in guardrails
+
+```{r interpret}
+top_items(x, level = 5, cut = 0.5)
+```
+
+Three interpretation habits keep the analysis honest (all covered in depth in
+`vignette("ackwards-interpret")`):
+
+* **Negative loadings do not mean "low"** — sign is anchored to the primary
+  parent, and a negative secondary edge is information, not error.
+* **Name factors within levels, borrowing names down the lineage** rather than
+  treating each level as a fresh exploratory result.
+* **Say what the hierarchy is.** A bass-ackwards result is a series of linked
+  solutions whose edges are score correlations — it is descriptive, not a
+  fitted hierarchical model (no Schmid–Leiman, no higher-order SEM), and
+  should be reported as such.
+
+## Step 6: Validate downstream, out of sample
+
+The final step closes the loop the same way it opened: with data the model
+has not seen. Scores for new observations use the fit-time metric, so
+training and test scores are directly comparable:
+
+```{r train-test}
+train <- bfi[1:600, ]
+test <- bfi[601:875, ]
+
+x_train <- ackwards(train, k_max = 5)
+test_scores <- predict(x_train, newdata = test)
+round(head(test_scores[, grep("^\\.m5", names(test_scores))], 3), 2)
+```
+
+If a downstream claim (a correlation with an outcome, a group difference)
+holds for training-sample scores but not test-sample scores, the hierarchy was
+fine and the claim was overfit — a different failure than anything in Steps
+1–5, and one only held-out data can catch. The train/test mechanics are
+covered in `vignette("ackwards-intro")`.
+
+## Common mistakes this workflow prevents
+
+**Interpreting non-replicable deep factors.** The classic failure. Without a
+replicability instrument the deep levels are just *there*, printed with the
+same authority as the robust ones. Step 2 makes their status measurable and
+visible.
+
+**Trusting a single split.** One split-half can flatter or slander a factor by
+luck of the draw. `comparability()` defaults to ten random splits and reports
+the spread; the minima across splits are as informative as the medians.
+
+**Cherry-picking the strongest edge.** With `pairs = "all"`, the number of
+between-level correlations grows fast, and reporting the most dramatic one
+capitalizes on chance. Report full edge tables (or the complete diagram), and
+treat any "strongest link" claim as descriptive rather than inferential.
+
+**Mistaking persistence for structure.** A chain of near-1.0 correlations down
+the hierarchy looks impressive but means the levels are restating one
+construct. That is a `prune()` finding, and it should shorten your reported k
+range, not lengthen your list of constructs.
+
+**Mistaking replicability for validity.** A comparability of .99 means the
+factor is a stable feature of these items in this population — not that it is
+a good construct, and not that it generalizes beyond the population sampled.
+Cross-population replication and external validation remain separate,
+subsequent steps.
+
+## Summary: the workflow in six calls
+
+1. **`suggest_k(data)`** — screen the plausible depth range; treat its top as
+   a ceiling to probe.
+2. **`comparability(data, k_max = ceiling + 1)`** — find the hierarchy floor:
+   the deepest level at which every factor replicates across split-halves.
+3. **`ackwards(data, k_max = floor)`** — fit the hierarchy to the gated depth.
+4. **`prune(x, "redundant")`** — identify factors that perpetuate without
+   differentiating; report which levels add resolution.
+5. **`top_items(x)` + `autoplot(x)`** — interpret with the sign, naming, and
+   descriptive-hierarchy guardrails.
+6. **`predict(x_train, newdata = test)`** — validate downstream claims on
+   held-out data in the fit-time metric.
+
+Steps 1, 3, 4, and 5 are the established method. Step 2 restores the gate the
+method's own inventor applied to it, and Step 6 extends the same logic — *show
+me it holds in data you did not fit* — to whatever you do with the scores.
+
+## References
+
+Everett, J. E. (1983). Factor comparability as a means of determining the
+number of factors and their rotation. *Multivariate Behavioral Research*,
+*18*(2), 197–218. https://doi.org/10.1207/s15327906mbr1802_5
+
+Forbes, M. K. (2023). Improving hierarchical models of individual differences:
+An extension of Goldberg's bass-ackward method. *Psychological Methods*.
+https://doi.org/10.1037/met0000546
+
+Goldberg, L. R. (1990). An alternative "description of personality": The
+Big-Five factor structure. *Journal of Personality and Social Psychology*,
+*59*(6), 1216–1229. https://doi.org/10.1037/0022-3514.59.6.1216
+
+Goldberg, L. R. (2006). Doing it all bass-ackwards: The development of
+hierarchical factor structures from the top down. *Journal of Research in
+Personality*, *40*(4), 347–358. https://doi.org/10.1016/j.jrp.2006.01.001
+
+Lorenzo-Seva, U., & ten Berge, J. M. F. (2006). Tucker's congruence coefficient
+as a meaningful index of factor similarity. *Methodology*, *2*(2), 57–64.
+https://doi.org/10.1027/1614-2241.2.2.57

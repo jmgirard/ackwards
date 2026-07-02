@@ -367,6 +367,7 @@ The bass-ackwards workflow in **ackwards** has six steps:
 
 | Topic | Vignette |
 |-------|---------|
+| The recommended end-to-end workflow, with a split-half replicability gate on hierarchy depth | `vignette("ackwards-girard")` |
 | Choosing k: the five criteria in depth, pros/cons, and best practices | `vignette("ackwards-suggest-k")` |
 | When PCA is not enough: comparing EFA and ESEM engines | `vignette("ackwards-engines")` |
 | Ordinal data: polychoric correlations and WLSMV estimation | `vignette("ackwards-ordinal")` |

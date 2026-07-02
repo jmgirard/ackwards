@@ -72,22 +72,26 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M43** — review fixes, docs (doc-only): engines vignette rewritten around first-class `missing = "fiml"` for PCA/EFA + `fm = "pca"`/sample-size fixes (M2, m4, m5); suggest-k CD mechanism corrected + worked-BFI prose inline-computed/drift-proof (M3, m11); Forbes artifact section rewritten to report-and-judge with a top-|φ| table, `cut_strong` remnant removed, chain-retention example corrected (M4, M5, m3); `redundancy_phi` PCA rationale corrected to score *determinacy* across DESIGN §9/CLAUDE/roxygen/vignette (e1); sim16 doc comments modernized (m9). No behavior/export change.
 - **M44** — Forbes-fidelity fixture (closes the M41→M44 review arc): found the paper's own OSF project (`pcwm8`: simulations script, reference implementation, AMH matrix); head-to-head vs her own functions matched edges to 3.9e-14 incl. the full 155-variable AMH example; shipped a 3.7 KB license-clean fixture (three seed-regenerated simulations + her implementation's expected outputs) and `test-forbes-fidelity.R` (65 assertions: edges/φ/chase paths/retention); contract annotated **test-backed**; AMH commit deferred (no OSF license — options logged for owner outreach). No export/dependency change.
 - **M45** — out-of-sample scoring (train/test): fit-time item moments stored (`meta$item_means`/`item_sds`; NULL for cor-matrix input); `augment()` gains `scaling = c("fit", "sample")` with **`"fit"` default** (training moments — one metric across train/test/subsets; `"sample"` = pre-M45 opt-in and the cor-matrix route; DESIGN §14 item 34); new exported **`predict.ackwards(object, newdata, scaling)`** ≡ `augment(append = FALSE)` (equivalence test-asserted; `_pkgdown.yml` updated); intro-vignette train/test subsection. New export, no new dependency.
+- **M46** — Girard extension (replicability-gated hierarchies): new exported **`comparability()`** — Everett (1983)/Goldberg (1990) split-half factor comparability per level per factor (full-sample-anchored labels, greedy-with-removal matching, cross-solution correlations through `compute_edges()` on the pooled R, Tucker's φ alongside, report-first/nothing auto-flagged; PCA/EFA + pearson/spearman, `n_splits = 10`, seeded) + `print`/`autoplot` methods; capstone vignette `ackwards-girard` ("Replicability-Gated Hierarchies: A Recommended Workflow") with the six-step workflow + common-mistakes section; completes the triad `suggest_k()` (range) · `comparability()` (floor) · `prune()` (differentiation); DESIGN §14 item 35; ESEM/polychoric extensions deferred to `ROADMAP.md`. In passing: `cli::symbol$phi` glyph fix in `prune()`. New export, no new dependency.
 
 ## Current focus
 
-**M45 is complete** (2026-07-01) — out-of-sample (train/test) scoring via fit-time moments,
-owner-requested for an upcoming cross-validation project. Every acceptance criterion met: fit-time
-item moments stored in the object; `augment()` gained `scaling = c("fit", "sample")` with the
-`"fit"` default (training metric everywhere; test scores hand-verified to 1e-12; training
-re-score ≡ `keep_scores` fit-time scores; the behavior change is prominent in NEWS); new exported
-`predict.ackwards()` is test-asserted identical to `augment(append = FALSE)` and indexed in
-`_pkgdown.yml`; intro vignette gained the train/test subsection; DESIGN §6/§10 + §14 item 34
-record the contract. Gate: `check()` 0/0/0 (vignettes rebuilt), 1689 pass / 0 fail / 0 skip
-(+33), coverage 100%, style/lint clean, `check_pkgdown()` clean. Detail in `MILESTONES.md` (M45).
+**M46 is complete** (2026-07-01) — the Girard extension: replicability-gated hierarchies. Every
+acceptance criterion met: exported `comparability()` (Everett 1983 / Goldberg 1990 split-half
+factor comparability, full-sample-anchored labels, cross-solution correlations through
+`compute_edges()` on the pooled R — Invariant 1; Tucker's φ alongside; report-first, nothing
+auto-flagged) with print/autoplot methods; self-comparability ≡ 1, matching invariance, seed
+reproducibility, and the Invariant-2 cross-solution oracle all test-asserted; discriminating
+tests pass strikingly (sim16's true 1→2→4 levels ≈ .99 vs. the overextracted m5f5 at .14; bfi25's
+floor lands exactly on the Big Five); capstone vignette `ackwards-girard` + cross-links from
+intro/suggest-k/forbes + README; DESIGN §14 item 35; ESEM/polychoric extensions logged in
+`ROADMAP.md`. Gate: `check()` 0/0/0 (vignettes rebuilt), 1769 pass / 0 fail / 0 skip (+66),
+coverage 100%, style/lint clean, `check_pkgdown()` clean. Detail in `MILESTONES.md` (M46).
 
 **Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas (AMH fidelity extension
-pending the owner's Forbes outreach; e2 dual EFA chi-squares; e4 bootstrap edge CIs per DESIGN
-§14). `MILESTONES.md` remains the source of truth for *completed* milestones.
+pending the owner's Forbes outreach; e2 dual EFA chi-squares; e4 bootstrap edge CIs;
+`comparability()` ESEM/polychoric extensions). `MILESTONES.md` remains the source of truth for
+*completed* milestones.
 
 ## Invariants — do not violate without flagging
 

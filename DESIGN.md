@@ -31,6 +31,10 @@ we wrap established engines and add what `psych` does not.
 - Proper **ordinal/Likert handling** (polychoric basis, ordinal estimators).
 - The **Forbes (2023) extended method** (redundancy + artifact pruning via the standalone
   `prune()` verb, all-levels correlations).
+- A **replicability gate on hierarchy depth**: split-half factor comparability
+  (Everett 1983; Goldberg 1990 — the method inventor's own quality gate, dropped by the modern
+  ESEM/HiTOP lineage) as the standalone `comparability()` verb (M46; §14.35), with the
+  recommended end-to-end workflow documented in `vignette("ackwards-girard")`.
 - A clean, tidy, serializable **result object** with `print`/`summary`/`tidy`/`glance`/`autoplot`.
 - A **lineage-aligned layered diagram** rather than a misleading tree.
 
@@ -287,6 +291,13 @@ Add a `seed` argument for reproducibility of the **CD step only** — `psych::fa
 respond reliably to `set.seed()`, so PA simulation results will vary across calls regardless of
 `seed`. See `vignette("ackwards-suggest-k")` for a narrative/educational treatment of all five
 criteria including pros/cons, bias direction, and engine-to-criterion pairing (M14).
+
+`suggest_k()` answers "what depth range is *plausible*" from the eigenstructure. The companion
+question — "which factors actually *replicate*" — is answered directly by the standalone
+`comparability()` verb (M46, §14.35): split-half factor comparability per level per factor, the
+depth **floor** to `suggest_k()`'s ceiling. The two are deliberately separate functions:
+`suggest_k()` is a pre-fit screen over eigenvalue criteria, `comparability()` is engine-specific
+and fit-based.
 
 ## 9. Defaults (high-stakes — users will not override these)
 
@@ -596,6 +607,31 @@ owner-signed-off):**
     companion `predict.ackwards()` export was chosen over an augment-only surface for
     discoverability by replicators (`psych`/`lavaan` users reach for `predict()`).
 
+**Resolved for M46 (Girard extension — replicability gate; owner-approved 2026-07-01):**
+35. **Split-half factor comparability as a standalone verb.** `comparability(data, k_max, engine,
+    cor, fm, n_splits = 10, seed)` resurrects Everett (1983) / Goldberg (1990) factor
+    comparability coefficients as the hierarchy-depth gate, extended to every bass-ackwards level.
+    Mechanics: a full-sample `ackwards()` fit anchors labels (results report the same `m{k}f{j}`
+    the user will see); per split, levels 1..k are fit independently in each random half via the
+    engine internals; each half-solution is matched to the anchor by **greedy-with-removal**
+    max-|r| bijection (square, same-k — well-posed here, unlike §7 parent matching; no `clue`
+    dependency, and near-ties are themselves the instability being measured); the coefficient is
+    the correlation between the two matched half-solution scores on the **pooled** correlation
+    matrix, computed by `compute_edges()` on a two-element levels list (Invariant 1 — one edge
+    path), signed after orienting both matched factors positively toward the anchor (a negative
+    coefficient stays visible as a diagnostic). Tucker's φ on the matched loading columns is
+    reported alongside (score agreement vs. pattern agreement). **Report-first, judge-never**:
+    nothing auto-flagged; the conventional .90/.95 benchmarks appear only as reference lines /
+    footer prose (M32 cutoff philosophy). Scope: **PCA/EFA only** (ESEM deferred — `2 * n_splits`
+    lavaan hierarchies need their own performance treatment; logged in `ROADMAP.md`) and
+    **pearson/spearman only** (the `suggest_k()` precedent: polychoric estimation in every
+    half-sample is slow and NPD-prone; screen on Pearson, fit the final model polychoric).
+    Repeated splits default `n_splits = 10` (Goldberg's practice; a single split misleads by luck
+    of the draw). Per-half engine warnings are muffled and any convergence shortfall is
+    summarised once (`summary$n_splits_ok`). The recommended workflow — suggest_k ceiling →
+    comparability floor → fit → prune → interpret → out-of-sample validation — is documented in
+    `vignette("ackwards-girard")` and named the *replicability-gated (or Girard) workflow*.
+
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.
 - Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (see above), nor the
@@ -625,6 +661,8 @@ of the log invited drift (see the git history around 2026-06-30). For what remai
 see §14 (Decisions remaining) and `CLAUDE.md`'s "Out of scope" list.
 
 ### Key references
+- Everett, J. E. (1983). Factor comparability as a means of determining the number of factors and their rotation. *Multivariate Behavioral Research*, 18(2), 197–218.
+- Goldberg, L. R. (1990). An alternative "description of personality": The Big-Five factor structure. *J. Personality and Social Psychology*, 59(6), 1216–1229.
 - Goldberg, L. R. (2006). Doing it all bass-ackwards. *J. Research in Personality*, 40(4), 347–358.
 - Waller, N. (2007). A general method for computing hierarchical component structures... *JRP*, 41(4), 745–752.
 - Kim, H., & Eaton, N. R. (2015). The hierarchical structure of common mental disorders. *J. Abnormal Psychology*, 124(4), 1064–1078.

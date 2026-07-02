@@ -1,5 +1,30 @@
 # ackwards (development)
 
+## Split-half factor comparability (replicability gate)
+
+- New `comparability()` verb: Everett's (1983) factor comparability
+  coefficients, extended to every level of a bass-ackwards hierarchy. For
+  each of `n_splits` random split-halves, solutions at every level are fit
+  independently in each half; each half-solution's factors are matched to the
+  full-sample solution's factors (so results are reported under the same
+  `m{k}f{j}` labels as `ackwards()`), and the coefficient for a factor is the
+  correlation between its two matched half-solution scores — both halves'
+  scoring weights applied to the full sample, exactly the gate Goldberg's own
+  lab applied to its hierarchies (Goldberg, 1990). Tucker's congruence of the
+  matched loading columns is reported alongside. Everything is reported and
+  nothing is auto-flagged; conventional .90/.95 benchmarks appear only as
+  visual guides. Supports the PCA and EFA engines on the Pearson or Spearman
+  basis; reproducible via `seed`.
+- New `print.comparability()` (per-level median/min with the weakest factor)
+  and `autoplot.comparability()` (per-split and median coefficients for both
+  statistics, with benchmark reference lines).
+- New vignette `vignette("ackwards-girard")` — *Replicability-Gated
+  Hierarchies: A Recommended Workflow* — laying out the recommended
+  end-to-end analysis: screen the depth range (`suggest_k()`), gate depth on
+  replicability (`comparability()`), fit (`ackwards()`), separate persistence
+  from differentiation (`prune()`), interpret with guardrails, and validate
+  downstream out of sample (`predict()`). Includes a common-mistakes section.
+
 ## Out-of-sample scoring (cross-validation)
 
 - New `predict.ackwards()` method: apply a fitted hierarchy to new

@@ -27,6 +27,7 @@ articles:
 - title: Deep dives
   navbar: Deep dives
   contents:
+  - ackwards-girard
   - ackwards-suggest-k
   - ackwards-interpret
   - ackwards-engines
@@ -36,14 +37,17 @@ articles:
 reference:
 - title: Fit the model
   desc: |
-    The main modelling function, a Forbes-style pruning verb, and a helper for
-    choosing k.
+    The main modelling function, a Forbes-style pruning verb, and helpers for
+    choosing k and gating hierarchy depth on replicability.
   contents:
   - ackwards
   - prune
   - suggest_k
   - print.suggest_k
   - autoplot.suggest_k
+  - comparability
+  - print.comparability
+  - autoplot.comparability
 - title: Interpret factors
   desc: |
     Helpers for understanding what each factor means and labelling it.
