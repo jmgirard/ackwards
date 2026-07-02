@@ -726,6 +726,21 @@ owner-signed-off):**
     polychoric matrix with `NA`/`NaN` entries (naming the offending items) before `eigen()`, rather
     than crashing with base R's "missing value where TRUE/FALSE needed". Not a reimplementation of
     polychoric — a wrap-and-diagnose fix (§ "wrap established engines").
+43. **`check_items()` — pre-analysis item screen (new export).** The `correct` fix (item 42) is
+    reactive; it does not stop a *near-constant* item from silently producing a plausible-looking but
+    meaningless factor, nor does it name the offender, nor does it catch a truly constant item (which
+    `psych::polychoric()` silently deletes, crashing downstream with `subscript out of bounds`).
+    `check_items(data, cor)` reports, one row per item, the stats that predict these failures
+    (`n_valid`, `pct_missing`, `n_distinct`, `min_count`, `top_prop`) and a worst-case `flag`
+    (`constant` / `near-constant` / `sparse category` / `high missing` / `ok`). Thresholds are
+    deliberately conservative — `constant` = one distinct value; `near-constant` = a category holding
+    ≥ 95% of responses (the case that actually breaks polychoric); `sparse category` = smallest
+    observed category < 5, flagged **only** under `cor = "polychoric"` (rare-but-present Likert
+    categories usually fit fine, so this is report-only). `ackwards()` runs the **same** internal
+    screen (`.screen_items()`, shared — DRY): it **errors** on a constant item (naming it, before
+    psych can delete it) and **warns once** on a near-constant item, but deliberately does **not**
+    warn on a merely sparse category (avoids nagging ordinary ordinal data). Report-first, like
+    `suggest_k()`/`comparability()`; never modifies data. New export, no new dependency.
 
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.

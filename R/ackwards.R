@@ -531,6 +531,43 @@ ackwards <- function(
       cli::cli_abort("{.arg data} must contain only numeric columns.")
     }
 
+    # --- Item screen (shared with check_items()) -----------------------------
+    # A constant item breaks every basis (and psych::polychoric() silently
+    # deletes it, corrupting the loadings-to-item mapping downstream); a
+    # near-degenerate item can yield a plausible but meaningless factor. Catch
+    # both here -- naming the offenders -- before any correlation is computed.
+    scr <- .screen_items(as.data.frame(data_mat), cor)
+    constant_items <- scr$item[scr$flag == "constant"]
+    if (length(constant_items) > 0L) {
+      cli::cli_abort(c(
+        "!" = "{length(constant_items)} item{?s} ha{?s/ve} no variance \\
+               (a single response value): {.val {constant_items}}.",
+        "i" = "{cli::qty(constant_items)}Drop {?it/them} before fitting -- a \\
+               constant item cannot enter a factor analysis. Use \\
+               {.fn check_items} to screen the rest."
+      ))
+    }
+    # Warn only on near-constant items (a dominant response category): these are
+    # the ones that actually break polychoric or yield meaningless factors. A
+    # merely sparse category (a rare-but-present response) usually fits fine, so
+    # check_items() reports it but ackwards() does not warn -- avoids nagging on
+    # ordinary Likert data.
+    degenerate_items <- scr$item[scr$flag == "near-constant"]
+    if (length(degenerate_items) > 0L) {
+      cli::cli_warn(
+        c(
+          "!" = "{length(degenerate_items)} item{?s} look{?s/} near-constant \\
+                 (one response category dominates): {.val {degenerate_items}}.",
+          "i" = "{cli::qty(degenerate_items)}These can destabilise \\
+                 {.code cor = \"polychoric\"} or produce unreliable factors. \\
+                 Inspect with {.fn check_items}; consider collapsing rare \\
+                 categories, {.code correct = 0}, or dropping {?it/them}."
+        ),
+        .frequency = "once",
+        .frequency_id = "ackwards_degenerate_items"
+      )
+    }
+
     p <- ncol(data_mat)
 
     if (k_max > p) {

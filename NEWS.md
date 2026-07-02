@@ -20,6 +20,20 @@
   groups; and a pruned object's `print()`/`summary()` footer is a single
   consolidated note instead of stacked rules.
 
+## Screen items before analysis — `check_items()`
+
+- New `check_items()` verb: a per-item pre-analysis screen that flags the
+  columns that break or *silently* degrade a factor analysis — constant (zero
+  variance) items, near-constant items (one response category dominates), sparse
+  response categories (a polychoric-basis concern), and heavy missingness — with
+  one row per item and a printed summary plus guidance. It only reports; it
+  never changes your data.
+- `ackwards()` runs the same screen internally: it now **errors** on a constant
+  item (naming it) instead of letting `psych::polychoric()` silently delete it
+  and crash later with `subscript out of bounds`, and **warns** on a
+  near-constant item (which could previously produce a plausible-looking but
+  meaningless factor with no warning at all).
+
 ## Polychoric continuity correction (`correct`)
 
 - `ackwards()` gains a `correct` argument (default `0.5`, psych's own default),

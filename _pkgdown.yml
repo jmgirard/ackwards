@@ -43,12 +43,15 @@ articles:
 reference:
 - title: Fit the model
   desc: |
-    The main modelling function, a Forbes-style pruning verb, and helpers for
-    choosing k and gating hierarchy depth on replicability.
+    The main modelling function, a Forbes-style pruning verb, and pre-analysis
+    helpers for screening items, choosing k, and gating hierarchy depth on
+    replicability.
   contents:
   - ackwards
   - prune
   - boot_edges
+  - check_items
+  - print.check_items
   - suggest_k
   - print.suggest_k
   - autoplot.suggest_k
