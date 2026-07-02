@@ -75,19 +75,41 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-**M45 is complete** (2026-07-01) — out-of-sample (train/test) scoring via fit-time moments,
-owner-requested for an upcoming cross-validation project. Every acceptance criterion met: fit-time
-item moments stored in the object; `augment()` gained `scaling = c("fit", "sample")` with the
-`"fit"` default (training metric everywhere; test scores hand-verified to 1e-12; training
-re-score ≡ `keep_scores` fit-time scores; the behavior change is prominent in NEWS); new exported
-`predict.ackwards()` is test-asserted identical to `augment(append = FALSE)` and indexed in
-`_pkgdown.yml`; intro vignette gained the train/test subsection; DESIGN §6/§10 + §14 item 34
-record the contract. Gate: `check()` 0/0/0 (vignettes rebuilt), 1689 pass / 0 fail / 0 skip
-(+33), coverage 100%, style/lint clean, `check_pkgdown()` clean. Detail in `MILESTONES.md` (M45).
+**M46 — Girard extension: replicability-gated hierarchies** (planned 2026-07-01, owner-approved).
+New tooling + capstone vignette pushing the recommended bass-ackwards workflow, centered on
+resurrecting split-half **factor comparability** (Everett 1983; Goldberg 1990 — the method
+inventor's own depth gate, dropped by the modern ESEM/HiTOP lineage and untooled in R).
+Completes the triad: `suggest_k()` = plausible depth range · **`comparability()`** = which
+factors replicate (the depth floor) · `prune()` = which factors differentiate.
 
-**Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas (AMH fidelity extension
-pending the owner's Forbes outreach; e2 dual EFA chi-squares; e4 bootstrap edge CIs per DESIGN
-§14). `MILESTONES.md` remains the source of truth for *completed* milestones.
+Scope (owner decisions): new exported **`comparability()`** (interface mirrors `suggest_k()`:
+raw data + `k_max` + engine/cor passthrough) — for each of `n_splits = 10` (default) random
+half-splits, fit levels 1..k_max in each half, compute cross-half score correlations per level
+via the existing W'RW algebra on the pooled `R` (Invariant 1), match factors across halves by
+**greedy-with-removal** on |r| (square k×k; no `clue` dep) + sign alignment; report per-(level,
+factor) comparability coefficients per-split + aggregate (median/min), with Tucker's φ on
+cross-half loadings alongside — **report-first, judge-never** (nothing auto-flagged); `seed` for
+reproducible splits; **PCA + EFA only** (ESEM deferred — per-split cost needs its own perf
+thought); `print.comparability()` cli table + `autoplot.comparability()` (.90/.95 reference
+lines as visual guides only, M32 cutoff philosophy). **No new dependency.** New vignette
+`ackwards-girard.Rmd` — title *"Replicability-gated hierarchies: a recommended workflow"*
+(names the method; "Girard" stays the secondary handle/filename, Forbes-parallel) — the six-step
+workflow (suggest_k → comparability gate → ackwards → prune → interpret → out-of-sample
+predict/augment) + common-mistakes section (overextraction, non-replicable deep factors,
+strongest-edge selection bias → e4 pointer), crediting the Everett/Goldberg lineage prominently.
+
+Acceptance criteria: `comparability()` exported; self-comparability of identical weights ≡ 1
+exactly; matching invariance (permuting/sign-flipping one half's factors leaves coefficients
+unchanged); `seed` reproduces splits exactly; algebra-vs-materialized-scores cross-check extended
+to cross-solution correlations (Invariant 2); discriminating test (constructed non-replicable
+factor scores low, real factors high; sim16's known 1→2→4 levels score high); both r-comparability
+and φ reported, nothing auto-flagged; new exports + vignette in `_pkgdown.yml` and
+`pkgdown::check_pkgdown()` passes; cross-links from suggest-k/intro/forbes vignettes; DESIGN §14
+new resolved item; NEWS + README updated; `check()` 0/0/0, coverage 100%, styled/linted.
+
+Prior milestone (M45, out-of-sample scoring) is complete — detail in `MILESTONES.md`. `ROADMAP.md`
+still carries the unscheduled ideas (AMH fidelity extension pending the owner's Forbes outreach;
+e2 dual EFA chi-squares; e4 bootstrap edge CIs per DESIGN §14).
 
 ## Invariants — do not violate without flagging
 
