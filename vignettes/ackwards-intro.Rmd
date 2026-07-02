@@ -317,6 +317,39 @@ The cross-level block confirms lineage: `.m4f1` correlates strongly with
 run on any result — strong parent–child correlations should appear exactly where
 the `tidy(what = "edges")` table says they should.
 
+### Scoring new data (train/test)
+
+Because scoring needs only the stored weight matrices and the fit-time item
+means/SDs, you can apply a fitted hierarchy to observations the model never
+saw — the standard cross-validation pattern of fitting on a training split and
+scoring a held-out test split **without retraining**. `predict()` is the front
+door (`augment(x, data = ..., append = FALSE)` is equivalent):
+
+```{r train-test}
+set.seed(11)
+idx <- sample(nrow(bfi), 500)
+x_train <- ackwards(bfi[idx, ], k_max = 5, cor = "polychoric")
+
+test_scores <- predict(x_train, bfi[-idx, ])
+head(round(test_scores[, 1:5], 2))
+```
+
+The test observations are standardized by the *training* moments (the default
+`scaling = "fit"`), so a person's score does not depend on who else landed in
+the test split, and train and test scores share one metric — compare like with
+like across splits, feed them to the same downstream model, or pool them:
+
+```{r train-test-pooled}
+train_scores <- predict(x_train, bfi[idx, ])
+# Same construct, same scale: pooled scores line up with the fitted solution
+round(colMeans(train_scores[, 1:3]), 3) # ~0 by construction (training data)
+round(colMeans(test_scores[, 1:3]), 3) # near 0: test split scored on the same metric
+```
+
+See `?predict.ackwards` and the *Scoring new observations* section of
+`?augment.ackwards` for the full semantics (including `scaling = "sample"` for
+deliberately re-standardizing in a new population).
+
 ## Summary
 
 The bass-ackwards workflow in **ackwards** has six steps:

@@ -4,7 +4,14 @@
 \alias{augment.ackwards}
 \title{Augment data with factor scores from an ackwards object}
 \usage{
-\method{augment}{ackwards}(x, data = NULL, append = TRUE, id_cols = NULL, ...)
+\method{augment}{ackwards}(
+  x,
+  data = NULL,
+  append = TRUE,
+  id_cols = NULL,
+  scaling = c("fit", "sample"),
+  ...
+)
 }
 \arguments{
 \item{x}{An \code{ackwards} object.}
@@ -24,6 +31,14 @@ error -- when \code{append = TRUE} (all columns are already kept) or when \code{
 is \code{NULL} (there are no source columns to carry). \code{NULL} (default) returns
 the bare score columns.}
 
+\item{scaling}{Which item means/SDs standardize \code{data} before the weights
+are applied. \code{"fit"} (default) uses the \strong{fit-time} moments stored in the
+object -- the correct choice for scoring new observations (e.g. a
+cross-validation test split) or subsets on the training metric. \code{"sample"}
+standardizes by the supplied data's own moments (the only option for
+objects fit from a correlation matrix, which carry no raw-data moments).
+Only used when \code{data} is supplied; stored scores are returned as-is.}
+
 \item{...}{Ignored.}
 }
 \value{
@@ -38,11 +53,33 @@ Score columns are named \verb{.m\{k\}f\{j\}} (e.g., \code{.m1f1}, \code{.m2f1}, 
 matching the factor labels used throughout the object.
 }
 \details{
-\strong{Score computation.} Scores are \verb{S = Z W / sqrt(score_var)}, where
-\code{Z = .standardize(data)} (item z-scores), \code{W} is the per-level weight matrix
-stored in the object, and \code{sqrt(score_var)} standardizes by the real
-score standard deviations (Invariant 1: never assume unit variance).
-For PCA the method is \code{"components"}; for EFA/ESEM it is \code{"tenBerge"}.
+\strong{Score computation.} Scores are \verb{S = Z W / sqrt(score_var)}, where \code{Z} is
+the item z-scores, \code{W} is the per-level weight matrix stored in the object,
+and \code{sqrt(score_var)} standardizes by the real score standard deviations
+(Invariant 1: never assume unit variance). For PCA the method is
+\code{"components"}; for EFA/ESEM it is \code{"tenBerge"}. The \code{scaling} argument
+controls which means/SDs build \code{Z}: by default the \strong{fit-time} moments
+stored in the object, so any data you score — the training data, a subset
+of it, or entirely new observations — lands on the same metric the model
+was estimated in.
+
+\strong{Scoring new observations (cross-validation).} Because scoring only needs
+the stored weight matrices and the fit-time moments, you can fit
+\code{ackwards()} on a training split and score a held-out test split \emph{without
+retraining}: \code{augment(x, data = test_set)} (or, equivalently,
+\code{\link[=predict.ackwards]{predict.ackwards()}}). Under the default \code{scaling = "fit"} the test
+observations are standardized by the \emph{training} means/SDs, which is what
+"applying the trained model" means: a test observation's score does not
+depend on which other observations happen to share its split, and train and
+test scores are directly comparable. \code{scaling = "sample"} instead
+re-standardizes by the supplied data's own moments — a deliberate choice
+when scoring a sample from a different population in its own metric, and
+the only option for objects fit from a correlation matrix (which carry no
+raw-data moments). For non-Pearson bases (polychoric, Spearman) the usual
+caveat applies either way: the weights derive from the non-Pearson \code{R}
+while \code{Z} is a linear standardization, so empirical score SDs are close to
+but not exactly 1 (a one-time warning says so); train/test comparability
+under \code{scaling = "fit"} is unaffected.
 
 \strong{Missing data.} Score projection applies weights row-wise and propagates
 NAs listwise: any observation with at least one missing item variable will
@@ -85,6 +122,13 @@ head(scored[, c("id", ".m5f1")])
 # Store at fit time and augment without re-supplying data
 x2 <- ackwards(bfi25, k_max = 5, keep_scores = TRUE)
 scores_df2 <- augment(x2)
+
+# Cross-validation: fit on a training split, score the test split on the
+# training metric (no retraining; see also predict.ackwards())
+train_idx <- seq_len(500)
+x_train <- ackwards(bfi25[train_idx, ], k_max = 5)
+test_scores <- augment(x_train, data = bfi25[-train_idx, ], append = FALSE)
+head(test_scores)
 
 }
 \seealso{

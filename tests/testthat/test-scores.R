@@ -1,6 +1,118 @@
 # tests/testthat/test-scores.R
 # M6: scores storage, keep_fits, augment.ackwards(), tidy(what="scores")
 
+# ── M45: fit-time moments + externally supplied standardization ───────────────────
+
+test_that("fit-time item moments are stored in meta (M45)", {
+  skip_if_not_installed("psych")
+  d <- na.omit(ackwards::bfi25)
+  suppressWarnings(x <- ackwards(d, k_max = 2))
+  expect_equal(x$meta$item_means, colMeans(as.matrix(d)))
+  expect_equal(x$meta$item_sds, apply(as.matrix(d), 2, stats::sd))
+
+  # listwise: moments reflect the reduced data actually fit
+  suppressWarnings(xl <- ackwards(ackwards::bfi25, k_max = 2, missing = "listwise"))
+  cc <- as.matrix(na.omit(ackwards::bfi25))
+  expect_equal(unname(xl$meta$item_means), unname(colMeans(cc)))
+
+  # correlation-matrix input: raw-data moments do not exist
+  suppressWarnings(suppressMessages(xr <- ackwards(cor(d), k_max = 2)))
+  expect_null(xr$meta$item_means)
+  expect_null(xr$meta$item_sds)
+})
+
+test_that(".standardize() honours supplied center/scale moments (M45)", {
+  set.seed(1)
+  x <- matrix(rnorm(40, mean = 5, sd = 3), 20, 2, dimnames = list(NULL, c("a", "b")))
+  ctr <- c(a = 1, b = 2)
+  scl <- c(a = 2, b = 4)
+  Z <- ackwards:::.standardize(x, center = ctr, scale = scl)
+  expect_equal(Z, sweep(sweep(x, 2, ctr, "-"), 2, scl, "/"))
+  # NULL default unchanged: sample moments
+  Z0 <- ackwards:::.standardize(x)
+  expect_equal(unname(colMeans(Z0)), c(0, 0))
+})
+
+# ── M45: out-of-sample scoring via augment(scaling =) ─────────────────────────────
+
+test_that("scaling='fit' scores a test split by the training moments (M45)", {
+  skip_if_not_installed("psych")
+  d <- na.omit(ackwards::bfi25)
+  train <- d[1:500, ]
+  test <- d[501:nrow(d), ]
+  suppressWarnings(x <- ackwards(train, k_max = 3))
+
+  sc <- augment(x, data = test, append = FALSE)
+
+  # Hand computation: standardize the TEST data by the TRAINING moments,
+  # apply the stored weights, divide by the model-implied score SDs.
+  mu <- colMeans(as.matrix(train))
+  sg <- apply(as.matrix(train), 2, stats::sd)
+  Z <- sweep(sweep(as.matrix(test), 2, mu, "-"), 2, sg, "/")
+  for (ki in names(x$levels)) {
+    W <- x$levels[[ki]]$scoring$weights
+    S <- sweep(Z %*% W, 2, sqrt(x$levels[[ki]]$scoring$score_var), "/")
+    for (j in seq_len(ncol(S))) {
+      expect_equal(
+        sc[[paste0(".", colnames(W)[j])]], unname(S[, j]),
+        tolerance = 1e-12
+      )
+    }
+  }
+})
+
+test_that("scaling='fit' is metric-consistent: subsets score like the full set (M45)", {
+  skip_if_not_installed("psych")
+  d <- na.omit(ackwards::bfi25)
+  suppressWarnings(x <- ackwards(d, k_max = 3))
+
+  full <- augment(x, data = d, append = FALSE)
+  sub <- augment(x, data = d[1:50, ], append = FALSE)
+  expect_equal(sub, full[1:50, ], ignore_attr = TRUE)
+
+  # Re-scoring the training data itself reproduces the fit-time stored scores.
+  suppressWarnings(xs <- ackwards(d, k_max = 3, keep_scores = TRUE))
+  stored <- do.call(cbind, lapply(xs$scores, unclass))
+  again <- augment(xs, data = d, append = FALSE)
+  expect_equal(unname(as.matrix(again)), unname(stored), tolerance = 1e-12)
+
+  # Under scaling='sample', a subset deliberately scores differently (its own
+  # moments) -- the pre-M45 behavior, retained as an explicit opt-in.
+  sub_sample <- augment(x, data = d[1:50, ], append = FALSE, scaling = "sample")
+  expect_false(isTRUE(all.equal(sub, sub_sample, ignore_attr = TRUE)))
+})
+
+test_that("scaling='sample' reproduces sample-moment scoring (M45)", {
+  skip_if_not_installed("psych")
+  d <- na.omit(ackwards::bfi25)
+  suppressWarnings(x <- ackwards(d, k_max = 2))
+  sc <- augment(x, data = d, append = FALSE, scaling = "sample")
+  Z <- ackwards:::.standardize(as.matrix(d))
+  W <- x$levels[["2"]]$scoring$weights
+  S <- sweep(Z %*% W, 2, sqrt(x$levels[["2"]]$scoring$score_var), "/")
+  expect_equal(sc[[".m2f1"]], unname(S[, 1]), tolerance = 1e-12)
+})
+
+test_that("scaling='fit' errors informatively for correlation-matrix objects (M45)", {
+  skip_if_not_installed("psych")
+  d <- na.omit(ackwards::bfi25)
+  suppressWarnings(suppressMessages(xr <- ackwards(cor(d), k_max = 2)))
+  expect_error(augment(xr, data = d), "fit-time item means")
+  # scaling='sample' remains available there
+  expect_no_error(sc <- augment(xr, data = d, append = FALSE, scaling = "sample"))
+  expect_equal(ncol(sc), 3L) # 1 + 2 score columns
+})
+
+test_that("scaling='fit' handles unnamed matrix input positionally (M45)", {
+  skip_if_not_installed("psych")
+  d <- na.omit(ackwards::bfi25)
+  suppressWarnings(x <- ackwards(d, k_max = 2))
+  m <- unname(as.matrix(d[1:20, ]))
+  sc_unnamed <- augment(x, data = m, append = FALSE)
+  sc_named <- augment(x, data = d[1:20, ], append = FALSE)
+  expect_equal(sc_unnamed, sc_named, ignore_attr = TRUE)
+})
+
 # ── keep_scores = FALSE (default) ──────────────────────────────────────────────────
 
 test_that("keep_scores = FALSE (default) leaves x$scores as NULL", {

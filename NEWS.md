@@ -1,5 +1,27 @@
 # ackwards (development)
 
+## Out-of-sample scoring (cross-validation)
+
+- New `predict.ackwards()` method: apply a fitted hierarchy to new
+  observations — e.g. the held-out test split of a cross-validation design —
+  without retraining. `predict(x, newdata)` returns the factor-score columns
+  for every level; it is the idiomatic front door to
+  `augment(x, data = newdata, append = FALSE)`.
+- `augment()` gains a `scaling` argument controlling which item means/SDs
+  standardize the supplied data before the stored weights are applied.
+  The new default, `scaling = "fit"`, uses the **fit-time (training) moments**
+  — now stored in every raw-data fit — so scores for new observations,
+  subsets, and the training data itself all share the training metric.
+  `scaling = "sample"` retains the previous behavior (standardize by the
+  supplied data's own moments) and is the option for objects fit from a
+  correlation matrix, which carry no raw-data moments.
+- **Behavior change:** under the new default, `augment(x, data =)` on a
+  *subset* of the training data (or any new data) produces slightly different
+  values than before — previously the supplied data's own means/SDs were used,
+  which made a score depend on which other rows were scored alongside it.
+  Scoring the full training set is unchanged. Pass `scaling = "sample"` for
+  the old behavior.
+
 ## Validation
 
 - The package's fidelity to Forbes's (2023) extended bass-ackward method is
