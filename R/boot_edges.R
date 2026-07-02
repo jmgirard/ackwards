@@ -240,7 +240,7 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
   dims <- lapply(x$edges$matrices, dim)
 
   cli::cli_progress_step(
-    "Fitting {n_boot} bootstrap replicate{?s} ({toupper(x$engine)}, \\
+    "Fitting {n_boot} bootstrap replicate{?s} ({x$engine}, \\
      k = 1-{x$k_max})..."
   )
   rep_rows <- .boot_lapply(idx_list, function(idx) {

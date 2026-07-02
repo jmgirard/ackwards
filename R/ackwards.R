@@ -686,7 +686,7 @@ ackwards <- function(
   if (k_eff < 2L) {
     cli::cli_abort(
       c(
-        "!" = "{toupper(engine)} failed to build at least 2 converged levels \\
+        "!" = "The {engine} engine failed to build at least 2 converged levels \\
                (k_eff = {k_eff}; at least 2 are required for a hierarchy).",
         "i" = "Try fewer factors, or check your data for \\
                perfect multicollinearity or near-singular correlation."
