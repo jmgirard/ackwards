@@ -76,26 +76,67 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-**M46 is complete** (2026-07-01) — the Girard extension: replicability-gated hierarchies. Every
-acceptance criterion met: exported `comparability()` (Everett 1983 / Goldberg 1990 split-half
-factor comparability, full-sample-anchored labels, cross-solution correlations through
-`compute_edges()` on the pooled R — Invariant 1; Tucker's φ alongside; report-first, nothing
-auto-flagged) with print/autoplot methods; self-comparability ≡ 1, matching invariance, seed
-reproducibility, and the Invariant-2 cross-solution oracle all test-asserted; discriminating
-tests pass strikingly (sim16's true 1→2→4 levels ≈ .99 vs. the overextracted m5f5 at .14; bfi25's
-floor lands exactly on the Big Five); capstone vignette `ackwards-girard` + cross-links from
-intro/suggest-k/forbes + README; DESIGN §14 item 35; ESEM/polychoric extensions logged in
-`ROADMAP.md`. Post-review follow-up (same day) addressed all five findings: NA-degradation guard
-in cross-solution matching, package-wide unknown-`...` rejection (`ackwards`/`suggest_k`/
-`comparability`), `k_requested` in the object + truncation note in `print()`, the `.fit_half()`
-error branch exercised (no `# nocov`), and tests for `n_splits = 1` / spearman / truncated-anchor
-/ autoplot-with-NA. Post-follow-up gate: `check()` 0/0/0 (vignettes rebuilt), 1791 pass / 0 fail /
-0 skip, coverage 100%, style/lint clean, `check_pkgdown()` clean. Detail in `MILESTONES.md` (M46).
+**Milestone 47 — bootstrap edge CIs: `boot_edges()`** (planned 2026-07-01; branch
+`m47-boot-edges`). Reactivates the DESIGN §14 e4 deferral ("Selection bias in the strongest
+edge"), re-affirmed by the M41 review as the highest-value deferred statistical addition. Every
+edge is currently a point estimate; the Forbes `pairs = "all"` strongest-edge claim and
+`prune()`'s hard `|r| ≥ .9` cut both lean on those estimates with no uncertainty quantification.
+`comparability()` (M46) gates *level replicability*; this quantifies *edge precision* —
+complementary, not redundant. Note: DESIGN §14's "reuse the `loadings_se` infrastructure" is
+interpreted as the storage/tidy display pattern, not literally (no analytic SE exists for edges
+of varimax-rotated hierarchies; bootstrap *is* the method).
 
-**Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas (AMH fidelity extension
-pending the owner's Forbes outreach; e2 dual EFA chi-squares; e4 bootstrap edge CIs;
-`comparability()` ESEM/polychoric extensions). `MILESTONES.md` remains the source of truth for
-*completed* milestones.
+**Scope (owner-approved, four decisions + three residual calls):** standalone pipeable verb
+`boot_edges(x, data, n_boot = 1000L, conf = 0.95, seed = NULL)` mirroring `prune()` — takes the
+fitted object plus re-supplied raw data (light core stores no `data`; validated against the fit),
+returns `x` with `x$boot` populated (replicate-edge tibble `from, to, r, se, lo, hi` +
+`n_boot`/`n_boot_ok`/`conf`/`seed`). **PCA/EFA + pearson/spearman only** (mirrors M46's scope;
+ESEM/polychoric deferred to `ROADMAP.md`); cor-matrix-input objects, esem, and polychoric error
+informatively; unknown `...` rejected (M46 convention). **Percentile CIs** + bootstrap SE.
+**Tables + print only** — no `autoplot()` change. Residual calls: `missing = "fiml"` objects
+supported (per-replicate `corFiml()`, cli cost note); boot columns merge into
+`tidy(what = "edges")`; `n_boot = 1000` default (docs advise ≥2000 for publication).
+
+**Algorithm:** draw all `n_boot` resample index sets upfront from `seed` (each replicate
+deterministic given indices → serial ≡ parallel exactly). Per replicate: recompute `R_b` (same
+`cor` + `missing` routine as the fit) → refit levels 1..k_max muffled (`.fit_half()` pattern) →
+**anchor each level to the full-sample solution** via the M46 greedy-match + sign-orient
+machinery on the full-sample R (the label-switching/sign-flipping fix) → replicate edges via
+`compute_edges()` on `R_b` (Invariant 1), same `pairs` as `x`. Failed replicates dropped +
+counted, never abort (Invariant 7). `future.apply` opt-in parallel with serial fallback (M26
+pattern); cli progress + summary (Invariant 6).
+
+**Files:** create `R/boot_edges.R`, `tests/testthat/test-boot_edges.R`; modify `R/tidy.R`
+(`what = "edges"` gains `se`/`lo`/`hi` when boot present), `R/print.R` + `R/summary.R` (one boot
+line), `_pkgdown.yml` (new export → "Fit the model", beside `prune`), `NAMESPACE` (document()),
+`NEWS.md`, `vignettes/ackwards-forbes.Rmd` (strongest-edge honesty section, modest `n_boot`) +
+`ackwards-girard.Rmd` cross-link, DESIGN §14 (strike e4, add decision item 36), CLAUDE.md
+(out-of-scope list + focus + index), `MILESTONES.md`, `ROADMAP.md` (remove e4; add
+ESEM/polychoric boot deferrals).
+
+**Acceptance criteria:**
+1. Exported `boot_edges()` returns the object with `$boot` populated; pipeable off `ackwards()`.
+2. Guards test-asserted: cor-matrix input, esem, polychoric, mismatched `data`, unknown `...`,
+   invalid `n_boot`/`conf`.
+3. Seed reproducibility, and **serial ≡ parallel** under the same seed (upfront-indices design).
+4. Anchoring correct: sim16 primary-parent replicate distributions center on the full-sample r
+   (never sign-flipped/switched), plus a constructed case where an unanchored replicate would flip.
+5. **Statistical oracle:** for an adjacent PCA edge on sim16, the percentile CI ≈ the Fisher-z
+   analytic CI of the materialized-score correlation within tolerance (same estimand; PCA scores
+   determinate).
+6. Discriminating: strong known sim16 edges' 95% CIs exclude 0; a weak edge's covers 0.
+7. A rigged failing replicate is dropped + counted in `n_boot_ok`; the run completes (Invariant 7).
+8. `tidy`/`print`/`summary` exposure snapshot-tested; roxygen `@examples` runnable with small
+   `n_boot`.
+9. `pkgdown::check_pkgdown()` passes with the new reference entry.
+10. Vignette prose states honestly that per-edge CIs expose uncertainty but do **not** correct
+    strongest-edge multiplicity.
+11. Gate: `check()` 0/0/0, coverage 100%, style/lint clean, MILESTONES/CLAUDE/DESIGN/ROADMAP
+    updated.
+
+Prior milestone (M46, complete 2026-07-01) is logged in `MILESTONES.md`. Remaining unscheduled
+ideas in `ROADMAP.md`: AMH fidelity extension (pending Forbes outreach), e2 dual EFA chi-squares,
+`comparability()` ESEM/polychoric extensions.
 
 ## Invariants — do not violate without flagging
 
