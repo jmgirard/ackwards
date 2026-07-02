@@ -66,21 +66,42 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-**M41 is complete** (2026-07-01) — the independent Fable review of statistical correctness,
-software design, vignette quality, and the §9/§14 defaults/decision audit. Review-only: no
-`R/`/`NAMESPACE`/test/vignette change. The statistical core verified clean under independent
-numeric re-derivation (tenBerge, W′RW, sign alignment, Forbes chains/retention/φ, ESEM fit
-extraction, suggest_k mappings). The findings — **1 Critical** (EFA fit row pairs psych's
-empirical chi-square with the likelihood p-value), **6 Major** (incl. a `drop_pruned` +
-`pairs = "adjacent"` M34 regression and the engines vignette still documenting pre-M38 FIML
-behavior), **11 Minor**, **4 enhancements** — live in `ROADMAP.md` with runnable reproductions,
-plus the full defaults-audit verdicts (all sound; one sound-but-misjustified rationale wording).
+**M42 — review fixes (code).** First fix milestone off the M41 review (owner-approved
+2026-07-01): implements the `ROADMAP.md` M42 brief **plus e3**, one commit per item, test-first.
+Code-only; doc-Major fixes (M2–M5) stay in M43. No new/removed export, no dependency change, no
+`_pkgdown.yml` change.
 
-**Next up:** the findings are triaged into three proposed follow-ups awaiting their own
-`/plan-milestone` runs — **M42** (code fixes: C1, M1, minors + regression tests), **M43**
-(doc fixes: M2–M5, doc minors, §9 wording), **M44** (scoping: Forbes exact-reproduction fixture
-or contract-wording amendment). See `ROADMAP.md` for the briefs. `MILESTONES.md` remains the
-source of truth for *completed* milestones.
+1. **C1 (Critical)** — EFA fit row: report `psych::fa()$STATISTIC` (likelihood chi-square — the
+   statistic `$PVAL`/RMSEA/TLI derive from) as `chi`, replacing the mismatched empirical `$chi`
+   (`R/engine_efa.R`); roxygen note in `tidy(what = "fit")`; NEWS (values change, e.g. bfi k=3:
+   1085.1 → 1763.4). Tests: `pchisq(chi, dof)` reproduces `p_value`; `chi ≡ $STATISTIC`.
+2. **M1 (Major)** — `.drop_pruned_nodes()` recomputes all-pairs edges fresh via
+   `compute_edges(pairs = "all", align = FALSE)` (mirrors `prune.ackwards()`; Invariant-1-clean;
+   one code path regardless of fit-time `pairs`), fixing the M34 regression where
+   `drop_pruned = TRUE` on a `pairs = "adjacent"` object loses all edges into nodes below a
+   pruned level; stale "M5 auto-upgrades" comment deleted (`R/layout.R`). Tests: review
+   reproduction (no edge-less kept nodes) + adjacent/all edge-set identity.
+3. **m7** — remove dead `n_obs` param from `esem_levels()` (+ call site).
+4. **m8** — validate `cut_show` ([0, 1], `ackwards()` + `autoplot()`) and `n_iter` (positive
+   integer, `suggest_k()`); error tests.
+5. **m1 + m2** — `print.suggest_k()`: "undetermined" consensus instead of `min()` warning +
+   `Inf` when all requested criteria are NA; announce (cli, Invariant 6) when PA's
+   `ncomp`/`nfact` exceeds `k_max` naming the uncapped value — capped value still reported
+   (stable `criteria` schema; owner-approved shape).
+6. **m10** — `.ba_fit_plot()` caption built from the indices actually plotted (EFA: TLI/RMSEA
+   only).
+7. **e3** — `detect_ordinal()` returns flagged column *names* (internal-only change;
+   `meta$ordinal_warned` stays logical); ordinal warning lists the columns.
+8. **m6** — correct the stale `.summary_lineage()` NA-safety comment (code unchanged).
+9. Bookkeeping: NEWS (C1, M1, m1, m2, m8, m10, e3); `MILESTONES.md` M42 entry; CLAUDE.md;
+   `ROADMAP.md` M42 section deleted per its maintenance rule (M43/M44 briefs remain).
+
+**Acceptance criteria:** EFA `chi`/`p_value` one consistent pair, test-asserted against direct
+`psych::fa()` · `drop_pruned` edges identical across `pairs` settings; reproduction case has no
+edge-less kept nodes · no `Inf` consensus; PA caps announced · invalid `cut_show`/`n_iter` error
+informatively · ordinal warning names columns · every fix has a regression test · NAMESPACE
+unchanged (`pkgdown::check_pkgdown()` passes) · NEWS covers all user-visible changes · gate:
+`check()` 0/0/0 → coverage 100% → styler/lintr → `check_pkgdown()`.
 
 ## Invariants — do not violate without flagging
 
