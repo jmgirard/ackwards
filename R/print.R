@@ -60,6 +60,15 @@ print.ackwards <- function(x, ...) {
     )
   }
 
+  # --- Durable near-singularity caution (DESIGN.md s6) ------------------------
+  if (isTRUE(x$meta$near_singular)) {
+    cli::cli_text(cli::col_yellow(
+      "{cli::symbol$warning} Near-singular correlation matrix (min eigenvalue \\
+       {signif(x$meta$min_eigenvalue, 2)}): fit indices and factor scores may \\
+       be unreliable. See {.code ?ackwards} (\"When to trust the result\")."
+    ))
+  }
+
   # --- Pruning summary (Forbes extension; DESIGN.md s14.18) -------------------
   if (!is.null(x$prune)) {
     cli::cli_h2("Pruning")

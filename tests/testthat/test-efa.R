@@ -399,3 +399,29 @@ test_that("ackwards() does not leak psych's per-level chatter to the console", {
   )
   expect_false(any(grepl("determinant|smcs|objective function", msgs)))
 })
+
+test_that("near-singular fit is recorded in meta and re-surfaced by print/summary", {
+  skip_if_not_installed("psych")
+  d <- .triplicate_ordinal()
+  rlang::reset_warning_verbosity("ackwards_near_singular")
+  x <- suppressWarnings(suppressMessages(
+    ackwards(d, k_max = 2, engine = "efa", cor = "polychoric", correct = 0)
+  ))
+  expect_true(x$meta$near_singular)
+  expect_lt(x$meta$min_eigenvalue, 1e-4)
+  # Durable caution appears in both print() and summary(), not just at fit time.
+  pr <- cli::ansi_strip(capture.output(print(x), type = "message"))
+  expect_true(any(grepl("Near-singular", pr)))
+  sm <- cli::ansi_strip(capture.output(print(summary(x)), type = "message"))
+  expect_true(any(grepl("Near-singular", sm)))
+})
+
+test_that("a well-conditioned fit is not flagged near-singular", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
+  expect_false(isTRUE(x$meta$near_singular))
+  expect_false(any(grepl(
+    "Near-singular",
+    cli::ansi_strip(capture.output(print(x), type = "message"))
+  )))
+})

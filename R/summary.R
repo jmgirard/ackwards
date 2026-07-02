@@ -21,18 +21,20 @@
 summary.ackwards <- function(object, ...) {
   structure(
     list(
-      call       = object$call,
-      engine     = object$engine,
-      rotation   = object$rotation,
-      cor        = object$cor,
-      n_obs      = object$n_obs,
-      k_max      = object$k_max,
-      estimator  = object$meta$estimator,
-      variance   = .tidy_variance(object),
-      fit        = .tidy_fit(object),
-      lineage    = .summary_lineage(object),
-      prune      = .summary_prune(object),
-      boot       = object$boot
+      call = object$call,
+      engine = object$engine,
+      rotation = object$rotation,
+      cor = object$cor,
+      n_obs = object$n_obs,
+      k_max = object$k_max,
+      estimator = object$meta$estimator,
+      near_singular = isTRUE(object$meta$near_singular),
+      min_eigenvalue = object$meta$min_eigenvalue,
+      variance = .tidy_variance(object),
+      fit = .tidy_fit(object),
+      lineage = .summary_lineage(object),
+      prune = .summary_prune(object),
+      boot = object$boot
     ),
     class = "summary_ackwards"
   )
@@ -157,6 +159,18 @@ print.summary_ackwards <- function(x, ...) {
     for (i in seq_len(nrow(lin))) {
       cli::cli_text("  {lin$parent[i]} {cli::symbol$arrow_right} {lin$children[i]}")
     }
+  }
+
+  # --- Durable near-singularity caution (DESIGN.md s6) ------------------------
+  if (isTRUE(x$near_singular)) {
+    cli::cli_text("")
+    cli::cli_text(cli::col_yellow(
+      "{cli::symbol$warning} Near-singular correlation matrix (min eigenvalue \\
+       {signif(x$min_eigenvalue, 2)}): per-level fit indices (especially CFI) \\
+       and factor scores may be unreliable -- the solution rests on a \\
+       rank-deficient matrix. See {.code ?ackwards} (\"When to trust the \\
+       result\")."
+    ))
   }
 
   # --- Bootstrap edge CIs (M47) -----------------------------------------------

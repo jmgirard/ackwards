@@ -48,6 +48,16 @@
   error, and a polychoric matrix that comes back with undefined (`NA`/`NaN`)
   entries is caught with a clear, item-naming error rather than a base-R
   "missing value where TRUE/FALSE needed" crash.
+- When the polychoric matrix is **near-singular** (rank-deficient), `ackwards()`
+  now raises a single clear warning instead of letting `psych::fa()` flood the
+  console with per-level "determinant … zero" notes, and records it durably:
+  `meta$near_singular` / `meta$min_eigenvalue` are set, and `print()`/`summary()`
+  re-surface a caution that per-level fit indices (especially CFI) and factor
+  scores may be unreliable — so the signal survives on a saved or shared object,
+  not just at fit time.
+- `?ackwards` gains a **"When to trust the result"** section that tiers every
+  diagnostic the function raises as fatal / caution / informational, so it is
+  clear which warnings mean "fix before trusting" versus "proceed with care".
 
 ## Bootstrap confidence intervals on edges
 

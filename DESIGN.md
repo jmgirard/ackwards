@@ -212,7 +212,10 @@ structure(list(
              item_labels = <named chr of column "label" attributes, or NULL> (M36),
              item_means/item_sds = <fit-time item moments from the
              post-missing-handling data; NULL for cor_matrix input> (M45 --
-             the frame of reference for out-of-sample scoring)>,
+             the frame of reference for out-of-sample scoring),
+             min_eigenvalue = <smallest eigenvalue of R; NA where not computed>,
+             near_singular = <TRUE when min_eigenvalue < 1e-4 -- a durable
+             rank-deficiency signal re-surfaced by print()/summary() (M49)>>,
   prune   = NULL         # Forbes extension: node flags + chain table + phi table;
                          # populated by prune(x, ...) -- a standalone verb piped off
                          # ackwards(), not an ackwards() argument (M34; see s.14)
@@ -741,6 +744,16 @@ owner-signed-off):**
     psych can delete it) and **warns once** on a near-constant item, but deliberately does **not**
     warn on a merely sparse category (avoids nagging ordinary ordinal data). Report-first, like
     `suggest_k()`/`comparability()`; never modifies data. New export, no new dependency.
+44. **Trust guidance + durable near-singularity signal.** Fit-time warnings are transient (they
+    scroll off; a reloaded/shared object shows none), so a user can trust a rank-deficient fit
+    whose `CFI` is silently `NA`. Two additions: (a) a **"When to trust the result"** `@section` in
+    `?ackwards` tiering every diagnostic ackwards raises as *fatal* (constant item, polychoric
+    failure, non-convergence, near-singular matrix) / *caution* (Heywood, near-constant item,
+    ordinal-on-Pearson) / *informational* (pairwise-missing, sparse category, ordinal-detection when
+    Pearson was intended); (b) the near-singularity check now records `meta$min_eigenvalue` and
+    `meta$near_singular` (smallest eigenvalue `< 1e-4`) so `print()`/`summary()` re-surface a
+    **durable** "near-singular -- fit indices and scores may be unreliable" caution on the object
+    itself, not just once at fit time. Report-only; changes no estimate.
 
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.

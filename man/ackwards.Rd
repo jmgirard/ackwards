@@ -236,6 +236,43 @@ require row-level item responses.
 }
 }
 
+\section{When to trust the result}{
+
+\code{ackwards()} raises diagnostics as it fits. They fall into three tiers by
+what they mean for whether you should trust and report the solution:
+
+\strong{Fatal -- fix before trusting.} The result is undefined or rests on a
+broken correlation matrix:
+\itemize{
+\item A \strong{constant item} (no variance) errors -- drop it (see \code{\link[=check_items]{check_items()}}).
+\item \strong{\code{psych::polychoric()} fails} -- usually a near-empty response category;
+set \code{correct = 0} or collapse rare categories.
+\item A \strong{level fails to converge} -- the hierarchy is truncated to the deepest
+level that did; do not interpret beyond it.
+\item A \strong{near-singular correlation matrix} (smallest eigenvalue \verb{< 1e-4},
+recorded in \code{meta$near_singular} / \code{meta$min_eigenvalue} and re-surfaced by
+\code{print()}/\code{summary()}) means per-level fit indices (especially CFI, which
+comes back \code{NA}) and factor scores are unreliable and the loadings/edges
+rest on a rank-deficient matrix. Collapse sparse categories, use
+\code{missing = "listwise"}, or trim redundant items.
+}
+
+\strong{Caution -- interpret carefully.} The solution exists but may be unstable:
+\itemize{
+\item A \strong{Heywood case} (communality \verb{> 1} / negative uniqueness) at a level --
+check that level's loadings make substantive sense; consider fewer factors.
+\item A \strong{near-constant item} (one response category dominates) can drive a
+meaningless factor -- inspect it with \code{\link[=check_items]{check_items()}}.
+\item \strong{Ordinal data on a Pearson basis} attenuates correlations -- fine for a
+quick look or \code{suggest_k()} screening, but report the final model on
+\code{cor = "polychoric"}.
+}
+
+\strong{Informational -- usually fine.} Proceed, just be aware: the
+pairwise-missing note, a merely \emph{sparse} (rare-but-present) response
+category, and the ordinal-detection warning when you did intend Pearson.
+}
+
 \examples{
 # bfi25 items are ordinal, so fit on the polychoric basis (best practice).
 x <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric")

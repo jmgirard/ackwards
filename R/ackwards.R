@@ -205,6 +205,37 @@
 #' * **`$cor` field:** stored as `NA_character_`; printed as
 #'   `"(user-supplied matrix)"`.
 #'
+#' @section When to trust the result:
+#' `ackwards()` raises diagnostics as it fits. They fall into three tiers by
+#' what they mean for whether you should trust and report the solution:
+#'
+#' **Fatal -- fix before trusting.** The result is undefined or rests on a
+#' broken correlation matrix:
+#' * A **constant item** (no variance) errors -- drop it (see [check_items()]).
+#' * **`psych::polychoric()` fails** -- usually a near-empty response category;
+#'   set `correct = 0` or collapse rare categories.
+#' * A **level fails to converge** -- the hierarchy is truncated to the deepest
+#'   level that did; do not interpret beyond it.
+#' * A **near-singular correlation matrix** (smallest eigenvalue `< 1e-4`,
+#'   recorded in `meta$near_singular` / `meta$min_eigenvalue` and re-surfaced by
+#'   `print()`/`summary()`) means per-level fit indices (especially CFI, which
+#'   comes back `NA`) and factor scores are unreliable and the loadings/edges
+#'   rest on a rank-deficient matrix. Collapse sparse categories, use
+#'   `missing = "listwise"`, or trim redundant items.
+#'
+#' **Caution -- interpret carefully.** The solution exists but may be unstable:
+#' * A **Heywood case** (communality `> 1` / negative uniqueness) at a level --
+#'   check that level's loadings make substantive sense; consider fewer factors.
+#' * A **near-constant item** (one response category dominates) can drive a
+#'   meaningless factor -- inspect it with [check_items()].
+#' * **Ordinal data on a Pearson basis** attenuates correlations -- fine for a
+#'   quick look or `suggest_k()` screening, but report the final model on
+#'   `cor = "polychoric"`.
+#'
+#' **Informational -- usually fine.** Proceed, just be aware: the
+#' pairwise-missing note, a merely *sparse* (rare-but-present) response
+#' category, and the ordinal-detection warning when you did intend Pearson.
+#'
 #' @examples
 #' # bfi25 items are ordinal, so fit on the polychoric basis (best practice).
 #' x <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric")
@@ -301,6 +332,11 @@ ackwards <- function(
        continuity correction passed to {.fn psych::polychoric})."
     )
   }
+
+  # Smallest eigenvalue of the correlation matrix, recorded in $meta as a durable
+  # near-singularity signal. Set on the raw-data polychoric path (where it bites);
+  # stays NA elsewhere (cor-matrix input, ESEM, well-behaved Pearson/Spearman).
+  min_eigenvalue <- NA_real_
 
   # ============================================================
   # BRANCH A -- correlation-matrix input
@@ -717,6 +753,10 @@ ackwards <- function(
           min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
         } # nocov end
 
+        # Record the conditioning for a durable $meta signal (summary()/print()
+        # re-surface it long after the fit-time warning has scrolled off).
+        min_eigenvalue <- min_eig
+
         # Near-singular check, whether or not smoothing ran: a tiny smallest
         # eigenvalue means the matrix is rank-deficient for practical purposes
         # (healthy correlation matrices sit well above this). psych then cannot
@@ -878,7 +918,14 @@ ackwards <- function(
     # listwise reduction, consistent with the R actually fit); NULL for
     # correlation-matrix input, where raw-data moments do not exist.
     item_means        = if (!is.null(data_mat)) colMeans(data_mat, na.rm = TRUE) else NULL,
-    item_sds          = if (!is.null(data_mat)) apply(data_mat, 2, stats::sd, na.rm = TRUE) else NULL
+    item_sds          = if (!is.null(data_mat)) apply(data_mat, 2, stats::sd, na.rm = TRUE) else NULL,
+    # Conditioning of the correlation matrix (durable near-singularity signal):
+    # `min_eigenvalue` is the smallest eigenvalue of R (NA where not computed --
+    # cor-matrix input, ESEM); `near_singular` (< 1e-4) means the fit rests on a
+    # rank-deficient matrix, so summary()/print() flag that fit indices and
+    # scores may be unreliable long after the fit-time warning has scrolled away.
+    min_eigenvalue    = min_eigenvalue,
+    near_singular     = isTRUE(min_eigenvalue < 1e-4)
   )
 
   # --- Assemble result --------------------------------------------------------
