@@ -78,19 +78,63 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-**M49 — Initial CRAN release (0.1.0).** The first actual CRAN submission (M17/M20 built the
-infrastructure; this milestone ships it). Two work-packages. **A — roadmap cleanup:** decline the
-e2 dual-EFA-chi-squares idea (re-opens the M42/C1 chi/p mispairing risk, an NA-heavy EFA-only
-schema column, zero downstream consumer) — remove it from `ROADMAP.md` and record the decline in
-`DESIGN.md §14`; bank the `comparability()`/`boot_edges()` ESEM/polychoric feasibility verdict
-(demand-gated: ESEM-`comparability()` plausible, polychoric-`boot_edges()` least realistic + the
-dropped-response-category wrinkle). **B — release mechanics:** consolidate `NEWS.md` into one
-dated `# ackwards 0.1.0` first-release entry (it never shipped, so there is no basis for a
-separate `(development)` tier); refresh `cran-comments.md` (fresh platform re-run + corrected
-`\donttest{}` list now that `comparability`/`boot_edges`/`autoplot.comparability` are wrapped);
-add the `install.packages("ackwards")` line to `README.Rmd` → regenerate `README.md`; verify
-DESCRIPTION (maintainer `me@jmgirard.com` confirmed correct)/CITATION/DOIs; `pkgdown::check_pkgdown()`.
-No `R/`, NAMESPACE, or dependency change — packaging + docs only.
+**M49 — Initial CRAN release (0.1.0), amended scope (owner-approved 2026-07-02).** The first
+actual CRAN submission (M17/M20 built the infrastructure; this milestone ships it). Three phases,
+with a separate code milestone (**M50**) interleaved before the release mechanics.
+
+**Phase A — roadmap cleanup:** decline the e2 dual-EFA-chi-squares idea (re-opens the M42/C1
+chi/p mispairing risk, an NA-heavy EFA-only schema column, zero downstream consumer) — remove it
+from `ROADMAP.md` and record the decline in `DESIGN.md §14`; bank the
+`comparability()`/`boot_edges()` ESEM/polychoric feasibility verdict (demand-gated:
+ESEM-`comparability()` plausible, polychoric-`boot_edges()` least realistic + the
+dropped-response-category wrinkle); bank the **factor-label pipeline** as the headline 0.2.0
+candidate in `ROADMAP.md` (persistent `set_factor_labels()`-style names honored by
+autoplot/print/summary/tidy; `label_template()` as scaffold; additive API — deferred, not
+declined) and note the declines: `label_items()` setter (duplicates `labelled::var_label()`,
+worsens item-label/factor-label ambiguity) and a third teaching dataset (dilutes the
+sim16/bfi25 two-foil design). *(Done so far on this branch: the boot_edges() material moved out
+of the Forbes vignette into ackwards-girard — Forbes vignette now covers only Forbes (2023)
+methods, keeping a tool-free strongest-edge caveat.)*
+
+**Phase B — doc/pedagogy pass (owner-approved 2026-07-02):** README tighten (feature paragraph
+gains M45–M47 verbs; `message = FALSE` on the suggest_k chunk; Step 4 swaps `dim()`/`grep()` for
+`top_items()`; encoding minutiae cut to one sentence; new no-code "Beyond the basics" block
+naming `comparability()`/`prune()`/`boot_edges()`/`predict()`); intro reframed as "the basic
+toolkit" (girard is the *only* vignette that says "the workflow"; add comparability/prune
+pointers; fix the near-1.0-edge prose to acknowledge redundancy; fix the dangling "No warning
+this time" — `suggest_k()` never fires the ordinal warning; add interpret to Next steps); pkgdown
+articles regrouped (Getting started / The workflow: girard, suggest-k, forbes / Model choices:
+engines, ordinal / Interpretation & presentation: interpret, visualization) with README +
+intro tables aligned to that canonical order; girard Setup gains one sentence owning the
+deliberate Pearson basis (comparability/boot_edges require it — the ordinal warning is expected);
+ESEM reframed in engines + README (EFA is a first-class reporting engine; ESEM when small-n
+loading SEs, field-standard WLSMV, or true FIML matter — keep the capability, stop overselling);
+vocabulary standardized: "variable labels" (item wording) vs "factor labels" (`m{k}f{j}` names);
+interpret vignette gains the `labelled::var_label()` route and drops the hand-faked `bfi_lab`
+once M50 ships labeled bfi25. Only the labeled-output-dependent prose waits on M50; the rest can
+land first. **Lifecycle badge: bump experimental→stable in Phase C, after M50 lands**
+(owner-decided 2026-07-02) — the pre-CRAN breaking-change window closes with M50, so the API is
+settled; the `README.Rmd` badge line + any lifecycle prose flip to `stable` as part of the final
+README regeneration.
+
+**M50 interleave — release polish (code; lands before Phase C):** bfi25 gains IPIP-sourced
+variable labels (public-domain item stems, NOT copied from `psych::bfi.dictionary`; makes
+`top_items()` show wording everywhere for free); cli consistency fixes (Engine casing
+pca-vs-PCA, `Note:` footer convention, pruned print's stacked double rules, `summary()` level
+spacing + percent precision, `top_items()` factor-block separation); roxygen examples swap to
+`sim16` for mechanics demos (`tidy`/`summary`/`layout`/`boot_edges`/…) keeping bfi25 (+
+polychoric) where content matters (`ackwards`, `top_items`, `label_template`, `autoplot`,
+interpret family); `suggest_k()` gains the ordinal-detection warning (Invariant 6 symmetry with
+`ackwards()`/`comparability()`). Needs its own /plan-milestone run + branch off master; merges
+before M49's release mechanics; m49 branch then merges master back in.
+
+**Phase C — release mechanics (after M50 merges):** consolidate `NEWS.md` into one dated
+`# ackwards 0.1.0` first-release entry (it never shipped, so there is no basis for a separate
+`(development)` tier) — now also carrying the M50 changes; refresh `cran-comments.md` (fresh
+platform re-run + corrected `\donttest{}` list now that
+`comparability`/`boot_edges`/`autoplot.comparability` are wrapped); add the
+`install.packages("ackwards")` line to `README.Rmd` → regenerate `README.md`; verify DESCRIPTION
+(maintainer `me@jmgirard.com` confirmed correct)/CITATION/DOIs; `pkgdown::check_pkgdown()`.
 
 **Release-milestone CI exception applies** (Git section): merge to `master` only on the **full
 green CI matrix** (macOS/Windows/Ubuntu × release/devel/oldrel), not local-green alone, because
@@ -102,10 +146,13 @@ win-builder/R-hub remote checks (they email the maintainer) and the final
 
 **Acceptance criteria.** `R CMD check --as-cran` = 0 errors / 0 warnings locally *and* across the
 full CI matrix, notes limited to the known DESCRIPTION misspelled-words note; `NEWS.md` a single
-dated 0.1.0 changelog; `cran-comments.md` reflects the fresh re-run (platforms, donttest list,
-notes); e2 removed from `ROADMAP.md` + decline in DESIGN §14 + ESEM/polychoric verdict banked;
-`README` carries the CRAN install line; `v0.1.0` tag moved to the release commit and pushed;
-`Rscript tools/dod-gate.R` green; `MILESTONES.md` M49 entry + this index updated.
+dated 0.1.0 changelog (incl. M50); `cran-comments.md` reflects the fresh re-run (platforms,
+donttest list, notes); Phase A recorded (e2 removed from `ROADMAP.md` + decline in DESIGN §14 +
+ESEM/polychoric verdict + factor-label 0.2.0 design banked); Phase B doc changes landed and the
+three vignette/README/pkgdown orderings agree; M50 merged first and its output reflected in the
+re-rendered vignettes; `README` carries the CRAN install line; `v0.1.0` tag moved to the release
+commit and pushed; `Rscript tools/dod-gate.R` green; `MILESTONES.md` M49 + M50 entries + this
+index updated.
 
 ## Invariants — do not violate without flagging
 
