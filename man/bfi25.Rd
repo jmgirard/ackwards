@@ -44,11 +44,20 @@ Derived from \code{psych::bfi[, 1:25]} by sampling 1 000 rows with
 The full dataset (\code{psych::bfi}) contains responses from 2 800 participants
 collected via the SAPA project.
 
+Each item column carries its public-domain IPIP stem (Goldberg, 1999) as a
+\code{label} attribute, so \code{ackwards()} captures it at fit time and \code{top_items()}
+prints the wording as \code{label (code)} (e.g. \verb{Make friends easily (E4)}) with
+no setup. These are plain attributes: base row-subsetting (e.g.
+\code{na.omit(bfi25)}, \code{bfi25[rows, ]}) drops them, as base R does for any
+non-\code{labelled}-class vector, so fit on \code{bfi25} \strong{directly} -- its \code{NA}s are
+handled by the \code{missing} argument of \code{ackwards()} -- to keep the labels.
+
 To regenerate this dataset, run \code{source("data-raw/bfi25.R")} from the
 package root.
 }
 \examples{
 dim(bfi25)
 head(bfi25)
+attr(bfi25$E4, "label") # public-domain IPIP item stem
 }
 \keyword{datasets}

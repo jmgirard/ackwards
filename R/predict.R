@@ -40,8 +40,8 @@
 #'
 #' @examples
 #' # Cross-validation: fit on a training split, score the test split
-#' train <- bfi25[1:500, ]
-#' test <- bfi25[501:1000, ]
+#' train <- sim16[1:500, ]
+#' test <- sim16[501:1000, ]
 #' x <- ackwards(train, k_max = 5)
 #' test_scores <- predict(x, test)
 #' head(test_scores)

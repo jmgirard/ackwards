@@ -27,7 +27,11 @@ test_that("suggest_k() returns a suggest_k object with expected fields", {
   skip_if_not_installed("psych")
   # Integration smoke on the full 25-item instrument: this is the one test that
   # asserts the realistic n_obs / n_vars and pays the full-data CD cost (~5 s).
-  sk <- suggest_k(psych::bfi[, 1:25], k_max = 3L, n_iter = 5L, seed = 1L)
+  # The Likert items raise the (expected) ordinal-detection warning; it is
+  # asserted in its own test below, so silence it here.
+  sk <- suppressWarnings(
+    suggest_k(psych::bfi[, 1:25], k_max = 3L, n_iter = 5L, seed = 1L)
+  )
 
   expect_s3_class(sk, "suggest_k")
   expect_named(
@@ -202,6 +206,49 @@ test_that("print.suggest_k() reports an undetermined consensus without Inf (M42/
   )
   expect_true(any(grepl("undetermined", out)))
   expect_false(any(grepl("Inf", out)))
+})
+
+test_that("suggest_k() warns on ordinal raw data, pointing at ackwards() (M50)", {
+  skip_if_not_installed("psych")
+  # Invariant-6 symmetry with ackwards()/comparability(): Likert items are
+  # flagged, but the advice points at the final ackwards() fit because
+  # suggest_k() screens on the Pearson/Spearman basis by design.
+  rlang::reset_warning_verbosity("suggest_k_ordinal_warning")
+  expect_warning(suggest_k(.sk_small, criteria = "map"), "ordinal")
+
+  rlang::reset_warning_verbosity("suggest_k_ordinal_warning")
+  w <- tryCatch(
+    suggest_k(.sk_small, criteria = "map"),
+    warning = conditionMessage
+  )
+  expect_match(w, "polychoric")
+  expect_match(w, "ackwards")
+
+  # The warning fires on the Spearman basis too, naming the active basis (the
+  # wording interpolates {cor}), since Spearman is likewise a screening basis.
+  rlang::reset_warning_verbosity("suggest_k_ordinal_warning")
+  w_sp <- tryCatch(
+    suggest_k(.sk_small, cor = "spearman", criteria = "map"),
+    warning = conditionMessage
+  )
+  expect_match(w_sp, "ordinal")
+  expect_match(w_sp, "spearman")
+})
+
+test_that("suggest_k() does not raise the ordinal warning on continuous or matrix input (M50)", {
+  skip_if_not_installed("psych")
+  rlang::reset_warning_verbosity("suggest_k_ordinal_warning")
+  expect_no_warning(
+    suggest_k(sim16[, 1:8], criteria = "map"),
+    message = "ordinal"
+  )
+  # A correlation matrix carries no items to inspect -> detection never runs.
+  rlang::reset_warning_verbosity("suggest_k_ordinal_warning")
+  R <- stats::cor(sim16[, 1:8])
+  expect_no_warning(
+    suggest_k(R, n_obs = 1000L, criteria = "map"),
+    message = "ordinal"
+  )
 })
 
 test_that("suggest_k() announces PA suggestions capped at k_max (M42/m2)", {

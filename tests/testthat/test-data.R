@@ -13,6 +13,52 @@ test_that("bfi25 has the expected shape and structure", {
   expect_true(all(bfi25 <= 6L | is.na(bfi25)))
 })
 
+test_that("bfi25 ships public-domain IPIP labels that flow into top_items()", {
+  skip_if_not_installed("psych")
+
+  # Every column carries a non-empty scalar "label" attribute.
+  labs <- vapply(
+    bfi25,
+    function(col) attr(col, "label", exact = TRUE) %||% NA_character_,
+    character(1)
+  )
+  expect_equal(sum(!is.na(labs)), 25L)
+  expect_true(all(nzchar(labs)))
+  expect_identical(unname(labs[["E4"]]), "Make friends easily")
+
+  # Fit on the raw dataset (labels survive; NAs handled by `missing`) -> the
+  # labels are captured and surfaced by top_items() with zero user setup.
+  x <- suppressWarnings(ackwards(bfi25, k_max = 3))
+  expect_length(x$meta$item_labels, 25L)
+  ti <- top_items(x, level = 3, cut = 0.4)
+  expect_true("label" %in% names(ti$data))
+  expect_true(any(ti$data$label == "Make friends easily", na.rm = TRUE))
+})
+
+test_that("bfi25 labels are captured regardless of the missing-data route (M50)", {
+  skip_if_not_installed("psych")
+  # Capture happens on the supplied data before any missing handling, so both
+  # the pairwise (default) and listwise routes carry the labels through.
+  x_pair <- suppressWarnings(ackwards(bfi25, k_max = 2, missing = "pairwise"))
+  x_list <- suppressWarnings(ackwards(bfi25, k_max = 2, missing = "listwise"))
+  expect_length(x_pair$meta$item_labels, 25L)
+  expect_length(x_list$meta$item_labels, 25L)
+})
+
+test_that("base row-subsetting drops bfi25's plain label attributes (M50 contract)", {
+  # Documented caveat: plain `label` attributes do not survive base `[`, unlike
+  # class-based labelled/haven vectors, so na.omit() / row-indexing strip them
+  # and top_items() then falls back to bare codes. Guards the roxygen guidance
+  # to fit the dataset directly (with `missing =`) rather than pre-filtering.
+  expect_null(attr(na.omit(bfi25)$E4, "label", exact = TRUE))
+  expect_null(attr(bfi25[1:100, ]$E4, "label", exact = TRUE))
+  # Column selection (not row subsetting) keeps the attribute.
+  expect_identical(
+    attr(bfi25[, "E4"], "label", exact = TRUE),
+    "Make friends easily"
+  )
+})
+
 test_that("sim16 has the expected shape and structure", {
   expect_equal(dim(sim16), c(1000L, 16L))
   expect_equal(colnames(sim16), paste0("i", 1:16))

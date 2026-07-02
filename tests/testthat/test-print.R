@@ -114,6 +114,23 @@ test_that("summary.ackwards shows pruning info when prune(x, 'redundant') was ap
   expect_true(!is.null(s$prune$redundancy_r))
 })
 
+test_that("pruned print/summary footer consolidates to a single rule (M50)", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:10], k_max = 4) |> prune("redundant"))
+  # A bare full-width cli_rule() line is entirely box-drawing dashes; h1/h2
+  # section headers carry title text, so they do not match. Before M50 the
+  # pruned footer stacked two such rules (prune note + caveat); it is now one.
+  # A bare rule is a run of a single non-alphanumeric glyph (─ under UTF-8, -
+  # under an ASCII fallback); match char-agnostically so the test survives the
+  # locale/`cli.unicode` differences between an interactive console and testthat.
+  count_rules <- function(o) {
+    txt <- cli::ansi_strip(capture.output(print(o), type = "message"))
+    sum(grepl("^[^[:alnum:][:space:]]{5,}$", txt))
+  }
+  expect_equal(count_rules(x), 1L) # print.ackwards
+  expect_equal(count_rules(summary(x)), 1L) # summary.ackwards
+})
+
 test_that("summary prune(x, 'artifact') carries rules and no spurious redundant info", {
   skip_if_not_installed("psych")
   suppressMessages(x <- suppressWarnings(

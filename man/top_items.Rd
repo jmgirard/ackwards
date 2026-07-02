@@ -61,7 +61,10 @@ Loadings are signed and reflect the object's primary-parent sign alignment
 orientation but not the other; this is expected and informative.
 }
 \examples{
-x <- ackwards(bfi25, k_max = 5)
+# Fit the raw dataset (not na.omit(), which would drop the column
+# attributes): bfi25's IPIP item labels are then captured and printed as
+# `label (code)`. `missing = "listwise"` handles the NAs cleanly.
+x <- ackwards(bfi25, k_max = 5, cor = "polychoric", missing = "listwise")
 top_items(x)
 top_items(x, level = 5, cut = 0.4, n = 5)
 

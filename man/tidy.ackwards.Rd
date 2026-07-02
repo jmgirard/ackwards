@@ -96,7 +96,7 @@ Returns structured data from an \code{ackwards} object in tidy format. The
 default (\code{what = "edges"}) returns the graph edge list that drives diagrams.
 }
 \examples{
-x <- ackwards(bfi25, k_max = 5)
+x <- ackwards(sim16, k_max = 5)
 tidy(x) # edges in natural order
 tidy(x, sort = "strength") # strongest edges first
 tidy(x, primary_only = TRUE) # just the primary-parent lineage

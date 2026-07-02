@@ -22,7 +22,7 @@ present) pruning annotations. More verbose than \code{\link[=print.ackwards]{pri
 for inspection and reporting.
 }
 \examples{
-x <- ackwards(bfi25, k_max = 5)
+x <- ackwards(sim16, k_max = 5)
 summary(x)
 
 }

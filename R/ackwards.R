@@ -197,7 +197,8 @@
 #'   `"(user-supplied matrix)"`.
 #'
 #' @examples
-#' x <- ackwards(bfi25, k_max = 5)
+#' # bfi25 items are ordinal, so fit on the polychoric basis (best practice).
+#' x <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric")
 #' print(x)
 #' tidy(x)
 #' glance(x)
@@ -686,7 +687,7 @@ ackwards <- function(
   if (k_eff < 2L) {
     cli::cli_abort(
       c(
-        "!" = "{toupper(engine)} failed to build at least 2 converged levels \\
+        "!" = "The {engine} engine failed to build at least 2 converged levels \\
                (k_eff = {k_eff}; at least 2 are required for a hierarchy).",
         "i" = "Try fewer factors, or check your data for \\
                perfect multicollinearity or near-singular correlation."

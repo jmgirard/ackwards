@@ -14,7 +14,7 @@
 #' @seealso [print.ackwards()], [tidy.ackwards()], [glance.ackwards()]
 #'
 #' @examples
-#' x <- ackwards(bfi25, k_max = 5)
+#' x <- ackwards(sim16, k_max = 5)
 #' summary(x)
 #'
 #' @export
@@ -67,9 +67,12 @@ print.summary_ackwards <- function(x, ...) {
   fit_tbl <- x$fit # pre-pulled for readability
 
   for (ki in seq_len(x$k_max)) {
+    if (ki > 1L) cli::cli_text("") # blank line between level blocks
     var_rows <- x$variance[x$variance$level == ki, , drop = FALSE]
     # cumulative is a running proportion within the level; max gives the total.
-    cum_total <- round(max(var_rows$cumulative) * 100, 1)
+    # Fixed-precision with trailing zeros so per-level figures do not drift
+    # (e.g. "20.9%" not "20.91%"/"13.6%").
+    cum_total <- sprintf("%.1f", max(var_rows$cumulative) * 100)
     cli::cli_text(
       "{.strong k = {ki}}: {ki} factor{?s}  ({cum_total}% cumulative variance)"
     )
@@ -77,7 +80,7 @@ print.summary_ackwards <- function(x, ...) {
 
     for (i in seq_len(nrow(var_rows))) {
       fac <- var_rows$factor[i]
-      vpct <- round(var_rows$proportion[i] * 100, 2)
+      vpct <- sprintf("%.1f", var_rows$proportion[i] * 100)
 
       # PCA: eigenvalue statistics are "eigenvalue.<label>" (see engine_pca.R:65)
       suffix <- if (is_pca && nrow(fit_rows) > 0L) {
@@ -86,7 +89,7 @@ print.summary_ackwards <- function(x, ...) {
           drop = FALSE
         ]
         if (nrow(eig_row) > 0L) {
-          paste0("  eigenvalue ", round(eig_row$value[1L], 2))
+          paste0("  eigenvalue ", sprintf("%.2f", eig_row$value[1L]))
         } else { # nocov start
           ""
         } # nocov end
@@ -213,7 +216,11 @@ print.summary_ackwards <- function(x, ...) {
          ({paste(p$manual, collapse = ', ')})"
       )
     }
-    cli::cli_rule()
+  }
+
+  # --- Footer: one rule, then prune note (if any) + caveat --------------------
+  cli::cli_rule()
+  if (!is.null(x$prune)) {
     cli::cli_text(
       cli::col_grey(
         "Note: Pruning is interpretive relabeling, not re-estimation. \\
@@ -221,9 +228,6 @@ print.summary_ackwards <- function(x, ...) {
       )
     )
   }
-
-  # --- Caveat -----------------------------------------------------------------
-  cli::cli_rule()
   cli::cli_text(
     cli::col_grey(
       "Note: This is a series of linked solutions, not a fitted hierarchical \\

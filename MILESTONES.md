@@ -1431,3 +1431,60 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   runs 2 workers — the one CI edit deferred out of the milestone proper); the plan-deviation
   disclosure above. The expanded permission allowlist remains an owner action (classifier
   correctly blocks agent self-application).
+
+- **M50 (done):** release polish (code; owner-approved 2026-07-02) — a small code milestone
+  branched off `master` and interleaved **before** M49's CRAN mechanics, so the 0.1.0 release
+  captures it. Four work-items, no new export, no dependency change.
+  1. **`bfi25` variable labels.** `data-raw/bfi25.R` attaches the 25 public-domain IPIP marker
+     stems (Goldberg, 1999; ipip.ori.org) as per-column `label` attributes; `data/bfi25.rda`
+     regenerated (data values unchanged — same `set.seed(42)` sample, only attributes added). This
+     populates the M36 capture path so `top_items()` prints `label (code)` (e.g.
+     `Make friends easily (E4)`) with zero user setup. Sourced directly as public-domain IPIP items
+     (text is necessarily identical to `psych::bfi.dictionary` — same public pool — but not framed
+     as a copy); trailing periods stripped for clean labels. **Caveat discovered & documented:**
+     plain attributes are dropped by base row-subsetting (`na.omit(bfi25)`, `bfi25[rows, ]`), unlike
+     the class-based `labelled`/`haven` vectors M36 targets, so the labels survive only when the
+     dataset is fit directly — the roxygen and `R/data.R` note `missing = "listwise"` as the
+     clean pattern (label capture happens before missing handling).
+  2. **cli consistency.** Engine name renders lowercase everywhere (`print.comparability` drops its
+     `toupper()`; the `comparability()`/`boot_edges()` progress steps and the `k_eff` abort message
+     match; `print.top_items` bolds the value like the others). `summary()` per-level figures use
+     fixed precision with trailing zeros (percentages `%.1f`, eigenvalues `%.2f` — kills the
+     `20.91%`/`13.6%`/`2.1` drift) with a blank line between level blocks; `print.top_items`
+     separates factor/item groups; `print.ackwards`/`summary()` pruned output uses one consolidated
+     grey footer (single `cli_rule()` carrying the prune note + caveat) instead of stacked rules.
+  3. **Example dataset swap.** Mechanics-family roxygen examples move to the continuous `sim16`
+     (no ordinal warning, faster checks): `tidy`, `glance`, `summary`, `ba_layout`, `boot_edges`,
+     `augment`, `predict`, `prune` (sim16's planted redundant chain + `k=5` artifact give the prune
+     rules a guaranteed finding). Content-family keeps `bfi25` on the polychoric basis: `ackwards`,
+     `top_items`, `label_template`, the `autoplot` gallery. Examples that do not surface item labels
+     fit `na.omit(bfi25)` for a clean run; `top_items()` fits the raw dataset with
+     `missing = "listwise"` so the IPIP labels survive. No ordinal or missing-data warnings in any
+     runnable example; `comparability()`/`suggest_k()` (Pearson-only, `\donttest`) keep `bfi25`.
+  4. **`suggest_k()` ordinal warning.** `suggest_k()` runs `detect_ordinal()` on raw-data input and
+     warns once per session (Invariant-6 symmetry with `ackwards()`/`comparability()`), guarded to
+     the raw-data path. Wording adapted to the screening context: `suggest_k()` screens on the
+     Pearson/Spearman basis by design, so the advice points at the final `ackwards()` fit
+     (`cor = "polychoric"`), not at `suggest_k()`.
+  **Resolved decisions** (owner-approved 2026-07-02): engine casing = lowercase; `suggest_k`
+  wording = screening-context; `bfi25` provenance = hardcoded public-domain IPIP stems, cited;
+  DESIGN §14 split — M50 logs items 37–39 (labels, `suggest_k` symmetry, console/example polish),
+  while the `label_items()` setter decline, the third-teaching-dataset decline, and the
+  factor-label-pipeline 0.2.0 deferral are logged in M49 Phase A to avoid double-logging.
+  New tests: `bfi25` ships 25 labels that flow into `top_items()` (test-data.R); `suggest_k()`
+  warns on ordinal / not on continuous or matrix input (test-suggest_k.R); one existing
+  `suggest_k()` n_obs test switched to continuous `sim16` so the new ordinal warning does not
+  leak into it. Suite **1883 pass / 0 fail / 0 skip**; coverage **100%**; `R CMD check`
+  **0 errors / 0 warnings / 0 notes**; `styler`/`lintr` clean; `pkgdown::check_pkgdown()` clean.
+  (The new `suggest_k()` warning surfaces once in the intro/girard/suggest-k vignettes, which call
+  it on ordinal `bfi25`; non-fatal for the build — the prose reconciliation belongs to M49
+  Phase B, which already scopes the intro's "No warning this time" fix.)
+  **Post-review follow-up** (same day; review verdict READY with 1 should-fix + 3 nice-to-haves):
+  `suggest_k()` roxygen gained an "Ordinal (Likert) data" `@section` documenting the warning and
+  *why* the advice targets the final `ackwards()` fit (the should-fix — the behaviour was tested
+  but undocumented in the function's own help); three edge-case guards added — bfi25 labels survive
+  both the pairwise and listwise routes and base row-subsetting drops the plain attributes
+  (contract test for the "fit direct" guidance), the `suggest_k()` ordinal warning fires on the
+  Spearman basis too, and a regression guard that the pruned `print()`/`summary()` footer stays a
+  single consolidated rule (char-agnostic detection to survive locale/`cli.unicode` differences).
+  No behaviour change; check still 0/0/0, coverage 100%.

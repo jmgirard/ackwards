@@ -39,7 +39,10 @@
 #' @seealso [tidy.ackwards()], [label_template()], [autoplot.ackwards()]
 #'
 #' @examples
-#' x <- ackwards(bfi25, k_max = 5)
+#' # Fit the raw dataset (not na.omit(), which would drop the column
+#' # attributes): bfi25's IPIP item labels are then captured and printed as
+#' # `label (code)`. `missing = "listwise"` handles the NAs cleanly.
+#' x <- ackwards(bfi25, k_max = 5, cor = "polychoric", missing = "listwise")
 #' top_items(x)
 #' top_items(x, level = 5, cut = 0.4, n = 5)
 #'
@@ -183,7 +186,7 @@ print.top_items <- function(x, ...) {
     "Salient {if (by_item) 'factors by item' else 'items by factor'} ({.pkg ackwards})"
   )
   cli::cli_dl(c(
-    "Engine"  = x$engine,
+    "Engine"  = cli::style_bold(x$engine),
     "Cut"     = paste0("|loading| >= ", x$cut),
     "Top-n"   = if (is.null(x$n)) "all" else as.character(x$n)
   ))
@@ -206,7 +209,10 @@ print.top_items <- function(x, ...) {
     # Group header = factor (default) or item; body lists the other dimension.
     group_col <- if (by_item) "item" else "factor"
     body_col <- if (by_item) "factor" else "item"
-    for (grp in unique(df_k[[group_col]])) {
+    groups <- unique(df_k[[group_col]])
+    for (gi in seq_along(groups)) {
+      grp <- groups[[gi]]
+      if (gi > 1L) cli::cli_text("") # blank line between factor/item groups
       df_g <- df_k[df_k[[group_col]] == grp, , drop = FALSE]
       header <- if (by_item) .format_item_label(grp, labs) else grp
       cli::cli_text("{.strong {header}}")

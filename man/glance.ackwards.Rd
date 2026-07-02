@@ -27,7 +27,7 @@ populated under \code{"ML"}/\code{"MLR"}). Under a scaled-test estimator
 scaled variants (see \code{\link[=tidy.ackwards]{tidy.ackwards()}} for the rationale).
 }
 \examples{
-x <- ackwards(bfi25, k_max = 5)
+x <- ackwards(sim16, k_max = 5)
 glance(x)
 
 }

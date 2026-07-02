@@ -1,5 +1,25 @@
 # ackwards (development)
 
+## `bfi25` ships item labels; cleaner console output
+
+- The `bfi25` dataset now carries each item's public-domain IPIP stem (Goldberg,
+  1999) as a `label` attribute, so `ackwards()` captures it at fit time and
+  `top_items()` prints the wording as `label (code)` (e.g.
+  `Make friends easily (E4)`) with no setup. Fit the dataset directly to keep
+  the labels: base row-subsetting such as `na.omit(bfi25)` drops plain
+  attributes, so use `missing = "listwise"` (or another `missing` option) rather
+  than pre-filtering rows.
+- `suggest_k()` now warns when the input looks ordinal, matching `ackwards()`
+  and `comparability()`. Because `suggest_k()` screens on the Pearson/Spearman
+  basis by design, the advice points at the final `ackwards()` fit
+  (`cor = "polychoric"`), not at `suggest_k()` itself.
+- Console output is more consistent: the engine name renders in lowercase
+  everywhere (including `print(comparability(...))`); `summary()` per-level
+  percentages use a fixed number of decimals with trailing zeros and blank
+  lines separate the level blocks; `top_items()` separates its factor/item
+  groups; and a pruned object's `print()`/`summary()` footer is a single
+  consolidated note instead of stacked rules.
+
 ## Bootstrap confidence intervals on edges
 
 - New `boot_edges()` verb: nonparametric bootstrap standard errors and
