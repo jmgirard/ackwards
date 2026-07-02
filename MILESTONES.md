@@ -1148,3 +1148,46 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   milestone); suite 1591 pass / 0 fail / 0 skip (unchanged — doc-only); coverage **100%**;
   `styler` (0 files changed) / `lintr` (0 lints) clean; `pkgdown::check_pkgdown()` clean; the
   M29 no-milestone-refs guard passes (new prose carries no M-number strings).
+- **M44 (done):** Forbes-fidelity fixture — resolves the last M41 finding (M6: the "reproduce
+  Forbes's examples exactly" contract was untested) and **closes the M41→M44 review arc**. Shape
+  owner-approved 2026-07-01 ("try fixture, fall back to deferral with owner outreach to Forbes");
+  the fixture path fired.
+  **Phase A (materials investigation).** Found the 2023 paper's own public OSF project
+  (`https://osf.io/pcwm8/` — links embedded in the paper PDF; the earlier-surfaced `9v3gf` is the
+  2025 "Reconstructing Psychopathology" project, not this paper's). Contents: `Supplementary
+  Materials.pdf`; `corSpearman_AMH.csv` (155×155 Spearman matrix of the Assessing Mental Health
+  applied example; **no OSF license set**); `R script for simulations and applied example_R2.R`
+  (the paper's three simulation studies are fully seed-reproducible: `set.seed(123)` +
+  `psych::sim.structure`); `ExtendedBassAckwards functions with annotation.R` (her reference
+  implementation — download URLs: `osf.io/download/{pbzvh,s9bjz,ztngp,7jfkw}`). Reading her code
+  established the correspondence conventions: her `comp.corr` = `t(W_a) %*% R %*% W_b`
+  unstandardized and unaligned (≡ our edges in |value| since `W'RW = I` for PCA); her `cong` =
+  `psych::factor.congruence` (2-dp rounded Tucker's φ); her labels = letter-level + psych column
+  order (≡ our `m{k}f{j}` order); her `ChaseCorrPaths` = consecutive adjacent signed-max ≥ .9
+  runs (≡ our primary-parent |r| ≥ .9 walks, by the Σr² ≤ 1 argument from M41).
+  **Feasibility (scratchpad, head-to-head vs her own functions on her own inputs).** Simulation 1
+  edges matched to 5.0e-15; the full 155-variable AMH applied example matched to **3.9e-14 across
+  all 45 level-pairs at k_max = 10**; congruences within her 2-dp rounding (max 0.0046);
+  Simulation 1's three chase links (`c3--b2`, `d1--c1`, `d2--c2`) are exactly our three
+  `prune("redundant")` chains, and the AMH `d4` chain (`e4→f5→g5→h5→i4→j4`) is our
+  `m4f4→…→m10f4`.
+  **Shipped (fixture path, license-clean subset).** `tests/testthat/fixtures/forbes2023_sims.rds`
+  (3.7 KB, xz): the three simulations' Spearman matrices (regenerated from her public script's
+  seed — no data redistribution question) + expected `comp_corr`/`cong`/`corr_chase` computed
+  with her reference implementation (provenance attribute records source URLs, R/psych versions).
+  `tests/testthat/test-forbes-fidelity.R` (65 assertions): |edges| ≡ hers at 1e-12 for all six
+  level-pairs × three sims; |φ| within 0.005; every chase path reproduced via a transparent
+  primary-parent ≥ .9 walk on our object; `prune("redundant")` flags exactly {m3f3, m3f1, m3f2}
+  and retains {m2f2, m4f1, m4f2} on Simulation 1 (her retention rule). No vendored Forbes code —
+  expected values were precomputed, only `ackwards` runs at test time; no network at test time.
+  **AMH not committed (per the approved decision rule):** the CSV has no license. Recorded in
+  `ROADMAP.md` unscheduled ideas with two options for the owner's outreach to Forbes (license →
+  commit fixture; or a `skip_if_offline()` download test using the feasibility expectations).
+  **Bookkeeping.** CLAUDE.md "What this is" contract annotated **test-backed** (with the AMH
+  caveat); NEWS "Validation" entry; `ROADMAP.md` closed out (all M41 findings resolved; no
+  pending milestones; unscheduled: AMH extension, e2, e4). No DESIGN contract change (the
+  contract was validated, not altered). No new/removed export; no dependency change;
+  `_pkgdown.yml` untouched.
+  **Verified.** `R CMD check` **0/0/0** (full, vignettes rebuilt); suite **1656 pass / 0 fail /
+  0 skip** (+65 fidelity assertions over M43); coverage 100% (no `R/` change); `styler` (0 files
+  changed) / `lintr` (0 lints) clean; `pkgdown::check_pkgdown()` clean.

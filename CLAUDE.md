@@ -15,7 +15,12 @@ rationale, contracts, object spec, and resolved defaults are in `DESIGN.md`.
 **Note:** Forbes (2023) footnote 3 cites this package (`github.com/jmgirard/ackwards`) as the
 reference implementation of the extended bass-ackwards approach. Fidelity to the paper's algorithm
 is the baseline contract for anything Forbes-related; additive enrichments are acceptable but the
-default output must reproduce Forbes's examples exactly.
+default output must reproduce Forbes's examples exactly. **This contract is test-backed** (M44):
+`tests/testthat/test-forbes-fidelity.R` reproduces the paper's three simulation studies against
+expected values computed with Forbes's own reference implementation (OSF `pcwm8`; provenance in
+the fixture), and the M44 feasibility study additionally verified the 155-variable AMH applied
+example to 3.9e-14 (not committed as a test — the AMH matrix carries no OSF license; see
+`ROADMAP.md` unscheduled items).
 
 ## Completed milestones
 
@@ -65,22 +70,28 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M41** — independent Fable review (review-only): statistical core verified clean numerically (tenBerge/W′RW/signs/Forbes/ESEM-fit/suggest_k); findings — 1 Critical (EFA chi/p-value pairing), 6 Major (drop_pruned adjacent-pairs M34 regression, pre-M38 engines-vignette FIML prose, CD-mechanism misstatement, Forbes artifact-zero framing, `cut_strong` remnant, untested Forbes-fidelity contract), 11 Minor, 4 enhancements; full §9/§14 defaults audit (all sound; one sound-but-misjustified wording); report + M42/M43/M44 triage in `ROADMAP.md`. No code change.
 - **M42** — review fixes, code: EFA `chi` now the likelihood-ratio `STATISTIC` matching `p_value`/RMSEA/TLI (C1); `.drop_pruned_nodes()` recomputes all-pairs edges fresh, fixing the M34 `pairs = "adjacent"` regression (M1); `print.suggest_k` "undetermined" consensus (m1) + PA-cap announcements (m2); `cut_show`/`n_iter` validation (m8); ordinal warning names flagged columns (e3, `detect_ordinal()` returns names); dead `esem_levels(n_obs)` removed (m7); stale comments fixed (m6); EFA-aware fit-plot caption (m10). No export/signature/dependency change.
 - **M43** — review fixes, docs (doc-only): engines vignette rewritten around first-class `missing = "fiml"` for PCA/EFA + `fm = "pca"`/sample-size fixes (M2, m4, m5); suggest-k CD mechanism corrected + worked-BFI prose inline-computed/drift-proof (M3, m11); Forbes artifact section rewritten to report-and-judge with a top-|φ| table, `cut_strong` remnant removed, chain-retention example corrected (M4, M5, m3); `redundancy_phi` PCA rationale corrected to score *determinacy* across DESIGN §9/CLAUDE/roxygen/vignette (e1); sim16 doc comments modernized (m9). No behavior/export change.
+- **M44** — Forbes-fidelity fixture (closes the M41→M44 review arc): found the paper's own OSF project (`pcwm8`: simulations script, reference implementation, AMH matrix); head-to-head vs her own functions matched edges to 3.9e-14 incl. the full 155-variable AMH example; shipped a 3.7 KB license-clean fixture (three seed-regenerated simulations + her implementation's expected outputs) and `test-forbes-fidelity.R` (65 assertions: edges/φ/chase paths/retention); contract annotated **test-backed**; AMH commit deferred (no OSF license — options logged for owner outreach). No export/dependency change.
 
 ## Current focus
 
-**M43 is complete** (2026-07-01) — the doc-fix milestone off the M41 review, and with it the
-**entire M41 review remediation is done except one scoping question**. All doc findings shipped:
-engines-vignette FIML rewrite (M2, m4, m5), suggest-k CD mechanism + drift-proof worked example
-(M3, m11), Forbes artifact-section rewrite + `cut_strong` remnant + chain-retention example
-(M4, M5, m3), the `redundancy_phi` determinacy rationale across all four surfaces (e1), and
-sim16 doc modernization (m9). Doc-only: no behavior/export change. Gate: full `check()` 0/0/0
-with all vignettes rebuilt, 1591 pass / 0 fail / 0 skip, coverage 100%, style/lint clean,
-`check_pkgdown()` clean. Detail in `MILESTONES.md` (M43 entry).
+**M44 is complete** (2026-07-01) — and with it the **entire M41→M44 review arc**: independent
+review (M41) → code fixes (M42) → doc fixes (M43) → fidelity fixture (M44). **The fixture path
+fired.** Phase A found the 2023 paper's own public OSF project (`pcwm8`) with Forbes's analysis
+script, her reference implementation, and the AMH applied-example matrix; the head-to-head
+feasibility study matched `ackwards` to her own functions at 5e-15 (Simulation 1) and **3.9e-14
+across all 45 level-pairs of the 155-variable AMH example**. Shipped: a 3.7 KB license-clean
+fixture (the paper's three seed-regenerated simulations + expected outputs from her reference
+implementation, provenance recorded) and `test-forbes-fidelity.R` (65 assertions covering edges,
+congruences, redundancy chase paths, and `prune()` retention). The CLAUDE.md fidelity contract is
+now annotated **test-backed**. The AMH matrix was *not* committed (no OSF license — per the
+approved decision rule); the two options (license from Forbes → fixture, or a skip-if-offline
+download test) are logged in `ROADMAP.md` for the owner's outreach. Gate: `check()` 0/0/0, 1656
+pass / 0 fail / 0 skip (+65), coverage 100%, style/lint/`check_pkgdown()` clean.
 
-**Next up:** one item remains from the M41 review — **M44** (scoping decision: obtain Forbes
-(2023) materials for an exact-reproduction fixture test, or amend this file's "reproduce
-Forbes's examples exactly" contract wording to "faithful to the published algorithm"). See
-`ROADMAP.md`. Unscheduled: e2 (dual EFA chi-squares), e4 (bootstrap edge CIs, DESIGN §14).
+**Next up: nothing queued.** `ROADMAP.md` carries no pending milestones — only unscheduled ideas
+(AMH fidelity extension pending the owner's Forbes outreach; e2 dual EFA chi-squares; e4
+bootstrap edge CIs per DESIGN §14). `MILESTONES.md` remains the source of truth for *completed*
+milestones.
 
 ## Invariants — do not violate without flagging
 
