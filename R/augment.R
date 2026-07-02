@@ -9,11 +9,33 @@ generics::augment
 #' matching the factor labels used throughout the object.
 #'
 #' @details
-#' **Score computation.** Scores are `S = Z W / sqrt(score_var)`, where
-#' `Z = .standardize(data)` (item z-scores), `W` is the per-level weight matrix
-#' stored in the object, and `sqrt(score_var)` standardizes by the real
-#' score standard deviations (Invariant 1: never assume unit variance).
-#' For PCA the method is `"components"`; for EFA/ESEM it is `"tenBerge"`.
+#' **Score computation.** Scores are `S = Z W / sqrt(score_var)`, where `Z` is
+#' the item z-scores, `W` is the per-level weight matrix stored in the object,
+#' and `sqrt(score_var)` standardizes by the real score standard deviations
+#' (Invariant 1: never assume unit variance). For PCA the method is
+#' `"components"`; for EFA/ESEM it is `"tenBerge"`. The `scaling` argument
+#' controls which means/SDs build `Z`: by default the **fit-time** moments
+#' stored in the object, so any data you score — the training data, a subset
+#' of it, or entirely new observations — lands on the same metric the model
+#' was estimated in.
+#'
+#' **Scoring new observations (cross-validation).** Because scoring only needs
+#' the stored weight matrices and the fit-time moments, you can fit
+#' `ackwards()` on a training split and score a held-out test split *without
+#' retraining*: `augment(x, data = test_set)` (or, equivalently,
+#' [predict.ackwards()]). Under the default `scaling = "fit"` the test
+#' observations are standardized by the *training* means/SDs, which is what
+#' "applying the trained model" means: a test observation's score does not
+#' depend on which other observations happen to share its split, and train and
+#' test scores are directly comparable. `scaling = "sample"` instead
+#' re-standardizes by the supplied data's own moments — a deliberate choice
+#' when scoring a sample from a different population in its own metric, and
+#' the only option for objects fit from a correlation matrix (which carry no
+#' raw-data moments). For non-Pearson bases (polychoric, Spearman) the usual
+#' caveat applies either way: the weights derive from the non-Pearson `R`
+#' while `Z` is a linear standardization, so empirical score SDs are close to
+#' but not exactly 1 (a one-time warning says so); train/test comparability
+#' under `scaling = "fit"` is unaffected.
 #'
 #' **Missing data.** Score projection applies weights row-wise and propagates
 #' NAs listwise: any observation with at least one missing item variable will
@@ -51,6 +73,13 @@ generics::augment
 #'   error -- when `append = TRUE` (all columns are already kept) or when `data`
 #'   is `NULL` (there are no source columns to carry). `NULL` (default) returns
 #'   the bare score columns.
+#' @param scaling Which item means/SDs standardize `data` before the weights
+#'   are applied. `"fit"` (default) uses the **fit-time** moments stored in the
+#'   object -- the correct choice for scoring new observations (e.g. a
+#'   cross-validation test split) or subsets on the training metric. `"sample"`
+#'   standardizes by the supplied data's own moments (the only option for
+#'   objects fit from a correlation matrix, which carry no raw-data moments).
+#'   Only used when `data` is supplied; stored scores are returned as-is.
 #' @param ... Ignored.
 #'
 #' @return A data frame. With `append = TRUE`: the supplied `data` (or a `.obs`
@@ -79,8 +108,17 @@ generics::augment
 #' x2 <- ackwards(bfi25, k_max = 5, keep_scores = TRUE)
 #' scores_df2 <- augment(x2)
 #'
+#' # Cross-validation: fit on a training split, score the test split on the
+#' # training metric (no retraining; see also predict.ackwards())
+#' train_idx <- seq_len(500)
+#' x_train <- ackwards(bfi25[train_idx, ], k_max = 5)
+#' test_scores <- augment(x_train, data = bfi25[-train_idx, ], append = FALSE)
+#' head(test_scores)
+#'
 #' @export
-augment.ackwards <- function(x, data = NULL, append = TRUE, id_cols = NULL, ...) {
+augment.ackwards <- function(x, data = NULL, append = TRUE, id_cols = NULL,
+                             scaling = c("fit", "sample"), ...) {
+  scaling <- rlang::arg_match(scaling)
   if (!is.logical(append) || length(append) != 1L || is.na(append)) {
     cli::cli_abort("{.arg append} must be a single {.code TRUE} or {.code FALSE}.")
   }
@@ -139,7 +177,29 @@ augment.ackwards <- function(x, data = NULL, append = TRUE, id_cols = NULL, ...)
                used at fit time (or with matching column names)."
       ))
     }
-    .compute_scores(x$levels, data_mat)
+    if (scaling == "fit") {
+      mu <- x$meta$item_means
+      sg <- x$meta$item_sds
+      if (is.null(mu) || is.null(sg)) {
+        cli::cli_abort(c(
+          "!" = "{.code scaling = \"fit\"} needs the fit-time item means/SDs, \\
+                 which this object does not carry.",
+          "i" = "Objects fit from a correlation matrix have no raw-data \\
+                 moments (nor do objects created before they were stored).",
+          "i" = "Use {.code scaling = \"sample\"} to standardize by the \\
+                 supplied data's own moments instead."
+        ))
+      }
+      # Align moments with the (possibly reordered) columns; positional when
+      # the supplied data carries no column names (already length-validated).
+      if (!is.null(colnames(data_mat))) {
+        mu <- mu[colnames(data_mat)]
+        sg <- sg[colnames(data_mat)]
+      }
+      .compute_scores(x$levels, data_mat, center = unname(mu), scale = unname(sg))
+    } else {
+      .compute_scores(x$levels, data_mat)
+    }
   } else if (!is.null(x$scores)) {
     x$scores
   } else {
