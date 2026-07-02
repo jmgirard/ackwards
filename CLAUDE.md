@@ -78,24 +78,57 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-**M48 is complete** (2026-07-02) — performance & workflow efficiency pass (meta/process
-milestone; no package-code change, no export, no NEWS entry by owner-approved deviation).
-Phase A: suite-wide `cached()` test-fit memo + parallel testthat — suite 93.6s → 81.2s serial →
-**26.9s** with `TESTTHAT_CPUS=8`; full `devtools::check()` 319.8s → **241s**; 1859 assertions
-and 100% coverage unchanged (the boot reproducibility / serial≡parallel oracles and all
-Monte-Carlo test sizes deliberately untouched). Phase B: scripted audit of 45 session
-transcripts (30k messages) surfaced 249 full-suite runs, ~600 `cd`-compound prompts, and 308
-useless bare `load_all()`s → shipped `tools/dod-gate.R` (one-command DoD gate, dogfooded at this
-milestone's own gate) and lockstep cadence-text updates in CLAUDE.md + the implement-milestone
-skill; the expanded read-only permission allowlist is **staged for owner review** in the session
-scratchpad (`proposed_settings.local.json`) after the auto-mode classifier correctly refused to
-let the agent widen its own permissions. Report-only: `ackwards-forbes.Rmd` (23.9s) dominates
-vignette rebuilds; CI workflows untouched. Detail in `MILESTONES.md` (M48).
+**M50 — Release polish (code), interleaved before M49's CRAN mechanics** (owner-approved
+2026-07-02, out of the M49 pedagogy assessment). A small code milestone branched off `master` so
+the 0.1.0 release captures it; it merges to `master` **before** M49 Phase C. Four work-items, no
+new export, no dependency change.
 
-**Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas (AMH fidelity extension
-pending the owner's Forbes outreach; e2 dual EFA chi-squares; `comparability()`/`boot_edges()`
-ESEM/polychoric extensions). `MILESTONES.md` remains the source of truth for *completed*
-milestones.
+1. **bfi25 variable labels.** `data-raw/bfi25.R` attaches the 25 public-domain IPIP item stems
+   (Goldberg 1999; ipip.ori.org) as `label` attributes — sourced as public-domain IPIP markers
+   (attribution comment; text is identical to `psych::bfi.dictionary` because they are the same
+   items, but not framed as a copy of it). `R/data.R` roxygen notes the labels; `data/bfi25.rda`
+   regenerated. Effect: `top_items()` shows `label (code)` on bfi25 with zero user setup (the M36
+   display path, now populated).
+2. **cli consistency.** Engine name → **lowercase everywhere** (only `print.comparability` drops
+   its `toupper()`; `print.top_items` also bolds the value to match the others). `summary()`
+   per-level percentages → fixed decimal count with trailing zeros (kill the "20.91%"/"13.6%"/
+   eigenvalue "2.1" drift) + a blank line between level blocks. `print.top_items` → blank line
+   between factor/item groups. Pruned `print.ackwards` → single consolidated grey footer (no
+   stacked double `cli_rule()`s). No snapshot tests exist, so no assertion breakage.
+3. **Example dataset swap.** Mechanics-family roxygen examples → `sim16` (continuous: no ordinal
+   warning, faster checks): `tidy`, `glance`, `summary`, `layout`, `boot_edges`, `compute_edges`,
+   `augment`, `predict`, non-content `prune`/`autoplot`. Content-family keeps `bfi25` (+
+   `cor = "polychoric"` where a fit is shown): main `ackwards`, `top_items`, `label_template`,
+   the `autoplot` gallery, interpret family.
+4. **suggest_k ordinal warning.** `suggest_k()` calls `detect_ordinal()` on raw-data input and
+   emits the ordinal-detection cli warning (Invariant-6 symmetry with `ackwards()`/
+   `comparability()`), once per session (`.frequency_id`), guarded to raw data (skip matrix/cor
+   input). Wording adapted to the screening context: "these look ordinal; `suggest_k()` screens on
+   the Pearson/Spearman basis by design — use `cor = \"polychoric\"` in the final `ackwards()`
+   fit," not a bare "switch to polychoric."
+
+**Resolved decisions (owner-approved 2026-07-02).** Engine casing = lowercase. suggest_k warning
+= screening-context wording. bfi25 provenance = hardcoded public-domain IPIP stems, cited.
+DESIGN §14 split: **M50** logs bfi25-labels + suggest_k-symmetry + example-swap; the
+`label_items()` setter decline, the third-teaching-dataset decline, and the factor-label pipeline
+0.2.0 deferral stay in **M49 Phase A** (avoid double-logging).
+
+**Acceptance criteria.** bfi25 ships 25 non-empty IPIP labels (reproducible from
+`data-raw/bfi25.R`); fresh `top_items()` shows wording with zero setup, test-backed. Engine label
+renders identically (lowercase) across `print.ackwards`/`summary`/`print.top_items`/
+`print.comparability`; summary percentages fixed-precision + level blocks separated; top_items
+groups separated; pruned footer no longer double-ruled. Mechanics examples run under `R CMD
+check` with no ordinal warning; content examples keep bfi25+polychoric; example-check time not
+increased. `suggest_k()` warns once on ordinal / never on continuous, test-backed. No new export;
+`pkgdown::check_pkgdown()` passes; `Rscript tools/dod-gate.R` green; `MILESTONES.md` M50 entry +
+this index line + concise DESIGN §14 entry.
+
+**Choreography.** This Current-focus block shows M50 as active; **M49 is paused on
+`m49-cran-release` and resumes after M50 merges** (its full scope is committed on that branch —
+nothing lost). Standard squash-merge to `master` on local green (M50 is *not* a release milestone
+— the CI-matrix wait applies only to M49 Phase C). After M50 merges, the m49 branch does
+`git merge master` to pick up M50's code, resolving the Current-focus conflict in favor of
+restoring M49's block.
 
 ## Invariants — do not violate without flagging
 
