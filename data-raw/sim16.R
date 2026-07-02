@@ -19,12 +19,13 @@
 ## metatrait line, k=4 recovers the 4 true group factors exactly. Because
 ## the population has exactly 4 factors, k=5 has no real 5th dimension to
 ## find: EFA produces an orphan factor with zero primary-loading items,
-## flagged by prune(artefact = TRUE) (few_items + orphan), while the
+## signalled by prune(x, "artifact") (few_items + orphan), while the
 ## persisting (non-splitting) factors from k=3 onward form redundant chains
-## (|r| >= .9, phi >= .95) under prune(redundant = TRUE) -- a textbook
-## overextraction artefact, deliberately exercised so the Forbes vignette has
-## a guaranteed finding to teach against (unlike bfi25, where it does not
-## reliably trigger). See R/data.R for the full ground-truth documentation.
+## (|r| >= .9, and Tucker's phi > .95 under the EFA auto-default) under
+## prune(x, "redundant") -- a textbook overextraction artefact, deliberately
+## exercised so the Forbes vignette has a guaranteed finding to teach against
+## (unlike bfi25, where it does not reliably trigger). See R/data.R for the
+## full ground-truth documentation.
 ##
 ## To regenerate: source this script from the package root via
 ##   source("data-raw/sim16.R")

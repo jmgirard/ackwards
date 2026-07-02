@@ -134,10 +134,11 @@ refactor.
 oblique rotation **out of scope** (it confounds the cross-level signal) · `cor = "pearson"` with ordinal-detection
 warning · `tenBerge` scoring (on the active basis) · WLSMV estimator for ordinal ESEM ·
 Forbes extension **off** · `k_max` required · sign `align_signs = TRUE` · `keep_scores`/`keep_fits` stored =
-`FALSE` · `redundancy_phi`: `NULL` (default) auto-resolves — `"pca"` → no φ filter (exact W′RW
-algebra); `"efa"`/`"esem"` → `0.95` (Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy
-off-PCA makes `|r|`-only liberal). `NA` is the explicit opt-out. Announce auto-resolve loudly
-(Invariant 6). Don't change these silently.
+`FALSE` · `redundancy_phi`: `NULL` (default) auto-resolves — `"pca"` → no φ filter (component
+scores are determinate, so `|r|` is the true between-component correlation); `"efa"`/`"esem"` →
+`0.95` (Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy makes `|r|`-only liberal).
+`NA` is the explicit opt-out. Announce auto-resolve loudly (Invariant 6). Don't change these
+silently.
 
 ## Dependencies (see `DESIGN.md` §12)
 

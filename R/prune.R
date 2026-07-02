@@ -493,8 +493,11 @@
 #'   threshold for redundancy chains. Default `0.9` (Forbes, 2023).
 #' @param redundancy_phi Scalar in `(0, 1]`, `NULL` (default, auto), or `NA`
 #'   (explicit opt-out). When `NULL`:
-#'   * `x$engine == "pca"` -- no phi filter (the W'RW algebra is exact; phi
-#'     adds nothing that `|r|` does not already capture).
+#'   * `x$engine == "pca"` -- no phi filter. Component scores are
+#'     *determinate* (exact linear functions of the data, with no
+#'     factor-score indeterminacy), so the score correlation `|r|` is the
+#'     true correlation between the components themselves; phi adds nothing
+#'     that `|r|` does not already capture.
 #'   * `x$engine` is `"efa"` or `"esem"` -- automatically set to `0.95`
 #'     (Lorenzo-Seva & ten Berge, 2006). Factor-score indeterminacy off-PCA
 #'     means `|r|`-alone is liberal; the conjunctive phi criterion is the
@@ -623,7 +626,7 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
           "i" = "To opt out: pass {.code redundancy_phi = NA}."
         ))
       }
-      # engine == "pca": keep NULL (|r|-only; W'RW algebra is exact)
+      # engine == "pca": keep NULL (|r|-only; component scores are determinate)
     } else if (isTRUE(is.na(redundancy_phi))) {
       redundancy_phi <- NULL # explicit opt-out -> same as PCA default
     }
