@@ -37,6 +37,8 @@ Suggests:
     testthat (>= 3.0.0)
 LazyData: true
 Config/testthat/edition: 3
+Config/testthat/parallel: true
+Config/testthat/start-first: suggest_k, boot_edges, esem, layout, missing, vignette-m24
 VignetteBuilder: knitr
 URL: https://jmgirard.github.io/ackwards/, https://github.com/jmgirard/ackwards
 BugReports: https://github.com/jmgirard/ackwards/issues
