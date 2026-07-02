@@ -107,6 +107,38 @@ test_that("EFA levels have correct structure and label formats", {
   }
 })
 
+test_that("EFA chi and p_value are one consistent pair (M42/C1)", {
+  skip_if_not_installed("psych")
+  d <- na.omit(ackwards::bfi25)
+  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "efa"))
+
+  for (ki in 2:3) {
+    fv <- x$levels[[as.character(ki)]]$fit
+    # p_value must be the tail probability of the reported chi at the reported
+    # dof -- the pre-M42 pairing (empirical chi + likelihood p) violated this.
+    expect_equal(
+      unname(stats::pchisq(fv[["chi"]], fv[["dof"]], lower.tail = FALSE)),
+      unname(fv[["p_value"]]),
+      tolerance = 1e-8
+    )
+  }
+
+  # chi is psych::fa()'s likelihood-ratio STATISTIC, not its empirical $chi.
+  R <- stats::cor(d)
+  ref <- psych::fa(R,
+    nfactors = 3, rotate = "varimax", fm = "minres",
+    n.obs = nrow(d)
+  )
+  fv3 <- x$levels[["3"]]$fit
+  expect_equal(unname(fv3[["chi"]]), unname(ref$STATISTIC)[[1L]],
+    tolerance = 1e-6
+  )
+  expect_false(isTRUE(all.equal(
+    unname(fv3[["chi"]]), unname(ref$chi)[[1L]],
+    tolerance = 1e-6
+  )))
+})
+
 test_that("print, tidy, glance work for EFA objects", {
   skip_if_not_installed("psych")
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))

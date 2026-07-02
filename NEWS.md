@@ -1,5 +1,16 @@
 # ackwards (development)
 
+## Statistical correctness
+
+- **EFA fit rows now report a consistent chi-square/p-value pair.** The `chi`
+  statistic for `engine = "efa"` is now the likelihood-ratio chi-square
+  (`psych::fa()`'s `STATISTIC`) — the statistic that `p_value`, `RMSEA`, and
+  `TLI` are all derived from. Previously `chi` was psych's residual-based
+  *empirical* chi-square while `p_value` belonged to the likelihood statistic,
+  so quoting the pair (e.g. from `tidy(what = "fit")` or `summary()`)
+  misreported. Reported `chi` values will change (they are typically larger);
+  `dof`, `p_value`, `RMSEA`, `TLI`, and `BIC` are unchanged.
+
 ## Visualization
 
 - `autoplot()` now italicises the axis label of a **fully-pruned level** (one

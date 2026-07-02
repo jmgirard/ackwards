@@ -31,7 +31,11 @@
 total item variance on a 0-1 scale (multiply by 100 for a percentage).
 \item \code{"fit"} -- one row per fit statistic x level: \code{level}, \code{statistic},
 \code{value}. For PCA objects the statistics are eigenvalues; for EFA
-objects they are \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, \code{BIC}; for
+objects they are \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, \code{BIC} --
+where \code{chi} is the likelihood-ratio chi-square (\code{\link[psych:fa]{psych::fa()}}'s
+\code{STATISTIC}), so \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, and \code{TLI} all share
+one statistical framing (psych's residual-based \emph{empirical} chi-square
+is a different statistic and is not reported); for
 ESEM they are \code{chi}, \code{dof}, \code{p_value}, \code{CFI}, \code{TLI}, \code{RMSEA}, \code{SRMR},
 \code{BIC}. For ESEM under a scaled-test estimator (\code{"WLSMV"}/\code{"ULSMV"} for
 ordinal data, \code{"MLR"} for continuous), the whole row -- \code{chi}/\code{dof}/
