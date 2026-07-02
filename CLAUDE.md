@@ -70,40 +70,28 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M41** — independent Fable review (review-only): statistical core verified clean numerically (tenBerge/W′RW/signs/Forbes/ESEM-fit/suggest_k); findings — 1 Critical (EFA chi/p-value pairing), 6 Major (drop_pruned adjacent-pairs M34 regression, pre-M38 engines-vignette FIML prose, CD-mechanism misstatement, Forbes artifact-zero framing, `cut_strong` remnant, untested Forbes-fidelity contract), 11 Minor, 4 enhancements; full §9/§14 defaults audit (all sound; one sound-but-misjustified wording); report + M42/M43/M44 triage in `ROADMAP.md`. No code change.
 - **M42** — review fixes, code: EFA `chi` now the likelihood-ratio `STATISTIC` matching `p_value`/RMSEA/TLI (C1); `.drop_pruned_nodes()` recomputes all-pairs edges fresh, fixing the M34 `pairs = "adjacent"` regression (M1); `print.suggest_k` "undetermined" consensus (m1) + PA-cap announcements (m2); `cut_show`/`n_iter` validation (m8); ordinal warning names flagged columns (e3, `detect_ordinal()` returns names); dead `esem_levels(n_obs)` removed (m7); stale comments fixed (m6); EFA-aware fit-plot caption (m10). No export/signature/dependency change.
 - **M43** — review fixes, docs (doc-only): engines vignette rewritten around first-class `missing = "fiml"` for PCA/EFA + `fm = "pca"`/sample-size fixes (M2, m4, m5); suggest-k CD mechanism corrected + worked-BFI prose inline-computed/drift-proof (M3, m11); Forbes artifact section rewritten to report-and-judge with a top-|φ| table, `cut_strong` remnant removed, chain-retention example corrected (M4, M5, m3); `redundancy_phi` PCA rationale corrected to score *determinacy* across DESIGN §9/CLAUDE/roxygen/vignette (e1); sim16 doc comments modernized (m9). No behavior/export change.
+- **M44** — Forbes-fidelity fixture (closes the M41→M44 review arc): found the paper's own OSF project (`pcwm8`: simulations script, reference implementation, AMH matrix); head-to-head vs her own functions matched edges to 3.9e-14 incl. the full 155-variable AMH example; shipped a 3.7 KB license-clean fixture (three seed-regenerated simulations + her implementation's expected outputs) and `test-forbes-fidelity.R` (65 assertions: edges/φ/chase paths/retention); contract annotated **test-backed**; AMH commit deferred (no OSF license — options logged for owner outreach). No export/dependency change.
 
 ## Current focus
 
-**M44 — Forbes fidelity: fixture or deferral.** Resolves the last pending M41 finding (M6: the
-"reproduce Forbes's examples exactly" contract is untested). Owner-approved shape (2026-07-01,
-amended: owner knows Forbes personally and can request materials directly):
+**M44 is complete** (2026-07-01) — and with it the **entire M41→M44 review arc**: independent
+review (M41) → code fixes (M42) → doc fixes (M43) → fidelity fixture (M44). **The fixture path
+fired.** Phase A found the 2023 paper's own public OSF project (`pcwm8`) with Forbes's analysis
+script, her reference implementation, and the AMH applied-example matrix; the head-to-head
+feasibility study matched `ackwards` to her own functions at 5e-15 (Simulation 1) and **3.9e-14
+across all 45 level-pairs of the 155-variable AMH example**. Shipped: a 3.7 KB license-clean
+fixture (the paper's three seed-regenerated simulations + expected outputs from her reference
+implementation, provenance recorded) and `test-forbes-fidelity.R` (65 assertions covering edges,
+congruences, redundancy chase paths, and `prune()` retention). The CLAUDE.md fidelity contract is
+now annotated **test-backed**. The AMH matrix was *not* committed (no OSF license — per the
+approved decision rule); the two options (license from Forbes → fixture, or a skip-if-offline
+download test) are logged in `ROADMAP.md` for the owner's outreach. Gate: `check()` 0/0/0, 1656
+pass / 0 fail / 0 skip (+65), coverage 100%, style/lint/`check_pkgdown()` clean.
 
-- **Phase A — materials investigation.** Search for Forbes (2023, *Psychological Methods*)
-  supplemental/OSF materials: (a) input (raw data or correlation matrix for her worked examples),
-  (b) published output values precise enough for numeric assertions. Feasibility check in a
-  scratch session (`ackwards() |> prune("redundant")` vs. published values). **Decision rule
-  (owner-approved):** fixture path requires BOTH obtainable input whose license permits
-  committing a derived correlation matrix AND published outputs supporting ≥ 2-dp value-level
-  assertions; anything less → deferral path. Ambiguous license cases (data downloadable but
-  non-redistributable, where a skip-if-offline download test could work) fold into the deferral
-  brief as an option for the owner's outreach, not a stall.
-- **Phase B1 — fixture path** (rule met): fixture `.rds` under `tests/testthat/fixtures/`
-  (< 100 KB, source cited, license cleared) + `test-forbes-fidelity.R` asserting default-output
-  reproduction (edge values to published precision, chain membership, retention/flag sets);
-  CLAUDE.md contract annotated as test-backed; one-line NEWS; ROADMAP → no pending milestones.
-- **Phase B2 — deferral path** (rule not met): the fixture question stays OPEN — ROADMAP keeps a
-  pending fixture brief updated with Phase A's findings, noting the owner will contact Forbes for
-  materials; CLAUDE.md contract wording softened *interim* ("faithful to the published algorithm,
-  verified against the paper's description; exact-reproduction fixture planned pending materials
-  from the author"); DESIGN.md §14 item 20 gets the matching interim note. Doc-only on this path.
-
-Both paths: investigation documented in the `MILESTONES.md` M44 entry; CLAUDE.md index +
-Current focus; gate `check()` 0/0/0 (+ coverage/style/lint/`check_pkgdown()`; meaningful mainly
-on the fixture path). No new export on either path → `_pkgdown.yml` untouched.
-
-**Acceptance criteria:** investigation documented (searched where, found what, which branch and
-why) · fixture path: value-level test passes against published numbers, fixture small/cited/
-licensed, suite green · deferral path: interim wording in CLAUDE.md + DESIGN.md §14.20, ROADMAP
-carries the deferred fixture brief with findings · MILESTONES/CLAUDE updated · gate green.
+**Next up: nothing queued.** `ROADMAP.md` carries no pending milestones — only unscheduled ideas
+(AMH fidelity extension pending the owner's Forbes outreach; e2 dual EFA chi-squares; e4
+bootstrap edge CIs per DESIGN §14). `MILESTONES.md` remains the source of truth for *completed*
+milestones.
 
 ## Invariants — do not violate without flagging
 
