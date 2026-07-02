@@ -242,6 +242,11 @@ the spread; the minima across splits are as informative as the medians.
 between-level correlations grows fast, and reporting the most dramatic one
 capitalizes on chance. Report full edge tables (or the complete diagram), and
 treat any "strongest link" claim as descriptive rather than inferential.
+`boot_edges()` attaches a bootstrap confidence interval to every edge, which
+makes each estimate's precision visible — useful for judging whether an edge
+clears `prune()`'s redundancy threshold — but note that per-edge intervals do
+not undo the selection bias of scanning many edges for the largest; see
+`vignette("ackwards-forbes")`.
 
 **Mistaking persistence for structure.** A chain of near-1.0 correlations down
 the hierarchy looks impressive but means the levels are restating one

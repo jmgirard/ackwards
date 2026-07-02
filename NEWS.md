@@ -1,5 +1,31 @@
 # ackwards (development)
 
+## Bootstrap confidence intervals on edges
+
+- New `boot_edges()` verb: nonparametric bootstrap standard errors and
+  percentile confidence intervals for every between-level edge. `ackwards()`
+  reports each edge as a point estimate; `boot_edges(x, data)` quantifies its
+  sampling uncertainty, which matters most where a hard threshold consumes the
+  estimate — `prune()`'s `|r| >= redundancy_r` redundancy rule and the Forbes
+  (2023) practice of reading off the strongest all-pairs edge. Each replicate
+  resamples rows with replacement, recomputes the correlation matrix with the
+  fit's basis and missing-data routine, refits the hierarchy, and — crucially —
+  **anchors** every replicate level to the full-sample solution (the same
+  matching + sign-orientation machinery `comparability()` uses) before its
+  edges are computed, so factor label-switching and sign-flipping across
+  replicates do not corrupt the pooled distributions. All resample indices are
+  drawn upfront from `seed`, so results are reproducible and identical whether
+  replicates run serially or in parallel (via `future.apply` under a
+  `future::plan()`). Supports the PCA and EFA engines on the Pearson or
+  Spearman basis; correlation-matrix, ESEM, and polychoric objects are not
+  supported (each errors with a pointer).
+- After `boot_edges()`, `tidy(x, what = "edges")` gains `se`, `lo`, `hi`, and
+  `n_boot_ok` columns, and `print(x)` / `summary(x)` note the interval
+  coverage. The intervals are per-edge error bars: they make sampling
+  uncertainty visible but do **not** correct the selection bias of scanning
+  many edges for the strongest one (documented in the object and the Forbes
+  vignette).
+
 ## Split-half factor comparability (replicability gate)
 
 - New `comparability()` verb: Everett's (1983) factor comparability
