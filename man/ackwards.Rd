@@ -226,7 +226,8 @@ require row-level item responses.
 }
 
 \examples{
-x <- ackwards(bfi25, k_max = 5)
+# bfi25 items are ordinal, so fit on the polychoric basis (best practice).
+x <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric")
 print(x)
 tidy(x)
 glance(x)

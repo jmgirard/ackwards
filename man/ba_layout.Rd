@@ -40,7 +40,7 @@ After both passes the layout is shifted so that the single level-1 node is
 always at x = 0.
 }
 \examples{
-x <- ackwards(bfi25, k_max = 5)
+x <- ackwards(sim16, k_max = 5)
 lay <- ba_layout(x)
 head(lay$nodes)
 

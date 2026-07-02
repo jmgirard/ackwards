@@ -36,7 +36,7 @@
 #' @seealso [autoplot.ackwards()], [top_items()], [ba_layout()]
 #'
 #' @examples
-#' x <- ackwards(bfi25, k_max = 5)
+#' x <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric")
 #'
 #' # Start from ID defaults, then fill in your own labels:
 #' labs <- label_template(x)

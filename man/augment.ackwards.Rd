@@ -112,28 +112,28 @@ they travel with the scores.
 }
 \examples{
 # Score the training data on the fly (no keep_scores = TRUE needed)
-x <- ackwards(bfi25, k_max = 5)
-scores_df <- augment(x, data = bfi25)
+x <- ackwards(sim16, k_max = 5)
+scores_df <- augment(x, data = sim16)
 head(scores_df[, startsWith(names(scores_df), ".m")])
 
 # Scores-only: just the .m{k}f{j} columns, ready for cor()/lm()
-scores_only <- augment(x, data = bfi25, append = FALSE)
+scores_only <- augment(x, data = sim16, append = FALSE)
 round(cor(scores_only[, c(".m5f1", ".m5f2")]), 2)
 
 # Carry an identifier through for a safe post-filter rejoin
-df <- data.frame(id = seq_len(nrow(bfi25)), bfi25)
+df <- data.frame(id = seq_len(nrow(sim16)), sim16)
 scored <- augment(x, data = df, append = FALSE, id_cols = "id")
 head(scored[, c("id", ".m5f1")])
 
 # Store at fit time and augment without re-supplying data
-x2 <- ackwards(bfi25, k_max = 5, keep_scores = TRUE)
+x2 <- ackwards(sim16, k_max = 5, keep_scores = TRUE)
 scores_df2 <- augment(x2)
 
 # Cross-validation: fit on a training split, score the test split on the
 # training metric (no retraining; see also predict.ackwards())
 train_idx <- seq_len(500)
-x_train <- ackwards(bfi25[train_idx, ], k_max = 5)
-test_scores <- augment(x_train, data = bfi25[-train_idx, ], append = FALSE)
+x_train <- ackwards(sim16[train_idx, ], k_max = 5)
+test_scores <- augment(x_train, data = sim16[-train_idx, ], append = FALSE)
 head(test_scores)
 
 }

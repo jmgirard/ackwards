@@ -81,7 +81,7 @@ generics::glance
 #' @seealso [glance.ackwards()], [print.ackwards()]
 #'
 #' @examples
-#' x <- ackwards(bfi25, k_max = 5)
+#' x <- ackwards(sim16, k_max = 5)
 #' tidy(x) # edges in natural order
 #' tidy(x, sort = "strength") # strongest edges first
 #' tidy(x, primary_only = TRUE) # just the primary-parent lineage
@@ -327,7 +327,7 @@ tidy.ackwards <- function(
 #' @seealso [tidy.ackwards()], [print.ackwards()]
 #'
 #' @examples
-#' x <- ackwards(bfi25, k_max = 5)
+#' x <- ackwards(sim16, k_max = 5)
 #' glance(x)
 #'
 #' @export

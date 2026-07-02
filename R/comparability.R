@@ -197,7 +197,7 @@ comparability <- function(data, k_max, engine = "pca", cor = "pearson",
   if (!is.null(seed)) set.seed(seed)
 
   cli::cli_progress_step(
-    "Fitting {n_splits} split-half replicate{?s} ({toupper(engine)}, k = 1-{k_eff})..."
+    "Fitting {n_splits} split-half replicate{?s} ({engine}, k = 1-{k_eff})..."
   )
 
   rows <- vector("list", n_splits)
@@ -384,7 +384,7 @@ print.comparability <- function(x, ...) {
   cli::cli_h1("Split-Half Factor Comparability ({.pkg ackwards})")
 
   cli::cli_dl(c(
-    "Engine" = toupper(x$engine),
+    "Engine" = cli::style_bold(x$engine),
     "Basis" = x$cor,
     "n" = paste0(
       format(x$n_obs, big.mark = ","),

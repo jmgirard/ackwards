@@ -100,7 +100,11 @@ print.ackwards <- function(x, ...) {
          ({paste(x$prune$manual, collapse = ', ')})"
       )
     }
-    cli::cli_rule()
+  }
+
+  # --- Footer: one rule, then prune note (if any) + caveat -------------------
+  cli::cli_rule()
+  if (!is.null(x$prune)) {
     cli::cli_text(
       cli::col_grey(
         "Note: Pruning is interpretive relabeling, not re-estimation. \\
@@ -109,9 +113,6 @@ print.ackwards <- function(x, ...) {
       )
     )
   }
-
-  # --- Caveat (DESIGN.md section 2) ------------------------------------------
-  cli::cli_rule()
   cli::cli_text(
     cli::col_grey(
       "Note: This is a series of linked solutions, not a fitted hierarchical \\

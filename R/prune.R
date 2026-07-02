@@ -537,7 +537,9 @@
 #'   *Methodology*, 2(2), 57--64. \doi{10.1027/1614-2241.2.2.57}
 #'
 #' @examples
-#' x <- ackwards(bfi25, k_max = 5)
+#' # sim16 has a planted redundant chain + overextraction artifact at k = 5,
+#' # so the prune rules always have a finding to show (and no ordinal warning).
+#' x <- ackwards(sim16, k_max = 5)
 #'
 #' xp <- prune(x, "redundant")
 #' xp$prune$nodes

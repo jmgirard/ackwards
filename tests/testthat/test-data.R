@@ -13,6 +13,28 @@ test_that("bfi25 has the expected shape and structure", {
   expect_true(all(bfi25 <= 6L | is.na(bfi25)))
 })
 
+test_that("bfi25 ships public-domain IPIP labels that flow into top_items()", {
+  skip_if_not_installed("psych")
+
+  # Every column carries a non-empty scalar "label" attribute.
+  labs <- vapply(
+    bfi25,
+    function(col) attr(col, "label", exact = TRUE) %||% NA_character_,
+    character(1)
+  )
+  expect_equal(sum(!is.na(labs)), 25L)
+  expect_true(all(nzchar(labs)))
+  expect_identical(unname(labs[["E4"]]), "Make friends easily")
+
+  # Fit on the raw dataset (labels survive; NAs handled by `missing`) -> the
+  # labels are captured and surfaced by top_items() with zero user setup.
+  x <- suppressWarnings(ackwards(bfi25, k_max = 3))
+  expect_length(x$meta$item_labels, 25L)
+  ti <- top_items(x, level = 3, cut = 0.4)
+  expect_true("label" %in% names(ti$data))
+  expect_true(any(ti$data$label == "Make friends easily", na.rm = TRUE))
+})
+
 test_that("sim16 has the expected shape and structure", {
   expect_equal(dim(sim16), c(1000L, 16L))
   expect_equal(colnames(sim16), paste0("i", 1:16))

@@ -248,6 +248,27 @@ suggest_k <- function(data, k_max = NULL,
       cli::cli_abort("{.arg data} must contain only numeric columns.")
     }
 
+    # --- Ordinal-detection warning (Invariant 6 symmetry with ackwards()) -----
+    # suggest_k() screens on the Pearson/Spearman basis by design and never
+    # switches to polychoric itself, so the advice points at the final
+    # ackwards() fit, not at suggest_k(). Raw-data path only (a correlation
+    # matrix carries no items to inspect).
+    ordinal_cols <- detect_ordinal(as.data.frame(data_mat))
+    if (length(ordinal_cols) > 0L) {
+      cols_show <- cli::cli_vec(ordinal_cols, style = list("vec-trunc" = 8))
+      cli::cli_warn(
+        c(
+          "!" = "{length(ordinal_cols)} column{?s} look{?s/} like \\
+                 ordinal/Likert items (<= 7 distinct integer values): \\
+                 {.val {cols_show}}.",
+          "i" = "{.fn suggest_k} screens on the {.val {cor}} basis by design; \\
+                 use {.code cor = \"polychoric\"} in the final {.fn ackwards} fit."
+        ),
+        .frequency = "once",
+        .frequency_id = "suggest_k_ordinal_warning"
+      )
+    }
+
     p <- ncol(data_mat)
     n_vars <- p
     n <- nrow(data_mat)

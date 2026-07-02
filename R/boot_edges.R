@@ -105,8 +105,8 @@
 #'
 #' @examples
 #' \donttest{
-#' x <- ackwards(bfi25, k_max = 3)
-#' x <- boot_edges(x, bfi25, n_boot = 100, seed = 1)
+#' x <- ackwards(sim16, k_max = 3)
+#' x <- boot_edges(x, sim16, n_boot = 100, seed = 1)
 #' x$boot$edges
 #' head(tidy(x)) # now carries se / lo / hi
 #' }
@@ -240,7 +240,7 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
   dims <- lapply(x$edges$matrices, dim)
 
   cli::cli_progress_step(
-    "Fitting {n_boot} bootstrap replicate{?s} ({toupper(x$engine)}, \\
+    "Fitting {n_boot} bootstrap replicate{?s} ({x$engine}, \\
      k = 1-{x$k_max})..."
   )
   rep_rows <- .boot_lapply(idx_list, function(idx) {

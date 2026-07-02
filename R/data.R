@@ -22,6 +22,14 @@
 #' The full dataset (`psych::bfi`) contains responses from 2 800 participants
 #' collected via the SAPA project.
 #'
+#' Each item column carries its public-domain IPIP stem (Goldberg, 1999) as a
+#' `label` attribute, so `ackwards()` captures it at fit time and `top_items()`
+#' prints the wording as `label (code)` (e.g. `Make friends easily (E4)`) with
+#' no setup. These are plain attributes: base row-subsetting (e.g.
+#' `na.omit(bfi25)`, `bfi25[rows, ]`) drops them, as base R does for any
+#' non-`labelled`-class vector, so fit on `bfi25` **directly** -- its `NA`s are
+#' handled by the `missing` argument of `ackwards()` -- to keep the labels.
+#'
 #' To regenerate this dataset, run `source("data-raw/bfi25.R")` from the
 #' package root.
 #'
@@ -42,6 +50,7 @@
 #' @examples
 #' dim(bfi25)
 #' head(bfi25)
+#' attr(bfi25$E4, "label") # public-domain IPIP item stem
 "bfi25"
 
 #' Simulated continuous bass-ackwards teaching example (16 items, known hierarchy)
