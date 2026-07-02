@@ -21,6 +21,9 @@
 \itemize{
 \item \code{"edges"} \emph{(default)} -- one row per directed between-level edge:
 \code{from}, \code{to}, \code{level_from}, \code{level_to}, \code{r}, \code{is_primary}, \code{above_cut}.
+If \code{\link[=boot_edges]{boot_edges()}} has been run on the object, four bootstrap columns are
+appended: \code{se}, \code{lo}, \code{hi} (bootstrap standard error and percentile
+confidence-interval endpoints), and \code{n_boot_ok} (usable replicates).
 \item \code{"loadings"} -- one row per item x factor x level:
 \code{level}, \code{factor}, \code{item}, \code{loading}, \code{se}, \code{ci_lower}, \code{ci_upper}.
 \code{se}, \code{ci_lower}, and \code{ci_upper} are populated only for
