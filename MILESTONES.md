@@ -2187,3 +2187,71 @@ User-facing change notes live in `NEWS.md`.
   `styler`/`lintr` clean;
   [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
   clean.
+
+- **M48 (done):** performance & workflow efficiency pass (owner-approved
+  2026-07-02; meta/process milestone — no export, no `_pkgdown.yml`
+  change, no NEWS entry by owner-approved deviation, no package-code
+  change). **Phase A — measure first (DESIGN §3), then optimize, rigor
+  preserved.** Baseline: suite 93.6s wall serial (573 tests / 1859
+  assertions), full `devtools::check()` 319.8s (tests ~97s + vignettes
+  ~96s + donttest examples 22s + examples 2s), slowest files
+  `test-suggest_k.R` 15.6s / `test-boot_edges.R` 13.8s / `test-esem.R`
+  13.1s (45% of the suite), heaviest examples `suggest_k` 9.9s +
+  `autoplot.suggest_k` 6.2s (both already `\donttest`-wrapped — lever
+  declined as spent). **(1) Suite-wide `cached()` fit memo** in
+  `tests/testthat/helper-data.R`: identical
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  fits computed once per process and shared (fits are deterministic,
+  RNG-free, and condition-clean in plain usage — baseline 0 warnings);
+  keyed on call text + referenced-variable *values*
+  ([`rlang::hash`](https://rlang.r-lib.org/reference/hash.html)) so
+  same-named data across files never collide and nothing is evaluated
+  for the key (first design evaluated args for the key — that ran piped
+  `ackwards() |> prune()` fits unmuffled and on *every* lookup; caught
+  by a new test-print warning and fixed); conditions muffled on first
+  evaluation so hits ≡ misses. Replaced `test-vignette-m24.R`’s local
+  `.vfit` memo (`test-suggest_k.R`’s `.get_sk` kept —
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  consumes RNG). **Deliberately not cached:** the reproducibility and
+  serial≡parallel oracles in `test-boot_edges.R` (a cached second call
+  asserts nothing) and all fits inside condition expectations;
+  `test-suggest_k.R`’s Monte-Carlo sizes untouched (owner-guarded).
+  Serial suite 93.6s → **81.2s**. **(2) Parallel testthat**
+  (`Config/testthat/parallel: true`, `Config/testthat/start-first:`
+  slowest six files): suite **26.9s** with `TESTTHAT_CPUS=8` (testthat
+  defaults to 2 workers), green under both parallel and forced-serial
+  (`TESTTHAT_PARALLEL=false`), identical 1859 assertions either way.
+  Full check 319.8s → **241s**; coverage run 33s. **Report-only
+  findings** (no edits, per plan): per-vignette renders — forbes 23.9s
+  (its `boot_edges` chunk) ≫ engines 10.6 / visualization 10.3 / intro
+  9.9 / suggest-k 8.5 / girard 8.3 / ordinal 5.7 / interpret 4.0; CI
+  workflows untouched. **Phase B — transcript-mined workflow audit**
+  (30,044 messages / 3,491 Bash calls across 45 sessions; scripted, not
+  vibes). Findings: 249 full-suite `devtools::test()` runs vs 216
+  filtered (the efficiency rule is chronically under-followed — fixed by
+  making the full run cheap, 27s); ~600 `cd <repo> && …` compound
+  commands and grep(537)/sed(73)/tail(45) calls generating
+  permission-prompt friction against only 4 denials ever; 308 bare
+  `devtools::load_all()` calls in fresh `Rscript` processes (no
+  persistent effect — pure waste); the DoD quintet retyped independently
+  (check 195 / lint 87 / style 81 / coverage 74 / pkgdown 65 runs).
+  **Applied:** `tools/dod-gate.R` (one-command DoD gate: check →
+  coverage → style → lint → pkgdown, one process, machine-sized
+  `TESTTHAT_CPUS`, non-zero exit on failure; `tools/` Rbuildignored) —
+  dogfooded as this milestone’s own gate; CLAUDE.md dev-workflow +
+  implement-milestone SKILL.md cadence text updated **in lockstep**
+  (TESTTHAT_CPUS prefix, load_all/cd anti-patterns, `cached()` usage
+  rules incl. the oracle exclusions, gate-script pointer); stray
+  `.claude/skills/post-milestone-review/.Rhistory` deleted.
+  **Owner-review item:** an expanded read-only permission allowlist for
+  `.claude/settings.local.json` was drafted but the auto-mode classifier
+  (correctly) blocked the agent from widening its own permissions —
+  staged for the owner at the session scratchpad
+  (`proposed_settings.local.json`), replacing the ten ad-hoc entries
+  with grep/ls/cat/git-status-diff-log/gh-pr-view read-only families.
+  **Verified.** Gate via `Rscript tools/dod-gate.R`: `R CMD check`
+  **0/0/0** (full, vignettes rebuilt, 241s); suite **1859 pass / 0 fail
+  / 0 skip** (assertion count identical to the M47 baseline — rigor
+  preserved by construction); coverage **100%**; `styler`/`lintr` clean;
+  [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
+  clean.

@@ -148,7 +148,7 @@ x <- ackwards(bfi25, k_max = 3)
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
 x <- boot_edges(x, bfi25, n_boot = 100, seed = 1)
 #> ℹ Fitting 100 bootstrap replicates (PCA, k = 1-3)...
-#> ✔ Fitting 100 bootstrap replicates (PCA, k = 1-3)... [3.2s]
+#> ✔ Fitting 100 bootstrap replicates (PCA, k = 1-3)... [3s]
 #> 
 x$boot$edges
 #>   from   to level_from level_to           r         se          lo          hi

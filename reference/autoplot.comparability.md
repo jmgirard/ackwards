@@ -48,7 +48,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 #> Warning: ! 125 rows have missing values; correlations are computed pairwise.
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
 #> ℹ Fitting 5 split-half replicates (PCA, k = 1-5)...
-#> ✔ Fitting 5 split-half replicates (PCA, k = 1-5)... [718ms]
+#> ✔ Fitting 5 split-half replicates (PCA, k = 1-5)... [674ms]
 #> 
 
 # }

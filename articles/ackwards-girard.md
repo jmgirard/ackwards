@@ -80,13 +80,13 @@ bfi <- na.omit(bfi25)
 
 sk <- suggest_k(bfi, seed = 1)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [319ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [304ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [188ms]
+#> ✔ Running MAP and VSS... [182ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.8s]
+#> ✔ Running Comparison Data (CD)... [10.7s]
 #> 
 print(sk)
 #> 
@@ -146,7 +146,7 @@ cmp <- comparability(bfi, k_max = sk_hi + 1, n_splits = 10, seed = 2026)
 #>   data.
 #> This warning is displayed once per session.
 #> ℹ Fitting 10 split-half replicates (PCA, k = 1-7)...
-#> ✔ Fitting 10 split-half replicates (PCA, k = 1-7)... [2.8s]
+#> ✔ Fitting 10 split-half replicates (PCA, k = 1-7)... [2.5s]
 #> 
 print(cmp)
 #> 
