@@ -75,60 +75,27 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M46** — Girard extension (replicability-gated hierarchies): new exported **`comparability()`** — Everett (1983)/Goldberg (1990) split-half factor comparability per level per factor (full-sample-anchored labels, greedy-with-removal matching, cross-solution correlations through `compute_edges()` on the pooled R, Tucker's φ alongside, report-first/nothing auto-flagged; PCA/EFA + pearson/spearman, `n_splits = 10`, seeded) + `print`/`autoplot` methods; capstone vignette `ackwards-girard` ("Replicability-Gated Hierarchies: A Recommended Workflow") with the six-step workflow + common-mistakes section; completes the triad `suggest_k()` (range) · `comparability()` (floor) · `prune()` (differentiation); DESIGN §14 item 35; ESEM/polychoric extensions deferred to `ROADMAP.md`. In passing: `cli::symbol$phi` glyph fix in `prune()`. New export, no new dependency.
 - **M47** — bootstrap edge CIs: new exported **`boot_edges(x, data, n_boot = 1000, conf = 0.95, seed)`** — nonparametric bootstrap SEs + percentile CIs on every between-level edge (resurrects the §14 e4 deferral), a standalone pipeable verb re-supplying `data` (Invariant 3). Per replicate: resample rows → recompute R (fit's cor/missing routine) → refit → **anchor** each level to the full-sample solution (M46 matching + sign orientation) → edges via `compute_edges()` (Invariant 1). Upfront seeded indices → **serial ≡ parallel** (`future.apply`, M26); failed replicates dropped + counted (`n_boot_ok`, Invariant 7). `tidy(what = "edges")` gains `se`/`lo`/`hi`/`n_boot_ok`; `print`/`summary` note coverage; `meta$fm` stored for EFA refits. PCA/EFA + pearson/spearman only (ESEM/polychoric deferred to `ROADMAP.md`; cor-matrix/esem/polychoric objects error). DESIGN §14 item 36 (amends the "reuse `loadings_se`" phrasing; percentile-CI + Fisher-z-oracle rationale). New export, no new dependency.
 - **M48** — performance & workflow pass (meta/process; no package-code change): suite-wide `cached()` test-fit memo in `helper-data.R` + parallel testthat (suite 93.6s→81.2s serial→**26.9s** at `TESTTHAT_CPUS=8`; full check 319.8s→241s; 1859 assertions unchanged; boot reproducibility/serial≡parallel oracles and MC sizes deliberately untouched); transcript-mined workflow audit (30k messages, 45 sessions: 249 full-suite runs, ~600 cd-compounds, 308 bare `load_all`s) → **`tools/dod-gate.R`** one-command DoD gate (dogfooded) + CLAUDE.md/implement-milestone cadence text in lockstep; expanded read-only permission allowlist staged for owner review (auto-mode classifier correctly blocked agent self-widening). Report-only: forbes vignette (23.9s) dominates rebuilds.
+- **M50** — release polish (code; interleaved before M49's CRAN mechanics): `bfi25` ships 25 public-domain IPIP variable labels (Goldberg 1999; `data-raw/bfi25.R`) → `top_items()` prints `label (code)` free (plain attrs; row-subsetting drops them, so fit direct with `missing = "listwise"`); cli consistency (engine name lowercase everywhere incl. `print.comparability`; `summary()` fixed-decimal percentages + blank-line-separated levels; `top_items()` group spacing; single consolidated pruned footer in `print`/`summary`); roxygen examples split by intent (mechanics → continuous `sim16`, content → `bfi25`+polychoric); `suggest_k()` gains the ordinal-detection warning (Invariant-6 symmetry, screening-context wording pointing at the final `ackwards()` fit). `label_items()` setter + third dataset declined; factor-label pipeline deferred to 0.2.0. No new export, no dependency change.
 
 ## Current focus
 
-**M50 — Release polish (code), interleaved before M49's CRAN mechanics** (owner-approved
-2026-07-02, out of the M49 pedagogy assessment). A small code milestone branched off `master` so
-the 0.1.0 release captures it; it merges to `master` **before** M49 Phase C. Four work-items, no
-new export, no dependency change.
+**M50 is complete** (2026-07-02) — release polish (code): `bfi25` ships 25 public-domain IPIP
+variable labels (so `top_items()` prints `label (code)` free); cli consistency (lowercase engine
+name everywhere, fixed-decimal `summary()` percentages + level spacing, `top_items()` group
+spacing, single consolidated pruned footer); roxygen examples split by intent (mechanics →
+continuous `sim16`, content → `bfi25`+polychoric); `suggest_k()` gains the ordinal-detection
+warning (Invariant-6 symmetry, screening-context wording). Suite 1883 pass / 0 fail; coverage
+100%; `R CMD check` 0/0/0. Detail in `MILESTONES.md` (M50); decisions in DESIGN §14 items 37–39.
 
-1. **bfi25 variable labels.** `data-raw/bfi25.R` attaches the 25 public-domain IPIP item stems
-   (Goldberg 1999; ipip.ori.org) as `label` attributes — sourced as public-domain IPIP markers
-   (attribution comment; text is identical to `psych::bfi.dictionary` because they are the same
-   items, but not framed as a copy of it). `R/data.R` roxygen notes the labels; `data/bfi25.rda`
-   regenerated. Effect: `top_items()` shows `label (code)` on bfi25 with zero user setup (the M36
-   display path, now populated).
-2. **cli consistency.** Engine name → **lowercase everywhere** (only `print.comparability` drops
-   its `toupper()`; `print.top_items` also bolds the value to match the others). `summary()`
-   per-level percentages → fixed decimal count with trailing zeros (kill the "20.91%"/"13.6%"/
-   eigenvalue "2.1" drift) + a blank line between level blocks. `print.top_items` → blank line
-   between factor/item groups. Pruned `print.ackwards` → single consolidated grey footer (no
-   stacked double `cli_rule()`s). No snapshot tests exist, so no assertion breakage.
-3. **Example dataset swap.** Mechanics-family roxygen examples → `sim16` (continuous: no ordinal
-   warning, faster checks): `tidy`, `glance`, `summary`, `layout`, `boot_edges`, `compute_edges`,
-   `augment`, `predict`, non-content `prune`/`autoplot`. Content-family keeps `bfi25` (+
-   `cor = "polychoric"` where a fit is shown): main `ackwards`, `top_items`, `label_template`,
-   the `autoplot` gallery, interpret family.
-4. **suggest_k ordinal warning.** `suggest_k()` calls `detect_ordinal()` on raw-data input and
-   emits the ordinal-detection cli warning (Invariant-6 symmetry with `ackwards()`/
-   `comparability()`), once per session (`.frequency_id`), guarded to raw data (skip matrix/cor
-   input). Wording adapted to the screening context: "these look ordinal; `suggest_k()` screens on
-   the Pearson/Spearman basis by design — use `cor = \"polychoric\"` in the final `ackwards()`
-   fit," not a bare "switch to polychoric."
-
-**Resolved decisions (owner-approved 2026-07-02).** Engine casing = lowercase. suggest_k warning
-= screening-context wording. bfi25 provenance = hardcoded public-domain IPIP stems, cited.
-DESIGN §14 split: **M50** logs bfi25-labels + suggest_k-symmetry + example-swap; the
-`label_items()` setter decline, the third-teaching-dataset decline, and the factor-label pipeline
-0.2.0 deferral stay in **M49 Phase A** (avoid double-logging).
-
-**Acceptance criteria.** bfi25 ships 25 non-empty IPIP labels (reproducible from
-`data-raw/bfi25.R`); fresh `top_items()` shows wording with zero setup, test-backed. Engine label
-renders identically (lowercase) across `print.ackwards`/`summary`/`print.top_items`/
-`print.comparability`; summary percentages fixed-precision + level blocks separated; top_items
-groups separated; pruned footer no longer double-ruled. Mechanics examples run under `R CMD
-check` with no ordinal warning; content examples keep bfi25+polychoric; example-check time not
-increased. `suggest_k()` warns once on ordinal / never on continuous, test-backed. No new export;
-`pkgdown::check_pkgdown()` passes; `Rscript tools/dod-gate.R` green; `MILESTONES.md` M50 entry +
-this index line + concise DESIGN §14 entry.
-
-**Choreography.** This Current-focus block shows M50 as active; **M49 is paused on
-`m49-cran-release` and resumes after M50 merges** (its full scope is committed on that branch —
-nothing lost). Standard squash-merge to `master` on local green (M50 is *not* a release milestone
-— the CI-matrix wait applies only to M49 Phase C). After M50 merges, the m49 branch does
-`git merge master` to pick up M50's code, resolving the Current-focus conflict in favor of
-restoring M49's block.
+**Next up: resume M49 — Initial CRAN release (0.1.0).** M49 is paused on `m49-cran-release` with
+its full scope committed there (Phase A roadmap cleanup + e2 decline + factor-label 0.2.0 banking;
+Phase B doc/pedagogy pass; Phase C release mechanics). After M50 merges to `master`, the m49
+branch does `git merge master` to pick up M50's code (resolving the Current-focus conflict in
+favor of restoring M49's block), then continues Phase B (its doc pass must now also reconcile the
+new `suggest_k()` ordinal warning surfacing in the intro/girard/suggest-k vignettes) and Phase C.
+The lifecycle badge flips experimental→stable in Phase C. M49 Phase C is the release milestone
+that waits for the full green CI matrix before merging; **M50 itself is a normal milestone**
+(squash-merge on local green).
 
 ## Invariants — do not violate without flagging
 
