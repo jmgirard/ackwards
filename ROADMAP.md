@@ -4,13 +4,14 @@ Forward-looking counterpart to [`MILESTONES.md`](MILESTONES.md). `MILESTONES.md`
 truth for **completed** milestones; this file captures the **intent and source notes** for the
 *not-yet-built* milestones, so their context survives across planning sessions.
 
-This file currently holds the **findings of the M41 independent review** (statistical correctness,
-software design, vignette quality, and a defaults/decision audit; conducted 2026-07-01 by Claude
-Fable 5 — the package was planned by Opus, implemented by Sonnet, and previously reviewed by Opus).
-Each Critical/Major finding was verified with a runnable reproduction before being recorded; the
-verification scripts lived in the session scratchpad and their key numbers are quoted inline.
-Fixes are **not** applied by M41 (review-only); they are grouped into proposed follow-up milestones
-at the end, each of which needs its own `/plan-milestone` run.
+This file currently holds the **still-pending findings of the M41 independent review**
+(statistical correctness, software design, vignette quality, and a defaults/decision audit;
+conducted 2026-07-01 by Claude Fable 5). Each Critical/Major finding was verified with a runnable
+reproduction before being recorded. **M42 (shipped 2026-07-01) fixed the code findings** — C1,
+M1, m1, m2, m6, m7, m8, m10, e3; see its `MILESTONES.md` entry — and those items have been
+removed below per this file's maintenance rule. What remains is the doc-fix set (proposed M43)
+and the Forbes-fixture scoping question (proposed M44), each needing its own `/plan-milestone`
+run.
 
 ---
 
@@ -50,32 +51,9 @@ The statistical core survives independent re-derivation. Verified numerically on
 
 ### Critical
 
-**C1. EFA fit row pairs the empirical chi-square with the likelihood-ratio p-value.**
-`engine_efa.R:117-127` reports `fit$chi` as `chi` but `fit$PVAL` as `p_value`. In `psych::fa`,
-`$chi` is the *empirically derived* chi-square while `$PVAL` is the p-value of `$STATISTIC` (the
-normal-theory/ML chi-square); `$RMSEA` and `$TLI` also derive from `$STATISTIC`. Reproduction
-(`na.omit(bfi25)`, k = 3): `STATISTIC = 1763.4`, `chi = 1085.1`, reported pair =
-(1085.1, p = 4.2e-235) — but `pchisq(1085.1, 272)` gives p = 1.3e-111. A user quoting the
-`tidy(what = "fit")` row as "χ²(272) = 1085.1, p = 4.2e-235" misreports; the pair is internally
-inconsistent and inconsistent with the RMSEA/TLI in the same row. **Fix:** report
-`$STATISTIC` as `chi` (making the whole row one statistical framing, mirroring the M31 ESEM
-scaled-row rationale); optionally also expose the empirical chi-square under its own name.
-Surfaces in `tidy(what = "fit")`, `summary()` (which prints `chi` for EFA), and the engines
-vignette's rendered fit tables.
+*(none pending — C1, the EFA chi/p-value pairing, was fixed in M42.)*
 
 ### Major
-
-**M1. `drop_pruned = TRUE` regression for `pairs = "adjacent"` objects (M34).**
-`.drop_pruned_nodes()` (`layout.R:167`) selects each kept node's strongest edge *from the object's
-stored tidy edges* and its comment still claims all-pairs edges are "guaranteed whenever
-prune != 'none' (M5 auto-upgrades pairs = 'all')" — an invariant **M34 removed** (`prune()` now
-recomputes all-pairs edges internally and never writes them back). Reproduction: `ackwards(d,
-k_max = 4)` (default adjacent) `|> prune(manual = c("m2f1", "m2f2"))`, then `drop_pruned` — the
-kept level-3 nodes have **zero incoming edges** (their only stored parents were pruned, and no
-1:3 skip edges exist in the adjacent-only tidy table). The Forbes vignette doesn't trip this only
-because its examples happen to use `pairs = "all"`. **Fix:** recompute all-pairs edges inside the
-drop-pruned path (mirror `prune.ackwards()`'s `compute_edges(pairs = "all")` recompute), and
-delete the stale comment. Display-layer only; no stored numbers are wrong.
 
 **M2. Engines vignette "Missing data" section documents pre-M38 behavior.**
 `vignettes/ackwards-engines.Rmd` (Missing data + FIML subsection + "Which option to use?" table)
@@ -130,12 +108,8 @@ verification that doesn't exist.
 
 ### Minor
 
-- **m1.** `print.suggest_k()` emits `min()/max()` warnings and an `Inf` consensus when every
-  requested criterion is NA (e.g. `criteria = "pa_fa"` with an undetermined PA-FA). Reproduced.
-  Guard the consensus block when `all_k` is empty.
-- **m2.** `suggest_k()` silently caps `pa$ncomp`/`pa$nfact` at `k_max` — a PA recommendation
-  above the evaluated ceiling prints as `k <= k_max` with no hint the criterion wanted more.
-  Announce the cap (Invariant 6) or report the uncapped value with a note.
+*(m1, m2, m6, m7, m8, and m10 were fixed in M42; the doc-facing minors below remain.)*
+
 - **m3.** Forbes vignette chain example: "the intermediate nodes m3f2 and m4f2 are flagged" — for
   a chain reaching `k_max` the retention rule keeps only the bottom node, so the **top** node is
   flagged too. The illustrative sentence misstates the rule the code (correctly) implements.
@@ -144,18 +118,9 @@ verification that doesn't exist.
   `fm` is EFA-only anyway. Should read plain `engine = "pca"`.
 - **m5.** Engines vignette says "the BFI with > 2,000 participants" — the vignette fits
   `na.omit(bfi25)` (1,000 rows, 816 complete). Stale from a `psych::bfi` (n = 2,800) draft.
-- **m6.** `.summary_lineage()` comment says `fill_primary()` "leaves is_primary = NA on
-  skip-level edges" — it converts all remaining NAs to FALSE (`compute_edges.R:169`); the
-  `which()` NA-guard is dead protection with a misleading justification.
-- **m7.** `esem_levels()` accepts an `n_obs` argument it never uses (dead parameter).
-- **m8.** `ackwards(cut_show = )`, `autoplot(cut_show = )`, and `suggest_k(n_iter = )` are
-  unvalidated (e.g. `cut_show = 5` silently yields an edgeless-looking tidy table; `n_iter = 0`
-  fails deep inside psych). Cheap `(0, 1]` / positive-integer guards.
 - **m9.** `data-raw/sim16.R` header comments use the pre-M34 API (`prune(artefact = TRUE)`,
   `prune(redundant = TRUE)`) and "phi >= .95" (the filter is strict `>`); `R/data.R` (`?sim16`)
   says "6-criteria consensus," counting VSS twice without saying so.
-- **m10.** `.ba_fit_plot()`'s caption names all four Hu-Bentler thresholds even for EFA panels
-  that show only TLI/RMSEA.
 - **m11.** suggest-k vignette hardcodes stochastic PA outcomes in prose ("PA-FA exceeds PA-PC in
   this run (6 vs. 5)", "CD agrees with PA-FA (k = 6)"); `fa.parallel` ignores `seed`, so a
   vignette rebuild can contradict its own prose. Compute these inline (the sim16 section already
@@ -170,11 +135,10 @@ verification that doesn't exist.
   between the components themselves. The EFA/ESEM half of the rationale (indeterminacy) is
   correct — the PCA half should say determinacy, not algebra-exactness. Fix wording in DESIGN §9,
   CLAUDE.md, and `prune()` roxygen.
-- **e2.** Consider exposing both chi-squares for EFA (`chi` = likelihood, `chi_empirical` =
-  psych's residual-based) once C1 is fixed — psych prints both for a reason (the empirical one is
-  robust to non-normality/NPD matrices).
-- **e3.** `detect_ordinal()` could name the offending columns in its warning (currently a
-  dataset-level yes/no), making the advice actionable for mixed data.
+- **e2.** Consider exposing both chi-squares for EFA (`chi` = likelihood — the M42/C1 fix,
+  `chi_empirical` = psych's residual-based) — psych prints both for a reason (the empirical one
+  is robust to non-normality/NPD matrices). Owner set this aside when approving M42 ("can be
+  revisited later").
 - **e4.** Bootstrap CIs on (skip-level) edges — the standing DESIGN §14 deferral; this review
   re-affirms it as the highest-value statistical addition (the selection-bias concern about
   "strongest edge" claims is real) and as its own perf-heavy milestone.
@@ -197,9 +161,10 @@ is an honest, documented heuristic with the expected false-positive (integer-cod
 false-negative (8+ category Likert) edges — acceptable for a warning-only signal; item 7/§14.1
 (CF(κ=1/p) ≡ varimax, kappa removal) verified against Crawford & Ferguson (1970)/Browne (2001);
 item 19 (|r| ≥ .9, retention rule, φ > .95 conjunctive) verified faithful to Forbes both in code
-and output; items 27–31 (prune verb) sound as a design but shipped the M1 regression above —
-the *decision* was right, the migration missed one consumer; items 32–33 (M38 FIML + `n_obs`
-strings) sound and well-cited (Enders 2010; Zhang & Savalei 2020), but shipped the M2 doc gap.
+and output; items 27–31 (prune verb) sound as a design but shipped a `drop_pruned` regression (fixed in
+M42) — the *decision* was right, the migration missed one consumer; items 32–33 (M38 FIML +
+`n_obs` strings) sound and well-cited (Enders 2010; Zhang & Savalei 2020), but shipped the M2
+doc gap.
 
 **Declined decisions — all declines hold.** EAP (shrinkage attenuates the cross-level signal —
 statistically correct reasoning); oblique rotation (T′ = T⁻¹ is load-bearing for the algebra;
@@ -225,15 +190,14 @@ the same story for every audited decision.
 
 ## Proposed follow-up milestones (each needs its own /plan-milestone)
 
-- **M42 — review fixes, code:** C1 (EFA chi/p pairing; + e2 if owner wants both statistics),
-  M1 (drop_pruned all-pairs recompute), m1, m2, m6, m7, m8, m10 (+ regression tests for each).
-  Small, sharply-scoped, test-first.
 - **M43 — review fixes, docs:** M2 (engines missing-data rewrite), M3 (CD mechanism), M4
   (artifact section rewrite), M5 (cut_strong remnant), m3, m4, m5, m9, m11, e1 (§9/roxygen
-  justification wording), e3. Doc-only; no export/signature change.
+  justification wording). Doc-only; no export/signature change. Note: the engines vignette's
+  rendered EFA fit tables will also pick up the M42 chi values on rebuild.
 - **M44 — Forbes fixture (scoping):** M6 — owner decides: obtain Forbes (2023) materials and add
   an exact-reproduction test, or amend the CLAUDE.md contract wording.
-- **(Unscheduled)** e4 bootstrap-CI milestone remains deferred in DESIGN §14.
+- **(Unscheduled)** e2 (dual chi-squares for EFA) and e4 (bootstrap-CI milestone, deferred in
+  DESIGN §14).
 
 ## Provenance
 

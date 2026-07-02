@@ -189,8 +189,9 @@ test_that("autoplot.ackwards() warns when cut_show hides all edges", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
-  # cut_show > 1.0 always hides all edges (correlations are bounded by [-1, 1])
-  expect_warning(ggplot2::autoplot(x, cut_show = 1.01), "No edges")
+  # cut_show = 1 (the legal maximum since M42/m8 validation) hides every edge
+  # here: no between-level correlation in these data reaches exactly 1.0
+  expect_warning(ggplot2::autoplot(x, cut_show = 1), "No edges")
 })
 
 test_that("autoplot.ackwards() warns when min_sep < node_width", {
@@ -856,8 +857,10 @@ test_that("drop_pruned=TRUE warns when cut_show removes all reduced edges", {
     x <- ackwards(psych::bfi[, 1:25], k_max = 5) |>
       prune("redundant", redundancy_r = 0.95)
   ))
+  # cut_show = 1 is the legal maximum since M42/m8 validation; no reduced
+  # edge in these data reaches exactly 1.0, so all are hidden
   expect_warning(
-    ggplot2::autoplot(x, drop_pruned = TRUE, cut_show = 1.01),
+    ggplot2::autoplot(x, drop_pruned = TRUE, cut_show = 1),
     "No edges"
   )
 })
