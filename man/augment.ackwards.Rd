@@ -37,7 +37,8 @@ object -- the correct choice for scoring new observations (e.g. a
 cross-validation test split) or subsets on the training metric. \code{"sample"}
 standardizes by the supplied data's own moments (the only option for
 objects fit from a correlation matrix, which carry no raw-data moments).
-Only used when \code{data} is supplied; stored scores are returned as-is.}
+Only used when \code{data} is supplied; passing it without \code{data} is an error
+(stored scores are returned exactly as computed at fit time).}
 
 \item{...}{Ignored.}
 }
@@ -79,7 +80,12 @@ raw-data moments). For non-Pearson bases (polychoric, Spearman) the usual
 caveat applies either way: the weights derive from the non-Pearson \code{R}
 while \code{Z} is a linear standardization, so empirical score SDs are close to
 but not exactly 1 (a one-time warning says so); train/test comparability
-under \code{scaling = "fit"} is unaffected.
+under \code{scaling = "fit"} is unaffected. For objects fit with
+\code{missing = "fiml"} (PCA/EFA), the stored moments are the observed
+(\code{na.rm}) means/SDs of the training items — the correlation matrix was
+FIML-estimated, but scoring operates on observed responses, so the
+observed moments are the consistent frame; incomplete rows still score
+\code{NA} (scoring does not impute).
 
 \strong{Missing data.} Score projection applies weights row-wise and propagates
 NAs listwise: any observation with at least one missing item variable will

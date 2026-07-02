@@ -14,7 +14,9 @@
   subsets, and the training data itself all share the training metric.
   `scaling = "sample"` retains the previous behavior (standardize by the
   supplied data's own moments) and is the option for objects fit from a
-  correlation matrix, which carry no raw-data moments.
+  correlation matrix, which carry no raw-data moments. Supplying `scaling`
+  without `data` is an error (stored scores are returned exactly as computed
+  at fit time).
 - **Behavior change:** under the new default, `augment(x, data =)` on a
   *subset* of the training data (or any new data) produces slightly different
   values than before — previously the supplied data's own means/SDs were used,
