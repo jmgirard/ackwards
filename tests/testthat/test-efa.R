@@ -317,3 +317,111 @@ test_that("glance() for EFA has TLI/RMSEA/BIC at deepest level; CFI/SRMR NA", {
   # fit values come from the deepest converged level
   expect_equal(g$deepest_converged, 3L)
 })
+
+# --- Polychoric continuity correction (`correct`) ---------------------------
+# Real-world ordinal data with a singleton-category item makes
+# psych::polychoric() fail under its default continuity correction (0.5); psych
+# itself suggests correct = 0. Build such a dataset and check the escape hatch.
+.singleton_ordinal <- function(n = 300, seed = 1) {
+  set.seed(seed)
+  mk <- function(p) sample(seq_along(p), n, replace = TRUE, prob = p)
+  d <- as.data.frame(lapply(1:5, function(i) mk(rep(0.2, 5))))
+  names(d) <- paste0("i", 1:5)
+  d$i6 <- c(rep(2L, n - 2L), 3L, 4L) # 298, 1, 1 -> singleton categories
+  d
+}
+
+test_that("correct = 0 rescues polychoric EFA where the default (0.5) fails", {
+  skip_if_not_installed("psych")
+  d <- .singleton_ordinal()
+
+  # Default correct = 0.5: psych::polychoric() fails, and ackwards() surfaces an
+  # actionable error naming the correct = 0 remedy.
+  expect_error(
+    suppressWarnings(ackwards(d, k_max = 3, engine = "efa", cor = "polychoric")),
+    "correct = 0"
+  )
+
+  # correct = 0 succeeds and keeps the polychoric basis (not the cor-matrix NA).
+  x <- suppressWarnings(
+    ackwards(d, k_max = 3, engine = "efa", cor = "polychoric", correct = 0)
+  )
+  expect_s3_class(x, "ackwards")
+  expect_equal(x$cor, "polychoric")
+  expect_equal(x$k_max, 3L)
+})
+
+test_that("correct is validated as a single non-negative number", {
+  skip_if_not_installed("psych")
+  d <- .singleton_ordinal()
+  expect_error(
+    ackwards(d, k_max = 3, cor = "polychoric", correct = -1),
+    "non-negative"
+  )
+  expect_error(
+    ackwards(d, k_max = 3, cor = "polychoric", correct = c(0, 0.5)),
+    "single non-negative"
+  )
+})
+
+# --- Near-singular polychoric matrix: one clear warning, no psych flood -------
+.triplicate_ordinal <- function(n = 250, seed = 3) {
+  set.seed(seed)
+  mk <- function(p) sample(seq_along(p), n, replace = TRUE, prob = p)
+  base <- as.data.frame(lapply(1:6, function(i) mk(c(.5, .25, .15, .07, .03))))
+  d <- cbind(base, base, base) # triplicate -> perfectly collinear -> rank-deficient
+  names(d) <- paste0("v", 1:18)
+  d
+}
+
+test_that("ackwards() warns once on a near-singular polychoric matrix", {
+  skip_if_not_installed("psych")
+  d <- .triplicate_ordinal()
+  rlang::reset_warning_verbosity("ackwards_near_singular")
+  w <- testthat::capture_warnings(
+    x <- suppressMessages(
+      ackwards(d, k_max = 2, engine = "efa", cor = "polychoric", correct = 0)
+    )
+  )
+  expect_true(any(grepl("near-singular", w)))
+  expect_s3_class(x, "ackwards")
+})
+
+test_that("ackwards() does not leak psych's per-level chatter to the console", {
+  skip_if_not_installed("psych")
+  d <- .triplicate_ordinal()
+  rlang::reset_warning_verbosity("ackwards_near_singular")
+  msgs <- capture.output(
+    suppressWarnings(
+      ackwards(d, k_max = 2, engine = "efa", cor = "polychoric", correct = 0)
+    ),
+    type = "message"
+  )
+  expect_false(any(grepl("determinant|smcs|objective function", msgs)))
+})
+
+test_that("near-singular fit is recorded in meta and re-surfaced by print/summary", {
+  skip_if_not_installed("psych")
+  d <- .triplicate_ordinal()
+  rlang::reset_warning_verbosity("ackwards_near_singular")
+  x <- suppressWarnings(suppressMessages(
+    ackwards(d, k_max = 2, engine = "efa", cor = "polychoric", correct = 0)
+  ))
+  expect_true(x$meta$near_singular)
+  expect_lt(x$meta$min_eigenvalue, 1e-4)
+  # Durable caution appears in both print() and summary(), not just at fit time.
+  pr <- cli::ansi_strip(capture.output(print(x), type = "message"))
+  expect_true(any(grepl("Near-singular", pr)))
+  sm <- cli::ansi_strip(capture.output(print(summary(x)), type = "message"))
+  expect_true(any(grepl("Near-singular", sm)))
+})
+
+test_that("a well-conditioned fit is not flagged near-singular", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
+  expect_false(isTRUE(x$meta$near_singular))
+  expect_false(any(grepl(
+    "Near-singular",
+    cli::ansi_strip(capture.output(print(x), type = "message"))
+  )))
+})

@@ -1,11 +1,14 @@
-# ackwards (development)
+# ackwards 0.1.0
+
+First public CRAN release (2026-07-02), licensed under MIT. Everything below is
+new in this initial version.
 
 ## `bfi25` ships item labels; cleaner console output
 
 - The `bfi25` dataset now carries each item's public-domain IPIP stem (Goldberg,
   1999) as a `label` attribute, so `ackwards()` captures it at fit time and
-  `top_items()` prints the wording as `label (code)` (e.g.
-  `Make friends easily (E4)`) with no setup. Fit the dataset directly to keep
+  `top_items()` prints the wording as `code: label` (e.g.
+  `E4: Make friends easily`) with no setup. Fit the dataset directly to keep
   the labels: base row-subsetting such as `na.omit(bfi25)` drops plain
   attributes, so use `missing = "listwise"` (or another `missing` option) rather
   than pre-filtering rows.
@@ -19,6 +22,45 @@
   lines separate the level blocks; `top_items()` separates its factor/item
   groups; and a pruned object's `print()`/`summary()` footer is a single
   consolidated note instead of stacked rules.
+
+## Screen items before analysis — `check_items()`
+
+- New `check_items()` verb: a per-item pre-analysis screen that flags the
+  columns that break or *silently* degrade a factor analysis — constant (zero
+  variance) items, near-constant items (one response category dominates), sparse
+  response categories (a polychoric-basis concern), and heavy missingness — with
+  one row per item and a printed summary plus guidance. It only reports; it
+  never changes your data.
+- `ackwards()` runs the same screen internally: it now **errors** on a constant
+  item (naming it) instead of letting `psych::polychoric()` silently delete it
+  and crash later with `subscript out of bounds`, and **warns** on a
+  near-constant item (which could previously produce a plausible-looking but
+  meaningless factor with no warning at all).
+
+## Polychoric continuity correction (`correct`)
+
+- `ackwards()` gains a `correct` argument (default `0.5`, psych's own default),
+  forwarded to `psych::polychoric()` on the PCA/EFA polychoric path. Set
+  `correct = 0` when `psych::polychoric()` fails on real-world ordinal data —
+  its own error suggests exactly this, and it typically happens when an item has
+  a near-empty (singleton) response category, or items with unequal category
+  counts produce a sparse cross-cell. Previously there was no way to pass it, so
+  such data could not be fit without pre-computing the matrix by hand.
+- The polychoric failure message now names this remedy (`correct = 0`, collapse
+  rare categories, or drop the item) instead of passing through psych's opaque
+  error, and a polychoric matrix that comes back with undefined (`NA`/`NaN`)
+  entries is caught with a clear, item-naming error rather than a base-R
+  "missing value where TRUE/FALSE needed" crash.
+- When the polychoric matrix is **near-singular** (rank-deficient), `ackwards()`
+  now raises a single clear warning instead of letting `psych::fa()` flood the
+  console with per-level "determinant … zero" notes, and records it durably:
+  `meta$near_singular` / `meta$min_eigenvalue` are set, and `print()`/`summary()`
+  re-surface a caution that per-level fit indices (especially CFI) and factor
+  scores may be unreliable — so the signal survives on a saved or shared object,
+  not just at fit time.
+- `?ackwards` gains a **"When to trust the result"** section that tiers every
+  diagnostic the function raises as fatal / caution / informational, so it is
+  clear which warnings mean "fix before trusting" versus "proceed with care".
 
 ## Bootstrap confidence intervals on edges
 
@@ -43,7 +85,7 @@
   `n_boot_ok` columns, and `print(x)` / `summary(x)` note the interval
   coverage. The intervals are per-edge error bars: they make sampling
   uncertainty visible but do **not** correct the selection bias of scanning
-  many edges for the strongest one (documented in the object and the Forbes
+  many edges for the strongest one (documented in the object and the girard
   vignette).
 
 ## Split-half factor comparability (replicability gate)
@@ -266,7 +308,7 @@
   unchanged.
 - Variable labels are now supported: when the data carries a `"label"` column
   attribute (as **labelled** and **haven** set) at fit time, `ackwards()`
-  captures it and `top_items()` displays items as `label (code)`, with a
+  captures it and `top_items()` displays items as `code: label`, with a
   per-item fallback to the bare code. Set `show_labels = FALSE` to force codes.
 
 ## Sign alignment: primary-parent edges are now always non-negative
@@ -592,10 +634,6 @@ skipped entirely (no computation), delivering a real speed win:
 uses `NA` for non-run columns (stable schema). The returned object gains a
 `criteria_requested` field. `print()` and `autoplot()` render only the requested
 criteria; the consensus range is computed from requested criteria only.
-
-# ackwards 0.1.0
-
-First public release. Licensed under MIT.
 
 ## Extraction engines
 

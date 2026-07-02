@@ -202,6 +202,14 @@ WLSMV, and it unlocks three capabilities that EFA cannot provide:
    `cor = "polychoric"` is set with `engine = "esem"`, WLSMV is used
    automatically.
 
+Those three are the *only* reasons to pay ESEM's cost (a lavaan fit per level,
+occasional convergence trouble). EFA is otherwise a first-class reporting
+engine: it returns the same loadings, variance, and between-level edges *plus*
+per-level RMSEA and TLI — enough to report a hierarchy. Reach for ESEM when you
+specifically need loading standard errors (especially at smaller *n*), the
+field-standard WLSMV estimator for ordinal indicators, or true FIML for missing
+data; otherwise EFA is the simpler, faster choice.
+
 ```{r esem-check, echo = FALSE, results = "asis"}
 if (!has_lavaan) {
   cat(
@@ -407,15 +415,18 @@ measurement error (EFA/ESEM) or not (PCA).
 | Situation | Recommendation |
 |-----------|---------------|
 | Exploratory, large k, unknown structure | Start with `"pca"` |
-| Latent-variable theory, want to test model fit | `"efa"` |
-| Ordinal items + model fit + loading SEs | `"esem"` with `cor = "polychoric"` |
+| Report a hierarchy with per-level fit (RMSEA/TLI) | `"efa"` — a complete reporting engine |
+| You specifically need loading SEs / CIs (especially smaller *n*) | `"esem"` |
+| Ordinal items and you want the field-standard WLSMV estimator | `"esem"` with `cor = "polychoric"` |
+| Missing data you want handled by true FIML | `"esem"` (ML/MLR) or PCA/EFA with `missing = "fiml"` |
 | Replicating Goldberg (2006) or `psych::bassAckward()` | `"pca"` (the default engine; `fm` applies only to `"efa"`) |
-| Publication with formal model evaluation | `"esem"` |
 
 A practical workflow: start with PCA to get a feel for the hierarchy and choose
-k. Switch to EFA or ESEM to confirm and report. If PCA and EFA/ESEM edges
-agree, you have robust evidence for the hierarchy; if they disagree, investigate
-why.
+k. EFA is enough to *confirm and report* — it returns loadings, variance,
+edges, and per-level RMSEA/TLI. Reach for ESEM only when you need one of the
+three things it adds (loading SEs, WLSMV, or FIML); it is not a required
+"publication" upgrade. If PCA and EFA/ESEM edges agree, you have robust evidence
+for the hierarchy; if they disagree, investigate why.
 
 ## Missing data
 

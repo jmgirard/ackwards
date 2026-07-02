@@ -76,7 +76,13 @@ and no one of them substitutes for another.
 ## Setup
 
 We use the `bfi25` Big Five data (25 items, n = 875 after removing incomplete
-rows), analyzed with the default PCA engine throughout.
+rows), analyzed with the default PCA engine on the Pearson basis throughout.
+That basis is deliberate: `comparability()` and `boot_edges()` screen on
+Pearson/Spearman by design — polychoric estimation in every split-half or
+bootstrap resample is slow and unstable — so the ordinal-detection warning
+`bfi25` triggers is *expected* here and suppressed below for readability. You
+screen structure and depth on Pearson, then fit the model you actually *report*
+with `cor = "polychoric"`.
 
 ```{r data}
 library(ackwards)
@@ -85,7 +91,7 @@ bfi <- na.omit(bfi25)
 
 ## Step 1: Screen the plausible depth range with `suggest_k()`
 
-```{r suggest-k}
+```{r suggest-k, warning = FALSE}
 sk <- suggest_k(bfi, seed = 1)
 print(sk)
 ```
@@ -112,7 +118,7 @@ next step is that you can now do so safely.
 This is the step the workflow is named for. We evaluate every level up to one
 past the ceiling, across ten random split-halves:
 
-```{r comparability}
+```{r comparability, warning = FALSE}
 cmp <- comparability(bfi, k_max = sk_hi + 1, n_splits = 10, seed = 2026)
 print(cmp)
 ```
@@ -188,6 +194,42 @@ both gives the honest picture: which levels are real, and which levels are
 new. See `vignette("ackwards-forbes")` for chain mechanics, thresholds, and
 the retention rule.
 
+### How sure are we about these edges? `boot_edges()`
+
+`prune()`'s redundancy rule and the Forbes practice of reading off the
+strongest skip-level correlation both consume a point estimate at a hard
+threshold, so the natural follow-up is how precisely each edge is estimated.
+`boot_edges()` attaches a nonparametric bootstrap standard error and percentile
+confidence interval to every edge. Each replicate resamples respondents,
+recomputes the correlations, refits the whole hierarchy, and — importantly —
+re-anchors each replicate's factors to the full-sample solution (the same
+matching and sign-orientation `comparability()` uses), so factor
+label-switching across replicates does not contaminate the intervals. It runs
+on the PCA and EFA engines with a Pearson or Spearman basis — a polychoric
+matrix is too slow and unstable to re-estimate in every replicate (the same
+scope as `comparability()`), so screen edge stability on the Pearson basis even
+when the final model is polychoric.
+
+```{r boot-edges}
+x_boot <- ackwards(bfi, k_max = 5, pairs = "all") |>
+  boot_edges(bfi, n_boot = 200, seed = 1)
+
+boot_tbl <- tidy(x_boot, what = "edges", sort = "strength")
+skip_boot <- boot_tbl[
+  abs(boot_tbl$level_to - boot_tbl$level_from) > 1 & abs(boot_tbl$r) >= 0.5,
+  c("from", "to", "r", "lo", "hi")
+]
+head(skip_boot, 6)
+```
+
+The `lo`/`hi` columns are the 95% percentile interval. A skip-level edge whose
+interval sits comfortably above `prune()`'s `redundancy_r` threshold (0.9 by
+default) is a defensible "same construct" claim; one whose interval straddles
+the threshold should not be treated as decisively redundant. The intervals are
+per-edge error bars, not a familywise guarantee: they do not correct for having
+*searched* the full edge table for the largest value, so a strongest-edge claim
+should still be pre-specified rather than selected after the fact.
+
 ## Step 5: Interpret with the built-in guardrails
 
 ```{r interpret}
@@ -242,11 +284,10 @@ the spread; the minima across splits are as informative as the medians.
 between-level correlations grows fast, and reporting the most dramatic one
 capitalizes on chance. Report full edge tables (or the complete diagram), and
 treat any "strongest link" claim as descriptive rather than inferential.
-`boot_edges()` attaches a bootstrap confidence interval to every edge, which
-makes each estimate's precision visible — useful for judging whether an edge
-clears `prune()`'s redundancy threshold — but note that per-edge intervals do
-not undo the selection bias of scanning many edges for the largest; see
-`vignette("ackwards-forbes")`.
+`boot_edges()` (Step 4 above) attaches a bootstrap confidence interval to every
+edge, which makes each estimate's precision visible — useful for judging whether
+an edge clears `prune()`'s redundancy threshold — but per-edge intervals do not
+undo the selection bias of scanning many edges for the largest.
 
 **Mistaking persistence for structure.** A chain of near-1.0 correlations down
 the hierarchy looks impressive but means the levels are restating one

@@ -122,6 +122,15 @@
 #'   so pruning does not require `pairs = "all"` here.
 #' @param cut_show Edges with `|r| >= cut_show` are flagged `above_cut` in
 #'   `tidy()` output. Default `0.3`.
+#' @param correct Continuity correction passed to [psych::polychoric()] on the
+#'   PCA/EFA polychoric path (`engine = "pca"`/`"efa"` with
+#'   `cor = "polychoric"`). Default `0.5` (psych's own default), which adds that
+#'   value to zero cells before estimating thresholds. **Set `correct = 0`** if
+#'   `psych::polychoric()` fails on your data (its error suggests exactly this) --
+#'   this typically happens when an item has a near-empty response category or
+#'   when items with unequal category counts produce a sparse cross-cell. Ignored
+#'   on other paths: ESEM computes its own polychoric correlations inside lavaan,
+#'   and the Pearson/Spearman bases do not use it.
 #' @param ... Reserved for future arguments.
 #'
 #' @return An object of class `"ackwards"`. See [print.ackwards()],
@@ -196,6 +205,37 @@
 #' * **`$cor` field:** stored as `NA_character_`; printed as
 #'   `"(user-supplied matrix)"`.
 #'
+#' @section When to trust the result:
+#' `ackwards()` raises diagnostics as it fits. They fall into three tiers by
+#' what they mean for whether you should trust and report the solution:
+#'
+#' **Fatal -- fix before trusting.** The result is undefined or rests on a
+#' broken correlation matrix:
+#' * A **constant item** (no variance) errors -- drop it (see [check_items()]).
+#' * **`psych::polychoric()` fails** -- usually a near-empty response category;
+#'   set `correct = 0` or collapse rare categories.
+#' * A **level fails to converge** -- the hierarchy is truncated to the deepest
+#'   level that did; do not interpret beyond it.
+#' * A **near-singular correlation matrix** (smallest eigenvalue `< 1e-4`,
+#'   recorded in `meta$near_singular` / `meta$min_eigenvalue` and re-surfaced by
+#'   `print()`/`summary()`) means per-level fit indices (especially CFI, which
+#'   comes back `NA`) and factor scores are unreliable and the loadings/edges
+#'   rest on a rank-deficient matrix. Collapse sparse categories, use
+#'   `missing = "listwise"`, or trim redundant items.
+#'
+#' **Caution -- interpret carefully.** The solution exists but may be unstable:
+#' * A **Heywood case** (communality `> 1` / negative uniqueness) at a level --
+#'   check that level's loadings make substantive sense; consider fewer factors.
+#' * A **near-constant item** (one response category dominates) can drive a
+#'   meaningless factor -- inspect it with [check_items()].
+#' * **Ordinal data on a Pearson basis** attenuates correlations -- fine for a
+#'   quick look or `suggest_k()` screening, but report the final model on
+#'   `cor = "polychoric"`.
+#'
+#' **Informational -- usually fine.** Proceed, just be aware: the
+#' pairwise-missing note, a merely *sparse* (rare-but-present) response
+#' category, and the ordinal-detection warning when you did intend Pearson.
+#'
 #' @examples
 #' # bfi25 items are ordinal, so fit on the polychoric basis (best practice).
 #' x <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric")
@@ -224,6 +264,7 @@ ackwards <- function(
   seed = NULL,
   pairs = "adjacent",
   cut_show = 0.3,
+  correct = 0.5,
   ...
 ) {
   cl <- match.call()
@@ -283,6 +324,19 @@ ackwards <- function(
       "{.arg cut_show} must be a single number in [0, 1] (it thresholds |r|)."
     )
   }
+
+  if (!is.numeric(correct) || length(correct) != 1L || is.na(correct) ||
+    correct < 0) {
+    cli::cli_abort(
+      "{.arg correct} must be a single non-negative number (the polychoric \\
+       continuity correction passed to {.fn psych::polychoric})."
+    )
+  }
+
+  # Smallest eigenvalue of the correlation matrix, recorded in $meta as a durable
+  # near-singularity signal. Set on the raw-data polychoric path (where it bites);
+  # stays NA elsewhere (cor-matrix input, ESEM, well-behaved Pearson/Spearman).
+  min_eigenvalue <- NA_real_
 
   # ============================================================
   # BRANCH A -- correlation-matrix input
@@ -513,6 +567,43 @@ ackwards <- function(
       cli::cli_abort("{.arg data} must contain only numeric columns.")
     }
 
+    # --- Item screen (shared with check_items()) -----------------------------
+    # A constant item breaks every basis (and psych::polychoric() silently
+    # deletes it, corrupting the loadings-to-item mapping downstream); a
+    # near-degenerate item can yield a plausible but meaningless factor. Catch
+    # both here -- naming the offenders -- before any correlation is computed.
+    scr <- .screen_items(as.data.frame(data_mat), cor)
+    constant_items <- scr$item[scr$flag == "constant"]
+    if (length(constant_items) > 0L) {
+      cli::cli_abort(c(
+        "!" = "{length(constant_items)} item{?s} ha{?s/ve} no variance \\
+               (a single response value): {.val {constant_items}}.",
+        "i" = "{cli::qty(constant_items)}Drop {?it/them} before fitting -- a \\
+               constant item cannot enter a factor analysis. Use \\
+               {.fn check_items} to screen the rest."
+      ))
+    }
+    # Warn only on near-constant items (a dominant response category): these are
+    # the ones that actually break polychoric or yield meaningless factors. A
+    # merely sparse category (a rare-but-present response) usually fits fine, so
+    # check_items() reports it but ackwards() does not warn -- avoids nagging on
+    # ordinary Likert data.
+    degenerate_items <- scr$item[scr$flag == "near-constant"]
+    if (length(degenerate_items) > 0L) {
+      cli::cli_warn(
+        c(
+          "!" = "{length(degenerate_items)} item{?s} look{?s/} near-constant \\
+                 (one response category dominates): {.val {degenerate_items}}.",
+          "i" = "{cli::qty(degenerate_items)}These can destabilise \\
+                 {.code cor = \"polychoric\"} or produce unreliable factors. \\
+                 Inspect with {.fn check_items}; consider collapsing rare \\
+                 categories, {.code correct = 0}, or dropping {?it/them}."
+        ),
+        .frequency = "once",
+        .frequency_id = "ackwards_degenerate_items"
+      )
+    }
+
     p <- ncol(data_mat)
 
     if (k_max > p) {
@@ -617,30 +708,79 @@ ackwards <- function(
       # PCA / EFA: compute R then dispatch
       if (cor == "polychoric") {
         poly_out <- tryCatch(
-          psych::polychoric(data_mat),
-          error = function(e) { # nocov start
+          psych::polychoric(data_mat, correct = correct),
+          error = function(e) {
             cli::cli_abort(
               c(
                 "!" = "{.fn psych::polychoric} failed: {conditionMessage(e)}",
-                "i" = "Check that your data contains integer-like columns with few \\
-                     distinct values, or use {.code cor = \"pearson\"}."
+                "i" = "This usually means an item has a near-empty (singleton) \\
+                       response category, or items have unequal category counts \\
+                       and a sparse cross-cell. Try {.code correct = 0} \\
+                       (psych's own suggestion; current value {.val {correct}}), \\
+                       collapse rare categories, or drop the offending item.",
+                "i" = "As a last resort, use {.code cor = \"pearson\"}."
               )
             )
-          } # nocov end
+          }
         )
         R <- poly_out$rho
-        # Guard against non-positive-definite polychoric matrices (DESIGN.md s.14 remaining)
+        # A degenerate item pair can leave NA/NaN in the matrix even when psych
+        # does not error; catch it before eigen() so the failure is legible
+        # rather than base R's "missing value where TRUE/FALSE needed".
+        if (anyNA(R)) { # nocov start
+          bad <- rownames(R)[apply(R, 1L, anyNA)]
+          cli::cli_abort(
+            c(
+              "!" = "The polychoric correlation matrix has undefined (NA/NaN) \\
+                     entries -- some item pairs could not be estimated.",
+              "i" = "Item{?s} involved: {.val {bad}}.",
+              "i" = "Try {.code correct = 0}, collapse rare categories, or drop \\
+                     the offending item{?s}."
+            )
+          )
+        } # nocov end
+        # Non-positive-definite polychoric matrices (DESIGN.md s.14 remaining):
+        # smooth them back to PD. cor.smooth prints its own notes -- ackwards
+        # owns the messaging.
         min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
         if (min_eig <= 0) { # nocov start
           cli::cli_warn(
-            c(
-              "!" = "Polychoric correlation matrix is not positive definite \\
-                     (min eigenvalue = {round(min_eig, 4)}).",
-              "i" = "Applying smoothing via {.fn psych::cor.smooth}."
-            )
+            "Polychoric correlation matrix is not positive definite \\
+             (min eigenvalue = {round(min_eig, 4)}); smoothing via \\
+             {.fn psych::cor.smooth}."
           )
-          R <- psych::cor.smooth(R)
+          R <- suppressMessages(suppressWarnings(psych::cor.smooth(R)))
+          min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
         } # nocov end
+
+        # Record the conditioning for a durable $meta signal (summary()/print()
+        # re-surface it long after the fit-time warning has scrolled off).
+        min_eigenvalue <- min_eig
+
+        # Near-singular check, whether or not smoothing ran: a tiny smallest
+        # eigenvalue means the matrix is rank-deficient for practical purposes
+        # (healthy correlation matrices sit well above this). psych then cannot
+        # define the ML objective -- per-level fit indices come back NA (CFI) or
+        # from a residual-based fallback, and the tenBerge inverse is
+        # ill-conditioned. Say so once, clearly, instead of letting psych repeat
+        # it at every level (its message-stream chatter is muffled in the engine).
+        if (min_eig < 1e-4) {
+          cli::cli_warn(
+            c(
+              "!" = "The polychoric correlation matrix is near-singular \\
+                     (min eigenvalue {signif(min_eig, 2)}).",
+              "i" = "Per-level fit indices (especially CFI) and factor scores \\
+                     may be unreliable -- the loadings and edges rest on a \\
+                     rank-deficient matrix.",
+              "i" = "Usual causes are sparse response categories or redundant \\
+                     items. Consider collapsing rare categories, \\
+                     {.code missing = \"listwise\"}, or trimming items; \\
+                     {.fn check_items} shows which items are involved."
+            ),
+            .frequency = "once",
+            .frequency_id = "ackwards_near_singular"
+          )
+        }
       } else if (missing == "fiml") {
         # M38: FIML correlation via psych::corFiml (cor is guaranteed "pearson"
         # here by .resolve_missing). The estimated R feeds the normal W'RW
@@ -778,7 +918,14 @@ ackwards <- function(
     # listwise reduction, consistent with the R actually fit); NULL for
     # correlation-matrix input, where raw-data moments do not exist.
     item_means        = if (!is.null(data_mat)) colMeans(data_mat, na.rm = TRUE) else NULL,
-    item_sds          = if (!is.null(data_mat)) apply(data_mat, 2, stats::sd, na.rm = TRUE) else NULL
+    item_sds          = if (!is.null(data_mat)) apply(data_mat, 2, stats::sd, na.rm = TRUE) else NULL,
+    # Conditioning of the correlation matrix (durable near-singularity signal):
+    # `min_eigenvalue` is the smallest eigenvalue of R (NA where not computed --
+    # cor-matrix input, ESEM); `near_singular` (< 1e-4) means the fit rests on a
+    # rank-deficient matrix, so summary()/print() flag that fit indices and
+    # scores may be unreliable long after the fit-time warning has scrolled away.
+    min_eigenvalue    = min_eigenvalue,
+    near_singular     = isTRUE(min_eigenvalue < 1e-4)
   )
 
   # --- Assemble result --------------------------------------------------------

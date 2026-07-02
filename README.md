@@ -7,7 +7,7 @@
 [![Codecov test
 coverage](https://codecov.io/gh/jmgirard/ackwards/branch/master/graph/badge.svg)](https://app.codecov.io/gh/jmgirard/ackwards?branch=master)
 [![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -25,12 +25,24 @@ specific dimensions. Bass-ackwards analysis traces how broad factors
 split into narrow ones — and which narrow factors are redundant
 re-combinations of broader ones.
 
-The package supports three extraction engines (PCA, EFA, ESEM),
-polychoric correlations for ordinal data, and Forbes’s (2023) extension
-that reveals skip-level connections and flags redundant or artifactual
-factors.
+The package supports three extraction engines (PCA, EFA, ESEM) and
+polychoric correlations for ordinal data. Beyond fitting, it is a full
+analysis toolkit: `suggest_k()` brackets the plausible depth,
+`comparability()` gates that depth on split-half replicability, Forbes’s
+(2023) `prune()` flags redundant or artifactual factors from the
+skip-level connections, `boot_edges()` puts bootstrap confidence
+intervals on every edge, and `predict()` scores new observations out of
+sample.
 
 ## Installation
+
+Install the released version from CRAN:
+
+``` r
+install.packages("ackwards")
+```
+
+Or the development version from GitHub:
 
 ``` r
 # install.packages("pak")
@@ -40,8 +52,10 @@ pak::pak("jmgirard/ackwards")
 ## Quick start
 
 We use `bfi25`, the built-in 25-item Big Five example dataset (see
-`?bfi25` for provenance). Because BFI items are recorded on a 6-point
-ordinal scale, we set `cor = "polychoric"`.
+`?bfi25` for provenance). Because its items are recorded on a 6-point
+ordinal scale, we set `cor = "polychoric"`, and we fit the dataset
+directly (rather than `na.omit()`-ing it first) so its built-in IPIP
+item labels flow through to `top_items()`.
 
 ### Step 1 — Suggest a range of k
 
@@ -52,35 +66,28 @@ to help you choose an upper bound for the hierarchy depth.
 ``` r
 library(ackwards)
 
-bfi <- na.omit(bfi25)
-sk <- suggest_k(bfi)
-#> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [178ms]
-#> 
-#> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [98ms]
-#> 
-#> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [4.6s]
-#> 
+sk <- suggest_k(bfi25)
+```
+
+``` r
 sk
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
 #> Variables: 25
-#> n: 875
+#> n: 1,000
 #> Basis: pearson
 #> Tested k: 1-8
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*
-#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -
-#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0246 VSS-1 0.5121 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0190 VSS-1 0.5761 VSS-2 0.6636 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6198* VSS-2 0.7781 CD ✔
+#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5730 VSS-2 0.7912* CD ✔
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530 CD ✔*
+#> k = 7: PA-PC - PA-FA - MAP 0.0201 VSS-1 0.5698 VSS-2 0.7290 CD -
+#> k = 8: PA-PC - PA-FA - MAP 0.0231 VSS-1 0.5615 VSS-2 0.7252 CD -
 #> 
 #> ── Recommendations ──
 #> 
@@ -108,7 +115,7 @@ computes the between-level factor-score correlations that define the
 hierarchy.
 
 ``` r
-x <- ackwards(bfi, k_max = 5, cor = "polychoric")
+x <- ackwards(bfi25, k_max = 5, cor = "polychoric", missing = "listwise")
 x
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
@@ -139,14 +146,12 @@ x
 ### Step 3 — Visualize
 
 `autoplot()` draws the hierarchical diagram. Each row is a level (k = 1
-at top, k = 5 at bottom); arrows show which narrow factors inherit from
-which broad factor. Arrow **thickness** encodes \|r\| and arrow
-**color** encodes direction (blue = positive, red = negative), each with
-its own legend — this clean solution happens to have no negative edges,
-so only blue appears here. Pass `direction = "horizontal"` for a
-left-to-right layout. The [visualization
+at top, k = 5 at bottom); arrows connect each narrow factor to the broad
+factor it inherits from, with thickness encoding \|r\| and colour
+encoding sign (both legended). The [visualization
 vignette](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html)
-covers the sign encoding and the rest of the styling options.
+covers the encodings, `direction = "horizontal"`, and the rest of the
+styling.
 
 ``` r
 autoplot(x)
@@ -159,57 +164,103 @@ factor at k = 1 (roughly *general positive character*) differentiates
 first into positive vs. negative affect (k = 2), then into successively
 narrower traits.
 
-### Step 4 — Inspect and score
+### Step 4 — Interpret and score
 
-`tidy()` extracts any part of the object into a tidy data frame;
-`augment()` appends factor scores to your data for downstream analysis.
+`top_items()` lists each factor’s salient items — printed with `bfi25`’s
+built-in IPIP labels — so you can read what a factor means; `augment()`
+turns the hierarchy into factor scores for downstream analysis.
 
 ``` r
-# Eight strongest adjacent-level primary edges
-edges <- tidy(x, what = "edges", sort = "strength")
-head(edges[edges$is_primary, c("from", "to", "r")], 8)
-#>   from   to         r
-#> 1 m4f2 m5f2 0.9984791
-#> 2 m3f1 m4f1 0.9938371
-#> 3 m4f4 m5f5 0.9894063
-#> 4 m2f2 m3f2 0.9873651
-#> 5 m4f3 m5f3 0.9824895
-#> 6 m3f2 m4f2 0.9761484
-#> 7 m1f1 m2f1 0.8900522
-#> 8 m2f1 m3f1 0.8740850
+# What does each of the five factors mean? (salient items, |loading| >= 0.5)
+top_items(x, level = 5, cut = 0.5)
+#> 
+#> ── Salient items by factor (ackwards) ──────────────────────────────────────────
+#> Engine: pca
+#> Cut: |loading| >= 0.5
+#> Top-n: all
+#> 
+#> ── Level 5 (5 factors) ──
+#> 
+#> m5f1
+#> E2: Find it difficult to approach others [-0.752]
+#> E4: Make friends easily [0.747]
+#> E1: Don't talk a lot [-0.701]
+#> E3: Know how to captivate people [0.677]
+#> E5: Take charge [0.597]
+#> 
+#> m5f2
+#> N3: Have frequent mood swings [-0.825]
+#> N1: Get angry easily [-0.810]
+#> N2: Get irritated easily [-0.805]
+#> N5: Panic easily [-0.688]
+#> N4: Often feel blue [-0.646]
+#> 
+#> m5f3
+#> C2: Continue until everything is perfect [0.735]
+#> C4: Do things in a half-way manner [-0.716]
+#> C1: Am exacting in my work [0.690]
+#> C3: Do things according to a plan [0.679]
+#> C5: Waste my time [-0.652]
+#> 
+#> m5f4
+#> A1: Am indifferent to the feelings of others [-0.704]
+#> A3: Know how to comfort others [0.703]
+#> A2: Inquire about others' well-being [0.692]
+#> A5: Make people feel at ease [0.580]
+#> A4: Love children [0.522]
+#> 
+#> m5f5
+#> O5: Will not probe deeply into a subject [-0.705]
+#> O3: Carry the conversation to a higher level [0.655]
+#> O1: Am full of ideas [0.604]
+#> O2: Avoid difficult reading material [-0.595]
+#> O4: Spend time reflecting on things [0.551]
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
+#> for the full matrix.
 ```
 
 ``` r
-# Append scores for all 5 levels to the original data frame
-scored <- augment(x, data = bfi)
-#> Warning: ! Factor scores are standardized using model-implied SDs from a "polychoric"
-#>   correlation matrix.
-#> ℹ The raw projection uses `.standardize(data)` (Pearson z-scores), but
-#>   `score_var` comes from the "polychoric" R.
-#> ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,
-#>   between-level edges from `tidy()` are the authoritative associations.
-#> This warning is displayed once per session.
-dim(scored) # original 25 items + 1+2+3+4+5 = 15 score columns
-#> [1] 875  40
-
-# The appended score columns are named .m{k}f{j}
-grep("^\\.m", names(scored), value = TRUE)
-#>  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"
-#> [10] ".m4f4" ".m5f1" ".m5f2" ".m5f3" ".m5f4" ".m5f5"
+# Append factor scores for all 15 factors (1+2+3+4+5) to your data
+# (incomplete rows score as NA -- see ?augment)
+scored <- augment(x, data = bfi25)
+ncol(scored) - ncol(bfi25) # 15 new .m{k}f{j} score columns
+#> [1] 15
 ```
+
+### Beyond the basics
+
+A serious analysis rarely stops at one fit. Three verbs turn the
+hierarchy from a picture into a defensible result, and one scores new
+data:
+
+- **`comparability(bfi25, k_max = 6)`** gates hierarchy *depth* on
+  split-half replicability — the deepest level at which every factor
+  re-emerges in random halves of the sample (Everett 1983; Goldberg
+  1990).
+- **`prune(x, "redundant")`** flags factors that persist across levels
+  without differentiating — Forbes’s (2023) redundancy question.
+- **`boot_edges(x, bfi25)`** attaches bootstrap confidence intervals to
+  every between-level edge.
+- **`predict(x, newdata)`** scores observations the model never saw, in
+  the training metric — the standard cross-validation pattern.
+
+The [recommended-workflow
+vignette](https://jmgirard.github.io/ackwards/articles/ackwards-girard.html)
+strings these into a six-step analysis.
 
 ## Learn more
 
 | Vignette | Topic |
 |----|----|
-| [Introduction](https://jmgirard.github.io/ackwards/articles/ackwards-intro.html) | Full PCA walkthrough: `suggest_k` → `ackwards` → inspect → plot → score |
+| [Introduction](https://jmgirard.github.io/ackwards/articles/ackwards-intro.html) | The basics end-to-end: `suggest_k` → `ackwards` → summarize → plot → interpret → score |
 | [Recommended workflow](https://jmgirard.github.io/ackwards/articles/ackwards-girard.html) | Replicability-gated hierarchies: gate depth on split-half `comparability()` |
 | [Choosing k](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.html) | Five criteria explained: pros/cons, bias direction, engine pairing |
+| [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = "all"` |
 | [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA; convergence and loading comparison |
 | [Ordinal data](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html) | Polychoric correlations, attenuation bias, and WLSMV estimation |
-| [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = "all"` |
-| [Visualization](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html) | Styling `autoplot()`: sign/magnitude encoding, layout orientation, labels, publication figures |
 | [Interpreting & labeling](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.html) | `top_items()`, hierarchy-aware naming, `label_template()` round-trip |
+| [Visualization](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html) | Styling `autoplot()`: sign/magnitude encoding, layout orientation, labels, publication figures |
 
 ## Citation
 

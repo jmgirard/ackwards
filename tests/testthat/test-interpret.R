@@ -192,10 +192,10 @@ test_that("top_items(show_labels = FALSE) drops the label column and text", {
   expect_null(out$item_labels)
 })
 
-test_that(".format_item_label formats 'label (id)' with bare-id fallback", {
+test_that(".format_item_label formats 'id: label' with bare-id fallback", {
   fmt <- ackwards:::.format_item_label
   labs <- c(x1 = "First indicator")
-  expect_identical(fmt("x1", labs), "First indicator (x1)")
+  expect_identical(fmt("x1", labs), "x1: First indicator")
   expect_identical(fmt("x2", labs), "x2") # no label -> bare id
   expect_identical(fmt("x1", NULL), "x1") # no labels at all -> bare id
 })
@@ -217,10 +217,10 @@ test_that("print.top_items(by = 'item') and label display run without error", {
   x <- cached(ackwards(d, k_max = 3, engine = "pca"))
 
   expect_no_error(print(top_items(x, level = 3, cut = 0.25, by = "item")))
-  expect_no_error(print(top_items(x, level = 3, cut = 0.25))) # label (id) path
+  expect_no_error(print(top_items(x, level = 3, cut = 0.25))) # id: label path
 })
 
-test_that("print.top_items renders 'label (code)' in header (by=item) and body (by=factor)", {
+test_that("print.top_items renders 'code: label' in header (by=item) and body (by=factor)", {
   skip_if_not_installed("psych")
   set.seed(1)
   d <- .make_esem_data()
@@ -229,11 +229,11 @@ test_that("print.top_items renders 'label (code)' in header (by=item) and body (
 
   # by = "item": the item is the group HEADER, so the label appears there.
   by_item <- cli::cli_fmt(print(top_items(x, level = 2, cut = 0, by = "item")))
-  expect_true(any(grepl("First indicator (x1)", by_item, fixed = TRUE)))
+  expect_true(any(grepl("x1: First indicator", by_item, fixed = TRUE)))
 
   # by = "factor": the item is a BODY entry under each factor.
   by_factor <- cli::cli_fmt(print(top_items(x, level = 2, cut = 0)))
-  expect_true(any(grepl("First indicator (x1)", by_factor, fixed = TRUE)))
+  expect_true(any(grepl("x1: First indicator", by_factor, fixed = TRUE)))
 
   # show_labels = FALSE prints the bare code, never the label text.
   bare <- cli::cli_fmt(print(top_items(x, level = 2, cut = 0, show_labels = FALSE)))

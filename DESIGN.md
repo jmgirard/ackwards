@@ -212,7 +212,10 @@ structure(list(
              item_labels = <named chr of column "label" attributes, or NULL> (M36),
              item_means/item_sds = <fit-time item moments from the
              post-missing-handling data; NULL for cor_matrix input> (M45 --
-             the frame of reference for out-of-sample scoring)>,
+             the frame of reference for out-of-sample scoring),
+             min_eigenvalue = <smallest eigenvalue of R; NA where not computed>,
+             near_singular = <TRUE when min_eigenvalue < 1e-4 -- a durable
+             rank-deficiency signal re-surfaced by print()/summary() (M49)>>,
   prune   = NULL         # Forbes extension: node flags + chain table + phi table;
                          # populated by prune(x, ...) -- a standalone verb piped off
                          # ackwards(), not an ackwards() argument (M34; see s.14)
@@ -344,7 +347,7 @@ announced via cli and documented in roxygen with its rationale.
   S3 object with a grouped cli print method. `by = "factor"` (default) groups items under each
   factor; `by = "item"` inverts to list, per item, the factors it loads on (cross-loading view);
   `n`/`sort` apply within the chosen unit. When the fit data carried per-column `"label"` attributes
-  (captured into `meta$item_labels`), `show_labels = TRUE` (default) prints items as `label (code)`
+  (captured into `meta$item_labels`), `show_labels = TRUE` (default) prints items as `code: label`
   with a per-item bare-code fallback. Loadings reflect primary-parent sign alignment (Inv. 4). The
   `$data` field is a subset of the `tidy(what = "loadings")` table (plus a `label` column when
   labels are available).
@@ -662,12 +665,12 @@ owner-signed-off):**
     exact Fisher-z match holds only for a *fixed-weights* percentile bootstrap (both halves are
     test-asserted). The intervals are **per-edge error bars, not a familywise correction** — they
     make each edge's precision visible but do not undo the selection bias of scanning many edges for
-    the strongest (stated in the object docs + Forbes vignette).
+    the strongest (stated in the object docs + girard vignette).
 
 **Resolved for M50 (release polish; owner-approved 2026-07-02):**
 37. **`bfi25` carries public-domain IPIP variable labels.** Each item column gets its IPIP marker
     stem (Goldberg, 1999; ipip.ori.org) as a plain `label` attribute, populating the M36 capture
-    path so `top_items()` prints `label (code)` with zero setup. Sourced directly as public-domain
+    path so `top_items()` prints `code: label` with zero setup. Sourced directly as public-domain
     IPIP items (text is necessarily identical to `psych::bfi.dictionary` — same public pool — but
     not framed as a copy). Plain attributes are dropped by base row-subsetting (`na.omit()`, `[`),
     unlike the class-based `labelled`/`haven` vectors M36 targets, so the documented pattern is to
@@ -687,6 +690,71 @@ owner-signed-off):**
     continuous `sim16` (no ordinal warning, faster checks), content demos keep `bfi25` on the
     polychoric basis. These are display/documentation choices, not behavioural defaults.
 
+**Resolved for M49 Phase A (roadmap cleanup; owner-approved 2026-07-02):**
+40. **Dual EFA chi-squares (review enhancement e2) — declined.** A proposed `chi_empirical` column
+    (psych's residual-based `$chi`) reported alongside the likelihood-ratio `chi` the EFA fit row
+    now carries (the M42/C1 fix). **Rejected as net-negative:** it re-opens the exact mispairing C1
+    fixed (a second chi-square inviting users to pair it with the wrong p-value); it is an
+    NA-heavy, EFA-only column in a fit schema shared with ESEM (which has no empirical chi-square),
+    adding asymmetry + doc burden; and it has **zero downstream consumer** in the package (anyone
+    who wants it can read it off a `keep_fits = TRUE` object). Same shape as the M40 `categorical`
+    decline: a confusion surface for no capability. Removed from `ROADMAP.md`.
+41. **Item-label ecosystem — one shipped, two declined, one deferred.** M50 shipped bfi25's
+    public-domain IPIP variable labels (item 37). Three adjacent asks were resolved here to avoid
+    double-logging: (a) a **`label_items()` setter** is **declined** — it would duplicate
+    `labelled::var_label()` (the established idiom `.capture_item_labels()` already reads) and, worse,
+    deepen the `label` overload between *item* labels and `label_template()`'s *factor* labels; the
+    `attr(col, "label") <- ...` / `labelled::var_label()` route is documented instead. (b) A **third
+    teaching dataset** is **declined** — `sim16` (idealized continuous) and `bfi25` (realistic
+    ordinal) are a deliberate two-foil pair; a third dilutes that contrast without adding a distinct
+    teaching case. (c) A persistent **factor-label pipeline** (a `set_factor_labels()`-style setter
+    honored by `autoplot`/`print`/`summary`/`tidy`, with `label_template()` as scaffold) is
+    **deferred to 0.2.0** (not declined): it is purely additive, so 0.1.0 loses nothing, and it
+    deserves its own naming/storage/precedence design. The **item-vs-factor "label" vocabulary
+    split** is load-bearing for all of the above — the two concepts must stay lexically distinct in
+    docs and any future API. (Banked in `ROADMAP.md`.)
+
+**Resolved for M49 (polychoric robustness fix; owner-approved 2026-07-02):**
+42. **`correct` argument exposes the polychoric continuity correction.** Real-world ordinal data
+    surfaced a hard failure: `psych::polychoric()` errors under its default continuity correction
+    (`correct = 0.5`) when an item has a near-empty (singleton) response category or items with
+    unequal category counts produce a sparse cross-cell, and — because psych runs the item pairs in
+    parallel — one failure collapses the whole call into an opaque `supply both 'x' and 'y'` message.
+    psych's own advice is `correct = 0`, but `ackwards()` gave no way to pass it. Resolution:
+    `ackwards()` gains `correct = 0.5` (matching psych's default and name for discoverability),
+    forwarded to `psych::polychoric()` on the **PCA/EFA polychoric path only** (ESEM computes its own
+    polychoric inside lavaan; Pearson/Spearman ignore it). Additive, non-breaking — the default
+    reproduces prior behaviour. The failure message was rewritten to name the `correct = 0` remedy
+    instead of passing psych's opaque error through, and the NPD guard was hardened to catch a
+    polychoric matrix with `NA`/`NaN` entries (naming the offending items) before `eigen()`, rather
+    than crashing with base R's "missing value where TRUE/FALSE needed". Not a reimplementation of
+    polychoric — a wrap-and-diagnose fix (§ "wrap established engines").
+43. **`check_items()` — pre-analysis item screen (new export).** The `correct` fix (item 42) is
+    reactive; it does not stop a *near-constant* item from silently producing a plausible-looking but
+    meaningless factor, nor does it name the offender, nor does it catch a truly constant item (which
+    `psych::polychoric()` silently deletes, crashing downstream with `subscript out of bounds`).
+    `check_items(data, cor)` reports, one row per item, the stats that predict these failures
+    (`n_valid`, `pct_missing`, `n_distinct`, `min_count`, `top_prop`) and a worst-case `flag`
+    (`constant` / `near-constant` / `sparse category` / `high missing` / `ok`). Thresholds are
+    deliberately conservative — `constant` = one distinct value; `near-constant` = a category holding
+    ≥ 95% of responses (the case that actually breaks polychoric); `sparse category` = smallest
+    observed category < 5, flagged **only** under `cor = "polychoric"` (rare-but-present Likert
+    categories usually fit fine, so this is report-only). `ackwards()` runs the **same** internal
+    screen (`.screen_items()`, shared — DRY): it **errors** on a constant item (naming it, before
+    psych can delete it) and **warns once** on a near-constant item, but deliberately does **not**
+    warn on a merely sparse category (avoids nagging ordinary ordinal data). Report-first, like
+    `suggest_k()`/`comparability()`; never modifies data. New export, no new dependency.
+44. **Trust guidance + durable near-singularity signal.** Fit-time warnings are transient (they
+    scroll off; a reloaded/shared object shows none), so a user can trust a rank-deficient fit
+    whose `CFI` is silently `NA`. Two additions: (a) a **"When to trust the result"** `@section` in
+    `?ackwards` tiering every diagnostic ackwards raises as *fatal* (constant item, polychoric
+    failure, non-convergence, near-singular matrix) / *caution* (Heywood, near-constant item,
+    ordinal-on-Pearson) / *informational* (pairwise-missing, sparse category, ordinal-detection when
+    Pearson was intended); (b) the near-singularity check now records `meta$min_eigenvalue` and
+    `meta$near_singular` (smallest eigenvalue `< 1e-4`) so `print()`/`summary()` re-surface a
+    **durable** "near-singular -- fit indices and scores may be unreliable" caution on the object
+    itself, not just once at fit time. Report-only; changes no estimate.
+
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.
 - Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (see above), nor the
@@ -704,7 +772,7 @@ owner-signed-off):**
   - ~~*Selection bias in the "strongest" edge.*~~ **Done M47 (item 36).** `boot_edges()` adds
     nonparametric bootstrap SEs + percentile CIs on every edge (PCA/EFA + pearson/spearman; upfront
     seeded indices → serial ≡ parallel; full-sample anchoring per replicate; `future.apply`
-    dispatch; `tidy`/`print`/`summary` integration; Forbes-vignette honesty section). The intervals
+    dispatch; `tidy`/`print`/`summary` integration; girard-vignette honesty section). The intervals
     quantify *per-edge* precision but by design do **not** correct the multiplicity of scanning many
     edges for the strongest — that caveat is documented, not silently "fixed".
 - **M40 spin-off (code/viz deferred out of the doc-only M39; shipped M40 except the declined flag):**

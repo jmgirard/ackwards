@@ -19,6 +19,7 @@ ackwards(
   seed = NULL,
   pairs = "adjacent",
   cut_show = 0.3,
+  correct = 0.5,
   ...
 )
 }
@@ -137,6 +138,16 @@ so pruning does not require \code{pairs = "all"} here.}
 \item{cut_show}{Edges with \verb{|r| >= cut_show} are flagged \code{above_cut} in
 \code{tidy()} output. Default \code{0.3}.}
 
+\item{correct}{Continuity correction passed to \code{\link[psych:polychoric]{psych::polychoric()}} on the
+PCA/EFA polychoric path (\code{engine = "pca"}/\code{"efa"} with
+\code{cor = "polychoric"}). Default \code{0.5} (psych's own default), which adds that
+value to zero cells before estimating thresholds. \strong{Set \code{correct = 0}} if
+\code{psych::polychoric()} fails on your data (its error suggests exactly this) --
+this typically happens when an item has a near-empty response category or
+when items with unequal category counts produce a sparse cross-cell. Ignored
+on other paths: ESEM computes its own polychoric correlations inside lavaan,
+and the Pearson/Spearman bases do not use it.}
+
 \item{...}{Reserved for future arguments.}
 }
 \value{
@@ -223,6 +234,43 @@ require row-level item responses.
 \item \strong{\verb{$cor} field:} stored as \code{NA_character_}; printed as
 \code{"(user-supplied matrix)"}.
 }
+}
+
+\section{When to trust the result}{
+
+\code{ackwards()} raises diagnostics as it fits. They fall into three tiers by
+what they mean for whether you should trust and report the solution:
+
+\strong{Fatal -- fix before trusting.} The result is undefined or rests on a
+broken correlation matrix:
+\itemize{
+\item A \strong{constant item} (no variance) errors -- drop it (see \code{\link[=check_items]{check_items()}}).
+\item \strong{\code{psych::polychoric()} fails} -- usually a near-empty response category;
+set \code{correct = 0} or collapse rare categories.
+\item A \strong{level fails to converge} -- the hierarchy is truncated to the deepest
+level that did; do not interpret beyond it.
+\item A \strong{near-singular correlation matrix} (smallest eigenvalue \verb{< 1e-4},
+recorded in \code{meta$near_singular} / \code{meta$min_eigenvalue} and re-surfaced by
+\code{print()}/\code{summary()}) means per-level fit indices (especially CFI, which
+comes back \code{NA}) and factor scores are unreliable and the loadings/edges
+rest on a rank-deficient matrix. Collapse sparse categories, use
+\code{missing = "listwise"}, or trim redundant items.
+}
+
+\strong{Caution -- interpret carefully.} The solution exists but may be unstable:
+\itemize{
+\item A \strong{Heywood case} (communality \verb{> 1} / negative uniqueness) at a level --
+check that level's loadings make substantive sense; consider fewer factors.
+\item A \strong{near-constant item} (one response category dominates) can drive a
+meaningless factor -- inspect it with \code{\link[=check_items]{check_items()}}.
+\item \strong{Ordinal data on a Pearson basis} attenuates correlations -- fine for a
+quick look or \code{suggest_k()} screening, but report the final model on
+\code{cor = "polychoric"}.
+}
+
+\strong{Informational -- usually fine.} Proceed, just be aware: the
+pairwise-missing note, a merely \emph{sparse} (rare-but-present) response
+category, and the ordinal-detection warning when you did intend Pearson.
 }
 
 \examples{

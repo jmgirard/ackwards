@@ -27,7 +27,7 @@
 #'   item go?"). `n` and `sort` apply within whichever unit `by` selects.
 #' @param show_labels Logical. When `TRUE` (default) and the data carried a
 #'   variable-label attribute at fit time (see [ackwards()]), items are shown as
-#'   `label (id)`; items without a label fall back to the bare id. Set to
+#'   `id: label`; items without a label fall back to the bare id. Set to
 #'   `FALSE` to always show the bare `m{k}f{j}`-style item ids.
 #'
 #' @return An object of class `"top_items"`. Print it for a grouped cli listing.
@@ -41,7 +41,7 @@
 #' @examples
 #' # Fit the raw dataset (not na.omit(), which would drop the column
 #' # attributes): bfi25's IPIP item labels are then captured and printed as
-#' # `label (code)`. `missing = "listwise"` handles the NAs cleanly.
+#' # `code: label`. `missing = "listwise"` handles the NAs cleanly.
 #' x <- ackwards(bfi25, k_max = 5, cor = "polychoric", missing = "listwise")
 #' top_items(x)
 #' top_items(x, level = 5, cut = 0.4, n = 5)
@@ -164,14 +164,16 @@ top_items <- function(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE,
   )
 }
 
-# Format an item id for display: "label (id)" when a label is available,
-# otherwise the bare id. `labs` is the (possibly NULL) named label vector.
+# Format an item id for display: "id: label" when a label is available,
+# otherwise the bare id. Leading with the id keeps the list aligned with the
+# codes used in the loadings/edge tables. `labs` is the (possibly NULL) named
+# label vector.
 .format_item_label <- function(id, labs) {
   if (is.null(labs)) {
     return(id)
   }
   lab <- unname(labs[id])
-  ifelse(is.na(lab), id, paste0(lab, " (", id, ")"))
+  ifelse(is.na(lab), id, paste0(id, ": ", lab))
 }
 
 #' Print a top_items object

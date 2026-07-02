@@ -39,7 +39,7 @@ item go?"). \code{n} and \code{sort} apply within whichever unit \code{by} selec
 
 \item{show_labels}{Logical. When \code{TRUE} (default) and the data carried a
 variable-label attribute at fit time (see \code{\link[=ackwards]{ackwards()}}), items are shown as
-\code{label (id)}; items without a label fall back to the bare id. Set to
+\code{id: label}; items without a label fall back to the bare id. Set to
 \code{FALSE} to always show the bare \verb{m\{k\}f\{j\}}-style item ids.}
 }
 \value{
@@ -63,7 +63,7 @@ orientation but not the other; this is expected and informative.
 \examples{
 # Fit the raw dataset (not na.omit(), which would drop the column
 # attributes): bfi25's IPIP item labels are then captured and printed as
-# `label (code)`. `missing = "listwise"` handles the NAs cleanly.
+# `code: label`. `missing = "listwise"` handles the NAs cleanly.
 x <- ackwards(bfi25, k_max = 5, cor = "polychoric", missing = "listwise")
 top_items(x)
 top_items(x, level = 5, cut = 0.4, n = 5)

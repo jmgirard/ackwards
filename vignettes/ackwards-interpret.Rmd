@@ -18,8 +18,9 @@ knitr::opts_chunk$set(
 
 ```{r packages, message = FALSE}
 library(ackwards)
-bfi <- na.omit(bfi25)
-x <- ackwards(bfi, k_max = 5, cor = "polychoric")
+# Fit the raw dataset (not na.omit()) so bfi25's built-in IPIP item labels are
+# captured and shown by top_items(); missing = "listwise" drops incomplete rows.
+x <- ackwards(bfi25, k_max = 5, cor = "polychoric", missing = "listwise")
 ```
 
 Fitting an `ackwards` model gives you a hierarchy of factors with stable but
@@ -80,24 +81,34 @@ overextraction discussion.
 
 ### Showing item wording instead of codes
 
-Item codes like `A1` or `N3` are compact but opaque. If your data carries
-variable labels — the `"label"` attribute that packages like **labelled** and
-**haven** attach to columns, and that survey exports often include — `ackwards()`
-captures them at fit time and `top_items()` displays them as `label (code)`:
+Item codes like `A1` or `N3` are compact but opaque. The wording you have been
+seeing above — `E4: Make friends easily` — comes for free: `bfi25` ships each
+item's IPIP stem as a **variable label** (a `"label"` column attribute),
+`ackwards()` captures those labels at fit time, and `top_items()` prints them as
+`code: label`.
 
-```{r labels}
-bfi_lab <- bfi
-attr(bfi_lab$A1, "label") <- "Am indifferent to the feelings of others"
-attr(bfi_lab$A2, "label") <- "Inquire about others' well-being"
-attr(bfi_lab$A3, "label") <- "Know how to comfort others"
+Your own data often carries the same attribute (packages like **labelled** and
+**haven** set it, and survey exports frequently include it). If it does *not*,
+attach the wording yourself — with `labelled::var_label()` or base `attr()` — on
+the data you actually fit (base row-subsetting such as `na.omit()` drops plain
+attributes, which is why we fit the raw `bfi25` above):
 
-x_lab <- ackwards(bfi_lab, k_max = 5, cor = "polychoric")
-top_items(x_lab, level = 5, cut = 0.5)
+```{r own-labels, eval = FALSE}
+# tidyverse idiom:
+labelled::var_label(my_data$item1) <- "Full wording of item 1"
+
+# or base R, no extra package:
+attr(my_data$item1, "label") <- "Full wording of item 1"
 ```
 
 Labelled items show their wording; unlabelled ones fall back to the bare code, so
 a partially labelled data set still prints cleanly. Pass `show_labels = FALSE` to
 force the bare codes even when labels are present.
+
+These *variable* labels (item wording) are distinct from the *factor* labels
+(the names you give `m1f1`, `m2f1`, … below): one describes your measured items,
+the other names the latent factors the hierarchy discovers. Keep the two ideas —
+and the word "label" — separate.
 
 ## The sign convention: negative does not mean "low"
 
@@ -139,7 +150,7 @@ children. Use it to name **top-down**:
 
 - **Upper-level factors are broader.** A level-2 factor that is the primary
   parent of two level-3 factors is the construct they share. Name it for the
-  blend, not for one child. In the `bfi` data above, the level-1 factor is a
+  blend, not for one child. In the `bfi25` data above, the level-1 factor is a
   single broad dimension; at level 2 it separates into a Neuroticism factor
   (`m2f2`, defined by the N items) and a broad factor blending the remaining four
   trait families (`m2f1`). The Big Five themselves do not appear cleanly until
@@ -177,7 +188,7 @@ psychopathology data:
 - **Big Five metatraits.** Above the five factors sit two higher-order
   dimensions — **Stability** (the shared variance of Agreeableness,
   Conscientiousness, and low Neuroticism) and **Plasticity** (Extraversion and
-  Openness) — from DeYoung's work on the metatraits. In a `bfi` hierarchy these
+  Openness) — from DeYoung's work on the metatraits. In a `bfi25` hierarchy these
   are frequently what a two- or three-factor level *is*, so "Stability" /
   "Plasticity" are ready-made names for factors that would otherwise be an
   awkward "broad well-adjustment".

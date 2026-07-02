@@ -15,11 +15,17 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
   for (k in seq_len(k_max)) {
     rotate_k <- if (k == 1L) "none" else "varimax"
 
-    # Run psych::fa(), intercepting convergence warnings so we can act on them
+    # Run psych::fa(), intercepting convergence warnings so we can act on them.
+    # suppressMessages() muffles psych's message-stream chatter (e.g. the
+    # per-level "determinant of the smoothed correlation was zero" / "smcs < 0"
+    # notes it prints on an ill-conditioned matrix) -- ackwards raises a single
+    # clear near-singular warning at matrix-construction time instead.
     warn_msgs <- character(0L)
     fit <- tryCatch(
       withCallingHandlers(
-        psych::fa(R, nfactors = k, rotate = rotate_k, fm = fm, n.obs = n_obs),
+        suppressMessages(
+          psych::fa(R, nfactors = k, rotate = rotate_k, fm = fm, n.obs = n_obs)
+        ),
         warning = function(w) {
           warn_msgs <<- c(warn_msgs, conditionMessage(w))
           invokeRestart("muffleWarning")
