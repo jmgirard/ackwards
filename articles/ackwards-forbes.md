@@ -122,7 +122,7 @@ x_boot <- ackwards(bfi, k_max = 5, engine = "efa", pairs = "all") |>
 #>   data.
 #> This warning is displayed once per session.
 #> ℹ Fitting 200 bootstrap replicates (efa, k = 1-5)...
-#> ✔ Fitting 200 bootstrap replicates (efa, k = 1-5)... [38.1s]
+#> ✔ Fitting 200 bootstrap replicates (efa, k = 1-5)... [20.6s]
 #> 
 
 boot_tbl <- tidy(x_boot, what = "edges", sort = "strength")

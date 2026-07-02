@@ -85,13 +85,13 @@ sk <- suggest_k(bfi, seed = 1)
 #>   "polychoric"` in the final `ackwards()` fit.
 #> This warning is displayed once per session.
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [289ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [188ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [142ms]
+#> ✔ Running MAP and VSS... [86ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10s]
+#> ✔ Running Comparison Data (CD)... [5.9s]
 #> 
 print(sk)
 #> 
@@ -151,7 +151,7 @@ cmp <- comparability(bfi, k_max = sk_hi + 1, n_splits = 10, seed = 2026)
 #>   data.
 #> This warning is displayed once per session.
 #> ℹ Fitting 10 split-half replicates (pca, k = 1-7)...
-#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [2.6s]
+#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [1.3s]
 #> 
 print(cmp)
 #> 

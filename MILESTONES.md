@@ -2372,4 +2372,22 @@ User-facing change notes live in `NEWS.md`.
       warning surfaces once in the intro/girard/suggest-k vignettes,
       which call it on ordinal `bfi25`; non-fatal for the build — the
       prose reconciliation belongs to M49 Phase B, which already scopes
-      the intro’s “No warning this time” fix.)
+      the intro’s “No warning this time” fix.) **Post-review follow-up**
+      (same day; review verdict READY with 1 should-fix + 3
+      nice-to-haves):
+      [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+      roxygen gained an “Ordinal (Likert) data” `@section` documenting
+      the warning and *why* the advice targets the final
+      [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+      fit (the should-fix — the behaviour was tested but undocumented in
+      the function’s own help); three edge-case guards added — bfi25
+      labels survive both the pairwise and listwise routes and base
+      row-subsetting drops the plain attributes (contract test for the
+      “fit direct” guidance), the
+      [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+      ordinal warning fires on the Spearman basis too, and a regression
+      guard that the pruned
+      [`print()`](https://rdrr.io/r/base/print.html)/[`summary()`](https://rdrr.io/r/base/summary.html)
+      footer stays a single consolidated rule (char-agnostic detection
+      to survive locale/`cli.unicode` differences). No behaviour change;
+      check still 0/0/0, coverage 100%.

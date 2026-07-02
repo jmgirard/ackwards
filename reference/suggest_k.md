@@ -196,6 +196,26 @@ commonly set k one or two levels above the consensus to watch
 higher-level factors fragment – this is a feature of the method, not
 overextraction.
 
+## Ordinal (Likert) data
+
+`suggest_k()` screens on the Pearson or Spearman basis by design and
+never computes polychoric correlations itself, so when the raw data look
+ordinal (at most 7 distinct integer values per column) it emits a
+one-per-session warning – the same `detect_ordinal()` signal
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+and
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+use (Invariant 6: announce consequential defaults loudly). Crucially,
+the advice points at the *final*
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+fit (`cor = "polychoric"`), **not** at `suggest_k()` itself: the
+screening basis is intentional. The plausible-k *range* is robust to the
+Pearson-vs-polychoric choice, so screening on Pearson and fitting the
+final model polychoric is the recommended workflow – computing
+polychoric correlations at the screening stage would only add cost and
+NPD risk without changing the range. The warning is skipped for
+correlation-matrix input (there are no items to inspect).
+
 ## A note on overextraction
 
 PA-PC in particular tends to recommend more factors than replicate
@@ -234,14 +254,14 @@ matrix of partial correlations. *Psychometrika*, 41, 321–327.
 # \donttest{
 sk <- suggest_k(bfi25)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [284ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [163ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [118ms]
+#> ✔ Running MAP and VSS... [79ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [13.3s]
+#> ✔ Running Comparison Data (CD)... [9.1s]
 #> 
 sk
 #> 
@@ -282,7 +302,7 @@ autoplot(sk)
 # Run only MAP (fast; skips parallel analysis and CD)
 suggest_k(bfi25, criteria = "map")
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [73ms]
+#> ✔ Running MAP and VSS... [35ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -315,7 +335,7 @@ suggest_k(bfi25, criteria = "map")
 # Run only the parallel-analysis criteria
 suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [98ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [67ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -349,14 +369,14 @@ suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 # Faster exploratory run
 suggest_k(bfi25, k_max = 6, n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [102ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [78ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [86ms]
+#> ✔ Running MAP and VSS... [55ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.1s]
+#> ✔ Running Comparison Data (CD)... [6.4s]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -395,10 +415,10 @@ suggest_k(R, n_obs = 875L)
 #> ℹ CD is skipped when a correlation matrix is supplied (CD requires raw item
 #>   distributions for resampling).
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [235ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [159ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [93ms]
+#> ✔ Running MAP and VSS... [64ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
