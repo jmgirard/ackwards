@@ -190,15 +190,25 @@ styler::style_pkg()       # format
 lintr::lint_package()     # lint
 ```
 
-**Efficiency (the suite takes minutes — don't re-run it needlessly).** `check()` already runs the
-full test suite *and* examples *and* rebuilds vignettes (~3 min: ~90s tests + ~74s vignettes + ~20s
-examples), and `covr::package_coverage()` runs the suite *again* — so `test()` → `check()` →
-`coverage()` at one gate executes the suite ~3×. Instead: iterate with **targeted**
-`devtools::test(filter = "<x>")` / `testthat::test_file()`; run failing tests **once** in a way that
-shows the details (capture `res <-` or use a non-silent reporter — never silent-then-rerun); skip the
-vignette rebuild during mid-work checks with `check(vignettes = FALSE)`; and at the final gate run
-`check()` **once** (it subsumes `test()`) then `coverage()` once. Never run two package-touching R
-processes concurrently.
+**Efficiency (don't re-run the suite needlessly).** The suite is parallel since M48
+(`Config/testthat/parallel`, slowest files first): ~27s with `TESTTHAT_CPUS=8`, ~81s serial —
+**always prefix suite runs with `TESTTHAT_CPUS=8`** (testthat defaults to 2 workers without it).
+`check()` still runs the full suite *and* examples *and* rebuilds vignettes (~74s of vignettes —
+`ackwards-forbes.Rmd` alone is ~24s), and `covr::package_coverage()` runs the suite *again* — so
+`test()` → `check()` → `coverage()` at one gate executes the suite ~3×. Instead: iterate with
+**targeted** `devtools::test(filter = "<x>")` / `testthat::test_file()`; run failing tests **once**
+in a way that shows the details (capture `res <-` or use a non-silent reporter — never
+silent-then-rerun); skip the vignette rebuild during mid-work checks with
+`check(vignettes = FALSE)`; and at the final gate run `Rscript tools/dod-gate.R` — it executes the
+whole DoD sequence (check → coverage → style → lint → pkgdown) serially in one process with
+sensible `TESTTHAT_CPUS`, and prints/exits on any failure. Never run two package-touching R
+processes concurrently. Two transcript-mined anti-patterns to avoid (M48): a bare
+`devtools::load_all()` in its own `Rscript` call does nothing persistent (each `Rscript` is a fresh
+process; `test()`/`check()` load the package themselves), and `cd <repo> && …` compound commands
+trigger avoidable permission prompts — use absolute paths. In tests, reuse the `cached()` fit memo
+(`tests/testthat/helper-data.R`) instead of refitting identical `ackwards()` objects — but never
+for reproducibility/serial-vs-parallel oracles (a cached second call asserts nothing) or fits
+wrapped in condition expectations.
 
 Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_testthat(3)`,
 `use_github_action("check-standard")`. Use testthat 3e, roxygen2 for all exported functions
@@ -218,6 +228,8 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
 - `devtools::check()` clean (run **once** at the gate — it subsumes `devtools::test()`; see the
   efficiency note under *Dev workflow*). Coverage checked once, not per sub-step.
 - Styled and linted.
+- The whole gate above is one command: `Rscript tools/dod-gate.R` (M48) — check → coverage →
+  style → lint → pkgdown, serial, one process, non-zero exit on any failure.
 - Public-facing change reflected in NEWS.md and (if user-visible) the relevant `@examples`/vignette.
 - For a milestone: a detailed entry added to `MILESTONES.md` **in numeric order** + a one-line
   index entry here under "Completed milestones". `MILESTONES.md` is the single source of truth for
