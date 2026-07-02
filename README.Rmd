@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 [![R-CMD-check](https://github.com/jmgirard/ackwards/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jmgirard/ackwards/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/jmgirard/ackwards/branch/master/graph/badge.svg)](https://app.codecov.io/gh/jmgirard/ackwards?branch=master)
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > Bass-ackwards hierarchical structural analysis in R
@@ -44,7 +44,15 @@ observations out of sample.
 
 ## Installation
 
+Install the released version from CRAN:
+
 ```{r install, eval = FALSE}
+install.packages("ackwards")
+```
+
+Or the development version from GitHub:
+
+```{r install-dev, eval = FALSE}
 # install.packages("pak")
 pak::pak("jmgirard/ackwards")
 ```

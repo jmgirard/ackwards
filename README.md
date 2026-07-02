@@ -7,7 +7,7 @@
 [![Codecov test
 coverage](https://codecov.io/gh/jmgirard/ackwards/branch/master/graph/badge.svg)](https://app.codecov.io/gh/jmgirard/ackwards?branch=master)
 [![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -35,6 +35,14 @@ intervals on every edge, and `predict()` scores new observations out of
 sample.
 
 ## Installation
+
+Install the released version from CRAN:
+
+``` r
+install.packages("ackwards")
+```
+
+Or the development version from GitHub:
 
 ``` r
 # install.packages("pak")

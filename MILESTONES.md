@@ -1432,6 +1432,55 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   disclosure above. The expanded permission allowlist remains an owner action (classifier
   correctly blocks agent self-application).
 
+- **M49 (done):** Initial CRAN release (0.1.0) — the first actual CRAN submission (M17/M20 built
+  the infrastructure; this milestone ships it), plus a substantial robustness arc that grew out of
+  the owner testing the release candidate on real-world data. Three planned phases, with **M50**
+  (release polish, code) interleaved off `master` before the release mechanics; after M50 merged,
+  this branch merged `master` back to pick it up.
+  - **Phase A — roadmap cleanup.** Declined the e2 dual-EFA-chi-squares idea (re-opens the M42/C1
+    chi/p mispairing; NA-heavy EFA-only column; zero downstream consumer) and removed it from
+    `ROADMAP.md`; banked the `comparability()`/`boot_edges()` ESEM/polychoric feasibility verdict
+    (ESEM-`comparability()` plausible, polychoric-`boot_edges()` least realistic + the
+    dropped-response-category wrinkle) and the factor-label pipeline as the headline 0.2.0
+    candidate. DESIGN §14 items 40 (e2 decline) + 41 (`label_items()`/third-dataset declines,
+    factor-label deferral).
+  - **Phase B — doc/pedagogy pass.** README tightened (toolkit verbs in the lead, labels showcased,
+    spinners/warnings suppressed, `top_items()` in Step 4, "Beyond the basics" block, canonical
+    table order); intro reframed as "the basic toolkit" (girard owns "the workflow"), suggest_k
+    ordinal warning reconciled, near-1.0-edge → prune caveat, interpret added to Next steps;
+    `top_items()` label format switched to **`code: label`** (owner-preferred, e.g.
+    `E4: Make friends easily`; propagated through fn + tests + all docs); pkgdown articles
+    regrouped (workflow / model choices / interpretation); girard Setup owns the deliberate Pearson
+    basis; engines vignette reframes ESEM (EFA is first-class; ESEM for loading-SEs/WLSMV/FIML);
+    interpret vignette uses the real bfi25 labels + `labelled::var_label()` route; variable-vs-factor
+    "label" vocabulary standardized.
+  - **Robustness arc (real-data testing).** Owner hit failures fitting a 142-item, n = 222 clinical
+    scale on the polychoric basis: **(1)** `psych::polychoric()` failing on sparse/singleton
+    categories → new **`correct`** argument (default 0.5) forwarding psych's continuity correction so
+    `correct = 0` works, plus an actionable failure message and an NA/NaN-matrix guard (DESIGN
+    §14.42); **(2)** no way to catch degenerate items → new exported **`check_items()`** (+ `print`,
+    `[` methods) screening items for constant / near-constant / sparse / high-missing, with
+    `ackwards()` running the same internal screen (errors on constant, warns on near-constant;
+    DESIGN §14.43); **(3)** a rank-deficient matrix flooding the console and silently producing
+    unreliable fit indices → muffled psych's per-level chatter (engine `suppressMessages`), a single
+    clear **near-singular** warning, a **durable** `meta$near_singular`/`meta$min_eigenvalue` signal
+    re-surfaced by `print()`/`summary()`, and a **"When to trust the result"** `@section` in
+    `?ackwards` tiering every diagnostic fatal/caution/informational (DESIGN §14.44).
+  - **Phase C — release mechanics.** `NEWS.md` consolidated into one dated `# ackwards 0.1.0`
+    first-release entry (it never shipped, so no `(development)` tier); `cran-comments.md` refreshed
+    (platform table, `\donttest{}` list, misspelled-words note); `README.Rmd` gains the CRAN
+    `install.packages("ackwards")` line and the **lifecycle badge → stable** (the pre-CRAN
+    breaking-change window closes with 0.1.0); DESCRIPTION (maintainer `me@jmgirard.com`)/CITATION/DOIs
+    verified.
+  - **New exports:** `check_items()` + `print.check_items` + `[.check_items`; new `ackwards()`
+    argument `correct`; new `meta` fields `min_eigenvalue`/`near_singular`. No new dependency.
+  - **Release choreography:** as a CRAN-submission milestone, merged to `master` only on the full
+    green CI matrix (not local-green alone); `v0.1.0` retagged onto the release commit (the prior tag
+    was 87 commits stale). Owner-only afterward: win-builder/R-hub remote checks and the interactive
+    `devtools::submit_cran()`.
+  - Suite **1936 pass / 0 fail / 0 skip**; coverage **100%**; `R CMD check --as-cran` **0/0/0**
+    (aside from the known win-builder misspelled-words note); `styler`/`lintr`/`pkgdown` clean.
+
 - **M50 (done):** release polish (code; owner-approved 2026-07-02) — a small code milestone
   branched off `master` and interleaved **before** M49's CRAN mechanics, so the 0.1.0 release
   captures it. Four work-items, no new export, no dependency change.

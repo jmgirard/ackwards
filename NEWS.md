@@ -1,4 +1,7 @@
-# ackwards (development)
+# ackwards 0.1.0
+
+First public CRAN release (2026-07-02), licensed under MIT. Everything below is
+new in this initial version.
 
 ## `bfi25` ships item labels; cleaner console output
 
@@ -631,10 +634,6 @@ skipped entirely (no computation), delivering a real speed win:
 uses `NA` for non-run columns (stable schema). The returned object gains a
 `criteria_requested` field. `print()` and `autoplot()` render only the requested
 criteria; the consensus range is computed from requested criteria only.
-
-# ackwards 0.1.0
-
-First public release. Licensed under MIT.
 
 ## Extraction engines
 
