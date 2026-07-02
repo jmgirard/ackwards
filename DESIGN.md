@@ -711,6 +711,22 @@ owner-signed-off):**
     split** is load-bearing for all of the above — the two concepts must stay lexically distinct in
     docs and any future API. (Banked in `ROADMAP.md`.)
 
+**Resolved for M49 (polychoric robustness fix; owner-approved 2026-07-02):**
+42. **`correct` argument exposes the polychoric continuity correction.** Real-world ordinal data
+    surfaced a hard failure: `psych::polychoric()` errors under its default continuity correction
+    (`correct = 0.5`) when an item has a near-empty (singleton) response category or items with
+    unequal category counts produce a sparse cross-cell, and — because psych runs the item pairs in
+    parallel — one failure collapses the whole call into an opaque `supply both 'x' and 'y'` message.
+    psych's own advice is `correct = 0`, but `ackwards()` gave no way to pass it. Resolution:
+    `ackwards()` gains `correct = 0.5` (matching psych's default and name for discoverability),
+    forwarded to `psych::polychoric()` on the **PCA/EFA polychoric path only** (ESEM computes its own
+    polychoric inside lavaan; Pearson/Spearman ignore it). Additive, non-breaking — the default
+    reproduces prior behaviour. The failure message was rewritten to name the `correct = 0` remedy
+    instead of passing psych's opaque error through, and the NPD guard was hardened to catch a
+    polychoric matrix with `NA`/`NaN` entries (naming the offending items) before `eigen()`, rather
+    than crashing with base R's "missing value where TRUE/FALSE needed". Not a reimplementation of
+    polychoric — a wrap-and-diagnose fix (§ "wrap established engines").
+
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.
 - Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (see above), nor the

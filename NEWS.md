@@ -20,6 +20,21 @@
   groups; and a pruned object's `print()`/`summary()` footer is a single
   consolidated note instead of stacked rules.
 
+## Polychoric continuity correction (`correct`)
+
+- `ackwards()` gains a `correct` argument (default `0.5`, psych's own default),
+  forwarded to `psych::polychoric()` on the PCA/EFA polychoric path. Set
+  `correct = 0` when `psych::polychoric()` fails on real-world ordinal data —
+  its own error suggests exactly this, and it typically happens when an item has
+  a near-empty (singleton) response category, or items with unequal category
+  counts produce a sparse cross-cell. Previously there was no way to pass it, so
+  such data could not be fit without pre-computing the matrix by hand.
+- The polychoric failure message now names this remedy (`correct = 0`, collapse
+  rare categories, or drop the item) instead of passing through psych's opaque
+  error, and a polychoric matrix that comes back with undefined (`NA`/`NaN`)
+  entries is caught with a clear, item-naming error rather than a base-R
+  "missing value where TRUE/FALSE needed" crash.
+
 ## Bootstrap confidence intervals on edges
 
 - New `boot_edges()` verb: nonparametric bootstrap standard errors and

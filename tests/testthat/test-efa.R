@@ -317,3 +317,49 @@ test_that("glance() for EFA has TLI/RMSEA/BIC at deepest level; CFI/SRMR NA", {
   # fit values come from the deepest converged level
   expect_equal(g$deepest_converged, 3L)
 })
+
+# --- Polychoric continuity correction (`correct`) ---------------------------
+# Real-world ordinal data with a singleton-category item makes
+# psych::polychoric() fail under its default continuity correction (0.5); psych
+# itself suggests correct = 0. Build such a dataset and check the escape hatch.
+.singleton_ordinal <- function(n = 300, seed = 1) {
+  set.seed(seed)
+  mk <- function(p) sample(seq_along(p), n, replace = TRUE, prob = p)
+  d <- as.data.frame(lapply(1:5, function(i) mk(rep(0.2, 5))))
+  names(d) <- paste0("i", 1:5)
+  d$i6 <- c(rep(2L, n - 2L), 3L, 4L) # 298, 1, 1 -> singleton categories
+  d
+}
+
+test_that("correct = 0 rescues polychoric EFA where the default (0.5) fails", {
+  skip_if_not_installed("psych")
+  d <- .singleton_ordinal()
+
+  # Default correct = 0.5: psych::polychoric() fails, and ackwards() surfaces an
+  # actionable error naming the correct = 0 remedy.
+  expect_error(
+    suppressWarnings(ackwards(d, k_max = 3, engine = "efa", cor = "polychoric")),
+    "correct = 0"
+  )
+
+  # correct = 0 succeeds and keeps the polychoric basis (not the cor-matrix NA).
+  x <- suppressWarnings(
+    ackwards(d, k_max = 3, engine = "efa", cor = "polychoric", correct = 0)
+  )
+  expect_s3_class(x, "ackwards")
+  expect_equal(x$cor, "polychoric")
+  expect_equal(x$k_max, 3L)
+})
+
+test_that("correct is validated as a single non-negative number", {
+  skip_if_not_installed("psych")
+  d <- .singleton_ordinal()
+  expect_error(
+    ackwards(d, k_max = 3, cor = "polychoric", correct = -1),
+    "non-negative"
+  )
+  expect_error(
+    ackwards(d, k_max = 3, cor = "polychoric", correct = c(0, 0.5)),
+    "single non-negative"
+  )
+})

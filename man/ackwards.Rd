@@ -19,6 +19,7 @@ ackwards(
   seed = NULL,
   pairs = "adjacent",
   cut_show = 0.3,
+  correct = 0.5,
   ...
 )
 }
@@ -136,6 +137,16 @@ so pruning does not require \code{pairs = "all"} here.}
 
 \item{cut_show}{Edges with \verb{|r| >= cut_show} are flagged \code{above_cut} in
 \code{tidy()} output. Default \code{0.3}.}
+
+\item{correct}{Continuity correction passed to \code{\link[psych:polychoric]{psych::polychoric()}} on the
+PCA/EFA polychoric path (\code{engine = "pca"}/\code{"efa"} with
+\code{cor = "polychoric"}). Default \code{0.5} (psych's own default), which adds that
+value to zero cells before estimating thresholds. \strong{Set \code{correct = 0}} if
+\code{psych::polychoric()} fails on your data (its error suggests exactly this) --
+this typically happens when an item has a near-empty response category or
+when items with unequal category counts produce a sparse cross-cell. Ignored
+on other paths: ESEM computes its own polychoric correlations inside lavaan,
+and the Pearson/Spearman bases do not use it.}
 
 \item{...}{Reserved for future arguments.}
 }

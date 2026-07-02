@@ -122,6 +122,15 @@
 #'   so pruning does not require `pairs = "all"` here.
 #' @param cut_show Edges with `|r| >= cut_show` are flagged `above_cut` in
 #'   `tidy()` output. Default `0.3`.
+#' @param correct Continuity correction passed to [psych::polychoric()] on the
+#'   PCA/EFA polychoric path (`engine = "pca"`/`"efa"` with
+#'   `cor = "polychoric"`). Default `0.5` (psych's own default), which adds that
+#'   value to zero cells before estimating thresholds. **Set `correct = 0`** if
+#'   `psych::polychoric()` fails on your data (its error suggests exactly this) --
+#'   this typically happens when an item has a near-empty response category or
+#'   when items with unequal category counts produce a sparse cross-cell. Ignored
+#'   on other paths: ESEM computes its own polychoric correlations inside lavaan,
+#'   and the Pearson/Spearman bases do not use it.
 #' @param ... Reserved for future arguments.
 #'
 #' @return An object of class `"ackwards"`. See [print.ackwards()],
@@ -224,6 +233,7 @@ ackwards <- function(
   seed = NULL,
   pairs = "adjacent",
   cut_show = 0.3,
+  correct = 0.5,
   ...
 ) {
   cl <- match.call()
@@ -281,6 +291,14 @@ ackwards <- function(
     cut_show < 0 || cut_show > 1) {
     cli::cli_abort(
       "{.arg cut_show} must be a single number in [0, 1] (it thresholds |r|)."
+    )
+  }
+
+  if (!is.numeric(correct) || length(correct) != 1L || is.na(correct) ||
+    correct < 0) {
+    cli::cli_abort(
+      "{.arg correct} must be a single non-negative number (the polychoric \\
+       continuity correction passed to {.fn psych::polychoric})."
     )
   }
 
@@ -617,18 +635,37 @@ ackwards <- function(
       # PCA / EFA: compute R then dispatch
       if (cor == "polychoric") {
         poly_out <- tryCatch(
-          psych::polychoric(data_mat),
-          error = function(e) { # nocov start
+          psych::polychoric(data_mat, correct = correct),
+          error = function(e) {
             cli::cli_abort(
               c(
                 "!" = "{.fn psych::polychoric} failed: {conditionMessage(e)}",
-                "i" = "Check that your data contains integer-like columns with few \\
-                     distinct values, or use {.code cor = \"pearson\"}."
+                "i" = "This usually means an item has a near-empty (singleton) \\
+                       response category, or items have unequal category counts \\
+                       and a sparse cross-cell. Try {.code correct = 0} \\
+                       (psych's own suggestion; current value {.val {correct}}), \\
+                       collapse rare categories, or drop the offending item.",
+                "i" = "As a last resort, use {.code cor = \"pearson\"}."
               )
             )
-          } # nocov end
+          }
         )
         R <- poly_out$rho
+        # A degenerate item pair can leave NA/NaN in the matrix even when psych
+        # does not error; catch it before eigen() so the failure is legible
+        # rather than base R's "missing value where TRUE/FALSE needed".
+        if (anyNA(R)) { # nocov start
+          bad <- rownames(R)[apply(R, 1L, anyNA)]
+          cli::cli_abort(
+            c(
+              "!" = "The polychoric correlation matrix has undefined (NA/NaN) \\
+                     entries -- some item pairs could not be estimated.",
+              "i" = "Item{?s} involved: {.val {bad}}.",
+              "i" = "Try {.code correct = 0}, collapse rare categories, or drop \\
+                     the offending item{?s}."
+            )
+          )
+        } # nocov end
         # Guard against non-positive-definite polychoric matrices (DESIGN.md s.14 remaining)
         min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
         if (min_eig <= 0) { # nocov start
