@@ -183,13 +183,13 @@ throughout.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[302ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[319ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[176ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[188ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.1s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.8s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -247,7 +247,7 @@ up to one past the ceiling, across ten random split-halves:</p>
 <span><span class="co">#&gt;   data.</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fitting 10 split-half replicates (PCA, k = 1-7)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fitting 10 split-half replicates (PCA, k = 1-7)... <span style="color: #B2B2B2;">[2.7s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fitting 10 split-half replicates (PCA, k = 1-7)... <span style="color: #B2B2B2;">[2.8s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">cmp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -485,7 +485,13 @@ splits are as informative as the medians.</p>
 <code>pairs = "all"</code>, the number of between-level correlations
 grows fast, and reporting the most dramatic one capitalizes on chance.
 Report full edge tables (or the complete diagram), and treat any
-“strongest link” claim as descriptive rather than inferential.</p>
+“strongest link” claim as descriptive rather than inferential.
+<code><a href="../reference/boot_edges.html">boot_edges()</a></code> attaches a bootstrap confidence interval to
+every edge, which makes each estimate’s precision visible — useful for
+judging whether an edge clears <code><a href="../reference/prune.html">prune()</a></code>’s redundancy
+threshold — but note that per-edge intervals do not undo the selection
+bias of scanning many edges for the largest; see
+<code><a href="../articles/ackwards-forbes.html">vignette("ackwards-forbes")</a></code>.</p>
 <p><strong>Mistaking persistence for structure.</strong> A chain of
 near-1.0 correlations down the hierarchy looks impressive but means the
 levels are restating one construct. That is a <code><a href="../reference/prune.html">prune()</a></code>

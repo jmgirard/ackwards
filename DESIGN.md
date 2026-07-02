@@ -876,6 +876,58 @@ The recommended workflow — suggest_k ceiling → comparability floor → fit
 [`vignette("ackwards-girard")`](https://jmgirard.github.io/ackwards/articles/ackwards-girard.md)
 and named the *replicability-gated (or Girard) workflow*.
 
+36. **Bootstrap edge CIs as a standalone verb.**
+    `boot_edges(x, data, n_boot = 1000, conf = 0.95, seed)` attaches
+    nonparametric bootstrap SEs + **percentile** CIs to every edge — the
+    inferential-honesty companion to the point-estimate
+    [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+    rules and the Forbes strongest- edge practice (resurrects the §14 e4
+    deferral). A **standalone verb** (not an
+    [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+    argument), consistent with the M34 direction of extracting
+    expensive/optional work into pipeable verbs
+    ([`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md),
+    [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md));
+    the raw `data` is re-supplied because the light core does not store
+    it (Invariant 3). Mechanics per replicate: resample rows with
+    replacement → recompute `R` with the fit’s `cor`/`missing` routine →
+    refit levels 1..k_max (engine internals, muffled) → **anchor** each
+    replicate level to the full-sample solution (the item-35
+    greedy-max-\|r\| matching + sign orientation, evaluated on the
+    full-sample `R`) → edges via
+    [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+    on the replicate `R` (Invariant 1). Anchoring is load-bearing:
+    without it, factor label-switching and sign-flipping across
+    replicates corrupt the pooled distributions. **All resample indices
+    are drawn upfront from `seed`**, so each replicate is deterministic
+    given its indices and the serial and `future.apply`-parallel paths
+    (M26 pattern) agree bit-for-bit — the design choice that makes
+    “serial ≡ parallel” test-assertable. Failed replicates drop to `NA`
+    and are counted per edge (`n_boot_ok`), never aborting (Invariant
+    7). Output attaches to `x$boot`; `tidy(what = "edges")` gains
+    `se`/`lo`/`hi`/`n_boot_ok`, and `print`/`summary` note coverage.
+    Scope: **PCA/EFA + pearson/spearman only**, mirroring item 35 (ESEM
+    = `n_boot` lavaan hierarchies; polychoric = per-resample polychoric
+    estimation, slow + NPD-prone; both logged in `ROADMAP.md`).
+    Cor-matrix input, ESEM, and polychoric objects error with pointers.
+    **DESIGN §14’s original “reuse the `loadings_se` infrastructure”
+    phrasing is amended**: `loadings_se` is lavaan’s analytic
+    delta-method SE, which has no analogue for edges of varimax-rotated
+    hierarchies — bootstrap *is* the SE method; what is reused is the
+    storage/tidy display pattern. **Percentile (not Fisher-z or
+    normal-approx) CIs**: percentile respects the \[-1, 1\] bound and
+    the skew of `r` near the 0.9 prune threshold. *Oracle note:* the
+    full-pipeline bootstrap SE legitimately **exceeds** the Fisher-z
+    analytic SE of the materialized-score correlation, because each
+    replicate re-extracts the factors (loading uncertainty) while
+    Fisher-z treats scores as fixed observed variables; the exact
+    Fisher-z match holds only for a *fixed-weights* percentile bootstrap
+    (both halves are test-asserted). The intervals are **per-edge error
+    bars, not a familywise correction** — they make each edge’s
+    precision visible but do not undo the selection bias of scanning
+    many edges for the strongest (stated in the object docs + Forbes
+    vignette).
+
 **Known limitations / deferred to future milestones:** - `factor_cor` in
 the ESEM engine is not permuted by the variance-sort `ord` vector. Safe
 permanently: only orthogonal rotation is supported (`factor_cor = I`;
@@ -918,18 +970,20 @@ report the flagged count. - ~~*Factor-score-indeterminacy caveat for
 EFA/ESEM redundancy.*~~ **Done M25 (Wave 3).** `redundancy_phi = NULL`
 now auto-resolves: PCA → no φ filter; EFA/ESEM → `0.95`. `NA` is the
 explicit opt-out. Announces via cli when auto-applied (Invariant 6). See
-§9 defaults table. - *Selection bias in the “strongest” edge.* Plotting
-the max correlation across many all-levels pairs capitalizes on chance
-(85 → 1,320 correlations as levels grow). Add bootstrap CIs / SEs on
-edges (reuse the `loadings_se` infrastructure) so the strongest-edge
-claim is inferentially honest. **Deferred; warrants its own milestone**
-(perf-heavy: each resample re-runs full extraction at every level; needs
-[future](https://future.futureverse.org) parallelisation +
-print/plot/vignette integration). - **M40 spin-off (code/viz deferred
-out of the doc-only M39; shipped M40 except the declined flag):** -
-~~*Ordinal `categorical` convenience flag.*~~ **Declined M40 (owner
-sign-off, 2026-07-01).** A proposed `categorical = TRUE/FALSE` argument
-on
+§9 defaults table. - ~~*Selection bias in the “strongest” edge.*~~
+**Done M47 (item 36).**
+[`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
+adds nonparametric bootstrap SEs + percentile CIs on every edge
+(PCA/EFA + pearson/spearman; upfront seeded indices → serial ≡ parallel;
+full-sample anchoring per replicate; `future.apply` dispatch;
+`tidy`/`print`/`summary` integration; Forbes-vignette honesty section).
+The intervals quantify *per-edge* precision but by design do **not**
+correct the multiplicity of scanning many edges for the strongest — that
+caveat is documented, not silently “fixed”. - **M40 spin-off (code/viz
+deferred out of the doc-only M39; shipped M40 except the declined
+flag):** - ~~*Ordinal `categorical` convenience flag.*~~ **Declined M40
+(owner sign-off, 2026-07-01).** A proposed `categorical = TRUE/FALSE`
+argument on
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 flipping `cor` (pearson→polychoric) and the ESEM estimator
 (ML/MLR→WLSMV) together. **Rejected as redundant:** `cor = "polychoric"`

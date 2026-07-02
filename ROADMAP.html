@@ -75,7 +75,7 @@
 </ul><hr></div>
 <div class="section level2">
 <h2 id="findings">Findings<a class="anchor" aria-label="anchor" href="#findings"></a></h2>
-<p><strong>All findings are resolved.</strong> Critical: C1 fixed in M42. Major: M2–M5 fixed in M43; M6 (the untested Forbes-fidelity contract) fixed in M44 via a fixture test reproducing the paper’s three simulation studies against Forbes’s own reference implementation. Minor: m1, m2, m6, m7, m8, m10 in M42; m3, m4, m5, m9, m11 in M43. Enhancements: e3 in M42; e1 in M43; e2 and e4 remain as unscheduled ideas (above).</p>
+<p><strong>All findings are resolved.</strong> Critical: C1 fixed in M42. Major: M2–M5 fixed in M43; M6 (the untested Forbes-fidelity contract) fixed in M44 via a fixture test reproducing the paper’s three simulation studies against Forbes’s own reference implementation. Minor: m1, m2, m6, m7, m8, m10 in M42; m3, m4, m5, m9, m11 in M43. Enhancements: e3 in M42; e1 in M43; e4 (bootstrap edge CIs) shipped as M47; e2 remains as an unscheduled idea (above).</p>
 <hr></div>
 <div class="section level2">
 <h2 id="defaults--decision-audit-phase-4-verdicts">Defaults &amp; decision audit (Phase 4 verdicts)<a class="anchor" aria-label="anchor" href="#defaults--decision-audit-phase-4-verdicts"></a></h2>
@@ -93,9 +93,10 @@
 <li>
 <strong>e2</strong> — dual chi-squares for EFA (<code>chi</code> = likelihood — the M42/C1 fix, <code>chi_empirical</code> = psych’s residual-based; psych prints both for a reason). Owner set aside at M42.</li>
 <li>
-<strong>e4</strong> — bootstrap CIs on (skip-level) edges; the standing DESIGN §14 deferral, re-affirmed by the M41 review as the highest-value statistical addition. Perf-heavy; own milestone.</li>
-<li>
-<strong><code><a href="reference/comparability.html">comparability()</a></code> engine/basis extensions</strong> (deferred from M46, DESIGN §14.35): (a) ESEM support — <code>2 * n_splits</code> lavaan hierarchies per run need their own performance treatment (reuse the M26 cached-sample-stats + <code>future.apply</code> machinery per half); (b) polychoric basis — polychoric estimation in every half-sample is slow and NPD-prone, so M46 mirrored <code><a href="reference/suggest_k.html">suggest_k()</a></code>’s Pearson/Spearman-only scope. Both only if demand materialises; the EFA-on-Pearson screen covers the common case.</li>
+<strong><code><a href="reference/comparability.html">comparability()</a></code> and <code><a href="reference/boot_edges.html">boot_edges()</a></code> engine/basis extensions</strong> (deferred from M46/M47, DESIGN §14.35/§14.36): (a) <strong>ESEM support</strong> — for both verbs, the per-half / per-replicate lavaan hierarchies (<code>2 * n_splits</code> for comparability; <code>n_boot</code> for boot_edges) need their own performance treatment (reuse the M26 cached-sample-stats + <code>future.apply</code> machinery per fit);
+<ol start="2" style="list-style-type: lower-alpha"><li>
+<strong>polychoric basis</strong> — polychoric estimation in every half/resample is slow and NPD-prone, so both verbs mirror <code><a href="reference/suggest_k.html">suggest_k()</a></code>’s Pearson/Spearman-only scope. Both only if demand materialises; the EFA-on-Pearson screen covers the common case for each. <code><a href="reference/boot_edges.html">boot_edges()</a></code> adds no new consideration beyond these two (its Pearson/Spearman + PCA/EFA scope is identical to <code><a href="reference/comparability.html">comparability()</a></code>’s).</li>
+</ol></li>
 </ul></div>
 <div class="section level2">
 <h2 id="provenance">Provenance<a class="anchor" aria-label="anchor" href="#provenance"></a></h2>

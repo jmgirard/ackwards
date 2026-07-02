@@ -72,7 +72,8 @@ fixed in M43; M6 (the untested Forbes-fidelity contract) fixed in M44
 via a fixture test reproducing the paper’s three simulation studies
 against Forbes’s own reference implementation. Minor: m1, m2, m6, m7,
 m8, m10 in M42; m3, m4, m5, m9, m11 in M43. Enhancements: e3 in M42; e1
-in M43; e2 and e4 remain as unscheduled ideas (above).
+in M43; e4 (bootstrap edge CIs) shipped as M47; e2 remains as an
+unscheduled idea (above).
 
 ------------------------------------------------------------------------
 
@@ -148,18 +149,23 @@ every audited decision.
 - **e2** — dual chi-squares for EFA (`chi` = likelihood — the M42/C1
   fix, `chi_empirical` = psych’s residual-based; psych prints both for a
   reason). Owner set aside at M42.
-- **e4** — bootstrap CIs on (skip-level) edges; the standing DESIGN §14
-  deferral, re-affirmed by the M41 review as the highest-value
-  statistical addition. Perf-heavy; own milestone.
 - **[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
-  engine/basis extensions** (deferred from M46, DESIGN §14.35): (a) ESEM
-  support — `2 * n_splits` lavaan hierarchies per run need their own
-  performance treatment (reuse the M26 cached-sample-stats +
-  `future.apply` machinery per half); (b) polychoric basis — polychoric
-  estimation in every half-sample is slow and NPD-prone, so M46 mirrored
-  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)’s
-  Pearson/Spearman-only scope. Both only if demand materialises; the
-  EFA-on-Pearson screen covers the common case.
+  and
+  [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
+  engine/basis extensions** (deferred from M46/M47, DESIGN
+  §14.35/§14.36): (a) **ESEM support** — for both verbs, the per-half /
+  per-replicate lavaan hierarchies (`2 * n_splits` for comparability;
+  `n_boot` for boot_edges) need their own performance treatment (reuse
+  the M26 cached-sample-stats + `future.apply` machinery per fit);
+  2.  **polychoric basis** — polychoric estimation in every
+      half/resample is slow and NPD-prone, so both verbs mirror
+      [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)’s
+      Pearson/Spearman-only scope. Both only if demand materialises; the
+      EFA-on-Pearson screen covers the common case for each.
+      [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
+      adds no new consideration beyond these two (its Pearson/Spearman +
+      PCA/EFA scope is identical to
+      [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)’s).
 
 ## Provenance
 

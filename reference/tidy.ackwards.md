@@ -31,7 +31,11 @@ tidy(
 
   - `"edges"` *(default)* – one row per directed between-level edge:
     `from`, `to`, `level_from`, `level_to`, `r`, `is_primary`,
-    `above_cut`.
+    `above_cut`. If
+    [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
+    has been run on the object, four bootstrap columns are appended:
+    `se`, `lo`, `hi` (bootstrap standard error and percentile
+    confidence-interval endpoints), and `n_boot_ok` (usable replicates).
 
   - `"loadings"` – one row per item x factor x level: `level`, `factor`,
     `item`, `loading`, `se`, `ci_lower`, `ci_upper`. `se`, `ci_lower`,

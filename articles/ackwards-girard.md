@@ -80,13 +80,13 @@ bfi <- na.omit(bfi25)
 
 sk <- suggest_k(bfi, seed = 1)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [302ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [319ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [176ms]
+#> ✔ Running MAP and VSS... [188ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.1s]
+#> ✔ Running Comparison Data (CD)... [10.8s]
 #> 
 print(sk)
 #> 
@@ -146,7 +146,7 @@ cmp <- comparability(bfi, k_max = sk_hi + 1, n_splits = 10, seed = 2026)
 #>   data.
 #> This warning is displayed once per session.
 #> ℹ Fitting 10 split-half replicates (PCA, k = 1-7)...
-#> ✔ Fitting 10 split-half replicates (PCA, k = 1-7)... [2.7s]
+#> ✔ Fitting 10 split-half replicates (PCA, k = 1-7)... [2.8s]
 #> 
 print(cmp)
 #> 
@@ -407,6 +407,13 @@ of between-level correlations grows fast, and reporting the most
 dramatic one capitalizes on chance. Report full edge tables (or the
 complete diagram), and treat any “strongest link” claim as descriptive
 rather than inferential.
+[`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
+attaches a bootstrap confidence interval to every edge, which makes each
+estimate’s precision visible — useful for judging whether an edge clears
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)’s
+redundancy threshold — but note that per-edge intervals do not undo the
+selection bias of scanning many edges for the largest; see
+[`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md).
 
 **Mistaking persistence for structure.** A chain of near-1.0
 correlations down the hierarchy looks impressive but means the levels

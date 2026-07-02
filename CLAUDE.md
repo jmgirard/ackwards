@@ -259,39 +259,60 @@ as part of the definition of done.
   deferred to `ROADMAP.md`. In passing: `cli::symbol$phi` glyph fix in
   [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md).
   New export, no new dependency.
+- **M47** — bootstrap edge CIs: new exported
+  **`boot_edges(x, data, n_boot = 1000, conf = 0.95, seed)`** —
+  nonparametric bootstrap SEs + percentile CIs on every between-level
+  edge (resurrects the §14 e4 deferral), a standalone pipeable verb
+  re-supplying `data` (Invariant 3). Per replicate: resample rows →
+  recompute R (fit’s cor/missing routine) → refit → **anchor** each
+  level to the full-sample solution (M46 matching + sign orientation) →
+  edges via
+  [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+  (Invariant 1). Upfront seeded indices → **serial ≡ parallel**
+  (`future.apply`, M26); failed replicates dropped + counted
+  (`n_boot_ok`, Invariant 7). `tidy(what = "edges")` gains
+  `se`/`lo`/`hi`/`n_boot_ok`; `print`/`summary` note coverage; `meta$fm`
+  stored for EFA refits. PCA/EFA + pearson/spearman only
+  (ESEM/polychoric deferred to `ROADMAP.md`; cor-matrix/esem/polychoric
+  objects error). DESIGN §14 item 36 (amends the “reuse `loadings_se`”
+  phrasing; percentile-CI + Fisher-z-oracle rationale). New export, no
+  new dependency.
 
 ## Current focus
 
-**M46 is complete** (2026-07-01) — the Girard extension:
-replicability-gated hierarchies. Every acceptance criterion met:
-exported
-[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
-(Everett 1983 / Goldberg 1990 split-half factor comparability,
-full-sample-anchored labels, cross-solution correlations through
+**M47 is complete** (2026-07-02) — bootstrap edge CIs. Exported
+`boot_edges(x, data, n_boot = 1000, conf = 0.95, seed)`: nonparametric
+bootstrap SEs + percentile CIs on every between-level edge, resurrecting
+the DESIGN §14 e4 deferral (the M41 review’s highest-value deferred
+statistical addition). A standalone pipeable verb re-supplying `data`
+(Invariant 3); per replicate it resamples rows, recomputes `R` with the
+fit’s `cor`/`missing` routine, refits, **anchors** each level to the
+full-sample solution (the M46 matching + sign-orientation machinery),
+and computes edges via
 [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
-on the pooled R — Invariant 1; Tucker’s φ alongside; report-first,
-nothing auto-flagged) with print/autoplot methods; self-comparability ≡
-1, matching invariance, seed reproducibility, and the Invariant-2
-cross-solution oracle all test-asserted; discriminating tests pass
-strikingly (sim16’s true 1→2→4 levels ≈ .99 vs. the overextracted m5f5
-at .14; bfi25’s floor lands exactly on the Big Five); capstone vignette
-`ackwards-girard` + cross-links from intro/suggest-k/forbes + README;
-DESIGN §14 item 35; ESEM/polychoric extensions logged in `ROADMAP.md`.
-Post-review follow-up (same day) addressed all five findings:
-NA-degradation guard in cross-solution matching, package-wide
-unknown-`...` rejection (`ackwards`/`suggest_k`/ `comparability`),
-`k_requested` in the object + truncation note in
-[`print()`](https://rdrr.io/r/base/print.html), the `.fit_half()` error
-branch exercised (no `# nocov`), and tests for `n_splits = 1` / spearman
-/ truncated-anchor / autoplot-with-NA. Post-follow-up gate: `check()`
-0/0/0 (vignettes rebuilt), 1791 pass / 0 fail / 0 skip, coverage 100%,
-style/lint clean, `check_pkgdown()` clean. Detail in `MILESTONES.md`
-(M46).
+(Invariant 1). Resample indices drawn upfront from `seed`, so serial and
+`future.apply`-parallel dispatch agree bit-for-bit (test-asserted);
+failed replicates drop to `NA` and are counted per edge (`n_boot_ok`,
+Invariant 7). `tidy(what = "edges")` gains `se`/`lo`/`hi`/`n_boot_ok`;
+`print`/`summary` note coverage; `meta$fm` now stored for EFA replicate
+refits. Scope: PCA/EFA + pearson/spearman only (ESEM/polychoric deferred
+to `ROADMAP.md`, mirroring
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md));
+cor-matrix/esem/ polychoric objects error with pointers. Two design
+amendments in DESIGN §14.36: the “reuse `loadings_se`” phrasing
+corrected (bootstrap *is* the SE method; only the storage/tidy pattern
+is reused), and the statistical oracle stated honestly — the
+full-pipeline bootstrap SE exceeds the Fisher-z analytic SE (replicates
+re-extract factors), so exact Fisher-z equivalence is asserted only for
+a *fixed-weights* bootstrap. Forbes vignette gains a strongest-edge
+honesty subsection (per-edge CIs make precision visible but do not
+correct scan-for-the-largest multiplicity). Detail in `MILESTONES.md`
+(M47).
 
 **Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas
 (AMH fidelity extension pending the owner’s Forbes outreach; e2 dual EFA
-chi-squares; e4 bootstrap edge CIs;
-[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+chi-squares;
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)/[`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
 ESEM/polychoric extensions). `MILESTONES.md` remains the source of truth
 for *completed* milestones.
 
@@ -498,7 +519,9 @@ default, runnable `@examples`, `@seealso` cross-links).
   oblique confounds the cross-level signal. No plans to add it.
 - **Higher-order SEM / Schmid-Leiman** — out of scope per §2; `ackwards`
   is correlation-based, not SEM-based.
-- **Bootstrap CIs on skip-level edges** — deferred from M5; still out of
-  scope. Logged in `DESIGN.md` §14. (Structural artefact signals and
-  φ-default for non-PCA redundancy were reactivated and completed in
-  M25.)
+- ~~**Bootstrap CIs on skip-level edges**~~ — **shipped M47** as the
+  [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
+  verb (all edges, adjacent and skip-level; PCA/EFA + pearson/spearman).
+  Deferred from M5, reactivated from DESIGN §14 e4. (Structural artefact
+  signals and φ-default for non-PCA redundancy were reactivated and
+  completed in M25.)

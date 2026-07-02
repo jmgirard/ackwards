@@ -259,6 +259,8 @@ for choosing k and gating hierarchy depth on replicability.
   : Bass-ackwards hierarchical structural analysis
 - [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) :
   Flag redundant or artifactual factors (Forbes 2023 extension)
+- [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
+  : Bootstrap confidence intervals for between-level edges
 - [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
   : Suggest a maximum number of factors for bass-ackwards analysis
 - [`print(`*`<suggest_k>`*`)`](https://jmgirard.github.io/ackwards/reference/print.suggest_k.md)
