@@ -2069,4 +2069,34 @@ User-facing change notes live in `NEWS.md`.
   0 fail / 0 skip** (+66 over M45); coverage **100%**; `styler` (0 files
   changed) / `lintr` (0 lints) clean;
   [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
-  clean (new exports + article indexed).
+  clean (new exports + article indexed). **Post-review follow-up** (same
+  day; addressed all five /post-milestone-review findings — 1
+  should-fix + 4 nice-to-haves): cross-solution matrices carrying NA
+  cells (pathological pairwise missingness reaching the pooled R) now
+  degrade to NA coefficients for the level instead of an opaque
+  subscript error (guard in `.level_comparability()`, Invariant-7
+  framing); new `.check_unknown_dots()` (utils.R) makes
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md),
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md),
+  and
+  [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
+  error loudly on anything unknown passed through reserved `...` — named
+  typos (`kmax = 6`, `nsplits = 20`) and unnamed extras both — closing
+  the masked-argument footgun package-wide for plain functions (S3
+  methods keep permissive dots per generic contracts;
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)’s
+  specific
+  moved-to-[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+  pointer retained; NEWS “Stricter argument checking”); `.fit_half()`’s
+  error handler exercised with a real zero-variance-column half (both
+  engines return an empty levels list; `# nocov` removed);
+  `comparability` objects gain **`k_requested`** alongside the effective
+  `k_max` and [`print()`](https://rdrr.io/r/base/print.html) appends
+  “(requested 1-K; full-sample fit truncated)” when the anchor truncated
+  (mocked-anchor smoke test); new tests for `n_splits = 1` (median ≡
+  min), the `cor = "spearman"` fit path, and
+  [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+  on an all-NA-level shortfall object (NA rows dropped from plot data).
+  Post-follow-up gate: `R CMD check` 0/0/0 (full); **1791 pass / 0 fail
+  / 0 skip** (+22); coverage 100% (no remaining `# nocov` in
+  comparability.R); style/lint/ `check_pkgdown()` clean.

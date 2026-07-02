@@ -104,9 +104,11 @@ on it for a diagnostic plot. The list contains:
 
 - k_max:
 
-  Deepest level evaluated (after any full-sample truncation).
+  Deepest level evaluated. Can be lower than the `k_max` you asked for
+  when the full-sample fit truncated (non-convergence at deep levels);
+  the original request is kept in `k_requested`.
 
-- n_splits, n_half, engine, cor, fm, n_obs, n_vars, seed:
+- k_requested, n_splits, n_half, engine, cor, fm, n_obs, n_vars, seed:
 
   Metadata.
 
@@ -179,7 +181,7 @@ cmp <- comparability(bfi25, k_max = 5, n_splits = 5, seed = 1)
 #> Warning: ! 125 rows have missing values; correlations are computed pairwise.
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
 #> ℹ Fitting 5 split-half replicates (PCA, k = 1-5)...
-#> ✔ Fitting 5 split-half replicates (PCA, k = 1-5)... [441ms]
+#> ✔ Fitting 5 split-half replicates (PCA, k = 1-5)... [697ms]
 #> 
 cmp
 #> 

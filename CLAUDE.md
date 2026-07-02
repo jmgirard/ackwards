@@ -277,9 +277,16 @@ strikingly (sim16’s true 1→2→4 levels ≈ .99 vs. the overextracted m5f5
 at .14; bfi25’s floor lands exactly on the Big Five); capstone vignette
 `ackwards-girard` + cross-links from intro/suggest-k/forbes + README;
 DESIGN §14 item 35; ESEM/polychoric extensions logged in `ROADMAP.md`.
-Gate: `check()` 0/0/0 (vignettes rebuilt), 1769 pass / 0 fail / 0 skip
-(+66), coverage 100%, style/lint clean, `check_pkgdown()` clean. Detail
-in `MILESTONES.md` (M46).
+Post-review follow-up (same day) addressed all five findings:
+NA-degradation guard in cross-solution matching, package-wide
+unknown-`...` rejection (`ackwards`/`suggest_k`/ `comparability`),
+`k_requested` in the object + truncation note in
+[`print()`](https://rdrr.io/r/base/print.html), the `.fit_half()` error
+branch exercised (no `# nocov`), and tests for `n_splits = 1` / spearman
+/ truncated-anchor / autoplot-with-NA. Post-follow-up gate: `check()`
+0/0/0 (vignettes rebuilt), 1791 pass / 0 fail / 0 skip, coverage 100%,
+style/lint clean, `check_pkgdown()` clean. Detail in `MILESTONES.md`
+(M46).
 
 **Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas
 (AMH fidelity extension pending the owner’s Forbes outreach; e2 dual EFA
