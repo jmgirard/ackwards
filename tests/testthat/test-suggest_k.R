@@ -223,6 +223,16 @@ test_that("suggest_k() warns on ordinal raw data, pointing at ackwards() (M50)",
   )
   expect_match(w, "polychoric")
   expect_match(w, "ackwards")
+
+  # The warning fires on the Spearman basis too, naming the active basis (the
+  # wording interpolates {cor}), since Spearman is likewise a screening basis.
+  rlang::reset_warning_verbosity("suggest_k_ordinal_warning")
+  w_sp <- tryCatch(
+    suggest_k(.sk_small, cor = "spearman", criteria = "map"),
+    warning = conditionMessage
+  )
+  expect_match(w_sp, "ordinal")
+  expect_match(w_sp, "spearman")
 })
 
 test_that("suggest_k() does not raise the ordinal warning on continuous or matrix input (M50)", {

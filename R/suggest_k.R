@@ -73,6 +73,21 @@
 #'   regardless of `seed`.
 #' @param ... Reserved for future arguments.
 #'
+#' @section Ordinal (Likert) data:
+#' `suggest_k()` screens on the Pearson or Spearman basis by design and never
+#' computes polychoric correlations itself, so when the raw data look ordinal
+#' (at most 7 distinct integer values per column) it emits a one-per-session
+#' warning -- the same `detect_ordinal()` signal `ackwards()` and
+#' `comparability()` use (Invariant 6: announce consequential defaults loudly).
+#' Crucially, the advice points at the *final* [ackwards()] fit
+#' (`cor = "polychoric"`), **not** at `suggest_k()` itself: the screening basis
+#' is intentional. The plausible-k *range* is robust to the Pearson-vs-polychoric
+#' choice, so screening on Pearson and fitting the final model polychoric is the
+#' recommended workflow -- computing polychoric correlations at the screening
+#' stage would only add cost and NPD risk without changing the range. The
+#' warning is skipped for correlation-matrix input (there are no items to
+#' inspect).
+#'
 #' @return An object of class `"suggest_k"`. Print it for a formatted summary;
 #'   call [autoplot()] on it for a diagnostic scree/criteria plot. The list
 #'   contains:
