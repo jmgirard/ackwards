@@ -43,6 +43,31 @@
   applies in the normal diagram; under `drop_pruned = TRUE` a fully-pruned
   level's nodes are removed entirely.
 
+## Documentation corrections
+
+- The engines vignette's missing-data section now documents the built-in
+  `missing = "fiml"` route for PCA/EFA (it previously described FIML as
+  ESEM-only and pointed to a manual `psych::corFiml()` workaround), and its
+  engine-choice table no longer recommends the invalid `fm = "pca"` setting.
+- The "Choosing k" vignette now describes the Comparison Data method's
+  mechanism correctly — comparison datasets reproduce the observed correlation
+  structure under a k-factor model as well as the items' marginal
+  distributions — and its worked BFI recommendation derives every number from
+  the fitted object, so the prose always matches the printed table even though
+  parallel-analysis results vary across builds.
+- The Forbes vignette's artifact section was rewritten around its actual
+  report-and-judge semantics: `prune(x, "artifact")` never flags factors
+  automatically, so the section now demonstrates reading the Tucker's-phi
+  table (`x$prune$phi`) instead of presenting a by-construction zero count as
+  an empirical finding. The redundancy-chain example now states the full
+  retention rule (a chain reaching the deepest level keeps only its bottom
+  node), and a stale reference to the retired `cut_strong` argument was
+  removed.
+- The rationale for the `redundancy_phi` default was corrected in the
+  documentation: PCA needs no congruence guard because component scores are
+  *determinate*, not because the between-level algebra is exact (the algebra
+  is equally exact for tenBerge-scored EFA).
+
 ## Ordinal vignette
 
 - The "Ordinal Data" vignette now compares Pearson and polychoric item
