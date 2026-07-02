@@ -441,7 +441,10 @@ process; `test()`/`check()` load the package themselves), and
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 objects — but never for reproducibility/serial-vs-parallel oracles (a
 cached second call asserts nothing) or fits wrapped in condition
-expectations.
+expectations; and treat cached objects as read-only — rebinding a
+returned value is copy-on-modify safe, but environment-bearing
+components (e.g. lavaan fits under `keep_fits = TRUE`) are shared by
+reference across cache hits.
 
 Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`,
 `use_testthat(3)`, `use_github_action("check-standard")`. Use testthat
