@@ -297,6 +297,13 @@ autoplot.ackwards <- function(
     )
   }
 
+  if (!is.null(cut_show) &&
+    (!is.numeric(cut_show) || length(cut_show) != 1L || is.na(cut_show) ||
+      cut_show < 0 || cut_show > 1)) {
+    cli::cli_abort(
+      "{.arg cut_show} must be a single number in [0, 1] or {.val NULL}."
+    )
+  }
   cut_show <- cut_show %||% object$meta$cut_show %||% 0.3
   show_skip <- show_skip %||% isTRUE(object$meta$pairs == "all")
 
@@ -764,6 +771,18 @@ autoplot.ackwards <- function(
   ref_df <- unique(ref_df)
   ref_df$panel <- factor(ref_df$panel, levels = levels(fd$panel))
 
+  # Caption names only the thresholds actually plotted (M42/m10): EFA panels
+  # show TLI/RMSEA only, so listing CFI/SRMR cutoffs there would be misleading.
+  cut_desc <- vapply(keep_idx, function(idx) {
+    cut <- cuts[[idx]]
+    op <- if (cut$direction == "hi") ">=" else "<="
+    paste0(idx, " ", op, " ", sub("^0", "", format(cut$threshold)))
+  }, character(1L))
+  caption_txt <- paste0(
+    "Dashed lines: Hu & Bentler (1999) thresholds (",
+    paste(cut_desc, collapse = ", "), ")"
+  )
+
   ggplot2::ggplot(fd, ggplot2::aes(x = .data$level, y = .data$value, color = .data$statistic)) +
     ggplot2::geom_hline(
       data = ref_df,
@@ -780,7 +799,7 @@ autoplot.ackwards <- function(
     ggplot2::scale_color_brewer(palette = "Set1", name = "Index") +
     ggplot2::labs(
       y = "Value",
-      caption = "Dashed lines: Hu & Bentler (1999) thresholds (CFI/TLI >= .95, RMSEA <= .06, SRMR <= .08)"
+      caption = caption_txt
     ) +
     ggplot2::theme_bw(base_size = 11) +
     ggplot2::theme(

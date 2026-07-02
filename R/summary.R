@@ -223,8 +223,9 @@ print.summary_ackwards <- function(x, ...) {
 # Build the lineage data frame: one row per parent with all primary children.
 # Uses only adjacent-level primary edges (level_to == level_from + 1) so
 # skip-level edges from pairs="all" don't appear in the tree listing.
-# which() is used instead of direct logical indexing for NA-safety: fill_primary()
-# leaves is_primary = NA on skip-level edges, and NA & FALSE = NA (row included).
+# fill_primary() converts every remaining NA is_primary to FALSE before the
+# object is assembled, so is_primary is never NA here; which() is kept as
+# cheap defence against edge tables built outside that path.
 # Explicit sort by level then label ensures stable top-down ordering.
 .summary_lineage <- function(x) {
   e <- x$edges$tidy

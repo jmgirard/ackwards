@@ -58,9 +58,11 @@ make_labels <- function(k) {
   paste0("m", k, "f", seq_len(k))
 }
 
-# Detect whether a data frame likely contains ordinal (Likert-scale) columns.
+# Detect which columns of a data frame look ordinal (Likert-scale).
 # Heuristic: a column is flagged if it is integer-like and has <= max_levels
-# distinct values. Returns TRUE if any column is flagged.
+# distinct values. Returns the flagged column names (character(0) when none),
+# so callers can warn actionably by naming the columns (M42/e3); test with
+# length(.) > 0 for the old any-column boolean.
 detect_ordinal <- function(data, max_levels = 7L) {
   is_int_like <- function(x) {
     is.integer(x) || (is.numeric(x) && all(x == floor(x), na.rm = TRUE))
@@ -71,7 +73,7 @@ detect_ordinal <- function(data, max_levels = 7L) {
       is_int_like(x) &&
       length(unique(vals)) <= max_levels
   }, logical(1))
-  any(cols)
+  names(cols)[cols]
 }
 
 # Primary-parent assignment: for each factor in level b, find the factor in level a

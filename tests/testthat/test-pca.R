@@ -69,6 +69,12 @@ test_that("ackwards() errors informatively on bad inputs", {
   expect_error(ackwards(d, k_max = 100), "cannot exceed")
   expect_error(ackwards(d, k_max = 1.5), "integer >= 2")
   expect_error(ackwards(list(), k_max = 2), "data frame")
+  # cut_show thresholds |r|, so it must be a single number in [0, 1] (M42/m8)
+  expect_error(ackwards(d, k_max = 2, cut_show = 5), "\\[0, 1\\]")
+  expect_error(ackwards(d, k_max = 2, cut_show = -0.1), "\\[0, 1\\]")
+  expect_error(ackwards(d, k_max = 2, cut_show = c(0.3, 0.5)), "\\[0, 1\\]")
+  expect_error(ackwards(d, k_max = 2, cut_show = NA), "\\[0, 1\\]")
+  expect_error(ackwards(d, k_max = 2, cut_show = "0.3"), "\\[0, 1\\]")
 })
 
 test_that("keep_scores = TRUE stores a named list of score matrices", {
@@ -97,13 +103,24 @@ test_that("meta$cut_show stores the cut_show value", {
 
 test_that("detect_ordinal() flags bfi columns", {
   skip_if_not_installed("psych")
-  expect_true(ackwards:::detect_ordinal(psych::bfi[, 1:25]))
+  expect_length(ackwards:::detect_ordinal(psych::bfi[, 1:25]), 25L)
 })
 
-test_that("detect_ordinal() returns FALSE for continuous data", {
+test_that("ordinal-detection warning names the flagged columns (M42/e3)", {
+  skip_if_not_installed("psych")
+  d <- data.frame(
+    L1 = sample(1:5, 100, replace = TRUE),
+    L2 = sample(1:5, 100, replace = TRUE),
+    c1 = rnorm(100), c2 = rnorm(100), c3 = rnorm(100)
+  )
+  rlang::reset_warning_verbosity("ackwards_ordinal_warning")
+  expect_warning(ackwards(d, k_max = 2), "L1")
+})
+
+test_that("detect_ordinal() flags nothing for continuous data", {
   set.seed(1)
   d <- data.frame(matrix(rnorm(500), 100, 5))
-  expect_false(ackwards:::detect_ordinal(d))
+  expect_identical(ackwards:::detect_ordinal(d), character(0))
 })
 
 test_that("meta$ordinal_warned is TRUE for bfi data", {

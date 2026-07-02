@@ -113,10 +113,15 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
     )
 
     # Fit indices -- available only when n.obs was supplied; NA otherwise.
-    # fit$chi/dof/PVAL/TLI/BIC are plain scalars; fit$RMSEA is a named vector.
+    # fit$STATISTIC/dof/PVAL/TLI/BIC are plain scalars; fit$RMSEA is a named
+    # vector. `chi` is psych's $STATISTIC -- the likelihood-ratio chi-square,
+    # the statistic that $PVAL, $RMSEA, and $TLI are all derived from -- so the
+    # whole fit row shares one statistical framing (M42/C1). psych's $chi (the
+    # residual-based *empirical* chi-square) is a different statistic; pairing
+    # it with $PVAL misreports, so it is deliberately not used here.
     fit_info <- setNames(
       c(
-        if (!is.null(fit$chi)) unname(fit$chi)[[1L]] else NA_real_,
+        if (!is.null(fit$STATISTIC)) unname(fit$STATISTIC)[[1L]] else NA_real_,
         if (!is.null(fit$dof)) unname(fit$dof)[[1L]] else NA_real_,
         if (!is.null(fit$PVAL)) unname(fit$PVAL)[[1L]] else NA_real_,
         if (!is.null(fit$RMSEA)) unname(fit$RMSEA["RMSEA"])[[1L]] else NA_real_,

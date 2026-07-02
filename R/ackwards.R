@@ -272,6 +272,13 @@ ackwards <- function(
   }
   k_max <- as.integer(k_max)
 
+  if (!is.numeric(cut_show) || length(cut_show) != 1L || is.na(cut_show) ||
+    cut_show < 0 || cut_show > 1) {
+    cli::cli_abort(
+      "{.arg cut_show} must be a single number in [0, 1] (it thresholds |r|)."
+    )
+  }
+
   # ============================================================
   # BRANCH A -- correlation-matrix input
   # ============================================================
@@ -550,12 +557,17 @@ ackwards <- function(
     # --- Ordinal-detection warning (DESIGN.md s.9, Invariant 6) ---------------
     # Compute once; reused in meta$ordinal_warned below.
     # Only warn when the user has NOT already opted into the polychoric basis.
-    is_ordinal <- detect_ordinal(as.data.frame(data_mat))
+    ordinal_cols <- detect_ordinal(as.data.frame(data_mat))
+    is_ordinal <- length(ordinal_cols) > 0L
     if (is_ordinal && cor != "polychoric") {
+      # Name the flagged columns so the advice is actionable for mixed data
+      # (M42/e3); truncate long lists to keep the warning readable.
+      cols_show <- cli::cli_vec(ordinal_cols, style = list("vec-trunc" = 8))
       cli::cli_warn(
         c(
-          "!" = "One or more columns look like ordinal/Likert items \\
-                 ({cli::symbol$ellipsis} {.val <= 7} distinct integer values).",
+          "!" = "{length(ordinal_cols)} column{?s} look{?s/} like \\
+                 ordinal/Likert items (<= 7 distinct integer values): \\
+                 {.val {cols_show}}.",
           "i" = "Results use a {.val {cor}} basis. Consider \\
                  {.code cor = \"polychoric\"} for ordinal data."
         ),
@@ -586,7 +598,7 @@ ackwards <- function(
       # estimator_eff already computed above for .resolve_missing() validation.
       esem_out <- esem_levels(data_mat,
         k_max = k_max, estimator = estimator_eff, cor = cor,
-        n_obs = n_obs_eff, R_external = R_ext, keep_fits = keep_fits,
+        R_external = R_ext, keep_fits = keep_fits,
         missing = missing
       )
       levels_list <- esem_out$levels

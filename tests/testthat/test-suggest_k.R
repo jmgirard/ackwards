@@ -169,6 +169,53 @@ test_that("suggest_k() errors on bad inputs", {
   expect_error(suggest_k(list()), "data frame")
   expect_error(suggest_k(bfi25[, 1:5], k_max = 100), "k_max")
   expect_error(suggest_k(bfi25[, 1:5], k_max = 0), "k_max")
+  # n_iter drives the PA simulation; 0/fractional/vector values fail deep
+  # inside psych without this guard (M42/m8)
+  expect_error(suggest_k(bfi25[, 1:5], n_iter = 0), "positive integer")
+  expect_error(suggest_k(bfi25[, 1:5], n_iter = 2.5), "positive integer")
+  expect_error(suggest_k(bfi25[, 1:5], n_iter = c(5, 10)), "positive integer")
+})
+
+test_that("print.suggest_k() reports an undetermined consensus without Inf (M42/m1)", {
+  # Constructed object: the only requested criterion (PA-FA) is NA, so the
+  # consensus pool is empty. Pre-M42 this warned ("no non-missing arguments
+  # to min") and printed an Inf range.
+  sk <- structure(
+    list(
+      k_parallel_pc = NA_integer_, k_parallel_fa = NA_integer_,
+      k_map = NA_integer_, k_vss1 = NA_integer_, k_vss2 = NA_integer_,
+      k_cd = NA_integer_, cd_available = FALSE, cd_rmse = NULL,
+      criteria = data.frame(
+        k = 1:3, ev_obs = NA_real_, ev_obs_fa = NA_real_,
+        pa_pc_quant = NA_real_, pa_pc_suggested = NA,
+        pa_fa_quant = NA_real_, pa_fa_suggested = FALSE,
+        map = NA_real_, vss1 = NA_real_, vss2 = NA_real_
+      ),
+      criteria_requested = "pa_fa", k_max = 3L, n_obs = 100L, n_vars = 10L,
+      cor = "pearson", input_type = "data"
+    ),
+    class = "suggest_k"
+  )
+  # cli output lands on the message stream under testthat; capture both.
+  expect_no_warning(
+    out <- capture.output(print(sk), type = "message")
+  )
+  expect_true(any(grepl("undetermined", out)))
+  expect_false(any(grepl("Inf", out)))
+})
+
+test_that("suggest_k() announces PA suggestions capped at k_max (M42/m2)", {
+  skip_if_not_installed("psych")
+  # sim16 has 4 planted factors; PA reliably suggests ~4, above k_max = 2.
+  expect_message(
+    suppressWarnings(sk <- suggest_k(
+      sim16,
+      k_max = 2, criteria = c("pa_pc", "pa_fa"), n_iter = 5L, seed = 1L
+    )),
+    "above the evaluated ceiling"
+  )
+  # Stored recommendation stays capped (stable criteria-table schema).
+  expect_lte(sk$k_parallel_pc, 2L)
 })
 
 test_that("suggest_k() defaults k_max to min(p - 1, 8) for raw data", {

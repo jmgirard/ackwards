@@ -63,24 +63,23 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M39** — narrative & remaining prose (doc-only; final milestone of the M31–M39 epic): clarity pass across intro/suggest_k/ordinal/forbes/README — `print(sk)`/`print(x)`; orthogonal-varimax≡CF(1/p) rationale; SE/CI-NA-under-PCA note; `top_items(cut = 0.5)`; dropped `keep_scores` demo; **removed the README+intro red-arrow explanation** (no red arrow exists after the M35 sign fix); de-indexed README score columns; dropped the Waller citation nudge; suggest_k `sim16`-idealized vs `bfi25`-realistic contrast (inline-computed); ordinal binary/tetrachoric + WLSMV-polychoric + scores-trustworthy clarifications; forbes verbatim-heading rewrites + visible `redundancy_r` chunk + structural-table gt highlight + Lorenzo-Seva ref; refs alphabetized. Three code/viz asks (ordinal `categorical` flag, ordinal corr-comparison viz, forbes pruned-level label styling) spun off to **M40** (`ROADMAP.md`, DESIGN §14). No `R/`/NAMESPACE/export change.
 - **M40** — deferred code/viz asks (final M31–M40 milestone): ordinal `categorical` flag **declined** (redundant — `cor = "polychoric"` already auto-selects WLSMV; would only add a conflict surface + §9 change for zero capability; discoverability handled in docs); ordinal corr-comparison now a **dodged bar chart** (ten `N1`–`N5` item pairs, `fill = basis`, hidden reshape code) replacing the two raw `round(x$r)` matrices (also fixed stale N1–N2 figures 0.73→0.79); `autoplot()` **italicises a fully-pruned level's** axis label (new `.fully_pruned_levels()`, `fontface` aesthetic through `.ba_level_labels()`, both directions) — partially-pruned levels stay plain. No new/removed export, no signature or dependency change.
 - **M41** — independent Fable review (review-only): statistical core verified clean numerically (tenBerge/W′RW/signs/Forbes/ESEM-fit/suggest_k); findings — 1 Critical (EFA chi/p-value pairing), 6 Major (drop_pruned adjacent-pairs M34 regression, pre-M38 engines-vignette FIML prose, CD-mechanism misstatement, Forbes artifact-zero framing, `cut_strong` remnant, untested Forbes-fidelity contract), 11 Minor, 4 enhancements; full §9/§14 defaults audit (all sound; one sound-but-misjustified wording); report + M42/M43/M44 triage in `ROADMAP.md`. No code change.
+- **M42** — review fixes, code: EFA `chi` now the likelihood-ratio `STATISTIC` matching `p_value`/RMSEA/TLI (C1); `.drop_pruned_nodes()` recomputes all-pairs edges fresh, fixing the M34 `pairs = "adjacent"` regression (M1); `print.suggest_k` "undetermined" consensus (m1) + PA-cap announcements (m2); `cut_show`/`n_iter` validation (m8); ordinal warning names flagged columns (e3, `detect_ordinal()` returns names); dead `esem_levels(n_obs)` removed (m7); stale comments fixed (m6); EFA-aware fit-plot caption (m10). No export/signature/dependency change.
 
 ## Current focus
 
-**M41 is complete** (2026-07-01) — the independent Fable review of statistical correctness,
-software design, vignette quality, and the §9/§14 defaults/decision audit. Review-only: no
-`R/`/`NAMESPACE`/test/vignette change. The statistical core verified clean under independent
-numeric re-derivation (tenBerge, W′RW, sign alignment, Forbes chains/retention/φ, ESEM fit
-extraction, suggest_k mappings). The findings — **1 Critical** (EFA fit row pairs psych's
-empirical chi-square with the likelihood p-value), **6 Major** (incl. a `drop_pruned` +
-`pairs = "adjacent"` M34 regression and the engines vignette still documenting pre-M38 FIML
-behavior), **11 Minor**, **4 enhancements** — live in `ROADMAP.md` with runnable reproductions,
-plus the full defaults-audit verdicts (all sound; one sound-but-misjustified rationale wording).
+**M42 is complete** (2026-07-01) — the code-fix milestone off the M41 review. All nine planned
+items shipped (C1 chi/p pairing, M1 drop_pruned recompute, m1/m2 suggest_k output, m6/m7 hygiene,
+m8 validation, m10 caption, e3 actionable ordinal warning), each with a regression test; the M41
+reproductions are now encoded in the suite. Gate: `check()` 0/0/0, 1591 pass / 0 fail / 0 skip,
+coverage 100%, style/lint clean, `check_pkgdown()` clean. Detail in `MILESTONES.md` (M42 entry);
+`ROADMAP.md` pruned of the shipped items per its maintenance rule.
 
-**Next up:** the findings are triaged into three proposed follow-ups awaiting their own
-`/plan-milestone` runs — **M42** (code fixes: C1, M1, minors + regression tests), **M43**
-(doc fixes: M2–M5, doc minors, §9 wording), **M44** (scoping: Forbes exact-reproduction fixture
-or contract-wording amendment). See `ROADMAP.md` for the briefs. `MILESTONES.md` remains the
-source of truth for *completed* milestones.
+**Next up:** two proposed follow-ups from the M41 review remain in `ROADMAP.md`, each awaiting
+its own `/plan-milestone` run — **M43** (doc fixes: engines-vignette FIML rewrite, CD mechanism,
+Forbes artifact/`cut_strong` prose, doc minors, §9 `redundancy_phi` wording; note the engines
+vignette's EFA fit tables pick up the M42 chi values on rebuild) and **M44** (scoping: Forbes
+exact-reproduction fixture or contract-wording amendment). Unscheduled: e2 (dual EFA
+chi-squares), e4 (bootstrap edge CIs, DESIGN §14).
 
 ## Invariants — do not violate without flagging
 

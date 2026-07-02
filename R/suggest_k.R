@@ -166,6 +166,10 @@ suggest_k <- function(data, k_max = NULL,
   if (is.matrix(data)) .check_maybe_cov_matrix(data)
   input_type <- if (.is_cor_matrix(data)) "cor_matrix" else "data"
 
+  if (!is.numeric(n_iter) || length(n_iter) != 1L || is.na(n_iter) ||
+    n_iter < 1L || n_iter != as.integer(n_iter)) {
+    cli::cli_abort("{.arg n_iter} must be a single positive integer.")
+  }
   n_iter <- as.integer(n_iter)
 
   if (input_type == "cor_matrix") {
@@ -286,6 +290,17 @@ suggest_k <- function(data, k_max = NULL,
 
     if ("pa_pc" %in% criteria) {
       k_parallel_pc <- min(pa$ncomp, k_max)
+      # Announce when the PA suggestion exceeds the evaluated ceiling rather
+      # than silently reporting k_max as the recommendation (M42/m2;
+      # Invariant 6). The criteria table only spans 1..k_max, so the stored
+      # value stays capped; the message carries the uncapped suggestion.
+      if (isTRUE(pa$ncomp > k_max)) {
+        cli::cli_inform(c(
+          "i" = "PA-PC suggested {pa$ncomp} components -- above the evaluated \\
+                 ceiling ({.arg k_max} = {k_max}); reporting k <= {k_max}.",
+          "i" = "Increase {.arg k_max} to evaluate the full suggestion."
+        ))
+      }
       ev_obs <- (pa$pc.values %||% pa$values)[seq_len(k_max)]
       pa_pc_quant <- (pa$pc.sim %||% pa$sim)[seq_len(k_max)]
     }
@@ -298,6 +313,13 @@ suggest_k <- function(data, k_max = NULL,
         NA_integer_
       } else {
         min(as.integer(nfact_raw), k_max)
+      }
+      if (isTRUE(as.integer(nfact_raw %||% 0L) > k_max)) {
+        cli::cli_inform(c(
+          "i" = "PA-FA suggested {nfact_raw} factors -- above the evaluated \\
+                 ceiling ({.arg k_max} = {k_max}); reporting k <= {k_max}.",
+          "i" = "Increase {.arg k_max} to evaluate the full suggestion."
+        ))
       }
       ev_obs_fa <- pa$fa.values[seq_len(k_max)]
       pa_fa_quant <- pa$fa.sim[seq_len(k_max)]
@@ -588,13 +610,24 @@ print.suggest_k <- function(x, ...) {
     if ("vss" %in% cr_req) c(x$k_vss1, x$k_vss2) else NULL,
     if ("cd" %in% cr_req && x$cd_available) x$k_cd else NULL
   ))
-  lo <- min(all_k)
-  hi <- max(all_k)
 
-  if (lo == hi) {
-    cli::cli_text("{.strong Consensus: k = {lo}}")
+  # Every requested criterion can be NA (e.g. criteria = "pa_fa" when no FA
+  # eigenvalue beat the random threshold); min()/max() of an empty vector
+  # would warn and print an Inf "range" (M42/m1).
+  if (length(all_k) == 0L) {
+    cli::cli_text(
+      "{.strong Consensus: undetermined} (no requested criterion produced \\
+       a recommendation)"
+    )
   } else {
-    cli::cli_text("{.strong Consensus range: k = {lo}-{hi}}")
+    lo <- min(all_k)
+    hi <- max(all_k)
+
+    if (lo == hi) {
+      cli::cli_text("{.strong Consensus: k = {lo}}")
+    } else {
+      cli::cli_text("{.strong Consensus range: k = {lo}-{hi}}")
+    }
   }
 
   cli::cli_rule()

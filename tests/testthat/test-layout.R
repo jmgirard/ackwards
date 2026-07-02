@@ -176,12 +176,22 @@ test_that("autoplot.ackwards() deprecates cut_strong (warns, no effect)", {
   expect_warning(ggplot2::autoplot(x, cut_strong = 0.4), "deprecated")
 })
 
+test_that("autoplot.ackwards() validates cut_show (M42/m8)", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  expect_error(ggplot2::autoplot(x, cut_show = 5), "\\[0, 1\\]")
+  expect_error(ggplot2::autoplot(x, cut_show = c(0.3, 0.5)), "\\[0, 1\\]")
+  expect_error(ggplot2::autoplot(x, cut_show = NA), "\\[0, 1\\]")
+})
+
 test_that("autoplot.ackwards() warns when cut_show hides all edges", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
   suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
-  # cut_show > 1.0 always hides all edges (correlations are bounded by [-1, 1])
-  expect_warning(ggplot2::autoplot(x, cut_show = 1.01), "No edges")
+  # cut_show = 1 (the legal maximum since M42/m8 validation) hides every edge
+  # here: no between-level correlation in these data reaches exactly 1.0
+  expect_warning(ggplot2::autoplot(x, cut_show = 1), "No edges")
 })
 
 test_that("autoplot.ackwards() warns when min_sep < node_width", {
@@ -233,6 +243,35 @@ test_that("autoplot.ackwards() fades pruned nodes", {
   expect_s3_class(p, "ggplot")
   # Custom prune colour
   expect_no_error(ggplot2::autoplot(x, color_pruned = "pink"))
+})
+
+test_that(".drop_pruned_nodes() bridges fully-pruned levels on pairs='adjacent' objects (M42/M1)", {
+  skip_if_not_installed("psych")
+  d <- na.omit(ackwards::bfi25)
+  # Default pairs = "adjacent": the stored tidy edges hold no skip-level rows.
+  suppressWarnings(x <- ackwards(d, k_max = 4))
+  xp <- prune(x, manual = c("m2f1", "m2f2")) # level 2 fully pruned
+
+  lay <- ba_layout(xp)
+  dp <- ackwards:::.drop_pruned_nodes(xp, lay$nodes)
+
+  # Pre-M42 regression: kept level-3 nodes had no candidate ancestor edges
+  # (their only stored parents were the pruned level-2 nodes; no 1:3 skip
+  # edges existed in the adjacent-only tidy table). Every kept node below the
+  # apex must now have exactly one incoming edge, bridging the pruned level.
+  kept_below_apex <- dp$nodes$id[dp$nodes$level > 1L]
+  expect_setequal(dp$edges$to, kept_below_apex)
+  # The level-3 bridges must come from level 1 (level 2 is gone).
+  lvl3_edges <- dp$edges[dp$edges$level_to == 3L, , drop = FALSE]
+  expect_true(nrow(lvl3_edges) == 3L && all(lvl3_edges$level_from == 1L))
+
+  # And the reduced edge set must be identical whether the object was fit
+  # with pairs = "adjacent" or pairs = "all" (edges are recomputed fresh).
+  suppressWarnings(x_all <- ackwards(d, k_max = 4, pairs = "all"))
+  xp_all <- prune(x_all, manual = c("m2f1", "m2f2"))
+  dp_all <- ackwards:::.drop_pruned_nodes(xp_all, ba_layout(xp_all)$nodes)
+  cols <- c("from", "to", "level_from", "level_to", "r")
+  expect_equal(dp$edges[, cols], dp_all$edges[, cols], tolerance = 1e-12)
 })
 
 test_that("autoplot.ackwards() handles objects with prune=NULL (no pruning)", {
@@ -818,8 +857,10 @@ test_that("drop_pruned=TRUE warns when cut_show removes all reduced edges", {
     x <- ackwards(psych::bfi[, 1:25], k_max = 5) |>
       prune("redundant", redundancy_r = 0.95)
   ))
+  # cut_show = 1 is the legal maximum since M42/m8 validation; no reduced
+  # edge in these data reaches exactly 1.0, so all are hidden
   expect_warning(
-    ggplot2::autoplot(x, drop_pruned = TRUE, cut_show = 1.01),
+    ggplot2::autoplot(x, drop_pruned = TRUE, cut_show = 1),
     "No edges"
   )
 })
@@ -1067,6 +1108,18 @@ test_that("autoplot(x, what='fit') returns ggplot for ESEM object", {
   suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
   p <- ggplot2::autoplot(x, what = "fit")
   expect_s3_class(p, "ggplot")
+})
+
+test_that("fit-plot caption names only the plotted indices (M42/m10)", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  # EFA panels show TLI/RMSEA only; the caption must not list CFI/SRMR cutoffs.
+  suppressWarnings(
+    x_efa <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa")
+  )
+  cap_efa <- ggplot2::autoplot(x_efa, what = "fit")$labels$caption
+  expect_true(grepl("TLI", cap_efa) && grepl("RMSEA", cap_efa))
+  expect_false(grepl("CFI", cap_efa) || grepl("SRMR", cap_efa))
 })
 
 test_that("autoplot(x, what='fit') returns ggplot with informative message for PCA", {

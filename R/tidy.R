@@ -25,7 +25,11 @@ generics::glance
 #'     total item variance on a 0-1 scale (multiply by 100 for a percentage).
 #'   * `"fit"` -- one row per fit statistic x level: `level`, `statistic`,
 #'     `value`. For PCA objects the statistics are eigenvalues; for EFA
-#'     objects they are `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC`; for
+#'     objects they are `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC` --
+#'     where `chi` is the likelihood-ratio chi-square ([psych::fa()]'s
+#'     `STATISTIC`), so `chi`, `dof`, `p_value`, `RMSEA`, and `TLI` all share
+#'     one statistical framing (psych's residual-based *empirical* chi-square
+#'     is a different statistic and is not reported); for
 #'     ESEM they are `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`,
 #'     `BIC`. For ESEM under a scaled-test estimator (`"WLSMV"`/`"ULSMV"` for
 #'     ordinal data, `"MLR"` for continuous), the whole row -- `chi`/`dof`/

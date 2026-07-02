@@ -33,20 +33,23 @@ test_that(".format_r() is vectorised", {
   expect_equal(result, c(".23", "-.45", "1.00", ".00"))
 })
 
-test_that("detect_ordinal returns FALSE for an all-NA column", {
+test_that("detect_ordinal flags nothing for an all-NA column", {
   # all-NA column alongside a clearly continuous column
   d <- data.frame(x = rep(NA_real_, 5L), y = c(1.1, 2.2, 3.3, 4.4, 5.5))
-  expect_false(ackwards:::detect_ordinal(d))
+  expect_identical(ackwards:::detect_ordinal(d), character(0))
 })
 
-test_that("detect_ordinal returns FALSE for a data frame with no ordinal columns", {
+test_that("detect_ordinal flags nothing for a data frame with no ordinal columns", {
   d <- data.frame(x = c(1.1, 2.2, 3.3), y = c(4.4, 5.5, 6.6))
-  expect_false(ackwards:::detect_ordinal(d))
+  expect_identical(ackwards:::detect_ordinal(d), character(0))
 })
 
-test_that("detect_ordinal returns TRUE for integer columns with few distinct values", {
-  d <- data.frame(x = sample(1:5, 20, replace = TRUE))
-  expect_true(ackwards:::detect_ordinal(d))
+test_that("detect_ordinal names integer columns with few distinct values (M42/e3)", {
+  d <- data.frame(
+    x = sample(1:5, 20, replace = TRUE),
+    y = rnorm(20)
+  )
+  expect_identical(ackwards:::detect_ordinal(d), "x")
 })
 
 test_that(".standardize produces NA only in cells where input was NA", {
