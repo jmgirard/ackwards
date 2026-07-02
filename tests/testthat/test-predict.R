@@ -6,7 +6,7 @@ test_that("predict() is identical to augment(append = FALSE)", {
   d <- na.omit(ackwards::bfi25)
   train <- d[1:500, ]
   test <- d[501:nrow(d), ]
-  suppressWarnings(x <- ackwards(train, k_max = 3))
+  x <- cached(ackwards(train, k_max = 3))
 
   expect_identical(
     predict(x, test),
@@ -21,7 +21,7 @@ test_that("predict() is identical to augment(append = FALSE)", {
 test_that("predict() returns one row per newdata row, score columns only", {
   skip_if_not_installed("psych")
   d <- na.omit(ackwards::bfi25)
-  suppressWarnings(x <- ackwards(d[1:400, ], k_max = 3))
+  x <- cached(ackwards(d[1:400, ], k_max = 3))
   sc <- predict(x, d[401:450, ])
   expect_s3_class(sc, "data.frame")
   expect_equal(nrow(sc), 50L)
@@ -31,7 +31,7 @@ test_that("predict() returns one row per newdata row, score columns only", {
 test_that("predict() requires newdata and inherits augment's validation", {
   skip_if_not_installed("psych")
   d <- na.omit(ackwards::bfi25)
-  suppressWarnings(x <- ackwards(d, k_max = 2))
+  x <- cached(ackwards(d, k_max = 2))
   expect_error(predict(x), "newdata")
   expect_error(predict(x, NULL), "newdata")
   expect_error(predict(x, d[, 1:3]), "missing")
@@ -47,7 +47,7 @@ test_that("predict(scaling='fit') is engine-agnostic: EFA value-level check", {
   d <- na.omit(ackwards::bfi25)
   train <- d[1:500, ]
   test <- d[501:550, ]
-  suppressWarnings(x <- ackwards(train, k_max = 3, engine = "efa"))
+  x <- cached(ackwards(train, k_max = 3, engine = "efa"))
   sc <- predict(x, test)
 
   mu <- colMeans(as.matrix(train))
@@ -65,7 +65,7 @@ test_that("predict(scaling='fit') is engine-agnostic: EFA value-level check", {
 test_that("predict(scaling='fit') on a polychoric-basis object: metric-consistent + warns", {
   skip_if_not_installed("psych")
   d <- na.omit(ackwards::bfi25)[1:400, 1:10]
-  suppressWarnings(x <- ackwards(d, k_max = 2, cor = "polychoric"))
+  x <- cached(ackwards(d, k_max = 2, cor = "polychoric"))
 
   # The model-implied-SD caveat still fires for materialized scores.
   rlang::reset_warning_verbosity("ackwards_nonpearson_scores")
@@ -80,7 +80,7 @@ test_that("predict() works on a truncated hierarchy (converged levels only)", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   # 6 variables: lavaan::efa() fits k <= 3 only; k_max = 5 triggers truncation
-  suppressWarnings(x <- ackwards(d, k_max = 5, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 5, engine = "esem"))
   expect_equal(x$k_max, 3L)
   sc <- predict(x, d[1:10, ])
   expect_equal(ncol(sc), 1L + 2L + 3L)
@@ -91,7 +91,7 @@ test_that("predict() works on a truncated hierarchy (converged levels only)", {
 test_that("predict() propagates NA rows in place", {
   skip_if_not_installed("psych")
   d <- na.omit(ackwards::bfi25)
-  suppressWarnings(x <- ackwards(d, k_max = 2))
+  x <- cached(ackwards(d, k_max = 2))
   test <- d[1:10, ]
   test[3, 1] <- NA
   sc <- suppressWarnings(predict(x, test))

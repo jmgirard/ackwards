@@ -6,12 +6,12 @@
 test_that("fit-time item moments are stored in meta (M45)", {
   skip_if_not_installed("psych")
   d <- na.omit(ackwards::bfi25)
-  suppressWarnings(x <- ackwards(d, k_max = 2))
+  x <- cached(ackwards(d, k_max = 2))
   expect_equal(x$meta$item_means, colMeans(as.matrix(d)))
   expect_equal(x$meta$item_sds, apply(as.matrix(d), 2, stats::sd))
 
   # listwise: moments reflect the reduced data actually fit
-  suppressWarnings(xl <- ackwards(ackwards::bfi25, k_max = 2, missing = "listwise"))
+  xl <- cached(ackwards(ackwards::bfi25, k_max = 2, missing = "listwise"))
   cc <- as.matrix(na.omit(ackwards::bfi25))
   expect_equal(unname(xl$meta$item_means), unname(colMeans(cc)))
 
@@ -40,7 +40,7 @@ test_that(".standardize() honours supplied center/scale moments (M45)", {
 test_that("augment() rejects scaling supplied without data (M45 follow-up)", {
   skip_if_not_installed("psych")
   d <- na.omit(ackwards::bfi25)
-  suppressWarnings(x <- ackwards(d, k_max = 2, keep_scores = TRUE))
+  x <- cached(ackwards(d, k_max = 2, keep_scores = TRUE))
   expect_error(augment(x, scaling = "sample"), "only used when")
   expect_error(augment(x, scaling = "fit"), "only used when")
   # Default call with stored scores is unaffected
@@ -54,7 +54,7 @@ test_that("scaling='fit' scores a test split by the training moments (M45)", {
   d <- na.omit(ackwards::bfi25)
   train <- d[1:500, ]
   test <- d[501:nrow(d), ]
-  suppressWarnings(x <- ackwards(train, k_max = 3))
+  x <- cached(ackwards(train, k_max = 3))
 
   sc <- augment(x, data = test, append = FALSE)
 
@@ -78,14 +78,14 @@ test_that("scaling='fit' scores a test split by the training moments (M45)", {
 test_that("scaling='fit' is metric-consistent: subsets score like the full set (M45)", {
   skip_if_not_installed("psych")
   d <- na.omit(ackwards::bfi25)
-  suppressWarnings(x <- ackwards(d, k_max = 3))
+  x <- cached(ackwards(d, k_max = 3))
 
   full <- augment(x, data = d, append = FALSE)
   sub <- augment(x, data = d[1:50, ], append = FALSE)
   expect_equal(sub, full[1:50, ], ignore_attr = TRUE)
 
   # Re-scoring the training data itself reproduces the fit-time stored scores.
-  suppressWarnings(xs <- ackwards(d, k_max = 3, keep_scores = TRUE))
+  xs <- cached(ackwards(d, k_max = 3, keep_scores = TRUE))
   stored <- do.call(cbind, lapply(xs$scores, unclass))
   again <- augment(xs, data = d, append = FALSE)
   expect_equal(unname(as.matrix(again)), unname(stored), tolerance = 1e-12)
@@ -99,7 +99,7 @@ test_that("scaling='fit' is metric-consistent: subsets score like the full set (
 test_that("scaling='sample' reproduces sample-moment scoring (M45)", {
   skip_if_not_installed("psych")
   d <- na.omit(ackwards::bfi25)
-  suppressWarnings(x <- ackwards(d, k_max = 2))
+  x <- cached(ackwards(d, k_max = 2))
   sc <- augment(x, data = d, append = FALSE, scaling = "sample")
   Z <- ackwards:::.standardize(as.matrix(d))
   W <- x$levels[["2"]]$scoring$weights
@@ -120,7 +120,7 @@ test_that("scaling='fit' errors informatively for correlation-matrix objects (M4
 test_that("scaling='fit' handles unnamed matrix input positionally (M45)", {
   skip_if_not_installed("psych")
   d <- na.omit(ackwards::bfi25)
-  suppressWarnings(x <- ackwards(d, k_max = 2))
+  x <- cached(ackwards(d, k_max = 2))
   m <- unname(as.matrix(d[1:20, ]))
   sc_unnamed <- augment(x, data = m, append = FALSE)
   sc_named <- augment(x, data = d[1:20, ], append = FALSE)
@@ -131,7 +131,7 @@ test_that("scaling='fit' handles unnamed matrix input positionally (M45)", {
 
 test_that("keep_scores = FALSE (default) leaves x$scores as NULL", {
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   expect_null(x$scores)
 })
 
@@ -140,7 +140,7 @@ test_that("keep_scores = FALSE (default) leaves x$scores as NULL", {
 test_that("keep_scores = TRUE stores list of n × k_j matrices with correct dims", {
   skip_if_not_installed("psych")
   n <- nrow(psych::bfi)
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 3, keep_scores = TRUE))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3, keep_scores = TRUE))
   expect_false(is.null(x$scores))
   expect_named(x$scores, c("1", "2", "3"))
   expect_equal(nrow(x$scores[["1"]]), n)
@@ -153,7 +153,7 @@ test_that("keep_scores = TRUE stores list of n × k_j matrices with correct dims
 
 test_that("stored score column names match factor labels", {
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 3, keep_scores = TRUE))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3, keep_scores = TRUE))
   expect_equal(colnames(x$scores[["1"]]), "m1f1")
   expect_equal(colnames(x$scores[["2"]]), c("m2f1", "m2f2"))
   expect_equal(colnames(x$scores[["3"]]), c("m3f1", "m3f2", "m3f3"))
@@ -165,7 +165,7 @@ test_that("PCA tenBerge scores are approximately unit variance (Inv. 1)", {
   skip_if_not_installed("psych")
   set.seed(42)
   data <- as.data.frame(matrix(rnorm(600), 200, 6))
-  x <- suppressWarnings(ackwards(data, k_max = 3, keep_scores = TRUE))
+  x <- cached(ackwards(data, k_max = 3, keep_scores = TRUE))
   # For orthogonal (varimax) scores, SD ≈ 1 (tenBerge: W'RW = I exactly)
   for (ki in names(x$scores)) {
     sds <- apply(x$scores[[ki]], 2, sd, na.rm = TRUE)
@@ -192,7 +192,7 @@ test_that("between-level correlations from stored scores agree with algebra edge
     x5 = g + s2 + rnorm(n, sd = 0.2),
     x6 = g + s2 + rnorm(n, sd = 0.2)
   )
-  x <- suppressWarnings(ackwards(data, k_max = 3, keep_scores = TRUE))
+  x <- cached(ackwards(data, k_max = 3, keep_scores = TRUE))
 
   # For each adjacent pair, correlation of materialized scores ≈ algebra edge
   for (ki in seq(2L, x$k_max)) {
@@ -212,7 +212,7 @@ test_that("between-level correlations from stored scores agree with algebra edge
 
 test_that("keep_fits = FALSE (default) leaves x$fits as NULL", {
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_null(x$fits)
 })
 
@@ -220,7 +220,7 @@ test_that("keep_fits = FALSE (default) leaves x$fits as NULL", {
 
 test_that("keep_fits = TRUE stores list of raw psych objects for PCA", {
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 3, keep_fits = TRUE))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3, keep_fits = TRUE))
   expect_false(is.null(x$fits))
   expect_named(x$fits, c("1", "2", "3"))
   for (ki in names(x$fits)) {
@@ -244,7 +244,7 @@ test_that("keep_fits = TRUE and keep_scores = TRUE can be combined", {
 test_that("augment(x, data) returns data frame with score columns appended", {
   skip_if_not_installed("psych")
   bfi_items <- psych::bfi[, 1:25]
-  x <- suppressWarnings(ackwards(bfi_items, k_max = 3))
+  x <- cached(ackwards(bfi_items, k_max = 3))
   out <- suppressWarnings(augment(x, data = bfi_items))
   expect_s3_class(out, "data.frame")
   # Same number of rows as input
@@ -258,7 +258,7 @@ test_that("augment(x, data) returns data frame with score columns appended", {
 
 test_that("augment(x) without data uses stored scores", {
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 2, keep_scores = TRUE))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2, keep_scores = TRUE))
   out <- augment(x)
   expect_s3_class(out, "data.frame")
   expect_equal(nrow(out), x$n_obs)
@@ -268,14 +268,14 @@ test_that("augment(x) without data uses stored scores", {
 
 test_that("augment(x) without data or stored scores gives informative error", {
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_error(augment(x), "not stored")
 })
 
 test_that("augment(x, data) and augment(x) [with stored scores] agree", {
   skip_if_not_installed("psych")
   bfi_items <- psych::bfi[, 1:25]
-  x <- suppressWarnings(ackwards(bfi_items, k_max = 2, keep_scores = TRUE))
+  x <- cached(ackwards(bfi_items, k_max = 2, keep_scores = TRUE))
   out_stored <- suppressWarnings(augment(x))
   out_recomp <- suppressWarnings(augment(x, data = bfi_items))
   # Score columns should be numerically identical
@@ -294,7 +294,7 @@ test_that("augment(x, data) and augment(x) [with stored scores] agree", {
 test_that("augment(append = FALSE) returns only score columns, row order preserved", {
   skip_if_not_installed("psych")
   bfi_items <- psych::bfi[, 1:25]
-  x <- suppressWarnings(ackwards(bfi_items, k_max = 3))
+  x <- cached(ackwards(bfi_items, k_max = 3))
   full <- suppressWarnings(augment(x, data = bfi_items))
   only <- suppressWarnings(augment(x, data = bfi_items, append = FALSE))
   # Only the .m score columns, none of the items
@@ -309,7 +309,7 @@ test_that("augment(append = FALSE, id_cols = ) carries identifier columns throug
   skip_if_not_installed("psych")
   bfi_items <- psych::bfi[, 1:25]
   df <- data.frame(id = seq_len(nrow(bfi_items)), bfi_items)
-  x <- suppressWarnings(ackwards(bfi_items, k_max = 3))
+  x <- cached(ackwards(bfi_items, k_max = 3))
   out <- suppressWarnings(augment(x, data = df, append = FALSE, id_cols = "id"))
   expect_identical(names(out)[1L], "id")
   expect_identical(out$id, df$id)
@@ -318,7 +318,7 @@ test_that("augment(append = FALSE, id_cols = ) carries identifier columns throug
 
 test_that("augment(append = FALSE) on stored scores drops the .obs index", {
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 2, keep_scores = TRUE))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2, keep_scores = TRUE))
   full <- augment(x)
   only <- augment(x, append = FALSE)
   expect_true(".obs" %in% names(full))
@@ -329,8 +329,8 @@ test_that("augment(append = FALSE) on stored scores drops the .obs index", {
 test_that("augment() argument guards fire", {
   skip_if_not_installed("psych")
   bfi_items <- psych::bfi[, 1:25]
-  x <- suppressWarnings(ackwards(bfi_items, k_max = 2))
-  x2 <- suppressWarnings(ackwards(bfi_items, k_max = 2, keep_scores = TRUE))
+  x <- cached(ackwards(bfi_items, k_max = 2))
+  x2 <- cached(ackwards(bfi_items, k_max = 2, keep_scores = TRUE))
   # id_cols with append = TRUE is a conflict
   expect_error(
     suppressWarnings(augment(x, data = bfi_items, id_cols = "A1")),
@@ -361,7 +361,7 @@ test_that("augment() argument guards fire", {
 test_that("augment(id_cols) works with matrix input carrying an extra id column", {
   skip_if_not_installed("psych")
   bfi_items <- psych::bfi[, 1:25]
-  x <- suppressWarnings(ackwards(bfi_items, k_max = 3))
+  x <- cached(ackwards(bfi_items, k_max = 3))
   # Numeric matrix: the model item columns plus an extra numeric "id" column.
   mat <- cbind(id = seq_len(nrow(bfi_items)), as.matrix(bfi_items))
   out <- suppressWarnings(augment(x, data = mat, append = FALSE, id_cols = "id"))
@@ -373,7 +373,7 @@ test_that("augment(id_cols) works with matrix input carrying an extra id column"
 test_that("augment(id_cols) may name a column that is also a model item", {
   skip_if_not_installed("psych")
   bfi_items <- psych::bfi[, 1:25]
-  x <- suppressWarnings(ackwards(bfi_items, k_max = 3))
+  x <- cached(ackwards(bfi_items, k_max = 3))
   out <- suppressWarnings(augment(x, data = bfi_items, append = FALSE, id_cols = "A1"))
   # A1 is carried through verbatim AND still contributes to the scores.
   expect_identical(names(out)[1L], "A1")
@@ -386,7 +386,7 @@ test_that("augment(append = FALSE) preserves NA-score rows and their id_cols", {
   bfi_items <- psych::bfi[, 1:25]
   df <- data.frame(id = seq_len(nrow(bfi_items)), bfi_items)
   df$A1[1L] <- NA # force row 1 to score NA (listwise NA propagation)
-  x <- suppressWarnings(ackwards(bfi_items, k_max = 3))
+  x <- cached(ackwards(bfi_items, k_max = 3))
   out <- suppressWarnings(augment(x, data = df, append = FALSE, id_cols = "id"))
   # Row count preserved; the NA-scored row is retained, not dropped...
   expect_identical(nrow(out), nrow(df))
@@ -399,7 +399,7 @@ test_that("augment(append = FALSE) preserves NA-score rows and their id_cols", {
 
 test_that("tidy(x, what='scores') returns long data frame with correct columns", {
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 3, keep_scores = TRUE))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3, keep_scores = TRUE))
   out <- tidy(x, what = "scores")
   expect_s3_class(out, "data.frame")
   expect_true(all(c("obs", "level", "factor", "score") %in% names(out)))
@@ -410,7 +410,7 @@ test_that("tidy(x, what='scores') returns long data frame with correct columns",
 
 test_that("tidy(x, what='scores') errors informatively when no scores stored", {
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_error(tidy(x, what = "scores"), "not stored")
 })
 
@@ -420,7 +420,7 @@ test_that("EFA keep_scores = TRUE stores correctly shaped matrices", {
   skip_if_not_installed("psych")
   set.seed(1)
   d <- as.data.frame(matrix(rnorm(300 * 6), 300, 6))
-  x <- suppressWarnings(ackwards(d, k_max = 3, engine = "efa", keep_scores = TRUE))
+  x <- cached(ackwards(d, k_max = 3, engine = "efa", keep_scores = TRUE))
   expect_false(is.null(x$scores))
   expect_named(x$scores, c("1", "2", "3"))
   for (ki in 1:3) {
@@ -437,7 +437,7 @@ test_that("EFA keep_fits = TRUE stores psych objects for all levels", {
   skip_if_not_installed("psych")
   set.seed(1)
   d <- as.data.frame(matrix(rnorm(300 * 6), 300, 6))
-  x <- suppressWarnings(ackwards(d, k_max = 2, engine = "efa", keep_fits = TRUE))
+  x <- cached(ackwards(d, k_max = 2, engine = "efa", keep_fits = TRUE))
   expect_false(is.null(x$fits))
   expect_named(x$fits, c("1", "2"))
   for (ki in names(x$fits)) {
@@ -450,7 +450,7 @@ test_that("EFA keep_fits = TRUE stores psych objects for all levels", {
 test_that("ESEM keep_scores = TRUE stores correctly shaped matrices", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem", keep_scores = TRUE))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem", keep_scores = TRUE))
   expect_false(is.null(x$scores))
   expect_named(x$scores, c("1", "2", "3"))
   for (ki in 1:3) {
@@ -466,7 +466,7 @@ test_that("ESEM keep_scores = TRUE stores correctly shaped matrices", {
 test_that("ESEM keep_fits = TRUE stores lavaan objects for all levels", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
-  suppressWarnings(x <- ackwards(d, k_max = 2, engine = "esem", keep_fits = TRUE))
+  x <- cached(ackwards(d, k_max = 2, engine = "esem", keep_fits = TRUE))
   expect_false(is.null(x$fits))
   expect_named(x$fits, c("1", "2"))
   for (ki in names(x$fits)) {
@@ -482,7 +482,7 @@ test_that("keep_scores = TRUE only covers converged levels when model is truncat
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   # 6 variables → lavaan::efa() can only fit k <= 3; k = 5 triggers truncation
-  suppressWarnings(x <- ackwards(d, k_max = 5, engine = "esem", keep_scores = TRUE))
+  x <- cached(ackwards(d, k_max = 5, engine = "esem", keep_scores = TRUE))
   expect_equal(x$k_max, 3L)
   expect_false(is.null(x$scores))
   expect_named(x$scores, c("1", "2", "3"))
@@ -494,7 +494,7 @@ test_that("keep_scores = TRUE only covers converged levels when model is truncat
 
 test_that("augment(x, data) errors when data has wrong column count (unnamed)", {
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   # Use a plain matrix (no colnames) with wrong column count → dimension path
   d_wrong <- matrix(rnorm(100 * 5), 100, 5)
   expect_error(augment(x, data = d_wrong), "5.*column|column.*5")
@@ -502,7 +502,7 @@ test_that("augment(x, data) errors when data has wrong column count (unnamed)", 
 
 test_that("augment(x, data) errors when named data is missing expected columns", {
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   # Supply only 20 of the 25 named BFI columns
   d_missing <- psych::bfi[1:50, 1:20]
   expect_error(augment(x, data = d_missing), "[Mm]issing")
@@ -511,7 +511,7 @@ test_that("augment(x, data) errors when named data is missing expected columns",
 test_that("augment(x, data) works when data has extra named columns (supersets)", {
   skip_if_not_installed("psych")
   bfi_items <- psych::bfi[1:50, 1:25]
-  x <- suppressWarnings(ackwards(bfi_items, k_max = 2))
+  x <- cached(ackwards(bfi_items, k_max = 2))
   # Add an extra column not in the model
   d_extra <- cbind(bfi_items, extra = rnorm(50))
   out <- suppressWarnings(augment(x, data = d_extra))
@@ -524,7 +524,7 @@ test_that("augment(x, data) works when data has extra named columns (supersets)"
 test_that("augment(x, data) errors on non-numeric data", {
   skip_if_not_installed("psych")
   bfi_items <- psych::bfi[1:50, 1:25]
-  x <- suppressWarnings(ackwards(bfi_items, k_max = 2))
+  x <- cached(ackwards(bfi_items, k_max = 2))
   d_chr <- as.data.frame(lapply(bfi_items, as.character))
   expect_error(augment(x, data = d_chr), "[Nn]umeric")
 })
@@ -535,7 +535,7 @@ test_that("augment(x, data) warns when data has missing rows", {
   skip_if_not_installed("psych")
   set.seed(42)
   d <- as.data.frame(matrix(rnorm(200L * 10L), 200L, 10L))
-  x <- ackwards(d, k_max = 2L)
+  x <- cached(ackwards(d, k_max = 2L))
   d_na <- d
   d_na[5L, 1L] <- NA_real_
   expect_warning(augment(x, data = d_na), "missing")
@@ -545,7 +545,7 @@ test_that("augment(x, data) produces NA scores for rows with missing values", {
   skip_if_not_installed("psych")
   set.seed(42)
   d <- as.data.frame(matrix(rnorm(200L * 10L), 200L, 10L))
-  x <- ackwards(d, k_max = 2L)
+  x <- cached(ackwards(d, k_max = 2L))
   d_na <- d
   d_na[5L, 1L] <- NA_real_
   out <- suppressWarnings(augment(x, data = d_na))
@@ -577,7 +577,7 @@ test_that("keep_scores = TRUE produces NA scores only for incomplete rows", {
   set.seed(42)
   d <- as.data.frame(matrix(rnorm(200L * 10L), 200L, 10L))
   d[5L, 1L] <- NA_real_
-  x <- suppressWarnings(ackwards(d, k_max = 2L, keep_scores = TRUE))
+  x <- cached(ackwards(d, k_max = 2L, keep_scores = TRUE))
   # Row 5 (incomplete) must be NA at all factors
   expect_true(all(is.na(x$scores[["1"]][5L, ])))
   # All other rows (complete) must NOT be NA
@@ -593,7 +593,7 @@ test_that("scoring with non-Pearson basis warns about basis mismatch", {
   d <- as.data.frame(matrix(
     sample(1L:5L, 150L * 6L, replace = TRUE), 150L, 6L
   ))
-  x <- suppressWarnings(ackwards(d, k_max = 2, cor = "polychoric"))
+  x <- cached(ackwards(d, k_max = 2, cor = "polychoric"))
   # The warning is once-per-session; reset so this test is order-independent
   # (other tests -- e.g. test-predict.R's polychoric case -- also trigger it).
   rlang::reset_warning_verbosity("ackwards_nonpearson_scores")
@@ -606,7 +606,7 @@ test_that("keep_fits = TRUE only stores fits for converged levels when truncated
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
   # 6 variables → lavaan::efa() truncates at k = 3; k = 5 requested
-  suppressWarnings(x <- ackwards(d, k_max = 5, engine = "esem", keep_fits = TRUE))
+  x <- cached(ackwards(d, k_max = 5, engine = "esem", keep_fits = TRUE))
   expect_equal(x$k_max, 3L)
   expect_false(is.null(x$fits))
   expect_named(x$fits, c("1", "2", "3"))

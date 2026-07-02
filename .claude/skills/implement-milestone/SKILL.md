@@ -27,11 +27,13 @@ Follow `CLAUDE.md`'s dev workflow and definition of done throughout:
   missing from index"). Guard against it explicitly — see the `pkgdown::check_pkgdown()` step in the
   gate below.
 - Write or update tests for new behavior.
-- **Verification cadence — the full suite takes minutes, so don't re-run it needlessly:**
+- **Verification cadence — don't re-run the suite needlessly:**
   - *While iterating / before each commit:* run only the **relevant** test file(s) —
     `devtools::test(filter = "<pattern>")` or `testthat::test_file("tests/testthat/test-<x>.R")` —
     not the whole suite. Branches are squash-merged, so a momentarily-red intermediate commit never
     ships; the full gate below catches everything before the PR.
+  - *When you do run the whole suite*, prefix with `TESTTHAT_CPUS=8` — the suite is parallel
+    (M48; ~27s with 8 workers vs ~81s serial; testthat defaults to only 2 workers without it).
   - *Run tests in a single pass that surfaces failures **with** their details* — capture the result
     (`res <- devtools::test(...)`; inspect `as.data.frame(res)`) or use a non-silent reporter. Never
     run silently "to see if it's green" and then re-run "to see what broke."
@@ -43,13 +45,20 @@ Follow `CLAUDE.md`'s dev workflow and definition of done throughout:
     (vignettes included) before the PR.
   - *Never run two package-touching R processes concurrently* (e.g. a background `check()` while a
     foreground `test()` runs) — they interfere and can produce spurious failures.
-- **The definition-of-done gate (run once, before the PR):** `devtools::check()` (0/0/0) →
-  `covr::package_coverage()` (target 100%) → `styler::style_pkg()` → `lintr::lint_package()` →
-  `pkgdown::check_pkgdown()`. This is
-  the only place the full suite must run end-to-end; there is no need for a separate `devtools::test()`
-  here because `check()` already ran it. `pkgdown::check_pkgdown()` is sub-second and mirrors the
-  pkgdown GHA — run it unconditionally at the gate (gated on `rlang::is_installed("pkgdown")`; if
-  pkgdown is absent, instead eyeball that every `export()` in `NAMESPACE` appears in `_pkgdown.yml`'s
+  - *Don't run a bare `devtools::load_all()` in its own `Rscript` call* — each `Rscript` is a fresh
+    process, so nothing persists; `test()`/`check()` load the package themselves. And avoid
+    `cd <repo> && …` compounds (permission-prompt noise) — use absolute paths.
+  - *In tests, reuse the `cached()` fit memo* (`tests/testthat/helper-data.R`) instead of refitting
+    identical `ackwards()` objects — but never for reproducibility / serial-vs-parallel oracles
+    (a cached second call asserts nothing) or fits wrapped in condition expectations.
+- **The definition-of-done gate (run once, before the PR):** `Rscript tools/dod-gate.R` — it runs
+  `devtools::check()` (0/0/0) → `covr::package_coverage()` (target 100%) → `styler::style_pkg()` →
+  `lintr::lint_package()` → `pkgdown::check_pkgdown()` serially in one process with sensible
+  `TESTTHAT_CPUS`, printing every failure and exiting non-zero on any. This is the only place the
+  full suite must run end-to-end; there is no need for a separate `devtools::test()` because
+  `check()` already ran it. `pkgdown::check_pkgdown()` is sub-second and mirrors the pkgdown GHA —
+  the script runs it unconditionally (gated on `rlang::is_installed("pkgdown")`; if pkgdown is
+  absent, instead eyeball that every `export()` in `NAMESPACE` appears in `_pkgdown.yml`'s
   `reference:` contents). It catches exported topics missing from the reference index, which local
   `R CMD check` does not.
 - Respect the ask-first guardrails in `CLAUDE.md`: flag before adding an `Imports` dependency, introducing Rcpp, changing a resolved default, or touching git history/tags.

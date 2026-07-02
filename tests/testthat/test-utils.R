@@ -232,7 +232,7 @@ test_that("ackwards() captures data.frame variable labels into meta$item_labels"
   d <- as.data.frame(na.omit(bfi25)[, 1:6])
   attr(d$A1, "label") <- "Am indifferent to the feelings of others"
   attr(d$A3, "label") <- "Know how to comfort others"
-  x <- suppressWarnings(ackwards(d, k_max = 3))
+  x <- cached(ackwards(d, k_max = 3))
   expect_equal(
     x$meta$item_labels,
     c(
@@ -241,7 +241,7 @@ test_that("ackwards() captures data.frame variable labels into meta$item_labels"
     )
   )
   # No labels -> NULL
-  x2 <- suppressWarnings(ackwards(as.data.frame(na.omit(bfi25)[, 1:6]), k_max = 3))
+  x2 <- cached(ackwards(as.data.frame(na.omit(bfi25)[, 1:6]), k_max = 3))
   expect_null(x2$meta$item_labels)
 })
 

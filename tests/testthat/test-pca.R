@@ -1,6 +1,6 @@
 test_that("ackwards() returns a valid ackwards object for the smoke-test case", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 5))
 
   expect_s3_class(x, "ackwards")
   validate_ackwards(x) # internal: checks all required fields
@@ -34,7 +34,7 @@ test_that("PCA edge correlations match psych::bassAckward within tolerance", {
     psych::bfi[, 1:25],
     nfactors = 5, fm = "pca", rotate = "varimax", plot = FALSE
   )
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 5))
 
   for (i in 1:4) {
     # psych stores (k+1) × k; ours is k × (k+1) — transpose to align
@@ -48,7 +48,7 @@ test_that("PCA edge correlations match psych::bassAckward within tolerance", {
 
 test_that("levels have correct structure and label formats", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
 
   for (ki in 1:3) {
     lev <- x$levels[[as.character(ki)]]
@@ -79,7 +79,7 @@ test_that("ackwards() errors informatively on bad inputs", {
 
 test_that("keep_scores = TRUE stores a named list of score matrices", {
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 2, keep_scores = TRUE))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2, keep_scores = TRUE))
   expect_false(is.null(x$scores))
   expect_named(x$scores, c("1", "2"))
   expect_equal(nrow(x$scores[["1"]]), nrow(psych::bfi))
@@ -89,7 +89,7 @@ test_that("keep_scores = TRUE stores a named list of score matrices", {
 
 test_that("keep_fits = TRUE stores a named list of raw fit objects", {
   skip_if_not_installed("psych")
-  x <- suppressWarnings(ackwards(psych::bfi[, 1:25], k_max = 2, keep_fits = TRUE))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2, keep_fits = TRUE))
   expect_false(is.null(x$fits))
   expect_named(x$fits, c("1", "2"))
   expect_true(inherits(x$fits[["1"]], "psych"))
@@ -97,7 +97,7 @@ test_that("keep_fits = TRUE stores a named list of raw fit objects", {
 
 test_that("meta$cut_show stores the cut_show value", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2, cut_show = 0.4))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2, cut_show = 0.4))
   expect_equal(x$meta$cut_show, 0.4)
 })
 
@@ -125,7 +125,7 @@ test_that("detect_ordinal() flags nothing for continuous data", {
 
 test_that("meta$ordinal_warned is TRUE for bfi data", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_true(x$meta$ordinal_warned)
 })
 
@@ -135,7 +135,7 @@ test_that("kappa is not a parameter of ackwards() (M13: removed dead arg)", {
 
 test_that("ackwards() meta does not store kappa (M13: removed)", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_false("kappa" %in% names(x$meta))
 })
 
@@ -143,7 +143,7 @@ test_that("ackwards() meta does not store kappa (M13: removed)", {
 
 test_that("tidy(x, sort = 'strength') returns edges in descending |r| order", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 5))
   out <- tidy(x, sort = "strength")
   expect_s3_class(out, "data.frame")
   expect_true(all(diff(abs(out$r)) <= 0))
@@ -151,13 +151,13 @@ test_that("tidy(x, sort = 'strength') returns edges in descending |r| order", {
 
 test_that("tidy(x, sort = 'none') is byte-identical to the default", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 5))
   expect_identical(tidy(x, sort = "none"), tidy(x))
 })
 
 test_that("tidy(x, sort = 'strength', what = 'loadings') errors informatively", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_error(tidy(x, what = "loadings", sort = "strength"), "edges")
 })
 
@@ -165,7 +165,7 @@ test_that("tidy(x, sort = 'strength', what = 'loadings') errors informatively", 
 
 test_that("tidy(x, primary_only = TRUE) returns only is_primary edges", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 5))
   full <- tidy(x, what = "edges")
   prim <- tidy(x, what = "edges", primary_only = TRUE)
   expect_true(all(prim$is_primary))
@@ -174,7 +174,7 @@ test_that("tidy(x, primary_only = TRUE) returns only is_primary edges", {
 
 test_that("tidy(x, primary_only = TRUE, sort = 'strength') filters and sorts", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 5))
   out <- tidy(x, what = "edges", primary_only = TRUE, sort = "strength")
   expect_true(all(out$is_primary))
   expect_true(all(diff(abs(out$r)) <= 0))
@@ -182,7 +182,7 @@ test_that("tidy(x, primary_only = TRUE, sort = 'strength') filters and sorts", {
 
 test_that("tidy(x, primary_only = TRUE, what = 'loadings') errors informatively", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_error(
     tidy(x, what = "loadings", primary_only = TRUE),
     "edges"
@@ -193,7 +193,7 @@ test_that("tidy(x, primary_only = TRUE, what = 'loadings') errors informatively"
 
 test_that("tidy(x, what = 'loadings') has se/ci cols present but NA for PCA", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   ld <- tidy(x, what = "loadings")
   expect_true(all(c("se", "ci_lower", "ci_upper") %in% names(ld)))
   expect_true(all(is.na(ld$se)))
@@ -203,7 +203,7 @@ test_that("tidy(x, what = 'loadings') has se/ci cols present but NA for PCA", {
 
 test_that("glance() for PCA has fit columns present but all NA", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   g <- generics::glance(x)
   expect_true(all(c("CFI", "TLI", "RMSEA", "SRMR", "BIC") %in% names(g)))
   expect_true(is.na(g$CFI))
@@ -217,7 +217,7 @@ test_that("glance() for PCA has fit columns present but all NA", {
 
 test_that("glance() returns all-NA fit when deepest_converged < 2", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   # Simulate a run that truncated to the 1-factor anchor only.
   x$meta$deepest_converged <- 1L
   g <- generics::glance(x)
@@ -228,7 +228,7 @@ test_that("glance() returns all-NA fit when deepest_converged < 2", {
 
 test_that("glance() returns all-NA fit when the deepest level carries no fit", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   # Force the empty-fit guard: deepest level has no stored fit vector.
   x$levels[[as.character(x$meta$deepest_converged)]]$fit <- numeric(0)
   g <- generics::glance(x)

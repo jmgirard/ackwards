@@ -74,28 +74,23 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M45** — out-of-sample scoring (train/test): fit-time item moments stored (`meta$item_means`/`item_sds`; NULL for cor-matrix input); `augment()` gains `scaling = c("fit", "sample")` with **`"fit"` default** (training moments — one metric across train/test/subsets; `"sample"` = pre-M45 opt-in and the cor-matrix route; DESIGN §14 item 34); new exported **`predict.ackwards(object, newdata, scaling)`** ≡ `augment(append = FALSE)` (equivalence test-asserted; `_pkgdown.yml` updated); intro-vignette train/test subsection. New export, no new dependency.
 - **M46** — Girard extension (replicability-gated hierarchies): new exported **`comparability()`** — Everett (1983)/Goldberg (1990) split-half factor comparability per level per factor (full-sample-anchored labels, greedy-with-removal matching, cross-solution correlations through `compute_edges()` on the pooled R, Tucker's φ alongside, report-first/nothing auto-flagged; PCA/EFA + pearson/spearman, `n_splits = 10`, seeded) + `print`/`autoplot` methods; capstone vignette `ackwards-girard` ("Replicability-Gated Hierarchies: A Recommended Workflow") with the six-step workflow + common-mistakes section; completes the triad `suggest_k()` (range) · `comparability()` (floor) · `prune()` (differentiation); DESIGN §14 item 35; ESEM/polychoric extensions deferred to `ROADMAP.md`. In passing: `cli::symbol$phi` glyph fix in `prune()`. New export, no new dependency.
 - **M47** — bootstrap edge CIs: new exported **`boot_edges(x, data, n_boot = 1000, conf = 0.95, seed)`** — nonparametric bootstrap SEs + percentile CIs on every between-level edge (resurrects the §14 e4 deferral), a standalone pipeable verb re-supplying `data` (Invariant 3). Per replicate: resample rows → recompute R (fit's cor/missing routine) → refit → **anchor** each level to the full-sample solution (M46 matching + sign orientation) → edges via `compute_edges()` (Invariant 1). Upfront seeded indices → **serial ≡ parallel** (`future.apply`, M26); failed replicates dropped + counted (`n_boot_ok`, Invariant 7). `tidy(what = "edges")` gains `se`/`lo`/`hi`/`n_boot_ok`; `print`/`summary` note coverage; `meta$fm` stored for EFA refits. PCA/EFA + pearson/spearman only (ESEM/polychoric deferred to `ROADMAP.md`; cor-matrix/esem/polychoric objects error). DESIGN §14 item 36 (amends the "reuse `loadings_se`" phrasing; percentile-CI + Fisher-z-oracle rationale). New export, no new dependency.
+- **M48** — performance & workflow pass (meta/process; no package-code change): suite-wide `cached()` test-fit memo in `helper-data.R` + parallel testthat (suite 93.6s→81.2s serial→**26.9s** at `TESTTHAT_CPUS=8`; full check 319.8s→241s; 1859 assertions unchanged; boot reproducibility/serial≡parallel oracles and MC sizes deliberately untouched); transcript-mined workflow audit (30k messages, 45 sessions: 249 full-suite runs, ~600 cd-compounds, 308 bare `load_all`s) → **`tools/dod-gate.R`** one-command DoD gate (dogfooded) + CLAUDE.md/implement-milestone cadence text in lockstep; expanded read-only permission allowlist staged for owner review (auto-mode classifier correctly blocked agent self-widening). Report-only: forbes vignette (23.9s) dominates rebuilds.
 
 ## Current focus
 
-**M47 is complete** (2026-07-02) — bootstrap edge CIs. Exported `boot_edges(x, data,
-n_boot = 1000, conf = 0.95, seed)`: nonparametric bootstrap SEs + percentile CIs on every
-between-level edge, resurrecting the DESIGN §14 e4 deferral (the M41 review's highest-value
-deferred statistical addition). A standalone pipeable verb re-supplying `data` (Invariant 3);
-per replicate it resamples rows, recomputes `R` with the fit's `cor`/`missing` routine, refits,
-**anchors** each level to the full-sample solution (the M46 matching + sign-orientation
-machinery), and computes edges via `compute_edges()` (Invariant 1). Resample indices drawn
-upfront from `seed`, so serial and `future.apply`-parallel dispatch agree bit-for-bit
-(test-asserted); failed replicates drop to `NA` and are counted per edge (`n_boot_ok`,
-Invariant 7). `tidy(what = "edges")` gains `se`/`lo`/`hi`/`n_boot_ok`; `print`/`summary` note
-coverage; `meta$fm` now stored for EFA replicate refits. Scope: PCA/EFA + pearson/spearman only
-(ESEM/polychoric deferred to `ROADMAP.md`, mirroring `comparability()`); cor-matrix/esem/
-polychoric objects error with pointers. Two design amendments in DESIGN §14.36: the "reuse
-`loadings_se`" phrasing corrected (bootstrap *is* the SE method; only the storage/tidy pattern is
-reused), and the statistical oracle stated honestly — the full-pipeline bootstrap SE exceeds the
-Fisher-z analytic SE (replicates re-extract factors), so exact Fisher-z equivalence is asserted
-only for a *fixed-weights* bootstrap. Forbes vignette gains a strongest-edge honesty subsection
-(per-edge CIs make precision visible but do not correct scan-for-the-largest multiplicity).
-Detail in `MILESTONES.md` (M47).
+**M48 is complete** (2026-07-02) — performance & workflow efficiency pass (meta/process
+milestone; no package-code change, no export, no NEWS entry by owner-approved deviation).
+Phase A: suite-wide `cached()` test-fit memo + parallel testthat — suite 93.6s → 81.2s serial →
+**26.9s** with `TESTTHAT_CPUS=8`; full `devtools::check()` 319.8s → **241s**; 1859 assertions
+and 100% coverage unchanged (the boot reproducibility / serial≡parallel oracles and all
+Monte-Carlo test sizes deliberately untouched). Phase B: scripted audit of 45 session
+transcripts (30k messages) surfaced 249 full-suite runs, ~600 `cd`-compound prompts, and 308
+useless bare `load_all()`s → shipped `tools/dod-gate.R` (one-command DoD gate, dogfooded at this
+milestone's own gate) and lockstep cadence-text updates in CLAUDE.md + the implement-milestone
+skill; the expanded read-only permission allowlist is **staged for owner review** in the session
+scratchpad (`proposed_settings.local.json`) after the auto-mode classifier correctly refused to
+let the agent widen its own permissions. Report-only: `ackwards-forbes.Rmd` (23.9s) dominates
+vignette rebuilds; CI workflows untouched. Detail in `MILESTONES.md` (M48).
 
 **Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas (AMH fidelity extension
 pending the owner's Forbes outreach; e2 dual EFA chi-squares; `comparability()`/`boot_edges()`
@@ -169,15 +164,25 @@ styler::style_pkg()       # format
 lintr::lint_package()     # lint
 ```
 
-**Efficiency (the suite takes minutes — don't re-run it needlessly).** `check()` already runs the
-full test suite *and* examples *and* rebuilds vignettes (~3 min: ~90s tests + ~74s vignettes + ~20s
-examples), and `covr::package_coverage()` runs the suite *again* — so `test()` → `check()` →
-`coverage()` at one gate executes the suite ~3×. Instead: iterate with **targeted**
-`devtools::test(filter = "<x>")` / `testthat::test_file()`; run failing tests **once** in a way that
-shows the details (capture `res <-` or use a non-silent reporter — never silent-then-rerun); skip the
-vignette rebuild during mid-work checks with `check(vignettes = FALSE)`; and at the final gate run
-`check()` **once** (it subsumes `test()`) then `coverage()` once. Never run two package-touching R
-processes concurrently.
+**Efficiency (don't re-run the suite needlessly).** The suite is parallel since M48
+(`Config/testthat/parallel`, slowest files first): ~27s with `TESTTHAT_CPUS=8`, ~81s serial —
+**always prefix suite runs with `TESTTHAT_CPUS=8`** (testthat defaults to 2 workers without it).
+`check()` still runs the full suite *and* examples *and* rebuilds vignettes (~74s of vignettes —
+`ackwards-forbes.Rmd` alone is ~24s), and `covr::package_coverage()` runs the suite *again* — so
+`test()` → `check()` → `coverage()` at one gate executes the suite ~3×. Instead: iterate with
+**targeted** `devtools::test(filter = "<x>")` / `testthat::test_file()`; run failing tests **once**
+in a way that shows the details (capture `res <-` or use a non-silent reporter — never
+silent-then-rerun); skip the vignette rebuild during mid-work checks with
+`check(vignettes = FALSE)`; and at the final gate run `Rscript tools/dod-gate.R` — it executes the
+whole DoD sequence (check → coverage → style → lint → pkgdown) serially in one process with
+sensible `TESTTHAT_CPUS`, and prints/exits on any failure. Never run two package-touching R
+processes concurrently. Two transcript-mined anti-patterns to avoid (M48): a bare
+`devtools::load_all()` in its own `Rscript` call does nothing persistent (each `Rscript` is a fresh
+process; `test()`/`check()` load the package themselves), and `cd <repo> && …` compound commands
+trigger avoidable permission prompts — use absolute paths. In tests, reuse the `cached()` fit memo
+(`tests/testthat/helper-data.R`) instead of refitting identical `ackwards()` objects — but never
+for reproducibility/serial-vs-parallel oracles (a cached second call asserts nothing) or fits
+wrapped in condition expectations.
 
 Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_testthat(3)`,
 `use_github_action("check-standard")`. Use testthat 3e, roxygen2 for all exported functions
@@ -197,6 +202,8 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
 - `devtools::check()` clean (run **once** at the gate — it subsumes `devtools::test()`; see the
   efficiency note under *Dev workflow*). Coverage checked once, not per sub-step.
 - Styled and linted.
+- The whole gate above is one command: `Rscript tools/dod-gate.R` (M48) — check → coverage →
+  style → lint → pkgdown, serial, one process, non-zero exit on any failure.
 - Public-facing change reflected in NEWS.md and (if user-visible) the relevant `@examples`/vignette.
 - For a milestone: a detailed entry added to `MILESTONES.md` **in numeric order** + a one-line
   index entry here under "Completed milestones". `MILESTONES.md` is the single source of truth for

@@ -92,8 +92,8 @@ test_that("ackwards() errors for unrecognised missing value", {
 test_that("missing = 'pairwise' (default) reproduces prior PCA output exactly", {
   skip_if_not_installed("psych")
   suppressWarnings({
-    x_default <- ackwards(psych::bfi[, 1:25], k_max = 3)
-    x_explicit <- ackwards(psych::bfi[, 1:25], k_max = 3, missing = "pairwise")
+    x_default <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
+    x_explicit <- cached(ackwards(psych::bfi[, 1:25], k_max = 3, missing = "pairwise"))
   })
   expect_equal(x_default$edges$tidy, x_explicit$edges$tidy)
   expect_equal(x_default$r, x_explicit$r)
@@ -106,7 +106,7 @@ test_that("PCA listwise uses complete-case n_obs", {
   set.seed(1)
   d <- as.data.frame(matrix(rnorm(200 * 8), 200, 8))
   d[1:10, 1] <- NA_real_ # 10 incomplete rows
-  x <- suppressWarnings(ackwards(d, k_max = 2L, missing = "listwise"))
+  x <- cached(ackwards(d, k_max = 2L, missing = "listwise"))
   expect_equal(x$n_obs, 190L)
   expect_equal(x$meta$n_complete, 190L)
 })
@@ -116,7 +116,7 @@ test_that("PCA pairwise n_obs is total row count", {
   set.seed(1)
   d <- as.data.frame(matrix(rnorm(200 * 8), 200, 8))
   d[1:10, 1] <- NA_real_
-  x <- suppressWarnings(ackwards(d, k_max = 2L, missing = "pairwise"))
+  x <- cached(ackwards(d, k_max = 2L, missing = "pairwise"))
   expect_equal(x$n_obs, 200L)
   expect_equal(x$meta$n_complete, 190L)
 })
@@ -126,7 +126,7 @@ test_that("PCA listwise correlation matrix has no NAs", {
   set.seed(1)
   d <- as.data.frame(matrix(rnorm(200 * 8), 200, 8))
   d[1:10, 1] <- NA_real_
-  x <- suppressWarnings(ackwards(d, k_max = 2L, missing = "listwise"))
+  x <- cached(ackwards(d, k_max = 2L, missing = "listwise"))
   expect_false(any(is.na(x$r)))
 })
 
@@ -137,7 +137,7 @@ test_that("EFA listwise uses complete-case n_obs", {
   set.seed(1)
   d <- as.data.frame(matrix(rnorm(300 * 8), 300, 8))
   d[1:20, 2] <- NA_real_ # 20 incomplete rows
-  x <- suppressWarnings(ackwards(d, k_max = 2L, engine = "efa", missing = "listwise"))
+  x <- cached(ackwards(d, k_max = 2L, engine = "efa", missing = "listwise"))
   expect_equal(x$n_obs, 280L)
   expect_equal(x$meta$n_complete, 280L)
 })
@@ -171,8 +171,8 @@ test_that("meta$missing records the missing argument", {
   skip_if_not_installed("psych")
   set.seed(1)
   d <- as.data.frame(matrix(rnorm(200 * 8), 200, 8))
-  x_pw <- suppressWarnings(ackwards(d, k_max = 2L, missing = "pairwise"))
-  x_lw <- suppressWarnings(ackwards(d, k_max = 2L, missing = "listwise"))
+  x_pw <- cached(ackwards(d, k_max = 2L, missing = "pairwise"))
+  x_lw <- cached(ackwards(d, k_max = 2L, missing = "listwise"))
   expect_equal(x_pw$meta$missing, "pairwise")
   expect_equal(x_lw$meta$missing, "listwise")
 })
@@ -182,7 +182,7 @@ test_that("meta$n_complete records complete case count", {
   set.seed(1)
   d <- as.data.frame(matrix(rnorm(200 * 8), 200, 8))
   d[1:5, 1] <- NA_real_
-  x <- suppressWarnings(ackwards(d, k_max = 2L))
+  x <- cached(ackwards(d, k_max = 2L))
   expect_equal(x$meta$n_complete, 195L)
 })
 
@@ -236,12 +236,10 @@ test_that("ESEM FIML result has valid edges (no NAs in r)", {
   set.seed(42)
   d <- .make_esem_data()
   d[1:5, 1] <- NA_real_
-  x <- suppressWarnings(
-    ackwards(d,
-      k_max = 2L, engine = "esem", missing = "fiml",
-      estimator = "ML"
-    )
-  )
+  x <- cached(ackwards(d,
+    k_max = 2L, engine = "esem", missing = "fiml",
+    estimator = "ML"
+  ))
   expect_false(any(is.na(x$edges$tidy$r)))
 })
 
@@ -250,12 +248,10 @@ test_that("ESEM FIML n_obs equals total rows (all rows used)", {
   set.seed(42)
   d <- .make_esem_data()
   d[1:5, 1] <- NA_real_
-  x <- suppressWarnings(
-    ackwards(d,
-      k_max = 2L, engine = "esem", missing = "fiml",
-      estimator = "ML"
-    )
-  )
+  x <- cached(ackwards(d,
+    k_max = 2L, engine = "esem", missing = "fiml",
+    estimator = "ML"
+  ))
   expect_equal(x$n_obs, nrow(d))
 })
 
@@ -266,9 +262,7 @@ test_that("ESEM listwise: n_obs equals complete-case count", {
   set.seed(42)
   d <- .make_esem_data()
   d[1:10, 1] <- NA_real_ # 10 incomplete rows
-  x <- suppressWarnings(
-    ackwards(d, k_max = 2L, engine = "esem", missing = "listwise")
-  )
+  x <- cached(ackwards(d, k_max = 2L, engine = "esem", missing = "listwise"))
   expect_equal(x$n_obs, 190L)
   expect_equal(x$meta$n_complete, 190L)
 })
@@ -278,9 +272,7 @@ test_that("ESEM listwise: correlation matrix has no NAs", {
   set.seed(42)
   d <- .make_esem_data()
   d[1:10, 1] <- NA_real_
-  x <- suppressWarnings(
-    ackwards(d, k_max = 2L, engine = "esem", missing = "listwise")
-  )
+  x <- cached(ackwards(d, k_max = 2L, engine = "esem", missing = "listwise"))
   expect_false(any(is.na(x$r)))
 })
 

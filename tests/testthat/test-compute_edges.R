@@ -15,7 +15,7 @@ test_that("algebra and scores paths agree for PCA engine on all adjacent pairs",
   )
   R <- cor(data)
 
-  suppressWarnings(x <- ackwards(data, k_max = 4))
+  x <- cached(ackwards(data, k_max = 4))
 
   E_scores_all <- compute_edges(
     levels = x$levels,
@@ -38,7 +38,7 @@ test_that("algebra and scores paths agree for PCA engine on all adjacent pairs",
 
 test_that("compute_edges errors when algebra forced but R missing", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_error(
     compute_edges(x$levels, R = NULL, edge_method = "algebra"),
     "conditions not met"
@@ -49,7 +49,7 @@ test_that("compute_edges with explicit edge_method='algebra' and valid R succeed
   # Covers the TRUE branch inside the algebra case of the switch,
   # which is only reached when edge_method = "algebra" and algebra_ok = TRUE.
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(bfi25[, 1:6], k_max = 3))
+  x <- cached(ackwards(bfi25[, 1:6], k_max = 3))
   R <- cor(bfi25[, 1:6], use = "pairwise.complete.obs")
   result <- compute_edges(x$levels, R = R, edge_method = "algebra")
   expect_type(result, "list")
@@ -58,7 +58,7 @@ test_that("compute_edges with explicit edge_method='algebra' and valid R succeed
 
 test_that("compute_edges errors when scores needed but data absent", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 2))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 2))
   expect_error(
     compute_edges(x$levels, R = NULL, edge_method = "scores", data = NULL),
     "data"
@@ -82,8 +82,8 @@ test_that("pairs='all' produces skip-level edge matrices in ackwards()", {
     x6 = g + s2 + rnorm(n, sd = 0.3)
   )
 
-  x_adj <- suppressWarnings(ackwards(data, k_max = 4, pairs = "adjacent"))
-  x_all <- suppressWarnings(ackwards(data, k_max = 4, pairs = "all"))
+  x_adj <- cached(ackwards(data, k_max = 4, pairs = "adjacent"))
+  x_all <- cached(ackwards(data, k_max = 4, pairs = "all"))
 
   # Default is adjacent
   expect_equal(x_adj$meta$pairs, "adjacent")
@@ -125,7 +125,7 @@ test_that("skip-level edges in pairs='all' have is_primary=FALSE and correct lev
     x6 = g + s2 + rnorm(n, sd = 0.3)
   )
 
-  x <- suppressWarnings(ackwards(data, k_max = 3, pairs = "all"))
+  x <- cached(ackwards(data, k_max = 3, pairs = "all"))
   tidy <- x$edges$tidy
 
   # Skip-level pair 1:3 should exist
@@ -157,7 +157,7 @@ test_that("algebra and scores agree for all-levels edges (PCA)", {
   )
   R <- cor(data)
 
-  x <- suppressWarnings(ackwards(data, k_max = 4, pairs = "all"))
+  x <- cached(ackwards(data, k_max = 4, pairs = "all"))
 
   E_scores_all <- compute_edges(
     levels = x$levels,
@@ -284,7 +284,7 @@ test_that("ackwards() parent indices are always within bounds (regression: LSAP 
   skip_if_not_installed("psych")
   # This call previously triggered subscript OOB when clue was installed,
   # because LSAP padding rows returned indices > nrow(E) for non-square levels.
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 5))
   expect_s3_class(x, "ackwards")
   expect_equal(x$k_max, 5L)
   # Verify every lineage index is in bounds for its level

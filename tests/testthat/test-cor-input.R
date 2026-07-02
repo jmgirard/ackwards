@@ -21,7 +21,7 @@ test_that("ackwards() sets cor = NA for R-matrix input", {
 })
 
 test_that("ackwards() data path still sets input_type = 'data'", {
-  x <- suppressWarnings(ackwards(bfi25[, 1:6], k_max = 3))
+  x <- cached(ackwards(bfi25[, 1:6], k_max = 3))
   expect_equal(x$meta$input_type, "data")
 })
 
@@ -30,7 +30,7 @@ test_that("ackwards() data path still sets input_type = 'data'", {
 test_that("R-matrix PCA edges match raw-data PCA edges within tolerance", {
   R <- cor(bfi25, use = "pairwise.complete.obs")
   x_R <- suppressMessages(ackwards(R, k_max = 5))
-  x_d <- suppressWarnings(ackwards(bfi25, k_max = 5))
+  x_d <- cached(ackwards(bfi25, k_max = 5))
   expect_equal(tidy(x_R)$r, tidy(x_d)$r, tolerance = 1e-10)
 })
 
@@ -40,7 +40,7 @@ test_that("R-matrix EFA edges match raw-data EFA edges within tolerance", {
   R <- cor(bfi25, use = "pairwise.complete.obs")
   x_R <- suppressMessages(ackwards(R, k_max = 5, engine = "efa", n_obs = 875L))
   set.seed(42)
-  x_d <- suppressWarnings(ackwards(bfi25, k_max = 5, engine = "efa"))
+  x_d <- cached(ackwards(bfi25, k_max = 5, engine = "efa"))
   expect_equal(tidy(x_R)$r, tidy(x_d)$r, tolerance = 1e-8)
 })
 

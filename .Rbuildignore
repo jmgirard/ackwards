@@ -16,3 +16,4 @@
 ^\.github$
 ^pkgdown$
 ^data-raw$
+^tools$

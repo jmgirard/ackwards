@@ -1,6 +1,6 @@
 test_that("ba_layout() returns a list with nodes and edges data frames", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
   lay <- ba_layout(x)
 
   expect_type(lay, "list")
@@ -11,7 +11,7 @@ test_that("ba_layout() returns a list with nodes and edges data frames", {
 
 test_that("ba_layout() nodes have correct structure and counts", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
   lay <- ba_layout(x)
   nodes <- lay$nodes
 
@@ -31,7 +31,7 @@ test_that("ba_layout() nodes have correct structure and counts", {
 
 test_that("ba_layout() y positions equal -level", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   lay <- ba_layout(x)
   nodes <- lay$nodes
   expect_equal(nodes$y, -nodes$level)
@@ -39,7 +39,7 @@ test_that("ba_layout() y positions equal -level", {
 
 test_that("ba_layout() level-1 node is at x = 0", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   lay <- ba_layout(x)
   nodes <- lay$nodes
   expect_equal(nodes$x[nodes$level == 1], 0)
@@ -47,7 +47,7 @@ test_that("ba_layout() level-1 node is at x = 0", {
 
 test_that("ba_layout() respects min_sep between nodes at same level", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 5))
 
   for (sep in c(0.5, 1.0, 1.5)) {
     lay <- ba_layout(x, min_sep = sep)
@@ -65,7 +65,7 @@ test_that("ba_layout() respects min_sep between nodes at same level", {
 
 test_that("ba_layout() node IDs and labels match level labels", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   lay <- ba_layout(x)
   nodes <- lay$nodes
   expect_equal(nodes$id, nodes$label)
@@ -79,7 +79,7 @@ test_that("ba_layout() errors on non-ackwards input", {
 
 test_that("ba_layout() places each parent at mean x of its primary children", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 5))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 5))
   lay <- ba_layout(x)
   nodes <- lay$nodes
   edges <- lay$edges
@@ -147,7 +147,7 @@ test_that(".spread_positions() enforces min_sep, preserves order, and recentres"
 test_that("autoplot.ackwards() returns a ggplot object", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- ggplot2::autoplot(x)
   expect_s3_class(p, "ggplot")
 })
@@ -155,7 +155,7 @@ test_that("autoplot.ackwards() returns a ggplot object", {
 test_that("autoplot(x) dispatches correctly without library(ggplot2)", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   # The package defines its own autoplot generic so this works without ggplot2 attached
   p <- autoplot(x)
   expect_s3_class(p, "ggplot")
@@ -164,7 +164,7 @@ test_that("autoplot(x) dispatches correctly without library(ggplot2)", {
 test_that("autoplot.ackwards() respects cut_show", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   expect_no_error(ggplot2::autoplot(x, cut_show = 0.1))
   expect_no_error(ggplot2::autoplot(x, cut_show = 0.5))
 })
@@ -172,14 +172,14 @@ test_that("autoplot.ackwards() respects cut_show", {
 test_that("autoplot.ackwards() deprecates cut_strong (warns, no effect)", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   expect_warning(ggplot2::autoplot(x, cut_strong = 0.4), "deprecated")
 })
 
 test_that("autoplot.ackwards() validates cut_show (M42/m8)", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   expect_error(ggplot2::autoplot(x, cut_show = 5), "\\[0, 1\\]")
   expect_error(ggplot2::autoplot(x, cut_show = c(0.3, 0.5)), "\\[0, 1\\]")
   expect_error(ggplot2::autoplot(x, cut_show = NA), "\\[0, 1\\]")
@@ -188,7 +188,7 @@ test_that("autoplot.ackwards() validates cut_show (M42/m8)", {
 test_that("autoplot.ackwards() warns when cut_show hides all edges", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   # cut_show = 1 (the legal maximum since M42/m8 validation) hides every edge
   # here: no between-level correlation in these data reaches exactly 1.0
   expect_warning(ggplot2::autoplot(x, cut_show = 1), "No edges")
@@ -197,14 +197,14 @@ test_that("autoplot.ackwards() warns when cut_show hides all edges", {
 test_that("autoplot.ackwards() warns when min_sep < node_width", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   expect_warning(ggplot2::autoplot(x, min_sep = 0.3, node_width = 0.8), "overlap")
 })
 
 test_that("plot.ackwards() runs without error and returns x invisibly", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   expect_no_error(plot(x))
   expect_invisible(plot(x))
 })
@@ -212,7 +212,7 @@ test_that("plot.ackwards() runs without error and returns x invisibly", {
 test_that("autoplot.ackwards() renders skip-level edges with pairs='all'", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
   p <- expect_no_error(ggplot2::autoplot(x))
   expect_s3_class(p, "ggplot")
   # show_skip defaults to TRUE when meta$pairs == "all"
@@ -249,7 +249,7 @@ test_that(".drop_pruned_nodes() bridges fully-pruned levels on pairs='adjacent' 
   skip_if_not_installed("psych")
   d <- na.omit(ackwards::bfi25)
   # Default pairs = "adjacent": the stored tidy edges hold no skip-level rows.
-  suppressWarnings(x <- ackwards(d, k_max = 4))
+  x <- cached(ackwards(d, k_max = 4))
   xp <- prune(x, manual = c("m2f1", "m2f2")) # level 2 fully pruned
 
   lay <- ba_layout(xp)
@@ -267,7 +267,7 @@ test_that(".drop_pruned_nodes() bridges fully-pruned levels on pairs='adjacent' 
 
   # And the reduced edge set must be identical whether the object was fit
   # with pairs = "adjacent" or pairs = "all" (edges are recomputed fresh).
-  suppressWarnings(x_all <- ackwards(d, k_max = 4, pairs = "all"))
+  x_all <- cached(ackwards(d, k_max = 4, pairs = "all"))
   xp_all <- prune(x_all, manual = c("m2f1", "m2f2"))
   dp_all <- ackwards:::.drop_pruned_nodes(xp_all, ba_layout(xp_all)$nodes)
   cols <- c("from", "to", "level_from", "level_to", "r")
@@ -277,7 +277,7 @@ test_that(".drop_pruned_nodes() bridges fully-pruned levels on pairs='adjacent' 
 test_that("autoplot.ackwards() handles objects with prune=NULL (no pruning)", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   expect_null(x$prune)
   p <- expect_no_error(ggplot2::autoplot(x))
   expect_s3_class(p, "ggplot")
@@ -288,7 +288,7 @@ test_that("autoplot.ackwards() handles objects with prune=NULL (no pruning)", {
 test_that("autoplot.ackwards() show_r=TRUE labels edges without error", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, show_r = TRUE))
   expect_s3_class(p, "ggplot")
 })
@@ -296,7 +296,7 @@ test_that("autoplot.ackwards() show_r=TRUE labels edges without error", {
 test_that("autoplot.ackwards() show_r=TRUE respects r_digits", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, show_r = TRUE, r_digits = 3L))
   expect_s3_class(p, "ggplot")
 })
@@ -304,7 +304,7 @@ test_that("autoplot.ackwards() show_r=TRUE respects r_digits", {
 test_that("autoplot.ackwards() show_r=TRUE works with pairs='all'", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
   p <- expect_no_error(ggplot2::autoplot(x, show_r = TRUE))
   expect_s3_class(p, "ggplot")
 })
@@ -312,7 +312,7 @@ test_that("autoplot.ackwards() show_r=TRUE works with pairs='all'", {
 test_that("autoplot.ackwards() mono=TRUE returns a ggplot", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, mono = TRUE))
   expect_s3_class(p, "ggplot")
 })
@@ -320,7 +320,7 @@ test_that("autoplot.ackwards() mono=TRUE returns a ggplot", {
 test_that("autoplot.ackwards() mono=TRUE + show_r=TRUE composes without error", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, mono = TRUE, show_r = TRUE))
   expect_s3_class(p, "ggplot")
 })
@@ -345,7 +345,7 @@ test_that("autoplot.ackwards() mono=TRUE + show_r=TRUE composes without error", 
 test_that("sign_by selects which aesthetic encodes edge sign", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
 
   # default "color": colour encodes sign, linetype does not
   p <- ggplot2::autoplot(x)
@@ -374,7 +374,7 @@ test_that("sign_by selects which aesthetic encodes edge sign", {
 test_that("magnitude_by / edge_linewidth control the |r| linewidth scale", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
 
   expect_true(.ba_has_scale(ggplot2::autoplot(x), "linewidth"))
   expect_false(.ba_has_scale(ggplot2::autoplot(x, magnitude_by = "none"), "linewidth"))
@@ -385,7 +385,7 @@ test_that("magnitude_by / edge_linewidth control the |r| linewidth scale", {
 test_that("colour_* aliases override the color_* arguments", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
 
   # colour_pos / colour_neg feed the Direction colour scale (break order
   # positive, negative) -- readable even when no negative edge is drawn.
@@ -412,7 +412,7 @@ test_that("colour_* aliases override the color_* arguments", {
 test_that("sign_by='none' + magnitude_by='none' renders with no encoding scales", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
 
   p <- ggplot2::autoplot(x, sign_by = "none", magnitude_by = "none")
   expect_s3_class(p, "ggplot")
@@ -425,7 +425,7 @@ test_that("sign_by='none' + magnitude_by='none' renders with no encoding scales"
 test_that("mono=TRUE is equivalent to sign_by='linetype' with black edges", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
 
   p <- ggplot2::autoplot(x, mono = TRUE)
   expect_true(.ba_has_scale(p, "linetype"))
@@ -437,7 +437,7 @@ test_that("mono=TRUE is equivalent to sign_by='linetype' with black edges", {
 test_that("direction='horizontal' transposes the level axis to x", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
 
   tile_layer <- function(p) {
     d <- ggplot2::ggplot_build(p)$data
@@ -463,7 +463,7 @@ test_that("direction='horizontal' transposes the level axis to x", {
 test_that("direction='horizontal' composes with skip, mono, and drop_pruned", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(xa <- ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
+  xa <- cached(ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
   expect_s3_class(ggplot2::autoplot(xa, direction = "horizontal", show_skip = TRUE), "ggplot")
   expect_s3_class(ggplot2::autoplot(xa, direction = "horizontal", mono = TRUE), "ggplot")
   # show_r places perpendicular-offset labels; the offset math is orientation-
@@ -480,7 +480,7 @@ test_that("direction='horizontal' composes with skip, mono, and drop_pruned", {
 test_that("autoplot.ackwards() show_level_labels=TRUE (default) returns a ggplot", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, show_level_labels = TRUE))
   expect_s3_class(p, "ggplot")
 })
@@ -488,7 +488,7 @@ test_that("autoplot.ackwards() show_level_labels=TRUE (default) returns a ggplot
 test_that("autoplot.ackwards() show_level_labels=FALSE omits labels without error", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, show_level_labels = FALSE))
   expect_s3_class(p, "ggplot")
 })
@@ -512,7 +512,7 @@ test_that("autoplot.ackwards() show_level_labels=FALSE omits labels without erro
 
 test_that(".fully_pruned_levels() detects a wholly-pruned level, not partial ones", {
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
   # No pruning annotations -> integer(0)
   expect_identical(.fully_pruned_levels(x), integer(0))
   # Prune every factor at level 4 -> level 4 fully pruned
@@ -526,7 +526,7 @@ test_that(".fully_pruned_levels() detects a wholly-pruned level, not partial one
 test_that("autoplot() italicises a fully-pruned level's axis label (both directions)", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
   xp <- prune(x, manual = c("m4f1", "m4f2", "m4f3", "m4f4"))
 
   for (dir in c("vertical", "horizontal")) {
@@ -544,7 +544,7 @@ test_that("autoplot() renders all level labels plain when nothing is fully prune
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
   # Un-pruned object
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
   ld <- .level_label_data(ggplot2::autoplot(x))
   expect_false(is.null(ld))
   expect_true(all(ld$fontface == "plain"))
@@ -560,7 +560,7 @@ test_that("autoplot() italicises levels fully pruned by the auto 'redundant' rul
   # k_max = 5 with the |r| >= 0.9 threshold -- an *auto*-rule full prune (not
   # manual), and two fully-pruned levels at once. Deterministic for this dataset.
   suppressWarnings(suppressMessages(
-    xr <- ackwards(sim16, k_max = 5) |> prune("redundant", redundancy_r = 0.9)
+    xr <- cached(ackwards(sim16, k_max = 5) |> prune("redundant", redundancy_r = 0.9))
   ))
   expect_identical(.fully_pruned_levels(xr), c(3L, 4L))
 
@@ -573,7 +573,7 @@ test_that("autoplot() italicises levels fully pruned by the auto 'redundant' rul
 test_that("autoplot.ackwards() node_labels applies custom labels", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, node_labels = c(m3f1 = "Alpha")))
   expect_s3_class(p, "ggplot")
 })
@@ -581,7 +581,7 @@ test_that("autoplot.ackwards() node_labels applies custom labels", {
 test_that("autoplot.ackwards() node_labels warns for unknown factor IDs", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   expect_warning(
     ggplot2::autoplot(x, node_labels = c(m99f1 = "Ghost")),
     "match no factor ID"
@@ -591,7 +591,7 @@ test_that("autoplot.ackwards() node_labels warns for unknown factor IDs", {
 test_that("autoplot.ackwards() primary_only=TRUE returns a ggplot", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, primary_only = TRUE))
   expect_s3_class(p, "ggplot")
 })
@@ -599,7 +599,7 @@ test_that("autoplot.ackwards() primary_only=TRUE returns a ggplot", {
 test_that("autoplot.ackwards() primary_only=TRUE hides skip arcs", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
   # primary_only filters to is_primary==TRUE; skip edges are never primary
   p <- expect_no_error(ggplot2::autoplot(x, primary_only = TRUE))
   expect_s3_class(p, "ggplot")
@@ -608,7 +608,7 @@ test_that("autoplot.ackwards() primary_only=TRUE hides skip arcs", {
 test_that("autoplot.ackwards() all Wave-1 args compose without error", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
   p <- expect_no_error(ggplot2::autoplot(
     x,
     show_r            = TRUE,
@@ -627,7 +627,7 @@ test_that("autoplot.ackwards() all Wave-1 args compose without error", {
 test_that("drop_pruned=TRUE errors without pruning annotations", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   expect_null(x$prune)
   expect_error(ggplot2::autoplot(x, drop_pruned = TRUE), "prune")
 })
@@ -660,7 +660,7 @@ test_that("drop_pruned=TRUE: show_r defaults to FALSE (decoupled from drop_prune
 test_that("show_r=TRUE produces GeomLabel layers", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, show_r = TRUE))
   label_layers <- Filter(function(l) inherits(l$geom, "GeomLabel"), p$layers)
   expect_true(length(label_layers) > 0L)
@@ -682,7 +682,7 @@ test_that("drop_pruned=TRUE + show_r=FALSE produces no GeomLabel layers", {
 test_that("show_r=TRUE label text is APA-formatted (no leading zero, padded decimals)", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- ggplot2::autoplot(x, show_r = TRUE, r_digits = 2L)
   idx <- which(vapply(p$layers, function(l) inherits(l$geom, "GeomLabel"), logical(1L)))
   ld <- ggplot2::layer_data(p, idx)
@@ -700,7 +700,7 @@ test_that("show_r=TRUE label text is APA-formatted (no leading zero, padded deci
 test_that("show_r=TRUE places labels offset from the edge midpoint", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- ggplot2::autoplot(x, show_r = TRUE)
   ld <- ggplot2::layer_data(p, which(vapply(p$layers, function(l) {
     inherits(l$geom, "GeomLabel")
@@ -717,7 +717,7 @@ test_that("show_r=TRUE places labels offset from the edge midpoint", {
 test_that("r_label_size arg changes the geom_label size", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p_small <- ggplot2::autoplot(x, show_r = TRUE, r_label_size = 1.5)
   p_large <- ggplot2::autoplot(x, show_r = TRUE, r_label_size = 4.0)
   get_label_size <- function(p) {
@@ -841,7 +841,7 @@ test_that("drop_pruned=TRUE warns when no nodes are pruned (artifact-only)", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
   suppressWarnings(suppressMessages(
-    x <- ackwards(psych::bfi[, 1:25], k_max = 3) |> prune("artifact")
+    x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3) |> prune("artifact"))
   ))
   expect_true(!any(x$prune$nodes$pruned))
   expect_warning(
@@ -868,7 +868,7 @@ test_that("drop_pruned=TRUE warns when cut_show removes all reduced edges", {
 test_that("node_labels as unnamed vector silently does nothing", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   # Unnamed character: names() is NULL; no warning, no crash
   p <- expect_no_error(ggplot2::autoplot(x, node_labels = c("Alpha", "Beta")))
   expect_s3_class(p, "ggplot")
@@ -877,7 +877,7 @@ test_that("node_labels as unnamed vector silently does nothing", {
 test_that("compress_levels=TRUE without drop_pruned is silently ignored", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, compress_levels = TRUE))
   expect_s3_class(p, "ggplot")
 })
@@ -904,7 +904,7 @@ test_that("drop_pruned=TRUE ignores primary_only and show_skip", {
 test_that("show_arrows=FALSE returns a ggplot", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, show_arrows = FALSE))
   expect_s3_class(p, "ggplot")
 })
@@ -912,7 +912,7 @@ test_that("show_arrows=FALSE returns a ggplot", {
 test_that("show_arrows=FALSE sets arrow=NULL on segment layers", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- ggplot2::autoplot(x, show_arrows = FALSE)
   seg_layers <- Filter(function(l) inherits(l$geom, "GeomSegment"), p$layers)
   expect_true(length(seg_layers) > 0L)
@@ -922,7 +922,7 @@ test_that("show_arrows=FALSE sets arrow=NULL on segment layers", {
 test_that("show_arrows=TRUE (default) retains arrowheads on segment layers", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- ggplot2::autoplot(x, show_arrows = TRUE)
   seg_layers <- Filter(function(l) inherits(l$geom, "GeomSegment"), p$layers)
   for (l in seg_layers) expect_s3_class(l$geom_params$arrow, "arrow")
@@ -931,7 +931,7 @@ test_that("show_arrows=TRUE (default) retains arrowheads on segment layers", {
 test_that("show_arrows=FALSE removes arrowheads from curved arcs too", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
   p <- ggplot2::autoplot(x, show_arrows = FALSE)
   expect_s3_class(p, "ggplot")
   cur_layers <- Filter(function(l) inherits(l$geom, "GeomCurve"), p$layers)
@@ -941,7 +941,7 @@ test_that("show_arrows=FALSE removes arrowheads from curved arcs too", {
 test_that("edge_linewidth numeric returns a ggplot", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, edge_linewidth = 0.6))
   expect_s3_class(p, "ggplot")
 })
@@ -949,7 +949,7 @@ test_that("edge_linewidth numeric returns a ggplot", {
 test_that("edge_linewidth numeric drops the linewidth scale", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   has_lw_scale <- function(p) {
     any(vapply(p$scales$scales, function(s) "linewidth" %in% s$aesthetics, logical(1L)))
   }
@@ -960,7 +960,7 @@ test_that("edge_linewidth numeric drops the linewidth scale", {
 test_that("edge_linewidth=NULL (default) retains the linewidth scale", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   has_lw_scale <- function(p) {
     any(vapply(p$scales$scales, function(s) "linewidth" %in% s$aesthetics, logical(1L)))
   }
@@ -970,7 +970,7 @@ test_that("edge_linewidth=NULL (default) retains the linewidth scale", {
 test_that("legend=FALSE returns a ggplot with legend.position='none'", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(x, legend = FALSE))
   expect_s3_class(p, "ggplot")
   expect_equal(p$theme$legend.position, "none")
@@ -979,7 +979,7 @@ test_that("legend=FALSE returns a ggplot with legend.position='none'", {
 test_that("legend=TRUE (default) does not suppress the legend", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- ggplot2::autoplot(x, legend = TRUE)
   expect_false(identical(p$theme$legend.position, "none"))
 })
@@ -988,7 +988,7 @@ test_that("Forbes-style composition: drop_pruned+black+fixed lw+no arrows+no leg
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
   suppressWarnings(suppressMessages(
-    x <- ackwards(psych::bfi[, 1:25], k_max = 5) |> prune("redundant", redundancy_r = 0.95)
+    x <- cached(ackwards(psych::bfi[, 1:25], k_max = 5) |> prune("redundant", redundancy_r = 0.95))
   ))
   p <- expect_no_error(ggplot2::autoplot(
     x,
@@ -1006,7 +1006,7 @@ test_that("Forbes-style composition: drop_pruned+black+fixed lw+no arrows+no leg
 test_that("M9 args compose with mono=TRUE without error", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- expect_no_error(ggplot2::autoplot(
     x,
     mono           = TRUE,
@@ -1020,7 +1020,7 @@ test_that("M9 args compose with mono=TRUE without error", {
 test_that("all M9 args compose with all M8 args without error", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all"))
   p <- expect_no_error(ggplot2::autoplot(
     x,
     show_r            = TRUE,
@@ -1038,7 +1038,7 @@ test_that("all M9 args compose with all M8 args without error", {
 test_that("edge_linewidth numeric stores constant linewidth on segment layers", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- ggplot2::autoplot(x, edge_linewidth = 0.6)
   seg_layers <- Filter(function(l) inherits(l$geom, "GeomSegment"), p$layers)
   expect_true(length(seg_layers) > 0L)
@@ -1049,7 +1049,7 @@ test_that("edge_linewidth numeric stores constant linewidth on segment layers", 
 test_that("edge_linewidth invalid values error clearly", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   expect_error(ggplot2::autoplot(x, edge_linewidth = "thick"), "edge_linewidth")
   expect_error(ggplot2::autoplot(x, edge_linewidth = -0.5), "edge_linewidth")
   expect_error(ggplot2::autoplot(x, edge_linewidth = c(0.5, 0.6)), "edge_linewidth")
@@ -1079,7 +1079,7 @@ test_that("legend=FALSE is honoured on the degenerate drop_pruned plot", {
 test_that("autoplot(x, what='fit') returns ggplot for EFA object", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
   p <- ggplot2::autoplot(x, what = "fit")
   expect_s3_class(p, "ggplot")
 })
@@ -1087,7 +1087,7 @@ test_that("autoplot(x, what='fit') returns ggplot for EFA object", {
 test_that("autoplot(x, what='fit') draws Hu & Bentler threshold reference lines", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
   p <- ggplot2::autoplot(x, what = "fit")
   # The cutoff reference lines are a geom_hline layer (retained .fit_cutoffs()).
   has_hline <- vapply(
@@ -1105,7 +1105,7 @@ test_that("autoplot(x, what='fit') returns ggplot for ESEM object", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("lavaan")
   d <- data.frame(matrix(rnorm(300 * 6), 300, 6))
-  suppressWarnings(x <- ackwards(d, k_max = 3, engine = "esem"))
+  x <- cached(ackwards(d, k_max = 3, engine = "esem"))
   p <- ggplot2::autoplot(x, what = "fit")
   expect_s3_class(p, "ggplot")
 })
@@ -1115,7 +1115,7 @@ test_that("fit-plot caption names only the plotted indices (M42/m10)", {
   skip_if_not_installed("psych")
   # EFA panels show TLI/RMSEA only; the caption must not list CFI/SRMR cutoffs.
   suppressWarnings(
-    x_efa <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa")
+    x_efa <- cached(ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
   )
   cap_efa <- ggplot2::autoplot(x_efa, what = "fit")$labels$caption
   expect_true(grepl("TLI", cap_efa) && grepl("RMSEA", cap_efa))
@@ -1125,7 +1125,7 @@ test_that("fit-plot caption names only the plotted indices (M42/m10)", {
 test_that("autoplot(x, what='fit') returns ggplot with informative message for PCA", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p <- ggplot2::autoplot(x, what = "fit")
   expect_s3_class(p, "ggplot")
 })
@@ -1133,7 +1133,7 @@ test_that("autoplot(x, what='fit') returns ggplot with informative message for P
 test_that("autoplot(x, what='hierarchy') is unchanged from default", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3))
   p_default <- ggplot2::autoplot(x)
   p_explicit <- ggplot2::autoplot(x, what = "hierarchy")
   # Both should be ggplots; data-level equality is already tested elsewhere
@@ -1144,7 +1144,7 @@ test_that("autoplot(x, what='hierarchy') is unchanged from default", {
 test_that("autoplot(what='fit') returns empty plot when no kept indices present", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
   # Strip the EFA fit down to indices the plot does not chart (chi/dof only),
   # forcing the "No fit indices available" branch.
   for (ki in names(x$levels)) {
@@ -1157,7 +1157,7 @@ test_that("autoplot(what='fit') returns empty plot when no kept indices present"
 test_that("autoplot(what='fit') panel titles are engine-aware (EFA: no CFI/SRMR)", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("psych")
-  suppressWarnings(x <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
   p <- ggplot2::autoplot(x, what = "fit")
   panels <- as.character(unique(p$data$panel))
   # EFA charts TLI and RMSEA only; titles must not advertise CFI or SRMR.
