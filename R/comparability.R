@@ -458,8 +458,11 @@ print.comparability <- function(x, ...) {
 autoplot.comparability <- function(object, ...) {
   rlang::check_installed("ggplot2", reason = "for autoplot.comparability()")
 
-  panel_r <- "Score comparability (r)"
-  panel_phi <- "Loading congruence (\u03c6)"
+  # Plotmath strings (rendered via label_parsed): the phi glyph as UTF-8 text
+  # fails on the pdf device R CMD check uses for examples (mbcsToSbcs), while
+  # plotmath draws it from the symbol font on every device.
+  panel_r <- "Score~comparability~(italic(r))"
+  panel_phi <- "Loading~congruence~(phi)"
 
   # Long format: one row per split x level x factor x statistic, plus the
   # per-factor medians as a second point type. Factors within a level are
@@ -520,12 +523,12 @@ autoplot.comparability <- function(object, ...) {
       name = "Number of factors / components (level)",
       breaks = seq_len(object$k_max)
     ) +
-    ggplot2::facet_wrap(~panel, ncol = 1L) +
+    ggplot2::facet_wrap(~panel, ncol = 1L, labeller = ggplot2::label_parsed) +
     ggplot2::labs(
       y = "Coefficient",
       caption = paste0(
         "Dashed / dotted lines: conventional .90 / .95 benchmarks ",
-        "(Everett, 1983; Goldberg, 1990) \u2014 visual guides, not tests"
+        "(Everett, 1983; Goldberg, 1990) -- visual guides, not tests"
       )
     ) +
     ggplot2::theme_bw(base_size = 11) +
