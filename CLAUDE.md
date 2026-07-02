@@ -74,54 +74,28 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M45** — out-of-sample scoring (train/test): fit-time item moments stored (`meta$item_means`/`item_sds`; NULL for cor-matrix input); `augment()` gains `scaling = c("fit", "sample")` with **`"fit"` default** (training moments — one metric across train/test/subsets; `"sample"` = pre-M45 opt-in and the cor-matrix route; DESIGN §14 item 34); new exported **`predict.ackwards(object, newdata, scaling)`** ≡ `augment(append = FALSE)` (equivalence test-asserted; `_pkgdown.yml` updated); intro-vignette train/test subsection. New export, no new dependency.
 - **M46** — Girard extension (replicability-gated hierarchies): new exported **`comparability()`** — Everett (1983)/Goldberg (1990) split-half factor comparability per level per factor (full-sample-anchored labels, greedy-with-removal matching, cross-solution correlations through `compute_edges()` on the pooled R, Tucker's φ alongside, report-first/nothing auto-flagged; PCA/EFA + pearson/spearman, `n_splits = 10`, seeded) + `print`/`autoplot` methods; capstone vignette `ackwards-girard` ("Replicability-Gated Hierarchies: A Recommended Workflow") with the six-step workflow + common-mistakes section; completes the triad `suggest_k()` (range) · `comparability()` (floor) · `prune()` (differentiation); DESIGN §14 item 35; ESEM/polychoric extensions deferred to `ROADMAP.md`. In passing: `cli::symbol$phi` glyph fix in `prune()`. New export, no new dependency.
 - **M47** — bootstrap edge CIs: new exported **`boot_edges(x, data, n_boot = 1000, conf = 0.95, seed)`** — nonparametric bootstrap SEs + percentile CIs on every between-level edge (resurrects the §14 e4 deferral), a standalone pipeable verb re-supplying `data` (Invariant 3). Per replicate: resample rows → recompute R (fit's cor/missing routine) → refit → **anchor** each level to the full-sample solution (M46 matching + sign orientation) → edges via `compute_edges()` (Invariant 1). Upfront seeded indices → **serial ≡ parallel** (`future.apply`, M26); failed replicates dropped + counted (`n_boot_ok`, Invariant 7). `tidy(what = "edges")` gains `se`/`lo`/`hi`/`n_boot_ok`; `print`/`summary` note coverage; `meta$fm` stored for EFA refits. PCA/EFA + pearson/spearman only (ESEM/polychoric deferred to `ROADMAP.md`; cor-matrix/esem/polychoric objects error). DESIGN §14 item 36 (amends the "reuse `loadings_se`" phrasing; percentile-CI + Fisher-z-oracle rationale). New export, no new dependency.
+- **M48** — performance & workflow pass (meta/process; no package-code change): suite-wide `cached()` test-fit memo in `helper-data.R` + parallel testthat (suite 93.6s→81.2s serial→**26.9s** at `TESTTHAT_CPUS=8`; full check 319.8s→241s; 1859 assertions unchanged; boot reproducibility/serial≡parallel oracles and MC sizes deliberately untouched); transcript-mined workflow audit (30k messages, 45 sessions: 249 full-suite runs, ~600 cd-compounds, 308 bare `load_all`s) → **`tools/dod-gate.R`** one-command DoD gate (dogfooded) + CLAUDE.md/implement-milestone cadence text in lockstep; expanded read-only permission allowlist staged for owner review (auto-mode classifier correctly blocked agent self-widening). Report-only: forbes vignette (23.9s) dominates rebuilds.
 
 ## Current focus
 
-**M48 (in progress)** — performance & workflow efficiency pass (branch `m48-perf-workflow`;
-approved 2026-07-02). A meta/process milestone in two phases; no new export, no `_pkgdown.yml`
-change, no NEWS.md entry (no user-visible package change — owner-approved deviation from the
-DoD's "public-facing change" line).
+**M48 is complete** (2026-07-02) — performance & workflow efficiency pass (meta/process
+milestone; no package-code change, no export, no NEWS entry by owner-approved deviation).
+Phase A: suite-wide `cached()` test-fit memo + parallel testthat — suite 93.6s → 81.2s serial →
+**26.9s** with `TESTTHAT_CPUS=8`; full `devtools::check()` 319.8s → **241s**; 1859 assertions
+and 100% coverage unchanged (the boot reproducibility / serial≡parallel oracles and all
+Monte-Carlo test sizes deliberately untouched). Phase B: scripted audit of 45 session
+transcripts (30k messages) surfaced 249 full-suite runs, ~600 `cd`-compound prompts, and 308
+useless bare `load_all()`s → shipped `tools/dod-gate.R` (one-command DoD gate, dogfooded at this
+milestone's own gate) and lockstep cadence-text updates in CLAUDE.md + the implement-milestone
+skill; the expanded read-only permission allowlist is **staged for owner review** in the session
+scratchpad (`proposed_settings.local.json`) after the auto-mode classifier correctly refused to
+let the agent widen its own permissions. Report-only: `ackwards-forbes.Rmd` (23.9s) dominates
+vignette rebuilds; CI workflows untouched. Detail in `MILESTONES.md` (M48).
 
-**Phase A — profile `R CMD check` + test suite, then optimize (rigor-preserving).**
-Measure first (DESIGN §3): per-test/per-file timings via a captured `devtools::test()` result;
-per-phase check timings (tests / examples via `ackwards-Ex.timings` / per-vignette renders).
-Then apply only data-justified levers: (1) shared lazily-memoized fixtures in
-`tests/testthat/helper-data.R` for identical repeated `ackwards()` fits; (2) testthat parallel
-execution (`Config/testthat/parallel` + `start-first` in `DESCRIPTION`) — approved, keep-if-green;
-(3) `\donttest{}` on examples measured > ~5s whose paths are test-covered; (4) Monte-Carlo test
-sizes (`n_boot`/`n_splits`/PA iterations) **not touched** without per-instance owner sign-off;
-(5) vignette/CI findings **report-only** (no CI edits this milestone).
-
-**Phase B — audit `.claude` skills + session history for workflow friction.** Scripted mining of
-the ~45 session transcripts (command frequencies, permission prompts/denials, error-retry loops,
-full-suite reruns) + cross-read of the three SKILL.md files, CLAUDE.md process sections, and
-`settings.local.json`. Known candidates: proper read-only permission allowlist (current one is
-ten ad-hoc entries); reconcile the CLAUDE.md ↔ implement-milestone duplicated
-verification-cadence text; a single DoD-gate helper script (e.g. `tools/dod-gate.R`,
-Rbuildignored); delete the stray `.claude/skills/post-milestone-review/.Rhistory`. Findings
-triaged **applied / owner-decide / rejected**; low-risk edits applied on the branch.
-
-**Acceptance criteria:**
-1. Baseline captured before any change: top-10 slowest tests, per-file suite timings, per-phase
-   check timings, per-example timings.
-2. Every applied optimization cites its measured baseline; after-vs-before wall-clock for
-   `devtools::test()` and full `devtools::check()` reported in the M48 entry (no invented target).
-3. Rigor preserved: assertion count ≥ baseline; coverage still 100%; `check()` 0/0/0; the
-   algebra-vs-scores, serial≡parallel, and Forbes-fidelity oracles byte-untouched.
-4. If parallel testthat ships: suite green under both parallel and serial execution.
-5. Workflow audit delivered as a triaged list with transcript-derived evidence (frequencies,
-   prompt counts); applied edits committed on the branch.
-6. Allowlist additions specific and read-only-safe (no broad patterns).
-7. Any CLAUDE.md process-text change reconciled with the skill that echoes it (no divergent
-   copies).
-8. `MILESTONES.md` M48 entry in numeric order + one-line index entry here + this section updated
-   on completion; DESIGN.md untouched; condensed profiling findings live in the M48 entry (no new
-   repo report file).
-
-Prior milestone (M47, bootstrap edge CIs) is complete — detail in `MILESTONES.md` (M47).
-`ROADMAP.md` carries only unscheduled ideas (AMH fidelity extension pending the owner's Forbes
-outreach; e2 dual EFA chi-squares; `comparability()`/`boot_edges()` ESEM/polychoric extensions).
-`MILESTONES.md` remains the source of truth for *completed* milestones.
+**Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas (AMH fidelity extension
+pending the owner's Forbes outreach; e2 dual EFA chi-squares; `comparability()`/`boot_edges()`
+ESEM/polychoric extensions). `MILESTONES.md` remains the source of truth for *completed*
+milestones.
 
 ## Invariants — do not violate without flagging
 
