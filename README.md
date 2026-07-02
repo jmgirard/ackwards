@@ -174,39 +174,39 @@ top_items(x, level = 5, cut = 0.5)
 #> ── Level 5 (5 factors) ──
 #> 
 #> m5f1
-#> Find it difficult to approach others (E2) [-0.752]
-#> Make friends easily (E4) [0.747]
-#> Don't talk a lot (E1) [-0.701]
-#> Know how to captivate people (E3) [0.677]
-#> Take charge (E5) [0.597]
+#> E2: Find it difficult to approach others [-0.752]
+#> E4: Make friends easily [0.747]
+#> E1: Don't talk a lot [-0.701]
+#> E3: Know how to captivate people [0.677]
+#> E5: Take charge [0.597]
 #> 
 #> m5f2
-#> Have frequent mood swings (N3) [-0.825]
-#> Get angry easily (N1) [-0.810]
-#> Get irritated easily (N2) [-0.805]
-#> Panic easily (N5) [-0.688]
-#> Often feel blue (N4) [-0.646]
+#> N3: Have frequent mood swings [-0.825]
+#> N1: Get angry easily [-0.810]
+#> N2: Get irritated easily [-0.805]
+#> N5: Panic easily [-0.688]
+#> N4: Often feel blue [-0.646]
 #> 
 #> m5f3
-#> Continue until everything is perfect (C2) [0.735]
-#> Do things in a half-way manner (C4) [-0.716]
-#> Am exacting in my work (C1) [0.690]
-#> Do things according to a plan (C3) [0.679]
-#> Waste my time (C5) [-0.652]
+#> C2: Continue until everything is perfect [0.735]
+#> C4: Do things in a half-way manner [-0.716]
+#> C1: Am exacting in my work [0.690]
+#> C3: Do things according to a plan [0.679]
+#> C5: Waste my time [-0.652]
 #> 
 #> m5f4
-#> Am indifferent to the feelings of others (A1) [-0.704]
-#> Know how to comfort others (A3) [0.703]
-#> Inquire about others' well-being (A2) [0.692]
-#> Make people feel at ease (A5) [0.580]
-#> Love children (A4) [0.522]
+#> A1: Am indifferent to the feelings of others [-0.704]
+#> A3: Know how to comfort others [0.703]
+#> A2: Inquire about others' well-being [0.692]
+#> A5: Make people feel at ease [0.580]
+#> A4: Love children [0.522]
 #> 
 #> m5f5
-#> Will not probe deeply into a subject (O5) [-0.705]
-#> Carry the conversation to a higher level (O3) [0.655]
-#> Am full of ideas (O1) [0.604]
-#> Avoid difficult reading material (O2) [-0.595]
-#> Spend time reflecting on things (O4) [0.551]
+#> O5: Will not probe deeply into a subject [-0.705]
+#> O3: Carry the conversation to a higher level [0.655]
+#> O1: Am full of ideas [0.604]
+#> O2: Avoid difficult reading material [-0.595]
+#> O4: Spend time reflecting on things [0.551]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.

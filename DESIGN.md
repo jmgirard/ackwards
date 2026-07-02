@@ -344,7 +344,7 @@ announced via cli and documented in roxygen with its rationale.
   S3 object with a grouped cli print method. `by = "factor"` (default) groups items under each
   factor; `by = "item"` inverts to list, per item, the factors it loads on (cross-loading view);
   `n`/`sort` apply within the chosen unit. When the fit data carried per-column `"label"` attributes
-  (captured into `meta$item_labels`), `show_labels = TRUE` (default) prints items as `label (code)`
+  (captured into `meta$item_labels`), `show_labels = TRUE` (default) prints items as `code: label`
   with a per-item bare-code fallback. Loadings reflect primary-parent sign alignment (Inv. 4). The
   `$data` field is a subset of the `tidy(what = "loadings")` table (plus a `label` column when
   labels are available).
@@ -667,7 +667,7 @@ owner-signed-off):**
 **Resolved for M50 (release polish; owner-approved 2026-07-02):**
 37. **`bfi25` carries public-domain IPIP variable labels.** Each item column gets its IPIP marker
     stem (Goldberg, 1999; ipip.ori.org) as a plain `label` attribute, populating the M36 capture
-    path so `top_items()` prints `label (code)` with zero setup. Sourced directly as public-domain
+    path so `top_items()` prints `code: label` with zero setup. Sourced directly as public-domain
     IPIP items (text is necessarily identical to `psych::bfi.dictionary` — same public pool — but
     not framed as a copy). Plain attributes are dropped by base row-subsetting (`na.omit()`, `[`),
     unlike the class-based `labelled`/`haven` vectors M36 targets, so the documented pattern is to

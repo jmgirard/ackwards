@@ -46,7 +46,7 @@ collected via the SAPA project.
 
 Each item column carries its public-domain IPIP stem (Goldberg, 1999) as a
 \code{label} attribute, so \code{ackwards()} captures it at fit time and \code{top_items()}
-prints the wording as \code{label (code)} (e.g. \verb{Make friends easily (E4)}) with
+prints the wording as \code{code: label} (e.g. \verb{E4: Make friends easily}) with
 no setup. These are plain attributes: base row-subsetting (e.g.
 \code{na.omit(bfi25)}, \code{bfi25[rows, ]}) drops them, as base R does for any
 non-\code{labelled}-class vector, so fit on \code{bfi25} \strong{directly} -- its \code{NA}s are

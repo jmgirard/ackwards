@@ -83,7 +83,7 @@ overextraction discussion.
 Item codes like `A1` or `N3` are compact but opaque. If your data carries
 variable labels — the `"label"` attribute that packages like **labelled** and
 **haven** attach to columns, and that survey exports often include — `ackwards()`
-captures them at fit time and `top_items()` displays them as `label (code)`:
+captures them at fit time and `top_items()` displays them as `code: label`:
 
 ```{r labels}
 bfi_lab <- bfi

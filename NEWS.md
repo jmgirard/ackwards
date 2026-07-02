@@ -4,8 +4,8 @@
 
 - The `bfi25` dataset now carries each item's public-domain IPIP stem (Goldberg,
   1999) as a `label` attribute, so `ackwards()` captures it at fit time and
-  `top_items()` prints the wording as `label (code)` (e.g.
-  `Make friends easily (E4)`) with no setup. Fit the dataset directly to keep
+  `top_items()` prints the wording as `code: label` (e.g.
+  `E4: Make friends easily`) with no setup. Fit the dataset directly to keep
   the labels: base row-subsetting such as `na.omit(bfi25)` drops plain
   attributes, so use `missing = "listwise"` (or another `missing` option) rather
   than pre-filtering rows.
@@ -266,7 +266,7 @@
   unchanged.
 - Variable labels are now supported: when the data carries a `"label"` column
   attribute (as **labelled** and **haven** set) at fit time, `ackwards()`
-  captures it and `top_items()` displays items as `label (code)`, with a
+  captures it and `top_items()` displays items as `code: label`, with a
   per-item fallback to the bare code. Set `show_labels = FALSE` to force codes.
 
 ## Sign alignment: primary-parent edges are now always non-negative
