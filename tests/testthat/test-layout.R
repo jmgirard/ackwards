@@ -1107,6 +1107,18 @@ test_that("autoplot(x, what='fit') returns ggplot for ESEM object", {
   expect_s3_class(p, "ggplot")
 })
 
+test_that("fit-plot caption names only the plotted indices (M42/m10)", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  # EFA panels show TLI/RMSEA only; the caption must not list CFI/SRMR cutoffs.
+  suppressWarnings(
+    x_efa <- ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa")
+  )
+  cap_efa <- ggplot2::autoplot(x_efa, what = "fit")$labels$caption
+  expect_true(grepl("TLI", cap_efa) && grepl("RMSEA", cap_efa))
+  expect_false(grepl("CFI", cap_efa) || grepl("SRMR", cap_efa))
+})
+
 test_that("autoplot(x, what='fit') returns ggplot with informative message for PCA", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("psych")

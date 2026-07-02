@@ -13,6 +13,30 @@
 
 ## Visualization
 
+- Fixed a regression (introduced when pruning became a standalone `prune()`
+  verb) where `autoplot(drop_pruned = TRUE)` on an object fitted with the
+  default `pairs = "adjacent"` lost every edge into a node below a fully-pruned
+  level. The pruned view now recomputes all-pairs edges internally, so it
+  renders identically regardless of the fit-time `pairs` setting.
+- The `autoplot(what = "fit")` caption now names only the Hu & Bentler
+  thresholds actually plotted (EFA panels show TLI/RMSEA only, so CFI/SRMR
+  cutoffs are no longer listed there).
+
+## Usability
+
+- The ordinal-detection warning now **names the flagged columns** (truncated
+  past eight) instead of reporting only that "one or more columns" look
+  ordinal, so the `cor = "polychoric"` advice is actionable for mixed data.
+- `print()` on a `suggest_k` object now reports "Consensus: undetermined" when
+  every requested criterion returned `NA` (previously it warned and printed an
+  `Inf` range).
+- `suggest_k()` now announces when a parallel-analysis suggestion exceeds the
+  evaluated ceiling (`k_max`) instead of silently reporting the capped value as
+  the recommendation.
+- `ackwards()` and `autoplot()` now validate `cut_show` (a single number in
+  [0, 1]) and `suggest_k()` validates `n_iter` (a single positive integer),
+  erroring informatively instead of failing deep inside downstream code.
+
 - `autoplot()` now italicises the axis label of a **fully-pruned level** (one
   whose factors are *all* flagged by `prune()`), denoting its status alongside
   the existing grey node fill. Partially-pruned levels keep a plain label. This
