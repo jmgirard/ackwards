@@ -71,46 +71,34 @@ for appending scores to the data (and the full scoring documentation),
 
 ``` r
 # Cross-validation: fit on a training split, score the test split
-train <- bfi25[1:500, ]
-test <- bfi25[501:1000, ]
+train <- sim16[1:500, ]
+test <- sim16[501:1000, ]
 x <- ackwards(train, k_max = 5)
-#> Warning: ! 58 rows have missing values; correlations are computed pairwise.
-#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
 test_scores <- predict(x, test)
-#> Warning: ! 67 rows contain missing values and will produce NA scores.
-#> ℹ Score projection applies weights row-wise and propagates NAs listwise; FIML
-#>   estimation does not impute missing item responses.
-#> ℹ Use `missing = "listwise"` when fitting (so the model and scores share the
-#>   same complete rows), or call `na.omit(data)` before scoring.
 head(test_scores)
-#>         .m1f1      .m2f1      .m2f2      .m3f1      .m3f2     .m3f3      .m4f1
-#> 1  1.31327917  1.2430095  0.4608252  0.6680509  0.1248161 1.4375648  0.7088025
-#> 2  0.16529258  1.2321417 -1.9494198  1.0643443 -2.0400056 0.2062707  1.2228552
-#> 3          NA         NA         NA         NA         NA        NA         NA
-#> 4  0.66782843  0.3087139  0.8378206  0.3044256  0.8063030 0.2575057  0.4353962
-#> 5 -0.02123811 -0.6503492  1.1686927 -0.8540634  1.0730075 0.4449248 -0.9429296
-#> 6          NA         NA         NA         NA         NA        NA         NA
-#>        .m4f2     .m4f3      .m4f4      .m5f1      .m5f2     .m5f3       .m5f4
-#> 1  0.1179912 1.6867161 -0.3149617  0.1303632  1.6548929 1.5959910 -0.69755418
-#> 2 -2.1590779 0.7967761 -1.0174953 -2.1501813  1.2787053 0.7224308  0.39711553
-#> 3         NA        NA         NA         NA         NA        NA          NA
-#> 4  0.7197966 0.5967368 -0.9248642  0.7224354  0.5193448 0.5700356  0.03266355
-#> 5  1.1502964 0.1572142  0.5246276  1.1329384 -1.3643529 0.2357785  0.11707246
-#> 6         NA        NA         NA         NA         NA        NA          NA
-#>        .m5f5
-#> 1 -0.8091157
-#> 2 -1.2663365
-#> 3         NA
-#> 4 -1.0712061
-#> 5  0.8709454
-#> 6         NA
+#>        .m1f1       .m2f1      .m2f2       .m3f1       .m3f2      .m3f3
+#> 1  0.9866825  1.10925975  0.2651224  0.22302480  0.83381091  0.7455003
+#> 2 -1.3121549  0.41877448 -2.3452698 -2.31934440 -0.09306001  0.5863426
+#> 3  1.0695420 -0.96685053  2.5697581  2.66347846 -0.91744168 -0.2973669
+#> 4  0.4676516 -0.17389635  0.8617838  1.01558023 -0.99973200  0.8581230
+#> 5  0.5951633  0.47949881  0.3594096  0.09180377  1.93864339 -1.3480924
+#> 6  1.3390624  0.01471201  1.9282385  1.84818068  0.62412605 -0.5416109
+#>         .m4f1      .m4f2       .m4f3       .m4f4      .m5f1      .m5f2
+#> 1  0.70928336  0.8094370  0.45520440 -0.05611942  0.7250445  0.8034631
+#> 2 -0.08628128  0.6373020 -1.40074580 -1.85689000 -0.1442605  0.6544344
+#> 3 -0.78400610 -0.4193713  1.15211798  2.47154121 -0.7642160 -0.4206876
+#> 4 -0.76118123  0.7194296 -0.07002827  1.34363823 -0.7490204  0.7191977
+#> 5  1.29627226 -1.0086779  1.62903644 -1.17221196  1.2950204 -1.0113150
+#> 6  0.25414070 -0.3714401  1.87301298  0.86141204  0.2659999 -0.3729043
+#>        .m5f3       .m5f4      .m5f5
+#> 1  0.4524271 -0.07636977  0.3129451
+#> 2 -1.4086669 -1.75811718 -1.6661291
+#> 3  1.1651161  2.42899090  0.7111726
+#> 4 -0.0638014  1.32385148  0.3743907
+#> 5  1.6229873 -1.17404983 -0.1157916
+#> 6  1.8770026  0.83487823  0.3350342
 
 # Identical to the augment() spelling:
 identical(test_scores, augment(x, data = test, append = FALSE))
-#> Warning: ! 67 rows contain missing values and will produce NA scores.
-#> ℹ Score projection applies weights row-wise and propagates NAs listwise; FIML
-#>   estimation does not impute missing item responses.
-#> ℹ Use `missing = "listwise"` when fitting (so the model and scores share the
-#>   same complete rows), or call `na.omit(data)` before scoring.
 #> [1] TRUE
 ```

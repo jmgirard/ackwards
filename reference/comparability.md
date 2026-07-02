@@ -180,13 +180,13 @@ for the extraction itself.
 cmp <- comparability(bfi25, k_max = 5, n_splits = 5, seed = 1)
 #> Warning: ! 125 rows have missing values; correlations are computed pairwise.
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
-#> ℹ Fitting 5 split-half replicates (PCA, k = 1-5)...
-#> ✔ Fitting 5 split-half replicates (PCA, k = 1-5)... [686ms]
+#> ℹ Fitting 5 split-half replicates (pca, k = 1-5)...
+#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [700ms]
 #> 
 cmp
 #> 
 #> ── Split-Half Factor Comparability (ackwards) ──────────────────────────────────
-#> Engine: PCA
+#> Engine: pca
 #> Basis: pearson
 #> n: 1,000 (500 per half)
 #> Splits: 5

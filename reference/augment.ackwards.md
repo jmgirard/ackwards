@@ -143,110 +143,79 @@ alignment holds even with `NA` scores. For a rejoin that survives
 
 ``` r
 # Score the training data on the fly (no keep_scores = TRUE needed)
-x <- ackwards(bfi25, k_max = 5)
-#> Warning: ! 125 rows have missing values; correlations are computed pairwise.
-#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
-scores_df <- augment(x, data = bfi25)
-#> Warning: ! 125 rows contain missing values and will produce NA scores.
-#> ℹ Score projection applies weights row-wise and propagates NAs listwise; FIML
-#>   estimation does not impute missing item responses.
-#> ℹ Use `missing = "listwise"` when fitting (so the model and scores share the
-#>   same complete rows), or call `na.omit(data)` before scoring.
+x <- ackwards(sim16, k_max = 5)
+scores_df <- augment(x, data = sim16)
 head(scores_df[, startsWith(names(scores_df), ".m")])
-#>         .m1f1      .m2f1      .m2f2       .m3f1      .m3f2       .m3f3
-#> 1 -1.30030695 -1.4235382 -0.1052068 -0.85089105  0.2798278 -1.51077483
-#> 2  0.01634436  0.5630258 -0.9989376  0.56828756 -0.9942347 -0.08567816
-#> 3  0.59542725  0.5404323  0.2526270  0.67694066  0.3150119 -0.10907369
-#> 4 -0.71828163 -0.5073496 -0.5700585  0.06274103 -0.2041248 -1.39504136
-#> 5 -1.32474768 -1.2750967 -0.4286547 -1.42804149 -0.4773126 -0.05571538
-#> 6  0.52117719  0.1647933  0.7867243  0.29379255  0.8458643 -0.07021866
-#>        .m4f1      .m4f2       .m4f3       .m4f4       .m5f1        .m5f2
-#> 1 -0.7568233  0.2637881 -1.60295498 -0.39893361  0.05797902  0.225048096
-#> 2  0.5586824 -1.0007502 -0.03472584  0.09088737  0.43531863 -1.000292190
-#> 3  0.6569910  0.4184690 -0.48684202  0.66308866  1.31520127  0.356916365
-#> 4  0.1122025 -0.1138340 -1.83242813  0.39875175 -0.70662078 -0.005187861
-#> 5 -1.3991091 -0.5747296  0.27674922 -0.71562603 -1.89416329 -0.511204049
-#> 6  0.3599258  0.6416350  0.64476695 -1.28366300 -0.16261206  0.664345274
-#>         .m5f3      .m5f4       .m5f5
-#> 1 -1.41275114 -1.3997979 -0.65487376
-#> 2 -0.04555192  0.3557413  0.06686548
-#> 3 -0.26674609 -0.6561587  0.31185077
-#> 4 -2.12703248  1.2472183  0.85014591
-#> 5  0.05521847  0.1890915 -0.33729526
-#> 6  0.56488072  0.7357341 -1.16642860
+#>        .m1f1       .m2f1      .m2f2      .m3f1      .m3f2       .m3f3
+#> 1  0.7084102  2.08220676 -1.0812105 -1.0846753  1.2529408  1.66899528
+#> 2 -0.5732057 -0.64530574 -0.1652010 -0.1361687 -0.6229163 -0.29658576
+#> 3 -1.5222509  0.21929430 -2.3727764 -2.2976644 -0.5385154  0.79318695
+#> 4  0.2786514  0.02349164  0.3706740  0.3590532  0.1184985 -0.07677641
+#> 5 -1.0170680 -0.97317875 -0.4650366 -0.3494137 -1.4985488  0.09413691
+#> 6 -0.2675764 -0.95846783  0.5804698  0.6811951 -1.3327340 -0.03027230
+#>        .m4f1       .m4f2       .m4f3       .m4f4      .m5f1       .m5f2
+#> 1  0.8367367  1.98120705  0.22462994 -1.61915885  0.8342794  1.98244560
+#> 2 -0.4644816 -0.40243702 -0.47549374  0.22730576 -0.4843440 -0.40064269
+#> 3  0.2058961  0.31402515 -3.08727273 -0.32514479  0.1577276  0.31322943
+#> 4  0.2256783 -0.16054771  0.03139285  0.45632266  0.2093034 -0.15629258
+#> 5 -1.4268829  0.06527855 -0.58548084  0.02156911 -1.3840396  0.05153121
+#> 6 -1.0361522 -0.23837148 -0.35914294  1.20575073 -1.0246840 -0.24329695
+#>        .m5f3      .m5f4      .m5f5
+#> 1  0.2196692 -1.6038056 -0.2456481
+#> 2 -0.4732311  0.3005452 -0.8525288
+#> 3 -3.0886969 -0.1871828 -1.6902637
+#> 4  0.0294733  0.5224934 -0.7365249
+#> 5 -0.5787203 -0.1735409  2.2069843
+#> 6 -0.3566370  1.1374441  0.8127603
 
 # Scores-only: just the .m{k}f{j} columns, ready for cor()/lm()
-scores_only <- augment(x, data = bfi25, append = FALSE)
-#> Warning: ! 125 rows contain missing values and will produce NA scores.
-#> ℹ Score projection applies weights row-wise and propagates NAs listwise; FIML
-#>   estimation does not impute missing item responses.
-#> ℹ Use `missing = "listwise"` when fitting (so the model and scores share the
-#>   same complete rows), or call `na.omit(data)` before scoring.
+scores_only <- augment(x, data = sim16, append = FALSE)
 round(cor(scores_only[, c(".m5f1", ".m5f2")]), 2)
 #>       .m5f1 .m5f2
-#> .m5f1     1    NA
-#> .m5f2    NA     1
+#> .m5f1     1     0
+#> .m5f2     0     1
 
 # Carry an identifier through for a safe post-filter rejoin
-df <- data.frame(id = seq_len(nrow(bfi25)), bfi25)
+df <- data.frame(id = seq_len(nrow(sim16)), sim16)
 scored <- augment(x, data = df, append = FALSE, id_cols = "id")
-#> Warning: ! 125 rows contain missing values and will produce NA scores.
-#> ℹ Score projection applies weights row-wise and propagates NAs listwise; FIML
-#>   estimation does not impute missing item responses.
-#> ℹ Use `missing = "listwise"` when fitting (so the model and scores share the
-#>   same complete rows), or call `na.omit(data)` before scoring.
 head(scored[, c("id", ".m5f1")])
-#>   id       .m5f1
-#> 1  1  0.05797902
-#> 2  2  0.43531863
-#> 3  3  1.31520127
-#> 4  4 -0.70662078
-#> 5  5 -1.89416329
-#> 6  6 -0.16261206
+#>   id      .m5f1
+#> 1  1  0.8342794
+#> 2  2 -0.4843440
+#> 3  3  0.1577276
+#> 4  4  0.2093034
+#> 5  5 -1.3840396
+#> 6  6 -1.0246840
 
 # Store at fit time and augment without re-supplying data
-x2 <- ackwards(bfi25, k_max = 5, keep_scores = TRUE)
-#> Warning: ! 125 rows have missing values; correlations are computed pairwise.
-#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
-#> Warning: ! 125 rows contain missing values and will produce NA scores.
-#> ℹ Score projection applies weights row-wise and propagates NAs listwise; FIML
-#>   estimation does not impute missing item responses.
-#> ℹ Use `missing = "listwise"` when fitting (so the model and scores share the
-#>   same complete rows), or call `na.omit(data)` before scoring.
+x2 <- ackwards(sim16, k_max = 5, keep_scores = TRUE)
 scores_df2 <- augment(x2)
 
 # Cross-validation: fit on a training split, score the test split on the
 # training metric (no retraining; see also predict.ackwards())
 train_idx <- seq_len(500)
-x_train <- ackwards(bfi25[train_idx, ], k_max = 5)
-#> Warning: ! 58 rows have missing values; correlations are computed pairwise.
-#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
-test_scores <- augment(x_train, data = bfi25[-train_idx, ], append = FALSE)
-#> Warning: ! 67 rows contain missing values and will produce NA scores.
-#> ℹ Score projection applies weights row-wise and propagates NAs listwise; FIML
-#>   estimation does not impute missing item responses.
-#> ℹ Use `missing = "listwise"` when fitting (so the model and scores share the
-#>   same complete rows), or call `na.omit(data)` before scoring.
+x_train <- ackwards(sim16[train_idx, ], k_max = 5)
+test_scores <- augment(x_train, data = sim16[-train_idx, ], append = FALSE)
 head(test_scores)
-#>         .m1f1      .m2f1      .m2f2      .m3f1      .m3f2     .m3f3      .m4f1
-#> 1  1.31327917  1.2430095  0.4608252  0.6680509  0.1248161 1.4375648  0.7088025
-#> 2  0.16529258  1.2321417 -1.9494198  1.0643443 -2.0400056 0.2062707  1.2228552
-#> 3          NA         NA         NA         NA         NA        NA         NA
-#> 4  0.66782843  0.3087139  0.8378206  0.3044256  0.8063030 0.2575057  0.4353962
-#> 5 -0.02123811 -0.6503492  1.1686927 -0.8540634  1.0730075 0.4449248 -0.9429296
-#> 6          NA         NA         NA         NA         NA        NA         NA
-#>        .m4f2     .m4f3      .m4f4      .m5f1      .m5f2     .m5f3       .m5f4
-#> 1  0.1179912 1.6867161 -0.3149617  0.1303632  1.6548929 1.5959910 -0.69755418
-#> 2 -2.1590779 0.7967761 -1.0174953 -2.1501813  1.2787053 0.7224308  0.39711553
-#> 3         NA        NA         NA         NA         NA        NA          NA
-#> 4  0.7197966 0.5967368 -0.9248642  0.7224354  0.5193448 0.5700356  0.03266355
-#> 5  1.1502964 0.1572142  0.5246276  1.1329384 -1.3643529 0.2357785  0.11707246
-#> 6         NA        NA         NA         NA         NA        NA          NA
-#>        .m5f5
-#> 1 -0.8091157
-#> 2 -1.2663365
-#> 3         NA
-#> 4 -1.0712061
-#> 5  0.8709454
-#> 6         NA
+#>        .m1f1       .m2f1      .m2f2       .m3f1       .m3f2      .m3f3
+#> 1  0.9866825  1.10925975  0.2651224  0.22302480  0.83381091  0.7455003
+#> 2 -1.3121549  0.41877448 -2.3452698 -2.31934440 -0.09306001  0.5863426
+#> 3  1.0695420 -0.96685053  2.5697581  2.66347846 -0.91744168 -0.2973669
+#> 4  0.4676516 -0.17389635  0.8617838  1.01558023 -0.99973200  0.8581230
+#> 5  0.5951633  0.47949881  0.3594096  0.09180377  1.93864339 -1.3480924
+#> 6  1.3390624  0.01471201  1.9282385  1.84818068  0.62412605 -0.5416109
+#>         .m4f1      .m4f2       .m4f3       .m4f4      .m5f1      .m5f2
+#> 1  0.70928336  0.8094370  0.45520440 -0.05611942  0.7250445  0.8034631
+#> 2 -0.08628128  0.6373020 -1.40074580 -1.85689000 -0.1442605  0.6544344
+#> 3 -0.78400610 -0.4193713  1.15211798  2.47154121 -0.7642160 -0.4206876
+#> 4 -0.76118123  0.7194296 -0.07002827  1.34363823 -0.7490204  0.7191977
+#> 5  1.29627226 -1.0086779  1.62903644 -1.17221196  1.2950204 -1.0113150
+#> 6  0.25414070 -0.3714401  1.87301298  0.86141204  0.2659999 -0.3729043
+#>        .m5f3       .m5f4      .m5f5
+#> 1  0.4524271 -0.07636977  0.3129451
+#> 2 -1.4086669 -1.75811718 -1.6661291
+#> 3  1.1651161  2.42899090  0.7111726
+#> 4 -0.0638014  1.32385148  0.3743907
+#> 5  1.6229873 -1.17404983 -0.1157916
+#> 6  1.8770026  0.83487823  0.3350342
 ```

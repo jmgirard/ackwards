@@ -71,14 +71,19 @@ range:
 ``` r
 
 sk <- suggest_k(bfi, seed = 42)
+#> Warning: ! 25 columns look like ordinal/Likert items (<= 7 distinct integer values):
+#>   "A1", "A2", "A3", "A4", "A5", "C1", …, "O4", and "O5".
+#> ℹ `suggest_k()` screens on the "pearson" basis by design; use `cor =
+#>   "polychoric"` in the final `ackwards()` fit.
+#> This warning is displayed once per session.
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [292ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [280ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [174ms]
+#> ✔ Running MAP and VSS... [154ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [7.6s]
+#> ✔ Running Comparison Data (CD)... [10.1s]
 #> 
 print(sk)
 #> 
@@ -235,25 +240,29 @@ summary(x)
 #> ── Levels ──
 #> 
 #> k = 1: 1 factor (23.2% cumulative variance)
-#> m1f1 23.21% eigenvalue 5.8
+#> m1f1 23.2% eigenvalue 5.80
+#> 
 #> k = 2: 2 factors (35.5% cumulative variance)
-#> m2f1 20.94% eigenvalue 5.8
-#> m2f2 14.54% eigenvalue 3.07
+#> m2f1 20.9% eigenvalue 5.80
+#> m2f2 14.5% eigenvalue 3.07
+#> 
 #> k = 3: 3 factors (44.6% cumulative variance)
-#> m3f1 18.04% eigenvalue 5.8
-#> m3f2 13.89% eigenvalue 3.07
-#> m3f3 12.66% eigenvalue 2.28
+#> m3f1 18.0% eigenvalue 5.80
+#> m3f2 13.9% eigenvalue 3.07
+#> m3f3 12.7% eigenvalue 2.28
+#> 
 #> k = 4: 4 factors (52.2% cumulative variance)
-#> m4f1 17.5% eigenvalue 5.8
-#> m4f2 13.63% eigenvalue 3.07
-#> m4f3 11.83% eigenvalue 2.28
-#> m4f4 9.21% eigenvalue 1.9
+#> m4f1 17.5% eigenvalue 5.80
+#> m4f2 13.6% eigenvalue 3.07
+#> m4f3 11.8% eigenvalue 2.28
+#> m4f4 9.2% eigenvalue 1.90
+#> 
 #> k = 5: 5 factors (58.4% cumulative variance)
-#> m5f1 13.75% eigenvalue 5.8
-#> m5f2 13.56% eigenvalue 3.07
+#> m5f1 13.8% eigenvalue 5.80
+#> m5f2 13.6% eigenvalue 3.07
 #> m5f3 11.9% eigenvalue 2.28
-#> m5f4 10.09% eigenvalue 1.9
-#> m5f5 9.12% eigenvalue 1.56
+#> m5f4 10.1% eigenvalue 1.90
+#> m5f5 9.1% eigenvalue 1.56
 #> 
 #> ── Lineage (primary parents) ──
 #> 
@@ -369,24 +378,28 @@ top_items(x, level = 5, cut = 0.5)
 #> E1 [-0.701]
 #> E3 [0.677]
 #> E5 [0.597]
+#> 
 #> m5f2
 #> N3 [-0.825]
 #> N1 [-0.810]
 #> N2 [-0.805]
 #> N5 [-0.688]
 #> N4 [-0.646]
+#> 
 #> m5f3
 #> C2 [0.735]
 #> C4 [-0.716]
 #> C1 [0.690]
 #> C3 [0.679]
 #> C5 [-0.652]
+#> 
 #> m5f4
 #> A1 [-0.704]
 #> A3 [0.703]
 #> A2 [0.692]
 #> A5 [0.580]
 #> A4 [0.522]
+#> 
 #> m5f5
 #> O5 [-0.705]
 #> O3 [0.655]

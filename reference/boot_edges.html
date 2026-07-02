@@ -196,23 +196,21 @@ themselves, <code><a href="tidy.ackwards.html">tidy.ackwards()</a></code> for th
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi25</span>, k_max <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 125 rows have missing values; correlations are computed pairwise.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `missing = "listwise"` for consistent complete-case analysis.</span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">boot_edges</span><span class="op">(</span><span class="va">x</span>, <span class="va">bfi25</span>, n_boot <span class="op">=</span> <span class="fl">100</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fitting 100 bootstrap replicates (PCA, k = 1-3)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting 100 bootstrap replicates (PCA, k = 1-3)... <span style="color: #B2B2B2;">[3s]</span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">sim16</span>, k_max <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">boot_edges</span><span class="op">(</span><span class="va">x</span>, <span class="va">sim16</span>, n_boot <span class="op">=</span> <span class="fl">100</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fitting 100 bootstrap replicates (pca, k = 1-3)...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting 100 bootstrap replicates (pca, k = 1-3)... <span style="color: #B2B2B2;">[3s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">x</span><span class="op">$</span><span class="va">boot</span><span class="op">$</span><span class="va">edges</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   from   to level_from level_to           r         se          lo          hi</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 m1f1 m2f1          1        2  0.87806671 0.02742806  0.80759107  0.91632427</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 m1f1 m2f2          1        2  0.47853824 0.04807772  0.40043672  0.58969785</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 m2f1 m3f1          2        3  0.90501945 0.03590910  0.81103593  0.95162512</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 m2f1 m3f2          2        3 -0.08491543 0.02438128 -0.12484971 -0.03685198</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 m2f1 m3f3          2        3  0.41680832 0.07425865  0.29177975  0.57911195</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 m2f2 m3f1          2        3 -0.03221772 0.03653585 -0.07908454  0.07245676</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7 m2f2 m3f2          2        3  0.96337357 0.02841986  0.89415596  0.99601862</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8 m2f2 m3f3          2        3  0.26622056 0.11056458  0.02974731  0.44542779</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 m1f1 m2f1          1        2  0.70729611 0.03334587  0.62894118 0.755307440</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 m1f1 m2f2          1        2  0.70691740 0.03221841  0.65534452 0.777438710</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 m2f1 m3f1          2        3 -0.01134239 0.02483636 -0.08601120 0.007369852</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 m2f1 m3f2          2        3  0.69709298 0.20160298  0.03830045 0.734809599</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 m2f1 m3f3          2        3  0.71689101 0.09283102  0.67793763 0.998542647</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 m2f2 m3f1          2        3  0.99559323 0.09091406  0.69647708 0.999880140</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7 m2f2 m3f2          2        3  0.07461577 0.20966388 -0.01269972 0.717035306</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8 m2f2 m3f3          2        3 -0.05680322 0.04384198 -0.12671309 0.029286309</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   n_boot_ok</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1       100</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2       100</span>
@@ -224,19 +222,19 @@ themselves, <code><a href="tidy.ackwards.html">tidy.ackwards()</a></code> for th
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8       100</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="co"># now carries se / lo / hi</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   from   to level_from level_to           r is_primary above_cut         se</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 m1f1 m2f1          1        2  0.87806671       TRUE      TRUE 0.02742806</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 m1f1 m2f2          1        2  0.47853824       TRUE      TRUE 0.04807772</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 m2f1 m3f1          2        3  0.90501945       TRUE      TRUE 0.03590910</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 m2f1 m3f2          2        3 -0.08491543      FALSE     FALSE 0.02438128</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 m2f1 m3f3          2        3  0.41680832       TRUE      TRUE 0.07425865</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 m2f2 m3f1          2        3 -0.03221772      FALSE     FALSE 0.03653585</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 m1f1 m2f1          1        2  0.70729611       TRUE      TRUE 0.03334587</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 m1f1 m2f2          1        2  0.70691740       TRUE      TRUE 0.03221841</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 m2f1 m3f1          2        3 -0.01134239      FALSE     FALSE 0.02483636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 m2f1 m3f2          2        3  0.69709298       TRUE      TRUE 0.20160298</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 m2f1 m3f3          2        3  0.71689101       TRUE      TRUE 0.09283102</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 m2f2 m3f1          2        3  0.99559323       TRUE      TRUE 0.09091406</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            lo          hi n_boot_ok</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.80759107  0.91632427       100</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.40043672  0.58969785       100</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.81103593  0.95162512       100</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.12484971 -0.03685198       100</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.29177975  0.57911195       100</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 -0.07908454  0.07245676       100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.62894118 0.755307440       100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.65534452 0.777438710       100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.08601120 0.007369852       100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.03830045 0.734809599       100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.67793763 0.998542647       100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.69647708 0.999880140       100</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

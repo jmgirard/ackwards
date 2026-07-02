@@ -47,8 +47,13 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 }
 #> Warning: ! 125 rows have missing values; correlations are computed pairwise.
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
-#> ℹ Fitting 5 split-half replicates (PCA, k = 1-5)...
-#> ✔ Fitting 5 split-half replicates (PCA, k = 1-5)... [679ms]
+#> Warning: ! 25 columns look like ordinal/Likert items (<= 7 distinct integer values):
+#>   "A1", "A2", "A3", "A4", "A5", "C1", …, "O4", and "O5".
+#> ℹ Results use a "pearson" basis. Consider `cor = "polychoric"` for ordinal
+#>   data.
+#> This warning is displayed once per session.
+#> ℹ Fitting 5 split-half replicates (pca, k = 1-5)...
+#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [702ms]
 #> 
 
 # }

@@ -133,47 +133,35 @@ full scoring documentation), <code><a href="ackwards.html">ackwards()</a></code>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Cross-validation: fit on a training split, score the test split</span></span></span>
-<span class="r-in"><span><span class="va">train</span> <span class="op">&lt;-</span> <span class="va">bfi25</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span>, <span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">test</span> <span class="op">&lt;-</span> <span class="va">bfi25</span><span class="op">[</span><span class="fl">501</span><span class="op">:</span><span class="fl">1000</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">train</span> <span class="op">&lt;-</span> <span class="va">sim16</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">test</span> <span class="op">&lt;-</span> <span class="va">sim16</span><span class="op">[</span><span class="fl">501</span><span class="op">:</span><span class="fl">1000</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">train</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 58 rows have missing values; correlations are computed pairwise.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `missing = "listwise"` for consistent complete-case analysis.</span>
 <span class="r-in"><span><span class="va">test_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">test</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 67 rows contain missing values and will produce NA scores.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Score projection applies weights row-wise and propagates NAs listwise; FIML</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   estimation does not impute missing item responses.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `missing = "listwise"` when fitting (so the model and scores share the</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   same complete rows), or call `na.omit(data)` before scoring.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">test_scores</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         .m1f1      .m2f1      .m2f2      .m3f1      .m3f2     .m3f3      .m4f1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1.31327917  1.2430095  0.4608252  0.6680509  0.1248161 1.4375648  0.7088025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.16529258  1.2321417 -1.9494198  1.0643443 -2.0400056 0.2062707  1.2228552</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3          NA         NA         NA         NA         NA        NA         NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.66782843  0.3087139  0.8378206  0.3044256  0.8063030 0.2575057  0.4353962</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.02123811 -0.6503492  1.1686927 -0.8540634  1.0730075 0.4449248 -0.9429296</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6          NA         NA         NA         NA         NA        NA         NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        .m4f2     .m4f3      .m4f4      .m5f1      .m5f2     .m5f3       .m5f4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.1179912 1.6867161 -0.3149617  0.1303632  1.6548929 1.5959910 -0.69755418</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -2.1590779 0.7967761 -1.0174953 -2.1501813  1.2787053 0.7224308  0.39711553</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3         NA        NA         NA         NA         NA        NA          NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.7197966 0.5967368 -0.9248642  0.7224354  0.5193448 0.5700356  0.03266355</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  1.1502964 0.1572142  0.5246276  1.1329384 -1.3643529 0.2357785  0.11707246</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6         NA        NA         NA         NA         NA        NA          NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        .m5f5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.8091157</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -1.2663365</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3         NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -1.0712061</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.8709454</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6         NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        .m1f1       .m2f1      .m2f2       .m3f1       .m3f2      .m3f3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.9866825  1.10925975  0.2651224  0.22302480  0.83381091  0.7455003</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -1.3121549  0.41877448 -2.3452698 -2.31934440 -0.09306001  0.5863426</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  1.0695420 -0.96685053  2.5697581  2.66347846 -0.91744168 -0.2973669</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.4676516 -0.17389635  0.8617838  1.01558023 -0.99973200  0.8581230</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.5951633  0.47949881  0.3594096  0.09180377  1.93864339 -1.3480924</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  1.3390624  0.01471201  1.9282385  1.84818068  0.62412605 -0.5416109</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         .m4f1      .m4f2       .m4f3       .m4f4      .m5f1      .m5f2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.70928336  0.8094370  0.45520440 -0.05611942  0.7250445  0.8034631</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.08628128  0.6373020 -1.40074580 -1.85689000 -0.1442605  0.6544344</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.78400610 -0.4193713  1.15211798  2.47154121 -0.7642160 -0.4206876</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.76118123  0.7194296 -0.07002827  1.34363823 -0.7490204  0.7191977</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  1.29627226 -1.0086779  1.62903644 -1.17221196  1.2950204 -1.0113150</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.25414070 -0.3714401  1.87301298  0.86141204  0.2659999 -0.3729043</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        .m5f3       .m5f4      .m5f5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.4524271 -0.07636977  0.3129451</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -1.4086669 -1.75811718 -1.6661291</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  1.1651161  2.42899090  0.7111726</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.0638014  1.32385148  0.3743907</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  1.6229873 -1.17404983 -0.1157916</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  1.8770026  0.83487823  0.3350342</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Identical to the augment() spelling:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">test_scores</span>, <span class="fu"><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment</a></span><span class="op">(</span><span class="va">x</span>, data <span class="op">=</span> <span class="va">test</span>, append <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 67 rows contain missing values and will produce NA scores.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Score projection applies weights row-wise and propagates NAs listwise; FIML</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   estimation does not impute missing item responses.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `missing = "listwise"` when fitting (so the model and scores share the</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   same complete rows), or call `na.omit(data)` before scoring.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

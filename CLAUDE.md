@@ -289,34 +289,58 @@ as part of the definition of done.
   expanded read-only permission allowlist staged for owner review
   (auto-mode classifier correctly blocked agent self-widening).
   Report-only: forbes vignette (23.9s) dominates rebuilds.
+- **M50** — release polish (code; interleaved before M49’s CRAN
+  mechanics): `bfi25` ships 25 public-domain IPIP variable labels
+  (Goldberg 1999; `data-raw/bfi25.R`) →
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+  prints `label (code)` free (plain attrs; row-subsetting drops them, so
+  fit direct with `missing = "listwise"`); cli consistency (engine name
+  lowercase everywhere incl. `print.comparability`;
+  [`summary()`](https://rdrr.io/r/base/summary.html) fixed-decimal
+  percentages + blank-line-separated levels;
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+  group spacing; single consolidated pruned footer in
+  `print`/`summary`); roxygen examples split by intent (mechanics →
+  continuous `sim16`, content → `bfi25`+polychoric);
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  gains the ordinal-detection warning (Invariant-6 symmetry,
+  screening-context wording pointing at the final
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  fit). `label_items()` setter + third dataset declined; factor-label
+  pipeline deferred to 0.2.0. No new export, no dependency change.
 
 ## Current focus
 
-**M48 is complete** (2026-07-02) — performance & workflow efficiency
-pass (meta/process milestone; no package-code change, no export, no NEWS
-entry by owner-approved deviation). Phase A: suite-wide `cached()`
-test-fit memo + parallel testthat — suite 93.6s → 81.2s serial →
-**26.9s** with `TESTTHAT_CPUS=8`; full `devtools::check()` 319.8s →
-**241s**; 1859 assertions and 100% coverage unchanged (the boot
-reproducibility / serial≡parallel oracles and all Monte-Carlo test sizes
-deliberately untouched). Phase B: scripted audit of 45 session
-transcripts (30k messages) surfaced 249 full-suite runs, ~600
-`cd`-compound prompts, and 308 useless bare `load_all()`s → shipped
-`tools/dod-gate.R` (one-command DoD gate, dogfooded at this milestone’s
-own gate) and lockstep cadence-text updates in CLAUDE.md + the
-implement-milestone skill; the expanded read-only permission allowlist
-is **staged for owner review** in the session scratchpad
-(`proposed_settings.local.json`) after the auto-mode classifier
-correctly refused to let the agent widen its own permissions.
-Report-only: `ackwards-forbes.Rmd` (23.9s) dominates vignette rebuilds;
-CI workflows untouched. Detail in `MILESTONES.md` (M48).
+**M50 is complete** (2026-07-02) — release polish (code): `bfi25` ships
+25 public-domain IPIP variable labels (so
+[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+prints `label (code)` free); cli consistency (lowercase engine name
+everywhere, fixed-decimal
+[`summary()`](https://rdrr.io/r/base/summary.html) percentages + level
+spacing,
+[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+group spacing, single consolidated pruned footer); roxygen examples
+split by intent (mechanics → continuous `sim16`, content →
+`bfi25`+polychoric);
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+gains the ordinal-detection warning (Invariant-6 symmetry,
+screening-context wording). Suite 1883 pass / 0 fail; coverage 100%;
+`R CMD check` 0/0/0. Detail in `MILESTONES.md` (M50); decisions in
+DESIGN §14 items 37–39.
 
-**Next up: nothing queued.** `ROADMAP.md` carries only unscheduled ideas
-(AMH fidelity extension pending the owner’s Forbes outreach; e2 dual EFA
-chi-squares;
-[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)/[`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
-ESEM/polychoric extensions). `MILESTONES.md` remains the source of truth
-for *completed* milestones.
+**Next up: resume M49 — Initial CRAN release (0.1.0).** M49 is paused on
+`m49-cran-release` with its full scope committed there (Phase A roadmap
+cleanup + e2 decline + factor-label 0.2.0 banking; Phase B doc/pedagogy
+pass; Phase C release mechanics). After M50 merges to `master`, the m49
+branch does `git merge master` to pick up M50’s code (resolving the
+Current-focus conflict in favor of restoring M49’s block), then
+continues Phase B (its doc pass must now also reconcile the new
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+ordinal warning surfacing in the intro/girard/suggest-k vignettes) and
+Phase C. The lifecycle badge flips experimental→stable in Phase C. M49
+Phase C is the release milestone that waits for the full green CI matrix
+before merging; **M50 itself is a normal milestone** (squash-merge on
+local green).
 
 ## Invariants — do not violate without flagging
 

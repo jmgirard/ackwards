@@ -204,9 +204,9 @@ coefficient as a meaningful index of factor similarity.
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi25</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 125 rows have missing values; correlations are computed pairwise.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `missing = "listwise"` for consistent complete-case analysis.</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># sim16 has a planted redundant chain + overextraction artifact at k = 5,</span></span></span>
+<span class="r-in"><span><span class="co"># so the prune rules always have a finding to show (and no ordinal warning).</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">sim16</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">xp</span> <span class="op">&lt;-</span> <span class="fu">prune</span><span class="op">(</span><span class="va">x</span>, <span class="st">"redundant"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 7 nodes.</span>
@@ -216,10 +216,10 @@ coefficient as a meaningful index of factor similarity.
 <span class="r-out co"><span class="r-pr">#&gt;</span>      id level pruned prune_reason</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  m1f1     1  FALSE         &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2  m2f1     2  FALSE         &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m2f2     2   TRUE    redundant</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m2f2     2  FALSE         &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4  m3f1     3   TRUE    redundant</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5  m3f2     3   TRUE    redundant</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m3f3     3  FALSE         &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m3f3     3   TRUE    redundant</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7  m4f1     4   TRUE    redundant</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8  m4f2     4   TRUE    redundant</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9  m4f3     4   TRUE    redundant</span>
@@ -245,15 +245,15 @@ coefficient as a meaningful index of factor similarity.
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Levels</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 20.6% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 31.8% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 40.1% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 47.3% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 53.3% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 28.2% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 46.5% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 57.5% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 67.7% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 70.8% variance</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Edges</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 14 of 40 edges have |r| ≥ 0.3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 13 of 40 edges have |r| ≥ 0.3</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Pruning</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -262,7 +262,6 @@ coefficient as a meaningful index of factor similarity.
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: Pruning is interpretive relabeling, not re-estimation. Flagged nodes</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">remain in the object; all edges are preserved. Inspect with `x$prune$nodes` and</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">`tidy(x, what = "nodes")`.</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
@@ -280,15 +279,15 @@ coefficient as a meaningful index of factor similarity.
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Levels</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 20.6% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 31.8% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 40.1% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 47.3% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 53.3% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 28.2% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 46.5% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 57.5% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 67.7% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 70.8% variance</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Edges</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 14 of 40 edges have |r| ≥ 0.3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 13 of 40 edges have |r| ≥ 0.3</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Pruning</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -297,7 +296,6 @@ coefficient as a meaningful index of factor similarity.
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: Pruning is interpretive relabeling, not re-estimation. Flagged nodes</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">remain in the object; all edges are preserved. Inspect with `x$prune$nodes` and</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">`tidy(x, what = "nodes")`.</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
@@ -316,15 +314,15 @@ coefficient as a meaningful index of factor similarity.
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Levels</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 20.6% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 31.8% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 40.1% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 47.3% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 53.3% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 28.2% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 46.5% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 57.5% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 67.7% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 70.8% variance</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Edges</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 14 of 40 edges have |r| ≥ 0.3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 13 of 40 edges have |r| ≥ 0.3</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Pruning</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -334,7 +332,6 @@ coefficient as a meaningful index of factor similarity.
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: Pruning is interpretive relabeling, not re-estimation. Flagged nodes</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">remain in the object; all edges are preserved. Inspect with `x$prune$nodes` and</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">`tidy(x, what = "nodes")`.</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>

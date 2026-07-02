@@ -146,9 +146,9 @@ coefficient as a meaningful index of factor similarity. *Methodology*,
 ## Examples
 
 ``` r
-x <- ackwards(bfi25, k_max = 5)
-#> Warning: ! 125 rows have missing values; correlations are computed pairwise.
-#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
+# sim16 has a planted redundant chain + overextraction artifact at k = 5,
+# so the prune rules always have a finding to show (and no ordinal warning).
+x <- ackwards(sim16, k_max = 5)
 
 xp <- prune(x, "redundant")
 #> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 7 nodes.
@@ -158,10 +158,10 @@ xp$prune$nodes
 #>      id level pruned prune_reason
 #> 1  m1f1     1  FALSE         <NA>
 #> 2  m2f1     2  FALSE         <NA>
-#> 3  m2f2     2   TRUE    redundant
+#> 3  m2f2     2  FALSE         <NA>
 #> 4  m3f1     3   TRUE    redundant
 #> 5  m3f2     3   TRUE    redundant
-#> 6  m3f3     3  FALSE         <NA>
+#> 6  m3f3     3   TRUE    redundant
 #> 7  m4f1     4   TRUE    redundant
 #> 8  m4f2     4   TRUE    redundant
 #> 9  m4f3     4   TRUE    redundant
@@ -187,15 +187,15 @@ prune(x, "redundant", redundancy_r = 0.95)
 #> 
 #> ── Levels ──
 #> 
-#> ✔ k = 1: 1 factor, 20.6% variance
-#> ✔ k = 2: 2 factors, 31.8% variance
-#> ✔ k = 3: 3 factors, 40.1% variance
-#> ✔ k = 4: 4 factors, 47.3% variance
-#> ✔ k = 5: 5 factors, 53.3% variance
+#> ✔ k = 1: 1 factor, 28.2% variance
+#> ✔ k = 2: 2 factors, 46.5% variance
+#> ✔ k = 3: 3 factors, 57.5% variance
+#> ✔ k = 4: 4 factors, 67.7% variance
+#> ✔ k = 5: 5 factors, 70.8% variance
 #> 
 #> ── Edges ──
 #> 
-#> 14 of 40 edges have |r| ≥ 0.3
+#> 13 of 40 edges have |r| ≥ 0.3
 #> 
 #> ── Pruning ──
 #> 
@@ -204,7 +204,6 @@ prune(x, "redundant", redundancy_r = 0.95)
 #> Note: Pruning is interpretive relabeling, not re-estimation. Flagged nodes
 #> remain in the object; all edges are preserved. Inspect with `x$prune$nodes` and
 #> `tidy(x, what = "nodes")`.
-#> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
 #> Cross-level edges are descriptive score correlations. Per-level fit indices
 #> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
@@ -222,15 +221,15 @@ prune(x, manual = "m4f2")
 #> 
 #> ── Levels ──
 #> 
-#> ✔ k = 1: 1 factor, 20.6% variance
-#> ✔ k = 2: 2 factors, 31.8% variance
-#> ✔ k = 3: 3 factors, 40.1% variance
-#> ✔ k = 4: 4 factors, 47.3% variance
-#> ✔ k = 5: 5 factors, 53.3% variance
+#> ✔ k = 1: 1 factor, 28.2% variance
+#> ✔ k = 2: 2 factors, 46.5% variance
+#> ✔ k = 3: 3 factors, 57.5% variance
+#> ✔ k = 4: 4 factors, 67.7% variance
+#> ✔ k = 5: 5 factors, 70.8% variance
 #> 
 #> ── Edges ──
 #> 
-#> 14 of 40 edges have |r| ≥ 0.3
+#> 13 of 40 edges have |r| ≥ 0.3
 #> 
 #> ── Pruning ──
 #> 
@@ -239,7 +238,6 @@ prune(x, manual = "m4f2")
 #> Note: Pruning is interpretive relabeling, not re-estimation. Flagged nodes
 #> remain in the object; all edges are preserved. Inspect with `x$prune$nodes` and
 #> `tidy(x, what = "nodes")`.
-#> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
 #> Cross-level edges are descriptive score correlations. Per-level fit indices
 #> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
@@ -258,15 +256,15 @@ prune(x, "redundant", manual = "m4f2")
 #> 
 #> ── Levels ──
 #> 
-#> ✔ k = 1: 1 factor, 20.6% variance
-#> ✔ k = 2: 2 factors, 31.8% variance
-#> ✔ k = 3: 3 factors, 40.1% variance
-#> ✔ k = 4: 4 factors, 47.3% variance
-#> ✔ k = 5: 5 factors, 53.3% variance
+#> ✔ k = 1: 1 factor, 28.2% variance
+#> ✔ k = 2: 2 factors, 46.5% variance
+#> ✔ k = 3: 3 factors, 57.5% variance
+#> ✔ k = 4: 4 factors, 67.7% variance
+#> ✔ k = 5: 5 factors, 70.8% variance
 #> 
 #> ── Edges ──
 #> 
-#> 14 of 40 edges have |r| ≥ 0.3
+#> 13 of 40 edges have |r| ≥ 0.3
 #> 
 #> ── Pruning ──
 #> 
@@ -276,7 +274,6 @@ prune(x, "redundant", manual = "m4f2")
 #> Note: Pruning is interpretive relabeling, not re-estimation. Flagged nodes
 #> remain in the object; all edges are preserved. Inspect with `x$prune$nodes` and
 #> `tidy(x, what = "nodes")`.
-#> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
 #> Cross-level edges are descriptive score correlations. Per-level fit indices
 #> (EFA/ESEM) describe how well a k-factor model fits the items at that level --

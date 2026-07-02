@@ -91,6 +91,13 @@ In I. Mervielde, I. Deary, F. De Fruyt, &amp; F. Ostendorf (Eds.),
 <code>set.seed(42)</code>. Missing values are preserved as in the original data.
 The full dataset (<code><a href="https://rdrr.io/pkg/psych/man/bfi.html" class="external-link">psych::bfi</a></code>) contains responses from 2 800 participants
 collected via the SAPA project.</p>
+<p>Each item column carries its public-domain IPIP stem (Goldberg, 1999) as a
+<code>label</code> attribute, so <code><a href="ackwards.html">ackwards()</a></code> captures it at fit time and <code><a href="top_items.html">top_items()</a></code>
+prints the wording as <code>label (code)</code> (e.g. <code>Make friends easily (E4)</code>) with
+no setup. These are plain attributes: base row-subsetting (e.g.
+<code>na.omit(bfi25)</code>, <code>bfi25[rows, ]</code>) drops them, as base R does for any
+non-<code>labelled</code>-class vector, so fit on <code>bfi25</code> <strong>directly</strong> – its <code>NA</code>s are
+handled by the <code>missing</code> argument of <code><a href="ackwards.html">ackwards()</a></code> – to keep the labels.</p>
 <p>To regenerate this dataset, run <code>source("data-raw/bfi25.R")</code> from the
 package root.</p>
     </div>
@@ -107,6 +114,8 @@ package root.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4  1  5  3  6  6  4  3  1  5  5  4  2  2  5  2  3  3  2  5  6  5  2  5  6  1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5  2  4  4  4  3  5  5  4  2  6  5  5  3  3  3  3  3  4  5  5  3  2  3  5  3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6  3  6  4  6  5  5  5  5  2  4  5  2  4  5  5  1  1  2  2  5  4  4  5  4  4</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">$</span><span class="va">E4</span>, <span class="st">"label"</span><span class="op">)</span> <span class="co"># public-domain IPIP item stem</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Make friends easily"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

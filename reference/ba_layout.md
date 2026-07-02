@@ -59,16 +59,14 @@ is always at x = 0.
 ## Examples
 
 ``` r
-x <- ackwards(bfi25, k_max = 5)
-#> Warning: ! 125 rows have missing values; correlations are computed pairwise.
-#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
+x <- ackwards(sim16, k_max = 5)
 lay <- ba_layout(x)
 head(lay$nodes)
-#>     id level     x  y label
-#> 1 m1f1     1  0.00 -1  m1f1
-#> 2 m2f1     2 -1.25 -2  m2f1
-#> 3 m2f2     2  1.25 -2  m2f2
-#> 4 m3f1     3 -2.25 -3  m3f1
-#> 5 m3f2     3  1.25 -3  m3f2
-#> 6 m3f3     3 -0.25 -3  m3f3
+#>     id level      x  y label
+#> 1 m1f1     1  0.000 -1  m1f1
+#> 2 m2f1     2 -1.125 -2  m2f1
+#> 3 m2f2     2  1.125 -2  m2f2
+#> 4 m3f1     3  1.125 -3  m3f1
+#> 5 m3f2     3 -0.625 -3  m3f2
+#> 6 m3f3     3 -1.625 -3  m3f3
 ```

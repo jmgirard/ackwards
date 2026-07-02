@@ -42,9 +42,7 @@ A one-row `data.frame`.
 ## Examples
 
 ``` r
-x <- ackwards(bfi25, k_max = 5)
-#> Warning: ! 125 rows have missing values; correlations are computed pairwise.
-#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
+x <- ackwards(sim16, k_max = 5)
 glance(x)
 #>   engine rotation     cor k_max n_obs deepest_converged n_edges CFI TLI RMSEA
 #> 1    pca  varimax pearson     5  1000                 5      40  NA  NA    NA

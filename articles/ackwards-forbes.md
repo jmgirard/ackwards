@@ -121,8 +121,8 @@ x_boot <- ackwards(bfi, k_max = 5, engine = "efa", pairs = "all") |>
 #> ℹ Results use a "pearson" basis. Consider `cor = "polychoric"` for ordinal
 #>   data.
 #> This warning is displayed once per session.
-#> ℹ Fitting 200 bootstrap replicates (EFA, k = 1-5)...
-#> ✔ Fitting 200 bootstrap replicates (EFA, k = 1-5)... [37.1s]
+#> ℹ Fitting 200 bootstrap replicates (efa, k = 1-5)...
+#> ✔ Fitting 200 bootstrap replicates (efa, k = 1-5)... [38.1s]
 #> 
 
 boot_tbl <- tidy(x_boot, what = "edges", sort = "strength")

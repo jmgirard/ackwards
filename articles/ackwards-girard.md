@@ -79,14 +79,19 @@ bfi <- na.omit(bfi25)
 ``` r
 
 sk <- suggest_k(bfi, seed = 1)
+#> Warning: ! 25 columns look like ordinal/Likert items (<= 7 distinct integer values):
+#>   "A1", "A2", "A3", "A4", "A5", "C1", …, "O4", and "O5".
+#> ℹ `suggest_k()` screens on the "pearson" basis by design; use `cor =
+#>   "polychoric"` in the final `ackwards()` fit.
+#> This warning is displayed once per session.
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [284ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [289ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [170ms]
+#> ✔ Running MAP and VSS... [142ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [7.6s]
+#> ✔ Running Comparison Data (CD)... [10s]
 #> 
 print(sk)
 #> 
@@ -145,13 +150,13 @@ cmp <- comparability(bfi, k_max = sk_hi + 1, n_splits = 10, seed = 2026)
 #> ℹ Results use a "pearson" basis. Consider `cor = "polychoric"` for ordinal
 #>   data.
 #> This warning is displayed once per session.
-#> ℹ Fitting 10 split-half replicates (PCA, k = 1-7)...
-#> ✔ Fitting 10 split-half replicates (PCA, k = 1-7)... [2.5s]
+#> ℹ Fitting 10 split-half replicates (pca, k = 1-7)...
+#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [2.6s]
 #> 
 print(cmp)
 #> 
 #> ── Split-Half Factor Comparability (ackwards) ──────────────────────────────────
-#> Engine: PCA
+#> Engine: pca
 #> Basis: pearson
 #> n: 875 (437 per half)
 #> Splits: 10
@@ -320,24 +325,28 @@ top_items(x, level = 5, cut = 0.5)
 #> E1 [-0.685]
 #> E3 [0.659]
 #> E5 [0.584]
+#> 
 #> m5f2
 #> N3 [-0.799]
 #> N1 [-0.787]
 #> N2 [-0.782]
 #> N5 [-0.656]
 #> N4 [-0.626]
+#> 
 #> m5f3
 #> C2 [0.702]
 #> C4 [-0.692]
 #> C1 [0.671]
 #> C3 [0.653]
 #> C5 [-0.627]
+#> 
 #> m5f4
 #> A3 [0.698]
 #> A2 [0.672]
 #> A1 [-0.672]
 #> A5 [0.569]
 #> A4 [0.513]
+#> 
 #> m5f5
 #> O5 [-0.676]
 #> O3 [0.617]

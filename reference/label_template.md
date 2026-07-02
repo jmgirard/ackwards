@@ -66,9 +66,7 @@ so the printed literal maps directly onto the diagram.
 ## Examples
 
 ``` r
-x <- ackwards(bfi25, k_max = 5)
-#> Warning: ! 125 rows have missing values; correlations are computed pairwise.
-#> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
+x <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric")
 
 # Start from ID defaults, then fill in your own labels:
 labs <- label_template(x)

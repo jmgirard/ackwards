@@ -2280,3 +2280,96 @@ User-facing change notes live in `NEWS.md`.
   proper); the plan-deviation disclosure above. The expanded permission
   allowlist remains an owner action (classifier correctly blocks agent
   self-application).
+
+- **M50 (done):** release polish (code; owner-approved 2026-07-02) — a
+  small code milestone branched off `master` and interleaved **before**
+  M49’s CRAN mechanics, so the 0.1.0 release captures it. Four
+  work-items, no new export, no dependency change.
+
+  1.  **`bfi25` variable labels.** `data-raw/bfi25.R` attaches the 25
+      public-domain IPIP marker stems (Goldberg, 1999; ipip.ori.org) as
+      per-column `label` attributes; `data/bfi25.rda` regenerated (data
+      values unchanged — same `set.seed(42)` sample, only attributes
+      added). This populates the M36 capture path so
+      [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+      prints `label (code)` (e.g. `Make friends easily (E4)`) with zero
+      user setup. Sourced directly as public-domain IPIP items (text is
+      necessarily identical to
+      [`psych::bfi.dictionary`](https://rdrr.io/pkg/psych/man/bfi.html)
+      — same public pool — but not framed as a copy); trailing periods
+      stripped for clean labels. **Caveat discovered & documented:**
+      plain attributes are dropped by base row-subsetting
+      (`na.omit(bfi25)`, `bfi25[rows, ]`), unlike the class-based
+      `labelled`/`haven` vectors M36 targets, so the labels survive only
+      when the dataset is fit directly — the roxygen and `R/data.R` note
+      `missing = "listwise"` as the clean pattern (label capture happens
+      before missing handling).
+  2.  **cli consistency.** Engine name renders lowercase everywhere
+      (`print.comparability` drops its
+      [`toupper()`](https://rdrr.io/r/base/chartr.html); the
+      [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)/[`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
+      progress steps and the `k_eff` abort message match;
+      `print.top_items` bolds the value like the others).
+      [`summary()`](https://rdrr.io/r/base/summary.html) per-level
+      figures use fixed precision with trailing zeros (percentages
+      `%.1f`, eigenvalues `%.2f` — kills the `20.91%`/`13.6%`/`2.1`
+      drift) with a blank line between level blocks; `print.top_items`
+      separates factor/item groups;
+      `print.ackwards`/[`summary()`](https://rdrr.io/r/base/summary.html)
+      pruned output uses one consolidated grey footer (single
+      `cli_rule()` carrying the prune note + caveat) instead of stacked
+      rules.
+  3.  **Example dataset swap.** Mechanics-family roxygen examples move
+      to the continuous `sim16` (no ordinal warning, faster checks):
+      `tidy`, `glance`, `summary`, `ba_layout`, `boot_edges`, `augment`,
+      `predict`, `prune` (sim16’s planted redundant chain + `k=5`
+      artifact give the prune rules a guaranteed finding).
+      Content-family keeps `bfi25` on the polychoric basis: `ackwards`,
+      `top_items`, `label_template`, the `autoplot` gallery. Examples
+      that do not surface item labels fit `na.omit(bfi25)` for a clean
+      run;
+      [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+      fits the raw dataset with `missing = "listwise"` so the IPIP
+      labels survive. No ordinal or missing-data warnings in any
+      runnable example;
+      [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)/[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+      (Pearson-only, `\donttest`) keep `bfi25`.
+  4.  **[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+      ordinal warning.**
+      [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+      runs `detect_ordinal()` on raw-data input and warns once per
+      session (Invariant-6 symmetry with
+      [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)/[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)),
+      guarded to the raw-data path. Wording adapted to the screening
+      context:
+      [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+      screens on the Pearson/Spearman basis by design, so the advice
+      points at the final
+      [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+      fit (`cor = "polychoric"`), not at
+      [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md).
+      **Resolved decisions** (owner-approved 2026-07-02): engine casing
+      = lowercase; `suggest_k` wording = screening-context; `bfi25`
+      provenance = hardcoded public-domain IPIP stems, cited; DESIGN §14
+      split — M50 logs items 37–39 (labels, `suggest_k` symmetry,
+      console/example polish), while the `label_items()` setter decline,
+      the third-teaching-dataset decline, and the factor-label-pipeline
+      0.2.0 deferral are logged in M49 Phase A to avoid double-logging.
+      New tests: `bfi25` ships 25 labels that flow into
+      [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+      (test-data.R);
+      [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+      warns on ordinal / not on continuous or matrix input
+      (test-suggest_k.R); one existing
+      [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+      n_obs test switched to continuous `sim16` so the new ordinal
+      warning does not leak into it. Suite **1883 pass / 0 fail / 0
+      skip**; coverage **100%**; `R CMD check` **0 errors / 0 warnings /
+      0 notes**; `styler`/`lintr` clean;
+      [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
+      clean. (The new
+      [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+      warning surfaces once in the intro/girard/suggest-k vignettes,
+      which call it on ordinal `bfi25`; non-fatal for the build — the
+      prose reconciliation belongs to M49 Phase B, which already scopes
+      the intro’s “No warning this time” fix.)

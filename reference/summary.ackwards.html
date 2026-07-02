@@ -95,9 +95,7 @@ for inspection and reporting.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi25</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 125 rows have missing values; correlations are computed pairwise.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `missing = "listwise"` for consistent complete-case analysis.</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">sim16</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Summary: Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────</span></span>
@@ -109,39 +107,43 @@ for inspection and reporting.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Levels</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">k = 1</span>: 1 factor (20.6% cumulative variance)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m1f1 20.61% eigenvalue 5.15</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">k = 2</span>: 2 factors (31.8% cumulative variance)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m2f1 18.46% eigenvalue 5.15</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m2f2 13.36% eigenvalue 2.8</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">k = 3</span>: 3 factors (40.1% cumulative variance)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 16.39% eigenvalue 5.15</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 12.42% eigenvalue 2.8</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 11.28% eigenvalue 2.07</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">k = 4</span>: 4 factors (47.3% cumulative variance)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m4f1 15.77% eigenvalue 5.15</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m4f2 12.58% eigenvalue 2.8</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m4f3 10.67% eigenvalue 2.07</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m4f4 8.28% eigenvalue 1.8</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">k = 5</span>: 5 factors (53.3% cumulative variance)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m5f1 12.57% eigenvalue 5.15</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m5f2 12.51% eigenvalue 2.8</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m5f3 10.75% eigenvalue 2.07</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m5f4 9.47% eigenvalue 1.8</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m5f5 7.98% eigenvalue 1.5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">k = 1</span>: 1 factor (28.2% cumulative variance)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m1f1 28.2% eigenvalue 4.51</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">k = 2</span>: 2 factors (46.5% cumulative variance)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m2f1 23.3% eigenvalue 4.51</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m2f2 23.2% eigenvalue 2.93</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">k = 3</span>: 3 factors (57.5% cumulative variance)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 23.0% eigenvalue 4.51</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 17.5% eigenvalue 2.93</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 16.9% eigenvalue 1.76</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">k = 4</span>: 4 factors (67.7% cumulative variance)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m4f1 17.2% eigenvalue 4.51</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m4f2 16.9% eigenvalue 2.93</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m4f3 16.8% eigenvalue 1.76</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m4f4 16.8% eigenvalue 1.63</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">k = 5</span>: 5 factors (70.8% cumulative variance)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m5f1 17.1% eigenvalue 4.51</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m5f2 16.9% eigenvalue 2.93</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m5f3 16.8% eigenvalue 1.76</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m5f4 16.7% eigenvalue 1.63</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m5f5 3.3% eigenvalue 0.51</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Lineage (primary parents)</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> m1f1 → m2f1, m2f2</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m2f1 → m3f1, m3f3</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m2f2 → m3f2</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 → m4f1</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 → m4f2</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 → m4f3, m4f4</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m4f1 → m5f1, m5f4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m2f1 → m3f2, m3f3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m2f2 → m3f1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 → m4f3, m4f4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 → m4f1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 → m4f2</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m4f1 → m5f1</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> m4f2 → m5f2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> m4f3 → m5f3</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m4f4 → m5f5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m4f4 → m5f4, m5f5</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>

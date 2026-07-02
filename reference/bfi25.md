@@ -52,6 +52,19 @@ The full dataset
 ([`psych::bfi`](https://rdrr.io/pkg/psych/man/bfi.html)) contains
 responses from 2 800 participants collected via the SAPA project.
 
+Each item column carries its public-domain IPIP stem (Goldberg, 1999) as
+a `label` attribute, so
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+captures it at fit time and
+[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+prints the wording as `label (code)` (e.g. `Make friends easily (E4)`)
+with no setup. These are plain attributes: base row-subsetting (e.g.
+`na.omit(bfi25)`, `bfi25[rows, ]`) drops them, as base R does for any
+non-`labelled`-class vector, so fit on `bfi25` **directly** – its `NA`s
+are handled by the `missing` argument of
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+– to keep the labels.
+
 To regenerate this dataset, run `source("data-raw/bfi25.R")` from the
 package root.
 
@@ -68,4 +81,6 @@ head(bfi25)
 #> 4  1  5  3  6  6  4  3  1  5  5  4  2  2  5  2  3  3  2  5  6  5  2  5  6  1
 #> 5  2  4  4  4  3  5  5  4  2  6  5  5  3  3  3  3  3  4  5  5  3  2  3  5  3
 #> 6  3  6  4  6  5  5  5  5  2  4  5  2  4  5  5  1  1  2  2  5  4  4  5  4  4
+attr(bfi25$E4, "label") # public-domain IPIP item stem
+#> [1] "Make friends easily"
 ```

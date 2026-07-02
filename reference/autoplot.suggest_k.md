@@ -59,15 +59,20 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   sk <- suggest_k(bfi25, n_iter = 5)
   autoplot(sk)
 }
+#> Warning: ! 25 columns look like ordinal/Likert items (<= 7 distinct integer values):
+#>   "A1", "A2", "A3", "A4", "A5", "C1", …, "O4", and "O5".
+#> ℹ `suggest_k()` screens on the "pearson" basis by design; use `cor =
+#>   "polychoric"` in the final `ackwards()` fit.
+#> This warning is displayed once per session.
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [87ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [113ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [130ms]
+#> ✔ Running MAP and VSS... [106ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [11s]
+#> ✔ Running Comparison Data (CD)... [13.7s]
 #> 
 
 # }

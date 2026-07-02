@@ -211,14 +211,19 @@ and citations — see
 ``` r
 
 sk <- suggest_k(bfi, seed = 42)
+#> Warning: ! 25 columns look like ordinal/Likert items (<= 7 distinct integer values):
+#>   "A1", "A2", "A3", "A4", "A5", "C1", …, "O4", and "O5".
+#> ℹ `suggest_k()` screens on the "pearson" basis by design; use `cor =
+#>   "polychoric"` in the final `ackwards()` fit.
+#> This warning is displayed once per session.
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [313ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [291ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [171ms]
+#> ✔ Running MAP and VSS... [143ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [7.6s]
+#> ✔ Running Comparison Data (CD)... [10.2s]
 #> 
 print(sk)
 #> 

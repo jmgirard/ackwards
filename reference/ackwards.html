@@ -331,30 +331,24 @@ result of this function)</p></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">ackwards</span><span class="op">(</span><span class="va">bfi25</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 125 rows have missing values; correlations are computed pairwise.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `missing = "listwise"` for consistent complete-case analysis.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> 25 columns look like ordinal/Likert items (&lt;= 7 distinct integer values):</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   <span style="color: #0000BB;">"A1"</span>, <span style="color: #0000BB;">"A2"</span>, <span style="color: #0000BB;">"A3"</span>, <span style="color: #0000BB;">"A4"</span>, <span style="color: #0000BB;">"A5"</span>, <span style="color: #0000BB;">"C1"</span>, …, <span style="color: #0000BB;">"O4"</span>, and <span style="color: #0000BB;">"O5"</span>.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Results use a <span style="color: #0000BB;">"pearson"</span> basis. Consider `cor = "polychoric"` for ordinal</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   data.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">This warning is displayed once per session.</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># bfi25 items are ordinal, so fit on the polychoric basis (best practice).</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">ackwards</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">───────────────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Engine: <span style="font-weight: bold;">pca</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rotation: varimax</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Basis: pearson</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> n: 1,000</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Basis: polychoric</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> n: 875</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> k (max): 5</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Levels</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 20.6% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 31.8% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 40.1% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 47.3% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 53.3% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 23.2% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 35.5% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 44.6% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 52.2% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 58.4% variance</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Edges</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -365,52 +359,52 @@ result of this function)</p></div>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to            r is_primary above_cut</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  m1f1 m2f1          1        2  0.878066713       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  m1f1 m2f2          1        2  0.478538241       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m2f1 m3f1          2        3  0.905019446       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  m2f1 m3f2          2        3 -0.084915431      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  m2f1 m3f3          2        3  0.416808316       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m2f2 m3f1          2        3 -0.032217716      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  m2f2 m3f2          2        3  0.963373570       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  m2f2 m3f3          2        3  0.266220556      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  m3f1 m4f1          3        4  0.996745750       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 m3f1 m4f2          3        4 -0.006661471      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11 m3f1 m4f3          3        4  0.042095931      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12 m3f1 m4f4          3        4  0.068421245      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13 m3f2 m4f1          3        4  0.016233327      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14 m3f2 m4f2          3        4  0.988176397       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15 m3f2 m4f3          3        4  0.018059508      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16 m3f2 m4f4          3        4 -0.151386067      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17 m3f3 m4f1          3        4 -0.070214243      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18 m3f3 m4f2          3        4  0.061809300      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19 m3f3 m4f3          3        4  0.861695922       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20 m3f3 m4f4          3        4  0.498728091       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21 m4f1 m5f1          4        5  0.806394128       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22 m4f1 m5f2          4        5 -0.001363543      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23 m4f1 m5f3          4        5  0.006259133      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24 m4f1 m5f4          4        5  0.589479673       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25 m4f1 m5f5          4        5 -0.046916846      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26 m4f2 m5f1          4        5  0.030991419      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27 m4f2 m5f2          4        5  0.998569303       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28 m4f2 m5f3          4        5  0.015523208      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29 m4f2 m5f4          4        5 -0.040546852      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30 m4f2 m5f5          4        5 -0.003723118      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31 m4f3 m5f1          4        5 -0.105831031      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32 m4f3 m5f2          4        5 -0.006424971      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33 m4f3 m5f3          4        5  0.984798330       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34 m4f3 m5f4          4        5  0.135975178      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35 m4f3 m5f5          4        5  0.021012193      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 36 m4f4 m5f1          4        5  0.191253503      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 37 m4f4 m5f2          4        5 -0.010261396      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 38 m4f4 m5f3          4        5  0.025504732      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 39 m4f4 m5f4          4        5 -0.185238698      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 40 m4f4 m5f5          4        5  0.963510734       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to             r is_primary above_cut</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  m1f1 m2f1          1        2  0.8900521708       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  m1f1 m2f2          1        2  0.4558586768       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m2f1 m3f1          2        3  0.8740850453       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  m2f1 m3f2          2        3 -0.0646978283      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  m2f1 m3f3          2        3  0.4814452458       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m2f2 m3f1          2        3 -0.0138635401      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  m2f2 m3f2          2        3  0.9873650620       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  m2f2 m3f3          2        3  0.1578544789      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  m3f1 m4f1          3        4  0.9938370937       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 m3f1 m4f2          3        4 -0.0168557132      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 m3f1 m4f3          3        4  0.0964530838      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 m3f1 m4f4          3        4 -0.0519665152      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 m3f2 m4f1          3        4 -0.0049287592      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 m3f2 m4f2          3        4  0.9761484024       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 m3f2 m4f3          3        4  0.1262503087      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 m3f2 m4f4          3        4 -0.1765527214      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 m3f3 m4f1          3        4 -0.0349568041      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 m3f3 m4f2          3        4  0.0282315239      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 m3f3 m4f3          3        4  0.7316161994       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 m3f3 m4f4          3        4  0.6802343271       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21 m4f1 m5f1          4        5  0.8377658864       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22 m4f1 m5f2          4        5 -0.0008572469      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23 m4f1 m5f3          4        5  0.0077169220      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24 m4f1 m5f4          4        5  0.5458268610       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 m4f1 m5f5          4        5 -0.0126913973      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26 m4f2 m5f1          4        5  0.0292407553      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27 m4f2 m5f2          4        5  0.9984791486       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28 m4f2 m5f3          4        5  0.0162997965      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29 m4f2 m5f4          4        5 -0.0434058463      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30 m4f2 m5f5          4        5  0.0058836365      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31 m4f3 m5f1          4        5 -0.1077715994      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32 m4f3 m5f2          4        5 -0.0063313607      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33 m4f3 m5f3          4        5  0.9824894799       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34 m4f3 m5f4          4        5  0.1516816583      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35 m4f3 m5f5          4        5  0.0072313664      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36 m4f4 m5f1          4        5  0.0882513737      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37 m4f4 m5f2          4        5 -0.0136378896      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38 m4f4 m5f3          4        5  0.0197169434      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39 m4f4 m5f4          4        5 -0.1127480001      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40 m4f4 m5f5          4        5  0.9894063036       TRUE      TRUE</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   engine rotation     cor k_max n_obs deepest_converged n_edges CFI TLI RMSEA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    pca  varimax pearson     5  1000                 5      40  NA  NA    NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   SRMR BIC</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   engine rotation        cor k_max n_obs deepest_converged n_edges CFI TLI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    pca  varimax polychoric     5   875                 5      40  NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSEA SRMR BIC</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    NA   NA  NA</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Correlation-matrix input (PCA engine; n_obs optional)</span></span></span>
 <span class="r-in"><span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">bfi25</span>, use <span class="op">=</span> <span class="st">"pairwise.complete.obs"</span><span class="op">)</span></span></span>

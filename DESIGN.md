@@ -928,6 +928,49 @@ and named the *replicability-gated (or Girard) workflow*.
     many edges for the strongest (stated in the object docs + Forbes
     vignette).
 
+**Resolved for M50 (release polish; owner-approved 2026-07-02):** 37.
+**`bfi25` carries public-domain IPIP variable labels.** Each item column
+gets its IPIP marker stem (Goldberg, 1999; ipip.ori.org) as a plain
+`label` attribute, populating the M36 capture path so
+[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+prints `label (code)` with zero setup. Sourced directly as public-domain
+IPIP items (text is necessarily identical to
+[`psych::bfi.dictionary`](https://rdrr.io/pkg/psych/man/bfi.html) — same
+public pool — but not framed as a copy). Plain attributes are dropped by
+base row-subsetting
+([`na.omit()`](https://rdrr.io/r/stats/na.fail.html), `[`), unlike the
+class-based `labelled`/`haven` vectors M36 targets, so the documented
+pattern is to fit the dataset directly (`missing = "listwise"`) rather
+than pre-filtering. A `label_items()` setter and a third teaching
+dataset were **declined** (logged in M49 Phase A to avoid
+double-logging); a persistent *factor*-label pipeline (distinct from
+these *item* labels) is deferred to 0.2.0. 38.
+**[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+ordinal-detection warning (Invariant 6 symmetry).**
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+now runs `detect_ordinal()` on raw-data input and warns once per
+session, matching
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+and
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md).
+Because
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+screens on the Pearson/Spearman basis *by design*, the wording points at
+the final
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+fit (`cor = "polychoric"`), not at
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+— it does not (and cannot) switch basis itself. Guarded to the raw-data
+path (a correlation matrix has no items to inspect). 39.
+**Console/example polish (no contract change).** Engine name renders
+lowercase across all print methods;
+[`summary()`](https://rdrr.io/r/base/summary.html) per-level figures use
+fixed decimals with trailing zeros; pruned footers consolidate to one
+note. Roxygen examples split by intent: mechanics demos use the
+continuous `sim16` (no ordinal warning, faster checks), content demos
+keep `bfi25` on the polychoric basis. These are display/documentation
+choices, not behavioural defaults.
+
 **Known limitations / deferred to future milestones:** - `factor_cor` in
 the ESEM engine is not permuted by the variance-sort `ord` vector. Safe
 permanently: only orthogonal rotation is supported (`factor_cor = I`;
