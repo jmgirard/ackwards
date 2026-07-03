@@ -1653,11 +1653,12 @@ User-facing change notes live in `NEWS.md`.
   by Opus, implemented by Sonnet, and previously reviewed by Opus; M41
   was an independent audit by Claude Fable 5. **No `R/`, `NAMESPACE`,
   test, or vignette changes** — the deliverable is a severity-ranked
-  findings report in `ROADMAP.md`, with fixes triaged into proposed
-  follow-up milestones (M42 code / M43 docs / M44 Forbes-fixture
-  scoping), mirroring how the 2026-06-30 pkgdown review spawned M31–M40.
-  **Verified clean (numerically, in scratch R sessions):** tenBerge
-  weights ≡
+  findings report (in the audit appendix at the end of this entry,
+  folded here from `ROADMAP.md` when the M41→M44 review arc closed),
+  with fixes triaged into proposed follow-up milestones (M42 code / M43
+  docs / M44 Forbes-fixture scoping), mirroring how the 2026-06-30
+  pkgdown review spawned M31–M40. **Verified clean (numerically, in
+  scratch R sessions):** tenBerge weights ≡
   [`psych::factor.scores`](https://rdrr.io/pkg/psych/man/factor.scores.html)
   (1.6e-15) and ≡ ten Berge et al. (1999); `W'RW` algebra ≡ materialized
   scores (2.3e-15); sign alignment (all primary edges ≥ 0, PCA+EFA+ESEM,
@@ -1670,10 +1671,10 @@ User-facing change notes live in `NEWS.md`.
   criterion→field mappings match direct
   [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html); M16/M38
   missing-data guard matrix as documented. **Findings (full detail +
-  reproductions in `ROADMAP.md`):** 1 Critical — EFA fit row pairs
-  psych’s *empirical* chi-square (`$chi`) with the *likelihood* p-value
-  (`$PVAL`), an internally inconsistent pair (`engine_efa.R`); 6 Major —
-  `drop_pruned` loses edges on `pairs = "adjacent"` objects (M34
+  reproductions in the audit appendix below):** 1 Critical — EFA fit row
+  pairs psych’s *empirical* chi-square (`$chi`) with the *likelihood*
+  p-value (`$PVAL`), an internally inconsistent pair (`engine_efa.R`); 6
+  Major — `drop_pruned` loses edges on `pairs = "adjacent"` objects (M34
   regression; stale all-pairs comment in `layout.R`), engines vignette
   still documents pre-M38 FIML behavior, suggest-k vignette misstates
   the CD mechanism (“without preserving inter-item correlations” — false
@@ -1693,13 +1694,123 @@ User-facing change notes live in `NEWS.md`.
   sound (one sound-but-misjustified: the `redundancy_phi` PCA wording
   above); all declines (EAP, oblique, `categorical` flag, EKC/EGA,
   Hungarian matching) hold; arbitrary-constant inventory (documented
-  vs. cosmetic-undocumented) recorded in `ROADMAP.md`. **Files.**
-  `ROADMAP.md` (findings report), `MILESTONES.md`, `CLAUDE.md` (Current
-  focus + Completed index). No NEWS entry (no user-facing change), no
-  DESIGN contract change, no export/ signature/dependency change.
-  **Verified.** `R CMD check` **0/0/0** (full, vignettes rebuilt); suite
-  1565 pass / 0 fail / 0 skip; no style/lint surface (no `R/` change);
-  `_pkgdown.yml` untouched (no export change).
+  vs. cosmetic-undocumented) recorded in the appendix below. **Files.**
+  `ROADMAP.md` (findings report, since folded into the appendix below),
+  `MILESTONES.md`, `CLAUDE.md` (Current focus + Completed index). No
+  NEWS entry (no user-facing change), no DESIGN contract change, no
+  export/signature/dependency change. **Verified.** `R CMD check`
+  **0/0/0** (full, vignettes rebuilt); suite 1565 pass / 0 fail / 0
+  skip; no style/lint surface (no `R/` change); `_pkgdown.yml` untouched
+  (no export change).
+
+  **Audit appendix (folded from `ROADMAP.md` when the M41→M44 arc
+  closed, 2026-07-03).** These are the itemized reference results of the
+  completed review — the granular backup for the prose summary above;
+  not pending work.
+
+  *What was verified clean (no action needed).* Statistical core
+  survives independent re-derivation, verified numerically on
+  `na.omit(bfi25)` (n = 816) and `sim16` unless noted:
+
+  - **tenBerge weights** — `.tenBerge_weights()`’s
+    `W = R⁻¹L(L'R⁻¹L)^{-1/2}` matches the ten Berge et al. (1999)
+    orthogonal-case formula and agrees with
+    `psych::factor.scores(method = "tenBerge")` to 1.6e-15; `W'RW = I`
+    holds to 1e-8.
+  - **Edge algebra & standardization** —
+    [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)’s
+    `W'RW` with `sqrt(diag(W'RW))` standardization re-derived
+    independently; algebra vs. materialized-scores agreement 2.3e-15
+    (PCA); the suite carries the same oracle plus a
+    [`psych::bassAckward()`](https://rdrr.io/pkg/psych/man/bassAckward.html)
+    comparison for PCA + EFA.
+  - **Sign alignment (M35 contract)** — every primary-parent edge ≥ 0 on
+    PCA and EFA, `pairs = "all"` included; the skip-level recompute path
+    is algebraically identical to sweeping, so skip-level signs are
+    correct.
+  - **Forbes machinery** — Tucker’s φ formula exact; DFS chain
+    enumeration and the retention rule (bottom iff chain reaches
+    `k_max`, else top) verified on all five sim16 chains; the
+    primary-parent-only restriction on chain links is mathematically
+    lossless for thresholds \> √.5 (a child’s squared correlations with
+    its orthogonal parents sum to ≤ 1, so only the primary parent can
+    reach \|r\| ≥ .9).
+  - **ESEM fit extraction** — engine fit rows match
+    [`lavaan::fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)
+    exactly: naive values under ML, scaled variants under WLSMV (chi/CFI
+    to 1e-8), `BIC = NA` under WLSMV; polychoric edge `R` bit-identical
+    to lavaan’s `sampstat$cov` (never psych’s polychoric);
+    `factor_cor = I` under varimax; per-level variance sorted
+    descending.
+  - **`suggest_k` mappings** — MAP/VSS-1/VSS-2 recommendations match
+    direct [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html)
+    output; MAP computed on components (`fm = "pc"`, per Velicer’s
+    definition).
+  - **Missing-data guard matrix (M16/M38)** — `.resolve_missing()`
+    enforces exactly the documented combinations; PCA cumulative
+    variance equals the top-k eigenvalue share; `detect_ordinal()`
+    boundary behavior (8-level integer not flagged, binary flagged) as
+    documented.
+
+  *Findings — all resolved.* Critical C1 fixed in M42. Major M2–M5 fixed
+  in M43; M6 (untested Forbes-fidelity contract) fixed in M44 via a
+  fixture test reproducing the paper’s three simulation studies against
+  Forbes’s own reference implementation. Minor m1, m2, m6, m7, m8, m10
+  in M42; m3, m4, m5, m9, m11 in M43. Enhancements: e3 in M42; e1 in
+  M43; e4 (bootstrap edge CIs) shipped as M47; e2 (dual EFA chi-squares)
+  declined in M49 (DESIGN §14 item 40).
+
+  *Defaults & decision audit (Phase 4 verdicts).* Every DESIGN §9
+  defaults-table row and §14 numbered decision was audited for both the
+  choice and its stated justification. All **sound** except as noted:
+
+  - **§9 rows — all sound**, two annotations: `redundancy_phi` auto-rule
+    is sound-but-misjustified on the PCA side (see e1; the 0.95 value is
+    a defensible borrow of Lorenzo-Seva & ten Berge’s equivalence
+    threshold, applied conjunctively — conservative by construction);
+    `missing = "pairwise"` is sound given the documented ESEM ML/MLR
+    inconsistency and its per-call warning.
+  - **§14 decisions 1–33 — all sound.** Spot-checked: item 6 (≤ 7
+    distinct integer values) an honest documented heuristic with
+    expected false-positive (integer-coded counts) / false-negative (8+
+    category Likert) edges — acceptable for a warning-only signal; item
+    7/§14.1 (CF(κ=1/p) ≡ varimax, kappa removal) verified against
+    Crawford & Ferguson (1970)/Browne (2001); item 19 (\|r\| ≥ .9,
+    retention rule, φ \> .95 conjunctive) faithful to Forbes in code and
+    output; items 27–31 (prune verb) sound as a design but shipped a
+    `drop_pruned` regression (fixed M42) — the decision was right, the
+    migration missed one consumer; items 32–33 (M38 FIML + `n_obs`
+    strings) sound and well-cited (Enders 2010; Zhang & Savalei 2020)
+    but shipped the M2 doc gap.
+  - **Declined decisions — all declines hold.** EAP (shrinkage
+    attenuates the cross-level signal); oblique rotation (T′ = T⁻¹ is
+    load-bearing for the algebra); `categorical` flag (pure synonym);
+    EKC/EGA (dependency cost); Hungarian matching removal (bijection
+    ill-posed under the pigeonhole argument — this review adds the
+    stronger Σr² ≤ 1 argument that greedy argmax and “the ≥ .9 link”
+    necessarily coincide).
+  - **Arbitrary-constant inventory.** Documented with rationale:
+    `cut_show = 0.3`, `redundancy_r = 0.9`, `redundancy_phi = 0.95`,
+    `min_items = 3`, `orphan_r = 0.5`, ordinal ≤ 7, `k_max` default
+    `min(p−1, 8)`, `n_iter = 20`, PA quantile 0.95, Hu-Bentler reference
+    lines, CD α = 0.30 (inherited from EFAtools, named in the vignette).
+    Undocumented but acceptable (cosmetic/numeric-hygiene):
+    symmetry/diagonal tolerances `1e-8` (utils.R), the eigenvalue floor
+    `.Machine$double.eps` in `.tenBerge_weights()`, linewidth legend
+    range `c(0.4, 1.8)`, edge-label nudge `0.15`, level-label offset
+    `0.8`, arrowhead `0.15 cm`. None warrants promotion to an argument;
+    the two numeric-hygiene constants deserve a one-line comment at
+    most.
+  - **Rationale drift.** Three stale in-code comments found (M1’s
+    layout.R comment, m6’s summary.R comment, m9’s data-raw comments),
+    all since fixed; CLAUDE.md / DESIGN.md / MILESTONES.md / roxygen
+    otherwise tell the same story for every audited decision.
+
+  *Provenance.* The M31–M40 arc was decomposed from a page-by-page
+  pkgdown-site review the owner did on 2026-06-30 (origin transcript
+  `9a5dc6bd-40ca-4f66-9f11-5bf0c0a4e19a.jsonl`). The M41 findings were
+  produced by the model-led review milestone (branch `m41-fable-review`,
+  2026-07-01).
 
 - **M42 (done):** review fixes, code — first fix milestone off the M41
   review (scope owner-approved 2026-07-01: the `ROADMAP.md` M42 brief
@@ -2566,3 +2677,35 @@ User-facing change notes live in `NEWS.md`.
       `by = "item"` body. Suite **1983 pass / 0 fail / 0 skip**;
       coverage **100%**; `R CMD check` **0/0/0**; styler/lintr/pkgdown
       clean.
+
+## Between-milestone changes (not milestone-numbered)
+
+Merged PRs that touch `R/`/`tests/`/`DESCRIPTION`/vignettes but are
+**not** a planned, numbered milestone (e.g. a between-milestone review
+fix, a hotfix) are logged here, newest last, with the PR number and
+date. This keeps the numbered milestone list above gap-free (the
+/post-milestone-review no-gaps check applies only to that list) while
+still giving every code change a written home. Add a `NEWS.md` line too
+if the change is user-visible.
+
+- **2026-07-03 — Fix Fable review findings F2/F3 in the edge-algebra
+  core** ([\#45](https://github.com/jmgirard/ackwards/pull/45); a
+  between-milestone Fable code review, distinct from the M41 audit).
+  **F2:** removed the dead `align` argument from
+  [`compute_edges()`](https://jmgirard.github.io/ackwards/reference/compute_edges.md)
+  — declared `TRUE` and documented as functional but never read
+  (alignment happens in
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md));
+  updated all six internal call sites, the `man/compute_edges.Rd` doc,
+  and the tests that passed it explicitly. **F3:** corrected
+  `.tenBerge_weights()` honesty + numerics — the comment claimed
+  `W'RW = I` unconditionally, but that holds only for full-rank `L`;
+  switched the eigenvalue floor to a *relative* tolerance (fp noise
+  scales with `|B|`, so an absolute floor misses near-zeros under a
+  near-singular `R`) and now warns once when it fires (Invariant 6)
+  instead of degrading silently; new white-box test covers both the
+  full-rank and rank-deficient paths. No user-facing behavior change on
+  any shipped-engine path (both findings were unreachable
+  degenerate/dead-code cases), so no `NEWS.md` entry. Files:
+  `R/{ackwards,boot_edges,comparability, compute_edges,engine_efa,layout,prune}.R`,
+  `man/compute_edges.Rd`, four test files.

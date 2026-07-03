@@ -77,13 +77,13 @@ sk <- suggest_k(bfi, seed = 42)
 #>   "polychoric"` in the final `ackwards()` fit.
 #> This warning is displayed once per session.
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [292ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [325ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [145ms]
+#> ✔ Running MAP and VSS... [152ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [9.6s]
+#> ✔ Running Comparison Data (CD)... [10.2s]
 #> 
 print(sk)
 #> 
