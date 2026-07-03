@@ -1130,11 +1130,15 @@ user needs to index into
 [`tidy()`](https://generics.r-lib.org/reference/tidy.html)/`edges`, and
 mirrors how
 [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
-keeps IDs discoverable. Surfaces:
-[`summary()`](https://rdrr.io/r/base/summary.html) hierarchy tree,
+keeps IDs discoverable. The rule is simply: **wherever a text surface
+names a factor, it shows `label (id)`.** Concretely:
+[`summary()`](https://rdrr.io/r/base/summary.html) (both the per-level
+variance listing and the lineage tree),
 [`print()`](https://rdrr.io/r/base/print.html) (one status line noting
 how many of the factors are labeled, only when any are), and
-`top_items(by = "factor")` group headers.
+[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+(the factor dimension either way — group headers under `by = "factor"`,
+body entries under `by = "item"`).
 **[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
 is the exception** — a diagram node shows the substantive label *only*
 (no parenthetical ID), because a stored label is exactly a persistent

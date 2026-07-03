@@ -417,13 +417,13 @@ generic covers it.
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [254ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [263ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [177ms]
+#> ✔ Running MAP and VSS... [184ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.6s]
+#> ✔ Running Comparison Data (CD)... [11.3s]
 #> 
 autoplot(sk)
 ```

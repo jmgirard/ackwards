@@ -83,10 +83,17 @@ alignment (see
 Items near the cut threshold may appear for one sign orientation but not
 the other; this is expected and informative.
 
+If [factor
+labels](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md)
+have been attached, the factor dimension is shown as `label (id)`
+wherever it appears – the group headers under `by = "factor"` and the
+body entries under `by = "item"`.
+
 ## See also
 
 [`tidy.ackwards()`](https://jmgirard.github.io/ackwards/reference/tidy.ackwards.md),
 [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md),
+[`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md),
 [`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md)
 
 ## Examples
