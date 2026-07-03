@@ -1575,3 +1575,14 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   assertion updated for the new `factor_labels` slot. Suite **1978 pass / 0 fail / 0 skip**; coverage
   **100%**; `R CMD check` **0 errors / 0 warnings / 0 notes**; `styler`/`lintr` clean;
   `pkgdown::check_pkgdown()` clean.
+  **Post-review follow-up** (same day; independent audit verdict READY, four nice-to-haves, no
+  blocking/should-fix): the display rule was generalised from "`top_items(by="factor")` headers" to
+  "wherever a text surface names a factor" — `top_items(by = "item")` **body** entries now also show
+  `label (id)` for the factor a cross-loading points at (previously bare); DESIGN §14 item 45 +
+  `top_items()` roxygen reworded to match, and the summary "hierarchy tree" wording corrected to
+  cover the per-level listing it already labelled. Three tests added to lock the audit's untested
+  edges: stored labels survive the `drop_pruned = TRUE` autoplot path, the `by = "item"` body label,
+  and a regression that `augment()`/`predict()` score column names stay `.m{k}f{j}` regardless of
+  labels. No new export or dependency; behaviour change confined to the `by = "item"` body. Suite
+  **1983 pass / 0 fail / 0 skip**; coverage **100%**; `R CMD check` **0/0/0**; styler/lintr/pkgdown
+  clean.

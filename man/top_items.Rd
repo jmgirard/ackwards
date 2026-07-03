@@ -59,6 +59,10 @@ matrix, which does not scale well to large \code{k} or many items.
 Loadings are signed and reflect the object's primary-parent sign alignment
 (see \code{\link[=ackwards]{ackwards()}}). Items near the cut threshold may appear for one sign
 orientation but not the other; this is expected and informative.
+
+If \link[=set_factor_labels]{factor labels} have been attached, the factor
+dimension is shown as \code{label (id)} wherever it appears -- the group headers
+under \code{by = "factor"} and the body entries under \code{by = "item"}.
 }
 \examples{
 # Fit the raw dataset (not na.omit(), which would drop the column
@@ -73,5 +77,6 @@ top_items(x, level = 3, cut = 0.25, by = "item")
 
 }
 \seealso{
-\code{\link[=tidy.ackwards]{tidy.ackwards()}}, \code{\link[=label_template]{label_template()}}, \code{\link[=autoplot.ackwards]{autoplot.ackwards()}}
+\code{\link[=tidy.ackwards]{tidy.ackwards()}}, \code{\link[=label_template]{label_template()}}, \code{\link[=set_factor_labels]{set_factor_labels()}},
+\code{\link[=autoplot.ackwards]{autoplot.ackwards()}}
 }
