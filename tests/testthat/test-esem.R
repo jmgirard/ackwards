@@ -729,3 +729,14 @@ test_that("ESEM with a continuous cor + WLSMV is allowed and yields a populated 
   # Continuous WLSMV is still a limited-information estimator -> no BIC.
   expect_true(is.na(fv[["BIC"]]))
 })
+
+test_that("correct is accepted and ignored on the ESEM path (M49 review)", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("lavaan")
+  # `correct` is a psych::polychoric() continuity correction; ESEM computes its
+  # own polychoric inside lavaan, so a non-default `correct` is simply ignored
+  # (no error, no effect on the path).
+  expect_no_error(suppressWarnings(suppressMessages(
+    ackwards(psych::bfi[, 1:6], k_max = 2, engine = "esem", cor = "polychoric", correct = 0)
+  )))
+})

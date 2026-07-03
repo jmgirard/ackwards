@@ -218,10 +218,11 @@
 #'   level that did; do not interpret beyond it.
 #' * A **near-singular correlation matrix** (smallest eigenvalue `< 1e-4`,
 #'   recorded in `meta$near_singular` / `meta$min_eigenvalue` and re-surfaced by
-#'   `print()`/`summary()`) means per-level fit indices (especially CFI, which
-#'   comes back `NA`) and factor scores are unreliable and the loadings/edges
-#'   rest on a rank-deficient matrix. Collapse sparse categories, use
-#'   `missing = "listwise"`, or trim redundant items.
+#'   `print()`/`summary()`) means per-level fit indices and factor scores are
+#'   unreliable and the loadings/edges rest on a rank-deficient matrix. (For EFA
+#'   the residual-based fallback inflates `TLI`/`RMSEA`; for ESEM `CFI` comes
+#'   back `NA`.) Trim redundant items, use `missing = "listwise"`, or -- on the
+#'   polychoric basis -- collapse sparse categories or set `correct = 0`.
 #'
 #' **Caution -- interpret carefully.** The solution exists but may be unstable:
 #' * A **Heywood case** (communality `> 1` / negative uniqueness) at a level --
@@ -414,6 +415,10 @@ ackwards <- function(
     # Validate and normalise R; synthesise dimnames if absent
     R <- .validate_cor_matrix(as.matrix(data))
     p <- nrow(R)
+
+    # A user-supplied matrix can be near-singular too (records $meta$near_singular
+    # + warns once; cor is NA here, so the generic remedy advice is used).
+    min_eigenvalue <- .near_singular_check(R, cor)
 
     if (k_max > p) {
       cli::cli_abort(
@@ -752,35 +757,6 @@ ackwards <- function(
           R <- suppressMessages(suppressWarnings(psych::cor.smooth(R)))
           min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
         } # nocov end
-
-        # Record the conditioning for a durable $meta signal (summary()/print()
-        # re-surface it long after the fit-time warning has scrolled off).
-        min_eigenvalue <- min_eig
-
-        # Near-singular check, whether or not smoothing ran: a tiny smallest
-        # eigenvalue means the matrix is rank-deficient for practical purposes
-        # (healthy correlation matrices sit well above this). psych then cannot
-        # define the ML objective -- per-level fit indices come back NA (CFI) or
-        # from a residual-based fallback, and the tenBerge inverse is
-        # ill-conditioned. Say so once, clearly, instead of letting psych repeat
-        # it at every level (its message-stream chatter is muffled in the engine).
-        if (min_eig < 1e-4) {
-          cli::cli_warn(
-            c(
-              "!" = "The polychoric correlation matrix is near-singular \\
-                     (min eigenvalue {signif(min_eig, 2)}).",
-              "i" = "Per-level fit indices (especially CFI) and factor scores \\
-                     may be unreliable -- the loadings and edges rest on a \\
-                     rank-deficient matrix.",
-              "i" = "Usual causes are sparse response categories or redundant \\
-                     items. Consider collapsing rare categories, \\
-                     {.code missing = \"listwise\"}, or trimming items; \\
-                     {.fn check_items} shows which items are involved."
-            ),
-            .frequency = "once",
-            .frequency_id = "ackwards_near_singular"
-          )
-        }
       } else if (missing == "fiml") {
         # M38: FIML correlation via psych::corFiml (cor is guaranteed "pearson"
         # here by .resolve_missing). The estimated R feeds the normal W'RW
@@ -807,6 +783,13 @@ ackwards <- function(
       } else {
         R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
       }
+
+      # Near-singular check on the final R, any basis (polychoric was smoothed
+      # above): records min_eigenvalue for the durable $meta signal and warns
+      # once. A rank-deficient matrix can also come from redundant items on the
+      # Pearson/Spearman/FIML bases, so this is basis-agnostic (DESIGN s6/s14.44).
+      min_eigenvalue <- .near_singular_check(R, cor)
+
       engine_out <- switch(engine,
         pca = pca_levels(R,
           k_max = k_max, cor = cor,
