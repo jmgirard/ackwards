@@ -80,28 +80,46 @@ truth). Add new milestones there in numeric order as part of the definition of d
 
 ## Current focus
 
-**M49 is complete** (2026-07-02) — Initial CRAN release (0.1.0). All three phases landed plus a
-robustness arc from the owner testing the release candidate on real data: **Phase A** roadmap
-cleanup (e2 declined; factor-label 0.2.0 + declines banked; DESIGN §14.40–41); **Phase B**
-doc/pedagogy pass (README/intro reframe, `top_items()` → `code: label`, pkgdown regroup,
-girard/engines/interpret vignette prose, vocab); **robustness** (a 142-item/n=222 clinical-scale
-polychoric failure) — the `correct` argument (§14.42), the exported `check_items()` verb (§14.43),
-muffled psych chatter + a single near-singular warning + durable `meta$near_singular`/
-`min_eigenvalue` + a "When to trust the result" `?ackwards` section (§14.44); **Phase C** release
-mechanics (NEWS → one dated `# ackwards 0.1.0`; `cran-comments.md` refreshed; README CRAN install
-line + lifecycle→**stable**; DESCRIPTION/CITATION/DOIs verified). Merged to `master` on the full
-green CI matrix; `v0.1.0` retagged onto the release commit. Detail in `MILESTONES.md` (M49).
+**M51 is in progress** — Factor-label pipeline (first milestone of the 0.2.0 development cycle;
+DESCRIPTION bumps to `0.1.0.9000`). Purely additive per DESIGN §14.41(c) / `ROADMAP.md`: persistent
+*factor* labels, kept lexically distinct from M50's *item* labels (`meta$item_labels`) — the
+item-vs-factor "label" split is load-bearing and must not blur. **Resolved API (owner-approved,
+becomes DESIGN §14 item 45):**
 
-**Owner-only afterward (not automatable):** win-builder/R-hub remote checks (they email the
-maintainer) and the interactive `devtools::submit_cran()`. Until CRAN accepts, the
+- **Storage:** `x$meta$factor_labels` — named character vector (names = factor IDs). Partial
+  labeling allowed; unlabeled factors fall back to their `m{k}f{j}` ID everywhere. Lives in `meta`,
+  so it survives `prune()`/`boot_edges()`/`augment()`/`predict()` for free.
+- **API:** new exports **`set_factor_labels(x, labels)`** (pipeable verb; merges/updates on repeat
+  calls, `NULL` clears all, `NA`/`""` value removes one) + **`factor_labels(x)`** getter. Setter
+  **errors** on names matching no factor ID; no warning for the same value across levels (normal
+  hierarchical case).
+- **Display form: `label (id)`** (e.g. `Neuroticism (m5f1)`) — keeps the stable ID visible for
+  cross-referencing `tidy()`/edges. Honored by `autoplot()` (node text, call-time `node_labels`
+  overrides per node), `summary()` (hierarchy tree), `print()` (one status line when set), `tidy()`
+  (label columns **only when set** — `factor_label` on loadings/variance/scores, `from_label`/
+  `to_label` on edges; ID columns never mutated — Invariant 5), and `top_items(by = "factor")`
+  headers.
+- **Out of scope:** `comparability()` (fits fresh from data); `augment()`/`predict()` **column
+  names** stay `m{k}f{j}` (identifiers, not display); `label_template()` behavior unchanged (docs
+  gain the "printed literal feeds `set_factor_labels()`" framing).
+
+**Acceptance criteria:** setter/getter round-trip + unknown-ID error + clear/remove semantics;
+autoplot stored-label baseline with call-time override; `summary`/`print`/`top_items` show
+`label (id)`; unlabeled `tidy()` keeps today's exact schema (regression-asserted), labeled adds the
+columns; labels survive `prune()`, ignored by `predict()`/`augment()` naming; both exports in
+`_pkgdown.yml` (`pkgdown::check_pkgdown()` passes); interpret + visualization vignettes updated;
+`Rscript tools/dod-gate.R` green at 100% coverage; NEWS development section. Full plan and file list
+in the M51 planning discussion; `MILESTONES.md` gets the entry at DoD.
+
+**Owner-only release tail (from M49, still pending):** win-builder/R-hub remote checks and the
+interactive `devtools::submit_cran()` email the maintainer. Until CRAN accepts 0.1.0, the
 `install.packages("ackwards")` line in the README points at a package not yet on CRAN — update the
-release date / any "on CRAN" phrasing when it lands.
+release date / any "on CRAN" phrasing when it lands. If CRAN bounces 0.1.0, a patch branches from
+the `v0.1.0` tag (the `0.1.0.9000` dev bump on `master` does not block that).
 
-**Next up: nothing queued.** `ROADMAP.md` carries the 0.2.0 candidates — the **factor-label
-pipeline** (headline; persistent `set_factor_labels()`-style names honored by
-autoplot/print/summary/tidy) and the demand-gated `comparability()`/`boot_edges()` ESEM/polychoric
-extensions — plus the AMH-fidelity item pending the owner's Forbes outreach. `MILESTONES.md`
-remains the source of truth for completed milestones.
+**Remaining 0.2.0 candidates** (`ROADMAP.md`): demand-gated `comparability()`/`boot_edges()`
+ESEM/polychoric extensions and the AMH-fidelity item pending the owner's Forbes outreach.
+`MILESTONES.md` remains the source of truth for completed milestones.
 
 ## Invariants — do not violate without flagging
 
