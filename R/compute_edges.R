@@ -25,7 +25,6 @@
 #' @param pairs `"adjacent"` (classic Goldberg) or `"all"` (Forbes extension).
 #' @param data Optional data frame / matrix of raw observations. Required only
 #'   when `edge_method = "scores"` or the scores path is triggered.
-#' @param align Whether to sign-align edges to primary-parent lineage.
 #' @param use Passed to [stats::cor()] when materialising scores.
 #' @param cut_show Edges with `|r| >= cut_show` are flagged `above_cut` in the
 #'   tidy tibble.
@@ -43,7 +42,6 @@ compute_edges <- function(
   edge_method = c("auto", "algebra", "scores"),
   pairs = c("adjacent", "all"),
   data = NULL,
-  align = TRUE,
   use = "pairwise.complete.obs",
   cut_show = 0.3
 ) {

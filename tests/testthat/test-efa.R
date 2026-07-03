@@ -40,6 +40,29 @@ test_that("EFA levels use tenBerge scoring (linear, method = 'tenBerge')", {
   }
 })
 
+test_that(".tenBerge_weights warns (once) on a rank-deficient loading matrix", {
+  # Degenerate input no shipped engine emits, but the guard must be loud, not
+  # silent (Invariant 6). R is PD; L has two identical columns, so B = L'R^-1 L
+  # is singular and the relative-tolerance clamp fires.
+  R <- matrix(0.3, 4L, 4L)
+  diag(R) <- 1
+  L_full <- matrix(c(0.8, 0.7, 0.1, 0.1, 0.1, 0.1, 0.8, 0.7), ncol = 2L)
+  L_dup <- cbind(L_full[, 1L], L_full[, 1L])
+
+  # Full-rank L: no warning, and W'RW = I (unit-variance scores).
+  expect_no_warning(W_full <- .tenBerge_weights(R, L_full))
+  expect_equal(diag(crossprod(W_full, R %*% W_full)), c(1, 1), tolerance = 1e-8)
+
+  # Rank-deficient L: warns, returns finite weights, and W'RW departs from I --
+  # exactly the case the comment now documents (edges stay valid downstream
+  # because compute_edges() standardizes by the actual score SDs).
+  expect_warning(W_dup <- .tenBerge_weights(R, L_dup), "rank-deficient")
+  expect_true(all(is.finite(W_dup)))
+  expect_false(isTRUE(all.equal(
+    diag(crossprod(W_dup, R %*% W_dup)), c(1, 1)
+  )))
+})
+
 test_that("EFA algebra and scores paths agree (algebra-vs-scores cross-check)", {
   skip_if_not_installed("psych")
 
@@ -64,8 +87,7 @@ test_that("EFA algebra and scores paths agree (algebra-vs-scores cross-check)", 
     R           = R,
     edge_method = "scores",
     pairs       = "adjacent",
-    data        = data,
-    align       = FALSE
+    data        = data
   )$matrices
 
   for (key in names(x$edges$matrices)) {
@@ -235,7 +257,7 @@ test_that("fm = 'ml' produces a valid object and passes algebra-vs-scores", {
   # Cross-check: algebra vs scores
   E_sc <- compute_edges(x$levels,
     R = cor(d), edge_method = "scores",
-    pairs = "adjacent", data = d, align = FALSE
+    pairs = "adjacent", data = d
   )$matrices
   for (key in names(x$edges$matrices)) {
     expect_lt(max(abs(abs(x$edges$matrices[[key]]) - abs(E_sc[[key]]))), 1e-4,
@@ -259,7 +281,7 @@ test_that("fm = 'pa' produces a valid object and passes algebra-vs-scores", {
   validate_ackwards(x)
   E_sc <- compute_edges(x$levels,
     R = cor(d), edge_method = "scores",
-    pairs = "adjacent", data = d, align = FALSE
+    pairs = "adjacent", data = d
   )$matrices
   for (key in names(x$edges$matrices)) {
     expect_lt(max(abs(abs(x$edges$matrices[[key]]) - abs(E_sc[[key]]))), 1e-4,

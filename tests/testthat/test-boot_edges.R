@@ -116,7 +116,7 @@ test_that(".anchor_levels() restores full-sample factor order and sign", {
   # own edges (the permutation/sign scrambling is fully undone).
   E_anchored <- compute_edges(
     levels = anchored, R = x$r, edge_method = "algebra",
-    pairs = "adjacent", align = FALSE
+    pairs = "adjacent"
   )$matrices
   for (key in names(x$edges$matrices)) {
     expect_equal(E_anchored[[key]], x$edges$matrices[[key]],

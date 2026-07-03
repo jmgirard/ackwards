@@ -309,8 +309,7 @@ comparability <- function(data, k_max, engine = "pca", cor = "pearson",
     levels = stats::setNames(list(lev_a, lev_b), c("1", "2")),
     R = R,
     edge_method = "algebra",
-    pairs = "adjacent",
-    align = FALSE
+    pairs = "adjacent"
   )$matrices[["1:2"]]
 }
 
