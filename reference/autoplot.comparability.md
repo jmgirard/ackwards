@@ -53,7 +53,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 #>   data.
 #> This warning is displayed once per session.
 #> ℹ Fitting 5 split-half replicates (pca, k = 1-5)...
-#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [705ms]
+#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [747ms]
 #> 
 
 # }

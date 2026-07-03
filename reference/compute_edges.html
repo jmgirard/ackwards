@@ -71,7 +71,6 @@ is a <strong>linear</strong> map <code>S = Z W</code>, the cross-level correlati
 <span>  edge_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"algebra"</span>, <span class="st">"scores"</span><span class="op">)</span>,</span>
 <span>  pairs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"adjacent"</span>, <span class="st">"all"</span><span class="op">)</span>,</span>
 <span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  align <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  use <span class="op">=</span> <span class="st">"pairwise.complete.obs"</span>,</span>
 <span>  cut_show <span class="op">=</span> <span class="fl">0.3</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -104,10 +103,6 @@ materialise).</p></dd>
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>Optional data frame / matrix of raw observations. Required only
 when <code>edge_method = "scores"</code> or the scores path is triggered.</p></dd>
-
-
-<dt id="arg-align">align<a class="anchor" aria-label="anchor" href="#arg-align"></a></dt>
-<dd><p>Whether to sign-align edges to primary-parent lineage.</p></dd>
 
 
 <dt id="arg-use">use<a class="anchor" aria-label="anchor" href="#arg-use"></a></dt>

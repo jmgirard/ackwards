@@ -13,7 +13,6 @@ compute_edges(
   edge_method = c("auto", "algebra", "scores"),
   pairs = c("adjacent", "all"),
   data = NULL,
-  align = TRUE,
   use = "pairwise.complete.obs",
   cut_show = 0.3
 )
@@ -45,10 +44,6 @@ compute_edges(
 
   Optional data frame / matrix of raw observations. Required only when
   `edge_method = "scores"` or the scores path is triggered.
-
-- align:
-
-  Whether to sign-align edges to primary-parent lineage.
 
 - use:
 
