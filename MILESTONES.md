@@ -1537,3 +1537,41 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   Spearman basis too, and a regression guard that the pruned `print()`/`summary()` footer stays a
   single consolidated rule (char-agnostic detection to survive locale/`cli.unicode` differences).
   No behaviour change; check still 0/0/0, coverage 100%.
+- **M51 (done):** factor-label pipeline (code; owner-approved 2026-07-02) — the first milestone of
+  the 0.2.0 development cycle; DESCRIPTION bumps to `0.1.0.9000`. Resolves the deferred-not-declined
+  DESIGN §14.41(c) item (now DESIGN §14 item 45). Purely additive — no signature or default change,
+  no new dependency. Two new exports.
+  1. **Storage.** Factor labels live in `x$meta$factor_labels` (a named character vector, names =
+     factor IDs `m{k}f{j}`). Being in `meta` means they ride through `prune()`, `boot_edges()`,
+     `augment()`, and `predict()` unchanged with no per-verb code (those verbs already copy `meta`).
+     `NULL`/absent by default, so an unlabelled object behaves byte-identically to a pre-M51 one.
+  2. **API — `R/factor_labels.R`.** `set_factor_labels(x, labels)` (pipeable verb, returns the
+     object) merges/updates on repeated calls; a `NULL` `labels` clears all, an `NA`/`""` value
+     removes just that one (a pure `c(id = NA)` removal call — which R types as *logical* — is
+     coerced to character NA so the natural idiom works). It **errors** (loud, Invariant 6) on any
+     name matching no factor ID and does not warn on a value shared across levels (the ordinary
+     hierarchical case). Companion getter `factor_labels(x)`. Chose the verb+getter pair over a
+     `factor_labels(x) <-` replacement to keep one pipeline idiom. Internal `.label_id()` centralises
+     the `label (id)` display form; `.all_factor_ids()` the membership set for validation.
+  3. **Display surfaces.** `label (id)` (e.g. `Neuroticism (m5f1)` — ID kept visible for
+     cross-referencing `tidy()`/edges) in `summary()` (both the per-level variance listing and the
+     lineage tree), `print()` (a grey coverage line, only when any labels are set), and
+     `top_items(by = "factor")` group headers. `autoplot()` is the deliberate exception: a node shows
+     the substantive label *only* (a stored label is a persistent default for the existing
+     `node_labels` arg, which replaces node text wholesale); a call-time `node_labels` entry overrides
+     a stored label per node (call-time beats stored). `tidy()` gains `factor_label`
+     (loadings/variance/scores) and `from_label`/`to_label` (edges) **only when labels are set** —
+     unlabelled output is unchanged (Invariant 5: ID columns never mutated).
+  4. **Out of scope for the verb.** `comparability()` fits fresh from data, not from a labelled
+     object; `augment()`/`predict()` score column names stay `m{k}f{j}` (identifiers, not display);
+     `label_template()` unchanged, now framed in docs as the scaffold you fill in and feed to
+     `set_factor_labels()`.
+  Docs: `_pkgdown.yml` reference (Interpret factors group) lists both new exports; NEWS development
+  section; interpret vignette gains a "Making the names stick" subsection (workflow step 4 reworded);
+  visualization vignette's `node_labels` prose notes the stored-label baseline. New tests
+  (`test-factor-labels.R`, 8 tests): round-trip/merge/clear/remove, unknown-ID + type errors, survival
+  through `prune()`, `tidy()` conditional columns (incl. scores), `print`/`summary` `label (id)`,
+  `top_items` headers, and autoplot baseline-vs-call-time-override; `test-interpret.R` structure
+  assertion updated for the new `factor_labels` slot. Suite **1978 pass / 0 fail / 0 skip**; coverage
+  **100%**; `R CMD check` **0 errors / 0 warnings / 0 notes**; `styler`/`lintr` clean;
+  `pkgdown::check_pkgdown()` clean.
