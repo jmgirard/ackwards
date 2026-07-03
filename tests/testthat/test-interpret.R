@@ -7,13 +7,14 @@ test_that("top_items returns correct S3 class and structure", {
   expect_s3_class(out, "top_items")
   expect_named(out, c(
     "data", "levels_shown", "cut", "n", "sort", "by",
-    "item_labels", "engine", "k_max"
+    "item_labels", "factor_labels", "engine", "k_max"
   ))
   expect_true(is.data.frame(out$data))
   # No labels on this fixture -> no label column, default grouping is by factor
   expect_named(out$data, c("level", "factor", "item", "loading"))
   expect_identical(out$by, "factor")
   expect_null(out$item_labels)
+  expect_null(out$factor_labels)
 })
 
 test_that("top_items cut filters correctly", {

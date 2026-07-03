@@ -157,6 +157,7 @@ top_items <- function(x, level = NULL, cut = 0.3, n = NULL, sort = TRUE,
       sort           = sort,
       by             = by,
       item_labels    = eff_labels,
+      factor_labels  = x$meta$factor_labels, # M51: shown on factor headers
       engine         = x$engine,
       k_max          = x$k_max
     ),
@@ -216,7 +217,13 @@ print.top_items <- function(x, ...) {
       grp <- groups[[gi]]
       if (gi > 1L) cli::cli_text("") # blank line between factor/item groups
       df_g <- df_k[df_k[[group_col]] == grp, , drop = FALSE]
-      header <- if (by_item) .format_item_label(grp, labs) else grp
+      # M51: factor headers show "label (id)" when a factor label is set;
+      # item headers keep the item "id: label" form.
+      header <- if (by_item) {
+        .format_item_label(grp, labs)
+      } else {
+        .label_id(grp, x$factor_labels)
+      }
       cli::cli_text("{.strong {header}}")
 
       for (i in seq_len(nrow(df_g))) {

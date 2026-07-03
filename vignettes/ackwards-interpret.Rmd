@@ -36,8 +36,9 @@ This article covers the full workflow:
 1. **Read** each factor with `top_items()`.
 2. **Understand** the sign convention so you don't misread a factor.
 3. **Name** factors in a way that respects the hierarchy.
-4. **Apply** your names to the diagram with `label_template()` and
-   `autoplot(node_labels = ...)`.
+4. **Apply** your names — to a single diagram with `label_template()` and
+   `autoplot(node_labels = ...)`, or persistently to the whole object with
+   `set_factor_labels()`.
 
 ## Reading a factor with `top_items()`
 
@@ -230,6 +231,46 @@ autoplot(x, node_labels = c(
   m5f5 = "Openness"
 ))
 ```
+
+### Making the names stick with `set_factor_labels()`
+
+`node_labels` styles a single plot. When you want the same names to follow the
+object everywhere — in `print()`, `summary()`, `tidy()`, and `top_items()`, not
+just one diagram — attach them once with `set_factor_labels()`. It takes the same
+named vector `label_template()` scaffolds, and returns the object so it pipes:
+
+```{r set-factor-labels}
+x <- set_factor_labels(x, c(
+  m5f1 = "Neuroticism",
+  m5f2 = "Extraversion",
+  m5f3 = "Conscientiousness",
+  m5f4 = "Agreeableness",
+  m5f5 = "Openness"
+))
+```
+
+Now the labels appear wherever factors are listed. `summary()` shows them as
+`label (id)`, keeping the stable ID visible so you can still cross-reference the
+edge and loading tables:
+
+```{r labelled-summary}
+summary(x)
+```
+
+`top_items(by = "factor")` uses them on its group headers, and `tidy()` adds a
+`factor_label` column (and `from_label`/`to_label` for edges) — but *only* when
+labels are set, so unlabelled objects keep their exact previous output:
+
+```{r labelled-tidy}
+head(tidy(x, what = "loadings"))
+```
+
+`autoplot()` uses stored labels as the node text automatically, so you no longer
+need to pass `node_labels` for a labelled object; a call-time `node_labels` entry
+still overrides a stored label for that one node. Labels are display only — factor
+IDs never change — and they ride along through `prune()`, `boot_edges()`,
+`augment()`, and `predict()`. Read them back with `factor_labels(x)`; clear one by
+setting it to `NA`, or all of them by passing `NULL`.
 
 ### The Forbes letter convention
 

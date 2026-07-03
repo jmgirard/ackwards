@@ -113,8 +113,11 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' @param level_label_size Font size for level axis labels. Default `3`.
 #' @param node_labels A named character vector mapping factor IDs (e.g.
 #'   `"m5f1"`) to custom display strings (e.g. `"General"`). Unspecified
-#'   factors keep their default `m{k}f{j}` label. A warning is issued for
-#'   names that match no factor ID in the object. Default `NULL`.
+#'   factors keep any label attached with [set_factor_labels()], falling back to
+#'   the default `m{k}f{j}` ID. Entries here **override** a stored factor label
+#'   for that node, so this argument is a per-call last word over the persistent
+#'   labels. A warning is issued for names that match no factor ID in the object.
+#'   Default `NULL`.
 #' @param primary_only When `TRUE`, only primary-parent edges (`is_primary ==
 #'   TRUE`) are drawn. Because skip-level edges are never primary, this also
 #'   suppresses skip arcs. Ignored when `drop_pruned = TRUE`. Default `FALSE`.
@@ -310,6 +313,17 @@ autoplot.ackwards <- function(
 
   layout <- ba_layout(object, min_sep = min_sep)
   nodes <- layout$nodes
+
+  # (d2) Stored factor labels (M51) form the node-text baseline: a labeled
+  # factor shows its substantive name only (no parenthetical ID -- a stored
+  # label is exactly a persistent default for `node_labels`, which has always
+  # replaced the node text wholesale). A call-time `node_labels` entry overrides
+  # this per node below (call-time beats stored).
+  stored_labels <- object$meta$factor_labels
+  if (!is.null(stored_labels)) {
+    matched_stored <- intersect(names(stored_labels), nodes$id)
+    nodes$label[match(matched_stored, nodes$id)] <- stored_labels[matched_stored]
+  }
 
   # (e) Custom node labels applied before any geometry
   if (!is.null(node_labels)) {

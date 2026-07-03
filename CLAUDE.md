@@ -77,31 +77,33 @@ truth). Add new milestones there in numeric order as part of the definition of d
 - **M48** — performance & workflow pass (meta/process; no package-code change): suite-wide `cached()` test-fit memo in `helper-data.R` + parallel testthat (suite 93.6s→81.2s serial→**26.9s** at `TESTTHAT_CPUS=8`; full check 319.8s→241s; 1859 assertions unchanged; boot reproducibility/serial≡parallel oracles and MC sizes deliberately untouched); transcript-mined workflow audit (30k messages, 45 sessions: 249 full-suite runs, ~600 cd-compounds, 308 bare `load_all`s) → **`tools/dod-gate.R`** one-command DoD gate (dogfooded) + CLAUDE.md/implement-milestone cadence text in lockstep; expanded read-only permission allowlist staged for owner review (auto-mode classifier correctly blocked agent self-widening). Report-only: forbes vignette (23.9s) dominates rebuilds.
 - **M49** — Initial CRAN release (0.1.0) + a robustness arc from real-data testing: **Phase A** roadmap cleanup (e2 declined §14.40; `label_items()`/third-dataset declines + factor-label 0.2.0 banked §14.41); **Phase B** doc/pedagogy pass (README tighten + labels showcase; intro reframed "basic toolkit"; `top_items()` label format → **`code: label`**; pkgdown regroup; girard Pearson-basis; engines ESEM reframe; interpret real-labels + `labelled::var_label()`; vocab); **robustness** (owner hit a 142-item/n=222 clinical-scale polychoric failure) — new **`correct`** arg (psych continuity correction; `correct = 0` fix + actionable errors §14.42), new exported **`check_items()`** (+ `print`/`[`; internal screen errors on constant, warns on near-constant §14.43), muffled psych's flood + a single **near-singular** warning + durable `meta$near_singular`/`min_eigenvalue` re-surfaced by `print`/`summary` + a **"When to trust the result"** `?ackwards` section (§14.44); **Phase C** release mechanics (NEWS → dated `0.1.0`; cran-comments refresh; README CRAN line + lifecycle→**stable**; DESCRIPTION/CITATION/DOIs). New exports: `check_items` (+ methods), `correct` arg, `meta` conditioning fields. Full-CI-matrix merge; `v0.1.0` retagged. No new dependency.
 - **M50** — release polish (code; interleaved before M49's CRAN mechanics): `bfi25` ships 25 public-domain IPIP variable labels (Goldberg 1999; `data-raw/bfi25.R`) → `top_items()` prints `label (code)` free (plain attrs; row-subsetting drops them, so fit direct with `missing = "listwise"`); cli consistency (engine name lowercase everywhere incl. `print.comparability`; `summary()` fixed-decimal percentages + blank-line-separated levels; `top_items()` group spacing; single consolidated pruned footer in `print`/`summary`); roxygen examples split by intent (mechanics → continuous `sim16`, content → `bfi25`+polychoric); `suggest_k()` gains the ordinal-detection warning (Invariant-6 symmetry, screening-context wording pointing at the final `ackwards()` fit). `label_items()` setter + third dataset declined; factor-label pipeline deferred to 0.2.0. No new export, no dependency change.
+- **M51** — factor-label pipeline (first 0.2.0-cycle milestone; DESCRIPTION → `0.1.0.9000`): new exported **`set_factor_labels(x, labels)`** (pipeable verb; merges/updates, `NULL` clears, `NA`/`""` removes one, errors on unknown ID) + **`factor_labels(x)`** getter, storing names in `meta$factor_labels` (rides through `prune`/`boot_edges`/`augment`/`predict` for free; DESIGN §14 item 45). Display form `label (id)` in `summary()` (per-level + lineage), `print()` (coverage line), `top_items(by="factor")` headers; `autoplot()` shows the label only (call-time `node_labels` overrides per node); `tidy()` gains `factor_label`/`from_label`/`to_label` **only when set** (ID columns untouched, Invariant 5). Purely additive; interpret + visualization vignettes updated. No new dependency.
 
 ## Current focus
 
-**M49 is complete** (2026-07-02) — Initial CRAN release (0.1.0). All three phases landed plus a
-robustness arc from the owner testing the release candidate on real data: **Phase A** roadmap
-cleanup (e2 declined; factor-label 0.2.0 + declines banked; DESIGN §14.40–41); **Phase B**
-doc/pedagogy pass (README/intro reframe, `top_items()` → `code: label`, pkgdown regroup,
-girard/engines/interpret vignette prose, vocab); **robustness** (a 142-item/n=222 clinical-scale
-polychoric failure) — the `correct` argument (§14.42), the exported `check_items()` verb (§14.43),
-muffled psych chatter + a single near-singular warning + durable `meta$near_singular`/
-`min_eigenvalue` + a "When to trust the result" `?ackwards` section (§14.44); **Phase C** release
-mechanics (NEWS → one dated `# ackwards 0.1.0`; `cran-comments.md` refreshed; README CRAN install
-line + lifecycle→**stable**; DESCRIPTION/CITATION/DOIs verified). Merged to `master` on the full
-green CI matrix; `v0.1.0` retagged onto the release commit. Detail in `MILESTONES.md` (M49).
+**M51 is complete** — Factor-label pipeline (first milestone of the 0.2.0 development cycle;
+DESCRIPTION bumped to `0.1.0.9000`). Purely additive per DESIGN §14 item 45: persistent *factor*
+labels, kept lexically distinct from M50's *item* labels (`meta$item_labels`). New exports
+**`set_factor_labels(x, labels)`** (pipeable verb; merges/updates, `NULL` clears, `NA`/`""` removes
+one, errors on unknown ID) + **`factor_labels(x)`** getter, storing names in `meta$factor_labels`
+(rides through `prune`/`boot_edges`/`augment`/`predict` for free). Display form `label (id)` in
+`summary()` (per-level listing + lineage tree), `print()` (coverage line), and
+`top_items(by="factor")` headers; `autoplot()` shows the label only with call-time `node_labels`
+overriding per node; `tidy()` adds `factor_label`/`from_label`/`to_label` **only when set** (ID
+columns never mutated, Invariant 5). Interpret + visualization vignettes updated; `test-factor-labels.R`
+(8 tests). Suite **1978 pass / 0 fail / 0 skip**; coverage **100%**; `R CMD check` **0/0/0**;
+styler/lintr/pkgdown clean. Detail in `MILESTONES.md` (M51). **Next up: nothing queued** — see the
+remaining 0.2.0 candidates below.
 
-**Owner-only afterward (not automatable):** win-builder/R-hub remote checks (they email the
-maintainer) and the interactive `devtools::submit_cran()`. Until CRAN accepts, the
+**Owner-only release tail (from M49, still pending):** win-builder/R-hub remote checks and the
+interactive `devtools::submit_cran()` email the maintainer. Until CRAN accepts 0.1.0, the
 `install.packages("ackwards")` line in the README points at a package not yet on CRAN — update the
-release date / any "on CRAN" phrasing when it lands.
+release date / any "on CRAN" phrasing when it lands. If CRAN bounces 0.1.0, a patch branches from
+the `v0.1.0` tag (the `0.1.0.9000` dev bump on `master` does not block that).
 
-**Next up: nothing queued.** `ROADMAP.md` carries the 0.2.0 candidates — the **factor-label
-pipeline** (headline; persistent `set_factor_labels()`-style names honored by
-autoplot/print/summary/tidy) and the demand-gated `comparability()`/`boot_edges()` ESEM/polychoric
-extensions — plus the AMH-fidelity item pending the owner's Forbes outreach. `MILESTONES.md`
-remains the source of truth for completed milestones.
+**Remaining 0.2.0 candidates** (`ROADMAP.md`): demand-gated `comparability()`/`boot_edges()`
+ESEM/polychoric extensions and the AMH-fidelity item pending the owner's Forbes outreach.
+`MILESTONES.md` remains the source of truth for completed milestones.
 
 ## Invariants — do not violate without flagging
 

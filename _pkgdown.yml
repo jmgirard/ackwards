@@ -65,6 +65,8 @@ reference:
   - top_items
   - print.top_items
   - label_template
+  - set_factor_labels
+  - factor_labels
 - title: Extract results
   desc: |
     Tidy, glance, augment, predict, summary, and print methods for ackwards

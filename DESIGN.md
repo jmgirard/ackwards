@@ -760,6 +760,54 @@ owner-signed-off):**
     fallback). Report-only; changes no estimate. (M49 review follow-up generalized this from the
     initial polychoric-only implementation.)
 
+**Resolved for M51 (factor-label pipeline; first milestone of the 0.2.0 cycle; owner-approved
+2026-07-02):**
+45. **Persistent factor labels — new `set_factor_labels()` verb + `factor_labels()` getter.**
+    Deferred-not-declined at §14.41(c); this resolves the naming/storage/precedence design. It is
+    the *factor*-label counterpart to M50's *item* labels (`meta$item_labels`, item 37) and the two
+    must stay lexically distinct — every symbol here says **factor** label; nothing touches
+    `item_labels`.
+    - **Storage.** `x$meta$factor_labels`: a named character vector, names = factor IDs
+      (`m{k}f{j}`), values = user strings. Partial labeling is allowed (a factor with no entry
+      falls back to its ID everywhere). Living in `meta` (not a top-level slot) means it rides
+      through `prune()`, `boot_edges()`, `augment()`, and `predict()` unmodified with no per-verb
+      code — those verbs already copy `meta`. `NULL`/absent when no label is set (the default),
+      so an unlabeled object is byte-identical in behaviour to a pre-M51 one.
+    - **API — a verb + a getter, not a replacement function.** `set_factor_labels(x, labels)`
+      returns the modified `ackwards` object (pipeable, matching the package's verb grammar:
+      `prune()`, `boot_edges()`). Repeated calls **merge/update** (so you can label incrementally);
+      a `labels` value of `NULL` clears **all** labels; an `NA` or `""` value for a given ID
+      **removes** just that one. The setter **errors** (not warns) on any name matching no factor ID
+      — a typo'd ID is a mistake, and the object's IDs are knowable up front (consistent with the
+      package's loud-validation posture, Invariant 6). It does **not** warn when two levels share a
+      value (`m2f1` and `m3f1` both "Internalizing" is the ordinary hierarchical case). The
+      companion getter `factor_labels(x)` returns the stored named vector (or `NULL`). Chose the
+      verb+getter pair over a `factor_labels(x) <- value` replacement method to keep one pipeline
+      idiom across the package and avoid the `names<-`-style in-place mutation that reads oddly next
+      to the object's otherwise-functional API.
+    - **Display form `label (id)`.** Every text surface that lists a factor shows
+      `Neuroticism (m5f1)` when a label is set, bare `m5f1` otherwise. Keeping the ID visible is
+      load-bearing: it is the handle a user needs to index into `tidy()`/`edges`, and mirrors how
+      `autoplot()` keeps IDs discoverable. Surfaces: `summary()` hierarchy tree, `print()` (one
+      status line noting how many of the factors are labeled, only when any are), and
+      `top_items(by = "factor")` group headers. **`autoplot()` is the exception** — a diagram node
+      shows the substantive label *only* (no parenthetical ID), because a stored label is exactly a
+      persistent default for the existing `node_labels` argument, which has always replaced the node
+      text wholesale. Precedence: stored labels form the node-text baseline; a call-time
+      `node_labels` entry overrides per node (call-time beats stored; every existing script is
+      unaffected).
+    - **`tidy()` — label columns appear only when set (Invariant 5).** The ID columns (`factor` in
+      loadings/variance/scores; `from`/`to` in edges) are **never** mutated — lineage lives in IDs.
+      When labels are set, `tidy()` gains a `factor_label` column (loadings/variance/scores) and
+      `from_label`/`to_label` (edges), carrying the label for labeled factors and `NA` otherwise. An
+      **unlabeled** object's `tidy()` output keeps its pre-M51 column set byte-for-byte — zero churn
+      for existing consumers, which is why the columns are conditional rather than always-present.
+    - **Out of scope for this verb.** `comparability()` fits fresh hierarchies from data (not from a
+      labeled object), so it takes no labels. `augment()`/`predict()` score **column names** stay
+      `m{k}f{j}` — they are syntactic identifiers a user binds to, not display text. `label_template()`
+      is unchanged; its printed `c(...)` literal is now framed in the docs as the scaffold you fill
+      in and feed to `set_factor_labels()`.
+
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.
 - Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (see above), nor the

@@ -27,6 +27,19 @@ print.ackwards <- function(x, ...) {
     "k (max)"   = as.character(x$k_max)
   ))
 
+  # --- Factor labels (M51) ----------------------------------------------------
+  # Only surfaced when the user has attached labels; unlabeled objects print
+  # exactly as before. Reports coverage; the labels themselves show in the
+  # per-node surfaces (summary(), autoplot(), top_items()).
+  if (!is.null(x$meta$factor_labels)) {
+    n_set <- length(x$meta$factor_labels)
+    n_tot <- length(unlist(lapply(x$levels, `[[`, "labels"), use.names = FALSE))
+    cli::cli_text(cli::col_grey(
+      "  Factor labels: {n_set} of {n_tot} factor{?s} labelled \\
+       (see {.fn set_factor_labels})."
+    ))
+  }
+
   # --- Per-level table --------------------------------------------------------
   cli::cli_h2("Levels")
 

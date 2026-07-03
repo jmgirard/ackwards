@@ -144,8 +144,11 @@ fill); partially-pruned levels keep a plain label.}
 
 \item{node_labels}{A named character vector mapping factor IDs (e.g.
 \code{"m5f1"}) to custom display strings (e.g. \code{"General"}). Unspecified
-factors keep their default \verb{m\{k\}f\{j\}} label. A warning is issued for
-names that match no factor ID in the object. Default \code{NULL}.}
+factors keep any label attached with \code{\link[=set_factor_labels]{set_factor_labels()}}, falling back to
+the default \verb{m\{k\}f\{j\}} ID. Entries here \strong{override} a stored factor label
+for that node, so this argument is a per-call last word over the persistent
+labels. A warning is issued for names that match no factor ID in the object.
+Default \code{NULL}.}
 
 \item{primary_only}{When \code{TRUE}, only primary-parent edges (\code{is_primary == TRUE}) are drawn. Because skip-level edges are never primary, this also
 suppresses skip arcs. Ignored when \code{drop_pruned = TRUE}. Default \code{FALSE}.}
