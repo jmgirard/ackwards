@@ -144,7 +144,11 @@ autoplot(x, show_r = TRUE, r_digits = 1)
 ### `node_labels` — rename individual factors
 
 `node_labels` is a named character vector mapping factor IDs to display strings.
-Unspecified factors keep their `m{k}f{j}` labels.
+Unspecified factors keep any name attached with `set_factor_labels()`, falling
+back to their `m{k}f{j}` labels. If you have already labelled the object with
+`set_factor_labels()` (see `vignette("ackwards-interpret")`), those names appear
+on the diagram automatically and `node_labels` is only needed to override a
+particular node for this one plot.
 
 ```{r node-labels}
 autoplot(x, node_labels = c(
