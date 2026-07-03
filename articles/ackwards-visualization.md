@@ -164,7 +164,15 @@ autoplot(x, show_r = TRUE, r_digits = 1)
 ### `node_labels` — rename individual factors
 
 `node_labels` is a named character vector mapping factor IDs to display
-strings. Unspecified factors keep their `m{k}f{j}` labels.
+strings. Unspecified factors keep any name attached with
+[`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md),
+falling back to their `m{k}f{j}` labels. If you have already labelled
+the object with
+[`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md)
+(see
+[`vignette("ackwards-interpret")`](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md)),
+those names appear on the diagram automatically and `node_labels` is
+only needed to override a particular node for this one plot.
 
 ``` r
 
@@ -409,13 +417,13 @@ generic covers it.
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [272ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [254ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [196ms]
+#> ✔ Running MAP and VSS... [177ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [11.5s]
+#> ✔ Running Comparison Data (CD)... [10.6s]
 #> 
 autoplot(sk)
 ```

@@ -23,7 +23,7 @@ without a matching legend.'></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ackwards</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -278,8 +278,11 @@ fill); partially-pruned levels keep a plain label.</p></dd>
 <dt id="arg-node-labels">node_labels<a class="anchor" aria-label="anchor" href="#arg-node-labels"></a></dt>
 <dd><p>A named character vector mapping factor IDs (e.g.
 <code>"m5f1"</code>) to custom display strings (e.g. <code>"General"</code>). Unspecified
-factors keep their default <code>m{k}f{j}</code> label. A warning is issued for
-names that match no factor ID in the object. Default <code>NULL</code>.</p></dd>
+factors keep any label attached with <code><a href="set_factor_labels.html">set_factor_labels()</a></code>, falling back to
+the default <code>m{k}f{j}</code> ID. Entries here <strong>override</strong> a stored factor label
+for that node, so this argument is a per-call last word over the persistent
+labels. A warning is issued for names that match no factor ID in the object.
+Default <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-primary-only">primary_only<a class="anchor" aria-label="anchor" href="#arg-primary-only"></a></dt>

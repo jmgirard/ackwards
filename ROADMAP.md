@@ -179,8 +179,9 @@ every audited decision.
   covers the common case for each verb.
 - **Factor-label pipeline** (headline 0.2.0 candidate; owner-approved
   deferral 2026-07-02) — persistent *factor* labels (distinct from M50’s
-  *item* / variable labels): a `set_factor_labels()`-style setter
-  storing user names on the `ackwards` object, honored by
+  *item* / variable labels): a
+  [`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md)-style
+  setter storing user names on the `ackwards` object, honored by
   [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
   (node labels), `print`/`summary` (cli), and
   [`tidy()`](https://generics.r-lib.org/reference/tidy.html);

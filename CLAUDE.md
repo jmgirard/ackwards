@@ -332,43 +332,60 @@ as part of the definition of done.
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
   fit). `label_items()` setter + third dataset declined; factor-label
   pipeline deferred to 0.2.0. No new export, no dependency change.
+- **M51** — factor-label pipeline (first 0.2.0-cycle milestone;
+  DESCRIPTION → `0.1.0.9000`): new exported
+  **`set_factor_labels(x, labels)`** (pipeable verb; merges/updates,
+  `NULL` clears, `NA`/`""` removes one, errors on unknown ID) +
+  **`factor_labels(x)`** getter, storing names in `meta$factor_labels`
+  (rides through `prune`/`boot_edges`/`augment`/`predict` for free;
+  DESIGN §14 item 45). Display form `label (id)` in
+  [`summary()`](https://rdrr.io/r/base/summary.html) (per-level +
+  lineage), [`print()`](https://rdrr.io/r/base/print.html) (coverage
+  line), `top_items(by="factor")` headers;
+  [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+  shows the label only (call-time `node_labels` overrides per node);
+  [`tidy()`](https://generics.r-lib.org/reference/tidy.html) gains
+  `factor_label`/`from_label`/`to_label` **only when set** (ID columns
+  untouched, Invariant 5). Purely additive; interpret + visualization
+  vignettes updated. No new dependency.
 
 ## Current focus
 
-**M49 is complete** (2026-07-02) — Initial CRAN release (0.1.0). All
-three phases landed plus a robustness arc from the owner testing the
-release candidate on real data: **Phase A** roadmap cleanup (e2
-declined; factor-label 0.2.0 + declines banked; DESIGN §14.40–41);
-**Phase B** doc/pedagogy pass (README/intro reframe,
-[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
-→ `code: label`, pkgdown regroup, girard/engines/interpret vignette
-prose, vocab); **robustness** (a 142-item/n=222 clinical-scale
-polychoric failure) — the `correct` argument (§14.42), the exported
-[`check_items()`](https://jmgirard.github.io/ackwards/reference/check_items.md)
-verb (§14.43), muffled psych chatter + a single near-singular warning +
-durable `meta$near_singular`/ `min_eigenvalue` + a “When to trust the
-result”
-[`?ackwards`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-section (§14.44); **Phase C** release mechanics (NEWS → one dated
-`# ackwards 0.1.0`; `cran-comments.md` refreshed; README CRAN install
-line + lifecycle→**stable**; DESCRIPTION/CITATION/DOIs verified). Merged
-to `master` on the full green CI matrix; `v0.1.0` retagged onto the
-release commit. Detail in `MILESTONES.md` (M49).
+**M51 is complete** — Factor-label pipeline (first milestone of the
+0.2.0 development cycle; DESCRIPTION bumped to `0.1.0.9000`). Purely
+additive per DESIGN §14 item 45: persistent *factor* labels, kept
+lexically distinct from M50’s *item* labels (`meta$item_labels`). New
+exports **`set_factor_labels(x, labels)`** (pipeable verb;
+merges/updates, `NULL` clears, `NA`/`""` removes one, errors on unknown
+ID) + **`factor_labels(x)`** getter, storing names in
+`meta$factor_labels` (rides through
+`prune`/`boot_edges`/`augment`/`predict` for free). Display form
+`label (id)` in [`summary()`](https://rdrr.io/r/base/summary.html)
+(per-level listing + lineage tree),
+[`print()`](https://rdrr.io/r/base/print.html) (coverage line), and
+`top_items(by="factor")` headers;
+[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+shows the label only with call-time `node_labels` overriding per node;
+[`tidy()`](https://generics.r-lib.org/reference/tidy.html) adds
+`factor_label`/`from_label`/`to_label` **only when set** (ID columns
+never mutated, Invariant 5). Interpret + visualization vignettes
+updated; `test-factor-labels.R` (8 tests). Suite **1978 pass / 0 fail /
+0 skip**; coverage **100%**; `R CMD check` **0/0/0**;
+styler/lintr/pkgdown clean. Detail in `MILESTONES.md` (M51). **Next up:
+nothing queued** — see the remaining 0.2.0 candidates below.
 
-**Owner-only afterward (not automatable):** win-builder/R-hub remote
-checks (they email the maintainer) and the interactive
-`devtools::submit_cran()`. Until CRAN accepts, the
-`install.packages("ackwards")` line in the README points at a package
-not yet on CRAN — update the release date / any “on CRAN” phrasing when
-it lands.
+**Owner-only release tail (from M49, still pending):** win-builder/R-hub
+remote checks and the interactive `devtools::submit_cran()` email the
+maintainer. Until CRAN accepts 0.1.0, the `install.packages("ackwards")`
+line in the README points at a package not yet on CRAN — update the
+release date / any “on CRAN” phrasing when it lands. If CRAN bounces
+0.1.0, a patch branches from the `v0.1.0` tag (the `0.1.0.9000` dev bump
+on `master` does not block that).
 
-**Next up: nothing queued.** `ROADMAP.md` carries the 0.2.0 candidates —
-the **factor-label pipeline** (headline; persistent
-`set_factor_labels()`-style names honored by
-autoplot/print/summary/tidy) and the demand-gated
+**Remaining 0.2.0 candidates** (`ROADMAP.md`): demand-gated
 [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)/[`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
-ESEM/polychoric extensions — plus the AMH-fidelity item pending the
-owner’s Forbes outreach. `MILESTONES.md` remains the source of truth for
+ESEM/polychoric extensions and the AMH-fidelity item pending the owner’s
+Forbes outreach. `MILESTONES.md` remains the source of truth for
 completed milestones.
 
 ## Invariants — do not violate without flagging

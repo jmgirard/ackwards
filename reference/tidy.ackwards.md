@@ -127,10 +127,22 @@ tidy(
 
 A data frame (class `data.frame`).
 
+## Factor labels
+
+If [factor
+labels](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md)
+have been attached to the object, the output gains display-only label
+columns: `factor_label` for `what = "loadings"`, `"variance"`, or
+`"scores"`, and `from_label`/`to_label` for `what = "edges"`. Each
+carries the label for a labeled factor and `NA` otherwise. These columns
+are **absent** when no labels are set, so an unlabeled object's output
+is unchanged; the ID columns (`factor`, `from`, `to`) are never altered.
+
 ## See also
 
 [`glance.ackwards()`](https://jmgirard.github.io/ackwards/reference/glance.ackwards.md),
-[`print.ackwards()`](https://jmgirard.github.io/ackwards/reference/print.ackwards.md)
+[`print.ackwards()`](https://jmgirard.github.io/ackwards/reference/print.ackwards.md),
+[`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md)
 
 ## Examples
 

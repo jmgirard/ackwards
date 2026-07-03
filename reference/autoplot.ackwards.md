@@ -203,9 +203,13 @@ plot(x, ...)
 - node_labels:
 
   A named character vector mapping factor IDs (e.g. `"m5f1"`) to custom
-  display strings (e.g. `"General"`). Unspecified factors keep their
-  default `m{k}f{j}` label. A warning is issued for names that match no
-  factor ID in the object. Default `NULL`.
+  display strings (e.g. `"General"`). Unspecified factors keep any label
+  attached with
+  [`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md),
+  falling back to the default `m{k}f{j}` ID. Entries here **override** a
+  stored factor label for that node, so this argument is a per-call last
+  word over the persistent labels. A warning is issued for names that
+  match no factor ID in the object. Default `NULL`.
 
 - primary_only:
 

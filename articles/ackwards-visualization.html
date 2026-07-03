@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ackwards</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -243,8 +243,13 @@ places (default 2).</p>
 <code>node_labels</code> — rename individual factors<a class="anchor" aria-label="anchor" href="#node_labels-rename-individual-factors"></a>
 </h3>
 <p><code>node_labels</code> is a named character vector mapping factor
-IDs to display strings. Unspecified factors keep their
-<code>m{k}f{j}</code> labels.</p>
+IDs to display strings. Unspecified factors keep any name attached with
+<code><a href="../reference/set_factor_labels.html">set_factor_labels()</a></code>, falling back to their
+<code>m{k}f{j}</code> labels. If you have already labelled the object
+with <code><a href="../reference/set_factor_labels.html">set_factor_labels()</a></code> (see
+<code><a href="../articles/ackwards-interpret.html">vignette("ackwards-interpret")</a></code>), those names appear on the
+diagram automatically and <code>node_labels</code> is only needed to
+override a particular node for this one plot.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  m5f1 <span class="op">=</span> <span class="st">"Neuro."</span>,</span>
@@ -460,13 +465,13 @@ same <code><a href="../reference/autoplot.html">autoplot()</a></code> generic co
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[272ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[254ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[196ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[177ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[11.5s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.6s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-visualization_files/figure-html/suggest_k_plot-1.png" class="r-plt" alt="" width="768"></p>

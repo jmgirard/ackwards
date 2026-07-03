@@ -9,7 +9,7 @@ default (what = "edges") returns the graph edge list that drives diagrams.'></he
 
     <a class="navbar-brand me-2" href="../index.html">ackwards</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -171,8 +171,19 @@ that carry no SEs (PCA, EFA). Errors for all other values of <code>what</code>.<
     <p>A data frame (class <code>data.frame</code>).</p>
     </div>
     <div class="section level2">
+    <h2 id="factor-labels">Factor labels<a class="anchor" aria-label="anchor" href="#factor-labels"></a></h2>
+
+
+<p>If <a href="set_factor_labels.html">factor labels</a> have been attached to the object, the
+output gains display-only label columns: <code>factor_label</code> for <code>what = "loadings"</code>, <code>"variance"</code>, or <code>"scores"</code>, and <code>from_label</code>/<code>to_label</code> for
+<code>what = "edges"</code>. Each carries the label for a labeled factor and <code>NA</code>
+otherwise. These columns are <strong>absent</strong> when no labels are set, so an
+unlabeled object's output is unchanged; the ID columns (<code>factor</code>, <code>from</code>,
+<code>to</code>) are never altered.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="glance.ackwards.html">glance.ackwards()</a></code>, <code><a href="print.ackwards.html">print.ackwards()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="glance.ackwards.html">glance.ackwards()</a></code>, <code><a href="print.ackwards.html">print.ackwards()</a></code>, <code><a href="set_factor_labels.html">set_factor_labels()</a></code></p></div>
     </div>
 
     <div class="section level2">

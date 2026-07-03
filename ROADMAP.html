@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">ackwards</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,7 +105,7 @@
 </ul>
 Net: only ESEM-<code><a href="reference/comparability.html">comparability()</a></code> is worth reconsidering if demand appears; the EFA-on-Pearson screen covers the common case for each verb.</li>
 <li>
-<strong>Factor-label pipeline</strong> (headline 0.2.0 candidate; owner-approved deferral 2026-07-02) — persistent <em>factor</em> labels (distinct from M50’s <em>item</em> / variable labels): a <code>set_factor_labels()</code>-style setter storing user names on the <code>ackwards</code> object, honored by <code><a href="reference/autoplot.html">autoplot()</a></code> (node labels), <code>print</code>/<code>summary</code> (cli), and <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code>; <code><a href="reference/label_template.html">label_template()</a></code> remains the scaffold that seeds them. <strong>Purely additive</strong> (no signature/default change), so nothing is lost by shipping 0.1.0 without it; the naming/storage/precedence design gets proper DESIGN §14 treatment when scoped. Keep the item-vs-factor “label” vocabulary split (DESIGN §14 item 39) front of mind — the two concepts must not blur.</li>
+<strong>Factor-label pipeline</strong> (headline 0.2.0 candidate; owner-approved deferral 2026-07-02) — persistent <em>factor</em> labels (distinct from M50’s <em>item</em> / variable labels): a <code><a href="reference/set_factor_labels.html">set_factor_labels()</a></code>-style setter storing user names on the <code>ackwards</code> object, honored by <code><a href="reference/autoplot.html">autoplot()</a></code> (node labels), <code>print</code>/<code>summary</code> (cli), and <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code>; <code><a href="reference/label_template.html">label_template()</a></code> remains the scaffold that seeds them. <strong>Purely additive</strong> (no signature/default change), so nothing is lost by shipping 0.1.0 without it; the naming/storage/precedence design gets proper DESIGN §14 treatment when scoped. Keep the item-vs-factor “label” vocabulary split (DESIGN §14 item 39) front of mind — the two concepts must not blur.</li>
 </ul></div>
 <div class="section level2">
 <h2 id="provenance">Provenance<a class="anchor" aria-label="anchor" href="#provenance"></a></h2>

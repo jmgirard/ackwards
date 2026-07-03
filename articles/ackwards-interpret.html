@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ackwards</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -112,9 +112,10 @@ a factor.</li>
 <strong>Name</strong> factors in a way that respects the
 hierarchy.</li>
 <li>
-<strong>Apply</strong> your names to the diagram with
+<strong>Apply</strong> your names — to a single diagram with
 <code><a href="../reference/label_template.html">label_template()</a></code> and
-<code>autoplot(node_labels = ...)</code>.</li>
+<code>autoplot(node_labels = ...)</code>, or persistently to the whole
+object with <code><a href="../reference/set_factor_labels.html">set_factor_labels()</a></code>.</li>
 </ol>
 <div class="section level2">
 <h2 id="reading-a-factor-with-top_items">Reading a factor with <code>top_items()</code><a class="anchor" aria-label="anchor" href="#reading-a-factor-with-top_items"></a>
@@ -607,6 +608,106 @@ about:</p>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-interpret_files/figure-html/node-labels-1.png" class="r-plt" alt="" width="672"></p>
 <div class="section level3">
+<h3 id="making-the-names-stick-with-set_factor_labels">Making the names stick with <code>set_factor_labels()</code><a class="anchor" aria-label="anchor" href="#making-the-names-stick-with-set_factor_labels"></a>
+</h3>
+<p><code>node_labels</code> styles a single plot. When you want the same
+names to follow the object everywhere — in <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>,
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code>, and
+<code><a href="../reference/top_items.html">top_items()</a></code>, not just one diagram — attach them once with
+<code><a href="../reference/set_factor_labels.html">set_factor_labels()</a></code>. It takes the same named vector
+<code><a href="../reference/label_template.html">label_template()</a></code> scaffolds, and returns the object so it
+pipes:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_factor_labels.html">set_factor_labels</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  m5f1 <span class="op">=</span> <span class="st">"Neuroticism"</span>,</span>
+<span>  m5f2 <span class="op">=</span> <span class="st">"Extraversion"</span>,</span>
+<span>  m5f3 <span class="op">=</span> <span class="st">"Conscientiousness"</span>,</span>
+<span>  m5f4 <span class="op">=</span> <span class="st">"Agreeableness"</span>,</span>
+<span>  m5f5 <span class="op">=</span> <span class="st">"Openness"</span></span>
+<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Now the labels appear wherever factors are listed.
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> shows them as <code>label (id)</code>, keeping
+the stable ID visible so you can still cross-reference the edge and
+loading tables:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Summary: Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────</span></span></span>
+<span><span class="co">#&gt; Engine: <span style="font-weight: bold;">pca</span></span></span>
+<span><span class="co">#&gt; Rotation: varimax</span></span>
+<span><span class="co">#&gt; Basis: polychoric</span></span>
+<span><span class="co">#&gt; n: 875</span></span>
+<span><span class="co">#&gt; k (max): 5</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 1</span>: 1 factor (23.2% cumulative variance)</span></span>
+<span><span class="co">#&gt; m1f1 23.2% eigenvalue 5.80</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 2</span>: 2 factors (35.5% cumulative variance)</span></span>
+<span><span class="co">#&gt; m2f1 20.9% eigenvalue 5.80</span></span>
+<span><span class="co">#&gt; m2f2 14.5% eigenvalue 3.07</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 3</span>: 3 factors (44.6% cumulative variance)</span></span>
+<span><span class="co">#&gt; m3f1 18.0% eigenvalue 5.80</span></span>
+<span><span class="co">#&gt; m3f2 13.9% eigenvalue 3.07</span></span>
+<span><span class="co">#&gt; m3f3 12.7% eigenvalue 2.28</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 4</span>: 4 factors (52.2% cumulative variance)</span></span>
+<span><span class="co">#&gt; m4f1 17.5% eigenvalue 5.80</span></span>
+<span><span class="co">#&gt; m4f2 13.6% eigenvalue 3.07</span></span>
+<span><span class="co">#&gt; m4f3 11.8% eigenvalue 2.28</span></span>
+<span><span class="co">#&gt; m4f4 9.2% eigenvalue 1.90</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">k = 5</span>: 5 factors (58.4% cumulative variance)</span></span>
+<span><span class="co">#&gt; Neuroticism (m5f1) 13.8% eigenvalue 5.80</span></span>
+<span><span class="co">#&gt; Extraversion (m5f2) 13.6% eigenvalue 3.07</span></span>
+<span><span class="co">#&gt; Conscientiousness (m5f3) 11.9% eigenvalue 2.28</span></span>
+<span><span class="co">#&gt; Agreeableness (m5f4) 10.1% eigenvalue 1.90</span></span>
+<span><span class="co">#&gt; Openness (m5f5) 9.1% eigenvalue 1.56</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── <span style="font-weight: bold;">Lineage (primary parents)</span> ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; m1f1 → m2f1, m2f2</span></span>
+<span><span class="co">#&gt; m2f1 → m3f1, m3f3</span></span>
+<span><span class="co">#&gt; m2f2 → m3f2</span></span>
+<span><span class="co">#&gt; m3f1 → m4f1</span></span>
+<span><span class="co">#&gt; m3f2 → m4f2</span></span>
+<span><span class="co">#&gt; m3f3 → m4f3, m4f4</span></span>
+<span><span class="co">#&gt; m4f1 → Neuroticism (m5f1), Agreeableness (m5f4)</span></span>
+<span><span class="co">#&gt; m4f2 → Extraversion (m5f2)</span></span>
+<span><span class="co">#&gt; m4f3 → Conscientiousness (m5f3)</span></span>
+<span><span class="co">#&gt; m4f4 → Openness (m5f5)</span></span>
+<span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
+<p><code>top_items(by = "factor")</code> uses them on its group headers,
+and <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> adds a <code>factor_label</code> column (and
+<code>from_label</code>/<code>to_label</code> for edges) — but
+<em>only</em> when labels are set, so unlabelled objects keep their
+exact previous output:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   level factor item    loading se ci_lower ci_upper factor_label</span></span>
+<span><span class="co">#&gt; 1     1   m1f1   A1 -0.3440908 NA       NA       NA         &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 2     1   m1f1   A2  0.5977210 NA       NA       NA         &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 3     1   m1f1   A3  0.6511387 NA       NA       NA         &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 4     1   m1f1   A4  0.4837850 NA       NA       NA         &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 5     1   m1f1   A5  0.6848262 NA       NA       NA         &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 6     1   m1f1   C1  0.4502778 NA       NA       NA         &lt;NA&gt;</span></span></code></pre></div>
+<p><code><a href="../reference/autoplot.html">autoplot()</a></code> uses stored labels as the node text
+automatically, so you no longer need to pass <code>node_labels</code>
+for a labelled object; a call-time <code>node_labels</code> entry still
+overrides a stored label for that one node. Labels are display only —
+factor IDs never change — and they ride along through
+<code><a href="../reference/prune.html">prune()</a></code>, <code><a href="../reference/boot_edges.html">boot_edges()</a></code>, <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code>,
+and <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>. Read them back with
+<code>factor_labels(x)</code>; clear one by setting it to
+<code>NA</code>, or all of them by passing <code>NULL</code>.</p>
+</div>
+<div class="section level3">
 <h3 id="the-forbes-letter-convention">The Forbes letter convention<a class="anchor" aria-label="anchor" href="#the-forbes-letter-convention"></a>
 </h3>
 <p>Forbes (2023) labels nodes by level-letter and within-level index —
@@ -614,7 +715,7 @@ about:</p>
 <code>B1</code>/<code>B2</code> at level 2, and so on.
 <code><a href="../reference/label_template.html">label_template()</a></code> produces this convention directly with
 <code>style = "forbes"</code>:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="fu"><a href="../reference/label_template.html">label_template</a></span><span class="op">(</span><span class="va">x</span>, style <span class="op">=</span> <span class="st">"forbes"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; `label_template()` scaffold (forbes style):</span></span>
 <span><span class="co">#&gt; c(</span></span>
@@ -645,7 +746,7 @@ through the hierarchy before interpreting it.</p>
 <p>If you would rather supply every label yourself with no defaults
 showing through, <code>style = "blank"</code> gives you an all-empty
 scaffold to fill in:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">labs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/label_template.html">label_template</a></span><span class="op">(</span><span class="va">x</span>, style <span class="op">=</span> <span class="st">"blank"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; `label_template()` scaffold (blank style):</span></span>
 <span><span class="co">#&gt; c(</span></span>

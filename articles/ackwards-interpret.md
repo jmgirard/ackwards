@@ -23,9 +23,11 @@ This article covers the full workflow:
     [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md).
 2.  **Understand** the sign convention so you don’t misread a factor.
 3.  **Name** factors in a way that respects the hierarchy.
-4.  **Apply** your names to the diagram with
+4.  **Apply** your names — to a single diagram with
     [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
-    and `autoplot(node_labels = ...)`.
+    and `autoplot(node_labels = ...)`, or persistently to the whole
+    object with
+    [`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md).
 
 ## Reading a factor with `top_items()`
 
@@ -543,6 +545,123 @@ autoplot(x, node_labels = c(
 ```
 
 ![](ackwards-interpret_files/figure-html/node-labels-1.png)
+
+### Making the names stick with `set_factor_labels()`
+
+`node_labels` styles a single plot. When you want the same names to
+follow the object everywhere — in
+[`print()`](https://rdrr.io/r/base/print.html),
+[`summary()`](https://rdrr.io/r/base/summary.html),
+[`tidy()`](https://generics.r-lib.org/reference/tidy.html), and
+[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md),
+not just one diagram — attach them once with
+[`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md).
+It takes the same named vector
+[`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
+scaffolds, and returns the object so it pipes:
+
+``` r
+
+x <- set_factor_labels(x, c(
+  m5f1 = "Neuroticism",
+  m5f2 = "Extraversion",
+  m5f3 = "Conscientiousness",
+  m5f4 = "Agreeableness",
+  m5f5 = "Openness"
+))
+```
+
+Now the labels appear wherever factors are listed.
+[`summary()`](https://rdrr.io/r/base/summary.html) shows them as
+`label (id)`, keeping the stable ID visible so you can still
+cross-reference the edge and loading tables:
+
+``` r
+
+summary(x)
+#> 
+#> ── Summary: Bass-Ackwards Analysis (ackwards) ──────────────────────────────────
+#> Engine: pca
+#> Rotation: varimax
+#> Basis: polychoric
+#> n: 875
+#> k (max): 5
+#> 
+#> ── Levels ──
+#> 
+#> k = 1: 1 factor (23.2% cumulative variance)
+#> m1f1 23.2% eigenvalue 5.80
+#> 
+#> k = 2: 2 factors (35.5% cumulative variance)
+#> m2f1 20.9% eigenvalue 5.80
+#> m2f2 14.5% eigenvalue 3.07
+#> 
+#> k = 3: 3 factors (44.6% cumulative variance)
+#> m3f1 18.0% eigenvalue 5.80
+#> m3f2 13.9% eigenvalue 3.07
+#> m3f3 12.7% eigenvalue 2.28
+#> 
+#> k = 4: 4 factors (52.2% cumulative variance)
+#> m4f1 17.5% eigenvalue 5.80
+#> m4f2 13.6% eigenvalue 3.07
+#> m4f3 11.8% eigenvalue 2.28
+#> m4f4 9.2% eigenvalue 1.90
+#> 
+#> k = 5: 5 factors (58.4% cumulative variance)
+#> Neuroticism (m5f1) 13.8% eigenvalue 5.80
+#> Extraversion (m5f2) 13.6% eigenvalue 3.07
+#> Conscientiousness (m5f3) 11.9% eigenvalue 2.28
+#> Agreeableness (m5f4) 10.1% eigenvalue 1.90
+#> Openness (m5f5) 9.1% eigenvalue 1.56
+#> 
+#> ── Lineage (primary parents) ──
+#> 
+#> m1f1 → m2f1, m2f2
+#> m2f1 → m3f1, m3f3
+#> m2f2 → m3f2
+#> m3f1 → m4f1
+#> m3f2 → m4f2
+#> m3f3 → m4f3, m4f4
+#> m4f1 → Neuroticism (m5f1), Agreeableness (m5f4)
+#> m4f2 → Extraversion (m5f2)
+#> m4f3 → Conscientiousness (m5f3)
+#> m4f4 → Openness (m5f5)
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: This is a series of linked solutions, not a fitted hierarchical model.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
+```
+
+`top_items(by = "factor")` uses them on its group headers, and
+[`tidy()`](https://generics.r-lib.org/reference/tidy.html) adds a
+`factor_label` column (and `from_label`/`to_label` for edges) — but
+*only* when labels are set, so unlabelled objects keep their exact
+previous output:
+
+``` r
+
+head(tidy(x, what = "loadings"))
+#>   level factor item    loading se ci_lower ci_upper factor_label
+#> 1     1   m1f1   A1 -0.3440908 NA       NA       NA         <NA>
+#> 2     1   m1f1   A2  0.5977210 NA       NA       NA         <NA>
+#> 3     1   m1f1   A3  0.6511387 NA       NA       NA         <NA>
+#> 4     1   m1f1   A4  0.4837850 NA       NA       NA         <NA>
+#> 5     1   m1f1   A5  0.6848262 NA       NA       NA         <NA>
+#> 6     1   m1f1   C1  0.4502778 NA       NA       NA         <NA>
+```
+
+[`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+uses stored labels as the node text automatically, so you no longer need
+to pass `node_labels` for a labelled object; a call-time `node_labels`
+entry still overrides a stored label for that one node. Labels are
+display only — factor IDs never change — and they ride along through
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md),
+[`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md),
+[`augment()`](https://generics.r-lib.org/reference/augment.html), and
+[`predict()`](https://rdrr.io/r/stats/predict.html). Read them back with
+`factor_labels(x)`; clear one by setting it to `NA`, or all of them by
+passing `NULL`.
 
 ### The Forbes letter convention
 
