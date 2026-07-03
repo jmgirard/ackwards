@@ -78,7 +78,16 @@ generics::glance
 #'
 #' @return A data frame (class `data.frame`).
 #'
-#' @seealso [glance.ackwards()], [print.ackwards()]
+#' @section Factor labels:
+#' If [factor labels][set_factor_labels] have been attached to the object, the
+#' output gains display-only label columns: `factor_label` for `what =
+#' "loadings"`, `"variance"`, or `"scores"`, and `from_label`/`to_label` for
+#' `what = "edges"`. Each carries the label for a labeled factor and `NA`
+#' otherwise. These columns are **absent** when no labels are set, so an
+#' unlabeled object's output is unchanged; the ID columns (`factor`, `from`,
+#' `to`) are never altered.
+#'
+#' @seealso [glance.ackwards()], [print.ackwards()], [set_factor_labels()]
 #'
 #' @examples
 #' x <- ackwards(sim16, k_max = 5)
@@ -135,6 +144,18 @@ tidy.ackwards <- function(
     nodes    = .tidy_nodes(x),
     scores   = .tidy_scores(x)
   )
+  # Factor labels (M51): display-only columns, present only when labels have
+  # been set (unlabeled objects keep their exact pre-M51 schema; Invariant 5 --
+  # the ID columns are never mutated). `nodes`/`fit` carry no factor-ID column.
+  labels <- x$meta$factor_labels
+  if (!is.null(labels)) {
+    if (what %in% c("loadings", "variance", "scores")) {
+      out$factor_label <- unname(labels[out$factor])
+    } else if (what == "edges") {
+      out$from_label <- unname(labels[out$from])
+      out$to_label <- unname(labels[out$to])
+    }
+  }
   if (what == "edges") {
     if (isTRUE(primary_only)) {
       out <- out[out$is_primary, , drop = FALSE]

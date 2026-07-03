@@ -95,6 +95,16 @@ A data frame (class \code{data.frame}).
 Returns structured data from an \code{ackwards} object in tidy format. The
 default (\code{what = "edges"}) returns the graph edge list that drives diagrams.
 }
+\section{Factor labels}{
+
+If \link[=set_factor_labels]{factor labels} have been attached to the object, the
+output gains display-only label columns: \code{factor_label} for \code{what = "loadings"}, \code{"variance"}, or \code{"scores"}, and \code{from_label}/\code{to_label} for
+\code{what = "edges"}. Each carries the label for a labeled factor and \code{NA}
+otherwise. These columns are \strong{absent} when no labels are set, so an
+unlabeled object's output is unchanged; the ID columns (\code{factor}, \code{from},
+\code{to}) are never altered.
+}
+
 \examples{
 x <- ackwards(sim16, k_max = 5)
 tidy(x) # edges in natural order
@@ -107,5 +117,5 @@ tidy(x, what = "fit", format = "wide")
 
 }
 \seealso{
-\code{\link[=glance.ackwards]{glance.ackwards()}}, \code{\link[=print.ackwards]{print.ackwards()}}
+\code{\link[=glance.ackwards]{glance.ackwards()}}, \code{\link[=print.ackwards]{print.ackwards()}}, \code{\link[=set_factor_labels]{set_factor_labels()}}
 }

@@ -34,7 +34,8 @@ summary.ackwards <- function(object, ...) {
       fit = .tidy_fit(object),
       lineage = .summary_lineage(object),
       prune = .summary_prune(object),
-      boot = object$boot
+      boot = object$boot,
+      factor_labels = object$meta$factor_labels # M51
     ),
     class = "summary_ackwards"
   )
@@ -98,7 +99,10 @@ print.summary_ackwards <- function(x, ...) {
       } else {
         ""
       }
-      cli::cli_text("  {fac}  {vpct}%{suffix}")
+      # M51: display "label (id)" when set; `fac` stays the ID for the
+      # eigenvalue lookup above.
+      fac_disp <- .label_id(fac, x$factor_labels)
+      cli::cli_text("  {fac_disp}  {vpct}%{suffix}")
     }
 
     # EFA / ESEM: append a fit-statistic line per level (not per-factor)
@@ -279,11 +283,15 @@ print.summary_ackwards <- function(x, ...) {
   parent_levels <- adj_primary$level_from[match(parents, adj_primary$from)]
   parents <- parents[order(parent_levels, parents)]
 
+  # Factor labels (M51): display each node as "label (id)" when a label is set,
+  # bare ID otherwise. Sorting stays keyed on IDs above, so labels never reorder.
+  labels <- x$meta$factor_labels
+
   rows <- lapply(parents, function(p) {
     kids <- adj_primary$to[adj_primary$from == p]
     data.frame(
-      parent = p,
-      children = paste(kids, collapse = ", "),
+      parent = .label_id(p, labels),
+      children = paste(.label_id(kids, labels), collapse = ", "),
       stringsAsFactors = FALSE
     )
   })
