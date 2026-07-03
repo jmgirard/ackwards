@@ -25,11 +25,15 @@ This is a **read-only audit**. Do not edit, create, or fix any files — report 
 6. Dependency hygiene: anything misplaced between `Imports`/`Suggests` in `DESCRIPTION`; any engine call missing an `rlang::check_installed()` guard.
 7. Roxygen check: does documentation explain *why* defaults were chosen (per CLAUDE.md's documentation standard), not just *what*.
 8. Milestone-log hygiene: confirm `MILESTONES.md` is the only detailed log and is internally
-   consistent — entries run in numeric order with **no gaps** (M1..M$ARGUMENTS all present), the
-   CLAUDE.md "## Completed milestones" index has exactly one matching line per entry, and the
-   narrative is not duplicated into DESIGN.md §15 (which must remain a pointer). Flag any missing,
-   out-of-order, or duplicated entry — this is the class of drift that motivated the single-log
-   structure.
+   consistent — the **numbered** entries run in numeric order with **no gaps** (M1..M$ARGUMENTS all
+   present); the CLAUDE.md "## Completed milestones" index has exactly one matching line per
+   numbered entry, and each is a genuine **one-liner** (title + single clause — flag any that has
+   grown into a paragraph, the specific drift the single-log structure exists to prevent); and the
+   narrative is not duplicated into DESIGN.md §15 (which must remain a pointer). The
+   "Between-milestone changes" section at the end of `MILESTONES.md` is **exempt** from the numeric
+   no-gaps check (it deliberately holds non-numbered PRs); just confirm any code PR merged since the
+   prior milestone that isn't this milestone appears there. Flag any missing, out-of-order,
+   duplicated, or over-long entry.
 9. Output a single triaged list: **Blocking** (must fix before the next milestone) / **Should-fix** / **Nice-to-have**. End with one line: **READY** or **NOT READY** for the next milestone, and why.
 
 Do not rewrite, fix, or refactor anything during this review — that's a separate step.
