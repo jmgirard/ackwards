@@ -10,7 +10,6 @@ compute_edges(
   edge_method = c("auto", "algebra", "scores"),
   pairs = c("adjacent", "all"),
   data = NULL,
-  align = TRUE,
   use = "pairwise.complete.obs",
   cut_show = 0.3
 )
@@ -30,8 +29,6 @@ materialise).}
 
 \item{data}{Optional data frame / matrix of raw observations. Required only
 when \code{edge_method = "scores"} or the scores path is triggered.}
-
-\item{align}{Whether to sign-align edges to primary-parent lineage.}
 
 \item{use}{Passed to \code{\link[stats:cor]{stats::cor()}} when materialising scores.}
 

@@ -165,17 +165,38 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
 #
 # Formula (orthogonal factors):  W = R^{-1} L (L' R^{-1} L)^{-1/2}
 #
-# The resulting W satisfies W'RW = I, so tenBerge scores have unit variance --
-# the D standardization in compute_edges() divides by 1 but is still applied
-# for numerical safety and to satisfy Invariant 1.
+# For a full-rank L the resulting W satisfies W'RW = I, so tenBerge scores have
+# unit variance -- the D standardization in compute_edges() then divides by 1
+# but is still applied for numerical safety and to satisfy Invariant 1. If L is
+# rank-deficient (two factors collinear in the R^{-1} metric -- degenerate; no
+# shipped engine emits this) B = L'R^{-1}L is singular, W'RW is no longer the
+# identity, and we warn: compute_edges() still standardizes by the *actual*
+# score SDs so edges stay valid, but the factors are poorly separated.
 .tenBerge_weights <- function(R, L) {
   Ri <- solve(R) # p x p
   A <- Ri %*% L # p x k: R^{-1} L
   B <- crossprod(L, A) # k x k: L' R^{-1} L  (symmetric PD for full-rank L)
 
-  # Matrix inverse square root of B via spectral decomposition
+  # Matrix inverse square root of B via spectral decomposition. Clamp
+  # eigenvalues below a *relative* tolerance (fp noise scales with |B|, so an
+  # absolute floor misses near-zeros when |B| is large under a near-singular R).
   eig <- eigen(B, symmetric = TRUE)
-  vals <- pmax(eig$values, .Machine$double.eps) # guard against tiny negatives
+  tol <- .Machine$double.eps * max(eig$values)
+  n_clamp <- sum(eig$values < tol)
+  if (n_clamp > 0L) {
+    cli::cli_warn(
+      c(
+        "!" = "A factor level is near rank-deficient: {n_clamp} eigenvalue{?s} \\
+               of {.code L' R^-1 L} {?is/are} numerically zero.",
+        "i" = "ten Berge scores for this level are not unit-variance; \\
+               {.fn compute_edges} still standardizes by the actual score SDs \\
+               (edges stay valid), but the factors are poorly separated."
+      ),
+      .frequency = "once",
+      .frequency_id = "ackwards_tenberge_rank_deficient"
+    )
+  }
+  vals <- pmax(eig$values, tol) # guard against zero / tiny-negative eigenvalues
   Binvsqrt <- eig$vectors %*%
     diag(1 / sqrt(vals), nrow = length(vals)) %*%
     t(eig$vectors)

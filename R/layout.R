@@ -174,7 +174,7 @@ ba_layout <- function(x, min_sep = 1.0) {
   prune_tbl <- x$prune$nodes
   tidy_edges <- compute_edges(
     levels = x$levels, R = x$r, edge_method = "auto",
-    pairs = "all", align = FALSE,
+    pairs = "all",
     cut_show = x$meta$cut_show %||% 0.3
   )$tidy
 

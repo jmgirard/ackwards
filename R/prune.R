@@ -641,7 +641,7 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
     # re-extraction (DESIGN.md s.3).
     all_edges <- compute_edges(
       levels = levels_list, R = x$r, edge_method = "auto",
-      pairs = "all", align = FALSE,
+      pairs = "all",
       cut_show = x$meta$cut_show %||% 0.3
     )
     edges_view <- list(

@@ -835,7 +835,6 @@ ackwards <- function(
     R           = R,
     edge_method = "auto",
     pairs       = "adjacent",
-    align       = FALSE,
     cut_show    = cut_show
   )
 
@@ -869,7 +868,6 @@ ackwards <- function(
     R           = R,
     edge_method = "auto",
     pairs       = pairs,
-    align       = FALSE,
     cut_show    = cut_show
   )
 

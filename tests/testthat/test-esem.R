@@ -138,8 +138,7 @@ test_that("ESEM algebra and scores paths agree (algebra-vs-scores cross-check)",
     R           = x$r,
     edge_method = "scores",
     pairs       = "adjacent",
-    data        = d,
-    align       = FALSE
+    data        = d
   )$matrices
 
   for (key in names(x$edges$matrices)) {

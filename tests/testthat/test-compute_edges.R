@@ -22,8 +22,7 @@ test_that("algebra and scores paths agree for PCA engine on all adjacent pairs",
     R = R,
     edge_method = "scores",
     pairs = "adjacent",
-    data = data,
-    align = FALSE
+    data = data
   )$matrices
 
   for (key in names(x$edges$matrices)) {
@@ -164,8 +163,7 @@ test_that("algebra and scores agree for all-levels edges (PCA)", {
     R = R,
     edge_method = "scores",
     pairs = "all",
-    data = data,
-    align = FALSE
+    data = data
   )$matrices
 
   for (key in names(x$edges$matrices)) {
