@@ -9,6 +9,10 @@
 #' (see [ackwards()]). Items near the cut threshold may appear for one sign
 #' orientation but not the other; this is expected and informative.
 #'
+#' If [factor labels][set_factor_labels] have been attached, the factor
+#' dimension is shown as `label (id)` wherever it appears -- the group headers
+#' under `by = "factor"` and the body entries under `by = "item"`.
+#'
 #' @param x An `ackwards` object.
 #' @param level Integer vector selecting which level(s) to include. `NULL`
 #'   (default) returns all levels.
@@ -36,7 +40,8 @@
 #'   `label` when labels are available). The values equal the corresponding
 #'   `tidy(x, what = "loadings")` rows (after filtering and optional sorting).
 #'
-#' @seealso [tidy.ackwards()], [label_template()], [autoplot.ackwards()]
+#' @seealso [tidy.ackwards()], [label_template()], [set_factor_labels()],
+#'   [autoplot.ackwards()]
 #'
 #' @examples
 #' # Fit the raw dataset (not na.omit(), which would drop the column
@@ -228,8 +233,11 @@ print.top_items <- function(x, ...) {
 
       for (i in seq_len(nrow(df_g))) {
         loading_str <- formatC(df_g$loading[i], digits = 3L, format = "f")
+        # M51: the body's factor entries (under by = "item") also show
+        # "label (id)"; the body's item entries (under by = "factor") show the
+        # item "id: label" form.
         entry <- if (by_item) {
-          df_g[[body_col]][i]
+          .label_id(df_g[[body_col]][i], x$factor_labels)
         } else {
           .format_item_label(df_g[[body_col]][i], labs)
         }

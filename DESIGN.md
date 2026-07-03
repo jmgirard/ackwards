@@ -788,9 +788,12 @@ owner-signed-off):**
     - **Display form `label (id)`.** Every text surface that lists a factor shows
       `Neuroticism (m5f1)` when a label is set, bare `m5f1` otherwise. Keeping the ID visible is
       load-bearing: it is the handle a user needs to index into `tidy()`/`edges`, and mirrors how
-      `autoplot()` keeps IDs discoverable. Surfaces: `summary()` hierarchy tree, `print()` (one
-      status line noting how many of the factors are labeled, only when any are), and
-      `top_items(by = "factor")` group headers. **`autoplot()` is the exception** — a diagram node
+      `autoplot()` keeps IDs discoverable. The rule is simply: **wherever a text surface names a
+      factor, it shows `label (id)`.** Concretely: `summary()` (both the per-level variance listing
+      and the lineage tree), `print()` (one status line noting how many of the factors are labeled,
+      only when any are), and `top_items()` (the factor dimension either way — group headers under
+      `by = "factor"`, body entries under `by = "item"`). **`autoplot()` is the exception** — a
+      diagram node
       shows the substantive label *only* (no parenthetical ID), because a stored label is exactly a
       persistent default for the existing `node_labels` argument, which has always replaced the node
       text wholesale. Precedence: stored labels form the node-text baseline; a call-time

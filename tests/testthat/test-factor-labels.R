@@ -125,3 +125,40 @@ test_that("autoplot uses stored labels as baseline, call-time overrides", {
   expect_false("Alpha" %in% txt2)
   expect_true("Beta" %in% txt2) # untouched node keeps stored label
 })
+
+test_that("stored labels survive the drop_pruned autoplot path", {
+  skip_if_not_installed("ggplot2")
+  x <- cached(ackwards(sim16, k_max = 4, engine = "pca"))
+  xp <- prune(x, rules = "redundant")
+  # Label a factor that is NOT pruned, so it survives into the pruned view.
+  kept <- xp$prune$nodes$id[!xp$prune$nodes$pruned]
+  xp <- set_factor_labels(xp, stats::setNames("Kept", kept[[length(kept)]]))
+
+  p <- ggplot2::autoplot(xp, drop_pruned = TRUE)
+  built <- ggplot2::ggplot_build(p)
+  txt <- unlist(lapply(built$data, function(d) if ("label" %in% names(d)) d$label))
+  expect_true("Kept" %in% txt)
+})
+
+test_that("top_items(by = 'item') body shows factor label (id)", {
+  x <- cached(ackwards(sim16, k_max = 4, engine = "pca"))
+  x <- set_factor_labels(x, c(m4f1 = "Alpha"))
+  out <- cli::cli_fmt(print(top_items(x, level = 4, by = "item")))
+  # m4f1 appears in the body (as a factor an item loads on); it should carry
+  # the label. Unlabelled factors on the same listing stay bare.
+  expect_true(any(grepl("Alpha \\(m4f1\\)", out)))
+})
+
+test_that("factor labels do not change augment()/predict() column names", {
+  x <- cached(ackwards(sim16, k_max = 4, engine = "pca"))
+  xl <- set_factor_labels(x, c(m4f1 = "Alpha", m2f1 = "Broad"))
+
+  aug_bare <- augment(x, data = sim16, append = FALSE)
+  aug_lab <- augment(xl, data = sim16, append = FALSE)
+  expect_identical(names(aug_bare), names(aug_lab))
+  expect_true(all(grepl("^\\.m[0-9]+f[0-9]+$", names(aug_lab))))
+
+  pred_bare <- predict(x, newdata = sim16)
+  pred_lab <- predict(xl, newdata = sim16)
+  expect_identical(names(pred_bare), names(pred_lab))
+})
