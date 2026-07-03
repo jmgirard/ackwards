@@ -65,14 +65,14 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 #>   "polychoric"` in the final `ackwards()` fit.
 #> This warning is displayed once per session.
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [97ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [114ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [138ms]
+#> ✔ Running MAP and VSS... [153ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [14.4s]
+#> ✔ Running Comparison Data (CD)... [15.3s]
 #> 
 
 # }

@@ -1069,13 +1069,19 @@ tiering every diagnostic ackwards raises as *fatal* (constant item,
 polychoric failure, non-convergence, near-singular matrix) / *caution*
 (Heywood, near-constant item, ordinal-on-Pearson) / *informational*
 (pairwise-missing, sparse category, ordinal-detection when Pearson was
-intended); (b) the near-singularity check now records
+intended); (b) the near-singularity check (`.near_singular_check()`,
+shared by the raw-data and cor-matrix paths — **basis-agnostic**: it
+also catches redundant items on the Pearson/Spearman/FIML bases and
+user-supplied matrices, not just polychoric) records
 `meta$min_eigenvalue` and `meta$near_singular` (smallest eigenvalue
 `< 1e-4`) so
 [`print()`](https://rdrr.io/r/base/print.html)/[`summary()`](https://rdrr.io/r/base/summary.html)
 re-surface a **durable** “near-singular – fit indices and scores may be
-unreliable” caution on the object itself, not just once at fit time.
-Report-only; changes no estimate.
+unreliable” caution on the object itself, not just once at fit time. The
+messaging avoids singling out CFI (an ESEM-only index — for EFA the tell
+is TLI/RMSEA from psych’s residual fallback). Report-only; changes no
+estimate. (M49 review follow-up generalized this from the initial
+polychoric-only implementation.)
 
 **Known limitations / deferred to future milestones:** - `factor_cor` in
 the ESEM engine is not permuted by the variance-sort `ord` vector. Safe

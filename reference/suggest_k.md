@@ -254,14 +254,14 @@ matrix of partial correlations. *Psychometrika*, 41, 321–327.
 # \donttest{
 sk <- suggest_k(bfi25)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [322ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [328ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [97ms]
+#> ✔ Running MAP and VSS... [172ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [13.9s]
+#> ✔ Running Comparison Data (CD)... [15.4s]
 #> 
 sk
 #> 
@@ -302,7 +302,7 @@ autoplot(sk)
 # Run only MAP (fast; skips parallel analysis and CD)
 suggest_k(bfi25, criteria = "map")
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [76ms]
+#> ✔ Running MAP and VSS... [81ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -335,7 +335,7 @@ suggest_k(bfi25, criteria = "map")
 # Run only the parallel-analysis criteria
 suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [104ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [112ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -369,14 +369,14 @@ suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 # Faster exploratory run
 suggest_k(bfi25, k_max = 6, n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [101ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [117ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [90ms]
+#> ✔ Running MAP and VSS... [104ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [11.3s]
+#> ✔ Running Comparison Data (CD)... [11.8s]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -415,10 +415,10 @@ suggest_k(R, n_obs = 875L)
 #> ℹ CD is skipped when a correlation matrix is supplied (CD requires raw item
 #>   distributions for resampling).
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [274ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [264ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [100ms]
+#> ✔ Running MAP and VSS... [107ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────

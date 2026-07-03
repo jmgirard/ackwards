@@ -337,10 +337,11 @@ set <code>correct = 0</code> or collapse rare categories.</p></li>
 level that did; do not interpret beyond it.</p></li>
 <li><p>A <strong>near-singular correlation matrix</strong> (smallest eigenvalue <code>&lt; 1e-4</code>,
 recorded in <code>meta$near_singular</code> / <code>meta$min_eigenvalue</code> and re-surfaced by
-<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>/<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>) means per-level fit indices (especially CFI, which
-comes back <code>NA</code>) and factor scores are unreliable and the loadings/edges
-rest on a rank-deficient matrix. Collapse sparse categories, use
-<code>missing = "listwise"</code>, or trim redundant items.</p></li>
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>/<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>) means per-level fit indices and factor scores are
+unreliable and the loadings/edges rest on a rank-deficient matrix. (For EFA
+the residual-based fallback inflates <code>TLI</code>/<code>RMSEA</code>; for ESEM <code>CFI</code> comes
+back <code>NA</code>.) Trim redundant items, use <code>missing = "listwise"</code>, or – on the
+polychoric basis – collapse sparse categories or set <code>correct = 0</code>.</p></li>
 </ul><p><strong>Caution – interpret carefully.</strong> The solution exists but may be unstable:</p><ul><li><p>A <strong>Heywood case</strong> (communality <code>&gt; 1</code> / negative uniqueness) at a level –
 check that level's loadings make substantive sense; consider fewer factors.</p></li>
 <li><p>A <strong>near-constant item</strong> (one response category dominates) can drive a

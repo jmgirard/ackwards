@@ -327,10 +327,12 @@ broken correlation matrix:
   recorded in `meta$near_singular` / `meta$min_eigenvalue` and
   re-surfaced by
   [`print()`](https://rdrr.io/r/base/print.html)/[`summary()`](https://rdrr.io/r/base/summary.html))
-  means per-level fit indices (especially CFI, which comes back `NA`)
-  and factor scores are unreliable and the loadings/edges rest on a
-  rank-deficient matrix. Collapse sparse categories, use
-  `missing = "listwise"`, or trim redundant items.
+  means per-level fit indices and factor scores are unreliable and the
+  loadings/edges rest on a rank-deficient matrix. (For EFA the
+  residual-based fallback inflates `TLI`/`RMSEA`; for ESEM `CFI` comes
+  back `NA`.) Trim redundant items, use `missing = "listwise"`, or – on
+  the polychoric basis – collapse sparse categories or set
+  `correct = 0`.
 
 **Caution – interpret carefully.** The solution exists but may be
 unstable:
