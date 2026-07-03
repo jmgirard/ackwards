@@ -134,3 +134,11 @@ test_that("ackwards() raises no item warning on clean data", {
     message = "near-constant|no variance"
   )
 })
+
+test_that("check_items() flags an all-NA column as constant (M49 review)", {
+  d <- .mk_items()
+  d$empty <- NA_integer_
+  out <- check_items(d, cor = "pearson")
+  expect_identical(out$flag[out$item == "empty"], "constant")
+  expect_equal(out$n_valid[out$item == "empty"], 0L)
+})

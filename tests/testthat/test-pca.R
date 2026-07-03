@@ -236,3 +236,21 @@ test_that("glance() returns all-NA fit when the deepest level carries no fit", {
   expect_true(is.na(g$RMSEA))
   expect_true(is.na(g$BIC))
 })
+
+test_that("near-singularity is flagged on the Pearson basis too (M49 review)", {
+  skip_if_not_installed("psych")
+  # Duplicate continuous columns -> perfectly collinear -> rank-deficient R,
+  # even on the Pearson basis (the near-singular flag is basis-agnostic).
+  set.seed(5)
+  n <- 250
+  m <- as.data.frame(matrix(rnorm(n * 5), n, 5))
+  m <- cbind(m, m)
+  names(m) <- paste0("c", 1:10)
+  rlang::reset_warning_verbosity("ackwards_near_singular")
+  w <- testthat::capture_warnings(
+    x <- suppressMessages(ackwards(m, k_max = 3, engine = "pca"))
+  )
+  expect_true(any(grepl("near-singular", w)))
+  expect_true(x$meta$near_singular)
+  expect_lt(x$meta$min_eigenvalue, 1e-4)
+})

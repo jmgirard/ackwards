@@ -166,10 +166,9 @@ print.summary_ackwards <- function(x, ...) {
     cli::cli_text("")
     cli::cli_text(cli::col_yellow(
       "{cli::symbol$warning} Near-singular correlation matrix (min eigenvalue \\
-       {signif(x$min_eigenvalue, 2)}): per-level fit indices (especially CFI) \\
-       and factor scores may be unreliable -- the solution rests on a \\
-       rank-deficient matrix. See {.code ?ackwards} (\"When to trust the \\
-       result\")."
+       {signif(x$min_eigenvalue, 2)}): per-level fit indices and factor scores \\
+       may be unreliable -- the solution rests on a rank-deficient matrix. See \\
+       {.code ?ackwards} (\"When to trust the result\")."
     ))
   }
 

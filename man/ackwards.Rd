@@ -251,10 +251,11 @@ set \code{correct = 0} or collapse rare categories.
 level that did; do not interpret beyond it.
 \item A \strong{near-singular correlation matrix} (smallest eigenvalue \verb{< 1e-4},
 recorded in \code{meta$near_singular} / \code{meta$min_eigenvalue} and re-surfaced by
-\code{print()}/\code{summary()}) means per-level fit indices (especially CFI, which
-comes back \code{NA}) and factor scores are unreliable and the loadings/edges
-rest on a rank-deficient matrix. Collapse sparse categories, use
-\code{missing = "listwise"}, or trim redundant items.
+\code{print()}/\code{summary()}) means per-level fit indices and factor scores are
+unreliable and the loadings/edges rest on a rank-deficient matrix. (For EFA
+the residual-based fallback inflates \code{TLI}/\code{RMSEA}; for ESEM \code{CFI} comes
+back \code{NA}.) Trim redundant items, use \code{missing = "listwise"}, or -- on the
+polychoric basis -- collapse sparse categories or set \code{correct = 0}.
 }
 
 \strong{Caution -- interpret carefully.} The solution exists but may be unstable:

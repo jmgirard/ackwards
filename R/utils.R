@@ -434,3 +434,38 @@ validate_ackwards <- function(x) {
   }
   invisible(x)
 }
+
+# Warn once if the correlation matrix R is near-singular (rank-deficient for
+# practical purposes) and return its smallest eigenvalue for the durable $meta
+# signal. Shared by the raw-data and correlation-matrix paths of ackwards() so
+# the near-singularity flag is basis-agnostic. `cor` tailors the remedy advice
+# ("polychoric" adds the sparse-category route) and may be NA (a user-supplied
+# matrix), handled via isTRUE(). A healthy correlation matrix sits well above
+# the 1e-4 threshold, so ordinary data is never flagged.
+.near_singular_check <- function(R, cor) {
+  min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
+  if (min_eig < 1e-4) {
+    remedy <- if (isTRUE(cor == "polychoric")) {
+      c("i" = "Usual causes are sparse response categories or redundant items. \\
+               Consider collapsing rare categories, {.code correct = 0}, \\
+               {.code missing = \"listwise\"}, or trimming items; \\
+               {.fn check_items} shows which items are involved.")
+    } else {
+      c("i" = "Usual causes are redundant or near-duplicate items. Consider \\
+               trimming items or {.code missing = \"listwise\"}; \\
+               {.fn check_items} shows which items are involved.")
+    }
+    cli::cli_warn(
+      c(
+        "!" = "The correlation matrix is near-singular \\
+               (min eigenvalue {signif(min_eig, 2)}).",
+        "i" = "Per-level fit indices and factor scores may be unreliable -- the \\
+               loadings and edges rest on a rank-deficient matrix.",
+        remedy
+      ),
+      .frequency = "once",
+      .frequency_id = "ackwards_near_singular"
+    )
+  }
+  min_eig
+}
