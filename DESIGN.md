@@ -810,6 +810,32 @@ owner-signed-off):**
       `m{k}f{j}` — they are syntactic identifiers a user binds to, not display text. `label_template()`
       is unchanged; its printed `c(...)` literal is now framed in the docs as the scaffold you fill
       in and feed to `set_factor_labels()`.
+46. **Factorability & data-adequacy diagnostics — new `factorability()` export + an internal
+    `ackwards()` screen (M52).** Adds the pre-fit "is this matrix worth factoring, and is N large
+    enough" layer that item 43 (`check_items()`, per-item) and `suggest_k()` (depth) did not cover.
+    No new dependency (`psych` already supplies `KMO()`/`cortest.bartlett()`; the Ledermann bound is
+    base arithmetic), no signature or default change to `ackwards()`.
+    - **What it reports.** KMO sampling adequacy (overall + per-item MSA), Bartlett's sphericity
+      test, N / p / N:p, and the Ledermann bound (largest number of common factors identifiable from
+      p variables, `.ledermann_bound(p)` = max k with `((p-k)^2 - (p+k))/2 >= 0`). Computed on the
+      chosen `cor` basis, from raw data **or** a correlation matrix (N-based rows are `NA` when a
+      matrix arrives without `n_obs`).
+    - **Honesty stance (extends item 24).** Item 24 removed the Hu–Bentler fit pass/fail flags
+      because the package refuses to endorse contested cutoffs as returned booleans. The same
+      principle governs here: `factorability()` reports values and their **conventional bands**
+      (Kaiser KMO labels, the 5:1/10:1 N:p rules, Bartlett at .05), each explicitly framed in the
+      printout and roxygen as a *rule of thumb, not a settled threshold* (required N depends on
+      communalities and overdetermination — MacCallum et al. 1999). No pass/fail column is returned.
+    - **Internal `ackwards()` screen — engine-split, advisory-only (Invariant 6/7).** `ackwards()`
+      runs `.factorability_screen()` on every fit and emits at most two `.frequency = "once"`
+      warnings, never aborting and never altering the fit: (a) a **Ledermann** under-identification
+      warning naming the first over-bound level, fired **only for EFA/ESEM** (`k_max` compared to
+      the bound) — PCA is exempt because components are exact linear combinations with no
+      latent-model df constraint (its existing `k_max <= p` ceiling suffices); and (b) a single
+      **consolidated sampling-adequacy** warning when KMO `< 0.5`, N:p `< 5`, or N `< 100`,
+      pointing to `factorability()` for the full report. The Ledermann warning compares against the
+      *requested* `k_max` (the design error to flag) and warns-and-builds — a truncated level still
+      warns separately, so the two are complementary.
 
 **Known limitations / deferred to future milestones:**
 - `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and oblique rotation is out of scope (§9, §14.1). The guard comment in `engine_esem.R` documents what *would* be required if that decision were ever reversed.

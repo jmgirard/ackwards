@@ -82,6 +82,7 @@ and only a one-liner here.
 - **M49** — Initial CRAN release (0.1.0) + polychoric robustness arc (`correct` arg, `check_items()`)
 - **M50** — Release polish (`bfi25` IPIP labels, cli consistency, `suggest_k` ordinal warning)
 - **M51** — Factor-label pipeline (`set_factor_labels()`/`factor_labels()`; `meta$factor_labels`)
+- **M52** — Factorability diagnostics (`factorability()` + `ackwards()` Ledermann/adequacy screen)
 
 ## Current focus
 
@@ -91,32 +92,8 @@ above) nor to stage future work (that lives in `ROADMAP.md`). When a milestone c
 /implement-milestone reduces this to the line below; when the next is planned, /plan-milestone
 fills it with that milestone's number, phase, and blockers.
 
-- **In flight:** **M52** — factorability & data-adequacy diagnostics (0.2.0 cycle, DESCRIPTION at
-  `0.1.0.9000`). Branch `m52-factorability`.
-  - **Scope:** new exported `factorability()` reporting function (accepts raw data *or* a
-    correlation matrix, `n_obs` optional) reporting **KMO** overall + per-variable MSA
-    (`psych::KMO`), **Bartlett** sphericity (`psych::cortest.bartlett`; `NA` when N unknown),
-    **N / p / N:p**, and the **Ledermann bound** (max identifiable common factors for p), computed
-    on the analysis-basis R. Plus two loud internal `ackwards()` warnings: (a) **Ledermann
-    under-identification** for `engine ∈ {efa, esem}` when `k_max` exceeds the bound (PCA exempt —
-    no latent-model df constraint; `k_max ≤ p` already suffices), and (b) a single **consolidated
-    adequacy warning** (KMO < 0.5 and/or N:p < 5:1) pointing to `factorability()`. No new
-    dependency — `psych` is already Imports; Ledermann is base-R arithmetic.
-  - **Engine relevance:** KMO / Bartlett / N:p are properties of the data/R → all three engines;
-    **Ledermann is EFA/ESEM only** (latent-model identification).
-  - **Resolved design decisions (this milestone):** (1) **No hard pass/fail** — report values +
-    conventional bands, each *explicitly labeled a contested rule-of-thumb* (Kaiser KMO bands, N:p
-    5:1/10:1, Bartlett-at-.05), consistent with DESIGN §14 item 24 (Hu–Bentler flags removed).
-    (2) Ledermann over-bound → **warn and still build** to requested depth (Invariant 7). (3)
-    Thresholds: N:p hard-warn **< 5:1** (10:1 reported as guidance), absolute-N floor **~100**,
-    KMO warn **< 0.5**.
-  - **Acceptance:** `factorability()` returns the object for both raw-data and matrix input with a
-    readable `print`; KMO/Bartlett match `psych` on a fixed matrix (oracle); `.ledermann_bound(p)`
-    exact (p=6→3, p=16→10); EFA/ESEM warn + name the under-identified level while PCA at the same
-    `k_max` does not; consolidated adequacy warning fires below thresholds and is silent when
-    adequate; N-based outputs are `NA`/skipped (never errored) for matrix input without `n_obs`;
-    `factorability` added to `_pkgdown.yml` reference and **`pkgdown::check_pkgdown()` passes**;
-    `NEWS.md` updated; `Rscript tools/dod-gate.R` green.
+- **In flight:** nothing. Last shipped: **M52** (factorability diagnostics; 0.2.0 cycle,
+  DESCRIPTION at `0.1.0.9000`). Detail in `MILESTONES.md`; user-facing notes in `NEWS.md`.
 - **Next up:** nothing queued. Candidates and the pending owner release-tail are in `ROADMAP.md`;
   deferred design decisions are in DESIGN.md §14 and "Out of scope for now" below.
 
