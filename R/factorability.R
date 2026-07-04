@@ -244,8 +244,12 @@ factorability <- function(data, cor = c("pearson", "spearman", "polychoric"),
     }
   }
 
-  # (b) Consolidated sampling-adequacy warning.
-  kmo_overall <- tryCatch(unname(psych::KMO(R)$MSA), error = function(e) NA_real_)
+  # (b) Consolidated sampling-adequacy warning. Reuse the shared core so the
+  # KMO call inherits its NA-safe tryCatch and its suppress wrappers -- an
+  # unwrapped psych::KMO() here would leak psych's "matrix is not invertible"
+  # message on a near-singular R, on top of ackwards()' own near-singular
+  # warning.
+  kmo_overall <- .compute_factorability(R, n_obs)$kmo_overall
   np_ratio <- if (is.na(n_obs)) NA_real_ else n_obs / p
 
   kmo_bad <- !is.na(kmo_overall) && kmo_overall < thr$kmo_warn
@@ -312,10 +316,14 @@ print.factorability <- function(x, ...) {
       "Overall KMO: {.strong {round(x$kmo_overall, 2)}} ",
       "({.emph {band}})"
     )
-    low <- x$kmo_items[!is.na(x$kmo_items$msa) & x$kmo_items$msa < 0.50, , drop = FALSE]
+    # Flag items below the same KMO threshold the internal screen warns at, so
+    # the printout and the ackwards() screen never drift (single source below).
+    low_cut <- .factorability_thresholds()$kmo_warn
+    low_cut_txt <- .format_r(low_cut)
+    low <- x$kmo_items[!is.na(x$kmo_items$msa) & x$kmo_items$msa < low_cut, , drop = FALSE]
     if (nrow(low) > 0L) {
       cli::cli_text(cli::col_yellow(
-        "! {nrow(low)} item{?s} with MSA < .50: {.val {low$item}}"
+        "! {nrow(low)} item{?s} with MSA < {low_cut_txt}: {.val {low$item}}"
       ))
     }
   }

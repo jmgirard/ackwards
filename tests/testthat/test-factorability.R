@@ -182,3 +182,39 @@ test_that("print.factorability() shows low-MSA items and a non-significant Bartl
   expect_match(txt, "MSA < .50", fixed = TRUE)
   expect_match(txt, "NOT significant", fixed = TRUE)
 })
+
+# --- Review follow-up: ESEM contract, polychoric screen, noise hygiene -------
+
+test_that("ackwards() warns about the Ledermann bound for the ESEM engine too", {
+  skip_if_not_installed("lavaan")
+  # p = 6 -> Ledermann bound = 3; k_max = 4 requests an under-identified level.
+  rlang::reset_warning_verbosity("ackwards_ledermann")
+  w <- suppressMessages(testthat::capture_warnings(
+    ackwards(sim16[, 1:6], k_max = 4L, engine = "esem")
+  ))
+  expect_true(any(grepl("Ledermann bound", w)))
+  expect_true(any(grepl("engine = \"esem\"", w)))
+})
+
+test_that("the internal screen runs on a polychoric fit without error", {
+  skip_if_not_installed("psych")
+  rlang::reset_warning_verbosity("ackwards_factorability")
+  # Exercises .factorability_screen() on the polychoric correlation matrix.
+  expect_no_error(suppressMessages(suppressWarnings(
+    ackwards(bfi25[, 1:6], k_max = 3L, engine = "efa", cor = "polychoric")
+  )))
+})
+
+test_that("the internal screen does not leak psych's near-singular message", {
+  R <- diag(4)
+  R[1, 2] <- R[2, 1] <- 1 # singular
+  rownames(R) <- colnames(R) <- paste0("V", 1:4)
+  rlang::reset_warning_verbosity("ackwards_factorability")
+  msgs <- suppressWarnings(
+    capture.output(
+      ackwards:::.factorability_screen(R, n_obs = 200L, p = 4L, k_max = 2L, engine = "pca"),
+      type = "message"
+    )
+  )
+  expect_false(any(grepl("not invertible", msgs)))
+})
