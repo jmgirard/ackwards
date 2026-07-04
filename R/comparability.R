@@ -95,8 +95,9 @@
 #'     seed}{Metadata.}
 #'
 #' @seealso [suggest_k()] for the plausible depth *range* (eigenstructure),
-#'   [prune()] for factors that perpetuate without differentiating
-#'   (redundancy), and [ackwards()] for the extraction itself.
+#'   [factorability()] for sampling adequacy before you fit, [prune()] for
+#'   factors that perpetuate without differentiating (redundancy), and
+#'   [ackwards()] for the extraction itself.
 #'
 #' @references
 #' Everett, J. E. (1983). Factor comparability as a means of determining the

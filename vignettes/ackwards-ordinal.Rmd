@@ -342,6 +342,16 @@ are degenerate or sparse, and read the **"When to trust the result"** section of
 When a matrix is near-singular, `ackwards()` says so once and records it on the
 object, so `print()`/`summary()` keep reminding you.
 
+[`factorability()`][ackwards::factorability] is the companion screen for the
+correlation matrix as a whole: it reports the KMO measure of sampling adequacy
+(overall and per item), Bartlett's test of sphericity, the `N:p` ratio, and the
+Ledermann bound on how many factors `p` items can identify. Call it on the same
+`cor` basis you plan to fit. Read its output as *conventions, not verdicts* —
+the KMO bands and `N:p` rules of thumb are contested — but a very low KMO or a
+handful of low-MSA items is a useful early signal. `ackwards()` runs a light
+version of this screen internally and warns only at the consequential extreme
+(KMO below .5, `N:p` below 5, or `k_max` past the Ledermann bound for EFA/ESEM).
+
 > **A note on score computation.** The short answer: yes, you can use the factor
 > scores from an ordinal analysis in downstream work — the caveat below is about
 > *scaling*, not validity. When `cor = "polychoric"`, the weight matrices stored

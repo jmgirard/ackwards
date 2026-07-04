@@ -121,7 +121,8 @@
 #' PA-FA and CD are more conservative. Treat the full set of criteria as a
 #' range: the true k is likely somewhere in the middle.
 #'
-#' @seealso [ackwards()]
+#' @seealso [ackwards()]; [factorability()], [check_items()], and
+#'   [comparability()], the other pre-analysis diagnostics.
 #'
 #' @references
 #' Forbes, M. K. (2023). Improving hierarchical models of individual

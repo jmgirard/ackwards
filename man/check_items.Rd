@@ -51,6 +51,6 @@ check_items(d)
 }
 \seealso{
 \code{\link[=ackwards]{ackwards()}} and its \code{correct} argument (the polychoric failure this
-screens for); \code{\link[=suggest_k]{suggest_k()}} and \code{\link[=comparability]{comparability()}}, the other pre-analysis
-diagnostics.
+screens for); \code{\link[=factorability]{factorability()}}, \code{\link[=suggest_k]{suggest_k()}}, and \code{\link[=comparability]{comparability()}}, the
+other pre-analysis diagnostics.
 }

@@ -1,5 +1,16 @@
 # ackwards (development version)
 
+* **Factorability diagnostics.** New `factorability()` screens a dataset (or a
+  correlation matrix) before you fit: it reports the Kaiser-Meyer-Olkin measure
+  of sampling adequacy (overall and per item), Bartlett's test of sphericity,
+  the sample size and `N:p` ratio, and the Ledermann bound on how many common
+  factors `p` variables can identify. It reports the numbers and their
+  conventional bands rather than a pass/fail flag — every cutoff here is a
+  contested rule of thumb. `ackwards()` now runs a light version of this screen
+  internally and warns (once) only at the consequential extreme: when `k_max`
+  exceeds the Ledermann bound for an EFA/ESEM fit (components are exempt), or
+  when sampling adequacy is poor (KMO below .5, or `N:p` below 5).
+
 * **Persistent factor labels.** New `set_factor_labels()` attaches substantive
   names to factors (e.g. `"Neuroticism"` for `"m5f1"`) on the object itself, and
   `factor_labels()` reads them back. Once set, the labels are shown by `print()`,

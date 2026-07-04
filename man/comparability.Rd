@@ -128,6 +128,7 @@ differences: An extension of Goldberg's bass-ackward method.
 }
 \seealso{
 \code{\link[=suggest_k]{suggest_k()}} for the plausible depth \emph{range} (eigenstructure),
-\code{\link[=prune]{prune()}} for factors that perpetuate without differentiating
-(redundancy), and \code{\link[=ackwards]{ackwards()}} for the extraction itself.
+\code{\link[=factorability]{factorability()}} for sampling adequacy before you fit, \code{\link[=prune]{prune()}} for
+factors that perpetuate without differentiating (redundancy), and
+\code{\link[=ackwards]{ackwards()}} for the extraction itself.
 }

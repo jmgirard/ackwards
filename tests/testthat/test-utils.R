@@ -278,3 +278,24 @@ test_that("inst/CITATION has a single Girard software entry, no Goldberg", {
   expect_match(pkg_year, "^[0-9]{4}$")
   expect_match(cites[[1]]$note, "R package version")
 })
+
+test_that(".factor_model_df() matches ((p-k)^2 - (p+k))/2", {
+  df <- ackwards:::.factor_model_df
+  expect_equal(df(6L, 3L), 0) # just-identified
+  expect_equal(df(6L, 4L), -3) # under-identified
+  expect_equal(df(16L, 10L), 5)
+  expect_equal(df(16L, 11L), -1)
+  # vectorised over k (used by .ledermann_bound)
+  expect_equal(df(6L, 1:3), c(9, 4, 0))
+})
+
+test_that(".ledermann_bound() returns the largest identifiable factor count", {
+  lb <- ackwards:::.ledermann_bound
+  expect_equal(lb(6L), 3L) # df(6,3)=0, df(6,4)<0
+  expect_equal(lb(16L), 10L) # df(16,10)=5, df(16,11)<0
+  expect_equal(lb(25L), 18L) # df(25,18)=3, df(25,19)=-4
+  # Degenerate small p: no latent model is identified
+  expect_equal(lb(3L), 1L) # df(3,1)=0
+  expect_equal(lb(2L), 0L)
+  expect_equal(lb(1L), 0L)
+})

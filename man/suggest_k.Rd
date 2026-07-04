@@ -196,5 +196,6 @@ Velicer, W. F. (1976). Determining the number of components from the matrix
 of partial correlations. \emph{Psychometrika}, 41, 321--327.
 }
 \seealso{
-\code{\link[=ackwards]{ackwards()}}
+\code{\link[=ackwards]{ackwards()}}; \code{\link[=factorability]{factorability()}}, \code{\link[=check_items]{check_items()}}, and
+\code{\link[=comparability]{comparability()}}, the other pre-analysis diagnostics.
 }

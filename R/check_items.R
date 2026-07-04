@@ -31,8 +31,8 @@
 #'   per-item table.
 #'
 #' @seealso [ackwards()] and its `correct` argument (the polychoric failure this
-#'   screens for); [suggest_k()] and [comparability()], the other pre-analysis
-#'   diagnostics.
+#'   screens for); [factorability()], [suggest_k()], and [comparability()], the
+#'   other pre-analysis diagnostics.
 #'
 #' @examples
 #' # sim16 is clean continuous data -> nothing flagged

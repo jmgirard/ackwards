@@ -82,6 +82,7 @@ and only a one-liner here.
 - **M49** — Initial CRAN release (0.1.0) + polychoric robustness arc (`correct` arg, `check_items()`)
 - **M50** — Release polish (`bfi25` IPIP labels, cli consistency, `suggest_k` ordinal warning)
 - **M51** — Factor-label pipeline (`set_factor_labels()`/`factor_labels()`; `meta$factor_labels`)
+- **M52** — Factorability diagnostics (`factorability()` + `ackwards()` Ledermann/adequacy screen)
 
 ## Current focus
 
@@ -91,8 +92,8 @@ above) nor to stage future work (that lives in `ROADMAP.md`). When a milestone c
 /implement-milestone reduces this to the line below; when the next is planned, /plan-milestone
 fills it with that milestone's number, phase, and blockers.
 
-- **In flight:** nothing. Last shipped: **M51** (factor-label pipeline; 0.2.0 cycle, DESCRIPTION at
-  `0.1.0.9000`). Detail in `MILESTONES.md`; user-facing notes in `NEWS.md`.
+- **In flight:** nothing. Last shipped: **M52** (factorability diagnostics; 0.2.0 cycle,
+  DESCRIPTION at `0.1.0.9000`). Detail in `MILESTONES.md`; user-facing notes in `NEWS.md`.
 - **Next up:** nothing queued. Candidates and the pending owner release-tail are in `ROADMAP.md`;
   deferred design decisions are in DESIGN.md §14 and "Out of scope for now" below.
 
