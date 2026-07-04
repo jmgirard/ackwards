@@ -469,3 +469,25 @@ validate_ackwards <- function(x) {
   }
   min_eig
 }
+
+# Degrees of freedom of a k-factor common-factor model on p variables:
+# df = ((p - k)^2 - (p + k)) / 2. A model is identified only when df >= 0.
+# Base arithmetic; used by .ledermann_bound() and the ackwards() Ledermann
+# screen. PCA is not a latent-variable model, so this does not apply to it.
+.factor_model_df <- function(p, k) {
+  ((p - k)^2 - (p + k)) / 2
+}
+
+# Ledermann bound: the largest number of common factors k identifiable from p
+# variables, i.e. the largest k with .factor_model_df(p, k) >= 0. Computed by
+# iteration (robust at the exact-integer boundary the closed form floors past).
+# Returns an integer in 0..(p - 1); 0 when even a one-factor model is
+# under-identified (p <= 2).
+.ledermann_bound <- function(p) {
+  if (p < 3L) {
+    return(0L)
+  }
+  ks <- seq_len(p - 1L)
+  ok <- ks[.factor_model_df(p, ks) >= 0]
+  if (length(ok) == 0L) 0L else max(ok)
+}
