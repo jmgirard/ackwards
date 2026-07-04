@@ -805,6 +805,15 @@ ackwards <- function(
     }
   } # end BRANCH B
 
+  # --- Factorability screen (M52, Invariant 6) --------------------------------
+  # Advisory-only: warns (never aborts, never alters the fit) when k_max exceeds
+  # the Ledermann identification bound (EFA/ESEM) or when sampling adequacy is
+  # poor (KMO < 0.5, N:p < 5). Compares against the *requested* k_max -- the
+  # design error to flag -- regardless of any convergence truncation below.
+  # n_obs_eff is NA for PCA correlation-matrix input; the screen skips the
+  # N-based checks accordingly. Run factorability() for the full report.
+  .factorability_screen(R, n_obs = n_obs_eff, p = p, k_max = k_max, engine = engine)
+
   # --- Handle convergence truncation (PCA never truncates; EFA/ESEM may) -----
   k_eff <- length(levels_list)
   if (k_eff < 2L) {

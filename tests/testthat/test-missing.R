@@ -587,9 +587,19 @@ test_that("numeric n_obs with raw-data FIML warns and defaults to total", {
   # The advisory uses .frequency = "once"; force it to fire even if an earlier
   # test in the suite already triggered the same frequency id.
   rlang::local_options(rlib_warning_verbosity = "verbose")
+  # Verbose mode overrides .frequency = "once", so the global factorability
+  # screen (M52) also fires on this small fixture; muffle it so the assertion
+  # stays focused on the n_obs-ignored warning under test.
   expect_warning(
-    x <- suppressMessages(
-      ackwards(d, k_max = 3L, engine = "efa", missing = "fiml", n_obs = 999)
+    x <- withCallingHandlers(
+      suppressMessages(
+        ackwards(d, k_max = 3L, engine = "efa", missing = "fiml", n_obs = 999)
+      ),
+      warning = function(w) {
+        if (grepl("poorly suited to factor analysis", conditionMessage(w))) {
+          invokeRestart("muffleWarning")
+        }
+      }
     ),
     "ignored"
   )

@@ -94,3 +94,91 @@ test_that(".kmo_band() maps values to Kaiser bands", {
   expect_identical(band(0.45), "unacceptable")
   expect_identical(band(NA_real_), "uncomputable")
 })
+
+# --- Internal screen wired into ackwards() -----------------------------------
+
+test_that("ackwards() warns when k_max exceeds the Ledermann bound (EFA only, not PCA)", {
+  R <- cor(sim16) # p = 16, Ledermann bound = 10
+
+  rlang::reset_warning_verbosity("ackwards_ledermann")
+  w <- suppressMessages(testthat::capture_warnings(
+    ackwards(R, k_max = 13L, engine = "efa", n_obs = 1000L)
+  ))
+  expect_true(any(grepl("Ledermann bound", w)))
+  expect_true(any(grepl("at most 10 common factor", w)))
+
+  # PCA at the same k_max: components have no identification limit -> no warning
+  rlang::reset_warning_verbosity("ackwards_ledermann")
+  w_pca <- suppressMessages(testthat::capture_warnings(
+    ackwards(R, k_max = 13L, engine = "pca", n_obs = 1000L)
+  ))
+  expect_false(any(grepl("Ledermann", w_pca)))
+})
+
+test_that("ackwards() does not warn about Ledermann when k_max is within the bound", {
+  R <- cor(sim16)
+  rlang::reset_warning_verbosity("ackwards_ledermann")
+  w <- suppressMessages(testthat::capture_warnings(
+    ackwards(R, k_max = 5L, engine = "efa", n_obs = 1000L)
+  ))
+  expect_false(any(grepl("Ledermann", w)))
+})
+
+test_that("ackwards() emits a consolidated adequacy warning below thresholds, silent when adequate", {
+  set.seed(42)
+  d <- as.data.frame(matrix(stats::rnorm(40 * 10), 40, 10)) # N:p = 4, N < 100
+  names(d) <- paste0("v", seq_len(10))
+
+  rlang::reset_warning_verbosity("ackwards_factorability")
+  w <- suppressMessages(testthat::capture_warnings(
+    ackwards(d, k_max = 3L, engine = "pca")
+  ))
+  expect_true(any(grepl("poorly suited to factor analysis", w)))
+  expect_true(any(grepl("N:p", w)))
+
+  # Well-powered, well-structured data: no adequacy warning
+  rlang::reset_warning_verbosity("ackwards_factorability")
+  w_ok <- suppressMessages(testthat::capture_warnings(
+    ackwards(sim16, k_max = 4L, engine = "pca")
+  ))
+  expect_false(any(grepl("poorly suited", w_ok)))
+})
+
+test_that("the internal screen skips N-based checks for a correlation matrix without n_obs", {
+  R <- cor(sim16)
+  rlang::reset_warning_verbosity("ackwards_factorability")
+  # PCA cor-matrix input, no n_obs -> n_obs_eff is NA; N:p / Bartlett skipped,
+  # no error from the screen.
+  expect_no_error(suppressMessages(ackwards(R, k_max = 3L, engine = "pca")))
+})
+
+# --- Coverage of input variants and print branches ---------------------------
+
+test_that("factorability() accepts a raw numeric matrix and rejects bad input", {
+  expect_s3_class(factorability(as.matrix(sim16)), "factorability")
+  expect_error(factorability("not data"), "data frame or numeric matrix")
+  d <- sim16
+  d$chr <- "a" # character column -> non-numeric matrix
+  expect_error(factorability(d), "only numeric columns")
+})
+
+test_that("factorability() computes on the polychoric basis", {
+  skip_if_not_installed("psych")
+  f <- factorability(bfi25[, 1:6], cor = "polychoric")
+  expect_identical(f$cor, "polychoric")
+  expect_false(is.na(f$kmo_overall))
+  # matches a direct polychoric KMO
+  R <- suppressWarnings(psych::polychoric(bfi25[, 1:6])$rho)
+  expect_equal(f$kmo_overall, unname(psych::KMO(R)$MSA))
+})
+
+test_that("print.factorability() shows low-MSA items and a non-significant Bartlett", {
+  set.seed(7)
+  R <- cor(matrix(stats::rnorm(45 * 6), 45, 6)) # weak, small N
+  colnames(R) <- rownames(R) <- paste0("v", 1:6)
+  f <- factorability(R, n_obs = 45)
+  # collapse to one string: cli may wrap a phrase across output lines
+  txt <- paste(cli::ansi_strip(capture.output(print(f), type = "message")), collapse = " ")
+  expect_match(txt, "MSA < .50", fixed = TRUE)
+  expect_match(txt, "NOT significant", fixed = TRUE)
+})

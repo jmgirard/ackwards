@@ -126,13 +126,13 @@ factorability <- function(data, cor = c("pearson", "spearman", "polychoric"),
   if (cor == "polychoric") {
     poly <- tryCatch(
       suppressWarnings(psych::polychoric(data_mat)),
-      error = function(e) {
+      error = function(e) { # nocov start
         cli::cli_abort(c(
           "!" = "{.fn psych::polychoric} failed: {conditionMessage(e)}",
           "i" = "Screen the items with {.fn check_items}; a sparse or \\
                  near-constant category is the usual cause."
         ))
-      }
+      } # nocov end
     )
     return(poly$rho)
   }
@@ -145,10 +145,16 @@ factorability <- function(data, cor = c("pearson", "spearman", "polychoric"),
 # solve() fails, in which case MSA is reported as NA rather than aborting.
 .compute_factorability <- function(R, n_obs) {
   p <- nrow(R)
-  kmo <- tryCatch(psych::KMO(R), error = function(e) NULL)
+  # psych::KMO handles a singular R internally (it reports MSA anyway); the NULL
+  # branch is purely defensive. Suppress its own notes -- factorability() and
+  # the near-singular check own the messaging.
+  kmo <- tryCatch(
+    suppressWarnings(suppressMessages(psych::KMO(R))),
+    error = function(e) NULL
+  )
   if (is.null(kmo)) {
-    kmo_overall <- NA_real_
-    msai <- stats::setNames(rep(NA_real_, p), rownames(R))
+    kmo_overall <- NA_real_ # nocov
+    msai <- stats::setNames(rep(NA_real_, p), rownames(R)) # nocov
   } else {
     kmo_overall <- unname(kmo$MSA)
     msai <- kmo$MSAi
@@ -161,7 +167,7 @@ factorability <- function(data, cor = c("pearson", "spearman", "polychoric"),
   )
 
   bartlett <- if (!is.na(n_obs)) {
-    bt <- psych::cortest.bartlett(R, n = n_obs)
+    bt <- suppressWarnings(psych::cortest.bartlett(R, n = n_obs))
     list(chisq = unname(bt$chisq), df = unname(bt$df), p_value = unname(bt$p.value))
   } else {
     NULL
@@ -297,9 +303,9 @@ print.factorability <- function(x, ...) {
 
   cli::cli_h2("Sampling adequacy")
   if (is.na(x$kmo_overall)) {
-    cli::cli_text(cli::col_yellow(
+    cli::cli_text(cli::col_yellow( # nocov start
       "! KMO could not be computed (correlation matrix near-singular)."
-    ))
+    )) # nocov end
   } else {
     band <- .kmo_band(x$kmo_overall)
     cli::cli_text(

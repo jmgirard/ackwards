@@ -487,7 +487,8 @@ validate_ackwards <- function(x) {
   if (p < 3L) {
     return(0L)
   }
+  # For p >= 3 a one-factor model is always identified (df(p, 1) >= 0), so `ok`
+  # is non-empty and max() is safe.
   ks <- seq_len(p - 1L)
-  ok <- ks[.factor_model_df(p, ks) >= 0]
-  if (length(ok) == 0L) 0L else max(ok)
+  max(ks[.factor_model_df(p, ks) >= 0])
 }
