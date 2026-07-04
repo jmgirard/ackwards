@@ -2790,3 +2790,35 @@ if the change is user-visible.
   degenerate/dead-code cases), so no `NEWS.md` entry. Files:
   `R/{ackwards,boot_edges,comparability, compute_edges,engine_efa,layout,prune}.R`,
   `man/compute_edges.Rd`, four test files.
+
+- **2026-07-04 — M52 post-milestone review follow-up** (three findings
+  from the M52 audit; all in `R/factorability.R` +
+  `tests/testthat/test-factorability.R`). **Should-fix (output
+  hygiene):** the internal `.factorability_screen()` computed KMO with a
+  bare `psych::KMO(R)`, leaking psych’s “matrix is not invertible”
+  *message* on a near-singular R (on top of
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)’s
+  own near-singular warning). Now routes through the shared
+  `.compute_factorability()`, inheriting its
+  `suppressWarnings`/`suppressMessages` wrap and NA-safe `tryCatch` —
+  one KMO code path, no duplication. (psych’s internal
+  [`try()`](https://rdrr.io/r/base/try.html) still prints the Lapack
+  singularity line to stderr; that is inside psych and not suppressible
+  without capturing a third-party call’s stderr, which is out of
+  proportion for a genuine-singularity edge case.) **Nice-to-have
+  (drift):** the `print.factorability` low-MSA flag used a literal
+  `0.50`; it now reads `.factorability_thresholds()$kmo_warn`, so the
+  printout and the screen share one constant. **Nice-to-have
+  (coverage):** added an ESEM Ledermann-warning test (the “EFA/ESEM”
+  contract was only asserted for EFA) and a polychoric-basis
+  internal-screen test, plus a regression that the screen does not leak
+  the near-singular message. **Declined finding (ordering):** running
+  the screen *before* the engine dispatch was rejected — for ESEM the
+  correlation matrix `R` is the lavaan latent matrix produced *by* the
+  fit, so the adequacy screen cannot precede it; splitting only the
+  Ledermann half across two call sites was not worth the duplication for
+  a UX-only gain. No user-facing behavior change (KMO/Ledermann/adequacy
+  outputs unchanged), so no `NEWS.md` entry. Suite **2058 pass / 0 fail
+  / 0 skip**; coverage **100%**; `R CMD check` **0/0/0**;
+  styler/lintr/[`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
+  clean.
