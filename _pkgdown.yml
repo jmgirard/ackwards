@@ -52,6 +52,8 @@ reference:
   - boot_edges
   - check_items
   - print.check_items
+  - factorability
+  - print.factorability
   - suggest_k
   - print.suggest_k
   - autoplot.suggest_k
