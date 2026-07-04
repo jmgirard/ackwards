@@ -246,7 +246,12 @@ matrix of partial correlations. *Psychometrika*, 41, 321–327.
 
 ## See also
 
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md);
+[`factorability()`](https://jmgirard.github.io/ackwards/reference/factorability.md),
+[`check_items()`](https://jmgirard.github.io/ackwards/reference/check_items.md),
+and
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md),
+the other pre-analysis diagnostics.
 
 ## Examples
 
@@ -254,14 +259,14 @@ matrix of partial correlations. *Psychometrika*, 41, 321–327.
 # \donttest{
 sk <- suggest_k(bfi25)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [288ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [166ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [130ms]
+#> ✔ Running MAP and VSS... [82ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [14.1s]
+#> ✔ Running Comparison Data (CD)... [8.6s]
 #> 
 sk
 #> 
@@ -302,7 +307,7 @@ autoplot(sk)
 # Run only MAP (fast; skips parallel analysis and CD)
 suggest_k(bfi25, criteria = "map")
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [76ms]
+#> ✔ Running MAP and VSS... [45ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -335,7 +340,7 @@ suggest_k(bfi25, criteria = "map")
 # Run only the parallel-analysis criteria
 suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [123ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [62ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -369,14 +374,14 @@ suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 # Faster exploratory run
 suggest_k(bfi25, k_max = 6, n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [100ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [65ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [106ms]
+#> ✔ Running MAP and VSS... [55ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.2s]
+#> ✔ Running Comparison Data (CD)... [6s]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -392,11 +397,11 @@ suggest_k(bfi25, k_max = 6, n_iter = 5)
 #> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288 CD ✔
 #> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6198* VSS-2 0.7781 CD ✔
 #> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5730 VSS-2 0.7912* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530 CD ✔*
+#> k = 6: PA-PC ✔ PA-FA ✔ MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530 CD ✔*
 #> 
 #> ── Recommendations ──
 #> 
-#> • PA-PC: k <= 5
+#> • PA-PC: k <= 6
 #> • PA-FA: k <= 6
 #> • MAP: k = 5
 #> • VSS-1: k = 4
@@ -415,10 +420,10 @@ suggest_k(R, n_obs = 875L)
 #> ℹ CD is skipped when a correlation matrix is supplied (CD requires raw item
 #>   distributions for resampling).
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [266ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [150ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [99ms]
+#> ✔ Running MAP and VSS... [60ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────

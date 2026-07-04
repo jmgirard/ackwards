@@ -52,7 +52,8 @@ the full per-item table.
 
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 and its `correct` argument (the polychoric failure this screens for);
-[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+[`factorability()`](https://jmgirard.github.io/ackwards/reference/factorability.md),
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md),
 and
 [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md),
 the other pre-analysis diagnostics.

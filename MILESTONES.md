@@ -2678,6 +2678,87 @@ User-facing change notes live in `NEWS.md`.
       coverage **100%**; `R CMD check` **0/0/0**; styler/lintr/pkgdown
       clean.
 
+- **M52 (done):** factorability & data-adequacy diagnostics (code;
+  owner-approved 2026-07-04) — 0.2.0 development cycle; DESCRIPTION
+  stays at `0.1.0.9000`. Adds the pre-fit “is this matrix worth
+  factoring, and is N large enough” layer that
+  [`check_items()`](https://jmgirard.github.io/ackwards/reference/check_items.md)
+  (item-level, M49) and
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  (depth) did not cover. Resolves DESIGN §14 item 46. **No new
+  dependency** (`psych` already supplies `KMO()`/`cortest.bartlett()`;
+  the Ledermann bound is base arithmetic) and **no signature or default
+  change** to
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+  One new export.
+
+  1.  **Ledermann helpers (`R/utils.R`).** `.factor_model_df(p, k)` =
+      `((p-k)^2 - (p+k))/2` (common- factor model df) and
+      `.ledermann_bound(p)` (largest k with df ≥ 0; 0 for p \< 3). Base
+      arithmetic, shared by the export and the internal screen. Exact
+      hand-checks: p=6→3, p=16→10, p=25→18.
+  2.  **[`factorability()`](https://jmgirard.github.io/ackwards/reference/factorability.md)
+      (`R/factorability.R`, new export).** Accepts raw data **or** a
+      correlation matrix (`.is_cor_matrix` autodetect); computes R on
+      the chosen `cor` basis (`pearson`/`spearman` via
+      [`stats::cor`](https://rdrr.io/r/stats/cor.html), `polychoric` via
+      `psych`) and reports KMO overall + per-item MSA, Bartlett’s
+      sphericity, N / p / N:p, and the Ledermann bound. N-based rows are
+      `NA` when a matrix arrives without `n_obs`; a supplied `n_obs` is
+      ignored (with a warning) for raw data. Errors early on a constant
+      item (reusing `.screen_items`). Shared core
+      `.compute_factorability()`; `print.factorability` renders banded
+      output.
+  3.  **Honesty stance (extends item 24).** Reports values and their
+      **conventional bands** (Kaiser KMO labels via `.kmo_band()`, the
+      5:1/10:1 N:p rules, Bartlett at .05), each framed in the printout
+      and roxygen as a *contested rule of thumb, not a settled
+      threshold* (required N depends on communalities/overdetermination
+      — MacCallum et al. 1999). **No pass/fail column is returned** —
+      the same principle that removed the Hu–Bentler fit flags in
+      M32/item 24.
+  4.  **Internal
+      [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+      screen — engine-split, advisory-only (Invariant 6/7).**
+      `.factorability_screen()` runs on every fit (one call site after
+      both input branches converge) and emits at most two
+      `.frequency = "once"` warnings, never aborting and never altering
+      the fit: (a) a **Ledermann** under-identification warning naming
+      the first over-bound level, fired **only for EFA/ESEM** — PCA is
+      exempt (components are exact linear combinations, no latent-model
+      df constraint; the existing `k_max ≤ p` ceiling suffices); and (b)
+      a single **consolidated sampling-adequacy** warning when KMO \<
+      0.5, N:p \< 5, or N \< 100, pointing to
+      [`factorability()`](https://jmgirard.github.io/ackwards/reference/factorability.md).
+      The Ledermann check compares against the *requested* `k_max` and
+      warns-and-builds (a truncated level warns separately; the two are
+      complementary). Thresholds live in one place
+      (`.factorability_thresholds()`) so the print bands and the screen
+      never drift. Docs: `_pkgdown.yml` reference (“Fit the model”
+      group) lists both new topics; NEWS development section; ordinal
+      vignette’s practical-guidance section gains a
+      [`factorability()`](https://jmgirard.github.io/ackwards/reference/factorability.md)
+      paragraph;
+      [`factorability()`](https://jmgirard.github.io/ackwards/reference/factorability.md)
+      cross-linked into the `@seealso` of
+      [`check_items()`](https://jmgirard.github.io/ackwards/reference/check_items.md),
+      [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md),
+      and
+      [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md);
+      DESIGN §14 item 46. New tests (`test-factorability.R`, 15 tests:
+      shape, psych-oracle KMO/Bartlett, matrix-without-N skip, basis
+      honouring, constant-item + ignored-`n_obs`
+
+  - validation errors, print branches, polychoric basis, `.kmo_band`,
+    and the four ackwards()-screen behaviours — Ledermann EFA-vs-PCA,
+    within-bound silence, adequacy fires/silent, matrix-no-N no-crash);
+    `.factor_model_df`/`.ledermann_bound` tests in `test-utils.R`; one
+    verbose-mode FIML test in `test-missing.R` muffles the now-global
+    adequacy warning. Suite **2054 pass / 0 fail / 0 skip**; coverage
+    **100%**; `R CMD check` **0/0/0**;
+    styler/lintr/[`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
+    clean.
+
 ## Between-milestone changes (not milestone-numbered)
 
 Merged PRs that touch `R/`/`tests/`/`DESCRIPTION`/vignettes but are

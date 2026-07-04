@@ -168,6 +168,8 @@ differences: An extension of Goldberg's bass-ackward method.
 
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
 for the plausible depth *range* (eigenstructure),
+[`factorability()`](https://jmgirard.github.io/ackwards/reference/factorability.md)
+for sampling adequacy before you fit,
 [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) for
 factors that perpetuate without differentiating (redundancy), and
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
@@ -181,7 +183,7 @@ cmp <- comparability(bfi25, k_max = 5, n_splits = 5, seed = 1)
 #> Warning: ! 125 rows have missing values; correlations are computed pairwise.
 #> ℹ Use `missing = "listwise"` for consistent complete-case analysis.
 #> ℹ Fitting 5 split-half replicates (pca, k = 1-5)...
-#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [742ms]
+#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [384ms]
 #> 
 cmp
 #> 

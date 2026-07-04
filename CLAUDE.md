@@ -154,6 +154,10 @@ as part of the definition of done, and only a one-liner here.
 - **M51** — Factor-label pipeline
   ([`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md)/[`factor_labels()`](https://jmgirard.github.io/ackwards/reference/factor_labels.md);
   `meta$factor_labels`)
+- **M52** — Factorability diagnostics
+  ([`factorability()`](https://jmgirard.github.io/ackwards/reference/factorability.md) +
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  Ledermann/adequacy screen)
 
 ## Current focus
 
@@ -165,9 +169,9 @@ completes, /implement-milestone reduces this to the line below; when the
 next is planned, /plan-milestone fills it with that milestone’s number,
 phase, and blockers.
 
-- **In flight:** nothing. Last shipped: **M51** (factor-label pipeline;
-  0.2.0 cycle, DESCRIPTION at `0.1.0.9000`). Detail in `MILESTONES.md`;
-  user-facing notes in `NEWS.md`.
+- **In flight:** nothing. Last shipped: **M52** (factorability
+  diagnostics; 0.2.0 cycle, DESCRIPTION at `0.1.0.9000`). Detail in
+  `MILESTONES.md`; user-facing notes in `NEWS.md`.
 - **Next up:** nothing queued. Candidates and the pending owner
   release-tail are in `ROADMAP.md`; deferred design decisions are in
   DESIGN.md §14 and “Out of scope for now” below.

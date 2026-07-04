@@ -16,6 +16,10 @@ hierarchy depth on replicability.
   : Screen items for problems before factor analysis
 - [`print(`*`<check_items>`*`)`](https://jmgirard.github.io/ackwards/reference/print.check_items.md)
   : Print an item quality check
+- [`factorability()`](https://jmgirard.github.io/ackwards/reference/factorability.md)
+  : Screen a dataset for factorability and sampling adequacy
+- [`print(`*`<factorability>`*`)`](https://jmgirard.github.io/ackwards/reference/print.factorability.md)
+  : Print a factorability screen
 - [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
   : Suggest a maximum number of factors for bass-ackwards analysis
 - [`print(`*`<suggest_k>`*`)`](https://jmgirard.github.io/ackwards/reference/print.suggest_k.md)

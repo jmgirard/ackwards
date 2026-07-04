@@ -1416,6 +1416,18 @@ each warning maps to whether you should report the solution. When a
 matrix is near-singular, <code><a href="../reference/ackwards.html">ackwards()</a></code> says so once and
 records it on the object, so <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>/<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
 keep reminding you.</p>
+<p>[<code><a href="../reference/factorability.html">factorability()</a></code>][ackwards::factorability] is the
+companion screen for the correlation matrix as a whole: it reports the
+KMO measure of sampling adequacy (overall and per item), Bartlett’s test
+of sphericity, the <code>N:p</code> ratio, and the Ledermann bound on
+how many factors <code>p</code> items can identify. Call it on the same
+<code>cor</code> basis you plan to fit. Read its output as
+<em>conventions, not verdicts</em> — the KMO bands and <code>N:p</code>
+rules of thumb are contested — but a very low KMO or a handful of
+low-MSA items is a useful early signal. <code><a href="../reference/ackwards.html">ackwards()</a></code> runs a
+light version of this screen internally and warns only at the
+consequential extreme (KMO below .5, <code>N:p</code> below 5, or
+<code>k_max</code> past the Ledermann bound for EFA/ESEM).</p>
 <blockquote>
 <p><strong>A note on score computation.</strong> The short answer: yes,
 you can use the factor scores from an ordinal analysis in downstream
