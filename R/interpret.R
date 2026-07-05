@@ -46,10 +46,11 @@
 #' @examples
 #' # Fit the raw dataset (not na.omit(), which would drop the column
 #' # attributes): bfi25's IPIP item labels are then captured and printed as
-#' # `code: label`. `missing = "listwise"` handles the NAs cleanly.
-#' x <- ackwards(bfi25, k_max = 5, cor = "polychoric", missing = "listwise")
+#' # `code: label`. `missing = "listwise"` handles the NAs cleanly. A 10-item
+#' # subset keeps the example fast; use all items in practice.
+#' x <- ackwards(bfi25[, 1:10], k_max = 3, cor = "polychoric", missing = "listwise")
 #' top_items(x)
-#' top_items(x, level = 5, cut = 0.4, n = 5)
+#' top_items(x, level = 3, cut = 0.4, n = 5)
 #'
 #' # Invert the grouping to read cross-loadings item-by-item
 #' top_items(x, level = 3, cut = 0.25, by = "item")
