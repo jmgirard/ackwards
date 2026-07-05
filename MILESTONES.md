@@ -1744,3 +1744,18 @@ no-gaps check applies only to that list) while still giving every code change a 
   No user-facing behavior change (KMO/Ledermann/adequacy outputs unchanged), so no `NEWS.md` entry.
   Suite **2058 pass / 0 fail / 0 skip**; coverage **100%**; `R CMD check` **0/0/0**;
   styler/lintr/`pkgdown::check_pkgdown()` clean.
+
+- **2026-07-05 — CRAN-resubmission prep: example timing + version + NEWS** (win-builder R-devel
+  resubmission tail; no functional code change). Root cause of the win-builder *ERROR* was a
+  mismatched submission tarball (M49-era `R/`+`NAMESPACE` bundled with M51/M52 test files, so the
+  tests called `factorability()`/`set_factor_labels()`/`factor_labels()` that build did not
+  contain); the fix is to rebuild the tarball from a clean current tree — no source bug (HEAD tests
+  pass). Addressed the two real NOTEs that recur on slow CRAN hardware: the `ackwards` example now
+  fits the continuous `sim16` on the default pearson basis (was `bfi25` polychoric `k_max = 5`,
+  ~10.8s → ~0.35s), and the `top_items` example fits a fast 10-item / `k_max = 3` `bfi25`
+  polychoric subset that still carries the IPIP labels the example demonstrates (~12.0s → ~0.43s).
+  Set `DESCRIPTION` `Version` to `0.1.0` (0.1.0 was never accepted on CRAN; the `.9000` dev suffix
+  is dropped for the release tarball) and folded the "development version" NEWS section (M50–M52
+  features) into the single `# ackwards 0.1.0` release section. The "possibly misspelled words"
+  NOTE is already documented in `cran-comments.md` and needs no change. Files: `R/ackwards.R`,
+  `R/interpret.R`, `DESCRIPTION`, `NEWS.md`, regenerated `man/{ackwards,top_items}.Rd`.

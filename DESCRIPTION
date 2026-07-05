@@ -1,6 +1,6 @@
 Package: ackwards
 Title: Bass-Ackwards Hierarchical Structural Analysis
-Version: 0.1.0.9000
+Version: 0.1.0
 Authors@R:
     person("Jeffrey M.", "Girard", , "me@jmgirard.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-7359-3746"))

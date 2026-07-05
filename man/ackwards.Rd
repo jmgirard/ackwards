@@ -275,15 +275,18 @@ category, and the ordinal-detection warning when you did intend Pearson.
 }
 
 \examples{
-# bfi25 items are ordinal, so fit on the polychoric basis (best practice).
-x <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric")
+# sim16 is continuous with a known 1 -> 2 -> 4 hierarchy, so the default
+# pearson basis is appropriate. For ordinal items (e.g. bfi25), fit on the
+# polychoric basis instead -- see `cor = "polychoric"` and the ordinal
+# vignette.
+x <- ackwards(sim16, k_max = 4)
 print(x)
 tidy(x)
 glance(x)
 
 # Correlation-matrix input (PCA engine; n_obs optional)
-R <- cor(bfi25, use = "pairwise.complete.obs")
-x_R <- ackwards(R, k_max = 5)
+R <- cor(sim16)
+x_R <- ackwards(R, k_max = 4)
 print(x_R)
 
 }
