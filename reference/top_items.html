@@ -13,7 +13,7 @@ matrix, which does not scale well to large k or many items.'></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ackwards</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -154,8 +154,9 @@ under <code>by = "factor"</code> and the body entries under <code>by = "item"</c
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Fit the raw dataset (not na.omit(), which would drop the column</span></span></span>
 <span class="r-in"><span><span class="co"># attributes): bfi25's IPIP item labels are then captured and printed as</span></span></span>
-<span class="r-in"><span><span class="co"># `code: label`. `missing = "listwise"` handles the NAs cleanly.</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi25</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, missing <span class="op">=</span> <span class="st">"listwise"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># `code: label`. `missing = "listwise"` handles the NAs cleanly. A 10-item</span></span></span>
+<span class="r-in"><span><span class="co"># subset keeps the example fast; use all items in practice.</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>, k_max <span class="op">=</span> <span class="fl">3</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span>, missing <span class="op">=</span> <span class="st">"listwise"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">top_items</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient items by factor (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span>
@@ -166,230 +167,79 @@ under <code>by = "factor"</code> and the body entries under <code>by = "item"</c
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Level 1 (1 factor)</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m1f1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A5: Make people feel at ease [0.685]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E2: Find it difficult to approach others [-0.656]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A3: Know how to comfort others [0.651]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E4: Make friends easily [0.607]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A2: Inquire about others' well-being [0.598]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E5: Take charge [0.598]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.590]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E3: Know how to captivate people [0.582]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C4: Do things in a half-way manner [-0.546]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N4: Often feel blue [-0.489]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A4: Love children [0.484]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E1: Don't talk a lot [-0.460]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O3: Carry the conversation to a higher level [0.457]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C1: Am exacting in my work [0.450]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N1: Get angry easily [-0.444]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C2: Continue until everything is perfect [0.443]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C3: Do things according to a plan [0.411]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O1: Am full of ideas [0.391]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N2: Get irritated easily [-0.366]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N3: Have frequent mood swings [-0.364]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A1: Am indifferent to the feelings of others [-0.344]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N5: Panic easily [-0.319]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A3: Know how to comfort others [0.683]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C4: Do things in a half-way manner [-0.652]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A2: Inquire about others' well-being [0.648]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A5: Make people feel at ease [0.634]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.628]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C2: Continue until everything is perfect [0.614]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A4: Love children [0.593]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C3: Do things according to a plan [0.572]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C1: Am exacting in my work [0.554]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A1: Am indifferent to the feelings of others [-0.407]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Level 2 (2 factors)</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m2f1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A3: Know how to comfort others [0.730]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A5: Make people feel at ease [0.694]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E3: Know how to captivate people [0.684]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A2: Inquire about others' well-being [0.661]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E4: Make friends easily [0.638]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E5: Take charge [0.630]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E2: Find it difficult to approach others [-0.614]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O3: Carry the conversation to a higher level [0.565]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E1: Don't talk a lot [-0.525]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A4: Love children [0.471]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C2: Continue until everything is perfect [0.468]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O1: Am full of ideas [0.467]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C1: Am exacting in my work [0.421]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.411]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C4: Do things in a half-way manner [-0.389]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C3: Do things according to a plan [0.365]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A1: Am indifferent to the feelings of others [-0.335]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C4: Do things in a half-way manner [-0.773]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C2: Continue until everything is perfect [0.738]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C1: Am exacting in my work [0.734]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.699]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C3: Do things according to a plan [0.657]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m2f2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N3: Have frequent mood swings [-0.806]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N1: Get angry easily [-0.790]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N2: Get irritated easily [-0.789]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N4: Often feel blue [-0.677]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N5: Panic easily [-0.659]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.491]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C4: Do things in a half-way manner [-0.438]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O4: Spend time reflecting on things [-0.358]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A3: Know how to comfort others [0.846]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A2: Inquire about others' well-being [0.786]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A5: Make people feel at ease [0.737]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A1: Am indifferent to the feelings of others [-0.626]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A4: Love children [0.567]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Level 3 (3 factors)</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m3f1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E4: Make friends easily [0.784]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A3: Know how to comfort others [0.750]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A5: Make people feel at ease [0.735]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E2: Find it difficult to approach others [-0.698]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E3: Know how to captivate people [0.664]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A2: Inquire about others' well-being [0.650]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E1: Don't talk a lot [-0.611]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E5: Take charge [0.507]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A4: Love children [0.490]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O3: Carry the conversation to a higher level [0.355]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A1: Am indifferent to the feelings of others [-0.354]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C4: Do things in a half-way manner [-0.801]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C1: Am exacting in my work [0.740]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.711]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C2: Continue until everything is perfect [0.701]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C3: Do things according to a plan [0.636]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m3f2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N3: Have frequent mood swings [-0.812]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N2: Get irritated easily [-0.791]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N1: Get angry easily [-0.777]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N4: Often feel blue [-0.680]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N5: Panic easily [-0.650]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.428]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O4: Spend time reflecting on things [-0.414]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C4: Do things in a half-way manner [-0.348]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A3: Know how to comfort others [0.812]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A5: Make people feel at ease [0.762]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A4: Love children [0.728]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A2: Inquire about others' well-being [0.644]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m3f3</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C1: Am exacting in my work [0.658]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C2: Continue until everything is perfect [0.642]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C4: Do things in a half-way manner [-0.609]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O5: Will not probe deeply into a subject [-0.553]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O2: Avoid difficult reading material [-0.520]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O3: Carry the conversation to a higher level [0.504]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O1: Am full of ideas [0.493]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C3: Do things according to a plan [0.476]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.453]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E5: Take charge [0.392]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O4: Spend time reflecting on things [0.319]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Level 4 (4 factors)</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m4f1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E4: Make friends easily [0.783]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A3: Know how to comfort others [0.732]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A5: Make people feel at ease [0.725]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E2: Find it difficult to approach others [-0.709]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E3: Know how to captivate people [0.681]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E1: Don't talk a lot [-0.633]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A2: Inquire about others' well-being [0.626]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E5: Take charge [0.485]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A4: Love children [0.442]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O3: Carry the conversation to a higher level [0.384]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A1: Am indifferent to the feelings of others [-0.354]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m4f2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N3: Have frequent mood swings [-0.824]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N1: Get angry easily [-0.798]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N2: Get irritated easily [-0.793]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N5: Panic easily [-0.700]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N4: Often feel blue [-0.659]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.357]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O4: Spend time reflecting on things [-0.332]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m4f3</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C2: Continue until everything is perfect [0.735]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C4: Do things in a half-way manner [-0.714]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C3: Do things according to a plan [0.688]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C1: Am exacting in my work [0.680]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.626]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A4: Love children [0.397]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E5: Take charge [0.372]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m4f4</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O5: Will not probe deeply into a subject [-0.704]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O3: Carry the conversation to a higher level [0.674]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O1: Am full of ideas [0.621]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O2: Avoid difficult reading material [-0.586]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O4: Spend time reflecting on things [0.499]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E3: Know how to captivate people [0.301]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Level 5 (5 factors)</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E2: Find it difficult to approach others [-0.752]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E4: Make friends easily [0.747]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E1: Don't talk a lot [-0.701]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E3: Know how to captivate people [0.677]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E5: Take charge [0.597]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A5: Make people feel at ease [0.487]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A3: Know how to comfort others [0.415]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O3: Carry the conversation to a higher level [0.394]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N4: Often feel blue [-0.314]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O1: Am full of ideas [0.302]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N3: Have frequent mood swings [-0.825]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N1: Get angry easily [-0.810]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N2: Get irritated easily [-0.805]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N5: Panic easily [-0.688]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N4: Often feel blue [-0.646]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.344]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O4: Spend time reflecting on things [-0.317]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f3</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C2: Continue until everything is perfect [0.735]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C4: Do things in a half-way manner [-0.716]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C1: Am exacting in my work [0.690]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C3: Do things according to a plan [0.679]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.652]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E5: Take charge [0.448]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A4: Love children [0.345]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f4</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A1: Am indifferent to the feelings of others [-0.704]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A3: Know how to comfort others [0.703]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A2: Inquire about others' well-being [0.692]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A5: Make people feel at ease [0.580]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A4: Love children [0.522]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f5</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O5: Will not probe deeply into a subject [-0.705]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O3: Carry the conversation to a higher level [0.655]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O1: Am full of ideas [0.604]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O2: Avoid difficult reading material [-0.595]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O4: Spend time reflecting on things [0.551]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A1: Am indifferent to the feelings of others [-0.876]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A2: Inquire about others' well-being [0.464]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">for the full matrix.</span></span>
-<span class="r-in"><span><span class="fu">top_items</span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">5</span>, cut <span class="op">=</span> <span class="fl">0.4</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">top_items</span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">3</span>, cut <span class="op">=</span> <span class="fl">0.4</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient items by factor (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Engine: <span style="font-weight: bold;">pca</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Cut: |loading| &gt;= 0.4</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Top-n: 5</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Level 5 (5 factors)</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Level 3 (3 factors)</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f1</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E2: Find it difficult to approach others [-0.752]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E4: Make friends easily [0.747]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E1: Don't talk a lot [-0.701]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E3: Know how to captivate people [0.677]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> E5: Take charge [0.597]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m3f1</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C4: Do things in a half-way manner [-0.801]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C1: Am exacting in my work [0.740]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.711]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C2: Continue until everything is perfect [0.701]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> C3: Do things according to a plan [0.636]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f2</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N3: Have frequent mood swings [-0.825]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N1: Get angry easily [-0.810]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N2: Get irritated easily [-0.805]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N5: Panic easily [-0.688]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> N4: Often feel blue [-0.646]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m3f2</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A3: Know how to comfort others [0.812]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A5: Make people feel at ease [0.762]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A4: Love children [0.728]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A2: Inquire about others' well-being [0.644]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f3</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C2: Continue until everything is perfect [0.735]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C4: Do things in a half-way manner [-0.716]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C1: Am exacting in my work [0.690]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C3: Do things according to a plan [0.679]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> C5: Waste my time [-0.652]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f4</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A1: Am indifferent to the feelings of others [-0.704]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A3: Know how to comfort others [0.703]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A2: Inquire about others' well-being [0.692]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A5: Make people feel at ease [0.580]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A4: Love children [0.522]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m5f5</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O5: Will not probe deeply into a subject [-0.705]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O3: Carry the conversation to a higher level [0.655]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O1: Am full of ideas [0.604]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O2: Avoid difficult reading material [-0.595]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> O4: Spend time reflecting on things [0.551]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">m3f3</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A1: Am indifferent to the feelings of others [-0.876]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A2: Inquire about others' well-being [0.464]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">for the full matrix.</span></span>
@@ -405,86 +255,37 @@ under <code>by = "factor"</code> and the body entries under <code>by = "item"</c
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Level 3 (3 factors)</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">A1: Am indifferent to the feelings of others</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [-0.354]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [-0.876]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">A2: Inquire about others' well-being</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.650]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [0.644]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.464]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">A3: Know how to comfort others</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.750]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [0.812]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.287]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">A4: Love children</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.490]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [0.728]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">A5: Make people feel at ease</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.735]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [0.762]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">C1: Am exacting in my work</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.658]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.740]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">C2: Continue until everything is perfect</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.642]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.701]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [0.269]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">C3: Do things according to a plan</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.476]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.636]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">C4: Do things in a half-way manner</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [-0.609]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.348]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [-0.801]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">C5: Waste my time</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [-0.453]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.428]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [-0.252]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">E1: Don't talk a lot</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [-0.611]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">E2: Find it difficult to approach others</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [-0.698]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">E3: Know how to captivate people</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.664]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">E4: Make friends easily</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.784]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">E5: Take charge</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.507]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.392]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">N1: Get angry easily</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.777]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">N2: Get irritated easily</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.791]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">N3: Have frequent mood swings</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.812]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">N4: Often feel blue</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.680]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">N5: Panic easily</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.650]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">O1: Am full of ideas</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.493]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.253]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">O2: Avoid difficult reading material</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [-0.520]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">O3: Carry the conversation to a higher level</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.504]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [0.355]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">O4: Spend time reflecting on things</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f2 [-0.414]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [0.319]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">O5: Will not probe deeply into a subject</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f3 [-0.553]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> m3f1 [-0.711]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">for the full matrix.</span></span>

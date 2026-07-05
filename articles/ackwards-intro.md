@@ -80,10 +80,10 @@ sk <- suggest_k(bfi, seed = 42)
 #> ✔ Running parallel analysis (20 iterations, PC + FA)... [293ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [149ms]
+#> ✔ Running MAP and VSS... [144ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.3s]
+#> ✔ Running Comparison Data (CD)... [9.8s]
 #> 
 print(sk)
 #> 

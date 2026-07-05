@@ -389,84 +389,66 @@ this function)
 ## Examples
 
 ``` r
-# bfi25 items are ordinal, so fit on the polychoric basis (best practice).
-x <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric")
+# sim16 is continuous with a known 1 -> 2 -> 4 hierarchy, so the default
+# pearson basis is appropriate. For ordinal items (e.g. bfi25), fit on the
+# polychoric basis instead -- see `cor = "polychoric"` and the ordinal
+# vignette.
+x <- ackwards(sim16, k_max = 4)
 print(x)
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
 #> Engine: pca
 #> Rotation: varimax
-#> Basis: polychoric
-#> n: 875
-#> k (max): 5
+#> Basis: pearson
+#> n: 1,000
+#> k (max): 4
 #> 
 #> ── Levels ──
 #> 
-#> ✔ k = 1: 1 factor, 23.2% variance
-#> ✔ k = 2: 2 factors, 35.5% variance
-#> ✔ k = 3: 3 factors, 44.6% variance
-#> ✔ k = 4: 4 factors, 52.2% variance
-#> ✔ k = 5: 5 factors, 58.4% variance
+#> ✔ k = 1: 1 factor, 28.2% variance
+#> ✔ k = 2: 2 factors, 46.5% variance
+#> ✔ k = 3: 3 factors, 57.5% variance
+#> ✔ k = 4: 4 factors, 67.7% variance
 #> 
 #> ── Edges ──
 #> 
-#> 14 of 40 edges have |r| ≥ 0.3
+#> 9 of 20 edges have |r| ≥ 0.3
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
 #> Cross-level edges are descriptive score correlations. Per-level fit indices
 #> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
 #> they do not validate the edges or the hierarchy itself.
 tidy(x)
-#>    from   to level_from level_to             r is_primary above_cut
-#> 1  m1f1 m2f1          1        2  0.8900521708       TRUE      TRUE
-#> 2  m1f1 m2f2          1        2  0.4558586768       TRUE      TRUE
-#> 3  m2f1 m3f1          2        3  0.8740850453       TRUE      TRUE
-#> 4  m2f1 m3f2          2        3 -0.0646978283      FALSE     FALSE
-#> 5  m2f1 m3f3          2        3  0.4814452458       TRUE      TRUE
-#> 6  m2f2 m3f1          2        3 -0.0138635401      FALSE     FALSE
-#> 7  m2f2 m3f2          2        3  0.9873650620       TRUE      TRUE
-#> 8  m2f2 m3f3          2        3  0.1578544789      FALSE     FALSE
-#> 9  m3f1 m4f1          3        4  0.9938370937       TRUE      TRUE
-#> 10 m3f1 m4f2          3        4 -0.0168557132      FALSE     FALSE
-#> 11 m3f1 m4f3          3        4  0.0964530838      FALSE     FALSE
-#> 12 m3f1 m4f4          3        4 -0.0519665152      FALSE     FALSE
-#> 13 m3f2 m4f1          3        4 -0.0049287592      FALSE     FALSE
-#> 14 m3f2 m4f2          3        4  0.9761484024       TRUE      TRUE
-#> 15 m3f2 m4f3          3        4  0.1262503087      FALSE     FALSE
-#> 16 m3f2 m4f4          3        4 -0.1765527214      FALSE     FALSE
-#> 17 m3f3 m4f1          3        4 -0.0349568041      FALSE     FALSE
-#> 18 m3f3 m4f2          3        4  0.0282315239      FALSE     FALSE
-#> 19 m3f3 m4f3          3        4  0.7316161994       TRUE      TRUE
-#> 20 m3f3 m4f4          3        4  0.6802343271       TRUE      TRUE
-#> 21 m4f1 m5f1          4        5  0.8377658864       TRUE      TRUE
-#> 22 m4f1 m5f2          4        5 -0.0008572469      FALSE     FALSE
-#> 23 m4f1 m5f3          4        5  0.0077169220      FALSE     FALSE
-#> 24 m4f1 m5f4          4        5  0.5458268610       TRUE      TRUE
-#> 25 m4f1 m5f5          4        5 -0.0126913973      FALSE     FALSE
-#> 26 m4f2 m5f1          4        5  0.0292407553      FALSE     FALSE
-#> 27 m4f2 m5f2          4        5  0.9984791486       TRUE      TRUE
-#> 28 m4f2 m5f3          4        5  0.0162997965      FALSE     FALSE
-#> 29 m4f2 m5f4          4        5 -0.0434058463      FALSE     FALSE
-#> 30 m4f2 m5f5          4        5  0.0058836365      FALSE     FALSE
-#> 31 m4f3 m5f1          4        5 -0.1077715994      FALSE     FALSE
-#> 32 m4f3 m5f2          4        5 -0.0063313607      FALSE     FALSE
-#> 33 m4f3 m5f3          4        5  0.9824894799       TRUE      TRUE
-#> 34 m4f3 m5f4          4        5  0.1516816583      FALSE     FALSE
-#> 35 m4f3 m5f5          4        5  0.0072313664      FALSE     FALSE
-#> 36 m4f4 m5f1          4        5  0.0882513737      FALSE     FALSE
-#> 37 m4f4 m5f2          4        5 -0.0136378896      FALSE     FALSE
-#> 38 m4f4 m5f3          4        5  0.0197169434      FALSE     FALSE
-#> 39 m4f4 m5f4          4        5 -0.1127480001      FALSE     FALSE
-#> 40 m4f4 m5f5          4        5  0.9894063036       TRUE      TRUE
+#>    from   to level_from level_to            r is_primary above_cut
+#> 1  m1f1 m2f1          1        2  0.707296113       TRUE      TRUE
+#> 2  m1f1 m2f2          1        2  0.706917399       TRUE      TRUE
+#> 3  m2f1 m3f1          2        3 -0.011342395      FALSE     FALSE
+#> 4  m2f1 m3f2          2        3  0.697092981       TRUE      TRUE
+#> 5  m2f1 m3f3          2        3  0.716891014       TRUE      TRUE
+#> 6  m2f2 m3f1          2        3  0.995593231       TRUE      TRUE
+#> 7  m2f2 m3f2          2        3  0.074615767      FALSE     FALSE
+#> 8  m2f2 m3f3          2        3 -0.056803218      FALSE     FALSE
+#> 9  m3f1 m4f1          3        4 -0.016458058      FALSE     FALSE
+#> 10 m3f1 m4f2          3        4 -0.004812835      FALSE     FALSE
+#> 11 m3f1 m4f3          3        4  0.663913488       TRUE      TRUE
+#> 12 m3f1 m4f4          3        4  0.747612767       TRUE      TRUE
+#> 13 m3f2 m4f1          3        4  0.940647736       TRUE      TRUE
+#> 14 m3f2 m4f2          3        4  0.031735215      FALSE     FALSE
+#> 15 m3f2 m4f3          3        4  0.262765620      FALSE     FALSE
+#> 16 m3f2 m4f4          3        4 -0.212435736      FALSE     FALSE
+#> 17 m3f3 m4f1          3        4  0.051257892      FALSE     FALSE
+#> 18 m3f3 m4f2          3        4  0.970778427       TRUE      TRUE
+#> 19 m3f3 m4f3          3        4 -0.171584098      FALSE     FALSE
+#> 20 m3f3 m4f4          3        4  0.159752219      FALSE     FALSE
 glance(x)
-#>   engine rotation        cor k_max n_obs deepest_converged n_edges CFI TLI
-#> 1    pca  varimax polychoric     5   875                 5      40  NA  NA
-#>   RMSEA SRMR BIC
-#> 1    NA   NA  NA
+#>   engine rotation     cor k_max n_obs deepest_converged n_edges CFI TLI RMSEA
+#> 1    pca  varimax pearson     4  1000                 4      20  NA  NA    NA
+#>   SRMR BIC
+#> 1   NA  NA
 
 # Correlation-matrix input (PCA engine; n_obs optional)
-R <- cor(bfi25, use = "pairwise.complete.obs")
-x_R <- ackwards(R, k_max = 5)
+R <- cor(sim16)
+x_R <- ackwards(R, k_max = 4)
 #> ℹ `n_obs` not supplied; stored as `NA`.
 #> ℹ Fit statistics requiring N (chi-square, RMSEA, TLI) are unavailable. Pass
 #>   `n_obs = <N>` to enable them.
@@ -477,19 +459,18 @@ print(x_R)
 #> Rotation: varimax
 #> Basis: (user-supplied matrix)
 #> n: NA
-#> k (max): 5
+#> k (max): 4
 #> 
 #> ── Levels ──
 #> 
-#> ✔ k = 1: 1 factor, 20.6% variance
-#> ✔ k = 2: 2 factors, 31.8% variance
-#> ✔ k = 3: 3 factors, 40.1% variance
-#> ✔ k = 4: 4 factors, 47.3% variance
-#> ✔ k = 5: 5 factors, 53.3% variance
+#> ✔ k = 1: 1 factor, 28.2% variance
+#> ✔ k = 2: 2 factors, 46.5% variance
+#> ✔ k = 3: 3 factors, 57.5% variance
+#> ✔ k = 4: 4 factors, 67.7% variance
 #> 
 #> ── Edges ──
 #> 
-#> 14 of 40 edges have |r| ≥ 0.3
+#> 9 of 20 edges have |r| ≥ 0.3
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: This is a series of linked solutions, not a fitted hierarchical model.
 #> Cross-level edges are descriptive score correlations. Per-level fit indices

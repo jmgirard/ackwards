@@ -13,7 +13,7 @@ not a fitted higher-order SEM.'></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ackwards</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -378,84 +378,66 @@ result of this function)</p></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># bfi25 items are ordinal, so fit on the polychoric basis (best practice).</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">ackwards</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># sim16 is continuous with a known 1 -&gt; 2 -&gt; 4 hierarchy, so the default</span></span></span>
+<span class="r-in"><span><span class="co"># pearson basis is appropriate. For ordinal items (e.g. bfi25), fit on the</span></span></span>
+<span class="r-in"><span><span class="co"># polychoric basis instead -- see `cor = "polychoric"` and the ordinal</span></span></span>
+<span class="r-in"><span><span class="co"># vignette.</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">ackwards</span><span class="op">(</span><span class="va">sim16</span>, k_max <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">───────────────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Engine: <span style="font-weight: bold;">pca</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rotation: varimax</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Basis: polychoric</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> n: 875</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k (max): 5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Basis: pearson</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> n: 1,000</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k (max): 4</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Levels</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 23.2% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 35.5% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 44.6% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 52.2% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 58.4% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 28.2% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 46.5% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 57.5% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 67.7% variance</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Edges</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 14 of 40 edges have |r| ≥ 0.3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 9 of 20 edges have |r| ≥ 0.3</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to             r is_primary above_cut</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  m1f1 m2f1          1        2  0.8900521708       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  m1f1 m2f2          1        2  0.4558586768       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m2f1 m3f1          2        3  0.8740850453       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  m2f1 m3f2          2        3 -0.0646978283      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  m2f1 m3f3          2        3  0.4814452458       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m2f2 m3f1          2        3 -0.0138635401      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  m2f2 m3f2          2        3  0.9873650620       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  m2f2 m3f3          2        3  0.1578544789      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  m3f1 m4f1          3        4  0.9938370937       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 m3f1 m4f2          3        4 -0.0168557132      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11 m3f1 m4f3          3        4  0.0964530838      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12 m3f1 m4f4          3        4 -0.0519665152      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13 m3f2 m4f1          3        4 -0.0049287592      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14 m3f2 m4f2          3        4  0.9761484024       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15 m3f2 m4f3          3        4  0.1262503087      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16 m3f2 m4f4          3        4 -0.1765527214      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17 m3f3 m4f1          3        4 -0.0349568041      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18 m3f3 m4f2          3        4  0.0282315239      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19 m3f3 m4f3          3        4  0.7316161994       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20 m3f3 m4f4          3        4  0.6802343271       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21 m4f1 m5f1          4        5  0.8377658864       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22 m4f1 m5f2          4        5 -0.0008572469      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23 m4f1 m5f3          4        5  0.0077169220      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24 m4f1 m5f4          4        5  0.5458268610       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25 m4f1 m5f5          4        5 -0.0126913973      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26 m4f2 m5f1          4        5  0.0292407553      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27 m4f2 m5f2          4        5  0.9984791486       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28 m4f2 m5f3          4        5  0.0162997965      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29 m4f2 m5f4          4        5 -0.0434058463      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30 m4f2 m5f5          4        5  0.0058836365      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31 m4f3 m5f1          4        5 -0.1077715994      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32 m4f3 m5f2          4        5 -0.0063313607      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33 m4f3 m5f3          4        5  0.9824894799       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34 m4f3 m5f4          4        5  0.1516816583      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35 m4f3 m5f5          4        5  0.0072313664      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 36 m4f4 m5f1          4        5  0.0882513737      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 37 m4f4 m5f2          4        5 -0.0136378896      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 38 m4f4 m5f3          4        5  0.0197169434      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 39 m4f4 m5f4          4        5 -0.1127480001      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 40 m4f4 m5f5          4        5  0.9894063036       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to            r is_primary above_cut</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  m1f1 m2f1          1        2  0.707296113       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  m1f1 m2f2          1        2  0.706917399       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m2f1 m3f1          2        3 -0.011342395      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  m2f1 m3f2          2        3  0.697092981       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  m2f1 m3f3          2        3  0.716891014       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m2f2 m3f1          2        3  0.995593231       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  m2f2 m3f2          2        3  0.074615767      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  m2f2 m3f3          2        3 -0.056803218      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  m3f1 m4f1          3        4 -0.016458058      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 m3f1 m4f2          3        4 -0.004812835      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 m3f1 m4f3          3        4  0.663913488       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 m3f1 m4f4          3        4  0.747612767       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 m3f2 m4f1          3        4  0.940647736       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 m3f2 m4f2          3        4  0.031735215      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 m3f2 m4f3          3        4  0.262765620      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 m3f2 m4f4          3        4 -0.212435736      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 m3f3 m4f1          3        4  0.051257892      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 m3f3 m4f2          3        4  0.970778427       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 m3f3 m4f3          3        4 -0.171584098      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 m3f3 m4f4          3        4  0.159752219      FALSE     FALSE</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   engine rotation        cor k_max n_obs deepest_converged n_edges CFI TLI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    pca  varimax polychoric     5   875                 5      40  NA  NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   RMSEA SRMR BIC</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    NA   NA  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   engine rotation     cor k_max n_obs deepest_converged n_edges CFI TLI RMSEA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    pca  varimax pearson     4  1000                 4      20  NA  NA    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SRMR BIC</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   NA  NA</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Correlation-matrix input (PCA engine; n_obs optional)</span></span></span>
-<span class="r-in"><span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">bfi25</span>, use <span class="op">=</span> <span class="st">"pairwise.complete.obs"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">x_R</span> <span class="op">&lt;-</span> <span class="fu">ackwards</span><span class="op">(</span><span class="va">R</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">sim16</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x_R</span> <span class="op">&lt;-</span> <span class="fu">ackwards</span><span class="op">(</span><span class="va">R</span>, k_max <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> `n_obs` not supplied; stored as `NA`.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit statistics requiring N (chi-square, RMSEA, TLI) are unavailable. Pass</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   `n_obs = &lt;N&gt;` to enable them.</span>
@@ -466,19 +448,18 @@ result of this function)</p></div>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rotation: varimax</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Basis: (user-supplied matrix)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> n: NA</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k (max): 5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k (max): 4</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Levels</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 20.6% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 31.8% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 40.1% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 47.3% variance</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 53.3% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 28.2% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 46.5% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 57.5% variance</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 67.7% variance</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Edges</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 14 of 40 edges have |r| ≥ 0.3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 9 of 20 edges have |r| ≥ 0.3</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>

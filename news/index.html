@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ackwards</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,11 +56,6 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="ackwards-development-version">ackwards (development version)<a class="anchor" aria-label="anchor" href="#ackwards-development-version"></a></h2>
-<ul><li><p><strong>Factorability diagnostics.</strong> New <code><a href="../reference/factorability.html">factorability()</a></code> screens a dataset (or a correlation matrix) before you fit: it reports the Kaiser-Meyer-Olkin measure of sampling adequacy (overall and per item), Bartlett’s test of sphericity, the sample size and <code>N:p</code> ratio, and the Ledermann bound on how many common factors <code>p</code> variables can identify. It reports the numbers and their conventional bands rather than a pass/fail flag — every cutoff here is a contested rule of thumb. <code><a href="../reference/ackwards.html">ackwards()</a></code> now runs a light version of this screen internally and warns (once) only at the consequential extreme: when <code>k_max</code> exceeds the Ledermann bound for an EFA/ESEM fit (components are exempt), or when sampling adequacy is poor (KMO below .5, or <code>N:p</code> below 5).</p></li>
-<li><p><strong>Persistent factor labels.</strong> New <code><a href="../reference/set_factor_labels.html">set_factor_labels()</a></code> attaches substantive names to factors (e.g. <code>"Neuroticism"</code> for <code>"m5f1"</code>) on the object itself, and <code><a href="../reference/factor_labels.html">factor_labels()</a></code> reads them back. Once set, the labels are shown by <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code><a href="../reference/autoplot.html">autoplot()</a></code>, <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code>, and <code><a href="../reference/top_items.html">top_items()</a></code> — no need to re-supply them each time. Labels are display only: factor IDs (<code>m{k}f{j}</code>) are never changed, an unlabeled factor falls back to its ID, and the labels ride along through <code><a href="../reference/prune.html">prune()</a></code>, <code><a href="../reference/boot_edges.html">boot_edges()</a></code>, <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code>, and <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>. In <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> the label columns (<code>factor_label</code>, or <code>from_label</code>/<code>to_label</code> for edges) appear only when labels are set, so existing output is unchanged otherwise. <code><a href="../reference/label_template.html">label_template()</a></code> remains the convenient scaffold to fill in and pass to <code><a href="../reference/set_factor_labels.html">set_factor_labels()</a></code>.</p></li>
-</ul></div>
-    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="ackwards-010">ackwards 0.1.0<a class="anchor" aria-label="anchor" href="#ackwards-010"></a></h2>
 <p>First public release. <code>ackwards</code> implements Goldberg’s (2006) bass-ackwards method and its modern extensions: it fits factor solutions at every level from 1 to <code>k</code> and characterizes the hierarchy through the between-level factor-score correlations that connect them. Initial features, roughly in order of importance:</p>
 <ul><li>
@@ -70,19 +65,20 @@
 <li>
 <strong><code><a href="../reference/comparability.html">comparability()</a></code></strong> — gate hierarchy depth on split-half replicability (Everett 1983; Goldberg 1990).</li>
 <li>
+<strong><code><a href="../reference/factorability.html">factorability()</a></code></strong> — screen a dataset (or correlation matrix) before you fit: Kaiser-Meyer-Olkin sampling adequacy (overall and per item), Bartlett’s test of sphericity, the <code>N:p</code> ratio, and the Ledermann bound on identifiable factors, reported as numbers-and-bands rather than pass/fail. <code><a href="../reference/ackwards.html">ackwards()</a></code> runs a light version internally and warns only at the consequential extreme (<code>k_max</code> above the Ledermann bound for EFA/ESEM, or poor sampling adequacy).</li>
+<li>
 <strong>Forbes (2023) extension</strong> — <code>pairs = "all"</code> skip-level edges, <code><a href="../reference/prune.html">prune()</a></code> for redundant/artifactual factors, and <code><a href="../reference/boot_edges.html">boot_edges()</a></code> bootstrap edge CIs.</li>
 <li>
 <strong>Ordinal data</strong> — <code>cor = "polychoric"</code> (WLSMV for ESEM), <code><a href="../reference/check_items.html">check_items()</a></code> pre-analysis screening, and near-singularity diagnostics.</li>
 <li>
-<strong>Interpretation &amp; scoring</strong> — <code><a href="../reference/top_items.html">top_items()</a></code> and <code><a href="../reference/label_template.html">label_template()</a></code> for reading and naming factors; <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code>/<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> for factor scores, in and out of sample.</li>
+<strong>Interpretation &amp; scoring</strong> — <code><a href="../reference/top_items.html">top_items()</a></code> for reading factors; <code><a href="../reference/label_template.html">label_template()</a></code>/<code><a href="../reference/set_factor_labels.html">set_factor_labels()</a></code>/<code><a href="../reference/factor_labels.html">factor_labels()</a></code> to attach persistent substantive names shown across <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code><a href="../reference/autoplot.html">autoplot()</a></code>, <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code>, and <code><a href="../reference/top_items.html">top_items()</a></code>; <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code>/<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> for factor scores, in and out of sample.</li>
 <li>
 <strong>Output</strong> — <code><a href="../reference/autoplot.html">autoplot()</a></code> hierarchy diagrams and <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code>/<code><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance()</a></code>/<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</li>
 <li>
 <strong>Bundled data</strong> — <code>bfi25</code> (ordinal Big Five) and <code>sim16</code> (continuous), plus eight vignettes.</li>
 </ul><p>Beyond base R, <code>psych</code> is the only hard dependency; <code>lavaan</code>, <code>ggplot2</code>, and others are optional.</p>
 </div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
-    </nav></aside></div>
+  </main></div>
 
 
     <footer><div class="pkgdown-footer-left">

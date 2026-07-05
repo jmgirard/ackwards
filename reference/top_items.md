@@ -101,8 +101,9 @@ body entries under `by = "item"`.
 ``` r
 # Fit the raw dataset (not na.omit(), which would drop the column
 # attributes): bfi25's IPIP item labels are then captured and printed as
-# `code: label`. `missing = "listwise"` handles the NAs cleanly.
-x <- ackwards(bfi25, k_max = 5, cor = "polychoric", missing = "listwise")
+# `code: label`. `missing = "listwise"` handles the NAs cleanly. A 10-item
+# subset keeps the example fast; use all items in practice.
+x <- ackwards(bfi25[, 1:10], k_max = 3, cor = "polychoric", missing = "listwise")
 top_items(x)
 #> 
 #> ── Salient items by factor (ackwards) ──────────────────────────────────────────
@@ -113,230 +114,79 @@ top_items(x)
 #> ── Level 1 (1 factor) ──
 #> 
 #> m1f1
-#> A5: Make people feel at ease [0.685]
-#> E2: Find it difficult to approach others [-0.656]
-#> A3: Know how to comfort others [0.651]
-#> E4: Make friends easily [0.607]
-#> A2: Inquire about others' well-being [0.598]
-#> E5: Take charge [0.598]
-#> C5: Waste my time [-0.590]
-#> E3: Know how to captivate people [0.582]
-#> C4: Do things in a half-way manner [-0.546]
-#> N4: Often feel blue [-0.489]
-#> A4: Love children [0.484]
-#> E1: Don't talk a lot [-0.460]
-#> O3: Carry the conversation to a higher level [0.457]
-#> C1: Am exacting in my work [0.450]
-#> N1: Get angry easily [-0.444]
-#> C2: Continue until everything is perfect [0.443]
-#> C3: Do things according to a plan [0.411]
-#> O1: Am full of ideas [0.391]
-#> N2: Get irritated easily [-0.366]
-#> N3: Have frequent mood swings [-0.364]
-#> A1: Am indifferent to the feelings of others [-0.344]
-#> N5: Panic easily [-0.319]
+#> A3: Know how to comfort others [0.683]
+#> C4: Do things in a half-way manner [-0.652]
+#> A2: Inquire about others' well-being [0.648]
+#> A5: Make people feel at ease [0.634]
+#> C5: Waste my time [-0.628]
+#> C2: Continue until everything is perfect [0.614]
+#> A4: Love children [0.593]
+#> C3: Do things according to a plan [0.572]
+#> C1: Am exacting in my work [0.554]
+#> A1: Am indifferent to the feelings of others [-0.407]
 #> 
 #> ── Level 2 (2 factors) ──
 #> 
 #> m2f1
-#> A3: Know how to comfort others [0.730]
-#> A5: Make people feel at ease [0.694]
-#> E3: Know how to captivate people [0.684]
-#> A2: Inquire about others' well-being [0.661]
-#> E4: Make friends easily [0.638]
-#> E5: Take charge [0.630]
-#> E2: Find it difficult to approach others [-0.614]
-#> O3: Carry the conversation to a higher level [0.565]
-#> E1: Don't talk a lot [-0.525]
-#> A4: Love children [0.471]
-#> C2: Continue until everything is perfect [0.468]
-#> O1: Am full of ideas [0.467]
-#> C1: Am exacting in my work [0.421]
-#> C5: Waste my time [-0.411]
-#> C4: Do things in a half-way manner [-0.389]
-#> C3: Do things according to a plan [0.365]
-#> A1: Am indifferent to the feelings of others [-0.335]
+#> C4: Do things in a half-way manner [-0.773]
+#> C2: Continue until everything is perfect [0.738]
+#> C1: Am exacting in my work [0.734]
+#> C5: Waste my time [-0.699]
+#> C3: Do things according to a plan [0.657]
 #> 
 #> m2f2
-#> N3: Have frequent mood swings [-0.806]
-#> N1: Get angry easily [-0.790]
-#> N2: Get irritated easily [-0.789]
-#> N4: Often feel blue [-0.677]
-#> N5: Panic easily [-0.659]
-#> C5: Waste my time [-0.491]
-#> C4: Do things in a half-way manner [-0.438]
-#> O4: Spend time reflecting on things [-0.358]
+#> A3: Know how to comfort others [0.846]
+#> A2: Inquire about others' well-being [0.786]
+#> A5: Make people feel at ease [0.737]
+#> A1: Am indifferent to the feelings of others [-0.626]
+#> A4: Love children [0.567]
 #> 
 #> ── Level 3 (3 factors) ──
 #> 
 #> m3f1
-#> E4: Make friends easily [0.784]
-#> A3: Know how to comfort others [0.750]
-#> A5: Make people feel at ease [0.735]
-#> E2: Find it difficult to approach others [-0.698]
-#> E3: Know how to captivate people [0.664]
-#> A2: Inquire about others' well-being [0.650]
-#> E1: Don't talk a lot [-0.611]
-#> E5: Take charge [0.507]
-#> A4: Love children [0.490]
-#> O3: Carry the conversation to a higher level [0.355]
-#> A1: Am indifferent to the feelings of others [-0.354]
+#> C4: Do things in a half-way manner [-0.801]
+#> C1: Am exacting in my work [0.740]
+#> C5: Waste my time [-0.711]
+#> C2: Continue until everything is perfect [0.701]
+#> C3: Do things according to a plan [0.636]
 #> 
 #> m3f2
-#> N3: Have frequent mood swings [-0.812]
-#> N2: Get irritated easily [-0.791]
-#> N1: Get angry easily [-0.777]
-#> N4: Often feel blue [-0.680]
-#> N5: Panic easily [-0.650]
-#> C5: Waste my time [-0.428]
-#> O4: Spend time reflecting on things [-0.414]
-#> C4: Do things in a half-way manner [-0.348]
+#> A3: Know how to comfort others [0.812]
+#> A5: Make people feel at ease [0.762]
+#> A4: Love children [0.728]
+#> A2: Inquire about others' well-being [0.644]
 #> 
 #> m3f3
-#> C1: Am exacting in my work [0.658]
-#> C2: Continue until everything is perfect [0.642]
-#> C4: Do things in a half-way manner [-0.609]
-#> O5: Will not probe deeply into a subject [-0.553]
-#> O2: Avoid difficult reading material [-0.520]
-#> O3: Carry the conversation to a higher level [0.504]
-#> O1: Am full of ideas [0.493]
-#> C3: Do things according to a plan [0.476]
-#> C5: Waste my time [-0.453]
-#> E5: Take charge [0.392]
-#> O4: Spend time reflecting on things [0.319]
-#> 
-#> ── Level 4 (4 factors) ──
-#> 
-#> m4f1
-#> E4: Make friends easily [0.783]
-#> A3: Know how to comfort others [0.732]
-#> A5: Make people feel at ease [0.725]
-#> E2: Find it difficult to approach others [-0.709]
-#> E3: Know how to captivate people [0.681]
-#> E1: Don't talk a lot [-0.633]
-#> A2: Inquire about others' well-being [0.626]
-#> E5: Take charge [0.485]
-#> A4: Love children [0.442]
-#> O3: Carry the conversation to a higher level [0.384]
-#> A1: Am indifferent to the feelings of others [-0.354]
-#> 
-#> m4f2
-#> N3: Have frequent mood swings [-0.824]
-#> N1: Get angry easily [-0.798]
-#> N2: Get irritated easily [-0.793]
-#> N5: Panic easily [-0.700]
-#> N4: Often feel blue [-0.659]
-#> C5: Waste my time [-0.357]
-#> O4: Spend time reflecting on things [-0.332]
-#> 
-#> m4f3
-#> C2: Continue until everything is perfect [0.735]
-#> C4: Do things in a half-way manner [-0.714]
-#> C3: Do things according to a plan [0.688]
-#> C1: Am exacting in my work [0.680]
-#> C5: Waste my time [-0.626]
-#> A4: Love children [0.397]
-#> E5: Take charge [0.372]
-#> 
-#> m4f4
-#> O5: Will not probe deeply into a subject [-0.704]
-#> O3: Carry the conversation to a higher level [0.674]
-#> O1: Am full of ideas [0.621]
-#> O2: Avoid difficult reading material [-0.586]
-#> O4: Spend time reflecting on things [0.499]
-#> E3: Know how to captivate people [0.301]
-#> 
-#> ── Level 5 (5 factors) ──
-#> 
-#> m5f1
-#> E2: Find it difficult to approach others [-0.752]
-#> E4: Make friends easily [0.747]
-#> E1: Don't talk a lot [-0.701]
-#> E3: Know how to captivate people [0.677]
-#> E5: Take charge [0.597]
-#> A5: Make people feel at ease [0.487]
-#> A3: Know how to comfort others [0.415]
-#> O3: Carry the conversation to a higher level [0.394]
-#> N4: Often feel blue [-0.314]
-#> O1: Am full of ideas [0.302]
-#> 
-#> m5f2
-#> N3: Have frequent mood swings [-0.825]
-#> N1: Get angry easily [-0.810]
-#> N2: Get irritated easily [-0.805]
-#> N5: Panic easily [-0.688]
-#> N4: Often feel blue [-0.646]
-#> C5: Waste my time [-0.344]
-#> O4: Spend time reflecting on things [-0.317]
-#> 
-#> m5f3
-#> C2: Continue until everything is perfect [0.735]
-#> C4: Do things in a half-way manner [-0.716]
-#> C1: Am exacting in my work [0.690]
-#> C3: Do things according to a plan [0.679]
-#> C5: Waste my time [-0.652]
-#> E5: Take charge [0.448]
-#> A4: Love children [0.345]
-#> 
-#> m5f4
-#> A1: Am indifferent to the feelings of others [-0.704]
-#> A3: Know how to comfort others [0.703]
-#> A2: Inquire about others' well-being [0.692]
-#> A5: Make people feel at ease [0.580]
-#> A4: Love children [0.522]
-#> 
-#> m5f5
-#> O5: Will not probe deeply into a subject [-0.705]
-#> O3: Carry the conversation to a higher level [0.655]
-#> O1: Am full of ideas [0.604]
-#> O2: Avoid difficult reading material [-0.595]
-#> O4: Spend time reflecting on things [0.551]
+#> A1: Am indifferent to the feelings of others [-0.876]
+#> A2: Inquire about others' well-being [0.464]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.
-top_items(x, level = 5, cut = 0.4, n = 5)
+top_items(x, level = 3, cut = 0.4, n = 5)
 #> 
 #> ── Salient items by factor (ackwards) ──────────────────────────────────────────
 #> Engine: pca
 #> Cut: |loading| >= 0.4
 #> Top-n: 5
 #> 
-#> ── Level 5 (5 factors) ──
+#> ── Level 3 (3 factors) ──
 #> 
-#> m5f1
-#> E2: Find it difficult to approach others [-0.752]
-#> E4: Make friends easily [0.747]
-#> E1: Don't talk a lot [-0.701]
-#> E3: Know how to captivate people [0.677]
-#> E5: Take charge [0.597]
+#> m3f1
+#> C4: Do things in a half-way manner [-0.801]
+#> C1: Am exacting in my work [0.740]
+#> C5: Waste my time [-0.711]
+#> C2: Continue until everything is perfect [0.701]
+#> C3: Do things according to a plan [0.636]
 #> 
-#> m5f2
-#> N3: Have frequent mood swings [-0.825]
-#> N1: Get angry easily [-0.810]
-#> N2: Get irritated easily [-0.805]
-#> N5: Panic easily [-0.688]
-#> N4: Often feel blue [-0.646]
+#> m3f2
+#> A3: Know how to comfort others [0.812]
+#> A5: Make people feel at ease [0.762]
+#> A4: Love children [0.728]
+#> A2: Inquire about others' well-being [0.644]
 #> 
-#> m5f3
-#> C2: Continue until everything is perfect [0.735]
-#> C4: Do things in a half-way manner [-0.716]
-#> C1: Am exacting in my work [0.690]
-#> C3: Do things according to a plan [0.679]
-#> C5: Waste my time [-0.652]
-#> 
-#> m5f4
-#> A1: Am indifferent to the feelings of others [-0.704]
-#> A3: Know how to comfort others [0.703]
-#> A2: Inquire about others' well-being [0.692]
-#> A5: Make people feel at ease [0.580]
-#> A4: Love children [0.522]
-#> 
-#> m5f5
-#> O5: Will not probe deeply into a subject [-0.705]
-#> O3: Carry the conversation to a higher level [0.655]
-#> O1: Am full of ideas [0.604]
-#> O2: Avoid difficult reading material [-0.595]
-#> O4: Spend time reflecting on things [0.551]
+#> m3f3
+#> A1: Am indifferent to the feelings of others [-0.876]
+#> A2: Inquire about others' well-being [0.464]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.
@@ -352,86 +202,37 @@ top_items(x, level = 3, cut = 0.25, by = "item")
 #> ── Level 3 (3 factors) ──
 #> 
 #> A1: Am indifferent to the feelings of others
-#> m3f1 [-0.354]
+#> m3f3 [-0.876]
 #> 
 #> A2: Inquire about others' well-being
-#> m3f1 [0.650]
+#> m3f2 [0.644]
+#> m3f3 [0.464]
 #> 
 #> A3: Know how to comfort others
-#> m3f1 [0.750]
+#> m3f2 [0.812]
+#> m3f3 [0.287]
 #> 
 #> A4: Love children
-#> m3f1 [0.490]
+#> m3f2 [0.728]
 #> 
 #> A5: Make people feel at ease
-#> m3f1 [0.735]
+#> m3f2 [0.762]
 #> 
 #> C1: Am exacting in my work
-#> m3f3 [0.658]
+#> m3f1 [0.740]
 #> 
 #> C2: Continue until everything is perfect
-#> m3f3 [0.642]
+#> m3f1 [0.701]
+#> m3f2 [0.269]
 #> 
 #> C3: Do things according to a plan
-#> m3f3 [0.476]
+#> m3f1 [0.636]
 #> 
 #> C4: Do things in a half-way manner
-#> m3f3 [-0.609]
-#> m3f2 [-0.348]
+#> m3f1 [-0.801]
 #> 
 #> C5: Waste my time
-#> m3f3 [-0.453]
-#> m3f2 [-0.428]
-#> m3f1 [-0.252]
-#> 
-#> E1: Don't talk a lot
-#> m3f1 [-0.611]
-#> 
-#> E2: Find it difficult to approach others
-#> m3f1 [-0.698]
-#> 
-#> E3: Know how to captivate people
-#> m3f1 [0.664]
-#> 
-#> E4: Make friends easily
-#> m3f1 [0.784]
-#> 
-#> E5: Take charge
-#> m3f1 [0.507]
-#> m3f3 [0.392]
-#> 
-#> N1: Get angry easily
-#> m3f2 [-0.777]
-#> 
-#> N2: Get irritated easily
-#> m3f2 [-0.791]
-#> 
-#> N3: Have frequent mood swings
-#> m3f2 [-0.812]
-#> 
-#> N4: Often feel blue
-#> m3f2 [-0.680]
-#> 
-#> N5: Panic easily
-#> m3f2 [-0.650]
-#> 
-#> O1: Am full of ideas
-#> m3f3 [0.493]
-#> m3f1 [0.253]
-#> 
-#> O2: Avoid difficult reading material
-#> m3f3 [-0.520]
-#> 
-#> O3: Carry the conversation to a higher level
-#> m3f3 [0.504]
-#> m3f1 [0.355]
-#> 
-#> O4: Spend time reflecting on things
-#> m3f2 [-0.414]
-#> m3f3 [0.319]
-#> 
-#> O5: Will not probe deeply into a subject
-#> m3f3 [-0.553]
+#> m3f1 [-0.711]
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
 #> for the full matrix.
