@@ -18,16 +18,22 @@ incidental to the example.
 
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes locally and across the GitHub Actions matrix.
-1 note on win-builder R-devel ("possibly misspelled words"; see Notes).
+0 errors | 0 warnings on every platform below.
 
-| Platform | R version | Result |
+The only notes are:
+
+* **New submission** — expected; the package is not yet on CRAN. Emitted by the
+  incoming-feasibility check on every `--as-cran` run.
+* **Possibly misspelled words** (win-builder R-devel only) — all correctly
+  spelled; see Notes below.
+
+| Platform | R version | Errors / Warnings |
 |---|---|---|
-| macOS 15 arm64 (local, `--as-cran`) | R 4.4 | 0/0/0 |
-| ubuntu-latest (GitHub Actions) | release / devel / oldrel | 0/0/0 |
-| macos-latest (GitHub Actions) | release | 0/0/0 |
-| windows-latest (GitHub Actions) | release | 0/0/0 |
-| win-builder | R-devel | 0/0/1 (see Notes) |
+| macOS 26 arm64 (local, `--as-cran`) | R 4.6.1 | 0 / 0 |
+| ubuntu-latest (GitHub Actions) | release / devel / oldrel-1 | 0 / 0 |
+| macos-latest (GitHub Actions) | release | 0 / 0 |
+| windows-latest (GitHub Actions) | release | 0 / 0 |
+| win-builder | R-devel | 0 / 0 |
 
 ## Notes
 
