@@ -7,7 +7,14 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4.5
+)
+```
 
 ## The problem: which factor solution is right?
 
@@ -52,13 +59,11 @@ Conscientiousness (C1–C5), Extraversion (E1–E5), Neuroticism (N1–N5), and
 Openness (O1–O5) — each on a 6-point Likert scale. See `?bfi25` for full
 provenance; the data derive from the SAPA project using public-domain IPIP items.
 
-
-``` r
+```{r data}
 library(ackwards)
 
 bfi <- na.omit(bfi25)
 dim(bfi)
-#> [1] 875  25
 ```
 
 We drop cases with any missing item. In a real analysis you might use pairwise
@@ -70,59 +75,14 @@ Before fitting the hierarchy, get a sense of the plausible range of k.
 `suggest_k()` runs five complementary selection criteria and reports a consensus
 range:
 
-
-``` r
+```{r suggest_k}
 sk <- suggest_k(bfi, seed = 42)
-#> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [130ms]
-#> 
-#> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [44ms]
-#> 
-#> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [5.9s]
-#> 
 print(sk)
-#> 
-#> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
-#> Variables: 25
-#> n: 875
-#> Basis: pearson
-#> Tested k: 1-8
-#> 
-#> ── Criteria (k = 1-8) ──
-#> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*
-#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -
-#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -
-#> 
-#> ── Recommendations ──
-#> 
-#> • PA-PC: k <= 5
-#> • PA-FA: k <= 6
-#> • MAP: k = 5
-#> • VSS-1: k = 4
-#> • VSS-2: k = 5
-#> • CD: k = 6
-#> Consensus range: k = 4-6
-#> ────────────────────────────────────────────────────────────────────────────────
-#> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
-#> above the consensus to observe factor fragmentation is intentional.
-#> Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
-#> 2023). PA-FA and CD are more conservative. Use the range.
 ```
 
-
-``` r
+```{r suggest_k_plot, fig.width=6, fig.height=7}
 autoplot(sk)
 ```
-
-![plot of chunk suggest_k_plot](assets/ackwards-intro-suggest_k_plot-1.png)
 
 `suggest_k()` does not return a single "correct" k — it reports what several
 criteria each recommend, so you can read a plausible *range* rather than a point
@@ -152,8 +112,7 @@ Because BFI items are ordinal, we use `cor = "polychoric"`. This computes
 polychoric correlations between items before factor extraction, giving a more
 accurate representation of the latent structure.
 
-
-``` r
+```{r fit}
 x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 ```
 
@@ -178,39 +137,14 @@ that you have accounted for the ordinal measurement scale.
 
 `print()` gives a quick overview:
 
-
-``` r
+```{r print}
 print(x)
-#> 
-#> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
-#> Engine: pca
-#> Rotation: varimax
-#> Basis: polychoric
-#> n: 875
-#> k (max): 5
-#> 
-#> ── Levels ──
-#> 
-#> ✔ k = 1: 1 factor, 23.2% variance
-#> ✔ k = 2: 2 factors, 35.5% variance
-#> ✔ k = 3: 3 factors, 44.6% variance
-#> ✔ k = 4: 4 factors, 52.2% variance
-#> ✔ k = 5: 5 factors, 58.4% variance
-#> 
-#> ── Edges ──
-#> 
-#> 14 of 40 edges have |r| ≥ 0.3
-#> ────────────────────────────────────────────────────────────────────────────────
-#> Note: This is a series of linked solutions, not a fitted hierarchical model.
-#> Cross-level edges are descriptive score correlations. Per-level fit indices
-#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
-#> they do not validate the edges or the hierarchy itself.
 ```
 
 The "Levels" section confirms that all five models converged, and reports the
 cumulative variance explained at each level. Notice that the jump from k = 1 to
-k = 2 is large (23.2%
-→ 35.5%), while
+k = 2 is large (`r sprintf("%.1f%%", 100 * x$levels[["1"]]$variance[["cumulative"]])`
+→ `r sprintf("%.1f%%", 100 * x$levels[["2"]]$variance[["cumulative"]])`), while
 later jumps are smaller — characteristic of data with a strong general factor
 and several specific dimensions.
 
@@ -223,73 +157,15 @@ summing across all adjacent pairs: 1×2 + 2×3 + 3×4 + 4×5 = 2 + 6 + 12 + 20 =
 each level, plus a lineage list showing which factors at each level descend from
 which parents:
 
-
-``` r
+```{r summary}
 summary(x)
-#> 
-#> ── Summary: Bass-Ackwards Analysis (ackwards) ──────────────────────────────────
-#> Engine: pca
-#> Rotation: varimax
-#> Basis: polychoric
-#> n: 875
-#> k (max): 5
-#> 
-#> ── Levels ──
-#> 
-#> k = 1: 1 factor (23.2% cumulative variance)
-#> m1f1 23.2% eigenvalue 5.80
-#> 
-#> k = 2: 2 factors (35.5% cumulative variance)
-#> m2f1 20.9% eigenvalue 5.80
-#> m2f2 14.5% eigenvalue 3.07
-#> 
-#> k = 3: 3 factors (44.6% cumulative variance)
-#> m3f1 18.0% eigenvalue 5.80
-#> m3f2 13.9% eigenvalue 3.07
-#> m3f3 12.7% eigenvalue 2.28
-#> 
-#> k = 4: 4 factors (52.2% cumulative variance)
-#> m4f1 17.5% eigenvalue 5.80
-#> m4f2 13.6% eigenvalue 3.07
-#> m4f3 11.8% eigenvalue 2.28
-#> m4f4 9.2% eigenvalue 1.90
-#> 
-#> k = 5: 5 factors (58.4% cumulative variance)
-#> m5f1 13.8% eigenvalue 5.80
-#> m5f2 13.6% eigenvalue 3.07
-#> m5f3 11.9% eigenvalue 2.28
-#> m5f4 10.1% eigenvalue 1.90
-#> m5f5 9.1% eigenvalue 1.56
-#> 
-#> ── Lineage (primary parents) ──
-#> 
-#> m1f1 → m2f1, m2f2
-#> m2f1 → m3f1, m3f3
-#> m2f2 → m3f2
-#> m3f1 → m4f1
-#> m3f2 → m4f2
-#> m3f3 → m4f3, m4f4
-#> m4f1 → m5f1, m5f4
-#> m4f2 → m5f2
-#> m4f3 → m5f3
-#> m4f4 → m5f5
-#> ────────────────────────────────────────────────────────────────────────────────
-#> Note: This is a series of linked solutions, not a fitted hierarchical model.
-#> Cross-level edges are descriptive score correlations. Per-level fit indices
-#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
-#> they do not validate the edges or the hierarchy itself.
 ```
 
 `glance()` returns the same top-level information as a one-row data frame, convenient for
 comparisons across models:
 
-
-``` r
+```{r glance}
 glance(x)
-#>   engine rotation        cor k_max n_obs deepest_converged n_edges CFI TLI
-#> 1    pca  varimax polychoric     5   875                 5      40  NA  NA
-#>   RMSEA SRMR BIC
-#> 1    NA   NA  NA
 ```
 
 ## Step 4: Visualize the hierarchy `autoplot()`
@@ -303,12 +179,9 @@ come with a legend. In this clean solution every drawn edge is positive, so only
 blue appears here. For a left-to-right layout (handy for wide slides), pass
 `direction = "horizontal"`.
 
-
-``` r
+```{r autoplot, fig.width = 8, fig.height = 5, warning = FALSE}
 autoplot(x)
 ```
-
-![plot of chunk autoplot](assets/ackwards-intro-autoplot-1.png)
 
 Reading this diagram from broad (top) to narrow (bottom) tells the story of the
 Big Five:
@@ -349,54 +222,8 @@ items (those with `|loading| >= cut`) for every factor, grouped by level.
 This is more readable than a full item-by-factor matrix, especially for deep
 hierarchies.
 
-
-``` r
+```{r top-items}
 top_items(x, level = 5, cut = 0.5)
-#> 
-#> ── Salient items by factor (ackwards) ──────────────────────────────────────────
-#> Engine: pca
-#> Cut: |loading| >= 0.5
-#> Top-n: all
-#> 
-#> ── Level 5 (5 factors) ──
-#> 
-#> m5f1
-#> E2 [-0.752]
-#> E4 [0.747]
-#> E1 [-0.701]
-#> E3 [0.677]
-#> E5 [0.597]
-#> 
-#> m5f2
-#> N3 [-0.825]
-#> N1 [-0.810]
-#> N2 [-0.805]
-#> N5 [-0.688]
-#> N4 [-0.646]
-#> 
-#> m5f3
-#> C2 [0.735]
-#> C4 [-0.716]
-#> C1 [0.690]
-#> C3 [0.679]
-#> C5 [-0.652]
-#> 
-#> m5f4
-#> A1 [-0.704]
-#> A3 [0.703]
-#> A2 [0.692]
-#> A5 [0.580]
-#> A4 [0.522]
-#> 
-#> m5f5
-#> O5 [-0.705]
-#> O3 [0.655]
-#> O1 [0.604]
-#> O2 [-0.595]
-#> O4 [0.551]
-#> ────────────────────────────────────────────────────────────────────────────────
-#> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
-#> for the full matrix.
 ```
 
 Reading a hierarchy of factors and giving them names is its own topic — including
@@ -408,17 +235,9 @@ See `vignette("ackwards-interpret")` for the full workflow.
 For programmatic access, `tidy(what = "loadings")` returns the full loading
 matrix in long format — one row per item × factor × level:
 
-
-``` r
+```{r tidy-loadings}
 loadings_df <- tidy(x, what = "loadings")
 head(loadings_df)
-#>   level factor item    loading se ci_lower ci_upper
-#> 1     1   m1f1   A1 -0.3440908 NA       NA       NA
-#> 2     1   m1f1   A2  0.5977210 NA       NA       NA
-#> 3     1   m1f1   A3  0.6511387 NA       NA       NA
-#> 4     1   m1f1   A4  0.4837850 NA       NA       NA
-#> 5     1   m1f1   A5  0.6848262 NA       NA       NA
-#> 6     1   m1f1   C1  0.4502778 NA       NA       NA
 ```
 
 The `se`, `ci_lower`, and `ci_upper` columns are `NA` here. PCA (and EFA) return
@@ -433,25 +252,9 @@ Each edge is the between-level factor-score correlation computed via Waller's
 (2007) closed-form W′RW algebra — an exact result that requires no score
 materialization, just the weight matrices and the input correlation matrix.
 
-
-``` r
+```{r tidy-edges}
 # Each factor's primary-parent edge, strongest first
 tidy(x, what = "edges", primary_only = TRUE, sort = "strength")
-#>    from   to level_from level_to         r is_primary above_cut
-#> 1  m4f2 m5f2          4        5 0.9984791       TRUE      TRUE
-#> 2  m3f1 m4f1          3        4 0.9938371       TRUE      TRUE
-#> 3  m4f4 m5f5          4        5 0.9894063       TRUE      TRUE
-#> 4  m2f2 m3f2          2        3 0.9873651       TRUE      TRUE
-#> 5  m4f3 m5f3          4        5 0.9824895       TRUE      TRUE
-#> 6  m3f2 m4f2          3        4 0.9761484       TRUE      TRUE
-#> 7  m1f1 m2f1          1        2 0.8900522       TRUE      TRUE
-#> 8  m2f1 m3f1          2        3 0.8740850       TRUE      TRUE
-#> 9  m4f1 m5f1          4        5 0.8377659       TRUE      TRUE
-#> 10 m3f3 m4f3          3        4 0.7316162       TRUE      TRUE
-#> 11 m3f3 m4f4          3        4 0.6802343       TRUE      TRUE
-#> 12 m4f1 m5f4          4        5 0.5458269       TRUE      TRUE
-#> 13 m2f1 m3f3          2        3 0.4814452       TRUE      TRUE
-#> 14 m1f1 m2f2          1        2 0.4558587       TRUE      TRUE
 ```
 
 `primary_only = TRUE` keeps just the strongest-connecting edge for each factor
@@ -465,25 +268,8 @@ reorganizing.
 
 ### Variance explained
 
-
-``` r
+```{r tidy-variance}
 tidy(x, what = "variance")
-#>    level factor proportion cumulative
-#> 1      1   m1f1 0.23211212  0.2321121
-#> 2      2   m2f1 0.20937655  0.2093766
-#> 3      2   m2f2 0.14544064  0.3548172
-#> 4      3   m3f1 0.18038118  0.1803812
-#> 5      3   m3f2 0.13889810  0.3192793
-#> 6      3   m3f3 0.12655466  0.4458339
-#> 7      4   m4f1 0.17500851  0.1750085
-#> 8      4   m4f2 0.13632849  0.3113370
-#> 9      4   m4f3 0.11825358  0.4295906
-#> 10     4   m4f4 0.09208697  0.5216775
-#> 11     5   m5f1 0.13753091  0.1375309
-#> 12     5   m5f2 0.13556865  0.2730996
-#> 13     5   m5f3 0.11899787  0.3920974
-#> 14     5   m5f4 0.10086586  0.4929633
-#> 15     5   m5f5 0.09121399  0.5841773
 ```
 
 Each row is one factor at one level. `proportion` is the fraction (0-1) of total
@@ -501,21 +287,10 @@ matrices. By default it appends them to your data frame; pass `append = FALSE` t
 get just the score columns, named `.m{k}f{j}`. Row order is preserved either way,
 so the scores line up with the input rows.
 
-
-``` r
+```{r augment}
 scores <- augment(x, data = bfi, append = FALSE)
-#> Warning: ! Factor scores are standardized using model-implied SDs from a "polychoric"
-#>   correlation matrix.
-#> ℹ The raw projection uses `.standardize(data)` (Pearson z-scores), but
-#>   `score_var` comes from the "polychoric" R.
-#> ℹ Empirical score SDs will differ from 1.0. For non-Pearson analyses,
-#>   between-level edges from `tidy()` are the authoritative associations.
-#> This warning is displayed once per session.
 dim(scores) # 15 score columns (1+2+3+4+5)
-#> [1] 875  15
 names(scores)
-#>  [1] ".m1f1" ".m2f1" ".m2f2" ".m3f1" ".m3f2" ".m3f3" ".m4f1" ".m4f2" ".m4f3"
-#> [10] ".m4f4" ".m5f1" ".m5f2" ".m5f3" ".m5f4" ".m5f5"
 ```
 
 Scores are standardized so that the **model-implied** variance is 1 — meaning
@@ -533,29 +308,16 @@ be nearly uncorrelated with each other — a consequence of orthogonal rotation 
 while scores across levels should be highly correlated along the primary-parent
 lineage:
 
-
-``` r
+```{r downstream}
 # Within-level correlations at k = 5: should be near zero (orthogonal rotation)
 k5 <- scores[, c(".m5f1", ".m5f2", ".m5f3", ".m5f4", ".m5f5")]
 round(cor(k5), 2)
-#>       .m5f1 .m5f2 .m5f3 .m5f4 .m5f5
-#> .m5f1  1.00 -0.01 -0.01 -0.02  0.00
-#> .m5f2 -0.01  1.00 -0.01  0.01  0.01
-#> .m5f3 -0.01 -0.01  1.00 -0.02 -0.02
-#> .m5f4 -0.02  0.01 -0.02  1.00 -0.03
-#> .m5f5  0.00  0.01 -0.02 -0.03  1.00
 ```
 
-
-``` r
+```{r downstream2}
 # Cross-level: m4f1 is the primary parent of m5f1 and m5f4 (from the edge table)
 lineage <- scores[, c(".m4f1", ".m5f1", ".m5f2", ".m5f4")]
 round(cor(lineage), 2)
-#>       .m4f1 .m5f1 .m5f2 .m5f4
-#> .m4f1  1.00  0.84  0.00  0.53
-#> .m5f1  0.84  1.00 -0.01 -0.02
-#> .m5f2  0.00 -0.01  1.00  0.01
-#> .m5f4  0.53 -0.02  0.01  1.00
 ```
 
 The cross-level block confirms lineage: `.m4f1` correlates strongly with
@@ -572,21 +334,13 @@ saw — the standard cross-validation pattern of fitting on a training split and
 scoring a held-out test split **without retraining**. `predict()` is the front
 door (`augment(x, data = ..., append = FALSE)` is equivalent):
 
-
-``` r
+```{r train-test}
 set.seed(11)
 idx <- sample(nrow(bfi), 500)
 x_train <- ackwards(bfi[idx, ], k_max = 5, cor = "polychoric")
 
 test_scores <- predict(x_train, bfi[-idx, ])
 head(round(test_scores[, 1:5], 2))
-#>   .m1f1 .m2f1 .m2f2 .m3f1 .m3f2
-#> 1 -1.25 -1.18 -0.42 -1.21 -0.37
-#> 2  1.23  0.56  1.68  0.63  1.65
-#> 3 -0.93 -1.37  0.69 -1.17  0.78
-#> 4  0.05 -0.16  0.44  0.01  0.47
-#> 5 -0.62 -0.33 -0.76 -0.23 -0.72
-#> 6 -0.17 -0.44  0.54  0.01  0.63
 ```
 
 The test observations are standardized by the *training* moments (the default
@@ -594,16 +348,11 @@ The test observations are standardized by the *training* moments (the default
 the test split, and train and test scores share one metric — compare like with
 like across splits, feed them to the same downstream model, or pool them:
 
-
-``` r
+```{r train-test-pooled}
 train_scores <- predict(x_train, bfi[idx, ])
 # Same construct, same scale: pooled scores line up with the fitted solution
 round(colMeans(train_scores[, 1:3]), 3) # ~0 by construction (training data)
-#> .m1f1 .m2f1 .m2f2 
-#>     0     0     0
 round(colMeans(test_scores[, 1:3]), 3) # near 0: test split scored on the same metric
-#>  .m1f1  .m2f1  .m2f2 
-#> -0.046 -0.043 -0.018
 ```
 
 See `?predict.ackwards` and the *Scoring new observations* section of

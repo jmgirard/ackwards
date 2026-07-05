@@ -107,7 +107,7 @@ summarises any shortfall.
 
 \examples{
 \donttest{
-cmp <- comparability(bfi25, k_max = 5, n_splits = 5, seed = 1)
+cmp <- comparability(sim16, k_max = 5, n_splits = 5, seed = 1)
 cmp
 cmp$summary
 }

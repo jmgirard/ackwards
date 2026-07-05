@@ -219,8 +219,8 @@ directly. For a wide slide or poster, pair it with
 \examples{
 \donttest{
 if (requireNamespace("ggplot2", quietly = TRUE)) {
-  # bfi25 is ordinal; fit on the polychoric basis (best practice)
-  x <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric")
+  # sim16 has a known 1 -> 2 -> 4 hierarchy (continuous; pearson basis)
+  x <- ackwards(sim16, k_max = 5)
   autoplot(x)
   autoplot(x, color_pos = "steelblue")
 
@@ -232,20 +232,20 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   autoplot(x, direction = "horizontal")
 
   # Per-level fit index chart (EFA or ESEM only)
-  x_efa <- ackwards(na.omit(bfi25), k_max = 5, engine = "efa", cor = "polychoric")
+  x_efa <- ackwards(sim16, k_max = 5, engine = "efa")
   autoplot(x_efa, what = "fit")
 
   # Monochrome with correlation labels (for greyscale figures)
   autoplot(x, mono = TRUE, show_r = TRUE)
 
   # Custom node labels for the 5-factor level
-  autoplot(x, node_labels = c(m5f1 = "Neuroticism", m5f2 = "Agreeableness"))
+  autoplot(x, node_labels = c(m5f1 = "Factor A", m5f2 = "Factor B"))
 
   # Primary links only -- clean hierarchy tree
   autoplot(x, primary_only = TRUE)
 
   # Forbes pruned view: omit redundant nodes, straight spanning arrows
-  xp <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric") |> prune("redundant")
+  xp <- ackwards(sim16, k_max = 5) |> prune("redundant")
   autoplot(xp, drop_pruned = TRUE)
   autoplot(xp, drop_pruned = TRUE, show_r = TRUE)
   autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)

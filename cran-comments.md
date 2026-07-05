@@ -1,5 +1,21 @@
 # CRAN submission comments — ackwards 0.1.0
 
+## Resubmission
+
+This resubmission addresses the reviewer's request to reduce the vignette
+re-build time (previously "checking re-building of vignette outputs … [317s]").
+Seven of the eight vignettes are now **precomputed**: they are authored as
+`*.Rmd.orig` and knitted ahead of time into static `*.Rmd` with all results and
+figures baked in (the rOpenSci precompute pattern), so `R CMD check` builds them
+with pandoc only. The one remaining live vignette fits a single small model.
+Local vignette re-build time dropped from ~64 s to ~6 s; the heavy per-vignette
+model fits, parallel analysis, bootstrap, and split-half refits no longer run on
+CRAN. No user-facing content changed — the rendered vignettes are identical.
+
+Several slow `@examples` were also moved onto the bundled continuous `sim16`
+dataset (from the ordinal `bfi25` polychoric path) where the dataset was
+incidental to the example.
+
 ## R CMD check results
 
 0 errors | 0 warnings | 0 notes locally and across the GitHub Actions matrix.
@@ -63,7 +79,7 @@ comprehensive coverage but slow for routine check timing:
   (Monte-Carlo, ~10–20 s per call).
 - `comparability()` and `autoplot.comparability()` — repeated split-half refits.
 - `boot_edges()` — nonparametric bootstrap over many replicates.
-- `autoplot.ackwards()` — fits two models and renders ~10 figures.
+- `autoplot.ackwards()` — fits several models and renders ~15 figures.
 
 All other examples (including `check_items()`, `ackwards()`, `prune()`,
 `top_items()`, `tidy()`/`glance()`/`augment()`/`predict()`) run in full during

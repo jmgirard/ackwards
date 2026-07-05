@@ -40,7 +40,7 @@ Requires the \pkg{ggplot2} package.
 \examples{
 \donttest{
 if (requireNamespace("ggplot2", quietly = TRUE)) {
-  sk <- suggest_k(bfi25, n_iter = 5)
+  sk <- suggest_k(sim16, n_iter = 5)
   autoplot(sk)
 }
 }

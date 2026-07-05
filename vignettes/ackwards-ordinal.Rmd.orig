@@ -1,0 +1,383 @@
+---
+title: "Ordinal Data: Polychoric Correlations and WLSMV"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Ordinal Data: Polychoric Correlations and WLSMV}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4.5
+)
+has_lavaan <- requireNamespace("lavaan", quietly = TRUE)
+has_gt <- requireNamespace("gt", quietly = TRUE)
+has_ggplot2 <- requireNamespace("ggplot2", quietly = TRUE)
+```
+
+Most psychological scales use ordinal response formats: Likert-type items with a
+handful of ordered categories, binary (yes/no) items, and everything in between.
+Treating these as continuous and computing Pearson correlations between them is
+ubiquitous in practice, but it introduces systematic bias that can distort both
+loadings and the between-level edges that bass-ackwards analysis depends on. This
+vignette explains the problem and how `ackwards` addresses it.
+
+## Why Pearson underestimates for ordinal items
+
+When a continuous latent trait is sliced into a small number of ordered
+categories, the observed correlation between two items is always lower than the
+correlation between their underlying latent variables. The more coarse the
+rating scale, the larger the attenuation. For a 5-point scale, Pearson
+correlations can be 10–20% lower than the true latent correlations; for a
+2-point (binary) scale, the underestimate can exceed 30%.
+
+This matters for bass-ackwards analysis because:
+
+1. **Loadings are attenuated.** Factors appear weaker than they are.
+2. **Between-level edges are attenuated.** The hierarchy looks flatter —
+   factors that should be nearly perfectly correlated across levels may appear
+   only moderately correlated.
+3. **The number of factors is underestimated.** Attenuation compresses the
+   eigenvalue spectrum, so selection criteria (parallel analysis, MAP) may
+   suggest fewer factors than truly exist.
+
+## The polychoric solution
+
+A **polychoric correlation** between two ordinal items estimates the Pearson
+correlation that *would* exist between their underlying continuous latent
+variables, if those variables had been measured without discretization. It does
+this by fitting a bivariate normal model with thresholds at each category
+boundary.
+
+For binary (two-category) items this same estimate is traditionally called a
+*tetrachoric* correlation, but it is not a separate method — tetrachoric is
+simply the two-category special case of polychoric. `cor = "polychoric"` handles
+binary items automatically: `psych::polychoric()` detects the two-level case and
+returns the tetrachoric estimate, so you never request tetrachoric separately.
+
+Setting `cor = "polychoric"` in `ackwards()` replaces step 1 of the pipeline —
+computing the item correlation matrix `R` — with a polychoric matrix. All
+downstream computation (factor extraction, rotation, tenBerge scoring,
+between-level algebra) then operates on that polychoric `R`.
+
+## Automatic detection
+
+`ackwards()` checks for ordinal-looking data using a simple heuristic: if any
+column is integer-valued with ≤ 7 distinct levels, the data is flagged and a
+warning is issued when `cor = "pearson"` (the default).
+
+```{r data}
+library(ackwards)
+bfi <- na.omit(bfi25)
+```
+
+```{r detect}
+# The warning fires with the default Pearson basis
+x_pearson <- ackwards(bfi, k_max = 5)
+```
+
+The warning is ackwards reminding you to make an active choice. Specifying
+`cor = "polychoric"` acknowledges the data type and suppresses it:
+
+```{r polychoric-silent}
+x_poly <- ackwards(bfi, k_max = 5, cor = "polychoric")
+```
+
+## Seeing the difference
+
+### Correlation matrices
+
+The most direct way to see the impact of the basis is to compare the item
+correlations under each basis. Rather than read two 5×5 matrices side by side,
+the chart below plots the ten unique item-pair correlations among the five
+neuroticism items (`N1`–`N5`), Pearson against polychoric.
+
+```{r ggplot-check, echo = FALSE, results = "asis"}
+if (!has_ggplot2) {
+  cat(
+    "> **Note:** The correlation-comparison chart below requires the",
+    "**ggplot2** package, which is not currently installed. Install it with",
+    "`install.packages(\"ggplot2\")` to render it.\n"
+  )
+}
+```
+
+```{r r-compare, echo = FALSE, eval = has_ggplot2, fig.alt = "Dodged bar chart comparing Pearson and polychoric correlations for the ten unique N1-N5 item pairs; every polychoric bar is taller than its Pearson counterpart."}
+n_items <- paste0("N", 1:5)
+Rp <- x_pearson$r[n_items, n_items]
+Rc <- x_poly$r[n_items, n_items]
+lt <- lower.tri(Rp)
+idx <- which(lt, arr.ind = TRUE)
+pair_lab <- paste(n_items[idx[, "row"]], n_items[idx[, "col"]], sep = "–")
+
+corr_df <- rbind(
+  data.frame(pair = pair_lab, basis = "Pearson", r = Rp[lt]),
+  data.frame(pair = pair_lab, basis = "Polychoric", r = Rc[lt])
+)
+
+ggplot2::ggplot(
+  corr_df,
+  ggplot2::aes(x = pair, y = r, fill = basis)
+) +
+  ggplot2::geom_col(
+    position = ggplot2::position_dodge(width = 0.7), width = 0.65
+  ) +
+  ggplot2::labs(
+    x = "Item pair", y = "Correlation", fill = "Basis",
+    title = "Pearson vs polychoric item correlations",
+    subtitle = "Ten unique pairs among the five neuroticism items"
+  ) +
+  ggplot2::theme_minimal()
+```
+
+Every polychoric bar sits above its Pearson counterpart — the correlations are
+consistently higher. The `N1`–`N2` pair, for instance, goes from about 0.73
+(Pearson) to 0.79 (polychoric); across the block the increase runs to roughly
+0.05, enough to shift loadings and change eigenvalues.
+
+### Loadings
+
+The table below compares primary loadings — the loading of each Neuroticism item
+on its dominant factor — under both correlation bases at k = 5. The Δ column is
+the attenuation: how much larger each loading becomes (in absolute value) once
+the polychoric basis removes the coarse-category suppression. Using
+|Polychoric| − |Pearson| keeps the attenuation positive regardless of loading
+sign.
+
+```{r load-compare, echo = FALSE}
+n_items <- c("N1", "N2", "N3", "N4", "N5")
+
+primary_loading <- function(x, level_k, items) {
+  d <- tidy(x, what = "loadings")
+  d <- d[d$level == level_k & d$item %in% items, ]
+  do.call(rbind, lapply(split(d, d$item), function(r) r[which.max(abs(r$loading)), ]))
+}
+
+pear_p <- primary_loading(x_pearson, 5, n_items)
+poly_p <- primary_loading(x_poly, 5, n_items)
+
+# Verify factor and sign correspondence before differencing
+stopifnot(
+  all(pear_p$factor[order(pear_p$item)] == poly_p$factor[order(poly_p$item)]),
+  all(sign(pear_p$loading[order(pear_p$item)]) == sign(poly_p$loading[order(poly_p$item)]))
+)
+
+wide <- merge(
+  pear_p[, c("factor", "item", "loading")],
+  poly_p[, c("item", "loading")],
+  by = "item", suffixes = c("_pearson", "_poly")
+)
+wide$delta <- abs(wide$loading_poly) - abs(wide$loading_pearson)
+wide <- wide[order(wide$item), c("item", "factor", "loading_pearson", "loading_poly", "delta")]
+
+if (has_gt) {
+  gt::gt(wide) |>
+    gt::tab_header(
+      title    = "Neuroticism-item loadings at k = 5: Pearson vs polychoric",
+      subtitle = "Positive Δ = attenuation removed by the polychoric basis"
+    ) |>
+    gt::tab_spanner(label = "Primary loading", columns = c(loading_pearson, loading_poly, delta)) |>
+    gt::cols_label(
+      item            = "Item",
+      factor          = "Factor",
+      loading_pearson = "Pearson",
+      loading_poly    = "Polychoric",
+      delta           = "Δ (|Poly| − |Pearson|)"
+    ) |>
+    gt::fmt_number(columns = c(loading_pearson, loading_poly, delta), decimals = 2) |>
+    gt::tab_style(
+      style     = gt::cell_text(weight = "bold"),
+      locations = gt::cells_column_labels(columns = delta)
+    ) |>
+    gt::tab_footnote(
+      footnote = paste0(
+        "Factor assignment and sign verified to match between bases.",
+        " Delta uses |Poly| - |Pearson| so attenuation is positive regardless of loading sign."
+      ),
+      locations = gt::cells_column_labels(columns = delta)
+    )
+} else {
+  knitr::kable(
+    wide,
+    digits = 2, row.names = FALSE,
+    col.names = c("Item", "Factor", "Pearson", "Polychoric", "Δ (|Poly| − |Pearson|)"),
+    caption = "Neuroticism-item loadings at k = 5: Pearson vs polychoric"
+  )
+}
+```
+
+Polychoric loadings for the Neuroticism items are noticeably higher — the latent
+structure is sharper when the attenuating effect of coarse categories is
+removed.
+
+### Between-level edges
+
+The same comparison for the primary-parent edges. The Δ column is the change in
+connection strength (|r|): positive where the polychoric basis recovers a
+stronger connection by undoing attenuation, negative in the few cases where the
+recovered structure is slightly looser. Using absolute values makes the
+direction read correctly even for the negatively-signed edge.
+
+```{r edge-compare, echo = FALSE}
+pear_e <- tidy(x_pearson, what = "edges", primary_only = TRUE)
+poly_e <- tidy(x_poly, what = "edges", primary_only = TRUE)
+
+wide_e <- merge(
+  pear_e[, c("from", "to", "r")],
+  poly_e[, c("from", "to", "r")],
+  by = c("from", "to"), all = TRUE, suffixes = c("_pearson", "_poly")
+)
+wide_e$delta <- abs(wide_e$r_poly) - abs(wide_e$r_pearson)
+wide_e <- wide_e[order(wide_e$to), c("from", "to", "r_pearson", "r_poly", "delta")]
+
+if (has_gt) {
+  gt::gt(wide_e) |>
+    gt::tab_header(
+      title    = "Primary-parent edges: Pearson vs polychoric",
+      subtitle = "Δ = change in |r|; positive = stronger connection under polychoric basis"
+    ) |>
+    gt::tab_spanner(label = "Edge strength (r)", columns = c(r_pearson, r_poly, delta)) |>
+    gt::cols_label(
+      from      = "From",
+      to        = "To",
+      r_pearson = "Pearson",
+      r_poly    = "Polychoric",
+      delta     = "Δ (|Poly| − |Pearson|)"
+    ) |>
+    gt::fmt_number(columns = c(r_pearson, r_poly, delta), decimals = 2) |>
+    gt::tab_style(
+      style     = gt::cell_text(weight = "bold"),
+      locations = gt::cells_column_labels(columns = delta)
+    ) |>
+    gt::tab_footnote(
+      footnote  = "NA in either column means the bases disagree on the primary parent for that factor.",
+      locations = gt::cells_column_labels(columns = delta)
+    )
+} else {
+  knitr::kable(
+    wide_e,
+    digits = 2, row.names = FALSE,
+    col.names = c("From", "To", "Pearson", "Polychoric", "Δ (|Poly| − |Pearson|)"),
+    caption = "Primary-parent edges: Pearson vs polychoric"
+  )
+}
+```
+
+The edges are broadly similar in sign and rank order — the hierarchy is the
+same — but polychoric edges are stronger. Factors that represent genuinely stable
+dimensions show near-perfect correlations with their counterparts at adjacent
+levels when the true latent structure is properly recovered.
+
+## WLSMV for ESEM with ordinal items
+
+When `engine = "esem"` and `cor = "polychoric"` are combined, `ackwards()`
+automatically switches the lavaan estimator to **WLSMV** (diagonally weighted
+least squares, mean- and variance-adjusted). This is the standard estimator for
+structural equation models with categorical or ordinal indicators, and is the
+same method used by Mplus by default.
+
+WLSMV genuinely operates on the polychoric basis: lavaan estimates the item
+thresholds and the polychoric correlations among the ordinal indicators, then
+fits the factor model to *that* matrix using a diagonal weight matrix. So
+combining `cor = "polychoric"` with the ESEM engine is not stacking two separate
+corrections — the polychoric structure is precisely what WLSMV is built to model,
+and the between-level edges are computed from lavaan's own latent correlation
+matrix (not a separately estimated `psych` polychoric matrix).
+
+```{r esem-check, echo = FALSE, results = "asis"}
+if (!has_lavaan) {
+  cat(
+    "> **Note:** The ESEM examples below require the **lavaan** package,",
+    "which is not currently installed. Install it with",
+    "`install.packages(\"lavaan\")` to run these chunks.\n"
+  )
+}
+```
+
+```{r esem-wlsmv, eval = has_lavaan}
+x_esem <- ackwards(bfi, k_max = 3, engine = "esem", cor = "polychoric")
+x_esem
+```
+
+The WLSMV fit indices (CFI, RMSEA, SRMR) are now computed on a model that
+respects the ordinal measurement level. They will typically look better than
+Pearson-based fit indices on the same data, reflecting both the better model
+specification and the different reference distribution WLSMV uses.
+
+```{r esem-fit, eval = has_lavaan}
+tidy(x_esem, what = "fit", format = "wide")
+```
+
+See `vignette("ackwards-engines")`, section "Per-level fit: what it tells you
+(and what it doesn't)", for how to interpret these indices in the bass-ackwards
+context and how to produce the `autoplot(what = "fit")` trajectory chart.
+
+## Practical guidance: when to use polychoric
+
+| Scale characteristics | Recommendation |
+|-----------------------|---------------|
+| Continuous or many categories (> 7) | `cor = "pearson"` (default) |
+| 5–7 ordered categories (typical Likert) | `cor = "polychoric"` — recommended |
+| 3–4 categories | `cor = "polychoric"` — strongly recommended |
+| Binary (2 categories) | `cor = "polychoric"` — essential (this is the tetrachoric case) |
+
+Polychoric estimation requires fitting a bivariate normal model for every item
+pair. With p items that is p(p−1)/2 pairs — about 300 for a 25-item scale.
+Computation is usually fast (seconds), but scales as O(p²) and can be slow for
+very large item pools.
+
+**Screen skewed or sparse scales first.** Clinical symptom scales and other
+right-skewed items often have a response category endorsed by only a handful of
+people. That can make `psych::polychoric()` fail under its default continuity
+correction (set `correct = 0`), and — with many such items — drive the
+correlation matrix *near-singular*, in which case per-level fit indices
+(especially CFI, which comes back `NA`) and factor scores become unreliable.
+Run [`check_items()`][ackwards::check_items] before fitting to see which items
+are degenerate or sparse, and read the **"When to trust the result"** section of
+`?ackwards` for how each warning maps to whether you should report the solution.
+When a matrix is near-singular, `ackwards()` says so once and records it on the
+object, so `print()`/`summary()` keep reminding you.
+
+[`factorability()`][ackwards::factorability] is the companion screen for the
+correlation matrix as a whole: it reports the KMO measure of sampling adequacy
+(overall and per item), Bartlett's test of sphericity, the `N:p` ratio, and the
+Ledermann bound on how many factors `p` items can identify. Call it on the same
+`cor` basis you plan to fit. Read its output as *conventions, not verdicts* —
+the KMO bands and `N:p` rules of thumb are contested — but a very low KMO or a
+handful of low-MSA items is a useful early signal. `ackwards()` runs a light
+version of this screen internally and warns only at the consequential extreme
+(KMO below .5, `N:p` below 5, or `k_max` past the Ledermann bound for EFA/ESEM).
+
+> **A note on score computation.** The short answer: yes, you can use the factor
+> scores from an ordinal analysis in downstream work — the caveat below is about
+> *scaling*, not validity. When `cor = "polychoric"`, the weight matrices stored
+> in the object are derived from the polychoric `R`, but `augment()` materializes
+> scores by applying those weights to Pearson-standardized raw data
+> (`.standardize(data)`). The resulting scores are calibrated to *model-implied*
+> unit variance rather than exactly empirical unit variance, so their empirical
+> standard deviations will be close to but not precisely 1. That scaling nuance is
+> the only reason `augment()` warns when `cor != "pearson"`; the warning does not
+> mean the scores are biased or unusable. The between-level edges from
+> `tidy(what = "edges")` are unaffected either way — they come from the exact
+> algebra, not from materialized scores.
+
+## References
+
+Flora, D. B., & Curran, P. J. (2004). An empirical evaluation of alternative
+methods of estimation for confirmatory factor analysis with ordinal data.
+*Psychological Methods*, *9*(4), 466–491.
+
+Muthén, B. O. (1984). A general structural equation model with dichotomous,
+ordered categorical, and continuous latent variable indicators.
+*Psychometrika*, *49*(1), 115–132.
+
+Olsson, U. (1979). Maximum likelihood estimation of the polychoric correlation
+coefficient. *Psychometrika*, *44*(4), 443–460.
+
+Pearson, K. (1900). Mathematical contributions to the theory of evolution. VII.
+On the correlation of characters not quantitatively measurable. *Philosophical
+Transactions of the Royal Society of London, Series A*, *195*, 1–47.

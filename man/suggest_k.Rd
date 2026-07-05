@@ -157,22 +157,22 @@ range: the true k is likely somewhere in the middle.
 
 \examples{
 \donttest{
-sk <- suggest_k(bfi25)
+sk <- suggest_k(sim16)
 sk
 autoplot(sk)
 
 # Run only MAP (fast; skips parallel analysis and CD)
-suggest_k(bfi25, criteria = "map")
+suggest_k(sim16, criteria = "map")
 
 # Run only the parallel-analysis criteria
-suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
+suggest_k(sim16, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 
 # Faster exploratory run
-suggest_k(bfi25, k_max = 6, n_iter = 5)
+suggest_k(sim16, k_max = 6, n_iter = 5)
 
 # Correlation-matrix input (CD is skipped; n_obs required)
-R <- cor(bfi25, use = "pairwise.complete.obs")
-suggest_k(R, n_obs = 875L)
+R <- cor(sim16)
+suggest_k(R, n_obs = nrow(sim16))
 }
 
 }

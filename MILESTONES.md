@@ -1759,3 +1759,26 @@ no-gaps check applies only to that list) while still giving every code change a 
   features) into the single `# ackwards 0.1.0` release section. The "possibly misspelled words"
   NOTE is already documented in `cran-comments.md` and needs no change. Files: `R/ackwards.R`,
   `R/interpret.R`, `DESCRIPTION`, `NEWS.md`, regenerated `man/{ackwards,top_items}.Rd`.
+
+- **2026-07-05 — CRAN vignette-timing fix: precompute + example dataset sweep** (response to the
+  CRAN reviewer's second-round request to reduce the vignette re-build time — "checking re-building
+  of vignette outputs … [317s]"; no functional code change). The eight vignettes re-fit `ackwards()`
+  on the full bfi25 polychoric basis (plus parallel analysis, split-half comparability, and 200-rep
+  bootstrap edges) on every build. **Fix: precompute the seven heavy vignettes** with the rOpenSci
+  `*.Rmd.orig` pattern (`vignettes/precompute.R` knits each `.orig` → static `.Rmd` with results and
+  `vignettes/assets/` figures baked in; CRAN then builds them pandoc-only). Only
+  `ackwards-interpret.Rmd` stays live (needs the full bfi25 IPIP labels; already ~2s). Local vignette
+  render dropped **~64s → ~6.4s** (seven statics all <1.2s). **sim16 was evaluated for the two
+  natural live candidates and rejected on pedagogy, not speed:** `ackwards-girard`'s comparability
+  lesson needs realistically messy data (sim16's clean planted structure replicates ~perfectly,
+  erasing the "hierarchy floor" the vignette teaches), and `ackwards-visualization` is a sign-encoding
+  reference that needs above-`cut_show` negative edges to demo red/dashed aesthetics (sim16 at
+  `k_max = 5` has only sub-threshold negatives) — so both are precomputed on bfi25 instead. Separately
+  moved the remaining bfi25/polychoric **roxygen examples** to sim16 where the dataset is incidental:
+  `label_template` (the one non-`\donttest` offender — a full polychoric `k_max = 5` fit ran on every
+  check), plus the `\donttest` examples of `autoplot.ackwards`, `comparability` (×2), and `suggest_k`
+  (×2). The `figure/` → `assets/` rename dodges R CMD check's "leftover from knitr" NOTE. `R CMD
+  check` **0/0/0**; styler/lintr/`pkgdown::check_pkgdown()` clean. Files: `vignettes/precompute.R`
+  (new), seven `vignettes/*.Rmd` → `*.Rmd.orig` + regenerated static `*.Rmd` + `vignettes/assets/`,
+  `R/{autoplot,comparability,label_template,suggest_k}.R` + regenerated man pages, `.Rbuildignore`,
+  `CLAUDE.md`.

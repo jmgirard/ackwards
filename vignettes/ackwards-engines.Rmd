@@ -7,16 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.width = 7,
-  fig.height = 4.5
-)
-has_lavaan <- requireNamespace("lavaan", quietly = TRUE)
-has_gt <- requireNamespace("gt", quietly = TRUE)
-```
+
 
 **ackwards** supports three factor extraction engines. They share the same
 downstream machinery — the same rotation, the same tenBerge scoring weights, the
@@ -45,7 +36,8 @@ differ.
 
 ## Setup
 
-```{r setup-data}
+
+``` r
 library(ackwards)
 bfi <- na.omit(bfi25)
 ```
@@ -67,17 +59,48 @@ converges, and produces eigenvalues that can guide the choice of k. Waller
 components, making the edges algebraically exact rather than approximated from
 materialized scores.
 
-```{r pca}
+
+``` r
 x_pca <- ackwards(bfi, k_max = 3, cor = "polychoric")
 x_pca
+#> 
+#> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
+#> Engine: pca
+#> Rotation: varimax
+#> Basis: polychoric
+#> n: 875
+#> k (max): 3
+#> 
+#> ── Levels ──
+#> 
+#> ✔ k = 1: 1 factor, 23.2% variance
+#> ✔ k = 2: 2 factors, 35.5% variance
+#> ✔ k = 3: 3 factors, 44.6% variance
+#> 
+#> ── Edges ──
+#> 
+#> 5 of 8 edges have |r| ≥ 0.3
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: This is a series of linked solutions, not a fitted hierarchical model.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 ```
 
 The "fit" for PCA is just the eigenvalue of each component — the amount of
 variance it captures. There are no chi-square tests, no RMSEA, no model
 rejection.
 
-```{r pca-fit}
+
+``` r
 tidy(x_pca, what = "fit")
+#>   level       statistic    value
+#> 1     1 eigenvalue.m1f1 5.802803
+#> 2     2 eigenvalue.m2f1 5.802803
+#> 3     2 eigenvalue.m2f2 3.067627
+#> 4     3 eigenvalue.m3f1 5.802803
+#> 5     3 eigenvalue.m3f2 3.067627
+#> 6     3 eigenvalue.m3f3 2.275419
 ```
 
 ## EFA: factors from common variance
@@ -88,17 +111,60 @@ explain. This is the classical common-factor model, and it is more appropriate
 than PCA when you believe the items are fallible indicators of latent constructs
 rather than the constructs themselves.
 
-```{r efa}
+
+``` r
 x_efa <- ackwards(bfi, k_max = 3, engine = "efa", cor = "polychoric")
 x_efa
+#> 
+#> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
+#> Engine: efa
+#> Rotation: varimax
+#> Basis: polychoric
+#> n: 875
+#> k (max): 3
+#> 
+#> ── Levels ──
+#> 
+#> ✔ k = 1: 1 factor, 20.3% variance
+#> ✔ k = 2: 2 factors, 30.8% variance
+#> ✔ k = 3: 3 factors, 37.7% variance
+#> 
+#> ── Edges ──
+#> 
+#> 5 of 8 edges have |r| ≥ 0.3
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: This is a series of linked solutions, not a fitted hierarchical model.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 ```
 
 EFA produces genuine goodness-of-fit indices. These tell you whether the k
 factors are sufficient to reproduce the observed correlation matrix within
 sampling error.
 
-```{r efa-fit}
+
+``` r
 tidy(x_efa, what = "fit")
+#>    level statistic        value
+#> 1      1       chi 5327.2295200
+#> 2      1       dof  275.0000000
+#> 3      1   p_value    0.0000000
+#> 4      1     RMSEA    0.1448964
+#> 5      1       TLI    0.3429279
+#> 6      1       BIC 3464.3179512
+#> 7      2       chi 3520.3788570
+#> 8      2       dof  251.0000000
+#> 9      2   p_value    0.0000000
+#> 10     2     RMSEA    0.1220036
+#> 11     2       TLI    0.5337688
+#> 12     2       BIC 1820.0486615
+#> 13     3       chi 2545.6948352
+#> 14     3       dof  228.0000000
+#> 15     3   p_value    0.0000000
+#> 16     3     RMSEA    0.1077785
+#> 17     3       TLI    0.6358514
+#> 18     3       BIC 1001.1717891
 ```
 
 The RMSEA values here are large (> 0.10), indicating that 1–3 factors do not
@@ -120,65 +186,513 @@ teaching point: how much smaller EFA loadings are in absolute value once
 measurement error is partitioned into uniqueness. Using |EFA| − |PCA| keeps
 the attenuation consistently negative regardless of loading sign.
 
-```{r loadings-compare, echo = FALSE}
-# Primary loading = loading on the factor with the highest |loading| for that item
-anchors <- c("N1", "N2", "E1", "E2", "C1", "C2")
-
-primary_loading <- function(x, level_k) {
-  d <- tidy(x, what = "loadings")
-  d <- d[d$level == level_k & d$item %in% anchors, ]
-  do.call(rbind, lapply(split(d, d$item), function(r) r[which.max(abs(r$loading)), ]))
+<!--html_preserve--><div id="lsbjcarrus" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lsbjcarrus table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-pca_p <- primary_loading(x_pca, 3)
-efa_p <- primary_loading(x_efa, 3)
-
-# Verify factor and sign correspondence before differencing
-stopifnot(
-  all(pca_p$factor[order(pca_p$item)] == efa_p$factor[order(efa_p$item)]),
-  all(sign(pca_p$loading[order(pca_p$item)]) == sign(efa_p$loading[order(efa_p$item)]))
-)
-
-wide <- merge(
-  pca_p[, c("factor", "item", "loading")],
-  efa_p[, c("item", "loading")],
-  by = "item", suffixes = c("_pca", "_efa")
-)
-wide$delta <- abs(wide$loading_efa) - abs(wide$loading_pca)
-wide <- wide[order(wide$factor, wide$item), c("item", "factor", "loading_pca", "loading_efa", "delta")]
-
-if (has_gt) {
-  gt::gt(wide) |>
-    gt::tab_header(title = "PCA vs EFA: primary loadings for anchor items (k = 3)") |>
-    gt::tab_spanner(label = "Loading", columns = c(loading_pca, loading_efa, delta)) |>
-    gt::cols_label(
-      item = "Item",
-      factor = "Factor",
-      loading_pca = "PCA",
-      loading_efa = "EFA",
-      delta = "Δ (|EFA| − |PCA|)"
-    ) |>
-    gt::fmt_number(columns = c(loading_pca, loading_efa, delta), decimals = 2) |>
-    gt::tab_style(
-      style     = gt::cell_text(weight = "bold"),
-      locations = gt::cells_column_labels(columns = delta)
-    ) |>
-    gt::tab_footnote(
-      footnote = paste0(
-        "Factor assignment and sign verified to match between engines.",
-        " Delta uses |EFA| - |PCA| so attenuation is always negative regardless of loading sign."
-      ),
-      locations = gt::cells_column_labels(columns = delta)
-    )
-} else {
-  knitr::kable(
-    wide,
-    digits = 2, row.names = FALSE,
-    col.names = c("Item", "Factor", "PCA", "EFA", "Δ (|EFA| − |PCA|)"),
-    caption = "PCA vs EFA: primary loadings for anchor items (k = 3)"
-  )
+#lsbjcarrus thead, #lsbjcarrus tbody, #lsbjcarrus tfoot, #lsbjcarrus tr, #lsbjcarrus td, #lsbjcarrus th {
+  border-style: none;
 }
-```
+
+#lsbjcarrus p {
+  margin: 0;
+  padding: 0;
+}
+
+#lsbjcarrus .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#lsbjcarrus .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#lsbjcarrus .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#lsbjcarrus .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#lsbjcarrus .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lsbjcarrus .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lsbjcarrus .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lsbjcarrus .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#lsbjcarrus .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#lsbjcarrus .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#lsbjcarrus .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#lsbjcarrus .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#lsbjcarrus .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#lsbjcarrus .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#lsbjcarrus .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#lsbjcarrus .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#lsbjcarrus .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#lsbjcarrus .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#lsbjcarrus .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lsbjcarrus .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#lsbjcarrus .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#lsbjcarrus .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#lsbjcarrus .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lsbjcarrus .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#lsbjcarrus .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#lsbjcarrus .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lsbjcarrus .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lsbjcarrus .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#lsbjcarrus .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lsbjcarrus .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#lsbjcarrus .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lsbjcarrus .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lsbjcarrus .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lsbjcarrus .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lsbjcarrus .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lsbjcarrus .gt_left {
+  text-align: left;
+}
+
+#lsbjcarrus .gt_center {
+  text-align: center;
+}
+
+#lsbjcarrus .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#lsbjcarrus .gt_font_normal {
+  font-weight: normal;
+}
+
+#lsbjcarrus .gt_font_bold {
+  font-weight: bold;
+}
+
+#lsbjcarrus .gt_font_italic {
+  font-style: italic;
+}
+
+#lsbjcarrus .gt_super {
+  font-size: 65%;
+}
+
+#lsbjcarrus .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#lsbjcarrus .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#lsbjcarrus .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#lsbjcarrus .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#lsbjcarrus .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#lsbjcarrus .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#lsbjcarrus .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#lsbjcarrus .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#lsbjcarrus div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_title gt_font_normal gt_bottom_border" style>PCA vs EFA: primary loadings for anchor items (k = 3)</td>
+    </tr>
+    
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="item">Item</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="factor">Factor</th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Loading">
+        <div class="gt_column_spanner">Loading</div>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="loading_pca">PCA</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="loading_efa">EFA</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="delta">Δ (|EFA| − |PCA|)<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="item" class="gt_row gt_left">E1</td>
+<td headers="factor" class="gt_row gt_left">m3f1</td>
+<td headers="loading_pca" class="gt_row gt_right">−0.61</td>
+<td headers="loading_efa" class="gt_row gt_right">−0.55</td>
+<td headers="delta" class="gt_row gt_right">−0.06</td></tr>
+    <tr><td headers="item" class="gt_row gt_left">E2</td>
+<td headers="factor" class="gt_row gt_left">m3f1</td>
+<td headers="loading_pca" class="gt_row gt_right">−0.70</td>
+<td headers="loading_efa" class="gt_row gt_right">−0.67</td>
+<td headers="delta" class="gt_row gt_right">−0.03</td></tr>
+    <tr><td headers="item" class="gt_row gt_left">N1</td>
+<td headers="factor" class="gt_row gt_left">m3f2</td>
+<td headers="loading_pca" class="gt_row gt_right">−0.78</td>
+<td headers="loading_efa" class="gt_row gt_right">−0.75</td>
+<td headers="delta" class="gt_row gt_right">−0.03</td></tr>
+    <tr><td headers="item" class="gt_row gt_left">N2</td>
+<td headers="factor" class="gt_row gt_left">m3f2</td>
+<td headers="loading_pca" class="gt_row gt_right">−0.79</td>
+<td headers="loading_efa" class="gt_row gt_right">−0.76</td>
+<td headers="delta" class="gt_row gt_right">−0.03</td></tr>
+    <tr><td headers="item" class="gt_row gt_left">C1</td>
+<td headers="factor" class="gt_row gt_left">m3f3</td>
+<td headers="loading_pca" class="gt_row gt_right">0.66</td>
+<td headers="loading_efa" class="gt_row gt_right">0.62</td>
+<td headers="delta" class="gt_row gt_right">−0.04</td></tr>
+    <tr><td headers="item" class="gt_row gt_left">C2</td>
+<td headers="factor" class="gt_row gt_left">m3f3</td>
+<td headers="loading_pca" class="gt_row gt_right">0.64</td>
+<td headers="loading_efa" class="gt_row gt_right">0.61</td>
+<td headers="delta" class="gt_row gt_right">−0.03</td></tr>
+  </tbody>
+  <tfoot>
+    <tr class="gt_footnotes">
+      <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Factor assignment and sign verified to match between engines. Delta uses |EFA| - |PCA| so attenuation is always negative regardless of loading sign.</td>
+    </tr>
+  </tfoot>
+</table>
+</div><!--/html_preserve-->
 
 EFA loadings for the same items are consistently a few points lower — the PCA
 loadings include some noise variance that EFA partitions into uniqueness. The
@@ -210,19 +724,34 @@ specifically need loading standard errors (especially at smaller *n*), the
 field-standard WLSMV estimator for ordinal indicators, or true FIML for missing
 data; otherwise EFA is the simpler, faster choice.
 
-```{r esem-check, echo = FALSE, results = "asis"}
-if (!has_lavaan) {
-  cat(
-    "> **Note:** The ESEM examples below require the **lavaan** package,",
-    "which is not currently installed. Install it with",
-    "`install.packages(\"lavaan\")` to run these chunks.\n"
-  )
-}
-```
 
-```{r esem, eval = has_lavaan}
+
+
+``` r
 x_esem <- ackwards(bfi, k_max = 3, engine = "esem", cor = "polychoric")
 x_esem
+#> 
+#> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
+#> Engine: esem
+#> Rotation: varimax
+#> Basis: polychoric
+#> n: 875
+#> k (max): 3
+#> 
+#> ── Levels ──
+#> 
+#> ✔ k = 1: 1 factor, 23.5% variance
+#> ✔ k = 2: 2 factors, 32.9% variance
+#> ✔ k = 3: 3 factors, 39.5% variance
+#> 
+#> ── Edges ──
+#> 
+#> 5 of 8 edges have |r| ≥ 0.3
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: This is a series of linked solutions, not a fitted hierarchical model.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 ```
 
 ESEM fit indices include CFI and SRMR in addition to RMSEA and TLI, giving a
@@ -235,13 +764,21 @@ The unique output from ESEM is the rotation-aware **standard error** of every
 loading. These SEs are now returned as part of `tidy(what = "loadings")`,
 alongside `ci_lower` and `ci_upper` columns:
 
-```{r esem-se, eval = has_lavaan}
+
+``` r
 ld <- tidy(x_esem, what = "loadings")
 head(ld)
+#>   level factor item    loading         se   ci_lower   ci_upper
+#> 1     1   m1f1   A1 -0.3155807 0.02831633 -0.3710797 -0.2600817
+#> 2     1   m1f1   A2  0.5584169 0.02316777  0.5130089  0.6038249
+#> 3     1   m1f1   A3  0.6424786 0.01971862  0.6038308  0.6811264
+#> 4     1   m1f1   A4  0.4261675 0.02777029  0.3717387  0.4805962
+#> 5     1   m1f1   A5  0.6588505 0.01870826  0.6221830  0.6955180
+#> 6     1   m1f1   C1  0.4138252 0.02754885  0.3598304  0.4678200
 ```
 
 The intervals are computed as loading ± *z* × SE (default 95%; set
-`conf_level = 0.99` for wider intervals). With the `r nrow(bfi)` complete cases
+`conf_level = 0.99` for wider intervals). With the 875 complete cases
 used here the SEs are fairly small; with smaller samples they become important
 for judging which loadings are meaningfully non-zero. For PCA and EFA objects the `se`,
 `ci_lower`, and `ci_upper` columns are present but `NA` — those engines carry no
@@ -281,8 +818,12 @@ poorly-fitting one.
 `tidy(what = "fit")` returns the raw long table. For reporting, `format = "wide"`
 gives one row per level:
 
-```{r fit-wide, eval = has_lavaan}
+
+``` r
 tidy(x_esem, what = "fit", format = "wide")
+#>   level      chi dof p_value       CFI       TLI     RMSEA       SRMR BIC
+#> 1     2 3616.834 251       0 0.7117569 0.6554864 0.1238665 0.09547997  NA
+#> 2     3 2448.356 228       0 0.8098533 0.7498069 0.1055573 0.07172502  NA
 ```
 
 `tidy()` does not flag rows against a threshold — the Hu & Bentler (1999)
@@ -300,9 +841,12 @@ they appear only as visual/inline reference points in `autoplot()` and
 `autoplot(x, what = "fit")` visualises the trajectory across levels, with cutoff
 reference lines:
 
-```{r fit-plot, eval = has_lavaan, fig.width = 6, fig.height = 5}
+
+``` r
 autoplot(x_esem, what = "fit")
 ```
+
+![plot of chunk fit-plot](assets/ackwards-engines-fit-plot-1.png)
 
 The shape of the trajectory matters as much as the absolute values: a sharp
 improvement from k = 2 to k = 3 suggests the third factor is capturing genuine
@@ -318,8 +862,13 @@ the BFI.
 
 `glance()` now also carries the deepest-level fit for quick inspection:
 
-```{r glance-fit, eval = has_lavaan}
+
+``` r
 glance(x_esem)
+#>   engine rotation        cor k_max n_obs deepest_converged n_edges       CFI
+#> 1   esem  varimax polychoric     3   875                 3       8 0.8098533
+#>         TLI     RMSEA       SRMR BIC
+#> 1 0.7498069 0.1055573 0.07172502  NA
 ```
 
 ### Should you care about fit in a bass-ackwards workflow?
@@ -351,47 +900,508 @@ level transition. The Δ column is the shift in connection strength
 (|EFA| − |PCA|) — a direct, sign-robust measure of how much the latent-variable
 model changes your inference about the hierarchy.
 
-```{r edges-compare, echo = FALSE}
-pca_e <- tidy(x_pca, what = "edges", primary_only = TRUE)
-efa_e <- tidy(x_efa, what = "edges", primary_only = TRUE)
-
-wide_e <- merge(
-  pca_e[, c("from", "to", "r")],
-  efa_e[, c("from", "to", "r")],
-  by = c("from", "to"), all = TRUE, suffixes = c("_pca", "_efa")
-)
-wide_e$delta <- abs(wide_e$r_efa) - abs(wide_e$r_pca)
-wide_e <- wide_e[order(wide_e$to), c("from", "to", "r_pca", "r_efa", "delta")]
-
-if (has_gt) {
-  gt::gt(wide_e) |>
-    gt::tab_header(title = "Primary-parent edges: PCA vs EFA") |>
-    gt::tab_spanner(label = "Edge strength (r)", columns = c(r_pca, r_efa, delta)) |>
-    gt::cols_label(
-      from  = "From",
-      to    = "To",
-      r_pca = "PCA",
-      r_efa = "EFA",
-      delta = "Δ (EFA − PCA)"
-    ) |>
-    gt::fmt_number(columns = c(r_pca, r_efa, delta), decimals = 2) |>
-    gt::tab_style(
-      style     = gt::cell_text(weight = "bold"),
-      locations = gt::cells_column_labels(columns = delta)
-    ) |>
-    gt::tab_footnote(
-      footnote  = "NA in either column means the engines disagree on the primary parent for that factor.",
-      locations = gt::cells_column_labels(columns = delta)
-    )
-} else {
-  knitr::kable(
-    wide_e,
-    digits = 2, row.names = FALSE,
-    col.names = c("From", "To", "PCA", "EFA", "Δ (|EFA| − |PCA|)"),
-    caption = "Primary-parent edges: PCA vs EFA"
-  )
+<!--html_preserve--><div id="zieewudvhf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zieewudvhf table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-```
+
+#zieewudvhf thead, #zieewudvhf tbody, #zieewudvhf tfoot, #zieewudvhf tr, #zieewudvhf td, #zieewudvhf th {
+  border-style: none;
+}
+
+#zieewudvhf p {
+  margin: 0;
+  padding: 0;
+}
+
+#zieewudvhf .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#zieewudvhf .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#zieewudvhf .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#zieewudvhf .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#zieewudvhf .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zieewudvhf .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zieewudvhf .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zieewudvhf .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#zieewudvhf .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#zieewudvhf .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#zieewudvhf .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#zieewudvhf .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#zieewudvhf .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#zieewudvhf .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#zieewudvhf .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#zieewudvhf .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#zieewudvhf .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#zieewudvhf .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#zieewudvhf .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zieewudvhf .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#zieewudvhf .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#zieewudvhf .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#zieewudvhf .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zieewudvhf .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#zieewudvhf .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#zieewudvhf .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zieewudvhf .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zieewudvhf .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#zieewudvhf .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zieewudvhf .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#zieewudvhf .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zieewudvhf .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zieewudvhf .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zieewudvhf .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zieewudvhf .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zieewudvhf .gt_left {
+  text-align: left;
+}
+
+#zieewudvhf .gt_center {
+  text-align: center;
+}
+
+#zieewudvhf .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#zieewudvhf .gt_font_normal {
+  font-weight: normal;
+}
+
+#zieewudvhf .gt_font_bold {
+  font-weight: bold;
+}
+
+#zieewudvhf .gt_font_italic {
+  font-style: italic;
+}
+
+#zieewudvhf .gt_super {
+  font-size: 65%;
+}
+
+#zieewudvhf .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#zieewudvhf .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#zieewudvhf .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#zieewudvhf .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#zieewudvhf .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#zieewudvhf .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#zieewudvhf .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#zieewudvhf .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#zieewudvhf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_title gt_font_normal gt_bottom_border" style>Primary-parent edges: PCA vs EFA</td>
+    </tr>
+    
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="from">From</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="to">To</th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Edge strength (r)">
+        <div class="gt_column_spanner">Edge strength (r)</div>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="r_pca">PCA</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="r_efa">EFA</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="delta">Δ (EFA − PCA)<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="from" class="gt_row gt_left">m1f1</td>
+<td headers="to" class="gt_row gt_left">m2f1</td>
+<td headers="r_pca" class="gt_row gt_right">0.89</td>
+<td headers="r_efa" class="gt_row gt_right">0.91</td>
+<td headers="delta" class="gt_row gt_right">0.02</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m1f1</td>
+<td headers="to" class="gt_row gt_left">m2f2</td>
+<td headers="r_pca" class="gt_row gt_right">0.46</td>
+<td headers="r_efa" class="gt_row gt_right">0.42</td>
+<td headers="delta" class="gt_row gt_right">−0.04</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f1</td>
+<td headers="to" class="gt_row gt_left">m3f1</td>
+<td headers="r_pca" class="gt_row gt_right">0.87</td>
+<td headers="r_efa" class="gt_row gt_right">0.89</td>
+<td headers="delta" class="gt_row gt_right">0.02</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f2</td>
+<td headers="to" class="gt_row gt_left">m3f2</td>
+<td headers="r_pca" class="gt_row gt_right">0.99</td>
+<td headers="r_efa" class="gt_row gt_right">0.98</td>
+<td headers="delta" class="gt_row gt_right">−0.01</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f1</td>
+<td headers="to" class="gt_row gt_left">m3f3</td>
+<td headers="r_pca" class="gt_row gt_right">0.48</td>
+<td headers="r_efa" class="gt_row gt_right">0.44</td>
+<td headers="delta" class="gt_row gt_right">−0.04</td></tr>
+  </tbody>
+  <tfoot>
+    <tr class="gt_footnotes">
+      <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> NA in either column means the engines disagree on the primary parent for that factor.</td>
+    </tr>
+  </tfoot>
+</table>
+</div><!--/html_preserve-->
 
 The r values are very close between engines: the hierarchy that PCA reveals is
 essentially the same hierarchy that EFA reveals. This convergence across methods
@@ -457,14 +1467,44 @@ in `?ackwards`. In brief:
 For continuous data with MAR missingness, pass `missing = "fiml"` directly —
 more principled than pairwise deletion, which is only MCAR-valid:
 
-```{r corfiml}
+
+``` r
 # sim16 is continuous, so FIML's normality assumption is appropriate here.
 set.seed(1)
 sim_na <- sim16
 for (j in seq_len(ncol(sim_na))) sim_na[sample(nrow(sim_na), 60L), j] <- NA
 
 x_fiml <- ackwards(sim_na, k_max = 4, engine = "efa", missing = "fiml")
+#> ℹ `missing = "fiml"`: correlation matrix estimated via `psych::corFiml()`
+#>   (full-information ML).
+#> ℹ Fit indices use N = 1000 (`n_obs = "total"`); point estimates (loadings,
+#>   edges) are unaffected by this choice.
+#> ! Fit indices are approximate: a FIML correlation matrix is fed into a
+#>   normal-theory EFA (a two-step procedure). See `?ackwards` (`n_obs`).
 x_fiml
+#> 
+#> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
+#> Engine: efa
+#> Rotation: varimax
+#> Basis: pearson
+#> n: 1,000
+#> k (max): 4
+#> 
+#> ── Levels ──
+#> 
+#> ✔ k = 1: 1 factor, 23.3% variance
+#> ✔ k = 2: 2 factors, 38.7% variance
+#> ✔ k = 3: 3 factors, 48.2% variance
+#> ✔ k = 4: 4 factors, 56.8% variance
+#> 
+#> ── Edges ──
+#> 
+#> 9 of 20 edges have |r| ≥ 0.3
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: This is a series of linked solutions, not a fitted hierarchical model.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 ```
 
 Under the hood this estimates the correlation matrix with `psych::corFiml()`
@@ -506,7 +1546,8 @@ want to analyse without refitting — you can pass it directly to `ackwards()` o
 `suggest_k()`. The matrix is auto-detected from its shape (square, symmetric, unit
 diagonal).
 
-```{r cor-matrix-input, eval = FALSE}
+
+``` r
 R <- cor(bfi25, use = "pairwise.complete.obs")
 
 # PCA from a correlation matrix (n_obs optional for PCA; required for EFA)
@@ -532,7 +1573,8 @@ all.equal(tidy(x_R)$r, tidy(x_d)$r) # TRUE within floating-point tolerance
 
 ### suggest_k() with a correlation matrix
 
-```{r cor-matrix-suggest, eval = FALSE}
+
+``` r
 sk_R <- suggest_k(R, n_obs = 875L)
 # CD is skipped (resampling requires raw item distributions)
 # PA, MAP, and VSS run normally
@@ -553,7 +1595,8 @@ automatic optimisations keep this manageable:
   `future.apply` and set a [future](https://future.futureverse.org) plan before
   your call; the default plan is sequential (no change in behaviour).
 
-```{r esem-parallel, eval = FALSE}
+
+``` r
 library(future)
 plan(multisession, workers = 4) # parallel across background R sessions
 

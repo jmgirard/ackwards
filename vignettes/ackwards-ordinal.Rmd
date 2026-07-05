@@ -7,17 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.width = 7,
-  fig.height = 4.5
-)
-has_lavaan <- requireNamespace("lavaan", quietly = TRUE)
-has_gt <- requireNamespace("gt", quietly = TRUE)
-has_ggplot2 <- requireNamespace("ggplot2", quietly = TRUE)
-```
+
 
 Most psychological scales use ordinal response formats: Likert-type items with a
 handful of ordered categories, binary (yes/no) items, and everything in between.
@@ -70,12 +60,14 @@ between-level algebra) then operates on that polychoric `R`.
 column is integer-valued with ≤ 7 distinct levels, the data is flagged and a
 warning is issued when `cor = "pearson"` (the default).
 
-```{r data}
+
+``` r
 library(ackwards)
 bfi <- na.omit(bfi25)
 ```
 
-```{r detect}
+
+``` r
 # The warning fires with the default Pearson basis
 x_pearson <- ackwards(bfi, k_max = 5)
 ```
@@ -83,7 +75,8 @@ x_pearson <- ackwards(bfi, k_max = 5)
 The warning is ackwards reminding you to make an active choice. Specifying
 `cor = "polychoric"` acknowledges the data type and suppresses it:
 
-```{r polychoric-silent}
+
+``` r
 x_poly <- ackwards(bfi, k_max = 5, cor = "polychoric")
 ```
 
@@ -96,43 +89,12 @@ correlations under each basis. Rather than read two 5×5 matrices side by side,
 the chart below plots the ten unique item-pair correlations among the five
 neuroticism items (`N1`–`N5`), Pearson against polychoric.
 
-```{r ggplot-check, echo = FALSE, results = "asis"}
-if (!has_ggplot2) {
-  cat(
-    "> **Note:** The correlation-comparison chart below requires the",
-    "**ggplot2** package, which is not currently installed. Install it with",
-    "`install.packages(\"ggplot2\")` to render it.\n"
-  )
-}
-```
 
-```{r r-compare, echo = FALSE, eval = has_ggplot2, fig.alt = "Dodged bar chart comparing Pearson and polychoric correlations for the ten unique N1-N5 item pairs; every polychoric bar is taller than its Pearson counterpart."}
-n_items <- paste0("N", 1:5)
-Rp <- x_pearson$r[n_items, n_items]
-Rc <- x_poly$r[n_items, n_items]
-lt <- lower.tri(Rp)
-idx <- which(lt, arr.ind = TRUE)
-pair_lab <- paste(n_items[idx[, "row"]], n_items[idx[, "col"]], sep = "–")
 
-corr_df <- rbind(
-  data.frame(pair = pair_lab, basis = "Pearson", r = Rp[lt]),
-  data.frame(pair = pair_lab, basis = "Polychoric", r = Rc[lt])
-)
-
-ggplot2::ggplot(
-  corr_df,
-  ggplot2::aes(x = pair, y = r, fill = basis)
-) +
-  ggplot2::geom_col(
-    position = ggplot2::position_dodge(width = 0.7), width = 0.65
-  ) +
-  ggplot2::labs(
-    x = "Item pair", y = "Correlation", fill = "Basis",
-    title = "Pearson vs polychoric item correlations",
-    subtitle = "Ten unique pairs among the five neuroticism items"
-  ) +
-  ggplot2::theme_minimal()
-```
+<div class="figure">
+<img src="assets/ackwards-ordinal-r-compare-1.png" alt="Dodged bar chart comparing Pearson and polychoric correlations for the ten unique N1-N5 item pairs; every polychoric bar is taller than its Pearson counterpart."  />
+<p class="caption">plot of chunk r-compare</p>
+</div>
 
 Every polychoric bar sits above its Pearson counterpart — the correlations are
 consistently higher. The `N1`–`N2` pair, for instance, goes from about 0.73
@@ -148,67 +110,510 @@ the polychoric basis removes the coarse-category suppression. Using
 |Polychoric| − |Pearson| keeps the attenuation positive regardless of loading
 sign.
 
-```{r load-compare, echo = FALSE}
-n_items <- c("N1", "N2", "N3", "N4", "N5")
-
-primary_loading <- function(x, level_k, items) {
-  d <- tidy(x, what = "loadings")
-  d <- d[d$level == level_k & d$item %in% items, ]
-  do.call(rbind, lapply(split(d, d$item), function(r) r[which.max(abs(r$loading)), ]))
+<!--html_preserve--><div id="ddczhqbvif" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ddczhqbvif table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-pear_p <- primary_loading(x_pearson, 5, n_items)
-poly_p <- primary_loading(x_poly, 5, n_items)
-
-# Verify factor and sign correspondence before differencing
-stopifnot(
-  all(pear_p$factor[order(pear_p$item)] == poly_p$factor[order(poly_p$item)]),
-  all(sign(pear_p$loading[order(pear_p$item)]) == sign(poly_p$loading[order(poly_p$item)]))
-)
-
-wide <- merge(
-  pear_p[, c("factor", "item", "loading")],
-  poly_p[, c("item", "loading")],
-  by = "item", suffixes = c("_pearson", "_poly")
-)
-wide$delta <- abs(wide$loading_poly) - abs(wide$loading_pearson)
-wide <- wide[order(wide$item), c("item", "factor", "loading_pearson", "loading_poly", "delta")]
-
-if (has_gt) {
-  gt::gt(wide) |>
-    gt::tab_header(
-      title    = "Neuroticism-item loadings at k = 5: Pearson vs polychoric",
-      subtitle = "Positive Δ = attenuation removed by the polychoric basis"
-    ) |>
-    gt::tab_spanner(label = "Primary loading", columns = c(loading_pearson, loading_poly, delta)) |>
-    gt::cols_label(
-      item            = "Item",
-      factor          = "Factor",
-      loading_pearson = "Pearson",
-      loading_poly    = "Polychoric",
-      delta           = "Δ (|Poly| − |Pearson|)"
-    ) |>
-    gt::fmt_number(columns = c(loading_pearson, loading_poly, delta), decimals = 2) |>
-    gt::tab_style(
-      style     = gt::cell_text(weight = "bold"),
-      locations = gt::cells_column_labels(columns = delta)
-    ) |>
-    gt::tab_footnote(
-      footnote = paste0(
-        "Factor assignment and sign verified to match between bases.",
-        " Delta uses |Poly| - |Pearson| so attenuation is positive regardless of loading sign."
-      ),
-      locations = gt::cells_column_labels(columns = delta)
-    )
-} else {
-  knitr::kable(
-    wide,
-    digits = 2, row.names = FALSE,
-    col.names = c("Item", "Factor", "Pearson", "Polychoric", "Δ (|Poly| − |Pearson|)"),
-    caption = "Neuroticism-item loadings at k = 5: Pearson vs polychoric"
-  )
+#ddczhqbvif thead, #ddczhqbvif tbody, #ddczhqbvif tfoot, #ddczhqbvif tr, #ddczhqbvif td, #ddczhqbvif th {
+  border-style: none;
 }
-```
+
+#ddczhqbvif p {
+  margin: 0;
+  padding: 0;
+}
+
+#ddczhqbvif .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ddczhqbvif .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ddczhqbvif .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ddczhqbvif .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ddczhqbvif .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ddczhqbvif .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ddczhqbvif .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ddczhqbvif .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ddczhqbvif .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ddczhqbvif .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ddczhqbvif .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ddczhqbvif .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ddczhqbvif .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ddczhqbvif .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ddczhqbvif .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ddczhqbvif .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ddczhqbvif .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ddczhqbvif .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ddczhqbvif .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ddczhqbvif .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ddczhqbvif .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ddczhqbvif .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ddczhqbvif .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ddczhqbvif .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ddczhqbvif .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ddczhqbvif .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ddczhqbvif .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ddczhqbvif .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ddczhqbvif .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ddczhqbvif .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ddczhqbvif .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ddczhqbvif .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ddczhqbvif .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ddczhqbvif .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ddczhqbvif .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ddczhqbvif .gt_left {
+  text-align: left;
+}
+
+#ddczhqbvif .gt_center {
+  text-align: center;
+}
+
+#ddczhqbvif .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ddczhqbvif .gt_font_normal {
+  font-weight: normal;
+}
+
+#ddczhqbvif .gt_font_bold {
+  font-weight: bold;
+}
+
+#ddczhqbvif .gt_font_italic {
+  font-style: italic;
+}
+
+#ddczhqbvif .gt_super {
+  font-size: 65%;
+}
+
+#ddczhqbvif .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ddczhqbvif .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ddczhqbvif .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ddczhqbvif .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ddczhqbvif .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ddczhqbvif .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ddczhqbvif .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#ddczhqbvif .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#ddczhqbvif div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_title gt_font_normal" style>Neuroticism-item loadings at k = 5: Pearson vs polychoric</td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Positive Δ = attenuation removed by the polychoric basis</td>
+    </tr>
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="item">Item</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="factor">Factor</th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Primary loading">
+        <div class="gt_column_spanner">Primary loading</div>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="loading_pearson">Pearson</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="loading_poly">Polychoric</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="delta">Δ (|Poly| − |Pearson|)<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="item" class="gt_row gt_left">N1</td>
+<td headers="factor" class="gt_row gt_left">m5f2</td>
+<td headers="loading_pearson" class="gt_row gt_right">−0.79</td>
+<td headers="loading_poly" class="gt_row gt_right">−0.81</td>
+<td headers="delta" class="gt_row gt_right">0.02</td></tr>
+    <tr><td headers="item" class="gt_row gt_left">N2</td>
+<td headers="factor" class="gt_row gt_left">m5f2</td>
+<td headers="loading_pearson" class="gt_row gt_right">−0.78</td>
+<td headers="loading_poly" class="gt_row gt_right">−0.81</td>
+<td headers="delta" class="gt_row gt_right">0.02</td></tr>
+    <tr><td headers="item" class="gt_row gt_left">N3</td>
+<td headers="factor" class="gt_row gt_left">m5f2</td>
+<td headers="loading_pearson" class="gt_row gt_right">−0.80</td>
+<td headers="loading_poly" class="gt_row gt_right">−0.82</td>
+<td headers="delta" class="gt_row gt_right">0.03</td></tr>
+    <tr><td headers="item" class="gt_row gt_left">N4</td>
+<td headers="factor" class="gt_row gt_left">m5f2</td>
+<td headers="loading_pearson" class="gt_row gt_right">−0.63</td>
+<td headers="loading_poly" class="gt_row gt_right">−0.65</td>
+<td headers="delta" class="gt_row gt_right">0.02</td></tr>
+    <tr><td headers="item" class="gt_row gt_left">N5</td>
+<td headers="factor" class="gt_row gt_left">m5f2</td>
+<td headers="loading_pearson" class="gt_row gt_right">−0.66</td>
+<td headers="loading_poly" class="gt_row gt_right">−0.69</td>
+<td headers="delta" class="gt_row gt_right">0.03</td></tr>
+  </tbody>
+  <tfoot>
+    <tr class="gt_footnotes">
+      <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Factor assignment and sign verified to match between bases. Delta uses |Poly| - |Pearson| so attenuation is positive regardless of loading sign.</td>
+    </tr>
+  </tfoot>
+</table>
+</div><!--/html_preserve-->
 
 Polychoric loadings for the Neuroticism items are noticeably higher — the latent
 structure is sharper when the attenuating effect of coarse categories is
@@ -222,50 +627,555 @@ stronger connection by undoing attenuation, negative in the few cases where the
 recovered structure is slightly looser. Using absolute values makes the
 direction read correctly even for the negatively-signed edge.
 
-```{r edge-compare, echo = FALSE}
-pear_e <- tidy(x_pearson, what = "edges", primary_only = TRUE)
-poly_e <- tidy(x_poly, what = "edges", primary_only = TRUE)
-
-wide_e <- merge(
-  pear_e[, c("from", "to", "r")],
-  poly_e[, c("from", "to", "r")],
-  by = c("from", "to"), all = TRUE, suffixes = c("_pearson", "_poly")
-)
-wide_e$delta <- abs(wide_e$r_poly) - abs(wide_e$r_pearson)
-wide_e <- wide_e[order(wide_e$to), c("from", "to", "r_pearson", "r_poly", "delta")]
-
-if (has_gt) {
-  gt::gt(wide_e) |>
-    gt::tab_header(
-      title    = "Primary-parent edges: Pearson vs polychoric",
-      subtitle = "Δ = change in |r|; positive = stronger connection under polychoric basis"
-    ) |>
-    gt::tab_spanner(label = "Edge strength (r)", columns = c(r_pearson, r_poly, delta)) |>
-    gt::cols_label(
-      from      = "From",
-      to        = "To",
-      r_pearson = "Pearson",
-      r_poly    = "Polychoric",
-      delta     = "Δ (|Poly| − |Pearson|)"
-    ) |>
-    gt::fmt_number(columns = c(r_pearson, r_poly, delta), decimals = 2) |>
-    gt::tab_style(
-      style     = gt::cell_text(weight = "bold"),
-      locations = gt::cells_column_labels(columns = delta)
-    ) |>
-    gt::tab_footnote(
-      footnote  = "NA in either column means the bases disagree on the primary parent for that factor.",
-      locations = gt::cells_column_labels(columns = delta)
-    )
-} else {
-  knitr::kable(
-    wide_e,
-    digits = 2, row.names = FALSE,
-    col.names = c("From", "To", "Pearson", "Polychoric", "Δ (|Poly| − |Pearson|)"),
-    caption = "Primary-parent edges: Pearson vs polychoric"
-  )
+<!--html_preserve--><div id="cmewmduzfu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#cmewmduzfu table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-```
+
+#cmewmduzfu thead, #cmewmduzfu tbody, #cmewmduzfu tfoot, #cmewmduzfu tr, #cmewmduzfu td, #cmewmduzfu th {
+  border-style: none;
+}
+
+#cmewmduzfu p {
+  margin: 0;
+  padding: 0;
+}
+
+#cmewmduzfu .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#cmewmduzfu .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#cmewmduzfu .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#cmewmduzfu .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#cmewmduzfu .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cmewmduzfu .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cmewmduzfu .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cmewmduzfu .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#cmewmduzfu .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#cmewmduzfu .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#cmewmduzfu .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#cmewmduzfu .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#cmewmduzfu .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#cmewmduzfu .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#cmewmduzfu .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#cmewmduzfu .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#cmewmduzfu .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#cmewmduzfu .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#cmewmduzfu .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cmewmduzfu .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#cmewmduzfu .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#cmewmduzfu .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#cmewmduzfu .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cmewmduzfu .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#cmewmduzfu .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#cmewmduzfu .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cmewmduzfu .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cmewmduzfu .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#cmewmduzfu .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cmewmduzfu .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#cmewmduzfu .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cmewmduzfu .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cmewmduzfu .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cmewmduzfu .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cmewmduzfu .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cmewmduzfu .gt_left {
+  text-align: left;
+}
+
+#cmewmduzfu .gt_center {
+  text-align: center;
+}
+
+#cmewmduzfu .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#cmewmduzfu .gt_font_normal {
+  font-weight: normal;
+}
+
+#cmewmduzfu .gt_font_bold {
+  font-weight: bold;
+}
+
+#cmewmduzfu .gt_font_italic {
+  font-style: italic;
+}
+
+#cmewmduzfu .gt_super {
+  font-size: 65%;
+}
+
+#cmewmduzfu .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#cmewmduzfu .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#cmewmduzfu .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#cmewmduzfu .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#cmewmduzfu .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#cmewmduzfu .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#cmewmduzfu .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#cmewmduzfu .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#cmewmduzfu div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_title gt_font_normal" style>Primary-parent edges: Pearson vs polychoric</td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Δ = change in |r|; positive = stronger connection under polychoric basis</td>
+    </tr>
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="from">From</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="to">To</th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Edge strength (r)">
+        <div class="gt_column_spanner">Edge strength (r)</div>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="r_pearson">Pearson</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="r_poly">Polychoric</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="delta">Δ (|Poly| − |Pearson|)<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="from" class="gt_row gt_left">m1f1</td>
+<td headers="to" class="gt_row gt_left">m2f1</td>
+<td headers="r_pearson" class="gt_row gt_right">0.88</td>
+<td headers="r_poly" class="gt_row gt_right">0.89</td>
+<td headers="delta" class="gt_row gt_right">0.01</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m1f1</td>
+<td headers="to" class="gt_row gt_left">m2f2</td>
+<td headers="r_pearson" class="gt_row gt_right">0.48</td>
+<td headers="r_poly" class="gt_row gt_right">0.46</td>
+<td headers="delta" class="gt_row gt_right">−0.02</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f1</td>
+<td headers="to" class="gt_row gt_left">m3f1</td>
+<td headers="r_pearson" class="gt_row gt_right">0.90</td>
+<td headers="r_poly" class="gt_row gt_right">0.87</td>
+<td headers="delta" class="gt_row gt_right">−0.02</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f2</td>
+<td headers="to" class="gt_row gt_left">m3f2</td>
+<td headers="r_pearson" class="gt_row gt_right">0.97</td>
+<td headers="r_poly" class="gt_row gt_right">0.99</td>
+<td headers="delta" class="gt_row gt_right">0.02</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f1</td>
+<td headers="to" class="gt_row gt_left">m3f3</td>
+<td headers="r_pearson" class="gt_row gt_right">0.43</td>
+<td headers="r_poly" class="gt_row gt_right">0.48</td>
+<td headers="delta" class="gt_row gt_right">0.05</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m3f1</td>
+<td headers="to" class="gt_row gt_left">m4f1</td>
+<td headers="r_pearson" class="gt_row gt_right">1.00</td>
+<td headers="r_poly" class="gt_row gt_right">0.99</td>
+<td headers="delta" class="gt_row gt_right">0.00</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m3f2</td>
+<td headers="to" class="gt_row gt_left">m4f2</td>
+<td headers="r_pearson" class="gt_row gt_right">0.99</td>
+<td headers="r_poly" class="gt_row gt_right">0.98</td>
+<td headers="delta" class="gt_row gt_right">−0.01</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m3f3</td>
+<td headers="to" class="gt_row gt_left">m4f3</td>
+<td headers="r_pearson" class="gt_row gt_right">0.80</td>
+<td headers="r_poly" class="gt_row gt_right">0.73</td>
+<td headers="delta" class="gt_row gt_right">−0.07</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m3f3</td>
+<td headers="to" class="gt_row gt_left">m4f4</td>
+<td headers="r_pearson" class="gt_row gt_right">0.59</td>
+<td headers="r_poly" class="gt_row gt_right">0.68</td>
+<td headers="delta" class="gt_row gt_right">0.09</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m4f1</td>
+<td headers="to" class="gt_row gt_left">m5f1</td>
+<td headers="r_pearson" class="gt_row gt_right">0.82</td>
+<td headers="r_poly" class="gt_row gt_right">0.84</td>
+<td headers="delta" class="gt_row gt_right">0.02</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m4f2</td>
+<td headers="to" class="gt_row gt_left">m5f2</td>
+<td headers="r_pearson" class="gt_row gt_right">1.00</td>
+<td headers="r_poly" class="gt_row gt_right">1.00</td>
+<td headers="delta" class="gt_row gt_right">0.00</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m4f3</td>
+<td headers="to" class="gt_row gt_left">m5f3</td>
+<td headers="r_pearson" class="gt_row gt_right">0.98</td>
+<td headers="r_poly" class="gt_row gt_right">0.98</td>
+<td headers="delta" class="gt_row gt_right">0.01</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m4f1</td>
+<td headers="to" class="gt_row gt_left">m5f4</td>
+<td headers="r_pearson" class="gt_row gt_right">0.58</td>
+<td headers="r_poly" class="gt_row gt_right">0.55</td>
+<td headers="delta" class="gt_row gt_right">−0.03</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m4f4</td>
+<td headers="to" class="gt_row gt_left">m5f5</td>
+<td headers="r_pearson" class="gt_row gt_right">0.96</td>
+<td headers="r_poly" class="gt_row gt_right">0.99</td>
+<td headers="delta" class="gt_row gt_right">0.03</td></tr>
+  </tbody>
+  <tfoot>
+    <tr class="gt_footnotes">
+      <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> NA in either column means the bases disagree on the primary parent for that factor.</td>
+    </tr>
+  </tfoot>
+</table>
+</div><!--/html_preserve-->
 
 The edges are broadly similar in sign and rank order — the hierarchy is the
 same — but polychoric edges are stronger. Factors that represent genuinely stable
@@ -288,19 +1198,34 @@ corrections — the polychoric structure is precisely what WLSMV is built to mod
 and the between-level edges are computed from lavaan's own latent correlation
 matrix (not a separately estimated `psych` polychoric matrix).
 
-```{r esem-check, echo = FALSE, results = "asis"}
-if (!has_lavaan) {
-  cat(
-    "> **Note:** The ESEM examples below require the **lavaan** package,",
-    "which is not currently installed. Install it with",
-    "`install.packages(\"lavaan\")` to run these chunks.\n"
-  )
-}
-```
 
-```{r esem-wlsmv, eval = has_lavaan}
+
+
+``` r
 x_esem <- ackwards(bfi, k_max = 3, engine = "esem", cor = "polychoric")
 x_esem
+#> 
+#> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
+#> Engine: esem
+#> Rotation: varimax
+#> Basis: polychoric
+#> n: 875
+#> k (max): 3
+#> 
+#> ── Levels ──
+#> 
+#> ✔ k = 1: 1 factor, 23.5% variance
+#> ✔ k = 2: 2 factors, 32.9% variance
+#> ✔ k = 3: 3 factors, 39.5% variance
+#> 
+#> ── Edges ──
+#> 
+#> 5 of 8 edges have |r| ≥ 0.3
+#> ────────────────────────────────────────────────────────────────────────────────
+#> Note: This is a series of linked solutions, not a fitted hierarchical model.
+#> Cross-level edges are descriptive score correlations. Per-level fit indices
+#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+#> they do not validate the edges or the hierarchy itself.
 ```
 
 The WLSMV fit indices (CFI, RMSEA, SRMR) are now computed on a model that
@@ -308,8 +1233,12 @@ respects the ordinal measurement level. They will typically look better than
 Pearson-based fit indices on the same data, reflecting both the better model
 specification and the different reference distribution WLSMV uses.
 
-```{r esem-fit, eval = has_lavaan}
+
+``` r
 tidy(x_esem, what = "fit", format = "wide")
+#>   level      chi dof p_value       CFI       TLI     RMSEA       SRMR BIC
+#> 1     2 3616.834 251       0 0.7117569 0.6554864 0.1238665 0.09547997  NA
+#> 2     3 2448.356 228       0 0.8098533 0.7498069 0.1055573 0.07172502  NA
 ```
 
 See `vignette("ackwards-engines")`, section "Per-level fit: what it tells you
