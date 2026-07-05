@@ -202,27 +202,27 @@ scores.</p>
 <code class="sourceCode R"><span><span class="va">x_pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">3</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
 <span><span class="va">x_pca</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">───────────────────────────────────────────</span></span></span>
-<span><span class="co">#&gt; Engine: <span style="font-weight: bold;">pca</span></span></span>
+<span><span class="co">#&gt; ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Engine: pca</span></span>
 <span><span class="co">#&gt; Rotation: varimax</span></span>
 <span><span class="co">#&gt; Basis: polychoric</span></span>
 <span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; k (max): 3</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
+<span><span class="co">#&gt; ── Levels ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 23.2% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 35.5% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 44.6% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 1: 1 factor, 23.2% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 2: 2 factors, 35.5% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 3: 3 factors, 44.6% variance</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Edges</span> ──</span></span>
+<span><span class="co">#&gt; ── Edges ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; 5 of 8 edges have |r| ≥ 0.3</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
+<span><span class="co">#&gt; Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>
+<span><span class="co">#&gt; (EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
+<span><span class="co">#&gt; they do not validate the edges or the hierarchy itself.</span></span></code></pre></div>
 <p>The “fit” for PCA is just the eigenvalue of each component — the
 amount of variance it captures. There are no chi-square tests, no RMSEA,
 no model rejection.</p>
@@ -249,34 +249,34 @@ rather than the constructs themselves.</p>
 <code class="sourceCode R"><span><span class="va">x_efa</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">3</span>, engine <span class="op">=</span> <span class="st">"efa"</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
 <span><span class="va">x_efa</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">───────────────────────────────────────────</span></span></span>
-<span><span class="co">#&gt; Engine: <span style="font-weight: bold;">efa</span></span></span>
+<span><span class="co">#&gt; ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Engine: efa</span></span>
 <span><span class="co">#&gt; Rotation: varimax</span></span>
 <span><span class="co">#&gt; Basis: polychoric</span></span>
 <span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; k (max): 3</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
+<span><span class="co">#&gt; ── Levels ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 20.3% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 30.8% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 37.7% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 1: 1 factor, 20.3% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 2: 2 factors, 30.8% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 3: 3 factors, 37.7% variance</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Edges</span> ──</span></span>
+<span><span class="co">#&gt; ── Edges ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; 5 of 8 edges have |r| ≥ 0.3</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
+<span><span class="co">#&gt; Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>
+<span><span class="co">#&gt; (EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
+<span><span class="co">#&gt; they do not validate the edges or the hierarchy itself.</span></span></code></pre></div>
 <p>EFA produces genuine goodness-of-fit indices. These tell you whether
 the k factors are sufficient to reproduce the observed correlation
 matrix within sampling error.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_efa</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    level statistic        value</span></span>
-<span><span class="co">#&gt; 1      1       chi 5327.2295199</span></span>
+<span><span class="co">#&gt; 1      1       chi 5327.2295200</span></span>
 <span><span class="co">#&gt; 2      1       dof  275.0000000</span></span>
 <span><span class="co">#&gt; 3      1   p_value    0.0000000</span></span>
 <span><span class="co">#&gt; 4      1     RMSEA    0.1448964</span></span>
@@ -314,23 +314,23 @@ Neuroticism, Extraversion, and Conscientiousness families) at k = 3. The
 absolute value once measurement error is partitioned into uniqueness.
 Using |EFA| − |PCA| keeps the attenuation consistently negative
 regardless of loading sign.</p>
-<div id="lnrsjmqnmk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#lnrsjmqnmk table {
+<div id="lsbjcarrus" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lsbjcarrus table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#lnrsjmqnmk thead, #lnrsjmqnmk tbody, #lnrsjmqnmk tfoot, #lnrsjmqnmk tr, #lnrsjmqnmk td, #lnrsjmqnmk th {
+#lsbjcarrus thead, #lsbjcarrus tbody, #lsbjcarrus tfoot, #lsbjcarrus tr, #lsbjcarrus td, #lsbjcarrus th {
   border-style: none;
 }
 
-#lnrsjmqnmk p {
+#lsbjcarrus p {
   margin: 0;
   padding: 0;
 }
 
-#lnrsjmqnmk .gt_table {
+#lsbjcarrus .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -356,12 +356,12 @@ regardless of loading sign.</p>
   border-left-color: #D3D3D3;
 }
 
-#lnrsjmqnmk .gt_caption {
+#lsbjcarrus .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#lnrsjmqnmk .gt_title {
+#lsbjcarrus .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -373,7 +373,7 @@ regardless of loading sign.</p>
   border-bottom-width: 0;
 }
 
-#lnrsjmqnmk .gt_subtitle {
+#lsbjcarrus .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -385,7 +385,7 @@ regardless of loading sign.</p>
   border-top-width: 0;
 }
 
-#lnrsjmqnmk .gt_heading {
+#lsbjcarrus .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -397,13 +397,13 @@ regardless of loading sign.</p>
   border-right-color: #D3D3D3;
 }
 
-#lnrsjmqnmk .gt_bottom_border {
+#lsbjcarrus .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#lnrsjmqnmk .gt_col_headings {
+#lsbjcarrus .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -418,7 +418,7 @@ regardless of loading sign.</p>
   border-right-color: #D3D3D3;
 }
 
-#lnrsjmqnmk .gt_col_heading {
+#lsbjcarrus .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -438,7 +438,7 @@ regardless of loading sign.</p>
   overflow-x: hidden;
 }
 
-#lnrsjmqnmk .gt_column_spanner_outer {
+#lsbjcarrus .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -450,15 +450,15 @@ regardless of loading sign.</p>
   padding-right: 4px;
 }
 
-#lnrsjmqnmk .gt_column_spanner_outer:first-child {
+#lsbjcarrus .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#lnrsjmqnmk .gt_column_spanner_outer:last-child {
+#lsbjcarrus .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#lnrsjmqnmk .gt_column_spanner {
+#lsbjcarrus .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -470,11 +470,11 @@ regardless of loading sign.</p>
   width: 100%;
 }
 
-#lnrsjmqnmk .gt_spanner_row {
+#lsbjcarrus .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#lnrsjmqnmk .gt_group_heading {
+#lsbjcarrus .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -500,7 +500,7 @@ regardless of loading sign.</p>
   text-align: left;
 }
 
-#lnrsjmqnmk .gt_empty_group_heading {
+#lsbjcarrus .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -515,15 +515,15 @@ regardless of loading sign.</p>
   vertical-align: middle;
 }
 
-#lnrsjmqnmk .gt_from_md > :first-child {
+#lsbjcarrus .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#lnrsjmqnmk .gt_from_md > :last-child {
+#lsbjcarrus .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#lnrsjmqnmk .gt_row {
+#lsbjcarrus .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -542,7 +542,7 @@ regardless of loading sign.</p>
   overflow-x: hidden;
 }
 
-#lnrsjmqnmk .gt_stub {
+#lsbjcarrus .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -555,7 +555,7 @@ regardless of loading sign.</p>
   padding-right: 5px;
 }
 
-#lnrsjmqnmk .gt_stub_row_group {
+#lsbjcarrus .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -569,15 +569,15 @@ regardless of loading sign.</p>
   vertical-align: top;
 }
 
-#lnrsjmqnmk .gt_row_group_first td {
+#lsbjcarrus .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#lnrsjmqnmk .gt_row_group_first th {
+#lsbjcarrus .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#lnrsjmqnmk .gt_summary_row {
+#lsbjcarrus .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -587,16 +587,16 @@ regardless of loading sign.</p>
   padding-right: 5px;
 }
 
-#lnrsjmqnmk .gt_first_summary_row {
+#lsbjcarrus .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#lnrsjmqnmk .gt_first_summary_row.thick {
+#lsbjcarrus .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#lnrsjmqnmk .gt_last_summary_row {
+#lsbjcarrus .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -606,7 +606,7 @@ regardless of loading sign.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#lnrsjmqnmk .gt_grand_summary_row {
+#lsbjcarrus .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -616,7 +616,7 @@ regardless of loading sign.</p>
   padding-right: 5px;
 }
 
-#lnrsjmqnmk .gt_first_grand_summary_row {
+#lsbjcarrus .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -626,7 +626,7 @@ regardless of loading sign.</p>
   border-top-color: #D3D3D3;
 }
 
-#lnrsjmqnmk .gt_last_grand_summary_row_top {
+#lsbjcarrus .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -636,11 +636,11 @@ regardless of loading sign.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#lnrsjmqnmk .gt_striped {
+#lsbjcarrus .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#lnrsjmqnmk .gt_table_body {
+#lsbjcarrus .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -649,7 +649,7 @@ regardless of loading sign.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#lnrsjmqnmk .gt_footnotes {
+#lsbjcarrus .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -663,7 +663,7 @@ regardless of loading sign.</p>
   border-right-color: #D3D3D3;
 }
 
-#lnrsjmqnmk .gt_footnote {
+#lsbjcarrus .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -672,7 +672,7 @@ regardless of loading sign.</p>
   padding-right: 5px;
 }
 
-#lnrsjmqnmk .gt_sourcenotes {
+#lsbjcarrus .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -686,7 +686,7 @@ regardless of loading sign.</p>
   border-right-color: #D3D3D3;
 }
 
-#lnrsjmqnmk .gt_sourcenote {
+#lsbjcarrus .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -694,72 +694,72 @@ regardless of loading sign.</p>
   padding-right: 5px;
 }
 
-#lnrsjmqnmk .gt_left {
+#lsbjcarrus .gt_left {
   text-align: left;
 }
 
-#lnrsjmqnmk .gt_center {
+#lsbjcarrus .gt_center {
   text-align: center;
 }
 
-#lnrsjmqnmk .gt_right {
+#lsbjcarrus .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#lnrsjmqnmk .gt_font_normal {
+#lsbjcarrus .gt_font_normal {
   font-weight: normal;
 }
 
-#lnrsjmqnmk .gt_font_bold {
+#lsbjcarrus .gt_font_bold {
   font-weight: bold;
 }
 
-#lnrsjmqnmk .gt_font_italic {
+#lsbjcarrus .gt_font_italic {
   font-style: italic;
 }
 
-#lnrsjmqnmk .gt_super {
+#lsbjcarrus .gt_super {
   font-size: 65%;
 }
 
-#lnrsjmqnmk .gt_footnote_marks {
+#lsbjcarrus .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#lnrsjmqnmk .gt_asterisk {
+#lsbjcarrus .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#lnrsjmqnmk .gt_indent_1 {
+#lsbjcarrus .gt_indent_1 {
   text-indent: 5px;
 }
 
-#lnrsjmqnmk .gt_indent_2 {
+#lsbjcarrus .gt_indent_2 {
   text-indent: 10px;
 }
 
-#lnrsjmqnmk .gt_indent_3 {
+#lsbjcarrus .gt_indent_3 {
   text-indent: 15px;
 }
 
-#lnrsjmqnmk .gt_indent_4 {
+#lsbjcarrus .gt_indent_4 {
   text-indent: 20px;
 }
 
-#lnrsjmqnmk .gt_indent_5 {
+#lsbjcarrus .gt_indent_5 {
   text-indent: 25px;
 }
 
-#lnrsjmqnmk .katex-display {
+#lsbjcarrus .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#lnrsjmqnmk div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#lsbjcarrus div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -876,27 +876,27 @@ otherwise EFA is the simpler, faster choice.</p>
 <code class="sourceCode R"><span><span class="va">x_esem</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">3</span>, engine <span class="op">=</span> <span class="st">"esem"</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span>
 <span><span class="va">x_esem</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">───────────────────────────────────────────</span></span></span>
-<span><span class="co">#&gt; Engine: <span style="font-weight: bold;">esem</span></span></span>
+<span><span class="co">#&gt; ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Engine: esem</span></span>
 <span><span class="co">#&gt; Rotation: varimax</span></span>
 <span><span class="co">#&gt; Basis: polychoric</span></span>
 <span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; k (max): 3</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
+<span><span class="co">#&gt; ── Levels ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 23.5% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 32.9% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 39.5% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 1: 1 factor, 23.5% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 2: 2 factors, 32.9% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 3: 3 factors, 39.5% variance</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Edges</span> ──</span></span>
+<span><span class="co">#&gt; ── Edges ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; 5 of 8 edges have |r| ≥ 0.3</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
+<span><span class="co">#&gt; Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>
+<span><span class="co">#&gt; (EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
+<span><span class="co">#&gt; they do not validate the edges or the hierarchy itself.</span></span></code></pre></div>
 <p>ESEM fit indices include CFI and SRMR in addition to RMSEA and TLI,
 giving a richer picture of model adequacy. See the “Per-level fit”
 section below for how to report and interpret these indices.</p>
@@ -911,7 +911,7 @@ and <code>ci_upper</code> columns:</p>
 <code class="sourceCode R"><span><span class="va">ld</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ld</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   level factor item    loading         se   ci_lower   ci_upper</span></span>
-<span><span class="co">#&gt; 1     1   m1f1   A1 -0.3155807 0.02831633 -0.3710796 -0.2600817</span></span>
+<span><span class="co">#&gt; 1     1   m1f1   A1 -0.3155807 0.02831633 -0.3710797 -0.2600817</span></span>
 <span><span class="co">#&gt; 2     1   m1f1   A2  0.5584169 0.02316777  0.5130089  0.6038249</span></span>
 <span><span class="co">#&gt; 3     1   m1f1   A3  0.6424786 0.01971862  0.6038308  0.6811264</span></span>
 <span><span class="co">#&gt; 4     1   m1f1   A4  0.4261675 0.02777029  0.3717387  0.4805962</span></span>
@@ -989,7 +989,9 @@ criterion.</p>
 across levels, with cutoff reference lines:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x_esem</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-engines_files/figure-html/fit-plot-1.png" class="r-plt" alt="" width="576"></p>
+<div class="float">
+<img src="assets/ackwards-engines-fit-plot-1.png" alt="plot of chunk fit-plot"><div class="figcaption">plot of chunk fit-plot</div>
+</div>
 <p>The shape of the trajectory matters as much as the absolute values: a
 sharp improvement from k = 2 to k = 3 suggests the third factor is
 capturing genuine signal; flat or worsening indices suggest adding
@@ -1048,23 +1050,23 @@ agree closely on the hierarchy.</p>
 adjacent level transition. The Δ column is the shift in connection
 strength (|EFA| − |PCA|) — a direct, sign-robust measure of how much the
 latent-variable model changes your inference about the hierarchy.</p>
-<div id="ekpgwxpefr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ekpgwxpefr table {
+<div id="zieewudvhf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zieewudvhf table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ekpgwxpefr thead, #ekpgwxpefr tbody, #ekpgwxpefr tfoot, #ekpgwxpefr tr, #ekpgwxpefr td, #ekpgwxpefr th {
+#zieewudvhf thead, #zieewudvhf tbody, #zieewudvhf tfoot, #zieewudvhf tr, #zieewudvhf td, #zieewudvhf th {
   border-style: none;
 }
 
-#ekpgwxpefr p {
+#zieewudvhf p {
   margin: 0;
   padding: 0;
 }
 
-#ekpgwxpefr .gt_table {
+#zieewudvhf .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1090,12 +1092,12 @@ latent-variable model changes your inference about the hierarchy.</p>
   border-left-color: #D3D3D3;
 }
 
-#ekpgwxpefr .gt_caption {
+#zieewudvhf .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ekpgwxpefr .gt_title {
+#zieewudvhf .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1107,7 +1109,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   border-bottom-width: 0;
 }
 
-#ekpgwxpefr .gt_subtitle {
+#zieewudvhf .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1119,7 +1121,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   border-top-width: 0;
 }
 
-#ekpgwxpefr .gt_heading {
+#zieewudvhf .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1131,13 +1133,13 @@ latent-variable model changes your inference about the hierarchy.</p>
   border-right-color: #D3D3D3;
 }
 
-#ekpgwxpefr .gt_bottom_border {
+#zieewudvhf .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ekpgwxpefr .gt_col_headings {
+#zieewudvhf .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1152,7 +1154,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   border-right-color: #D3D3D3;
 }
 
-#ekpgwxpefr .gt_col_heading {
+#zieewudvhf .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1172,7 +1174,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   overflow-x: hidden;
 }
 
-#ekpgwxpefr .gt_column_spanner_outer {
+#zieewudvhf .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1184,15 +1186,15 @@ latent-variable model changes your inference about the hierarchy.</p>
   padding-right: 4px;
 }
 
-#ekpgwxpefr .gt_column_spanner_outer:first-child {
+#zieewudvhf .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ekpgwxpefr .gt_column_spanner_outer:last-child {
+#zieewudvhf .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ekpgwxpefr .gt_column_spanner {
+#zieewudvhf .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1204,11 +1206,11 @@ latent-variable model changes your inference about the hierarchy.</p>
   width: 100%;
 }
 
-#ekpgwxpefr .gt_spanner_row {
+#zieewudvhf .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ekpgwxpefr .gt_group_heading {
+#zieewudvhf .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1234,7 +1236,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   text-align: left;
 }
 
-#ekpgwxpefr .gt_empty_group_heading {
+#zieewudvhf .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1249,15 +1251,15 @@ latent-variable model changes your inference about the hierarchy.</p>
   vertical-align: middle;
 }
 
-#ekpgwxpefr .gt_from_md > :first-child {
+#zieewudvhf .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ekpgwxpefr .gt_from_md > :last-child {
+#zieewudvhf .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ekpgwxpefr .gt_row {
+#zieewudvhf .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1276,7 +1278,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   overflow-x: hidden;
 }
 
-#ekpgwxpefr .gt_stub {
+#zieewudvhf .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1289,7 +1291,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   padding-right: 5px;
 }
 
-#ekpgwxpefr .gt_stub_row_group {
+#zieewudvhf .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1303,15 +1305,15 @@ latent-variable model changes your inference about the hierarchy.</p>
   vertical-align: top;
 }
 
-#ekpgwxpefr .gt_row_group_first td {
+#zieewudvhf .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ekpgwxpefr .gt_row_group_first th {
+#zieewudvhf .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ekpgwxpefr .gt_summary_row {
+#zieewudvhf .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1321,16 +1323,16 @@ latent-variable model changes your inference about the hierarchy.</p>
   padding-right: 5px;
 }
 
-#ekpgwxpefr .gt_first_summary_row {
+#zieewudvhf .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ekpgwxpefr .gt_first_summary_row.thick {
+#zieewudvhf .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ekpgwxpefr .gt_last_summary_row {
+#zieewudvhf .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1340,7 +1342,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#ekpgwxpefr .gt_grand_summary_row {
+#zieewudvhf .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1350,7 +1352,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   padding-right: 5px;
 }
 
-#ekpgwxpefr .gt_first_grand_summary_row {
+#zieewudvhf .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1360,7 +1362,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   border-top-color: #D3D3D3;
 }
 
-#ekpgwxpefr .gt_last_grand_summary_row_top {
+#zieewudvhf .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1370,11 +1372,11 @@ latent-variable model changes your inference about the hierarchy.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#ekpgwxpefr .gt_striped {
+#zieewudvhf .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ekpgwxpefr .gt_table_body {
+#zieewudvhf .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1383,7 +1385,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   border-bottom-color: #D3D3D3;
 }
 
-#ekpgwxpefr .gt_footnotes {
+#zieewudvhf .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1397,7 +1399,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   border-right-color: #D3D3D3;
 }
 
-#ekpgwxpefr .gt_footnote {
+#zieewudvhf .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1406,7 +1408,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   padding-right: 5px;
 }
 
-#ekpgwxpefr .gt_sourcenotes {
+#zieewudvhf .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1420,7 +1422,7 @@ latent-variable model changes your inference about the hierarchy.</p>
   border-right-color: #D3D3D3;
 }
 
-#ekpgwxpefr .gt_sourcenote {
+#zieewudvhf .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1428,72 +1430,72 @@ latent-variable model changes your inference about the hierarchy.</p>
   padding-right: 5px;
 }
 
-#ekpgwxpefr .gt_left {
+#zieewudvhf .gt_left {
   text-align: left;
 }
 
-#ekpgwxpefr .gt_center {
+#zieewudvhf .gt_center {
   text-align: center;
 }
 
-#ekpgwxpefr .gt_right {
+#zieewudvhf .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ekpgwxpefr .gt_font_normal {
+#zieewudvhf .gt_font_normal {
   font-weight: normal;
 }
 
-#ekpgwxpefr .gt_font_bold {
+#zieewudvhf .gt_font_bold {
   font-weight: bold;
 }
 
-#ekpgwxpefr .gt_font_italic {
+#zieewudvhf .gt_font_italic {
   font-style: italic;
 }
 
-#ekpgwxpefr .gt_super {
+#zieewudvhf .gt_super {
   font-size: 65%;
 }
 
-#ekpgwxpefr .gt_footnote_marks {
+#zieewudvhf .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ekpgwxpefr .gt_asterisk {
+#zieewudvhf .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ekpgwxpefr .gt_indent_1 {
+#zieewudvhf .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ekpgwxpefr .gt_indent_2 {
+#zieewudvhf .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ekpgwxpefr .gt_indent_3 {
+#zieewudvhf .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ekpgwxpefr .gt_indent_4 {
+#zieewudvhf .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ekpgwxpefr .gt_indent_5 {
+#zieewudvhf .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ekpgwxpefr .katex-display {
+#zieewudvhf .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ekpgwxpefr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#zieewudvhf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1683,36 +1685,36 @@ deletion, which is only MCAR-valid:</p>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">sim_na</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="va">sim_na</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">sim_na</span><span class="op">)</span>, <span class="fl">60L</span><span class="op">)</span>, <span class="va">j</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
 <span></span>
 <span><span class="va">x_fiml</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">sim_na</span>, k_max <span class="op">=</span> <span class="fl">4</span>, engine <span class="op">=</span> <span class="st">"efa"</span>, missing <span class="op">=</span> <span class="st">"fiml"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> `missing = "fiml"`: correlation matrix estimated via `psych::corFiml()`</span></span>
+<span><span class="co">#&gt; ℹ `missing = "fiml"`: correlation matrix estimated via `psych::corFiml()`</span></span>
 <span><span class="co">#&gt;   (full-information ML).</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fit indices use N = 1000 (`n_obs = "total"`); point estimates (loadings,</span></span>
+<span><span class="co">#&gt; ℹ Fit indices use N = 1000 (`n_obs = "total"`); point estimates (loadings,</span></span>
 <span><span class="co">#&gt;   edges) are unaffected by this choice.</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Fit indices are approximate: a FIML correlation matrix is fed into a</span></span>
+<span><span class="co">#&gt; ! Fit indices are approximate: a FIML correlation matrix is fed into a</span></span>
 <span><span class="co">#&gt;   normal-theory EFA (a two-step procedure). See `?ackwards` (`n_obs`).</span></span>
 <span><span class="va">x_fiml</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">───────────────────────────────────────────</span></span></span>
-<span><span class="co">#&gt; Engine: <span style="font-weight: bold;">efa</span></span></span>
+<span><span class="co">#&gt; ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Engine: efa</span></span>
 <span><span class="co">#&gt; Rotation: varimax</span></span>
 <span><span class="co">#&gt; Basis: pearson</span></span>
 <span><span class="co">#&gt; n: 1,000</span></span>
 <span><span class="co">#&gt; k (max): 4</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
+<span><span class="co">#&gt; ── Levels ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 23.3% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 38.7% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 48.2% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 56.8% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 1: 1 factor, 23.3% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 2: 2 factors, 38.7% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 3: 3 factors, 48.2% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 4: 4 factors, 56.8% variance</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Edges</span> ──</span></span>
+<span><span class="co">#&gt; ── Edges ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; 9 of 20 edges have |r| ≥ 0.3</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
+<span><span class="co">#&gt; Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>
+<span><span class="co">#&gt; (EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
+<span><span class="co">#&gt; they do not validate the edges or the hierarchy itself.</span></span></code></pre></div>
 <p>Under the hood this estimates the correlation matrix with
 <code><a href="https://rdrr.io/pkg/psych/man/corFiml.html" class="external-link">psych::corFiml()</a></code> and runs the normal <code>W'RW</code>
 algebra on it, so the loadings and edges are exactly what the manual

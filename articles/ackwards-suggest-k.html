@@ -320,53 +320,48 @@ structure, and citations — see <code><a href="../reference/suggest_k.html">?su
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: <span style="color: #BBBB00;">!</span> 25 columns look like ordinal/Likert items (&lt;= 7 distinct integer values):</span></span>
-<span><span class="co">#&gt;   <span style="color: #0000BB;">"A1"</span>, <span style="color: #0000BB;">"A2"</span>, <span style="color: #0000BB;">"A3"</span>, <span style="color: #0000BB;">"A4"</span>, <span style="color: #0000BB;">"A5"</span>, <span style="color: #0000BB;">"C1"</span>, …, <span style="color: #0000BB;">"O4"</span>, and <span style="color: #0000BB;">"O5"</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> `suggest_k()` screens on the <span style="color: #0000BB;">"pearson"</span> basis by design; use `cor =</span></span>
-<span><span class="co">#&gt;   "polychoric"` in the final `ackwards()` fit.</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once per session.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[286ms]</span></span></span>
+<span><span class="co">#&gt; ℹ Running parallel analysis (20 iterations, PC + FA)...</span></span>
+<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [135ms]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[138ms]</span></span></span>
+<span><span class="co">#&gt; ℹ Running MAP and VSS...</span></span>
+<span><span class="co">#&gt; ✔ Running MAP and VSS... [44ms]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[9.8s]</span></span></span>
+<span><span class="co">#&gt; ℹ Running Comparison Data (CD)...</span></span>
+<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [5.5s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span></span>
+<span><span class="co">#&gt; ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────</span></span>
 <span><span class="co">#&gt; Variables: 25</span></span>
 <span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; Basis: pearson</span></span>
 <span><span class="co">#&gt; Tested k: 1-8</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Criteria (k = 1-8)</span> ──</span></span>
+<span><span class="co">#&gt; ── Criteria (k = 1-8) ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0164 VSS-1 0.6215<span style="color: #00BBBB;">*</span> VSS-2 0.7837 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 5: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0160<span style="color: #00BBBB;">*</span> VSS-1 0.5738 VSS-2 0.7950<span style="color: #00BBBB;">*</span> CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD <span style="color: #00BB00;">✔</span><span style="color: #00BBBB;">*</span></span></span>
-<span><span class="co">#&gt; k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD <span style="color: #555555;">-</span></span></span>
-<span><span class="co">#&gt; k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD <span style="color: #555555;">-</span></span></span>
+<span><span class="co">#&gt; k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔</span></span>
+<span><span class="co">#&gt; k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔</span></span>
+<span><span class="co">#&gt; k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔</span></span>
+<span><span class="co">#&gt; k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔</span></span>
+<span><span class="co">#&gt; k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔</span></span>
+<span><span class="co">#&gt; k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*</span></span>
+<span><span class="co">#&gt; k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -</span></span>
+<span><span class="co">#&gt; k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Recommendations</span> ──</span></span>
+<span><span class="co">#&gt; ── Recommendations ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> PA-PC: k &lt;= 5</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> PA-FA: k &lt;= 6</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> MAP: k = 5</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> VSS-1: k = 4</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> VSS-2: k = 5</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> CD: k = 6</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Consensus range: k = 4-6</span></span></span>
+<span><span class="co">#&gt; • PA-PC: k &lt;= 5</span></span>
+<span><span class="co">#&gt; • PA-FA: k &lt;= 6</span></span>
+<span><span class="co">#&gt; • MAP: k = 5</span></span>
+<span><span class="co">#&gt; • VSS-1: k = 4</span></span>
+<span><span class="co">#&gt; • VSS-2: k = 5</span></span>
+<span><span class="co">#&gt; • CD: k = 6</span></span>
+<span><span class="co">#&gt; Consensus range: k = 4-6</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">2023). PA-FA and CD are more conservative. Use the range.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span>
+<span><span class="co">#&gt; above the consensus to observe factor fragmentation is intentional.</span></span>
+<span><span class="co">#&gt; Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span>
+<span><span class="co">#&gt; 2023). PA-FA and CD are more conservative. Use the range.</span></span></code></pre></div>
 <p>The output prints in two sections. The <strong>criteria
 table</strong> shows the raw evidence at each k, using two display
 conventions:</p>
@@ -400,7 +395,9 @@ different complexities.</p>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-suggest-k_files/figure-html/autoplot-1.png" class="r-plt" alt="" width="672"></p>
+<div class="float">
+<img src="assets/ackwards-suggest-k-autoplot-1.png" alt="plot of chunk autoplot"><div class="figcaption">plot of chunk autoplot</div>
+</div>
 <p>When <code>EFAtools</code> is installed and CD is computed, the plot
 is a 2×2 grid; otherwise it falls back to a single-column three-panel
 layout.</p>
@@ -593,37 +590,37 @@ criteria do not all converge here, which is itself informative:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span> <span class="co"># reproduced from earlier</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span></span>
+<span><span class="co">#&gt; ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────</span></span>
 <span><span class="co">#&gt; Variables: 25</span></span>
 <span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; Basis: pearson</span></span>
 <span><span class="co">#&gt; Tested k: 1-8</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Criteria (k = 1-8)</span> ──</span></span>
+<span><span class="co">#&gt; ── Criteria (k = 1-8) ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0164 VSS-1 0.6215<span style="color: #00BBBB;">*</span> VSS-2 0.7837 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 5: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0160<span style="color: #00BBBB;">*</span> VSS-1 0.5738 VSS-2 0.7950<span style="color: #00BBBB;">*</span> CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD <span style="color: #00BB00;">✔</span><span style="color: #00BBBB;">*</span></span></span>
-<span><span class="co">#&gt; k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD <span style="color: #555555;">-</span></span></span>
-<span><span class="co">#&gt; k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD <span style="color: #555555;">-</span></span></span>
+<span><span class="co">#&gt; k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔</span></span>
+<span><span class="co">#&gt; k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔</span></span>
+<span><span class="co">#&gt; k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔</span></span>
+<span><span class="co">#&gt; k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔</span></span>
+<span><span class="co">#&gt; k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔</span></span>
+<span><span class="co">#&gt; k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*</span></span>
+<span><span class="co">#&gt; k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -</span></span>
+<span><span class="co">#&gt; k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Recommendations</span> ──</span></span>
+<span><span class="co">#&gt; ── Recommendations ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> PA-PC: k &lt;= 5</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> PA-FA: k &lt;= 6</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> MAP: k = 5</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> VSS-1: k = 4</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> VSS-2: k = 5</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> CD: k = 6</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Consensus range: k = 4-6</span></span></span>
+<span><span class="co">#&gt; • PA-PC: k &lt;= 5</span></span>
+<span><span class="co">#&gt; • PA-FA: k &lt;= 6</span></span>
+<span><span class="co">#&gt; • MAP: k = 5</span></span>
+<span><span class="co">#&gt; • VSS-1: k = 4</span></span>
+<span><span class="co">#&gt; • VSS-2: k = 5</span></span>
+<span><span class="co">#&gt; • CD: k = 6</span></span>
+<span><span class="co">#&gt; Consensus range: k = 4-6</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">2023). PA-FA and CD are more conservative. Use the range.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span>
+<span><span class="co">#&gt; above the consensus to observe factor fragmentation is intentional.</span></span>
+<span><span class="co">#&gt; Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span>
+<span><span class="co">#&gt; 2023). PA-FA and CD are more conservative. Use the range.</span></span></code></pre></div>
 <p>Reading the rendered table (the numbers below are computed from the
 <code>sk</code> object, so they always match the table above — PA values
 can vary across builds):</p>

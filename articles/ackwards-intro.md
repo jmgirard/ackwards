@@ -71,19 +71,14 @@ range:
 ``` r
 
 sk <- suggest_k(bfi, seed = 42)
-#> Warning: ! 25 columns look like ordinal/Likert items (<= 7 distinct integer values):
-#>   "A1", "A2", "A3", "A4", "A5", "C1", …, "O4", and "O5".
-#> ℹ `suggest_k()` screens on the "pearson" basis by design; use `cor =
-#>   "polychoric"` in the final `ackwards()` fit.
-#> This warning is displayed once per session.
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [293ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [130ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [144ms]
+#> ✔ Running MAP and VSS... [44ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [9.8s]
+#> ✔ Running Comparison Data (CD)... [5.9s]
 #> 
 print(sk)
 #> 
@@ -125,7 +120,10 @@ print(sk)
 autoplot(sk)
 ```
 
-![](ackwards-intro_files/figure-html/suggest_k_plot-1.png)
+![plot of chunk
+suggest_k_plot](assets/ackwards-intro-suggest_k_plot-1.png)
+
+plot of chunk suggest_k_plot
 
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
 does not return a single “correct” k — it reports what several criteria
@@ -327,7 +325,9 @@ pass `direction = "horizontal"`.
 autoplot(x)
 ```
 
-![](ackwards-intro_files/figure-html/autoplot-1.png)
+![plot of chunk autoplot](assets/ackwards-intro-autoplot-1.png)
+
+plot of chunk autoplot
 
 Reading this diagram from broad (top) to narrow (bottom) tells the story
 of the Big Five:

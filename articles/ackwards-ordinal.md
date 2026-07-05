@@ -68,11 +68,6 @@ bfi <- na.omit(bfi25)
 
 # The warning fires with the default Pearson basis
 x_pearson <- ackwards(bfi, k_max = 5)
-#> Warning: ! 25 columns look like ordinal/Likert items (<= 7 distinct integer values):
-#>   "A1", "A2", "A3", "A4", "A5", "C1", …, "O4", and "O5".
-#> ℹ Results use a "pearson" basis. Consider `cor = "polychoric"` for ordinal
-#>   data.
-#> This warning is displayed once per session.
 ```
 
 The warning is ackwards reminding you to make an active choice.
@@ -96,8 +91,9 @@ against polychoric.
 
 ![Dodged bar chart comparing Pearson and polychoric correlations for the
 ten unique N1-N5 item pairs; every polychoric bar is taller than its
-Pearson
-counterpart.](ackwards-ordinal_files/figure-html/r-compare-1.png)
+Pearson counterpart.](assets/ackwards-ordinal-r-compare-1.png)
+
+plot of chunk r-compare
 
 Every polychoric bar sits above its Pearson counterpart — the
 correlations are consistently higher. The `N1`–`N2` pair, for instance,

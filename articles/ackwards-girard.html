@@ -193,48 +193,48 @@ Pearson, then fit the model you actually <em>report</em> with
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[297ms]</span></span></span>
+<span><span class="co">#&gt; ℹ Running parallel analysis (20 iterations, PC + FA)...</span></span>
+<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [128ms]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[137ms]</span></span></span>
+<span><span class="co">#&gt; ℹ Running MAP and VSS...</span></span>
+<span><span class="co">#&gt; ✔ Running MAP and VSS... [85ms]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[9.8s]</span></span></span>
+<span><span class="co">#&gt; ℹ Running Comparison Data (CD)...</span></span>
+<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [5.8s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span></span>
+<span><span class="co">#&gt; ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────</span></span>
 <span><span class="co">#&gt; Variables: 25</span></span>
 <span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; Basis: pearson</span></span>
 <span><span class="co">#&gt; Tested k: 1-8</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Criteria (k = 1-8)</span> ──</span></span>
+<span><span class="co">#&gt; ── Criteria (k = 1-8) ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0164 VSS-1 0.6215<span style="color: #00BBBB;">*</span> VSS-2 0.7837 CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 5: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0160<span style="color: #00BBBB;">*</span> VSS-1 0.5738 VSS-2 0.7950<span style="color: #00BBBB;">*</span> CD <span style="color: #00BB00;">✔</span></span></span>
-<span><span class="co">#&gt; k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD <span style="color: #00BB00;">✔</span><span style="color: #00BBBB;">*</span></span></span>
-<span><span class="co">#&gt; k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD <span style="color: #555555;">-</span></span></span>
-<span><span class="co">#&gt; k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD <span style="color: #555555;">-</span></span></span>
+<span><span class="co">#&gt; k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔</span></span>
+<span><span class="co">#&gt; k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔</span></span>
+<span><span class="co">#&gt; k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔</span></span>
+<span><span class="co">#&gt; k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔</span></span>
+<span><span class="co">#&gt; k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔</span></span>
+<span><span class="co">#&gt; k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*</span></span>
+<span><span class="co">#&gt; k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -</span></span>
+<span><span class="co">#&gt; k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Recommendations</span> ──</span></span>
+<span><span class="co">#&gt; ── Recommendations ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> PA-PC: k &lt;= 5</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> PA-FA: k &lt;= 6</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> MAP: k = 5</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> VSS-1: k = 4</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> VSS-2: k = 5</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> CD: k = 6</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Consensus range: k = 4-6</span></span></span>
+<span><span class="co">#&gt; • PA-PC: k &lt;= 5</span></span>
+<span><span class="co">#&gt; • PA-FA: k &lt;= 6</span></span>
+<span><span class="co">#&gt; • MAP: k = 5</span></span>
+<span><span class="co">#&gt; • VSS-1: k = 4</span></span>
+<span><span class="co">#&gt; • VSS-2: k = 5</span></span>
+<span><span class="co">#&gt; • CD: k = 6</span></span>
+<span><span class="co">#&gt; Consensus range: k = 4-6</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">2023). PA-FA and CD are more conservative. Use the range.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span>
+<span><span class="co">#&gt; above the consensus to observe factor fragmentation is intentional.</span></span>
+<span><span class="co">#&gt; Caution: PA-PC tends to overextract; structures may not replicate (Forbes,</span></span>
+<span><span class="co">#&gt; 2023). PA-FA and CD are more conservative. Use the range.</span></span></code></pre></div>
 <p>The criteria disagree — they always do — but they bracket a range
 (here k = 4–6). Treat the top of that range as a ceiling worth
 <em>probing</em>, not a depth worth <em>asserting</em>: parallel
@@ -252,19 +252,19 @@ step is that you can now do so safely.</p>
 up to one past the ceiling, across ten random split-halves:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/comparability.html">comparability</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="va">sk_hi</span> <span class="op">+</span> <span class="fl">1</span>, n_splits <span class="op">=</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">2026</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fitting 10 split-half replicates (pca, k = 1-7)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fitting 10 split-half replicates (pca, k = 1-7)... <span style="color: #B2B2B2;">[2.5s]</span></span></span>
+<span><span class="co">#&gt; ℹ Fitting 10 split-half replicates (pca, k = 1-7)...</span></span>
+<span><span class="co">#&gt; ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [1.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">cmp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Split-Half Factor Comparability (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────</span></span></span>
-<span><span class="co">#&gt; Engine: <span style="font-weight: bold;">pca</span></span></span>
+<span><span class="co">#&gt; ── Split-Half Factor Comparability (ackwards) ──────────────────────────────────</span></span>
+<span><span class="co">#&gt; Engine: pca</span></span>
 <span><span class="co">#&gt; Basis: pearson</span></span>
 <span><span class="co">#&gt; n: 875 (437 per half)</span></span>
 <span><span class="co">#&gt; Splits: 10</span></span>
 <span><span class="co">#&gt; Levels: 1-7</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Comparability by level (median across splits)</span> ──</span></span>
+<span><span class="co">#&gt; ── Comparability by level (median across splits) ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; k = 1: median r 1.00, min r 1.00 (m1f1)</span></span>
 <span><span class="co">#&gt; k = 2: median r .99, min r .98 (m2f2)</span></span>
@@ -274,11 +274,11 @@ up to one past the ceiling, across ten random split-halves:</p>
 <span><span class="co">#&gt; k = 6: median r .95, min r .88 (m6f5)</span></span>
 <span><span class="co">#&gt; k = 7: median r .87, min r .58 (m7f7)</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Per-factor detail (incl. Tucker's φ) in `$summary`; per-split values in</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">`$coefficients`.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Conventional benchmarks: ≥ .95 comfortable, ≥ .90 floor (Everett, 1983;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Goldberg, 1990) -- conventions, not tests. Interpret levels whose factors all</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">replicate.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; Per-factor detail (incl. Tucker's φ) in `$summary`; per-split values in</span></span>
+<span><span class="co">#&gt; `$coefficients`.</span></span>
+<span><span class="co">#&gt; Conventional benchmarks: ≥ .95 comfortable, ≥ .90 floor (Everett, 1983;</span></span>
+<span><span class="co">#&gt; Goldberg, 1990) -- conventions, not tests. Interpret levels whose factors all</span></span>
+<span><span class="co">#&gt; replicate.</span></span></code></pre></div>
 <p>Read the per-level minima, not the medians: a level is only as
 interpretable as its least replicable factor. Here every factor through
 k = 5 clears the conventional floor (the weakest median comparability at
@@ -289,7 +289,9 @@ are different factors in every half-sample that happen to occupy the
 same slot.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">cmp</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-girard_files/figure-html/comparability-plot-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-girard-comparability-plot-1.png" alt="plot of chunk comparability-plot"><div class="figcaption">plot of chunk comparability-plot</div>
+</div>
 <p>Two honesty notes. First, the conventional benchmarks marked on the
 plot (.90 and .95, following Everett’s and Goldberg’s practice) are
 conventions, not tests — <code><a href="../reference/comparability.html">comparability()</a></code> reports every
@@ -310,32 +312,34 @@ Five, as it should be.</p>
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Bass-Ackwards Analysis (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">───────────────────────────────────────────</span></span></span>
-<span><span class="co">#&gt; Engine: <span style="font-weight: bold;">pca</span></span></span>
+<span><span class="co">#&gt; ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Engine: pca</span></span>
 <span><span class="co">#&gt; Rotation: varimax</span></span>
 <span><span class="co">#&gt; Basis: pearson</span></span>
 <span><span class="co">#&gt; n: 875</span></span>
 <span><span class="co">#&gt; k (max): 5</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Levels</span> ──</span></span>
+<span><span class="co">#&gt; ── Levels ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 1</span>: 1 factor, 20.9% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 2</span>: 2 factors, 32.3% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 3</span>: 3 factors, 40.7% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 4</span>: 4 factors, 47.8% variance</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="font-weight: bold;">k = 5</span>: 5 factors, 53.8% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 1: 1 factor, 20.9% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 2: 2 factors, 32.3% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 3: 3 factors, 40.7% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 4: 4 factors, 47.8% variance</span></span>
+<span><span class="co">#&gt; ✔ k = 5: 5 factors, 53.8% variance</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Edges</span> ──</span></span>
+<span><span class="co">#&gt; ── Edges ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; 14 of 40 edges have |r| ≥ 0.3</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Cross-level edges are descriptive score correlations. Per-level fit indices</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; Note: This is a series of linked solutions, not a fitted hierarchical model.</span></span>
+<span><span class="co">#&gt; Cross-level edges are descriptive score correlations. Per-level fit indices</span></span>
+<span><span class="co">#&gt; (EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
+<span><span class="co">#&gt; they do not validate the edges or the hierarchy itself.</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-girard_files/figure-html/hierarchy-plot-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-girard-hierarchy-plot-1.png" alt="plot of chunk hierarchy-plot"><div class="figcaption">plot of chunk hierarchy-plot</div>
+</div>
 <p>If you prefer to <em>display</em> the fragmentation beyond the floor
 (it can be substantively interesting to show a factor dissolving), fit
 one level deeper and say explicitly in your report which levels passed
@@ -353,8 +357,8 @@ question, and it is <code><a href="../reference/prune.html">prune()</a></code>�
 <code><a href="../reference/comparability.html">comparability()</a></code>’s:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prune.html">prune</a></span><span class="op">(</span><span class="va">x</span>, <span class="st">"redundant"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
+<span><span class="co">#&gt; ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.</span></span>
+<span><span class="co">#&gt; ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and</span></span>
 <span><span class="co">#&gt;   `x$prune$chains`.</span></span>
 <span><span class="va">pr</span><span class="op">$</span><span class="va">prune</span><span class="op">$</span><span class="va">chains</span></span>
 <span><span class="co">#&gt;    chain_id   id level r_to_prev phi_to_prev retain endpoint_r</span></span>
@@ -409,8 +413,8 @@ polychoric.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, pairs <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/boot_edges.html">boot_edges</a></span><span class="op">(</span><span class="va">bfi</span>, n_boot <span class="op">=</span> <span class="fl">200</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Fitting 200 bootstrap replicates (pca, k = 1-5)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Fitting 200 bootstrap replicates (pca, k = 1-5)... <span style="color: #B2B2B2;">[18.4s]</span></span></span>
+<span><span class="co">#&gt; ℹ Fitting 200 bootstrap replicates (pca, k = 1-5)...</span></span>
+<span><span class="co">#&gt; ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [8.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="va">boot_tbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_boot</span>, what <span class="op">=</span> <span class="st">"edges"</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span></span>
@@ -443,49 +447,49 @@ rather than selected after the fact.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/top_items.html">top_items</a></span><span class="op">(</span><span class="va">x</span>, level <span class="op">=</span> <span class="fl">5</span>, cut <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Salient items by factor (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────────────────</span></span></span>
-<span><span class="co">#&gt; Engine: <span style="font-weight: bold;">pca</span></span></span>
+<span><span class="co">#&gt; ── Salient items by factor (ackwards) ──────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Engine: pca</span></span>
 <span><span class="co">#&gt; Cut: |loading| &gt;= 0.5</span></span>
 <span><span class="co">#&gt; Top-n: all</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Level 5 (5 factors)</span> ──</span></span>
+<span><span class="co">#&gt; ── Level 5 (5 factors) ──</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f1</span></span></span>
+<span><span class="co">#&gt; m5f1</span></span>
 <span><span class="co">#&gt; E2 [-0.720]</span></span>
 <span><span class="co">#&gt; E4 [0.704]</span></span>
 <span><span class="co">#&gt; E1 [-0.685]</span></span>
 <span><span class="co">#&gt; E3 [0.659]</span></span>
 <span><span class="co">#&gt; E5 [0.584]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f2</span></span></span>
+<span><span class="co">#&gt; m5f2</span></span>
 <span><span class="co">#&gt; N3 [-0.799]</span></span>
 <span><span class="co">#&gt; N1 [-0.787]</span></span>
 <span><span class="co">#&gt; N2 [-0.782]</span></span>
 <span><span class="co">#&gt; N5 [-0.656]</span></span>
 <span><span class="co">#&gt; N4 [-0.626]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f3</span></span></span>
+<span><span class="co">#&gt; m5f3</span></span>
 <span><span class="co">#&gt; C2 [0.702]</span></span>
 <span><span class="co">#&gt; C4 [-0.692]</span></span>
 <span><span class="co">#&gt; C1 [0.671]</span></span>
 <span><span class="co">#&gt; C3 [0.653]</span></span>
 <span><span class="co">#&gt; C5 [-0.627]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f4</span></span></span>
+<span><span class="co">#&gt; m5f4</span></span>
 <span><span class="co">#&gt; A3 [0.698]</span></span>
 <span><span class="co">#&gt; A2 [0.672]</span></span>
 <span><span class="co">#&gt; A1 [-0.672]</span></span>
 <span><span class="co">#&gt; A5 [0.569]</span></span>
 <span><span class="co">#&gt; A4 [0.513]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">m5f5</span></span></span>
+<span><span class="co">#&gt; m5f5</span></span>
 <span><span class="co">#&gt; O5 [-0.676]</span></span>
 <span><span class="co">#&gt; O3 [0.617]</span></span>
 <span><span class="co">#&gt; O2 [-0.586]</span></span>
 <span><span class="co">#&gt; O1 [0.554]</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">for the full matrix.</span></span></span></code></pre></div>
+<span><span class="co">#&gt; Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")</span></span>
+<span><span class="co">#&gt; for the full matrix.</span></span></code></pre></div>
 <p>Three interpretation habits keep the analysis honest (all covered in
 depth in <code><a href="../articles/ackwards-interpret.html">vignette("ackwards-interpret")</a></code>):</p>
 <ul>

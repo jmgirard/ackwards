@@ -30,7 +30,9 @@ The default diagram for reference:
 autoplot(x)
 ```
 
-![](ackwards-visualization_files/figure-html/base-1.png)
+![plot of chunk base](assets/ackwards-visualization-base-1.png)
+
+plot of chunk base
 
 Factors are labeled `m{k}f{j}` (level k, factor j). Two edge aesthetics
 carry the between-level correlations, and each one comes with its own
@@ -62,14 +64,18 @@ read in greyscale — and merges the two into a single “Direction” legend.
 autoplot(x, sign_by = "linetype")
 ```
 
-![](ackwards-visualization_files/figure-html/sign-by-1.png)
+![plot of chunk sign-by](assets/ackwards-visualization-sign-by-1.png)
+
+plot of chunk sign-by
 
 ``` r
 
 autoplot(x, sign_by = "both")
 ```
 
-![](ackwards-visualization_files/figure-html/sign-by-2.png)
+![plot of chunk sign-by](assets/ackwards-visualization-sign-by-2.png)
+
+plot of chunk sign-by
 
 ### `magnitude_by` — how \|r\| is shown
 
@@ -82,7 +88,10 @@ with a `|r|` legend. Set `magnitude_by = "none"` for uniform-width edges
 autoplot(x, magnitude_by = "none")
 ```
 
-![](ackwards-visualization_files/figure-html/magnitude-by-1.png)
+![plot of chunk
+magnitude-by](assets/ackwards-visualization-magnitude-by-1.png)
+
+plot of chunk magnitude-by
 
 ## Filtering edges
 
@@ -97,7 +106,9 @@ sparser diagram that emphasises only the strongest connections.
 autoplot(x, cut_show = 0.5)
 ```
 
-![](ackwards-visualization_files/figure-html/cut-show-1.png)
+![plot of chunk cut-show](assets/ackwards-visualization-cut-show-1.png)
+
+plot of chunk cut-show
 
 ## Edge colors
 
@@ -112,7 +123,9 @@ aliases.
 autoplot(x, color_pos = "darkorchid", color_neg = "darkorange")
 ```
 
-![](ackwards-visualization_files/figure-html/colours-1.png)
+![plot of chunk colours](assets/ackwards-visualization-colours-1.png)
+
+plot of chunk colours
 
 When sign is *not* encoded by color (`sign_by = "linetype"` or
 `"none"`), all edges take the single `color_edge` (default black) — the
@@ -132,7 +145,9 @@ solid lines are positive correlations, dashed lines are negative.
 autoplot(x, mono = TRUE)
 ```
 
-![](ackwards-visualization_files/figure-html/mono-1.png)
+![plot of chunk mono](assets/ackwards-visualization-mono-1.png)
+
+plot of chunk mono
 
 `mono` suits black-and-white figures where the reader must distinguish
 positive from negative edges. To label the edges with their exact values
@@ -150,14 +165,19 @@ midpoint. `r_digits` controls the number of decimal places (default 2).
 autoplot(x, show_r = TRUE)
 ```
 
-![](ackwards-visualization_files/figure-html/show-r-1.png)
+![plot of chunk show-r](assets/ackwards-visualization-show-r-1.png)
+
+plot of chunk show-r
 
 ``` r
 
 autoplot(x, show_r = TRUE, r_digits = 1)
 ```
 
-![](ackwards-visualization_files/figure-html/show-r-digits-1.png)
+![plot of chunk
+show-r-digits](assets/ackwards-visualization-show-r-digits-1.png)
+
+plot of chunk show-r-digits
 
 ## Node labels
 
@@ -185,7 +205,10 @@ autoplot(x, node_labels = c(
 ))
 ```
 
-![](ackwards-visualization_files/figure-html/node-labels-1.png)
+![plot of chunk
+node-labels](assets/ackwards-visualization-node-labels-1.png)
+
+plot of chunk node-labels
 
 Multi-line labels are supported via `\n`:
 
@@ -197,7 +220,10 @@ autoplot(x, node_labels = c(
 ))
 ```
 
-![](ackwards-visualization_files/figure-html/node-labels-multiline-1.png)
+![plot of chunk
+node-labels-multiline](assets/ackwards-visualization-node-labels-multiline-1.png)
+
+plot of chunk node-labels-multiline
 
 ### `label_template()` — generate the scaffold
 
@@ -231,7 +257,10 @@ autoplot(x, node_labels = label_template(x, style = "forbes"))
 #> )
 ```
 
-![](ackwards-visualization_files/figure-html/label-template-forbes-1.png)
+![plot of chunk
+label-template-forbes](assets/ackwards-visualization-label-template-forbes-1.png)
+
+plot of chunk label-template-forbes
 
 For the full naming workflow — reading factors, the sign convention, and
 choosing labels across the hierarchy — see
@@ -251,7 +280,10 @@ edges are never primary, this also suppresses curved arcs when
 autoplot(x, primary_only = TRUE)
 ```
 
-![](ackwards-visualization_files/figure-html/primary-only-1.png)
+![plot of chunk
+primary-only](assets/ackwards-visualization-primary-only-1.png)
+
+plot of chunk primary-only
 
 ## Level labels
 
@@ -265,14 +297,20 @@ left margin. They can be hidden or resized.
 autoplot(x, show_level_labels = FALSE)
 ```
 
-![](ackwards-visualization_files/figure-html/level-labels-off-1.png)
+![plot of chunk
+level-labels-off](assets/ackwards-visualization-level-labels-off-1.png)
+
+plot of chunk level-labels-off
 
 ``` r
 
 autoplot(x, show_level_labels = TRUE, level_label_size = 4)
 ```
 
-![](ackwards-visualization_files/figure-html/level-labels-size-1.png)
+![plot of chunk
+level-labels-size](assets/ackwards-visualization-level-labels-size-1.png)
+
+plot of chunk level-labels-size
 
 ## Arrowheads
 
@@ -287,7 +325,10 @@ straight edges and curved skip-level arcs.
 autoplot(x, show_arrows = FALSE)
 ```
 
-![](ackwards-visualization_files/figure-html/no-arrows-1.png)
+![plot of chunk
+no-arrows](assets/ackwards-visualization-no-arrows-1.png)
+
+plot of chunk no-arrows
 
 ## Edge width
 
@@ -303,7 +344,10 @@ you choose.
 autoplot(x, edge_linewidth = 0.7)
 ```
 
-![](ackwards-visualization_files/figure-html/edge-linewidth-1.png)
+![plot of chunk
+edge-linewidth](assets/ackwards-visualization-edge-linewidth-1.png)
+
+plot of chunk edge-linewidth
 
 ## Layout orientation
 
@@ -319,7 +363,10 @@ bottom margin.
 autoplot(x, direction = "horizontal")
 ```
 
-![](ackwards-visualization_files/figure-html/direction-1.png)
+![plot of chunk
+direction](assets/ackwards-visualization-direction-1.png)
+
+plot of chunk direction
 
 ## Legend
 
@@ -334,7 +381,10 @@ conveyed by labels.
 autoplot(x, legend = FALSE)
 ```
 
-![](ackwards-visualization_files/figure-html/no-legend-1.png)
+![plot of chunk
+no-legend](assets/ackwards-visualization-no-legend-1.png)
+
+plot of chunk no-legend
 
 ## Worked example: publication-ready figure
 
@@ -355,7 +405,10 @@ autoplot(x,
 )
 ```
 
-![](ackwards-visualization_files/figure-html/pub-figure-1.png)
+![plot of chunk
+pub-figure](assets/ackwards-visualization-pub-figure-1.png)
+
+plot of chunk pub-figure
 
 Combining with `node_labels` names the factors for the final figure:
 
@@ -378,7 +431,10 @@ autoplot(x,
 )
 ```
 
-![](ackwards-visualization_files/figure-html/pub-figure-labeled-1.png)
+![plot of chunk
+pub-figure-labeled](assets/ackwards-visualization-pub-figure-labeled-1.png)
+
+plot of chunk pub-figure-labeled
 
 For the pruned-factor variant of this figure (nodes omitted, spanning
 arrows) see
@@ -417,18 +473,21 @@ generic covers it.
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [282ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [127ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [163ms]
+#> ✔ Running MAP and VSS... [42ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10.5s]
+#> ✔ Running Comparison Data (CD)... [5.7s]
 #> 
 autoplot(sk)
 ```
 
-![](ackwards-visualization_files/figure-html/suggest_k_plot-1.png)
+![plot of chunk
+suggest_k_plot](assets/ackwards-visualization-suggest_k_plot-1.png)
+
+plot of chunk suggest_k_plot
 
 ## References
 

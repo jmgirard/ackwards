@@ -66,7 +66,7 @@ so the printed literal maps directly onto the diagram.
 ## Examples
 
 ``` r
-x <- ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric")
+x <- ackwards(sim16, k_max = 5)
 
 # Start from ID defaults, then fill in your own labels:
 labs <- label_template(x)
@@ -88,7 +88,7 @@ labs <- label_template(x)
 #>   "m5f4" = "m5f4",
 #>   "m5f5" = "m5f5"
 #> )
-labs["m5f1"] <- "Neuroticism"
+labs["m5f1"] <- "My factor name"
 
 # Forbes letter convention:
 label_template(x, style = "forbes")

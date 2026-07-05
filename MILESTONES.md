@@ -2844,3 +2844,48 @@ if the change is user-visible.
   `cran-comments.md` and needs no change. Files: `R/ackwards.R`,
   `R/interpret.R`, `DESCRIPTION`, `NEWS.md`, regenerated
   `man/{ackwards,top_items}.Rd`.
+
+- **2026-07-05 — CRAN vignette-timing fix: precompute + example dataset
+  sweep** (response to the CRAN reviewer’s second-round request to
+  reduce the vignette re-build time — “checking re-building of vignette
+  outputs … \[317s\]”; no functional code change). The eight vignettes
+  re-fit
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  on the full bfi25 polychoric basis (plus parallel analysis, split-half
+  comparability, and 200-rep bootstrap edges) on every build. **Fix:
+  precompute the seven heavy vignettes** with the rOpenSci `*.Rmd.orig`
+  pattern (`vignettes/precompute.R` knits each `.orig` → static `.Rmd`
+  with results and `vignettes/assets/` figures baked in; CRAN then
+  builds them pandoc-only). Only `ackwards-interpret.Rmd` stays live
+  (needs the full bfi25 IPIP labels; already ~2s). Local vignette render
+  dropped **~64s → ~6.4s** (seven statics all \<1.2s). **sim16 was
+  evaluated for the two natural live candidates and rejected on
+  pedagogy, not speed:** `ackwards-girard`’s comparability lesson needs
+  realistically messy data (sim16’s clean planted structure replicates
+  ~perfectly, erasing the “hierarchy floor” the vignette teaches), and
+  `ackwards-visualization` is a sign-encoding reference that needs
+  above-`cut_show` negative edges to demo red/dashed aesthetics (sim16
+  at `k_max = 5` has only sub-threshold negatives) — so both are
+  precomputed on bfi25 instead. Separately moved the remaining
+  bfi25/polychoric **roxygen examples** to sim16 where the dataset is
+  incidental: `label_template` (the one non-`\donttest` offender — a
+  full polychoric `k_max = 5` fit ran on every check), plus the
+  `\donttest` examples of `autoplot.ackwards`, `comparability` (×2), and
+  `suggest_k` (×2). The `figure/` → `assets/` rename dodges R CMD
+  check’s “leftover from knitr” NOTE. `R CMD check` **0/0/0**;
+  styler/lintr/[`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
+  clean. Files: `vignettes/precompute.R` (new), seven `vignettes/*.Rmd`
+  → `*.Rmd.orig` + regenerated static `*.Rmd` + `vignettes/assets/`,
+  `R/{autoplot,comparability,label_template,suggest_k}.R` + regenerated
+  man pages, `.Rbuildignore`, `CLAUDE.md`. **Piggybacked r-devel test
+  fix** (surfaced by this PR’s CI matrix, latent since M48):
+  `test-cached-helper.R`’s two sibling tests define a textually
+  identical local `f(d)` on the same data; once source references are
+  dropped (as under `R CMD check`, and now on the R-devel runner)
+  `formals`+`body` hash equal, so the earlier test’s `.fit_cache` entry
+  became a false hit in the later one (`cnt$n == 1`, expected `2`).
+  Fixed by clearing `.fit_cache` at the start of each cache-semantics
+  test (`clean_fit_cache()`); the shipped `cached()` helper and real
+  package fits were never affected (package functions are one constant
+  object, and data lives in the key). All six platforms in the matrix
+  now green.

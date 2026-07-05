@@ -257,45 +257,44 @@ the other pre-analysis diagnostics.
 
 ``` r
 # \donttest{
-sk <- suggest_k(bfi25)
+sk <- suggest_k(sim16)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [288ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [198ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [96ms]
+#> ✔ Running MAP and VSS... [73ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [13.6s]
+#> ✔ Running Comparison Data (CD)... [3.3s]
 #> 
 sk
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
-#> Variables: 25
+#> Variables: 16
 #> n: 1,000
 #> Basis: pearson
 #> Tested k: 1-8
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0246 VSS-1 0.5121 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0190 VSS-1 0.5761 VSS-2 0.6636 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6198* VSS-2 0.7781 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5730 VSS-2 0.7912* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530 CD ✔*
-#> k = 7: PA-PC - PA-FA - MAP 0.0201 VSS-1 0.5698 VSS-2 0.7290 CD -
-#> k = 8: PA-PC - PA-FA - MAP 0.0231 VSS-1 0.5615 VSS-2 0.7252 CD -
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0668 VSS-1 0.5505 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0495 VSS-1 0.7439 VSS-2 0.7834 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0402 VSS-1 0.7685 VSS-2 0.8641 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0230* VSS-1 0.7884* VSS-2 0.9002* CD ✔*
+#> k = 5: PA-PC - PA-FA - MAP 0.0320 VSS-1 0.7881 VSS-2 0.8882 CD -
+#> k = 6: PA-PC - PA-FA - MAP 0.0425 VSS-1 0.7870 VSS-2 0.8633 CD -
+#> k = 7: PA-PC - PA-FA - MAP 0.0545 VSS-1 0.7867 VSS-2 0.8557 CD -
+#> k = 8: PA-PC - PA-FA - MAP 0.0714 VSS-1 0.7336 VSS-2 0.8372 CD -
 #> 
 #> ── Recommendations ──
 #> 
-#> • PA-PC: k <= 5
-#> • PA-FA: k <= 6
-#> • MAP: k = 5
+#> • PA-PC: k <= 4
+#> • PA-FA: k <= 4
+#> • MAP: k = 4
 #> • VSS-1: k = 4
-#> • VSS-2: k = 5
-#> • CD: k = 6
-#> Consensus range: k = 4-6
+#> • VSS-2: k = 4
+#> • CD: k = 4
+#> Consensus: k = 4
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.
@@ -305,32 +304,32 @@ autoplot(sk)
 
 
 # Run only MAP (fast; skips parallel analysis and CD)
-suggest_k(bfi25, criteria = "map")
+suggest_k(sim16, criteria = "map")
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [57ms]
+#> ✔ Running MAP and VSS... [49ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
-#> Variables: 25
+#> Variables: 16
 #> n: 1,000
 #> Basis: pearson
 #> Tested k: 1-8
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: MAP 0.0246
-#> k = 2: MAP 0.0190
-#> k = 3: MAP 0.0172
-#> k = 4: MAP 0.0164
-#> k = 5: MAP 0.0160*
-#> k = 6: MAP 0.0170
-#> k = 7: MAP 0.0201
-#> k = 8: MAP 0.0231
+#> k = 1: MAP 0.0668
+#> k = 2: MAP 0.0495
+#> k = 3: MAP 0.0402
+#> k = 4: MAP 0.0230*
+#> k = 5: MAP 0.0320
+#> k = 6: MAP 0.0425
+#> k = 7: MAP 0.0545
+#> k = 8: MAP 0.0714
 #> 
 #> ── Recommendations ──
 #> 
-#> • MAP: k = 5
-#> Consensus: k = 5
+#> • MAP: k = 4
+#> Consensus: k = 4
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.
@@ -338,13 +337,13 @@ suggest_k(bfi25, criteria = "map")
 #> 2023). PA-FA and CD are more conservative. Use the range.
 
 # Run only the parallel-analysis criteria
-suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
+suggest_k(sim16, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [94ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [76ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
-#> Variables: 25
+#> Variables: 16
 #> n: 1,000
 #> Basis: pearson
 #> Tested k: 1-8
@@ -355,16 +354,16 @@ suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 #> k = 2: PA-PC ✔ PA-FA ✔
 #> k = 3: PA-PC ✔ PA-FA ✔
 #> k = 4: PA-PC ✔ PA-FA ✔
-#> k = 5: PA-PC ✔ PA-FA ✔
-#> k = 6: PA-PC - PA-FA ✔
+#> k = 5: PA-PC - PA-FA -
+#> k = 6: PA-PC - PA-FA -
 #> k = 7: PA-PC - PA-FA -
 #> k = 8: PA-PC - PA-FA -
 #> 
 #> ── Recommendations ──
 #> 
-#> • PA-PC: k <= 5
-#> • PA-FA: k <= 6
-#> Consensus range: k = 5-6
+#> • PA-PC: k <= 4
+#> • PA-FA: k <= 4
+#> Consensus: k = 4
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.
@@ -372,42 +371,41 @@ suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 #> 2023). PA-FA and CD are more conservative. Use the range.
 
 # Faster exploratory run
-suggest_k(bfi25, k_max = 6, n_iter = 5)
+suggest_k(sim16, k_max = 6, n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [108ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [92ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> CD: 125 rows with missing values removed (875 complete cases used).
-#> ✔ Running MAP and VSS... [86ms]
+#> ✔ Running MAP and VSS... [61ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [10s]
+#> ✔ Running Comparison Data (CD)... [3s]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
-#> Variables: 25
+#> Variables: 16
 #> n: 1,000
 #> Basis: pearson
 #> Tested k: 1-6
 #> 
 #> ── Criteria (k = 1-6) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0246 VSS-1 0.5121 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0190 VSS-1 0.5761 VSS-2 0.6636 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6198* VSS-2 0.7781 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5730 VSS-2 0.7912* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530 CD ✔*
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0668 VSS-1 0.5505 VSS-2 0.0000 CD ✔
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0495 VSS-1 0.7439 VSS-2 0.7834 CD ✔
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0402 VSS-1 0.7685 VSS-2 0.8641 CD ✔
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0230* VSS-1 0.7884* VSS-2 0.9002* CD ✔*
+#> k = 5: PA-PC - PA-FA - MAP 0.0320 VSS-1 0.7881 VSS-2 0.8882 CD -
+#> k = 6: PA-PC - PA-FA - MAP 0.0425 VSS-1 0.7870 VSS-2 0.8633 CD -
 #> 
 #> ── Recommendations ──
 #> 
-#> • PA-PC: k <= 5
-#> • PA-FA: k <= 6
-#> • MAP: k = 5
+#> • PA-PC: k <= 4
+#> • PA-FA: k <= 4
+#> • MAP: k = 4
 #> • VSS-1: k = 4
-#> • VSS-2: k = 5
-#> • CD: k = 6
-#> Consensus range: k = 4-6
+#> • VSS-2: k = 4
+#> • CD: k = 4
+#> Consensus: k = 4
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.
@@ -415,43 +413,43 @@ suggest_k(bfi25, k_max = 6, n_iter = 5)
 #> 2023). PA-FA and CD are more conservative. Use the range.
 
 # Correlation-matrix input (CD is skipped; n_obs required)
-R <- cor(bfi25, use = "pairwise.complete.obs")
-suggest_k(R, n_obs = 875L)
+R <- cor(sim16)
+suggest_k(R, n_obs = nrow(sim16))
 #> ℹ CD is skipped when a correlation matrix is supplied (CD requires raw item
 #>   distributions for resampling).
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [237ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [186ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [93ms]
+#> ✔ Running MAP and VSS... [77ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
-#> Variables: 25
-#> n: 875
+#> Variables: 16
+#> n: 1,000
 #> Basis: (user-supplied matrix)
 #> Tested k: 1-8
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0246 VSS-1 0.5121 VSS-2 0.0000
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0190 VSS-1 0.5761 VSS-2 0.6636
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6198* VSS-2 0.7781
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5730 VSS-2 0.7912*
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530
-#> k = 7: PA-PC - PA-FA - MAP 0.0201 VSS-1 0.5698 VSS-2 0.7290
-#> k = 8: PA-PC - PA-FA - MAP 0.0231 VSS-1 0.5615 VSS-2 0.7252
+#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0668 VSS-1 0.5505 VSS-2 0.0000
+#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0495 VSS-1 0.7439 VSS-2 0.7834
+#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0402 VSS-1 0.7685 VSS-2 0.8641
+#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0230* VSS-1 0.7884* VSS-2 0.9002*
+#> k = 5: PA-PC - PA-FA - MAP 0.0320 VSS-1 0.7881 VSS-2 0.8882
+#> k = 6: PA-PC - PA-FA - MAP 0.0425 VSS-1 0.7870 VSS-2 0.8633
+#> k = 7: PA-PC - PA-FA - MAP 0.0545 VSS-1 0.7867 VSS-2 0.8557
+#> k = 8: PA-PC - PA-FA - MAP 0.0714 VSS-1 0.7336 VSS-2 0.8372
 #> + CD skipped (requires raw data; not available for matrix input).
 #> 
 #> ── Recommendations ──
 #> 
-#> • PA-PC: k <= 5
-#> • PA-FA: k <= 6
-#> • MAP: k = 5
+#> • PA-PC: k <= 4
+#> • PA-FA: k <= 4
+#> • MAP: k = 4
 #> • VSS-1: k = 4
-#> • VSS-2: k = 5
-#> Consensus range: k = 4-6
+#> • VSS-2: k = 4
+#> Consensus: k = 4
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.

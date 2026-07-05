@@ -90,13 +90,13 @@ bfi <- na.omit(bfi25)
 
 sk <- suggest_k(bfi, seed = 1)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [297ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [128ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [137ms]
+#> ✔ Running MAP and VSS... [85ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [9.8s]
+#> ✔ Running Comparison Data (CD)... [5.8s]
 #> 
 print(sk)
 #> 
@@ -151,7 +151,7 @@ to one past the ceiling, across ten random split-halves:
 
 cmp <- comparability(bfi, k_max = sk_hi + 1, n_splits = 10, seed = 2026)
 #> ℹ Fitting 10 split-half replicates (pca, k = 1-7)...
-#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [2.5s]
+#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [1.2s]
 #> 
 print(cmp)
 #> 
@@ -193,7 +193,10 @@ same slot.
 autoplot(cmp)
 ```
 
-![](ackwards-girard_files/figure-html/comparability-plot-1.png)
+![plot of chunk
+comparability-plot](assets/ackwards-girard-comparability-plot-1.png)
+
+plot of chunk comparability-plot
 
 Two honesty notes. First, the conventional benchmarks marked on the plot
 (.90 and .95, following Everett’s and Goldberg’s practice) are
@@ -247,7 +250,10 @@ print(x)
 autoplot(x)
 ```
 
-![](ackwards-girard_files/figure-html/hierarchy-plot-1.png)
+![plot of chunk
+hierarchy-plot](assets/ackwards-girard-hierarchy-plot-1.png)
+
+plot of chunk hierarchy-plot
 
 If you prefer to *display* the fragmentation beyond the floor (it can be
 substantively interesting to show a factor dissolving), fit one level
@@ -333,7 +339,7 @@ is polychoric.
 x_boot <- ackwards(bfi, k_max = 5, pairs = "all") |>
   boot_edges(bfi, n_boot = 200, seed = 1)
 #> ℹ Fitting 200 bootstrap replicates (pca, k = 1-5)...
-#> ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [18.4s]
+#> ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [8.2s]
 #> 
 
 boot_tbl <- tidy(x_boot, what = "edges", sort = "strength")

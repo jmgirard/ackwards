@@ -211,19 +211,14 @@ and citations — see
 ``` r
 
 sk <- suggest_k(bfi, seed = 42)
-#> Warning: ! 25 columns look like ordinal/Likert items (<= 7 distinct integer values):
-#>   "A1", "A2", "A3", "A4", "A5", "C1", …, "O4", and "O5".
-#> ℹ `suggest_k()` screens on the "pearson" basis by design; use `cor =
-#>   "polychoric"` in the final `ackwards()` fit.
-#> This warning is displayed once per session.
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [286ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [135ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [138ms]
+#> ✔ Running MAP and VSS... [44ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [9.8s]
+#> ✔ Running Comparison Data (CD)... [5.5s]
 #> 
 print(sk)
 #> 
@@ -293,7 +288,9 @@ two different complexities.
 autoplot(sk)
 ```
 
-![](ackwards-suggest-k_files/figure-html/autoplot-1.png)
+![plot of chunk autoplot](assets/ackwards-suggest-k-autoplot-1.png)
+
+plot of chunk autoplot
 
 When `EFAtools` is installed and CD is computed, the plot is a 2×2 grid;
 otherwise it falls back to a single-column three-panel layout.

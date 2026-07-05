@@ -143,7 +143,7 @@ within sampling error.
 
 tidy(x_efa, what = "fit")
 #>    level statistic        value
-#> 1      1       chi 5327.2295199
+#> 1      1       chi 5327.2295200
 #> 2      1       dof  275.0000000
 #> 3      1   p_value    0.0000000
 #> 4      1     RMSEA    0.1448964
@@ -262,7 +262,7 @@ every loading. These SEs are now returned as part of
 ld <- tidy(x_esem, what = "loadings")
 head(ld)
 #>   level factor item    loading         se   ci_lower   ci_upper
-#> 1     1   m1f1   A1 -0.3155807 0.02831633 -0.3710796 -0.2600817
+#> 1     1   m1f1   A1 -0.3155807 0.02831633 -0.3710797 -0.2600817
 #> 2     1   m1f1   A2  0.5584169 0.02316777  0.5130089  0.6038249
 #> 3     1   m1f1   A3  0.6424786 0.01971862  0.6038308  0.6811264
 #> 4     1   m1f1   A4  0.4261675 0.02777029  0.3717387  0.4805962
@@ -346,7 +346,9 @@ with cutoff reference lines:
 autoplot(x_esem, what = "fit")
 ```
 
-![](ackwards-engines_files/figure-html/fit-plot-1.png)
+![plot of chunk fit-plot](assets/ackwards-engines-fit-plot-1.png)
+
+plot of chunk fit-plot
 
 The shape of the trajectory matters as much as the absolute values: a
 sharp improvement from k = 2 to k = 3 suggests the third factor is

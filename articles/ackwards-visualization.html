@@ -108,7 +108,9 @@ specific to the Forbes pruning extension and are covered in
 <p>The default diagram for reference:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/base-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-base-1.png" alt="plot of chunk base"><div class="figcaption">plot of chunk base</div>
+</div>
 <p>Factors are labeled <code>m{k}f{j}</code> (level k, factor j). Two
 edge aesthetics carry the between-level correlations, and each one comes
 with its own legend: arrow <strong>thickness</strong> encodes the
@@ -139,10 +141,14 @@ read in greyscale — and merges the two into a single “Direction” legend.
 <code>"none"</code> drops sign encoding entirely.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, sign_by <span class="op">=</span> <span class="st">"linetype"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/sign-by-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-sign-by-1.png" alt="plot of chunk sign-by"><div class="figcaption">plot of chunk sign-by</div>
+</div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, sign_by <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/sign-by-2.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-sign-by-2.png" alt="plot of chunk sign-by"><div class="figcaption">plot of chunk sign-by</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="magnitude_by-how-r-is-shown">
@@ -154,7 +160,9 @@ thickness with a <code>|r|</code> legend. Set
 <code>edge_linewidth</code>, below, to pin a specific width).</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, magnitude_by <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/magnitude-by-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-magnitude-by-1.png" alt="plot of chunk magnitude-by"><div class="figcaption">plot of chunk magnitude-by</div>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -170,7 +178,9 @@ connections.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Default cut_show = 0.3 (already shown above)</span></span>
 <span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, cut_show <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/cut-show-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-cut-show-1.png" alt="plot of chunk cut-show"><div class="figcaption">plot of chunk cut-show</div>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -186,7 +196,9 @@ recognised by R. British spellings (<code>colour_pos</code>,
 <code>colour_neg</code>) are accepted as aliases.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, color_pos <span class="op">=</span> <span class="st">"darkorchid"</span>, color_neg <span class="op">=</span> <span class="st">"darkorange"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/colours-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-colours-1.png" alt="plot of chunk colours"><div class="figcaption">plot of chunk colours</div>
+</div>
 <p>When sign is <em>not</em> encoded by color
 (<code>sign_by = "linetype"</code> or <code>"none"</code>), all edges
 take the single <code>color_edge</code> (default black) — the basis for
@@ -209,7 +221,9 @@ positive correlations, dashed lines are negative.
 continues to encode |r|.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, mono <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/mono-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-mono-1.png" alt="plot of chunk mono"><div class="figcaption">plot of chunk mono</div>
+</div>
 <p><code>mono</code> suits black-and-white figures where the reader must
 distinguish positive from negative edges. To label the edges with their
 exact values as well, add <code>show_r = TRUE</code> (documented
@@ -229,10 +243,14 @@ each edge midpoint. <code>r_digits</code> controls the number of decimal
 places (default 2).</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_r <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/show-r-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-show-r-1.png" alt="plot of chunk show-r"><div class="figcaption">plot of chunk show-r</div>
+</div>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_r <span class="op">=</span> <span class="cn">TRUE</span>, r_digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/show-r-digits-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-show-r-digits-1.png" alt="plot of chunk show-r-digits"><div class="figcaption">plot of chunk show-r-digits</div>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -258,14 +276,18 @@ override a particular node for this one plot.</p>
 <span>  m5f4 <span class="op">=</span> <span class="st">"Agree."</span>,</span>
 <span>  m5f5 <span class="op">=</span> <span class="st">"Open."</span></span>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/node-labels-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-node-labels-1.png" alt="plot of chunk node-labels"><div class="figcaption">plot of chunk node-labels</div>
+</div>
 <p>Multi-line labels are supported via <code>\n</code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  m5f1 <span class="op">=</span> <span class="st">"Neuro-\nticism"</span>,</span>
 <span>  m5f2 <span class="op">=</span> <span class="st">"Extra-\nversion"</span></span>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/node-labels-multiline-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-node-labels-multiline-1.png" alt="plot of chunk node-labels-multiline"><div class="figcaption">plot of chunk node-labels-multiline</div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="label_template-generate-the-scaffold">
@@ -297,7 +319,9 @@ offers the Forbes (2023) letter convention (<code>"A1"</code>,
 <span><span class="co">#&gt;   "m5f4" = "E4",</span></span>
 <span><span class="co">#&gt;   "m5f5" = "E5"</span></span>
 <span><span class="co">#&gt; )</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/label-template-forbes-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-label-template-forbes-1.png" alt="plot of chunk label-template-forbes"><div class="figcaption">plot of chunk label-template-forbes</div>
+</div>
 <p>For the full naming workflow — reading factors, the sign convention,
 and choosing labels across the hierarchy — see
 <code><a href="../articles/ackwards-interpret.html">vignette("ackwards-interpret")</a></code>.</p>
@@ -317,7 +341,9 @@ Because skip-level edges are never primary, this also suppresses curved
 arcs when <code>pairs = "all"</code> was used.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, primary_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/primary-only-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-primary-only-1.png" alt="plot of chunk primary-only"><div class="figcaption">plot of chunk primary-only</div>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -331,10 +357,14 @@ arcs when <code>pairs = "all"</code> was used.</p>
 left margin. They can be hidden or resized.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_level_labels <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/level-labels-off-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-level-labels-off-1.png" alt="plot of chunk level-labels-off"><div class="figcaption">plot of chunk level-labels-off</div>
+</div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_level_labels <span class="op">=</span> <span class="cn">TRUE</span>, level_label_size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/level-labels-size-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-level-labels-size-1.png" alt="plot of chunk level-labels-size"><div class="figcaption">plot of chunk level-labels-size</div>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -349,7 +379,9 @@ left margin. They can be hidden or resized.</p>
 both straight edges and curved skip-level arcs.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_arrows <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/no-arrows-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-no-arrows-1.png" alt="plot of chunk no-arrows"><div class="figcaption">plot of chunk no-arrows</div>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -366,7 +398,9 @@ legend — like <code>magnitude_by = "none"</code>, but at a width you
 choose.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, edge_linewidth <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/edge-linewidth-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-edge-linewidth-1.png" alt="plot of chunk edge-linewidth"><div class="figcaption">plot of chunk edge-linewidth</div>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -382,7 +416,9 @@ choose.</p>
 the bottom margin.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, direction <span class="op">=</span> <span class="st">"horizontal"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/direction-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-direction-1.png" alt="plot of chunk direction"><div class="figcaption">plot of chunk direction</div>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -397,7 +433,9 @@ useful when the diagram is self-explanatory or the legend duplicates
 information conveyed by labels.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/no-legend-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-no-legend-1.png" alt="plot of chunk no-legend"><div class="figcaption">plot of chunk no-legend</div>
+</div>
 </div>
 </div>
 <div class="section level2">
@@ -417,7 +455,9 @@ key.</p>
 <span>  show_r         <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  legend         <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/pub-figure-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-pub-figure-1.png" alt="plot of chunk pub-figure"><div class="figcaption">plot of chunk pub-figure</div>
+</div>
 <p>Combining with <code>node_labels</code> names the factors for the
 final figure:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
@@ -436,7 +476,9 @@ final figure:</p>
 <span>    m5f5 <span class="op">=</span> <span class="st">"Open."</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/pub-figure-labeled-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-pub-figure-labeled-1.png" alt="plot of chunk pub-figure-labeled"><div class="figcaption">plot of chunk pub-figure-labeled</div>
+</div>
 <p>For the pruned-factor variant of this figure (nodes omitted, spanning
 arrows) see <code><a href="../articles/ackwards-forbes.html">vignette("ackwards-forbes")</a></code>.</p>
 </div>
@@ -464,17 +506,19 @@ diagnostic. It is documented in depth in
 same <code><a href="../reference/autoplot.html">autoplot()</a></code> generic covers it.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[282ms]</span></span></span>
+<span><span class="co">#&gt; ℹ Running parallel analysis (20 iterations, PC + FA)...</span></span>
+<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [127ms]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[163ms]</span></span></span>
+<span><span class="co">#&gt; ℹ Running MAP and VSS...</span></span>
+<span><span class="co">#&gt; ✔ Running MAP and VSS... [42ms]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10.5s]</span></span></span>
+<span><span class="co">#&gt; ℹ Running Comparison Data (CD)...</span></span>
+<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [5.7s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ackwards-visualization_files/figure-html/suggest_k_plot-1.png" class="r-plt" alt="" width="768"></p>
+<div class="float">
+<img src="assets/ackwards-visualization-suggest_k_plot-1.png" alt="plot of chunk suggest_k_plot"><div class="figcaption">plot of chunk suggest_k_plot</div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>

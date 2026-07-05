@@ -280,45 +280,44 @@ of partial correlations. <em>Psychometrika</em>, 41, 321–327.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu">suggest_k</span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu">suggest_k</span><span class="op">(</span><span class="va">sim16</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[288ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[198ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> CD: 125 rows with missing values removed (875 complete cases used).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[96ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[73ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[13.6s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[3.3s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">sk</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Variables: 25</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Variables: 16</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> n: 1,000</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Basis: pearson</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tested k: 1-8</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Criteria (k = 1-8)</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0246 VSS-1 0.5121 VSS-2 0.0000 CD <span style="color: #00BB00;">✔</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0190 VSS-1 0.5761 VSS-2 0.6636 CD <span style="color: #00BB00;">✔</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288 CD <span style="color: #00BB00;">✔</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0164 VSS-1 0.6198<span style="color: #00BBBB;">*</span> VSS-2 0.7781 CD <span style="color: #00BB00;">✔</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 5: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0160<span style="color: #00BBBB;">*</span> VSS-1 0.5730 VSS-2 0.7912<span style="color: #00BBBB;">*</span> CD <span style="color: #00BB00;">✔</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530 CD <span style="color: #00BB00;">✔</span><span style="color: #00BBBB;">*</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0201 VSS-1 0.5698 VSS-2 0.7290 CD <span style="color: #555555;">-</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0231 VSS-1 0.5615 VSS-2 0.7252 CD <span style="color: #555555;">-</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0668 VSS-1 0.5505 VSS-2 0.0000 CD <span style="color: #00BB00;">✔</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0495 VSS-1 0.7439 VSS-2 0.7834 CD <span style="color: #00BB00;">✔</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0402 VSS-1 0.7685 VSS-2 0.8641 CD <span style="color: #00BB00;">✔</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0230<span style="color: #00BBBB;">*</span> VSS-1 0.7884<span style="color: #00BBBB;">*</span> VSS-2 0.9002<span style="color: #00BBBB;">*</span> CD <span style="color: #00BB00;">✔</span><span style="color: #00BBBB;">*</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 5: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0320 VSS-1 0.7881 VSS-2 0.8882 CD <span style="color: #555555;">-</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0425 VSS-1 0.7870 VSS-2 0.8633 CD <span style="color: #555555;">-</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0545 VSS-1 0.7867 VSS-2 0.8557 CD <span style="color: #555555;">-</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0714 VSS-1 0.7336 VSS-2 0.8372 CD <span style="color: #555555;">-</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Recommendations</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-PC: k &lt;= 5</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-FA: k &lt;= 6</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> MAP: k = 5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-PC: k &lt;= 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-FA: k &lt;= 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> MAP: k = 4</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> VSS-1: k = 4</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> VSS-2: k = 5</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> CD: k = 6</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Consensus range: k = 4-6</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> VSS-2: k = 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> CD: k = 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Consensus: k = 4</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span>
@@ -328,32 +327,32 @@ of partial correlations. <em>Psychometrika</em>, 41, 321–327.</p>
 <span class="r-plt img"><img src="suggest_k-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run only MAP (fast; skips parallel analysis and CD)</span></span></span>
-<span class="r-in"><span><span class="fu">suggest_k</span><span class="op">(</span><span class="va">bfi25</span>, criteria <span class="op">=</span> <span class="st">"map"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">suggest_k</span><span class="op">(</span><span class="va">sim16</span>, criteria <span class="op">=</span> <span class="st">"map"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[57ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[49ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Variables: 25</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Variables: 16</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> n: 1,000</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Basis: pearson</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tested k: 1-8</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Criteria (k = 1-8)</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 1: MAP 0.0246</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 2: MAP 0.0190</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 3: MAP 0.0172</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 4: MAP 0.0164</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 5: MAP 0.0160<span style="color: #00BBBB;">*</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 6: MAP 0.0170</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 7: MAP 0.0201</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 8: MAP 0.0231</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 1: MAP 0.0668</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 2: MAP 0.0495</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 3: MAP 0.0402</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 4: MAP 0.0230<span style="color: #00BBBB;">*</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 5: MAP 0.0320</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 6: MAP 0.0425</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 7: MAP 0.0545</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 8: MAP 0.0714</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Recommendations</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> MAP: k = 5</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Consensus: k = 5</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> MAP: k = 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Consensus: k = 4</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span>
@@ -361,13 +360,13 @@ of partial correlations. <em>Psychometrika</em>, 41, 321–327.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">2023). PA-FA and CD are more conservative. Use the range.</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run only the parallel-analysis criteria</span></span></span>
-<span class="r-in"><span><span class="fu">suggest_k</span><span class="op">(</span><span class="va">bfi25</span>, criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pa_pc"</span>, <span class="st">"pa_fa"</span><span class="op">)</span>, n_iter <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">suggest_k</span><span class="op">(</span><span class="va">sim16</span>, criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pa_pc"</span>, <span class="st">"pa_fa"</span><span class="op">)</span>, n_iter <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (5 iterations, PC + FA)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (5 iterations, PC + FA)... <span style="color: #B2B2B2;">[94ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (5 iterations, PC + FA)... <span style="color: #B2B2B2;">[76ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Variables: 25</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Variables: 16</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> n: 1,000</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Basis: pearson</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tested k: 1-8</span>
@@ -378,16 +377,16 @@ of partial correlations. <em>Psychometrika</em>, 41, 321–327.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 5: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #00BB00;">✔</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 5: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Recommendations</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-PC: k &lt;= 5</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-FA: k &lt;= 6</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Consensus range: k = 5-6</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-PC: k &lt;= 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-FA: k &lt;= 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Consensus: k = 4</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span>
@@ -395,42 +394,41 @@ of partial correlations. <em>Psychometrika</em>, 41, 321–327.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">2023). PA-FA and CD are more conservative. Use the range.</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Faster exploratory run</span></span></span>
-<span class="r-in"><span><span class="fu">suggest_k</span><span class="op">(</span><span class="va">bfi25</span>, k_max <span class="op">=</span> <span class="fl">6</span>, n_iter <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">suggest_k</span><span class="op">(</span><span class="va">sim16</span>, k_max <span class="op">=</span> <span class="fl">6</span>, n_iter <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (5 iterations, PC + FA)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (5 iterations, PC + FA)... <span style="color: #B2B2B2;">[108ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (5 iterations, PC + FA)... <span style="color: #B2B2B2;">[92ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> CD: 125 rows with missing values removed (875 complete cases used).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[86ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[61ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[10s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[3s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Variables: 25</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Variables: 16</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> n: 1,000</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Basis: pearson</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tested k: 1-6</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Criteria (k = 1-6)</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0246 VSS-1 0.5121 VSS-2 0.0000 CD <span style="color: #00BB00;">✔</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0190 VSS-1 0.5761 VSS-2 0.6636 CD <span style="color: #00BB00;">✔</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288 CD <span style="color: #00BB00;">✔</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0164 VSS-1 0.6198<span style="color: #00BBBB;">*</span> VSS-2 0.7781 CD <span style="color: #00BB00;">✔</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 5: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0160<span style="color: #00BBBB;">*</span> VSS-1 0.5730 VSS-2 0.7912<span style="color: #00BBBB;">*</span> CD <span style="color: #00BB00;">✔</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530 CD <span style="color: #00BB00;">✔</span><span style="color: #00BBBB;">*</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0668 VSS-1 0.5505 VSS-2 0.0000 CD <span style="color: #00BB00;">✔</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0495 VSS-1 0.7439 VSS-2 0.7834 CD <span style="color: #00BB00;">✔</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0402 VSS-1 0.7685 VSS-2 0.8641 CD <span style="color: #00BB00;">✔</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0230<span style="color: #00BBBB;">*</span> VSS-1 0.7884<span style="color: #00BBBB;">*</span> VSS-2 0.9002<span style="color: #00BBBB;">*</span> CD <span style="color: #00BB00;">✔</span><span style="color: #00BBBB;">*</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 5: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0320 VSS-1 0.7881 VSS-2 0.8882 CD <span style="color: #555555;">-</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0425 VSS-1 0.7870 VSS-2 0.8633 CD <span style="color: #555555;">-</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Recommendations</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-PC: k &lt;= 5</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-FA: k &lt;= 6</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> MAP: k = 5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-PC: k &lt;= 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-FA: k &lt;= 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> MAP: k = 4</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> VSS-1: k = 4</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> VSS-2: k = 5</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> CD: k = 6</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Consensus range: k = 4-6</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> VSS-2: k = 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> CD: k = 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Consensus: k = 4</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span>
@@ -438,43 +436,43 @@ of partial correlations. <em>Psychometrika</em>, 41, 321–327.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">2023). PA-FA and CD are more conservative. Use the range.</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Correlation-matrix input (CD is skipped; n_obs required)</span></span></span>
-<span class="r-in"><span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">bfi25</span>, use <span class="op">=</span> <span class="st">"pairwise.complete.obs"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">suggest_k</span><span class="op">(</span><span class="va">R</span>, n_obs <span class="op">=</span> <span class="fl">875L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">sim16</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">suggest_k</span><span class="op">(</span><span class="va">R</span>, n_obs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">sim16</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> CD is skipped when a correlation matrix is supplied (CD requires raw item</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   distributions for resampling).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[237ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[186ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[93ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[77ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Variables: 25</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> n: 875</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Variables: 16</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> n: 1,000</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Basis: (user-supplied matrix)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tested k: 1-8</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Criteria (k = 1-8)</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0246 VSS-1 0.5121 VSS-2 0.0000</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0190 VSS-1 0.5761 VSS-2 0.6636</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0164 VSS-1 0.6198<span style="color: #00BBBB;">*</span> VSS-2 0.7781</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 5: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0160<span style="color: #00BBBB;">*</span> VSS-1 0.5730 VSS-2 0.7912<span style="color: #00BBBB;">*</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0201 VSS-1 0.5698 VSS-2 0.7290</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0231 VSS-1 0.5615 VSS-2 0.7252</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 1: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0668 VSS-1 0.5505 VSS-2 0.0000</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 2: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0495 VSS-1 0.7439 VSS-2 0.7834</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 3: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0402 VSS-1 0.7685 VSS-2 0.8641</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 4: PA-PC <span style="color: #00BB00;">✔</span> PA-FA <span style="color: #00BB00;">✔</span> MAP 0.0230<span style="color: #00BBBB;">*</span> VSS-1 0.7884<span style="color: #00BBBB;">*</span> VSS-2 0.9002<span style="color: #00BBBB;">*</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 5: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0320 VSS-1 0.7881 VSS-2 0.8882</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 6: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0425 VSS-1 0.7870 VSS-2 0.8633</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 7: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0545 VSS-1 0.7867 VSS-2 0.8557</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> k = 8: PA-PC <span style="color: #555555;">-</span> PA-FA <span style="color: #555555;">-</span> MAP 0.0714 VSS-1 0.7336 VSS-2 0.8372</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">+ CD skipped (requires raw data; not available for matrix input).</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Recommendations</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-PC: k &lt;= 5</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-FA: k &lt;= 6</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> MAP: k = 5</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-PC: k &lt;= 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> PA-FA: k &lt;= 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> MAP: k = 4</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> VSS-1: k = 4</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> VSS-2: k = 5</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Consensus range: k = 4-6</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> VSS-2: k = 4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Consensus: k = 4</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">above the consensus to observe factor fragmentation is intentional.</span></span>

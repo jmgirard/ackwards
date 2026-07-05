@@ -125,7 +125,7 @@ through.</p></li>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span>, k_max <span class="op">=</span> <span class="fl">5</span>, cor <span class="op">=</span> <span class="st">"polychoric"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">sim16</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Start from ID defaults, then fill in your own labels:</span></span></span>
 <span class="r-in"><span><span class="va">labs</span> <span class="op">&lt;-</span> <span class="fu">label_template</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
@@ -147,7 +147,7 @@ through.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   "m5f4" = "m5f4",</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   "m5f5" = "m5f5"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> )</span>
-<span class="r-in"><span><span class="va">labs</span><span class="op">[</span><span class="st">"m5f1"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Neuroticism"</span></span></span>
+<span class="r-in"><span><span class="va">labs</span><span class="op">[</span><span class="st">"m5f1"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"My factor name"</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Forbes letter convention:</span></span></span>
 <span class="r-in"><span><span class="fu">label_template</span><span class="op">(</span><span class="va">x</span>, style <span class="op">=</span> <span class="st">"forbes"</span><span class="op">)</span></span></span>

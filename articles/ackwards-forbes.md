@@ -178,7 +178,9 @@ autoplot(x_prune,
 )
 ```
 
-![](ackwards-forbes_files/figure-html/drop-pruned-1.png)
+![plot of chunk drop-pruned](assets/ackwards-forbes-drop-pruned-1.png)
+
+plot of chunk drop-pruned
 
 **Without labels** (cleaner for slides or when the exact values are not
 the focus):
@@ -192,7 +194,10 @@ autoplot(x_prune,
 )
 ```
 
-![](ackwards-forbes_files/figure-html/drop-pruned-unlabeled-1.png)
+![plot of chunk
+drop-pruned-unlabeled](assets/ackwards-forbes-drop-pruned-unlabeled-1.png)
+
+plot of chunk drop-pruned-unlabeled
 
 Level 4 is entirely pruned, leaving a visible gap in the y-axis. The gap
 is intentional: it shows *which* level was removed. Spanning arrows
@@ -214,7 +219,10 @@ autoplot(x_prune,
 )
 ```
 
-![](ackwards-forbes_files/figure-html/drop-pruned-compressed-1.png)
+![plot of chunk
+drop-pruned-compressed](assets/ackwards-forbes-drop-pruned-compressed-1.png)
+
+plot of chunk drop-pruned-compressed
 
 The level labels still read “1 factor”, “2 factors”, “3 factors”, “5
 factors” so readers know which levels were retained; the uniform
