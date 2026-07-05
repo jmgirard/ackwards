@@ -1781,4 +1781,11 @@ no-gaps check applies only to that list) while still giving every code change a 
   check` **0/0/0**; styler/lintr/`pkgdown::check_pkgdown()` clean. Files: `vignettes/precompute.R`
   (new), seven `vignettes/*.Rmd` → `*.Rmd.orig` + regenerated static `*.Rmd` + `vignettes/assets/`,
   `R/{autoplot,comparability,label_template,suggest_k}.R` + regenerated man pages, `.Rbuildignore`,
-  `CLAUDE.md`.
+  `CLAUDE.md`. **Piggybacked r-devel test fix** (surfaced by this PR's CI matrix, latent since M48):
+  `test-cached-helper.R`'s two sibling tests define a textually identical local `f(d)` on the same
+  data; once source references are dropped (as under `R CMD check`, and now on the R-devel runner)
+  `formals`+`body` hash equal, so the earlier test's `.fit_cache` entry became a false hit in the
+  later one (`cnt$n == 1`, expected `2`). Fixed by clearing `.fit_cache` at the start of each
+  cache-semantics test (`clean_fit_cache()`); the shipped `cached()` helper and real package fits
+  were never affected (package functions are one constant object, and data lives in the key). All
+  six platforms in the matrix now green.
