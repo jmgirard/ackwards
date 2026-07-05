@@ -27,7 +27,7 @@ Requires the \pkg{ggplot2} package.
 \examples{
 \donttest{
 if (requireNamespace("ggplot2", quietly = TRUE)) {
-  cmp <- comparability(bfi25, k_max = 5, n_splits = 5, seed = 1)
+  cmp <- comparability(sim16, k_max = 5, n_splits = 5, seed = 1)
   autoplot(cmp)
 }
 }

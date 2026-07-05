@@ -7,7 +7,15 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 5,
+  warning = FALSE
+)
+```
 
 `autoplot.ackwards()` exposes a large number of arguments for controlling the
 appearance of the hierarchy diagram. This vignette is a visual reference: each
@@ -22,8 +30,7 @@ specific to the Forbes pruning extension and are covered in
 
 ## Setup
 
-
-``` r
+```{r setup-data}
 library(ackwards)
 
 bfi <- na.omit(bfi25)
@@ -32,12 +39,9 @@ x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 
 The default diagram for reference:
 
-
-``` r
+```{r base}
 autoplot(x)
 ```
-
-![plot of chunk base](assets/ackwards-visualization-base-1.png)
 
 Factors are labeled `m{k}f{j}` (level k, factor j). Two edge aesthetics carry
 the between-level correlations, and each one comes with its own legend: arrow
@@ -62,18 +66,10 @@ single-hue figure. `"both"` uses color *and* linetype together — negatives get
 distinct double-dash so they still read in greyscale — and merges the two into a
 single "Direction" legend. `"none"` drops sign encoding entirely.
 
-
-``` r
+```{r sign-by}
 autoplot(x, sign_by = "linetype")
-```
-
-![plot of chunk sign-by](assets/ackwards-visualization-sign-by-1.png)
-
-``` r
 autoplot(x, sign_by = "both")
 ```
-
-![plot of chunk sign-by](assets/ackwards-visualization-sign-by-2.png)
 
 ### `magnitude_by` — how |r| is shown
 
@@ -81,12 +77,9 @@ By default `magnitude_by = "linewidth"` maps |r| to arrow thickness with a `|r|`
 legend. Set `magnitude_by = "none"` for uniform-width edges (see also
 `edge_linewidth`, below, to pin a specific width).
 
-
-``` r
+```{r magnitude-by}
 autoplot(x, magnitude_by = "none")
 ```
-
-![plot of chunk magnitude-by](assets/ackwards-visualization-magnitude-by-1.png)
 
 ## Filtering edges
 
@@ -95,13 +88,10 @@ autoplot(x, magnitude_by = "none")
 Edges below `cut_show` are hidden entirely. Raising it produces a sparser
 diagram that emphasises only the strongest connections.
 
-
-``` r
+```{r cut-show}
 # Default cut_show = 0.3 (already shown above)
 autoplot(x, cut_show = 0.5)
 ```
-
-![plot of chunk cut-show](assets/ackwards-visualization-cut-show-1.png)
 
 ## Edge colors
 
@@ -110,12 +100,9 @@ autoplot(x, cut_show = 0.5)
 The default blue/red palette can be replaced with any colors recognised by R.
 British spellings (`colour_pos`, `colour_neg`) are accepted as aliases.
 
-
-``` r
+```{r colours}
 autoplot(x, color_pos = "darkorchid", color_neg = "darkorange")
 ```
-
-![plot of chunk colours](assets/ackwards-visualization-colours-1.png)
 
 When sign is *not* encoded by color (`sign_by = "linetype"` or `"none"`), all
 edges take the single `color_edge` (default black) — the basis for the Forbes
@@ -129,12 +116,9 @@ edges take the single `color_edge` (default black) — the basis for the Forbes
 lines are positive correlations, dashed lines are negative. `magnitude_by` still
 applies, so `linewidth` continues to encode |r|.
 
-
-``` r
+```{r mono}
 autoplot(x, mono = TRUE)
 ```
-
-![plot of chunk mono](assets/ackwards-visualization-mono-1.png)
 
 `mono` suits black-and-white figures where the reader must distinguish positive
 from negative edges. To label the edges with their exact values as well, add
@@ -147,19 +131,13 @@ from negative edges. To label the edges with their exact values as well, add
 `show_r = TRUE` draws the rounded (signed) correlation at each edge midpoint.
 `r_digits` controls the number of decimal places (default 2).
 
-
-``` r
+```{r show-r}
 autoplot(x, show_r = TRUE)
 ```
 
-![plot of chunk show-r](assets/ackwards-visualization-show-r-1.png)
-
-
-``` r
+```{r show-r-digits}
 autoplot(x, show_r = TRUE, r_digits = 1)
 ```
-
-![plot of chunk show-r-digits](assets/ackwards-visualization-show-r-digits-1.png)
 
 ## Node labels
 
@@ -172,8 +150,7 @@ back to their `m{k}f{j}` labels. If you have already labelled the object with
 on the diagram automatically and `node_labels` is only needed to override a
 particular node for this one plot.
 
-
-``` r
+```{r node-labels}
 autoplot(x, node_labels = c(
   m5f1 = "Neuro.",
   m5f2 = "Extra.",
@@ -183,19 +160,14 @@ autoplot(x, node_labels = c(
 ))
 ```
 
-![plot of chunk node-labels](assets/ackwards-visualization-node-labels-1.png)
-
 Multi-line labels are supported via `\n`:
 
-
-``` r
+```{r node-labels-multiline}
 autoplot(x, node_labels = c(
   m5f1 = "Neuro-\nticism",
   m5f2 = "Extra-\nversion"
 ))
 ```
-
-![plot of chunk node-labels-multiline](assets/ackwards-visualization-node-labels-multiline-1.png)
 
 ### `label_template()` — generate the scaffold
 
@@ -205,30 +177,9 @@ copy-pasteable `c(...)` literal you can edit and pass back to `node_labels`. It
 also offers the Forbes (2023) letter convention (`"A1"`, `"B1"`, `"B2"`, …) as a
 built-in style:
 
-
-``` r
+```{r label-template-forbes}
 autoplot(x, node_labels = label_template(x, style = "forbes"))
-#> `label_template()` scaffold (forbes style):
-#> c(
-#>   "m1f1" = "A1",
-#>   "m2f1" = "B1",
-#>   "m2f2" = "B2",
-#>   "m3f1" = "C1",
-#>   "m3f2" = "C2",
-#>   "m3f3" = "C3",
-#>   "m4f1" = "D1",
-#>   "m4f2" = "D2",
-#>   "m4f3" = "D3",
-#>   "m4f4" = "D4",
-#>   "m5f1" = "E1",
-#>   "m5f2" = "E2",
-#>   "m5f3" = "E3",
-#>   "m5f4" = "E4",
-#>   "m5f5" = "E5"
-#> )
 ```
-
-![plot of chunk label-template-forbes](assets/ackwards-visualization-label-template-forbes-1.png)
 
 For the full naming workflow — reading factors, the sign convention, and choosing
 labels across the hierarchy — see `vignette("ackwards-interpret")`.
@@ -241,12 +192,9 @@ Setting `primary_only = TRUE` keeps only the single strongest edge per factor
 (its primary parent), producing a clean tree. Because skip-level edges are
 never primary, this also suppresses curved arcs when `pairs = "all"` was used.
 
-
-``` r
+```{r primary-only}
 autoplot(x, primary_only = TRUE)
 ```
-
-![plot of chunk primary-only](assets/ackwards-visualization-primary-only-1.png)
 
 ## Level labels
 
@@ -255,19 +203,13 @@ autoplot(x, primary_only = TRUE)
 Level labels ("1 factor", "2 factors", …) are shown by default on the left
 margin. They can be hidden or resized.
 
-
-``` r
+```{r level-labels-off}
 autoplot(x, show_level_labels = FALSE)
 ```
 
-![plot of chunk level-labels-off](assets/ackwards-visualization-level-labels-off-1.png)
-
-
-``` r
+```{r level-labels-size}
 autoplot(x, show_level_labels = TRUE, level_label_size = 4)
 ```
-
-![plot of chunk level-labels-size](assets/ackwards-visualization-level-labels-size-1.png)
 
 ## Arrowheads
 
@@ -277,12 +219,9 @@ By default, edges end with closed arrowheads. Setting `show_arrows = FALSE`
 draws plain line ends. This applies to both straight edges and curved skip-level
 arcs.
 
-
-``` r
+```{r no-arrows}
 autoplot(x, show_arrows = FALSE)
 ```
-
-![plot of chunk no-arrows](assets/ackwards-visualization-no-arrows-1.png)
 
 ## Edge width
 
@@ -292,12 +231,9 @@ By default, edge width is proportional to |r| (via `magnitude_by`). A numeric
 `edge_linewidth` draws every edge at that constant width and removes the `|r|`
 legend — like `magnitude_by = "none"`, but at a width you choose.
 
-
-``` r
+```{r edge-linewidth}
 autoplot(x, edge_linewidth = 0.7)
 ```
-
-![plot of chunk edge-linewidth](assets/ackwards-visualization-edge-linewidth-1.png)
 
 ## Layout orientation
 
@@ -307,12 +243,9 @@ By default levels stack top-to-bottom (level 1 at top). `direction =
 "horizontal"` lays them out left-to-right (level 1 at left), which fits wide
 slides and posters; the level labels move to the bottom margin.
 
-
-``` r
+```{r direction, fig.width=8, fig.height=4}
 autoplot(x, direction = "horizontal")
 ```
-
-![plot of chunk direction](assets/ackwards-visualization-direction-1.png)
 
 ## Legend
 
@@ -321,12 +254,9 @@ autoplot(x, direction = "horizontal")
 `legend = FALSE` removes all legends from the plot. Most useful when the diagram
 is self-explanatory or the legend duplicates information conveyed by labels.
 
-
-``` r
+```{r no-legend}
 autoplot(x, legend = FALSE)
 ```
-
-![plot of chunk no-legend](assets/ackwards-visualization-no-legend-1.png)
 
 ## Worked example: publication-ready figure
 
@@ -335,8 +265,7 @@ uniform weight, plain line ends, correlation labels, and no legend. Setting both
 direction colors to black yields a single-hue figure, and `legend = FALSE`
 suppresses the now-redundant key.
 
-
-``` r
+```{r pub-figure}
 autoplot(x,
   color_pos      = "black",
   color_neg      = "black",
@@ -347,12 +276,9 @@ autoplot(x,
 )
 ```
 
-![plot of chunk pub-figure](assets/ackwards-visualization-pub-figure-1.png)
-
 Combining with `node_labels` names the factors for the final figure:
 
-
-``` r
+```{r pub-figure-labeled}
 autoplot(x,
   color_pos = "black",
   color_neg = "black",
@@ -370,8 +296,6 @@ autoplot(x,
 )
 ```
 
-![plot of chunk pub-figure-labeled](assets/ackwards-visualization-pub-figure-labeled-1.png)
-
 For the pruned-factor variant of this figure (nodes omitted, spanning arrows)
 see `vignette("ackwards-forbes")`.
 
@@ -380,8 +304,7 @@ see `vignette("ackwards-forbes")`.
 `autoplot()` returns an ordinary `ggplot` object, so save it with
 `ggplot2::ggsave()`:
 
-
-``` r
+```{r ggsave, eval=FALSE}
 p <- autoplot(x, direction = "horizontal")
 ggplot2::ggsave("hierarchy.png", p, width = 9, height = 5, dpi = 300)
 ```
@@ -398,22 +321,10 @@ scree / parallel-analysis / VSS diagnostic. It is documented in depth in
 `vignette("ackwards-suggest-k")`; here we only note that the same `autoplot()`
 generic covers it.
 
-
-``` r
+```{r suggest_k_plot, fig.height=8}
 sk <- suggest_k(bfi, seed = 42)
-#> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [127ms]
-#> 
-#> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [42ms]
-#> 
-#> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [5.7s]
-#> 
 autoplot(sk)
 ```
-
-![plot of chunk suggest_k_plot](assets/ackwards-visualization-suggest_k_plot-1.png)
 
 ## References
 

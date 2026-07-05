@@ -7,15 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.width = 8,
-  fig.height = 5
-)
-has_gt <- requireNamespace("gt", quietly = TRUE)
-```
+
 
 The classic Goldberg (2006) method computes between-level factor-score
 correlations only for *adjacent* levels: 1↔2, 2↔3, 3↔4, and so on. Forbes
@@ -43,7 +35,8 @@ between every pair of levels, not just neighbors.
 
 ## Setup
 
-```{r setup-data}
+
+``` r
 library(ackwards)
 bfi <- na.omit(bfi25)
 ```
@@ -53,7 +46,8 @@ bfi <- na.omit(bfi25)
 Adding `pairs = "all"` extends the edge table from adjacent pairs only to every
 combination of levels.
 
-```{r adj-vs-all}
+
+``` r
 # Classic adjacent-only
 x_adj <- ackwards(bfi, k_max = 5, cor = "polychoric")
 
@@ -62,74 +56,564 @@ x_all <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all")
 
 # How many edges?
 nrow(tidy(x_adj, what = "edges")) # adjacent only
+#> [1] 40
 nrow(tidy(x_all, what = "edges")) # all pairs
+#> [1] 85
 ```
 
-```{r edge-counts, include = FALSE}
-n_adj <- nrow(tidy(x_adj, what = "edges"))
-n_all <- nrow(tidy(x_all, what = "edges"))
-```
 
-With k = 5, the adjacent-only model has `r n_adj` edges (1×2 + 2×3 + 3×4 +
+
+With k = 5, the adjacent-only model has 40 edges (1×2 + 2×3 + 3×4 +
 4×5). The all-pairs model adds every non-adjacent pair — 1↔3, 1↔4, 1↔5, 2↔4,
-2↔5, 3↔5 — for `r n_all` edges total.
+2↔5, 3↔5 — for 85 edges total.
 
 ### Reading the skip-level edge table
 
 The table below keeps the non-adjacent edges (levels more than one apart) with
 `|r| >= 0.5`, strongest first — drawn from `tidy(x_all, what = "edges")`:
 
-```{r skip-edges, echo = FALSE}
-edges <- tidy(x_all, what = "edges", sort = "strength")
-skip <- edges[
-  abs(edges$level_to - edges$level_from) > 1 & abs(edges$r) >= 0.5,
-  c("from", "to", "level_from", "level_to", "r")
-]
-skip_show <- head(skip, 12)
-
-# Pre-compute values used in inline R prose below
-top_from <- skip_show$from[1]
-top_to <- skip_show$to[1]
-top_r <- round(skip_show$r[1], 2)
-top_level_from <- skip_show$level_from[1]
-top_level_to <- skip_show$level_to[1]
-top_fnum_from <- sub("m[0-9]+f", "", top_from)
-top_fnum_to <- sub("m[0-9]+f", "", top_to)
-
-if (has_gt) {
-  gt::gt(skip_show) |>
-    gt::tab_header(
-      title    = "Strongest skip-level edges (|r| ≥ 0.5, non-adjacent levels)",
-      subtitle = "Sorted by |r|; shows at most 12 rows"
-    ) |>
-    gt::cols_label(
-      from       = "From",
-      to         = "To",
-      level_from = "Level (from)",
-      level_to   = "Level (to)",
-      r          = "r"
-    ) |>
-    gt::fmt_number(columns = r, decimals = 2)
-} else {
-  knitr::kable(
-    skip_show,
-    digits = 2, row.names = FALSE,
-    caption = "Strongest skip-level edges (|r| >= 0.5, non-adjacent levels)"
-  )
+<!--html_preserve--><div id="vlcwcmztyi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#vlcwcmztyi table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-```
+
+#vlcwcmztyi thead, #vlcwcmztyi tbody, #vlcwcmztyi tfoot, #vlcwcmztyi tr, #vlcwcmztyi td, #vlcwcmztyi th {
+  border-style: none;
+}
+
+#vlcwcmztyi p {
+  margin: 0;
+  padding: 0;
+}
+
+#vlcwcmztyi .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#vlcwcmztyi .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#vlcwcmztyi .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#vlcwcmztyi .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#vlcwcmztyi .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#vlcwcmztyi .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vlcwcmztyi .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#vlcwcmztyi .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#vlcwcmztyi .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#vlcwcmztyi .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#vlcwcmztyi .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#vlcwcmztyi .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#vlcwcmztyi .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#vlcwcmztyi .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#vlcwcmztyi .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#vlcwcmztyi .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#vlcwcmztyi .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#vlcwcmztyi .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#vlcwcmztyi .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vlcwcmztyi .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#vlcwcmztyi .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#vlcwcmztyi .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#vlcwcmztyi .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vlcwcmztyi .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#vlcwcmztyi .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#vlcwcmztyi .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vlcwcmztyi .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vlcwcmztyi .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#vlcwcmztyi .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vlcwcmztyi .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#vlcwcmztyi .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vlcwcmztyi .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#vlcwcmztyi .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vlcwcmztyi .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#vlcwcmztyi .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vlcwcmztyi .gt_left {
+  text-align: left;
+}
+
+#vlcwcmztyi .gt_center {
+  text-align: center;
+}
+
+#vlcwcmztyi .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#vlcwcmztyi .gt_font_normal {
+  font-weight: normal;
+}
+
+#vlcwcmztyi .gt_font_bold {
+  font-weight: bold;
+}
+
+#vlcwcmztyi .gt_font_italic {
+  font-style: italic;
+}
+
+#vlcwcmztyi .gt_super {
+  font-size: 65%;
+}
+
+#vlcwcmztyi .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#vlcwcmztyi .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#vlcwcmztyi .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#vlcwcmztyi .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#vlcwcmztyi .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#vlcwcmztyi .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#vlcwcmztyi .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#vlcwcmztyi .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#vlcwcmztyi div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_title gt_font_normal" style>Strongest skip-level edges (|r| ≥ 0.5, non-adjacent levels)</td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Sorted by |r|; shows at most 12 rows</td>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="from">From</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="to">To</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="level_from">Level (from)</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="level_to">Level (to)</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="r">r</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="from" class="gt_row gt_left">m3f2</td>
+<td headers="to" class="gt_row gt_left">m5f2</td>
+<td headers="level_from" class="gt_row gt_right">3</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="r" class="gt_row gt_right">0.98</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f2</td>
+<td headers="to" class="gt_row gt_left">m4f2</td>
+<td headers="level_from" class="gt_row gt_right">2</td>
+<td headers="level_to" class="gt_row gt_right">4</td>
+<td headers="r" class="gt_row gt_right">0.97</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f2</td>
+<td headers="to" class="gt_row gt_left">m5f2</td>
+<td headers="level_from" class="gt_row gt_right">2</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="r" class="gt_row gt_right">0.97</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f1</td>
+<td headers="to" class="gt_row gt_left">m4f1</td>
+<td headers="level_from" class="gt_row gt_right">2</td>
+<td headers="level_to" class="gt_row gt_right">4</td>
+<td headers="r" class="gt_row gt_right">0.85</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m3f1</td>
+<td headers="to" class="gt_row gt_left">m5f1</td>
+<td headers="level_from" class="gt_row gt_right">3</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="r" class="gt_row gt_right">0.82</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m1f1</td>
+<td headers="to" class="gt_row gt_left">m3f1</td>
+<td headers="level_from" class="gt_row gt_right">1</td>
+<td headers="level_to" class="gt_row gt_right">3</td>
+<td headers="r" class="gt_row gt_right">0.77</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m1f1</td>
+<td headers="to" class="gt_row gt_left">m4f1</td>
+<td headers="level_from" class="gt_row gt_right">1</td>
+<td headers="level_to" class="gt_row gt_right">4</td>
+<td headers="r" class="gt_row gt_right">0.75</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m3f3</td>
+<td headers="to" class="gt_row gt_left">m5f3</td>
+<td headers="level_from" class="gt_row gt_right">3</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="r" class="gt_row gt_right">0.73</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f1</td>
+<td headers="to" class="gt_row gt_left">m5f1</td>
+<td headers="level_from" class="gt_row gt_right">2</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="r" class="gt_row gt_right">0.69</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m3f3</td>
+<td headers="to" class="gt_row gt_left">m5f5</td>
+<td headers="level_from" class="gt_row gt_right">3</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="r" class="gt_row gt_right">0.68</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m1f1</td>
+<td headers="to" class="gt_row gt_left">m5f1</td>
+<td headers="level_from" class="gt_row gt_right">1</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="r" class="gt_row gt_right">0.61</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m3f1</td>
+<td headers="to" class="gt_row gt_left">m5f4</td>
+<td headers="level_from" class="gt_row gt_right">3</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="r" class="gt_row gt_right">0.56</td></tr>
+  </tbody>
+  
+</table>
+</div><!--/html_preserve-->
 
 Several factors connect across two or more levels with correlations above 0.90.
-`r top_from` (level `r top_level_from`, factor `r top_fnum_from`) correlates
-`r top_r` with `r top_to` (level `r top_level_to`, factor `r top_fnum_to`),
-jumping *two* levels. This tells you that `r top_from` and `r top_to` are
+m3f2 (level 3, factor 2) correlates
+0.98 with m5f2 (level 5, factor 2),
+jumping *two* levels. This tells you that m3f2 and m5f2 are
 essentially the same construct — the intermediate levels are just refinements
 within a stable dimension.
 
 ### Reading the strongest edge with care
 
 Reading the *strongest* edge off a table of many correlations is itself a form
-of selection. With k = 5 the all-pairs table holds `r n_all` edges, and the
+of selection. With k = 5 the all-pairs table holds 85 edges, and the
 maximum of that many correlations is biased upward even when every individual
 estimate is honest. Treat a "strongest link" claim as descriptive rather than
 inferential: if it is load-bearing, pre-specify which pair of factors you care
@@ -151,68 +635,547 @@ than refine the same dimension. A chain that stops *short* of the deepest
 level instead keeps its **top** node, the broadest manifestation (Forbes,
 2023).
 
-```{r prune-redundant}
+
+``` r
 x_prune <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all") |>
   prune("redundant")
+#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
+#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+#>   `x$prune$chains`.
 ```
 
-```{r prune-nodes, echo = FALSE}
-nodes <- tidy(x_prune, what = "nodes")
-n_redundant <- sum(nodes$pruned)
-
-# Derived, drift-proof prose helpers (used in inline R below)
-flagged_ids <- nodes$id[nodes$pruned]
-lvl_summary <- paste(
-  vapply(
-    sort(unique(nodes$level[nodes$pruned])),
-    function(L) {
-      ids_L <- nodes$id[nodes$pruned & nodes$level == L]
-      if (length(ids_L) == sum(nodes$level == L)) {
-        paste0("the entire k = ", L, " level")
-      } else {
-        paste0(length(ids_L), " factor at k = ", L)
-      }
-    },
-    character(1)
-  ),
-  collapse = ", "
-)
-
-if (has_gt) {
-  gt::gt(nodes) |>
-    gt::tab_header(
-      title    = "Node-level pruning annotation",
-      subtitle = paste0(n_redundant, " of ", nrow(nodes), " factors flagged as redundant")
-    ) |>
-    gt::cols_label(
-      id           = "Factor",
-      level        = "Level",
-      pruned       = "Flagged?",
-      prune_reason = "Reason"
-    ) |>
-    gt::tab_style(
-      style     = gt::cell_fill(color = "#FFF3CD"),
-      locations = gt::cells_body(rows = pruned)
-    ) |>
-    gt::tab_style(
-      style     = gt::cell_text(weight = "bold"),
-      locations = gt::cells_body(columns = id, rows = pruned)
-    ) |>
-    gt::sub_missing(missing_text = "—")
-} else {
-  knitr::kable(
-    nodes,
-    row.names = FALSE,
-    col.names = c("Factor", "Level", "Flagged?", "Reason"),
-    caption = paste0(
-      "Node-level pruning annotation (", n_redundant, " of ", nrow(nodes), " factors flagged)"
-    )
-  )
+<!--html_preserve--><div id="cqzvnyhkxv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#cqzvnyhkxv table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-```
 
-`r n_redundant` factors are flagged as redundant (`r paste(flagged_ids, collapse = ", ")`):
-`r lvl_summary`. This is a striking finding: for this dataset and this k, the
+#cqzvnyhkxv thead, #cqzvnyhkxv tbody, #cqzvnyhkxv tfoot, #cqzvnyhkxv tr, #cqzvnyhkxv td, #cqzvnyhkxv th {
+  border-style: none;
+}
+
+#cqzvnyhkxv p {
+  margin: 0;
+  padding: 0;
+}
+
+#cqzvnyhkxv .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#cqzvnyhkxv .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#cqzvnyhkxv .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#cqzvnyhkxv .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#cqzvnyhkxv .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cqzvnyhkxv .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cqzvnyhkxv .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cqzvnyhkxv .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#cqzvnyhkxv .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#cqzvnyhkxv .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#cqzvnyhkxv .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#cqzvnyhkxv .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#cqzvnyhkxv .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#cqzvnyhkxv .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#cqzvnyhkxv .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#cqzvnyhkxv .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#cqzvnyhkxv .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#cqzvnyhkxv .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#cqzvnyhkxv .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cqzvnyhkxv .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#cqzvnyhkxv .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#cqzvnyhkxv .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#cqzvnyhkxv .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cqzvnyhkxv .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#cqzvnyhkxv .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#cqzvnyhkxv .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cqzvnyhkxv .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cqzvnyhkxv .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#cqzvnyhkxv .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cqzvnyhkxv .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#cqzvnyhkxv .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cqzvnyhkxv .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cqzvnyhkxv .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cqzvnyhkxv .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cqzvnyhkxv .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cqzvnyhkxv .gt_left {
+  text-align: left;
+}
+
+#cqzvnyhkxv .gt_center {
+  text-align: center;
+}
+
+#cqzvnyhkxv .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#cqzvnyhkxv .gt_font_normal {
+  font-weight: normal;
+}
+
+#cqzvnyhkxv .gt_font_bold {
+  font-weight: bold;
+}
+
+#cqzvnyhkxv .gt_font_italic {
+  font-style: italic;
+}
+
+#cqzvnyhkxv .gt_super {
+  font-size: 65%;
+}
+
+#cqzvnyhkxv .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#cqzvnyhkxv .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#cqzvnyhkxv .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#cqzvnyhkxv .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#cqzvnyhkxv .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#cqzvnyhkxv .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#cqzvnyhkxv .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#cqzvnyhkxv .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#cqzvnyhkxv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_title gt_font_normal" style>Node-level pruning annotation</td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>6 of 15 factors flagged as redundant</td>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="id">Factor</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="level">Level</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="pruned">Flagged?</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="prune_reason">Reason</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="id" class="gt_row gt_left">m1f1</td>
+<td headers="level" class="gt_row gt_right">1</td>
+<td headers="pruned" class="gt_row gt_center">FALSE</td>
+<td headers="prune_reason" class="gt_row gt_left">—</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m2f1</td>
+<td headers="level" class="gt_row gt_right">2</td>
+<td headers="pruned" class="gt_row gt_center">FALSE</td>
+<td headers="prune_reason" class="gt_row gt_left">—</td></tr>
+    <tr><td headers="id" class="gt_row gt_left" style="background-color: #FFF3CD; font-weight: bold;">m2f2</td>
+<td headers="level" class="gt_row gt_right" style="background-color: #FFF3CD;">2</td>
+<td headers="pruned" class="gt_row gt_center" style="background-color: #FFF3CD;">TRUE</td>
+<td headers="prune_reason" class="gt_row gt_left" style="background-color: #FFF3CD;">redundant</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m3f1</td>
+<td headers="level" class="gt_row gt_right">3</td>
+<td headers="pruned" class="gt_row gt_center">FALSE</td>
+<td headers="prune_reason" class="gt_row gt_left">—</td></tr>
+    <tr><td headers="id" class="gt_row gt_left" style="background-color: #FFF3CD; font-weight: bold;">m3f2</td>
+<td headers="level" class="gt_row gt_right" style="background-color: #FFF3CD;">3</td>
+<td headers="pruned" class="gt_row gt_center" style="background-color: #FFF3CD;">TRUE</td>
+<td headers="prune_reason" class="gt_row gt_left" style="background-color: #FFF3CD;">redundant</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m3f3</td>
+<td headers="level" class="gt_row gt_right">3</td>
+<td headers="pruned" class="gt_row gt_center">FALSE</td>
+<td headers="prune_reason" class="gt_row gt_left">—</td></tr>
+    <tr><td headers="id" class="gt_row gt_left" style="background-color: #FFF3CD; font-weight: bold;">m4f1</td>
+<td headers="level" class="gt_row gt_right" style="background-color: #FFF3CD;">4</td>
+<td headers="pruned" class="gt_row gt_center" style="background-color: #FFF3CD;">TRUE</td>
+<td headers="prune_reason" class="gt_row gt_left" style="background-color: #FFF3CD;">redundant</td></tr>
+    <tr><td headers="id" class="gt_row gt_left" style="background-color: #FFF3CD; font-weight: bold;">m4f2</td>
+<td headers="level" class="gt_row gt_right" style="background-color: #FFF3CD;">4</td>
+<td headers="pruned" class="gt_row gt_center" style="background-color: #FFF3CD;">TRUE</td>
+<td headers="prune_reason" class="gt_row gt_left" style="background-color: #FFF3CD;">redundant</td></tr>
+    <tr><td headers="id" class="gt_row gt_left" style="background-color: #FFF3CD; font-weight: bold;">m4f3</td>
+<td headers="level" class="gt_row gt_right" style="background-color: #FFF3CD;">4</td>
+<td headers="pruned" class="gt_row gt_center" style="background-color: #FFF3CD;">TRUE</td>
+<td headers="prune_reason" class="gt_row gt_left" style="background-color: #FFF3CD;">redundant</td></tr>
+    <tr><td headers="id" class="gt_row gt_left" style="background-color: #FFF3CD; font-weight: bold;">m4f4</td>
+<td headers="level" class="gt_row gt_right" style="background-color: #FFF3CD;">4</td>
+<td headers="pruned" class="gt_row gt_center" style="background-color: #FFF3CD;">TRUE</td>
+<td headers="prune_reason" class="gt_row gt_left" style="background-color: #FFF3CD;">redundant</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m5f1</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="pruned" class="gt_row gt_center">FALSE</td>
+<td headers="prune_reason" class="gt_row gt_left">—</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m5f2</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="pruned" class="gt_row gt_center">FALSE</td>
+<td headers="prune_reason" class="gt_row gt_left">—</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m5f3</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="pruned" class="gt_row gt_center">FALSE</td>
+<td headers="prune_reason" class="gt_row gt_left">—</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m5f4</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="pruned" class="gt_row gt_center">FALSE</td>
+<td headers="prune_reason" class="gt_row gt_left">—</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m5f5</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="pruned" class="gt_row gt_center">FALSE</td>
+<td headers="prune_reason" class="gt_row gt_left">—</td></tr>
+  </tbody>
+  
+</table>
+</div><!--/html_preserve-->
+
+6 factors are flagged as redundant (m2f2, m3f2, m4f1, m4f2, m4f3, m4f4):
+1 factor at k = 2, 1 factor at k = 3, the entire k = 4 level. This is a striking finding: for this dataset and this k, the
 four-factor level adds little beyond what you already know from k = 3 and k = 5.
 
 The flagged factors are not removed from the object — `prune()` is purely a
@@ -235,7 +1198,8 @@ black lines, uniform width, plain line ends, and no legend.
 
 **With correlation labels** (`show_r = TRUE`):
 
-```{r drop-pruned, warning = FALSE}
+
+``` r
 autoplot(x_prune,
   drop_pruned = TRUE, show_r = TRUE,
   color_pos = "black", color_neg = "black",
@@ -243,15 +1207,20 @@ autoplot(x_prune,
 )
 ```
 
+![plot of chunk drop-pruned](assets/ackwards-forbes-drop-pruned-1.png)
+
 **Without labels** (cleaner for slides or when the exact values are not the focus):
 
-```{r drop-pruned-unlabeled, warning = FALSE}
+
+``` r
 autoplot(x_prune,
   drop_pruned = TRUE,
   color_pos = "black", color_neg = "black",
   edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
 )
 ```
+
+![plot of chunk drop-pruned-unlabeled](assets/ackwards-forbes-drop-pruned-unlabeled-1.png)
 
 Level 4 is entirely pruned, leaving a visible gap in the y-axis. The gap is
 intentional: it shows *which* level was removed. Spanning arrows bridge
@@ -264,13 +1233,16 @@ at all.
 To close the gaps and compact the layout while retaining the original level
 numbers on the axis:
 
-```{r drop-pruned-compressed, warning = FALSE}
+
+``` r
 autoplot(x_prune,
   drop_pruned = TRUE, compress_levels = TRUE,
   color_pos = "black", color_neg = "black",
   edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
 )
 ```
+
+![plot of chunk drop-pruned-compressed](assets/ackwards-forbes-drop-pruned-compressed-1.png)
 
 The level labels still read "1 factor", "2 factors", "3 factors", "5 factors"
 so readers know which levels were retained; the uniform vertical spacing makes
@@ -301,9 +1273,15 @@ evidence for *you* to weigh: Tucker's φ for **every** cross-level factor pair
 in `x$prune$phi`, plus the structural signals of the next section in
 `x$prune$structural`.
 
-```{r prune-artifact}
+
+``` r
 x_art <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all") |>
   prune("artifact")
+#> ℹ Artifact mode: Tucker's φ computed for all cross-level factor pairs.
+#> ℹ Structural signals computed: 2 factors flagged (few_items / orphan /
+#>   split_merge).
+#> ℹ Inspect `x$prune$phi` and `x$prune$structural`; removal is a researcher
+#>   judgment (Forbes, 2023).
 ```
 
 The table to read is `x$prune$phi`. The natural first cut is the
@@ -311,39 +1289,518 @@ The table to read is `x$prune$phi`. The natural first cut is the
 pattern nearly duplicates a factor two or more levels up is the classic
 candidate:
 
-```{r phi-top, echo = FALSE}
-phi_df <- x_art$prune$phi
-nonadj <- phi_df[phi_df$level_to - phi_df$level_from > 1L, , drop = FALSE]
-top_phi <- head(
-  nonadj[order(-nonadj$abs_phi), c("from", "to", "level_from", "level_to", "phi")],
-  8
-)
-max_phi <- round(max(nonadj$abs_phi), 2)
-
-if (has_gt) {
-  gt::gt(top_phi) |>
-    gt::tab_header(
-      title    = "Strongest non-adjacent loading congruences",
-      subtitle = "Top 8 pairs by |φ|, from x$prune$phi — evidence, not flags"
-    ) |>
-    gt::cols_label(
-      from       = "From",
-      to         = "To",
-      level_from = "Level (from)",
-      level_to   = "Level (to)",
-      phi        = "φ"
-    ) |>
-    gt::fmt_number(columns = phi, decimals = 2)
-} else {
-  knitr::kable(
-    top_phi,
-    digits = 2, row.names = FALSE,
-    caption = "Strongest non-adjacent loading congruences (top 8 by |phi|)"
-  )
+<!--html_preserve--><div id="vixcpspfhs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#vixcpspfhs table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-```
 
-For these data the strongest non-adjacent congruence is |φ| = `r max_phi`.
+#vixcpspfhs thead, #vixcpspfhs tbody, #vixcpspfhs tfoot, #vixcpspfhs tr, #vixcpspfhs td, #vixcpspfhs th {
+  border-style: none;
+}
+
+#vixcpspfhs p {
+  margin: 0;
+  padding: 0;
+}
+
+#vixcpspfhs .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#vixcpspfhs .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#vixcpspfhs .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#vixcpspfhs .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#vixcpspfhs .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#vixcpspfhs .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vixcpspfhs .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#vixcpspfhs .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#vixcpspfhs .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#vixcpspfhs .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#vixcpspfhs .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#vixcpspfhs .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#vixcpspfhs .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#vixcpspfhs .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#vixcpspfhs .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#vixcpspfhs .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#vixcpspfhs .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#vixcpspfhs .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#vixcpspfhs .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vixcpspfhs .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#vixcpspfhs .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#vixcpspfhs .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#vixcpspfhs .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vixcpspfhs .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#vixcpspfhs .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#vixcpspfhs .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vixcpspfhs .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vixcpspfhs .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#vixcpspfhs .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vixcpspfhs .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#vixcpspfhs .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vixcpspfhs .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#vixcpspfhs .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vixcpspfhs .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#vixcpspfhs .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vixcpspfhs .gt_left {
+  text-align: left;
+}
+
+#vixcpspfhs .gt_center {
+  text-align: center;
+}
+
+#vixcpspfhs .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#vixcpspfhs .gt_font_normal {
+  font-weight: normal;
+}
+
+#vixcpspfhs .gt_font_bold {
+  font-weight: bold;
+}
+
+#vixcpspfhs .gt_font_italic {
+  font-style: italic;
+}
+
+#vixcpspfhs .gt_super {
+  font-size: 65%;
+}
+
+#vixcpspfhs .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#vixcpspfhs .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#vixcpspfhs .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#vixcpspfhs .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#vixcpspfhs .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#vixcpspfhs .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#vixcpspfhs .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#vixcpspfhs .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#vixcpspfhs div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_title gt_font_normal" style>Strongest non-adjacent loading congruences</td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Top 8 pairs by |φ|, from x$prune$phi — evidence, not flags</td>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="from">From</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="to">To</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="level_from">Level (from)</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="level_to">Level (to)</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="phi">φ</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="from" class="gt_row gt_left">m3f2</td>
+<td headers="to" class="gt_row gt_left">m5f2</td>
+<td headers="level_from" class="gt_row gt_right">3</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="phi" class="gt_row gt_right">0.99</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f2</td>
+<td headers="to" class="gt_row gt_left">m4f2</td>
+<td headers="level_from" class="gt_row gt_right">2</td>
+<td headers="level_to" class="gt_row gt_right">4</td>
+<td headers="phi" class="gt_row gt_right">0.98</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f2</td>
+<td headers="to" class="gt_row gt_left">m5f2</td>
+<td headers="level_from" class="gt_row gt_right">2</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="phi" class="gt_row gt_right">0.98</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f1</td>
+<td headers="to" class="gt_row gt_left">m4f1</td>
+<td headers="level_from" class="gt_row gt_right">2</td>
+<td headers="level_to" class="gt_row gt_right">4</td>
+<td headers="phi" class="gt_row gt_right">0.93</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m3f1</td>
+<td headers="to" class="gt_row gt_left">m5f1</td>
+<td headers="level_from" class="gt_row gt_right">3</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="phi" class="gt_row gt_right">0.92</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m1f1</td>
+<td headers="to" class="gt_row gt_left">m3f1</td>
+<td headers="level_from" class="gt_row gt_right">1</td>
+<td headers="level_to" class="gt_row gt_right">3</td>
+<td headers="phi" class="gt_row gt_right">0.88</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m1f1</td>
+<td headers="to" class="gt_row gt_left">m4f1</td>
+<td headers="level_from" class="gt_row gt_right">1</td>
+<td headers="level_to" class="gt_row gt_right">4</td>
+<td headers="phi" class="gt_row gt_right">0.86</td></tr>
+    <tr><td headers="from" class="gt_row gt_left">m2f1</td>
+<td headers="to" class="gt_row gt_left">m5f1</td>
+<td headers="level_from" class="gt_row gt_right">2</td>
+<td headers="level_to" class="gt_row gt_right">5</td>
+<td headers="phi" class="gt_row gt_right">0.85</td></tr>
+  </tbody>
+  
+</table>
+</div><!--/html_preserve-->
+
+For these data the strongest non-adjacent congruence is |φ| = 0.99.
 Values near 1 mean the deeper factor recycles an earlier loading pattern;
 whether that makes it a rotation artifact — or a faithfully *persisting*
 construct, which is the redundancy view of the same fact — is a judgment made
@@ -378,41 +1835,551 @@ Congruence (φ) is not the only fingerprint of an artifactual factor. Forbes
   coarser solution have been merged under one factor at the finer solution — the
   split-then-merge anomaly of Forbes Fig. 2.
 
-```{r prune-structural, echo = FALSE}
-struct <- x_art$prune$structural
-n_struct <- sum(struct$few_items | struct$orphan | struct$split_merge, na.rm = TRUE)
-
-if (has_gt) {
-  gt::gt(struct) |>
-    gt::tab_header(
-      title    = "Structural artifact signals",
-      subtitle = paste0(n_struct, " of ", nrow(struct), " factors raise a structural signal")
-    ) |>
-    gt::cols_label(
-      id          = "Factor",
-      level       = "Level",
-      few_items   = "Few items",
-      orphan      = "Orphan",
-      split_merge = "Split/merge"
-    ) |>
-    gt::tab_style(
-      style = gt::cell_fill(color = "#FFF3CD"),
-      locations = list(
-        gt::cells_body(columns = few_items, rows = few_items),
-        gt::cells_body(columns = orphan, rows = orphan),
-        gt::cells_body(columns = split_merge, rows = split_merge)
-      )
-    ) |>
-    gt::sub_missing(missing_text = "—")
-} else {
-  knitr::kable(
-    struct,
-    row.names = FALSE,
-    col.names = c("Factor", "Level", "Few items", "Orphan", "Split/merge"),
-    caption = paste0("Structural artifact signals (", n_struct, " of ", nrow(struct), " flagged)")
-  )
+<!--html_preserve--><div id="enmimhltip" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#enmimhltip table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-```
+
+#enmimhltip thead, #enmimhltip tbody, #enmimhltip tfoot, #enmimhltip tr, #enmimhltip td, #enmimhltip th {
+  border-style: none;
+}
+
+#enmimhltip p {
+  margin: 0;
+  padding: 0;
+}
+
+#enmimhltip .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#enmimhltip .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#enmimhltip .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#enmimhltip .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#enmimhltip .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#enmimhltip .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#enmimhltip .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#enmimhltip .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#enmimhltip .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#enmimhltip .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#enmimhltip .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#enmimhltip .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#enmimhltip .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#enmimhltip .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#enmimhltip .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#enmimhltip .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#enmimhltip .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#enmimhltip .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#enmimhltip .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#enmimhltip .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#enmimhltip .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#enmimhltip .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#enmimhltip .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#enmimhltip .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#enmimhltip .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#enmimhltip .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#enmimhltip .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#enmimhltip .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#enmimhltip .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#enmimhltip .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#enmimhltip .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#enmimhltip .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#enmimhltip .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#enmimhltip .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#enmimhltip .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#enmimhltip .gt_left {
+  text-align: left;
+}
+
+#enmimhltip .gt_center {
+  text-align: center;
+}
+
+#enmimhltip .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#enmimhltip .gt_font_normal {
+  font-weight: normal;
+}
+
+#enmimhltip .gt_font_bold {
+  font-weight: bold;
+}
+
+#enmimhltip .gt_font_italic {
+  font-style: italic;
+}
+
+#enmimhltip .gt_super {
+  font-size: 65%;
+}
+
+#enmimhltip .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#enmimhltip .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#enmimhltip .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#enmimhltip .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#enmimhltip .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#enmimhltip .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#enmimhltip .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#enmimhltip .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#enmimhltip div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_title gt_font_normal" style>Structural artifact signals</td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>2 of 15 factors raise a structural signal</td>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="id">Factor</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="level">Level</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="few_items">Few items</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="orphan">Orphan</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="split_merge">Split/merge</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="id" class="gt_row gt_left">m1f1</td>
+<td headers="level" class="gt_row gt_right">1</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m2f1</td>
+<td headers="level" class="gt_row gt_right">2</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m2f2</td>
+<td headers="level" class="gt_row gt_right">2</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m3f1</td>
+<td headers="level" class="gt_row gt_right">3</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m3f2</td>
+<td headers="level" class="gt_row gt_right">3</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m3f3</td>
+<td headers="level" class="gt_row gt_right">3</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center" style="background-color: #FFF3CD;">TRUE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m4f1</td>
+<td headers="level" class="gt_row gt_right">4</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m4f2</td>
+<td headers="level" class="gt_row gt_right">4</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m4f3</td>
+<td headers="level" class="gt_row gt_right">4</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m4f4</td>
+<td headers="level" class="gt_row gt_right">4</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center" style="background-color: #FFF3CD;">TRUE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m5f1</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m5f2</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m5f3</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m5f4</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td></tr>
+    <tr><td headers="id" class="gt_row gt_left">m5f5</td>
+<td headers="level" class="gt_row gt_right">5</td>
+<td headers="few_items" class="gt_row gt_center">FALSE</td>
+<td headers="orphan" class="gt_row gt_center">FALSE</td>
+<td headers="split_merge" class="gt_row gt_center">FALSE</td></tr>
+  </tbody>
+  
+</table>
+</div><!--/html_preserve-->
 
 Like Tucker's φ, these signals are **flag-and-report only** — `prune()` never
 removes a factor on their basis. Identifying an artifact requires researcher
@@ -454,33 +2421,501 @@ Because `prune()` is a cheap, standalone step, checking a few `redundancy_r`
 thresholds does not require refitting `ackwards()` each time — the already-fit
 `x_all` object is re-pruned directly:
 
-```{r thresholds}
+
+``` r
 thresholds <- c(0.80, 0.85, 0.90, 0.95)
 counts <- sapply(thresholds, function(thr) {
   x <- prune(x_all, "redundant", redundancy_r = thr)
   sum(tidy(x, what = "nodes")$pruned)
 })
+#> ℹ Redundancy pruning (|r| ≥ 0.8) flagged 9 nodes.
+#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+#>   `x$prune$chains`.
+#> ℹ Redundancy pruning (|r| ≥ 0.85) flagged 8 nodes.
+#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+#>   `x$prune$chains`.
+#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
+#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+#>   `x$prune$chains`.
+#> ℹ Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.
+#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+#>   `x$prune$chains`.
 thr_df <- data.frame(redundancy_r = thresholds, n_flagged = counts)
 ```
 
-```{r thresholds-table, echo = FALSE}
-if (has_gt) {
-  gt::gt(thr_df) |>
-    gt::tab_header(title = "Factors flagged redundant at each redundancy_r threshold") |>
-    gt::cols_label(
-      redundancy_r = "redundancy_r",
-      n_flagged    = "Factors flagged"
-    ) |>
-    gt::fmt_number(columns = redundancy_r, decimals = 2) |>
-    gt::fmt_integer(columns = n_flagged)
-} else {
-  knitr::kable(
-    thr_df,
-    row.names = FALSE,
-    caption = "Factors flagged redundant at each redundancy_r threshold"
-  )
+<!--html_preserve--><div id="ijvoequvti" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ijvoequvti table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-```
+
+#ijvoequvti thead, #ijvoequvti tbody, #ijvoequvti tfoot, #ijvoequvti tr, #ijvoequvti td, #ijvoequvti th {
+  border-style: none;
+}
+
+#ijvoequvti p {
+  margin: 0;
+  padding: 0;
+}
+
+#ijvoequvti .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ijvoequvti .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ijvoequvti .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ijvoequvti .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ijvoequvti .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ijvoequvti .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ijvoequvti .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ijvoequvti .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ijvoequvti .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ijvoequvti .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ijvoequvti .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ijvoequvti .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ijvoequvti .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ijvoequvti .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ijvoequvti .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ijvoequvti .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ijvoequvti .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ijvoequvti .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ijvoequvti .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ijvoequvti .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ijvoequvti .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ijvoequvti .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ijvoequvti .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ijvoequvti .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ijvoequvti .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ijvoequvti .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ijvoequvti .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ijvoequvti .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ijvoequvti .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ijvoequvti .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ijvoequvti .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ijvoequvti .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ijvoequvti .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ijvoequvti .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ijvoequvti .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ijvoequvti .gt_left {
+  text-align: left;
+}
+
+#ijvoequvti .gt_center {
+  text-align: center;
+}
+
+#ijvoequvti .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ijvoequvti .gt_font_normal {
+  font-weight: normal;
+}
+
+#ijvoequvti .gt_font_bold {
+  font-weight: bold;
+}
+
+#ijvoequvti .gt_font_italic {
+  font-style: italic;
+}
+
+#ijvoequvti .gt_super {
+  font-size: 65%;
+}
+
+#ijvoequvti .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ijvoequvti .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ijvoequvti .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ijvoequvti .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ijvoequvti .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ijvoequvti .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ijvoequvti .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#ijvoequvti .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#ijvoequvti div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="2" class="gt_heading gt_title gt_font_normal gt_bottom_border" style>Factors flagged redundant at each redundancy_r threshold</td>
+    </tr>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="redundancy_r">redundancy_r</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="n_flagged">Factors flagged</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="redundancy_r" class="gt_row gt_right">0.80</td>
+<td headers="n_flagged" class="gt_row gt_right">9</td></tr>
+    <tr><td headers="redundancy_r" class="gt_row gt_right">0.85</td>
+<td headers="n_flagged" class="gt_row gt_right">8</td></tr>
+    <tr><td headers="redundancy_r" class="gt_row gt_right">0.90</td>
+<td headers="n_flagged" class="gt_row gt_right">6</td></tr>
+    <tr><td headers="redundancy_r" class="gt_row gt_right">0.95</td>
+<td headers="n_flagged" class="gt_row gt_right">6</td></tr>
+  </tbody>
+  
+</table>
+</div><!--/html_preserve-->
 
 For the BFI all thresholds agree: the flagged factors are robustly redundant, not
 borderline cases. In noisier datasets or smaller samples you will typically see

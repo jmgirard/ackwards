@@ -7,7 +7,14 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 5
+)
+```
 
 The other vignettes in this package document its individual verbs. This one
 takes a position: it lays out the workflow we recommend for answering the
@@ -77,65 +84,29 @@ bootstrap resample is slow and unstable — so the ordinal-detection warning
 screen structure and depth on Pearson, then fit the model you actually *report*
 with `cor = "polychoric"`.
 
-
-``` r
+```{r data}
 library(ackwards)
 bfi <- na.omit(bfi25)
 ```
 
 ## Step 1: Screen the plausible depth range with `suggest_k()`
 
-
-``` r
+```{r suggest-k, warning = FALSE}
 sk <- suggest_k(bfi, seed = 1)
-#> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [128ms]
-#> 
-#> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [85ms]
-#> 
-#> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [5.8s]
-#> 
 print(sk)
-#> 
-#> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
-#> Variables: 25
-#> n: 875
-#> Basis: pearson
-#> Tested k: 1-8
-#> 
-#> ── Criteria (k = 1-8) ──
-#> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*
-#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -
-#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -
-#> 
-#> ── Recommendations ──
-#> 
-#> • PA-PC: k <= 5
-#> • PA-FA: k <= 6
-#> • MAP: k = 5
-#> • VSS-1: k = 4
-#> • VSS-2: k = 5
-#> • CD: k = 6
-#> Consensus range: k = 4-6
-#> ────────────────────────────────────────────────────────────────────────────────
-#> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
-#> above the consensus to observe factor fragmentation is intentional.
-#> Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
-#> 2023). PA-FA and CD are more conservative. Use the range.
 ```
 
-
+```{r sk-inline, include = FALSE}
+sk_ks <- na.omit(c(
+  sk$k_parallel_pc, sk$k_parallel_fa, sk$k_map, sk$k_vss1, sk$k_vss2,
+  if (isTRUE(sk$cd_available)) sk$k_cd
+))
+sk_lo <- min(sk_ks)
+sk_hi <- max(sk_ks)
+```
 
 The criteria disagree — they always do — but they bracket a range (here
-k = 4–6). Treat the top of that range as a ceiling worth
+k = `r sk_lo`–`r sk_hi`). Treat the top of that range as a ceiling worth
 *probing*, not a depth worth *asserting*: parallel analysis on the PC basis in
 particular tends to overextract, and `vignette("ackwards-suggest-k")` explains
 each criterion's bias direction in detail. Deliberately looking one or two
@@ -147,55 +118,31 @@ next step is that you can now do so safely.
 This is the step the workflow is named for. We evaluate every level up to one
 past the ceiling, across ten random split-halves:
 
-
-``` r
+```{r comparability, warning = FALSE}
 cmp <- comparability(bfi, k_max = sk_hi + 1, n_splits = 10, seed = 2026)
-#> ℹ Fitting 10 split-half replicates (pca, k = 1-7)...
-#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [1.2s]
-#> 
 print(cmp)
-#> 
-#> ── Split-Half Factor Comparability (ackwards) ──────────────────────────────────
-#> Engine: pca
-#> Basis: pearson
-#> n: 875 (437 per half)
-#> Splits: 10
-#> Levels: 1-7
-#> 
-#> ── Comparability by level (median across splits) ──
-#> 
-#> k = 1: median r 1.00, min r 1.00 (m1f1)
-#> k = 2: median r .99, min r .98 (m2f2)
-#> k = 3: median r .98, min r .92 (m3f3)
-#> k = 4: median r .98, min r .95 (m4f4)
-#> k = 5: median r .98, min r .97 (m5f4)
-#> k = 6: median r .95, min r .88 (m6f5)
-#> k = 7: median r .87, min r .58 (m7f7)
-#> ────────────────────────────────────────────────────────────────────────────────
-#> Per-factor detail (incl. Tucker's φ) in `$summary`; per-split values in
-#> `$coefficients`.
-#> Conventional benchmarks: ≥ .95 comfortable, ≥ .90 floor (Everett, 1983;
-#> Goldberg, 1990) -- conventions, not tests. Interpret levels whose factors all
-#> replicate.
 ```
 
-
+```{r cmp-inline, include = FALSE}
+lv_min <- tapply(cmp$summary$r_median, cmp$summary$level, min)
+gate <- max(as.integer(names(lv_min))[cumsum(lv_min < 0.9) == 0])
+worst_top <- cmp$summary[cmp$summary$level == cmp$k_max, ]
+worst_top <- worst_top[which.min(worst_top$r_median), ]
+fmt <- function(v) sub("^(-?)0\\.", "\\1.", sprintf("%.2f", v))
+```
 
 Read the per-level minima, not the medians: a level is only as interpretable
-as its least replicable factor. Here every factor through k = 5 clears
+as its least replicable factor. Here every factor through k = `r gate` clears
 the conventional floor (the weakest median comparability at any of those
-levels is .92), and the structure degrades
-past it — at k = 7, m7f7 reaches a median of only
-.58 and dips to -.24 on its worst
+levels is `r fmt(min(lv_min[seq_len(gate)]))`), and the structure degrades
+past it — at k = `r cmp$k_max`, `r worst_top$factor` reaches a median of only
+`r fmt(worst_top$r_median)` and dips to `r fmt(worst_top$r_min)` on its worst
 split. Those deep factors are not stable dimensions of the data; they are
 different factors in every half-sample that happen to occupy the same slot.
 
-
-``` r
+```{r comparability-plot, fig.height = 6}
 autoplot(cmp)
 ```
-
-![plot of chunk comparability-plot](assets/ackwards-girard-comparability-plot-1.png)
 
 Two honesty notes. First, the conventional benchmarks marked on the plot
 (.90 and .95, following Everett's and Goldberg's practice) are conventions,
@@ -207,47 +154,19 @@ factor real here," and a necessary condition for — but not a demonstration
 of — replication in a new population.
 
 The result is a **hierarchy floor**: the deepest level at which every factor
-replicates. For these data that is k = 5 — the Big Five, as it should
+replicates. For these data that is k = `r gate` — the Big Five, as it should
 be.
 
 ## Step 3: Fit the hierarchy to the gated depth
 
-
-``` r
+```{r fit}
 x <- ackwards(bfi, k_max = 5)
 print(x)
-#> 
-#> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────
-#> Engine: pca
-#> Rotation: varimax
-#> Basis: pearson
-#> n: 875
-#> k (max): 5
-#> 
-#> ── Levels ──
-#> 
-#> ✔ k = 1: 1 factor, 20.9% variance
-#> ✔ k = 2: 2 factors, 32.3% variance
-#> ✔ k = 3: 3 factors, 40.7% variance
-#> ✔ k = 4: 4 factors, 47.8% variance
-#> ✔ k = 5: 5 factors, 53.8% variance
-#> 
-#> ── Edges ──
-#> 
-#> 14 of 40 edges have |r| ≥ 0.3
-#> ────────────────────────────────────────────────────────────────────────────────
-#> Note: This is a series of linked solutions, not a fitted hierarchical model.
-#> Cross-level edges are descriptive score correlations. Per-level fit indices
-#> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
-#> they do not validate the edges or the hierarchy itself.
 ```
 
-
-``` r
+```{r hierarchy-plot}
 autoplot(x)
 ```
-
-![plot of chunk hierarchy-plot](assets/ackwards-girard-hierarchy-plot-1.png)
 
 If you prefer to *display* the fragmentation beyond the floor (it can be
 substantively interesting to show a factor dissolving), fit one level deeper
@@ -261,35 +180,9 @@ half-sample and still add nothing, because it is the same construct restated
 level after level. That is Forbes's (2023) redundancy question, and it is
 `prune()`'s job, not `comparability()`'s:
 
-
-``` r
+```{r prune}
 pr <- prune(x, "redundant")
-#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
-#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
-#>   `x$prune$chains`.
 pr$prune$chains
-#>    chain_id   id level r_to_prev phi_to_prev retain endpoint_r
-#> 1         1 m2f2     2        NA          NA  FALSE  0.9648941
-#> 2         1 m3f2     3 0.9703055   0.9780829  FALSE  0.9648941
-#> 3         1 m4f2     4 0.9853622   0.9916584  FALSE  0.9648941
-#> 4         1 m5f2     5 0.9990140   0.9995122   TRUE  0.9648941
-#> 5         2 m3f1     3        NA          NA   TRUE  0.9978857
-#> 6         2 m4f1     4 0.9978857   0.9988054  FALSE  0.9978857
-#> 7         3 m4f3     4        NA          NA  FALSE  0.9773027
-#> 8         3 m5f3     5 0.9773027   0.9872943   TRUE  0.9773027
-#> 9         4 m4f4     4        NA          NA  FALSE  0.9570776
-#> 10        4 m5f5     5 0.9570776   0.9671856   TRUE  0.9570776
-#>    endpoint_r_agrees
-#> 1               TRUE
-#> 2               TRUE
-#> 3               TRUE
-#> 4               TRUE
-#> 5               TRUE
-#> 6               TRUE
-#> 7               TRUE
-#> 8               TRUE
-#> 9               TRUE
-#> 10              TRUE
 ```
 
 Here the chains tell us that several of the Big Five arrive early and simply
@@ -317,13 +210,9 @@ matrix is too slow and unstable to re-estimate in every replicate (the same
 scope as `comparability()`), so screen edge stability on the Pearson basis even
 when the final model is polychoric.
 
-
-``` r
+```{r boot-edges}
 x_boot <- ackwards(bfi, k_max = 5, pairs = "all") |>
   boot_edges(bfi, n_boot = 200, seed = 1)
-#> ℹ Fitting 200 bootstrap replicates (pca, k = 1-5)...
-#> ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [8.2s]
-#> 
 
 boot_tbl <- tidy(x_boot, what = "edges", sort = "strength")
 skip_boot <- boot_tbl[
@@ -331,13 +220,6 @@ skip_boot <- boot_tbl[
   c("from", "to", "r", "lo", "hi")
 ]
 head(skip_boot, 6)
-#>    from   to         r        lo        hi
-#> 4  m3f2 m5f2 0.9852300 0.9541520 0.9984825
-#> 7  m2f2 m4f2 0.9673808 0.8942028 0.9916158
-#> 8  m2f2 m5f2 0.9648941 0.8883935 0.9893501
-#> 12 m2f1 m4f1 0.8700141 0.7593997 0.9290617
-#> 14 m3f3 m5f3 0.8084301 0.5312592 0.9636492
-#> 15 m3f1 m5f1 0.8080606 0.6585810 0.9044025
 ```
 
 The `lo`/`hi` columns are the 95% percentile interval. A skip-level edge whose
@@ -350,53 +232,8 @@ should still be pre-specified rather than selected after the fact.
 
 ## Step 5: Interpret with the built-in guardrails
 
-
-``` r
+```{r interpret}
 top_items(x, level = 5, cut = 0.5)
-#> 
-#> ── Salient items by factor (ackwards) ──────────────────────────────────────────
-#> Engine: pca
-#> Cut: |loading| >= 0.5
-#> Top-n: all
-#> 
-#> ── Level 5 (5 factors) ──
-#> 
-#> m5f1
-#> E2 [-0.720]
-#> E4 [0.704]
-#> E1 [-0.685]
-#> E3 [0.659]
-#> E5 [0.584]
-#> 
-#> m5f2
-#> N3 [-0.799]
-#> N1 [-0.787]
-#> N2 [-0.782]
-#> N5 [-0.656]
-#> N4 [-0.626]
-#> 
-#> m5f3
-#> C2 [0.702]
-#> C4 [-0.692]
-#> C1 [0.671]
-#> C3 [0.653]
-#> C5 [-0.627]
-#> 
-#> m5f4
-#> A3 [0.698]
-#> A2 [0.672]
-#> A1 [-0.672]
-#> A5 [0.569]
-#> A4 [0.513]
-#> 
-#> m5f5
-#> O5 [-0.676]
-#> O3 [0.617]
-#> O2 [-0.586]
-#> O1 [0.554]
-#> ────────────────────────────────────────────────────────────────────────────────
-#> Loadings reflect primary-parent sign alignment. Use tidy(x, what = "loadings")
-#> for the full matrix.
 ```
 
 Three interpretation habits keep the analysis honest (all covered in depth in
@@ -417,18 +254,13 @@ The final step closes the loop the same way it opened: with data the model
 has not seen. Scores for new observations use the fit-time metric, so
 training and test scores are directly comparable:
 
-
-``` r
+```{r train-test}
 train <- bfi[1:600, ]
 test <- bfi[601:875, ]
 
 x_train <- ackwards(train, k_max = 5)
 test_scores <- predict(x_train, newdata = test)
 round(head(test_scores[, grep("^\\.m5", names(test_scores))], 3), 2)
-#>   .m5f1 .m5f2 .m5f3 .m5f4 .m5f5
-#> 1  0.21 -2.77 -1.21 -1.45 -0.27
-#> 2  0.19 -1.20  0.28 -1.21 -1.41
-#> 3 -0.91 -1.46  1.34  0.06 -0.98
 ```
 
 If a downstream claim (a correlation with an outcome, a group difference)
