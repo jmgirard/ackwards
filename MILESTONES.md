@@ -1789,3 +1789,16 @@ no-gaps check applies only to that list) while still giving every code change a 
   cache-semantics test (`clean_fit_cache()`); the shipped `cached()` helper and real package fits
   were never affected (package functions are one constant object, and data lives in the key). All
   six platforms in the matrix now green.
+
+- **2026-07-05 — EFA oracle test: auto-activate level 1:2 once psych's k=1 bug fix ships** (branch
+  `psych-266-efa-oracle`; test-only). `test-efa.R`'s `bassAckward(fm="minres")` oracle skipped the
+  level 1:2 comparison because `psych::bassAckward` mis-standardized any k=1 level —
+  `diag(1/sqrt(rs))` with a scalar `rs` builds a 1×1 identity, dropping the score-variance scaling
+  (the PCA oracle is unaffected: its k=1 score variance is 1, so the missing scaling is a no-op).
+  Our own edge algebra was always correct; only the psych *oracle* was wrong there. Reported
+  upstream; Revelle fixed it in **psych 2.6.6** (`diag(..., nrow = length(rs))`), currently his dev
+  build only — **CRAN still ships the buggy 2.6.5**, so a hard un-skip would break there. Instead
+  the loop lower bound is now `if (packageVersion("psych") >= "2.6.6") 1L else 2L`: green on 2.6.5,
+  and it auto-adds the level 1:2 assertion once a fixed psych is present. Verified both ways
+  (installed 2.6.5 skips 1:2 and passes; psych 2.6.6 in a temp lib compares 1:2 and matches to
+  ~8e-16). No `R/` or DESCRIPTION change (no psych version floor added — 2.6.6 is not yet on CRAN).
