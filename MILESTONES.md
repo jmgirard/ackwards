@@ -1866,3 +1866,15 @@ no-gaps check applies only to that list) while still giving every code change a 
   machine precision. No test changes needed (the existing CD tests now pass against 0.8.0). Suite
   **2058 pass / 0 fail** under EFAtools 0.8.0. Files: `R/suggest_k.R`, `NEWS.md`, `DESCRIPTION`
   (version → `0.1.0.9000`, re-opening the post-0.1.0 dev cycle).
+- **2026-07-08 — M53 post-milestone-review fixes** (review found no blockers; one Should-fix +
+  three Nice-to-haves, all addressed). (1) Documented the direct-criterion `x$prune$chains$r_to_prev`
+  semantics — it reports the *adjacent-level* correlation for display while chain membership is
+  decided by the *direct/skip-level* link, so a direct chain can legitimately contain a link with
+  `r_to_prev < redundancy_r` (verified `m5f5 = 0.899` on AMH); added a `prune()` `@details`
+  paragraph and a NEWS note pointing at `endpoint_r` as the cross-check. (2) `print()`/`summary()`
+  now name the active criterion (`Redundancy (direct, |r| ≥ 0.9): …`). (3) New deep (k = 3)
+  skip-level test (`.mock_direct_skip_phi`) exercising the direct builder's φ conjunction rejecting
+  a skip link past the adjacent level (the shallow k = 2 mock could not reach it). (4) Broadened the
+  CLAUDE.md M53 index one-liner to name the `prune(redundancy_criterion=)` change alongside the
+  fixture. Files: `R/prune.R` (`@details`), `R/print.R`, `R/summary.R`, `tests/testthat/test-prune.R`,
+  `NEWS.md`, `CLAUDE.md`. No vignette rebuild (the chains column is not displayed there).

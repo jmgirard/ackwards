@@ -10,7 +10,10 @@
   correlates with directly even if an intermediate step is weak (and vice
   versa). Pass `redundancy_criterion = "adjacent"` for the old behavior. This
   makes `prune("redundant")` reproduce Forbes's published applied example
-  exactly.
+  exactly. `print()` and `summary()` name the active criterion. Note that under
+  `"direct"`, a chain's `r_to_prev` column reports the adjacent-level
+  correlation and can sit below `redundancy_r` (membership is set by the direct
+  skip-level link; see `?prune`).
 
 * **Validation.** The Forbes (2023) fidelity suite now also reproduces her
   155-variable "Assessing Mental Health" applied example (`k_max = 10`), not just

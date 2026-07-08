@@ -631,6 +631,18 @@
 #'   structural outlier worth inspecting.
 #' @param ... Reserved for future methods/arguments.
 #'
+#' @details
+#' **Reading `x$prune$chains` under `redundancy_criterion = "direct"`.** The
+#' `r_to_prev` and `phi_to_prev` columns report the **adjacent-level**
+#' correlation and congruence between consecutive chain members (for continuity
+#' of display), but chain *membership* is decided by the **direct (skip-level)**
+#' correlation to the chain's deepest factor. A direct chain can therefore
+#' legitimately contain a link whose `r_to_prev` is *below* `redundancy_r` -- the
+#' stronger direct link is what justified it. The `endpoint_r` column gives the
+#' direct root-to-leaf correlation as an at-a-glance cross-check. Under
+#' `redundancy_criterion = "adjacent"`, `r_to_prev` *is* the criterion and always
+#' meets `redundancy_r`.
+#'
 #' @return `x`, with `$prune` populated (replacing any prior pruning).
 #'
 #' @seealso [ackwards()], [tidy.ackwards()] (`what = "nodes"`),

@@ -865,6 +865,68 @@ test_that("redundancy_criterion: default 'direct', 'adjacent' opt-in, recorded, 
   expect_error(prune(x, "redundant", redundancy_criterion = "nope"))
 })
 
+# Deep (k = 3) mock where the DIRECT criterion's phi conjunction drops a
+# *skip-level* link (M53). m3f1 correlates strongly with the general factor m1f1
+# directly (edge "1:3" = 0.95 >= redundancy_r) but their loading congruence is
+# low (m1f1 spans all four items, m3f1 only two -> phi ~= 0.71 < 0.95). With no
+# phi filter the direct chase climbs m3f1 -> m2f1 -> m1f1; with phi > 0.95 the
+# skip link to m1f1 is rejected and the chain stops at m2f1. This exercises the
+# direct builder's phi break past the adjacent level, which the shallow k = 2
+# phi mock cannot reach.
+.mock_direct_skip_phi <- function() {
+  items <- paste0("i", 1:4)
+  L1 <- matrix(rep(0.9, 4), ncol = 1, dimnames = list(items, "m1f1"))
+  L2 <- matrix(
+    c(0.9, 0.9, 0.0, 0.0, 0.0, 0.0, 0.9, 0.9),
+    ncol = 2, dimnames = list(items, c("m2f1", "m2f2"))
+  )
+  L3 <- matrix(
+    c(0.9, 0.9, 0.0, 0.0, 0.0, 0.0, 0.9, 0.0, 0.0, 0.0, 0.0, 0.9),
+    ncol = 3, dimnames = list(items, c("m3f1", "m3f2", "m3f3"))
+  )
+  list(
+    k_max = 3L,
+    levels = list(
+      "1" = list(loadings = L1, labels = "m1f1"),
+      "2" = list(loadings = L2, labels = c("m2f1", "m2f2")),
+      "3" = list(loadings = L3, labels = c("m3f1", "m3f2", "m3f3"))
+    ),
+    lineage = list("1" = NA_integer_, "2" = c(1L, 1L), "3" = c(1L, 2L, 2L)),
+    edges = list(matrices = list(
+      "1:2" = matrix(c(0.95, 0.10),
+        nrow = 1, dimnames = list("m1f1", c("m2f1", "m2f2"))
+      ),
+      "2:3" = matrix(c(0.97, 0.05, 0.05, 0.05, 0.05, 0.97),
+        nrow = 2, dimnames = list(c("m2f1", "m2f2"), c("m3f1", "m3f2", "m3f3"))
+      ),
+      "1:3" = matrix(c(0.95, 0.10, 0.10),
+        nrow = 1, dimnames = list("m1f1", c("m3f1", "m3f2", "m3f3"))
+      )
+    ))
+  )
+}
+
+test_that("direct criterion's phi conjunction drops a skip-level link (M53)", {
+  m <- .mock_direct_skip_phi()
+
+  # Confirm the setup: strong direct skip r but sub-0.95 congruence to m1f1.
+  expect_gte(abs(m$edges$matrices[["1:3"]]["m1f1", "m3f1"]), 0.9)
+  expect_lt(
+    ackwards:::.tucker_phi(m$levels[["1"]]$loadings[, 1], m$levels[["3"]]$loadings[, 1]),
+    0.95
+  )
+
+  # No phi filter: the direct chase climbs the skip link to the general factor.
+  no_phi <- ackwards:::.find_redundant_chains(m, threshold_r = 0.9, threshold_phi = NULL)
+  expect_true("m1f1" %in% no_phi$node_flags$id)
+
+  # phi > 0.95: the skip link to m1f1 is rejected; the chain stops at m2f1, so
+  # m1f1 is no longer flagged but the m2f1 -> m3f1 redundancy still is.
+  with_phi <- ackwards:::.find_redundant_chains(m, threshold_r = 0.9, threshold_phi = 0.95)
+  expect_false("m1f1" %in% with_phi$node_flags$id)
+  expect_true("m2f1" %in% with_phi$node_flags$id)
+})
+
 # ---- Wave 2: split_merge = TRUE positive path (M25) -------------------------
 
 # Direct unit test of .compute_structural_signals: a level-3 factor whose

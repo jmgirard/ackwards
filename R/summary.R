@@ -209,7 +209,7 @@ print.summary_ackwards <- function(x, ...) {
         ""
       }
       cli::cli_text(
-        "  Redundant (|r| {cli::symbol$geq} {r_thr}{phi_note}): \\
+        "  Redundant ({p$redundancy_criterion}, |r| {cli::symbol$geq} {r_thr}{phi_note}): \\
          {length(p$redundant)} node{?s} flagged"
       )
       if (length(p$redundant) > 0L) {
@@ -322,12 +322,13 @@ print.summary_ackwards <- function(x, ...) {
     NULL
   }
   list(
-    rules          = x$prune$rules,
-    redundant      = redundant,
-    artifact_n     = artifact_n,
-    structural_n   = structural_n,
-    redundancy_r   = x$prune$redundancy_r,
-    redundancy_phi = x$prune$redundancy_phi,
-    manual         = x$prune$manual
+    rules                = x$prune$rules,
+    redundant            = redundant,
+    artifact_n           = artifact_n,
+    structural_n         = structural_n,
+    redundancy_r         = x$prune$redundancy_r,
+    redundancy_phi       = x$prune$redundancy_phi,
+    redundancy_criterion = x$prune$redundancy_criterion,
+    manual               = x$prune$manual
   )
 }
