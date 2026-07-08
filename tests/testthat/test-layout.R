@@ -336,8 +336,10 @@ test_that("autoplot.ackwards() mono=TRUE + show_r=TRUE composes without error", 
 }
 
 .ba_get_scale <- function(p, aesthetic) {
-  for (s in p$scales$scales) if (aesthetic %in% s$aesthetics) {
-    return(s)
+  for (s in p$scales$scales) {
+    if (aesthetic %in% s$aesthetics) {
+      return(s)
+    }
   }
   NULL
 }

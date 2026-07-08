@@ -1802,3 +1802,20 @@ no-gaps check applies only to that list) while still giving every code change a 
   and it auto-adds the level 1:2 assertion once a fixed psych is present. Verified both ways
   (installed 2.6.5 skips 1:2 and passes; psych 2.6.6 in a temp lib compares 1:2 and matches to
   ~8e-16). No `R/` or DESCRIPTION change (no psych version floor added — 2.6.6 is not yet on CRAN).
+
+- **2026-07-08 — EFAtools 0.8.0 compatibility: restore the CD criterion in `suggest_k()`**
+  ([#50](https://github.com/jmgirard/ackwards/pull/50); folded into the logo/EFA-oracle PR).
+  **EFAtools 0.8.0** (new CRAN release, 2026-07 — master was green on 0.7.1) restructured
+  `CD()`'s return value: the top-level `RMSE_eigenvalues` field is gone and the per-iteration RMSE
+  matrix now lives at `results[[1]]$rmse_eigenvalues` (`n_factors` stays top-level). Our extractor
+  at `R/suggest_k.R` read the old field, so `cd_rmse` came back empty on any current install —
+  `which.min()` returned `integer(0)` (erroring the trailing-zero-mask test) and the CD
+  `autoplot()` panel vanished; three `test-suggest_k.R` tests failed on CI while local (0.7.1) stayed
+  green. **Fix:** fall back to `results[[1]]$rmse_eigenvalues` when the top-level field is `NULL`
+  (`cd_out$RMSE_eigenvalues %||% cd_out$results[[1]]$rmse_eigenvalues`). That value is the same
+  `n_iter × k` matrix, so the existing `colMeans()` + tail-mask path is unchanged and all three
+  EFAtools output shapes (< 0.4.4 matrix, 0.4.4–0.7.x vector, ≥ 0.8.0 nested) are handled;
+  `colMeans(results[[1]]$rmse_eigenvalues)` verified identical to the new `results[[1]]$y` to
+  machine precision. No test changes needed (the existing CD tests now pass against 0.8.0). Suite
+  **2058 pass / 0 fail** under EFAtools 0.8.0. Files: `R/suggest_k.R`, `NEWS.md`, `DESCRIPTION`
+  (version → `0.1.0.9000`, re-opening the post-0.1.0 dev cycle).
