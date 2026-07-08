@@ -1,5 +1,25 @@
 # ackwards (development version)
 
+* **`prune("redundant")` gains `redundancy_criterion`, defaulting to `"direct"`
+  (behavior change).** Redundancy chains are now traced by the **direct
+  (skip-level)** correlation between a factor and each ancestor level — Forbes's
+  (2023) actual `ChaseCorrPaths` rule — rather than the previous adjacent-hop
+  walk. Because correlation is non-transitive, the two can differ in deep
+  (many-level) hierarchies: on shallow ones (e.g. the bundled `sim16`) results
+  are unchanged, but a factor can now be flagged redundant with an ancestor it
+  correlates with directly even if an intermediate step is weak (and vice
+  versa). Pass `redundancy_criterion = "adjacent"` for the old behavior. This
+  makes `prune("redundant")` reproduce Forbes's published applied example
+  exactly.
+
+* **Validation.** The Forbes (2023) fidelity suite now also reproduces her
+  155-variable "Assessing Mental Health" applied example (`k_max = 10`), not just
+  the three simulation studies: between-level correlations match her reference
+  implementation to 1.3e-14 across all 45 level-pairs, loading congruences agree
+  within her two-decimal rounding, and her redundancy chase is reproduced for all
+  54 components. The published matrix ships as a test fixture under CC-BY 4.0
+  (see `LICENSE.note`).
+
 * `suggest_k()` now reads Comparison Data (CD) results from **EFAtools >= 0.8.0**,
   which restructured `CD()`'s return value (the per-iteration RMSE matrix moved
   from the top-level `RMSE_eigenvalues` field into `results[[1]]$rmse_eigenvalues`).

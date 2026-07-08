@@ -151,6 +151,14 @@ than refine the same dimension. A chain that stops *short* of the deepest
 level instead keeps its **top** node, the broadest manifestation (Forbes,
 2023).
 
+By default (`redundancy_criterion = "direct"`) a factor is joined to an
+ancestor when their score correlation is high **directly** — the rule Forbes's
+own code uses, and the honest reading of "the same construct" (the two factors
+share ≥ 81% of their variance directly). Because correlation is non-transitive,
+this can differ from following one high-correlation hop at a time in deep
+hierarchies; `redundancy_criterion = "adjacent"` selects that older, adjacent-hop
+behavior. On a shallow hierarchy like this one the two agree.
+
 ```{r prune-redundant}
 x_prune <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all") |>
   prune("redundant")

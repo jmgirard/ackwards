@@ -13,6 +13,7 @@ prune(x, ...)
   manual = NULL,
   redundancy_r = 0.9,
   redundancy_phi = NULL,
+  redundancy_criterion = c("direct", "adjacent"),
   min_items = 3L,
   orphan_r = 0.5,
   ...
@@ -27,8 +28,9 @@ prune(x, ...)
 \code{"none"} (no auto rule; combine with \code{manual} for pure manual pruning, or
 call \code{prune(x)} with no arguments to clear any existing pruning). Options:
 \itemize{
-\item \code{"redundant"} -- identify chains of factors connected by primary-parent
-links with \verb{|r| >= redundancy_r} (and optionally \code{phi > redundancy_phi}).
+\item \code{"redundant"} -- identify chains of factors connected by score
+correlations \verb{|r| >= redundancy_r} (and optionally \code{phi > redundancy_phi}),
+using \code{redundancy_criterion} (default \code{"direct"}, faithful to Forbes).
 Applies Forbes's (2023) retention rule: keep the bottom node when the
 chain reaches level \code{k_max} (most specific); keep the top node otherwise.
 Flagged nodes get \code{pruned = TRUE} and \code{prune_reason = "redundant"} in
@@ -48,8 +50,8 @@ labels error. A node already flagged by an auto rule keeps that
 \code{prune_reason}; only otherwise-unflagged manual nodes get
 \code{prune_reason = "manual"}.}
 
-\item{redundancy_r}{Scalar in \verb{(0, 1]}. Adjacent primary-parent \verb{|r|}
-threshold for redundancy chains. Default \code{0.9} (Forbes, 2023).}
+\item{redundancy_r}{Scalar in \verb{(0, 1]}. Score-correlation \verb{|r|} threshold for
+redundancy chains. Default \code{0.9} (Forbes, 2023).}
 
 \item{redundancy_phi}{Scalar in \verb{(0, 1]}, \code{NULL} (default, auto), or \code{NA}
 (explicit opt-out). When \code{NULL}:
@@ -65,6 +67,21 @@ means \verb{|r|}-alone is liberal; the conjunctive phi criterion is the
 conservative default. A cli message announces the resolved value.
 Pass \code{NA} to disable phi filtering regardless of engine. Pass a numeric
 value to override on any engine.
+}}
+
+\item{redundancy_criterion}{How redundancy chains are traced. One of:
+\itemize{
+\item \code{"direct"} (default) -- chase upward via the \strong{direct (skip-level)}
+correlation between a factor and each ancestor level, continuing while
+\verb{|r| >= redundancy_r} contiguously. This is Forbes's (2023) published
+\code{ChaseCorrPaths} rule and the honest operationalization of "the same
+construct" (two factor scores share \verb{>= redundancy_r^2} variance
+\emph{directly}). It reproduces her AMH applied example exactly.
+\item \code{"adjacent"} -- trace \strong{adjacent primary-parent} links only (each
+consecutive level \verb{|r| >= redundancy_r}). This was the pre-M53 default;
+because correlation is non-transitive it can both over- and under-flag
+versus \code{"direct"} in deep (many-level) hierarchies, so it is retained only
+as an opt-in. On shallow/transitive hierarchies the two agree.
 }}
 
 \item{min_items}{Minimum number of items for which a factor must be the
