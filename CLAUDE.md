@@ -92,12 +92,18 @@ above) nor to stage future work (that lives in `ROADMAP.md`). When a milestone c
 /implement-milestone reduces this to the line below; when the next is planned, /plan-milestone
 fills it with that milestone's number, phase, and blockers.
 
-- **In flight:** nothing. Last numbered milestone: **M52** (factorability diagnostics). Since then,
-  PR #50 (2026-07-08, between-milestone) shipped the package logo/favicons, the version-gated EFA
-  k=1 oracle test, and an EFAtools 0.8.0 compatibility fix for `suggest_k()`'s CD criterion — this
-  is what actually re-opened the post-0.1.0 dev cycle, bumping DESCRIPTION `0.1.0` → `0.1.0.9000`
-  (`0.1.0` was the CRAN-pinned release; the `.9000` note previously here was aspirational). Detail
-  in `MILESTONES.md` ("Between-milestone changes"); user-facing notes in `NEWS.md`.
+- **In flight: M53 — AMH applied-example fidelity extension.** Unblocked because Forbes's
+  155-variable AMH Spearman matrix (OSF `pcwm8`) now carries a **CC-BY** license, so the M44
+  feasibility result (≤3.9e-14 across all 45 level-pairs at `k_max=10`) can become a committed
+  test. Scope: a reproducible generator `data-raw/forbes2023_amh.R` (downloads the CC-BY CSV + her
+  `ExtendedBassAckwards` reference impl from OSF, computes expected `comp_corr`/`cong`/`corr_chase`)
+  → fixture `tests/testthat/fixtures/forbes2023_amh.rds` → AMH block in `test-forbes-fidelity.R`
+  (all 45 pairs `|edges|`≡Forbes @1e-12; `|φ|` within her 2-dp; `d4` chase = `m4f4→…→m10f4`) →
+  `LICENSE.note` declaring the CC-BY fixture inside the MIT package. No new export (no `R/`,
+  `NAMESPACE`, `_pkgdown.yml`, or coverage change). Full brief in `ROADMAP.md` (AMH unscheduled
+  item) + the M44 entry in `MILESTONES.md`.
+  - **Phase/blocker:** first step is a de-risk spike — confirm the OSF download still resolves and
+    the 3.9e-14 match reproduces before writing the fixture/test. If it's dead or drifts, reassess.
 - **Next up:** nothing queued. Candidates and the pending owner release-tail are in `ROADMAP.md`;
   deferred design decisions are in DESIGN.md §14 and "Out of scope for now" below.
 
