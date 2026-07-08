@@ -6,16 +6,24 @@
 #     re-running the (expensive) extraction.
 #   - Flag-only, never remove. Adds pruned/prune_reason annotations; the object
 #     retains all levels (preserves Invariant 5).
-#   - Redundancy: trace chains via ADJACENT primary-parent links with
-#     |r| >= redundancy_r. Optionally require Tucker's phi > redundancy_phi
-#     (conjunctive). Retention rule: keep the bottom node if the chain reaches
-#     level k_max (most specific, best-defined); else keep the top node
-#     (broadest manifestation, Forbes 2023, p.3).
-#   - Additive enrichments (do not change default output):
+#   - Redundancy: two criteria (redundancy_criterion), both threshold |r| >=
+#     redundancy_r, optionally conjunctive Tucker's phi > redundancy_phi, same
+#     retention rule (keep the bottom node if the chain reaches level k_max, the
+#     most specific/best-defined; else keep the top node, the broadest
+#     manifestation; Forbes 2023, p.3):
+#     * "direct" (DEFAULT, M53): faithful to Forbes's ChaseCorrPaths -- chase up
+#       via the DIRECT (skip-level) correlation to the component at each ancestor
+#       level. This is what the paper does; it reproduces her AMH applied example
+#       exactly (test-forbes-fidelity.R).
+#     * "adjacent" (pre-M53 behavior, opt-in): trace ADJACENT primary-parent
+#       links only. Because correlation is non-transitive, this both over-reaches
+#       (a clean adjacent chain whose endpoints are < redundancy_r) and
+#       under-reaches (a direct skip-link >= redundancy_r past a weak adjacent
+#       hop) versus the direct criterion in deep hierarchies.
+#   - Additive enrichments (do not change which nodes are flagged):
 #     * Report r AND phi per chain link (report-first/flag-second).
-#     * Report direct endpoint r from all-levels edges and flag when it
-#       disagrees with the chain criterion (correlation is non-transitive:
-#       a clean adjacent chain neither implies nor is implied by endpoint identity).
+#     * Report direct endpoint r (root-to-leaf, from all-levels edges) and flag
+#       whether it clears redundancy_r -- an at-a-glance cross-check on the chain.
 #   - Artifact ("artefact" accepted as an alias): compute Tucker's phi for all
 #     cross-level factor pairs; never auto-flag. Researcher interprets (Forbes
 #     explicitly flags artifact identification as introducing researcher DoF;
@@ -80,14 +88,20 @@
   out
 }
 
-# Find redundant chains using adjacent primary-parent |r| links.
-# Returns list(node_flags = df | NULL, chains = df | NULL).
-.find_redundant_chains <- function(x, threshold_r, threshold_phi) {
+# --- Strong-link builders (one row per redundancy link: shallower -> deeper) ---
+# Both return a data frame with columns from_label, to_label, level_from,
+# level_to, r_link, phi_link (r_link/phi_link are the ADJACENT-level stats for
+# the two consecutive chain nodes, so downstream chain/retention code is
+# criterion-agnostic), or NULL when no links meet the threshold.
+
+# ADJACENT criterion: a link is an adjacent primary-parent pair with
+# |r| >= threshold_r (and, if set, phi > threshold_phi). This is the pre-M53
+# behavior, retained as an opt-in.
+.strong_links_adjacent <- function(x, threshold_r, threshold_phi) {
   k_max <- x$k_max
   levels_list <- x$levels
   lineage <- x$lineage
 
-  # --- Build "strong links": adjacent primary-parent pairs meeting threshold ---
   link_rows <- lapply(seq(2L, k_max), function(k) {
     key <- paste0(k - 1L, ":", k)
     E <- x$edges$matrices[[key]]
@@ -128,9 +142,88 @@
 
   sl <- do.call(rbind, link_rows)
   if (is.null(sl) || nrow(sl) == 0L) {
-    return(list(node_flags = NULL, chains = NULL))
+    return(NULL)
   }
   rownames(sl) <- NULL
+  sl
+}
+
+# DIRECT criterion (default; M53): faithful to Forbes's (2023) ChaseCorrPaths.
+# For each component, chase upward using the DIRECT (skip-level) correlation to
+# that component at each ancestor level -- at level j take the node with the
+# largest |direct r| and continue while |r| >= threshold_r (and, if set, direct
+# phi > threshold_phi), contiguously. Because correlation is non-transitive this
+# differs from the adjacent walk in deep hierarchies: it reaches an ancestor a
+# weak adjacent hop would stop at, and stops where the direct link to the next
+# level fails even though adjacent hops continue. Consecutive chase nodes are
+# always one level apart, so the emitted links slot straight into the shared
+# chain machinery. Verified to reproduce Forbes's AMH applied example exactly
+# (test-forbes-fidelity.R).
+.strong_links_direct <- function(x, threshold_r, threshold_phi) {
+  levels_list <- x$levels
+  labs <- unlist(lapply(levels_list, `[[`, "labels"))
+  node_level <- stats::setNames(
+    rep(as.integer(names(levels_list)), as.integer(names(levels_list))), labs
+  )
+
+  rows <- list()
+  for (node in labs) {
+    L <- node_level[[node]]
+    if (L < 2L) next
+    prev <- node # previous (deeper) node in the chase, at level j + 1
+    for (j in seq.int(L - 1L, 1L)) {
+      E_dir <- x$edges$matrices[[paste0(j, ":", L)]] # rows level j, cols level L
+      if (is.null(E_dir)) break
+      dcol <- E_dir[, node]
+      p <- which.max(abs(dcol))
+      if (abs(dcol[p]) < threshold_r) break
+      Pnode <- rownames(E_dir)[p]
+
+      La <- levels_list[[as.character(j)]]$loadings
+      Lc <- levels_list[[as.character(L)]]$loadings
+      phi_dir <- .tucker_phi(La[, Pnode], Lc[, node])
+      if (!is.null(threshold_phi) && (is.na(phi_dir) || phi_dir <= threshold_phi)) break
+
+      # Adjacent-level stats for the consecutive chain nodes (Pnode@j, prev@j+1).
+      E_adj <- x$edges$matrices[[paste0(j, ":", j + 1L)]]
+      Lb <- levels_list[[as.character(j + 1L)]]$loadings
+      rows[[length(rows) + 1L]] <- data.frame(
+        from_label = Pnode,
+        to_label = prev,
+        level_from = j,
+        level_to = j + 1L,
+        r_link = E_adj[Pnode, prev],
+        phi_link = .tucker_phi(La[, Pnode], Lb[, prev]),
+        stringsAsFactors = FALSE
+      )
+      prev <- Pnode
+    }
+  }
+
+  if (length(rows) == 0L) {
+    return(NULL)
+  }
+  sl <- unique(do.call(rbind, rows))
+  rownames(sl) <- NULL
+  sl
+}
+
+# Find redundant chains from adjacent primary-parent or direct/skip-level links.
+# Returns list(node_flags = df | NULL, chains = df | NULL).
+.find_redundant_chains <- function(x, threshold_r, threshold_phi,
+                                   criterion = c("direct", "adjacent")) {
+  criterion <- match.arg(criterion)
+  k_max <- x$k_max
+  levels_list <- x$levels
+
+  sl <- if (criterion == "direct") {
+    .strong_links_direct(x, threshold_r, threshold_phi)
+  } else {
+    .strong_links_adjacent(x, threshold_r, threshold_phi)
+  }
+  if (is.null(sl) || nrow(sl) == 0L) {
+    return(list(node_flags = NULL, chains = NULL))
+  }
 
   # --- Map label -> level -------------------------------------------------------
   label_to_level <- stats::setNames(
@@ -369,14 +462,16 @@
 # pairs. `rules` here is the auto-rule subset only (never "none"/"manual").
 # Returns the $prune slot (minus $manual, added by the caller).
 .apply_pruning <- function(levels_list, edges_view, rules, redundancy_r, redundancy_phi,
-                           min_items, orphan_r) {
+                           min_items, orphan_r, redundancy_criterion = "direct") {
   base_nodes <- .base_prune_nodes(levels_list)
 
   chains_df <- NULL
   phi_df <- NULL
 
   if ("redundant" %in% rules) {
-    chain_result <- .find_redundant_chains(edges_view, redundancy_r, redundancy_phi)
+    chain_result <- .find_redundant_chains(
+      edges_view, redundancy_r, redundancy_phi, redundancy_criterion
+    )
     chains_df <- chain_result$chains
 
     if (!is.null(chain_result$node_flags) && nrow(chain_result$node_flags) > 0L) {
@@ -410,15 +505,15 @@
   if ("redundant" %in% rules) {
     if (n_flagged > 0L) {
       cli::cli_inform(c(
-        "i" = "Redundancy pruning (|r| {cli::symbol$geq} {redundancy_r}{phi_note}) \\
-               flagged {n_flagged} node{?s}.",
+        "i" = "Redundancy pruning ({redundancy_criterion} criterion, \\
+               |r| {cli::symbol$geq} {redundancy_r}{phi_note}) flagged {n_flagged} node{?s}.",
         "i" = "Nodes are retained in the object; inspect with \\
                {.code x$prune$nodes} and {.code x$prune$chains}."
       ))
     } else {
       cli::cli_inform(c(
-        "i" = "Redundancy pruning found no chains meeting \\
-               |r| {cli::symbol$geq} {redundancy_r}{phi_note}."
+        "i" = "Redundancy pruning ({redundancy_criterion} criterion) found no chains \\
+               meeting |r| {cli::symbol$geq} {redundancy_r}{phi_note}."
       ))
     }
   }
@@ -439,15 +534,16 @@
   }
 
   list(
-    rules          = rules,
-    redundancy_r   = redundancy_r,
-    redundancy_phi = redundancy_phi,
-    min_items      = min_items,
-    orphan_r       = orphan_r,
-    nodes          = base_nodes,
-    chains         = chains_df,
-    phi            = phi_df,
-    structural     = structural_df
+    rules                = rules,
+    redundancy_r         = redundancy_r,
+    redundancy_phi       = redundancy_phi,
+    redundancy_criterion = redundancy_criterion,
+    min_items            = min_items,
+    orphan_r             = orphan_r,
+    nodes                = base_nodes,
+    chains               = chains_df,
+    phi                  = phi_df,
+    structural           = structural_df
   )
 }
 
@@ -472,8 +568,9 @@
 #' @param rules Character vector controlling which auto-rules run. Default
 #'   `"none"` (no auto rule; combine with `manual` for pure manual pruning, or
 #'   call `prune(x)` with no arguments to clear any existing pruning). Options:
-#'   * `"redundant"` -- identify chains of factors connected by primary-parent
-#'     links with `|r| >= redundancy_r` (and optionally `phi > redundancy_phi`).
+#'   * `"redundant"` -- identify chains of factors connected by score
+#'     correlations `|r| >= redundancy_r` (and optionally `phi > redundancy_phi`),
+#'     using `redundancy_criterion` (default `"direct"`, faithful to Forbes).
 #'     Applies Forbes's (2023) retention rule: keep the bottom node when the
 #'     chain reaches level `k_max` (most specific); keep the top node otherwise.
 #'     Flagged nodes get `pruned = TRUE` and `prune_reason = "redundant"` in
@@ -490,8 +587,20 @@
 #'   labels error. A node already flagged by an auto rule keeps that
 #'   `prune_reason`; only otherwise-unflagged manual nodes get
 #'   `prune_reason = "manual"`.
-#' @param redundancy_r Scalar in `(0, 1]`. Adjacent primary-parent `|r|`
-#'   threshold for redundancy chains. Default `0.9` (Forbes, 2023).
+#' @param redundancy_r Scalar in `(0, 1]`. Score-correlation `|r|` threshold for
+#'   redundancy chains. Default `0.9` (Forbes, 2023).
+#' @param redundancy_criterion How redundancy chains are traced. One of:
+#'   * `"direct"` (default) -- chase upward via the **direct (skip-level)**
+#'     correlation between a factor and each ancestor level, continuing while
+#'     `|r| >= redundancy_r` contiguously. This is Forbes's (2023) published
+#'     `ChaseCorrPaths` rule and the honest operationalization of "the same
+#'     construct" (two factor scores share `>= redundancy_r^2` variance
+#'     *directly*). It reproduces her AMH applied example exactly.
+#'   * `"adjacent"` -- trace **adjacent primary-parent** links only (each
+#'     consecutive level `|r| >= redundancy_r`). This was the pre-M53 default;
+#'     because correlation is non-transitive it can both over- and under-flag
+#'     versus `"direct"` in deep (many-level) hierarchies, so it is retained only
+#'     as an opt-in. On shallow/transitive hierarchies the two agree.
 #' @param redundancy_phi Scalar in `(0, 1]`, `NULL` (default, auto), or `NA`
 #'   (explicit opt-out). When `NULL`:
 #'   * `x$engine == "pca"` -- no phi filter. Component scores are
@@ -561,6 +670,7 @@ prune <- function(x, ...) {
 #' @export
 prune.ackwards <- function(x, rules = "none", manual = NULL,
                            redundancy_r = 0.9, redundancy_phi = NULL,
+                           redundancy_criterion = c("direct", "adjacent"),
                            min_items = 3L, orphan_r = 0.5, ...) {
   levels_list <- x$levels
   all_ids <- unlist(lapply(levels_list, `[[`, "labels"))
@@ -570,6 +680,8 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
   )
   rules[rules == "artefact"] <- "artifact"
   rules <- unique(rules)
+
+  redundancy_criterion <- rlang::arg_match(redundancy_criterion)
 
   if (!is.null(manual)) {
     if (!is.character(manual)) {
@@ -650,11 +762,13 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
     )
     result <- .apply_pruning(
       levels_list, edges_view, auto_rules, redundancy_r, redundancy_phi,
-      min_items = min_items, orphan_r = orphan_r
+      min_items = min_items, orphan_r = orphan_r,
+      redundancy_criterion = redundancy_criterion
     )
   } else {
     result <- list(
       rules = "none", redundancy_r = redundancy_r, redundancy_phi = redundancy_phi,
+      redundancy_criterion = redundancy_criterion,
       min_items = min_items, orphan_r = orphan_r,
       nodes = .base_prune_nodes(levels_list), chains = NULL, phi = NULL, structural = NULL
     )

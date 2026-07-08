@@ -28,15 +28,6 @@ Not a coding milestone — maintainer actions to finish the 0.1.0 CRAN submissio
 
 ## Unscheduled ideas (each needs a scoping discussion before /plan-milestone)
 
-- **AMH applied-example fidelity extension.** The M44 feasibility study verified `ackwards`
-  against Forbes's reference implementation on her full 155-variable AMH applied example
-  (max deviation 3.9e-14 across all 45 level-pairs at `k_max = 10`), but the AMH Spearman matrix
-  (`corSpearman_AMH.csv`, OSF `pcwm8`) carries **no license**, so it was not committed. Options
-  when the owner contacts Forbes: (a) she adds a license/permission → commit a fixture like the
-  simulation one; (b) keep it uncommitted and add a `skip_if_offline()`/`skip_on_cran()` test
-  that downloads the matrix from OSF at test time (no redistribution; expected values from the
-  M44 feasibility run). The download URLs and comparison script survive in the M44 milestone
-  entry.
 - **`comparability()` and `boot_edges()` engine/basis extensions** (deferred from M46/M47,
   DESIGN §14.35/§14.36) — **feasible but demand-gated; keep off the schedule until asked.**
   Feasibility verdict (M49 Phase A):

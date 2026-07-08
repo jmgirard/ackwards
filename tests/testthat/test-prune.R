@@ -398,6 +398,15 @@ test_that("B1 regression: parent with 2 strong-link children produces 2 chains",
   # Both m2f1 and m2f2 are retained (chain reaches k_max = 2)
   expect_false("m2f1" %in% res$node_flags$id)
   expect_false("m2f2" %in% res$node_flags$id)
+
+  # M53: the adjacent link builder agrees on this shallow (k_max = 2) mock,
+  # where the direct and adjacent criteria coincide -- covers the opt-in path.
+  res_adj <- ackwards:::.find_redundant_chains(
+    mock_x,
+    threshold_r = 0.90, threshold_phi = NULL, criterion = "adjacent"
+  )
+  expect_equal(length(unique(res_adj$chains$chain_id)), 2L)
+  expect_true(res_adj$node_flags$pruned[res_adj$node_flags$id == "m1f1"])
 })
 
 # --- B3: internal helper coverage (M23) --------------------------------------
@@ -465,6 +474,15 @@ test_that(".find_redundant_chains() handles a missing edge matrix gracefully", {
   res <- ackwards:::.find_redundant_chains(mock_x, threshold_r = 0.9, threshold_phi = NULL)
   # Should not error; chains only reflect the 1->2 links
   expect_type(res, "list")
+
+  # M53: same graceful handling under the adjacent builder (its own missing-edge
+  # branch). The direct builder above hits the absent "2:3" via its skip lookup;
+  # the adjacent builder hits it via the adjacent lookup.
+  res_adj <- ackwards:::.find_redundant_chains(
+    mock_x,
+    threshold_r = 0.9, threshold_phi = NULL, criterion = "adjacent"
+  )
+  expect_type(res_adj, "list")
 })
 
 # --- B4: pruning under convergence truncation --------------------------------
@@ -769,6 +787,24 @@ test_that("phi filter changes the flagged outcome at the chain-finding step", {
   with_phi <- ackwards:::.find_redundant_chains(m, threshold_r = 0.9, threshold_phi = 0.95)
   expect_null(with_phi$node_flags)
   expect_null(with_phi$chains)
+
+  # M53: the adjacent builder makes the same phi decision on this k_max = 2 mock
+  # (covers its phi-filter and no-link branches).
+  no_phi_adj <- ackwards:::.find_redundant_chains(
+    m,
+    threshold_r = 0.9, threshold_phi = NULL, criterion = "adjacent"
+  )
+  expect_true("m1f1" %in% no_phi_adj$node_flags$id)
+  with_phi_adj <- ackwards:::.find_redundant_chains(
+    m,
+    threshold_r = 0.9, threshold_phi = 0.95, criterion = "adjacent"
+  )
+  expect_null(with_phi_adj$node_flags)
+  # No qualifying links at all (|r| < 0.999) -> NULL, both criteria.
+  expect_null(ackwards:::.find_redundant_chains(
+    m,
+    threshold_r = 0.999, threshold_phi = NULL, criterion = "adjacent"
+  )$chains)
 })
 
 test_that("auto-phi flagged set is a subset of the |r|-only set (EFA, end to end)", {
@@ -801,6 +837,32 @@ test_that("auto-phi flagged set is a subset of the |r|-only set (EFA, end to end
   # Thresholds recorded honestly.
   expect_equal(auto$prune$redundancy_phi, 0.95)
   expect_null(na_path$prune$redundancy_phi)
+})
+
+test_that("redundancy_criterion: default 'direct', 'adjacent' opt-in, recorded, validated (M53)", {
+  skip_if_not_installed("psych")
+  set.seed(7)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  x <- cached(ackwards(data, k_max = 3))
+
+  xd <- suppressMessages(prune(x, "redundant"))
+  expect_identical(xd$prune$redundancy_criterion, "direct")
+
+  xa <- suppressMessages(prune(x, "redundant", redundancy_criterion = "adjacent"))
+  expect_identical(xa$prune$redundancy_criterion, "adjacent")
+
+  # k_max = 3 is shallow enough that the two criteria agree here.
+  expect_setequal(
+    xd$prune$nodes$id[xd$prune$nodes$pruned],
+    xa$prune$nodes$id[xa$prune$nodes$pruned]
+  )
+
+  # Recorded even when no auto rule runs, and invalid values are rejected.
+  expect_identical(prune(x)$prune$redundancy_criterion, NULL) # cleared
+  expect_identical(
+    suppressMessages(prune(x, manual = "m2f1"))$prune$redundancy_criterion, "direct"
+  )
+  expect_error(prune(x, "redundant", redundancy_criterion = "nope"))
 })
 
 # ---- Wave 2: split_merge = TRUE positive path (M25) -------------------------

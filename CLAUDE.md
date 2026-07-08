@@ -15,12 +15,16 @@ rationale, contracts, object spec, and resolved defaults are in `DESIGN.md`.
 **Note:** Forbes (2023) footnote 3 cites this package (`github.com/jmgirard/ackwards`) as the
 reference implementation of the extended bass-ackwards approach. Fidelity to the paper's algorithm
 is the baseline contract for anything Forbes-related; additive enrichments are acceptable but the
-default output must reproduce Forbes's examples exactly. **This contract is test-backed** (M44):
-`tests/testthat/test-forbes-fidelity.R` reproduces the paper's three simulation studies against
-expected values computed with Forbes's own reference implementation (OSF `pcwm8`; provenance in
-the fixture), and the M44 feasibility study additionally verified the 155-variable AMH applied
-example to 3.9e-14 (not committed as a test — the AMH matrix carries no OSF license; see
-`ROADMAP.md` unscheduled items).
+default output must reproduce Forbes's examples exactly. **This contract is test-backed** (M44 +
+M53): `tests/testthat/test-forbes-fidelity.R` reproduces the paper's three simulation studies
+*and* her 155-variable AMH applied example (`k_max = 10`) against expected values computed with
+Forbes's own reference implementation (OSF `pcwm8`; provenance in each fixture). AMH matched to
+1.3e-14 across all 45 level-pairs. The AMH matrix ships as a CC-BY fixture (M53 — Forbes licensed
+it CC-BY 4.0; declared in `LICENSE.note`). M53 also reproduced her redundancy chase exactly
+(54/54 components): her `ChaseCorrPaths()` uses the **direct/skip-level** correlation to each
+ancestor level, which `prune("redundant")` now adopts as its default (`redundancy_criterion =
+"direct"`) — the pre-M53 adjacent-hop walk diverged on 7/54 AMH components because correlation is
+non-transitive (they agree on the shallow simulations). See M53 in `MILESTONES.md`.
 
 ## Completed milestones
 
@@ -83,6 +87,7 @@ and only a one-liner here.
 - **M50** — Release polish (`bfi25` IPIP labels, cli consistency, `suggest_k` ordinal warning)
 - **M51** — Factor-label pipeline (`set_factor_labels()`/`factor_labels()`; `meta$factor_labels`)
 - **M52** — Factorability diagnostics (`factorability()` + `ackwards()` Ledermann/adequacy screen)
+- **M53** — AMH applied-example fidelity (CC-BY `forbes2023_amh.rds` fixture + `test-forbes-fidelity.R` AMH block)
 
 ## Current focus
 
@@ -92,18 +97,9 @@ above) nor to stage future work (that lives in `ROADMAP.md`). When a milestone c
 /implement-milestone reduces this to the line below; when the next is planned, /plan-milestone
 fills it with that milestone's number, phase, and blockers.
 
-- **In flight: M53 — AMH applied-example fidelity extension.** Unblocked because Forbes's
-  155-variable AMH Spearman matrix (OSF `pcwm8`) now carries a **CC-BY** license, so the M44
-  feasibility result (≤3.9e-14 across all 45 level-pairs at `k_max=10`) can become a committed
-  test. Scope: a reproducible generator `data-raw/forbes2023_amh.R` (downloads the CC-BY CSV + her
-  `ExtendedBassAckwards` reference impl from OSF, computes expected `comp_corr`/`cong`/`corr_chase`)
-  → fixture `tests/testthat/fixtures/forbes2023_amh.rds` → AMH block in `test-forbes-fidelity.R`
-  (all 45 pairs `|edges|`≡Forbes @1e-12; `|φ|` within her 2-dp; `d4` chase = `m4f4→…→m10f4`) →
-  `LICENSE.note` declaring the CC-BY fixture inside the MIT package. No new export (no `R/`,
-  `NAMESPACE`, `_pkgdown.yml`, or coverage change). Full brief in `ROADMAP.md` (AMH unscheduled
-  item) + the M44 entry in `MILESTONES.md`.
-  - **Phase/blocker:** first step is a de-risk spike — confirm the OSF download still resolves and
-    the 3.9e-14 match reproduces before writing the fixture/test. If it's dead or drifts, reassess.
+- **In flight:** nothing. Last numbered milestone: **M53** (AMH applied-example fidelity — the
+  now-CC-BY 155-variable AMH matrix committed as `forbes2023_amh.rds` + an AMH block in
+  `test-forbes-fidelity.R`). Detail in `MILESTONES.md`.
 - **Next up:** nothing queued. Candidates and the pending owner release-tail are in `ROADMAP.md`;
   deferred design decisions are in DESIGN.md §14 and "Out of scope for now" below.
 
@@ -137,8 +133,10 @@ Forbes extension **off** · `k_max` required · sign `align_signs = TRUE` · `ke
 `FALSE` · `redundancy_phi`: `NULL` (default) auto-resolves — `"pca"` → no φ filter (component
 scores are determinate, so `|r|` is the true between-component correlation); `"efa"`/`"esem"` →
 `0.95` (Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy makes `|r|`-only liberal).
-`NA` is the explicit opt-out. Announce auto-resolve loudly (Invariant 6). Don't change these
-silently.
+`NA` is the explicit opt-out. · `redundancy_criterion = "direct"` (M53) — `prune("redundant")`
+traces chains by the **direct/skip-level** correlation to each ancestor level (Forbes's actual
+`ChaseCorrPaths`); `"adjacent"` (pre-M53 adjacent-hop) is a retained opt-in. Announce auto-resolve
+loudly (Invariant 6). Don't change these silently.
 
 ## Dependencies (see `DESIGN.md` §12)
 

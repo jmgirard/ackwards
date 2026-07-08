@@ -134,17 +134,34 @@ test_that("prune('redundant') flags Forbes's Simulation 1 chains with her retent
 # (see data-raw/forbes2023_amh.R and attr(fixture, "provenance")). As with the
 # simulations, only ackwards() runs here; no Forbes code or network at test time.
 #
-# Scope note on the redundancy chase: we reproduce Forbes's *numerical* method
-# exactly (edges to 1e-12, congruence within her 2-dp rounding). We do NOT
-# bit-match her ChaseCorrPaths() output here, because on this 10-level hierarchy
-# her hand-rolled level-counter has off-by-one artifacts on 7 of 54 components
-# -- it alternately stops one link short of a >=.9 continuation or includes a
-# single sub-.9 hop. Our primary-parent >=.9 walk is the faithful reading of the
-# rule she describes in prose, so the redundancy assertions below pin our own
-# shipped prune("redundant") behavior (including the paper's d4 chain) rather
-# than her code's per-node output. See MILESTONES.md M53.
+# Redundancy chase: Forbes's ChaseCorrPaths uses the DIRECT (skip-level)
+# correlation to a component at each ancestor level -- the criterion our
+# prune("redundant") adopts by default since M53 (redundancy_criterion =
+# "direct"). On this deep 10-level hierarchy it diverges from an adjacent-hop
+# walk on 7 of 54 components (correlation is non-transitive), so this is exactly
+# where the direct criterion earns its keep. amh$corr_chase holds her raw
+# ChaseCorrPaths output ("X--Y"; "X--null" = no chase) for all 54 components,
+# and .direct_chase() below reproduces it from our all-levels edges. See M53.
 .amh_fixture <- function() {
   readRDS(test_path("fixtures", "forbes2023_amh.rds"))$amh
+}
+
+# Forbes's direct/skip-level chase on an ackwards object: from `node`, at each
+# ancestor level take the node with the largest |direct r| and continue while
+# |r| >= 0.9 contiguously; return the topmost node reached (the node itself when
+# its best direct link to the next level up is < 0.9). This is what
+# redundancy_criterion = "direct" traces internally.
+.direct_chase <- function(x, node) {
+  lv <- as.integer(sub("^m(\\d+)f\\d+$", "\\1", node))
+  cur <- node
+  for (j in seq_len(lv - 1L)) {
+    E <- x$edges$matrices[[paste0(lv - j, ":", lv)]] # rows level lv-j, cols level lv
+    col <- E[, node]
+    pi <- which.max(abs(col))
+    if (abs(col[pi]) < 0.9) break
+    cur <- rownames(E)[pi]
+  }
+  cur
 }
 
 test_that("default output reproduces Forbes's AMH applied example (k = 10)", {
@@ -188,12 +205,38 @@ test_that("default output reproduces Forbes's AMH applied example (k = 10)", {
   }
 })
 
-test_that("prune('redundant') reproduces the AMH d4 chain and pins shipped behavior", {
+test_that("direct criterion reproduces Forbes's AMH redundancy chase exactly (54/54)", {
+  skip_if_not_installed("psych")
+  amh <- .amh_fixture()
+  suppressWarnings(suppressMessages(
+    x <- cached(ackwards(amh$R, k_max = amh$k_max, pairs = "all"))
+  ))
+
+  # Every component's direct chase over our all-levels edges lands on the same
+  # node her ChaseCorrPaths reports ("X--null" = the node stays put). This is
+  # the criterion prune("redundant") uses by default; here it is the exact
+  # published AMH result, including the 7 components where an adjacent walk
+  # would diverge (non-transitivity).
+  expect_length(amh$corr_chase, 54L)
+  for (entry in amh$corr_chase) {
+    parts <- strsplit(entry, "--", fixed = TRUE)[[1L]]
+    from <- .forbes_to_ackwards(parts[1L])
+    expected_top <- if (parts[2L] == "null") from else .forbes_to_ackwards(parts[2L])
+    expect_identical(
+      .direct_chase(x, from), expected_top,
+      label = paste0("AMH direct chase(", parts[1L], ") (ackwards)"),
+      expected.label = paste0("Forbes '", entry, "'")
+    )
+  }
+})
+
+test_that("prune('redundant') on AMH: direct default vs adjacent opt-in", {
   skip_if_not_installed("psych")
   amh <- .amh_fixture()
   suppressWarnings(suppressMessages({
     x <- cached(ackwards(amh$R, k_max = amh$k_max, pairs = "all"))
-    xp <- prune(x, "redundant")
+    xp <- prune(x, "redundant") # default redundancy_criterion = "direct"
+    xa <- prune(x, "redundant", redundancy_criterion = "adjacent")
   }))
   ch <- xp$prune$chains
 
@@ -206,14 +249,20 @@ test_that("prune('redundant') reproduces the AMH d4 chain and pins shipped behav
   )
   expect_identical(d4$id[d4$retain], "m10f4")
 
-  # Whole-object regression pin of the shipped redundancy decomposition.
-  expect_equal(sum(xp$prune$nodes$pruned), 36L)
+  # Direct (Forbes-faithful) decomposition -- regression pin.
+  expect_equal(sum(xp$prune$nodes$pruned), 37L)
   expect_setequal(
-    ch$id[ch$retain],
+    unique(ch$id[ch$retain]),
     c(
-      "m1f1", "m3f3", "m4f2", "m5f2", "m7f7",
+      "m1f1", "m4f2", "m5f2", "m7f7",
       "m10f1", "m10f2", "m10f3", "m10f4", "m10f5",
       "m10f6", "m10f7", "m10f8", "m10f9"
     )
   )
+
+  # The adjacent opt-in gives a materially different answer on this deep
+  # hierarchy (it retains m3f3, which chases further under the direct rule).
+  expect_equal(sum(xa$prune$nodes$pruned), 36L)
+  expect_true("m3f3" %in% xa$prune$chains$id[xa$prune$chains$retain])
+  expect_false("m3f3" %in% ch$id[ch$retain])
 })
