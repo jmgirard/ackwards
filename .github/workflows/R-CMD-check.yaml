@@ -2,8 +2,29 @@
 on:
   push:
     branches: [main, master]
+    # Skip the check matrix when a commit touches ONLY these process/meta docs.
+    # All are .Rbuildignore'd, so R CMD check never sees them; a change here
+    # cannot affect the build. Any non-doc file in the same commit still runs
+    # the matrix. (pkgdown.yaml is intentionally NOT filtered -- it renders
+    # these .md files into the site.)
+    paths-ignore:
+      - 'CLAUDE.md'
+      - 'DESIGN.md'
+      - 'MILESTONES.md'
+      - 'ROADMAP.md'
+      - 'cran-comments.md'
+      - 'nested-cv-guide.md'
+      - '.claude/**'
   pull_request:
     branches: [main, master]
+    paths-ignore:
+      - 'CLAUDE.md'
+      - 'DESIGN.md'
+      - 'MILESTONES.md'
+      - 'ROADMAP.md'
+      - 'cran-comments.md'
+      - 'nested-cv-guide.md'
+      - '.claude/**'
 
 name: R-CMD-check.yaml
 

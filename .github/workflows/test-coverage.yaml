@@ -2,8 +2,26 @@
 on:
   push:
     branches: [main, master]
+    # Skip coverage when a commit touches ONLY process/meta docs (all
+    # .Rbuildignore'd; they carry no code, so coverage cannot change).
+    paths-ignore:
+      - 'CLAUDE.md'
+      - 'DESIGN.md'
+      - 'MILESTONES.md'
+      - 'ROADMAP.md'
+      - 'cran-comments.md'
+      - 'nested-cv-guide.md'
+      - '.claude/**'
   pull_request:
     branches: [main, master]
+    paths-ignore:
+      - 'CLAUDE.md'
+      - 'DESIGN.md'
+      - 'MILESTONES.md'
+      - 'ROADMAP.md'
+      - 'cran-comments.md'
+      - 'nested-cv-guide.md'
+      - '.claude/**'
 
 name: test-coverage.yaml
 
