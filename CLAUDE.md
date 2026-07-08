@@ -92,8 +92,12 @@ above) nor to stage future work (that lives in `ROADMAP.md`). When a milestone c
 /implement-milestone reduces this to the line below; when the next is planned, /plan-milestone
 fills it with that milestone's number, phase, and blockers.
 
-- **In flight:** nothing. Last shipped: **M52** (factorability diagnostics; 0.2.0 cycle,
-  DESCRIPTION at `0.1.0.9000`). Detail in `MILESTONES.md`; user-facing notes in `NEWS.md`.
+- **In flight:** nothing. Last numbered milestone: **M52** (factorability diagnostics). Since then,
+  PR #50 (2026-07-08, between-milestone) shipped the package logo/favicons, the version-gated EFA
+  k=1 oracle test, and an EFAtools 0.8.0 compatibility fix for `suggest_k()`'s CD criterion — this
+  is what actually re-opened the post-0.1.0 dev cycle, bumping DESCRIPTION `0.1.0` → `0.1.0.9000`
+  (`0.1.0` was the CRAN-pinned release; the `.9000` note previously here was aspirational). Detail
+  in `MILESTONES.md` ("Between-milestone changes"); user-facing notes in `NEWS.md`.
 - **Next up:** nothing queued. Candidates and the pending owner release-tail are in `ROADMAP.md`;
   deferred design decisions are in DESIGN.md §14 and "Out of scope for now" below.
 
