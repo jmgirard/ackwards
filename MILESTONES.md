@@ -2889,3 +2889,51 @@ if the change is user-visible.
   package fits were never affected (package functions are one constant
   object, and data lives in the key). All six platforms in the matrix
   now green.
+
+- **2026-07-05 — EFA oracle test: auto-activate level 1:2 once psych’s
+  k=1 bug fix ships** (branch `psych-266-efa-oracle`; test-only).
+  `test-efa.R`’s `bassAckward(fm="minres")` oracle skipped the level 1:2
+  comparison because
+  [`psych::bassAckward`](https://rdrr.io/pkg/psych/man/bassAckward.html)
+  mis-standardized any k=1 level — `diag(1/sqrt(rs))` with a scalar `rs`
+  builds a 1×1 identity, dropping the score-variance scaling (the PCA
+  oracle is unaffected: its k=1 score variance is 1, so the missing
+  scaling is a no-op). Our own edge algebra was always correct; only the
+  psych *oracle* was wrong there. Reported upstream; Revelle fixed it in
+  **psych 2.6.6** (`diag(..., nrow = length(rs))`), currently his dev
+  build only — **CRAN still ships the buggy 2.6.5**, so a hard un-skip
+  would break there. Instead the loop lower bound is now
+  `if (packageVersion("psych") >= "2.6.6") 1L else 2L`: green on 2.6.5,
+  and it auto-adds the level 1:2 assertion once a fixed psych is
+  present. Verified both ways (installed 2.6.5 skips 1:2 and passes;
+  psych 2.6.6 in a temp lib compares 1:2 and matches to ~8e-16). No `R/`
+  or DESCRIPTION change (no psych version floor added — 2.6.6 is not yet
+  on CRAN).
+
+- **2026-07-08 — EFAtools 0.8.0 compatibility: restore the CD criterion
+  in
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)**
+  ([\#50](https://github.com/jmgirard/ackwards/pull/50); folded into the
+  logo/EFA-oracle PR). **EFAtools 0.8.0** (new CRAN release, 2026-07 —
+  master was green on 0.7.1) restructured `CD()`’s return value: the
+  top-level `RMSE_eigenvalues` field is gone and the per-iteration RMSE
+  matrix now lives at `results[[1]]$rmse_eigenvalues` (`n_factors` stays
+  top-level). Our extractor at `R/suggest_k.R` read the old field, so
+  `cd_rmse` came back empty on any current install —
+  [`which.min()`](https://rdrr.io/r/base/which.min.html) returned
+  `integer(0)` (erroring the trailing-zero-mask test) and the CD
+  [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+  panel vanished; three `test-suggest_k.R` tests failed on CI while
+  local (0.7.1) stayed green. **Fix:** fall back to
+  `results[[1]]$rmse_eigenvalues` when the top-level field is `NULL`
+  (`cd_out$RMSE_eigenvalues %||% cd_out$results[[1]]$rmse_eigenvalues`).
+  That value is the same `n_iter × k` matrix, so the existing
+  [`colMeans()`](https://rdrr.io/r/base/colSums.html) + tail-mask path
+  is unchanged and all three EFAtools output shapes (\< 0.4.4 matrix,
+  0.4.4–0.7.x vector, ≥ 0.8.0 nested) are handled;
+  `colMeans(results[[1]]$rmse_eigenvalues)` verified identical to the
+  new `results[[1]]$y` to machine precision. No test changes needed (the
+  existing CD tests now pass against 0.8.0). Suite **2058 pass / 0
+  fail** under EFAtools 0.8.0. Files: `R/suggest_k.R`, `NEWS.md`,
+  `DESCRIPTION` (version → `0.1.0.9000`, re-opening the post-0.1.0 dev
+  cycle).

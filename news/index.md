@@ -1,5 +1,17 @@
 # Changelog
 
+## ackwards (development version)
+
+- [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+  now reads Comparison Data (CD) results from **EFAtools \>= 0.8.0**,
+  which restructured `CD()`’s return value (the per-iteration RMSE
+  matrix moved from the top-level `RMSE_eigenvalues` field into
+  `results[[1]]$rmse_eigenvalues`). Without this, the CD criterion and
+  its
+  [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
+  panel silently dropped out when a current EFAtools was installed.
+  Older EFAtools versions still work.
+
 ## ackwards 0.1.0
 
 First public release. `ackwards` implements Goldberg’s (2006)
