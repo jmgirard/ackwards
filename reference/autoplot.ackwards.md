@@ -343,7 +343,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
     edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
   )
 }
-#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 7 nodes.
+#> ℹ Redundancy pruning (direct criterion, |r| ≥ 0.9) flagged 7 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
 

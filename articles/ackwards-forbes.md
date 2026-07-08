@@ -113,11 +113,20 @@ they repeat rather than refine the same dimension. A chain that stops
 *short* of the deepest level instead keeps its **top** node, the
 broadest manifestation (Forbes, 2023).
 
+By default (`redundancy_criterion = "direct"`) a factor is joined to an
+ancestor when their score correlation is high **directly** — the rule
+Forbes’s own code uses, and the honest reading of “the same construct”
+(the two factors share ≥ 81% of their variance directly). Because
+correlation is non-transitive, this can differ from following one
+high-correlation hop at a time in deep hierarchies;
+`redundancy_criterion = "adjacent"` selects that older, adjacent-hop
+behavior. On a shallow hierarchy like this one the two agree.
+
 ``` r
 
 x_prune <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all") |>
   prune("redundant")
-#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
+#> ℹ Redundancy pruning (direct criterion, |r| ≥ 0.9) flagged 6 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
 ```
@@ -401,16 +410,16 @@ counts <- sapply(thresholds, function(thr) {
   x <- prune(x_all, "redundant", redundancy_r = thr)
   sum(tidy(x, what = "nodes")$pruned)
 })
-#> ℹ Redundancy pruning (|r| ≥ 0.8) flagged 9 nodes.
+#> ℹ Redundancy pruning (direct criterion, |r| ≥ 0.8) flagged 9 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
-#> ℹ Redundancy pruning (|r| ≥ 0.85) flagged 8 nodes.
+#> ℹ Redundancy pruning (direct criterion, |r| ≥ 0.85) flagged 8 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
-#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
+#> ℹ Redundancy pruning (direct criterion, |r| ≥ 0.9) flagged 6 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
-#> ℹ Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.
+#> ℹ Redundancy pruning (direct criterion, |r| ≥ 0.95) flagged 6 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
 thr_df <- data.frame(redundancy_r = thresholds, n_flagged = counts)

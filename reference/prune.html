@@ -99,6 +99,7 @@ packages (e.g. <code><a href="https://rdrr.io/pkg/rpart/man/prune.rpart.html" cl
 <span>  manual <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  redundancy_r <span class="op">=</span> <span class="fl">0.9</span>,</span>
 <span>  redundancy_phi <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  redundancy_criterion <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"direct"</span>, <span class="st">"adjacent"</span><span class="op">)</span>,</span>
 <span>  min_items <span class="op">=</span> <span class="fl">3L</span>,</span>
 <span>  orphan_r <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -120,8 +121,9 @@ packages (e.g. <code><a href="https://rdrr.io/pkg/rpart/man/prune.rpart.html" cl
 <dt id="arg-rules">rules<a class="anchor" aria-label="anchor" href="#arg-rules"></a></dt>
 <dd><p>Character vector controlling which auto-rules run. Default
 <code>"none"</code> (no auto rule; combine with <code>manual</code> for pure manual pruning, or
-call <code>prune(x)</code> with no arguments to clear any existing pruning). Options:</p><ul><li><p><code>"redundant"</code> – identify chains of factors connected by primary-parent
-links with <code>|r| &gt;= redundancy_r</code> (and optionally <code>phi &gt; redundancy_phi</code>).
+call <code>prune(x)</code> with no arguments to clear any existing pruning). Options:</p><ul><li><p><code>"redundant"</code> – identify chains of factors connected by score
+correlations <code>|r| &gt;= redundancy_r</code> (and optionally <code>phi &gt; redundancy_phi</code>),
+using <code>redundancy_criterion</code> (default <code>"direct"</code>, faithful to Forbes).
 Applies Forbes's (2023) retention rule: keep the bottom node when the
 chain reaches level <code>k_max</code> (most specific); keep the top node otherwise.
 Flagged nodes get <code>pruned = TRUE</code> and <code>prune_reason = "redundant"</code> in
@@ -145,8 +147,8 @@ labels error. A node already flagged by an auto rule keeps that
 
 
 <dt id="arg-redundancy-r">redundancy_r<a class="anchor" aria-label="anchor" href="#arg-redundancy-r"></a></dt>
-<dd><p>Scalar in <code>(0, 1]</code>. Adjacent primary-parent <code>|r|</code>
-threshold for redundancy chains. Default <code>0.9</code> (Forbes, 2023).</p></dd>
+<dd><p>Scalar in <code>(0, 1]</code>. Score-correlation <code>|r|</code> threshold for
+redundancy chains. Default <code>0.9</code> (Forbes, 2023).</p></dd>
 
 
 <dt id="arg-redundancy-phi">redundancy_phi<a class="anchor" aria-label="anchor" href="#arg-redundancy-phi"></a></dt>
@@ -162,6 +164,21 @@ means <code>|r|</code>-alone is liberal; the conjunctive phi criterion is the
 conservative default. A cli message announces the resolved value.
 Pass <code>NA</code> to disable phi filtering regardless of engine. Pass a numeric
 value to override on any engine.</p></li>
+</ul></dd>
+
+
+<dt id="arg-redundancy-criterion">redundancy_criterion<a class="anchor" aria-label="anchor" href="#arg-redundancy-criterion"></a></dt>
+<dd><p>How redundancy chains are traced. One of:</p><ul><li><p><code>"direct"</code> (default) – chase upward via the <strong>direct (skip-level)</strong>
+correlation between a factor and each ancestor level, continuing while
+<code>|r| &gt;= redundancy_r</code> contiguously. This is Forbes's (2023) published
+<code>ChaseCorrPaths</code> rule and the honest operationalization of "the same
+construct" (two factor scores share <code>&gt;= redundancy_r^2</code> variance
+<em>directly</em>). It reproduces her AMH applied example exactly.</p></li>
+<li><p><code>"adjacent"</code> – trace <strong>adjacent primary-parent</strong> links only (each
+consecutive level <code>|r| &gt;= redundancy_r</code>). This was the pre-M53 default;
+because correlation is non-transitive it can both over- and under-flag
+versus <code>"direct"</code> in deep (many-level) hierarchies, so it is retained only
+as an opt-in. On shallow/transitive hierarchies the two agree.</p></li>
 </ul></dd>
 
 
@@ -212,7 +229,7 @@ coefficient as a meaningful index of factor similarity.
 <span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">sim16</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">xp</span> <span class="op">&lt;-</span> <span class="fu">prune</span><span class="op">(</span><span class="va">x</span>, <span class="st">"redundant"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 7 nodes.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (direct criterion, |r| ≥ 0.9) flagged 7 nodes.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   `x$prune$chains`.</span>
 <span class="r-in"><span><span class="va">xp</span><span class="op">$</span><span class="va">prune</span><span class="op">$</span><span class="va">nodes</span></span></span>
@@ -235,7 +252,7 @@ coefficient as a meaningful index of factor similarity.
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Re-prune with a new threshold -- no re-extraction needed</span></span></span>
 <span class="r-in"><span><span class="fu">prune</span><span class="op">(</span><span class="va">x</span>, <span class="st">"redundant"</span>, redundancy_r <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (direct criterion, |r| ≥ 0.95) flagged 6 nodes.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   `x$prune$chains`.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -304,7 +321,7 @@ coefficient as a meaningful index of factor similarity.
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span>
 <span class="r-in"><span><span class="fu">prune</span><span class="op">(</span><span class="va">x</span>, <span class="st">"redundant"</span>, manual <span class="op">=</span> <span class="st">"m4f2"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (|r| ≥ 0.9) flagged 7 nodes.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (direct criterion, |r| ≥ 0.9) flagged 7 nodes.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   `x$prune$chains`.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>

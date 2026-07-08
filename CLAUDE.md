@@ -20,13 +20,20 @@ defaults are in `DESIGN.md`.
 extended bass-ackwards approach. Fidelity to the paper’s algorithm is
 the baseline contract for anything Forbes-related; additive enrichments
 are acceptable but the default output must reproduce Forbes’s examples
-exactly. **This contract is test-backed** (M44):
+exactly. **This contract is test-backed** (M44 + M53):
 `tests/testthat/test-forbes-fidelity.R` reproduces the paper’s three
-simulation studies against expected values computed with Forbes’s own
-reference implementation (OSF `pcwm8`; provenance in the fixture), and
-the M44 feasibility study additionally verified the 155-variable AMH
-applied example to 3.9e-14 (not committed as a test — the AMH matrix
-carries no OSF license; see `ROADMAP.md` unscheduled items).
+simulation studies *and* her 155-variable AMH applied example
+(`k_max = 10`) against expected values computed with Forbes’s own
+reference implementation (OSF `pcwm8`; provenance in each fixture). AMH
+matched to 1.3e-14 across all 45 level-pairs. The AMH matrix ships as a
+CC-BY fixture (M53 — Forbes licensed it CC-BY 4.0; declared in
+`LICENSE.note`). M53 also reproduced her redundancy chase exactly (54/54
+components): her `ChaseCorrPaths()` uses the **direct/skip-level**
+correlation to each ancestor level, which `prune("redundant")` now
+adopts as its default (`redundancy_criterion = "direct"`) — the pre-M53
+adjacent-hop walk diverged on 7/54 AMH components because correlation is
+non-transitive (they agree on the shallow simulations). See M53 in
+`MILESTONES.md`.
 
 ## Completed milestones
 
@@ -158,6 +165,8 @@ as part of the definition of done, and only a one-liner here.
   ([`factorability()`](https://jmgirard.github.io/ackwards/reference/factorability.md) +
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
   Ledermann/adequacy screen)
+- **M53** — AMH applied-example fidelity (CC-BY `forbes2023_amh.rds`
+  fixture + `test-forbes-fidelity.R` AMH block)
 
 ## Current focus
 
@@ -169,17 +178,10 @@ completes, /implement-milestone reduces this to the line below; when the
 next is planned, /plan-milestone fills it with that milestone’s number,
 phase, and blockers.
 
-- **In flight:** nothing. Last numbered milestone: **M52**
-  (factorability diagnostics). Since then, PR \#50 (2026-07-08,
-  between-milestone) shipped the package logo/favicons, the
-  version-gated EFA k=1 oracle test, and an EFAtools 0.8.0 compatibility
-  fix for
-  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)’s
-  CD criterion — this is what actually re-opened the post-0.1.0 dev
-  cycle, bumping DESCRIPTION `0.1.0` → `0.1.0.9000` (`0.1.0` was the
-  CRAN-pinned release; the `.9000` note previously here was
-  aspirational). Detail in `MILESTONES.md` (“Between-milestone
-  changes”); user-facing notes in `NEWS.md`.
+- **In flight:** nothing. Last numbered milestone: **M53** (AMH
+  applied-example fidelity — the now-CC-BY 155-variable AMH matrix
+  committed as `forbes2023_amh.rds` + an AMH block in
+  `test-forbes-fidelity.R`). Detail in `MILESTONES.md`.
 - **Next up:** nothing queued. Candidates and the pending owner
   release-tail are in `ROADMAP.md`; deferred design decisions are in
   DESIGN.md §14 and “Out of scope for now” below.
@@ -225,8 +227,11 @@ required · sign `align_signs = TRUE` · `keep_scores`/`keep_fits` stored
 no φ filter (component scores are determinate, so `|r|` is the true
 between-component correlation); `"efa"`/`"esem"` → `0.95` (Lorenzo-Seva
 & ten Berge 2006; factor-score indeterminacy makes `|r|`-only liberal).
-`NA` is the explicit opt-out. Announce auto-resolve loudly (Invariant
-6). Don’t change these silently.
+`NA` is the explicit opt-out. · `redundancy_criterion = "direct"` (M53)
+— `prune("redundant")` traces chains by the **direct/skip-level**
+correlation to each ancestor level (Forbes’s actual `ChaseCorrPaths`);
+`"adjacent"` (pre-M53 adjacent-hop) is a retained opt-in. Announce
+auto-resolve loudly (Invariant 6). Don’t change these silently.
 
 ## Dependencies (see `DESIGN.md` §12)
 

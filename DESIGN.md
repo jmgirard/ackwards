@@ -673,16 +673,29 @@ retention rule = keep the bottom node if the chain reaches level k
 (most-specific, best-defined), else keep the topmost node (broadest
 manifestation). Tucker’s φ (`> .95`, Lorenzo-Seva & ten Berge 2006)
 computed on aligned loadings as an **optional conjunctive** criterion. φ
-formula `Σaᵢbᵢ / sqrt(Σaᵢ² · Σbᵢ²)`; base R, no new dependency. 20.
-**Additive enrichments over the paper** (default output still matches
-Forbes’s examples): always *report* both `r` and `φ` for every
-redundancy candidate (report-first, flag-second — borderline cases like
-the paper’s own `.89`/`.93` alcohol component stay visible); report
-endpoint `r` (direct, from all-levels edges) alongside the chain and
-flag where they disagree (correlation is non-transitive: a clean
-adjacent chain neither implies nor is implied by endpoint identity — the
-chain answers “perpetuates at every level,” endpoint `r` answers “same
-construct”). 21. Artifact → **never auto-flagged.**
+formula `Σaᵢbᵢ / sqrt(Σaᵢ² · Σbᵢ²)`; base R, no new dependency. - **M53
+amendment — `redundancy_criterion` (default `"direct"`).** The “chain”
+is now traced by Forbes’s actual `ChaseCorrPaths` rule: chase upward via
+the **direct (skip-level)** correlation between a factor and each
+ancestor level, contiguously while `|r| ≥ redundancy_r`. The pre-M53
+implementation used **adjacent** primary-parent links only; the M41 “Σr²
+≤ 1 ⟹ adjacent ≡ direct” argument holds on shallow/transitive
+hierarchies (all three simulations agree) but **fails under
+non-transitivity** in deep ones — on Forbes’s 10-level AMH applied
+example the two diverge on 7 of 54 components. Direct is the honest
+operationalization of “same construct” (two scores share
+`≥ redundancy_r²` variance *directly*) and reproduces her published AMH
+chase exactly (M53, test-backed). `"adjacent"` is retained as an opt-in.
+This supersedes the implicit adjacent-chain assumption in items 19–20.
+20. **Additive enrichments over the paper**: always *report* both `r`
+and `φ` for every redundancy candidate (report-first, flag-second —
+borderline cases like the paper’s own `.89`/`.93` alcohol component stay
+visible); report endpoint `r` (direct root-to-leaf, from all-levels
+edges) alongside the chain as an at-a-glance cross-check. **(M53:** with
+the direct criterion now the default, the earlier “chain (perpetuates at
+every level) vs endpoint `r` (same construct)” framing describes the
+*adjacent* opt-in specifically; under `"direct"` the chain *is* the
+same-construct criterion.**)** 21. Artifact → **never auto-flagged.**
 `prune(x, "artifact")` surfaces φ for inspection; removal is a
 documented researcher judgment (Forbes is explicit this introduces
 researcher DoF / confirmation bias; cf. Wicherts et al. 2016).

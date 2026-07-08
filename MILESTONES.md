@@ -2759,6 +2759,77 @@ User-facing change notes live in `NEWS.md`.
     styler/lintr/[`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
     clean.
 
+- **M53 (done):** AMH applied-example fidelity extension (owner-approved
+  2026-07-08) — reactivated the M44 unscheduled item once the owner
+  confirmed Forbes had licensed her materials **CC-BY 4.0**. Upgrades
+  the CLAUDE.md “reproduce Forbes’s examples exactly” contract from
+  *test-backed on the simulations only* to *test-backed on the published
+  applied example* — the case Forbes’s footnote 3 actually points at.
+  **De-risk spike first.** Confirmed the OSF `pcwm8` download still
+  resolves (API-verified guids: `s9bjz` = `corSpearman_AMH.csv`, `7jfkw`
+  = her `ExtendedBassAckwards` reference impl; project license = CC-By
+  Attribution 4.0 International) and the M44 head-to-head reproduces:
+  all 45 level-pairs’ `|edges|` match her reference to **1.3e-14**
+  (tighter than M44’s reported 3.9e-14), congruence max deviation
+  **0.0049955** (\< her 2-dp rounding bound of 0.005). **Shipped.**
+  `data-raw/forbes2023_amh.R` (Rbuildignored, reproducible) downloads
+  the CC-BY matrix
+
+  - her functions from OSF and precomputes expected `comp_corr`/`cong`
+    with her own code, writing
+    `tests/testthat/fixtures/forbes2023_amh.rds` (117 KB, xz; provenance
+    attribute records source URLs/guids, CC-BY license, Forbes citation,
+    R/psych versions). New AMH block in `test-forbes-fidelity.R` (~150
+    AMH assertions): 45 pairs `|edges|` ≡ Forbes @1e-12; `|φ|` within
+    her 2-dp rounding; her redundancy chase reproduced for **all 54
+    components**; the paper’s `d4` chain as `m4f4→…→m10f4`; and a
+    regression pin on the shipped `prune("redundant")` decomposition
+    (direct: 37/55 pruned, 13 retained). No vendored Forbes code and no
+    network at test time — only
+    [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+    runs. `LICENSE.note` declares the CC-BY fixture inside the MIT
+    package (a `LICENSE.note`/`LICENCE.note` is a WRE-recognized
+    top-level filename, so it ships and does not trip `R CMD check`).
+    **The redundancy-criterion correction (owner-driven, and the reason
+    M53 grew a code change).** M53 originally read the 7/54 AMH chase
+    divergences as “off-by-one artifacts” in her `ChaseCorrPaths()`. The
+    owner pushed back — *could the difference be her actual method?* —
+    and it was: traced explicitly, her chase uses the
+    **direct/skip-level** correlation to a component at each ancestor
+    level (reproducible from our all-levels edges for **54/54**
+    components), whereas our `prune("redundant")` had used an **adjacent
+    primary-parent** walk. The two coincide on shallow/transitive
+    hierarchies (all three simulations, and the M41 “Σr² ≤ 1” argument)
+    but diverge under non-transitivity in deep ones: our adjacent walk
+    **over-reached** (`c1→a1` via two ≥.9 hops though `c1↔︎a1` directly
+    is `.879`) and **under-reached** (missing `h7↔︎d3` at `.903` because
+    the adjacent hop `e5→d3` is `.899`). On the merits the direct
+    criterion is the honest read of “same construct” (direct shared
+    variance ≥ `redundancy_r²`) and it is the published method, so —
+    owner decision 2026-07-08, *“if hers is better/equal we adopt it;
+    only keep ours if ours is better”* —
+    [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+    gained **`redundancy_criterion = c("direct", "adjacent")`, default
+    `"direct"`**. Direct is a new strong-link builder
+    (`.strong_links_direct`) feeding the unchanged chain/retention
+    machinery; the old adjacent builder is retained as the opt-in.
+    Default-behavior change, but only observable on deep hierarchies
+    (shallow results, incl. `sim16` and every existing test, are
+    unchanged). Supersedes DESIGN §14.19–14.20’s implicit adjacent-chain
+    assumption. **Bookkeeping.** CLAUDE.md “What this is” +
+    resolved-defaults updated; DESIGN §14.19–14.20 M53 amendment; NEWS
+    gains a behavior-change bullet + validation entry; forbes vignette
+    prose + the `criterion`-labelled cli message re-precomputed; ROADMAP
+    AMH item closed. No new/removed export (`redundancy_criterion` is a
+    new arg, not a new object); no dependency change; `_pkgdown.yml`
+    untouched. **Verified.** `Rscript tools/dod-gate.R` green:
+    `R CMD check` **0/0/0** (vignettes rebuilt), coverage **100%**,
+    styler/lintr clean,
+    [`pkgdown::check_pkgdown()`](https://pkgdown.r-lib.org/reference/check_pkgdown.html)
+    clean. `test-forbes-fidelity.R` now 217 assertions (65 sims + 152
+    AMH: 45 edge-pairs, congruence, 54/54 chase, d4 chain,
+    direct-vs-adjacent prune pins); fixture `forbes2023_amh.rds` 117 KB.
+
 ## Between-milestone changes (not milestone-numbered)
 
 Merged PRs that touch `R/`/`tests/`/`DESCRIPTION`/vignettes but are

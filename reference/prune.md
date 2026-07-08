@@ -30,6 +30,7 @@ prune(
   manual = NULL,
   redundancy_r = 0.9,
   redundancy_phi = NULL,
+  redundancy_criterion = c("direct", "adjacent"),
   min_items = 3L,
   orphan_r = 0.5,
   ...
@@ -52,11 +53,12 @@ prune(
   (no auto rule; combine with `manual` for pure manual pruning, or call
   `prune(x)` with no arguments to clear any existing pruning). Options:
 
-  - `"redundant"` – identify chains of factors connected by
-    primary-parent links with `|r| >= redundancy_r` (and optionally
-    `phi > redundancy_phi`). Applies Forbes's (2023) retention rule:
-    keep the bottom node when the chain reaches level `k_max` (most
-    specific); keep the top node otherwise. Flagged nodes get
+  - `"redundant"` – identify chains of factors connected by score
+    correlations `|r| >= redundancy_r` (and optionally
+    `phi > redundancy_phi`), using `redundancy_criterion` (default
+    `"direct"`, faithful to Forbes). Applies Forbes's (2023) retention
+    rule: keep the bottom node when the chain reaches level `k_max`
+    (most specific); keep the top node otherwise. Flagged nodes get
     `pruned = TRUE` and `prune_reason = "redundant"` in `x$prune$nodes`.
 
   - `"artifact"` (or the alias `"artefact"`, normalized to `"artifact"`)
@@ -77,8 +79,8 @@ prune(
 
 - redundancy_r:
 
-  Scalar in `(0, 1]`. Adjacent primary-parent `|r|` threshold for
-  redundancy chains. Default `0.9` (Forbes, 2023).
+  Scalar in `(0, 1]`. Score-correlation `|r|` threshold for redundancy
+  chains. Default `0.9` (Forbes, 2023).
 
 - redundancy_phi:
 
@@ -97,6 +99,24 @@ prune(
     conservative default. A cli message announces the resolved value.
     Pass `NA` to disable phi filtering regardless of engine. Pass a
     numeric value to override on any engine.
+
+- redundancy_criterion:
+
+  How redundancy chains are traced. One of:
+
+  - `"direct"` (default) – chase upward via the **direct (skip-level)**
+    correlation between a factor and each ancestor level, continuing
+    while `|r| >= redundancy_r` contiguously. This is Forbes's (2023)
+    published `ChaseCorrPaths` rule and the honest operationalization of
+    "the same construct" (two factor scores share `>= redundancy_r^2`
+    variance *directly*). It reproduces her AMH applied example exactly.
+
+  - `"adjacent"` – trace **adjacent primary-parent** links only (each
+    consecutive level `|r| >= redundancy_r`). This was the pre-M53
+    default; because correlation is non-transitive it can both over- and
+    under-flag versus `"direct"` in deep (many-level) hierarchies, so it
+    is retained only as an opt-in. On shallow/transitive hierarchies the
+    two agree.
 
 - min_items:
 
@@ -151,7 +171,7 @@ coefficient as a meaningful index of factor similarity. *Methodology*,
 x <- ackwards(sim16, k_max = 5)
 
 xp <- prune(x, "redundant")
-#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 7 nodes.
+#> ℹ Redundancy pruning (direct criterion, |r| ≥ 0.9) flagged 7 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
 xp$prune$nodes
@@ -174,7 +194,7 @@ xp$prune$nodes
 
 # Re-prune with a new threshold -- no re-extraction needed
 prune(x, "redundant", redundancy_r = 0.95)
-#> ℹ Redundancy pruning (|r| ≥ 0.95) flagged 6 nodes.
+#> ℹ Redundancy pruning (direct criterion, |r| ≥ 0.95) flagged 6 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
 #> 
@@ -243,7 +263,7 @@ prune(x, manual = "m4f2")
 #> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
 #> they do not validate the edges or the hierarchy itself.
 prune(x, "redundant", manual = "m4f2")
-#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 7 nodes.
+#> ℹ Redundancy pruning (direct criterion, |r| ≥ 0.9) flagged 7 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
 #> 
