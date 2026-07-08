@@ -119,6 +119,18 @@ without re-running \code{\link[=ackwards]{ackwards()}}:
 with the \code{prune} generics already defined by recursive-partitioning
 packages (e.g. \code{rpart::prune}) regardless of package load order.
 }
+\details{
+\strong{Reading \code{x$prune$chains} under \code{redundancy_criterion = "direct"}.} The
+\code{r_to_prev} and \code{phi_to_prev} columns report the \strong{adjacent-level}
+correlation and congruence between consecutive chain members (for continuity
+of display), but chain \emph{membership} is decided by the \strong{direct (skip-level)}
+correlation to the chain's deepest factor. A direct chain can therefore
+legitimately contain a link whose \code{r_to_prev} is \emph{below} \code{redundancy_r} -- the
+stronger direct link is what justified it. The \code{endpoint_r} column gives the
+direct root-to-leaf correlation as an at-a-glance cross-check. Under
+\code{redundancy_criterion = "adjacent"}, \code{r_to_prev} \emph{is} the criterion and always
+meets \code{redundancy_r}.
+}
 \examples{
 # sim16 has a planted redundant chain + overextraction artifact at k = 5,
 # so the prune rules always have a finding to show (and no ordinal warning).

@@ -94,8 +94,9 @@ print.ackwards <- function(x, ...) {
       } else {
         ""
       }
+      crit <- x$prune$redundancy_criterion
       cli::cli_text(
-        "  Redundancy (|r| {cli::symbol$geq} {r_thr}{phi_note}): \\
+        "  Redundancy ({crit}, |r| {cli::symbol$geq} {r_thr}{phi_note}): \\
          {n_flagged} node{?s} flagged"
       )
     }

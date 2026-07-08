@@ -87,7 +87,7 @@ and only a one-liner here.
 - **M50** — Release polish (`bfi25` IPIP labels, cli consistency, `suggest_k` ordinal warning)
 - **M51** — Factor-label pipeline (`set_factor_labels()`/`factor_labels()`; `meta$factor_labels`)
 - **M52** — Factorability diagnostics (`factorability()` + `ackwards()` Ledermann/adequacy screen)
-- **M53** — AMH applied-example fidelity (CC-BY `forbes2023_amh.rds` fixture + `test-forbes-fidelity.R` AMH block)
+- **M53** — AMH applied-example fidelity (CC-BY `forbes2023_amh.rds` fixture) + Forbes direct redundancy criterion (`prune(redundancy_criterion=)`)
 
 ## Current focus
 
