@@ -208,6 +208,19 @@ structural outlier worth inspecting.</p></dd>
     <p><code>x</code>, with <code>$prune</code> populated (replacing any prior pruning).</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p><strong>Reading <code>x$prune$chains</code> under <code>redundancy_criterion = "direct"</code>.</strong> The
+<code>r_to_prev</code> and <code>phi_to_prev</code> columns report the <strong>adjacent-level</strong>
+correlation and congruence between consecutive chain members (for continuity
+of display), but chain <em>membership</em> is decided by the <strong>direct (skip-level)</strong>
+correlation to the chain's deepest factor. A direct chain can therefore
+legitimately contain a link whose <code>r_to_prev</code> is <em>below</em> <code>redundancy_r</code> – the
+stronger direct link is what justified it. The <code>endpoint_r</code> column gives the
+direct root-to-leaf correlation as an at-a-glance cross-check. Under
+<code>redundancy_criterion = "adjacent"</code>, <code>r_to_prev</code> <em>is</em> the criterion and always
+meets <code>redundancy_r</code>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg's bass-ackward method.
@@ -277,7 +290,7 @@ coefficient as a meaningful index of factor similarity.
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Pruning</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Redundancy (|r| ≥ 0.95): 6 nodes flagged</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Redundancy (direct, |r| ≥ 0.95): 6 nodes flagged</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: Pruning is interpretive relabeling, not re-estimation. Flagged nodes</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">remain in the object; all edges are preserved. Inspect with `x$prune$nodes` and</span></span>
@@ -346,7 +359,7 @@ coefficient as a meaningful index of factor similarity.
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Pruning</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Redundancy (|r| ≥ 0.9): 7 nodes flagged</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Redundancy (direct, |r| ≥ 0.9): 7 nodes flagged</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Manual: 1 node explicitly flagged (m4f2)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Note: Pruning is interpretive relabeling, not re-estimation. Flagged nodes</span></span>

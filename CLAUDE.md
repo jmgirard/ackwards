@@ -166,7 +166,8 @@ as part of the definition of done, and only a one-liner here.
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
   Ledermann/adequacy screen)
 - **M53** — AMH applied-example fidelity (CC-BY `forbes2023_amh.rds`
-  fixture + `test-forbes-fidelity.R` AMH block)
+  fixture) + Forbes direct redundancy criterion
+  (`prune(redundancy_criterion=)`)
 
 ## Current focus
 

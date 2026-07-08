@@ -143,6 +143,19 @@ prune(
 
 `x`, with `$prune` populated (replacing any prior pruning).
 
+## Details
+
+**Reading `x$prune$chains` under `redundancy_criterion = "direct"`.**
+The `r_to_prev` and `phi_to_prev` columns report the **adjacent-level**
+correlation and congruence between consecutive chain members (for
+continuity of display), but chain *membership* is decided by the
+**direct (skip-level)** correlation to the chain's deepest factor. A
+direct chain can therefore legitimately contain a link whose `r_to_prev`
+is *below* `redundancy_r` – the stronger direct link is what justified
+it. The `endpoint_r` column gives the direct root-to-leaf correlation as
+an at-a-glance cross-check. Under `redundancy_criterion = "adjacent"`,
+`r_to_prev` *is* the criterion and always meets `redundancy_r`.
+
 ## References
 
 Forbes, M. K. (2023). Improving hierarchical models of individual
@@ -219,7 +232,7 @@ prune(x, "redundant", redundancy_r = 0.95)
 #> 
 #> ── Pruning ──
 #> 
-#> Redundancy (|r| ≥ 0.95): 6 nodes flagged
+#> Redundancy (direct, |r| ≥ 0.95): 6 nodes flagged
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: Pruning is interpretive relabeling, not re-estimation. Flagged nodes
 #> remain in the object; all edges are preserved. Inspect with `x$prune$nodes` and
@@ -288,7 +301,7 @@ prune(x, "redundant", manual = "m4f2")
 #> 
 #> ── Pruning ──
 #> 
-#> Redundancy (|r| ≥ 0.9): 7 nodes flagged
+#> Redundancy (direct, |r| ≥ 0.9): 7 nodes flagged
 #> Manual: 1 node explicitly flagged (m4f2)
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: Pruning is interpretive relabeling, not re-estimation. Flagged nodes
