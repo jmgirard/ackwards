@@ -1745,7 +1745,10 @@ and `CLAUDE.md`'s "Out of scope" list. User-facing change notes live in `NEWS.md
   `criterion`-labelled cli message re-precomputed; ROADMAP AMH item closed. No new/removed export
   (`redundancy_criterion` is a new arg, not a new object); no dependency change; `_pkgdown.yml`
   untouched.
-  **Verified.** [filled at DoD gate]
+  **Verified.** `Rscript tools/dod-gate.R` green: `R CMD check` **0/0/0** (vignettes rebuilt),
+  coverage **100%**, styler/lintr clean, `pkgdown::check_pkgdown()` clean. `test-forbes-fidelity.R`
+  now 217 assertions (65 sims + 152 AMH: 45 edge-pairs, congruence, 54/54 chase, d4 chain,
+  direct-vs-adjacent prune pins); fixture `forbes2023_amh.rds` 117 KB.
 
 ## Between-milestone changes (not milestone-numbered)
 
