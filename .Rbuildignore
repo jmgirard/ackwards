@@ -15,6 +15,7 @@
 ^docs$
 ^\.github$
 ^pkgdown$
+^logo$
 ^data-raw$
 ^tools$
 ^nested-cv-guide\.md$

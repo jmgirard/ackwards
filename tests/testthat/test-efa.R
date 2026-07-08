@@ -229,11 +229,17 @@ test_that("EFA edge correlations match psych::bassAckward(fm='minres') within to
   )
   x <- cached(ackwards(d, k_max = 4L, engine = "efa", fm = "minres"))
 
-  # Skip i=1 (level 1:2): psych::bassAckward has a diag(scalar) bug that silently
-  # skips score-variance standardization when a k=1 level is involved — the call
-  # diag(1/sqrt(rs)) with scalar rs creates a 1×1 identity rather than the intended
-  # 1×1 diagonal. Levels 2:3 and 3:4 agree to machine precision; 1:2 does not.
-  for (i in 2:3) {
+  # psych::bassAckward mis-standardized any k=1 level: diag(1/sqrt(rs)) with a
+  # scalar rs builds a 1×1 *identity* (dropping the scale factor), not the
+  # intended 1×1 diagonal, so its level 1:2 edge was left unstandardized. (The
+  # PCA oracle in test-pca.R is unaffected — its k=1 score variance is 1, so the
+  # missing scaling is a no-op.) We reported this; Revelle fixed it in psych
+  # 2.6.6 (diag(..., nrow = length(rs))). We verified that under 2.6.6 level 1:2
+  # then agrees to ~8e-16, like 2:3 and 3:4. So compare 1:2 only when a fixed
+  # psych is installed: this stays green on the still-buggy CRAN 2.6.5 and
+  # auto-activates full k=1 coverage once psych >= 2.6.6 reaches the user/CRAN.
+  lo <- if (utils::packageVersion("psych") >= "2.6.6") 1L else 2L
+  for (i in lo:3) {
     psych_mat <- t(ba$bass.ack[[i + 1L]])
     our_mat <- x$edges$matrices[[paste0(i, ":", i + 1L)]]
     max_diff <- max(abs(abs(psych_mat) - abs(our_mat)))

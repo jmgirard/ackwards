@@ -454,8 +454,11 @@ suggest_k <- function(data, k_max = NULL,
     if (!is.null(cd_out)) {
       k_cd <- min(as.integer(cd_out$n_factors), k_max)
       # EFAtools >= 0.4.4 returns RMSE_eigenvalues as a pre-averaged vector;
-      # older versions return a matrix (n_iter x k). Handle both.
-      rmse_raw <- cd_out$RMSE_eigenvalues
+      # older versions return a matrix (n_iter x k). EFAtools >= 0.8.0 dropped
+      # the top-level field entirely and moved the per-iteration matrix to
+      # results[[1]]$rmse_eigenvalues (colMeans of which equals the old vector).
+      # Handle all three; n_factors is still top-level across versions.
+      rmse_raw <- cd_out$RMSE_eigenvalues %||% cd_out$results[[1]]$rmse_eigenvalues
       cd_rmse <- if (length(dim(rmse_raw)) >= 2L) {
         colMeans(rmse_raw)[seq_len(k_max)]
       } else { # nocov start
