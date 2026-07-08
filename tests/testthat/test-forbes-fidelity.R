@@ -124,3 +124,96 @@ test_that("prune('redundant') flags Forbes's Simulation 1 chains with her retent
   ch <- xp$prune$chains
   expect_setequal(ch$id[ch$retain], c("m2f2", "m4f1", "m4f2"))
 })
+
+# ---------------------------------------------------------------------------
+# AMH applied example (M53).
+#
+# Forbes's 155-variable "Assessing Mental Health" applied example, k = 10 (OSF
+# pcwm8, CC-BY 4.0). fixtures/forbes2023_amh.rds holds the published Spearman
+# matrix plus expected comp_corr/cong computed with HER reference implementation
+# (see data-raw/forbes2023_amh.R and attr(fixture, "provenance")). As with the
+# simulations, only ackwards() runs here; no Forbes code or network at test time.
+#
+# Scope note on the redundancy chase: we reproduce Forbes's *numerical* method
+# exactly (edges to 1e-12, congruence within her 2-dp rounding). We do NOT
+# bit-match her ChaseCorrPaths() output here, because on this 10-level hierarchy
+# her hand-rolled level-counter has off-by-one artifacts on 7 of 54 components
+# -- it alternately stops one link short of a >=.9 continuation or includes a
+# single sub-.9 hop. Our primary-parent >=.9 walk is the faithful reading of the
+# rule she describes in prose, so the redundancy assertions below pin our own
+# shipped prune("redundant") behavior (including the paper's d4 chain) rather
+# than her code's per-node output. See MILESTONES.md M53.
+.amh_fixture <- function() {
+  readRDS(test_path("fixtures", "forbes2023_amh.rds"))$amh
+}
+
+test_that("default output reproduces Forbes's AMH applied example (k = 10)", {
+  skip_if_not_installed("psych")
+  amh <- .amh_fixture()
+  K <- amh$k_max
+  suppressWarnings(suppressMessages(
+    x <- cached(ackwards(amh$R, k_max = K, pairs = "all"))
+  ))
+
+  # (1) Between-level correlations: |ours| == |hers| entrywise, all 45 pairs.
+  idx <- 0L
+  for (c2 in 2:K) {
+    for (i in 1:(c2 - 1L)) {
+      idx <- idx + 1L
+      E_forbes <- amh$comp_corr[[idx]]
+      E_ours <- x$edges$matrices[[paste0(i, ":", c2)]]
+      expect_equal(
+        abs(unname(E_ours)), abs(unname(E_forbes)),
+        tolerance = 1e-12,
+        label = paste0("AMH |edges| ", i, ":", c2, " (ackwards)"),
+        expected.label = "Forbes reference"
+      )
+    }
+  }
+
+  # (2) Loading congruence: within her factor.congruence 2-dp rounding.
+  phi_ours <- ackwards:::.phi_pairs(x$levels, "all")
+  idx <- 0L
+  for (c2 in 2:K) {
+    for (i in 1:(c2 - 1L)) {
+      idx <- idx + 1L
+      C_forbes <- amh$cong[[idx]]
+      sub <- phi_ours[phi_ours$level_from == i & phi_ours$level_to == c2, ]
+      C_ours <- matrix(sub$phi, nrow = i, ncol = c2, byrow = TRUE)
+      expect_lt(
+        max(abs(abs(C_ours) - abs(unname(C_forbes)))),
+        0.005 + 1e-12
+      )
+    }
+  }
+})
+
+test_that("prune('redundant') reproduces the AMH d4 chain and pins shipped behavior", {
+  skip_if_not_installed("psych")
+  amh <- .amh_fixture()
+  suppressWarnings(suppressMessages({
+    x <- cached(ackwards(amh$R, k_max = amh$k_max, pairs = "all"))
+    xp <- prune(x, "redundant")
+  }))
+  ch <- xp$prune$chains
+
+  # The paper's d4 chain: m4f4 -> ... -> m10f4 (Forbes's d4->e4->f5->g5->h5->i4->j4).
+  # It reaches k_max, so the retention rule keeps the most-specific bottom node.
+  d4 <- ch[ch$chain_id == ch$chain_id[ch$id == "m10f4"], ]
+  expect_setequal(
+    d4$id,
+    c("m4f4", "m5f4", "m6f5", "m7f5", "m8f5", "m9f4", "m10f4")
+  )
+  expect_identical(d4$id[d4$retain], "m10f4")
+
+  # Whole-object regression pin of the shipped redundancy decomposition.
+  expect_equal(sum(xp$prune$nodes$pruned), 36L)
+  expect_setequal(
+    ch$id[ch$retain],
+    c(
+      "m1f1", "m3f3", "m4f2", "m5f2", "m7f7",
+      "m10f1", "m10f2", "m10f3", "m10f4", "m10f5",
+      "m10f6", "m10f7", "m10f8", "m10f9"
+    )
+  )
+})
