@@ -119,26 +119,20 @@ cli output sits in `print.*` methods, CRAN's allowed exception).
 2026-07-12, same-session review.
 
 **AC evidence (fresh):**
-- AC1 — DESCRIPTION spells out "principal component analysis (PCA)",
-  "exploratory factor analysis (EFA)", "exploratory structural equation
-  modeling (ESEM)" (grep, multiline).
-- AC2 — `label_template()` body has only `cli_abort` (error path) + a
-  `structure(..., class = c("ackwards_labels","character"))` visible return;
-  all scaffold rendering is in `print.ackwards_labels()`. Tests: 42 pass /
-  0 fail, incl. `expect_silent` on assignment and visible+classed return.
-- AC3 — subassignment keeps class; `autoplot(x, node_labels = labs)`
-  round-trip test passes.
-- AC4 — grep: no `cat()`/`print()`/cli console write outside `print.*`
-  methods.
+- AC1 — DESCRIPTION spells out PCA / EFA / ESEM at first use (grep).
+- AC2/AC3 — `label_template()` body is only `cli_abort` + a visible
+  `structure(..., class = c("ackwards_labels","character"))` return; all
+  scaffold rendering in `print.ackwards_labels()`. 42 tests pass/0 fail,
+  incl. `expect_silent` on assignment, visible+classed return, subassignment
+  keeps class, and `autoplot(node_labels=)` round-trip.
+- AC4 — grep: no `cat()`/`print()`/cli write outside `print.*` methods.
 - AC5 — Version 0.1.1; NEWS "# ackwards 0.1.1" leads with both feedback
-  changes; `cran-comments.md` rewritten as point-by-point resubmission.
+  changes; `cran-comments.md` rewritten point-by-point.
 - AC6 — vignettes regenerated; only non-timing output change is removal of
-  the nested `autoplot(label_template(...))` scaffold dump (the fix); live
-  interpret vignette top-level call auto-prints via the method.
-- AC7 — dod-gate green (check 0/0/0, coverage 100%, style/lint clean,
-  pkgdown index complete); full CI matrix green; win-builder R-devel
-  confirmed green by owner (0 err/0 warn; notes: New submission +
-  surname/package-name misspellings).
+  the nested `autoplot(label_template(...))` scaffold dump (the fix).
+- AC7 — dod-gate green (check 0/0/0, cov 100%, style/lint/pkgdown clean);
+  full CI matrix green; win-builder R-devel owner-confirmed green (0/0;
+  notes: New submission + surname/pkg-name misspellings).
 
 **Consistency gate:** `cairn_validate.py` exit 0; `document()` no diff;
 `pkgdown::check_pkgdown()` clean; Coverage map complete (all ACs→existing
