@@ -2,6 +2,13 @@
 
 ## ackwards (development version)
 
+- **New bundled dataset `forbes2023`.** The 155-variable “Assessing
+  Mental Health” Spearman correlation matrix that forms Forbes’s (2023)
+  applied example is now exported, so `ackwards(forbes2023, k_max = 10)`
+  reproduces her worked hierarchy directly. It joins `bfi25` and
+  `sim16`. The matrix is redistributed under CC-BY 4.0 with attribution
+  to M. K. Forbes (see `LICENSE.note`).
+
 - **`prune("redundant")` gains `redundancy_criterion`, defaulting to
   `"direct"` (behavior change).** Redundancy chains are now traced by
   the **direct (skip-level)** correlation between a factor and each

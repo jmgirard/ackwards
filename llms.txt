@@ -405,6 +405,9 @@ Example datasets bundled with the package.
 - [`sim16`](https://jmgirard.github.io/ackwards/reference/sim16.md) :
   Simulated continuous bass-ackwards teaching example (16 items, known
   hierarchy)
+- [`forbes2023`](https://jmgirard.github.io/ackwards/reference/forbes2023.md)
+  : Assessing Mental Health symptom correlation matrix (Forbes 2023
+  applied example)
 
 ## Re-exported generics
 

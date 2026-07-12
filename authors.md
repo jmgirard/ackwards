@@ -5,6 +5,10 @@
 - **Jeffrey M. Girard**. Author, maintainer.
   [](https://orcid.org/0000-0002-7359-3746)
 
+- **Miriam K. Forbes**. Copyright holder.  
+  Author of the bundled AMH correlation matrix (data/forbes2023.rda),
+  CC-BY 4.0
+
 ## Citation
 
 Source:
