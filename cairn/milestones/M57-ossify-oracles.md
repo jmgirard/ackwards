@@ -108,7 +108,7 @@ oracle system to ackwards/cairn.
       `fixtures/*.rds`, asserting a `provenance` attr + a named generator (map fixture → generator via
       a small in-test table or a registry read); prove it fails on a scratch un-sourced fixture, then
       remove the scratch.
-- [ ] **T5 — Codify Invariant #8.** Add invariant #8 to CLAUDE.md's Invariants list; add a one-line
+- [x] **T5 — Codify Invariant #8.** Add invariant #8 to CLAUDE.md's Invariants list; add a one-line
       cross-reference in DESIGN §13; add the forward-note for the IP/GP design-interview candidate.
 - [ ] **T6 — DoD gate.** `Rscript tools/dod-gate.R` green; no NEWS/pkgdown reference change (no
       exported-behavior change — internal test infra + tracking/dev docs only); confirm the new
@@ -142,6 +142,9 @@ oracle system to ackwards/cairn.
   (data-raw .Rbuildignore'd). Normalized the AMH fixture to a top-level provenance (+`generator`
   field) via data-raw/forbes2023.R — data/forbes2023.rda byte-identical (unchanged export). Teeth
   demonstrated on scratch fixtures; forbes-fidelity + guard both green.
+- 2026-07-12: T5 done — CLAUDE.md Invariant 8 (oracle-backed numerics; approved wording) + DESIGN
+  §13 cross-ref + forward-note to the IP/GP design-interview pass. Invariant sits outside the capped
+  cairn CLAUDE.md section (D-018: repo dev doctrine isn't cairn's to cap).
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
