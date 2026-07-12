@@ -112,9 +112,11 @@ or `prune()`/edge algorithms — M53's numbers stand; this only relocates where 
   `data/amh_cor.rda` only — she holds copyright in the bundled CC-BY matrix, not the MIT-licensed
   package code. Standard R idiom for vendoring third-party CC-BY data; keeps CRAN attribution
   machine-readable. Not promoted to a D-entry (milestone-local, no cross-cutting effect).
-- 2026-07-12 (post-implement, user override): dataset renamed `amh_cor` → `forbes2023`,
-  superseding the plan-gate name. User directed author-year naming (`forbes` + paper year, 2023).
-  Supersedes the T5 entry's `data/amh_cor.rda` path (now `data/forbes2023.rda`).
+- 2026-07-12 (post-implement, user override): dataset renamed `amh_cor` → `forbes2023` (author-year),
+  superseding the plan-gate name and the T5 entry's `data/amh_cor.rda` path (now `data/forbes2023.rda`).
+- 2026-07-12 (review F2, owner-approved): `forbes2023` classified as a fidelity/reproduction
+  dataset outside DESIGN §14.41(b)'s declined-third-*teaching*-dataset scope. Added a §14.41(b)
+  clarification and reworded the roxygen so it no longer reads as a third teaching foil.
 <!-- owner: implement / review · append-only; milestone-local -->
 
 ## Review

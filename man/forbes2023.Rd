@@ -25,10 +25,12 @@ variables that forms the applied example in Forbes (2023). It is a real,
 deep hierarchy: \code{ackwards(forbes2023, k_max = 10)} unfolds a general factor of
 psychopathology at the top down to 10 fine-grained components, the worked
 example that motivates the Forbes extension (\code{pairs = "all"}, \code{prune()}).
-Complements the simulated \code{sim16} and ordinal \code{bfi25} with a large, messy,
-published case.
 }
 \details{
+Where \code{sim16} and \code{bfi25} are teaching foils, \code{forbes2023} is a
+fidelity/reproduction dataset: a large, messy, published case bundled so the
+package can reproduce the exact applied example analyzed in Forbes's paper.
+
 The correlations come from the Assessing Mental Health (AMH) study -- the
 Australian general-population sample (N = 3,175) of Forbes et al. (2021) --
 spanning symptoms of 18 DSM disorders. Being a correlation matrix, it carries

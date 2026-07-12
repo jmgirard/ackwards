@@ -125,8 +125,10 @@
 #' deep hierarchy: `ackwards(forbes2023, k_max = 10)` unfolds a general factor of
 #' psychopathology at the top down to 10 fine-grained components, the worked
 #' example that motivates the Forbes extension (`pairs = "all"`, `prune()`).
-#' Complements the simulated `sim16` and ordinal `bfi25` with a large, messy,
-#' published case.
+#'
+#' Where `sim16` and `bfi25` are teaching foils, `forbes2023` is a
+#' fidelity/reproduction dataset: a large, messy, published case bundled so the
+#' package can reproduce the exact applied example analyzed in Forbes's paper.
 #'
 #' @format A 155 x 155 numeric matrix of Spearman correlations: symmetric, unit
 #'   diagonal, correlations in roughly `0.01`--`0.94`. Row and column names are
