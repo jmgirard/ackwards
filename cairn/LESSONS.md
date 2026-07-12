@@ -32,3 +32,13 @@ One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
 - 2026-07-12 (M56): verify reference titles against Crossref *and* the package's own roxygen — the
   repo's intro/engines vignettes carried a wrong Waller (2007) title ("…Bass-Ackward factor analysis"
   vs the correct "…Goldberg's Bass-Ackwards method") that disagreed with `R/ackwards.R`.
+- 2026-07-12 (M57): a fixture's *prose* provenance claim ("regenerated from OSF, set.seed(123)") is
+  not reproducibility — the M44 sims matrices were provably unrecoverable (no fx/Phi/seed/n/method
+  reproduced them; even same R/psych version strings) because no generator was committed. `set.seed`
+  is deterministic on a fixed env but the specific draw is lost once the generation path is; pin a
+  committed `data-raw/` generator, not a claim. `test-oracle-provenance.R` now enforces this.
+- 2026-07-12 (M57): before swapping a test-input fixture, check downstream *hardcoded* test literals
+  for topology-stability — the new Forbes sim matrices changed the chase labels but preserved the
+  redundancy topology, so `test-forbes-fidelity.R`'s prune `{m3f1,m3f2,m3f3}`/`{m2f2,m4f1,m4f2}`
+  literals held. Verify, don't assume. (data-raw is `.Rbuildignore`d, so a fixture guard can only
+  check that provenance *names* a generator, not that the file exists at R CMD check time.)

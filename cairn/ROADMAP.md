@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-07-12 (M56 shipped)_
+_Last hygiene check: 2026-07-12 (M57 shipped)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M57 | Ossify oracles — reproducible, catalogued oracle discipline | review | — | normal | milestones/M57-ossify-oracles.md |
+| M57 | Ossify oracles — reproducible, catalogued oracle discipline | done | — | normal | milestones/archive/M57-ossify-oracles.md |
 | M56 | BRM manuscript: reproducible Quarto scaffold + worked example | done | — | normal | milestones/archive/M56-brm-manuscript.md |
 | M55 | Address CRAN 0.1.0 feedback and resubmit as 0.1.1 | done | — | high | milestones/archive/M55-cran-resubmission.md |
 | M54 | Export `forbes2023` as a bundled dataset | done | — | normal | milestones/archive/M54-amh-cor-dataset.md |
