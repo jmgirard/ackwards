@@ -1,18 +1,24 @@
-# Generate tests/testthat/fixtures/forbes2023_amh.rds  (M53)
+# Generate BOTH the exported dataset data/amh_cor.rda AND the fidelity fixture
+# tests/testthat/fixtures/forbes2023_amh.rds  (M54; supersedes data-raw/forbes2023_amh.R)
 #
 # Forbes's (2023) 155-variable "Assessing Mental Health" (AMH) applied example,
-# from her OSF project https://osf.io/pcwm8/ (CC-BY 4.0 International). This
-# generator downloads the published Spearman correlation matrix and her own
-# reference implementation, computes the between-level correlations and loading
-# congruences with HER code, and stores them alongside the matrix so the test
-# suite runs only ackwards() at test time (no vendored Forbes code, no network).
+# from her OSF project https://osf.io/pcwm8/ (CC-BY 4.0 International). One
+# md5-pinned download feeds both artifacts, so the shipped matrix (`amh_cor`)
+# and the fixture's expected values can never drift apart:
 #
-# The AMH matrix is redistributed here under CC-BY 4.0 (see LICENSE.note);
-# the simulation fixture (forbes2023_sims.rds) needs no such note because those
-# matrices are seed-regenerated, not Forbes data.
+#   * data/amh_cor.rda                      -- the exported user dataset (matrix only)
+#   * tests/testthat/fixtures/forbes2023_amh.rds -- expected comp_corr/cong/corr_chase
+#       computed with HER reference implementation (no matrix; the test reads the
+#       matrix from the exported amh_cor). No vendored Forbes code, no network at
+#       test time -- only ackwards() runs.
+#
+# The AMH matrix is redistributed under CC-BY 4.0 (see LICENSE.note; Forbes is
+# listed as data copyright holder `cph` in DESCRIPTION). The project was briefly
+# CC-BY-NC in early July 2026; Forbes switched it to CC-BY on learning of the
+# NonCommercial implications, so the matrix can be bundled (see legacy MILESTONES M53).
 #
 # Re-run after any change to the expected-value definitions:
-#   Rscript data-raw/forbes2023_amh.R
+#   Rscript data-raw/amh_cor.R
 # Requires network access to osf.io. `psych` must be installed.
 
 # Forbes's functions call fa.sort() unqualified, so psych must be attached.
@@ -37,15 +43,30 @@ fun_path <- file.path(tmp, "ExtendedBassAckwards.R")
 utils::download.file(osf$matrix$url, csv_path, mode = "wb", quiet = TRUE)
 utils::download.file(osf$functions$url, fun_path, mode = "wb", quiet = TRUE)
 
-## --- The 155x155 Spearman matrix (row/col names carried through) ---
-R <- as.matrix(utils::read.csv(csv_path, row.names = 1, check.names = FALSE))
-colnames(R) <- rownames(R)
-stopifnot(dim(R) == c(155L, 155L), isSymmetric(unname(R)), all(diag(R) == 1))
+## Integrity guard: pin the exact published file that both artifacts are built
+## from. If OSF ever re-publishes the matrix this stops silently, so the shipped
+## amh_cor and the fixture's expected values are regenerated together or not at all.
+stopifnot(
+  unname(tools::md5sum(csv_path)) == "c1dd9eca009c2738c268487179d43e87"
+)
 
-## --- Forbes's own reference implementation -> expected values ---
+## --- The 155x155 Spearman matrix (row/col names carried through) ---
+amh_cor <- as.matrix(utils::read.csv(csv_path, row.names = 1, check.names = FALSE))
+colnames(amh_cor) <- rownames(amh_cor)
+stopifnot(
+  dim(amh_cor) == c(155L, 155L),
+  isSymmetric(unname(amh_cor), tol = 1e-8),
+  all(abs(diag(amh_cor) - 1) < 1e-8)
+)
+
+## (1) The exported dataset -----------------------------------------------------
+usethis::use_data(amh_cor, overwrite = TRUE, compress = "xz")
+
+## (2) The fidelity fixture (expected values only; matrix comes from amh_cor) ---
+## Forbes's own reference implementation -> expected between-level values.
 source(fun_path, local = TRUE) # defines ExtendedBassAckwards()
 K <- 10L # her applied example uses k = 10
-fb <- ExtendedBassAckwards(R, num.comp = K, fm = "pca")
+fb <- ExtendedBassAckwards(amh_cor, num.comp = K, fm = "pca")
 stopifnot(length(fb$comp.corr) == 45L, length(fb$cong) == 45L) # choose(10, 2)
 
 ## Her redundancy chase (ChaseCorrPaths) for every component b1..j10: the
@@ -57,8 +78,8 @@ stopifnot(length(corr_chase) == sum(2:K)) # b1..j10 = 54 components (a1 excluded
 ## comp.corr / cong enumerate pairs as: for c in 2..K, for i in 1..(c-1).
 ## comp.corr[[idx]] = t(W_i) R W_c  (unstandardized, unaligned) -> |.| == our edges.
 ## cong[[idx]]      = psych::factor.congruence (rounded to 2 dp) for the same pair.
+## No `R` field: the test reads the matrix from the exported `amh_cor` (M54).
 amh <- list(
-  R          = R,
   comp_corr  = fb$comp.corr,
   cong       = fb$cong,
   corr_chase = corr_chase,
@@ -73,11 +94,12 @@ attr(amh, "provenance") <- list(
   ),
   osf = "https://osf.io/pcwm8/",
   license = "CC-BY 4.0 International (https://creativecommons.org/licenses/by/4.0/)",
+  matrix_md5 = "c1dd9eca009c2738c268487179d43e87",
   files = vapply(osf, function(f) sprintf("%s (guid %s) <%s>", f$name, f$guid, f$url), character(1)),
   note = paste0(
-    "R = published 155-variable AMH Spearman matrix; comp_corr/cong computed ",
-    "with Forbes's ExtendedBassAckwards reference implementation. ",
-    "Only ackwards() runs at test time."
+    "Expected comp_corr/cong/corr_chase computed with Forbes's ",
+    "ExtendedBassAckwards reference implementation from the same md5-pinned ",
+    "matrix now exported as data/amh_cor.rda. Only ackwards() runs at test time."
   ),
   generated = as.character(Sys.Date()),
   R_version = R.version.string,
@@ -89,4 +111,6 @@ fixture <- list(amh = amh)
 
 out <- file.path("tests", "testthat", "fixtures", "forbes2023_amh.rds")
 saveRDS(fixture, out, compress = "xz")
-message(sprintf("Wrote %s (%.0f KB)", out, file.size(out) / 1024))
+message(sprintf(
+  "Wrote data/amh_cor.rda and %s (%.0f KB)", out, file.size(out) / 1024
+))

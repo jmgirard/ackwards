@@ -64,12 +64,12 @@ tests.
 ## Tasks
 <!-- owner: plan (create) / implement (check-off, minor edits) -->
 
-- [ ] T1: Write `data-raw/amh_cor.R` — adapt master's `data-raw/forbes2023_amh.R`
+- [x] T1: Write `data-raw/amh_cor.R` — adapt master's `data-raw/forbes2023_amh.R`
       to, from one md5-pinned OSF download, (a) `usethis::use_data(amh_cor, compress = "xz")`
       and (b) write the slimmed `forbes2023_amh.rds` (expected `comp_corr`/`cong`/
       `corr_chase`/`k_max` + provenance attr, **no** `R` matrix). Run it to produce
       both artifacts.
-- [ ] T2: Regenerate `data/amh_cor.rda` via T1; confirm dims/symmetry/dimnames by hand
+- [x] T2: Regenerate `data/amh_cor.rda` via T1; confirm dims/symmetry/dimnames by hand
       before committing (never hand-edit `.rda`).
 - [ ] T3: Add the `amh_cor` roxygen block to `R/data.R` (adapt the branch's block:
       `@format`, `@details` with `n_obs = 3175` note, `@source` CC-BY + OSF,
@@ -94,6 +94,10 @@ tests.
   Gate decisions: single-source the matrix; Forbes as data-scoped `cph` + LICENSE.note;
   name `amh_cor`. Source material exists on local `amh-fidelity` branch (adapt, don't
   cherry-pick — master's LICENSE.note/data-raw are newer).
+- 2026-07-12: T1/T2 — consolidated `data-raw/amh_cor.R` writes both `data/amh_cor.rda`
+  and the slimmed fixture from one md5-pinned OSF download (`c1dd9eca…`, verified
+  byte-identical to the M53-validated matrix); removed superseded `data-raw/forbes2023_amh.R`;
+  fixture 117 KB → 14 KB (matrix dropped).
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
