@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M54 | Export `amh_cor` as a bundled dataset | review | — | normal | milestones/M54-amh-cor-dataset.md |
+| M54 | Export `forbes2023` as a bundled dataset | review | — | normal | milestones/M54-amh-cor-dataset.md |
 <!-- M01–M53 are done/dropped (entombed in cairn/legacy/MILESTONES.md); new work from M54. -->
 
 ## Candidates

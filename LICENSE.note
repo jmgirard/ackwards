@@ -3,10 +3,10 @@ DESCRIPTION "License" field and the LICENSE file).
 
 The following bundled files are licensed separately:
 
-  data/amh_cor.rda
+  data/forbes2023.rda
   tests/testthat/fixtures/forbes2023_amh.rds
 
-    data/amh_cor.rda is the exported `amh_cor` dataset: the 155-variable
+    data/forbes2023.rda is the exported `forbes2023` dataset: the 155-variable
     "Assessing Mental Health" (AMH) Spearman correlation matrix from Forbes
     (2023, below). tests/testthat/fixtures/forbes2023_amh.rds holds the
     expected between-level correlations and loading congruences derived from
@@ -26,5 +26,5 @@ The following bundled files are licensed separately:
     correlations and loading congruences in forbes2023_amh.rds were computed
     from that matrix using Forbes's own reference implementation
     ("ExtendedBassAckwards functions with annotation.R", guid 7jfkw, same OSF
-    project and license). See data-raw/amh_cor.R, which regenerates both files
-    from a single md5-pinned download, for provenance.
+    project and license). See data-raw/forbes2023.R, which regenerates both
+    files from a single md5-pinned download, for provenance.

@@ -1,15 +1,15 @@
-# Generate BOTH the exported dataset data/amh_cor.rda AND the fidelity fixture
+# Generate BOTH the exported dataset data/forbes2023.rda AND the fidelity fixture
 # tests/testthat/fixtures/forbes2023_amh.rds  (M54; supersedes data-raw/forbes2023_amh.R)
 #
 # Forbes's (2023) 155-variable "Assessing Mental Health" (AMH) applied example,
 # from her OSF project https://osf.io/pcwm8/ (CC-BY 4.0 International). One
-# md5-pinned download feeds both artifacts, so the shipped matrix (`amh_cor`)
+# md5-pinned download feeds both artifacts, so the shipped matrix (`forbes2023`)
 # and the fixture's expected values can never drift apart:
 #
-#   * data/amh_cor.rda                      -- the exported user dataset (matrix only)
+#   * data/forbes2023.rda                   -- the exported user dataset (matrix only)
 #   * tests/testthat/fixtures/forbes2023_amh.rds -- expected comp_corr/cong/corr_chase
 #       computed with HER reference implementation (no matrix; the test reads the
-#       matrix from the exported amh_cor). No vendored Forbes code, no network at
+#       matrix from the exported forbes2023). No vendored Forbes code, no network at
 #       test time -- only ackwards() runs.
 #
 # The AMH matrix is redistributed under CC-BY 4.0 (see LICENSE.note; Forbes is
@@ -18,7 +18,7 @@
 # NonCommercial implications, so the matrix can be bundled (see legacy MILESTONES M53).
 #
 # Re-run after any change to the expected-value definitions:
-#   Rscript data-raw/amh_cor.R
+#   Rscript data-raw/forbes2023.R
 # Requires network access to osf.io. `psych` must be installed.
 
 # Forbes's functions call fa.sort() unqualified, so psych must be attached.
@@ -45,28 +45,28 @@ utils::download.file(osf$functions$url, fun_path, mode = "wb", quiet = TRUE)
 
 ## Integrity guard: pin the exact published file that both artifacts are built
 ## from. If OSF ever re-publishes the matrix this stops silently, so the shipped
-## amh_cor and the fixture's expected values are regenerated together or not at all.
+## forbes2023 and the fixture's expected values are regenerated together or not at all.
 stopifnot(
   unname(tools::md5sum(csv_path)) == "c1dd9eca009c2738c268487179d43e87"
 )
 
 ## --- The 155x155 Spearman matrix (row/col names carried through) ---
-amh_cor <- as.matrix(utils::read.csv(csv_path, row.names = 1, check.names = FALSE))
-colnames(amh_cor) <- rownames(amh_cor)
+forbes2023 <- as.matrix(utils::read.csv(csv_path, row.names = 1, check.names = FALSE))
+colnames(forbes2023) <- rownames(forbes2023)
 stopifnot(
-  dim(amh_cor) == c(155L, 155L),
-  isSymmetric(unname(amh_cor), tol = 1e-8),
-  all(abs(diag(amh_cor) - 1) < 1e-8)
+  dim(forbes2023) == c(155L, 155L),
+  isSymmetric(unname(forbes2023), tol = 1e-8),
+  all(abs(diag(forbes2023) - 1) < 1e-8)
 )
 
 ## (1) The exported dataset -----------------------------------------------------
-usethis::use_data(amh_cor, overwrite = TRUE, compress = "xz")
+usethis::use_data(forbes2023, overwrite = TRUE, compress = "xz")
 
-## (2) The fidelity fixture (expected values only; matrix comes from amh_cor) ---
+## (2) The fidelity fixture (expected values only; matrix comes from forbes2023) -
 ## Forbes's own reference implementation -> expected between-level values.
 source(fun_path, local = TRUE) # defines ExtendedBassAckwards()
 K <- 10L # her applied example uses k = 10
-fb <- ExtendedBassAckwards(amh_cor, num.comp = K, fm = "pca")
+fb <- ExtendedBassAckwards(forbes2023, num.comp = K, fm = "pca")
 stopifnot(length(fb$comp.corr) == 45L, length(fb$cong) == 45L) # choose(10, 2)
 
 ## Her redundancy chase (ChaseCorrPaths) for every component b1..j10: the
@@ -78,7 +78,7 @@ stopifnot(length(corr_chase) == sum(2:K)) # b1..j10 = 54 components (a1 excluded
 ## comp.corr / cong enumerate pairs as: for c in 2..K, for i in 1..(c-1).
 ## comp.corr[[idx]] = t(W_i) R W_c  (unstandardized, unaligned) -> |.| == our edges.
 ## cong[[idx]]      = psych::factor.congruence (rounded to 2 dp) for the same pair.
-## No `R` field: the test reads the matrix from the exported `amh_cor` (M54).
+## No `R` field: the test reads the matrix from the exported `forbes2023` (M54).
 amh <- list(
   comp_corr  = fb$comp.corr,
   cong       = fb$cong,
@@ -99,7 +99,7 @@ attr(amh, "provenance") <- list(
   note = paste0(
     "Expected comp_corr/cong/corr_chase computed with Forbes's ",
     "ExtendedBassAckwards reference implementation from the same md5-pinned ",
-    "matrix now exported as data/amh_cor.rda. Only ackwards() runs at test time."
+    "matrix now exported as data/forbes2023.rda. Only ackwards() runs at test time."
   ),
   generated = as.character(Sys.Date()),
   R_version = R.version.string,
@@ -112,5 +112,5 @@ fixture <- list(amh = amh)
 out <- file.path("tests", "testthat", "fixtures", "forbes2023_amh.rds")
 saveRDS(fixture, out, compress = "xz")
 message(sprintf(
-  "Wrote data/amh_cor.rda and %s (%.0f KB)", out, file.size(out) / 1024
+  "Wrote data/forbes2023.rda and %s (%.0f KB)", out, file.size(out) / 1024
 ))

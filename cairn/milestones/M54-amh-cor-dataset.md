@@ -1,7 +1,7 @@
 <!-- Section ownership + write-modes: see tracking-rules.md "Milestone-file
      section ownership". A phase skill never rewrites another phase's section.
      Per-section owners are tagged below. -->
-# M54: Export `amh_cor` as a bundled dataset
+# M54: Export `forbes2023` as a bundled dataset
 
 - **Status:** review   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
 - **Priority:** normal   <!-- owner: plan · create/amend-via-gate; high | normal | low -->
@@ -11,22 +11,22 @@
 ## Goal
 
 Ship Forbes's (2023) 155-variable AMH Spearman correlation matrix as an exported,
-documented, CC-BY-attributed user dataset `amh_cor`, extending the M53 test-only fixture.
+documented, CC-BY-attributed user dataset `forbes2023`, extending the M53 test-only fixture.
 
 ## Scope
 
-**In:** A new bundled dataset `data/amh_cor.rda` (the 155×155 AMH matrix, row/col
+**In:** A new bundled dataset `data/forbes2023.rda` (the 155×155 AMH matrix, row/col
 names preserved); its roxygen `@source`/`@references` doc block in `R/data.R`; a
-`data-raw/amh_cor.R` generator that downloads the CC-BY matrix from OSF (guid
-`s9bjz`, md5-pinned) and writes **both** `data/amh_cor.rda` and the slimmed
+`data-raw/forbes2023.R` generator that downloads the CC-BY matrix from OSF (guid
+`s9bjz`, md5-pinned) and writes **both** `data/forbes2023.rda` and the slimmed
 fidelity fixture from one download; single-sourcing the fidelity test's matrix
-onto the exported `amh_cor` (fixture slimmed to expected-values-only); Forbes
+onto the exported `forbes2023` (fixture slimmed to expected-values-only); Forbes
 added to DESCRIPTION as data-scoped `cph`; `LICENSE.note` extended to cover
-`data/amh_cor.rda`; `_pkgdown.yml` Data section + NEWS entry; dataset validity
+`data/forbes2023.rda`; `_pkgdown.yml` Data section + NEWS entry; dataset validity
 tests.
 
 **Out:**
-- Wiring `amh_cor` into a vignette (the Forbes vignette runs on the seed-regenerated
+- Wiring `forbes2023` into a vignette (the Forbes vignette runs on the seed-regenerated
   simulations) → ROADMAP candidate.
 - Any change to the fidelity oracle values or `prune()`/edge algorithms — M53's
   numbers stand unchanged; this milestone only relocates where the matrix is read from.
@@ -34,22 +34,22 @@ tests.
 ## Acceptance criteria
 <!-- owner: plan · create/amend-via-gate; review reads, never reinterprets -->
 
-- [ ] `data/amh_cor.rda` exists and loads lazily; `amh_cor` is a 155×155 numeric
-      matrix, symmetric (`isSymmetric(unname(amh_cor))`), unit diagonal, with
+- [ ] `data/forbes2023.rda` exists and loads lazily; `forbes2023` is a 155×155 numeric
+      matrix, symmetric (`isSymmetric(unname(forbes2023))`), unit diagonal, with
       identical non-null row and column names. (evidence: a test asserting all four.)
-- [ ] `amh_cor` is exported and documented: `?amh_cor` renders, `@source` names the
-      OSF project + CC-BY 4.0, and `amh_cor` appears in the `_pkgdown.yml` Data
+- [ ] `forbes2023` is exported and documented: `?forbes2023` renders, `@source` names the
+      OSF project + CC-BY 4.0, and `forbes2023` appears in the `_pkgdown.yml` Data
       section (`pkgdown::check_pkgdown()` clean).
-- [ ] The Forbes fidelity test reads its matrix from the exported `amh_cor` (not a
+- [ ] The Forbes fidelity test reads its matrix from the exported `forbes2023` (not a
       matrix embedded in the fixture) and still reproduces Forbes to ≤ 1e-12 across
       all 45 level-pairs at `k_max = 10` — matching the M53 result — per
       `Forbes (2023) doi:10.1037/met0000546` reference values in `forbes2023_amh.rds`.
-- [ ] `data-raw/amh_cor.R` regenerates `data/amh_cor.rda` and the slimmed fixture
-      from a single md5-pinned OSF download; the shipped `amh_cor` and the fixture's
+- [ ] `data-raw/forbes2023.R` regenerates `data/forbes2023.rda` and the slimmed fixture
+      from a single md5-pinned OSF download; the shipped `forbes2023` and the fixture's
       expected values trace to the same source matrix. (evidence: script runs clean;
       md5 guard present.)
 - [ ] Licensing is complete and correct: DESCRIPTION lists Forbes as `cph` scoped by
-      `comment` to the bundled matrix; `LICENSE.note` covers `data/amh_cor.rda`;
+      `comment` to the bundled matrix; `LICENSE.note` covers `data/forbes2023.rda`;
       `devtools::check()` clean (0 errors/warnings/notes), including no license NOTE.
 
 ## Coverage
@@ -64,26 +64,26 @@ tests.
 ## Tasks
 <!-- owner: plan (create) / implement (check-off, minor edits) -->
 
-- [x] T1: Write `data-raw/amh_cor.R` — adapt master's `data-raw/forbes2023_amh.R`
-      to, from one md5-pinned OSF download, (a) `usethis::use_data(amh_cor, compress = "xz")`
+- [x] T1: Write `data-raw/forbes2023.R` — adapt master's `data-raw/forbes2023_amh.R`
+      to, from one md5-pinned OSF download, (a) `usethis::use_data(forbes2023, compress = "xz")`
       and (b) write the slimmed `forbes2023_amh.rds` (expected `comp_corr`/`cong`/
       `corr_chase`/`k_max` + provenance attr, **no** `R` matrix). Run it to produce
       both artifacts.
-- [x] T2: Regenerate `data/amh_cor.rda` via T1; confirm dims/symmetry/dimnames by hand
+- [x] T2: Regenerate `data/forbes2023.rda` via T1; confirm dims/symmetry/dimnames by hand
       before committing (never hand-edit `.rda`).
-- [x] T3: Add the `amh_cor` roxygen block to `R/data.R` (adapt the branch's block:
+- [x] T3: Add the `forbes2023` roxygen block to `R/data.R` (adapt the branch's block:
       `@format`, `@details` with `n_obs = 3175` note, `@source` CC-BY + OSF,
       `@references` both Forbes papers, `\donttest{}` example). `devtools::document()`.
-- [x] T4: Repoint `test-forbes-fidelity.R` AMH block to read the matrix from `amh_cor`;
+- [x] T4: Repoint `test-forbes-fidelity.R` AMH block to read the matrix from `forbes2023`;
       drop the `$amh$R` read; keep all expected-value assertions. Add/keep the
       direct-vs-adjacent prune pins unchanged.
 - [x] T5: DESCRIPTION — add Forbes `cph` (comment-scoped to the matrix); extend
-      `LICENSE.note` to name `data/amh_cor.rda` under CC-BY; add `amh_cor` to
+      `LICENSE.note` to name `data/forbes2023.rda` under CC-BY; add `forbes2023` to
       `_pkgdown.yml` Data section; NEWS.md dataset entry.
-- [x] T6: Add `amh_cor` validity test to `test-data.R` (dims/symmetry/diag/dimnames); run
+- [x] T6: Add `forbes2023` validity test to `test-data.R` (dims/symmetry/diag/dimnames); run
       `Rscript tools/dod-gate.R` (check → coverage → style → lint → pkgdown).
 
-<!-- (RB tripwire: irreversible-api) The exported object name `amh_cor` is a
+<!-- (RB tripwire: irreversible-api) The exported object name `forbes2023` is a
      permanent public-API contract; name resolved at the plan gate (2026-07-12),
      no Fable escalation warranted for a conventional data export. -->
 
@@ -92,22 +92,27 @@ tests.
 
 - 2026-07-12: created by /milestone-plan. Extends M53 (fixture → exported dataset).
   Gate decisions: single-source the matrix; Forbes as data-scoped `cph` + LICENSE.note;
-  name `amh_cor`. Source material exists on local `amh-fidelity` branch (adapt, don't
+  name `forbes2023`. Source material exists on local `amh-fidelity` branch (adapt, don't
   cherry-pick — master's LICENSE.note/data-raw are newer).
 - 2026-07-12: T1/T2 — consolidated `data-raw/amh_cor.R` writes both `data/amh_cor.rda`
   and the slimmed fixture from one md5-pinned OSF download (`c1dd9eca…`, verified
   byte-identical to the M53-validated matrix); removed superseded `data-raw/forbes2023_amh.R`;
   fixture 117 KB → 14 KB (matrix dropped).
-- 2026-07-12: T3 — `amh_cor` roxygen block added to `R/data.R` (documented; `man/amh_cor.Rd`
+- 2026-07-12: T3 — `forbes2023` roxygen block added to `R/data.R` (documented; `man/amh_cor.Rd`
   generated; NAMESPACE unchanged — bundled data is user-visible via LazyData, not `export()`).
-- 2026-07-12: T4 — fidelity test AMH block reads matrix from exported `amh_cor` (not `$amh$R`);
+- 2026-07-12: T4 — fidelity test AMH block reads matrix from exported `forbes2023` (not `$amh$R`);
   full `forbes-fidelity` suite green, still reproduces Forbes ≤1e-12 across all 45 pairs.
 - 2026-07-12: T5 — Forbes added to DESCRIPTION as data-scoped `cph` (Authors@R parses, verified);
-  `LICENSE.note` now covers `data/amh_cor.rda`; `amh_cor` in `_pkgdown.yml` Data (`check_pkgdown()`
+  `LICENSE.note` now covers `data/amh_cor.rda`; `forbes2023` in `_pkgdown.yml` Data (`check_pkgdown()`
   clean); NEWS dataset bullet added.
-- 2026-07-12: T6 — `amh_cor` validity test added to `test-data.R`; `Rscript tools/dod-gate.R`
+- 2026-07-12: T6 — `forbes2023` validity test added to `test-data.R`; `Rscript tools/dod-gate.R`
   green (check 0/0/0 incl. no license NOTE, coverage 100%, style/lint clean, pkgdown complete).
   All tasks done → status `review`.
+- 2026-07-12: review-gate "adjust first" — user renamed the dataset `amh_cor` → `forbes2023`
+  (author-year style). Swept every source/doc/test/DESCRIPTION/LICENSE.note/pkgdown/NEWS ref;
+  `data-raw/amh_cor.R` → `data-raw/forbes2023.R`; regenerated `data/forbes2023.rda`; re-ran the
+  full gate — green. (Earlier work-log/task lines keep the original `amh_cor` name as history;
+  the fixture `forbes2023_amh.rds` and the file slug are unchanged.)
 
 ## Decisions
 
@@ -115,6 +120,9 @@ tests.
   `data/amh_cor.rda` only — she holds copyright in the bundled CC-BY matrix, not the MIT-licensed
   package code. Standard R idiom for vendoring third-party CC-BY data; keeps CRAN attribution
   machine-readable. Not promoted to a D-entry (milestone-local, no cross-cutting effect).
+- 2026-07-12 (post-implement, user override): dataset renamed `amh_cor` → `forbes2023`,
+  superseding the plan-gate name. User directed author-year naming (`forbes` + paper year, 2023).
+  Supersedes the T5 entry's `data/amh_cor.rda` path (now `data/forbes2023.rda`).
 <!-- owner: implement / review · append-only; milestone-local -->
 
 ## Review

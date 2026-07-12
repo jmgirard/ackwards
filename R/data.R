@@ -122,7 +122,7 @@
 #'
 #' The 155 x 155 Spearman correlation matrix among 155 mental-health symptom
 #' variables that forms the applied example in Forbes (2023). It is a real,
-#' deep hierarchy: `ackwards(amh_cor, k_max = 10)` unfolds a general factor of
+#' deep hierarchy: `ackwards(forbes2023, k_max = 10)` unfolds a general factor of
 #' psychopathology at the top down to 10 fine-grained components, the worked
 #' example that motivates the Forbes extension (`pairs = "all"`, `prune()`).
 #' Complements the simulated `sim16` and ordinal `bfi25` with a large, messy,
@@ -141,10 +141,10 @@
 #'
 #' This matrix reproduces Forbes's published results exactly: the package
 #' regression test `test-forbes-fidelity.R` runs `ackwards()` on this exported
-#' `amh_cor` and matches her reference implementation's between-level
+#' `forbes2023` and matches her reference implementation's between-level
 #' correlations to `1.3e-14` across all 45 level-pairs at `k_max = 10`.
 #'
-#' To regenerate this dataset, run `source("data-raw/amh_cor.R")` from the
+#' To regenerate this dataset, run `source("data-raw/forbes2023.R")` from the
 #' package root (downloads the source CSV from OSF).
 #'
 #' @source
@@ -167,11 +167,11 @@
 #'   \doi{10.1177/2167702620954799}
 #'
 #' @examples
-#' dim(amh_cor)
-#' amh_cor[1:3, 1:3]
+#' dim(forbes2023)
+#' forbes2023[1:3, 1:3]
 #' \donttest{
 #' # The Forbes (2023) applied example: a 10-level hierarchy from 155 symptoms.
-#' x <- ackwards(amh_cor, k_max = 10, pairs = "all")
+#' x <- ackwards(forbes2023, k_max = 10, pairs = "all")
 #' x
 #' }
-"amh_cor"
+"forbes2023"
