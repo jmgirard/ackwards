@@ -86,7 +86,7 @@ oracle system to ackwards/cairn.
 ## Tasks
 <!-- owner: plan (create) / implement (check-off, minor edits) -->
 
-- [ ] **T1 — Ingest Forbes (2023).** Write `cairn/references/forbes2023.md` (citation, DOI
+- [x] **T1 — Ingest Forbes (2023).** Write `cairn/references/forbes2023.md` (citation, DOI
       `10.1037/met0000546`, OSF `pcwm8`, matrix md5 `c1dd9eca…`, the reference-impl file, which
       tests/oracles trace to it) + one `INDEX.md` row. Primary-source-first (tracking-rules
       "Primary sources rule").
@@ -114,6 +114,14 @@ oracle system to ackwards/cairn.
 
 - 2026-07-12: created by /milestone-plan (promoted from the 2026-07-12 "ossify oracles" candidate;
   scope confirmed Option 1 — catalogue + surgical freeze, live oracles stay live).
+- 2026-07-12: started; branch m57-ossify-oracles cut from master (CRAN 0.1.1 marker committed to
+  master first). Confirmed OSF reachable + sims fixture provenance names the exact regen recipe
+  ('R script for simulations and applied example_R2.R', set.seed(123), psych::sim.structure) — T2
+  feasible as planned. Decided the guard contract (T4): each fixture's `provenance` must be a list
+  with `generator` (chr) + `source` (chr); checks structure not file existence (data-raw is
+  .Rbuildignore'd, absent at R CMD check).
+- 2026-07-12: T1 done — cairn/references/forbes2023.md + INDEX row; oracle values are code-derived
+  from OSF artifacts (not page-transcribed), so no PDF vendored.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
