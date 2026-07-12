@@ -5,7 +5,7 @@
 - **Status:** in-progress
 - **Priority:** high
 - **Depends on:** —
-- **Branch/PR:** m55-cran-resubmission
+- **Branch/PR:** m55-cran-resubmission / https://github.com/jmgirard/ackwards/pull/55
 
 ## Goal
 
