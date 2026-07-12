@@ -5,8 +5,9 @@ choices with rationale — never deferrals.
 
 Pre-migration decision history lives in `cairn/DESIGN.md` §14 (embedded log,
 kept verbatim) and `cairn/legacy/`. This file re-records only the
-still-governing, cross-cutting decisions, each citing its DESIGN §14 anchor;
-new decisions continue from the next D-number.
+still-governing, cross-cutting decisions, each citing its DESIGN source anchor
+(mostly the §14 log; several cite §2–§12); new decisions continue from the next
+D-number.
 
 ### D-001 (date: see legacy §2): A result is a series of linked solutions, not a fitted hierarchy
 

@@ -135,11 +135,18 @@ fires) governs branching, PRs, and the review/merge-approval gate. **This repo's
 `master`, not `main`** — read every "main" in cairn's rules and CLAUDE section as `master` here.
 Repo-specific facts cairn does not know:
 
-- **Release / CRAN-submission milestones are the CI exception**: wait for the *full* green CI matrix
-  (macOS/Windows/Ubuntu × release/devel/oldrel) before merging, because CRAN runs exactly that
-  matrix and will reject platform failures the local macOS `check()` can't see. (For non-release
-  milestones this repo has historically merged on local-green; cairn's review gate now governs.)
-  This also tightens once the package has real users/collaborators.
+- **Branch protection & CI gating (owner decision, 2026-07-01) — standing override of cairn's
+  default gate:** `master` is deliberately **not** branch-protected. Non-release milestones have
+  historically **merged on local-green** (`devtools::check()` 0/0/0 + tests + coverage + style/lint)
+  with CI treated as an after-the-fact signal — *not* gated on the ~8–15 min CI matrix (pure latency
+  for a solo pre-CRAN repo where local `check()` already ran). Don't use `gh pr merge --auto`
+  (silently no-ops without required checks on an unprotected branch) and don't synchronously watch
+  or background-poll CI. This **consciously overrides cairn's default "never merge pending CI"**
+  (tracking-rules) and holds until the package has real users/collaborators — at which point
+  reconsider branch protection. Revisit deliberately; don't let it lapse silently.
+- **Release / CRAN-submission milestones are the exception to the above**: wait for the *full* green
+  CI matrix (macOS/Windows/Ubuntu × release/devel/oldrel) before merging, because CRAN runs exactly
+  that matrix and will reject platform failures the local macOS `check()` can't see.
 - **Do not touch** the `legacy` branch or the `v0-legacy` tag — they preserve the pre-AI code.
 - Small, focused commits with imperative messages. Don't force-push `master`. Don't commit data,
   credentials, or large binaries.
