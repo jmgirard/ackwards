@@ -3,7 +3,7 @@
      Per-section owners are tagged below. -->
 # M54: Export `amh_cor` as a bundled dataset
 
-- **Status:** in-progress   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
+- **Status:** review   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
 - **Priority:** normal   <!-- owner: plan · create/amend-via-gate; high | normal | low -->
 - **Depends on:** —   <!-- owner: plan · create/amend-via-gate -->
 - **Branch/PR:** m54-amh-cor-dataset   <!-- owner: implement (branch) / review (PR URL) · create -->
@@ -80,7 +80,7 @@ tests.
 - [x] T5: DESCRIPTION — add Forbes `cph` (comment-scoped to the matrix); extend
       `LICENSE.note` to name `data/amh_cor.rda` under CC-BY; add `amh_cor` to
       `_pkgdown.yml` Data section; NEWS.md dataset entry.
-- [ ] T6: Add `test-data-amh.R` (dims/symmetry/diag/dimnames validity); run
+- [x] T6: Add `amh_cor` validity test to `test-data.R` (dims/symmetry/diag/dimnames); run
       `Rscript tools/dod-gate.R` (check → coverage → style → lint → pkgdown).
 
 <!-- (RB tripwire: irreversible-api) The exported object name `amh_cor` is a
@@ -105,6 +105,9 @@ tests.
 - 2026-07-12: T5 — Forbes added to DESCRIPTION as data-scoped `cph` (Authors@R parses, verified);
   `LICENSE.note` now covers `data/amh_cor.rda`; `amh_cor` in `_pkgdown.yml` Data (`check_pkgdown()`
   clean); NEWS dataset bullet added.
+- 2026-07-12: T6 — `amh_cor` validity test added to `test-data.R`; `Rscript tools/dod-gate.R`
+  green (check 0/0/0 incl. no license NOTE, coverage 100%, style/lint clean, pkgdown complete).
+  All tasks done → status `review`.
 
 ## Decisions
 
