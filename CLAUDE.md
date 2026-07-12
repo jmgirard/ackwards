@@ -47,40 +47,19 @@ refactor.
 7. **Convergence is data, not an error.** A non-converging level warns + is skipped; the object
    still builds to the deepest converged level. Never let one bad level abort the run.
 
-## Resolved defaults (see `DESIGN.md` §9, §14)
+## Resolved defaults
 
-**Varimax** (orthogonal) rotation — hardcoded internal constant since M13; no `rotation` argument;
-oblique rotation **out of scope** (it confounds the cross-level signal) · `cor = "pearson"` with ordinal-detection
-warning · `tenBerge` scoring (on the active basis) · WLSMV estimator for ordinal ESEM ·
-Forbes extension **off** · `k_max` required · sign `align_signs = TRUE` · `keep_scores`/`keep_fits` stored =
-`FALSE` · `redundancy_phi`: `NULL` (default) auto-resolves — `"pca"` → no φ filter (component
-scores are determinate, so `|r|` is the true between-component correlation); `"efa"`/`"esem"` →
-`0.95` (Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy makes `|r|`-only liberal).
-`NA` is the explicit opt-out. · `redundancy_criterion = "direct"` (M53) — `prune("redundant")`
-traces chains by the **direct/skip-level** correlation to each ancestor level (Forbes's actual
-`ChaseCorrPaths`); `"adjacent"` (pre-M53 adjacent-hop) is a retained opt-in. Announce auto-resolve
-loudly (Invariant 6). Don't change these silently.
+High-stakes defaults (varimax rotation, `cor = "pearson"`, `tenBerge` scoring, WLSMV for ordinal
+ESEM, `k_max` required, `align_signs`, `keep_scores`/`keep_fits = FALSE`, `redundancy_phi`
+auto-resolve, `redundancy_criterion = "direct"`) and their full rationale live in `cairn/DESIGN.md`
+§9 + §14. Announce auto-resolved choices loudly (Invariant 6); never change these silently.
 
-## Dependencies (see `DESIGN.md` §12)
+## Dependencies
 
-`psych` is in **Imports** (M21) — it is the engine substrate for the default PCA and EFA paths and
-for polychoric correlations; placing it in Suggests would require an install prompt for core
-functionality. The SEM + plotting + optional-criterion stacks remain in `Suggests`. `GPArotation`
-was **removed entirely** (M21) — varimax routes through base `stats::varimax` and GPArotation never
-enters `loadedNamespaces()` on any supported path. **Do not add further to `Imports` without
-flagging it.** **No Rcpp** — profile first; the heavy compute already lives in compiled deps (§3).
-
-Current `Imports`: `cli`, `generics`, `psych`, `rlang`, `stats`, `utils`.
-Current `Suggests`: `covr`, `EFAtools`, `future`, `future.apply`, `ggplot2`, `gt`, `knitr`,
-`lavaan (>= 0.6-13)`, `rmarkdown`, `testthat (>= 3.0.0)`. (`future` itself is declared because the
-parallel test calls `future::plan()` directly; `future.apply` is the dispatch backend.) `suggest_k()` uses
-`psych::fa.parallel(fa="both")` + `psych::vss` (PA-PC, PA-FA, MAP, VSS-1/2) and optionally
-`EFAtools::CD()` (gated by `rlang::is_installed()`); no separate `EGAnet`/`paran` dep.
-`future.apply` (M26) is the optional parallel backend for the ESEM per-level fits, gated by
-`rlang::is_installed()` with a serial `lapply` fallback — users opt in via `future::plan()`; no
-`ncores` arg, no `future`/`parallel` in Imports. Visualization uses `ggplot2` directly
-(no `ggraph`/`igraph`/`tidygraph`). `methods` is **not** imported (no `methods::` usage). `clue`
-was removed in M5.
+Dependency rationale and the full Imports/Suggests split live in `cairn/DESIGN.md` §12. Hard rules:
+`psych` is the only heavy **Imports** dep (engine substrate for PCA/EFA + polychoric); everything
+else is guarded **Suggests**; **no Rcpp**; **do not add to `Imports` without flagging**. Current
+`Imports`: `cli`, `generics`, `psych`, `rlang`, `stats`, `utils`.
 
 ## Dev workflow
 
@@ -174,15 +153,11 @@ Repo-specific facts cairn does not know:
 - Prefer wrapping established engines (`psych`, `lavaan`, `GPArotation`) over reimplementing
   numerics.
 
-## Out of scope for now
+## Out of scope
 
-- **EAP scoring** for ordinal ESEM — declined (M28): EAP's shrinkage attenuates the cross-level correlations that bass-ackwards exists to measure; tenBerge covers the common case. Seam preserved in `compute_edges()` but implementing EAP is not planned.
-- **Oblique rotation** — varimax is hardcoded; no `rotation` argument; oblique confounds the cross-level signal. No plans to add it.
-- **Higher-order SEM / Schmid-Leiman** — out of scope per §2; `ackwards` is correlation-based, not SEM-based.
-- ~~**Bootstrap CIs on skip-level edges**~~ — **shipped M47** as the `boot_edges()` verb (all
-  edges, adjacent and skip-level; PCA/EFA + pearson/spearman). Deferred from M5, reactivated from
-  DESIGN §14 e4. (Structural artefact signals and φ-default for non-PCA redundancy were
-  reactivated and completed in M25.)
+EAP scoring (declined M28), oblique rotation, and higher-order SEM / Schmid-Leiman are out of
+scope — rationale in `cairn/DESIGN.md` §2 + §14. (Bootstrap skip-level edge CIs shipped M47 as
+`boot_edges()`; no longer deferred.)
 
 <!-- Appended by /cairn-init. Keep the section body under ~25 lines.
      NOTE: cairn's template says "main"; adapted to "master" for this repo. -->
