@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-07-11 (migrated from Lineage B via /cairn-init)_
+_Last hygiene check: 2026-07-12 (M54 shipped)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,8 +10,8 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M54 | Export `forbes2023` as a bundled dataset | review | — | normal | milestones/M54-amh-cor-dataset.md |
-<!-- M01–M53 are done/dropped (entombed in cairn/legacy/MILESTONES.md); new work from M54. -->
+| M54 | Export `forbes2023` as a bundled dataset | done | — | normal | milestones/archive/M54-amh-cor-dataset.md |
+<!-- M01–M53 are done/dropped (entombed in cairn/legacy/MILESTONES.md); new work from M55. -->
 
 ## Candidates
 
