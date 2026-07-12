@@ -28,7 +28,7 @@ test_that("label_template style='id' is a round-trip no-op for node_labels", {
 
   labs <- label_template(x, style = "id")
   # values equal names
-  expect_identical(unname(labs), names(labs))
+  expect_identical(as.character(labs), names(labs))
 
   # Passing to autoplot should produce same node labels as default (no-op)
   lay_default <- ba_layout(x)$nodes$label
@@ -77,14 +77,52 @@ test_that("label_template errors on invalid style", {
   expect_error(label_template(x, style = "bad"), class = "error")
 })
 
-test_that("label_template returns invisibly", {
+test_that("label_template returns a classed vector visibly, with no console output", {
   skip_if_not_installed("psych")
   set.seed(1)
   x <- cached(ackwards(.make_esem_data(), k_max = 2, engine = "pca"))
-  # Should print but return the vector invisibly
-  out <- withVisible(label_template(x))
-  expect_false(out$visible)
+  # Visible classed return; the function itself writes nothing to the console
+  # (CRAN feedback 2026-07-12: output must be suppressible via assignment)
+  expect_silent(out <- withVisible(label_template(x)))
+  expect_true(out$visible)
   expect_type(out$value, "character")
+  expect_s3_class(out$value, "ackwards_labels")
+})
+
+test_that("print.ackwards_labels renders the editable c(...) literal", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  x <- cached(ackwards(.make_esem_data(), k_max = 2, engine = "pca"))
+
+  # cli header goes to the message stream; the c(...) literal to stdout
+  # (same capture pattern as the other print-method tests)
+  header <- cli::ansi_strip(
+    capture.output(print(label_template(x)), type = "message")
+  )
+  expect_true(any(grepl("label_template", header, fixed = TRUE)))
+  expect_true(any(grepl("(id style)", header, fixed = TRUE)))
+
+  literal <- capture.output(ret <- print(label_template(x)))
+  expect_identical(literal[1], "c(")
+  expect_true(any(grepl('"m1f1" = "m1f1"', literal, fixed = TRUE)))
+  expect_identical(literal[length(literal)], ")")
+  # print returns its input invisibly
+  expect_s3_class(ret, "ackwards_labels")
+})
+
+test_that("label_template result survives subassignment and feeds autoplot", {
+  skip_if_not_installed("psych")
+  set.seed(1)
+  x <- cached(ackwards(.make_esem_data(), k_max = 2, engine = "pca"))
+
+  labs <- label_template(x)
+  labs["m2f1"] <- "My factor name"
+  expect_s3_class(labs, "ackwards_labels")
+  expect_identical(labs[["m2f1"]], "My factor name")
+
+  skip_if_not_installed("ggplot2")
+  p <- ggplot2::autoplot(x, node_labels = labs)
+  expect_s3_class(p, "ggplot")
 })
 
 test_that("label_template includes level-1 factor in all styles", {

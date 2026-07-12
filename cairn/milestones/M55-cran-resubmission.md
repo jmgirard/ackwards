@@ -72,12 +72,12 @@ cli output sits in `print.*` methods, CRAN's allowed exception).
 
 - [x] T1: Expand acronyms in DESCRIPTION Description text (PCA, EFA, ESEM;
       wording already exists in cran-comments.md "misspelled words" note).
-- [ ] T2: Refactor `R/label_template.R`: move header + `c(...)` literal
+- [x] T2: Refactor `R/label_template.R`: move header + `c(...)` literal
       rendering (lines 84–86) into `print.ackwards_labels()`; return
       `structure(out, class = c("ackwards_labels", "character"))` visibly;
       roxygen for the method via `@rdname label_template` (no new pkgdown
       topic); `devtools::document()`.
-- [ ] T3: Update `tests/testthat/test-label_template.R` (31 expectations):
+- [x] T3: Update `tests/testthat/test-label_template.R` (31 expectations):
       visible classed return, `expect_silent()` on assignment, print-method
       output test, downstream subassignment + `autoplot` node_labels round
       trip.
@@ -98,6 +98,10 @@ cli output sits in `print.*` methods, CRAN's allowed exception).
   (2 items); gate decisions: resubmit from master as 0.1.1; classed
   return + print method; check bar = CI matrix + win-builder devel.
 - 2026-07-12: T1 done — PCA/EFA/ESEM expanded in DESCRIPTION Description.
+- 2026-07-12: T2+T3 done — label_template() now returns a visible classed
+  vector (style kept as attribute); print.ackwards_labels() renders the
+  header + c(...) literal; tests updated (42 expectations green, incl.
+  expect_silent on assignment and autoplot round trip).
 
 ## Decisions
 
