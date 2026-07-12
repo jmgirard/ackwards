@@ -60,13 +60,13 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   autoplot(sk)
 }
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [54ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [113ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [108ms]
+#> ✔ Running MAP and VSS... [172ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [2.6s]
+#> ✔ Running Comparison Data (CD)... [4.5s]
 #> 
 
 # }
