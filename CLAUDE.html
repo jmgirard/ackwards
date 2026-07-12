@@ -56,135 +56,12 @@
 
 <div id="claudemd--ackwards" class="section level1">
 
-<p>Operating manual for AI-assisted development of this package. Read <code>DESIGN.md</code> (repo root) first and treat it as the <strong>source of truth</strong> for all design decisions; this file covers <em>how we work</em>, not <em>what we’re building</em>. When this file and <code>DESIGN.md</code> disagree, <code>DESIGN.md</code> wins for design and this file wins for process — and flag the conflict.</p>
+<p>Operating manual for AI-assisted development of this package. Read <code>cairn/DESIGN.md</code> first and treat it as the <strong>source of truth</strong> for all design decisions; this file covers <em>how we work</em>, not <em>what we’re building</em>. When this file and <code>cairn/DESIGN.md</code> disagree, <code>cairn/DESIGN.md</code> wins for design and this file wins for process — and flag the conflict.</p>
 <div class="section level2">
 <h2 id="what-this-is">What this is<a class="anchor" aria-label="anchor" href="#what-this-is"></a></h2>
 <p><code>ackwards</code> is an R package implementing Goldberg’s (2006) bass-ackwards method and modern descendants (PCA / EFA / ESEM engines) for hierarchical structural analysis. Extract solutions from 1..k factors, then characterize the hierarchy via between-level factor-score correlations. Full rationale, contracts, object spec, and resolved defaults are in <code>DESIGN.md</code>.</p>
 <p><strong>Note:</strong> Forbes (2023) footnote 3 cites this package (<code>github.com/jmgirard/ackwards</code>) as the reference implementation of the extended bass-ackwards approach. Fidelity to the paper’s algorithm is the baseline contract for anything Forbes-related; additive enrichments are acceptable but the default output must reproduce Forbes’s examples exactly. <strong>This contract is test-backed</strong> (M44 + M53): <code>tests/testthat/test-forbes-fidelity.R</code> reproduces the paper’s three simulation studies <em>and</em> her 155-variable AMH applied example (<code>k_max = 10</code>) against expected values computed with Forbes’s own reference implementation (OSF <code>pcwm8</code>; provenance in each fixture). AMH matched to 1.3e-14 across all 45 level-pairs. The AMH matrix ships as a CC-BY fixture (M53 — Forbes licensed it CC-BY 4.0; declared in <code>LICENSE.note</code>). M53 also reproduced her redundancy chase exactly (54/54 components): her <code>ChaseCorrPaths()</code> uses the <strong>direct/skip-level</strong> correlation to each ancestor level, which <code>prune("redundant")</code> now adopts as its default (<code>redundancy_criterion = "direct"</code>) — the pre-M53 adjacent-hop walk diverged on 7/54 AMH components because correlation is non-transitive (they agree on the shallow simulations). See M53 in <code>MILESTONES.md</code>.</p>
 </div>
-<div class="section level2">
-<h2 id="completed-milestones">Completed milestones<a class="anchor" aria-label="anchor" href="#completed-milestones"></a></h2>
-<p><strong>One line each — title + a single clause naming the headline artifact; no second sentence.</strong> If you find yourself adding rationale, test counts, sub-decisions, or a “which also…” clause, it belongs in <a href="MILESTONES.html"><code>MILESTONES.md</code></a> (<strong>the single source of truth</strong>), not here. This index is loaded into every session’s context; keeping it terse is what makes that affordable. Add each new milestone’s full detail to <code>MILESTONES.md</code> in numeric order as part of the definition of done, and only a one-liner here.</p>
-<ul><li>
-<strong>M1</strong> — PCA engine + <code><a href="reference/compute_edges.html">compute_edges()</a></code> algebra + result object + <code>print</code>/<code>tidy</code>/<code>glance</code>
-</li>
-<li>
-<strong>M2</strong> — <code><a href="reference/ba_layout.html">ba_layout()</a></code> + <code><a href="reference/autoplot.html">autoplot()</a></code> adjacent-level diagram + <code><a href="reference/suggest_k.html">suggest_k()</a></code>
-</li>
-<li>
-<strong>M3</strong> — EFA engine (tenBerge) + materialized-scores route + algebra-vs-scores cross-check</li>
-<li>
-<strong>M4</strong> — ESEM engine (lavaan WLSMV) + <code>cor="polychoric"</code> + <code>loadings_se</code> + <code>estimator</code>
-</li>
-<li>
-<strong>M5</strong> — Forbes extension (<code>pairs="all"</code>, <code>prune</code>, Tucker’s φ chains, annotated <code><a href="reference/autoplot.html">autoplot()</a></code>)</li>
-<li>
-<strong>M6</strong> — Storage materialization (<code>keep_scores</code>/<code>keep_fits</code>) + <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> + cfQ cleanup</li>
-<li>
-<strong>M7</strong> — Documentation (README.Rmd, intro + engines/ordinal/forbes vignettes, pkgdown)</li>
-<li>
-<strong>M8</strong> — Plot customization (<code><a href="reference/autoplot.ackwards.html">autoplot.ackwards()</a></code> args + <code>.drop_pruned_nodes()</code>)</li>
-<li>
-<strong>M9</strong> — Visualization round 2 + <code>ackwards-visualization.Rmd</code>
-</li>
-<li>
-<strong>M10</strong> — Conformance + robustness (<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, ESEM Heywood warning, spearman+esem warning)</li>
-<li>
-<strong>M11</strong> — Edge-label polish + <code>show_r</code> decoupling (APA <code>.format_r()</code>)</li>
-<li>
-<strong>M12</strong> — Best-practice <code>suggest_k</code> (PA-FA, VSS-1/2, CD) + <code><a href="reference/autoplot.suggest_k.html">autoplot.suggest_k()</a></code>
-</li>
-<li>
-<strong>M13</strong> — Rotation honesty (removed <code>kappa</code>/<code>rotation</code> args; cfT → varimax)</li>
-<li>
-<strong>M14</strong> — Dedicated <code><a href="reference/suggest_k.html">suggest_k()</a></code> vignette</li>
-<li>
-<strong>M15</strong> — Naming clarity pass (<code>k</code>→<code>k_max</code>, <code>method</code>→<code>engine</code>, <code>scores</code>→<code>keep_scores</code>, …)</li>
-<li>
-<strong>M16</strong> — Estimator-aware missing-data handling (<code>missing=</code> arg)</li>
-<li>
-<strong>M17</strong> — GitHub 0.1.0 release prep (MIT license, <code>inst/CITATION</code>, version bump)</li>
-<li>
-<strong>M18</strong> — Factor interpretation &amp; label scaffolding (<code><a href="reference/top_items.html">top_items()</a></code>, <code><a href="reference/label_template.html">label_template()</a></code>)</li>
-<li>
-<strong>M19</strong> — Dedicated interpretation/labeling vignette</li>
-<li>
-<strong>M20</strong> — CRAN submission readiness + example legibility</li>
-<li>
-<strong>M21</strong> — Onboarding &amp; usability pass (<code>psych</code>→Imports, drop <code>GPArotation</code>, <code>bfi25</code> dataset)</li>
-<li>
-<strong>M22</strong> — Correlation-matrix input (PCA/EFA)</li>
-<li>
-<strong>M23</strong> — Test-coverage hardening (→ 100%)</li>
-<li>
-<strong>M24</strong> — Vignette communication pass (<code>gt</code> comparison tables)</li>
-<li>
-<strong>M25</strong> — Deferred-items pass (<code>suggest_k</code> <code>criteria=</code>, artefact signals, φ auto-default)</li>
-<li>
-<strong>M26</strong> — Faster ESEM on large item sets (cached sample stats + parallel per-level fits)</li>
-<li>
-<strong>M27</strong> — ESEM fit &amp; SEs as first-class output (glance fit, wide fit table, cutoff flags, loading CIs, fit plot, vignette framing)</li>
-<li>
-<strong>M28</strong> — CD correctness &amp; honesty fix (<code>cd_rmse</code> trailing-zero bug; “minimize” label/roxygen corrected to sequential-test framing)</li>
-<li>
-<strong>M29</strong> — Strip milestone numbers from user-facing docs (<code>NEWS.md</code> <code>(M24)</code> tag removed; regression test guards <code>NEWS.md</code>/<code>README.md</code>/vignettes)</li>
-<li>
-<strong>M30</strong> — Citation hygiene (<code>inst/CITATION</code> Girard-only; <code><a href="reference/ackwards.html">ackwards()</a></code> <code>@references</code> gains Forbes; README citation prose corrected)</li>
-<li>
-<strong>M31</strong> — Correctness &amp; output-honesty sweep (scaled ESEM fit under WLSMV/ULSMV/MLR; polychoric+ML guard)</li>
-<li>
-<strong>M32</strong> — API-shape &amp; naming resolutions (<code>tidy(what="fit")</code> <code>statistic</code>; variance as <code>proportion</code>/<code>cumulative</code>)</li>
-<li>
-<strong>M33</strong> — Simulated Gaussian dataset (<code>sim16</code>: 1000×16, known 1→2→4 hierarchy)</li>
-<li>
-<strong>M34</strong> — Pruning verb: <code><a href="reference/prune.html">prune()</a></code> extracted as a standalone, pipeable S3 generic</li>
-<li>
-<strong>M35</strong> — autoplot sign-propagation fix + configurable <code>sign_by</code>/<code>magnitude_by</code> + horizontal layout</li>
-<li>
-<strong>M36</strong> — Interpretation: <code><a href="https://generics.r-lib.org/reference/augment.html" class="external-link">augment()</a></code> <code>append</code>/<code>id_cols</code>; <code><a href="reference/top_items.html">top_items()</a></code> <code>by=</code> + item-label display</li>
-<li>
-<strong>M37</strong> — Engines vignette rewrite (doc-only)</li>
-<li>
-<strong>M38</strong> — <code>missing = "fiml"</code> for PCA/EFA (<code><a href="https://rdrr.io/pkg/psych/man/corFiml.html" class="external-link">psych::corFiml()</a></code> into the algebra) + <code>n_obs</code> strings</li>
-<li>
-<strong>M39</strong> — Narrative &amp; prose clarity pass across vignettes/README (doc-only)</li>
-<li>
-<strong>M40</strong> — Deferred code/viz asks (ordinal corr bar chart; fully-pruned-level italic label)</li>
-<li>
-<strong>M41</strong> — Independent Fable review (review-only): core clean; 1 Critical/6 Major/11 Minor triaged</li>
-<li>
-<strong>M42</strong> — Review fixes, code (EFA <code>chi</code> LR statistic; <code>drop_pruned</code> all-pairs regression)</li>
-<li>
-<strong>M43</strong> — Review fixes, docs (engines/suggest_k/Forbes vignettes; <code>redundancy_phi</code> PCA rationale)</li>
-<li>
-<strong>M44</strong> — Forbes-fidelity fixture + <code>test-forbes-fidelity.R</code> (contract now test-backed)</li>
-<li>
-<strong>M45</strong> — Out-of-sample scoring: <code><a href="reference/predict.ackwards.html">predict.ackwards()</a></code> + <code>augment(scaling=)</code> fit-time moments</li>
-<li>
-<strong>M46</strong> — Girard extension: <code><a href="reference/comparability.html">comparability()</a></code> (split-half factor comparability) + methods</li>
-<li>
-<strong>M47</strong> — Bootstrap edge CIs: <code><a href="reference/boot_edges.html">boot_edges()</a></code> verb (percentile CIs, PCA/EFA + pearson/spearman)</li>
-<li>
-<strong>M48</strong> — Performance &amp; workflow pass (cached test-fit memo, parallel testthat, <code>tools/dod-gate.R</code>)</li>
-<li>
-<strong>M49</strong> — Initial CRAN release (0.1.0) + polychoric robustness arc (<code>correct</code> arg, <code><a href="reference/check_items.html">check_items()</a></code>)</li>
-<li>
-<strong>M50</strong> — Release polish (<code>bfi25</code> IPIP labels, cli consistency, <code>suggest_k</code> ordinal warning)</li>
-<li>
-<strong>M51</strong> — Factor-label pipeline (<code><a href="reference/set_factor_labels.html">set_factor_labels()</a></code>/<code><a href="reference/factor_labels.html">factor_labels()</a></code>; <code>meta$factor_labels</code>)</li>
-<li>
-<strong>M52</strong> — Factorability diagnostics (<code><a href="reference/factorability.html">factorability()</a></code> + <code><a href="reference/ackwards.html">ackwards()</a></code> Ledermann/adequacy screen)</li>
-<li>
-<strong>M53</strong> — AMH applied-example fidelity (CC-BY <code>forbes2023_amh.rds</code> fixture) + Forbes direct redundancy criterion (<code>prune(redundancy_criterion=)</code>)</li>
-</ul></div>
-<div class="section level2">
-<h2 id="current-focus">Current focus<a class="anchor" aria-label="anchor" href="#current-focus"></a></h2>
-<p>This section is the <strong>status slot only</strong> — what is in flight right now, plus blockers. It is not a place to recap a finished milestone (that detail lives in <code>MILESTONES.md</code>, one-lined in the index above) nor to stage future work (that lives in <code>ROADMAP.md</code>). When a milestone completes, /implement-milestone reduces this to the line below; when the next is planned, /plan-milestone fills it with that milestone’s number, phase, and blockers.</p>
-<ul><li>
-<strong>In flight:</strong> nothing. Last numbered milestone: <strong>M53</strong> (AMH applied-example fidelity — the now-CC-BY 155-variable AMH matrix committed as <code>forbes2023_amh.rds</code> + an AMH block in <code>test-forbes-fidelity.R</code>). Detail in <code>MILESTONES.md</code>.</li>
-<li>
-<strong>Next up:</strong> nothing queued. Candidates and the pending owner release-tail are in <code>ROADMAP.md</code>; deferred design decisions are in DESIGN.md §14 and “Out of scope for now” below.</li>
-</ul></div>
 <div class="section level2">
 <h2 id="invariants--do-not-violate-without-flagging">Invariants — do not violate without flagging<a class="anchor" aria-label="anchor" href="#invariants--do-not-violate-without-flagging"></a></h2>
 <p>These encode hard-won reasoning from the design phase. Changing them is a design decision, not a refactor.</p>
@@ -204,13 +81,12 @@
 <strong>Convergence is data, not an error.</strong> A non-converging level warns + is skipped; the object still builds to the deepest converged level. Never let one bad level abort the run.</li>
 </ol></div>
 <div class="section level2">
-<h2 id="resolved-defaults-see-designmd-9-14">Resolved defaults (see <code>DESIGN.md</code> §9, §14)<a class="anchor" aria-label="anchor" href="#resolved-defaults-see-designmd-9-14"></a></h2>
-<p><strong>Varimax</strong> (orthogonal) rotation — hardcoded internal constant since M13; no <code>rotation</code> argument; oblique rotation <strong>out of scope</strong> (it confounds the cross-level signal) · <code>cor = "pearson"</code> with ordinal-detection warning · <code>tenBerge</code> scoring (on the active basis) · WLSMV estimator for ordinal ESEM · Forbes extension <strong>off</strong> · <code>k_max</code> required · sign <code>align_signs = TRUE</code> · <code>keep_scores</code>/<code>keep_fits</code> stored = <code>FALSE</code> · <code>redundancy_phi</code>: <code>NULL</code> (default) auto-resolves — <code>"pca"</code> → no φ filter (component scores are determinate, so <code>|r|</code> is the true between-component correlation); <code>"efa"</code>/<code>"esem"</code> → <code>0.95</code> (Lorenzo-Seva &amp; ten Berge 2006; factor-score indeterminacy makes <code>|r|</code>-only liberal). <code>NA</code> is the explicit opt-out. · <code>redundancy_criterion = "direct"</code> (M53) — <code>prune("redundant")</code> traces chains by the <strong>direct/skip-level</strong> correlation to each ancestor level (Forbes’s actual <code>ChaseCorrPaths</code>); <code>"adjacent"</code> (pre-M53 adjacent-hop) is a retained opt-in. Announce auto-resolve loudly (Invariant 6). Don’t change these silently.</p>
+<h2 id="resolved-defaults">Resolved defaults<a class="anchor" aria-label="anchor" href="#resolved-defaults"></a></h2>
+<p>High-stakes defaults (varimax rotation, <code>cor = "pearson"</code>, <code>tenBerge</code> scoring, WLSMV for ordinal ESEM, <code>k_max</code> required, <code>align_signs</code>, <code>keep_scores</code>/<code>keep_fits = FALSE</code>, <code>redundancy_phi</code> auto-resolve, <code>redundancy_criterion = "direct"</code>) and their full rationale live in <code>cairn/DESIGN.md</code> §9 + §14. Announce auto-resolved choices loudly (Invariant 6); never change these silently.</p>
 </div>
 <div class="section level2">
-<h2 id="dependencies-see-designmd-12">Dependencies (see <code>DESIGN.md</code> §12)<a class="anchor" aria-label="anchor" href="#dependencies-see-designmd-12"></a></h2>
-<p><code>psych</code> is in <strong>Imports</strong> (M21) — it is the engine substrate for the default PCA and EFA paths and for polychoric correlations; placing it in Suggests would require an install prompt for core functionality. The SEM + plotting + optional-criterion stacks remain in <code>Suggests</code>. <code>GPArotation</code> was <strong>removed entirely</strong> (M21) — varimax routes through base <code><a href="https://rdrr.io/r/stats/varimax.html" class="external-link">stats::varimax</a></code> and GPArotation never enters <code><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">loadedNamespaces()</a></code> on any supported path. <strong>Do not add further to <code>Imports</code> without flagging it.</strong> <strong>No Rcpp</strong> — profile first; the heavy compute already lives in compiled deps (§3).</p>
-<p>Current <code>Imports</code>: <code>cli</code>, <code>generics</code>, <code>psych</code>, <code>rlang</code>, <code>stats</code>, <code>utils</code>. Current <code>Suggests</code>: <code>covr</code>, <code>EFAtools</code>, <code>future</code>, <code>future.apply</code>, <code>ggplot2</code>, <code>gt</code>, <code>knitr</code>, <code>lavaan (&gt;= 0.6-13)</code>, <code>rmarkdown</code>, <code>testthat (&gt;= 3.0.0)</code>. (<code>future</code> itself is declared because the parallel test calls <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code> directly; <code>future.apply</code> is the dispatch backend.) <code><a href="reference/suggest_k.html">suggest_k()</a></code> uses <code>psych::fa.parallel(fa="both")</code> + <code><a href="https://rdrr.io/pkg/psych/man/VSS.html" class="external-link">psych::vss</a></code> (PA-PC, PA-FA, MAP, VSS-1/2) and optionally <code><a href="https://rdrr.io/pkg/EFAtools/man/CD.html" class="external-link">EFAtools::CD()</a></code> (gated by <code><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">rlang::is_installed()</a></code>); no separate <code>EGAnet</code>/<code>paran</code> dep. <code>future.apply</code> (M26) is the optional parallel backend for the ESEM per-level fits, gated by <code><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">rlang::is_installed()</a></code> with a serial <code>lapply</code> fallback — users opt in via <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code>; no <code>ncores</code> arg, no <code>future</code>/<code>parallel</code> in Imports. Visualization uses <code>ggplot2</code> directly (no <code>ggraph</code>/<code>igraph</code>/<code>tidygraph</code>). <code>methods</code> is <strong>not</strong> imported (no <code>methods::</code> usage). <code>clue</code> was removed in M5.</p>
+<h2 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a></h2>
+<p>Dependency rationale and the full Imports/Suggests split live in <code>cairn/DESIGN.md</code> §12. Hard rules: <code>psych</code> is the only heavy <strong>Imports</strong> dep (engine substrate for PCA/EFA + polychoric); everything else is guarded <strong>Suggests</strong>; <strong>no Rcpp</strong>; <strong>do not add to <code>Imports</code> without flagging</strong>. Current <code>Imports</code>: <code>cli</code>, <code>generics</code>, <code>psych</code>, <code>rlang</code>, <code>stats</code>, <code>utils</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="dev-workflow">Dev workflow<a class="anchor" aria-label="anchor" href="#dev-workflow"></a></h2>
@@ -237,20 +113,19 @@
 <li>Styled and linted.</li>
 <li>The whole gate above is one command: <code>Rscript tools/dod-gate.R</code> (M48) — check → coverage → style → lint → pkgdown, serial, one process, non-zero exit on any failure.</li>
 <li>Public-facing change reflected in NEWS.md and (if user-visible) the relevant <code>@examples</code>/vignette.</li>
-<li>For a milestone: a detailed entry added to <code>MILESTONES.md</code> <strong>in numeric order</strong> + a <strong>one-line</strong> index entry here under “Completed milestones” (title + a single clause — see that section’s header). <code>MILESTONES.md</code> is the single source of truth for milestone history — never re-log it in DESIGN.md §15 (a pointer), and never let the CLAUDE.md index grow past one line per milestone.</li>
-<li>For a <strong>non-milestone</strong> code change (any merged PR touching <code>R/</code>/<code>tests/</code>/<code>DESCRIPTION</code>/vignettes that isn’t a planned, numbered milestone — a between-milestone review fix, a hotfix): add a dated entry to <code>MILESTONES.md</code>’s “Between-milestone changes” section (keeps the numbered list gap-free) and a <code>NEWS.md</code> line if user-visible. Don’t leave code changes logged only in git.</li>
+<li>
+<strong>Milestone/hotfix tracking is cairn’s now</strong> (see the <em>Project tracking (cairn)</em> section below): status lives in <code>cairn/ROADMAP.md</code>, task/work-log detail in the milestone file, decisions in <code>cairn/DECISIONS.md</code>, finished-milestone history in <code>cairn/milestones/archive/</code> + git. Pre-cairn milestone history (M1–M53) is entombed in <code>cairn/legacy/MILESTONES.md</code>. Do not re-introduce a milestone index or status slot in this file.</li>
 </ul></div>
 <div class="section level2">
 <h2 id="git">Git<a class="anchor" aria-label="anchor" href="#git"></a></h2>
-<ul><li>Default branch is <strong><code>master</code></strong>; it stays green and releasable. Milestone work happens on a feature branch (<code>m{N}-&lt;slug&gt;</code>) and merges to <code>master</code> via a <strong>PR</strong>, <strong>squash-merged as soon as the local definition of done is green</strong> (<code>devtools::check()</code> 0/0/0 + tests + coverage + style/lint) — <em>not</em> gated on remote CI. <code>master</code> is deliberately <strong>not branch-protected</strong> (owner decision, 2026-07-01): required checks would gate every merge on the ~8–15 min CI matrix, pure latency for a solo pre-CRAN repo where local <code>check()</code> already ran. CI still runs on every push as an after-the-fact signal but does not block the merge; <strong>don’t</strong> use <code>gh pr merge --auto</code> (silently no-ops without required checks) and <strong>don’t</strong> synchronously watch or background-poll
-<ol start="101" style="list-style-type: upper-roman"><li>Don’t commit milestone work (anything touching <code>R/</code>, <code>tests/</code>, <code>DESCRIPTION</code>, vignettes) straight to <code>master</code>. Trivial isolated doc fixes may go direct at the user’s discretion — but <strong>push them immediately.</strong> An unpushed commit on <code>master</code> leaves local ahead of <code>origin/master</code>; <code>git pull</code> won’t surface it (nothing to fetch), and the next milestone branch — cut from local <code>master</code> — will bundle it into that milestone’s squash-merge and force a post-merge divergence. /plan-milestone step 8a now guards against branching from an ahead-of-origin <code>master</code>.</li>
-</ol><ul><li>
-<strong>Exception — release / CRAN-submission milestones</strong> (e.g. CRAN-prep, version-bump/release): here you <strong>do</strong> wait for the <em>full</em> green CI matrix before merging, because CRAN runs exactly that matrix (macOS/Windows/Ubuntu × release/devel/oldrel) and will reject platform failures the local macOS <code>check()</code> can’t see. For these, don’t merge on local-green alone. This exception also reactivates once the package has real users or collaborators (a red <code>master</code> then blocks others / ships bugs) — treat that transition as the trigger to reconsider branch protection.</li>
-</ul></li>
+<p>cairn’s git &amp; merge-approval model (<code>skills/shared/tracking-rules.md</code>, loaded when a cairn skill fires) governs branching, PRs, and the review/merge-approval gate. <strong>This repo’s default branch is <code>master</code>, not <code>main</code></strong> — read every “main” in cairn’s rules and CLAUDE section as <code>master</code> here. Repo-specific facts cairn does not know:</p>
+<ul><li>
+<strong>Branch protection &amp; CI gating (owner decision, 2026-07-01) — standing override of cairn’s default gate:</strong> <code>master</code> is deliberately <strong>not</strong> branch-protected. Non-release milestones have historically <strong>merged on local-green</strong> (<code>devtools::check()</code> 0/0/0 + tests + coverage + style/lint) with CI treated as an after-the-fact signal — <em>not</em> gated on the ~8–15 min CI matrix (pure latency for a solo pre-CRAN repo where local <code>check()</code> already ran). Don’t use <code>gh pr merge --auto</code> (silently no-ops without required checks on an unprotected branch) and don’t synchronously watch or background-poll CI. This <strong>consciously overrides cairn’s default “never merge pending CI”</strong> (tracking-rules) and holds until the package has real users/collaborators — at which point reconsider branch protection. Revisit deliberately; don’t let it lapse silently.</li>
+<li>
+<strong>Release / CRAN-submission milestones are the exception to the above</strong>: wait for the <em>full</em> green CI matrix (macOS/Windows/Ubuntu × release/devel/oldrel) before merging, because CRAN runs exactly that matrix and will reject platform failures the local macOS <code>check()</code> can’t see.</li>
 <li>
 <strong>Do not touch</strong> the <code>legacy</code> branch or the <code>v0-legacy</code> tag — they preserve the pre-AI code.</li>
-<li>Small, focused commits with imperative messages (e.g., <code>Add PCA engine and level contract</code>).</li>
-<li>Don’t force-push <code>master</code>. Don’t commit data, credentials, or large binaries.</li>
+<li>Small, focused commits with imperative messages. Don’t force-push <code>master</code>. Don’t commit data, credentials, or large binaries.</li>
 </ul></div>
 <div class="section level2">
 <h2 id="ask-first--guardrails">Ask-first / guardrails<a class="anchor" aria-label="anchor" href="#ask-first--guardrails"></a></h2>
@@ -260,16 +135,26 @@
 <li>Prefer wrapping established engines (<code>psych</code>, <code>lavaan</code>, <code>GPArotation</code>) over reimplementing numerics.</li>
 </ul></div>
 <div class="section level2">
-<h2 id="out-of-scope-for-now">Out of scope for now<a class="anchor" aria-label="anchor" href="#out-of-scope-for-now"></a></h2>
+<h2 id="out-of-scope">Out of scope<a class="anchor" aria-label="anchor" href="#out-of-scope"></a></h2>
+<p>EAP scoring (declined M28), oblique rotation, and higher-order SEM / Schmid-Leiman are out of scope — rationale in <code>cairn/DESIGN.md</code> §2 + §14. (Bootstrap skip-level edge CIs shipped M47 as <code><a href="reference/boot_edges.html">boot_edges()</a></code>; no longer deferred.)</p>
+<!-- Appended by /cairn-init. Keep the section body under ~25 lines.
+     NOTE: cairn's template says "main"; adapted to "master" for this repo. -->
+</div>
+<div class="section level2">
+<h2 id="project-tracking-cairn">Project tracking (cairn)<a class="anchor" aria-label="anchor" href="#project-tracking-cairn"></a></h2>
+<p>This repo uses the cairn plugin. <strong>Before acting on any request, classify it and route</strong> — the tracking rulebook only loads once a cairn skill fires, so starting work in plain conversation silently bypasses the work tiers and the git model. Classify first:</p>
 <ul><li>
-<strong>EAP scoring</strong> for ordinal ESEM — declined (M28): EAP’s shrinkage attenuates the cross-level correlations that bass-ackwards exists to measure; tenBerge covers the common case. Seam preserved in <code><a href="reference/compute_edges.html">compute_edges()</a></code> but implementing EAP is not planned.</li>
+<strong>Trivial</strong> (no runtime surface — typo, comment, tracking edit): commit directly to master.</li>
 <li>
-<strong>Oblique rotation</strong> — varimax is hardcoded; no <code>rotation</code> argument; oblique confounds the cross-level signal. No plans to add it.</li>
+<strong>User-visible bug</strong>: invoke <code>/hotfix</code>.</li>
 <li>
-<strong>Higher-order SEM / Schmid-Leiman</strong> — out of scope per §2; <code>ackwards</code> is correlation-based, not SEM-based.</li>
+<strong>New work, a design decision, or more than one sitting</strong>: invoke <code>/milestone-plan</code> (then <code>/milestone-implement</code> → <code>/milestone-review</code>).</li>
 <li>
-<del><strong>Bootstrap CIs on skip-level edges</strong></del> — <strong>shipped M47</strong> as the <code><a href="reference/boot_edges.html">boot_edges()</a></code> verb (all edges, adjacent and skip-level; PCA/EFA + pearson/spearman). Deferred from M5, reactivated from DESIGN §14 e4. (Structural artefact signals and φ-default for non-PCA redundancy were reactivated and completed in M25.)</li>
-</ul></div>
+<strong>Status, “what’s next”, or unsure which tier</strong>: invoke <code>/milestone</code>.</li>
+<li>
+<strong>Never implement code on master</strong> outside a milestone/hotfix branch; nothing reaches master without the user’s explicit approval at the review gate.</li>
+</ul><p>Whenever the request is anything but trivial, invoke the skill <em>first</em> so the full rulebook (the plugin’s <code>skills/shared/tracking-rules.md</code>) and its conduct load — do not reconstruct the rules here from memory. All project state lives under <code>cairn/</code> (<strong>Architecture → DESIGN · Status → ROADMAP · Tasks → milestone files · Decisions → DECISIONS · History → archive + git</strong>); never record status or TODOs in this file. Claude’s persistent memory never holds project state; <code>cairn/</code> files win any conflict.</p>
+</div>
 </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
