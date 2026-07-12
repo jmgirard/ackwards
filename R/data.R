@@ -117,3 +117,61 @@
 #' dim(sim16)
 #' head(sim16)
 "sim16"
+
+#' Assessing Mental Health symptom correlation matrix (Forbes 2023 applied example)
+#'
+#' The 155 x 155 Spearman correlation matrix among 155 mental-health symptom
+#' variables that forms the applied example in Forbes (2023). It is a real,
+#' deep hierarchy: `ackwards(amh_cor, k_max = 10)` unfolds a general factor of
+#' psychopathology at the top down to 10 fine-grained components, the worked
+#' example that motivates the Forbes extension (`pairs = "all"`, `prune()`).
+#' Complements the simulated `sim16` and ordinal `bfi25` with a large, messy,
+#' published case.
+#'
+#' @format A 155 x 155 numeric matrix of Spearman correlations: symmetric, unit
+#'   diagonal, correlations in roughly `0.01`--`0.94`. Row and column names are
+#'   the 155 symptom-variable labels (e.g. `Impulsivity`, `Blurting`).
+#'
+#' @details
+#' The correlations come from the Assessing Mental Health (AMH) study -- the
+#' Australian general-population sample (N = 3,175) of Forbes et al. (2021) --
+#' spanning symptoms of 18 DSM disorders. Being a correlation matrix, it carries
+#' no per-variable sample size; supply `n_obs = 3175` to `ackwards()` if you want
+#' EFA/ESEM fit statistics scaled to the original sample.
+#'
+#' This matrix reproduces Forbes's published results exactly: the package
+#' regression test `test-forbes-fidelity.R` runs `ackwards()` on this exported
+#' `amh_cor` and matches her reference implementation's between-level
+#' correlations to `1.3e-14` across all 45 level-pairs at `k_max = 10`.
+#'
+#' To regenerate this dataset, run `source("data-raw/amh_cor.R")` from the
+#' package root (downloads the source CSV from OSF).
+#'
+#' @source
+#' Forbes's OSF project for the 2023 paper (file `corSpearman_AMH.csv`),
+#' <https://osf.io/pcwm8/>, redistributed here under its Creative Commons
+#' Attribution 4.0 International (CC-BY 4.0) license (see the package's
+#' `LICENSE.note`). The underlying data are from the Assessing Mental Health
+#' study (Forbes et al., 2021).
+#'
+#' @references
+#' Forbes, M. K. (2023). Improving hierarchical models of individual
+#'   differences: An extension of Goldberg's bass-ackwards method.
+#'   *Psychological Methods*. \doi{10.1037/met0000546}
+#'
+#' Forbes, M. K., Sunderland, M., Rapee, R. M., Batterham, P. J., Calear, A. L.,
+#'   Carragher, N., Ruggero, C., Zimmerman, M., Baillie, A. J., Lynch, S. J.,
+#'   Mewton, L., Slade, T., & Krueger, R. F. (2021). A detailed hierarchical
+#'   model of psychopathology: From individual symptoms up to the general factor
+#'   of psychopathology. *Clinical Psychological Science*, 9(2), 139--168.
+#'   \doi{10.1177/2167702620954799}
+#'
+#' @examples
+#' dim(amh_cor)
+#' amh_cor[1:3, 1:3]
+#' \donttest{
+#' # The Forbes (2023) applied example: a 10-level hierarchy from 155 symptoms.
+#' x <- ackwards(amh_cor, k_max = 10, pairs = "all")
+#' x
+#' }
+"amh_cor"

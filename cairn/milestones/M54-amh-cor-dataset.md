@@ -71,10 +71,10 @@ tests.
       both artifacts.
 - [x] T2: Regenerate `data/amh_cor.rda` via T1; confirm dims/symmetry/dimnames by hand
       before committing (never hand-edit `.rda`).
-- [ ] T3: Add the `amh_cor` roxygen block to `R/data.R` (adapt the branch's block:
+- [x] T3: Add the `amh_cor` roxygen block to `R/data.R` (adapt the branch's block:
       `@format`, `@details` with `n_obs = 3175` note, `@source` CC-BY + OSF,
       `@references` both Forbes papers, `\donttest{}` example). `devtools::document()`.
-- [ ] T4: Repoint `test-forbes-fidelity.R` AMH block to read the matrix from `amh_cor`;
+- [x] T4: Repoint `test-forbes-fidelity.R` AMH block to read the matrix from `amh_cor`;
       drop the `$amh$R` read; keep all expected-value assertions. Add/keep the
       direct-vs-adjacent prune pins unchanged.
 - [ ] T5: DESCRIPTION — add Forbes `cph` (comment-scoped to the matrix); extend
@@ -98,6 +98,10 @@ tests.
   and the slimmed fixture from one md5-pinned OSF download (`c1dd9eca…`, verified
   byte-identical to the M53-validated matrix); removed superseded `data-raw/forbes2023_amh.R`;
   fixture 117 KB → 14 KB (matrix dropped).
+- 2026-07-12: T3 — `amh_cor` roxygen block added to `R/data.R` (documented; `man/amh_cor.Rd`
+  generated; NAMESPACE unchanged — bundled data is user-visible via LazyData, not `export()`).
+- 2026-07-12: T4 — fidelity test AMH block reads matrix from exported `amh_cor` (not `$amh$R`);
+  full `forbes-fidelity` suite green, still reproduces Forbes ≤1e-12 across all 45 pairs.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
