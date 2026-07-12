@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M56 | BRM manuscript: reproducible Quarto scaffold + worked example | planned | — | normal | milestones/M56-brm-manuscript.md |
+| M56 | BRM manuscript: reproducible Quarto scaffold + worked example | review | — | normal | milestones/M56-brm-manuscript.md |
 | M55 | Address CRAN 0.1.0 feedback and resubmit as 0.1.1 | done | — | high | milestones/archive/M55-cran-resubmission.md |
 | M54 | Export `forbes2023` as a bundled dataset | done | — | normal | milestones/archive/M54-amh-cor-dataset.md |
 <!-- M01–M53 are done/dropped (entombed in cairn/legacy/MILESTONES.md); new work from M55. -->

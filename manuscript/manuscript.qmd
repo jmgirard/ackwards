@@ -1,0 +1,334 @@
+---
+title: "ackwards: An R Package for Bass-Ackwards Hierarchical Structural Analysis"
+shorttitle: "The ackwards Package"
+author:
+  - name: Jeffrey M. Girard
+    corresponding: true
+    orcid: 0000-0002-7359-3746
+    email: me@jmgirard.com
+    affiliations:
+      - name: University of Kansas
+        department: Department of Psychology
+        city: Lawrence
+        region: KS
+        country: USA
+author-note:
+  disclosures:
+    conflict of interest: The author has no conflicts of interest to disclose.
+abstract: |
+  Factor analysis confronts every investigator with the same question — how many
+  factors to retain — yet solutions at different levels of resolution are
+  complementary rather than competing. Goldberg's (2006) bass-ackwards method
+  makes this explicit by extracting factor solutions from one to *k* factors and
+  characterizing the resulting hierarchy through between-level factor-score
+  correlations. We present **ackwards**, an R package implementing the
+  bass-ackwards method and its modern descendants across principal component
+  analysis, exploratory factor analysis, and exploratory structural equation
+  modeling engines, together with Forbes's (2023) all-levels and
+  redundancy-pruning extensions. The package computes between-level correlations
+  through Waller's (2007) exact closed-form algebra, keeps a light and shareable
+  result object, and exposes a tidy, pipe-friendly interface for fitting,
+  scoring, visualizing, and pruning a hierarchy. We illustrate the workflow on a
+  Big Five personality dataset and reproduce Forbes's 155-variable applied
+  example, whose between-level correlations match her reference implementation to
+  machine precision.
+keywords: [factor analysis, hierarchical structure, bass-ackwards, R package, psychometrics]
+bibliography: references.bib
+format:
+  apaquarto-pdf: default
+  apaquarto-docx: default
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(ackwards)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4.5,
+  dpi = 300
+)
+options(digits = 3)
+```
+
+<!-- ======================================================================= -->
+<!-- INTRODUCTION — author-owned stub. Draft the scholarly framing here.     -->
+<!-- ======================================================================= -->
+
+# Introduction
+
+> **\[AUTHOR TO DRAFT — structured stub]**
+> The seeded Method and Package sections below supply the technical substance;
+> the Introduction should supply the scholarly framing and argument. Suggested
+> beats:
+>
+> - The recurring "how many factors?" problem and why competing single-solution
+>   answers misframe it [@goldberg2006].
+> - The appeal of a *hierarchical* view of individual-differences structure
+>   (personality, psychopathology) and the empirical questions it answers.
+> - The gap: bass-ackwards analyses have been run with bespoke scripts
+>   [@goldberg2006; @waller2007; @forbes2023], with no general, tested,
+>   documented tool — motivating a package.
+> - A one-paragraph roadmap of the paper.
+
+<!-- ======================================================================= -->
+<!-- THE BASS-ACKWARDS METHOD — seeded draft (Method background).             -->
+<!-- ======================================================================= -->
+
+# The bass-ackwards method
+
+Anyone who applies factor analysis faces the same dilemma: how many factors
+should be extracted? Parallel analysis might indicate five, a scree plot three,
+and a reviewer one. It is tempting to treat these as competing answers to a
+single question. @goldberg2006 reframed the problem: the solutions are not
+competing but complementary. A one-factor solution captures the broadest shared
+variance in the data — the dimension along which all variables correlate — while
+a five-factor solution captures narrower, more specific dimensions. The two
+levels describe the same underlying structure from different vantage points, much
+as a satellite image and a street map describe the same city.
+
+The bass-ackwards method makes this relationship explicit. It fits factor models
+at every level from 1 up to *k* and then computes the correlations between factor
+*scores* across levels. Those correlations reveal which narrow factor inherits
+from which broad factor (the lineage of each dimension as resolution increases),
+where a broad factor *splits* into sub-dimensions, and where a factor is *stable*
+— correlating near 1.0 with its counterpart at an adjacent level, and thus
+essentially the same construct at two resolutions. The result is a hierarchy map:
+a visual and numerical account of how the factor structure builds from broad to
+narrow. Importantly, this is a descriptive, data-driven hierarchy, not a
+confirmatory model such as Schmid–Leiman or higher-order structural equation
+modeling; the between-level correlations are score correlations (or their
+algebraic equivalents), not model parameters.
+
+## Computing between-level correlations
+
+The between-level correlations are the heart of the method, and there are two
+routes to them. The direct route materializes factor scores at each level and
+correlates them. @waller2007 showed that, when scoring is a linear function of
+the items, the same correlations follow in closed form from the factor weight
+matrices and the item correlation matrix, without ever computing scores. For
+factor weights $W_a$ and $W_b$ at two levels and item correlation matrix $R$, the
+cross-level score covariance is $W_a' R W_b$; standardizing by the score standard
+deviations $\sqrt{\operatorname{diag}(W'RW)}$ yields the correlations. **ackwards**
+uses this algebra by default and falls back to materialized scores only for
+nonlinear scoring, cross-checking the two routes against one another for linear
+engines. Orthogonal (varimax) rotation within each level is what makes the
+algebra exact: an orthonormal rotation satisfies $T' = T^{-1}$, so the closed
+form holds rather than approximates. Oblique rotation is deliberately not
+offered, because correlated factors would confound the very cross-level signal
+the method exists to measure.
+
+## The Forbes extension
+
+@goldberg2006 computed correlations only between *adjacent* levels (1↔2, 2↔3, …).
+@forbes2023 extended the method in two ways. First, correlations are computed
+across *all* level pairs, not just neighbors, which exposes skip-level
+connections: a factor that persists nearly unchanged across several levels
+correlates near 1.0 with its distant counterpart, revealing that the intermediate
+levels add refinement rather than new information. Second, these all-pairs
+correlations support automatic detection of **redundant** factors — chains of
+near-identical factors across levels — and researcher-guided inspection of
+**artifactual** factors, whose loading patterns duplicate a factor elsewhere in
+the hierarchy (measured by Tucker's congruence coefficient; @lorenzoseva2006) or
+whose structure appears under-identified. Forbes's redundancy chase follows the
+*direct* correlation from a factor to each ancestor level, the criterion
+**ackwards** adopts by default.
+
+<!-- ======================================================================= -->
+<!-- THE ACKWARDS PACKAGE — seeded draft (Statement of Need + design).        -->
+<!-- ======================================================================= -->
+
+# The ackwards package
+
+Despite three decades of use, bass-ackwards analyses have been conducted with
+bespoke, paper-specific scripts [@goldberg2006; @waller2007; @forbes2023]. No
+general implementation existed that (a) spans the extraction engines researchers
+actually use, (b) computes between-level correlations through a single, verified
+path, (c) reproduces the published method exactly, and (d) is documented and
+tested to the standard expected of research software. **ackwards** fills that
+gap. It is available from CRAN and developed openly at
+`https://github.com/jmgirard/ackwards`.
+
+The package builds a hierarchy with a single call, `ackwards(data, k_max, ...)`,
+dispatching to one of three extraction engines behind a common interface:
+principal component analysis (`"pca"`, the default), exploratory factor analysis
+(`"efa"`), and exploratory structural equation modeling (`"esem"`, an
+EFA-in-SEM formulation via **lavaan** [@lavaan] that adds per-level fit indices
+and standard errors). Component and factor extraction rest on the **psych**
+package [@psych]. Correlation input may be Pearson (default), Spearman, or
+polychoric for ordinal items, and a consequential auto-choice — the basis, the
+number of factors, an estimator — is always announced rather than made silently.
+Non-convergence at a deep level is treated as information, not failure: the level
+is recorded, warned about, and skipped, and the hierarchy is still built to the
+deepest converged level.
+
+The result is a light object carrying loadings, variance, fit, weights, edges,
+lineage, and the input correlation matrix; heavy artifacts such as factor scores
+and raw fits are optional and recomputable, keeping results small and shareable.
+A tidy, pipe-friendly surface supports the full workflow: `suggest_k()` for a
+plausible range of hierarchy depths, `ackwards()` to fit, `print()` / `summary()`
+/ `glance()` to inspect, `autoplot()` to draw the hierarchy diagram, `tidy()` and
+`top_items()` to extract and read factors, `augment()` / `predict()` to score
+observations in or out of sample, and `prune()` to apply the Forbes redundancy
+and artifact diagnostics. The two sections that follow demonstrate this workflow:
+first a compact illustrative walkthrough, then Forbes's full applied example.
+
+<!-- ======================================================================= -->
+<!-- ILLUSTRATIVE WALKTHROUGH — live from the package (bfi25).                -->
+<!-- ======================================================================= -->
+
+# An illustrative walkthrough
+
+We use `bfi25`, a built-in dataset of 1,000 respondents answering 25 personality
+items measuring the Big Five traits — Agreeableness, Conscientiousness,
+Extraversion, Neuroticism, and Openness — each on a six-point scale. For this
+illustration we restrict to respondents with complete data:
+
+```{r}
+#| label: data
+bfi <- na.omit(bfi25)
+dim(bfi)
+```
+
+Before fitting, `suggest_k()` reports several complementary factor-retention
+criteria [@horn1965; @velicer1976] and a consensus range, rather than a single
+number:
+
+```{r}
+#| label: suggest-k
+sk <- suggest_k(bfi, seed = 42)
+sk
+```
+
+Because the items are ordinal, we fit on the polychoric correlation basis. A
+single call builds the hierarchy from one to five factors:
+
+```{r}
+#| label: fit
+x <- ackwards(bfi, k_max = 5, cor = "polychoric")
+```
+
+The hierarchy diagram (@fig-bfi) is the centerpiece of the method. Each row is a
+level (*k* = 1 at the top), and each arrow connects a factor to its *primary
+parent* — the factor one level up with which it correlates most strongly. Arrow
+thickness is proportional to $|r|$ and color encodes sign.
+
+```{r}
+#| label: fig-bfi
+#| fig-cap: "Bass-ackwards hierarchy of the 25 Big Five items, extracted from one to five factors on a polychoric basis. Arrows connect each factor to its primary parent; thickness is proportional to the absolute between-level score correlation."
+#| fig-width: 8
+#| fig-height: 5
+autoplot(x)
+```
+
+Reading from broad to narrow tells the story of the Big Five: a single general
+factor at *k* = 1 splits first to separate Neuroticism, then progressively
+differentiates until, at *k* = 5, the canonical five traits appear. Factors carry
+stable identifiers `m{k}f{j}` (level *k*, factor *j*) used throughout the object.
+
+Each between-level edge is the factor-score correlation computed through Waller's
+(2007) closed-form algebra. The primary-parent edge for every factor, strongest
+first, is one line:
+
+```{r}
+#| label: tbl-edges
+#| tbl-cap: "Primary-parent between-level edges for the Big Five hierarchy, sorted by absolute correlation. Each row gives a factor, its primary parent one level up, and their factor-score correlation."
+edges <- tidy(x, what = "edges", primary_only = TRUE, sort = "strength")
+knitr::kable(edges[, c("from", "to", "r")], digits = 2)
+```
+
+An edge near 1.0 marks a dimension that is stable across that step; smaller values
+mark where the structure reorganizes. Factor scores for downstream use are one
+call away with `augment(x, data = bfi)`, and a fitted hierarchy can score new
+observations with `predict()` without refitting.
+
+<!-- ======================================================================= -->
+<!-- APPLIED EXAMPLE — the AMH hierarchy, live from forbes2023 (centerpiece). -->
+<!-- ======================================================================= -->
+
+# Applied example: the AMH hierarchy
+
+The package's fidelity to the published method is not merely asserted; it is
+tested. We reproduce @forbes2023's applied example, a hierarchical analysis of
+155 mental-health variables from the Assessing Mental Health (AMH) study. The
+correlation matrix ships with the package as `forbes2023` (licensed CC-BY 4.0 by
+its author). Following Forbes, we extract from one to ten factors with all-pairs
+correlations:
+
+```{r}
+#| label: amh-fit
+data(forbes2023)
+dim(forbes2023)
+amh <- ackwards(forbes2023, k_max = 10, pairs = "all")
+```
+
+The full ten-level hierarchy (@fig-amh) is far richer than the illustrative
+example, with broad internalizing and externalizing dimensions at the top
+progressively differentiating into specific syndromes.
+
+```{r}
+#| label: fig-amh
+#| fig-cap: "The Assessing Mental Health (AMH) bass-ackwards hierarchy, 155 variables extracted from one to ten factors with all-pairs between-level correlations, reproducing @forbes2023. Only edges at or above the display threshold are drawn."
+#| fig-width: 9
+#| fig-height: 7
+autoplot(amh)
+```
+
+Piping the result through `prune("redundant")` applies Forbes's redundancy
+diagnostic, flagging factors that persist near-unchanged across levels rather
+than differentiating:
+
+```{r}
+#| label: amh-prune
+amh_pruned <- prune(amh, "redundant")
+nodes <- tidy(amh_pruned, what = "nodes")
+c(total_factors = nrow(nodes), flagged_redundant = sum(nodes$pruned))
+```
+
+**Fidelity.** This is the same computation exercised by the package's test suite,
+which verifies it against Forbes's own reference implementation (OSF `pcwm8`).
+Across all 45 between-level pairs, **ackwards**'s edge correlations reproduce the
+reference values to within `r sprintf("%.1e", 1.3e-14)` in absolute magnitude,
+and the redundancy chase reproduces her published result for all 54 components
+(the direct-correlation criterion **ackwards** adopts as its default). The
+applied example a reader renders here is thus numerically identical, to machine
+precision, to the analysis reported by @forbes2023.
+
+<!-- ======================================================================= -->
+<!-- DISCUSSION — author-owned stub. Draft the closing argument here.         -->
+<!-- ======================================================================= -->
+
+# Discussion
+
+> **\[AUTHOR TO DRAFT — structured stub]**
+> Suggested beats:
+>
+> - What the package enables that bespoke scripts did not: engine breadth, a
+>   single verified edge path, exact reproduction of the published method, tested
+>   and documented software.
+> - Interpretive cautions the package deliberately enforces: descriptive not
+>   confirmatory hierarchy; reporting fit values rather than pass/fail verdicts;
+>   redundancy/artifact flags as guides, not deletions; selection bias in reading
+>   the single strongest edge.
+> - Scope and limitations: orthogonal rotation only; EAP scoring and higher-order
+>   SEM out of scope; convergence behavior at deep levels.
+> - Future directions and an availability statement (CRAN, GitHub, documentation
+>   site, open-source license).
+
+# Reproducibility
+
+All numeric results, tables, and figures in this manuscript are computed at
+render time from the **ackwards** package [@ackwards] running in R [@rcore2026];
+no values are hardcoded. See `manuscript/README.md` in the package repository for
+the render command, required toolchain, and the package version used.
+
+# References
+
+::: {#refs}
+:::
