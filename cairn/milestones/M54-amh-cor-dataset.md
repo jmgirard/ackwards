@@ -6,7 +6,7 @@
 - **Status:** review   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
 - **Priority:** normal   <!-- owner: plan · create/amend-via-gate; high | normal | low -->
 - **Depends on:** —   <!-- owner: plan · create/amend-via-gate -->
-- **Branch/PR:** m54-amh-cor-dataset   <!-- owner: implement (branch) / review (PR URL) · create -->
+- **Branch/PR:** m54-amh-cor-dataset · https://github.com/jmgirard/ackwards/pull/54   <!-- owner: implement (branch) / review (PR URL) · create -->
 
 ## Goal
 
@@ -34,21 +34,21 @@ tests.
 ## Acceptance criteria
 <!-- owner: plan · create/amend-via-gate; review reads, never reinterprets -->
 
-- [ ] `data/forbes2023.rda` exists and loads lazily; `forbes2023` is a 155×155 numeric
+- [x] `data/forbes2023.rda` exists and loads lazily; `forbes2023` is a 155×155 numeric
       matrix, symmetric (`isSymmetric(unname(forbes2023))`), unit diagonal, with
       identical non-null row and column names. (evidence: a test asserting all four.)
-- [ ] `forbes2023` is exported and documented: `?forbes2023` renders, `@source` names the
+- [x] `forbes2023` is exported and documented: `?forbes2023` renders, `@source` names the
       OSF project + CC-BY 4.0, and `forbes2023` appears in the `_pkgdown.yml` Data
       section (`pkgdown::check_pkgdown()` clean).
-- [ ] The Forbes fidelity test reads its matrix from the exported `forbes2023` (not a
+- [x] The Forbes fidelity test reads its matrix from the exported `forbes2023` (not a
       matrix embedded in the fixture) and still reproduces Forbes to ≤ 1e-12 across
       all 45 level-pairs at `k_max = 10` — matching the M53 result — per
       `Forbes (2023) doi:10.1037/met0000546` reference values in `forbes2023_amh.rds`.
-- [ ] `data-raw/forbes2023.R` regenerates `data/forbes2023.rda` and the slimmed fixture
+- [x] `data-raw/forbes2023.R` regenerates `data/forbes2023.rda` and the slimmed fixture
       from a single md5-pinned OSF download; the shipped `forbes2023` and the fixture's
       expected values trace to the same source matrix. (evidence: script runs clean;
       md5 guard present.)
-- [ ] Licensing is complete and correct: DESCRIPTION lists Forbes as `cph` scoped by
+- [x] Licensing is complete and correct: DESCRIPTION lists Forbes as `cph` scoped by
       `comment` to the bundled matrix; `LICENSE.note` covers `data/forbes2023.rda`;
       `devtools::check()` clean (0 errors/warnings/notes), including no license NOTE.
 
@@ -106,7 +106,7 @@ tests.
   `LICENSE.note` now covers `data/amh_cor.rda`; `forbes2023` in `_pkgdown.yml` Data (`check_pkgdown()`
   clean); NEWS dataset bullet added.
 - 2026-07-12: T6 — `forbes2023` validity test added to `test-data.R`; `Rscript tools/dod-gate.R`
-  green (check 0/0/0 incl. no license NOTE, coverage 100%, style/lint clean, pkgdown complete).
+  green (check clean, 0 err/0 warn/0 note incl. no license NOTE, coverage 100%, style/lint clean, pkgdown complete).
   All tasks done → status `review`.
 - 2026-07-12: review-gate "adjust first" — user renamed the dataset `amh_cor` → `forbes2023`
   (author-year style). Swept every source/doc/test/DESCRIPTION/LICENSE.note/pkgdown/NEWS ref;
@@ -127,3 +127,25 @@ tests.
 
 ## Review
 <!-- owner: review · exclusive -->
+
+**Reviewed 2026-07-12 · PR #54 · branch up to date with master (no divergence).**
+
+Acceptance-criteria evidence (fresh):
+- **AC1** — `load("data/forbes2023.rda")`: 155×155 numeric matrix, `isSymmetric` TRUE,
+  unit diagonal, rownames==colnames (non-null, unique). `test-data.R` validity block asserts
+  all four; `data|forbes-fidelity` suites 16/16 pass, 0 fail/warn/skip.
+- **AC2** — `?forbes2023` renders (`man/forbes2023.Rd` generated; `@source` names OSF pcwm8 +
+  CC-BY 4.0); `forbes2023` in `_pkgdown.yml` Data; `pkgdown::check_pkgdown()` clean;
+  `--run-donttest` example (`ackwards(forbes2023, k_max = 10)`) ran OK under check.
+- **AC3** — fidelity test reads the matrix from exported `forbes2023` (three `ackwards(forbes2023, …)`
+  calls; fixture no longer carries `$amh$R`); reproduces Forbes ≤1e-12 across all 45 pairs at
+  k_max=10 (suite green). Oracle unchanged — expected values still Forbes's own reference impl.
+- **AC4** — `data-raw/forbes2023.R` ran clean, wrote both artifacts; md5 guard
+  (`c1dd9eca…`) present; fresh download verified byte-identical to the M53-validated matrix.
+- **AC5** — `devtools::check(vignettes = TRUE)`: **Status OK, 0/0/0**, no license NOTE.
+  DESCRIPTION `Authors@R` parses with Forbes `cph` (comment-scoped); `LICENSE.note` covers
+  `data/forbes2023.rda`.
+
+Consistency gate: `cairn_validate.py` exit 0 (all pass); `document()` no diff; `check_pkgdown()`
+clean; NEWS has a user-facing `forbes2023` entry (no milestone numbers); no new top-level files
+(data-raw already `.Rbuildignore`d); no DESIGN principle changed (impact report skipped).
