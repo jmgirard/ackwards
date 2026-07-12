@@ -6,7 +6,7 @@
 - **Status:** review   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
 - **Priority:** normal   <!-- owner: plan · create/amend-via-gate; high | normal | low -->
 - **Depends on:** —   <!-- owner: plan · create/amend-via-gate; M<xx>, M<yy> or — -->
-- **Branch/PR:** m57-ossify-oracles   <!-- owner: implement (branch) / review (PR URL) · create -->
+- **Branch/PR:** m57-ossify-oracles · https://github.com/jmgirard/ackwards/pull/57   <!-- owner: implement (branch) / review (PR URL) · create -->
 
 ## Goal
 
@@ -42,11 +42,11 @@ oracle system to ackwards/cairn.
 ## Acceptance criteria
 <!-- owner: plan · create/amend-via-gate; review reads, never reinterprets -->
 
-- [ ] **AC1 — Registry complete & classified.** `cairn/ORACLES.md` exists; every oracle asserted in
+- [x] **AC1 — Registry complete & classified.** `cairn/ORACLES.md` exists; every oracle asserted in
       the suite maps to exactly one registry entry and every entry names a real asserting test (no
       orphans either way, verified by grepping the oracle tests against the registry); each entry
       carries type, Status, Source, Provenance.
-- [ ] **AC2 — Sims fixture reproducible.** `data-raw/oracle-forbes-sims.R` **deterministically**
+- [x] **AC2 — Sims fixture reproducible.** `data-raw/oracle-forbes-sims.R` **deterministically**
       regenerates all three simulation matrices from Forbes's exact `fx`/`Phi`/`set.seed(123)`/
       `sim.structure` recipe (re-running reproduces them to `< 1e-12`) and computes expected
       `comp_corr`/`cong`/`corr_chase` from them via her md5-pinned sourced reference implementation;
@@ -55,15 +55,15 @@ oracle system to ackwards/cairn.
       *(Amended 2026-07-12, gate: the committed sims matrices are **replaced** by the reproducible
       realizations — the prior random draw was unrecoverable; the redundancy topology is preserved so
       the test's hardcoded prune literals still hold.)*
-- [ ] **AC3 — Principle codified.** CLAUDE.md Invariants gains #8 (oracle-backed numerics, ≥2
+- [x] **AC3 — Principle codified.** CLAUDE.md Invariants gains #8 (oracle-backed numerics, ≥2
       independent oracle types, no unsourced/unreproducible reference value); DESIGN §13
       cross-references it; a forward-note flags it for the IP/GP design-interview pass.
-- [ ] **AC4 — Forbes ingested.** `cairn/references/forbes2023.md` exists (full citation, DOI/OSF,
+- [x] **AC4 — Forbes ingested.** `cairn/references/forbes2023.md` exists (full citation, DOI/OSF,
       md5, oracles that trace to it) with an `INDEX.md` row.
-- [ ] **AC5 — Provenance guard test.** `test-oracle-provenance.R` asserts every
+- [x] **AC5 — Provenance guard test.** `test-oracle-provenance.R` asserts every
       `fixtures/*.rds` has a `provenance` attr and a named generator/exemption; it is demonstrated to
       fail on a deliberately un-sourced fixture and pass on the real ones.
-- [ ] **AC6 — Gate green.** `Rscript tools/dod-gate.R` clean (check 0 err/0 warn/0 note, tests,
+- [x] **AC6 — Gate green.** `Rscript tools/dod-gate.R` clean (check 0 err/0 warn/0 note, tests,
       style, lint, pkgdown).
 
 ## Coverage
@@ -103,36 +103,14 @@ oracle system to ackwards/cairn.
 ## Work log
 <!-- owner: any skill · append-only; one line per entry; absolute dates -->
 
-- 2026-07-12: created by /milestone-plan (promoted from the 2026-07-12 "ossify oracles" candidate;
-  scope confirmed Option 1 — catalogue + surgical freeze, live oracles stay live).
-- 2026-07-12: started; branch m57-ossify-oracles cut from master (CRAN 0.1.1 marker committed to
-  master first). Confirmed OSF reachable + sims fixture provenance names the exact regen recipe
-  ('R script for simulations and applied example_R2.R', set.seed(123), psych::sim.structure) — T2
-  feasible as planned. Decided the guard contract (T4): each fixture's `provenance` must be a list
-  with `generator` (chr) + `source` (chr); checks structure not file existence (data-raw is
-  .Rbuildignore'd, absent at R CMD check).
-- 2026-07-12: T1 done — cairn/references/forbes2023.md + INDEX row; oracle values are code-derived
-  from OSF artifacts (not page-transcribed), so no PDF vendored.
-- 2026-07-12: T2 done — data-raw/oracle-forbes-sims.R (md5-pins her functions guid 7jfkw + sim
-  script guid ztngp; transcribes the 3 fx/Phi DGPs; set.seed(123)/sim.structure/spearman; expected
-  values via her ExtendedBassAckwards + FindRedundantComp). Regenerated fixture (deterministic: two
-  runs maxdiff 0), top-level structured provenance. forbes-fidelity suite green; AC2 amendment
-  verified (prune literals unchanged). data-raw already .Rbuildignore'd.
-- 2026-07-12: T3 done — cairn/ORACLES.md registry. Full sweep found 12 oracles across 4 types:
-  O1/O2 frozen (Forbes AMH+sims), O3–O8 live independent-impl (psych::bassAckward/fa/KMO/bartlett,
-  lavaan::efa/fitMeasures, psych::corFiml FIML path), O9/O10 cross-route invariants (§5.4/D-004
-  algebra-vs-scores; comparability), O11/O12 closed-form (Fisher-z; suggest_k identities). Each row:
-  type/Status(test:line)/Source/Provenance + the deliberate-live-oracle policy.
-- 2026-07-12: T4 done — test-oracle-provenance.R guards a uniform contract (top-level `provenance`
-  list with `generator` matching ^data-raw/*.R + `source`); checks structure not file existence
-  (data-raw .Rbuildignore'd). Normalized the AMH fixture to a top-level provenance (+`generator`
-  field) via data-raw/forbes2023.R — data/forbes2023.rda byte-identical (unchanged export). Teeth
-  demonstrated on scratch fixtures; forbes-fidelity + guard both green.
-- 2026-07-12: T5 done — CLAUDE.md Invariant 8 (oracle-backed numerics; approved wording) + DESIGN
-  §13 cross-ref + forward-note to the IP/GP design-interview pass. Invariant sits outside the capped
-  cairn CLAUDE.md section (D-018: repo dev doctrine isn't cairn's to cap).
-- 2026-07-12: T6 done — DoD gate green (check 0 err/0 warn/0 note, coverage 100%, styler + lintr
-  clean, pkgdown index complete). All tasks complete; status → review.
+- 2026-07-12: created by /milestone-plan (promoted from the "ossify oracles" candidate; scope Option 1 — catalogue + surgical freeze, live oracles stay live).
+- 2026-07-12: started; branch cut from master (CRAN 0.1.1 marker committed first); confirmed OSF reachable + T2 feasible; fixed the T4 guard contract (fixture `provenance` = list with `generator`+`source`, structure-checked since data-raw is .Rbuildignore'd).
+- 2026-07-12: T1 done — cairn/references/forbes2023.md + INDEX row (oracle values code-derived from OSF artifacts, no PDF vendored).
+- 2026-07-12: T2 done — data-raw/oracle-forbes-sims.R (md5-pins guids 7jfkw+ztngp; 3 fx/Phi DGPs; expected values via her impl); regenerated fixture deterministic (maxdiff 0), top-level provenance; forbes-fidelity green, prune literals unchanged.
+- 2026-07-12: T3 done — cairn/ORACLES.md: 12 oracles, 4 types (O1/O2 frozen, O3–O8 live, O9/O10 invariant, O11/O12 closed-form), each type/Status(test:line)/Source/Provenance + live-oracle policy.
+- 2026-07-12: T4 done — test-oracle-provenance.R guard + normalized AMH fixture to top-level provenance via data-raw/forbes2023.R (data/forbes2023.rda byte-identical); teeth demonstrated.
+- 2026-07-12: T5 done — CLAUDE.md Invariant 8 + DESIGN §13 cross-ref + IP/GP forward-note.
+- 2026-07-12: T6 done — DoD gate green (check 0/0/0, coverage 100%, style+lint clean, pkgdown index); status → review.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
@@ -147,3 +125,17 @@ oracle system to ackwards/cairn.
 
 ## Review
 <!-- owner: review · exclusive -->
+
+_Reviewed 2026-07-12 (same session). PR #57._
+
+**AC evidence (fresh):**
+- AC1 — 12 registry entries; all cited test:line anchors resolve to real oracle assertions; reverse sweep found no unregistered oracle-bearing test (2 grep hits are lavaan-k-limit comments).
+- AC2 — generator run twice → max|R diff| 0 (deterministic); `test-forbes-fidelity.R` green; fixture carries top-level structured provenance.
+- AC3 — CLAUDE.md Invariant 8, DESIGN §13 cross-ref, IP/GP forward-note all present (grep-confirmed).
+- AC4 — `cairn/references/forbes2023.md` + INDEX row present.
+- AC5 — `test-oracle-provenance.R` green (both fixtures pass; teeth verified on scratch fixtures).
+- AC6 — DoD gate green (check 0/0/0, coverage 100%, styler/lintr clean, pkgdown index); fresh `document()` no-diff + `pkgdown::check_pkgdown()` pass.
+
+**Consistency gate:** `cairn_validate` all-pass; Coverage map AC1–AC6 → T3/T2/T5/T1/T4/T6 (all exist); no DESIGN IP/GP changed (skip impact); no user-facing change (no NEWS); no stray-file NOTE.
+
+**Independent review:** _pending — [O] diff-bug + [S] blame-history reviewers running._
