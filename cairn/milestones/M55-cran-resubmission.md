@@ -84,7 +84,7 @@ cli output sits in `print.*` methods, CRAN's allowed exception).
 - [x] T4: Re-run `Rscript vignettes/precompute.R`; verify the live
       `ackwards-interpret.Rmd` chunk output; commit regenerated `*.Rmd` +
       `vignettes/assets/`.
-- [ ] T5: Version → 0.1.1; NEWS.md 0.1.1 section (fold the current dev
+- [x] T5: Version → 0.1.1; NEWS.md 0.1.1 section (fold the current dev
       section); rewrite `cran-comments.md` for resubmission (respond to both
       reviewer points explicitly; refresh platform table).
 - [ ] T6: Run `Rscript tools/dod-gate.R`; open PR; wait for **full** CI
@@ -106,6 +106,10 @@ cli output sits in `print.*` methods, CRAN's allowed exception).
   longer prints when nested in autoplot() (the CRAN complaint), top-level
   rendering unchanged; rest of diff is timing/PNG noise. Live interpret
   vignette needs no edit (top-level call auto-prints via method).
+- 2026-07-12: T5 done — Version 0.1.1; NEWS folds dev section under a
+  0.1.1 heading led by the two CRAN-feedback changes; cran-comments.md
+  rewritten as a point-by-point resubmission response (platform table to
+  be confirmed by T6 gate + CI + win-builder before merge).
 
 ## Decisions
 
