@@ -40,3 +40,9 @@ docs
 # cairn tracking
 cairn/references/pdf/
 cairn/.merge-approved
+
+# BRM manuscript (M56) — commit sources only, not built outputs
+manuscript/*.pdf
+manuscript/*.docx
+manuscript/*_files/
+manuscript/.quarto/

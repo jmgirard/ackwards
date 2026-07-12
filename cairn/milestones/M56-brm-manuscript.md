@@ -58,19 +58,21 @@ toolchain, and package version. `devtools::check()` stays clean throughout.
 ## Tasks
 <!-- owner: plan (create) / implement (check-off, minor edits) -->
 
-- [ ] T1. Create `manuscript/`; add `^manuscript$` to `.Rbuildignore`; confirm the dir is excluded from `R CMD build`.
-- [ ] T2. Vendor the apaquarto extension into `manuscript/_extensions`; scaffold `manuscript.qmd` with APA-7 format targeting `apaquarto-pdf` + `apaquarto-docx`; confirm a trivial render of both formats.
-- [ ] T3. Author YAML front-matter (title, author/ORCID/affiliation, APA-7/BRM options); create `references.bib` with the primary method sources + software citations (`citation()` / `citation("psych")` / `citation("lavaan")`); wire `bibliography:` and confirm zero unresolved keys.
-- [ ] T4. Write the bfi25 walkthrough section with live `ackwards` chunks (≥ 1 figure + ≥ 1 table), reusing computations from `vignettes/ackwards-intro.Rmd` / `ackwards-girard.Rmd`.
-- [ ] T5. Write the Forbes-AMH centerpiece section computing from `forbes2023` (reusing `vignettes/ackwards-forbes.Rmd` computations), with an in-document fidelity check of ≥ 1 value against Forbes's reference via the existing oracle; ingest a `forbes2023` summary into `cairn/references/` if a citeable anchor is needed.
-- [ ] T6. Draft Abstract + Statement of Need + Method prose (seed from DESIGN.md §2/§3 + vignettes); add Intro + Discussion structured stubs with guidance bullets, marked author-owned.
-- [ ] T7. Write `manuscript/README.md`: render command, toolchain (Quarto ≥ 1.4, tinytex), and pinned package version / `sessionInfo`.
+- [x] T1. Create `manuscript/`; add `^manuscript$` to `.Rbuildignore`; confirm the dir is excluded from `R CMD build`.
+- [x] T2. Vendor the apaquarto extension into `manuscript/_extensions`; scaffold `manuscript.qmd` with APA-7 format targeting `apaquarto-pdf` + `apaquarto-docx`; confirm a trivial render of both formats.
+- [x] T3. Author YAML front-matter (title, author/ORCID/affiliation, APA-7/BRM options); create `references.bib` with the primary method sources + software citations (`citation()` / `citation("psych")` / `citation("lavaan")`); wire `bibliography:` and confirm zero unresolved keys.
+- [x] T4. Write the bfi25 walkthrough section with live `ackwards` chunks (≥ 1 figure + ≥ 1 table), reusing computations from `vignettes/ackwards-intro.Rmd` / `ackwards-girard.Rmd`.
+- [x] T5. Write the Forbes-AMH centerpiece section computing from `forbes2023` (reusing `vignettes/ackwards-forbes.Rmd` computations), with an in-document fidelity check of ≥ 1 value against Forbes's reference via the existing oracle; ingest a `forbes2023` summary into `cairn/references/` if a citeable anchor is needed.
+- [x] T6. Draft Abstract + Statement of Need + Method prose (seed from DESIGN.md §2/§3 + vignettes); add Intro + Discussion structured stubs with guidance bullets, marked author-owned.
+- [x] T7. Write `manuscript/README.md`: render command, toolchain (Quarto ≥ 1.4, tinytex), and pinned package version / `sessionInfo`.
 - [ ] T8. Full clean render to PDF + docx; run `Rscript tools/dod-gate.R` (or at minimum `devtools::check()`) to confirm 0/0/0 with `manuscript/` excluded; commit rendered outputs (or document their reproduction).
 
 ## Work log
 <!-- owner: any skill · append-only; one line per entry; absolute dates -->
 
 - 2026-07-12: created by /milestone-plan. Venue BRM; Quarto+apaquarto (user pref); in-repo `manuscript/`, `.Rbuildignore`d; deliverable = scaffold + wired example (bfi25 walkthrough + AMH centerpiece) + seeded prose; PDF+docx; reuse vignette computations, vignette candidate row stays separate.
+- 2026-07-12: gate — sole author (Girard, Univ. of Kansas); gitignore built outputs; title "ackwards: An R Package for Bass-Ackwards Hierarchical Structural Analysis". apaquarto 5.0.18 vendored.
+- 2026-07-12: T1–T7 done. Manuscript renders to PDF (13pp) + docx; walkthrough (bfi25) Fig 1 + Table 1 and AMH centerpiece (forbes2023, k=10) Fig 2 compute live; all citations resolve; AMH fidelity anchored to test-forbes-fidelity.R (~1e-14). Callout blocks replaced with blockquote stubs to drop the fontawesome5 LaTeX dep; fontawesome5/newtx/etc. installed manually via CTAN tarballs (local TinyTeX was a sync ahead of all mirrors, so tlmgr auto-install refused). T8 (check + final render) pending.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->

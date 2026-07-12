@@ -1,0 +1,36 @@
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+
+{\caption{{Primary-parent between-level edges for the Big Five
+hierarchy, sorted by absolute correlation. Each row gives a factor, its
+primary parent one level up, and their factor-score
+correlation.}{\label{tbl-edges}}}
+\vspace{-20pt}}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}llr@{}}
+\toprule\noalign{}
+from & to & r \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+m4f2 & m5f2 & 1.00 \\
+m3f1 & m4f1 & 0.99 \\
+m4f4 & m5f5 & 0.99 \\
+m2f2 & m3f2 & 0.99 \\
+m4f3 & m5f3 & 0.98 \\
+m3f2 & m4f2 & 0.98 \\
+m1f1 & m2f1 & 0.89 \\
+m2f1 & m3f1 & 0.87 \\
+m4f1 & m5f1 & 0.84 \\
+m3f3 & m4f3 & 0.73 \\
+m3f3 & m4f4 & 0.68 \\
+m4f1 & m5f4 & 0.55 \\
+m2f1 & m3f3 & 0.48 \\
+m1f1 & m2f2 & 0.46 \\
+\end{longtable}
+}
+
+\end{table*}
