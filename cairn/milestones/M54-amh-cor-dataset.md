@@ -15,21 +15,13 @@ documented, CC-BY-attributed user dataset `forbes2023`, extending the M53 test-o
 
 ## Scope
 
-**In:** A new bundled dataset `data/forbes2023.rda` (the 155×155 AMH matrix, row/col
-names preserved); its roxygen `@source`/`@references` doc block in `R/data.R`; a
-`data-raw/forbes2023.R` generator that downloads the CC-BY matrix from OSF (guid
-`s9bjz`, md5-pinned) and writes **both** `data/forbes2023.rda` and the slimmed
-fidelity fixture from one download; single-sourcing the fidelity test's matrix
-onto the exported `forbes2023` (fixture slimmed to expected-values-only); Forbes
-added to DESCRIPTION as data-scoped `cph`; `LICENSE.note` extended to cover
-`data/forbes2023.rda`; `_pkgdown.yml` Data section + NEWS entry; dataset validity
-tests.
+**In:** New bundled dataset `data/forbes2023.rda` (155×155 AMH matrix, names preserved) + roxygen
+doc block; a `data-raw/forbes2023.R` generator (md5-pinned OSF download) writing **both** the
+dataset and the slimmed fidelity fixture; single-sourcing the fidelity test's matrix onto exported
+`forbes2023`; Forbes as data-scoped `cph`; `LICENSE.note`, `_pkgdown.yml` Data, NEWS; validity tests.
 
-**Out:**
-- Wiring `forbes2023` into a vignette (the Forbes vignette runs on the seed-regenerated
-  simulations) → ROADMAP candidate.
-- Any change to the fidelity oracle values or `prune()`/edge algorithms — M53's
-  numbers stand unchanged; this milestone only relocates where the matrix is read from.
+**Out:** Wiring `forbes2023` into a vignette → ROADMAP candidate. Any change to the fidelity oracle
+or `prune()`/edge algorithms — M53's numbers stand; this only relocates where the matrix is read from.
 
 ## Acceptance criteria
 <!-- owner: plan · create/amend-via-gate; review reads, never reinterprets -->
@@ -128,40 +120,28 @@ tests.
 ## Review
 <!-- owner: review · exclusive -->
 
-**Reviewed 2026-07-12 · PR #54 · branch up to date with master (no divergence).**
+**Reviewed 2026-07-12 · PR #54 · branch up to date with master.** AC evidence (fresh):
+- **AC1** — 155×155 numeric matrix, symmetric, unit diagonal, rownames==colnames (non-null/unique);
+  `test-data.R` asserts all four; `data|forbes-fidelity` suites 16/16 pass (0 fail/warn/skip).
+- **AC2** — `?forbes2023` renders, `@source` names OSF pcwm8 + CC-BY 4.0; in `_pkgdown.yml` Data;
+  `check_pkgdown()` clean; `--run-donttest` example ran OK under check.
+- **AC3** — fidelity test reads matrix from exported `forbes2023` (fixture no longer carries `$amh$R`);
+  reproduces Forbes ≤1e-12 across all 45 pairs at k_max=10; oracle unchanged (Forbes's own ref impl).
+- **AC4** — `data-raw/forbes2023.R` ran clean, wrote both artifacts; md5 guard present; fresh download
+  byte-identical to the M53-validated matrix.
+- **AC5** — `devtools::check(vignettes = TRUE)`: Status OK, zero errors/warnings/notes (no license
+  NOTE); `Authors@R` parses with Forbes `cph` (comment-scoped); `LICENSE.note` covers the dataset.
 
-Acceptance-criteria evidence (fresh):
-- **AC1** — `load("data/forbes2023.rda")`: 155×155 numeric matrix, `isSymmetric` TRUE,
-  unit diagonal, rownames==colnames (non-null, unique). `test-data.R` validity block asserts
-  all four; `data|forbes-fidelity` suites 16/16 pass, 0 fail/warn/skip.
-- **AC2** — `?forbes2023` renders (`man/forbes2023.Rd` generated; `@source` names OSF pcwm8 +
-  CC-BY 4.0); `forbes2023` in `_pkgdown.yml` Data; `pkgdown::check_pkgdown()` clean;
-  `--run-donttest` example (`ackwards(forbes2023, k_max = 10)`) ran OK under check.
-- **AC3** — fidelity test reads the matrix from exported `forbes2023` (three `ackwards(forbes2023, …)`
-  calls; fixture no longer carries `$amh$R`); reproduces Forbes ≤1e-12 across all 45 pairs at
-  k_max=10 (suite green). Oracle unchanged — expected values still Forbes's own reference impl.
-- **AC4** — `data-raw/forbes2023.R` ran clean, wrote both artifacts; md5 guard
-  (`c1dd9eca…`) present; fresh download verified byte-identical to the M53-validated matrix.
-- **AC5** — `devtools::check(vignettes = TRUE)`: **Status OK, 0/0/0**, no license NOTE.
-  DESCRIPTION `Authors@R` parses with Forbes `cph` (comment-scoped); `LICENSE.note` covers
-  `data/forbes2023.rda`.
+Consistency gate: `cairn_validate.py` exit 0; `document()` no diff; `check_pkgdown()` clean; NEWS has
+a user-facing entry; no new top-level files; no DESIGN principle changed. CI (PR #54): full matrix green.
 
-Consistency gate: `cairn_validate.py` exit 0 (all pass); `document()` no diff; `check_pkgdown()`
-clean; NEWS has a user-facing `forbes2023` entry (no milestone numbers); no new top-level files
-(data-raw already `.Rbuildignore`d); no DESIGN principle changed (impact report skipped).
-
-CI (PR #54): full matrix green — macOS/Windows/Ubuntu ×release/devel/oldrel + pkgdown + coverage.
-
-Independent review — two fresh-context reviewers ([O] diff-bug, [S] blame-history) + [S] scorer.
-Core design cleared: blame reviewer verified byte-for-byte that the slimmed fixture's oracle
-values are `identical()` to M53's and the shipped `forbes2023.rda` matrix is `identical()` to the
-previously-embedded matrix (single-sourcing did not weaken the oracle or break test self-containment).
-Three findings scored:
-- **F1 (85, actioned):** `ROADMAP.md` Candidates bullet still said `amh_cor` — the rename missed it. Fixed.
-- **F3 (85, actioned):** `LICENSE.note` said "Both are the AMH correlation matrix" though one file
-  holds derived expected values, not the matrix. Reworded to "Both derive from the AMH correlation
-  matrix of:".
-- **F2 (50, logged — below 80 threshold):** DESIGN §14.41(b) declines a third *teaching* dataset
-  (sim16/bfi25 two-foil pair); `forbes2023` is a *fidelity/reproduction* dataset, arguably outside
-  that scope, but the roxygen "complements sim16 and bfi25" phrasing echoes the declined pattern.
-  Not auto-actioned (arguable, design-governance); surfaced to owner at the merge gate for a call.
+Independent review — [O] diff-bug + [S] blame-history + [S] scorer. Core design cleared: blame
+reviewer verified byte-for-byte that the slimmed fixture's oracle values are `identical()` to M53's
+and the shipped matrix is `identical()` to the previously-embedded one (single-sourcing neither
+weakened the oracle nor broke test self-containment). Findings:
+- **F1 (85, fixed):** `ROADMAP.md` candidate bullet still said `amh_cor` — rename miss. Fixed.
+- **F3 (85, fixed):** `LICENSE.note` "Both are the AMH correlation matrix" → "Both derive from …"
+  (one file holds derived expected values, not the matrix).
+- **F2 (50, logged):** §14.41(b) declines a third *teaching* dataset; `forbes2023` is a
+  *fidelity/reproduction* dataset (arguably out of scope) but roxygen "complements sim16/bfi25"
+  echoes the pattern — surfaced to owner at the merge gate.
