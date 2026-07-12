@@ -101,7 +101,7 @@ oracle system to ackwards/cairn.
       guards and a structured `provenance` attr; regenerate `fixtures/forbes2023_sims.rds`; confirm
       `devtools::test(filter = "forbes-fidelity")` passes unchanged. Add `.Rbuildignore` coverage if
       needed. Model: `data-raw/forbes2023.R`.
-- [ ] **T3 — Write `cairn/ORACLES.md`.** Sweep all `tests/testthat/test-*.R`, enumerate every
+- [x] **T3 — Write `cairn/ORACLES.md`.** Sweep all `tests/testthat/test-*.R`, enumerate every
       oracle, classify by type, and record Status/Source/Provenance per entry; include the header
       statement of the standard and the deliberate live-oracle policy (the Scope "Out" rationale).
 - [ ] **T4 — Provenance guard test.** Add `tests/testthat/test-oracle-provenance.R` iterating
@@ -132,6 +132,11 @@ oracle system to ackwards/cairn.
   values via her ExtendedBassAckwards + FindRedundantComp). Regenerated fixture (deterministic: two
   runs maxdiff 0), top-level structured provenance. forbes-fidelity suite green; AC2 amendment
   verified (prune literals unchanged). data-raw already .Rbuildignore'd.
+- 2026-07-12: T3 done — cairn/ORACLES.md registry. Full sweep found 12 oracles across 4 types:
+  O1/O2 frozen (Forbes AMH+sims), O3–O8 live independent-impl (psych::bassAckward/fa/KMO/bartlett,
+  lavaan::efa/fitMeasures, psych::corFiml FIML path), O9/O10 cross-route invariants (§5.4/D-004
+  algebra-vs-scores; comparability), O11/O12 closed-form (Fisher-z; suggest_k identities). Each row:
+  type/Status(test:line)/Source/Provenance + the deliberate-live-oracle policy.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
