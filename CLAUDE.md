@@ -1,9 +1,9 @@
 # CLAUDE.md — `ackwards`
 
-Operating manual for AI-assisted development of this package. Read `DESIGN.md` (repo root) first
+Operating manual for AI-assisted development of this package. Read `cairn/DESIGN.md` first
 and treat it as the **source of truth** for all design decisions; this file covers *how we work*,
-not *what we're building*. When this file and `DESIGN.md` disagree, `DESIGN.md` wins for design and
-this file wins for process — and flag the conflict.
+not *what we're building*. When this file and `cairn/DESIGN.md` disagree, `cairn/DESIGN.md` wins for
+design and this file wins for process — and flag the conflict.
 
 ## What this is
 
@@ -25,83 +25,6 @@ it CC-BY 4.0; declared in `LICENSE.note`). M53 also reproduced her redundancy ch
 ancestor level, which `prune("redundant")` now adopts as its default (`redundancy_criterion =
 "direct"`) — the pre-M53 adjacent-hop walk diverged on 7/54 AMH components because correlation is
 non-transitive (they agree on the shallow simulations). See M53 in `MILESTONES.md`.
-
-## Completed milestones
-
-**One line each — title + a single clause naming the headline artifact; no second sentence.** If
-you find yourself adding rationale, test counts, sub-decisions, or a "which also…" clause, it
-belongs in [`MILESTONES.md`](MILESTONES.md) (**the single source of truth**), not here. This index
-is loaded into every session's context; keeping it terse is what makes that affordable. Add each
-new milestone's full detail to `MILESTONES.md` in numeric order as part of the definition of done,
-and only a one-liner here.
-
-- **M1** — PCA engine + `compute_edges()` algebra + result object + `print`/`tidy`/`glance`
-- **M2** — `ba_layout()` + `autoplot()` adjacent-level diagram + `suggest_k()`
-- **M3** — EFA engine (tenBerge) + materialized-scores route + algebra-vs-scores cross-check
-- **M4** — ESEM engine (lavaan WLSMV) + `cor="polychoric"` + `loadings_se` + `estimator`
-- **M5** — Forbes extension (`pairs="all"`, `prune`, Tucker's φ chains, annotated `autoplot()`)
-- **M6** — Storage materialization (`keep_scores`/`keep_fits`) + `augment()` + cfQ cleanup
-- **M7** — Documentation (README.Rmd, intro + engines/ordinal/forbes vignettes, pkgdown)
-- **M8** — Plot customization (`autoplot.ackwards()` args + `.drop_pruned_nodes()`)
-- **M9** — Visualization round 2 + `ackwards-visualization.Rmd`
-- **M10** — Conformance + robustness (`summary()`, ESEM Heywood warning, spearman+esem warning)
-- **M11** — Edge-label polish + `show_r` decoupling (APA `.format_r()`)
-- **M12** — Best-practice `suggest_k` (PA-FA, VSS-1/2, CD) + `autoplot.suggest_k()`
-- **M13** — Rotation honesty (removed `kappa`/`rotation` args; cfT → varimax)
-- **M14** — Dedicated `suggest_k()` vignette
-- **M15** — Naming clarity pass (`k`→`k_max`, `method`→`engine`, `scores`→`keep_scores`, …)
-- **M16** — Estimator-aware missing-data handling (`missing=` arg)
-- **M17** — GitHub 0.1.0 release prep (MIT license, `inst/CITATION`, version bump)
-- **M18** — Factor interpretation & label scaffolding (`top_items()`, `label_template()`)
-- **M19** — Dedicated interpretation/labeling vignette
-- **M20** — CRAN submission readiness + example legibility
-- **M21** — Onboarding & usability pass (`psych`→Imports, drop `GPArotation`, `bfi25` dataset)
-- **M22** — Correlation-matrix input (PCA/EFA)
-- **M23** — Test-coverage hardening (→ 100%)
-- **M24** — Vignette communication pass (`gt` comparison tables)
-- **M25** — Deferred-items pass (`suggest_k` `criteria=`, artefact signals, φ auto-default)
-- **M26** — Faster ESEM on large item sets (cached sample stats + parallel per-level fits)
-- **M27** — ESEM fit & SEs as first-class output (glance fit, wide fit table, cutoff flags, loading CIs, fit plot, vignette framing)
-- **M28** — CD correctness & honesty fix (`cd_rmse` trailing-zero bug; "minimize" label/roxygen corrected to sequential-test framing)
-- **M29** — Strip milestone numbers from user-facing docs (`NEWS.md` `(M24)` tag removed; regression test guards `NEWS.md`/`README.md`/vignettes)
-- **M30** — Citation hygiene (`inst/CITATION` Girard-only; `ackwards()` `@references` gains Forbes; README citation prose corrected)
-- **M31** — Correctness & output-honesty sweep (scaled ESEM fit under WLSMV/ULSMV/MLR; polychoric+ML guard)
-- **M32** — API-shape & naming resolutions (`tidy(what="fit")` `statistic`; variance as `proportion`/`cumulative`)
-- **M33** — Simulated Gaussian dataset (`sim16`: 1000×16, known 1→2→4 hierarchy)
-- **M34** — Pruning verb: `prune()` extracted as a standalone, pipeable S3 generic
-- **M35** — autoplot sign-propagation fix + configurable `sign_by`/`magnitude_by` + horizontal layout
-- **M36** — Interpretation: `augment()` `append`/`id_cols`; `top_items()` `by=` + item-label display
-- **M37** — Engines vignette rewrite (doc-only)
-- **M38** — `missing = "fiml"` for PCA/EFA (`psych::corFiml()` into the algebra) + `n_obs` strings
-- **M39** — Narrative & prose clarity pass across vignettes/README (doc-only)
-- **M40** — Deferred code/viz asks (ordinal corr bar chart; fully-pruned-level italic label)
-- **M41** — Independent Fable review (review-only): core clean; 1 Critical/6 Major/11 Minor triaged
-- **M42** — Review fixes, code (EFA `chi` LR statistic; `drop_pruned` all-pairs regression)
-- **M43** — Review fixes, docs (engines/suggest_k/Forbes vignettes; `redundancy_phi` PCA rationale)
-- **M44** — Forbes-fidelity fixture + `test-forbes-fidelity.R` (contract now test-backed)
-- **M45** — Out-of-sample scoring: `predict.ackwards()` + `augment(scaling=)` fit-time moments
-- **M46** — Girard extension: `comparability()` (split-half factor comparability) + methods
-- **M47** — Bootstrap edge CIs: `boot_edges()` verb (percentile CIs, PCA/EFA + pearson/spearman)
-- **M48** — Performance & workflow pass (cached test-fit memo, parallel testthat, `tools/dod-gate.R`)
-- **M49** — Initial CRAN release (0.1.0) + polychoric robustness arc (`correct` arg, `check_items()`)
-- **M50** — Release polish (`bfi25` IPIP labels, cli consistency, `suggest_k` ordinal warning)
-- **M51** — Factor-label pipeline (`set_factor_labels()`/`factor_labels()`; `meta$factor_labels`)
-- **M52** — Factorability diagnostics (`factorability()` + `ackwards()` Ledermann/adequacy screen)
-- **M53** — AMH applied-example fidelity (CC-BY `forbes2023_amh.rds` fixture) + Forbes direct redundancy criterion (`prune(redundancy_criterion=)`)
-
-## Current focus
-
-This section is the **status slot only** — what is in flight right now, plus blockers. It is not a
-place to recap a finished milestone (that detail lives in `MILESTONES.md`, one-lined in the index
-above) nor to stage future work (that lives in `ROADMAP.md`). When a milestone completes,
-/implement-milestone reduces this to the line below; when the next is planned, /plan-milestone
-fills it with that milestone's number, phase, and blockers.
-
-- **In flight:** nothing. Last numbered milestone: **M53** (AMH applied-example fidelity — the
-  now-CC-BY 155-variable AMH matrix committed as `forbes2023_amh.rds` + an AMH block in
-  `test-forbes-fidelity.R`). Detail in `MILESTONES.md`.
-- **Next up:** nothing queued. Candidates and the pending owner release-tail are in `ROADMAP.md`;
-  deferred design decisions are in DESIGN.md §14 and "Out of scope for now" below.
 
 ## Invariants — do not violate without flagging
 
@@ -220,41 +143,27 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
 - The whole gate above is one command: `Rscript tools/dod-gate.R` (M48) — check → coverage →
   style → lint → pkgdown, serial, one process, non-zero exit on any failure.
 - Public-facing change reflected in NEWS.md and (if user-visible) the relevant `@examples`/vignette.
-- For a milestone: a detailed entry added to `MILESTONES.md` **in numeric order** + a **one-line**
-  index entry here under "Completed milestones" (title + a single clause — see that section's
-  header). `MILESTONES.md` is the single source of truth for milestone history — never re-log it in
-  DESIGN.md §15 (a pointer), and never let the CLAUDE.md index grow past one line per milestone.
-- For a **non-milestone** code change (any merged PR touching `R/`/`tests/`/`DESCRIPTION`/vignettes
-  that isn't a planned, numbered milestone — a between-milestone review fix, a hotfix): add a dated
-  entry to `MILESTONES.md`'s "Between-milestone changes" section (keeps the numbered list gap-free)
-  and a `NEWS.md` line if user-visible. Don't leave code changes logged only in git.
+- **Milestone/hotfix tracking is cairn's now** (see the *Project tracking (cairn)* section below):
+  status lives in `cairn/ROADMAP.md`, task/work-log detail in the milestone file, decisions in
+  `cairn/DECISIONS.md`, finished-milestone history in `cairn/milestones/archive/` + git. Pre-cairn
+  milestone history (M1–M53) is entombed in `cairn/legacy/MILESTONES.md`. Do not re-introduce a
+  milestone index or status slot in this file.
 
 ## Git
 
-- Default branch is **`master`**; it stays green and releasable. Milestone work happens on a
-  feature branch (`m{N}-<slug>`) and merges to `master` via a **PR**, **squash-merged as soon as
-  the local definition of done is green** (`devtools::check()` 0/0/0 + tests + coverage +
-  style/lint) — *not* gated on remote CI. `master` is deliberately **not branch-protected** (owner
-  decision, 2026-07-01): required checks would gate every merge on the ~8–15 min CI matrix, pure
-  latency for a solo pre-CRAN repo where local `check()` already ran. CI still runs on every push
-  as an after-the-fact signal but does not block the merge; **don't** use `gh pr merge --auto`
-  (silently no-ops without required checks) and **don't** synchronously watch or background-poll
-  CI. Don't commit milestone work (anything touching `R/`, `tests/`, `DESCRIPTION`, vignettes)
-  straight to `master`. Trivial isolated doc fixes may go direct at the user's discretion — but
-  **push them immediately.** An unpushed commit on `master` leaves local ahead of `origin/master`;
-  `git pull` won't surface it (nothing to fetch), and the next milestone branch — cut from local
-  `master` — will bundle it into that milestone's squash-merge and force a post-merge divergence.
-  /plan-milestone step 8a now guards against branching from an ahead-of-origin `master`.
-  - **Exception — release / CRAN-submission milestones** (e.g. CRAN-prep, version-bump/release):
-    here you **do** wait for the *full* green CI matrix before merging, because CRAN runs exactly
-    that matrix (macOS/Windows/Ubuntu × release/devel/oldrel) and will reject platform failures
-    the local macOS `check()` can't see. For these, don't merge on local-green alone. This
-    exception also reactivates once the package has real users or collaborators (a red `master`
-    then blocks others / ships bugs) — treat that transition as the trigger to reconsider branch
-    protection.
+cairn's git & merge-approval model (`skills/shared/tracking-rules.md`, loaded when a cairn skill
+fires) governs branching, PRs, and the review/merge-approval gate. **This repo's default branch is
+`master`, not `main`** — read every "main" in cairn's rules and CLAUDE section as `master` here.
+Repo-specific facts cairn does not know:
+
+- **Release / CRAN-submission milestones are the CI exception**: wait for the *full* green CI matrix
+  (macOS/Windows/Ubuntu × release/devel/oldrel) before merging, because CRAN runs exactly that
+  matrix and will reject platform failures the local macOS `check()` can't see. (For non-release
+  milestones this repo has historically merged on local-green; cairn's review gate now governs.)
+  This also tightens once the package has real users/collaborators.
 - **Do not touch** the `legacy` branch or the `v0-legacy` tag — they preserve the pre-AI code.
-- Small, focused commits with imperative messages (e.g., `Add PCA engine and level contract`).
-- Don't force-push `master`. Don't commit data, credentials, or large binaries.
+- Small, focused commits with imperative messages. Don't force-push `master`. Don't commit data,
+  credentials, or large binaries.
 
 ## Ask-first / guardrails
 
@@ -274,3 +183,30 @@ Scaffolding helpers: `usethis::use_r()`, `use_test()`, `use_package()`, `use_tes
   edges, adjacent and skip-level; PCA/EFA + pearson/spearman). Deferred from M5, reactivated from
   DESIGN §14 e4. (Structural artefact signals and φ-default for non-PCA redundancy were
   reactivated and completed in M25.)
+
+<!-- Appended by /cairn-init. Keep the section body under ~25 lines.
+     NOTE: cairn's template says "main"; adapted to "master" for this repo. -->
+
+## Project tracking (cairn)
+
+This repo uses the cairn plugin. **Before acting on any request, classify it
+and route** — the tracking rulebook only loads once a cairn skill fires, so
+starting work in plain conversation silently bypasses the work tiers and the
+git model. Classify first:
+
+- **Trivial** (no runtime surface — typo, comment, tracking edit): commit
+  directly to master.
+- **User-visible bug**: invoke `/hotfix`.
+- **New work, a design decision, or more than one sitting**: invoke
+  `/milestone-plan` (then `/milestone-implement` → `/milestone-review`).
+- **Status, "what's next", or unsure which tier**: invoke `/milestone`.
+- **Never implement code on master** outside a milestone/hotfix branch; nothing
+  reaches master without the user's explicit approval at the review gate.
+
+Whenever the request is anything but trivial, invoke the skill *first* so the
+full rulebook (the plugin's `skills/shared/tracking-rules.md`) and its conduct
+load — do not reconstruct the rules here from memory. All project state lives under
+`cairn/` (**Architecture → DESIGN · Status → ROADMAP · Tasks → milestone
+files · Decisions → DECISIONS · History → archive + git**); never record
+status or TODOs in this file. Claude's persistent memory never holds project
+state; `cairn/` files win any conflict.

@@ -36,3 +36,7 @@ tests/testthat/testthat-problems.rds
 # RStudio project (generated per-machine)
 *.Rproj
 docs
+
+# cairn tracking
+cairn/references/pdf/
+cairn/.merge-approved
