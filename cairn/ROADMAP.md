@@ -15,7 +15,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 ## Candidates
 
-- Wire `amh_cor` into a vignette (worked Forbes AMH example) once the dataset ships (M54) — added 2026-07-12 — M54 Out
+- Wire `forbes2023` into a vignette (worked Forbes AMH example) once the dataset ships (M54) — added 2026-07-12 — M54 Out
 - Owner-only 0.1.0 CRAN release tail: win-builder / R-hub remote checks, then interactive `devtools::submit_cran()`; update README "on CRAN" phrasing when it lands; if CRAN bounces, patch branches from the `v0.1.0` tag — added 2026-07-11 — legacy/ROADMAP.md
 - `comparability()` ESEM engine/basis extension: split-half factor comparability per level per factor; feasible but demand-gated (2·n_splits lavaan hierarchies per call; per-half convergence handling) — added 2026-07-11 — DESIGN §14.35 / M46
 - `boot_edges()` engine/basis extension: WLSMV/polychoric bootstrap edges; expensive (n_boot × (k_max−1) fits) and statistically wrinkly (resample can drop a response category) — keep off schedule until asked — added 2026-07-11 — DESIGN §14.36 / M47

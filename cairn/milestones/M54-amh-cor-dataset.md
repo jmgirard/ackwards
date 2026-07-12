@@ -149,3 +149,19 @@ Acceptance-criteria evidence (fresh):
 Consistency gate: `cairn_validate.py` exit 0 (all pass); `document()` no diff; `check_pkgdown()`
 clean; NEWS has a user-facing `forbes2023` entry (no milestone numbers); no new top-level files
 (data-raw already `.Rbuildignore`d); no DESIGN principle changed (impact report skipped).
+
+CI (PR #54): full matrix green — macOS/Windows/Ubuntu ×release/devel/oldrel + pkgdown + coverage.
+
+Independent review — two fresh-context reviewers ([O] diff-bug, [S] blame-history) + [S] scorer.
+Core design cleared: blame reviewer verified byte-for-byte that the slimmed fixture's oracle
+values are `identical()` to M53's and the shipped `forbes2023.rda` matrix is `identical()` to the
+previously-embedded matrix (single-sourcing did not weaken the oracle or break test self-containment).
+Three findings scored:
+- **F1 (85, actioned):** `ROADMAP.md` Candidates bullet still said `amh_cor` — the rename missed it. Fixed.
+- **F3 (85, actioned):** `LICENSE.note` said "Both are the AMH correlation matrix" though one file
+  holds derived expected values, not the matrix. Reworded to "Both derive from the AMH correlation
+  matrix of:".
+- **F2 (50, logged — below 80 threshold):** DESIGN §14.41(b) declines a third *teaching* dataset
+  (sim16/bfi25 two-foil pair); `forbes2023` is a *fidelity/reproduction* dataset, arguably outside
+  that scope, but the roxygen "complements sim16 and bfi25" phrasing echoes the declined pattern.
+  Not auto-actioned (arguable, design-governance); surfaced to owner at the merge gate for a call.

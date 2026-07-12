@@ -10,7 +10,8 @@ The following bundled files are licensed separately:
     "Assessing Mental Health" (AMH) Spearman correlation matrix from Forbes
     (2023, below). tests/testthat/fixtures/forbes2023_amh.rds holds the
     expected between-level correlations and loading congruences derived from
-    that same matrix (details below). Both are the AMH correlation matrix from:
+    that same matrix (details below). Both derive from the AMH correlation
+    matrix of:
 
       Forbes, M. K. (2023). Improving hierarchical models of individual
       differences: An extension of Goldberg's bass-ackward method.
