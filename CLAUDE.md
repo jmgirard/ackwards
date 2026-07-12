@@ -46,6 +46,14 @@ refactor.
    warning). Advise loudly; never switch basis silently.
 7. **Convergence is data, not an error.** A non-converging level warns + is skipped; the object
    still builds to the deepest converged level. Never let one bad level abort the run.
+8. **Oracle-backed numerics.** Every numeric result is verified against ≥2 independent oracle *types*
+   (published/closed-form, an independent package, or seeded simulation); **no unsourced or
+   unreproducible reference value ships**. Committed fixtures carry a structured `provenance` attr
+   naming their `data-raw/` generator (guarded by `test-oracle-provenance.R`); the full catalogue of
+   every oracle in the suite, classified by type, is `cairn/ORACLES.md`. Live independent-impl
+   oracles (`psych`/`lavaan`, recomputed at test time) are the stronger form — do not freeze them
+   into fixtures unless they become expensive/network-bound (M57). *(This is the interim home for the
+   oracle principle; fold it in as a numbered DESIGN IP/GP when the design-interview pass runs.)*
 
 ## Resolved defaults
 

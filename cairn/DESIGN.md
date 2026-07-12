@@ -446,6 +446,11 @@ that needs it. **No Rcpp dependency planned** (see §3).
 - testthat 3e; snapshot tests of the **PCA path against `psych::bassAckward()`** on `psych::bfi`
   to prove numerical agreement on the original method.
 - The §5.4 **algebra-vs-scores cross-check** as a standing test for every linear engine.
+- **Oracle discipline (CLAUDE.md Invariant 8).** Every numeric result is pinned by ≥2 independent
+  oracle *types*; no unsourced/unreproducible reference value ships. The full registry — every
+  oracle classified as frozen / live / invariant / closed-form, with its asserting test and
+  provenance — is `cairn/ORACLES.md`; committed fixtures carry a structured `provenance` attr
+  (guarded by `test-oracle-provenance.R`).
 - Per-level **convergence handling** tested: a deliberately hard level must warn + skip, not error,
   and the result must still build to the deepest converged level.
 - Sign-alignment and lineage-matching tested on a constructed case with a known multi-parent child.

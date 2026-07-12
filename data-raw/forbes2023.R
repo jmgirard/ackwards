@@ -101,13 +101,18 @@ attr(amh, "provenance") <- list(
     "ExtendedBassAckwards reference implementation from the same md5-pinned ",
     "matrix now exported as data/forbes2023.rda. Only ackwards() runs at test time."
   ),
+  generator = "data-raw/forbes2023.R",
   generated = as.character(Sys.Date()),
   R_version = R.version.string,
   psych = as.character(utils::packageVersion("psych"))
 )
 
 ## Wrap in a named list mirroring forbes2023_sims.rds (single applied example).
+## The structured provenance is also attached at the TOP level so the M57 guard
+## test (test-oracle-provenance.R) finds a uniform `generator` + `source` contract
+## on every fixture.
 fixture <- list(amh = amh)
+attr(fixture, "provenance") <- attr(amh, "provenance")
 
 out <- file.path("tests", "testthat", "fixtures", "forbes2023_amh.rds")
 saveRDS(fixture, out, compress = "xz")
