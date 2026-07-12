@@ -3,7 +3,7 @@
      Per-section owners are tagged below. -->
 # M57: Ossify oracles — reproducible, catalogued oracle discipline
 
-- **Status:** in-progress   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
+- **Status:** review   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
 - **Priority:** normal   <!-- owner: plan · create/amend-via-gate; high | normal | low -->
 - **Depends on:** —   <!-- owner: plan · create/amend-via-gate; M<xx>, M<yy> or — -->
 - **Branch/PR:** m57-ossify-oracles   <!-- owner: implement (branch) / review (PR URL) · create -->
@@ -18,38 +18,26 @@ oracle system to ackwards/cairn.
 
 **In:**
 
-- **A `cairn/ORACLES.md` registry** that lists *every* oracle in the test suite, each classified by
-  type — **live independent-impl** (`psych::fa`, `psych::KMO`, `psych::cortest.bartlett`,
-  `psych::bassAckward`, `lavaan::efa`), **frozen fixture** (with the reason it is frozen),
-  **closed-form/published**, or **cross-check invariant** (the §5.4 algebra-vs-scores oracle, D-004)
-  — with, per entry: **Status** (the asserting test file, grep-verifiable), **Source** (citation or
-  registry ref), **Provenance** (generator script or live-computation note). Models intraclass's
-  `project/REFERENCES.md` "Oracle registry".
-- **A committed generator `data-raw/oracle-forbes-sims.R`** that reproduces
-  `tests/testthat/fixtures/forbes2023_sims.rds` end-to-end: the three simulation Spearman matrices
-  from Forbes's OSF script under `set.seed(123)`, expected between-level values from her reference
-  implementation, md5-pin + `stopifnot` integrity guards, and a **structured `provenance` attr**
-  (replacing the current prose-string provenance) — mirroring `data-raw/forbes2023.R` and the M54
-  one-download-drives-both pattern. Regenerate the fixture from it.
-- **CLAUDE.md Invariant #8** (oracle-backed numerics: ≥2 independent oracle types; no unsourced or
-  unreproducible reference value ships), cross-referenced from DESIGN §13, with a note flagging it
-  for formal IP numbering when the design-interview candidate runs.
-- **A Forbes (2023) reference summary** `cairn/references/forbes2023.md` (+ `INDEX.md` row):
-  citation, OSF/DOI, md5, and which oracles/tests trace to it.
-- **A guard test** `tests/testthat/test-oracle-provenance.R`: every `tests/testthat/fixtures/*.rds`
-  carries a `provenance` attr and a named `data-raw/` generator (or explicit registry exemption);
-  fails on an un-sourced fixture.
+- **`cairn/ORACLES.md` registry** — lists *every* oracle in the suite, classified (live / frozen /
+  closed-form / cross-check invariant), each with Status (asserting test), Source, Provenance.
+  Models intraclass's `project/REFERENCES.md`.
+- **`data-raw/oracle-forbes-sims.R`** — committed generator that reproduces
+  `fixtures/forbes2023_sims.rds` end-to-end (Forbes's OSF sim recipe, `set.seed(123)`; expected
+  values via her reference impl; md5-pin + `stopifnot` guards; structured `provenance`).
+- **CLAUDE.md Invariant #8** (oracle-backed numerics), cross-ref'd from DESIGN §13, with a
+  forward-note for formal IP numbering at the design-interview.
+- **Forbes (2023) reference summary** `cairn/references/forbes2023.md` (+ `INDEX.md` row).
+- **Guard test** `tests/testthat/test-oracle-provenance.R` — every `fixtures/*.rds` carries a
+  `provenance` attr naming a `data-raw/` generator + source; fails on an un-sourced fixture.
 
 **Out:**
 
-- **Full freeze of the live-computed oracles** (`psych::fa`/`KMO`/`bartlett`/`bassAckward`,
-  `lavaan::efa`) into fixtures → deliberately *not done*; they stay **live** independent-implementation
-  cross-checks (the stronger oracle type — a frozen copy is a regression pin, not an oracle). Rationale
-  is recorded in the registry. Revisit only if one becomes expensive/network-bound.
-- **Formal IP/GP numbering** of the oracle principle → the pending `/design-interview` candidate;
-  Invariant #8 is the interim home and carries a forward-note.
-- **New oracles for currently-unoracled behavior / new numeric methods** → out; this milestone
-  catalogues and makes reproducible what exists, it does not extend numeric coverage.
+- **Full freeze of live oracles** (`psych`/`lavaan`) → deliberately *not done*; they stay live
+  independent-impl cross-checks (a frozen copy is a regression pin, not an oracle). Revisit only if
+  one becomes expensive/network-bound.
+- **Formal IP/GP numbering** of the principle → the pending `/design-interview` candidate (Invariant
+  #8 is the interim home).
+- **New oracles / new numeric methods** → out; this catalogues and makes reproducible what exists.
 
 ## Acceptance criteria
 <!-- owner: plan · create/amend-via-gate; review reads, never reinterprets -->
@@ -108,11 +96,9 @@ oracle system to ackwards/cairn.
       `fixtures/*.rds`, asserting a `provenance` attr + a named generator (map fixture → generator via
       a small in-test table or a registry read); prove it fails on a scratch un-sourced fixture, then
       remove the scratch.
-- [x] **T5 — Codify Invariant #8.** Add invariant #8 to CLAUDE.md's Invariants list; add a one-line
-      cross-reference in DESIGN §13; add the forward-note for the IP/GP design-interview candidate.
-- [ ] **T6 — DoD gate.** `Rscript tools/dod-gate.R` green; no NEWS/pkgdown reference change (no
-      exported-behavior change — internal test infra + tracking/dev docs only); confirm the new
-      `data-raw/` + `cairn/` files are `.Rbuildignore`d as appropriate.
+- [x] **T5 — Codify Invariant #8.** Add invariant #8 to CLAUDE.md; cross-ref DESIGN §13; forward-note for the IP/GP design-interview candidate.
+- [x] **T6 — DoD gate.** `Rscript tools/dod-gate.R` green; no NEWS/pkgdown change (no exported-
+      behavior change — internal test infra + docs only); new `data-raw/` files `.Rbuildignore`d.
 
 ## Work log
 <!-- owner: any skill · append-only; one line per entry; absolute dates -->
@@ -145,6 +131,8 @@ oracle system to ackwards/cairn.
 - 2026-07-12: T5 done — CLAUDE.md Invariant 8 (oracle-backed numerics; approved wording) + DESIGN
   §13 cross-ref + forward-note to the IP/GP design-interview pass. Invariant sits outside the capped
   cairn CLAUDE.md section (D-018: repo dev doctrine isn't cairn's to cap).
+- 2026-07-12: T6 done — DoD gate green (check 0 err/0 warn/0 note, coverage 100%, styler + lintr
+  clean, pkgdown index complete). All tasks complete; status → review.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
