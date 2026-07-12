@@ -99,6 +99,7 @@ reference:
   contents:
   - bfi25
   - sim16
+  - amh_cor
 - title: Re-exported generics
   desc: |
     Generics re-exported from the generics package so they work after `library(ackwards)` without also loading broom.

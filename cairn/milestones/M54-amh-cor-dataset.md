@@ -77,7 +77,7 @@ tests.
 - [x] T4: Repoint `test-forbes-fidelity.R` AMH block to read the matrix from `amh_cor`;
       drop the `$amh$R` read; keep all expected-value assertions. Add/keep the
       direct-vs-adjacent prune pins unchanged.
-- [ ] T5: DESCRIPTION — add Forbes `cph` (comment-scoped to the matrix); extend
+- [x] T5: DESCRIPTION — add Forbes `cph` (comment-scoped to the matrix); extend
       `LICENSE.note` to name `data/amh_cor.rda` under CC-BY; add `amh_cor` to
       `_pkgdown.yml` Data section; NEWS.md dataset entry.
 - [ ] T6: Add `test-data-amh.R` (dims/symmetry/diag/dimnames validity); run
@@ -102,8 +102,16 @@ tests.
   generated; NAMESPACE unchanged — bundled data is user-visible via LazyData, not `export()`).
 - 2026-07-12: T4 — fidelity test AMH block reads matrix from exported `amh_cor` (not `$amh$R`);
   full `forbes-fidelity` suite green, still reproduces Forbes ≤1e-12 across all 45 pairs.
+- 2026-07-12: T5 — Forbes added to DESCRIPTION as data-scoped `cph` (Authors@R parses, verified);
+  `LICENSE.note` now covers `data/amh_cor.rda`; `amh_cor` in `_pkgdown.yml` Data (`check_pkgdown()`
+  clean); NEWS dataset bullet added.
 
 ## Decisions
+
+- 2026-07-12 (T5): Forbes recorded in `Authors@R` as `role = "cph"` **scoped by `comment`** to
+  `data/amh_cor.rda` only — she holds copyright in the bundled CC-BY matrix, not the MIT-licensed
+  package code. Standard R idiom for vendoring third-party CC-BY data; keeps CRAN attribution
+  machine-readable. Not promoted to a D-entry (milestone-local, no cross-cutting effect).
 <!-- owner: implement / review · append-only; milestone-local -->
 
 ## Review
