@@ -1,20 +1,29 @@
-# CRAN submission comments — ackwards 0.1.0
+# CRAN submission comments — ackwards 0.1.1
 
 ## Resubmission
 
-This resubmission addresses the reviewer's request to reduce the vignette
-re-build time (previously "checking re-building of vignette outputs … [317s]").
-Seven of the eight vignettes are now **precomputed**: they are authored as
-`*.Rmd.orig` and knitted ahead of time into static `*.Rmd` with all results and
-figures baked in (the rOpenSci precompute pattern), so `R CMD check` builds them
-with pandoc only. The one remaining live vignette fits a single small model.
-Local vignette re-build time dropped from ~64 s to ~6 s; the heavy per-vignette
-model fits, parallel analysis, bootstrap, and split-half refits no longer run on
-CRAN. No user-facing content changed — the rendered vignettes are identical.
+This resubmission addresses both points from the CRAN review of the 0.1.0
+submission (2026-07-12):
 
-Several slow `@examples` were also moved onto the bundled continuous `sim16`
-dataset (from the ordinal `bfi25` polychoric path) where the dataset was
-incidental to the example.
+1. **"Please always explain all acronyms in the description text."**
+   The Description field now spells out principal component analysis (PCA),
+   exploratory factor analysis (EFA), and exploratory structural equation
+   modeling (ESEM) at first use.
+
+2. **"You write information messages to the console that cannot be easily
+   suppressed" (R/label_template.R).** `label_template()` no longer writes
+   to the console. It now returns its result visibly as a small classed
+   object (`"ackwards_labels"`), and the copy-paste `c(...)` scaffold is
+   rendered by that class's `print()` method — so it displays on a
+   top-level call but is silent on assignment or when nested in another
+   call. This was the only such call site: all other console output in the
+   package already lives in `print()`/`summary()` methods, and
+   advisory/progress messaging goes through suppressible `cli` conditions.
+
+The version is bumped to 0.1.1, which also folds in two additions made
+since the 0.1.0 submission: a bundled CC-BY 4.0 dataset (`forbes2023`,
+attributed in `Authors@R` and `LICENSE.note`) and a corrected default for
+the redundancy-pruning criterion (see NEWS.md).
 
 ## R CMD check results
 
@@ -22,10 +31,13 @@ incidental to the example.
 
 The only notes are:
 
-* **New submission** — expected; the package is not yet on CRAN. Emitted by the
-  incoming-feasibility check on every `--as-cran` run.
-* **Possibly misspelled words** (win-builder R-devel only) — all correctly
-  spelled; see Notes below.
+* **New submission** — expected; the package is not yet on CRAN. Emitted by
+  the incoming-feasibility check on every `--as-cran` run.
+* **Possibly misspelled words** (win-builder R-devel only) — `ackwards` /
+  `Ackwards` (the package name, a deliberate play on "bass-ackwards") and
+  `Goldberg` / `Waller` / `Forbes` (author surnames of the cited method
+  papers). All correctly spelled. The acronyms flagged last round (PCA,
+  EFA, ESEM) are now expanded in the Description text itself.
 
 | Platform | R version | Errors / Warnings |
 |---|---|---|
@@ -34,19 +46,6 @@ The only notes are:
 | macos-latest (GitHub Actions) | release | 0 / 0 |
 | windows-latest (GitHub Actions) | release | 0 / 0 |
 | win-builder | R-devel | 0 / 0 |
-
-## Notes
-
-### "Possibly misspelled words" in DESCRIPTION
-
-win-builder flags the following, all correctly spelled:
-
-- `ackwards` / `Ackwards` — the package name, a deliberate play on "bass-ackwards".
-- `PCA`, `EFA`, `ESEM` — standard abbreviations for Principal Component Analysis,
-  Exploratory Factor Analysis, and Exploratory Structural Equation Modeling.
-- `Goldberg`, `Waller`, `Forbes` — author surnames of the cited method papers.
-
-No misspellings are present.
 
 ## Package scope
 

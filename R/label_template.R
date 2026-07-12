@@ -1,9 +1,10 @@
 #' Generate a node-label scaffold for autoplot
 #'
 #' Returns a named character vector covering all factor IDs in the object,
-#' ready to pass to `autoplot(x, node_labels = ...)`. The vector is also
-#' printed as an editable `c(...)` literal so you can copy it into a script,
-#' fill in substantive labels, and use it directly.
+#' ready to pass to `autoplot(x, node_labels = ...)`. Printing the result
+#' shows an editable `c(...)` literal so you can copy it into a script,
+#' fill in substantive labels, and use it directly; assigning the result
+#' (`labs <- label_template(x)`) produces no console output.
 #'
 #' The factor IDs are returned in the same left-to-right, top-to-bottom order
 #' used by [ba_layout()] and [autoplot.ackwards()], so the printed literal maps
@@ -27,11 +28,11 @@
 #' @param style One of `"id"` (default), `"forbes"`, or `"blank"`. See
 #'   **Style options** above.
 #'
-#' @return A named character vector: names are factor IDs (`"m{k}f{j}"`),
-#'   values are the label strings for the chosen `style`. The vector is
-#'   suitable for direct use as the `node_labels` argument to
-#'   [autoplot.ackwards()]. The `c(...)` literal is also printed to the
-#'   console for copy-paste.
+#' @return A named character vector of class `"ackwards_labels"`: names are
+#'   factor IDs (`"m{k}f{j}"`), values are the label strings for the chosen
+#'   `style`. The vector is suitable for direct use as the `node_labels`
+#'   argument to [autoplot.ackwards()]. Its `print()` method renders the
+#'   vector as an editable `c(...)` literal for copy-paste.
 #'
 #' @seealso [autoplot.ackwards()], [top_items()], [ba_layout()]
 #'
@@ -78,12 +79,23 @@ label_template <- function(x, style = c("id", "forbes", "blank")) {
     }
   )
 
-  out <- stats::setNames(values, node_ids)
+  structure(
+    stats::setNames(values, node_ids),
+    style = style,
+    class = c("ackwards_labels", "character")
+  )
+}
 
-  # Print an editable literal the user can copy into their script
-  pairs <- paste0('  "', names(out), '" = "', out, '"', collapse = ",\n")
+#' @rdname label_template
+#'
+#' @param ... Ignored; included for S3 method consistency.
+#'
+#' @export
+print.ackwards_labels <- function(x, ...) {
+  # Render an editable literal the user can copy into their script
+  style <- attr(x, "style") %||% "custom"
+  pairs <- paste0('  "', names(x), '" = "', as.character(x), '"', collapse = ",\n")
   cli::cli_text("{.fn label_template} scaffold ({style} style):")
   cat(paste0("c(\n", pairs, "\n)\n"))
-
-  invisible(out)
+  invisible(x)
 }

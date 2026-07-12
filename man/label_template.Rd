@@ -2,28 +2,34 @@
 % Please edit documentation in R/label_template.R
 \name{label_template}
 \alias{label_template}
+\alias{print.ackwards_labels}
 \title{Generate a node-label scaffold for autoplot}
 \usage{
 label_template(x, style = c("id", "forbes", "blank"))
+
+\method{print}{ackwards_labels}(x, ...)
 }
 \arguments{
 \item{x}{An \code{ackwards} object.}
 
 \item{style}{One of \code{"id"} (default), \code{"forbes"}, or \code{"blank"}. See
 \strong{Style options} above.}
+
+\item{...}{Ignored; included for S3 method consistency.}
 }
 \value{
-A named character vector: names are factor IDs (\code{"m{k}f{j}"}),
-values are the label strings for the chosen \code{style}. The vector is
-suitable for direct use as the \code{node_labels} argument to
-\code{\link[=autoplot.ackwards]{autoplot.ackwards()}}. The \code{c(...)} literal is also printed to the
-console for copy-paste.
+A named character vector of class \code{"ackwards_labels"}: names are
+factor IDs (\code{"m{k}f{j}"}), values are the label strings for the chosen
+\code{style}. The vector is suitable for direct use as the \code{node_labels}
+argument to \code{\link[=autoplot.ackwards]{autoplot.ackwards()}}. Its \code{print()} method renders the
+vector as an editable \code{c(...)} literal for copy-paste.
 }
 \description{
 Returns a named character vector covering all factor IDs in the object,
-ready to pass to \code{autoplot(x, node_labels = ...)}. The vector is also
-printed as an editable \code{c(...)} literal so you can copy it into a script,
-fill in substantive labels, and use it directly.
+ready to pass to \code{autoplot(x, node_labels = ...)}. Printing the result
+shows an editable \code{c(...)} literal so you can copy it into a script,
+fill in substantive labels, and use it directly; assigning the result
+(\code{labs <- label_template(x)}) produces no console output.
 }
 \details{
 The factor IDs are returned in the same left-to-right, top-to-bottom order

@@ -1,4 +1,19 @@
-# ackwards (development version)
+# ackwards 0.1.1
+
+CRAN resubmission of the first release, addressing reviewer feedback on the
+0.1.0 submission; also picks up everything added since that submission.
+
+* **`label_template()` now returns its scaffold visibly (behavior change).**
+  The named character vector carries class `"ackwards_labels"`, and the
+  editable `c(...)` literal is rendered by its `print()` method instead of
+  being written to the console unconditionally. A top-level call looks the
+  same as before; assigning the result (`labs <- label_template(x)`) or
+  passing it inline (e.g. inside `autoplot()`) is now silent, per CRAN
+  policy on console output.
+
+* **DESCRIPTION** now spells out principal component analysis (PCA),
+  exploratory factor analysis (EFA), and exploratory structural equation
+  modeling (ESEM) per CRAN feedback.
 
 * **New bundled dataset `forbes2023`.** The 155-variable "Assessing Mental Health"
   Spearman correlation matrix that forms Forbes's (2023) applied example is now
