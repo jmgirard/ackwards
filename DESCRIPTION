@@ -8,8 +8,10 @@ Authors@R: c(
            comment = "Author of the bundled AMH correlation matrix (data/forbes2023.rda), CC-BY 4.0"))
 Description: Implements Goldberg's (2006) <doi:10.1016/j.jrp.2006.01.001>
     bass-ackwards method and modern descendants for hierarchical structural
-    analysis. Extracts solutions from 1 to k factors using PCA, EFA, or ESEM
-    engines, then characterizes the hierarchy via between-level factor-score
+    analysis. Extracts solutions from 1 to k factors using principal
+    component analysis (PCA), exploratory factor analysis (EFA), or
+    exploratory structural equation modeling (ESEM) engines, then
+    characterizes the hierarchy via between-level factor-score
     correlations computed via exact linear algebra (Waller, 2007,
     <doi:10.1016/j.jrp.2006.08.005>) or materialized scores. Includes the
     Forbes (2023) <doi:10.1037/met0000546> extension for redundancy pruning

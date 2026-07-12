@@ -2,10 +2,10 @@
      section ownership". -->
 # M55: Address CRAN 0.1.0 feedback and resubmit as 0.1.1
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** high
 - **Depends on:** —
-- **Branch/PR:** —
+- **Branch/PR:** m55-cran-resubmission
 
 ## Goal
 
@@ -70,7 +70,7 @@ cli output sits in `print.*` methods, CRAN's allowed exception).
 
 ## Tasks
 
-- [ ] T1: Expand acronyms in DESCRIPTION Description text (PCA, EFA, ESEM;
+- [x] T1: Expand acronyms in DESCRIPTION Description text (PCA, EFA, ESEM;
       wording already exists in cran-comments.md "misspelled words" note).
 - [ ] T2: Refactor `R/label_template.R`: move header + `c(...)` literal
       rendering (lines 84–86) into `print.ackwards_labels()`; return
@@ -97,6 +97,7 @@ cli output sits in `print.*` methods, CRAN's allowed exception).
 - 2026-07-12: created by /milestone-plan from CRAN reviewer feedback
   (2 items); gate decisions: resubmit from master as 0.1.1; classed
   return + print method; check bar = CI matrix + win-builder devel.
+- 2026-07-12: T1 done — PCA/EFA/ESEM expanded in DESCRIPTION Description.
 
 ## Decisions
 
