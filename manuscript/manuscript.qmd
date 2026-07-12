@@ -16,8 +16,9 @@ author-note:
   disclosures:
     conflict of interest: The author has no conflicts of interest to disclose.
     gratitude: |
-      During the preparation of this work the author used a large language model
-      (Anthropic's Claude, via the Claude Code interface) to assist with software
+      During the preparation of this work (June--July 2026) the author used a
+      large language model (Anthropic's Claude, via the Claude Code interface) to
+      assist with software
       implementation, testing, documentation, and editing; the author reviewed
       and verified all output and takes full responsibility for the content. The
       AI system is not an author. See the Use of Generative AI section for
@@ -337,9 +338,9 @@ the render command, required toolchain, and the package version used.
 
 # Use of generative AI
 
-The **ackwards** package and this manuscript were developed with the assistance
-of a large language model (Anthropic's Claude, using its Opus and Sonnet models)
-through the Claude Code interface. Rather than a single prompt, the assistant was
+The **ackwards** package and this manuscript were developed between June and
+July 2026 with the assistance of a large language model (Anthropic's Claude,
+using its Opus and Sonnet models) through the Claude Code interface. Rather than a single prompt, the assistant was
 used iteratively across many sessions for software implementation, test
 construction, documentation, and editing of author-written prose. Because this
 mode of use produces no reproducible prompt, we disclose its scope rather than a
