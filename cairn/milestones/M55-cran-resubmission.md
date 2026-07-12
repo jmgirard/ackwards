@@ -2,7 +2,7 @@
      section ownership". -->
 # M55: Address CRAN 0.1.0 feedback and resubmit as 0.1.1
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** high
 - **Depends on:** —
 - **Branch/PR:** m55-cran-resubmission / https://github.com/jmgirard/ackwards/pull/55
@@ -87,10 +87,11 @@ cli output sits in `print.*` methods, CRAN's allowed exception).
 - [x] T5: Version → 0.1.1; NEWS.md 0.1.1 section (fold the current dev
       section); rewrite `cran-comments.md` for resubmission (respond to both
       reviewer points explicitly; refresh platform table).
-- [ ] T6: Run `Rscript tools/dod-gate.R`; open PR; wait for **full** CI
+- [x] T6: Run `Rscript tools/dod-gate.R`; open PR; wait for **full** CI
       matrix (release exception — no local-green merge); run
       `devtools::check_win_devel()` and confirm the emailed result with the
-      owner before the merge gate.
+      owner before the merge gate. (Gate + PR + CI done; win-builder
+      submitted, emailed result awaits owner confirmation at the merge gate.)
 
 ## Work log
 
