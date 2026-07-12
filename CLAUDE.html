@@ -79,6 +79,9 @@
 <strong>Loud defaults.</strong> Announce consequential auto-choices via cli (e.g., the ordinal-detection warning). Advise loudly; never switch basis silently.</li>
 <li>
 <strong>Convergence is data, not an error.</strong> A non-converging level warns + is skipped; the object still builds to the deepest converged level. Never let one bad level abort the run.</li>
+<li>
+<strong>Oracle-backed numerics.</strong> Every numeric result is verified against ≥2 independent oracle <em>types</em> (published/closed-form, an independent package, or seeded simulation); <strong>no unsourced or unreproducible reference value ships</strong>. Committed fixtures carry a structured <code>provenance</code> attr naming their <code>data-raw/</code> generator (guarded by <code>test-oracle-provenance.R</code>); the full catalogue of every oracle in the suite, classified by type, is <code>cairn/ORACLES.md</code>. Live independent-impl oracles (<code>psych</code>/<code>lavaan</code>, recomputed at test time) are the stronger form — do not freeze them into fixtures unless they become expensive/network-bound (M57). <em>(This is the interim home for the oracle principle; fold it in as a numbered DESIGN IP/GP when the design-interview pass runs.)</em>
+</li>
 </ol></div>
 <div class="section level2">
 <h2 id="resolved-defaults">Resolved defaults<a class="anchor" aria-label="anchor" href="#resolved-defaults"></a></h2>
