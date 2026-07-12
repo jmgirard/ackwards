@@ -58,10 +58,15 @@ oracle system to ackwards/cairn.
       the suite maps to exactly one registry entry and every entry names a real asserting test (no
       orphans either way, verified by grepping the oracle tests against the registry); each entry
       carries type, Status, Source, Provenance.
-- [ ] **AC2 — Sims fixture reproducible.** `data-raw/oracle-forbes-sims.R` regenerates
-      `fixtures/forbes2023_sims.rds` (values match the committed fixture to `< 1e-12`), guarded by an
-      md5/`stopifnot` integrity check, and the fixture now carries a **structured `provenance`
-      attr**; `test-forbes-fidelity.R` passes unchanged against the regenerated fixture.
+- [ ] **AC2 — Sims fixture reproducible.** `data-raw/oracle-forbes-sims.R` **deterministically**
+      regenerates all three simulation matrices from Forbes's exact `fx`/`Phi`/`set.seed(123)`/
+      `sim.structure` recipe (re-running reproduces them to `< 1e-12`) and computes expected
+      `comp_corr`/`cong`/`corr_chase` from them via her md5-pinned sourced reference implementation;
+      the fixture carries a **structured top-level `provenance` attr**; `test-forbes-fidelity.R`
+      passes against the regenerated fixture (ackwards matches Forbes's expected values to `< 1e-12`).
+      *(Amended 2026-07-12, gate: the committed sims matrices are **replaced** by the reproducible
+      realizations — the prior random draw was unrecoverable; the redundancy topology is preserved so
+      the test's hardcoded prune literals still hold.)*
 - [ ] **AC3 — Principle codified.** CLAUDE.md Invariants gains #8 (oracle-backed numerics, ≥2
       independent oracle types, no unsourced/unreproducible reference value); DESIGN §13
       cross-references it; a forward-note flags it for the IP/GP design-interview pass.
@@ -90,7 +95,7 @@ oracle system to ackwards/cairn.
       `10.1037/met0000546`, OSF `pcwm8`, matrix md5 `c1dd9eca…`, the reference-impl file, which
       tests/oracles trace to it) + one `INDEX.md` row. Primary-source-first (tracking-rules
       "Primary sources rule").
-- [ ] **T2 — Committed sims generator.** Author `data-raw/oracle-forbes-sims.R` reproducing the
+- [x] **T2 — Committed sims generator.** Author `data-raw/oracle-forbes-sims.R` reproducing the
       three sim Spearman matrices from Forbes's OSF simulation script under `set.seed(123)`, computing
       expected `comp_corr`/`cong`/`corr_chase` with her reference implementation, with md5/`stopifnot`
       guards and a structured `provenance` attr; regenerate `fixtures/forbes2023_sims.rds`; confirm
@@ -122,9 +127,22 @@ oracle system to ackwards/cairn.
   .Rbuildignore'd, absent at R CMD check).
 - 2026-07-12: T1 done — cairn/references/forbes2023.md + INDEX row; oracle values are code-derived
   from OSF artifacts (not page-transcribed), so no PDF vendored.
+- 2026-07-12: T2 done — data-raw/oracle-forbes-sims.R (md5-pins her functions guid 7jfkw + sim
+  script guid ztngp; transcribes the 3 fx/Phi DGPs; set.seed(123)/sim.structure/spearman; expected
+  values via her ExtendedBassAckwards + FindRedundantComp). Regenerated fixture (deterministic: two
+  runs maxdiff 0), top-level structured provenance. forbes-fidelity suite green; AC2 amendment
+  verified (prune literals unchanged). data-raw already .Rbuildignore'd.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
+
+- 2026-07-12 (T2, gate-approved): the committed `forbes2023_sims.rds` matrices were **not
+  reproducible** — no fx/Phi/seed/n/method recipe reproduces them (even n=1e5 spearman stays ~0.036
+  off); the exact historical draw is lost. Chose to **regenerate the three matrices reproducibly**
+  from Forbes's exact recipe (deterministic: two runs maxdiff 0) and recompute expected values via
+  her impl, replacing the murky artifact. Fidelity holds (ackwards vs her impl 3.7e-15); redundancy
+  topology preserved (prune literals in test-forbes-fidelity.R unchanged). Provenance placed as a
+  structured **top-level** attr (uniform target for the T4 guard). Milestone-local (fixture-specific).
 
 ## Review
 <!-- owner: review · exclusive -->
