@@ -187,7 +187,8 @@ first a compact illustrative walkthrough, then Forbes's full applied example.
 
 We use `bfi25`, a built-in dataset of 1,000 respondents answering 25 personality
 items measuring the Big Five traits — Agreeableness, Conscientiousness,
-Extraversion, Neuroticism, and Openness — each on a six-point scale.
+Extraversion, Neuroticism, and Openness — each on a six-point scale. For this
+illustration we restrict to respondents with complete data:
 
 ```{r}
 #| label: data
