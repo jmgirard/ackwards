@@ -186,23 +186,23 @@ teaching point: how much smaller EFA loadings are in absolute value once
 measurement error is partitioned into uniqueness. Using |EFA| − |PCA| keeps
 the attenuation consistently negative regardless of loading sign.
 
-<!--html_preserve--><div id="lsbjcarrus" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#lsbjcarrus table {
+<!--html_preserve--><div id="buhkjvooni" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#buhkjvooni table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#lsbjcarrus thead, #lsbjcarrus tbody, #lsbjcarrus tfoot, #lsbjcarrus tr, #lsbjcarrus td, #lsbjcarrus th {
+#buhkjvooni thead, #buhkjvooni tbody, #buhkjvooni tfoot, #buhkjvooni tr, #buhkjvooni td, #buhkjvooni th {
   border-style: none;
 }
 
-#lsbjcarrus p {
+#buhkjvooni p {
   margin: 0;
   padding: 0;
 }
 
-#lsbjcarrus .gt_table {
+#buhkjvooni .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -228,12 +228,12 @@ the attenuation consistently negative regardless of loading sign.
   border-left-color: #D3D3D3;
 }
 
-#lsbjcarrus .gt_caption {
+#buhkjvooni .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#lsbjcarrus .gt_title {
+#buhkjvooni .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -245,7 +245,7 @@ the attenuation consistently negative regardless of loading sign.
   border-bottom-width: 0;
 }
 
-#lsbjcarrus .gt_subtitle {
+#buhkjvooni .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -257,7 +257,7 @@ the attenuation consistently negative regardless of loading sign.
   border-top-width: 0;
 }
 
-#lsbjcarrus .gt_heading {
+#buhkjvooni .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -269,13 +269,13 @@ the attenuation consistently negative regardless of loading sign.
   border-right-color: #D3D3D3;
 }
 
-#lsbjcarrus .gt_bottom_border {
+#buhkjvooni .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#lsbjcarrus .gt_col_headings {
+#buhkjvooni .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -290,7 +290,7 @@ the attenuation consistently negative regardless of loading sign.
   border-right-color: #D3D3D3;
 }
 
-#lsbjcarrus .gt_col_heading {
+#buhkjvooni .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -310,7 +310,7 @@ the attenuation consistently negative regardless of loading sign.
   overflow-x: hidden;
 }
 
-#lsbjcarrus .gt_column_spanner_outer {
+#buhkjvooni .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -322,15 +322,15 @@ the attenuation consistently negative regardless of loading sign.
   padding-right: 4px;
 }
 
-#lsbjcarrus .gt_column_spanner_outer:first-child {
+#buhkjvooni .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#lsbjcarrus .gt_column_spanner_outer:last-child {
+#buhkjvooni .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#lsbjcarrus .gt_column_spanner {
+#buhkjvooni .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -342,11 +342,11 @@ the attenuation consistently negative regardless of loading sign.
   width: 100%;
 }
 
-#lsbjcarrus .gt_spanner_row {
+#buhkjvooni .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#lsbjcarrus .gt_group_heading {
+#buhkjvooni .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -372,7 +372,7 @@ the attenuation consistently negative regardless of loading sign.
   text-align: left;
 }
 
-#lsbjcarrus .gt_empty_group_heading {
+#buhkjvooni .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -387,15 +387,15 @@ the attenuation consistently negative regardless of loading sign.
   vertical-align: middle;
 }
 
-#lsbjcarrus .gt_from_md > :first-child {
+#buhkjvooni .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#lsbjcarrus .gt_from_md > :last-child {
+#buhkjvooni .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#lsbjcarrus .gt_row {
+#buhkjvooni .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -414,7 +414,7 @@ the attenuation consistently negative regardless of loading sign.
   overflow-x: hidden;
 }
 
-#lsbjcarrus .gt_stub {
+#buhkjvooni .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -427,7 +427,7 @@ the attenuation consistently negative regardless of loading sign.
   padding-right: 5px;
 }
 
-#lsbjcarrus .gt_stub_row_group {
+#buhkjvooni .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -441,15 +441,15 @@ the attenuation consistently negative regardless of loading sign.
   vertical-align: top;
 }
 
-#lsbjcarrus .gt_row_group_first td {
+#buhkjvooni .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#lsbjcarrus .gt_row_group_first th {
+#buhkjvooni .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#lsbjcarrus .gt_summary_row {
+#buhkjvooni .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -459,16 +459,16 @@ the attenuation consistently negative regardless of loading sign.
   padding-right: 5px;
 }
 
-#lsbjcarrus .gt_first_summary_row {
+#buhkjvooni .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#lsbjcarrus .gt_first_summary_row.thick {
+#buhkjvooni .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#lsbjcarrus .gt_last_summary_row {
+#buhkjvooni .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -478,7 +478,7 @@ the attenuation consistently negative regardless of loading sign.
   border-bottom-color: #D3D3D3;
 }
 
-#lsbjcarrus .gt_grand_summary_row {
+#buhkjvooni .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -488,7 +488,7 @@ the attenuation consistently negative regardless of loading sign.
   padding-right: 5px;
 }
 
-#lsbjcarrus .gt_first_grand_summary_row {
+#buhkjvooni .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -498,7 +498,7 @@ the attenuation consistently negative regardless of loading sign.
   border-top-color: #D3D3D3;
 }
 
-#lsbjcarrus .gt_last_grand_summary_row_top {
+#buhkjvooni .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -508,11 +508,11 @@ the attenuation consistently negative regardless of loading sign.
   border-bottom-color: #D3D3D3;
 }
 
-#lsbjcarrus .gt_striped {
+#buhkjvooni .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#lsbjcarrus .gt_table_body {
+#buhkjvooni .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -521,7 +521,7 @@ the attenuation consistently negative regardless of loading sign.
   border-bottom-color: #D3D3D3;
 }
 
-#lsbjcarrus .gt_footnotes {
+#buhkjvooni .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -535,7 +535,7 @@ the attenuation consistently negative regardless of loading sign.
   border-right-color: #D3D3D3;
 }
 
-#lsbjcarrus .gt_footnote {
+#buhkjvooni .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -544,7 +544,7 @@ the attenuation consistently negative regardless of loading sign.
   padding-right: 5px;
 }
 
-#lsbjcarrus .gt_sourcenotes {
+#buhkjvooni .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -558,7 +558,7 @@ the attenuation consistently negative regardless of loading sign.
   border-right-color: #D3D3D3;
 }
 
-#lsbjcarrus .gt_sourcenote {
+#buhkjvooni .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -566,72 +566,72 @@ the attenuation consistently negative regardless of loading sign.
   padding-right: 5px;
 }
 
-#lsbjcarrus .gt_left {
+#buhkjvooni .gt_left {
   text-align: left;
 }
 
-#lsbjcarrus .gt_center {
+#buhkjvooni .gt_center {
   text-align: center;
 }
 
-#lsbjcarrus .gt_right {
+#buhkjvooni .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#lsbjcarrus .gt_font_normal {
+#buhkjvooni .gt_font_normal {
   font-weight: normal;
 }
 
-#lsbjcarrus .gt_font_bold {
+#buhkjvooni .gt_font_bold {
   font-weight: bold;
 }
 
-#lsbjcarrus .gt_font_italic {
+#buhkjvooni .gt_font_italic {
   font-style: italic;
 }
 
-#lsbjcarrus .gt_super {
+#buhkjvooni .gt_super {
   font-size: 65%;
 }
 
-#lsbjcarrus .gt_footnote_marks {
+#buhkjvooni .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#lsbjcarrus .gt_asterisk {
+#buhkjvooni .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#lsbjcarrus .gt_indent_1 {
+#buhkjvooni .gt_indent_1 {
   text-indent: 5px;
 }
 
-#lsbjcarrus .gt_indent_2 {
+#buhkjvooni .gt_indent_2 {
   text-indent: 10px;
 }
 
-#lsbjcarrus .gt_indent_3 {
+#buhkjvooni .gt_indent_3 {
   text-indent: 15px;
 }
 
-#lsbjcarrus .gt_indent_4 {
+#buhkjvooni .gt_indent_4 {
   text-indent: 20px;
 }
 
-#lsbjcarrus .gt_indent_5 {
+#buhkjvooni .gt_indent_5 {
   text-indent: 25px;
 }
 
-#lsbjcarrus .katex-display {
+#buhkjvooni .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#lsbjcarrus div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#buhkjvooni div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -900,23 +900,23 @@ level transition. The Δ column is the shift in connection strength
 (|EFA| − |PCA|) — a direct, sign-robust measure of how much the latent-variable
 model changes your inference about the hierarchy.
 
-<!--html_preserve--><div id="zieewudvhf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#zieewudvhf table {
+<!--html_preserve--><div id="hlbvbvpjxh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#hlbvbvpjxh table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#zieewudvhf thead, #zieewudvhf tbody, #zieewudvhf tfoot, #zieewudvhf tr, #zieewudvhf td, #zieewudvhf th {
+#hlbvbvpjxh thead, #hlbvbvpjxh tbody, #hlbvbvpjxh tfoot, #hlbvbvpjxh tr, #hlbvbvpjxh td, #hlbvbvpjxh th {
   border-style: none;
 }
 
-#zieewudvhf p {
+#hlbvbvpjxh p {
   margin: 0;
   padding: 0;
 }
 
-#zieewudvhf .gt_table {
+#hlbvbvpjxh .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -942,12 +942,12 @@ model changes your inference about the hierarchy.
   border-left-color: #D3D3D3;
 }
 
-#zieewudvhf .gt_caption {
+#hlbvbvpjxh .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#zieewudvhf .gt_title {
+#hlbvbvpjxh .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -959,7 +959,7 @@ model changes your inference about the hierarchy.
   border-bottom-width: 0;
 }
 
-#zieewudvhf .gt_subtitle {
+#hlbvbvpjxh .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -971,7 +971,7 @@ model changes your inference about the hierarchy.
   border-top-width: 0;
 }
 
-#zieewudvhf .gt_heading {
+#hlbvbvpjxh .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -983,13 +983,13 @@ model changes your inference about the hierarchy.
   border-right-color: #D3D3D3;
 }
 
-#zieewudvhf .gt_bottom_border {
+#hlbvbvpjxh .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#zieewudvhf .gt_col_headings {
+#hlbvbvpjxh .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1004,7 +1004,7 @@ model changes your inference about the hierarchy.
   border-right-color: #D3D3D3;
 }
 
-#zieewudvhf .gt_col_heading {
+#hlbvbvpjxh .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1024,7 +1024,7 @@ model changes your inference about the hierarchy.
   overflow-x: hidden;
 }
 
-#zieewudvhf .gt_column_spanner_outer {
+#hlbvbvpjxh .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1036,15 +1036,15 @@ model changes your inference about the hierarchy.
   padding-right: 4px;
 }
 
-#zieewudvhf .gt_column_spanner_outer:first-child {
+#hlbvbvpjxh .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#zieewudvhf .gt_column_spanner_outer:last-child {
+#hlbvbvpjxh .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#zieewudvhf .gt_column_spanner {
+#hlbvbvpjxh .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1056,11 +1056,11 @@ model changes your inference about the hierarchy.
   width: 100%;
 }
 
-#zieewudvhf .gt_spanner_row {
+#hlbvbvpjxh .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#zieewudvhf .gt_group_heading {
+#hlbvbvpjxh .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1086,7 +1086,7 @@ model changes your inference about the hierarchy.
   text-align: left;
 }
 
-#zieewudvhf .gt_empty_group_heading {
+#hlbvbvpjxh .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1101,15 +1101,15 @@ model changes your inference about the hierarchy.
   vertical-align: middle;
 }
 
-#zieewudvhf .gt_from_md > :first-child {
+#hlbvbvpjxh .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#zieewudvhf .gt_from_md > :last-child {
+#hlbvbvpjxh .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#zieewudvhf .gt_row {
+#hlbvbvpjxh .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1128,7 +1128,7 @@ model changes your inference about the hierarchy.
   overflow-x: hidden;
 }
 
-#zieewudvhf .gt_stub {
+#hlbvbvpjxh .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1141,7 +1141,7 @@ model changes your inference about the hierarchy.
   padding-right: 5px;
 }
 
-#zieewudvhf .gt_stub_row_group {
+#hlbvbvpjxh .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1155,15 +1155,15 @@ model changes your inference about the hierarchy.
   vertical-align: top;
 }
 
-#zieewudvhf .gt_row_group_first td {
+#hlbvbvpjxh .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#zieewudvhf .gt_row_group_first th {
+#hlbvbvpjxh .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#zieewudvhf .gt_summary_row {
+#hlbvbvpjxh .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1173,16 +1173,16 @@ model changes your inference about the hierarchy.
   padding-right: 5px;
 }
 
-#zieewudvhf .gt_first_summary_row {
+#hlbvbvpjxh .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#zieewudvhf .gt_first_summary_row.thick {
+#hlbvbvpjxh .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#zieewudvhf .gt_last_summary_row {
+#hlbvbvpjxh .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1192,7 +1192,7 @@ model changes your inference about the hierarchy.
   border-bottom-color: #D3D3D3;
 }
 
-#zieewudvhf .gt_grand_summary_row {
+#hlbvbvpjxh .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1202,7 +1202,7 @@ model changes your inference about the hierarchy.
   padding-right: 5px;
 }
 
-#zieewudvhf .gt_first_grand_summary_row {
+#hlbvbvpjxh .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1212,7 +1212,7 @@ model changes your inference about the hierarchy.
   border-top-color: #D3D3D3;
 }
 
-#zieewudvhf .gt_last_grand_summary_row_top {
+#hlbvbvpjxh .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1222,11 +1222,11 @@ model changes your inference about the hierarchy.
   border-bottom-color: #D3D3D3;
 }
 
-#zieewudvhf .gt_striped {
+#hlbvbvpjxh .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#zieewudvhf .gt_table_body {
+#hlbvbvpjxh .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1235,7 +1235,7 @@ model changes your inference about the hierarchy.
   border-bottom-color: #D3D3D3;
 }
 
-#zieewudvhf .gt_footnotes {
+#hlbvbvpjxh .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1249,7 +1249,7 @@ model changes your inference about the hierarchy.
   border-right-color: #D3D3D3;
 }
 
-#zieewudvhf .gt_footnote {
+#hlbvbvpjxh .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1258,7 +1258,7 @@ model changes your inference about the hierarchy.
   padding-right: 5px;
 }
 
-#zieewudvhf .gt_sourcenotes {
+#hlbvbvpjxh .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1272,7 +1272,7 @@ model changes your inference about the hierarchy.
   border-right-color: #D3D3D3;
 }
 
-#zieewudvhf .gt_sourcenote {
+#hlbvbvpjxh .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1280,72 +1280,72 @@ model changes your inference about the hierarchy.
   padding-right: 5px;
 }
 
-#zieewudvhf .gt_left {
+#hlbvbvpjxh .gt_left {
   text-align: left;
 }
 
-#zieewudvhf .gt_center {
+#hlbvbvpjxh .gt_center {
   text-align: center;
 }
 
-#zieewudvhf .gt_right {
+#hlbvbvpjxh .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#zieewudvhf .gt_font_normal {
+#hlbvbvpjxh .gt_font_normal {
   font-weight: normal;
 }
 
-#zieewudvhf .gt_font_bold {
+#hlbvbvpjxh .gt_font_bold {
   font-weight: bold;
 }
 
-#zieewudvhf .gt_font_italic {
+#hlbvbvpjxh .gt_font_italic {
   font-style: italic;
 }
 
-#zieewudvhf .gt_super {
+#hlbvbvpjxh .gt_super {
   font-size: 65%;
 }
 
-#zieewudvhf .gt_footnote_marks {
+#hlbvbvpjxh .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#zieewudvhf .gt_asterisk {
+#hlbvbvpjxh .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#zieewudvhf .gt_indent_1 {
+#hlbvbvpjxh .gt_indent_1 {
   text-indent: 5px;
 }
 
-#zieewudvhf .gt_indent_2 {
+#hlbvbvpjxh .gt_indent_2 {
   text-indent: 10px;
 }
 
-#zieewudvhf .gt_indent_3 {
+#hlbvbvpjxh .gt_indent_3 {
   text-indent: 15px;
 }
 
-#zieewudvhf .gt_indent_4 {
+#hlbvbvpjxh .gt_indent_4 {
   text-indent: 20px;
 }
 
-#zieewudvhf .gt_indent_5 {
+#hlbvbvpjxh .gt_indent_5 {
   text-indent: 25px;
 }
 
-#zieewudvhf .katex-display {
+#hlbvbvpjxh .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#zieewudvhf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#hlbvbvpjxh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>

@@ -89,13 +89,13 @@ bfi <- na.omit(bfi25)
 ``` r
 sk <- suggest_k(bfi, seed = 1)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [128ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [144ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [85ms]
+#> ✔ Running MAP and VSS... [110ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [5.8s]
+#> ✔ Running Comparison Data (CD)... [5.7s]
 #> 
 print(sk)
 #> 
@@ -264,7 +264,7 @@ level after level. That is Forbes's (2023) redundancy question, and it is
 
 ``` r
 pr <- prune(x, "redundant")
-#> ℹ Redundancy pruning (|r| ≥ 0.9) flagged 6 nodes.
+#> ℹ Redundancy pruning (direct criterion, |r| ≥ 0.9) flagged 6 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.
 pr$prune$chains
@@ -322,7 +322,7 @@ when the final model is polychoric.
 x_boot <- ackwards(bfi, k_max = 5, pairs = "all") |>
   boot_edges(bfi, n_boot = 200, seed = 1)
 #> ℹ Fitting 200 bootstrap replicates (pca, k = 1-5)...
-#> ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [8.2s]
+#> ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [8.5s]
 #> 
 
 boot_tbl <- tidy(x_boot, what = "edges", sort = "strength")

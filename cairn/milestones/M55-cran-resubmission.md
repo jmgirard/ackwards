@@ -81,7 +81,7 @@ cli output sits in `print.*` methods, CRAN's allowed exception).
       visible classed return, `expect_silent()` on assignment, print-method
       output test, downstream subassignment + `autoplot` node_labels round
       trip.
-- [ ] T4: Re-run `Rscript vignettes/precompute.R`; verify the live
+- [x] T4: Re-run `Rscript vignettes/precompute.R`; verify the live
       `ackwards-interpret.Rmd` chunk output; commit regenerated `*.Rmd` +
       `vignettes/assets/`.
 - [ ] T5: Version → 0.1.1; NEWS.md 0.1.1 section (fold the current dev
@@ -102,6 +102,10 @@ cli output sits in `print.*` methods, CRAN's allowed exception).
   vector (style kept as attribute); print.ackwards_labels() renders the
   header + c(...) literal; tests updated (42 expectations green, incl.
   expect_silent on assignment and autoplot round trip).
+- 2026-07-12: T4 done — precomputed vignettes regenerated; scaffold no
+  longer prints when nested in autoplot() (the CRAN complaint), top-level
+  rendering unchanged; rest of diff is timing/PNG noise. Live interpret
+  vignette needs no edit (top-level call auto-prints via method).
 
 ## Decisions
 
