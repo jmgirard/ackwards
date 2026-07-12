@@ -3,7 +3,7 @@
      Per-section owners are tagged below. -->
 # M56: Behavior Research Methods manuscript (reproducible Quarto scaffold + worked example)
 
-- **Status:** in-progress   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
+- **Status:** review   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
 - **Priority:** normal   <!-- owner: plan · create/amend-via-gate; high | normal | low -->
 - **Depends on:** —   <!-- owner: plan · create/amend-via-gate; M54 (forbes2023 dataset) already done -->
 - **Branch/PR:** `m56-brm-manuscript`   <!-- owner: implement (branch) / review (PR URL) · create -->
@@ -65,7 +65,7 @@ toolchain, and package version. `devtools::check()` stays clean throughout.
 - [x] T5. Write the Forbes-AMH centerpiece section computing from `forbes2023` (reusing `vignettes/ackwards-forbes.Rmd` computations), with an in-document fidelity check of ≥ 1 value against Forbes's reference via the existing oracle; ingest a `forbes2023` summary into `cairn/references/` if a citeable anchor is needed.
 - [x] T6. Draft Abstract + Statement of Need + Method prose (seed from DESIGN.md §2/§3 + vignettes); add Intro + Discussion structured stubs with guidance bullets, marked author-owned.
 - [x] T7. Write `manuscript/README.md`: render command, toolchain (Quarto ≥ 1.4, tinytex), and pinned package version / `sessionInfo`.
-- [ ] T8. Full clean render to PDF + docx; run `Rscript tools/dod-gate.R` (or at minimum `devtools::check()`) to confirm 0/0/0 with `manuscript/` excluded; commit rendered outputs (or document their reproduction).
+- [x] T8. Full clean render to PDF + docx; run `Rscript tools/dod-gate.R` (or at minimum `devtools::check()`) to confirm 0/0/0 with `manuscript/` excluded; commit rendered outputs (or document their reproduction).
 
 ## Work log
 <!-- owner: any skill · append-only; one line per entry; absolute dates -->
@@ -73,6 +73,7 @@ toolchain, and package version. `devtools::check()` stays clean throughout.
 - 2026-07-12: created by /milestone-plan. Venue BRM; Quarto+apaquarto (user pref); in-repo `manuscript/`, `.Rbuildignore`d; deliverable = scaffold + wired example (bfi25 walkthrough + AMH centerpiece) + seeded prose; PDF+docx; reuse vignette computations, vignette candidate row stays separate.
 - 2026-07-12: gate — sole author (Girard, Univ. of Kansas); gitignore built outputs; title "ackwards: An R Package for Bass-Ackwards Hierarchical Structural Analysis". apaquarto 5.0.18 vendored.
 - 2026-07-12: T1–T7 done. Manuscript renders to PDF (13pp) + docx; walkthrough (bfi25) Fig 1 + Table 1 and AMH centerpiece (forbes2023, k=10) Fig 2 compute live; all citations resolve; AMH fidelity anchored to test-forbes-fidelity.R (~1e-14). Callout blocks replaced with blockquote stubs to drop the fontawesome5 LaTeX dep; fontawesome5/newtx/etc. installed manually via CTAN tarballs (local TinyTeX was a sync ahead of all mirrors, so tlmgr auto-install refused). T8 (check + final render) pending.
+- 2026-07-12: T8 done — `devtools::check()` 0 err/0 warn/0 note (manuscript excluded, no top-level-files NOTE); final clean render to PDF + docx, zero unresolved citations. Status → review. (No R code changed, so style/lint/coverage/pkgdown are unaffected.)
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
