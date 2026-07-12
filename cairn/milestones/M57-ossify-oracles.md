@@ -104,7 +104,7 @@ oracle system to ackwards/cairn.
 - [x] **T3 — Write `cairn/ORACLES.md`.** Sweep all `tests/testthat/test-*.R`, enumerate every
       oracle, classify by type, and record Status/Source/Provenance per entry; include the header
       statement of the standard and the deliberate live-oracle policy (the Scope "Out" rationale).
-- [ ] **T4 — Provenance guard test.** Add `tests/testthat/test-oracle-provenance.R` iterating
+- [x] **T4 — Provenance guard test.** Add `tests/testthat/test-oracle-provenance.R` iterating
       `fixtures/*.rds`, asserting a `provenance` attr + a named generator (map fixture → generator via
       a small in-test table or a registry read); prove it fails on a scratch un-sourced fixture, then
       remove the scratch.
@@ -137,6 +137,11 @@ oracle system to ackwards/cairn.
   lavaan::efa/fitMeasures, psych::corFiml FIML path), O9/O10 cross-route invariants (§5.4/D-004
   algebra-vs-scores; comparability), O11/O12 closed-form (Fisher-z; suggest_k identities). Each row:
   type/Status(test:line)/Source/Provenance + the deliberate-live-oracle policy.
+- 2026-07-12: T4 done — test-oracle-provenance.R guards a uniform contract (top-level `provenance`
+  list with `generator` matching ^data-raw/*.R + `source`); checks structure not file existence
+  (data-raw .Rbuildignore'd). Normalized the AMH fixture to a top-level provenance (+`generator`
+  field) via data-raw/forbes2023.R — data/forbes2023.rda byte-identical (unchanged export). Teeth
+  demonstrated on scratch fixtures; forbes-fidelity + guard both green.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
