@@ -33,27 +33,27 @@ cli output sits in `print.*` methods, CRAN's allowed exception).
 
 ## Acceptance criteria
 
-- [ ] AC1: DESCRIPTION `Description:` expands PCA, EFA, and ESEM on first
+- [x] AC1: DESCRIPTION `Description:` expands PCA, EFA, and ESEM on first
       use (per CRAN cookbook, description_issues.html#explaining-acronyms).
-- [ ] AC2: `label_template()` returns its named character vector **visibly**
+- [x] AC2: `label_template()` returns its named character vector **visibly**
       with class `ackwards_labels`; a top-level call prints the header +
       editable `c(...)` literal via `print.ackwards_labels()`; assignment
       (`labs <- label_template(x)`) emits no console output
       (`expect_silent()` test). No `cat()`/`cli_text()` remains in the
       function body.
-- [ ] AC3: The returned object still works downstream: subassignment
+- [x] AC3: The returned object still works downstream: subassignment
       (`labs["m5f1"] <- ...`) and use as `autoplot(x, node_labels = ...)`
       behave as before (tests pass).
-- [ ] AC4: Package-wide grep shows no `cat()`/`print()`/cli console writes
+- [x] AC4: Package-wide grep shows no `cat()`/`print()`/cli console writes
       outside `print`/`summary`/plot methods.
-- [ ] AC5: DESCRIPTION Version is 0.1.1; NEWS.md has a 0.1.1 section noting
+- [x] AC5: DESCRIPTION Version is 0.1.1; NEWS.md has a 0.1.1 section noting
       both CRAN-feedback changes (incl. the `label_template()` visible-return
       behavior change); `cran-comments.md` rewritten as a resubmission
       addressing both reviewer points.
-- [ ] AC6: Precomputed vignettes regenerated via `vignettes/precompute.R`;
+- [x] AC6: Precomputed vignettes regenerated via `vignettes/precompute.R`;
       `label_template()` sections of `ackwards-visualization` and
       `ackwards-interpret` render correctly.
-- [ ] AC7: `Rscript tools/dod-gate.R` passes (check 0 err/0 warn,
+- [x] AC7: `Rscript tools/dod-gate.R` passes (check 0 err/0 warn,
       coverage, style, lint, pkgdown); full GitHub Actions CI matrix green;
       fresh win-builder R-devel run with 0 err/0 warn (misspelling NOTE
       for surnames/package name acceptable, already documented).
@@ -115,3 +115,39 @@ cli output sits in `print.*` methods, CRAN's allowed exception).
 ## Decisions
 
 ## Review
+
+2026-07-12, same-session review.
+
+**AC evidence (fresh):**
+- AC1 — DESCRIPTION spells out "principal component analysis (PCA)",
+  "exploratory factor analysis (EFA)", "exploratory structural equation
+  modeling (ESEM)" (grep, multiline).
+- AC2 — `label_template()` body has only `cli_abort` (error path) + a
+  `structure(..., class = c("ackwards_labels","character"))` visible return;
+  all scaffold rendering is in `print.ackwards_labels()`. Tests: 42 pass /
+  0 fail, incl. `expect_silent` on assignment and visible+classed return.
+- AC3 — subassignment keeps class; `autoplot(x, node_labels = labs)`
+  round-trip test passes.
+- AC4 — grep: no `cat()`/`print()`/cli console write outside `print.*`
+  methods.
+- AC5 — Version 0.1.1; NEWS "# ackwards 0.1.1" leads with both feedback
+  changes; `cran-comments.md` rewritten as point-by-point resubmission.
+- AC6 — vignettes regenerated; only non-timing output change is removal of
+  the nested `autoplot(label_template(...))` scaffold dump (the fix); live
+  interpret vignette top-level call auto-prints via the method.
+- AC7 — dod-gate green (check 0/0/0, coverage 100%, style/lint clean,
+  pkgdown index complete); full CI matrix green; win-builder R-devel
+  confirmed green by owner (0 err/0 warn; notes: New submission +
+  surname/package-name misspellings).
+
+**Consistency gate:** `cairn_validate.py` exit 0; `document()` no diff;
+`pkgdown::check_pkgdown()` clean; Coverage map complete (AC1→T1, AC2→T2/T3,
+AC3→T3, AC4→T2, AC5→T5, AC6→T4, AC7→T6; all tasks exist). No DESIGN
+principle changed → impact report skipped.
+
+**Independent review (2 lenses + scorer):** [O] diff-bug (Opus) and [S]
+blame-history (Sonnet), distinct evidence bases — **0 findings each**.
+Diff-bug confirmed return contract, S3 registration, print fidelity, no
+stray console writes. Blame-history confirmed the invisible→visible change
+was incidental in the M18 original (no D-entry), the replacement tests are
+strictly stronger, and no internal caller breaks. Nothing to score.
