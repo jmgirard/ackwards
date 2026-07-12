@@ -15,6 +15,13 @@ author:
 author-note:
   disclosures:
     conflict of interest: The author has no conflicts of interest to disclose.
+    gratitude: |
+      During the preparation of this work the author used a large language model
+      (Anthropic's Claude, via the Claude Code interface) to assist with software
+      implementation, testing, documentation, and editing; the author reviewed
+      and verified all output and takes full responsibility for the content. The
+      AI system is not an author. See the Use of Generative AI section for
+      details.
 abstract: |
   Factor analysis confronts every investigator with the same question — how many
   factors to retain — yet solutions at different levels of resolution are
@@ -327,6 +334,29 @@ All numeric results, tables, and figures in this manuscript are computed at
 render time from the **ackwards** package [@ackwards] running in R [@rcore2026];
 no values are hardcoded. See `manuscript/README.md` in the package repository for
 the render command, required toolchain, and the package version used.
+
+# Use of generative AI
+
+The **ackwards** package and this manuscript were developed with the assistance
+of a large language model (Anthropic's Claude, using its Opus and Sonnet models)
+through the Claude Code interface. Rather than a single prompt, the assistant was
+used iteratively across many sessions for software implementation, test
+construction, documentation, and editing of author-written prose. Because this
+mode of use produces no reproducible prompt, we disclose its scope rather than a
+transcript: every AI-assisted contribution was reviewed, verified, and edited by
+the author, who takes full responsibility for the final code, analyses, and text.
+Consistent with journal and publisher policy, no AI system is credited as an
+author.
+
+Crucially, AI assistance does not stand in for the manuscript's verification
+guarantees. Every numeric result reported here is checked against at least two
+independent oracle types — published or closed-form values, an independent
+software implementation, or seeded simulation — and the central applied example
+reproduces the reference implementation of @forbes2023 to machine precision. The
+complete development record, including design decisions, milestone histories, and
+the catalogue of verification oracles, is version-controlled in the package
+repository and can be inspected independently of the assistant used to produce
+it.
 
 # References
 
