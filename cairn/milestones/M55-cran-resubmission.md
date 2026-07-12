@@ -141,13 +141,12 @@ cli output sits in `print.*` methods, CRAN's allowed exception).
   surname/package-name misspellings).
 
 **Consistency gate:** `cairn_validate.py` exit 0; `document()` no diff;
-`pkgdown::check_pkgdown()` clean; Coverage map complete (AC1→T1, AC2→T2/T3,
-AC3→T3, AC4→T2, AC5→T5, AC6→T4, AC7→T6; all tasks exist). No DESIGN
-principle changed → impact report skipped.
+`pkgdown::check_pkgdown()` clean; Coverage map complete (all ACs→existing
+tasks). No DESIGN principle changed → impact report skipped.
 
-**Independent review (2 lenses + scorer):** [O] diff-bug (Opus) and [S]
-blame-history (Sonnet), distinct evidence bases — **0 findings each**.
-Diff-bug confirmed return contract, S3 registration, print fidelity, no
-stray console writes. Blame-history confirmed the invisible→visible change
-was incidental in the M18 original (no D-entry), the replacement tests are
-strictly stronger, and no internal caller breaks. Nothing to score.
+**Independent review ([O] diff-bug + [S] blame-history, distinct evidence
+bases): 0 findings each.** Diff-bug confirmed return contract, S3
+registration, print fidelity, no stray console writes. Blame-history
+confirmed the invisible→visible change was incidental in the M18 original
+(no D-entry), replacement tests are strictly stronger, no internal caller
+breaks. Nothing to score.
