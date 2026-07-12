@@ -14,8 +14,8 @@ a 0.1.1 resubmission from master.
   point-by-point resubmission. Precomputed vignettes regenerated.
 
 **Verification:** 7/7 ACs; consistency gate clean; 2-lens review (Opus
-diff-bug + Sonnet blame-history) → 0 findings; dod-gate 0/0/0 + 100%
-coverage (0 err/0 warn/0 note); full CI matrix + win-builder R-devel green.
+diff-bug + Sonnet blame-history) → 0 findings; dod-gate clean (0 err/0
+warn/0 note) + 100% coverage; full CI matrix + win-builder R-devel green.
 
 **Key decisions:** resubmit from master as 0.1.1 (not a patch branch from
 the v0.1.0 tag — superseded the pre-M55 release-tail guidance at the plan
