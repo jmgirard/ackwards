@@ -1,12 +1,17 @@
 The ackwards package as a whole is released under the MIT License (see the
 DESCRIPTION "License" field and the LICENSE file).
 
-The following bundled file is licensed separately:
+The following bundled files are licensed separately:
 
+  data/forbes2023.rda
   tests/testthat/fixtures/forbes2023_amh.rds
 
-    Contains the 155-variable "Assessing Mental Health" (AMH) Spearman
-    correlation matrix from:
+    data/forbes2023.rda is the exported `forbes2023` dataset: the 155-variable
+    "Assessing Mental Health" (AMH) Spearman correlation matrix from Forbes
+    (2023, below). tests/testthat/fixtures/forbes2023_amh.rds holds the
+    expected between-level correlations and loading congruences derived from
+    that same matrix (details below). Both derive from the AMH correlation
+    matrix of:
 
       Forbes, M. K. (2023). Improving hierarchical models of individual
       differences: An extension of Goldberg's bass-ackward method.
@@ -18,9 +23,9 @@ The following bundled file is licensed separately:
       Creative Commons Attribution 4.0 International (CC-BY 4.0)
       https://creativecommons.org/licenses/by/4.0/
 
-    with attribution to M. K. Forbes as above. The accompanying expected
-    between-level correlations and loading congruences stored in the same
-    file were computed from that matrix using Forbes's own reference
-    implementation ("ExtendedBassAckwards functions with annotation.R",
-    guid 7jfkw, same OSF project and license). The file is used only by the
-    package's test suite. See data-raw/forbes2023_amh.R for provenance.
+    with attribution to M. K. Forbes as above. The expected between-level
+    correlations and loading congruences in forbes2023_amh.rds were computed
+    from that matrix using Forbes's own reference implementation
+    ("ExtendedBassAckwards functions with annotation.R", guid 7jfkw, same OSF
+    project and license). See data-raw/forbes2023.R, which regenerates both
+    files from a single md5-pinned download, for provenance.

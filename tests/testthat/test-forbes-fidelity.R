@@ -129,10 +129,11 @@ test_that("prune('redundant') flags Forbes's Simulation 1 chains with her retent
 # AMH applied example (M53).
 #
 # Forbes's 155-variable "Assessing Mental Health" applied example, k = 10 (OSF
-# pcwm8, CC-BY 4.0). fixtures/forbes2023_amh.rds holds the published Spearman
-# matrix plus expected comp_corr/cong computed with HER reference implementation
-# (see data-raw/forbes2023_amh.R and attr(fixture, "provenance")). As with the
-# simulations, only ackwards() runs here; no Forbes code or network at test time.
+# pcwm8, CC-BY 4.0). The matrix is the exported dataset `forbes2023` (M54);
+# fixtures/forbes2023_amh.rds holds only the expected comp_corr/cong computed
+# with HER reference implementation from that same md5-pinned matrix (see
+# data-raw/forbes2023.R and attr(fixture, "provenance")). As with the simulations,
+# only ackwards() runs here; no Forbes code or network at test time.
 #
 # Redundancy chase: Forbes's ChaseCorrPaths uses the DIRECT (skip-level)
 # correlation to a component at each ancestor level -- the criterion our
@@ -169,7 +170,7 @@ test_that("default output reproduces Forbes's AMH applied example (k = 10)", {
   amh <- .amh_fixture()
   K <- amh$k_max
   suppressWarnings(suppressMessages(
-    x <- cached(ackwards(amh$R, k_max = K, pairs = "all"))
+    x <- cached(ackwards(forbes2023, k_max = K, pairs = "all"))
   ))
 
   # (1) Between-level correlations: |ours| == |hers| entrywise, all 45 pairs.
@@ -209,7 +210,7 @@ test_that("direct criterion reproduces Forbes's AMH redundancy chase exactly (54
   skip_if_not_installed("psych")
   amh <- .amh_fixture()
   suppressWarnings(suppressMessages(
-    x <- cached(ackwards(amh$R, k_max = amh$k_max, pairs = "all"))
+    x <- cached(ackwards(forbes2023, k_max = amh$k_max, pairs = "all"))
   ))
 
   # Every component's direct chase over our all-levels edges lands on the same
@@ -234,7 +235,7 @@ test_that("prune('redundant') on AMH: direct default vs adjacent opt-in", {
   skip_if_not_installed("psych")
   amh <- .amh_fixture()
   suppressWarnings(suppressMessages({
-    x <- cached(ackwards(amh$R, k_max = amh$k_max, pairs = "all"))
+    x <- cached(ackwards(forbes2023, k_max = amh$k_max, pairs = "all"))
     xp <- prune(x, "redundant") # default redundancy_criterion = "direct"
     xa <- prune(x, "redundant", redundancy_criterion = "adjacent")
   }))

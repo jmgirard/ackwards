@@ -153,6 +153,21 @@ test_that("sim16 at k_max = 5 guarantees a redundant chain and an artifact signa
   expect_true(all(orphan_ids %in% flagged_ids))
 })
 
+test_that("forbes2023 is a valid 155x155 correlation matrix with symptom labels", {
+  expect_true(is.matrix(forbes2023))
+  expect_true(is.numeric(forbes2023))
+  expect_equal(dim(forbes2023), c(155L, 155L))
+  # Symmetric with a unit diagonal -- a genuine correlation matrix.
+  expect_true(isSymmetric(unname(forbes2023)))
+  expect_equal(diag(forbes2023), rep(1, 155L), ignore_attr = TRUE)
+  expect_true(all(abs(forbes2023) <= 1 + 1e-12))
+  # Row and column names are the (identical, non-empty, unique) symptom labels.
+  expect_false(is.null(rownames(forbes2023)))
+  expect_identical(rownames(forbes2023), colnames(forbes2023))
+  expect_true(all(nzchar(rownames(forbes2023))))
+  expect_false(anyDuplicated(rownames(forbes2023)) > 0L)
+})
+
 test_that("data-raw/sim16.R regenerates sim16 identically (fixed-seed reproducibility)", {
   script_path <- testthat::test_path("..", "..", "data-raw", "sim16.R")
   skip_if(!file.exists(script_path), "data-raw/sim16.R not reachable from this test context")

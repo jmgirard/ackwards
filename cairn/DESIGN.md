@@ -708,7 +708,9 @@ owner-signed-off):**
     `attr(col, "label") <- ...` / `labelled::var_label()` route is documented instead. (b) A **third
     teaching dataset** is **declined** — `sim16` (idealized continuous) and `bfi25` (realistic
     ordinal) are a deliberate two-foil pair; a third dilutes that contrast without adding a distinct
-    teaching case. (c) A persistent **factor-label pipeline** (a `set_factor_labels()`-style setter
+    teaching case. (M54 clarification: this declines a third *teaching* dataset only. The exported
+    `forbes2023` matrix is a *fidelity/reproduction* dataset — the published case the Forbes-fidelity
+    contract reproduces, not a pedagogical foil — and is therefore outside this decision's scope.) (c) A persistent **factor-label pipeline** (a `set_factor_labels()`-style setter
     honored by `autoplot`/`print`/`summary`/`tidy`, with `label_template()` as scaffold) is
     **deferred to 0.2.0** (not declined): it is purely additive, so 0.1.0 loses nothing, and it
     deserves its own naming/storage/precedence design. The **item-vs-factor "label" vocabulary
