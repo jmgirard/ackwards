@@ -1631,5 +1631,5 @@ structure analysis: Conventional criteria versus new alternatives. *Structural
 Equation Modeling*, *6*(1), 1–55.
 
 Waller, N. G. (2007). A general method for computing hierarchical component
-structures by Bass-Ackward factor analysis. *Journal of Research in
+structures by Goldberg's Bass-Ackwards method. *Journal of Research in
 Personality*, *41*(4), 745–752.
