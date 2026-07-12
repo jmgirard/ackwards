@@ -42,6 +42,7 @@ Helpers for understanding what each factor means and labelling it.
 - [`print(`*`<top_items>`*`)`](https://jmgirard.github.io/ackwards/reference/print.top_items.md)
   : Print a top_items object
 - [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
+  [`print(`*`<ackwards_labels>`*`)`](https://jmgirard.github.io/ackwards/reference/label_template.md)
   : Generate a node-label scaffold for autoplot
 - [`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md)
   : Attach persistent factor labels to an ackwards object

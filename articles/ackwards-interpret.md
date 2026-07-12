@@ -673,24 +673,6 @@ produces this convention directly with `style = "forbes"`:
 ``` r
 
 autoplot(x, node_labels = label_template(x, style = "forbes"))
-#> `label_template()` scaffold (forbes style):
-#> c(
-#>   "m1f1" = "A1",
-#>   "m2f1" = "B1",
-#>   "m2f2" = "B2",
-#>   "m3f1" = "C1",
-#>   "m3f2" = "C2",
-#>   "m3f3" = "C3",
-#>   "m4f1" = "D1",
-#>   "m4f2" = "D2",
-#>   "m4f3" = "D3",
-#>   "m4f4" = "D4",
-#>   "m5f1" = "E1",
-#>   "m5f2" = "E2",
-#>   "m5f3" = "E3",
-#>   "m5f4" = "E4",
-#>   "m5f5" = "E5"
-#> )
 ```
 
 ![](ackwards-interpret_files/figure-html/label-forbes-1.png)
@@ -707,24 +689,6 @@ through, `style = "blank"` gives you an all-empty scaffold to fill in:
 ``` r
 
 labs <- label_template(x, style = "blank")
-#> `label_template()` scaffold (blank style):
-#> c(
-#>   "m1f1" = "",
-#>   "m2f1" = "",
-#>   "m2f2" = "",
-#>   "m3f1" = "",
-#>   "m3f2" = "",
-#>   "m3f3" = "",
-#>   "m4f1" = "",
-#>   "m4f2" = "",
-#>   "m4f3" = "",
-#>   "m4f4" = "",
-#>   "m5f1" = "",
-#>   "m5f2" = "",
-#>   "m5f3" = "",
-#>   "m5f4" = "",
-#>   "m5f5" = ""
-#> )
 labs["m5f1"] <- "N"
 labs["m5f2"] <- "E"
 labs["m5f3"] <- "C"

@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ackwards</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -720,25 +720,7 @@ and <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">p
 <code><a href="../reference/label_template.html">label_template()</a></code> produces this convention directly with
 <code>style = "forbes"</code>:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="fu"><a href="../reference/label_template.html">label_template</a></span><span class="op">(</span><span class="va">x</span>, style <span class="op">=</span> <span class="st">"forbes"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `label_template()` scaffold (forbes style):</span></span>
-<span><span class="co">#&gt; c(</span></span>
-<span><span class="co">#&gt;   "m1f1" = "A1",</span></span>
-<span><span class="co">#&gt;   "m2f1" = "B1",</span></span>
-<span><span class="co">#&gt;   "m2f2" = "B2",</span></span>
-<span><span class="co">#&gt;   "m3f1" = "C1",</span></span>
-<span><span class="co">#&gt;   "m3f2" = "C2",</span></span>
-<span><span class="co">#&gt;   "m3f3" = "C3",</span></span>
-<span><span class="co">#&gt;   "m4f1" = "D1",</span></span>
-<span><span class="co">#&gt;   "m4f2" = "D2",</span></span>
-<span><span class="co">#&gt;   "m4f3" = "D3",</span></span>
-<span><span class="co">#&gt;   "m4f4" = "D4",</span></span>
-<span><span class="co">#&gt;   "m5f1" = "E1",</span></span>
-<span><span class="co">#&gt;   "m5f2" = "E2",</span></span>
-<span><span class="co">#&gt;   "m5f3" = "E3",</span></span>
-<span><span class="co">#&gt;   "m5f4" = "E4",</span></span>
-<span><span class="co">#&gt;   "m5f5" = "E5"</span></span>
-<span><span class="co">#&gt; )</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="fu"><a href="../reference/label_template.html">label_template</a></span><span class="op">(</span><span class="va">x</span>, style <span class="op">=</span> <span class="st">"forbes"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ackwards-interpret_files/figure-html/label-forbes-1.png" class="r-plt" alt="" width="672"></p>
 <p>This is useful when you want to refer to nodes by position rather
 than by substantive name — for example, in a methods section that walks
@@ -752,24 +734,6 @@ showing through, <code>style = "blank"</code> gives you an all-empty
 scaffold to fill in:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">labs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/label_template.html">label_template</a></span><span class="op">(</span><span class="va">x</span>, style <span class="op">=</span> <span class="st">"blank"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `label_template()` scaffold (blank style):</span></span>
-<span><span class="co">#&gt; c(</span></span>
-<span><span class="co">#&gt;   "m1f1" = "",</span></span>
-<span><span class="co">#&gt;   "m2f1" = "",</span></span>
-<span><span class="co">#&gt;   "m2f2" = "",</span></span>
-<span><span class="co">#&gt;   "m3f1" = "",</span></span>
-<span><span class="co">#&gt;   "m3f2" = "",</span></span>
-<span><span class="co">#&gt;   "m3f3" = "",</span></span>
-<span><span class="co">#&gt;   "m4f1" = "",</span></span>
-<span><span class="co">#&gt;   "m4f2" = "",</span></span>
-<span><span class="co">#&gt;   "m4f3" = "",</span></span>
-<span><span class="co">#&gt;   "m4f4" = "",</span></span>
-<span><span class="co">#&gt;   "m5f1" = "",</span></span>
-<span><span class="co">#&gt;   "m5f2" = "",</span></span>
-<span><span class="co">#&gt;   "m5f3" = "",</span></span>
-<span><span class="co">#&gt;   "m5f4" = "",</span></span>
-<span><span class="co">#&gt;   "m5f5" = ""</span></span>
-<span><span class="co">#&gt; )</span></span>
 <span><span class="va">labs</span><span class="op">[</span><span class="st">"m5f1"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"N"</span></span>
 <span><span class="va">labs</span><span class="op">[</span><span class="st">"m5f2"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"E"</span></span>
 <span><span class="va">labs</span><span class="op">[</span><span class="st">"m5f3"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"C"</span></span>

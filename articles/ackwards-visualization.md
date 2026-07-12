@@ -237,24 +237,6 @@ copy-pasteable `c(...)` literal you can edit and pass back to
 ``` r
 
 autoplot(x, node_labels = label_template(x, style = "forbes"))
-#> `label_template()` scaffold (forbes style):
-#> c(
-#>   "m1f1" = "A1",
-#>   "m2f1" = "B1",
-#>   "m2f2" = "B2",
-#>   "m3f1" = "C1",
-#>   "m3f2" = "C2",
-#>   "m3f3" = "C3",
-#>   "m4f1" = "D1",
-#>   "m4f2" = "D2",
-#>   "m4f3" = "D3",
-#>   "m4f4" = "D4",
-#>   "m5f1" = "E1",
-#>   "m5f2" = "E2",
-#>   "m5f3" = "E3",
-#>   "m5f4" = "E4",
-#>   "m5f5" = "E5"
-#> )
 ```
 
 ![plot of chunk
@@ -473,13 +455,13 @@ generic covers it.
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [127ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [176ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [42ms]
+#> ✔ Running MAP and VSS... [53ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [5.7s]
+#> ✔ Running Comparison Data (CD)... [5.9s]
 #> 
 autoplot(sk)
 ```
