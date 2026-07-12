@@ -138,4 +138,10 @@ _Reviewed 2026-07-12 (same session). PR #57._
 
 **Consistency gate:** `cairn_validate` all-pass; Coverage map AC1–AC6 → T3/T2/T5/T1/T4/T6 (all exist); no DESIGN IP/GP changed (skip impact); no user-facing change (no NEWS); no stray-file NOTE.
 
-**Independent review:** _pending — [O] diff-bug + [S] blame-history reviewers running._
+**Independent review (two lenses):** no substantive defects. [O] diff-bug verified the DGP
+transcription against the live OSF script (both md5 pins match bit-for-bit), guard-test teeth, and
+every registry anchor. [S] blame-history re-ran the full suite (2254 pass/0 fail), byte-confirmed
+`data/forbes2023.rda` unchanged + AMH payload identical, and verified the sims replacement is a
+bug-fix to a *false* M44 provenance claim (not a reversal), with D-004/D-018 cited correctly.
+Triage: 1 minor finding (score ~85) — stale md5 cells in `references/forbes2023.md` — **fixed**
+(filled `7jfkw`/`ztngp` md5s). No findings scored <80 to log.

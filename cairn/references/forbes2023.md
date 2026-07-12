@@ -28,8 +28,8 @@ match matters).
 | Artifact | OSF guid | Role | md5 |
 |---|---|---|---|
 | `corSpearman_AMH.csv` (155×155 Spearman matrix) | `s9bjz` | The exported `forbes2023` dataset **and** the AMH fidelity oracle input | `c1dd9eca009c2738c268487179d43e87` |
-| `ExtendedBassAckwards functions with annotation.R` | `7jfkw` | Her reference implementation — computes the expected `comp.corr` / `cong` / `ChaseCorrPaths` values | — |
-| `R script for simulations and applied example_R2.R` | (resolve at generate time) | Regenerates the three simulation Spearman matrices under `set.seed(123)` via `psych::sim.structure` | — |
+| `ExtendedBassAckwards functions with annotation.R` | `7jfkw` | Her reference implementation — computes the expected `comp.corr` / `cong` / `ChaseCorrPaths` values | `a3e85df897d2a4a4310b9c45dcb068d9` |
+| `R script for simulations and applied example_R2.R` | `ztngp` | Regenerates the three simulation Spearman matrices under `set.seed(123)` via `psych::sim.structure` | `8de5ec351992e8fb11c0b8d7015f3329` |
 
 ## Which tests / oracles trace to it
 
