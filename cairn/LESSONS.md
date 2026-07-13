@@ -6,9 +6,6 @@ One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
 - 2026-07-12 (M54): `cairn_validate.py`'s ISO-date check flags any slash-separated `N/N/N` token
   (e.g. the zero-error/warning/note shorthand for a clean check) as a malformed date — spell it out
   ("0 err/0 warn/0 note") in tracking files instead.
-- 2026-07-12 (M54): a review-complete milestone file with full AC evidence easily exceeds the
-  150-line cap; tighten the Review prose (review-owned) rather than the append-only work-log, and
-  remember it compresses to ≤25 lines at archive anyway.
 - 2026-07-12 (M54): bundling a CC-BY dataset in an MIT package = data author as `Authors@R`
   `role = "cph"` scoped by `comment` to the file + a `LICENSE.note` (a WRE-recognized top-level
   filename that ships without tripping `R CMD check`). Gives a clean check with no license NOTE.
@@ -46,3 +43,7 @@ One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
   redundancy topology, so `test-forbes-fidelity.R`'s prune `{m3f1,m3f2,m3f3}`/`{m2f2,m4f1,m4f2}`
   literals held. Verify, don't assume. (data-raw is `.Rbuildignore`d, so a fixture guard can only
   check that provenance *names* a generator, not that the file exists at R CMD check time.)
+- 2026-07-13 (M59): line-based coverage can mark an untested branch as covered when `if/else` sits
+  on one line — covr counts the line hit if either arm runs. Splitting it during a refactor can
+  surface a real, pre-existing gap (here `print`'s non-converged red-cross arm); cover it with a
+  test, don't re-collapse the line to game the number.
