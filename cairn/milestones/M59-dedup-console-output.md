@@ -48,7 +48,7 @@ Route `print`, `summary`, and `autoplot`'s repeated output blocks through shared
 - [x] T1 — Extract `.print_ba_header()`, the honesty-caveat footer, and the near-singularity caution into shared helpers; route both `print` methods through them.
 - [x] T2 — Build one prune-count digest (extend/reuse `.summary_prune`) and have both `print.ackwards` and `summary` read it; remove the duplicated structural-signal / phi-note / redundant-count inline code in `print.R`.
 - [x] T3 — Unify the cumulative-variance percent format and the tick/cross glyphs across `print` + `summary`; route `autoplot`'s threshold through `.format_r()`.
-- [ ] T4 — Extract `.ba_add_nodes()` + shared theme finisher; route both the main and `.ba_degenerate_plot` paths through them.
+- [x] T4 — Extract `.ba_add_nodes()` + shared theme finisher; route both the main and `.ba_degenerate_plot` paths through them.
 - [ ] T5 — Fold in the comment fixes (`summary.R:88`, `summary.R:70`, `.spread_positions`, `dodge_x`).
 - [ ] T6 — Update/accept `print`/`summary` snapshots to lock the unified output; `Rscript tools/dod-gate.R` clean; commit with tracking.
 
@@ -61,6 +61,7 @@ Route `print`, `summary`, and `autoplot`'s repeated output blocks through shared
 - 2026-07-12: T1 — `.print_ba_header()`, `.print_near_singular(min_eig, detail)`, `.print_honesty_footer(prune_note=NULL)` added to print.R; both surfaces routed through them. Near-singular `detail` and prune note wording differ per surface (≈, not ≡) so are passed in, preserving exact strings. Snapshots + test-print.R green (pure refactor).
 - 2026-07-12: T2 — renamed `.summary_prune` → `.prune_digest`, moved to print.R shared helpers; `print.ackwards` now reads redundant/phi-note/structural counts from it instead of reaching into `x$prune$…` inline. Display wording stays per-surface. Snapshots + test-print.R green (pure refactor).
 - 2026-07-12: T3 — added `.fmt_pct()` (sprintf 1-dp) + `.ok_glyph()` (cli::symbol tick/cross) to utils.R; print cum + summary cum/per-factor percent route through `.fmt_pct`; print convergence keeps green/red, summary fit-meets glyph now bare cli symbol (was raw ✔/✘). autoplot fit-caption threshold → `.format_r()`. Deliberate glyph change captured in accepted snapshot (✘→✖/x); percent convention locked by new `.fmt_pct` unit test (no snapshot diff on chosen data). New `.fmt_pct`/`.ok_glyph` unit tests. No new deps (dropped a withr reach).
+- 2026-07-12: T4 — extracted `.ba_add_nodes(p, nodes, w, h)` + `.ba_finish_theme(p, legend, show_labels, direction)`; main render + `.ba_degenerate_plot` both routed through them. Layout/autoplot tests green (pure refactor).
 
 ## Decisions
 
