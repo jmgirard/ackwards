@@ -65,9 +65,7 @@ print.summary_ackwards <- function(x, ...) {
     if (ki > 1L) cli::cli_text("") # blank line between level blocks
     var_rows <- x$variance[x$variance$level == ki, , drop = FALSE]
     # cumulative is a running proportion within the level; max gives the total.
-    # Fixed-precision with trailing zeros so per-level figures do not drift
-    # (e.g. "20.9%" not "20.91%"/"13.6%").
-    cum_total <- sprintf("%.1f", max(var_rows$cumulative) * 100)
+    cum_total <- .fmt_pct(max(var_rows$cumulative))
     cli::cli_text(
       "{.strong k = {ki}}: {ki} factor{?s}  ({cum_total}% cumulative variance)"
     )
@@ -75,7 +73,7 @@ print.summary_ackwards <- function(x, ...) {
 
     for (i in seq_len(nrow(var_rows))) {
       fac <- var_rows$factor[i]
-      vpct <- sprintf("%.1f", var_rows$proportion[i] * 100)
+      vpct <- .fmt_pct(var_rows$proportion[i])
 
       # PCA: eigenvalue statistics are "eigenvalue.<label>" (see engine_pca.R:65)
       suffix <- if (is_pca && nrow(fit_rows) > 0L) {
@@ -120,7 +118,10 @@ print.summary_ackwards <- function(x, ...) {
             cut <- cuts[[idx]]
             if (!is.null(cut) && !is.na(val)) {
               ok <- if (cut$direction == "hi") val >= cut$threshold else val <= cut$threshold
-              formatted <- paste0(formatted, if (ok) " \u2714" else " \u2718")
+              # Bare (uncoloured) glyph -- the whole line is wrapped in col_grey
+              # below; .ok_glyph keeps it consistent with print()'s convergence
+              # mark and terminal-adaptive (M59).
+              formatted <- paste0(formatted, " ", .ok_glyph(ok))
             }
             formatted
           },

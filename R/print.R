@@ -125,8 +125,12 @@ print.ackwards <- function(x, ...) {
   K <- x$k_max
   for (ki in seq_len(K)) {
     lev <- x$levels[[as.character(ki)]]
-    cum_pct <- round(lev$variance["cumulative"] * 100, 1)
-    conv_sym <- if (isTRUE(lev$converged)) cli::col_green(cli::symbol$tick) else cli::col_red(cli::symbol$cross)
+    cum_pct <- .fmt_pct(lev$variance["cumulative"])
+    conv_sym <- if (isTRUE(lev$converged)) {
+      cli::col_green(.ok_glyph(TRUE))
+    } else {
+      cli::col_red(.ok_glyph(FALSE))
+    }
     cli::cli_text(
       "  {conv_sym} {.strong k = {ki}}: {ki} factor{?s}, {cum_pct}% variance"
     )

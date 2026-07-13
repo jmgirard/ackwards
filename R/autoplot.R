@@ -791,7 +791,9 @@ autoplot.ackwards <- function(
   cut_desc <- vapply(keep_idx, function(idx) {
     cut <- cuts[[idx]]
     op <- if (cut$direction == "hi") ">=" else "<="
-    paste0(idx, " ", op, " ", sub("^0", "", format(cut$threshold)))
+    # .format_r strips the leading zero and pads to 2 dp, matching the edge
+    # labels ("0.95" -> ".95"); one convention for correlations/thresholds (M59).
+    paste0(idx, " ", op, " ", .format_r(cut$threshold))
   }, character(1L))
   caption_txt <- paste0(
     "Dashed lines: Hu & Bentler (1999) thresholds (",

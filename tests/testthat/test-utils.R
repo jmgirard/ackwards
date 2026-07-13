@@ -33,6 +33,28 @@ test_that(".format_r() is vectorised", {
   expect_equal(result, c(".23", "-.45", "1.00", ".00"))
 })
 
+test_that(".fmt_pct() keeps a fixed single decimal with trailing zeros", {
+  pct <- ackwards:::.fmt_pct
+
+  # The drift the shared helper prevents: a whole/half number keeps its ".0"
+  # rather than collapsing to "30" (the old round()-based print path).
+  expect_equal(pct(0.30), "30.0")
+  expect_equal(pct(0.302), "30.2")
+  expect_equal(pct(0.1355), "13.6") # rounds to 1 dp
+  expect_equal(pct(1), "100.0")
+  expect_equal(pct(0), "0.0")
+})
+
+test_that(".ok_glyph() returns a tick when ok and a cross otherwise", {
+  glyph <- ackwards:::.ok_glyph
+
+  # Maps TRUE -> tick, FALSE -> cross using cli::symbol, so it is terminal-
+  # adaptive (UTF-8 ✔/✖, ASCII v/x) rather than a hard-coded literal.
+  expect_equal(glyph(TRUE), cli::symbol$tick)
+  expect_equal(glyph(FALSE), cli::symbol$cross)
+  expect_false(identical(glyph(TRUE), glyph(FALSE)))
+})
+
 test_that("detect_ordinal flags nothing for an all-NA column", {
   # all-NA column alongside a clearly continuous column
   d <- data.frame(x = rep(NA_real_, 5L), y = c(1.1, 2.2, 3.3, 4.4, 5.5))

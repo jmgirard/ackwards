@@ -99,13 +99,13 @@
       k = 2: 2 factors (37.8% cumulative variance)
       m2f1 19.1%
       m2f2 18.7%
-      chi = 136.4 dof = 26 RMSEA = 0.065 ✘ TLI = 0.912 ✘
+      chi = 136.4 dof = 26 RMSEA = 0.065 x TLI = 0.912 x
       
       k = 3: 3 factors (41.9% cumulative variance)
       m3f1 19.2%
       m3f2 18.8%
       m3f3 3.9%
-      chi = 58.5 dof = 18 RMSEA = 0.047 ✔ TLI = 0.953 ✔
+      chi = 58.5 dof = 18 RMSEA = 0.047 v TLI = 0.953 v
       
       -- Lineage (primary parents) --
       
