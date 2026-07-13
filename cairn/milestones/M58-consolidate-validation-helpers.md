@@ -45,7 +45,7 @@ Extract the input-validation boilerplate that the four big verbs each copied (an
 
 ## Tasks
 
-- [ ] T1 — Add `.as_numeric_matrix(data, arg)` and `.check_count(x, arg, min = 1L)` (with `is.na` guard) to `utils.R`; write `test-utils.R` cases for both, including the NA / non-integer / length / min-violation branches.
+- [x] T1 — Add `.as_numeric_matrix(data, arg)` and `.check_count(x, arg, min = 1L)` (with `is.na` guard) to `utils.R`; write `test-utils.R` cases for both, including the NA / non-integer / length / min-violation branches.
 - [ ] T2 — Replace the ~5 matrix-coercion sites and ~5 count-check sites with calls to the new helpers; add the `suggest_k(R, n_obs = NA_real_)` regression test (assert it fails on the current code first, then passes).
 - [ ] T3 — Add `.check_unknown_dots(...)` to `prune.ackwards()`; add a regression test that an unknown argument to `prune()` errors (fails first).
 - [ ] T4 — Move `.tucker_phi` to `utils.R`; add `.node_levels(levels_list)` and route prune's three rebuilds; hoist the duplicated `suggest_k` `k_max` block; fix the `ackwards.R:405` dangling comment.
@@ -54,6 +54,7 @@ Extract the input-validation boilerplate that the four big verbs each copied (an
 ## Work log
 
 - 2026-07-12: created by /milestone-plan (bucket 1 + the two latent bugs of the 2026-07-12 codebase audit; scope confirmed at the plan gate).
+- 2026-07-12: T1 — added `.as_numeric_matrix()` + `.check_count()` (min-aware; `is.na` guard) to utils.R with direct test-utils.R cases; green.
 
 ## Decisions
 

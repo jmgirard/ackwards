@@ -88,6 +88,43 @@ make_labels <- function(k) {
   ))
 }
 
+# Coerce raw-data input to a numeric matrix or abort. Consolidates the identical
+# "data frame or matrix?" + "numeric?" gate that every raw-data verb
+# (ackwards/suggest_k/comparability/boot_edges/factorability) repeated verbatim,
+# so the two messages stay in one place. `arg` names the offending argument in
+# the error. Does NOT coerce a correlation matrix -- callers branch on
+# .is_cor_matrix() first and only reach this for the raw-data path.
+.as_numeric_matrix <- function(data, arg = "data") {
+  if (!is.data.frame(data) && !is.matrix(data)) {
+    cli::cli_abort("{.arg {arg}} must be a data frame or numeric matrix.")
+  }
+  mat <- as.matrix(data)
+  if (!is.numeric(mat)) {
+    cli::cli_abort("{.arg {arg}} must contain only numeric columns.")
+  }
+  mat
+}
+
+# Validate a single positive integer-valued count and return it as an integer.
+# Consolidates the hand-rolled "single positive integer" checks scattered across
+# the verbs (n_iter, n_obs, n_splits, n_boot). `min` sets the floor (n_boot uses
+# 2). The `is.na(x)` guard is load-bearing: without it a numeric NA slips past a
+# `is.null()` pre-check and reaches `if (... || NA || ...)`, which dies with base
+# R's cryptic "missing value where TRUE/FALSE needed" instead of this message
+# (the M58 suggest_k(n_obs = NA) drift bug).
+.check_count <- function(x, arg, min = 1L) {
+  if (!is.numeric(x) || length(x) != 1L || is.na(x) ||
+    x < min || x != as.integer(x)) {
+    msg <- if (min <= 1L) {
+      "{.arg {arg}} must be a single positive integer."
+    } else {
+      "{.arg {arg}} must be a single integer >= {min}."
+    }
+    cli::cli_abort(msg)
+  }
+  as.integer(x)
+}
+
 # Detect which columns of a data frame look ordinal (Likert-scale).
 # Heuristic: a column is flagged if it is integer-like and has <= max_levels
 # distinct values. Returns the flagged column names (character(0) when none),

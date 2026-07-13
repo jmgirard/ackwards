@@ -299,3 +299,40 @@ test_that(".ledermann_bound() returns the largest identifiable factor count", {
   expect_equal(lb(2L), 0L)
   expect_equal(lb(1L), 0L)
 })
+
+test_that(".as_numeric_matrix() coerces or aborts with the shared messages", {
+  anm <- ackwards:::.as_numeric_matrix
+  # data frame -> numeric matrix
+  expect_identical(anm(data.frame(a = 1:2, b = 3:4)), matrix(c(1L, 2L, 3L, 4L),
+    nrow = 2, dimnames = list(NULL, c("a", "b"))
+  ))
+  # numeric matrix passes through
+  m <- matrix(1:6, 2)
+  expect_equal(anm(m), m)
+  # non-data/non-matrix input
+  expect_error(anm(list(a = 1)), "data frame or numeric matrix")
+  expect_error(anm(1:5), "data frame or numeric matrix")
+  # non-numeric columns
+  expect_error(anm(data.frame(a = 1:2, b = c("x", "y"))), "only numeric columns")
+  # arg name is threaded into the message
+  expect_error(anm(list(), arg = "foo"), "foo")
+})
+
+test_that(".check_count() validates a single positive integer and returns int", {
+  cc <- ackwards:::.check_count
+  expect_identical(cc(5, "n"), 5L)
+  expect_identical(cc(5L, "n"), 5L)
+  # the drift-bug case: numeric NA must give the intended message, not the
+  # base-R "missing value where TRUE/FALSE needed"
+  expect_error(cc(NA_real_, "n_obs"), "positive integer")
+  expect_error(cc(NA, "n_obs"), "positive integer")
+  expect_error(cc(0, "n"), "positive integer")
+  expect_error(cc(-1, "n"), "positive integer")
+  expect_error(cc(2.5, "n"), "positive integer")
+  expect_error(cc(c(1, 2), "n"), "positive integer")
+  expect_error(cc("3", "n"), "positive integer")
+  # min > 1 switches to the ">= min" message (n_boot uses 2)
+  expect_identical(cc(2, "n_boot", min = 2L), 2L)
+  expect_error(cc(1, "n_boot", min = 2L), "integer >= 2")
+  expect_error(cc(NA_real_, "n_boot", min = 2L), "integer >= 2")
+})
