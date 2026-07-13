@@ -11,7 +11,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
 | M59 | De-duplicate console output & plot builders | planned | M58 | normal | milestones/M59-dedup-console-output.md |
-| M58 | Consolidate input-validation helpers & fix two drift bugs | planned | — | normal | milestones/M58-consolidate-validation-helpers.md |
+| M58 | Consolidate input-validation helpers & fix two drift bugs | in-progress | — | normal | milestones/M58-consolidate-validation-helpers.md |
 | M57 | Ossify oracles — reproducible, catalogued oracle discipline | done | — | normal | milestones/archive/M57-ossify-oracles.md |
 | M56 | BRM manuscript: reproducible Quarto scaffold + worked example | done | — | normal | milestones/archive/M56-brm-manuscript.md |
 | M55 | Address CRAN 0.1.0 feedback and resubmit as 0.1.1 | done | — | high | milestones/archive/M55-cran-resubmission.md |

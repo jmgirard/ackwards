@@ -2,11 +2,11 @@
      section ownership". A phase skill never rewrites another phase's section. -->
 # M58: Consolidate input-validation helpers & fix two drift bugs
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** —   <!-- invariants not yet numbered as IP/GP; this milestone preserves them (behavior unchanged except the two documented bug fixes) -->
-- **Branch/PR:** —
+- **Branch/PR:** m58-consolidate-validation-helpers
 
 ## Goal
 
