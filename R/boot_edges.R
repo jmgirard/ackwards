@@ -149,11 +149,7 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
     ))
   }
 
-  if (!is.numeric(n_boot) || length(n_boot) != 1L || is.na(n_boot) ||
-    n_boot < 2L || n_boot != as.integer(n_boot)) {
-    cli::cli_abort("{.arg n_boot} must be a single integer >= 2.")
-  }
-  n_boot <- as.integer(n_boot)
+  n_boot <- .check_count(n_boot, "n_boot", min = 2L)
   if (!is.numeric(conf) || length(conf) != 1L || is.na(conf) ||
     conf <= 0 || conf >= 1) {
     cli::cli_abort("{.arg conf} must be a single number in (0, 1).")
@@ -167,13 +163,7 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
              the data the model was fit on."
     ))
   }
-  if (!is.data.frame(data) && !is.matrix(data)) {
-    cli::cli_abort("{.arg data} must be a data frame or numeric matrix.")
-  }
-  data_mat <- as.matrix(data)
-  if (!is.numeric(data_mat)) {
-    cli::cli_abort("{.arg data} must contain only numeric columns.")
-  }
+  data_mat <- .as_numeric_matrix(data)
 
   # Match columns to the fit (same contract as augment()/predict()).
   W_ref <- x$levels[[1L]]$scoring$weights

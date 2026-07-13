@@ -149,11 +149,7 @@ comparability <- function(data, k_max, engine = "pca", cor = "pearson",
   cor <- rlang::arg_match(cor, c("pearson", "spearman"))
   fm <- rlang::arg_match(fm, c("minres", "ml", "pa"))
 
-  if (!is.numeric(n_splits) || length(n_splits) != 1L || is.na(n_splits) ||
-    n_splits < 1L || n_splits != as.integer(n_splits)) {
-    cli::cli_abort("{.arg n_splits} must be a single positive integer.")
-  }
-  n_splits <- as.integer(n_splits)
+  n_splits <- .check_count(n_splits, "n_splits")
 
   # Raw data only: splitting needs rows.
   if (is.matrix(data)) .check_maybe_cov_matrix(data)
@@ -164,13 +160,7 @@ comparability <- function(data, k_max, engine = "pca", cor = "pearson",
              matrix does not carry."
     ))
   }
-  if (!is.data.frame(data) && !is.matrix(data)) {
-    cli::cli_abort("{.arg data} must be a data frame or numeric matrix.")
-  }
-  data_mat <- as.matrix(data)
-  if (!is.numeric(data_mat)) {
-    cli::cli_abort("{.arg data} must contain only numeric columns.")
-  }
+  data_mat <- .as_numeric_matrix(data)
 
   n <- nrow(data_mat)
   p <- ncol(data_mat)

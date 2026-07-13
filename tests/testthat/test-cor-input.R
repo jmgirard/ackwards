@@ -266,6 +266,16 @@ test_that("suggest_k() errors on non-integer n_obs", {
   expect_error(suggest_k(R, n_obs = 100.5), "positive integer")
 })
 
+test_that("suggest_k() errors cleanly on NA n_obs (M58 drift-bug regression)", {
+  # Numeric NA slips past the is.null() pre-check; before M58 it reached
+  # `if (... || NA || ...)` and died with base R's "missing value where
+  # TRUE/FALSE needed". The .check_count() is.na guard restores the intended
+  # message.
+  R <- .bfi6_R()
+  expect_error(suggest_k(R, n_obs = NA_real_), "positive integer")
+  expect_error(suggest_k(R, n_obs = NA), "positive integer")
+})
+
 test_that("suggest_k() covariance matrix gives a targeted error", {
   S <- cov(bfi25, use = "pairwise.complete.obs")
   expect_error(suggest_k(S), "covariance matrix")
@@ -277,6 +287,17 @@ test_that("ackwards() R-matrix: invalid n_obs (negative) errors", {
   R <- .bfi6_R()
   expect_error(
     suppressMessages(ackwards(R, k_max = 3, n_obs = -1L)),
+    "positive integer"
+  )
+})
+
+test_that("ackwards() R-matrix: NA n_obs errors cleanly (M58 twin drift bug)", {
+  # Twin of the suggest_k(n_obs = NA) bug: numeric NA slipped past is.null()
+  # and reached `if (... || NA || ...)`. Found in M58 review; routed through
+  # .check_count() so ackwards() matches suggest_k().
+  R <- .bfi6_R()
+  expect_error(
+    suppressMessages(ackwards(R, k_max = 3, n_obs = NA_real_)),
     "positive integer"
   )
 })

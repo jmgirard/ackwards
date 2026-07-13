@@ -34,16 +34,6 @@
 #     from the stored levels/R (Invariant 3); x$edges is never mutated
 #     (Invariant 1: one edge path).
 
-# Tucker's congruence coefficient between two loading vectors (Lorenzo-Seva &
-# ten Berge, 2006). Formula: phi = sum(a*b) / sqrt(sum(a^2) * sum(b^2))
-.tucker_phi <- function(a, b) {
-  denom <- sqrt(sum(a^2) * sum(b^2))
-  if (denom == 0) {
-    return(NA_real_)
-  }
-  sum(a * b) / denom
-}
-
 # Compute Tucker's phi for factor pairs across levels.
 # which_pairs: "adjacent" or "all".
 # Returns a data frame: from, to, level_from, level_to, phi
@@ -161,10 +151,8 @@
 # (test-forbes-fidelity.R).
 .strong_links_direct <- function(x, threshold_r, threshold_phi) {
   levels_list <- x$levels
-  labs <- unlist(lapply(levels_list, `[[`, "labels"))
-  node_level <- stats::setNames(
-    rep(as.integer(names(levels_list)), as.integer(names(levels_list))), labs
-  )
+  node_level <- .node_levels(levels_list)
+  labs <- names(node_level)
 
   rows <- list()
   for (node in labs) {
@@ -226,10 +214,7 @@
   }
 
   # --- Map label -> level -------------------------------------------------------
-  label_to_level <- stats::setNames(
-    unlist(lapply(names(levels_list), function(ki) rep(as.integer(ki), as.integer(ki)))),
-    unlist(lapply(levels_list, `[[`, "labels"))
-  )
+  label_to_level <- .node_levels(levels_list)
 
   # --- Find chain roots (from_label not appearing as any to_label) -------------
   root_labels <- setdiff(unique(sl$from_label), unique(sl$to_label))
@@ -441,12 +426,10 @@
 
 # Baseline node table -- all nodes, initially not pruned.
 .base_prune_nodes <- function(levels_list) {
+  lvl_map <- .node_levels(levels_list)
   out <- data.frame(
-    id = unlist(lapply(levels_list, `[[`, "labels")),
-    level = unlist(lapply(
-      names(levels_list),
-      function(ki) rep(as.integer(ki), as.integer(ki))
-    )),
+    id = names(lvl_map),
+    level = unname(lvl_map),
     pruned = FALSE,
     prune_reason = NA_character_,
     stringsAsFactors = FALSE
@@ -684,6 +667,7 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
                            redundancy_r = 0.9, redundancy_phi = NULL,
                            redundancy_criterion = c("direct", "adjacent"),
                            min_items = 3L, orphan_r = 0.5, ...) {
+  .check_unknown_dots(list(...), "prune")
   levels_list <- x$levels
   all_ids <- unlist(lapply(levels_list, `[[`, "labels"))
 

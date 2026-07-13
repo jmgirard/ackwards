@@ -63,11 +63,40 @@ make_labels <- function(k) {
   paste0("m", k, "f", seq_len(k))
 }
 
+# Tucker's congruence coefficient between two loading vectors (Lorenzo-Seva &
+# ten Berge, 2006). Formula: phi = sum(a*b) / sqrt(sum(a^2) * sum(b^2)).
+# General utility used by both prune() (redundancy/artifact phi) and
+# comparability() (split-half factor congruence), so it lives here with the
+# other shared helpers rather than in one caller.
+.tucker_phi <- function(a, b) {
+  denom <- sqrt(sum(a^2) * sum(b^2))
+  if (denom == 0) {
+    return(NA_real_)
+  }
+  sum(a * b) / denom
+}
+
+# Map each factor label to its level number: level k contributes its labels
+# (m{k}f{1..k}) all at level k. `levels_list` is named "1".."K". Returns a
+# named integer vector (names = labels, values = levels). Repeating the level
+# id by the actual per-level label count (`lengths()`) rather than by the id
+# itself keeps this correct even if a level's factor count ever diverges from
+# its index.
+.node_levels <- function(levels_list) {
+  labs <- lapply(levels_list, `[[`, "labels")
+  lvl <- as.integer(names(levels_list))
+  stats::setNames(rep(lvl, lengths(labs)), unlist(labs))
+}
+
 # Reject anything passed through a reserved `...` (Invariant 6: loud, not
 # silent). Without this, a misspelled argument -- ackwards(d, 5, kmax = 6),
 # comparability(d, 5, nsplits = 20) -- would be silently absorbed and the
-# function would run with the default instead. Plain exported functions call
-# this with list(...); S3 methods keep permissive dots (generic contracts).
+# function would run with the default instead. Called by every verb whose `...`
+# is reserved-for-future-use: plain exported functions (ackwards/suggest_k/
+# comparability) AND the package's own generic methods whose dots forward
+# nowhere (boot_edges.ackwards, prune.ackwards). Standard base/tidy generics
+# (print/format/autoplot) keep permissive dots -- their `...` is part of the
+# generic contract and legitimately carries forwarded arguments.
 .check_unknown_dots <- function(dots, fn) {
   if (length(dots) == 0L) {
     return(invisible(NULL))
@@ -86,6 +115,43 @@ make_labels <- function(k) {
     "i" = "All arguments beyond the signature must be named; check \\
            {.code ?{fn}}."
   ))
+}
+
+# Coerce raw-data input to a numeric matrix or abort. Consolidates the identical
+# "data frame or matrix?" + "numeric?" gate that every raw-data verb
+# (ackwards/suggest_k/comparability/boot_edges/factorability) repeated verbatim,
+# so the two messages stay in one place. `arg` names the offending argument in
+# the error. Does NOT coerce a correlation matrix -- callers branch on
+# .is_cor_matrix() first and only reach this for the raw-data path.
+.as_numeric_matrix <- function(data, arg = "data") {
+  if (!is.data.frame(data) && !is.matrix(data)) {
+    cli::cli_abort("{.arg {arg}} must be a data frame or numeric matrix.")
+  }
+  mat <- as.matrix(data)
+  if (!is.numeric(mat)) {
+    cli::cli_abort("{.arg {arg}} must contain only numeric columns.")
+  }
+  mat
+}
+
+# Validate a single positive integer-valued count and return it as an integer.
+# Consolidates the hand-rolled "single positive integer" checks scattered across
+# the verbs (n_iter, n_obs, n_splits, n_boot). `min` sets the floor (n_boot uses
+# 2). The `is.na(x)` guard is load-bearing: without it a numeric NA slips past a
+# `is.null()` pre-check and reaches `if (... || NA || ...)`, which dies with base
+# R's cryptic "missing value where TRUE/FALSE needed" instead of this message
+# (the M58 suggest_k(n_obs = NA) drift bug).
+.check_count <- function(x, arg, min = 1L) {
+  if (!is.numeric(x) || length(x) != 1L || is.na(x) ||
+    x < min || x != as.integer(x)) {
+    msg <- if (min <= 1L) {
+      "{.arg {arg}} must be a single positive integer."
+    } else {
+      "{.arg {arg}} must be a single integer >= {min}."
+    }
+    cli::cli_abort(msg)
+  }
+  as.integer(x)
 }
 
 # Detect which columns of a data frame look ordinal (Likert-scale).
