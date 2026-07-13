@@ -59,7 +59,7 @@ print.summary_ackwards <- function(x, ...) {
   is_efa <- x$engine == "efa"
   is_pca <- x$engine == "pca"
 
-  fit_tbl <- x$fit # pre-pulled for readability
+  fit_tbl <- x$fit
 
   for (ki in seq_len(x$k_max)) {
     if (ki > 1L) cli::cli_text("") # blank line between level blocks
@@ -75,7 +75,8 @@ print.summary_ackwards <- function(x, ...) {
       fac <- var_rows$factor[i]
       vpct <- .fmt_pct(var_rows$proportion[i])
 
-      # PCA: eigenvalue statistics are "eigenvalue.<label>" (see engine_pca.R:65)
+      # PCA: eigenvalue statistics are "eigenvalue.<label>" (named by
+      # pca_levels()'s fit_info in engine_pca.R)
       suffix <- if (is_pca && nrow(fit_rows) > 0L) {
         eig_row <- fit_rows[
           fit_rows$statistic == paste0("eigenvalue.", fac), ,

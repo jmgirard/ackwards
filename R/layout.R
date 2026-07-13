@@ -211,6 +211,9 @@ ba_layout <- function(x, min_sep = 1.0) {
 
 # Enforce minimum separation between positions while preserving order.
 # Re-centres the spread positions around the original barycenter mean.
+# Rationale: barycenter placement can pack siblings closer than a node is wide,
+# so their tiles would overprint; spreading to min_sep then re-centring keeps the
+# nodes legible while the group stays visually centred under its parents.
 .spread_positions <- function(bary, min_sep) {
   n <- length(bary)
   if (n == 1L) {
