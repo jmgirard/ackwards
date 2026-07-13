@@ -27,12 +27,12 @@ Route `print`, `summary`, and `autoplot`'s repeated output blocks through shared
 
 ## Acceptance criteria
 
-- [ ] `print` and `summary` share one header helper, one honesty-caveat footer, one near-singularity caution, and one prune-count digest — no duplicated inline copies remain (grep-verifiable); existing `test-print.R` behavior preserved.
-- [ ] Cumulative-variance percent and convergence/fit glyphs use a single convention across `print` + `summary`; `autoplot`'s fit-caption threshold routes through `.format_r()`.
-- [ ] `autoplot`'s main and degenerate paths draw nodes and finish the theme via the shared `.ba_add_nodes()` helper + theme finisher.
-- [ ] `print`/`summary` snapshot tests are green, with the two deliberate output unifications captured in reviewed, intentional snapshot updates.
-- [ ] Comment fixes applied: `summary.R:88` stale ref → symbol; `summary.R:70` restating comment gone; rationale comments added to `.spread_positions` and `dodge_x`.
-- [ ] `Rscript tools/dod-gate.R` clean.
+- [x] `print` and `summary` share one header helper, one honesty-caveat footer, one near-singularity caution, and one prune-count digest — no duplicated inline copies remain (grep-verifiable); existing `test-print.R` behavior preserved.
+- [x] Cumulative-variance percent and convergence/fit glyphs use a single convention across `print` + `summary`; `autoplot`'s fit-caption threshold routes through `.format_r()`.
+- [x] `autoplot`'s main and degenerate paths draw nodes and finish the theme via the shared `.ba_add_nodes()` helper + theme finisher.
+- [x] `print`/`summary` snapshot tests are green, with the two deliberate output unifications captured in reviewed, intentional snapshot updates.
+- [x] Comment fixes applied: `summary.R:88` stale ref → symbol; `summary.R:70` restating comment gone; rationale comments added to `.spread_positions` and `dodge_x`.
+- [x] `Rscript tools/dod-gate.R` clean.
 
 ## Coverage
 
@@ -68,3 +68,23 @@ Route `print`, `summary`, and `autoplot`'s repeated output blocks through shared
 ## Decisions
 
 ## Review
+
+_Reviewed 2026-07-13 (same-session; evidence re-gathered by command). PR [#59](https://github.com/jmgirard/ackwards/pull/59)._
+
+**Acceptance-criteria evidence (fresh):**
+- AC1 — grep: `"Engine"` header, `series of linked solutions` caveat, `Near-singular correlation matrix` wrapper, and `.prune_digest` def each appear exactly once (all in `print.R`; zero in `summary.R`). `test-print.R` (incl. M50 single-rule test) green in the gate suite.
+- AC2 — `.fmt_pct`/`.ok_glyph` used by both surfaces (`print.R:128,130,132`; `summary.R:68,76,125`); zero leftover raw `✔/✘/✔/✘` in print/summary; `autoplot.R:789` caption uses `.format_r(cut$threshold)`.
+- AC3 — `autoplot.R:553,592` (main) and `:644,653` (degenerate) both route through `.ba_add_nodes()` + `.ba_finish_theme()`.
+- AC4 — `test-print-snapshot.R` green in gate; accepted snapshot captures the glyph unification (EFA fit line `✘`→cli cross; non-converged print level shows the cross). Percent unification locked by the `.fmt_pct` unit test (no snapshot diff on the sampled data).
+- AC5 — stale `engine_pca.R:65` ref gone; `# pre-pulled for readability` gone; rationale comments present in `layout.R` (`.spread_positions`) and `comparability.R` (`dodge_x`).
+- AC6 — `Rscript tools/dod-gate.R`: **GATE PASSED** — check 0/0/0 (102s), coverage **100.00%**, styler clean, lintr clean, pkgdown index complete.
+
+**Consistency gate:** `cairn_validate.py` → all checks pass (incl. coverage-complete, mirror, single in-progress, caps). No principle change (Principles touched: —) → `cairn_impact` skipped. r-package `consistency-gate` (check/style/lint/pkgdown) clean via the DoD gate.
+
+**Independent fresh-context review (3 lenses + scorer):**
+- [O] diff-bug (Opus): **No correctness findings.** Verified helper-by-helper output-equivalence (cli glue/`\\`-continuation, `.prune_digest` count mapping, `.ok_glyph` no ANSI nesting, autoplot layer order, `.format_r` threshold identity). One transparency note (dropped per taxonomy, not a defect): the diff carries two sanctioned output changes — glyph **and** print's percent trailing-`.0` — and NEWS mentioned only the glyph.
+- [S] blame-history (Sonnet): **No findings.** M50 single-rule preserved; near-singular terse/detailed split intact; D-001 caveat byte-identical; `.summary_prune`→`.prune_digest` rename has zero stale refs.
+- [S] prior-PR-comments (Sonnet): **No prior-PR evidence** (repo reviews run through cairn milestones + local-green merges; PRs carry no inline review comments) — lens no-ops.
+- Scorer: **no scorable findings** (all three lenses clean) → nothing ≥80 to triage, nothing logged below 80.
+
+**Action taken:** acted on the Opus transparency note (review-side doc fix) — broadened the NEWS bullet to document both console-consistency changes (glyph + print percent), not just the glyph. No code change.
