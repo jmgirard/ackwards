@@ -33,7 +33,7 @@ summary.ackwards <- function(object, ...) {
       variance = .tidy_variance(object),
       fit = .tidy_fit(object),
       lineage = .summary_lineage(object),
-      prune = .summary_prune(object),
+      prune = .prune_digest(object),
       boot = object$boot,
       factor_labels = object$meta$factor_labels # M51
     ),
@@ -273,39 +273,4 @@ print.summary_ackwards <- function(x, ...) {
     )
   })
   do.call(rbind, rows)
-}
-
-# Extract pruning info for display: lists of flagged-node IDs and artifact count.
-# rules is carried through so print.summary_ackwards can gate on what was requested
-# (e.g. rules="artifact" never flags redundant nodes).
-.summary_prune <- function(x) {
-  if (is.null(x$prune)) {
-    return(NULL)
-  }
-  nodes <- x$prune$nodes
-  redundant <- if (!is.null(nodes)) {
-    nodes$id[nodes$pruned & nodes$prune_reason == "redundant"]
-  } else { # nocov start
-    character(0L)
-  } # nocov end
-  artifact_n <- if (!is.null(x$prune$phi)) nrow(x$prune$phi) else NULL
-  structural_n <- if (!is.null(x$prune$structural)) {
-    sum(
-      x$prune$structural$few_items | x$prune$structural$orphan |
-        x$prune$structural$split_merge,
-      na.rm = TRUE
-    )
-  } else {
-    NULL
-  }
-  list(
-    rules                = x$prune$rules,
-    redundant            = redundant,
-    artifact_n           = artifact_n,
-    structural_n         = structural_n,
-    redundancy_r         = x$prune$redundancy_r,
-    redundancy_phi       = x$prune$redundancy_phi,
-    redundancy_criterion = x$prune$redundancy_criterion,
-    manual               = x$prune$manual
-  )
 }

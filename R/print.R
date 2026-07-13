@@ -47,6 +47,44 @@
   )
 }
 
+# Extract pruning info for display: flagged redundant-node IDs, artifact/phi
+# count, structural-signal count, and the redundancy thresholds. Read by BOTH
+# print.ackwards() (live) and summary.ackwards() (stored on the summary object),
+# so the two surfaces report identical counts. `rules` is carried through so each
+# surface can gate on what was requested (rules="artifact" never flags redundant
+# nodes). NULL when the object carries no pruning annotations.
+.prune_digest <- function(x) {
+  if (is.null(x$prune)) {
+    return(NULL)
+  }
+  nodes <- x$prune$nodes
+  redundant <- if (!is.null(nodes)) {
+    nodes$id[nodes$pruned & nodes$prune_reason == "redundant"]
+  } else { # nocov start
+    character(0L)
+  } # nocov end
+  artifact_n <- if (!is.null(x$prune$phi)) nrow(x$prune$phi) else NULL
+  structural_n <- if (!is.null(x$prune$structural)) {
+    sum(
+      x$prune$structural$few_items | x$prune$structural$orphan |
+        x$prune$structural$split_merge,
+      na.rm = TRUE
+    )
+  } else {
+    NULL
+  }
+  list(
+    rules                = x$prune$rules,
+    redundant            = redundant,
+    artifact_n           = artifact_n,
+    structural_n         = structural_n,
+    redundancy_r         = x$prune$redundancy_r,
+    redundancy_phi       = x$prune$redundancy_phi,
+    redundancy_criterion = x$prune$redundancy_criterion,
+    manual               = x$prune$manual
+  )
+}
+
 #' Print an ackwards object
 #'
 #' Displays a compact summary of the bass-ackwards result using cli formatting.
@@ -123,44 +161,42 @@ print.ackwards <- function(x, ...) {
   }
 
   # --- Pruning summary (Forbes extension; DESIGN.md s14.18) -------------------
+  # Counts come from the shared .prune_digest() so print and summary can never
+  # disagree on the redundant / phi-note / structural-signal figures (M59). The
+  # display wording stays per-surface (print is terser).
   if (!is.null(x$prune)) {
     cli::cli_h2("Pruning")
-    rules <- x$prune$rules
-    if ("redundant" %in% rules) {
-      n_flagged <- sum(x$prune$nodes$pruned & x$prune$nodes$prune_reason == "redundant")
-      r_thr <- x$prune$redundancy_r
-      phi_note <- if (!is.null(x$prune$redundancy_phi)) {
-        paste0(", phi > ", x$prune$redundancy_phi)
+    pd <- .prune_digest(x)
+    if ("redundant" %in% pd$rules) {
+      n_flagged <- length(pd$redundant)
+      r_thr <- pd$redundancy_r
+      phi_note <- if (!is.null(pd$redundancy_phi)) {
+        paste0(", phi > ", pd$redundancy_phi)
       } else {
         ""
       }
-      crit <- x$prune$redundancy_criterion
+      crit <- pd$redundancy_criterion
       cli::cli_text(
         "  Redundancy ({crit}, |r| {cli::symbol$geq} {r_thr}{phi_note}): \\
          {n_flagged} node{?s} flagged"
       )
     }
-    if ("artifact" %in% rules) {
-      n_phi <- if (!is.null(x$prune$phi)) nrow(x$prune$phi) else 0L
+    if ("artifact" %in% pd$rules) {
+      n_phi <- pd$artifact_n %||% 0L
       cli::cli_text(
         "  Artifact: Tucker's phi computed for {n_phi} cross-level factor pair{?s}"
       )
-      if (!is.null(x$prune$structural)) {
-        n_struct <- sum(
-          x$prune$structural$few_items | x$prune$structural$orphan |
-            x$prune$structural$split_merge,
-          na.rm = TRUE
-        )
+      if (!is.null(pd$structural_n)) {
         cli::cli_text(
-          "  Structural signals: {n_struct} factor{?s} flagged \\
+          "  Structural signals: {pd$structural_n} factor{?s} flagged \\
            (inspect {.code x$prune$structural})"
         )
       }
     }
-    if (!is.null(x$prune$manual) && length(x$prune$manual) > 0L) {
+    if (!is.null(pd$manual) && length(pd$manual) > 0L) {
       cli::cli_text(
-        "  Manual: {length(x$prune$manual)} node{?s} explicitly flagged \\
-         ({paste(x$prune$manual, collapse = ', ')})"
+        "  Manual: {length(pd$manual)} node{?s} explicitly flagged \\
+         ({paste(pd$manual, collapse = ', ')})"
       )
     }
   }
