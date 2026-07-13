@@ -10,6 +10,8 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
+| M59 | De-duplicate console output & plot builders | planned | M58 | normal | milestones/M59-dedup-console-output.md |
+| M58 | Consolidate input-validation helpers & fix two drift bugs | planned | — | normal | milestones/M58-consolidate-validation-helpers.md |
 | M57 | Ossify oracles — reproducible, catalogued oracle discipline | done | — | normal | milestones/archive/M57-ossify-oracles.md |
 | M56 | BRM manuscript: reproducible Quarto scaffold + worked example | done | — | normal | milestones/archive/M56-brm-manuscript.md |
 | M55 | Address CRAN 0.1.0 feedback and resubmit as 0.1.1 | done | — | high | milestones/archive/M55-cran-resubmission.md |
@@ -18,6 +20,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 ## Candidates
 
+- Remaining dedup pass (readability-only; no correctness/perf gain — DESIGN §3 "measure before optimizing", the setup-path recomputes aren't hotspots): shared per-engine variance / score-var / positive-manifold-flip helpers; drop `ackwards()`'s doubly-built edge tidy tibble + discarded `.align_signs()$edges`; thread `eigen(R)`'s smallest eigenvalue instead of recomputing 2–3×; remove the dead `k_eff>=1L` guard + vestigial all-TRUE convergence meta; `.fit_levels_muffled()` + convergence-shortfall reporter shared by comparability/boot_edges — added 2026-07-12 — bucket 3 of the 2026-07-12 codebase audit, deferred at the M58/M59 plan gate
 - Draft the author-owned Intro + Discussion prose for the BRM manuscript (scholarly argument/framing) — M56 scaffold shipped 2026-07-12, now actionable — M56 Out
 - Wire `forbes2023` into a vignette (worked Forbes AMH example) once the dataset ships (M54) — added 2026-07-12 — M54 Out
 - Owner-only post-M55 release tail: interactive `devtools::submit_cran()` of 0.1.1, tag `v0.1.1`, update README "on CRAN" phrasing when accepted; if CRAN bounces again, plan the next resubmission milestone — added 2026-07-12 — supersedes the 0.1.0 tail row (0.1.0 submitted; 2026-07-12 reviewer feedback became M55, which absorbed the remote-check steps and superseded the patch-branch-from-tag guidance at its plan gate)
