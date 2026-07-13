@@ -50,15 +50,7 @@ summary.ackwards <- function(object, ...) {
 print.summary_ackwards <- function(x, ...) {
   cli::cli_h1("Summary: Bass-Ackwards Analysis ({.pkg ackwards})")
 
-  cor_label <- if (is.na(x$cor)) "(user-supplied matrix)" else x$cor
-  n_label <- if (is.na(x$n_obs)) "NA" else format(x$n_obs, big.mark = ",")
-  cli::cli_dl(c(
-    "Engine"   = cli::style_bold(x$engine),
-    "Rotation" = x$rotation,
-    "Basis"    = cor_label,
-    "n"        = n_label,
-    "k (max)"  = as.character(x$k_max)
-  ))
+  .print_ba_header(x$engine, x$rotation, x$cor, x$n_obs, x$k_max)
 
   # --- Per-level variance + fit -----------------------------------------------
   cli::cli_h2("Levels")
@@ -167,13 +159,11 @@ print.summary_ackwards <- function(x, ...) {
 
   # --- Durable near-singularity caution (DESIGN.md s6) ------------------------
   if (isTRUE(x$near_singular)) {
-    cli::cli_text("")
-    cli::cli_text(cli::col_yellow(
-      "{cli::symbol$warning} Near-singular correlation matrix (min eigenvalue \\
-       {signif(x$min_eigenvalue, 2)}): per-level fit indices and factor scores \\
-       may be unreliable -- the solution rests on a rank-deficient matrix. See \\
-       {.code ?ackwards} (\"When to trust the result\")."
-    ))
+    cli::cli_text("") # summary sets the caution off with a blank line
+    .print_near_singular(
+      x$min_eigenvalue,
+      "per-level fit indices and factor scores may be unreliable -- the solution rests on a rank-deficient matrix."
+    )
   }
 
   # --- Bootstrap edge CIs (M47) -----------------------------------------------
@@ -236,24 +226,11 @@ print.summary_ackwards <- function(x, ...) {
   }
 
   # --- Footer: one rule, then prune note (if any) + caveat --------------------
-  cli::cli_rule()
-  if (!is.null(x$prune)) {
-    cli::cli_text(
-      cli::col_grey(
-        "Note: Pruning is interpretive relabeling, not re-estimation. \\
-         Flagged nodes remain in the object with all edges preserved."
-      )
-    )
+  prune_note <- if (!is.null(x$prune)) {
+    "Note: Pruning is interpretive relabeling, not re-estimation. \\
+     Flagged nodes remain in the object with all edges preserved."
   }
-  cli::cli_text(
-    cli::col_grey(
-      "Note: This is a series of linked solutions, not a fitted hierarchical \\
-       model. Cross-level edges are descriptive score correlations. \\
-       Per-level fit indices (EFA/ESEM) describe how well a k-factor model \\
-       fits the items at that level -- they do not validate the edges or \\
-       the hierarchy itself."
-    )
-  )
+  .print_honesty_footer(prune_note)
 
   invisible(x)
 }

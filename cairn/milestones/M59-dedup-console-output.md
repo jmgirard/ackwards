@@ -45,7 +45,7 @@ Route `print`, `summary`, and `autoplot`'s repeated output blocks through shared
 
 ## Tasks
 
-- [ ] T1 — Extract `.print_ba_header()`, the honesty-caveat footer, and the near-singularity caution into shared helpers; route both `print` methods through them.
+- [x] T1 — Extract `.print_ba_header()`, the honesty-caveat footer, and the near-singularity caution into shared helpers; route both `print` methods through them.
 - [ ] T2 — Build one prune-count digest (extend/reuse `.summary_prune`) and have both `print.ackwards` and `summary` read it; remove the duplicated structural-signal / phi-note / redundant-count inline code in `print.R`.
 - [ ] T3 — Unify the cumulative-variance percent format and the tick/cross glyphs across `print` + `summary`; route `autoplot`'s threshold through `.format_r()`.
 - [ ] T4 — Extract `.ba_add_nodes()` + shared theme finisher; route both the main and `.ba_degenerate_plot` paths through them.
@@ -58,6 +58,7 @@ Route `print`, `summary`, and `autoplot`'s repeated output blocks through shared
 - 2026-07-12: set in-progress; branch m59-dedup-console-output.
 - 2026-07-12: gate — glyph unification resolved to shared `.ok_glyph()` cli symbols, print keeps green/red, summary fit glyphs stay uncolored in grey line (user: "what do you recommend"). Percent → shared `.fmt_pct()` (sprintf 1-dp); prune digest → extend `.summary_prune` (renamed `.prune_digest`). No prior snapshot tests existed → establishing a snapshot net first (test-print-snapshot.R) to lock current output before refactor.
 - 2026-07-12: T6(net) — snapshot safety net capturing current print/summary output (pca, efa fit-glyph line, pruning digest, near-singular caution) committed as baseline.
+- 2026-07-12: T1 — `.print_ba_header()`, `.print_near_singular(min_eig, detail)`, `.print_honesty_footer(prune_note=NULL)` added to print.R; both surfaces routed through them. Near-singular `detail` and prune note wording differ per surface (≈, not ≡) so are passed in, preserving exact strings. Snapshots + test-print.R green (pure refactor).
 
 ## Decisions
 

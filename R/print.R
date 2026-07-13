@@ -1,3 +1,52 @@
+# ── Shared print/summary helpers (M59) ────────────────────────────────────────
+# print.ackwards() and print.summary_ackwards() render the same fixed blocks;
+# these give each block one source of truth so the two surfaces never drift.
+
+# Engine/rotation/basis/n/k definition-list header.
+.print_ba_header <- function(engine, rotation, cor, n_obs, k_max) {
+  cor_label <- if (is.na(cor)) "(user-supplied matrix)" else cor
+  n_label <- if (is.na(n_obs)) "NA" else format(n_obs, big.mark = ",")
+  cli::cli_dl(c(
+    "Engine"   = cli::style_bold(engine),
+    "Rotation" = rotation,
+    "Basis"    = cor_label,
+    "n"        = n_label,
+    "k (max)"  = as.character(k_max)
+  ))
+}
+
+# Durable near-singularity caution (DESIGN.md s6). The yellow warning wrapper and
+# the ?ackwards pointer are shared; `detail` is the surface-specific middle
+# clause (print is terse, summary spells out the rank deficiency), passed in so
+# each surface keeps its exact wording.
+.print_near_singular <- function(min_eigenvalue, detail) {
+  cli::cli_text(cli::col_yellow(
+    "{cli::symbol$warning} Near-singular correlation matrix (min eigenvalue \\
+     {signif(min_eigenvalue, 2)}): {detail} See {.code ?ackwards} \\
+     (\"When to trust the result\")."
+  ))
+}
+
+# Closing footer: one rule, an optional surface-supplied prune note, then the
+# load-bearing "linked solutions, not a fitted hierarchy" honesty caveat (D-001).
+# The caveat is one verbatim source of truth; the prune note wording differs
+# slightly between surfaces, so it is passed in rather than unified.
+.print_honesty_footer <- function(prune_note = NULL) {
+  cli::cli_rule()
+  if (!is.null(prune_note)) {
+    cli::cli_text(cli::col_grey(prune_note))
+  }
+  cli::cli_text(
+    cli::col_grey(
+      "Note: This is a series of linked solutions, not a fitted hierarchical \\
+       model. Cross-level edges are descriptive score correlations. \\
+       Per-level fit indices (EFA/ESEM) describe how well a k-factor model \\
+       fits the items at that level -- they do not validate the edges or \\
+       the hierarchy itself."
+    )
+  )
+}
+
 #' Print an ackwards object
 #'
 #' Displays a compact summary of the bass-ackwards result using cli formatting.
@@ -17,15 +66,7 @@ print.ackwards <- function(x, ...) {
   cli::cli_h1("Bass-Ackwards Analysis ({.pkg ackwards})")
 
   # --- Call / settings --------------------------------------------------------
-  cor_label <- if (is.na(x$cor)) "(user-supplied matrix)" else x$cor
-  n_label <- if (is.na(x$n_obs)) "NA" else format(x$n_obs, big.mark = ",")
-  cli::cli_dl(c(
-    "Engine"    = cli::style_bold(x$engine),
-    "Rotation"  = x$rotation,
-    "Basis"     = cor_label,
-    "n"         = n_label,
-    "k (max)"   = as.character(x$k_max)
-  ))
+  .print_ba_header(x$engine, x$rotation, x$cor, x$n_obs, x$k_max)
 
   # --- Factor labels (M51) ----------------------------------------------------
   # Only surfaced when the user has attached labels; unlabeled objects print
@@ -75,11 +116,10 @@ print.ackwards <- function(x, ...) {
 
   # --- Durable near-singularity caution (DESIGN.md s6) ------------------------
   if (isTRUE(x$meta$near_singular)) {
-    cli::cli_text(cli::col_yellow(
-      "{cli::symbol$warning} Near-singular correlation matrix (min eigenvalue \\
-       {signif(x$meta$min_eigenvalue, 2)}): fit indices and factor scores may \\
-       be unreliable. See {.code ?ackwards} (\"When to trust the result\")."
-    ))
+    .print_near_singular(
+      x$meta$min_eigenvalue,
+      "fit indices and factor scores may be unreliable."
+    )
   }
 
   # --- Pruning summary (Forbes extension; DESIGN.md s14.18) -------------------
@@ -126,25 +166,12 @@ print.ackwards <- function(x, ...) {
   }
 
   # --- Footer: one rule, then prune note (if any) + caveat -------------------
-  cli::cli_rule()
-  if (!is.null(x$prune)) {
-    cli::cli_text(
-      cli::col_grey(
-        "Note: Pruning is interpretive relabeling, not re-estimation. \\
-         Flagged nodes remain in the object; all edges are preserved. \\
-         Inspect with {.code x$prune$nodes} and {.code tidy(x, what = \"nodes\")}."
-      )
-    )
+  prune_note <- if (!is.null(x$prune)) {
+    "Note: Pruning is interpretive relabeling, not re-estimation. \\
+     Flagged nodes remain in the object; all edges are preserved. \\
+     Inspect with {.code x$prune$nodes} and {.code tidy(x, what = \"nodes\")}."
   }
-  cli::cli_text(
-    cli::col_grey(
-      "Note: This is a series of linked solutions, not a fitted hierarchical \\
-       model. Cross-level edges are descriptive score correlations. \\
-       Per-level fit indices (EFA/ESEM) describe how well a k-factor model \\
-       fits the items at that level -- they do not validate the edges or \\
-       the hierarchy itself."
-    )
-  )
+  .print_honesty_footer(prune_note)
 
   invisible(x)
 }
