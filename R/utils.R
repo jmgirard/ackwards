@@ -58,6 +58,21 @@
   ifelse(r < 0 & !is_zero, paste0("-", fmt), fmt)
 }
 
+# One-decimal percentage of a proportion: 0.302 -> "30.2", 0.3 -> "30.0". Uses
+# sprintf (not round) so trailing zeros are kept and per-level figures never
+# drift ("30.0%" not "30%"); one source of truth for print() + summary() (M59).
+.fmt_pct <- function(prop) {
+  sprintf("%.1f", prop * 100)
+}
+
+# Convergence / threshold-met glyph: a tick when ok, a cross otherwise. Drawn
+# from cli::symbol so it degrades to ASCII v/x in a non-UTF-8 terminal (a raw
+# ✔/✘ literal would not). Callers apply their own colour: print()
+# greens/reds it; summary() leaves it uncoloured inside its grey fit line (M59).
+.ok_glyph <- function(ok) {
+  if (ok) cli::symbol$tick else cli::symbol$cross
+}
+
 # Generate standard factor labels for level k with j factors: "m{k}f{j}"
 make_labels <- function(k) {
   paste0("m", k, "f", seq_len(k))

@@ -550,21 +550,7 @@ autoplot.ackwards <- function(
   }
 
   # Node tiles and labels (drawn on top of all edges)
-  p <- p +
-    ggplot2::geom_tile(
-      data = nodes,
-      ggplot2::aes(x = .data$x, y = .data$y, fill = .data$fill),
-      width = node_width,
-      height = node_height,
-      color = "black",
-      linewidth = 0.4
-    ) +
-    ggplot2::geom_text(
-      data = nodes,
-      ggplot2::aes(x = .data$x, y = .data$y, label = .data$label),
-      size = 3
-    ) +
-    ggplot2::scale_fill_identity(guide = "none")
+  p <- .ba_add_nodes(p, nodes, node_width, node_height)
 
   # Edge scales -- one per active encoding channel, each with its own legend.
   # When sign_by = "both", the colour and linetype scales share the name
@@ -603,13 +589,7 @@ autoplot.ackwards <- function(
     )
   }
 
-  p +
-    ggplot2::coord_cartesian(clip = "off") +
-    ggplot2::theme_void(base_size = 11) +
-    ggplot2::theme(
-      legend.position = if (legend) "right" else "none",
-      plot.margin     = .ba_label_margin(show_level_labels, direction)
-    )
+  .ba_finish_theme(p, legend, show_level_labels, direction)
 }
 
 # Plot margin that leaves room for the level-axis labels: on the left when
@@ -623,12 +603,11 @@ autoplot.ackwards <- function(
   }
 }
 
-# Build a node-only plot for the drop_pruned degenerate case (<=1 kept level).
-.ba_degenerate_plot <- function(
-  nodes, node_width, node_height, show_level_labels, level_label_size,
-  legend = TRUE, direction = "vertical"
-) {
-  p <- ggplot2::ggplot() +
+# Add the node tiles + labels to a plot (M59). Shared by the main render path
+# and the degenerate node-only plot so both draw identical nodes; tiles land on
+# top of any edges already on `p`.
+.ba_add_nodes <- function(p, nodes, node_width, node_height) {
+  p +
     ggplot2::geom_tile(
       data = nodes,
       ggplot2::aes(x = .data$x, y = .data$y, fill = .data$fill),
@@ -643,6 +622,26 @@ autoplot.ackwards <- function(
       size = 3
     ) +
     ggplot2::scale_fill_identity(guide = "none")
+}
+
+# Shared final theme (M59): clip-off cartesian coords, theme_void, and the
+# legend / level-label margin. Used by both the main and degenerate paths.
+.ba_finish_theme <- function(p, legend, show_level_labels, direction) {
+  p +
+    ggplot2::coord_cartesian(clip = "off") +
+    ggplot2::theme_void(base_size = 11) +
+    ggplot2::theme(
+      legend.position = if (legend) "right" else "none",
+      plot.margin     = .ba_label_margin(show_level_labels, direction)
+    )
+}
+
+# Build a node-only plot for the drop_pruned degenerate case (<=1 kept level).
+.ba_degenerate_plot <- function(
+  nodes, node_width, node_height, show_level_labels, level_label_size,
+  legend = TRUE, direction = "vertical"
+) {
+  p <- .ba_add_nodes(ggplot2::ggplot(), nodes, node_width, node_height)
 
   if (show_level_labels && nrow(nodes) > 0L) {
     p <- p + .ba_level_labels(
@@ -651,13 +650,7 @@ autoplot.ackwards <- function(
     )
   }
 
-  p +
-    ggplot2::coord_cartesian(clip = "off") +
-    ggplot2::theme_void(base_size = 11) +
-    ggplot2::theme(
-      legend.position = if (legend) "right" else "none",
-      plot.margin     = .ba_label_margin(show_level_labels, direction)
-    )
+  .ba_finish_theme(p, legend, show_level_labels, direction)
 }
 
 # Levels for which *every* node is flagged pruned (M40). A fully-pruned level's
@@ -791,7 +784,9 @@ autoplot.ackwards <- function(
   cut_desc <- vapply(keep_idx, function(idx) {
     cut <- cuts[[idx]]
     op <- if (cut$direction == "hi") ">=" else "<="
-    paste0(idx, " ", op, " ", sub("^0", "", format(cut$threshold)))
+    # .format_r strips the leading zero and pads to 2 dp, matching the edge
+    # labels ("0.95" -> ".95"); one convention for correlations/thresholds (M59).
+    paste0(idx, " ", op, " ", .format_r(cut$threshold))
   }, character(1L))
   caption_txt <- paste0(
     "Dashed lines: Hu & Bentler (1999) thresholds (",

@@ -50,6 +50,14 @@ CRAN resubmission of the first release, addressing reviewer feedback on the
   Without this, the CD criterion and its `autoplot()` panel silently dropped out
   when a current EFAtools was installed. Older EFAtools versions still work.
 
+* **Console output consistency.** `summary()`'s per-level fit-index pass/fail
+  mark is now the same terminal-adaptive `cli` glyph as `print()`'s convergence
+  mark (a tick/cross that degrades to `v`/`x` in a non-UTF-8 console), replacing
+  a hard-coded Unicode `✔`/`✘`. And `print()`'s cumulative-variance percentages
+  now carry a fixed single decimal (e.g. `20.0%`, where a whole-number value
+  previously printed as `20%`), matching `summary()`. Cosmetic only; the
+  reported values are unchanged.
+
 # ackwards 0.1.0
 
 First public release. `ackwards` implements Goldberg's (2006) bass-ackwards

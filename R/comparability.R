@@ -482,6 +482,9 @@ autoplot.comparability <- function(object, ...) {
   cf <- object$coefficients
   sm <- object$summary
 
+  # Spread a level's k factors symmetrically about the integer level position:
+  # factor j is offset by (j - (k+1)/2) centred slots, scaled so the widest level
+  # spans ~0.6 x-units and never overlaps the neighbouring level.
   dodge_x <- function(level, fac) {
     j <- as.integer(sub("^m\\d+f", "", fac))
     k <- level
