@@ -684,6 +684,7 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
                            redundancy_r = 0.9, redundancy_phi = NULL,
                            redundancy_criterion = c("direct", "adjacent"),
                            min_items = 3L, orphan_r = 0.5, ...) {
+  .check_unknown_dots(list(...), "prune")
   levels_list <- x$levels
   all_ids <- unlist(lapply(levels_list, `[[`, "labels"))
 

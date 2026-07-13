@@ -247,6 +247,16 @@ test_that("invalid redundancy_r and redundancy_phi are rejected", {
   )
 })
 
+test_that("prune() rejects a misspelled argument via ... (M58 guard)", {
+  # Before M58, prune.ackwards() accepted `...` but never guarded it, so a
+  # typo'd argument (e.g. redundancy_R vs redundancy_r) was silently swallowed
+  # and the default used -- unlike its sibling boot_edges.ackwards().
+  skip_if_not_installed("psych")
+  data <- as.data.frame(matrix(rnorm(300), 100, 6))
+  x <- cached(ackwards(data, k_max = 3))
+  expect_error(prune(x, redundancy_R = 0.8), "[Uu]nknown argument")
+})
+
 # --- A3: tidy(what = "nodes") ------------------------------------------------
 
 test_that("tidy(x, what='nodes') returns prune$nodes when pruning was applied", {

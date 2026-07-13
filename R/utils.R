@@ -66,8 +66,12 @@ make_labels <- function(k) {
 # Reject anything passed through a reserved `...` (Invariant 6: loud, not
 # silent). Without this, a misspelled argument -- ackwards(d, 5, kmax = 6),
 # comparability(d, 5, nsplits = 20) -- would be silently absorbed and the
-# function would run with the default instead. Plain exported functions call
-# this with list(...); S3 methods keep permissive dots (generic contracts).
+# function would run with the default instead. Called by every verb whose `...`
+# is reserved-for-future-use: plain exported functions (ackwards/suggest_k/
+# comparability) AND the package's own generic methods whose dots forward
+# nowhere (boot_edges.ackwards, prune.ackwards). Standard base/tidy generics
+# (print/format/autoplot) keep permissive dots -- their `...` is part of the
+# generic contract and legitimately carries forwarded arguments.
 .check_unknown_dots <- function(dots, fn) {
   if (length(dots) == 0L) {
     return(invisible(NULL))
