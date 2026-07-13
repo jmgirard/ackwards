@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-07-13 (M59 shipped)_
+_Last hygiene check: 2026-07-13 (M60 planned)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,6 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
+| M60 | De-duplicate the setup path (audit bucket 3) | planned | — | normal | milestones/M60-bucket3-dedup.md |
 | M59 | De-duplicate console output & plot builders | done | M58 | normal | milestones/archive/M59-dedup-console-output.md |
 | M58 | Consolidate input-validation helpers & fix two drift bugs | done | — | normal | milestones/archive/M58-consolidate-validation-helpers.md |
 | M57 | Ossify oracles — reproducible, catalogued oracle discipline | done | — | normal | milestones/archive/M57-ossify-oracles.md |
@@ -19,7 +20,8 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 ## Candidates
 
-- Remaining dedup pass (readability-only; no correctness/perf gain — DESIGN §3 "measure before optimizing", the setup-path recomputes aren't hotspots): shared per-engine variance / score-var / positive-manifold-flip helpers; drop `ackwards()`'s doubly-built edge tidy tibble + discarded `.align_signs()$edges`; thread `eigen(R)`'s smallest eigenvalue instead of recomputing 2–3×; remove the dead `k_eff>=1L` guard + vestigial all-TRUE convergence meta; `.fit_levels_muffled()` + convergence-shortfall reporter shared by comparability/boot_edges — added 2026-07-12 — bucket 3 of the 2026-07-12 codebase audit, deferred at the M58/M59 plan gate
+- Positive-manifold flip helper across engines: the k=1 sign-flip test is identical but each engine's follow-up diverges (PCA negates `fit$weights`, EFA reuses a `flip` flag in its fallback, ESEM leaves `L_se` alone) and it overlaps `.align_signs()` — a shared helper saves ~2 lines/engine while hiding the coupling — dropped from M60 at the 2026-07-13 plan gate as low-value/awkward
+- Shortfall-reporter helper shared by comparability/boot_edges: same two-bullet cli template but divergent wording, nouns, and computed stats — would need every string parameterized for little gain — dropped from M60 at the 2026-07-13 plan gate
 - Draft the author-owned Intro + Discussion prose for the BRM manuscript (scholarly argument/framing) — M56 scaffold shipped 2026-07-12, now actionable — M56 Out
 - Wire `forbes2023` into a vignette (worked Forbes AMH example) once the dataset ships (M54) — added 2026-07-12 — M54 Out
 - Owner-only post-M55 release tail: interactive `devtools::submit_cran()` of 0.1.1, tag `v0.1.1`, update README "on CRAN" phrasing when accepted; if CRAN bounces again, plan the next resubmission milestone — added 2026-07-12 — supersedes the 0.1.0 tail row (0.1.0 submitted; 2026-07-12 reviewer feedback became M55, which absorbed the remote-check steps and superseded the patch-branch-from-tag guidance at its plan gate)
