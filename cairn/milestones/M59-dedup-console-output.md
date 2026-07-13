@@ -2,7 +2,7 @@
      section ownership". A phase skill never rewrites another phase's section. -->
 # M59: De-duplicate console output & plot builders
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** M58
 - **Principles touched:** —   <!-- works under the cli-only-output and honesty-caveat conventions (D-001, D-008); numbers/strings preserved -->
@@ -50,7 +50,7 @@ Route `print`, `summary`, and `autoplot`'s repeated output blocks through shared
 - [x] T3 — Unify the cumulative-variance percent format and the tick/cross glyphs across `print` + `summary`; route `autoplot`'s threshold through `.format_r()`.
 - [x] T4 — Extract `.ba_add_nodes()` + shared theme finisher; route both the main and `.ba_degenerate_plot` paths through them.
 - [x] T5 — Fold in the comment fixes (`summary.R:88`, `summary.R:70`, `.spread_positions`, `dodge_x`).
-- [ ] T6 — Update/accept `print`/`summary` snapshots to lock the unified output; `Rscript tools/dod-gate.R` clean; commit with tracking.
+- [x] T6 — Update/accept `print`/`summary` snapshots to lock the unified output; `Rscript tools/dod-gate.R` clean; commit with tracking.
 
 ## Work log
 
@@ -63,6 +63,7 @@ Route `print`, `summary`, and `autoplot`'s repeated output blocks through shared
 - 2026-07-12: T3 — added `.fmt_pct()` (sprintf 1-dp) + `.ok_glyph()` (cli::symbol tick/cross) to utils.R; print cum + summary cum/per-factor percent route through `.fmt_pct`; print convergence keeps green/red, summary fit-meets glyph now bare cli symbol (was raw ✔/✘). autoplot fit-caption threshold → `.format_r()`. Deliberate glyph change captured in accepted snapshot (✘→✖/x); percent convention locked by new `.fmt_pct` unit test (no snapshot diff on chosen data). New `.fmt_pct`/`.ok_glyph` unit tests. No new deps (dropped a withr reach).
 - 2026-07-12: T4 — extracted `.ba_add_nodes(p, nodes, w, h)` + `.ba_finish_theme(p, legend, show_labels, direction)`; main render + `.ba_degenerate_plot` both routed through them. Layout/autoplot tests green (pure refactor).
 - 2026-07-12: T5 — comment fixes: dropped `# pre-pulled for readability` (summary.R); stale `engine_pca.R:65` line-ref → symbol ref (`pca_levels()`'s `fit_info`); rationale added to `.spread_positions` (why spread+re-centre) and comparability `dodge_x` (dodge formula). Comment-only.
+- 2026-07-12: T6 — DoD gate: check 0/0/0, style/lint/pkgdown clean. Coverage exposed a pre-existing gap: print's non-converged red-cross branch (`else` of the convergence glyph) was never tested — the old single-line `if/else` form masked it under line-based coverage; splitting it for `.ok_glyph` revealed it. Added a non-converged-level print snapshot (patches `converged <- FALSE`); coverage back to 100.00%. NEWS: one cosmetic bullet on the summary glyph. Status → review.
 
 ## Decisions
 

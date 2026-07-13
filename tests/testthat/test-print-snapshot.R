@@ -35,6 +35,16 @@ test_that("print/summary snapshot: pruning digest (redundant + artifact)", {
   expect_snapshot(snap_print(summary(x)))
 })
 
+test_that("print snapshot: a non-converged level shows the red cross", {
+  skip_if_not_installed("psych")
+  # Convergence is data, not an error (Invariant 7): a non-converged level is
+  # marked and printed, not dropped. Patch the flag (real non-convergence needs
+  # a deep ESEM fit) to exercise print()'s red-cross branch.
+  x <- cached(ackwards(sim16, k_max = 3))
+  x$levels[["2"]]$converged <- FALSE
+  expect_snapshot(snap_print(x))
+})
+
 test_that("print/summary snapshot: near-singular caution", {
   skip_if_not_installed("psych")
   x <- cached(ackwards(sim16, k_max = 3))

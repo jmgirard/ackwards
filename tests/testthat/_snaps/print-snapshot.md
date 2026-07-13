@@ -218,6 +218,36 @@
     Output
       
 
+# print snapshot: a non-converged level shows the red cross
+
+    Code
+      snap_print(x)
+    Message
+      
+      -- Bass-Ackwards Analysis (ackwards) -------------------------------------------
+      Engine: pca
+      Rotation: varimax
+      Basis: pearson
+      n: 1,000
+      k (max): 3
+      
+      -- Levels --
+      
+      v k = 1: 1 factor, 28.2% variance
+      x k = 2: 2 factors, 46.5% variance
+      v k = 3: 3 factors, 57.5% variance
+      
+      -- Edges --
+      
+      5 of 8 edges have |r| >= 0.3
+      --------------------------------------------------------------------------------
+      Note: This is a series of linked solutions, not a fitted hierarchical model.
+      Cross-level edges are descriptive score correlations. Per-level fit indices
+      (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+      they do not validate the edges or the hierarchy itself.
+    Output
+      
+
 # print/summary snapshot: near-singular caution
 
     Code
