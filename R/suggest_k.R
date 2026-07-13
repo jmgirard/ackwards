@@ -183,11 +183,7 @@ suggest_k <- function(data, k_max = NULL,
   if (is.matrix(data)) .check_maybe_cov_matrix(data)
   input_type <- if (.is_cor_matrix(data)) "cor_matrix" else "data"
 
-  if (!is.numeric(n_iter) || length(n_iter) != 1L || is.na(n_iter) ||
-    n_iter < 1L || n_iter != as.integer(n_iter)) {
-    cli::cli_abort("{.arg n_iter} must be a single positive integer.")
-  }
-  n_iter <- as.integer(n_iter)
+  n_iter <- .check_count(n_iter, "n_iter")
 
   if (input_type == "cor_matrix") {
     # Validate and normalise; synthesise V1..Vp dimnames if absent
@@ -214,11 +210,7 @@ suggest_k <- function(data, k_max = NULL,
         "i" = "Supply the number of observations: {.code n_obs = <N>}."
       ))
     }
-    if (!is.numeric(n_obs) || length(n_obs) != 1L ||
-      n_obs < 1L || n_obs != as.integer(n_obs)) {
-      cli::cli_abort("{.arg n_obs} must be a positive integer.")
-    }
-    n <- as.integer(n_obs)
+    n <- .check_count(n_obs, "n_obs")
 
     if (is.null(k_max)) k_max <- min(p - 1L, 8L)
     k_max <- as.integer(k_max)
@@ -256,13 +248,7 @@ suggest_k <- function(data, k_max = NULL,
       )
     }
 
-    if (!is.data.frame(data) && !is.matrix(data)) {
-      cli::cli_abort("{.arg data} must be a data frame or numeric matrix.")
-    }
-    data_mat <- as.matrix(data)
-    if (!is.numeric(data_mat)) {
-      cli::cli_abort("{.arg data} must contain only numeric columns.")
-    }
+    data_mat <- .as_numeric_matrix(data)
 
     # --- Ordinal-detection warning (Invariant 6 symmetry with ackwards()) -----
     # suggest_k() screens on the Pearson/Spearman basis by design and never

@@ -266,6 +266,16 @@ test_that("suggest_k() errors on non-integer n_obs", {
   expect_error(suggest_k(R, n_obs = 100.5), "positive integer")
 })
 
+test_that("suggest_k() errors cleanly on NA n_obs (M58 drift-bug regression)", {
+  # Numeric NA slips past the is.null() pre-check; before M58 it reached
+  # `if (... || NA || ...)` and died with base R's "missing value where
+  # TRUE/FALSE needed". The .check_count() is.na guard restores the intended
+  # message.
+  R <- .bfi6_R()
+  expect_error(suggest_k(R, n_obs = NA_real_), "positive integer")
+  expect_error(suggest_k(R, n_obs = NA), "positive integer")
+})
+
 test_that("suggest_k() covariance matrix gives a targeted error", {
   S <- cov(bfi25, use = "pairwise.complete.obs")
   expect_error(suggest_k(S), "covariance matrix")

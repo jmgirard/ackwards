@@ -567,13 +567,7 @@ ackwards <- function(
       )
     }
 
-    if (!is.data.frame(data) && !is.matrix(data)) {
-      cli::cli_abort("{.arg data} must be a data frame or numeric matrix.")
-    }
-    data_mat <- as.matrix(data)
-    if (!is.numeric(data_mat)) {
-      cli::cli_abort("{.arg data} must contain only numeric columns.")
-    }
+    data_mat <- .as_numeric_matrix(data)
 
     # --- Item screen (shared with check_items()) -----------------------------
     # A constant item breaks every basis (and psych::polychoric() silently

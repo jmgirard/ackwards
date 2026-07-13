@@ -69,11 +69,7 @@ factorability <- function(data, cor = c("pearson", "spearman", "polychoric"),
                           n_obs = NULL) {
   cor <- rlang::arg_match(cor)
 
-  if (!is.null(n_obs) &&
-    (!is.numeric(n_obs) || length(n_obs) != 1L || is.na(n_obs) ||
-      n_obs < 1L || n_obs != as.integer(n_obs))) {
-    cli::cli_abort("{.arg n_obs} must be a single positive integer when supplied.")
-  }
+  if (!is.null(n_obs)) n_obs <- .check_count(n_obs, "n_obs")
 
   if (.is_cor_matrix(data)) {
     R <- .validate_cor_matrix(as.matrix(data))
@@ -81,13 +77,7 @@ factorability <- function(data, cor = c("pearson", "spearman", "polychoric"),
     basis <- cor
   } else {
     if (is.matrix(data)) .check_maybe_cov_matrix(data)
-    if (!is.data.frame(data) && !is.matrix(data)) {
-      cli::cli_abort("{.arg data} must be a data frame or numeric matrix.")
-    }
-    data_mat <- as.matrix(data)
-    if (!is.numeric(data_mat)) {
-      cli::cli_abort("{.arg data} must contain only numeric columns.")
-    }
+    data_mat <- .as_numeric_matrix(data)
     if (ncol(data_mat) < 2L) {
       cli::cli_abort("{.arg data} must have at least two columns to screen.")
     }
