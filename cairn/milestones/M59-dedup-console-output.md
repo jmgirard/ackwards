@@ -55,6 +55,9 @@ Route `print`, `summary`, and `autoplot`'s repeated output blocks through shared
 ## Work log
 
 - 2026-07-12: created by /milestone-plan (bucket 2 of the 2026-07-12 codebase audit; sequenced after M58 to avoid utils.R churn overlap).
+- 2026-07-12: set in-progress; branch m59-dedup-console-output.
+- 2026-07-12: gate — glyph unification resolved to shared `.ok_glyph()` cli symbols, print keeps green/red, summary fit glyphs stay uncolored in grey line (user: "what do you recommend"). Percent → shared `.fmt_pct()` (sprintf 1-dp); prune digest → extend `.summary_prune` (renamed `.prune_digest`). No prior snapshot tests existed → establishing a snapshot net first (test-print-snapshot.R) to lock current output before refactor.
+- 2026-07-12: T6(net) — snapshot safety net capturing current print/summary output (pca, efa fit-glyph line, pruning digest, near-singular caution) committed as baseline.
 
 ## Decisions
 
