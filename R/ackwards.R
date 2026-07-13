@@ -402,9 +402,6 @@ ackwards <- function(
       ))
     }
 
-    # Warn if n_obs supplied alongside raw data (handled below)
-    # -- handled in the data branch instead.
-
     # Block keep_scores=TRUE: no row-level data to score
     if (isTRUE(keep_scores)) {
       cli::cli_abort(c(

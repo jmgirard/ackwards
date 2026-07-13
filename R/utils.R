@@ -63,6 +63,31 @@ make_labels <- function(k) {
   paste0("m", k, "f", seq_len(k))
 }
 
+# Tucker's congruence coefficient between two loading vectors (Lorenzo-Seva &
+# ten Berge, 2006). Formula: phi = sum(a*b) / sqrt(sum(a^2) * sum(b^2)).
+# General utility used by both prune() (redundancy/artifact phi) and
+# comparability() (split-half factor congruence), so it lives here with the
+# other shared helpers rather than in one caller.
+.tucker_phi <- function(a, b) {
+  denom <- sqrt(sum(a^2) * sum(b^2))
+  if (denom == 0) {
+    return(NA_real_)
+  }
+  sum(a * b) / denom
+}
+
+# Map each factor label to its level number: level k contributes its labels
+# (m{k}f{1..k}) all at level k. `levels_list` is named "1".."K". Returns a
+# named integer vector (names = labels, values = levels). Repeating the level
+# id by the actual per-level label count (`lengths()`) rather than by the id
+# itself keeps this correct even if a level's factor count ever diverges from
+# its index.
+.node_levels <- function(levels_list) {
+  labs <- lapply(levels_list, `[[`, "labels")
+  lvl <- as.integer(names(levels_list))
+  stats::setNames(rep(lvl, lengths(labs)), unlist(labs))
+}
+
 # Reject anything passed through a reserved `...` (Invariant 6: loud, not
 # silent). Without this, a misspelled argument -- ackwards(d, 5, kmax = 6),
 # comparability(d, 5, nsplits = 20) -- would be silently absorbed and the

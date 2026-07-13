@@ -212,15 +212,6 @@ suggest_k <- function(data, k_max = NULL,
     }
     n <- .check_count(n_obs, "n_obs")
 
-    if (is.null(k_max)) k_max <- min(p - 1L, 8L)
-    k_max <- as.integer(k_max)
-
-    if (k_max < 1L || k_max >= p) {
-      cli::cli_abort(
-        "{.arg k_max} must be between 1 and {p - 1L} (number of variables - 1)."
-      )
-    }
-
     # CD requires raw data for resampling -- gate it off with an info note
     # only when the user asked for it.
     if (run_cd) {
@@ -276,17 +267,18 @@ suggest_k <- function(data, k_max = NULL,
     n <- nrow(data_mat)
     cor_stored <- cor
 
-    if (is.null(k_max)) k_max <- min(p - 1L, 8L)
-    k_max <- as.integer(k_max)
-
-    if (k_max < 1L || k_max >= p) {
-      cli::cli_abort(
-        "{.arg k_max} must be between 1 and {p - 1L} (number of variables - 1)."
-      )
-    }
-
     R <- stats::cor(data_mat, method = cor, use = "pairwise.complete.obs")
     cd_blocked_by_matrix <- FALSE
+  }
+
+  # k_max default + validation is identical for both input branches (both set
+  # `p` above), so resolve it once here rather than duplicating it per branch.
+  if (is.null(k_max)) k_max <- min(p - 1L, 8L)
+  k_max <- as.integer(k_max)
+  if (k_max < 1L || k_max >= p) {
+    cli::cli_abort(
+      "{.arg k_max} must be between 1 and {p - 1L} (number of variables - 1)."
+    )
   }
 
   # --- Parallel analysis: PC + FA (Horn) --------------------------------------
