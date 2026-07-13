@@ -2,11 +2,11 @@
      section ownership". A phase skill never rewrites another phase's section. -->
 # M59: De-duplicate console output & plot builders
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** M58
 - **Principles touched:** —   <!-- works under the cli-only-output and honesty-caveat conventions (D-001, D-008); numbers/strings preserved -->
-- **Branch/PR:** —
+- **Branch/PR:** m59-dedup-console-output
 
 ## Goal
 
