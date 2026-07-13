@@ -6,7 +6,7 @@
 - **Priority:** normal
 - **Depends on:** M58
 - **Principles touched:** —   <!-- works under the cli-only-output and honesty-caveat conventions (D-001, D-008); numbers/strings preserved -->
-- **Branch/PR:** m59-dedup-console-output
+- **Branch/PR:** m59-dedup-console-output · [PR #59](https://github.com/jmgirard/ackwards/pull/59)
 
 ## Goal
 
