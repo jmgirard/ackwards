@@ -37,6 +37,10 @@ One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
   reproduced them; even same R/psych version strings) because no generator was committed. `set.seed`
   is deterministic on a fixed env but the specific draw is lost once the generation path is; pin a
   committed `data-raw/` generator, not a claim. `test-oracle-provenance.R` now enforces this.
+- 2026-07-13 (M58): when a milestone fixes a bug caused by copy-drift, grep the ENTIRE codebase for
+  the buggy pattern, not just the audit's enumerated sites — the plan scoped `suggest_k`'s
+  `n_obs = NA` bug but missed the byte-identical twin in `ackwards()`'s R-matrix `n_obs` check;
+  the independent review caught it (`grep -n 'n_obs != as.integer'` would have too).
 - 2026-07-12 (M57): before swapping a test-input fixture, check downstream *hardcoded* test literals
   for topology-stability — the new Forbes sim matrices changed the chase labels but preserved the
   redundancy topology, so `test-forbes-fidelity.R`'s prune `{m3f1,m3f2,m3f3}`/`{m2f2,m4f1,m4f2}`
