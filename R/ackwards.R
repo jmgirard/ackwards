@@ -385,14 +385,10 @@ ackwards <- function(
       )
     }
 
-    # n_obs: required for EFA, optional for PCA
-    if (!is.null(n_obs)) {
-      if (!is.numeric(n_obs) || length(n_obs) != 1L ||
-        n_obs < 1L || n_obs != as.integer(n_obs)) {
-        cli::cli_abort("{.arg n_obs} must be a positive integer when supplied.")
-      }
-      n_obs <- as.integer(n_obs)
-    }
+    # n_obs: required for EFA, optional for PCA. Numeric-only here (the
+    # correlation-matrix branch); routed through the shared count check so the
+    # is.na() guard is present (twin of the suggest_k n_obs = NA drift bug).
+    if (!is.null(n_obs)) n_obs <- .check_count(n_obs, "n_obs")
     if (engine == "efa" && is.null(n_obs)) {
       cli::cli_abort(c(
         "!" = "{.arg n_obs} is required when {.code engine = \"efa\"} and \\

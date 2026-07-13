@@ -291,6 +291,17 @@ test_that("ackwards() R-matrix: invalid n_obs (negative) errors", {
   )
 })
 
+test_that("ackwards() R-matrix: NA n_obs errors cleanly (M58 twin drift bug)", {
+  # Twin of the suggest_k(n_obs = NA) bug: numeric NA slipped past is.null()
+  # and reached `if (... || NA || ...)`. Found in M58 review; routed through
+  # .check_count() so ackwards() matches suggest_k().
+  R <- .bfi6_R()
+  expect_error(
+    suppressMessages(ackwards(R, k_max = 3, n_obs = NA_real_)),
+    "positive integer"
+  )
+})
+
 test_that("ackwards() R-matrix: invalid n_obs (non-numeric) errors", {
   R <- .bfi6_R()
   expect_error(
