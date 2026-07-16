@@ -7,7 +7,7 @@
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** —
-- **Branch/PR:** m62-forbes2023-vignette
+- **Branch/PR:** m62-forbes2023-vignette · https://github.com/jmgirard/ackwards/pull/63
 
 ## Goal
 <!-- owner: plan · create -->
@@ -49,24 +49,24 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
 ## Acceptance criteria
 <!-- owner: plan · create/amend-via-gate; review reads, never reinterprets -->
 
-- [ ] AC1: `vignettes/ackwards-forbes2023.Rmd.orig` exists; the precomputed
+- [x] AC1: `vignettes/ackwards-forbes2023.Rmd.orig` exists; the precomputed
       `ackwards-forbes2023.Rmd` + its `vignettes/assets/ackwards-forbes2023-*` figures are
       committed; `R CMD check` builds the vignette cleanly.
-- [ ] AC2: The rendered `.Rmd` shows the fixture-pinned reproduction numbers — 10-level hierarchy
+- [x] AC2: The rendered `.Rmd` shows the fixture-pinned reproduction numbers — 10-level hierarchy
       over 155 variables, 45 level-pairs under `pairs = "all"`, **37 of 55** factors flagged
       redundant under the default `direct` criterion (and 36 under `adjacent`, if shown) —
       grep-verifiable against `tests/testthat/test-forbes-fidelity.R:254-266`. Source: Forbes
       (2023), \doi{10.1037/met0000546}, via the `forbes2023_amh.rds` fixture (provenance:
       `data-raw/forbes2023.R`).
-- [ ] AC3: The pruned-factor diagram (`autoplot(…, drop_pruned = TRUE)`, publication style per
+- [x] AC3: The pruned-factor diagram (`autoplot(…, drop_pruned = TRUE)`, publication style per
       `ackwards-forbes.Rmd.orig:246-281`) renders in the vignette with its figure asset committed.
-- [ ] AC4: Bidirectional cross-links present (`ackwards-forbes` ↔ `ackwards-forbes2023`);
+- [x] AC4: Bidirectional cross-links present (`ackwards-forbes` ↔ `ackwards-forbes2023`);
       `forbes2023` roxygen gains a `@seealso`/vignette pointer; `grep -rn "extension of
       Goldberg's bass-ackwards" R/` returns no matches (the Forbes-citation typo fixed; the
       Waller 2007 title legitimately uses "Bass-Ackwards" and stays); `devtools::document()` run.
-- [ ] AC5: `_pkgdown.yml` articles index lists the new vignette; `pkgdown::check_pkgdown()` clean.
-- [ ] AC6: NEWS.md entry for the new vignette.
-- [ ] AC7: `Rscript tools/dod-gate.R` clean, and the PR diff contains no churn-only regenerated
+- [x] AC5: `_pkgdown.yml` articles index lists the new vignette; `pkgdown::check_pkgdown()` clean.
+- [x] AC6: NEWS.md entry for the new vignette.
+- [x] AC7: `Rscript tools/dod-gate.R` clean, and the PR diff contains no churn-only regenerated
       vignettes/assets (M61 lesson: `git checkout --` untouched precompute outputs).
 
 ## Coverage
@@ -129,3 +129,33 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
 
 ## Review
 <!-- owner: review · exclusive -->
+
+### Acceptance-criteria evidence (2026-07-16, all by command on the branch)
+
+- AC1: `ls` — `.Rmd.orig` (10,350 B), generated `.Rmd` (24,032 B), both PNGs committed;
+  `devtools::check()` 0/0/0 via `tools/dod-gate.R` this session (vignette built cleanly). ✔
+- AC2: greps on the generated `.Rmd` — "45 level pairs" ×1, "37 are [flagged]" ×1, "flags 36
+  components" ×1; values match `test-forbes-fidelity.R:254` (37L direct) and `:266` (36L
+  adjacent); 45 pairs = choose(10,2) per the fixture loop. ✔
+- AC3: both `assets/ackwards-forbes2023-pruned-diagram*` PNGs referenced at `.Rmd:740`/`:755`;
+  rendered diagrams visually verified during implement (publication style, level gaps visible). ✔
+- AC4: cross-link greps — `ackwards-forbes2023` in `ackwards-forbes.Rmd.orig` + generated `.Rmd`
+  (1 each); back-link `vignette("ackwards-forbes")` in new `.orig` (1); `\seealso` in
+  `man/forbes2023.Rd` (1); `grep "extension of Goldberg's bass-ackwards" R/` → 0. `document()`
+  re-run at review: no diff. ✔
+- AC5: `_pkgdown.yml:33` lists `ackwards-forbes2023`; `pkgdown::check_pkgdown()` fresh at review:
+  "No problems found". ✔
+- AC6: NEWS.md:4 — entry under new "(development version)" heading. ✔
+- AC7: `Rscript tools/dod-gate.R` PASSED this session (check 0/0/0, coverage 100%, style/lint
+  clean, pkgdown index complete); `git diff --name-only master..HEAD` = 12 files, all intentional
+  (no churn-only regenerated vignettes/assets — 5 .Rmd + 3 PNGs reverted at T3). ✔
+
+### Consistency gate (2026-07-16)
+
+- `cairn_validate.py`: all checks passed (87 pre-existing advisory dangling-ID warnings, legacy
+  M1–M53 refs).
+- No principle change (`Principles touched: —`) → `cairn_impact` skipped.
+- Profile consistency-gate slot: `document()` no diff ✔; generated files regenerated not
+  hand-edited (no-diff check) ✔; README untouched by the diff (0 files) ✔;
+  `pkgdown::check_pkgdown()` ✔; NEWS entry present ✔; no new top-level files (new `.orig`
+  covered by `.Rbuildignore:21` pattern; check 0 NOTEs) ✔; full `check()` clean via gate ✔.
