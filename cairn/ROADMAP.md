@@ -10,6 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
+| M61 | Enrich suggest_k() docs with verified k-selection citations | planned | — | normal | milestones/M61-suggest-k-citations.md |
 | M60 | De-duplicate the setup path (audit bucket 3) | done | — | normal | milestones/archive/M60-bucket3-dedup.md |
 | M59 | De-duplicate console output & plot builders | done | M58 | normal | milestones/archive/M59-dedup-console-output.md |
 | M58 | Consolidate input-validation helpers & fix two drift bugs | done | — | normal | milestones/archive/M58-consolidate-validation-helpers.md |
@@ -25,4 +26,3 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 - ESEM engine/basis extensions (grouped, demand-gated — keep off schedule until asked): `comparability()` split-half per level per factor (feasible; 2·n_splits lavaan hierarchies per call, per-half convergence handling — DESIGN §14.35 / M46) and `boot_edges()` WLSMV/polychoric bootstrap edges (expensive, n_boot × (k_max−1) fits; resample can drop a response category — DESIGN §14.36 / M47) — added 2026-07-11, merged 2026-07-16
 - Full DESIGN §14 → DECISIONS.md extraction (Compromise B): lift the entire embedded decision log out of DESIGN.md into DECISIONS.md and repoint every inline `§14.x` reference; run as its own focused pass — added 2026-07-11 — M20 migration gate
 - Formalize IP/GP principles via /design-interview: ackwards' hard constraints live as CLAUDE.md "Invariants"; a design-interview run would elicit and number them as DESIGN IP<n>/GP<n> — added 2026-07-11 — M20 migration gate — NB: M57 adds Invariant #8 (oracle-backed numerics) as interim home; fold it in at IP/GP time
-- Enrich `suggest_k()` roxygen with two verified-at-ingest citations: Lim & Jahng (2019) "PA estimate as a ±1 range" (matches the advisory-range stance; pair with Achim 2021 counterpoint) and Saucier (1997) fn 14 (PA suggested ~30 factors in wide lexical sets — in-the-wild "PA-PC overextracts" case); reference notes in cairn/references/ — added 2026-07-16 — comparability-citations hotfix (#61) follow-up
