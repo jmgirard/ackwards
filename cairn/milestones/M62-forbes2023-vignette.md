@@ -3,11 +3,11 @@
      Per-section owners are tagged below. -->
 # M62: Worked Forbes (2023) AMH example vignette
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** —
-- **Branch/PR:** —
+- **Branch/PR:** m62-forbes2023-vignette
 
 ## Goal
 <!-- owner: plan · create -->
@@ -103,6 +103,8 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
 - 2026-07-16: created by /milestone-plan. Promotes the 2026-07-12 candidate row "Wire `forbes2023`
   into a vignette" (lineage: M54 Out). Plan-gate decisions: new standalone vignette; full applied
   example; ACs pinned to fixture values; data.R typo fixed in-milestone.
+- 2026-07-16: /milestone-implement start — Forbes (2023) title verified via Crossref API
+  ("bass-ackward method", singular; confirms the T2 fix). Branch m62-forbes2023-vignette.
 
 ## Decisions
 <!-- owner: implement / review · append-only -->
