@@ -78,19 +78,16 @@ make_labels <- function(k) {
   paste0("m", k, "f", seq_len(k))
 }
 
-# Variance explained per factor (sum of squared loadings / p) plus the
-# cumulative total, in the `c(<labels>, cumulative = <sum>)` shape every level
-# object's $variance carries (s.4 contract). The single computation site for
-# all three engines (M60).
+# Variance explained per factor (colSums(L^2) / p) + cumulative total, in the
+# c(<labels>, cumulative = <sum>) shape of every level's $variance (s.4). The
+# single computation site for all three engines (M60).
 .variance_explained <- function(L, p, labels) {
   var_per_factor <- unname(colSums(L^2) / p)
   c(stats::setNames(var_per_factor, labels), cumulative = sum(var_per_factor))
 }
 
-# Actual score variances diag(W' R W) -- NOT assumed to be 1 (Invariant 1:
-# Bartlett/oblique scores are not unit-variance; always standardize by the
-# real score SDs). The single computation site shared by the engines
-# ($scoring$score_var) and compute_edges()'s D^{-1/2} standardization (M60).
+# Actual score variances diag(W' R W) -- never assumed 1 (Invariant 1). Shared
+# by the engines ($scoring$score_var) and compute_edges()'s standardization.
 .score_var <- function(W, R) {
   diag(crossprod(W, R %*% W))
 }
@@ -228,9 +225,8 @@ match_parents <- function(E) {
 #
 # Arguments:
 #   loadings_list  -- list indexed by k (1..K) of pxk loading matrices
-#   edges_list     -- list named "k_a:k_b" of (k_a x k_b) edge matrices (read
-#                     to choose flips; never returned -- ackwards() recomputes
-#                     final edges from the flipped weights, M60)
+#   edges_list     -- list named "k_a:k_b" of (k_a x k_b) edge matrices (read to
+#                     choose flips; final edges are recomputed post-flip, M60)
 #   lineage        -- list indexed by k>=2 of integer vectors (parent indices)
 #
 # Returns: list(loadings = ..., signs = ...) where signs is a list of +/-1
@@ -375,9 +371,7 @@ flip_weights <- function(W, sign_vec) {
 # (Invariant 1: one edge path; no new dependency, psych already Imports).
 # Non-PD output is smoothed with the same psych::cor.smooth() fallback the
 # polychoric path uses.
-# Returns list(R = <matrix>, min_eig = <smallest eigenvalue of that R>) so the
-# caller's .near_singular_check() reuses the eigenvalue instead of recomputing
-# it (M60).
+# Returns list(R, min_eig of that R) so callers reuse the eigenvalue (M60).
 .corfiml_R <- function(data_mat) {
   R <- tryCatch(
     psych::corFiml(data_mat),
@@ -404,14 +398,11 @@ flip_weights <- function(W, sign_vec) {
 }
 
 # Muffled engine dispatch shared by comparability()'s half-fits and
-# boot_edges()'s replicate refits (M60): fit levels 1..k_max on a precomputed
-# R, suppressing the engines' message/warning chatter (Heywood, per-level
-# truncation) -- across 2 * n_splits or n_boot fits those conditions would
-# repeat unusably, and their aggregate signal is exactly what the callers'
-# coefficients / NA counts report. Callers keep their own R construction
-# (pairwise vs FIML), resample/split step, and error/sentinel handling.
-# Returns the engine's list(levels = ..., fits = ...) unchanged. ESEM is not
-# dispatched here: both callers are PCA/EFA-only (DESIGN s.14.35/.36).
+# boot_edges()'s replicate refits (M60): fit levels 1..k_max on a precomputed R
+# with engine warning chatter suppressed -- across many refits it would repeat
+# unusably; its aggregate signal is what the callers' coefficients / NA counts
+# report. Callers keep their own R construction, resample/split step, and
+# error/sentinel handling. PCA/EFA only (both callers are; s.14.35/.36).
 .fit_levels_muffled <- function(R, engine, k_max, cor, fm, n_obs) {
   suppressMessages(suppressWarnings(
     switch(engine,
@@ -467,11 +458,9 @@ flip_weights <- function(W, sign_vec) {
   TRUE
 }
 
-# Validate and normalise a user-supplied correlation matrix. Returns
-# list(R = <matrix, possibly with synthesised dimnames>, min_eig = <smallest
-# eigenvalue>) or errors with a specific message. min_eig is exposed so
-# ackwards()'s .near_singular_check() reuses the eigenvalue this function
-# already computed for its non-PD warning (M60).
+# Validate and normalise a user-supplied correlation matrix, or error with a
+# specific message. Returns list(R = <matrix, dimnames synthesised if absent>,
+# min_eig = <smallest eigenvalue -- reused by .near_singular_check(), M60>).
 # Non-positive-definite matrices warn and pass through -- the engine will error
 # naturally if truly degenerate; auto-smoothing would silently alter user input.
 .validate_cor_matrix <- function(R) {
@@ -566,9 +555,8 @@ validate_ackwards <- function(x) {
 # ("polychoric" adds the sparse-category route) and may be NA (a user-supplied
 # matrix), handled via isTRUE(). A healthy correlation matrix sits well above
 # the 1e-4 threshold, so ordinary data is never flagged.
-# `min_eig` (M60): optionally pass the smallest eigenvalue a path already
-# computed (polychoric smoothing, .corfiml_R, .validate_cor_matrix) so each
-# input path runs eigen() at most once; NULL computes it here.
+# `min_eig`: optional precomputed smallest eigenvalue so each input path runs
+# eigen() at most once (M60); NULL computes it here.
 .near_singular_check <- function(R, cor, min_eig = NULL) {
   min_eig <- min_eig %||%
     min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)

@@ -702,9 +702,8 @@ ackwards <- function(
         R <- stats::cor(data_mat, method = "pearson", use = "pairwise.complete.obs")
       } # nocov end
     } else {
-      # PCA / EFA: compute R then dispatch. Paths that already compute R's
-      # smallest eigenvalue (polychoric smoothing, FIML) record it here so the
-      # shared near-singular check below never recomputes it (M60).
+      # PCA / EFA: compute R then dispatch. Paths that already computed R's
+      # smallest eigenvalue record it so the shared check below reuses it (M60).
       min_eig_pre <- NULL
       if (cor == "polychoric") {
         poly_out <- tryCatch(
@@ -868,9 +867,7 @@ ackwards <- function(
 
   # --- Final edge set (adjacent or all-levels Forbes extension) ---------------
   # Computed from the aligned levels_list (flipped loadings/weights), so all
-  # edges -- adjacent and skip-level alike -- carry the aligned signs. This is
-  # the only edge set the object stores; the pre-alignment pass above fed
-  # lineage/sign alignment only (M60).
+  # edges carry the aligned signs; the pre-alignment pass fed lineage only (M60).
   final_edges <- compute_edges(
     levels      = levels_list,
     R           = R,

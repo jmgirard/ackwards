@@ -29,9 +29,8 @@
 #' @param cut_show Edges with `|r| >= cut_show` are flagged `above_cut` in the
 #'   tidy tibble.
 #' @param build_tidy Build the tidy edge data frame? `FALSE` returns
-#'   `tidy = NULL` for matrices-only callers (the pre-alignment lineage pass in
-#'   `ackwards()`, `comparability()`'s cross-solution blocks, `boot_edges()`
-#'   replicates), which would otherwise build and discard it (M60).
+#'   `tidy = NULL` for matrices-only callers (lineage pass, `.cross_cor()`,
+#'   `.boot_replicate()`), which would otherwise build and discard it (M60).
 #'
 #' @return A list with:
 #'   \item{matrices}{Named list of `(k_a x k_b)` edge matrices, keyed

@@ -11,7 +11,8 @@ compute_edges(
   pairs = c("adjacent", "all"),
   data = NULL,
   use = "pairwise.complete.obs",
-  cut_show = 0.3
+  cut_show = 0.3,
+  build_tidy = TRUE
 )
 }
 \arguments{
@@ -34,13 +35,18 @@ when \code{edge_method = "scores"} or the scores path is triggered.}
 
 \item{cut_show}{Edges with \verb{|r| >= cut_show} are flagged \code{above_cut} in the
 tidy tibble.}
+
+\item{build_tidy}{Build the tidy edge data frame? \code{FALSE} returns
+\code{tidy = NULL} for matrices-only callers (lineage pass, \code{.cross_cor()},
+\code{.boot_replicate()}), which would otherwise build and discard it (M60).}
 }
 \value{
 A list with:
 \item{matrices}{Named list of \verb{(k_a x k_b)} edge matrices, keyed
 \code{"k_a:k_b"}.}
 \item{tidy}{A data frame with one row per directed edge: \code{from}, \code{to},
-\code{level_from}, \code{level_to}, \code{r}, \code{is_primary}, \code{above_cut}.}
+\code{level_from}, \code{level_to}, \code{r}, \code{is_primary}, \code{above_cut} -- or \code{NULL}
+when \code{build_tidy = FALSE}.}
 }
 \description{
 The centerpiece of the bass-ackwards algebra. For any engine whose scoring

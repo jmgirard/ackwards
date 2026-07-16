@@ -178,8 +178,7 @@
   # rotation were ever added, factor_cor must also be permuted by ord to stay consistent
   # with the column ordering of L.
   # colSums(L^2) is an order-equivalent key for variance explained (constant
-  # divisor p); the actual variance vector is computed once, post-sort, via
-  # .variance_explained() below (M60).
+  # divisor p); the variance vector itself is computed once, post-sort (M60).
   ord <- order(colSums(L^2), decreasing = TRUE)
   L <- L[, ord, drop = FALSE]
   L_se <- L_se[, ord, drop = FALSE]

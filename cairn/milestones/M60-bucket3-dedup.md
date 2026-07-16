@@ -86,8 +86,10 @@ and no documented object contract changes — internal helpers and dead-code rem
       comparability's half-fit and boot_edges' replicate-fit; `comparability()` and
       `boot_edges()` outputs are unchanged (their existing tests + oracles green).
 - [ ] AC6: `Rscript tools/dod-gate.R` clean (check 0 err/0 warn/0 note, coverage no
-      regression, style/lint/pkgdown), zero snapshot diffs, and net line reduction vs
-      pre-M60 `R/`. No new exported object; no NEWS/doc change.
+      regression, style/lint/pkgdown), zero snapshot diffs, and no duplicated computation
+      sites remain (grep-verified via AC1/AC2/AC5). No new exported object; no NEWS/doc
+      change. *(Amended 2026-07-16 at the implement mini-gate: the original "net line
+      reduction vs pre-M60 `R/`" clause was dropped — see Decisions.)*
 
 ## Coverage
 <!-- owner: plan · create/amend-via-gate -->
@@ -120,8 +122,9 @@ and no documented object contract changes — internal helpers and dead-code rem
       `.boot_replicate` (`boot_edges.R`) to call it, each keeping its own R construction,
       resample/split, and return/sentinel handling.
 - [ ] T6: Run `Rscript tools/dod-gate.R`; confirm 0 err/0 warn/0 note, no coverage
-      regression, zero snapshot diffs, algebra-vs-scores oracle green, and a net line
-      reduction in `R/`. No NEWS/doc/NAMESPACE change expected — confirm.
+      regression, zero snapshot diffs, algebra-vs-scores oracle green, and no duplicated
+      computation sites remain (grep). No NEWS/NAMESPACE change expected — confirm
+      (internal-Rd regeneration for the `build_tidy` @param is expected and fine).
 
 ## Work log
 <!-- owner: any skill · append-only; one line per entry; absolute dates -->
@@ -151,6 +154,15 @@ and no documented object contract changes — internal helpers and dead-code rem
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
+
+- 2026-07-16 (mini-gate, user-approved): AC6's "net line reduction vs pre-M60 `R/`" clause
+  dropped. Measured honest result after all dedup tasks + a comment-density trim: +39 total /
+  +9 non-comment lines vs master — extracting *documented* helpers from 3–8-line duplicated
+  blocks is roughly line-neutral (signature + braces + rationale comment ≈ lines saved).
+  The milestone's real outcome is single-computation-sites (grep-verified in AC1/AC2/AC5);
+  forcing a literal line reduction would have meant stripping helper docs below this repo's
+  comment density. Options offered: drop clause (chosen) / ±15 code-line neutrality band /
+  strip comments / pause.
 
 ## Review
 <!-- owner: review · exclusive -->
