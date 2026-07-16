@@ -187,3 +187,23 @@ R/ man/ tests/ DESCRIPTION NAMESPACE` = 0 lines), so the gate run's results rema
 - Toolchain (r-package slot): `document()` no diff; pkgdown "No problems found"; README/NEWS
   correctly untouched (internal-only); no new top-level files; full `check()` 0/0/0 via
   dod-gate on identical code.
+
+### Independent fresh-context review (2026-07-16)
+
+Three parallel reviewers, distinct evidence bases; **0 findings total** (nothing reached the
+scorer; no sub-threshold findings to log).
+
+- **[O] diff-bug:** no findings. Verified helper numeric parity (incl. the unname/setNames
+  name-shape equivalence and the monotone ESEM ordering-key change), muffling-scope parity in
+  the restructured .fit_half/.boot_replicate (stats::cor signals warnings only, never
+  messages), single-eigen-per-path with byte-identical cli templates, truncate-at-first-
+  failure in all three engines (deepest_converged = k_eff exact), no stale callers of the
+  changed-return-shape helpers, build_tidy positional-arg safety (appended last), tidy
+  consumers (layout/prune) untouched.
+- **[S] blame-history:** no findings. Traced changed regions to introducing commits (M1/M35/
+  M38); removed guard already unreachable (k_eff < 2 aborts earlier); converged_levels
+  reader-less since M1; M35 regression power preserved (pre-M35 formula would flip
+  aligned$signs[[3]] and fail the reworked test); D-004 formula byte-identical; ran 783
+  targeted tests, 0 failures.
+- **[S] prior-PR-comments:** no prior-PR evidence — zero inline review comments across the
+  repo's entire merged-PR history (review runs through cairn locally); clean no-op.
