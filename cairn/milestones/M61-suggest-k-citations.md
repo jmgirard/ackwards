@@ -25,18 +25,18 @@ passes on other help pages/vignettes (add a candidate row if a gap is found);
 
 ## Acceptance criteria
 
-- [ ] AC1 — `?suggest_k` "Interpreting the output" states the ±1-advisory-range stance
+- [x] AC1 — `?suggest_k` "Interpreting the output" states the ±1-advisory-range stance
       citing Lim & Jahng (2019) paired with Achim (2021) (the pair is mandatory per
       `rotation-and-k.md`), and "A note on overextraction" cites Saucier (1997, fn 14)
       alongside Forbes (2023); all three appear in `@references` with titles
       and DOIs matching the ingested notes (`rotation-and-k.md`, `saucier1997.md`).
-- [ ] AC2 — the suggest-k vignette's PA-PC passage and consensus-range discussion carry
+- [x] AC2 — the suggest-k vignette's PA-PC passage and consensus-range discussion carry
       the same citations; its References section gains the three entries; the
       precomputed `.Rmd` is regenerated from the `.orig` via `vignettes/precompute.R`
       (no stale-output ship).
-- [ ] AC3 — NEWS.md 0.1.1 section records the enrichment in one line (no milestone
+- [x] AC3 — NEWS.md 0.1.1 section records the enrichment in one line (no milestone
       numbers in user-facing text).
-- [ ] AC4 — profile verify clean: `devtools::document()` run with `man/` committed and
+- [x] AC4 — profile verify clean: `devtools::document()` run with `man/` committed and
       no residual diff; `TESTTHAT_CPUS=8 devtools::test()` all green.
 
 ## Coverage
@@ -81,3 +81,35 @@ passes on other help pages/vignettes (add a candidate row if a gap is found);
 ## Decisions
 
 ## Review
+
+_Reviewed 2026-07-16 (same-session as implement; fresh evidence by command)._
+
+**Evidence per criterion:**
+- AC1 ✅ — `man/suggest_k.Rd` carries the ±1-range sentence (lines 133–135: Lim & Jahng
+  paired with Achim) in Interpreting-the-output and the Saucier fn-14 case (line 161) in
+  the overextraction note; DOI three-way match Rd ↔ `rotation-and-k.md` ↔ `saucier1997.md`
+  exact (met0000230, met0000269, 0022-3514.73.6.1296). [O] reviewer independently verified
+  authors/year/title/journal/volume/pages/DOI against the notes.
+- AC2 ✅ — regenerated `.Rmd` carries all citations (consensus passage line 56, PA-PC
+  line ~78, References ×3); [O] reviewer confirmed `.Rmd` matches `.orig` hunk-for-hunk
+  with fresh chunk-timing noise (positive evidence of real precompute regeneration).
+- AC3 ✅ — NEWS 0.1.1 bullet ("Sourced `suggest_k()`'s k-selection guidance", line 16);
+  zero `M61` tokens in NEWS.
+- AC4 ✅ — dod-gate PASSED: check 0 err/0 warn/0 note, coverage 100%, styler 0 changed,
+  lintr clean, pkgdown reference index complete. Suite green (2300 pass / 0 fail at T1;
+  full check re-ran it at gate).
+
+**Consistency gate:** `cairn_validate` all checks passed (87 dangling legacy-ID
+advisories, non-gating). No principle change → `cairn_impact` skipped. Toolchain slot
+covered by dod-gate above (document no-diff, generated-files, README, pkgdown, NEWS,
+.Rbuildignore via check NOTEs = 0).
+
+**Independent review (3 lenses + scorer):**
+- [O] diff-bug: 1 finding. [S] blame-history: no findings (verified no reintroduction of
+  the retired goldberg1990 citation; D-008/D-013 consistent; NEWS placement matches
+  lineage). [S] prior-PR: no prior-PR evidence (clean no-op).
+- Finding 1 (scored 85 → actioned, fixed): vignette clause "the best-performing single
+  criterion in comparative simulations" overclaimed lim2019 (PA best among 13 PA
+  *variants*, not among all retention criteria) and read as sourced to them. Fixed by
+  dropping the appositive from the `.orig` + precompute re-run; roxygen counterpart never
+  had the problem. No findings scored <80.

@@ -59,12 +59,11 @@ measured directly, with split-half `comparability()` — see
 **No criterion is decisive on its own.** Each of the five criteria below
 captures a different aspect of the data, tends to err in a different direction,
 and can fail in different circumstances. A consensus across multiple criteria is
-more trustworthy than any single recommendation. Even for parallel analysis —
-the best-performing single criterion in comparative simulations — Lim and Jahng
-(2019) recommend treating the estimate as a range of roughly ±1 factor resolved
-by interpretability, and Achim (2021) argues that even that overstates its
-precision. That disagreement is why `suggest_k()` reports a consensus range,
-never a single number.
+more trustworthy than any single recommendation. Even for parallel analysis,
+Lim and Jahng (2019) recommend treating the estimate as a range of roughly ±1
+factor resolved by interpretability — and Achim (2021) argues that even that
+overstates its precision. That disagreement is why `suggest_k()` reports a
+consensus range, never a single number.
 
 ## The five criteria
 
