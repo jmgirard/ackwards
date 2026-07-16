@@ -13,6 +13,8 @@
   Factors?](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md):
 - [The Forbes Extension: Skip-Level Connections and
   Pruning](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md):
+- [Reproducing Forbes (2023): The AMH Applied
+  Example](https://jmgirard.github.io/ackwards/articles/ackwards-forbes2023.md):
 
 ### Model choices
 

@@ -43,6 +43,7 @@
     <li><a class="dropdown-item" href="../articles/ackwards-girard.html">Replicability-Gated Hierarchies: A Recommended Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-suggest-k.html">Choosing k: How Many Factors?</a></li>
     <li><a class="dropdown-item" href="../articles/ackwards-forbes.html">The Forbes Extension: Skip-Level Connections and Pruning</a></li>
+    <li><a class="dropdown-item" href="../articles/ackwards-forbes2023.html">Reproducing Forbes (2023): The AMH Applied Example</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Model choices</h6></li>
     <li><a class="dropdown-item" href="../articles/ackwards-engines.html">Choosing an Engine: PCA, EFA, and ESEM</a></li>
@@ -98,7 +99,10 @@ using those extra connections to identify and flag
 <strong>redundant</strong> or <strong>artifactual</strong> factors in
 the hierarchy.</p>
 <p>This vignette covers both extensions: <code>pairs = "all"</code> and
-<code>prune</code>.</p>
+<code>prune</code>. It teaches the concepts on a small didactic dataset;
+for a full reproduction of the paper’s 155-variable applied example on
+the bundled <code>forbes2023</code> dataset, see
+<code><a href="../articles/ackwards-forbes2023.html">vignette("ackwards-forbes2023")</a></code>.</p>
 <div class="section level2">
 <h2 id="the-limitation-of-adjacent-only-edges">The limitation of adjacent-only edges<a class="anchor" aria-label="anchor" href="#the-limitation-of-adjacent-only-edges"></a>
 </h2>

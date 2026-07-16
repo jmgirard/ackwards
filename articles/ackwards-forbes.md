@@ -7,7 +7,11 @@ Forbes (2023) extended this in two ways: computing correlations across
 to identify and flag **redundant** or **artifactual** factors in the
 hierarchy.
 
-This vignette covers both extensions: `pairs = "all"` and `prune`.
+This vignette covers both extensions: `pairs = "all"` and `prune`. It
+teaches the concepts on a small didactic dataset; for a full
+reproduction of the paper’s 155-variable applied example on the bundled
+`forbes2023` dataset, see
+[`vignette("ackwards-forbes2023")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes2023.md).
 
 ## The limitation of adjacent-only edges
 
