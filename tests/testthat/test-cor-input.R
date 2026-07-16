@@ -60,6 +60,21 @@ test_that("PCA + R-matrix without n_obs is allowed and stores NA", {
   expect_true(is.na(x$n_obs))
 })
 
+test_that("PCA + R-matrix n_obs message is metadata-only, no fit-stats promise (M63)", {
+  # The pre-M63 message claimed supplying n_obs would "enable" chi-square/
+  # RMSEA/TLI, but PCA never computes them: pca_levels() takes no n_obs and
+  # its fit slot is eigenvalues only (R/engine_pca.R). The corrected message
+  # states the truth -- n_obs is recorded as metadata only.
+  R <- .bfi6_R()
+  txt <- paste(
+    capture.output(x <- ackwards(R, k_max = 3), type = "message"),
+    collapse = " "
+  )
+  expect_match(txt, "n_obs.*not supplied")
+  expect_match(txt, "metadata")
+  expect_no_match(txt, "chi-square|RMSEA|TLI")
+})
+
 test_that("PCA + R-matrix with n_obs stores the supplied value", {
   R <- .bfi6_R()
   x <- suppressMessages(ackwards(R, k_max = 3, n_obs = 100L))

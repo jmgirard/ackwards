@@ -186,23 +186,23 @@ teaching point: how much smaller EFA loadings are in absolute value once
 measurement error is partitioned into uniqueness. Using |EFA| − |PCA| keeps
 the attenuation consistently negative regardless of loading sign.
 
-<!--html_preserve--><div id="buhkjvooni" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#buhkjvooni table {
+<!--html_preserve--><div id="wngnemmrec" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#wngnemmrec table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#buhkjvooni thead, #buhkjvooni tbody, #buhkjvooni tfoot, #buhkjvooni tr, #buhkjvooni td, #buhkjvooni th {
+#wngnemmrec thead, #wngnemmrec tbody, #wngnemmrec tfoot, #wngnemmrec tr, #wngnemmrec td, #wngnemmrec th {
   border-style: none;
 }
 
-#buhkjvooni p {
+#wngnemmrec p {
   margin: 0;
   padding: 0;
 }
 
-#buhkjvooni .gt_table {
+#wngnemmrec .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -228,12 +228,12 @@ the attenuation consistently negative regardless of loading sign.
   border-left-color: #D3D3D3;
 }
 
-#buhkjvooni .gt_caption {
+#wngnemmrec .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#buhkjvooni .gt_title {
+#wngnemmrec .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -245,7 +245,7 @@ the attenuation consistently negative regardless of loading sign.
   border-bottom-width: 0;
 }
 
-#buhkjvooni .gt_subtitle {
+#wngnemmrec .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -257,7 +257,7 @@ the attenuation consistently negative regardless of loading sign.
   border-top-width: 0;
 }
 
-#buhkjvooni .gt_heading {
+#wngnemmrec .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -269,13 +269,13 @@ the attenuation consistently negative regardless of loading sign.
   border-right-color: #D3D3D3;
 }
 
-#buhkjvooni .gt_bottom_border {
+#wngnemmrec .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#buhkjvooni .gt_col_headings {
+#wngnemmrec .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -290,7 +290,7 @@ the attenuation consistently negative regardless of loading sign.
   border-right-color: #D3D3D3;
 }
 
-#buhkjvooni .gt_col_heading {
+#wngnemmrec .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -310,7 +310,7 @@ the attenuation consistently negative regardless of loading sign.
   overflow-x: hidden;
 }
 
-#buhkjvooni .gt_column_spanner_outer {
+#wngnemmrec .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -322,15 +322,15 @@ the attenuation consistently negative regardless of loading sign.
   padding-right: 4px;
 }
 
-#buhkjvooni .gt_column_spanner_outer:first-child {
+#wngnemmrec .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#buhkjvooni .gt_column_spanner_outer:last-child {
+#wngnemmrec .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#buhkjvooni .gt_column_spanner {
+#wngnemmrec .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -342,11 +342,11 @@ the attenuation consistently negative regardless of loading sign.
   width: 100%;
 }
 
-#buhkjvooni .gt_spanner_row {
+#wngnemmrec .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#buhkjvooni .gt_group_heading {
+#wngnemmrec .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -372,7 +372,7 @@ the attenuation consistently negative regardless of loading sign.
   text-align: left;
 }
 
-#buhkjvooni .gt_empty_group_heading {
+#wngnemmrec .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -387,15 +387,15 @@ the attenuation consistently negative regardless of loading sign.
   vertical-align: middle;
 }
 
-#buhkjvooni .gt_from_md > :first-child {
+#wngnemmrec .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#buhkjvooni .gt_from_md > :last-child {
+#wngnemmrec .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#buhkjvooni .gt_row {
+#wngnemmrec .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -414,7 +414,7 @@ the attenuation consistently negative regardless of loading sign.
   overflow-x: hidden;
 }
 
-#buhkjvooni .gt_stub {
+#wngnemmrec .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -427,7 +427,7 @@ the attenuation consistently negative regardless of loading sign.
   padding-right: 5px;
 }
 
-#buhkjvooni .gt_stub_row_group {
+#wngnemmrec .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -441,15 +441,15 @@ the attenuation consistently negative regardless of loading sign.
   vertical-align: top;
 }
 
-#buhkjvooni .gt_row_group_first td {
+#wngnemmrec .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#buhkjvooni .gt_row_group_first th {
+#wngnemmrec .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#buhkjvooni .gt_summary_row {
+#wngnemmrec .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -459,16 +459,16 @@ the attenuation consistently negative regardless of loading sign.
   padding-right: 5px;
 }
 
-#buhkjvooni .gt_first_summary_row {
+#wngnemmrec .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#buhkjvooni .gt_first_summary_row.thick {
+#wngnemmrec .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#buhkjvooni .gt_last_summary_row {
+#wngnemmrec .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -478,7 +478,7 @@ the attenuation consistently negative regardless of loading sign.
   border-bottom-color: #D3D3D3;
 }
 
-#buhkjvooni .gt_grand_summary_row {
+#wngnemmrec .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -488,7 +488,7 @@ the attenuation consistently negative regardless of loading sign.
   padding-right: 5px;
 }
 
-#buhkjvooni .gt_first_grand_summary_row {
+#wngnemmrec .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -498,7 +498,7 @@ the attenuation consistently negative regardless of loading sign.
   border-top-color: #D3D3D3;
 }
 
-#buhkjvooni .gt_last_grand_summary_row_top {
+#wngnemmrec .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -508,11 +508,11 @@ the attenuation consistently negative regardless of loading sign.
   border-bottom-color: #D3D3D3;
 }
 
-#buhkjvooni .gt_striped {
+#wngnemmrec .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#buhkjvooni .gt_table_body {
+#wngnemmrec .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -521,7 +521,7 @@ the attenuation consistently negative regardless of loading sign.
   border-bottom-color: #D3D3D3;
 }
 
-#buhkjvooni .gt_footnotes {
+#wngnemmrec .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -535,7 +535,7 @@ the attenuation consistently negative regardless of loading sign.
   border-right-color: #D3D3D3;
 }
 
-#buhkjvooni .gt_footnote {
+#wngnemmrec .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -544,7 +544,7 @@ the attenuation consistently negative regardless of loading sign.
   padding-right: 5px;
 }
 
-#buhkjvooni .gt_sourcenotes {
+#wngnemmrec .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -558,7 +558,7 @@ the attenuation consistently negative regardless of loading sign.
   border-right-color: #D3D3D3;
 }
 
-#buhkjvooni .gt_sourcenote {
+#wngnemmrec .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -566,72 +566,72 @@ the attenuation consistently negative regardless of loading sign.
   padding-right: 5px;
 }
 
-#buhkjvooni .gt_left {
+#wngnemmrec .gt_left {
   text-align: left;
 }
 
-#buhkjvooni .gt_center {
+#wngnemmrec .gt_center {
   text-align: center;
 }
 
-#buhkjvooni .gt_right {
+#wngnemmrec .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#buhkjvooni .gt_font_normal {
+#wngnemmrec .gt_font_normal {
   font-weight: normal;
 }
 
-#buhkjvooni .gt_font_bold {
+#wngnemmrec .gt_font_bold {
   font-weight: bold;
 }
 
-#buhkjvooni .gt_font_italic {
+#wngnemmrec .gt_font_italic {
   font-style: italic;
 }
 
-#buhkjvooni .gt_super {
+#wngnemmrec .gt_super {
   font-size: 65%;
 }
 
-#buhkjvooni .gt_footnote_marks {
+#wngnemmrec .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#buhkjvooni .gt_asterisk {
+#wngnemmrec .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#buhkjvooni .gt_indent_1 {
+#wngnemmrec .gt_indent_1 {
   text-indent: 5px;
 }
 
-#buhkjvooni .gt_indent_2 {
+#wngnemmrec .gt_indent_2 {
   text-indent: 10px;
 }
 
-#buhkjvooni .gt_indent_3 {
+#wngnemmrec .gt_indent_3 {
   text-indent: 15px;
 }
 
-#buhkjvooni .gt_indent_4 {
+#wngnemmrec .gt_indent_4 {
   text-indent: 20px;
 }
 
-#buhkjvooni .gt_indent_5 {
+#wngnemmrec .gt_indent_5 {
   text-indent: 25px;
 }
 
-#buhkjvooni .katex-display {
+#wngnemmrec .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#buhkjvooni div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#wngnemmrec div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -900,23 +900,23 @@ level transition. The Δ column is the shift in connection strength
 (|EFA| − |PCA|) — a direct, sign-robust measure of how much the latent-variable
 model changes your inference about the hierarchy.
 
-<!--html_preserve--><div id="hlbvbvpjxh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#hlbvbvpjxh table {
+<!--html_preserve--><div id="vcxcarbeiw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#vcxcarbeiw table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#hlbvbvpjxh thead, #hlbvbvpjxh tbody, #hlbvbvpjxh tfoot, #hlbvbvpjxh tr, #hlbvbvpjxh td, #hlbvbvpjxh th {
+#vcxcarbeiw thead, #vcxcarbeiw tbody, #vcxcarbeiw tfoot, #vcxcarbeiw tr, #vcxcarbeiw td, #vcxcarbeiw th {
   border-style: none;
 }
 
-#hlbvbvpjxh p {
+#vcxcarbeiw p {
   margin: 0;
   padding: 0;
 }
 
-#hlbvbvpjxh .gt_table {
+#vcxcarbeiw .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -942,12 +942,12 @@ model changes your inference about the hierarchy.
   border-left-color: #D3D3D3;
 }
 
-#hlbvbvpjxh .gt_caption {
+#vcxcarbeiw .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#hlbvbvpjxh .gt_title {
+#vcxcarbeiw .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -959,7 +959,7 @@ model changes your inference about the hierarchy.
   border-bottom-width: 0;
 }
 
-#hlbvbvpjxh .gt_subtitle {
+#vcxcarbeiw .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -971,7 +971,7 @@ model changes your inference about the hierarchy.
   border-top-width: 0;
 }
 
-#hlbvbvpjxh .gt_heading {
+#vcxcarbeiw .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -983,13 +983,13 @@ model changes your inference about the hierarchy.
   border-right-color: #D3D3D3;
 }
 
-#hlbvbvpjxh .gt_bottom_border {
+#vcxcarbeiw .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#hlbvbvpjxh .gt_col_headings {
+#vcxcarbeiw .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1004,7 +1004,7 @@ model changes your inference about the hierarchy.
   border-right-color: #D3D3D3;
 }
 
-#hlbvbvpjxh .gt_col_heading {
+#vcxcarbeiw .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1024,7 +1024,7 @@ model changes your inference about the hierarchy.
   overflow-x: hidden;
 }
 
-#hlbvbvpjxh .gt_column_spanner_outer {
+#vcxcarbeiw .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1036,15 +1036,15 @@ model changes your inference about the hierarchy.
   padding-right: 4px;
 }
 
-#hlbvbvpjxh .gt_column_spanner_outer:first-child {
+#vcxcarbeiw .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#hlbvbvpjxh .gt_column_spanner_outer:last-child {
+#vcxcarbeiw .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#hlbvbvpjxh .gt_column_spanner {
+#vcxcarbeiw .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1056,11 +1056,11 @@ model changes your inference about the hierarchy.
   width: 100%;
 }
 
-#hlbvbvpjxh .gt_spanner_row {
+#vcxcarbeiw .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#hlbvbvpjxh .gt_group_heading {
+#vcxcarbeiw .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1086,7 +1086,7 @@ model changes your inference about the hierarchy.
   text-align: left;
 }
 
-#hlbvbvpjxh .gt_empty_group_heading {
+#vcxcarbeiw .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1101,15 +1101,15 @@ model changes your inference about the hierarchy.
   vertical-align: middle;
 }
 
-#hlbvbvpjxh .gt_from_md > :first-child {
+#vcxcarbeiw .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#hlbvbvpjxh .gt_from_md > :last-child {
+#vcxcarbeiw .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#hlbvbvpjxh .gt_row {
+#vcxcarbeiw .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1128,7 +1128,7 @@ model changes your inference about the hierarchy.
   overflow-x: hidden;
 }
 
-#hlbvbvpjxh .gt_stub {
+#vcxcarbeiw .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1141,7 +1141,7 @@ model changes your inference about the hierarchy.
   padding-right: 5px;
 }
 
-#hlbvbvpjxh .gt_stub_row_group {
+#vcxcarbeiw .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1155,15 +1155,15 @@ model changes your inference about the hierarchy.
   vertical-align: top;
 }
 
-#hlbvbvpjxh .gt_row_group_first td {
+#vcxcarbeiw .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#hlbvbvpjxh .gt_row_group_first th {
+#vcxcarbeiw .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#hlbvbvpjxh .gt_summary_row {
+#vcxcarbeiw .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1173,16 +1173,16 @@ model changes your inference about the hierarchy.
   padding-right: 5px;
 }
 
-#hlbvbvpjxh .gt_first_summary_row {
+#vcxcarbeiw .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#hlbvbvpjxh .gt_first_summary_row.thick {
+#vcxcarbeiw .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#hlbvbvpjxh .gt_last_summary_row {
+#vcxcarbeiw .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1192,7 +1192,7 @@ model changes your inference about the hierarchy.
   border-bottom-color: #D3D3D3;
 }
 
-#hlbvbvpjxh .gt_grand_summary_row {
+#vcxcarbeiw .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1202,7 +1202,7 @@ model changes your inference about the hierarchy.
   padding-right: 5px;
 }
 
-#hlbvbvpjxh .gt_first_grand_summary_row {
+#vcxcarbeiw .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1212,7 +1212,7 @@ model changes your inference about the hierarchy.
   border-top-color: #D3D3D3;
 }
 
-#hlbvbvpjxh .gt_last_grand_summary_row_top {
+#vcxcarbeiw .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1222,11 +1222,11 @@ model changes your inference about the hierarchy.
   border-bottom-color: #D3D3D3;
 }
 
-#hlbvbvpjxh .gt_striped {
+#vcxcarbeiw .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#hlbvbvpjxh .gt_table_body {
+#vcxcarbeiw .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1235,7 +1235,7 @@ model changes your inference about the hierarchy.
   border-bottom-color: #D3D3D3;
 }
 
-#hlbvbvpjxh .gt_footnotes {
+#vcxcarbeiw .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1249,7 +1249,7 @@ model changes your inference about the hierarchy.
   border-right-color: #D3D3D3;
 }
 
-#hlbvbvpjxh .gt_footnote {
+#vcxcarbeiw .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1258,7 +1258,7 @@ model changes your inference about the hierarchy.
   padding-right: 5px;
 }
 
-#hlbvbvpjxh .gt_sourcenotes {
+#vcxcarbeiw .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1272,7 +1272,7 @@ model changes your inference about the hierarchy.
   border-right-color: #D3D3D3;
 }
 
-#hlbvbvpjxh .gt_sourcenote {
+#vcxcarbeiw .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1280,72 +1280,72 @@ model changes your inference about the hierarchy.
   padding-right: 5px;
 }
 
-#hlbvbvpjxh .gt_left {
+#vcxcarbeiw .gt_left {
   text-align: left;
 }
 
-#hlbvbvpjxh .gt_center {
+#vcxcarbeiw .gt_center {
   text-align: center;
 }
 
-#hlbvbvpjxh .gt_right {
+#vcxcarbeiw .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#hlbvbvpjxh .gt_font_normal {
+#vcxcarbeiw .gt_font_normal {
   font-weight: normal;
 }
 
-#hlbvbvpjxh .gt_font_bold {
+#vcxcarbeiw .gt_font_bold {
   font-weight: bold;
 }
 
-#hlbvbvpjxh .gt_font_italic {
+#vcxcarbeiw .gt_font_italic {
   font-style: italic;
 }
 
-#hlbvbvpjxh .gt_super {
+#vcxcarbeiw .gt_super {
   font-size: 65%;
 }
 
-#hlbvbvpjxh .gt_footnote_marks {
+#vcxcarbeiw .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#hlbvbvpjxh .gt_asterisk {
+#vcxcarbeiw .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#hlbvbvpjxh .gt_indent_1 {
+#vcxcarbeiw .gt_indent_1 {
   text-indent: 5px;
 }
 
-#hlbvbvpjxh .gt_indent_2 {
+#vcxcarbeiw .gt_indent_2 {
   text-indent: 10px;
 }
 
-#hlbvbvpjxh .gt_indent_3 {
+#vcxcarbeiw .gt_indent_3 {
   text-indent: 15px;
 }
 
-#hlbvbvpjxh .gt_indent_4 {
+#vcxcarbeiw .gt_indent_4 {
   text-indent: 20px;
 }
 
-#hlbvbvpjxh .gt_indent_5 {
+#vcxcarbeiw .gt_indent_5 {
   text-indent: 25px;
 }
 
-#hlbvbvpjxh .katex-display {
+#vcxcarbeiw .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#hlbvbvpjxh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#vcxcarbeiw div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1623,7 +1623,8 @@ structure.
 Asparouhov, T., & Muthén, B. (2009). Exploratory structural equation modeling.
 *Structural Equation Modeling*, *16*(3), 397–438.
 
-Goldberg, L. R. (2006). Doing it all bass-ackwards. *Journal of Research in
+Goldberg, L. R. (2006). Doing it all Bass-Ackwards: The development of
+hierarchical factor structures from the top down. *Journal of Research in
 Personality*, *40*(4), 347–358.
 
 Hu, L., & Bentler, P. M. (1999). Cutoff criteria for fit indexes in covariance

@@ -98,8 +98,10 @@ selecting which N feeds the fit indices.
 \itemize{
 \item \strong{Correlation-matrix input:} a positive integer. Required for
 \code{engine = "efa"} (\code{\link[psych:fa]{psych::fa()}} needs N for chi-square / RMSEA / TLI);
-optional for \code{"pca"} (stored as \code{NA_integer_} if omitted, disabling
-N-dependent fit statistics).
+optional for \code{"pca"} (stored as \code{NA_integer_} if omitted). For PCA it
+is recorded in the result metadata and feeds the N-based
+sampling-adequacy checks only -- PCA level fit is eigenvalue-based and
+computes no N-dependent fit statistics.
 \item \strong{Raw data:} N is normally taken from \code{nrow(data)} and a numeric \code{n_obs}
 is ignored (with a warning). The exception is \code{missing = "fiml"} with
 \code{engine = "pca"}/\code{"efa"} (M38): because \code{\link[psych:corFiml]{psych::corFiml()}} estimates the
@@ -223,7 +225,9 @@ Constraints and behaviour when a correlation matrix is supplied:
 data (for lavaan's own polychoric computation, WLSMV estimation, and
 per-level fit indices) and will error clearly.
 \item \strong{\code{n_obs}:} required for \code{"efa"} (psych needs N for chi-square / RMSEA /
-TLI); optional for \code{"pca"} (stored as \code{NA} if omitted).
+TLI); optional for \code{"pca"} (stored as \code{NA} if omitted; used for the
+N-based sampling-adequacy checks and result metadata only -- PCA computes
+no N-dependent fit statistics).
 \item \strong{\code{cor} argument:} ignored -- the basis is already determined by the
 matrix you supply. A warning is emitted if you set \code{cor} explicitly.
 \item \strong{\code{missing} argument:} ignored -- missingness was handled when computing
@@ -291,7 +295,8 @@ print(x_R)
 
 }
 \references{
-Goldberg, L. R. (2006). Doing it all bass-ackwards. \emph{Journal of Research in
+Goldberg, L. R. (2006). Doing it all Bass-Ackwards: The development of
+hierarchical factor structures from the top down. \emph{Journal of Research in
 Personality}, 40(4), 347--358. \doi{10.1016/j.jrp.2006.01.001}
 
 Waller, N. G. (2007). A general method for computing hierarchical component

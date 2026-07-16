@@ -2,7 +2,7 @@
 
 **Full citation.** Goldberg, L. R. (2006). Doing it all Bass-Ackwards: The
 development of hierarchical factor structures from the top down. *Journal of
-Research in Personality, 40*(3), 347–358.
+Research in Personality, 40*(4), 347–358.
 https://doi.org/10.1016/j.jrp.2006.01.001
 
 **PDF.** `pdf/goldberg2006.pdf` (local only; gitignored).
