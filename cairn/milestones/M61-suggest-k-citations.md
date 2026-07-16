@@ -1,10 +1,10 @@
 # M61: Enrich suggest_k() docs with verified k-selection citations
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** —
-- **Branch/PR:** —
+- **Branch/PR:** m61-suggest-k-citations
 
 ## Goal
 
@@ -48,7 +48,7 @@ passes on other help pages/vignettes (add a candidate row if a gap is found);
 
 ## Tasks
 
-- [ ] T1 — `R/suggest_k.R`: add the ±1-range sentence + Lim & Jahng/Achim pair to
+- [x] T1 — `R/suggest_k.R`: add the ±1-range sentence + Lim & Jahng/Achim pair to
       `@section Interpreting the output` (~line 35); add the Saucier fn-14 in-the-wild
       case to `@section A note on overextraction` (~line 118); add the three
       `@references` entries (alphabetical, `\doi{}` from the reference notes). Run
@@ -68,6 +68,9 @@ passes on other help pages/vignettes (add a candidate row if a gap is found);
 - 2026-07-16: created by /milestone-plan (promotes the 2026-07-16 candidate row from
   the comparability-citations hotfix #61 follow-up; vignette + NEWS scope added at the
   plan gate).
+- 2026-07-16: T1 done — ±1-range sentence (Lim & Jahng + Achim) in Interpreting-the-output,
+  Saucier fn-14 case in overextraction note, 3 @references entries; document() clean,
+  suite 2300 pass / 0 fail.
 
 ## Decisions
 

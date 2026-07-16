@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M61 | Enrich suggest_k() docs with verified k-selection citations | planned | — | normal | milestones/M61-suggest-k-citations.md |
+| M61 | Enrich suggest_k() docs with verified k-selection citations | in-progress | — | normal | milestones/M61-suggest-k-citations.md |
 | M60 | De-duplicate the setup path (audit bucket 3) | done | — | normal | milestones/archive/M60-bucket3-dedup.md |
 | M59 | De-duplicate console output & plot builders | done | M58 | normal | milestones/archive/M59-dedup-console-output.md |
 | M58 | Consolidate input-validation helpers & fix two drift bugs | done | — | normal | milestones/archive/M58-consolidate-validation-helpers.md |
