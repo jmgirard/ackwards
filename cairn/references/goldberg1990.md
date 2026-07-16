@@ -27,6 +27,24 @@ which factors are real, applied at scale years before the 2006 method paper.
   not by an eigenvalue rule.
 - **Study 3**: 100 clusters from 339 terms proposed as Big-Five markers.
 
+## ⚠ Citation caution (found at ingest, 2026-07-16)
+
+**The paper contains no Everett-style comparability coefficients, no
+split-halves, and no "repeated random splits" anywhere.** Its quality gate is
+replication across *methods* (Study 1) and across *whole samples* (Studies
+2–3), measured by inter-method score correlations and cross-sample Tucker
+congruence. The package docs currently attribute more to it than it contains:
+`comparability()`'s roxygen ("the depth gate Goldberg's own lab applied to
+its hierarchies"), the `.95 comfortable / .90 floor (Everett, 1983; Goldberg,
+1990)` benchmark lines in `print.comparability()` + `autoplot()`, the
+`n_splits` doc ("following Goldberg's practice"), and
+`vignettes/ackwards-girard.Rmd.orig` line ~51 ("Goldberg (1990) retained
+factor solutions only when they held up across repeated random
+split-halves" — **false as stated**). The .90 floor is traceable to
+[[everett1983]] (his 26°/81% passage); the split-half practice in Goldberg's
+lab is likely **Saucier & Goldberg (1996, EJP)** — get that PDF and verify
+before repointing the citations.
+
 ## Relation to our implementation
 
 - The operative principle — *retain a level's factors only if they reproduce

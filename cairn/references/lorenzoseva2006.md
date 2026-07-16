@@ -2,7 +2,10 @@
 
 **Full citation.** Lorenzo-Seva, U., & ten Berge, J. M. F. (2006). Tucker's
 congruence coefficient as a meaningful index of factor similarity.
-*Methodology, 2*(2), 57–64. https://doi.org/10.1027/1614-1881.2.2.57
+*Methodology, 2*(2), 57–64. https://doi.org/10.1027/1614-2241.2.2.57
+*(NB: the PDF's printed DOI uses the print ISSN, `10.1027/1614-1881.2.2.57`,
+which does **not** resolve; the registered DOI above — online ISSN — is the
+one `prune()`'s roxygen correctly cites. Verified 2026-07-16.)*
 
 **PDF.** `pdf/lorenzoseva2006.pdf` (local only; gitignored).
 
