@@ -94,7 +94,7 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
 - [x] T3: Run `Rscript vignettes/precompute.R`; verify the pinned numbers appear in the generated
       `.Rmd`; `git checkout --` all untouched regenerated vignettes/assets so the diff stays
       scoped (M61 lesson).
-- [ ] T4: Add the article to `_pkgdown.yml` ("The workflow" group, after `ackwards-forbes`); run
+- [x] T4: Add the article to `_pkgdown.yml` ("The workflow" group, after `ackwards-forbes`); run
       `pkgdown::check_pkgdown()`; add the NEWS.md entry.
 - [ ] T5: Final gate: `Rscript tools/dod-gate.R`.
 
@@ -119,6 +119,8 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
 - 2026-07-16: T3 done — precompute run; 5 churn-only .Rmd + 3 PNGs reverted (M61 lesson);
   ackwards-forbes.Rmd diff is exactly the 4-line cross-link; pinned numbers verified in the
   generated forbes2023 vignette (45 pairs, 37/55 vs 36, 13 chain-retained + 5 non-chain).
+- 2026-07-16: T4 done — pkgdown articles index updated (check_pkgdown clean); NEWS entry added
+  under a new "(development version)" heading (0.1.1 is submitted, its section is frozen).
 
 ## Decisions
 <!-- owner: implement / review · append-only -->
