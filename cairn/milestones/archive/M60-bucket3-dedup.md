@@ -17,9 +17,8 @@ audit, zero behavior change. Third and final audit bucket (M58 validation, M59 c
 
 **Key decisions:** AC6's "net line reduction" clause dropped at a user-approved mini-gate —
 documented helper extraction is line-neutral (+9 code lines); the real outcome is
-grep-verified single computation sites. Two candidates deliberately not extracted
-(positive-manifold flip, shortfall reporter) were kept as ROADMAP candidates,
-then pruned as standing rejections at the 2026-07-16 triage (this file is the record).
+grep-verified single computation sites. Two candidates deliberately not extracted (positive-manifold flip, shortfall
+reporter); pruned as standing rejections at the 2026-07-16 triage (this file is the record).
 
 **Verification:** suite 2295 pass, 0 fail; dod-gate clean (check 0 err/0 warn/0 note,
 coverage 100%); zero snapshot diffs; Forbes-fidelity + algebra-vs-scores oracles green;
