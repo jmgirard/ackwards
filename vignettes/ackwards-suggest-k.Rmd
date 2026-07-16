@@ -53,7 +53,11 @@ measured directly, with split-half `comparability()` — see
 **No criterion is decisive on its own.** Each of the five criteria below
 captures a different aspect of the data, tends to err in a different direction,
 and can fail in different circumstances. A consensus across multiple criteria is
-more trustworthy than any single recommendation.
+more trustworthy than any single recommendation. Even for parallel analysis,
+Lim and Jahng (2019) recommend treating the estimate as a range of roughly ±1
+factor resolved by interpretability — and Achim (2021) argues that even that
+overstates its precision. That disagreement is why `suggest_k()` reports a
+consensus range, never a single number.
 
 ## The five criteria
 
@@ -70,7 +74,9 @@ percentile of the simulated distribution.
 **Typical behavior.** Tends to *overextract* — it often recommends more
 components than replicate in independent samples, particularly when items are
 moderately correlated (which they usually are in personality and clinical
-research). Treat its recommendation as an *upper bound*.
+research). Saucier (1997, footnote 14) reported parallel analysis suggesting as
+many as 30 factors in wide lexical item sets. Treat its recommendation as an
+*upper bound*.
 
 **When it is useful.** Best paired with `engine = "pca"` in `ackwards()`, since
 both operate on the same PC eigenvalue basis. It also provides a fast, stable
@@ -196,13 +202,13 @@ citations — see `?suggest_k`.
 ``` r
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [141ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [262ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [43ms]
+#> ✔ Running MAP and VSS... [41ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [6.7s]
+#> ✔ Running Comparison Data (CD)... [5.7s]
 #> 
 print(sk)
 #> 
@@ -503,6 +509,10 @@ structured exploration.
 
 ## References
 
+Achim, A. (2021). Determining the number of factors using parallel analysis and
+its recent variants: Comment on Lim and Jahng (2019). *Psychological Methods*,
+*26*(1), 69–73. https://doi.org/10.1037/met0000269
+
 Forbes, M. K. (2023). Improving hierarchical models of individual differences:
 An extension of Goldberg's bass-ackward method. *Psychological Methods*.
 https://doi.org/10.1037/met0000546
@@ -510,6 +520,10 @@ https://doi.org/10.1037/met0000546
 Horn, J. L. (1965). A rationale and test for the number of factors in factor
 analysis. *Psychometrika*, *30*(2), 179–185.
 https://doi.org/10.1007/BF02289447
+
+Lim, S., & Jahng, S. (2019). Determining the number of factors using parallel
+analysis and its recent variants. *Psychological Methods*, *24*(4), 452–467.
+https://doi.org/10.1037/met0000230
 
 Revelle, W., & Rocklin, T. (1979). Very simple structure: An alternative
 procedure for estimating the optimal number of interpretable factors.
@@ -520,6 +534,10 @@ Ruscio, J., & Roche, B. (2012). Determining the number of factors to retain in
 an exploratory factor analysis using comparison data of a known factorial
 structure. *Psychological Assessment*, *24*(2), 282–292.
 https://doi.org/10.1037/a0025697
+
+Saucier, G. (1997). Effects of variable selection on the factor structure of
+person descriptors. *Journal of Personality and Social Psychology*, *73*(6),
+1296–1312. https://doi.org/10.1037/0022-3514.73.6.1296
 
 Velicer, W. F. (1976). Determining the number of components from the matrix of
 partial correlations. *Psychometrika*, *41*(3), 321–327.

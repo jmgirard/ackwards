@@ -128,6 +128,13 @@ resampling).
 factors exist. Users commonly set k one or two levels above the consensus to
 watch higher-level factors fragment -- this is a feature of the method, not
 overextraction.
+
+Treating retention estimates as a range rather than a verdict has direct
+support in the parallel-analysis literature: Lim and Jahng (2019) recommend
+interpreting the PA estimate as a range of roughly plus or minus one factor,
+resolved by interpretability, and Achim (2021) argues that even that
+overstates PA's precision -- the disagreement itself is why \code{suggest_k()}
+reports several criteria and a consensus range, never a single number.
 }
 
 \section{Ordinal (Likert) data}{
@@ -150,9 +157,11 @@ inspect).
 \section{A note on overextraction}{
 
 PA-PC in particular tends to recommend more factors than replicate across
-independent samples, especially with correlated items (Forbes, 2023).
-PA-FA and CD are more conservative. Treat the full set of criteria as a
-range: the true k is likely somewhere in the middle.
+independent samples, especially with correlated items (Forbes, 2023). This
+is a long-standing observation in practice: Saucier (1997, footnote 14)
+reported parallel analysis suggesting as many as 30 factors in wide lexical
+item sets. PA-FA and CD are more conservative. Treat the full set of
+criteria as a range: the true k is likely somewhere in the middle.
 }
 
 \examples{
@@ -177,12 +186,20 @@ suggest_k(R, n_obs = nrow(sim16))
 
 }
 \references{
+Achim, A. (2021). Determining the number of factors using parallel analysis
+and its recent variants: Comment on Lim and Jahng (2019). \emph{Psychological
+Methods}, 26(1), 69--73. \doi{10.1037/met0000269}
+
 Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg's bass-ackward method.
 \emph{Psychological Methods}. \doi{10.1037/met0000546}
 
 Horn, J. L. (1965). A rationale and test for the number of factors in factor
 analysis. \emph{Psychometrika}, 30, 179--185.
+
+Lim, S., & Jahng, S. (2019). Determining the number of factors using
+parallel analysis and its recent variants. \emph{Psychological Methods},
+24(4), 452--467. \doi{10.1037/met0000230}
 
 Revelle, W., & Rocklin, T. (1979). Very simple structure: An alternative
 procedure for estimating the optimal number of interpretable factors.
@@ -191,6 +208,10 @@ procedure for estimating the optimal number of interpretable factors.
 Ruscio, J., & Roche, B. (2012). Determining the number of factors to retain
 in an exploratory factor analysis using comparison data of a known factorial
 structure. \emph{Psychological Assessment}, 24(2), 282--292.
+
+Saucier, G. (1997). Effects of variable selection on the factor structure
+of person descriptors. \emph{Journal of Personality and Social Psychology},
+73(6), 1296--1312. \doi{10.1037/0022-3514.73.6.1296}
 
 Velicer, W. F. (1976). Determining the number of components from the matrix
 of partial correlations. \emph{Psychometrika}, 41, 321--327.
