@@ -3,6 +3,16 @@
 CRAN resubmission of the first release, addressing reviewer feedback on the
 0.1.0 submission; also picks up everything added since that submission.
 
+* **Corrected the historical citations for `comparability()`'s split-half
+  benchmarks.** The `.90` replication threshold traces to Everett (1983) and
+  to its use in Goldberg's lexical research program by Saucier (1997) and
+  Saucier, Georgiades, Tsaousis, and Goldberg (2005) — not to Goldberg
+  (1990), which contains no split-half analyses and is no longer cited for
+  this purpose. The `.95` reference line is now sourced to Lorenzo-Seva and
+  ten Berge (2006). Affects the roxygen help page, `print()`/`autoplot()`
+  footer text, the README, and the replicability-workflow vignette; no
+  behavior changes.
+
 * **`label_template()` now returns its scaffold visibly (behavior change).**
   The named character vector carries class `"ackwards_labels"`, and the
   editable `c(...)` literal is rendered by its `print()` method instead of

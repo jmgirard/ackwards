@@ -135,7 +135,7 @@ picture into a defensible result, and one scores new data:
 
 - **`comparability(bfi25, k_max = 6)`** gates hierarchy *depth* on split-half
   replicability — the deepest level at which every factor re-emerges in random
-  halves of the sample (Everett 1983; Goldberg 1990).
+  halves of the sample (Everett 1983; Saucier et al. 2005).
 - **`prune(x, "redundant")`** flags factors that persist across levels without
   differentiating — Forbes's (2023) redundancy question.
 - **`boot_edges(x, bfi25)`** attaches bootstrap confidence intervals to every

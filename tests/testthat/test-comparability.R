@@ -288,6 +288,32 @@ test_that("autoplot.comparability() builds a ggplot", {
   expect_equal(length(levels(built$plot$data$panel)), 2L)
 })
 
+test_that("benchmark citations name the verified lineage, not Goldberg (1990)", {
+  # Regression test (2026-07-16): the .90/.95 benchmark lines used to cite
+  # "Goldberg, 1990", which contains no split-half comparability analyses.
+  # Verified lineage (cairn/references/): Everett 1983 (procedure + .90
+  # rationale) and Saucier et al. 2005 (the Goldberg-lab .90 split-half gate).
+  cmp <- .get_cmp()
+
+  msgs <- character()
+  withCallingHandlers(
+    txt <- utils::capture.output(print(cmp)),
+    message = function(m) {
+      msgs <<- c(msgs, conditionMessage(m))
+      invokeRestart("muffleMessage")
+    }
+  )
+  out <- cli::ansi_strip(paste(c(txt, msgs), collapse = " "))
+  expect_match(out, "Everett", fixed = TRUE)
+  expect_match(out, "Saucier", fixed = TRUE)
+  expect_no_match(out, "Goldberg, 1990", fixed = TRUE)
+
+  skip_if_not_installed("ggplot2")
+  cap <- autoplot(cmp)$labels$caption
+  expect_match(cap, "Saucier", fixed = TRUE)
+  expect_no_match(cap, "Goldberg, 1990", fixed = TRUE)
+})
+
 # ---- Post-review follow-up coverage ---------------------------------------------
 
 test_that(".level_comparability() returns NA rows when cross matrices carry NA", {
