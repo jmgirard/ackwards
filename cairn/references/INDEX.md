@@ -12,6 +12,8 @@ _One line per source summary: `citekey — full title — which milestones/oracl
 - everett1983.md — Everett, J. E. (1983). Factor comparability as a means of determining the number of factors and their rotation. *Multivariate Behavioral Research.* — basis of `comparability()` (M46).
 - goldberg1990.md — Goldberg, L. R. (1990). An alternative "description of personality": The Big-Five factor structure. *JPSP.* — the inventor's replication quality gate (`comparability()` precedent); method-invariance evidence.
 - asparouhov2009.md — Asparouhov & Muthén (2009). Exploratory structural equation modeling. *Structural Equation Modeling.* — foundation of the ESEM engine + WLSMV ordinal default.
+- saucier1997.md — Saucier, G. (1997). Effects of variable selection on the factor structure of person descriptors. *JPSP.* — the Goldberg-lab split-half stability depth gate (verified `comparability()` lineage; Everett variant de-emphasized).
+- saucier2005.md — Saucier, Georgiades, Tsaousis, & Goldberg (2005). The factor structure of Greek personality adjectives. *JPSP.* — the lab's explicit split-half .90 gate for choosing the hierarchical level.
 
 ## Rotation & number-of-factors (collapsed in rotation-and-k.md)
 
@@ -34,6 +36,7 @@ _One line per source summary: `citekey — full title — which milestones/oracl
 ## Framing & contrasts (collapsed in background.md)
 
 - kotov2017 — Kotov et al. (2017), HiTOP founding paper — Intro framing; the taxonomy the applications target.
+- saucier1996 — Saucier & Goldberg (1996), Big Five in familiar adjectives — robustness/anti-prestructuring evidence; ruled out as comparability source.
 - schmid1957 — Schmid & Leiman (1957), hierarchical factor solutions — the bottom-up contrast; out-of-scope citation (DESIGN §2).
 - yung1999 — Yung, Thissen, & McLeod (1999), higher-order vs. hierarchical factor models — the "sequential, not truly hierarchical" caveat.
 - widiger2019 — Widiger et al. (2019), Criterion A of the AMPD in HiTOP — background review only; no bass-ackwards analysis.

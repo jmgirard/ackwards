@@ -48,6 +48,22 @@ bass-ackwards is "sequential" rather than truly hierarchical
 ([[goldberg2006]] §5) — the honest-caveat citation for the manuscript's
 Discussion, paired with the part-whole-correlation caveat.
 
+## saucier1996 — Saucier & Goldberg (1996) _(Big Five robustness; ruled out as comparability source)_
+
+Saucier, G., & Goldberg, L. R. (1996). Evidence for the Big Five in analyses
+of familiar English personality adjectives. *European Journal of
+Personality, 10*(1), 61–77.
+https://doi.org/10.1002/(SICI)1099-0984(199603)10:1%3C61::AID-EJP246%3E3.0.CO;2-D
+
+435 familiar adjectives, N = 899 pooled self + peer: PCA + varimax; Big Five
+robust under judge-driven variable selection (anti-"prestructuring"
+evidence); 5→12-factor invariance via average factor-score correlations
+(.95–.84); marker-set score correlations .76–.98. **Checked 2026-07-16 as a
+candidate source for the comparability benchmarks: negative** — no
+split-halves, no comparability coefficients (see [[goldberg1990]] ⚠ block;
+the real sources are [[saucier1997]] + [[saucier2005]]). Keep for Big Five
+robustness/framing.
+
 ## widiger2019 — Widiger et al. (2019) _(HiTOP × AMPD review)_
 
 Widiger, T. A., Bach, B., Chmielewski, M., Clark, L. A., DeYoung, C.,

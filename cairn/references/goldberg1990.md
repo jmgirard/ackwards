@@ -40,10 +40,16 @@ its hierarchies"), the `.95 comfortable / .90 floor (Everett, 1983; Goldberg,
 `n_splits` doc ("following Goldberg's practice"), and
 `vignettes/ackwards-girard.Rmd.orig` line ~51 ("Goldberg (1990) retained
 factor solutions only when they held up across repeated random
-split-halves" — **false as stated**). The .90 floor is traceable to
-[[everett1983]] (his 26°/81% passage); the split-half practice in Goldberg's
-lab is likely **Saucier & Goldberg (1996, EJP)** — get that PDF and verify
-before repointing the citations.
+split-halves" — **false as stated**). **Resolved 2026-07-16 after checking
+five lab papers** (this one, Saucier & Goldberg 1996, Goldberg & Somer 2000
+Turkish, Ashton/Lee/Goldberg 2004 hierarchy — all negative): the real
+lineage is **[[saucier1997]]** (split-half stability gate; tried Everett's
+method and de-emphasized it; drop-off criterion ~.70) and **[[saucier2005]]**
+(random participant halves, congruence, "conventional threshold of .90",
+used to choose the hierarchical level). The .90 floor is *also* independently
+traceable to [[everett1983]] (his 26°/81% passage). Repoint the package
+citations to Everett 1983 + Saucier 1997 + Saucier et al. 2005; keep
+Goldberg 1990 only for the generic replication-gate ethos.
 
 ## Relation to our implementation
 
