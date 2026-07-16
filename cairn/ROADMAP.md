@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M60 | De-duplicate the setup path (audit bucket 3) | planned | — | normal | milestones/M60-bucket3-dedup.md |
+| M60 | De-duplicate the setup path (audit bucket 3) | review | — | normal | milestones/M60-bucket3-dedup.md |
 | M59 | De-duplicate console output & plot builders | done | M58 | normal | milestones/archive/M59-dedup-console-output.md |
 | M58 | Consolidate input-validation helpers & fix two drift bugs | done | — | normal | milestones/archive/M58-consolidate-validation-helpers.md |
 | M57 | Ossify oracles — reproducible, catalogued oracle discipline | done | — | normal | milestones/archive/M57-ossify-oracles.md |

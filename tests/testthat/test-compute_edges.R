@@ -238,16 +238,17 @@ test_that(".align_signs: a flipped parent keeps its child's primary edge positiv
   # Level-2 factor 2 was flipped negative (its raw edge to m1f1 was -0.9).
   expect_equal(aligned$signs[[2]], c(1L, -1L))
 
-  # Every primary edge (child -> its aligned primary parent) is non-negative.
-  for (k in 2:3) {
-    E <- aligned$edges[[paste0(k - 1L, ":", k)]]
-    par <- lineage[[k]]
-    prim <- vapply(seq_len(ncol(E)), function(j) E[par[j], j], numeric(1))
-    expect_true(all(prim >= 0), label = paste("primary edges >= 0 at level", k))
-  }
+  # Level-3 factor 2's primary parent is the *flipped* level-2 factor 2 with a
+  # raw positive edge (+0.9): the child must flip too (-1) so its primary edge
+  # displays positive once ackwards() recomputes edges from the flipped
+  # weights. Under the pre-M35 raw-edge rule it stayed +1 (the bug). Factors 1
+  # and 3 hang off the unflipped factor 1 with positive raw edges -> no flip.
+  expect_equal(aligned$signs[[3]], c(1L, -1L, 1L))
 
-  # The flipped-parent child's primary edge is the +0.9 we set (not the pre-fix -0.9).
-  expect_equal(aligned$edges[["2:3"]][2, 2], 0.90)
+  # Loadings columns are flipped consistently with the recorded signs.
+  expect_equal(aligned$loadings[[2]][, 2], -loadings_list[[2]][, 2])
+  expect_equal(aligned$loadings[[3]][, 2], -loadings_list[[3]][, 2])
+  expect_equal(aligned$loadings[[3]][, c(1, 3)], loadings_list[[3]][, c(1, 3)])
 })
 
 test_that("ackwards(): every primary edge is non-negative across engines", {

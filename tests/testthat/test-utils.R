@@ -166,14 +166,16 @@ test_that(".validate_cor_matrix() errors when |r| > 1", {
 test_that(".validate_cor_matrix() synthesises dimnames when absent", {
   R <- cor(bfi25, use = "pairwise.complete.obs")
   dimnames(R) <- NULL
-  R2 <- ackwards:::.validate_cor_matrix(R)
+  R2 <- ackwards:::.validate_cor_matrix(R)$R
   expect_equal(rownames(R2), paste0("V", seq_len(ncol(R2))))
 })
 
 test_that(".validate_cor_matrix() passes valid matrix through unchanged", {
   R <- cor(bfi25, use = "pairwise.complete.obs")
-  R2 <- ackwards:::.validate_cor_matrix(R)
-  expect_equal(R2, R)
+  out <- ackwards:::.validate_cor_matrix(R)
+  expect_equal(out$R, R)
+  # min_eig rides along with the matrix it describes (M60)
+  expect_equal(out$min_eig, min(eigen(R, symmetric = TRUE, only.values = TRUE)$values))
 })
 
 test_that(".validate_cor_matrix() warns on non-positive-definite matrix", {

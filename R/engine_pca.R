@@ -39,14 +39,10 @@ pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE) {
     rownames(W) <- rownames(R)
 
     # Score variances: diag(W' R W) -- NOT assumed to be 1
-    score_var <- diag(crossprod(W, R %*% W))
+    score_var <- .score_var(W, R)
 
     # Variance explained per factor and cumulative
-    var_per_factor <- unname(colSums(L_rot^2) / p)
-    variance <- c(
-      setNames(var_per_factor, make_labels(k)),
-      cumulative = sum(var_per_factor)
-    )
+    variance <- .variance_explained(L_rot, p, make_labels(k))
 
     # Eigenvalues as the "fit" summary for PCA levels
     eig <- fit$values[seq_len(k)]

@@ -187,7 +187,7 @@ suggest_k <- function(data, k_max = NULL,
 
   if (input_type == "cor_matrix") {
     # Validate and normalise; synthesise V1..Vp dimnames if absent
-    R <- .validate_cor_matrix(as.matrix(data))
+    R <- .validate_cor_matrix(as.matrix(data))$R
     p <- nrow(R)
     n_vars <- p
 

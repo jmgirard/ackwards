@@ -484,10 +484,13 @@ test_that("ESEM WLSMV pairwise (available.cases) R differs from listwise R with 
 test_that(".corfiml_R() returns a valid correlation matrix (unit diagonal, PD)", {
   skip_if_not_installed("psych")
   d <- as.matrix(.make_fiml_data())
-  R <- .corfiml_R(d)
+  out <- .corfiml_R(d)
+  R <- out$R
   expect_equal(dim(R), c(ncol(d), ncol(d)))
   expect_equal(unname(diag(R)), rep(1, ncol(d)), tolerance = 1e-6)
   expect_gt(min(eigen(R, symmetric = TRUE, only.values = TRUE)$values), 0)
+  # min_eig rides along with the matrix it describes (M60)
+  expect_equal(out$min_eig, min(eigen(R, symmetric = TRUE, only.values = TRUE)$values))
 })
 
 test_that("EFA missing='fiml' builds and routes R through psych::corFiml()", {
@@ -497,7 +500,7 @@ test_that("EFA missing='fiml' builds and routes R through psych::corFiml()", {
   expect_s3_class(x, "ackwards")
   expect_equal(x$meta$missing, "fiml")
   # x$r should match a direct corFiml() call, not the pairwise cor()
-  expect_equal(x$r, .corfiml_R(as.matrix(d)), tolerance = 1e-8)
+  expect_equal(x$r, .corfiml_R(as.matrix(d))$R, tolerance = 1e-8)
   expect_false(isTRUE(all.equal(
     x$r, stats::cor(as.matrix(d), use = "pairwise.complete.obs"),
     tolerance = 1e-3
@@ -509,7 +512,7 @@ test_that("PCA missing='fiml' builds and uses the corFiml matrix", {
   d <- .make_fiml_data()
   x <- suppressMessages(ackwards(d, k_max = 3L, engine = "pca", missing = "fiml"))
   expect_s3_class(x, "ackwards")
-  expect_equal(x$r, .corfiml_R(as.matrix(d)), tolerance = 1e-8)
+  expect_equal(x$r, .corfiml_R(as.matrix(d))$R, tolerance = 1e-8)
 })
 
 test_that("FIML n_obs = 'total' (default) uses all rows; 'complete' uses complete cases", {
