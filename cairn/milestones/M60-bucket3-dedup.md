@@ -3,11 +3,11 @@
      Per-section owners are tagged below. -->
 # M60: De-duplicate the setup path (audit bucket 3)
 
-- **Status:** planned   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
+- **Status:** in-progress   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
 - **Priority:** normal   <!-- owner: plan · create/amend-via-gate; high | normal | low -->
 - **Depends on:** —   <!-- owner: plan · create/amend-via-gate -->
 - **Principles touched:** —   <!-- no formal DESIGN IP/GP yet; operates under CLAUDE.md Invariants 1/2/7 (preserves, does not change them) -->
-- **Branch/PR:** —   <!-- owner: implement (branch) / review (PR URL) · create -->
+- **Branch/PR:** m60-bucket3-dedup   <!-- owner: implement (branch) / review (PR URL) · create -->
 
 ## Goal
 <!-- owner: plan · create -->
@@ -102,7 +102,7 @@ and no documented object contract changes — internal helpers and dead-code rem
 ## Tasks
 <!-- owner: plan (create) / implement (check-off, minor edits) -->
 
-- [ ] T1: Add `.variance_explained(L, p, labels)` and `.score_var(W, R)` to `utils.R`;
+- [x] T1: Add `.variance_explained(L, p, labels)` and `.score_var(W, R)` to `utils.R`;
       rewire `engine_pca.R`, `engine_efa.R`, `engine_esem.R` (incl. ESEM's second variance
       compute at `:180-181`) to call them. Grep-verify no inline copies remain anywhere.
 - [ ] T2: Drop `$edges` from `.align_signs()` (return list + the `edges_list` mutation,
@@ -128,6 +128,10 @@ and no documented object contract changes — internal helpers and dead-code rem
 
 - 2026-07-13: created by /milestone-plan (promotes the bucket-3 dedup candidate; two weak
   extractions dropped to candidates per plan gate).
+- 2026-07-16: implement started on branch m60-bucket3-dedup. T1 done: both helpers in
+  utils.R; three engines + compute_edges()'s D^{-1/2} rewired (repo-wide grep clean); ESEM's
+  ordering key kept as raw colSums(L^2) (order-equivalent, divisor-free) so the variance
+  vector is computed once post-sort. Engine/edge tests: 450 pass, 0 fail.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->

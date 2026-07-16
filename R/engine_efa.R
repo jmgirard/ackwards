@@ -109,14 +109,10 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
 
     # Score variances: diag(W' R W); exact 1 for tenBerge (orthogonal), but
     # always compute rather than assume -- Invariant 1.
-    score_var <- diag(crossprod(W, R %*% W))
+    score_var <- .score_var(W, R)
 
     # Variance explained (sum of squared loadings / p)
-    var_per_factor <- unname(colSums(L_rot^2) / p)
-    variance <- c(
-      setNames(var_per_factor, labels_k),
-      cumulative = sum(var_per_factor)
-    )
+    variance <- .variance_explained(L_rot, p, labels_k)
 
     # Fit indices -- available only when n.obs was supplied; NA otherwise.
     # fit$STATISTIC/dof/PVAL/TLI/BIC are plain scalars; fit$RMSEA is a named

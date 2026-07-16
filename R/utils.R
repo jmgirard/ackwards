@@ -78,6 +78,23 @@ make_labels <- function(k) {
   paste0("m", k, "f", seq_len(k))
 }
 
+# Variance explained per factor (sum of squared loadings / p) plus the
+# cumulative total, in the `c(<labels>, cumulative = <sum>)` shape every level
+# object's $variance carries (s.4 contract). The single computation site for
+# all three engines (M60).
+.variance_explained <- function(L, p, labels) {
+  var_per_factor <- unname(colSums(L^2) / p)
+  c(stats::setNames(var_per_factor, labels), cumulative = sum(var_per_factor))
+}
+
+# Actual score variances diag(W' R W) -- NOT assumed to be 1 (Invariant 1:
+# Bartlett/oblique scores are not unit-variance; always standardize by the
+# real score SDs). The single computation site shared by the engines
+# ($scoring$score_var) and compute_edges()'s D^{-1/2} standardization (M60).
+.score_var <- function(W, R) {
+  diag(crossprod(W, R %*% W))
+}
+
 # Tucker's congruence coefficient between two loading vectors (Lorenzo-Seva &
 # ten Berge, 2006). Formula: phi = sum(a*b) / sqrt(sum(a^2) * sum(b^2)).
 # General utility used by both prune() (redundancy/artifact phi) and

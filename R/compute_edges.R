@@ -91,8 +91,8 @@ compute_edges <- function(
       Wa <- la$scoring$weights
       Wb <- lb$scoring$weights
       C <- crossprod(Wa, R %*% Wb)
-      sa <- sqrt(diag(crossprod(Wa, R %*% Wa)))
-      sb <- sqrt(diag(crossprod(Wb, R %*% Wb)))
+      sa <- sqrt(.score_var(Wa, R))
+      sb <- sqrt(.score_var(Wb, R))
       E <- sweep(sweep(C, 1L, sa, "/"), 2L, sb, "/")
     } else {
       if (is.null(data)) {

@@ -177,8 +177,10 @@
   # For orthogonal rotation (factor_cor = I) this is safe. If oblique
   # rotation were ever added, factor_cor must also be permuted by ord to stay consistent
   # with the column ordering of L.
-  var_unsorted <- colSums(L^2) / p
-  ord <- order(var_unsorted, decreasing = TRUE)
+  # colSums(L^2) is an order-equivalent key for variance explained (constant
+  # divisor p); the actual variance vector is computed once, post-sort, via
+  # .variance_explained() below (M60).
+  ord <- order(colSums(L^2), decreasing = TRUE)
   L <- L[, ord, drop = FALSE]
   L_se <- L_se[, ord, drop = FALSE]
   colnames(L) <- labels_k
@@ -218,14 +220,10 @@
   colnames(W) <- labels_k
   rownames(W) <- item_names
 
-  score_var <- diag(crossprod(W, r_lv %*% W))
+  score_var <- .score_var(W, r_lv)
 
   # Variance explained (sum of squared standardized loadings / p)
-  var_per_factor <- colSums(L^2) / p
-  variance <- c(
-    setNames(var_per_factor, labels_k),
-    cumulative = sum(var_per_factor)
-  )
+  variance <- .variance_explained(L, p, labels_k)
 
   # Fit indices: chi, dof, p_value, CFI, TLI, RMSEA, SRMR, BIC.
   # lavaan silently *omits* requested names that don't apply to the fitted
