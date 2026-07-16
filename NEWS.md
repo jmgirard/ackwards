@@ -1,3 +1,15 @@
+# ackwards (development version)
+
+* **New vignette: "Reproducing Forbes (2023): The AMH Applied Example"**
+  (`vignette("ackwards-forbes2023")`). A full worked reproduction of the
+  paper's 155-variable applied example on the bundled `forbes2023` dataset:
+  the 10-level hierarchy, skip-level correlations, the redundancy chase
+  (including where the default `direct` criterion and the `adjacent` opt-in
+  disagree), and the pruned-factor diagram in the paper's publication style.
+
+* Corrected the Forbes (2023) article title in the `forbes2023` help page
+  ("bass-ackward method", per the published title).
+
 # ackwards 0.1.1
 
 CRAN resubmission of the first release, addressing reviewer feedback on the
