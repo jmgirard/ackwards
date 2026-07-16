@@ -3,7 +3,7 @@
      Per-section owners are tagged below. -->
 # M62: Worked Forbes (2023) AMH example vignette
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** —
@@ -96,7 +96,7 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
       scoped (M61 lesson).
 - [x] T4: Add the article to `_pkgdown.yml` ("The workflow" group, after `ackwards-forbes`); run
       `pkgdown::check_pkgdown()`; add the NEWS.md entry.
-- [ ] T5: Final gate: `Rscript tools/dod-gate.R`.
+- [x] T5: Final gate: `Rscript tools/dod-gate.R`.
 
 ## Work log
 <!-- owner: any skill · append-only -->
@@ -121,6 +121,8 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
   generated forbes2023 vignette (45 pairs, 37/55 vs 36, 13 chain-retained + 5 non-chain).
 - 2026-07-16: T4 done — pkgdown articles index updated (check_pkgdown clean); NEWS entry added
   under a new "(development version)" heading (0.1.1 is submitted, its section is frozen).
+- 2026-07-16: T5 done — DoD gate PASSED (check 0/0/0, coverage 100%, style/lint clean, pkgdown
+  index complete). All tasks complete; status → review.
 
 ## Decisions
 <!-- owner: implement / review · append-only -->
