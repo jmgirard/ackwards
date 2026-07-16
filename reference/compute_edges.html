@@ -71,7 +71,8 @@ is a <strong>linear</strong> map <code>S = Z W</code>, the cross-level correlati
 <span>  pairs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"adjacent"</span>, <span class="st">"all"</span><span class="op">)</span>,</span>
 <span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  use <span class="op">=</span> <span class="st">"pairwise.complete.obs"</span>,</span>
-<span>  cut_show <span class="op">=</span> <span class="fl">0.3</span></span>
+<span>  cut_show <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>  build_tidy <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -112,6 +113,12 @@ when <code>edge_method = "scores"</code> or the scores path is triggered.</p></d
 <dd><p>Edges with <code>|r| &gt;= cut_show</code> are flagged <code>above_cut</code> in the
 tidy tibble.</p></dd>
 
+
+<dt id="arg-build-tidy">build_tidy<a class="anchor" aria-label="anchor" href="#arg-build-tidy"></a></dt>
+<dd><p>Build the tidy edge data frame? <code>FALSE</code> returns
+<code>tidy = NULL</code> for matrices-only callers (lineage pass, <code>.cross_cor()</code>,
+<code>.boot_replicate()</code>), which would otherwise build and discard it (M60).</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -122,7 +129,8 @@ tidy tibble.</p></dd>
 
 <dt>tidy</dt>
 <dd><p>A data frame with one row per directed edge: <code>from</code>, <code>to</code>,
-<code>level_from</code>, <code>level_to</code>, <code>r</code>, <code>is_primary</code>, <code>above_cut</code>.</p></dd>
+<code>level_from</code>, <code>level_to</code>, <code>r</code>, <code>is_primary</code>, <code>above_cut</code> – or <code>NULL</code>
+when <code>build_tidy = FALSE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

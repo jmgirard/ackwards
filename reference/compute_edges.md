@@ -14,7 +14,8 @@ compute_edges(
   pairs = c("adjacent", "all"),
   data = NULL,
   use = "pairwise.complete.obs",
-  cut_show = 0.3
+  cut_show = 0.3,
+  build_tidy = TRUE
 )
 ```
 
@@ -55,6 +56,13 @@ compute_edges(
   Edges with `|r| >= cut_show` are flagged `above_cut` in the tidy
   tibble.
 
+- build_tidy:
+
+  Build the tidy edge data frame? `FALSE` returns `tidy = NULL` for
+  matrices-only callers (lineage pass, `.cross_cor()`,
+  `.boot_replicate()`), which would otherwise build and discard it
+  (M60).
+
 ## Value
 
 A list with:
@@ -66,7 +74,8 @@ A list with:
 - tidy:
 
   A data frame with one row per directed edge: `from`, `to`,
-  `level_from`, `level_to`, `r`, `is_primary`, `above_cut`.
+  `level_from`, `level_to`, `r`, `is_primary`, `above_cut` – or `NULL`
+  when `build_tidy = FALSE`.
 
 ## Details
 
