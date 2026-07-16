@@ -7,7 +7,7 @@
 - **Priority:** normal   <!-- owner: plan · create/amend-via-gate; high | normal | low -->
 - **Depends on:** —   <!-- owner: plan · create/amend-via-gate -->
 - **Principles touched:** —   <!-- no formal DESIGN IP/GP yet; operates under CLAUDE.md Invariants 1/2/7 (preserves, does not change them) -->
-- **Branch/PR:** m60-bucket3-dedup   <!-- owner: implement (branch) / review (PR URL) · create -->
+- **Branch/PR:** m60-bucket3-dedup · https://github.com/jmgirard/ackwards/pull/60   <!-- owner: implement (branch) / review (PR URL) · create -->
 
 ## Goal
 <!-- owner: plan · create -->
@@ -67,29 +67,28 @@ and no documented object contract changes — internal helpers and dead-code rem
 ## Acceptance criteria
 <!-- owner: plan · create/amend-via-gate; review reads, never reinterprets -->
 
-- [ ] AC1: `.variance_explained()` and `.score_var()` exist in `utils.R` and are the
+- [x] AC1: `.variance_explained()` and `.score_var()` exist in `utils.R` and are the
       sole computation sites — a repo-wide grep finds no inline `colSums(L^2)/p`-style
       variance vector or `diag(crossprod(W, … %*% W))` score-var outside the two helpers
       (LESSONS M58: grep the whole codebase, not just the three engines). All three
       engines call them; existing PCA/EFA/ESEM tests green with no value change.
-- [ ] AC2: `.align_signs()` no longer returns or mutates `$edges`; `ackwards()`'s first
+- [x] AC2: `.align_signs()` no longer returns or mutates `$edges`; `ackwards()`'s first
       `compute_edges()` call builds no discarded tidy tibble. Existing edge/sign tests
       green **and** the algebra-vs-scores edge cross-check oracle still passes (Invariant 2).
-- [ ] AC3: Each input path (raw polychoric, FIML, cor-matrix, pearson/spearman) computes
+- [x] AC3: Each input path (raw polychoric, FIML, cor-matrix, pearson/spearman) computes
       R's smallest eigenvalue at most once, and the near-singular / non-PD conditions fire
       identically to before — existing warning/error tests for those paths green, zero
       snapshot diff.
-- [ ] AC4: The `k_eff >= 1L` guard and `$meta$converged_levels` are gone;
+- [x] AC4: The `k_eff >= 1L` guard and `$meta$converged_levels` are gone;
       `$meta$deepest_converged` retains its exact prior value and `glance()` output is
       unchanged (existing glance tests in `test-efa.R`/`test-pca.R`/`test-esem.R` green).
-- [ ] AC5: `.fit_levels_muffled()` is the shared muffled-dispatch core called by both
+- [x] AC5: `.fit_levels_muffled()` is the shared muffled-dispatch core called by both
       comparability's half-fit and boot_edges' replicate-fit; `comparability()` and
       `boot_edges()` outputs are unchanged (their existing tests + oracles green).
-- [ ] AC6: `Rscript tools/dod-gate.R` clean (check 0 err/0 warn/0 note, coverage no
+- [x] AC6: `Rscript tools/dod-gate.R` clean (check 0 err/0 warn/0 note, coverage no
       regression, style/lint/pkgdown), zero snapshot diffs, and no duplicated computation
       sites remain (grep-verified via AC1/AC2/AC5). No new exported object; no NEWS/doc
-      change. *(Amended 2026-07-16 at the implement mini-gate: the original "net line
-      reduction vs pre-M60 `R/`" clause was dropped — see Decisions.)*
+      change. *(Amended 2026-07-16 at the mini-gate: net-line-reduction clause dropped — see Decisions.)*
 
 ## Coverage
 <!-- owner: plan · create/amend-via-gate -->
@@ -129,46 +128,62 @@ and no documented object contract changes — internal helpers and dead-code rem
 ## Work log
 <!-- owner: any skill · append-only; one line per entry; absolute dates -->
 
-- 2026-07-13: created by /milestone-plan (promotes the bucket-3 dedup candidate; two weak
-  extractions dropped to candidates per plan gate).
-- 2026-07-16: implement started on branch m60-bucket3-dedup. T1 done: both helpers in
-  utils.R; three engines + compute_edges()'s D^{-1/2} rewired (repo-wide grep clean); ESEM's
-  ordering key kept as raw colSums(L^2) (order-equivalent, divisor-free) so the variance
-  vector is computed once post-sort. Engine/edge tests: 450 pass, 0 fail.
-- 2026-07-16: T2 done: `.align_signs()` returns loadings+signs only; `compute_edges()` gains
-  `build_tidy = FALSE`, used by ackwards' lineage pass + (minor amendment, same dead-build
-  pattern) `.cross_cor()` and `.boot_replicate()`. The M35 `.align_signs` unit test now
-  asserts the sign decisions (`$signs`) instead of the dropped `$edges`; end-to-end
-  primary-nonnegativity test unchanged. Edge/comparability/boot tests: 250 pass, 0 fail.
-- 2026-07-16: T3 done: `.near_singular_check(min_eig = NULL)`; `.corfiml_R()` and
-  `.validate_cor_matrix()` now return `list(R, min_eig)` (their eigenvalue rides along —
-  callers in boot_edges/factorability/suggest_k take `$R`; FIML nocov smooth branch
-  recomputes post-smooth so meta keeps the final-R value); polychoric branch feeds its
-  smoothed eigenvalue through. Messages untouched; 688 tests green incl. snapshots.
-- 2026-07-16: T4 done: always-true guard, `converged_levels`, and the `conv` vapply removed;
-  `deepest_converged = k_eff` with an Invariant-7 comment (all engines truncate at first
-  failure, verified in all three engines). Engine/print/tidy/glance tests: 476 pass, 0 fail.
-- 2026-07-16: T5 done: `.fit_levels_muffled()` in utils.R (signature gains `n_obs` — differs
-  per caller, minor task edit); both callers keep their own suppressed R construction so
-  cor()/corFiml chatter stays muffled exactly as before. comparability+boot: 156 pass, 0 fail.
-- 2026-07-16: AC6 amended at a user-approved mini-gate (line-count clause dropped; see
-  Decisions); comment-density trim (comment-only, 0 code lines) + compute_edges.Rd regen.
-- 2026-07-16: T6 done: dod-gate PASSED — check 0 err/0 warn/0 note, coverage 100%,
-  style/lint clean, pkgdown index complete, zero snapshot diffs, Forbes-fidelity +
-  algebra-vs-scores oracles green; dedup greps clean; NAMESPACE/NEWS untouched (only
-  internal compute_edges.Rd regenerated). Status → review.
+- 2026-07-13: created by /milestone-plan (promotes the bucket-3 dedup candidate; two weak extractions dropped to candidates per plan gate).
+- 2026-07-16: implement started on branch m60-bucket3-dedup; T1 done — both helpers in utils.R, engines + compute_edges D^{-1/2} rewired (repo-wide grep clean), ESEM ordering key = raw colSums(L^2) so variance is computed once post-sort; 450 tests green.
+- 2026-07-16: T2 done — .align_signs() returns loadings+signs only; compute_edges(build_tidy = FALSE) used by the lineage pass + .cross_cor()/.boot_replicate() (minor amendment, same dead-build pattern); M35 unit test reworked to assert $signs; 250 tests green.
+- 2026-07-16: T3 done — .near_singular_check(min_eig); .corfiml_R()/.validate_cor_matrix() return list(R, min_eig) (callers take $R; FIML nocov branch recomputes post-smooth); polychoric threads its smoothed value; messages untouched; 688 tests green incl. snapshots.
+- 2026-07-16: T4 done — dead guard, converged_levels, and conv vapply removed; deepest_converged = k_eff (Invariant 7; truncate-at-first-failure verified in all three engines); 476 tests green.
+- 2026-07-16: T5 done — .fit_levels_muffled() extracted (signature gains n_obs, minor task edit); callers keep their own suppressed R construction so cor()/corFiml chatter stays muffled as before; 156 tests green.
+- 2026-07-16: AC6 amended at a user-approved mini-gate (line-count clause dropped; see Decisions); comment-only density trim + compute_edges.Rd regen.
+- 2026-07-16: T6 done — dod-gate PASSED (check 0 err/0 warn/0 note, coverage 100%, style/lint clean, pkgdown complete, zero snapshot diffs, oracles green); NAMESPACE/NEWS untouched; status → review.
+- 2026-07-16: review hygiene — same-day work-log entries compressed to the mandated one-line form (cap FAIL) and references/INDEX.md forbes2023 line reformatted to the validator's filename-first format (pre-existing drift).
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
 
 - 2026-07-16 (mini-gate, user-approved): AC6's "net line reduction vs pre-M60 `R/`" clause
-  dropped. Measured honest result after all dedup tasks + a comment-density trim: +39 total /
-  +9 non-comment lines vs master — extracting *documented* helpers from 3–8-line duplicated
-  blocks is roughly line-neutral (signature + braces + rationale comment ≈ lines saved).
-  The milestone's real outcome is single-computation-sites (grep-verified in AC1/AC2/AC5);
-  forcing a literal line reduction would have meant stripping helper docs below this repo's
-  comment density. Options offered: drop clause (chosen) / ±15 code-line neutrality band /
-  strip comments / pause.
+  dropped — measured +39 total / +9 non-comment lines vs master; extracting *documented*
+  helpers from 3–8-line duplicated blocks is line-neutral, and forcing a reduction would
+  strip helper docs below repo comment density. Real outcome = single computation sites
+  (grep-verified, AC1/AC2/AC5). Options offered: drop / ±15 band / strip comments / pause.
 
 ## Review
 <!-- owner: review · exclusive -->
+
+### Acceptance-criteria evidence (2026-07-16, fresh, by command)
+
+Full parallel suite on the branch: **2295 pass / 0 fail / 0 warn / 0 skip** (devtools::test,
+TESTTHAT_CPUS=8). Code identical to dod-gate commit 73d36e9 (`git diff 73d36e9..HEAD --
+R/ man/ tests/ DESCRIPTION NAMESPACE` = 0 lines), so the gate run's results remain valid.
+
+- **AC1** ✓ — `grep -rn 'colSums(.*\^2) */ *p\|diag(crossprod(' R/ | grep -v utils.R` → no
+  hits; both helpers live in utils.R; all three engines + compute_edges call them; engine
+  tests green in the suite run above with no value change (no snapshot/oracle diffs).
+- **AC2** ✓ — grep finds no `edges_list[[key]] <-` mutation or `edges =` in `.align_signs()`'s
+  return; `build_tidy = FALSE` on ackwards.R:843 (first compute_edges call); edge/sign tests
+  and the algebra-vs-scores cross-check oracle (test-compute_edges/scores/esem) green.
+- **AC3** ✓ — six `eigen(only.values)` sites, each ≤1 per input path (polychoric pre/post-
+  smooth in ackwards.R:744/752; FIML utils.R:387/395; cor-matrix utils.R:521; pearson/
+  spearman fallback utils.R:562 inside the check); warning/error tests green; zero snapshot
+  diffs (dod-gate + suite).
+- **AC4** ✓ — `grep 'k_eff >= 1L\|converged_levels\|max(which(conv))' R/` → no hits;
+  `deepest_converged = k_eff`; glance tests in test-pca/efa/esem green (incl. the
+  `deepest_converged < 2` path).
+- **AC5** ✓ — `.fit_levels_muffled()` defined in utils.R:406, called by comparability.R:284
+  and boot_edges.R:324 only; comparability + boot_edges tests/oracles green in the suite.
+- **AC6** ✓ (as amended) — dod-gate PASSED: check 0 err/0 warn/0 note, coverage 100%,
+  style/lint clean, pkgdown index complete; zero snapshot diffs; dedup greps clean (AC1/2/5
+  above); no new export (NAMESPACE/NEWS/README 0-line diff vs master; only internal
+  compute_edges.Rd regenerated).
+
+### Consistency gate (2026-07-16)
+
+- `cairn_validate.py` exit 0 after two hygiene fixes on the branch: M60 work-log entries
+  compressed to one-line form (plan-owned body 172 → <150) and references/INDEX.md
+  forbes2023 line reformatted filename-first (pre-existing drift; validator regex requires
+  it). 83 dangling-ID advisories are pre-existing legacy references — non-gating.
+- Coverage completeness: PASS (validator; AC1–6 → T1–6, all present).
+- cairn_impact: skipped — no DESIGN principle changed.
+- Toolchain (r-package slot): `document()` no diff; pkgdown "No problems found"; README/NEWS
+  correctly untouched (internal-only); no new top-level files; full `check()` 0/0/0 via
+  dod-gate on identical code.
