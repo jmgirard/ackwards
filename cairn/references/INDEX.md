@@ -17,6 +17,7 @@ _One line per source summary: `citekey — full title — which milestones/oracl
 
 ## Rotation & number-of-factors (collapsed in rotation-and-k.md)
 
+- rotation-and-k.md — synthesis note collapsing the six rotation/number-of-factors sources below (varimax default + k-advice table supports).
 - crawford1970 — Crawford & Ferguson (1970), general rotation criterion — CF family; Kim & Eaton's CF-varimax κ = 1/p.
 - browne2001a — Browne (2001), overview of analytic rotation — rotation-choice rationale; motivates ESEM.
 - horn1965 — Horn (1965), parallel analysis — PA rows of the k-advice table.
@@ -26,6 +27,7 @@ _One line per source summary: `citekey — full title — which milestones/oracl
 
 ## Applications (collapsed in applications.md)
 
+- applications.md — synthesis note collapsing the six published-application sources below (manuscript/vignette citation precedents).
 - markon2005 — Markon, Krueger, & Watson (2005), normal + abnormal personality structure — the influential early application; Big Two→Five unfolding.
 - kim2015 — Kim & Eaton (2015), hierarchical structure of common mental disorders — ESEM/WLSMV precedent; in-the-wild Invariant-7 case.
 - wright2014a — Wright & Simms (2014), structure of PD traits (CAT-PD/PID-5/NEO-PI-3) — canonical personality-pathology application.
@@ -35,6 +37,7 @@ _One line per source summary: `citekey — full title — which milestones/oracl
 
 ## Framing & contrasts (collapsed in background.md)
 
+- background.md — synthesis note collapsing the five framing/method-contrast sources below (BRM manuscript background).
 - kotov2017 — Kotov et al. (2017), HiTOP founding paper — Intro framing; the taxonomy the applications target.
 - saucier1996 — Saucier & Goldberg (1996), Big Five in familiar adjectives — robustness/anti-prestructuring evidence; ruled out as comparability source.
 - schmid1957 — Schmid & Leiman (1957), hierarchical factor solutions — the bottom-up contrast; out-of-scope citation (DESIGN §2).
