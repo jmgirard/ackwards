@@ -1,6 +1,6 @@
 # M61: Enrich suggest_k() docs with verified k-selection citations
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** —
@@ -60,7 +60,7 @@ passes on other help pages/vignettes (add a candidate row if a gap is found);
       `.Rmd` (+ assets if changed).
 - [x] T3 — NEWS.md: one-line bullet in the 0.1.1 section (extends the existing
       citation-lineage bullet's neighborhood).
-- [ ] T4 — `TESTTHAT_CPUS=8` suite run clean; spot-render `?suggest_k` to confirm the
+- [x] T4 — `TESTTHAT_CPUS=8` suite run clean; spot-render `?suggest_k` to confirm the
       references block formats.
 
 ## Work log
@@ -75,6 +75,8 @@ passes on other help pages/vignettes (add a candidate row if a gap is found);
   typical-behavior, References); precompute.R re-run; restored 4 unrelated vignettes +
   3 PNGs whose diffs were pure run noise (cli timings, gt element IDs).
 - 2026-07-16: T3 done — NEWS 0.1.1 bullet after the comparability citation-lineage entry.
+- 2026-07-16: T4 done — suite green at T1 (2300 pass, 0 fail; no R code changed since);
+  Rd2txt spot-render confirms all three citations + DOI macros format. Status → review.
 
 ## Decisions
 
