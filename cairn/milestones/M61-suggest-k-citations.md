@@ -4,7 +4,7 @@
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** —
-- **Branch/PR:** m61-suggest-k-citations
+- **Branch/PR:** m61-suggest-k-citations · https://github.com/jmgirard/ackwards/pull/62
 
 ## Goal
 
