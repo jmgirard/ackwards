@@ -159,3 +159,20 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
   hand-edited (no-diff check) ✔; README untouched by the diff (0 files) ✔;
   `pkgdown::check_pkgdown()` ✔; NEWS entry present ✔; no new top-level files (new `.orig`
   covered by `.Rbuildignore:21` pattern; check 0 NOTEs) ✔; full `check()` clean via gate ✔.
+
+### Independent review (2026-07-16, three fresh-context lenses + scorer protocol)
+
+- **[O] diff-bug**: no findings. Independently re-knit the `.orig` (committed `.Rmd`
+  byte-identical modulo gt's random div id; both PNGs byte-identical); verified every vignette
+  claim against test-forbes-fidelity.R (37/36/45/1320/13-retained ids/d4 chain/7-of-54) and all
+  chunk API usage against R/ sources; citations match master-verified references.
+- **[S] blame-history**: no findings. data.R plural was M54 copy-drift (cedcd37/541eb5f), not a
+  deliberate choice — the fix aligns with the repo-wide verified form; NEWS dev-heading is the
+  correct convention with 0.1.1 pending at CRAN.
+- **[S] prior-PR-comments**: no prior-PR evidence (PRs #34–#55 on these files carry only codecov
+  bot comments) — clean no-op, zero findings.
+- Scorer: skipped — zero surviving findings to score.
+- Logged sub-threshold/self-excluded observations (surfaced, not actioned): (1) pre-existing
+  `R/ackwards.R:429-435` message tells matrix-input users `n_obs` "enables" chi-square/RMSEA/TLI,
+  but the PCA engine never computes those — pre-existing, not introduced here; candidate-worthy.
+  (2) repo-wide Goldberg (2006) cites omit the published subtitle (T1 work-log) — candidate-worthy.
