@@ -86,7 +86,7 @@ D-001–D-015 don't cover, and repointing every live inline `§14.x` reference.
 - [x] T1: Triage pass — enumerate every §14 item (numbered 1–46, build-time 6–10 list, limitations
       bullets) against D-001–D-015; write the disposition ledger (destined for the PR description;
       not this file — line cap).
-- [ ] T2: Entomb — create `cairn/legacy/DESIGN-s14-decision-log.md`: provenance header + verbatim
+- [x] T2: Entomb — create `cairn/legacy/DESIGN-s14-decision-log.md`: provenance header + verbatim
       §14 body copied from the pre-branch DESIGN.md.
 - [ ] T3: Append D-016+ entries per the T1 ledger (Context/Decision/Consequences, legacy-anchor +
       milestone citations, real dates where known else "date: see legacy" per existing style);
@@ -107,6 +107,8 @@ D-001–D-015 don't cover, and repointing every live inline `§14.x` reference.
 - 2026-07-16: T1 done — ledger drafted (scratchpad → PR body): 15 new D-entries D-016–D-030
   (one more than the plan's upper estimate: item 12, ESEM self-computed tenBerge weights, is cited
   by two references pages and covered by no D-entry); 4 live limitations; rest covered/arch/history.
+- 2026-07-16: T2 done — §14 body (416 lines) entombed verbatim at
+  cairn/legacy/DESIGN-s14-decision-log.md; byte-identity vs base 0ce1095 diff-verified.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local; promote
