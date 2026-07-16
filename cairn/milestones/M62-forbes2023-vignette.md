@@ -91,7 +91,7 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
 - [x] T2: Cross-links + typo: pointer from `ackwards-forbes.Rmd.orig` to the new vignette (and
       back), `@seealso`/vignette pointer in the `forbes2023` roxygen (`R/data.R`), fix
       `R/data.R:161` Forbes-citation "bass-ackwards"; `devtools::document()`.
-- [ ] T3: Run `Rscript vignettes/precompute.R`; verify the pinned numbers appear in the generated
+- [x] T3: Run `Rscript vignettes/precompute.R`; verify the pinned numbers appear in the generated
       `.Rmd`; `git checkout --` all untouched regenerated vignettes/assets so the diff stays
       scoped (M61 lesson).
 - [ ] T4: Add the article to `_pkgdown.yml` ("The workflow" group, after `ackwards-forbes`); run
@@ -116,6 +116,9 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
   "bass-ackwards method" would flag two *correct* uses (Waller 2007's published title, M56-verified;
   a prose mention in comparability.R) — recipe narrowed to the Forbes-citation pattern
   ("extension of Goldberg's bass-ackwards"), which was the actual defect. Intent unchanged.
+- 2026-07-16: T3 done — precompute run; 5 churn-only .Rmd + 3 PNGs reverted (M61 lesson);
+  ackwards-forbes.Rmd diff is exactly the 4-line cross-link; pinned numbers verified in the
+  generated forbes2023 vignette (45 pairs, 37/55 vs 36, 13 chain-retained + 5 non-chain).
 
 ## Decisions
 <!-- owner: implement / review · append-only -->
