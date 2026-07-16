@@ -852,7 +852,7 @@ ackwards <- function(
   }
 
   # --- Sign alignment (DESIGN.md s.7) -----------------------------------------
-  if (align_signs && k_eff >= 1L) {
+  if (align_signs) {
     loadings_list <- lapply(levels_list, `[[`, "loadings")
     aligned <- .align_signs(loadings_list, raw_edges_adj$matrices, lineage)
     for (ki in seq_len(k_eff)) {
@@ -886,11 +886,11 @@ ackwards <- function(
   )
 
   # --- Meta -------------------------------------------------------------------
-  conv <- vapply(levels_list, `[[`, logical(1L), "converged")
   meta <- list(
     k_requested       = k_max, # what the user asked for (may exceed k_eff)
-    converged_levels  = conv,
-    deepest_converged = max(which(conv)),
+    # Every engine truncates at its first non-converged level (Invariant 7), so
+    # every built level converged and the deepest converged level is k_eff.
+    deepest_converged = k_eff,
     pairs             = pairs,
     cut_show          = cut_show,
     ordinal_warned    = is_ordinal,
