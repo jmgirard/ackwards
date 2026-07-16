@@ -226,6 +226,12 @@ resampling).</p>
 factors exist. Users commonly set k one or two levels above the consensus to
 watch higher-level factors fragment – this is a feature of the method, not
 overextraction.</p>
+<p>Treating retention estimates as a range rather than a verdict has direct
+support in the parallel-analysis literature: Lim and Jahng (2019) recommend
+interpreting the PA estimate as a range of roughly plus or minus one factor,
+resolved by interpretability, and Achim (2021) argues that even that
+overstates PA's precision – the disagreement itself is why <code>suggest_k()</code>
+reports several criteria and a consensus range, never a single number.</p>
     </div>
     <div class="section level2">
     <h2 id="ordinal-likert-data">Ordinal (Likert) data<a class="anchor" aria-label="anchor" href="#ordinal-likert-data"></a></h2>
@@ -250,23 +256,34 @@ inspect).</p>
 
 
 <p>PA-PC in particular tends to recommend more factors than replicate across
-independent samples, especially with correlated items (Forbes, 2023).
-PA-FA and CD are more conservative. Treat the full set of criteria as a
-range: the true k is likely somewhere in the middle.</p>
+independent samples, especially with correlated items (Forbes, 2023). This
+is a long-standing observation in practice: Saucier (1997, footnote 14)
+reported parallel analysis suggesting as many as 30 factors in wide lexical
+item sets. PA-FA and CD are more conservative. Treat the full set of
+criteria as a range: the true k is likely somewhere in the middle.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Forbes, M. K. (2023). Improving hierarchical models of individual
+    <p>Achim, A. (2021). Determining the number of factors using parallel analysis
+and its recent variants: Comment on Lim and Jahng (2019). <em>Psychological
+Methods</em>, 26(1), 69–73. <a href="https://doi.org/10.1037/met0000269" class="external-link">doi:10.1037/met0000269</a></p>
+<p>Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg's bass-ackward method.
 <em>Psychological Methods</em>. <a href="https://doi.org/10.1037/met0000546" class="external-link">doi:10.1037/met0000546</a></p>
 <p>Horn, J. L. (1965). A rationale and test for the number of factors in factor
 analysis. <em>Psychometrika</em>, 30, 179–185.</p>
+<p>Lim, S., &amp; Jahng, S. (2019). Determining the number of factors using
+parallel analysis and its recent variants. <em>Psychological Methods</em>,
+24(4), 452–467. <a href="https://doi.org/10.1037/met0000230" class="external-link">doi:10.1037/met0000230</a></p>
 <p>Revelle, W., &amp; Rocklin, T. (1979). Very simple structure: An alternative
 procedure for estimating the optimal number of interpretable factors.
 <em>Multivariate Behavioral Research</em>, 14(4), 403–414.</p>
 <p>Ruscio, J., &amp; Roche, B. (2012). Determining the number of factors to retain
 in an exploratory factor analysis using comparison data of a known factorial
 structure. <em>Psychological Assessment</em>, 24(2), 282–292.</p>
+<p>Saucier, G. (1997). Effects of variable selection on the factor structure
+of person descriptors. <em>Journal of Personality and Social Psychology</em>,
+73(6), 1296–1312. <a href="https://doi.org/10.1037/0022-3514.73.6.1296" class="external-link">doi:10.1037/0022-3514.73.6.1296</a></p>
 <p>Velicer, W. F. (1976). Determining the number of components from the matrix
 of partial correlations. <em>Psychometrika</em>, 41, 321–327.</p>
     </div>
@@ -281,13 +298,13 @@ of partial correlations. <em>Psychometrika</em>, 41, 321–327.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu">suggest_k</span><span class="op">(</span><span class="va">sim16</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[208ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[257ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[93ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[92ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[3.8s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[4.5s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">sk</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
@@ -328,7 +345,7 @@ of partial correlations. <em>Psychometrika</em>, 41, 321–327.</p>
 <span class="r-in"><span><span class="co"># Run only MAP (fast; skips parallel analysis and CD)</span></span></span>
 <span class="r-in"><span><span class="fu">suggest_k</span><span class="op">(</span><span class="va">sim16</span>, criteria <span class="op">=</span> <span class="st">"map"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[52ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[50ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span>
@@ -361,7 +378,7 @@ of partial correlations. <em>Psychometrika</em>, 41, 321–327.</p>
 <span class="r-in"><span><span class="co"># Run only the parallel-analysis criteria</span></span></span>
 <span class="r-in"><span><span class="fu">suggest_k</span><span class="op">(</span><span class="va">sim16</span>, criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pa_pc"</span>, <span class="st">"pa_fa"</span><span class="op">)</span>, n_iter <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (5 iterations, PC + FA)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (5 iterations, PC + FA)... <span style="color: #B2B2B2;">[84ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (5 iterations, PC + FA)... <span style="color: #B2B2B2;">[104ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span>
@@ -395,13 +412,13 @@ of partial correlations. <em>Psychometrika</em>, 41, 321–327.</p>
 <span class="r-in"><span><span class="co"># Faster exploratory run</span></span></span>
 <span class="r-in"><span><span class="fu">suggest_k</span><span class="op">(</span><span class="va">sim16</span>, k_max <span class="op">=</span> <span class="fl">6</span>, n_iter <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (5 iterations, PC + FA)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (5 iterations, PC + FA)... <span style="color: #B2B2B2;">[102ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (5 iterations, PC + FA)... <span style="color: #B2B2B2;">[89ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[75ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[81ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running Comparison Data (CD)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[4.2s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running Comparison Data (CD)... <span style="color: #B2B2B2;">[4.6s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span>
@@ -440,10 +457,10 @@ of partial correlations. <em>Psychometrika</em>, 41, 321–327.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> CD is skipped when a correlation matrix is supplied (CD requires raw item</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   distributions for resampling).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running parallel analysis (20 iterations, PC + FA)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[210ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running parallel analysis (20 iterations, PC + FA)... <span style="color: #B2B2B2;">[227ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Running MAP and VSS...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[88ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Running MAP and VSS... <span style="color: #B2B2B2;">[99ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Factor / Component Count Suggestion (</span><span style="color: #0000BB; font-weight: bold;">ackwards</span><span style="font-weight: bold;">)</span> <span style="color: #00BBBB;">──────────────────────────────</span></span>

@@ -133,7 +133,11 @@ split-half <code><a href="../reference/comparability.html">comparability()</a></
 five criteria below captures a different aspect of the data, tends to
 err in a different direction, and can fail in different circumstances. A
 consensus across multiple criteria is more trustworthy than any single
-recommendation.</p>
+recommendation. Even for parallel analysis, Lim and Jahng (2019)
+recommend treating the estimate as a range of roughly ±1 factor resolved
+by interpretability — and Achim (2021) argues that even that overstates
+its precision. That disagreement is why <code><a href="../reference/suggest_k.html">suggest_k()</a></code> reports
+a consensus range, never a single number.</p>
 </div>
 <div class="section level2">
 <h2 id="the-five-criteria">The five criteria<a class="anchor" aria-label="anchor" href="#the-five-criteria"></a>
@@ -152,8 +156,10 @@ distribution.</p>
 <p><strong>Typical behavior.</strong> Tends to <em>overextract</em> — it
 often recommends more components than replicate in independent samples,
 particularly when items are moderately correlated (which they usually
-are in personality and clinical research). Treat its recommendation as
-an <em>upper bound</em>.</p>
+are in personality and clinical research). Saucier (1997, footnote 14)
+reported parallel analysis suggesting as many as 30 factors in wide
+lexical item sets. Treat its recommendation as an <em>upper
+bound</em>.</p>
 <p><strong>When it is useful.</strong> Best paired with
 <code>engine = "pca"</code> in <code><a href="../reference/ackwards.html">ackwards()</a></code>, since both
 operate on the same PC eigenvalue basis. It also provides a fast, stable
@@ -325,13 +331,13 @@ structure, and citations — see <code><a href="../reference/suggest_k.html">?su
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [141ms]</span></span>
+<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [262ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; ✔ Running MAP and VSS... [43ms]</span></span>
+<span><span class="co">#&gt; ✔ Running MAP and VSS... [41ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [6.7s]</span></span>
+<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [5.7s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -668,11 +674,17 @@ this kind of structured exploration.</p>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
+<p>Achim, A. (2021). Determining the number of factors using parallel
+analysis and its recent variants: Comment on Lim and Jahng (2019).
+<em>Psychological Methods</em>, <em>26</em>(1), 69–73. <a href="https://doi.org/10.1037/met0000269" class="external-link uri">https://doi.org/10.1037/met0000269</a></p>
 <p>Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg’s bass-ackward method.
 <em>Psychological Methods</em>. <a href="https://doi.org/10.1037/met0000546" class="external-link uri">https://doi.org/10.1037/met0000546</a></p>
 <p>Horn, J. L. (1965). A rationale and test for the number of factors in
 factor analysis. <em>Psychometrika</em>, <em>30</em>(2), 179–185. <a href="https://doi.org/10.1007/BF02289447" class="external-link uri">https://doi.org/10.1007/BF02289447</a></p>
+<p>Lim, S., &amp; Jahng, S. (2019). Determining the number of factors
+using parallel analysis and its recent variants. <em>Psychological
+Methods</em>, <em>24</em>(4), 452–467. <a href="https://doi.org/10.1037/met0000230" class="external-link uri">https://doi.org/10.1037/met0000230</a></p>
 <p>Revelle, W., &amp; Rocklin, T. (1979). Very simple structure: An
 alternative procedure for estimating the optimal number of interpretable
 factors. <em>Multivariate Behavioral Research</em>, <em>14</em>(4),
@@ -681,6 +693,9 @@ factors. <em>Multivariate Behavioral Research</em>, <em>14</em>(4),
 to retain in an exploratory factor analysis using comparison data of a
 known factorial structure. <em>Psychological Assessment</em>,
 <em>24</em>(2), 282–292. <a href="https://doi.org/10.1037/a0025697" class="external-link uri">https://doi.org/10.1037/a0025697</a></p>
+<p>Saucier, G. (1997). Effects of variable selection on the factor
+structure of person descriptors. <em>Journal of Personality and Social
+Psychology</em>, <em>73</em>(6), 1296–1312. <a href="https://doi.org/10.1037/0022-3514.73.6.1296" class="external-link uri">https://doi.org/10.1037/0022-3514.73.6.1296</a></p>
 <p>Velicer, W. F. (1976). Determining the number of components from the
 matrix of partial correlations. <em>Psychometrika</em>, <em>41</em>(3),
 321–327. <a href="https://doi.org/10.1007/BF02293557" class="external-link uri">https://doi.org/10.1007/BF02293557</a></p>

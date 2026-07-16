@@ -19,6 +19,13 @@ submission.
   footer text, the README, and the replicability-workflow vignette; no
   behavior changes.
 
+- **Sourced
+  [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)’s
+  k-selection guidance.** The consensus-range stance now cites Lim and
+  Jahng (2019) with Achim’s (2021) counterpoint, and the “PA-PC tends to
+  overextract” note cites Saucier (1997) alongside Forbes (2023), in
+  both the help page and the suggest-k vignette; no behavior changes.
+
 - **[`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
   now returns its scaffold visibly (behavior change).** The named
   character vector carries class `"ackwards_labels"`, and the editable
