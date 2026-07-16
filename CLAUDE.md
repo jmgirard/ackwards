@@ -83,8 +83,8 @@ High-stakes defaults (varimax rotation, `cor = "pearson"`, `tenBerge`
 scoring, WLSMV for ordinal ESEM, `k_max` required, `align_signs`,
 `keep_scores`/`keep_fits = FALSE`, `redundancy_phi` auto-resolve,
 `redundancy_criterion = "direct"`) and their full rationale live in
-`cairn/DESIGN.md` §9 + §14. Announce auto-resolved choices loudly
-(Invariant 6); never change these silently.
+`cairn/DESIGN.md` §9 + `cairn/DECISIONS.md`. Announce auto-resolved
+choices loudly (Invariant 6); never change these silently.
 
 ## Dependencies
 
@@ -232,7 +232,8 @@ not `main`** — read every “main” in cairn’s rules and CLAUDE section as
 
 EAP scoring (declined M28), oblique rotation, and higher-order SEM /
 Schmid-Leiman are out of scope — rationale in `cairn/DESIGN.md` §2 +
-§14. (Bootstrap skip-level edge CIs shipped M47 as
+`cairn/DECISIONS.md` (D-002, D-007). (Bootstrap skip-level edge CIs
+shipped M47 as
 [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md);
 no longer deferred.)
 
