@@ -1,5 +1,6 @@
-# Split-half factor comparability (Everett 1983; Goldberg 1990) -- the
-# replicability gate for hierarchy depth. See DESIGN.md s.14 item 35.
+# Split-half factor comparability (Everett 1983; Saucier 1997; Saucier et
+# al. 2005) -- the replicability gate for hierarchy depth. See DESIGN.md
+# s.14 item 35.
 #
 # Mechanics per split:
 #   1. Randomly divide the rows into two halves; fit levels 1..k in each half.
@@ -19,11 +20,14 @@
 #'
 #' Measures how well each factor at each level of a bass-ackwards hierarchy
 #' **replicates** across random split-halves of the sample -- Everett's (1983)
-#' factor comparability coefficients, the depth gate Goldberg's own lab applied
-#' to its hierarchies (Goldberg, 1990) and the direct instrument for the
-#' overextraction caution in [suggest_k()]: non-replicable structure
-#' concentrates in the deeper levels of an overextracted hierarchy
-#' (Forbes, 2023).
+#' factor comparability coefficients, reviving the split-half replication
+#' gate of the research program that produced the bass-ackwards method:
+#' Saucier (1997) screened factor solutions by their split-half stability,
+#' and Saucier, Georgiades, Tsaousis, and Goldberg (2005) chose the optimal
+#' hierarchical level by requiring split-half replication above a .90
+#' threshold. It is also the direct instrument for the overextraction
+#' caution in [suggest_k()]: non-replicable structure concentrates in the
+#' deeper levels of an overextracted hierarchy (Forbes, 2023).
 #'
 #' For each of `n_splits` random half-splits, solutions at every level
 #' `1..k_max` are fit independently in each half. Each half-solution's factors
@@ -40,12 +44,16 @@
 #' @section Interpreting the output:
 #' Coefficients near 1 mean the factor re-emerges in independent half-samples;
 #' a factor whose comparability is low is sample-idiosyncratic and should not
-#' anchor substantive interpretation. Goldberg's lab treated roughly .95 as
-#' comfortable and .90 as a floor; these are conventions, not tests, so
-#' `comparability()` reports every coefficient and flags nothing. The deepest
-#' level at which all factors replicate is a natural **hierarchy floor** for
-#' [ackwards()]'s `k_max`; see `vignette("ackwards-girard")` for the full
-#' workflow.
+#' anchor substantive interpretation. Conventional benchmarks: **.90** is the
+#' split-half replication threshold of Goldberg's lexical research program
+#' (Saucier et al., 2005) and follows from Everett's (1983) rationale
+#' (split-half factors sharing at least 81% of their variance); **.95** is
+#' the stricter bound at which two factors are conventionally treated as
+#' interchangeable (Lorenzo-Seva & ten Berge, 2006). These are conventions,
+#' not tests, so `comparability()` reports every coefficient and flags
+#' nothing. The deepest level at which all factors replicate is a natural
+#' **hierarchy floor** for [ackwards()]'s `k_max`; see
+#' `vignette("ackwards-girard")` for the full workflow.
 #'
 #' A level that fails to converge in a half-sample yields `NA` coefficients
 #' for that split (convergence is data, not an error); the number of usable
@@ -70,9 +78,10 @@
 #'   and fit the final model with `cor = "polychoric"` in [ackwards()].
 #' @param fm Factor extraction method passed to [psych::fa()]; only used when
 #'   `engine = "efa"`. One of `"minres"` (default), `"ml"`, or `"pa"`.
-#' @param n_splits Number of random split-half replicates. Default `10L`
-#'   (repeated random splits, following Goldberg's practice -- a single split
-#'   can mislead by luck of the draw). Each replicate fits `2 * k_max`
+#' @param n_splits Number of random split-half replicates. Default `10L`.
+#'   The published precedents used a single split (Saucier et al., 2005);
+#'   repeating the split guards against the luck of one draw and is this
+#'   implementation's robustness choice. Each replicate fits `2 * k_max`
 #'   solutions, so the default costs 20 hierarchy fits; PCA and EFA are fast
 #'   enough that this is typically a few seconds.
 #' @param seed Integer seed for reproducible splits. `NULL` (default) uses the
@@ -104,9 +113,18 @@
 #'   number of factors and their rotation. *Multivariate Behavioral Research*,
 #'   18(2), 197--218. \doi{10.1207/s15327906mbr1802_5}
 #'
-#' Goldberg, L. R. (1990). An alternative "description of personality": The
-#'   Big-Five factor structure. *Journal of Personality and Social
-#'   Psychology*, 59(6), 1216--1229. \doi{10.1037/0022-3514.59.6.1216}
+#' Saucier, G. (1997). Effects of variable selection on the factor structure
+#'   of person descriptors. *Journal of Personality and Social Psychology*,
+#'   73(6), 1296--1312. \doi{10.1037/0022-3514.73.6.1296}
+#'
+#' Saucier, G., Georgiades, S., Tsaousis, I., & Goldberg, L. R. (2005). The
+#'   factor structure of Greek personality adjectives. *Journal of
+#'   Personality and Social Psychology*, 88(5), 856--875.
+#'   \doi{10.1037/0022-3514.88.5.856}
+#'
+#' Lorenzo-Seva, U., & ten Berge, J. M. F. (2006). Tucker's congruence
+#'   coefficient as a meaningful index of factor similarity.
+#'   *Methodology*, 2(2), 57--64. \doi{10.1027/1614-2241.2.2.57}
 #'
 #' Forbes, M. K. (2023). Improving hierarchical models of individual
 #'   differences: An extension of Goldberg's bass-ackward method.
@@ -432,8 +450,9 @@ print.comparability <- function(x, ...) {
   )
   cli::cli_text(
     cli::col_grey(
-      "Conventional benchmarks: {cli::symbol$geq} .95 comfortable, \\
-       {cli::symbol$geq} .90 floor (Everett, 1983; Goldberg, 1990) -- \\
+      "Conventional benchmarks: {cli::symbol$geq} .90 replication floor \\
+       (Everett, 1983; Saucier et al., 2005), {cli::symbol$geq} .95 \\
+       factors interchangeable (Lorenzo-Seva & ten Berge, 2006) -- \\
        conventions, not tests. Interpret levels whose factors all replicate."
     )
   )
@@ -543,7 +562,7 @@ autoplot.comparability <- function(object, ...) {
       y = "Coefficient",
       caption = paste0(
         "Dashed / dotted lines: conventional .90 / .95 benchmarks ",
-        "(Everett, 1983; Goldberg, 1990) -- visual guides, not tests"
+        "(Everett, 1983; Saucier et al., 2005) -- visual guides, not tests"
       )
     ) +
     ggplot2::theme_bw(base_size = 11) +

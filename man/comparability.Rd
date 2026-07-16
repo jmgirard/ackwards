@@ -39,9 +39,10 @@ and fit the final model with \code{cor = "polychoric"} in \code{\link[=ackwards]
 \item{fm}{Factor extraction method passed to \code{\link[psych:fa]{psych::fa()}}; only used when
 \code{engine = "efa"}. One of \code{"minres"} (default), \code{"ml"}, or \code{"pa"}.}
 
-\item{n_splits}{Number of random split-half replicates. Default \code{10L}
-(repeated random splits, following Goldberg's practice -- a single split
-can mislead by luck of the draw). Each replicate fits \code{2 * k_max}
+\item{n_splits}{Number of random split-half replicates. Default \code{10L}.
+The published precedents used a single split (Saucier et al., 2005);
+repeating the split guards against the luck of one draw and is this
+implementation's robustness choice. Each replicate fits \code{2 * k_max}
 solutions, so the default costs 20 hierarchy fits; PCA and EFA are fast
 enough that this is typically a few seconds.}
 
@@ -69,11 +70,14 @@ seed}{Metadata.}
 \description{
 Measures how well each factor at each level of a bass-ackwards hierarchy
 \strong{replicates} across random split-halves of the sample -- Everett's (1983)
-factor comparability coefficients, the depth gate Goldberg's own lab applied
-to its hierarchies (Goldberg, 1990) and the direct instrument for the
-overextraction caution in \code{\link[=suggest_k]{suggest_k()}}: non-replicable structure
-concentrates in the deeper levels of an overextracted hierarchy
-(Forbes, 2023).
+factor comparability coefficients, reviving the split-half replication
+gate of the research program that produced the bass-ackwards method:
+Saucier (1997) screened factor solutions by their split-half stability,
+and Saucier, Georgiades, Tsaousis, and Goldberg (2005) chose the optimal
+hierarchical level by requiring split-half replication above a .90
+threshold. It is also the direct instrument for the overextraction
+caution in \code{\link[=suggest_k]{suggest_k()}}: non-replicable structure concentrates in the
+deeper levels of an overextracted hierarchy (Forbes, 2023).
 }
 \details{
 For each of \code{n_splits} random half-splits, solutions at every level
@@ -92,12 +96,16 @@ halves' \emph{scores} agree; phi asks whether their \emph{loading patterns} agre
 
 Coefficients near 1 mean the factor re-emerges in independent half-samples;
 a factor whose comparability is low is sample-idiosyncratic and should not
-anchor substantive interpretation. Goldberg's lab treated roughly .95 as
-comfortable and .90 as a floor; these are conventions, not tests, so
-\code{comparability()} reports every coefficient and flags nothing. The deepest
-level at which all factors replicate is a natural \strong{hierarchy floor} for
-\code{\link[=ackwards]{ackwards()}}'s \code{k_max}; see \code{vignette("ackwards-girard")} for the full
-workflow.
+anchor substantive interpretation. Conventional benchmarks: \strong{.90} is the
+split-half replication threshold of Goldberg's lexical research program
+(Saucier et al., 2005) and follows from Everett's (1983) rationale
+(split-half factors sharing at least 81\% of their variance); \strong{.95} is
+the stricter bound at which two factors are conventionally treated as
+interchangeable (Lorenzo-Seva & ten Berge, 2006). These are conventions,
+not tests, so \code{comparability()} reports every coefficient and flags
+nothing. The deepest level at which all factors replicate is a natural
+\strong{hierarchy floor} for \code{\link[=ackwards]{ackwards()}}'s \code{k_max}; see
+\code{vignette("ackwards-girard")} for the full workflow.
 
 A level that fails to converge in a half-sample yields \code{NA} coefficients
 for that split (convergence is data, not an error); the number of usable
@@ -118,9 +126,18 @@ Everett, J. E. (1983). Factor comparability as a means of determining the
 number of factors and their rotation. \emph{Multivariate Behavioral Research},
 18(2), 197--218. \doi{10.1207/s15327906mbr1802_5}
 
-Goldberg, L. R. (1990). An alternative "description of personality": The
-Big-Five factor structure. \emph{Journal of Personality and Social
-Psychology}, 59(6), 1216--1229. \doi{10.1037/0022-3514.59.6.1216}
+Saucier, G. (1997). Effects of variable selection on the factor structure
+of person descriptors. \emph{Journal of Personality and Social Psychology},
+73(6), 1296--1312. \doi{10.1037/0022-3514.73.6.1296}
+
+Saucier, G., Georgiades, S., Tsaousis, I., & Goldberg, L. R. (2005). The
+factor structure of Greek personality adjectives. \emph{Journal of
+Personality and Social Psychology}, 88(5), 856--875.
+\doi{10.1037/0022-3514.88.5.856}
+
+Lorenzo-Seva, U., & ten Berge, J. M. F. (2006). Tucker's congruence
+coefficient as a meaningful index of factor similarity.
+\emph{Methodology}, 2(2), 57--64. \doi{10.1027/1614-2241.2.2.57}
 
 Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg's bass-ackward method.

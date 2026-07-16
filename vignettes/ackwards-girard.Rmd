@@ -40,11 +40,14 @@ proposed **factor comparability coefficients**: split the sample in half, fit
 the solution in each half independently, apply *both* halves' scoring weights
 to the full sample, and correlate the matched factor scores. A factor that is
 real re-emerges in both halves and its two score estimates correlate near 1; a
-factor that is noise does not. Goldberg's lab used this as a routine gate —
-Goldberg (1990) retained factor solutions only when they held up across
-repeated random split-halves — and the practice runs through the research
-program that produced the bass-ackwards method itself (Goldberg, 2006). The
-modern bass-ackwards literature largely dropped it.
+factor that is noise does not. Split-half replication was a working gate in
+the research program that produced the bass-ackwards method itself: Saucier
+(1997) screened factor solutions by their stability across sample halves
+(computing Everett's coefficients alongside), and Saucier, Georgiades,
+Tsaousis, and Goldberg (2005) chose the optimal hierarchical level — the
+number of factors — by requiring split-half replication above the
+conventional .90 threshold. The modern bass-ackwards literature largely
+dropped the practice.
 
 `comparability()` restores that gate as a first-class verb, extended to the
 bass-ackwards setting: coefficients for every factor at every level, computed
@@ -89,13 +92,13 @@ bfi <- na.omit(bfi25)
 ``` r
 sk <- suggest_k(bfi, seed = 1)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [144ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [126ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [110ms]
+#> ✔ Running MAP and VSS... [85ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [5.7s]
+#> ✔ Running Comparison Data (CD)... [4.8s]
 #> 
 print(sk)
 #> 
@@ -151,7 +154,7 @@ past the ceiling, across ten random split-halves:
 ``` r
 cmp <- comparability(bfi, k_max = sk_hi + 1, n_splits = 10, seed = 2026)
 #> ℹ Fitting 10 split-half replicates (pca, k = 1-7)...
-#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [1.2s]
+#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [405ms]
 #> 
 print(cmp)
 #> 
@@ -174,9 +177,9 @@ print(cmp)
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Per-factor detail (incl. Tucker's φ) in `$summary`; per-split values in
 #> `$coefficients`.
-#> Conventional benchmarks: ≥ .95 comfortable, ≥ .90 floor (Everett, 1983;
-#> Goldberg, 1990) -- conventions, not tests. Interpret levels whose factors all
-#> replicate.
+#> Conventional benchmarks: ≥ .90 replication floor (Everett, 1983; Saucier et
+#> al., 2005), ≥ .95 factors interchangeable (Lorenzo-Seva & ten Berge, 2006) --
+#> conventions, not tests. Interpret levels whose factors all replicate.
 ```
 
 
@@ -198,7 +201,9 @@ autoplot(cmp)
 ![plot of chunk comparability-plot](assets/ackwards-girard-comparability-plot-1.png)
 
 Two honesty notes. First, the conventional benchmarks marked on the plot
-(.90 and .95, following Everett's and Goldberg's practice) are conventions,
+(.90, the replication threshold of Goldberg's lexical research program —
+Everett, 1983; Saucier et al., 2005 — and .95, the stricter bound at which
+factors are conventionally treated as interchangeable) are conventions,
 not tests — `comparability()` reports every coefficient and flags nothing, so
 borderline cases stay visible and the judgment stays yours. Second,
 comparability is *internal* replication: it asks whether the structure
@@ -322,7 +327,7 @@ when the final model is polychoric.
 x_boot <- ackwards(bfi, k_max = 5, pairs = "all") |>
   boot_edges(bfi, n_boot = 200, seed = 1)
 #> ℹ Fitting 200 bootstrap replicates (pca, k = 1-5)...
-#> ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [8.5s]
+#> ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [2.5s]
 #> 
 
 boot_tbl <- tidy(x_boot, what = "edges", sort = "strength")
@@ -496,10 +501,6 @@ Forbes, M. K. (2023). Improving hierarchical models of individual differences:
 An extension of Goldberg's bass-ackward method. *Psychological Methods*.
 https://doi.org/10.1037/met0000546
 
-Goldberg, L. R. (1990). An alternative "description of personality": The
-Big-Five factor structure. *Journal of Personality and Social Psychology*,
-*59*(6), 1216–1229. https://doi.org/10.1037/0022-3514.59.6.1216
-
 Goldberg, L. R. (2006). Doing it all bass-ackwards: The development of
 hierarchical factor structures from the top down. *Journal of Research in
 Personality*, *40*(4), 347–358. https://doi.org/10.1016/j.jrp.2006.01.001
@@ -507,3 +508,11 @@ Personality*, *40*(4), 347–358. https://doi.org/10.1016/j.jrp.2006.01.001
 Lorenzo-Seva, U., & ten Berge, J. M. F. (2006). Tucker's congruence coefficient
 as a meaningful index of factor similarity. *Methodology*, *2*(2), 57–64.
 https://doi.org/10.1027/1614-2241.2.2.57
+
+Saucier, G. (1997). Effects of variable selection on the factor structure of
+person descriptors. *Journal of Personality and Social Psychology*, *73*(6),
+1296–1312. https://doi.org/10.1037/0022-3514.73.6.1296
+
+Saucier, G., Georgiades, S., Tsaousis, I., & Goldberg, L. R. (2005). The
+factor structure of Greek personality adjectives. *Journal of Personality and
+Social Psychology*, *88*(5), 856–875. https://doi.org/10.1037/0022-3514.88.5.856
