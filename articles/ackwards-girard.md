@@ -92,13 +92,13 @@ bfi <- na.omit(bfi25)
 
 sk <- suggest_k(bfi, seed = 1)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [126ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [134ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [85ms]
+#> ✔ Running MAP and VSS... [88ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [4.8s]
+#> ✔ Running Comparison Data (CD)... [5.5s]
 #> 
 print(sk)
 #> 
@@ -153,7 +153,7 @@ to one past the ceiling, across ten random split-halves:
 
 cmp <- comparability(bfi, k_max = sk_hi + 1, n_splits = 10, seed = 2026)
 #> ℹ Fitting 10 split-half replicates (pca, k = 1-7)...
-#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [405ms]
+#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [377ms]
 #> 
 print(cmp)
 #> 
@@ -343,7 +343,7 @@ is polychoric.
 x_boot <- ackwards(bfi, k_max = 5, pairs = "all") |>
   boot_edges(bfi, n_boot = 200, seed = 1)
 #> ℹ Fitting 200 bootstrap replicates (pca, k = 1-5)...
-#> ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [2.5s]
+#> ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [2.9s]
 #> 
 
 boot_tbl <- tidy(x_boot, what = "edges", sort = "strength")
@@ -535,7 +535,7 @@ Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg’s bass-ackward method.
 *Psychological Methods*. <https://doi.org/10.1037/met0000546>
 
-Goldberg, L. R. (2006). Doing it all bass-ackwards: The development of
+Goldberg, L. R. (2006). Doing it all Bass-Ackwards: The development of
 hierarchical factor structures from the top down. *Journal of Research
 in Personality*, *40*(4), 347–358.
 <https://doi.org/10.1016/j.jrp.2006.01.001>

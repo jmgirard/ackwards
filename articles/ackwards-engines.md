@@ -659,7 +659,8 @@ structure.
 Asparouhov, T., & Muthén, B. (2009). Exploratory structural equation
 modeling. *Structural Equation Modeling*, *16*(3), 397–438.
 
-Goldberg, L. R. (2006). Doing it all bass-ackwards. *Journal of Research
+Goldberg, L. R. (2006). Doing it all Bass-Ackwards: The development of
+hierarchical factor structures from the top down. *Journal of Research
 in Personality*, *40*(4), 347–358.
 
 Hu, L., & Bentler, P. M. (1999). Cutoff criteria for fit indexes in

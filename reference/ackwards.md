@@ -136,7 +136,10 @@ ackwards(
     `engine = "efa"`
     ([`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html) needs N for
     chi-square / RMSEA / TLI); optional for `"pca"` (stored as
-    `NA_integer_` if omitted, disabling N-dependent fit statistics).
+    `NA_integer_` if omitted). For PCA it is recorded in the result
+    metadata and feeds the N-based sampling-adequacy checks only – PCA
+    level fit is eigenvalue-based and computes no N-dependent fit
+    statistics.
 
   - **Raw data:** N is normally taken from `nrow(data)` and a numeric
     `n_obs` is ignored (with a warning). The exception is
@@ -288,7 +291,9 @@ Constraints and behaviour when a correlation matrix is supplied:
   and per-level fit indices) and will error clearly.
 
 - **`n_obs`:** required for `"efa"` (psych needs N for chi-square /
-  RMSEA / TLI); optional for `"pca"` (stored as `NA` if omitted).
+  RMSEA / TLI); optional for `"pca"` (stored as `NA` if omitted; used
+  for the N-based sampling-adequacy checks and result metadata only –
+  PCA computes no N-dependent fit statistics).
 
 - **`cor` argument:** ignored – the basis is already determined by the
   matrix you supply. A warning is emitted if you set `cor` explicitly.
@@ -356,7 +361,8 @@ category, and the ordinal-detection warning when you did intend Pearson.
 
 ## References
 
-Goldberg, L. R. (2006). Doing it all bass-ackwards. *Journal of Research
+Goldberg, L. R. (2006). Doing it all Bass-Ackwards: The development of
+hierarchical factor structures from the top down. *Journal of Research
 in Personality*, 40(4), 347–358.
 [doi:10.1016/j.jrp.2006.01.001](https://doi.org/10.1016/j.jrp.2006.01.001)
 
@@ -450,8 +456,9 @@ glance(x)
 R <- cor(sim16)
 x_R <- ackwards(R, k_max = 4)
 #> ℹ `n_obs` not supplied; stored as `NA`.
-#> ℹ Fit statistics requiring N (chi-square, RMSEA, TLI) are unavailable. Pass
-#>   `n_obs = <N>` to enable them.
+#> ℹ PCA level fit is eigenvalue-based and does not use N; supplying `n_obs = <N>`
+#>   records it in the result metadata and enables the N-based sampling-adequacy
+#>   checks.
 print(x_R)
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────

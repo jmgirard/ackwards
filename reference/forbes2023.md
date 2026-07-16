@@ -89,8 +89,9 @@ forbes2023[1:3, 1:3]
 # The Forbes (2023) applied example: a 10-level hierarchy from 155 symptoms.
 x <- ackwards(forbes2023, k_max = 10, pairs = "all")
 #> ℹ `n_obs` not supplied; stored as `NA`.
-#> ℹ Fit statistics requiring N (chi-square, RMSEA, TLI) are unavailable. Pass
-#>   `n_obs = <N>` to enable them.
+#> ℹ PCA level fit is eigenvalue-based and does not use N; supplying `n_obs = <N>`
+#>   records it in the result metadata and enables the N-based sampling-adequacy
+#>   checks.
 x
 #> 
 #> ── Bass-Ackwards Analysis (ackwards) ───────────────────────────────────────────

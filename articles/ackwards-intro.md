@@ -72,13 +72,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [135ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [169ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [40ms]
+#> ✔ Running MAP and VSS... [49ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [5.8s]
+#> ✔ Running Comparison Data (CD)... [6s]
 #> 
 print(sk)
 #> 
@@ -690,7 +690,7 @@ before you interpret — see
 
 ## References
 
-Goldberg, L. R. (2006). Doing it all bass-ackwards: The development of
+Goldberg, L. R. (2006). Doing it all Bass-Ackwards: The development of
 hierarchical factor structures from the top down. *Journal of Research
 in Personality*, *40*(4), 347–358.
 <https://doi.org/10.1016/j.jrp.2006.01.001>
