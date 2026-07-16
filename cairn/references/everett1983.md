@@ -9,7 +9,7 @@ https://doi.org/10.1207/s15327906mbr1802_5
 
 ## Why this is a primary source
 
-The basis of `comparability()` (M46; DESIGN §14.35): split-half factor
+The basis of `comparability()` (M46; DECISIONS D-022): split-half factor
 comparability as the criterion for how many factors are *reliably
 recoverable* — the quality gate [[goldberg1990]] applied and the modern
 HiTOP-era literature largely dropped.
@@ -44,7 +44,7 @@ Key positions:
 
 ## Relation to our implementation
 
-`comparability(cor, fm, n_splits = 10, seed)` (DESIGN §14 / M46) resurrects
+`comparability(cor, fm, n_splits = 10, seed)` (DECISIONS D-022 / M46) resurrects
 this procedure with repeated random splits (Everett used single splits);
 scores-side comparability is the headline diagnostic, with Tucker's φ on
 matched loadings kept visible as the secondary index. ESEM/basis extension is

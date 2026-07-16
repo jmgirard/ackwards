@@ -38,7 +38,7 @@ the framework is defined here.
   cites this paper for its ESEM machinery).
 - Scoring: ackwards does **not** use ESEM-native score estimation for edges —
   tenBerge weights are self-computed from lavaan's `Λ` and latent `R`
-  (DESIGN §14.12; [[tenberge1999]]) so the one-edge-path algebra (Invariant
+  (DECISIONS D-016; [[tenberge1999]]) so the one-edge-path algebra (Invariant
   1) applies unchanged.
 - Rotation default stays varimax across engines for between-level score-
   correlation interpretability ([[goldberg2006]]); geomin/oblique is out of
