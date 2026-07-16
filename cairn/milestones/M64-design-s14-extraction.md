@@ -3,7 +3,7 @@
      Per-section owners are tagged below. -->
 # M64: DESIGN §14 → DECISIONS.md extraction (hybrid + entomb)
 
-- **Status:** in-progress   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
+- **Status:** review   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
 - **Priority:** normal   <!-- owner: plan · create/amend-via-gate; high | normal | low -->
 - **Depends on:** —   <!-- owner: plan · create/amend-via-gate -->
 - **Principles touched:** —   <!-- owner: plan · create/amend-via-gate -->
@@ -91,12 +91,12 @@ D-001–D-015 don't cover, and repointing every live inline `§14.x` reference.
 - [x] T3: Append D-016+ entries per the T1 ledger (Context/Decision/Consequences, legacy-anchor +
       milestone citations, real dates where known else "date: see legacy" per existing style);
       add the header resolution note.
-- [ ] T4: Rewrite DESIGN.md — §14 → pointer stub (to DECISIONS.md + the legacy file); new live
+- [x] T4: Rewrite DESIGN.md — §14 → pointer stub (to DECISIONS.md + the legacy file); new live
       "Known limitations" section (trimmed per T1); keep all section numbers stable.
-- [ ] T5: Repoint the live reference surface enumerated in Scope-In (DESIGN internal, CLAUDE.md,
+- [x] T5: Repoint the live reference surface enumerated in Scope-In (DESIGN internal, CLAUDE.md,
       ROADMAP ESEM row, four references pages, the test comment) to D-numbers / the new section /
       legacy anchors as appropriate.
-- [ ] T6: Verify — scoped `§14` grep (AC5), `cairn_validate.py`, `TESTTHAT_CPUS=8` suite.
+- [x] T6: Verify — scoped `§14` grep (AC5), `cairn_validate.py`, `TESTTHAT_CPUS=8` suite.
 
 ## Work log
 <!-- owner: any skill · append-only; one line per entry; absolute dates -->
@@ -112,6 +112,13 @@ D-001–D-015 don't cover, and repointing every live inline `§14.x` reference.
 - 2026-07-16: T3 done — D-016–D-030 appended (15 entries, Context/Decision/Consequences + legacy
   anchors); DECISIONS.md preamble now carries the anchor-resolution note; D-001–D-015 bodies
   untouched.
+- 2026-07-16: T4+T5 done — DESIGN.md 897→511 lines: §14 = 9-line stub, unnumbered live "Known
+  limitations" section (4 entries), §15 heading unchanged; all live §14.x refs repointed
+  (DESIGN ×7, CLAUDE.md ×2, ROADMAP ESEM row ×2, 4 references pages ×9, test comment ×1).
+- 2026-07-16: T6 done — scoped grep clean (only stub pointer lines + the M64 row title);
+  cairn_validate all-pass (dangling-token advisories 87→83); suite FAIL 0/PASS 2303 (one
+  parallel-run-only WARN in test-pca.R ordinal advisory, absent in isolation, unrelated to the
+  comment-only diff). Status → review.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local; promote

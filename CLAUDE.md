@@ -60,7 +60,7 @@ refactor.
 High-stakes defaults (varimax rotation, `cor = "pearson"`, `tenBerge` scoring, WLSMV for ordinal
 ESEM, `k_max` required, `align_signs`, `keep_scores`/`keep_fits = FALSE`, `redundancy_phi`
 auto-resolve, `redundancy_criterion = "direct"`) and their full rationale live in `cairn/DESIGN.md`
-§9 + §14. Announce auto-resolved choices loudly (Invariant 6); never change these silently.
+§9 + `cairn/DECISIONS.md`. Announce auto-resolved choices loudly (Invariant 6); never change these silently.
 
 ## Dependencies
 
@@ -171,7 +171,7 @@ Repo-specific facts cairn does not know:
 ## Out of scope
 
 EAP scoring (declined M28), oblique rotation, and higher-order SEM / Schmid-Leiman are out of
-scope — rationale in `cairn/DESIGN.md` §2 + §14. (Bootstrap skip-level edge CIs shipped M47 as
+scope — rationale in `cairn/DESIGN.md` §2 + `cairn/DECISIONS.md` (D-002, D-007). (Bootstrap skip-level edge CIs shipped M47 as
 `boot_edges()`; no longer deferred.)
 
 <!-- Appended by /cairn-init. Keep the section body under ~25 lines.

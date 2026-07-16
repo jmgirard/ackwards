@@ -14,10 +14,10 @@ one `prune()`'s roxygen correctly cites. Verified 2026-07-16.)*
 The empirical basis for every **Tucker's-φ threshold** in the package:
 
 - `prune("redundant")`'s φ guard (`redundancy_phi` auto-resolves to **.95**
-  for EFA/ESEM — DESIGN §14, M25);
+  for EFA/ESEM — DESIGN §9 `redundancy_phi` row, M25);
 - the optional conjunctive φ > **.95** criterion in the Forbes-faithful
-  redundancy rule (DESIGN §14.19);
-- φ interpretation in `comparability()` diagnostics (DESIGN §14 / M46).
+  redundancy rule (DECISIONS D-017);
+- φ interpretation in `comparability()` diagnostics (DECISIONS D-022 / M46).
 
 φ formula (their Eq. 1): `φ(x,y) = Σxᵢyᵢ / sqrt(Σxᵢ² · Σyᵢ²)` — the cosine
 between loading vectors; scale-invariant, sign-of-variable-invariant,

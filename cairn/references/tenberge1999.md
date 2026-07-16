@@ -36,7 +36,7 @@ one "tenBerge" score.
 
 ## Relation to our implementation
 
-- **Why it's the default** (DESIGN §9/§14): correlation preservation is *the*
+- **Why it's the default** (DESIGN §9; DECISIONS D-007): correlation preservation is *the*
   property bass-ackwards cares about — edges are correlations among scores,
   and LCP scores reproduce the within-level factor correlation structure
   exactly instead of shrinking it (regression scores) or distorting it
@@ -45,8 +45,8 @@ one "tenBerge" score.
   the method's behavior is unambiguous in our default configuration.
 - Even correlation-preserving scores are still *predictions*, not the factors
   (indeterminacy) — the reason `redundancy_phi` auto-resolves to a φ guard for
-  EFA/ESEM but not PCA (DESIGN §14, M25/M43 wording), and a companion caveat
+  EFA/ESEM but not PCA (DESIGN §9 `redundancy_phi` row, M25/M43 wording), and a companion caveat
   to [[waller2007]] §4.
 - ESEM engine computes tenBerge weights itself from lavaan's `Λ` and latent
-  `R` (`.tenBerge_weights`), since `lavPredict()` lacks the method (DESIGN
-  §14.12).
+  `R` (`.tenBerge_weights`), since `lavPredict()` lacks the method (DECISIONS
+  D-016).

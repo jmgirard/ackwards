@@ -197,7 +197,7 @@ test_that("forbes vignette: prune-artifact table idiom returns expected columns"
 
   expect_named(art_nodes, c("id", "level", "pruned", "prune_reason"), ignore.order = TRUE)
   expect_type(n_artifact, "integer")
-  # Artifact is never auto-flagged (DESIGN §14.21); BFI flags nothing
+  # Artifact is never auto-flagged (DECISIONS D-012); BFI flags nothing
   expect_equal(n_artifact, 0L)
 })
 
