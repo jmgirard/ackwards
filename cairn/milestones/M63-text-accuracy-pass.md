@@ -154,4 +154,6 @@ statistics PCA never computes.
   **Triage: fixed now** — message, `@param`, Details bullet, and NEWS reworded
   to "records it in the result metadata and enables the N-based
   sampling-adequacy checks"; man/ regenerated; cor-input tests 56/0; dod-gate
-  re-run after the fix.
+  re-run after the fix — PASSED (check 0 err/0 warn/0 note, coverage 100%,
+  style/lint clean, pkgdown index complete), so AC5 evidence holds for the
+  final tree.
