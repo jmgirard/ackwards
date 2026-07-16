@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M64 | DESIGN §14 → DECISIONS.md extraction (hybrid + entomb) | planned | — | normal | milestones/M64-design-s14-extraction.md |
+| M64 | DESIGN §14 → DECISIONS.md extraction (hybrid + entomb) | in-progress | — | normal | milestones/M64-design-s14-extraction.md |
 | M63 | User-facing text accuracy pass (Goldberg 2006 citations + PCA n_obs message) | done | — | normal | milestones/archive/M63-text-accuracy-pass.md |
 | M62 | Worked Forbes (2023) AMH example vignette | done | — | normal | milestones/archive/M62-forbes2023-vignette.md |
 | M61 | Enrich suggest_k() docs with verified k-selection citations | done | — | normal | milestones/archive/M61-suggest-k-citations.md |
