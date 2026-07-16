@@ -53,7 +53,7 @@ passes on other help pages/vignettes (add a candidate row if a gap is found);
       case to `@section A note on overextraction` (~line 118); add the three
       `@references` entries (alphabetical, `\doi{}` from the reference notes). Run
       `devtools::document()`; commit `man/` with it.
-- [ ] T2 — `vignettes/ackwards-suggest-k.Rmd.orig`: cite Saucier (1997) in the PA-PC
+- [x] T2 — `vignettes/ackwards-suggest-k.Rmd.orig`: cite Saucier (1997) in the PA-PC
       "Typical behavior" passage (~line 76) and Lim & Jahng/Achim at the consensus-range
       statement (~line 61 or ~line 220); add the three entries to `## References`
       (~line 489). Re-run `Rscript vignettes/precompute.R`; commit the regenerated
@@ -71,6 +71,9 @@ passes on other help pages/vignettes (add a candidate row if a gap is found);
 - 2026-07-16: T1 done — ±1-range sentence (Lim & Jahng + Achim) in Interpreting-the-output,
   Saucier fn-14 case in overextraction note, 3 @references entries; document() clean,
   suite 2300 pass / 0 fail.
+- 2026-07-16: T2 done — same citations in the vignette (consensus passage, PA-PC
+  typical-behavior, References); precompute.R re-run; restored 4 unrelated vignettes +
+  3 PNGs whose diffs were pure run noise (cli timings, gt element IDs).
 
 ## Decisions
 
