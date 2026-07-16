@@ -3,7 +3,7 @@
      Per-section owners are tagged below. -->
 # M60: De-duplicate the setup path (audit bucket 3)
 
-- **Status:** in-progress   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
+- **Status:** review   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
 - **Priority:** normal   <!-- owner: plan · create/amend-via-gate; high | normal | low -->
 - **Depends on:** —   <!-- owner: plan · create/amend-via-gate -->
 - **Principles touched:** —   <!-- no formal DESIGN IP/GP yet; operates under CLAUDE.md Invariants 1/2/7 (preserves, does not change them) -->
@@ -121,7 +121,7 @@ and no documented object contract changes — internal helpers and dead-code rem
       `switch(engine, pca=…, efa=…)` dispatch); rewire `.fit_half` (`comparability.R`) and
       `.boot_replicate` (`boot_edges.R`) to call it, each keeping its own R construction,
       resample/split, and return/sentinel handling.
-- [ ] T6: Run `Rscript tools/dod-gate.R`; confirm 0 err/0 warn/0 note, no coverage
+- [x] T6: Run `Rscript tools/dod-gate.R`; confirm 0 err/0 warn/0 note, no coverage
       regression, zero snapshot diffs, algebra-vs-scores oracle green, and no duplicated
       computation sites remain (grep). No NEWS/NAMESPACE change expected — confirm
       (internal-Rd regeneration for the `build_tidy` @param is expected and fine).
@@ -151,6 +151,12 @@ and no documented object contract changes — internal helpers and dead-code rem
 - 2026-07-16: T5 done: `.fit_levels_muffled()` in utils.R (signature gains `n_obs` — differs
   per caller, minor task edit); both callers keep their own suppressed R construction so
   cor()/corFiml chatter stays muffled exactly as before. comparability+boot: 156 pass, 0 fail.
+- 2026-07-16: AC6 amended at a user-approved mini-gate (line-count clause dropped; see
+  Decisions); comment-density trim (comment-only, 0 code lines) + compute_edges.Rd regen.
+- 2026-07-16: T6 done: dod-gate PASSED — check 0 err/0 warn/0 note, coverage 100%,
+  style/lint clean, pkgdown index complete, zero snapshot diffs, Forbes-fidelity +
+  algebra-vs-scores oracles green; dedup greps clean; NAMESPACE/NEWS untouched (only
+  internal compute_edges.Rd regenerated). Status → review.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
