@@ -20,6 +20,6 @@ documented helper extraction is line-neutral (+9 code lines); the real outcome i
 grep-verified single computation sites. Two candidates deliberately not extracted
 (positive-manifold flip, shortfall reporter) stay on the ROADMAP candidate list.
 
-**Verification:** suite 2295/0/0/0; dod-gate clean (check 0/0/0, coverage 100%); zero
-snapshot diffs; Forbes-fidelity + algebra-vs-scores oracles green; 3-lens independent
-review (diff-bug / blame-history / prior-PR) — 0 findings; CI 7/7 green.
+**Verification:** suite 2295 pass, 0 fail; dod-gate clean (check 0 err/0 warn/0 note,
+coverage 100%); zero snapshot diffs; Forbes-fidelity + algebra-vs-scores oracles green;
+3-lens independent review (diff-bug / blame-history / prior-PR) — 0 findings; CI all green.

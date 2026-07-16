@@ -3,6 +3,7 @@
 Durable, append-only repo lessons (build quirks, testing tricks, gotchas).
 One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
 
+- 2026-07-12 (M54): cairn_validate's ISO-date check flags any slash-separated N/N/N token (e.g. a 0/0/0 clean-check shorthand) as a malformed date — spell it out ("0 err/0 warn/0 note"). Re-proved by M60's archive summary the same day this lesson was pruned for cap space; keep it.
 - 2026-07-12 (M54): bundling a CC-BY dataset in an MIT package = data author as `Authors@R`
   `role = "cph"` scoped by `comment` to the file + a `LICENSE.note` (a WRE-recognized top-level
   filename that ships without tripping `R CMD check`). Gives a clean check with no license NOTE.
