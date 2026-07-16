@@ -76,11 +76,11 @@ statistics PCA never computes.
 ## Tasks
 <!-- owner: plan (create) / implement (check-off, minor edits) -->
 
-- [ ] T1 — Fix `R/ackwards.R`: full reference at :145 to the published title;
+- [x] T1 — Fix `R/ackwards.R`: full reference at :145 to the published title;
       `@param n_obs` at :45-46 (and the matrix-input Details bullet at :196-197
       if it repeats the claim) reworded to metadata-only for PCA; run
       `devtools::document()` and commit `man/ackwards.Rd` with it.
-- [ ] T2 — Correct the cli message at `R/ackwards.R:429-435` (drop the
+- [x] T2 — Correct the cli message at `R/ackwards.R:429-435` (drop the
       enable-fit-stats promise; state metadata-only storage); add a test
       asserting the corrected message on PCA matrix-input without `n_obs`
       (none exists today — new coverage).
@@ -99,6 +99,10 @@ statistics PCA never computes.
 - 2026-07-16: created by /milestone-plan; absorbs the two M62-review candidate
   rows (citation hygiene + matrix-input message); bundling + keep-corrected-message
   decided at the plan gate.
+- 2026-07-16: T1+T2 done (one commit; both touch R/ackwards.R): roxygen title +
+  n_obs param/Details rewording, cli message corrected, new regression test in
+  test-cor-input.R (56 pass/0 fail). Crossref re-check found goldberg2006.md had
+  the wrong issue number (40(3) → 40(4), roxygen was right); note fixed.
 
 ## Decisions
 <!-- owner: implement / review · append-only -->
