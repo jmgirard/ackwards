@@ -84,12 +84,12 @@ statistics PCA never computes.
       enable-fit-stats promise; state metadata-only storage); add a test
       asserting the corrected message on PCA matrix-input without `n_obs`
       (none exists today — new coverage).
-- [ ] T3 — Fix the four `.Rmd.orig` reference lines (engines:583, forbes:527
+- [x] T3 — Fix the four `.Rmd.orig` reference lines (engines:583, forbes:527
       add subtitle; intro:395, girard:336 casing) to the goldberg2006.md form.
-- [ ] T4 — `Rscript vignettes/precompute.R`; `git checkout --` the untouched
+- [x] T4 — `Rscript vignettes/precompute.R`; `git checkout --` the untouched
       vignettes/assets (forbes2023, ordinal, suggest-k, visualization); commit
       regenerated `.Rmd` + assets.
-- [ ] T5 — NEWS.md entry (message correction; citation completion can share
+- [x] T5 — NEWS.md entry (message correction; citation completion can share
       the bullet).
 - [ ] T6 — `Rscript tools/dod-gate.R` clean at the gate.
 
@@ -103,6 +103,9 @@ statistics PCA never computes.
   n_obs param/Details rewording, cli message corrected, new regression test in
   test-cor-input.R (56 pass/0 fail). Crossref re-check found goldberg2006.md had
   the wrong issue number (40(3) → 40(4), roxygen was right); note fixed.
+- 2026-07-16: T3–T5 done: four .Rmd.orig lines fixed; precompute regenerated all
+  vignettes, untouched ones + noise-only assets restored (M61 lesson; churn was
+  gt element IDs + cli timings); two NEWS bullets. AC1 grep: 12/12 sites uniform.
 
 ## Decisions
 <!-- owner: implement / review · append-only -->

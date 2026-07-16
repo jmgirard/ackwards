@@ -10,6 +10,16 @@
 * Corrected the Forbes (2023) article title in the `forbes2023` help page
   ("bass-ackward method", per the published title).
 
+* **Corrected the `n_obs` advisory for PCA on correlation-matrix input.** The
+  message (and the `n_obs` help text) claimed supplying `n_obs` would enable
+  chi-square/RMSEA/TLI, but the PCA engine's level fit is eigenvalue-based and
+  never computes them; `n_obs` is recorded in the result metadata only. The
+  message now says so. No behavior changes.
+
+* Completed the Goldberg (2006) reference to its full published title ("Doing
+  it all Bass-Ackwards: The development of hierarchical factor structures from
+  the top down") in the `ackwards()` help page and four vignettes.
+
 # ackwards 0.1.1
 
 CRAN resubmission of the first release, addressing reviewer feedback on the
