@@ -312,21 +312,20 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
   na_out <- rep(NA_real_, sum(vapply(dims, prod, numeric(1L))))
 
   levels_rep <- tryCatch(
-    suppressMessages(suppressWarnings({
+    {
       d_b <- data_mat[idx, , drop = FALSE]
       R_b <- if (identical(missing_eff, "fiml")) {
-        .corfiml_R(d_b)$R
+        suppressMessages(suppressWarnings(.corfiml_R(d_b)$R))
       } else {
-        stats::cor(d_b, method = cor, use = "pairwise.complete.obs")
-      }
-      out <- switch(engine,
-        pca = pca_levels(R_b, k_max = k_max, cor = cor),
-        efa = efa_levels(R_b,
-          k_max = k_max, fm = fm, n_obs = nrow(d_b), cor = cor
+        suppressWarnings(
+          stats::cor(d_b, method = cor, use = "pairwise.complete.obs")
         )
+      }
+      out <- .fit_levels_muffled(R_b, engine,
+        k_max = k_max, cor = cor, fm = fm, n_obs = nrow(d_b)
       )
       list(levels = out$levels, R_b = R_b)
-    })),
+    },
     error = function(e) NULL
   )
   if (is.null(levels_rep) || length(levels_rep$levels) < 2L) {

@@ -270,22 +270,21 @@ comparability <- function(data, k_max, engine = "pca", cor = "pearson",
 }
 
 # Fit levels 1..k_max in one half-sample, returning the engine's levels list.
-# Engine warnings (Heywood, per-level truncation) are muffled here: across
-# 2 * n_splits fits they would repeat unusably, and their aggregate signal is
-# exactly what the coefficients + n_splits_ok report. A half whose correlation
-# matrix cannot be factored at all (e.g. a zero-variance column) yields an
-# empty list (all-NA split).
+# Engine warnings (Heywood, per-level truncation) are muffled by
+# .fit_levels_muffled() (utils.R, shared with boot_edges): their aggregate
+# signal is exactly what the coefficients + n_splits_ok report. A half whose
+# correlation matrix cannot be factored at all (e.g. a zero-variance column)
+# yields an empty list (all-NA split).
 .fit_half <- function(data_half, k_max, engine, cor, fm) {
   out <- tryCatch(
-    suppressMessages(suppressWarnings({
-      R_h <- stats::cor(data_half, method = cor, use = "pairwise.complete.obs")
-      switch(engine,
-        pca = pca_levels(R_h, k_max = k_max, cor = cor),
-        efa = efa_levels(R_h,
-          k_max = k_max, fm = fm, n_obs = nrow(data_half), cor = cor
-        )
+    {
+      R_h <- suppressWarnings(
+        stats::cor(data_half, method = cor, use = "pairwise.complete.obs")
       )
-    })),
+      .fit_levels_muffled(R_h, engine,
+        k_max = k_max, cor = cor, fm = fm, n_obs = nrow(data_half)
+      )
+    },
     error = function(e) list(levels = list())
   )
   out$levels

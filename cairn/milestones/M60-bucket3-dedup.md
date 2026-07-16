@@ -115,7 +115,7 @@ and no documented object contract changes — internal helpers and dead-code rem
 - [x] T4: Remove the `k_eff >= 1L` guard (`ackwards.R:848`) and the `converged_levels`
       vector (`:883`); set `deepest_converged = k_eff` (`:884`). Verify `glance()` output
       and the `deepest_converged < 2` glance path (`test-pca.R:218-233`) are unchanged.
-- [ ] T5: Extract `.fit_levels_muffled(R, engine, k_max, cor, fm)` (the muffled
+- [x] T5: Extract `.fit_levels_muffled(R, engine, k_max, cor, fm)` (the muffled
       `switch(engine, pca=…, efa=…)` dispatch); rewire `.fit_half` (`comparability.R`) and
       `.boot_replicate` (`boot_edges.R`) to call it, each keeping its own R construction,
       resample/split, and return/sentinel handling.
@@ -145,6 +145,9 @@ and no documented object contract changes — internal helpers and dead-code rem
 - 2026-07-16: T4 done: always-true guard, `converged_levels`, and the `conv` vapply removed;
   `deepest_converged = k_eff` with an Invariant-7 comment (all engines truncate at first
   failure, verified in all three engines). Engine/print/tidy/glance tests: 476 pass, 0 fail.
+- 2026-07-16: T5 done: `.fit_levels_muffled()` in utils.R (signature gains `n_obs` — differs
+  per caller, minor task edit); both callers keep their own suppressed R construction so
+  cor()/corFiml chatter stays muffled exactly as before. comparability+boot: 156 pass, 0 fail.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->

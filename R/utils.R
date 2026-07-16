@@ -403,6 +403,24 @@ flip_weights <- function(W, sign_vec) {
   list(R = R, min_eig = min_eig)
 }
 
+# Muffled engine dispatch shared by comparability()'s half-fits and
+# boot_edges()'s replicate refits (M60): fit levels 1..k_max on a precomputed
+# R, suppressing the engines' message/warning chatter (Heywood, per-level
+# truncation) -- across 2 * n_splits or n_boot fits those conditions would
+# repeat unusably, and their aggregate signal is exactly what the callers'
+# coefficients / NA counts report. Callers keep their own R construction
+# (pairwise vs FIML), resample/split step, and error/sentinel handling.
+# Returns the engine's list(levels = ..., fits = ...) unchanged. ESEM is not
+# dispatched here: both callers are PCA/EFA-only (DESIGN s.14.35/.36).
+.fit_levels_muffled <- function(R, engine, k_max, cor, fm, n_obs) {
+  suppressMessages(suppressWarnings(
+    switch(engine,
+      pca = pca_levels(R, k_max = k_max, cor = cor),
+      efa = efa_levels(R, k_max = k_max, fm = fm, n_obs = n_obs, cor = cor)
+    )
+  ))
+}
+
 # If x is a square, symmetric, numeric matrix with non-unit diagonal, the user
 # almost certainly passed a covariance matrix by mistake. Error early with a
 # targeted message rather than letting it fall through to the raw-data branch
