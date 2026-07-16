@@ -82,7 +82,7 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
 ## Tasks
 <!-- owner: plan (create) / implement (check-off, minor edits) -->
 
-- [ ] T1: Draft `vignettes/ackwards-forbes2023.Rmd.orig` — the full applied example: dataset
+- [x] T1: Draft `vignettes/ackwards-forbes2023.Rmd.orig` — the full applied example: dataset
       intro (AMH, N = 3,175, CC-BY provenance), fit `ackwards(forbes2023, k_max = 10,
       pairs = "all")`, hierarchy overview, strongest skip-level edges, `prune("redundant")`
       with the direct-vs-adjacent note (37 vs 36), pruned-factor diagram (labeled + compressed
@@ -105,6 +105,12 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
   example; ACs pinned to fixture values; data.R typo fixed in-milestone.
 - 2026-07-16: /milestone-implement start — Forbes (2023) title verified via Crossref API
   ("bass-ackward method", singular; confirms the T2 fix). Branch m62-forbes2023-vignette.
+- 2026-07-16: T1 done — vignette drafted against live numbers (fit 0.6s; 1320 edges/45 pairs;
+  37/55 direct vs 36 adjacent; d4 chain m4f4→…→m10f4), test-knit clean, both diagrams verified
+  visually. Crossref check found repo-wide Goldberg (2006) cites omit the published subtitle
+  ("…The development of hierarchical factor structures from the top down") — full title used in
+  the new vignette; repo-wide fix left out of scope (would regenerate all vignettes), surface at
+  recap as a candidate.
 
 ## Decisions
 <!-- owner: implement / review · append-only -->
