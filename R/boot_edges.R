@@ -343,7 +343,8 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
     levels = anchored[usable],
     R = levels_rep$R_b,
     edge_method = "algebra",
-    pairs = pairs
+    pairs = pairs,
+    build_tidy = FALSE
   )$matrices)
 
   # Flatten in the canonical key order, row-major within each matrix (the

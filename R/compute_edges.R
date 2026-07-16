@@ -28,12 +28,17 @@
 #' @param use Passed to [stats::cor()] when materialising scores.
 #' @param cut_show Edges with `|r| >= cut_show` are flagged `above_cut` in the
 #'   tidy tibble.
+#' @param build_tidy Build the tidy edge data frame? `FALSE` returns
+#'   `tidy = NULL` for matrices-only callers (the pre-alignment lineage pass in
+#'   `ackwards()`, `comparability()`'s cross-solution blocks, `boot_edges()`
+#'   replicates), which would otherwise build and discard it (M60).
 #'
 #' @return A list with:
 #'   \item{matrices}{Named list of `(k_a x k_b)` edge matrices, keyed
 #'     `"k_a:k_b"`.}
 #'   \item{tidy}{A data frame with one row per directed edge: `from`, `to`,
-#'     `level_from`, `level_to`, `r`, `is_primary`, `above_cut`.}
+#'     `level_from`, `level_to`, `r`, `is_primary`, `above_cut` -- or `NULL`
+#'     when `build_tidy = FALSE`.}
 #'
 #' @keywords internal
 compute_edges <- function(
@@ -43,7 +48,8 @@ compute_edges <- function(
   pairs = c("adjacent", "all"),
   data = NULL,
   use = "pairwise.complete.obs",
-  cut_show = 0.3
+  cut_show = 0.3,
+  build_tidy = TRUE
 ) {
   edge_method <- match.arg(edge_method)
   pairs <- match.arg(pairs)
@@ -109,6 +115,10 @@ compute_edges <- function(
     rownames(E) <- la$labels
     colnames(E) <- lb$labels
     matrices[[key]] <- E
+  }
+
+  if (!build_tidy) {
+    return(list(matrices = matrices, tidy = NULL))
   }
 
   # Build tidy edge tibble (before sign alignment, lineage not yet known)

@@ -228,11 +228,13 @@ match_parents <- function(E) {
 #
 # Arguments:
 #   loadings_list  -- list indexed by k (1..K) of pxk loading matrices
-#   edges_list     -- list named "k_a:k_b" of (k_a x k_b) edge matrices
+#   edges_list     -- list named "k_a:k_b" of (k_a x k_b) edge matrices (read
+#                     to choose flips; never returned -- ackwards() recomputes
+#                     final edges from the flipped weights, M60)
 #   lineage        -- list indexed by k>=2 of integer vectors (parent indices)
 #
-# Returns: list(loadings = ..., edges = ..., signs = ...) where signs is a list
-# of +/-1 vectors (one per level) recording the flip applied.
+# Returns: list(loadings = ..., signs = ...) where signs is a list of +/-1
+# vectors (one per level) recording the flip applied.
 .align_signs <- function(loadings_list, edges_list, lineage) {
   K <- length(loadings_list)
   signs <- vector("list", K)
@@ -258,11 +260,10 @@ match_parents <- function(E) {
       sk[j] <- if (parent_signs[parents[j]] * E[parents[j], j] >= 0) 1L else -1L
     }
     loadings_list[[k]] <- sweep(loadings_list[[k]], 2, sk, "*")
-    edges_list[[key]] <- sweep(sweep(E, 2, sk, "*"), 1, signs[[k - 1L]], "*")
     signs[[k]] <- sk
   }
 
-  list(loadings = loadings_list, edges = edges_list, signs = signs)
+  list(loadings = loadings_list, signs = signs)
 }
 
 # Apply previously computed sign vectors to a weight matrix W (p x k).

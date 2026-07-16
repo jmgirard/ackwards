@@ -834,7 +834,7 @@ ackwards <- function(
     R           = R,
     edge_method = "auto",
     pairs       = "adjacent",
-    cut_show    = cut_show
+    build_tidy  = FALSE # matrices feed lineage/sign alignment only (M60)
   )
 
   lineage <- vector("list", k_eff)
@@ -860,8 +860,10 @@ ackwards <- function(
   }
 
   # --- Final edge set (adjacent or all-levels Forbes extension) ---------------
-  # Recompute using aligned levels_list so skip-level edges inherit correct signs.
-  # Adjacent-pair matrices match aligned$edges exactly; recomputing is safe.
+  # Computed from the aligned levels_list (flipped loadings/weights), so all
+  # edges -- adjacent and skip-level alike -- carry the aligned signs. This is
+  # the only edge set the object stores; the pre-alignment pass above fed
+  # lineage/sign alignment only (M60).
   final_edges <- compute_edges(
     levels      = levels_list,
     R           = R,

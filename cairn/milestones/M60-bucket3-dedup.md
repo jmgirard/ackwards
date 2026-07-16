@@ -105,7 +105,7 @@ and no documented object contract changes — internal helpers and dead-code rem
 - [x] T1: Add `.variance_explained(L, p, labels)` and `.score_var(W, R)` to `utils.R`;
       rewire `engine_pca.R`, `engine_efa.R`, `engine_esem.R` (incl. ESEM's second variance
       compute at `:180-181`) to call them. Grep-verify no inline copies remain anywhere.
-- [ ] T2: Drop `$edges` from `.align_signs()` (return list + the `edges_list` mutation,
+- [x] T2: Drop `$edges` from `.align_signs()` (return list + the `edges_list` mutation,
       `utils.R:244,248`); add a matrices-only path to `compute_edges()` and use it for the
       first call in `ackwards.R:832-838` so the discarded tidy tibble is never built.
 - [ ] T3: Add an optional precomputed `min_eig` param to `.near_singular_check`
@@ -132,6 +132,11 @@ and no documented object contract changes — internal helpers and dead-code rem
   utils.R; three engines + compute_edges()'s D^{-1/2} rewired (repo-wide grep clean); ESEM's
   ordering key kept as raw colSums(L^2) (order-equivalent, divisor-free) so the variance
   vector is computed once post-sort. Engine/edge tests: 450 pass, 0 fail.
+- 2026-07-16: T2 done: `.align_signs()` returns loadings+signs only; `compute_edges()` gains
+  `build_tidy = FALSE`, used by ackwards' lineage pass + (minor amendment, same dead-build
+  pattern) `.cross_cor()` and `.boot_replicate()`. The M35 `.align_signs` unit test now
+  asserts the sign decisions (`$signs`) instead of the dropped `$edges`; end-to-end
+  primary-nonnegativity test unchanged. Edge/comparability/boot tests: 250 pass, 0 fail.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->
