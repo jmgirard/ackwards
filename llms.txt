@@ -94,9 +94,9 @@ sk
 #> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288 CD ✔
 #> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6198* VSS-2 0.7781 CD ✔
 #> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5730 VSS-2 0.7912* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530 CD ✔*
-#> k = 7: PA-PC - PA-FA - MAP 0.0201 VSS-1 0.5698 VSS-2 0.7290 CD -
-#> k = 8: PA-PC - PA-FA - MAP 0.0231 VSS-1 0.5615 VSS-2 0.7252 CD -
+#> k = 6: PA-PC - PA-FA ✔ MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530 CD ✔
+#> k = 7: PA-PC - PA-FA - MAP 0.0201 VSS-1 0.5698 VSS-2 0.7290 CD ✔
+#> k = 8: PA-PC - PA-FA - MAP 0.0231 VSS-1 0.5615 VSS-2 0.7252 CD ✔*
 #> 
 #> ── Recommendations ──
 #> 
@@ -105,8 +105,8 @@ sk
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
-#> • CD: k = 6
-#> Consensus range: k = 4-6
+#> • CD: k = 8
+#> Consensus range: k = 4-8
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.
@@ -252,8 +252,8 @@ data:
 
 - **`comparability(bfi25, k_max = 6)`** gates hierarchy *depth* on
   split-half replicability — the deepest level at which every factor
-  re-emerges in random halves of the sample (Everett 1983; Goldberg
-  1990).
+  re-emerges in random halves of the sample (Everett 1983; Saucier et
+  al. 2005).
 - **`prune(x, "redundant")`** flags factors that persist across levels
   without differentiating — Forbes’s (2023) redundancy question.
 - **`boot_edges(x, bfi25)`** attaches bootstrap confidence intervals to
@@ -288,7 +288,7 @@ citation("ackwards")
 #> To cite package 'ackwards' in publications use:
 #> 
 #>   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural
-#>   Analysis_. R package version 0.1.0,
+#>   Analysis_. R package version 0.1.1,
 #>   <https://github.com/jmgirard/ackwards>.
 #> 
 #> A BibTeX entry for LaTeX users is
@@ -297,7 +297,7 @@ citation("ackwards")
 #>     title = {ackwards: Bass-Ackwards Hierarchical Structural Analysis},
 #>     author = {Jeffrey M. Girard},
 #>     year = {2026},
-#>     note = {R package version 0.1.0},
+#>     note = {R package version 0.1.1},
 #>     url = {https://github.com/jmgirard/ackwards},
 #>   }
 ```
