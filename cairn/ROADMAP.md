@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-07-16 (M62 done)_
+_Last hygiene check: 2026-07-16 (M63 done)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,13 +10,12 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M63 | User-facing text accuracy pass (Goldberg 2006 citations + PCA n_obs message) | review | — | normal | milestones/M63-text-accuracy-pass.md |
+| M63 | User-facing text accuracy pass (Goldberg 2006 citations + PCA n_obs message) | done | — | normal | milestones/archive/M63-text-accuracy-pass.md |
 | M62 | Worked Forbes (2023) AMH example vignette | done | — | normal | milestones/archive/M62-forbes2023-vignette.md |
 | M61 | Enrich suggest_k() docs with verified k-selection citations | done | — | normal | milestones/archive/M61-suggest-k-citations.md |
 | M60 | De-duplicate the setup path (audit bucket 3) | done | — | normal | milestones/archive/M60-bucket3-dedup.md |
 | M59 | De-duplicate console output & plot builders | done | M58 | normal | milestones/archive/M59-dedup-console-output.md |
-| M58 | Consolidate input-validation helpers & fix two drift bugs | done | — | normal | milestones/archive/M58-consolidate-validation-helpers.md |
-<!-- M01–M57 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent. -->
+<!-- M01–M58 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent. -->
 
 ## Candidates
 

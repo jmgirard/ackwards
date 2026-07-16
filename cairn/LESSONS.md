@@ -4,9 +4,6 @@ Durable, append-only repo lessons (build quirks, testing tricks, gotchas).
 One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
 
 - 2026-07-12 (M54): cairn_validate's ISO-date check flags any slash-separated N/N/N token (e.g. a 0/0/0 clean-check shorthand) as a malformed date — spell it out ("0 err/0 warn/0 note"). Re-proved by M60's archive summary the same day this lesson was pruned for cap space; keep it.
-- 2026-07-12 (M54): bundling a CC-BY dataset in an MIT package = data author as `Authors@R`
-  `role = "cph"` scoped by `comment` to the file + a `LICENSE.note` (a WRE-recognized top-level
-  filename that ships without tripping `R CMD check`). Gives a clean check with no license NOTE.
 - 2026-07-12 (M54): to bundle a dataset that also backs a fidelity test, drive `data/<name>.rda`
   and the test fixture from one md5-pinned `data-raw/` download so they cannot drift; have the test
   read the matrix from the exported dataset (verifies the shipped object, not a fixture copy).
@@ -18,9 +15,6 @@ One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
 - 2026-07-12 (M56): apaquarto (APA-7 Quarto) hard-requires `fontawesome5` (title-block ORCID) and its
   `man`/APA float mode uses `endfloat`, which emits `.fff`/`.ttt` aux files — gitignore them plus the
   usual LaTeX aux. Quarto callout blocks pull extra font deps; plain blockquotes render fine without.
-- 2026-07-12 (M56): verify reference titles against Crossref *and* the package's own roxygen — the
-  repo's intro/engines vignettes carried a wrong Waller (2007) title ("…Bass-Ackward factor analysis"
-  vs the correct "…Goldberg's Bass-Ackwards method") that disagreed with `R/ackwards.R`.
 - 2026-07-12 (M57): a fixture's *prose* provenance claim ("regenerated from OSF, set.seed(123)") is
   not reproducibility — the M44 sims matrices were provably unrecoverable (no fx/Phi/seed/n/method
   reproduced them; even same R/psych version strings) because no generator was committed. `set.seed`
@@ -47,3 +41,9 @@ One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
 - 2026-07-16 (M61): `vignettes/precompute.R` regenerates ALL vignettes — unrelated ones churn
   with pure run noise (cli `[Nms]` timings, gt's random HTML element IDs, PNG re-renders);
   `git checkout --` the untouched vignettes/assets before committing so the PR diff stays scoped.
+- 2026-07-16 (M63): when correcting a false absolute claim in user-facing text, enumerate every
+  consumer of the value first — the first fix ("n_obs = metadata **only**") traded one false claim
+  for a smaller one (n_obs also feeds the factorability N:p screen); the review caught it.
+- 2026-07-16 (M63): re-verify a committed reference note against Crossref before propagating it
+  repo-wide (supersedes the M56 Waller-title lesson) — goldberg2006.md carried a wrong issue
+  number (40(3) vs published 40(4)) while the roxygen it was about to overwrite was right.
