@@ -21,6 +21,20 @@ in-the-wild case for Invariant 7 (convergence is data, not an error). Also
 links hierarchy levels to a bifactor model (bass-ackwards p ↔ bifactor p at
 r = .99) and runs within/between-level predictive-validity comparisons.
 
+## markon2005 — Markon, Krueger, & Watson (2005)
+
+Markon, K. E., Krueger, R. F., & Watson, D. (2005). Delineating the
+structure of normal and abnormal personality: An integrative hierarchical
+approach. *Journal of Personality and Social Psychology, 88*(1), 139–157.
+https://doi.org/10.1037/0022-3514.88.1.139
+
+The most influential early application after Goldberg's own ([[goldberg2006]]
+§5 singles it out): sequential factor solutions at 2–5 factors integrating
+normal and abnormal personality measures, replicated across a meta-analytic
+correlation matrix and an empirical sample. Established the Big
+Two → Big Three → Big Four → Big Five unfolding that wright2014a and the
+psychopathology applications take as the expected top-of-hierarchy pattern.
+
 ## wright2014a — Wright & Simms (2014)
 
 Wright, A. G. C., & Simms, L. J. (2014). On the structure of personality
@@ -78,14 +92,4 @@ published stopping rule to cite alongside `k_max`. Psychosis-risk (CHR)
 mapping onto HiTOP; analysis code public at
 `github.com/hrcowan/HiTOP-MAP`.
 
-## widiger2019 — Widiger et al. (2019) _(background review; no bass-ackwards analysis)_
-
-Widiger, T. A., Bach, B., Chmielewski, M., Clark, L. A., DeYoung, C.,
-Hopwood, C. J., … Thomas, K. M. (2019). Criterion A of the AMPD in HiTOP.
-*Journal of Personality Assessment, 101*(4), 345–355.
-https://doi.org/10.1080/00223891.2018.1465431
-
-Consortium review of whether DSM-5 AMPD Criterion A (self/interpersonal
-deficits) belongs in HiTOP, largely via the g-PD/p-factor literature. No
-hierarchical structural analysis of its own — context for HiTOP framing in
-the manuscript, omit from method citations.
+_(widiger2019 moved to `background.md` 2026-07-16.)_

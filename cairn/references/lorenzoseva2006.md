@@ -4,7 +4,7 @@
 congruence coefficient as a meaningful index of factor similarity.
 *Methodology, 2*(2), 57–64. https://doi.org/10.1027/1614-1881.2.2.57
 
-**PDF.** `pdf/Lorenzo-Seva and ten Berge - 2006 - ….pdf` (local only; gitignored).
+**PDF.** `pdf/lorenzoseva2006.pdf` (local only; gitignored).
 
 ## Why this is a primary source
 

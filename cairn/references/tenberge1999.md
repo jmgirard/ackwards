@@ -5,7 +5,7 @@ Shapiro, A. (1999). Some new results on correlation-preserving factor scores
 prediction methods. *Linear Algebra and its Applications, 289*(1–3), 311–318.
 https://doi.org/10.1016/S0024-3795(97)10007-6
 
-**PDF.** `pdf/ten Berge et al. - 1999 - ….pdf` (local only; gitignored).
+**PDF.** `pdf/tenberge1999.pdf` (local only; gitignored).
 
 ## Why this is a primary source
 
