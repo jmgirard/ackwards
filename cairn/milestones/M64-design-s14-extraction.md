@@ -7,7 +7,7 @@
 - **Priority:** normal   <!-- owner: plan · create/amend-via-gate; high | normal | low -->
 - **Depends on:** —   <!-- owner: plan · create/amend-via-gate -->
 - **Principles touched:** —   <!-- owner: plan · create/amend-via-gate -->
-- **Branch/PR:** m64-design-s14-extraction   <!-- owner: implement (branch) / review (PR URL) · create -->
+- **Branch/PR:** m64-design-s14-extraction · https://github.com/jmgirard/ackwards/pull/65   <!-- owner: implement (branch) / review (PR URL) · create -->
 
 ## Goal
 <!-- owner: plan · create -->
@@ -50,24 +50,24 @@ D-001–D-015 don't cover, and repointing every live inline `§14.x` reference.
 ## Acceptance criteria
 <!-- owner: plan · create/amend-via-gate; review reads, never reinterprets -->
 
-- [ ] AC1: `cairn/legacy/DESIGN-s14-decision-log.md` exists, carries a provenance header, and its
+- [x] AC1: `cairn/legacy/DESIGN-s14-decision-log.md` exists, carries a provenance header, and its
       body is byte-identical to the §14 block of the pre-M64 DESIGN.md
       (`git show <base>:cairn/DESIGN.md` diff over the extracted range).
-- [ ] AC2: A triage ledger (in the PR description) dispositions every §14 numbered item (1–46),
+- [x] AC2: A triage ledger (in the PR description) dispositions every §14 numbered item (1–46),
       the build-time items, and each limitations bullet as: covered by D-00x / new D-entry
       D-0xx / stays as live limitation / history-only (entombed). No item is silently absent;
       no new D-entry duplicates D-001–D-015.
-- [ ] AC3: Every new D-entry has Context/Decision/Consequences plus a source citation (legacy
+- [x] AC3: Every new D-entry has Context/Decision/Consequences plus a source citation (legacy
       anchor + originating milestone); DECISIONS.md header carries the anchor-resolution note;
       D-001–D-015 bodies show zero diff.
-- [ ] AC4: DESIGN.md §14 is a ≤10-line pointer stub; a live "Known limitations" section exists
+- [x] AC4: DESIGN.md §14 is a ≤10-line pointer stub; a live "Known limitations" section exists
       listing only unresolved limitations; no other DESIGN section is renumbered
       (grep: `## 15. Milestones` heading unchanged).
-- [ ] AC5: `grep -rn "§14" DESIGN.md CLAUDE.md ROADMAP.md cairn/references/ R/ tests/ vignettes/`
+- [x] AC5: `grep -rn "§14" DESIGN.md CLAUDE.md ROADMAP.md cairn/references/ R/ tests/ vignettes/`
       (live surface) returns only the §14 stub's own pointer line(s) — zero stale `§14.x` targets;
       `cairn/legacy/`, `cairn/milestones/archive/`, and DECISIONS.md are excluded as
       history-bearing by design.
-- [ ] AC6: `cairn_validate.py` all checks pass, and the test suite is green
+- [x] AC6: `cairn_validate.py` all checks pass, and the test suite is green
       (`TESTTHAT_CPUS=8 devtools::test()` — one test file is touched, comment-only).
 
 ## Coverage
@@ -127,3 +127,14 @@ D-001–D-015 don't cover, and repointing every live inline `§14.x` reference.
 ## Review
 <!-- owner: review · exclusive; evidence per criterion, consistency-gate
      results, review findings + triage. EXEMPT from the 150-line cap (M55). -->
+
+Evidence gathered fresh 2026-07-16 on branch m64-design-s14-extraction (PR #65, base 0ce1095):
+
+- **AC1** ✓ — `diff <(tail -n +8 cairn/legacy/DESIGN-s14-decision-log.md) <(git show 0ce1095:cairn/DESIGN.md | sed -n '461,876p')` → zero diff ("BYTE-IDENTICAL"); provenance header present (line 1 names M64, date, source commit).
+- **AC2** ✓ — PR #65 body carries the full triage ledger (all 46 numbered items + build-time list + limitations bullets dispositioned; `gh pr view 65` confirmed); dedup constraint stated in ledger footer.
+- **AC3** ✓ — D-016–D-030 all present, each with Context/Decision/Consequences + `_Source:` (counts 30/30/30 across the 30 total entries); `git diff master..HEAD -- cairn/DECISIONS.md` removes only the 5 preamble lines (resolution note replaces them); D-001–D-015 bodies zero diff.
+- **AC4** ✓ — §14 stub = 9 lines; live `## Known limitations` section with 4 entries; `## 15. Milestones` at DESIGN.md:491 unchanged.
+- **AC5** ✓ — scoped grep returns only DESIGN.md:5 + :468 (the stub's own pointers) and the M64 ROADMAP row title (the milestone's own name, not a stale anchor); zero stale `§14.x` targets.
+- **AC6** ✓ — `cairn_validate.py` exit 0 all-pass (advisories 87→83); suite `TESTTHAT_CPUS=8` FAIL 0 / WARN 1 / PASS 2303 — the WARN is a parallel-run-only session-state artifact in test-pca.R (ordinal `.frequency="once"` advisory), absent when the file runs in isolation, unrelated to the comment-only test diff.
+
+Consistency gate (r-package profile): `devtools::document()` → no diff (NAMESPACE/man clean); `pkgdown::check_pkgdown()` → no problems; full `devtools::check()` → 0 err / 0 warn / 0 note; NEWS.md justified-skip (no user-visible change — docs/tracking only); no new top-level files needing .Rbuildignore (legacy file is under cairn/, already ignored).
