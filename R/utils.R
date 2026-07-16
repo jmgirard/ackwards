@@ -375,6 +375,9 @@ flip_weights <- function(W, sign_vec) {
 # (Invariant 1: one edge path; no new dependency, psych already Imports).
 # Non-PD output is smoothed with the same psych::cor.smooth() fallback the
 # polychoric path uses.
+# Returns list(R = <matrix>, min_eig = <smallest eigenvalue of that R>) so the
+# caller's .near_singular_check() reuses the eigenvalue instead of recomputing
+# it (M60).
 .corfiml_R <- function(data_mat) {
   R <- tryCatch(
     psych::corFiml(data_mat),
@@ -395,8 +398,9 @@ flip_weights <- function(W, sign_vec) {
       "i" = "Applying smoothing via {.fn psych::cor.smooth}."
     ))
     R <- psych::cor.smooth(R)
+    min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
   } # nocov end
-  R
+  list(R = R, min_eig = min_eig)
 }
 
 # If x is a square, symmetric, numeric matrix with non-unit diagonal, the user
@@ -445,8 +449,11 @@ flip_weights <- function(W, sign_vec) {
   TRUE
 }
 
-# Validate and normalise a user-supplied correlation matrix. Returns the
-# matrix (possibly with synthesised dimnames) or errors with a specific message.
+# Validate and normalise a user-supplied correlation matrix. Returns
+# list(R = <matrix, possibly with synthesised dimnames>, min_eig = <smallest
+# eigenvalue>) or errors with a specific message. min_eig is exposed so
+# ackwards()'s .near_singular_check() reuses the eigenvalue this function
+# already computed for its non-PD warning (M60).
 # Non-positive-definite matrices warn and pass through -- the engine will error
 # naturally if truly degenerate; auto-smoothing would silently alter user input.
 .validate_cor_matrix <- function(R) {
@@ -514,7 +521,7 @@ flip_weights <- function(W, sign_vec) {
              {.fn ackwards}."
     ))
   }
-  R
+  list(R = R, min_eig = min_eig)
 }
 
 # Validate that x is a well-formed ackwards object (used in tests).
@@ -541,8 +548,12 @@ validate_ackwards <- function(x) {
 # ("polychoric" adds the sparse-category route) and may be NA (a user-supplied
 # matrix), handled via isTRUE(). A healthy correlation matrix sits well above
 # the 1e-4 threshold, so ordinary data is never flagged.
-.near_singular_check <- function(R, cor) {
-  min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
+# `min_eig` (M60): optionally pass the smallest eigenvalue a path already
+# computed (polychoric smoothing, .corfiml_R, .validate_cor_matrix) so each
+# input path runs eigen() at most once; NULL computes it here.
+.near_singular_check <- function(R, cor, min_eig = NULL) {
+  min_eig <- min_eig %||%
+    min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
   if (min_eig < 1e-4) {
     remedy <- if (isTRUE(cor == "polychoric")) {
       c("i" = "Usual causes are sparse response categories or redundant items. \\

@@ -409,12 +409,14 @@ ackwards <- function(
     }
 
     # Validate and normalise R; synthesise dimnames if absent
-    R <- .validate_cor_matrix(as.matrix(data))
+    validated <- .validate_cor_matrix(as.matrix(data))
+    R <- validated$R
     p <- nrow(R)
 
     # A user-supplied matrix can be near-singular too (records $meta$near_singular
     # + warns once; cor is NA here, so the generic remedy advice is used).
-    min_eigenvalue <- .near_singular_check(R, cor)
+    # Reuses the eigenvalue .validate_cor_matrix() already computed (M60).
+    min_eigenvalue <- .near_singular_check(R, cor, min_eig = validated$min_eig)
 
     if (k_max > p) {
       cli::cli_abort(
@@ -700,7 +702,10 @@ ackwards <- function(
         R <- stats::cor(data_mat, method = "pearson", use = "pairwise.complete.obs")
       } # nocov end
     } else {
-      # PCA / EFA: compute R then dispatch
+      # PCA / EFA: compute R then dispatch. Paths that already compute R's
+      # smallest eigenvalue (polychoric smoothing, FIML) record it here so the
+      # shared near-singular check below never recomputes it (M60).
+      min_eig_pre <- NULL
       if (cor == "polychoric") {
         poly_out <- tryCatch(
           psych::polychoric(data_mat, correct = correct),
@@ -737,21 +742,23 @@ ackwards <- function(
         # Non-positive-definite polychoric matrices (DESIGN.md s.14 remaining):
         # smooth them back to PD. cor.smooth prints its own notes -- ackwards
         # owns the messaging.
-        min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
-        if (min_eig <= 0) { # nocov start
+        min_eig_pre <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
+        if (min_eig_pre <= 0) { # nocov start
           cli::cli_warn(
             "Polychoric correlation matrix is not positive definite \\
-             (min eigenvalue = {round(min_eig, 4)}); smoothing via \\
+             (min eigenvalue = {round(min_eig_pre, 4)}); smoothing via \\
              {.fn psych::cor.smooth}."
           )
           R <- suppressMessages(suppressWarnings(psych::cor.smooth(R)))
-          min_eig <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
+          min_eig_pre <- min(eigen(R, symmetric = TRUE, only.values = TRUE)$values)
         } # nocov end
       } else if (missing == "fiml") {
         # M38: FIML correlation via psych::corFiml (cor is guaranteed "pearson"
         # here by .resolve_missing). The estimated R feeds the normal W'RW
         # algebra unchanged; only the fit-index N choice is FIML-specific.
-        R <- .corfiml_R(data_mat)
+        fiml_out <- .corfiml_R(data_mat)
+        R <- fiml_out$R
+        min_eig_pre <- fiml_out$min_eig
         n_obs_eff <- switch(n_obs_mode,
           total    = nrow(data_mat),
           complete = n_complete
@@ -778,7 +785,7 @@ ackwards <- function(
       # above): records min_eigenvalue for the durable $meta signal and warns
       # once. A rank-deficient matrix can also come from redundant items on the
       # Pearson/Spearman/FIML bases, so this is basis-agnostic (DESIGN s6/s14.44).
-      min_eigenvalue <- .near_singular_check(R, cor)
+      min_eigenvalue <- .near_singular_check(R, cor, min_eig = min_eig_pre)
 
       engine_out <- switch(engine,
         pca = pca_levels(R,

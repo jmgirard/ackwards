@@ -315,7 +315,7 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
     suppressMessages(suppressWarnings({
       d_b <- data_mat[idx, , drop = FALSE]
       R_b <- if (identical(missing_eff, "fiml")) {
-        .corfiml_R(d_b)
+        .corfiml_R(d_b)$R
       } else {
         stats::cor(d_b, method = cor, use = "pairwise.complete.obs")
       }

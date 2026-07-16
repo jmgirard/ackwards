@@ -108,7 +108,7 @@ and no documented object contract changes — internal helpers and dead-code rem
 - [x] T2: Drop `$edges` from `.align_signs()` (return list + the `edges_list` mutation,
       `utils.R:244,248`); add a matrices-only path to `compute_edges()` and use it for the
       first call in `ackwards.R:832-838` so the discarded tidy tibble is never built.
-- [ ] T3: Add an optional precomputed `min_eig` param to `.near_singular_check`
+- [x] T3: Add an optional precomputed `min_eig` param to `.near_singular_check`
       (`utils.R:527`); thread the smallest eigenvalue already computed on each input path
       (polychoric `ackwards.R:740/748`, FIML `utils.R:372`, cor-matrix `utils.R:489`) so it
       is computed once per path. Confirm the near-singular/non-PD messages are byte-identical.
@@ -137,6 +137,11 @@ and no documented object contract changes — internal helpers and dead-code rem
   pattern) `.cross_cor()` and `.boot_replicate()`. The M35 `.align_signs` unit test now
   asserts the sign decisions (`$signs`) instead of the dropped `$edges`; end-to-end
   primary-nonnegativity test unchanged. Edge/comparability/boot tests: 250 pass, 0 fail.
+- 2026-07-16: T3 done: `.near_singular_check(min_eig = NULL)`; `.corfiml_R()` and
+  `.validate_cor_matrix()` now return `list(R, min_eig)` (their eigenvalue rides along —
+  callers in boot_edges/factorability/suggest_k take `$R`; FIML nocov smooth branch
+  recomputes post-smooth so meta keeps the final-R value); polychoric branch feeds its
+  smoothed eigenvalue through. Messages untouched; 688 tests green incl. snapshots.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local -->

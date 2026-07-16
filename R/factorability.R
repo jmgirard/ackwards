@@ -72,7 +72,7 @@ factorability <- function(data, cor = c("pearson", "spearman", "polychoric"),
   if (!is.null(n_obs)) n_obs <- .check_count(n_obs, "n_obs")
 
   if (.is_cor_matrix(data)) {
-    R <- .validate_cor_matrix(as.matrix(data))
+    R <- .validate_cor_matrix(as.matrix(data))$R
     n_obs_eff <- if (is.null(n_obs)) NA_integer_ else as.integer(n_obs)
     basis <- cor
   } else {
