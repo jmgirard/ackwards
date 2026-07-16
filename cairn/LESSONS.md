@@ -41,6 +41,9 @@ One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
   test, don't re-collapse the line to game the number.
 - 2026-07-16 (M60): don't write "net line reduction" ACs for dedup milestones — extracting *documented* helpers from 3–8-line duplicated blocks is line-neutral (+9 code lines here); make the AC grep-verified single-computation-sites instead.
 - 2026-07-16 (M60): cairn_validate's references check wants INDEX.md entries filename-first (`- <name>.md — …`); a citekey-first line reads as a missing entry.
+- 2026-07-16 (M62): anchor a grep-verified AC for a wording fix to the *defective context*, not
+  the shared phrase — a repo-wide "bass-ackwards method" grep would flag Waller (2007)'s correct
+  title; the same phrase can be right in one citation and wrong in another.
 - 2026-07-16 (M61): `vignettes/precompute.R` regenerates ALL vignettes — unrelated ones churn
   with pure run noise (cli `[Nms]` timings, gt's random HTML element IDs, PNG re-renders);
   `git checkout --` the untouched vignettes/assets before committing so the PR diff stays scoped.
