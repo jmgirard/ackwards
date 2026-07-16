@@ -88,7 +88,7 @@ D-001–D-015 don't cover, and repointing every live inline `§14.x` reference.
       not this file — line cap).
 - [x] T2: Entomb — create `cairn/legacy/DESIGN-s14-decision-log.md`: provenance header + verbatim
       §14 body copied from the pre-branch DESIGN.md.
-- [ ] T3: Append D-016+ entries per the T1 ledger (Context/Decision/Consequences, legacy-anchor +
+- [x] T3: Append D-016+ entries per the T1 ledger (Context/Decision/Consequences, legacy-anchor +
       milestone citations, real dates where known else "date: see legacy" per existing style);
       add the header resolution note.
 - [ ] T4: Rewrite DESIGN.md — §14 → pointer stub (to DECISIONS.md + the legacy file); new live
@@ -109,6 +109,9 @@ D-001–D-015 don't cover, and repointing every live inline `§14.x` reference.
   by two references pages and covered by no D-entry); 4 live limitations; rest covered/arch/history.
 - 2026-07-16: T2 done — §14 body (416 lines) entombed verbatim at
   cairn/legacy/DESIGN-s14-decision-log.md; byte-identity vs base 0ce1095 diff-verified.
+- 2026-07-16: T3 done — D-016–D-030 appended (15 entries, Context/Decision/Consequences + legacy
+  anchors); DECISIONS.md preamble now carries the anchor-resolution note; D-001–D-015 bodies
+  untouched.
 
 ## Decisions
 <!-- owner: implement / review · append-only; milestone-local; promote
