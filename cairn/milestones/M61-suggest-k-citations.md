@@ -58,7 +58,7 @@ passes on other help pages/vignettes (add a candidate row if a gap is found);
       statement (~line 61 or ~line 220); add the three entries to `## References`
       (~line 489). Re-run `Rscript vignettes/precompute.R`; commit the regenerated
       `.Rmd` (+ assets if changed).
-- [ ] T3 — NEWS.md: one-line bullet in the 0.1.1 section (extends the existing
+- [x] T3 — NEWS.md: one-line bullet in the 0.1.1 section (extends the existing
       citation-lineage bullet's neighborhood).
 - [ ] T4 — `TESTTHAT_CPUS=8` suite run clean; spot-render `?suggest_k` to confirm the
       references block formats.
@@ -74,6 +74,7 @@ passes on other help pages/vignettes (add a candidate row if a gap is found);
 - 2026-07-16: T2 done — same citations in the vignette (consensus passage, PA-PC
   typical-behavior, References); precompute.R re-run; restored 4 unrelated vignettes +
   3 PNGs whose diffs were pure run noise (cli timings, gt element IDs).
+- 2026-07-16: T3 done — NEWS 0.1.1 bullet after the comparability citation-lineage entry.
 
 ## Decisions
 
