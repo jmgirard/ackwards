@@ -12,9 +12,6 @@ One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
   top-level display is unchanged while assignment/nesting go silent. Cheaper and more idiomatic than
   a `verbose=` arg. `cli_text()` writes to stderr (the message stream), so test its output with
   `capture.output(..., type = "message")` and the `cat()` literal with plain `capture.output()`.
-- 2026-07-12 (M56): apaquarto (APA-7 Quarto) hard-requires `fontawesome5` (title-block ORCID) and its
-  `man`/APA float mode uses `endfloat`, which emits `.fff`/`.ttt` aux files — gitignore them plus the
-  usual LaTeX aux. Quarto callout blocks pull extra font deps; plain blockquotes render fine without.
 - 2026-07-12 (M57): a fixture's *prose* provenance claim ("regenerated from OSF, set.seed(123)") is
   not reproducibility — the M44 sims matrices were provably unrecoverable (no fx/Phi/seed/n/method
   reproduced them; even same R/psych version strings) because no generator was committed. `set.seed`
@@ -47,3 +44,5 @@ One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
 - 2026-07-16 (M63): re-verify a committed reference note against Crossref before propagating it
   repo-wide (supersedes the M56 Waller-title lesson) — goldberg2006.md carried a wrong issue
   number (40(3) vs published 40(4)) while the roxygen it was about to overwrite was right.
+- 2026-07-16 (M64): when summarizing a source into a D-entry, any added detail beyond the source is
+  a new claim to verify — review caught an invented `lavPredict()` enumeration (extends M63's lesson).
