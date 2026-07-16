@@ -138,3 +138,9 @@ Evidence gathered fresh 2026-07-16 on branch m64-design-s14-extraction (PR #65, 
 - **AC6** ✓ — `cairn_validate.py` exit 0 all-pass (advisories 87→83); suite `TESTTHAT_CPUS=8` FAIL 0 / WARN 1 / PASS 2303 — the WARN is a parallel-run-only session-state artifact in test-pca.R (ordinal `.frequency="once"` advisory), absent when the file runs in isolation, unrelated to the comment-only test diff.
 
 Consistency gate (r-package profile): `devtools::document()` → no diff (NAMESPACE/man clean); `pkgdown::check_pkgdown()` → no problems; full `devtools::check()` → 0 err / 0 warn / 0 note; NEWS.md justified-skip (no user-visible change — docs/tracking only); no new top-level files needing .Rbuildignore (legacy file is under cairn/, already ignored).
+
+Independent review (3 fresh-context lenses + scorer, 2026-07-16):
+- [O] diff-bug: 1 finding — D-016 Context's added parenthetical "(only EBM/regression-style scores)" misenumerated `lavPredict()`'s methods (omits Bartlett, misapplies EBM; invented during extraction — legacy §14.12 says only "it lacks tenBerge"). Scored 85 → **fixed**: parenthetical dropped, entry now matches the source claim exactly. All other axes clean (fidelity of all 15 entries, all 14 repoints, limitations triage, internal consistency).
+- [S] blame-history: no findings — M61 citation fix preserved; entombment captured the freshest DESIGN.md state; repoints verified against D-entry content.
+- [S] prior-PR-comments: no prior-PR evidence (solo repo, zero GitHub review comments) — clean no-op.
+- Sub-80 findings: none (the single finding scored 85 and was actioned).

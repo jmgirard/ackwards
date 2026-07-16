@@ -118,7 +118,7 @@ _Source: DESIGN §11; M35._
 
 ### D-016 (date: see legacy §14.12): ESEM tenBerge weights are self-computed, not lavPredict
 
-**Context:** ESEM edge computation needs linear tenBerge weights, but `lavPredict()` offers no tenBerge method (only EBM/regression-style scores).
+**Context:** ESEM edge computation needs linear tenBerge weights, but `lavPredict()` offers no tenBerge method.
 **Decision:** Compute tenBerge weights directly from lavaan's estimated loadings `Λ` and latent correlation `R` via the shared `.tenBerge_weights(R, Λ)`; `lavPredict()` is unused on the default path.
 **Consequences:** The one-edge-path `W'RW` algebra (Invariant 1) applies unchanged to ESEM; scoring is consistent across all three engines.
 _Source: legacy §14.12; M4._
