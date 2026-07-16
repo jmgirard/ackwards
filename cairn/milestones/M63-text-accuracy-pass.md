@@ -3,7 +3,7 @@
      Per-section owners are tagged below. -->
 # M63: User-facing text accuracy pass (Goldberg 2006 citations + PCA n_obs message)
 
-- **Status:** in-progress   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
+- **Status:** review   <!-- owner: transitioning skill · mirror-update; cairn/ROADMAP.md is the authority -->
 - **Priority:** normal   <!-- owner: plan · create/amend-via-gate; high | normal | low -->
 - **Depends on:** —   <!-- owner: plan · create/amend-via-gate -->
 - **Principles touched:** —   <!-- owner: plan · create/amend-via-gate -->
@@ -91,7 +91,7 @@ statistics PCA never computes.
       regenerated `.Rmd` + assets.
 - [x] T5 — NEWS.md entry (message correction; citation completion can share
       the bullet).
-- [ ] T6 — `Rscript tools/dod-gate.R` clean at the gate.
+- [x] T6 — `Rscript tools/dod-gate.R` clean at the gate.
 
 ## Work log
 <!-- owner: any skill · append-only; one line per entry; absolute dates -->
@@ -106,6 +106,8 @@ statistics PCA never computes.
 - 2026-07-16: T3–T5 done: four .Rmd.orig lines fixed; precompute regenerated all
   vignettes, untouched ones + noise-only assets restored (M61 lesson; churn was
   gt element IDs + cli timings); two NEWS bullets. AC1 grep: 12/12 sites uniform.
+- 2026-07-16: T6 done — dod-gate PASSED (check 0 err/0 warn/0 note, coverage
+  100%, style/lint clean, pkgdown index complete); status → review.
 
 ## Decisions
 <!-- owner: implement / review · append-only -->
