@@ -61,8 +61,9 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
 - [ ] AC3: The pruned-factor diagram (`autoplot(…, drop_pruned = TRUE)`, publication style per
       `ackwards-forbes.Rmd.orig:246-281`) renders in the vignette with its figure asset committed.
 - [ ] AC4: Bidirectional cross-links present (`ackwards-forbes` ↔ `ackwards-forbes2023`);
-      `forbes2023` roxygen gains a `@seealso`/vignette pointer; `grep -rn "bass-ackwards method"
-      R/` returns no matches (typo fixed); `devtools::document()` run.
+      `forbes2023` roxygen gains a `@seealso`/vignette pointer; `grep -rn "extension of
+      Goldberg's bass-ackwards" R/` returns no matches (the Forbes-citation typo fixed; the
+      Waller 2007 title legitimately uses "Bass-Ackwards" and stays); `devtools::document()` run.
 - [ ] AC5: `_pkgdown.yml` articles index lists the new vignette; `pkgdown::check_pkgdown()` clean.
 - [ ] AC6: NEWS.md entry for the new vignette.
 - [ ] AC7: `Rscript tools/dod-gate.R` clean, and the PR diff contains no churn-only regenerated
@@ -87,9 +88,9 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
       pairs = "all")`, hierarchy overview, strongest skip-level edges, `prune("redundant")`
       with the direct-vs-adjacent note (37 vs 36), pruned-factor diagram (labeled + compressed
       variants), fidelity note, references (verify titles against Crossref — M56 lesson).
-- [ ] T2: Cross-links + typo: pointer from `ackwards-forbes.Rmd.orig` to the new vignette (and
+- [x] T2: Cross-links + typo: pointer from `ackwards-forbes.Rmd.orig` to the new vignette (and
       back), `@seealso`/vignette pointer in the `forbes2023` roxygen (`R/data.R`), fix
-      `R/data.R:161` "bass-ackwards method"; `devtools::document()`.
+      `R/data.R:161` Forbes-citation "bass-ackwards"; `devtools::document()`.
 - [ ] T3: Run `Rscript vignettes/precompute.R`; verify the pinned numbers appear in the generated
       `.Rmd`; `git checkout --` all untouched regenerated vignettes/assets so the diff stays
       scoped (M61 lesson).
@@ -111,6 +112,10 @@ implementation, OSF `pcwm8`); no new tests expected unless a code change proves 
   ("…The development of hierarchical factor structures from the top down") — full title used in
   the new vignette; repo-wide fix left out of scope (would regenerate all vignettes), surface at
   recap as a candidate.
+- 2026-07-16: T2 done. Minor AC4 wording amendment: the planned repo-wide grep for
+  "bass-ackwards method" would flag two *correct* uses (Waller 2007's published title, M56-verified;
+  a prose mention in comparability.R) — recipe narrowed to the Forbes-citation pattern
+  ("extension of Goldberg's bass-ackwards"), which was the actual defect. Intent unchanged.
 
 ## Decisions
 <!-- owner: implement / review · append-only -->

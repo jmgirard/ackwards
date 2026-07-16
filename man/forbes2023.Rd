@@ -56,7 +56,7 @@ x
 }
 \references{
 Forbes, M. K. (2023). Improving hierarchical models of individual
-differences: An extension of Goldberg's bass-ackwards method.
+differences: An extension of Goldberg's bass-ackward method.
 \emph{Psychological Methods}. \doi{10.1037/met0000546}
 
 Forbes, M. K., Sunderland, M., Rapee, R. M., Batterham, P. J., Calear, A. L.,
@@ -65,5 +65,10 @@ Mewton, L., Slade, T., & Krueger, R. F. (2021). A detailed hierarchical
 model of psychopathology: From individual symptoms up to the general factor
 of psychopathology. \emph{Clinical Psychological Science}, 9(2), 139--168.
 \doi{10.1177/2167702620954799}
+}
+\seealso{
+\code{vignette("ackwards-forbes2023")} for a full reproduction of the
+Forbes (2023) applied example on this dataset, and
+\code{vignette("ackwards-forbes")} for the method extension itself.
 }
 \keyword{datasets}
