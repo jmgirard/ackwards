@@ -7,7 +7,7 @@
 - **Priority:** normal   <!-- owner: plan · create/amend-via-gate; high | normal | low -->
 - **Depends on:** —   <!-- owner: plan · create/amend-via-gate -->
 - **Principles touched:** —   <!-- owner: plan · create/amend-via-gate -->
-- **Branch/PR:** m63-text-accuracy-pass   <!-- owner: implement (branch) / review (PR URL) · create -->
+- **Branch/PR:** m63-text-accuracy-pass · https://github.com/jmgirard/ackwards/pull/64   <!-- owner: implement (branch) / review (PR URL) · create -->
 
 ## Goal
 <!-- owner: plan · create -->
@@ -46,22 +46,22 @@ statistics PCA never computes.
 ## Acceptance criteria
 <!-- owner: plan · create/amend-via-gate; review reads, never reinterprets -->
 
-- [ ] AC1 — Every full-reference line matching `Doing it all` under `R/`,
+- [x] AC1 — Every full-reference line matching `Doing it all` under `R/`,
       `man/`, and `vignettes/*.Rmd{,.orig}` carries the exact published title
       "Doing it all Bass-Ackwards: The development of hierarchical factor
       structures from the top down" (source: goldberg2006.md, Crossref-verified);
       grep evidence enumerating every match. (Anchor is the defective-context
       phrase "Doing it all", which cannot false-flag Waller 2007 — LESSONS
       2026-07-16/M62.)
-- [ ] AC2 — Neither the cli message nor the `@param n_obs` roxygen claims
+- [x] AC2 — Neither the cli message nor the `@param n_obs` roxygen claims
       `n_obs` enables/disables chi-square/RMSEA/TLI for PCA; a test asserts the
       corrected message fires (and states metadata-only storage) on PCA
       matrix input without `n_obs`.
-- [ ] AC3 — Regenerated artifacts committed in sync: `man/ackwards.Rd` matches
+- [x] AC3 — Regenerated artifacts committed in sync: `man/ackwards.Rd` matches
       roxygen; regenerated vignette diff scoped to the four touched vignettes +
       their assets (untouched vignettes restored per LESSONS 2026-07-16/M61).
-- [ ] AC4 — NEWS.md entry for the user-visible message correction.
-- [ ] AC5 — `Rscript tools/dod-gate.R` passes (check 0 err/0 warn/0 note,
+- [x] AC4 — NEWS.md entry for the user-visible message correction.
+- [x] AC5 — `Rscript tools/dod-gate.R` passes (check 0 err/0 warn/0 note,
       coverage, style, lint, pkgdown).
 
 ## Coverage
@@ -114,3 +114,28 @@ statistics PCA never computes.
 
 ## Review
 <!-- owner: review · exclusive; EXEMPT from the 150-line cap (M55) -->
+
+### Acceptance-criteria evidence (2026-07-16, PR #64)
+
+- AC1: repo grep `"Doing it all"` over R/, man/, vignettes/*.Rmd{,.orig} —
+  12 matches, 0 nonconforming (all carry "Bass-Ackwards: The development of…").
+- AC2: grep for `chi-square, RMSEA` / `enable them` / `disabling` in
+  R/ackwards.R + man/ackwards.Rd — no matches; test-cor-input.R fresh run
+  56 pass / 0 fail (includes the new M63 regression test asserting
+  "metadata" present, chi-square/RMSEA/TLI absent).
+- AC3: `devtools::document()` re-run at review → no diff in NAMESPACE/man/;
+  `git diff master..HEAD -- vignettes/` = exactly the 4 touched `.Rmd` +
+  their `.Rmd.orig` (no asset or unrelated-vignette churn).
+- AC4: NEWS.md dev section carries the n_obs-message bullet + the citation
+  bullet (added T5).
+- AC5: `Rscript tools/dod-gate.R` PASSED this session on this tree —
+  check 0 err/0 warn/0 note, coverage 100%, style/lint clean, pkgdown
+  reference index complete.
+
+### Consistency gate
+
+- `cairn_validate.py`: all checks passed (advisory dangling legacy-ID WARNs
+  only, pre-cairn history).
+- Profile toolchain check: `document()` no-diff ✓ (generated files in sync;
+  same run as AC3).
+- `cairn_impact`: skipped — no DESIGN principle changed.
