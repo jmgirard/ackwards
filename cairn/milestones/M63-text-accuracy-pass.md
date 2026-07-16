@@ -139,3 +139,19 @@ statistics PCA never computes.
 - Profile toolchain check: `document()` no-diff ✓ (generated files in sync;
   same run as AC3).
 - `cairn_impact`: skipped — no DESIGN principle changed.
+
+### Independent review (three lenses + scorer, 2026-07-16)
+
+- [O] diff-bug: 1 finding. [S] blame-history: none (old message traces to M22,
+  inaccurate from inception; M58 fixes untouched; Invariant 6 preserved).
+  [S] prior-PR-comments: no prior-PR evidence (62 merged PRs, zero review
+  comments) — clean no-op. Below-80 findings logged: none (0 findings scored
+  below threshold).
+- Finding (scored 90, CONFIRMED empirically): the replacement phrase "only
+  records it in the result metadata" was itself false — on the PCA matrix path
+  a supplied `n_obs` also feeds `.factorability_screen()`'s N:p/N-floor
+  sampling-adequacy warning (R/ackwards.R:815 → R/factorability.R:242-258).
+  **Triage: fixed now** — message, `@param`, Details bullet, and NEWS reworded
+  to "records it in the result metadata and enables the N-based
+  sampling-adequacy checks"; man/ regenerated; cor-input tests 56/0; dod-gate
+  re-run after the fix.

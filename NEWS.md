@@ -13,8 +13,9 @@
 * **Corrected the `n_obs` advisory for PCA on correlation-matrix input.** The
   message (and the `n_obs` help text) claimed supplying `n_obs` would enable
   chi-square/RMSEA/TLI, but the PCA engine's level fit is eigenvalue-based and
-  never computes them; `n_obs` is recorded in the result metadata only. The
-  message now says so. No behavior changes.
+  never computes them; `n_obs` is recorded in the result metadata and feeds
+  the N-based sampling-adequacy checks only. The message now says so. No
+  behavior changes.
 
 * Completed the Goldberg (2006) reference to its full published title ("Doing
   it all Bass-Ackwards: The development of hierarchical factor structures from

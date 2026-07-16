@@ -43,8 +43,9 @@
 #'   * **Correlation-matrix input:** a positive integer. Required for
 #'     `engine = "efa"` ([psych::fa()] needs N for chi-square / RMSEA / TLI);
 #'     optional for `"pca"` (stored as `NA_integer_` if omitted). For PCA it
-#'     is recorded in the result metadata only -- PCA level fit is
-#'     eigenvalue-based and computes no N-dependent fit statistics.
+#'     is recorded in the result metadata and feeds the N-based
+#'     sampling-adequacy checks only -- PCA level fit is eigenvalue-based and
+#'     computes no N-dependent fit statistics.
 #'   * **Raw data:** N is normally taken from `nrow(data)` and a numeric `n_obs`
 #'     is ignored (with a warning). The exception is `missing = "fiml"` with
 #'     `engine = "pca"`/`"efa"` (M38): because [psych::corFiml()] estimates the
@@ -196,8 +197,9 @@
 #'   data (for lavaan's own polychoric computation, WLSMV estimation, and
 #'   per-level fit indices) and will error clearly.
 #' * **`n_obs`:** required for `"efa"` (psych needs N for chi-square / RMSEA /
-#'   TLI); optional for `"pca"` (stored as `NA` if omitted; metadata only --
-#'   PCA computes no N-dependent fit statistics).
+#'   TLI); optional for `"pca"` (stored as `NA` if omitted; used for the
+#'   N-based sampling-adequacy checks and result metadata only -- PCA computes
+#'   no N-dependent fit statistics).
 #' * **`cor` argument:** ignored -- the basis is already determined by the
 #'   matrix you supply. A warning is emitted if you set `cor` explicitly.
 #' * **`missing` argument:** ignored -- missingness was handled when computing
@@ -433,8 +435,8 @@ ackwards <- function(
       cli::cli_inform(c(
         "i" = "{.arg n_obs} not supplied; stored as {.code NA}.",
         "i" = "PCA level fit is eigenvalue-based and does not use N; \\
-               supplying {.code n_obs = <N>} only records it in the \\
-               result metadata."
+               supplying {.code n_obs = <N>} records it in the result \\
+               metadata and enables the N-based sampling-adequacy checks."
       ))
     }
 
