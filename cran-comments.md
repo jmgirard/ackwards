@@ -43,9 +43,8 @@ The only notes are:
   the incoming-feasibility check on every `--as-cran` run.
 * **Possibly misspelled words** (win-builder R-devel only) — `ackwards` /
   `Ackwards` (the package name, a deliberate play on "bass-ackwards") and
-  `Goldberg` / `Waller` / `Forbes` (author surnames of the cited method
-  papers). All correctly spelled. The acronyms flagged last round (PCA,
-  EFA, ESEM) are now expanded in the Description text itself.
+  `EFA` / `ESEM` (acronyms, each spelled out at first use in the
+  Description text per the 0.1.0 review). All intentional.
 
 | Platform | R version | Errors / Warnings |
 |---|---|---|
