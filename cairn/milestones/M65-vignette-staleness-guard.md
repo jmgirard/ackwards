@@ -1,6 +1,6 @@
 # M65: Mechanize the precomputed-vignette staleness guard
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** —
