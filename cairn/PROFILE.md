@@ -87,3 +87,7 @@ layer, so they are not repeated here.
     additive, so the reversible default is pure R.
   - Lands in: DESIGN Conventions (a "compiled code via <pkg>" line) and informs
     the `verify` / `test-doctrine` check surface.
+
+## changelog
+The repo's changelog file, read by `/hotfix`, the release-walk, and the
+consistency-gate: **`NEWS.md`** (the R-package convention).
