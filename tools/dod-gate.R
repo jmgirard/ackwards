@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 # Definition-of-done gate (M48). Runs the full CLAUDE.md gate sequence once,
 # serially, in one process:
+#   vignette freshness (M65; fail-fast, base R) ->
 #   devtools::check() (must be 0/0/0, vignettes included)
 #   -> covr::package_coverage() (target 100%)
 #   -> styler::style_pkg() -> lintr::lint_package()
@@ -15,6 +16,20 @@ Sys.setenv(TESTTHAT_CPUS = max(1L, parallel::detectCores() - 1L))
 
 failures <- character()
 note <- function(fmt, ...) cat(sprintf(fmt, ...), "\n")
+
+# Vignette freshness (M65), fail-fast before the minutes-long check(). The
+# test-vignette-freshness.R testthat wrapper SKIPS under check() (the tarball
+# .Rbuildignore's every .Rmd.orig), so enforce the guard directly here against
+# the source checkout. Base R only; sys.source blocks the script's own body.
+fresh_env <- new.env()
+sys.source("tools/check-vignette-freshness.R", envir = fresh_env)
+fresh_problems <- fresh_env$check_vignette_freshness("vignettes")
+if (length(fresh_problems) > 0) {
+  for (p in fresh_problems) note("vignette-freshness: %s", p)
+  failures <- c(failures, "vignette freshness (re-run Rscript vignettes/precompute.R)")
+} else {
+  note("vignette-freshness: clean")
+}
 
 t0 <- Sys.time()
 chk <- devtools::check(error_on = "never", quiet = TRUE)

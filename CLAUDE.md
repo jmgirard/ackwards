@@ -67,17 +67,22 @@ lintr::lint_package()     # lint
 **always prefix suite runs with `TESTTHAT_CPUS=8`** (testthat defaults to 2 workers without it).
 `check()` still runs the full suite *and* examples, and `covr::package_coverage()` runs the suite
 *again* — so `test()` → `check()` → `coverage()` at one gate executes the suite ~3×. Vignette
-rebuild is now cheap: seven of the eight vignettes are **precomputed** (CRAN 2026-07-05 flagged the
+rebuild is now cheap: eight of the nine vignettes are **precomputed** (CRAN 2026-07-05 flagged the
 old ~317s vignette rebuild) — authored as `vignettes/*.Rmd.orig`, knitted ahead of time into static
 `*.Rmd` (results + `vignettes/assets/` figures baked in) by `vignettes/precompute.R`; only
 `ackwards-interpret.Rmd` stays live (needs full bfi25 for the IPIP-label lesson). **After editing
 any `*.Rmd.orig`, re-run `Rscript vignettes/precompute.R` and commit the regenerated `*.Rmd` +
 `vignettes/assets/`** — the `.orig` and the script are `.Rbuildignore`d, so an un-regenerated edit
-ships stale output. Iterate with **targeted** `devtools::test(filter = "<x>")` /
+would ship stale output. That slip is now a **mechanical failure, not a prose warning** (M65):
+`precompute.R` stamps each generated `.Rmd` with the md5 of its `.Rmd.orig`, and
+`tools/check-vignette-freshness.R` re-derives it and fails on any stale or orphaned stamp — run in
+CI before the tarball check, at the DoD gate, and by `tests/testthat/test-vignette-freshness.R`
+(which skips in the built package, where the `.orig` are absent). Iterate with **targeted**
+`devtools::test(filter = "<x>")` /
 `testthat::test_file()`; run failing tests **once** in a way that shows the details (capture
 `res <-` or use a non-silent reporter — never silent-then-rerun); skip the vignette rebuild during
 mid-work checks with `check(vignettes = FALSE)`; and at the final gate run `Rscript tools/dod-gate.R` — it executes the
-whole DoD sequence (check → coverage → style → lint → pkgdown) serially in one process with
+whole DoD sequence (vignette-freshness → check → coverage → style → lint → pkgdown) serially in one process with
 sensible `TESTTHAT_CPUS`, and prints/exits on any failure. Never run two package-touching R
 processes concurrently. Two transcript-mined anti-patterns to avoid (M48): a bare
 `devtools::load_all()` in its own `Rscript` call does nothing persistent (each `Rscript` is a fresh

@@ -63,6 +63,14 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      # Fail fast if a vignettes/*.Rmd.orig was edited without re-running
+      # precompute.R (M65). Base R only, so it runs before dependency install;
+      # it needs the source checkout (the .Rmd.orig are .Rbuildignore'd, so the
+      # tarball R CMD check below cannot see this).
+      - name: Check precomputed vignette freshness
+        run: Rscript tools/check-vignette-freshness.R
+        shell: bash
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
