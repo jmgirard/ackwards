@@ -28,6 +28,11 @@
 # understood rather than mistaken for "no upstream breakage".
 
 on:
+  # TEMP-M66-TEST: branch-scoped push trigger to exercise the workflow on the
+  # milestone branch (workflow_dispatch only registers once on the default
+  # branch). Removed before review.
+  push:
+    branches: [m66-upstream-reoracle-watch]
   schedule:
     # Mondays 06:00 UTC — after any weekend CRAN publishing, before the week.
     - cron: '0 6 * * 1'
