@@ -61,7 +61,7 @@ one path); the upstream re-oracle watch → M66.
       `*.Rmd` + `vignettes/assets/` (full-regen churn is legitimate here — M61 lesson noted).
 - [x] T4: `tests/testthat/test-vignette-freshness.R` — locates the source tree, skips when no
       `.Rmd.orig` files are found, otherwise runs the T2 checker and asserts success.
-- [ ] T5: `R-CMD-check.yaml` — add a `Rscript tools/check-vignette-freshness.R` step after
+- [x] T5: `R-CMD-check.yaml` — add a `Rscript tools/check-vignette-freshness.R` step after
       `setup-r`, before dependency install (base-R only, fails fast).
 - [ ] T6: CLAUDE.md — repoint the "un-regenerated edit ships stale output" prose at the guard.
 
@@ -80,6 +80,8 @@ one path); the upstream re-oracle watch → M66.
   random table-id noise (M61-anticipated); 3 asset PNGs re-baked. `ackwards-interpret.Rmd` unstamped.
 - 2026-07-17: T4 — `test-vignette-freshness.R` sources the checker via `sys.source` (script body
   skipped by the `sys.nframe()` guard) and skips when sources are absent (tarball). Passes in source.
+- 2026-07-17: T5 — CI step "Check precomputed vignette freshness" added to R-CMD-check.yaml between
+  setup-r and setup-r-dependencies (runs on the source checkout, base R). YAML validated, order confirmed.
 
 ## Decisions
 
