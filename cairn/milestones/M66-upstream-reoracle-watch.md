@@ -76,6 +76,9 @@ worked around.
   link + versions); re-trigger [29601746921] commented on the *same* #69 (1 open issue, 1
   comment — no duplicate). Closed #69 as test evidence; restored the production workflow (no
   TEMP markers remain). Post-merge confirming `workflow_dispatch` is owner follow-up.
+- 2026-07-17: review — all 4 ACs verified fresh; cairn_validate clean; 3-lens fan-out + scorer.
+  F1 (concurrency race, 72/100) fixed at owner's election at merge gate: added workflow-level
+  `concurrency: { group: re-oracle, cancel-in-progress: false }`.
 
 ## Decisions
 
@@ -133,3 +136,7 @@ worked around.
   repo). Not an AC failure — AC3 covers the verified sequential dedup, not concurrent
   in-flight. Scorer 72 < 80 → excluded from actioned list; one-line fix
   (`concurrency: { group: re-oracle }`) available if the owner opts in.
+  **Disposition: FIXED at the owner's election at the merge gate (2026-07-17)** —
+  workflow-level `concurrency: { group: re-oracle, cancel-in-progress: false }` added
+  (serializes runs so the issue read-then-write can't race a duplicate). Workflow-level
+  key only; does not touch any T4-verified step path.

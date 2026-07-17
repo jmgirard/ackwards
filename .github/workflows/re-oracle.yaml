@@ -42,6 +42,15 @@ on:
 
 name: re-oracle.yaml
 
+# Serialize all runs of this watch so the failure-notification's find-then-create
+# issue step (open-or-comment on the single labeled issue) can never race a
+# concurrent run into a duplicate — e.g. a manual dispatch fired while a slow
+# scheduled run is still compiling deps. cancel-in-progress: false lets the
+# in-flight check finish (never cancel real work); the next run simply queues.
+concurrency:
+  group: re-oracle
+  cancel-in-progress: false
+
 jobs:
   re-oracle:
     runs-on: ubuntu-latest
