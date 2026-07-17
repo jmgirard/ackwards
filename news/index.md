@@ -2,6 +2,14 @@
 
 ## ackwards (development version)
 
+- **Fixed compatibility with lavaan 0.7.** lavaan 0.7 renamed its
+  sample-statistics slot argument (breaking the ESEM engine’s
+  multi-level reuse of anchor-level sample statistics — every level
+  beyond k = 1 failed to build) and now requires an explicit
+  `ordered = FALSE` to use WLSMV/ULSMV with continuous data. The ESEM
+  engine detects the installed lavaan’s argument vocabulary and works
+  with both lavaan \>= 0.7 and \>= 0.6-13.
+
 - **New vignette: “Reproducing Forbes (2023): The AMH Applied Example”**
   ([`vignette("ackwards-forbes2023")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes2023.md)).
   A full worked reproduction of the paper’s 155-variable applied example
