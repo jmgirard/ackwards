@@ -2,8 +2,16 @@
 
 ## Resubmission
 
-This resubmission addresses both points from the CRAN review of the 0.1.0
-submission (2026-07-12):
+This tarball replaces the 0.1.1 submission that was withdrawn from the
+incoming queue on 2026-07-16: lavaan 0.7-2, published on 2026-07-16 (after
+that submission), renamed an argument the ESEM engine relied on and made the
+withdrawn tarball's test suite fail. This build detects the installed
+lavaan's argument vocabulary and passes its full test suite under both
+lavaan 0.6-21 and 0.7-2 (the ubuntu devel and win-builder results below ran
+against lavaan 0.7-2).
+
+The 0.1.1 version itself addresses both points from the CRAN review of the
+0.1.0 submission (2026-07-12):
 
 1. **"Please always explain all acronyms in the description text."**
    The Description field now spells out principal component analysis (PCA),
