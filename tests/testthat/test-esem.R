@@ -2,6 +2,15 @@
 
 # ── Basic ESEM validity ────────────────────────────────────────────────────────
 
+test_that("sample-stats reuse argument matches the installed lavaan (0.7 rename)", {
+  skip_if_not_installed("lavaan")
+  # lavaan 0.7 renamed slotSampleStats= to slot_sample_stats=; passing the wrong
+  # name errors at fit time and every k >= 2 level fails (k_eff = 1 abort).
+  # The chosen name must be a real formal of lavaan::lavaan() under whichever
+  # lavaan version is installed.
+  expect_true(.esem_ss_argname() %in% names(formals(lavaan::lavaan)))
+})
+
 test_that("ackwards() with method = 'esem' returns a valid ackwards object", {
   skip_if_not_installed("lavaan")
   d <- .make_esem_data()
