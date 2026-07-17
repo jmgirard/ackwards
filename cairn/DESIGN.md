@@ -112,34 +112,34 @@ or renumbered.
 
 ### Inviolable principles
 
-- **IP1 — One edge path.** All between-level correlations go through `compute_edges()`: exact
+- IP1: **One edge path.** All between-level correlations go through `compute_edges()`: exact
   `W'RW` algebra when scoring is linear; materialized scores only when nonlinear (EAP) or when
   the user asks. **Always** standardize by real score SDs `sqrt(diag(W'RW))` — never assume
   unit variance. (§5; D-004.)
-- **IP2 — Both routes, and they must agree.** The scores route stays available even where
+- IP2: **Both routes, and they must agree.** The scores route stays available even where
   algebra is the default (`edge_method = "scores"`), and a standing test asserts
   algebra-vs-scores agreement within tolerance for every linear engine — the package's cheapest
   correctness oracle. (§5.4; D-004.)
-- **IP3 — Light core, heavy opt-in.** The object always carries loadings/variance/fit/weights/
+- IP3: **Light core, heavy opt-in.** The object always carries loadings/variance/fit/weights/
   edges/lineage/`R`/meta; `scores`, raw `fits`, raw `data` are NULL by default and recomputable.
   Small-and-shareable by default is a privacy promise, not just a memory one. (§6; D-005.)
-- **IP4 — Sign alignment anchors to the primary parent**, never "all positive" (impossible —
+- IP4: **Sign alignment anchors to the primary parent**, never "all positive" (impossible —
   sign is one DoF per factor). Each child orients against its parent's *already-aligned* sign;
   secondary edges may legitimately be negative. (§7; D-010.)
-- **IP5 — Lineage lives in edges, never in IDs.** `m{k}f{j}` are stable labels; parentage is
+- IP5: **Lineage lives in edges, never in IDs.** `m{k}f{j}` are stable labels; parentage is
   edge structure; no verb ever mutates an ID. (§7; D-009, D-029.)
-- **IP6 — Loud defaults.** Every consequential auto-choice announces itself via cli; the
+- IP6: **Loud defaults.** Every consequential auto-choice announces itself via cli; the
   package advises loudly and never silently switches basis or any consequential setting.
   (§9; D-006, D-008.)
-- **IP7 — Convergence is data, not an error.** A non-converging level (or replicate, or split
+- IP7: **Convergence is data, not an error.** A non-converging level (or replicate, or split
   half) warns and is recorded/skipped; the result still builds to the deepest converged level.
   One bad level never aborts a run. (§4; D-003, D-023.)
-- **IP8 — Oracle-backed numerics.** Every numeric result is verified against ≥2 independent
+- IP8: **Oracle-backed numerics.** Every numeric result is verified against ≥2 independent
   oracle *types* (published/closed-form, independent package, seeded simulation); no unsourced
   or unreproducible reference value ships; committed fixtures carry a structured `provenance`
   attr naming their `data-raw/` generator. Registry: `cairn/ORACLES.md`. Live independent-impl
   oracles are the stronger form — don't freeze them into fixtures without cause (M57).
-- **IP9 — Forbes (2023) reproducibility is a permanent *capability*, not a default lock-in.**
+- IP9: **Forbes (2023) reproducibility is a permanent *capability*, not a default lock-in.**
   The package must always be able to reproduce Forbes's published results exactly — test-backed
   (M44 sims + M53 AMH, 54/54 chase components) with the reproducing settings available and
   documented. Defaults, however, are free to adopt a better method when one arrives, with loud
@@ -148,24 +148,24 @@ or renumbered.
 
 ### Guiding principles
 
-- **GP1 — Published-method capability bar.** A new methodological capability earns its place by
+- GP1: **Published-method capability bar.** A new methodological capability earns its place by
   implementing or directly serving a *published* method with verifiable fidelity;
   package-invented conventions stay out (the D-020 precedent). Sound-engineering utilities are
   the tradeable exception, with stated justification.
-- **GP2 — Report-first, flag-second.** Computed flags (`above_cut`, prune flags) never appear
+- GP2: **Report-first, flag-second.** Computed flags (`above_cut`, prune flags) never appear
   without the underlying values beside them, and contested cutoffs never become returned
   verdicts — thresholds render as reference lines/annotations, not pass/fail columns.
   (D-014, D-017, D-028, D-030.)
-- **GP3 — Descriptive honesty.** A bass-ackwards result is presented as a series of linked
+- GP3: **Descriptive honesty.** A bass-ackwards result is presented as a series of linked
   solutions whose edges are score correlations — never as a fitted hierarchical model — and
   docs + `print()` keep saying so. (D-001.)
-- **GP4 — Wrap, don't reimplement.** Prefer wrapping established engines (psych, lavaan,
+- GP4: **Wrap, don't reimplement.** Prefer wrapping established engines (psych, lavaan,
   stats) over reimplementing numerics; self-implement only where no wrapper exists (the D-016
   tenBerge-weights precedent shows the justified trade).
-- **GP5 — Lean install.** `psych` is the only heavy Imports; everything else heavy sits in
+- GP5: **Lean install.** `psych` is the only heavy Imports; everything else heavy sits in
   Suggests behind `rlang` guards; no Rcpp. New Imports go through the dependency gate and a
   D-entry. (§3, §12; D-011.)
-- **GP6 — Reproducible by construction.** Stochastic results carry their seeds in the object;
+- GP6: **Reproducible by construction.** Stochastic results carry their seeds in the object;
   parallel and serial execution agree bit-for-bit (D-023); where an upstream defeats seeding
   (`psych::fa.parallel`), the exception is documented loudly, never hidden. (§8.)
 
