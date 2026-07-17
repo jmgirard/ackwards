@@ -1,10 +1,10 @@
 # M66: Upstream re-oracle watch (weekly CRAN-current CI)
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** IP8, IP9
-- **Branch/PR:** —
+- **Branch/PR:** m66-upstream-reoracle-watch
 
 ## Goal
 
