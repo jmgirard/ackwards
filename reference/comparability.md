@@ -200,7 +200,7 @@ for the extraction itself.
 # \donttest{
 cmp <- comparability(sim16, k_max = 5, n_splits = 5, seed = 1)
 #> ℹ Fitting 5 split-half replicates (pca, k = 1-5)...
-#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [246ms]
+#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [285ms]
 #> 
 cmp
 #> 
