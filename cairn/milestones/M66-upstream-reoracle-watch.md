@@ -4,7 +4,7 @@
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** IP8, IP9
-- **Branch/PR:** m66-upstream-reoracle-watch
+- **Branch/PR:** m66-upstream-reoracle-watch · [PR #70](https://github.com/jmgirard/ackwards/pull/70)
 
 ## Goal
 
