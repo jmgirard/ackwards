@@ -63,7 +63,7 @@ one path); the upstream re-oracle watch → M66.
       `.Rmd.orig` files are found, otherwise runs the T2 checker and asserts success.
 - [x] T5: `R-CMD-check.yaml` — add a `Rscript tools/check-vignette-freshness.R` step after
       `setup-r`, before dependency install (base-R only, fails fast).
-- [ ] T6: CLAUDE.md — repoint the "un-regenerated edit ships stale output" prose at the guard.
+- [x] T6: CLAUDE.md — repoint the "un-regenerated edit ships stale output" prose at the guard.
 
 ## Work log
 
@@ -82,6 +82,10 @@ one path); the upstream re-oracle watch → M66.
   skipped by the `sys.nframe()` guard) and skips when sources are absent (tarball). Passes in source.
 - 2026-07-17: T5 — CI step "Check precomputed vignette freshness" added to R-CMD-check.yaml between
   setup-r and setup-r-dependencies (runs on the source checkout, base R). YAML validated, order confirmed.
+- 2026-07-17: T6 — CLAUDE.md prose repointed at the mechanical guard; also fixed stale count
+  "seven of the eight" → "eight of the nine". Discovered sub-task: added a fail-fast freshness
+  check to `tools/dod-gate.R` (the testthat wrapper skips under check()'s tarball, so the local
+  DoD gate needed direct enforcement to match the CLAUDE.md claim).
 
 ## Decisions
 
