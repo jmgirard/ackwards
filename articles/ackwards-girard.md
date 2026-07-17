@@ -92,13 +92,13 @@ bfi <- na.omit(bfi25)
 
 sk <- suggest_k(bfi, seed = 1)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [134ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [130ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [88ms]
+#> ✔ Running MAP and VSS... [98ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [5.5s]
+#> ✔ Running Comparison Data (CD)... [7.5s]
 #> 
 print(sk)
 #> 
@@ -153,7 +153,7 @@ to one past the ceiling, across ten random split-halves:
 
 cmp <- comparability(bfi, k_max = sk_hi + 1, n_splits = 10, seed = 2026)
 #> ℹ Fitting 10 split-half replicates (pca, k = 1-7)...
-#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [377ms]
+#> ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [455ms]
 #> 
 print(cmp)
 #> 
@@ -343,7 +343,7 @@ is polychoric.
 x_boot <- ackwards(bfi, k_max = 5, pairs = "all") |>
   boot_edges(bfi, n_boot = 200, seed = 1)
 #> ℹ Fitting 200 bootstrap replicates (pca, k = 1-5)...
-#> ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [2.9s]
+#> ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [3.6s]
 #> 
 
 boot_tbl <- tidy(x_boot, what = "edges", sort = "strength")
