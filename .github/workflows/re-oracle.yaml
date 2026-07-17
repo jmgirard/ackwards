@@ -1,0 +1,161 @@
+# Upstream re-oracle watch (M66).
+#
+# PURPOSE. A weekly re-run of `R CMD check` against the *current* CRAN releases
+# of our engine substrate (psych, lavaan, and the rest of the dependency tree),
+# to catch upstream drift before a release walk does. DESIGN §2 commits the
+# package to a track-CRAN-current posture; lavaan 0.7 silently broke the suite
+# and went unnoticed until the 0.1.1 release walk (PR #66). The normal push/PR
+# matrix (R-CMD-check.yaml) pins nothing and would eventually catch this too,
+# but only on the next commit — this job hunts upstream drift on a clock, not on
+# developer activity.
+#
+# CRAN, NOT RSPM. Dependencies install from the plain CRAN cloud mirror
+# (`use-public-rspm: false`), deliberately unlike R-CMD-check.yaml. Posit's RSPM
+# serves precompiled binaries that can lag a fresh CRAN source release by hours
+# to days; installing from CRAN is what actually exercises "current CRAN". This
+# is slower (some packages compile from source) but that cost is the point.
+#
+# SCOPE. Single ubuntu-latest / R-release job. No multi-platform matrix (the
+# push/PR job already covers platform drift; this one hunts upstream/version
+# drift) and no R-devel (rhub.yaml + the release walk cover devel). Touches
+# `.github/` only — no package surface.
+#
+# AUTO-DISABLE CAVEAT. GitHub silently suspends `schedule:` triggers in a repo
+# with ~60 days of no commit activity, and emails the last committer to
+# re-enable. For a low-traffic solo repo the watch can therefore go dormant; the
+# `workflow_dispatch` trigger below is always available to run it by hand, and a
+# re-enable is one click. Not worked around here — documented so a silent gap is
+# understood rather than mistaken for "no upstream breakage".
+
+on:
+  schedule:
+    # Mondays 06:00 UTC — after any weekend CRAN publishing, before the week.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry_fail:
+        description: >-
+          Force the check step to fail, to exercise the issue-notification path
+          end-to-end without waiting for a real upstream break.
+        type: boolean
+        default: false
+
+name: re-oracle.yaml
+
+# Serialize all runs of this watch so the failure-notification's find-then-create
+# issue step (open-or-comment on the single labeled issue) can never race a
+# concurrent run into a duplicate — e.g. a manual dispatch fired while a slow
+# scheduled run is still compiling deps. cancel-in-progress: false lets the
+# in-flight check finish (never cancel real work); the next run simply queues.
+concurrency:
+  group: re-oracle
+  cancel-in-progress: false
+
+jobs:
+  re-oracle:
+    runs-on: ubuntu-latest
+    name: upstream re-oracle (CRAN-current)
+
+    # Scoped to the job: read the repo for checkout, write issues for the
+    # failure notification (open/comment on the single labeled tracking issue).
+    permissions:
+      contents: read
+      issues: write
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      TESTTHAT_CPUS: 4
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          # The whole point of this watch: install from current CRAN, not the
+          # (possibly lagging) RSPM binary mirror. See header.
+          use-public-rspm: false
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      # Record the resolved upstream versions BEFORE the check runs, so they are
+      # in the log and available to the failure-notification step even when the
+      # check itself fails. (T3)
+      - name: Record upstream versions
+        id: versions
+        run: |
+          Rscript -e '
+            for (p in c("psych", "lavaan")) {
+              v <- tryCatch(as.character(packageVersion(p)),
+                            error = function(e) "not-installed")
+              cat(sprintf("%s=%s\n", p, v))
+            }
+          ' | tee -a "$GITHUB_OUTPUT"
+        shell: bash
+
+      # dry_fail exercises the notification path without a real upstream break:
+      # skip the real check and force a failure instead.
+      - name: Force failure (dry_fail)
+        if: ${{ inputs.dry_fail }}
+        run: |
+          echo "dry_fail requested — forcing a failing check to exercise the notification path."
+          exit 1
+        shell: bash
+
+      - name: Check package against current CRAN
+        if: ${{ ! inputs.dry_fail }}
+        uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+
+      # On any failure above (a real upstream break, or dry_fail), open or update
+      # a single labeled tracking issue — never a duplicate. (T2)
+      - name: Open or update tracking issue on failure
+        if: ${{ failure() }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PSYCH: ${{ steps.versions.outputs.psych }}
+          LAVAAN: ${{ steps.versions.outputs.lavaan }}
+        run: |
+          set -euo pipefail
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          # Ensure the tracking label exists (idempotent: --force upserts).
+          gh label create upstream-watch \
+            --color FBCA04 \
+            --description "Weekly upstream re-oracle watch failures" \
+            --force
+          body=$(cat <<EOF
+          The weekly upstream re-oracle watch failed on \`ubuntu-latest\` / R-release.
+
+          - **Run:** ${run_url}
+          - **psych:** ${PSYCH:-unknown}
+          - **lavaan:** ${LAVAAN:-unknown}
+
+          A failure here means \`R CMD check\` no longer passes against the
+          *current* CRAN releases above — i.e. upstream drift. Reproduce locally
+          with a fresh dependency install, then patch the package to track it.
+
+          (Opened automatically by \`.github/workflows/re-oracle.yaml\`. A
+          \`dry_fail\` dispatch produces this same issue as a notification-path test.)
+          EOF
+          )
+          existing=$(gh issue list --label upstream-watch --state open \
+            --json number --jq '.[0].number // empty')
+          if [ -n "${existing}" ]; then
+            echo "Updating existing issue #${existing}"
+            gh issue comment "${existing}" --body "${body}"
+          else
+            echo "Opening a new tracking issue"
+            gh issue create \
+              --title "Upstream re-oracle watch failed (current CRAN)" \
+              --label upstream-watch \
+              --body "${body}"
+          fi
+        shell: bash
