@@ -9,6 +9,15 @@ test_that("sample-stats reuse argument matches the installed lavaan (0.7 rename)
   # The chosen name must be a real formal of lavaan::lavaan() under whichever
   # lavaan version is installed.
   expect_true(.esem_ss_argname() %in% names(formals(lavaan::lavaan)))
+  # Both branches, pinned by explicit formals (version-independent):
+  expect_identical(
+    .esem_ss_argname(c("model", "slot_sample_stats")),
+    "slot_sample_stats"
+  )
+  expect_identical(
+    .esem_ss_argname(c("model", "slotSampleStats")),
+    "slotSampleStats"
+  )
 })
 
 test_that("ackwards() with method = 'esem' returns a valid ackwards object", {

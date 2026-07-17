@@ -1,4 +1,7 @@
-# ackwards (development version)
+# ackwards 0.1.1
+
+CRAN resubmission of the first release, addressing reviewer feedback on the
+0.1.0 submission; also picks up everything added since that submission.
 
 * **Fixed compatibility with lavaan 0.7.** lavaan 0.7 renamed its
   sample-statistics slot argument (breaking the ESEM engine's multi-level
@@ -27,11 +30,6 @@
 * Completed the Goldberg (2006) reference to its full published title ("Doing
   it all Bass-Ackwards: The development of hierarchical factor structures from
   the top down") in the `ackwards()` help page and four vignettes.
-
-# ackwards 0.1.1
-
-CRAN resubmission of the first release, addressing reviewer feedback on the
-0.1.0 submission; also picks up everything added since that submission.
 
 * **Corrected the historical citations for `comparability()`'s split-half
   benchmarks.** The `.90` replication threshold traces to Everett (1983) and

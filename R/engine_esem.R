@@ -43,8 +43,10 @@
 # version comparison, so a future rename fails the guard test rather than
 # silently breaking. DESCRIPTION supports lavaan >= 0.6-13, so both names must
 # keep working.
-.esem_ss_argname <- function() {
-  if ("slot_sample_stats" %in% names(formals(lavaan::lavaan))) {
+# lav_formals is a parameter (defaulting to the real thing) so both branches
+# are testable regardless of which lavaan version is installed.
+.esem_ss_argname <- function(lav_formals = names(formals(lavaan::lavaan))) {
+  if ("slot_sample_stats" %in% lav_formals) {
     "slot_sample_stats"
   } else {
     "slotSampleStats"
