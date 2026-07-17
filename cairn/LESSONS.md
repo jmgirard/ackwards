@@ -46,3 +46,4 @@ One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
   number (40(3) vs published 40(4)) while the roxygen it was about to overwrite was right.
 - 2026-07-16 (M64): when summarizing a source into a D-entry, any added detail beyond the source is
   a new claim to verify — review caught an invented `lavPredict()` enumeration (extends M63's lesson).
+- 2026-07-17 (M65): a file-content hash guard must normalize line endings before hashing — git autocrlf checks out text files as CRLF on Windows, so a raw `tools::md5sum` stamp computed on LF (macOS/Linux) false-fails there; `readLines` + `writeLines(sep="\n")` to a binary connection canonicalizes to LF on both the stamp-write and stamp-verify sides. Windows-only CI caught it.
