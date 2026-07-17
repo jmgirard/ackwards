@@ -86,6 +86,9 @@ one path); the upstream re-oracle watch → M66.
   "seven of the eight" → "eight of the nine". Discovered sub-task: added a fail-fast freshness
   check to `tools/dod-gate.R` (the testthat wrapper skips under check()'s tarball, so the local
   DoD gate needed direct enforcement to match the CLAUDE.md claim).
+- 2026-07-17: fix — dropped "(M65)" from the stamp comment (the `test-docs-no-milestone-refs.R`
+  guard flagged all 8 vignettes; user-facing materials never carry milestone numbers) and
+  re-ran precompute.R. Full suite: 0 fail / 2307 pass / 0 skip (freshness test runs in source).
 
 ## Decisions
 
