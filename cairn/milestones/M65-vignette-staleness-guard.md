@@ -25,19 +25,19 @@ one path); the upstream re-oracle watch → M66.
 
 ## Acceptance criteria
 
-- [ ] `Rscript tools/check-vignette-freshness.R` exits 0 on a fresh tree; after a scratch edit
+- [x] `Rscript tools/check-vignette-freshness.R` exits 0 on a fresh tree; after a scratch edit
       to any `.Rmd.orig` (reverted afterward) it exits non-zero naming the stale vignette; it
       also fails on an orphan (a stamped `.Rmd` whose `.Rmd.orig` is missing, or vice versa).
-- [ ] Every precomputed vignette (each `*.Rmd.orig` — currently eight) carries a stamp comment
+- [x] Every precomputed vignette (each `*.Rmd.orig` — currently eight) carries a stamp comment
       naming its `.Rmd.orig` and its md5; the live `ackwards-interpret.Rmd` carries no stamp and
       is never flagged.
-- [ ] The testthat wrapper passes in `devtools::test()` and skips when no `.Rmd.orig` is
+- [x] The testthat wrapper passes in `devtools::test()` and skips when no `.Rmd.orig` is
       present (evidence: `R CMD check` green — the tarball excludes `.orig`, so the test must
       skip there).
 - [ ] `R-CMD-check.yaml` runs the checker from the source checkout before the tarball check;
       the milestone PR's CI run shows the step green.
-- [ ] CLAUDE.md's precompute warning names the mechanical guard instead of prose-only.
-- [ ] Profile verify clean: `devtools::test()` clean per task; `devtools::check()` clean at
+- [x] CLAUDE.md's precompute warning names the mechanical guard instead of prose-only.
+- [x] Profile verify clean: `devtools::test()` clean per task; `devtools::check()` clean at
       review (0 err/0 warn; justify NOTEs).
 
 ## Coverage
@@ -103,3 +103,39 @@ one path); the upstream re-oracle watch → M66.
 ## Decisions
 
 ## Review
+
+_PR [#68](https://github.com/jmgirard/ackwards/pull/68). Evidence gathered 2026-07-17 by /milestone-review._
+
+### Acceptance-criteria evidence
+
+- **AC1 (checker fresh/stale/orphan)** ✓ — `Rscript tools/check-vignette-freshness.R`: fresh tree
+  exit 0; scratch edit to `ackwards-girard.Rmd.orig` → exit 1 naming the stale vignette with the
+  md5 mismatch; orphan (`.orig` removed) → exit 1 "orphan stamp"; reverse orphan (`.Rmd` removed,
+  `.orig` present) → exit 1 "has no generated". Restored byte-identical after each.
+- **AC2 (every precomputed vignette stamped; interpret unstamped)** ✓ — all 8 `*.Rmd` paired with
+  a `*.Rmd.orig` carry exactly 1 `precompute-stamp` line; `ackwards-interpret.Rmd` carries 0.
+- **AC3 (test skips under tarball)** ✓ — `R CMD build` tarball contains
+  `tests/testthat/test-vignette-freshness.R` and the generated `*.Rmd` but **no** `*.Rmd.orig`
+  and **no** `tools/check-vignette-freshness.R`, so `skip_if_not` fires; `devtools::check()` clean
+  0/0/0 confirms it skips without error.
+- **AC4 (CI step green on the PR)** — first run red on windows-latest (CRLF checkout → raw-md5
+  false-STALE); fixed via LF-normalized hashing (commit 8b9ffb9). Fresh CI run in progress — tick
+  pending its green.
+- **AC5 (CLAUDE.md names the guard)** ✓ — CLAUDE.md:76,78 name `check-vignette-freshness.R` and
+  "mechanical failure, not a prose warning"; stale count corrected to "eight of the nine".
+- **AC6 (profile verify clean)** ✓ — `Rscript tools/dod-gate.R`: check **0 err/0 warn/0 note**,
+  coverage 100%, styler/lintr clean, pkgdown index complete; freshness check clean at gate top.
+
+### Consistency gate
+
+- `cairn_validate` — exit 0, all checks PASS; 78 advisory "dangling id tokens" warnings are
+  pre-existing legacy-milestone citations (M12/M13/M21/…), not introduced by M65.
+- Toolchain (`r-package` consistency-gate): `devtools::document()` no diff (check clean); NAMESPACE
+  unchanged (no new exports); `pkgdown::check_pkgdown()` clean; NEWS.md — N/A (dev-tooling change,
+  no user-visible behavior); no new top-level files needing `.Rbuildignore` (`^tools$` and the
+  `vignettes/*.Rmd.orig`/`precompute.R` entries already cover the additions).
+- No DESIGN principle (IP/GP) changed → `cairn_impact` skipped.
+
+### Independent code review
+
+_(pending reviewer fan-out + scorer)_
