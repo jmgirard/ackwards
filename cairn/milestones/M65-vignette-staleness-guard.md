@@ -59,7 +59,7 @@ one path); the upstream re-oracle watch → M66.
       prints offenders, non-zero exit on any failure.
 - [x] T3: run `Rscript vignettes/precompute.R` once to land the stamps; commit regenerated
       `*.Rmd` + `vignettes/assets/` (full-regen churn is legitimate here — M61 lesson noted).
-- [ ] T4: `tests/testthat/test-vignette-freshness.R` — locates the source tree, skips when no
+- [x] T4: `tests/testthat/test-vignette-freshness.R` — locates the source tree, skips when no
       `.Rmd.orig` files are found, otherwise runs the T2 checker and asserts success.
 - [ ] T5: `R-CMD-check.yaml` — add a `Rscript tools/check-vignette-freshness.R` step after
       `setup-r`, before dependency install (base-R only, fails fast).
@@ -78,6 +78,8 @@ one path); the upstream re-oracle watch → M66.
   full regen landed stamps on all 8 vignettes. Verified: fresh→exit 0, scratch `.orig` edit→exit 1
   naming the stale vignette, orphan (`.orig` removed)→exit 1. Engines churn (225 lines) is `gt`
   random table-id noise (M61-anticipated); 3 asset PNGs re-baked. `ackwards-interpret.Rmd` unstamped.
+- 2026-07-17: T4 — `test-vignette-freshness.R` sources the checker via `sys.source` (script body
+  skipped by the `sys.nframe()` guard) and skips when sources are absent (tarball). Passes in source.
 
 ## Decisions
 
