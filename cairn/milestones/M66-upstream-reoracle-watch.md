@@ -1,6 +1,6 @@
 # M66: Upstream re-oracle watch (weekly CRAN-current CI)
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** IP8, IP9

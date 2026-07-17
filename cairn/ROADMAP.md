@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M66 | Upstream re-oracle watch (weekly CRAN-current CI) | in-progress | — | normal | milestones/M66-upstream-reoracle-watch.md |
+| M66 | Upstream re-oracle watch (weekly CRAN-current CI) | review | — | normal | milestones/M66-upstream-reoracle-watch.md |
 | M65 | Mechanize the precomputed-vignette staleness guard | done | — | normal | milestones/archive/M65-vignette-staleness-guard.md |
 | M64 | DESIGN §14 → DECISIONS.md extraction (hybrid + entomb) | done | — | normal | milestones/archive/M64-design-s14-extraction.md |
 | M63 | User-facing text accuracy pass (Goldberg 2006 citations + PCA n_obs message) | done | — | normal | milestones/archive/M63-text-accuracy-pass.md |
