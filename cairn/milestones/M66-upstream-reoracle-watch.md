@@ -58,7 +58,7 @@ worked around.
       lavaan versions.
 - [x] T3: version-recording step: print psych/lavaan `packageVersion()` to the log and expose
       as step outputs for T2.
-- [ ] T4: verify end-to-end on the milestone branch via a temporary `push` trigger scoped to
+- [x] T4: verify end-to-end on the milestone branch via a temporary `push` trigger scoped to
       the branch (dry_fail defaulted on branch pushes as needed): one green run, two `dry_fail`
       runs (issue create, then update), close the test issue, remove the temporary trigger,
       capture evidence for review; post-merge, one confirming `workflow_dispatch`.
@@ -70,6 +70,12 @@ worked around.
 - 2026-07-17: T1–T3 — authored `.github/workflows/re-oracle.yaml` (weekly cron + dispatch
   `dry_fail`, CRAN-not-RSPM, version-recording step, gh-CLI issue-on-failure). Notification
   tool = gh CLI (question gate: preinstalled on ubuntu-latest, no third-party action).
+- 2026-07-17: T4 — end-to-end verified on branch via a temporary push trigger, then reverted.
+  AC2 green run [29600465220] `success` (17m37s), log recorded psych=2.6.5 / lavaan=0.7.2.
+  AC3: force-fail run [29601623972] opened issue #69 (label `upstream-watch`, body with run
+  link + versions); re-trigger [29601746921] commented on the *same* #69 (1 open issue, 1
+  comment — no duplicate). Closed #69 as test evidence; restored the production workflow (no
+  TEMP markers remain). Post-merge confirming `workflow_dispatch` is owner follow-up.
 
 ## Decisions
 

@@ -28,11 +28,6 @@
 # understood rather than mistaken for "no upstream breakage".
 
 on:
-  # TEMP-M66-TEST: branch-scoped push trigger to exercise the workflow on the
-  # milestone branch (workflow_dispatch only registers once on the default
-  # branch). Removed before review.
-  push:
-    branches: [m66-upstream-reoracle-watch]
   schedule:
     # Mondays 06:00 UTC — after any weekend CRAN publishing, before the week.
     - cron: '0 6 * * 1'
@@ -98,14 +93,14 @@ jobs:
       # dry_fail exercises the notification path without a real upstream break:
       # skip the real check and force a failure instead.
       - name: Force failure (dry_fail)
-        if: ${{ inputs.dry_fail || github.event_name == 'push' }}  # TEMP-M66-TEST: || push
+        if: ${{ inputs.dry_fail }}
         run: |
           echo "dry_fail requested — forcing a failing check to exercise the notification path."
           exit 1
         shell: bash
 
       - name: Check package against current CRAN
-        if: ${{ ! (inputs.dry_fail || github.event_name == 'push') }}  # TEMP-M66-TEST: || push
+        if: ${{ ! inputs.dry_fail }}
         uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
