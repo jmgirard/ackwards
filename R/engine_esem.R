@@ -17,7 +17,8 @@
 # weight matrix NACOV/WLS.V -- are IDENTICAL across all levels (they depend only
 # on the data, estimator, and missing handling, never on nfactors/rotation). They
 # are therefore computed ONCE at the anchor level (k = 1) and reused for every
-# deeper level via lavaan's slotSampleStats= argument, which skips the recompute
+# deeper level via lavaan's sample-stats slot argument (slot_sample_stats= in
+# lavaan >= 0.7, slotSampleStats= before; see .esem_ss_argname()), which skips the recompute
 # and yields bit-identical solutions. The per-level model fits are mutually
 # independent and are dispatched through .esem_lapply(), which parallelises via
 # future.apply when the user has set a future::plan() (serial otherwise).
@@ -33,6 +34,20 @@
     future.apply::future_lapply(X, FUN, future.seed = TRUE)
   } else {
     lapply(X, FUN)
+  }
+}
+
+# lavaan 0.7 renamed lavaan()'s slot arguments to snake_case (slotSampleStats=
+# -> slot_sample_stats=) and its option parser rejects the old name outright.
+# Detect by capability (is the new name a formal of lavaan::lavaan()?), not by
+# version comparison, so a future rename fails the guard test rather than
+# silently breaking. DESCRIPTION supports lavaan >= 0.6-13, so both names must
+# keep working.
+.esem_ss_argname <- function() {
+  if ("slot_sample_stats" %in% names(formals(lavaan::lavaan))) {
+    "slot_sample_stats"
+  } else {
+    "slotSampleStats"
   }
 }
 
@@ -65,8 +80,9 @@
     missing   = lav_missing
   )
   # Reuse cached sample statistics for deeper levels (M26). lavaan uses the slot
-  # and skips recomputing thresholds / polychorics / NACOV.
-  if (!is.null(ss_in)) efa_args$slotSampleStats <- ss_in
+  # and skips recomputing thresholds / polychorics / NACOV. The argument name is
+  # lavaan-version-dependent (renamed in 0.7); see .esem_ss_argname().
+  if (!is.null(ss_in)) efa_args[[.esem_ss_argname()]] <- ss_in
 
   # lavaan emits fit-time warnings (e.g. non-PD vcov) that are not actionable
   # here; suppress them around the fit only (matches pre-M26 muffling behaviour).
@@ -335,8 +351,12 @@ esem_levels <- function(data, k_max, estimator, cor,
   item_names <- colnames(data)
   data_df <- as.data.frame(data)
 
-  # For polychoric/WLSMV: treat all columns as ordered categorical
-  ordered_cols <- if (cor == "polychoric") item_names else NULL
+  # For polychoric/WLSMV: treat all columns as ordered categorical. On the
+  # continuous path pass FALSE (not NULL): lavaan 0.7 requires an explicit
+  # ordered = FALSE to allow WLSMV/ULSMV with continuous data, and FALSE is
+  # equivalent to NULL (no ordered variables) on every other estimator/version
+  # (verified bit-identical on unrotated fits under 0.6.21 and 0.7-2).
+  ordered_cols <- if (cor == "polychoric") item_names else FALSE
 
   # missing= mapping to lavaan's vocabulary (constant across levels):
   #   "fiml"     -> "fiml"           (ML/MLR only; validated upstream)
