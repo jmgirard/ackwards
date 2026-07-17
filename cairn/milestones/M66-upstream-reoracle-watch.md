@@ -49,14 +49,14 @@ worked around.
 
 ## Tasks
 
-- [ ] T1: author `re-oracle.yaml` — cron (Mon 06:00 UTC) + `workflow_dispatch` with boolean
+- [x] T1: author `re-oracle.yaml` — cron (Mon 06:00 UTC) + `workflow_dispatch` with boolean
       `dry_fail`; ubuntu-latest, R release, `use-public-rspm: false` with the CRAN cloud
       mirror; `rcmdcheck` step (dry_fail forces a failing step instead); `permissions:`
       `issues: write` scoped to the job.
-- [ ] T2: issue-on-failure step (`actions/github-script` or `gh` CLI): find open issue by
+- [x] T2: issue-on-failure step (`actions/github-script` or `gh` CLI): find open issue by
       label `upstream-watch`; comment if found, create if not; body includes run link + psych/
       lavaan versions.
-- [ ] T3: version-recording step: print psych/lavaan `packageVersion()` to the log and expose
+- [x] T3: version-recording step: print psych/lavaan `packageVersion()` to the log and expose
       as step outputs for T2.
 - [ ] T4: verify end-to-end on the milestone branch via a temporary `push` trigger scoped to
       the branch (dry_fail defaulted on branch pushes as needed): one green run, two `dry_fail`
@@ -67,6 +67,9 @@ worked around.
 
 - 2026-07-17: created by /milestone-plan (promotes the 2026-07-17 candidate row; DESIGN §2
   track-CRAN-current posture, D-031).
+- 2026-07-17: T1–T3 — authored `.github/workflows/re-oracle.yaml` (weekly cron + dispatch
+  `dry_fail`, CRAN-not-RSPM, version-recording step, gh-CLI issue-on-failure). Notification
+  tool = gh CLI (question gate: preinstalled on ubuntu-latest, no third-party action).
 
 ## Decisions
 
