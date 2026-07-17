@@ -34,7 +34,7 @@ one path); the upstream re-oracle watch → M66.
 - [x] The testthat wrapper passes in `devtools::test()` and skips when no `.Rmd.orig` is
       present (evidence: `R CMD check` green — the tarball excludes `.orig`, so the test must
       skip there).
-- [ ] `R-CMD-check.yaml` runs the checker from the source checkout before the tarball check;
+- [x] `R-CMD-check.yaml` runs the checker from the source checkout before the tarball check;
       the milestone PR's CI run shows the step green.
 - [x] CLAUDE.md's precompute warning names the mechanical guard instead of prose-only.
 - [x] Profile verify clean: `devtools::test()` clean per task; `devtools::check()` clean at
@@ -118,9 +118,10 @@ _PR [#68](https://github.com/jmgirard/ackwards/pull/68). Evidence gathered 2026-
   `tests/testthat/test-vignette-freshness.R` and the generated `*.Rmd` but **no** `*.Rmd.orig`
   and **no** `tools/check-vignette-freshness.R`, so `skip_if_not` fires; `devtools::check()` clean
   0/0/0 confirms it skips without error.
-- **AC4 (CI step green on the PR)** — first run red on windows-latest (CRLF checkout → raw-md5
-  false-STALE); fixed via LF-normalized hashing (commit 8b9ffb9). Fresh CI run in progress — tick
-  pending its green.
+- **AC4 (CI step green on the PR)** ✓ — first run red on windows-latest (CRLF checkout → raw-md5
+  false-STALE); fixed via LF-normalized hashing (commit 8b9ffb9). Fresh run (29599113879) all 9
+  checks pass, incl. **windows-latest (release) pass 6m10s** and the "Check precomputed vignette
+  freshness" step.
 - **AC5 (CLAUDE.md names the guard)** ✓ — CLAUDE.md:76,78 name `check-vignette-freshness.R` and
   "mechanical failure, not a prose warning"; stale count corrected to "eight of the nine".
 - **AC6 (profile verify clean)** ✓ — `Rscript tools/dod-gate.R`: check **0 err/0 warn/0 note**,
@@ -138,4 +139,24 @@ _PR [#68](https://github.com/jmgirard/ackwards/pull/68). Evidence gathered 2026-
 
 ### Independent code review
 
-_(pending reviewer fan-out + scorer)_
+Three fresh-context lenses (ref-based git only), all returned clean:
+
+- **[O] diff-bug (Opus):** no correctness/contract/convention defects. Verified `md5_normalized`
+  (binary `wb` + `sep="\n"` forces LF; both sides share the fn so write/verify can't diverge),
+  forward/reverse orphan logic, malformed-stamp fail-safe, `sys.nframe()` guard at all 3 sourcing
+  sites, tarball skip, CI placement, and the `test-docs-no-milestone-refs` interaction. Non-blocking
+  notes (not defects): trailing-newline-insensitive by design; source-with-spaces unreachable (CRAN
+  naming); confirm CI green before merge (done).
+- **[S] blame-history (Sonnet):** no findings. Confirmed the vignette churn is authorized by T3
+  (not an M61-lesson violation), the 3 stamp-only `.Rmd` are byte-clean, engines' 225-line diff is
+  pure `gt` random-id churn, and the CRLF fix is symmetric across both scripts. One minor
+  completeness note → actioned below.
+- **[S] prior-PR-comments (Sonnet):** no prior-PR evidence (touched files' PRs #37/#38/#49/#65
+  carry only Codecov bot comments).
+
+**Scorer:** no findings survived the reviewers' taxonomy filter → no-op (empty actioned list).
+
+**Actioned (doc-completeness, from blame-history note):** the freshness step was added to
+`dod-gate.R` but its header comment and CLAUDE.md's gate-sequence prose still listed the old
+sequence — updated both to include "vignette-freshness". Benign trailing-newline note: no action
+(benign by design; a trailing-newline-only edit changes no knit output).

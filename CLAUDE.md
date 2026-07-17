@@ -82,7 +82,7 @@ CI before the tarball check, at the DoD gate, and by `tests/testthat/test-vignet
 `testthat::test_file()`; run failing tests **once** in a way that shows the details (capture
 `res <-` or use a non-silent reporter — never silent-then-rerun); skip the vignette rebuild during
 mid-work checks with `check(vignettes = FALSE)`; and at the final gate run `Rscript tools/dod-gate.R` — it executes the
-whole DoD sequence (check → coverage → style → lint → pkgdown) serially in one process with
+whole DoD sequence (vignette-freshness → check → coverage → style → lint → pkgdown) serially in one process with
 sensible `TESTTHAT_CPUS`, and prints/exits on any failure. Never run two package-touching R
 processes concurrently. Two transcript-mined anti-patterns to avoid (M48): a bare
 `devtools::load_all()` in its own `Rscript` call does nothing persistent (each `Rscript` is a fresh

@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 # Definition-of-done gate (M48). Runs the full CLAUDE.md gate sequence once,
 # serially, in one process:
+#   vignette freshness (M65; fail-fast, base R) ->
 #   devtools::check() (must be 0/0/0, vignettes included)
 #   -> covr::package_coverage() (target 100%)
 #   -> styler::style_pkg() -> lintr::lint_package()
