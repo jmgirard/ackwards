@@ -31,6 +31,13 @@ stopifnot(file.exists("DESCRIPTION")) # must run from package root
 
 devtools::load_all(".", quiet = TRUE)
 
+# Reuse the checker's LF-normalized md5 so the stamp we write matches what the
+# checker re-derives on any platform (CRLF vs LF checkout -- M65). sys.source
+# defines the helpers without running the checker's own script body.
+.checker_env <- new.env()
+sys.source(file.path("tools", "check-vignette-freshness.R"), envir = .checker_env)
+md5_normalized <- .checker_env$md5_normalized
+
 old_wd <- setwd("vignettes")
 on.exit(setwd(old_wd), add = TRUE)
 
@@ -45,7 +52,7 @@ if (length(orig_files) == 0L) {
 # md5 and fails if a .Rmd.orig was edited without re-running this script, turning
 # a stale-output slip from a prose warning into a mechanical CI failure (M65).
 stamp_rmd <- function(rmd, orig) {
-  md5 <- unname(tools::md5sum(orig))
+  md5 <- md5_normalized(orig)
   lines <- readLines(rmd, warn = FALSE)
   # YAML header is the block between the first two `---` fence lines.
   fences <- which(lines == "---")

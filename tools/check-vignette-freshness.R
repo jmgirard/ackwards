@@ -16,6 +16,22 @@
 # `check_vignette_freshness()` directly; sourcing defines the function without
 # running the script body (guarded by `sys.nframe()`).
 
+# md5 of a file's *content* with line endings normalized to LF. Raw-byte
+# `tools::md5sum` would differ between a CRLF checkout (git autocrlf on Windows)
+# and an LF one, giving false-stale failures cross-platform; readLines() strips
+# whatever EOL the checkout used, and writing back with sep = "\n" to a binary
+# connection re-hashes a canonical LF form. Shared by precompute.R (stamp write)
+# and the checks below (stamp verify) so both sides agree on any platform (M65).
+md5_normalized <- function(path) {
+  txt <- readLines(path, warn = FALSE)
+  tmp <- tempfile()
+  on.exit(unlink(tmp), add = TRUE)
+  con <- file(tmp, open = "wb")
+  writeLines(txt, con, sep = "\n")
+  close(con)
+  unname(tools::md5sum(tmp))
+}
+
 # Extract the machine-readable stamp line from a generated .Rmd, or NULL if the
 # file carries no stamp (e.g. the live ackwards-interpret.Rmd).
 .read_vignette_stamp <- function(rmd) {
@@ -61,7 +77,7 @@ check_vignette_freshness <- function(vign_dir = "vignettes") {
       ))
       next
     }
-    actual <- unname(tools::md5sum(orig))
+    actual <- md5_normalized(orig)
     if (!identical(stamp$md5, actual)) {
       problems <- c(problems, sprintf(
         "%s is STALE: %s was edited since the last precompute (stamp md5 %s, actual %s). Re-run Rscript vignettes/precompute.R.",

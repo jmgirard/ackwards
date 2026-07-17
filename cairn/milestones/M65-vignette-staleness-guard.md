@@ -4,7 +4,7 @@
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** —
-- **Branch/PR:** m65-vignette-staleness-guard
+- **Branch/PR:** m65-vignette-staleness-guard · [PR #68](https://github.com/jmgirard/ackwards/pull/68)
 
 ## Goal
 
@@ -89,6 +89,16 @@ one path); the upstream re-oracle watch → M66.
 - 2026-07-17: fix — dropped "(M65)" from the stamp comment (the `test-docs-no-milestone-refs.R`
   guard flagged all 8 vignettes; user-facing materials never carry milestone numbers) and
   re-ran precompute.R. Full suite: 0 fail / 2307 pass / 0 skip (freshness test runs in source).
+- 2026-07-17: review found CI red (windows-latest, PR #68): git autocrlf checks out `.Rmd.orig`
+  with CRLF on Windows, so raw-byte `tools::md5sum` mismatched the LF-computed stamp → all 8
+  false-STALE. Status → in-progress to fix: hash LF-normalized content in both precompute.R and
+  the checker so the guard is platform/checkout-independent.
+- 2026-07-17: fix landed — `md5_normalized()` (readLines strips EOL, rewrite LF, then md5sum) in
+  the checker; precompute.R sources it so stamp-write and stamp-verify agree. All 8 committed
+  stamps already equalled the normalized md5 (the `.orig` are LF), so **no vignette regen needed**
+  — checker/precompute.R only. Verified: LF tree exit 0, simulated CRLF checkout exit 0 (was 1),
+  real content edit still exit 1, testthat wrapper passes. Genuine-CRLF raw md5 reproduced the
+  exact "actual" hashes Windows CI reported. Status → review; re-push for fresh CI.
 
 ## Decisions
 
