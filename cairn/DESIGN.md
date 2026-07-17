@@ -103,6 +103,78 @@ These are the project's standing priorities (owner-stated) and the recommended s
   paper freezes the API its worked examples demonstrate. From 1.0, changes follow a deprecation
   cycle.
 
+## Design principles (IP/GP)
+
+Numbered per cairn's tracking rules: **IP** = inviolable (changing one requires a D-entry);
+**GP** = guiding (tradeable with stated justification). Adopted at the 2026-07-17 design
+interview (D-031), formalizing CLAUDE.md's former "Invariants" list. Numbers are never reused
+or renumbered.
+
+### Inviolable principles
+
+- **IP1 — One edge path.** All between-level correlations go through `compute_edges()`: exact
+  `W'RW` algebra when scoring is linear; materialized scores only when nonlinear (EAP) or when
+  the user asks. **Always** standardize by real score SDs `sqrt(diag(W'RW))` — never assume
+  unit variance. (§5; D-004.)
+- **IP2 — Both routes, and they must agree.** The scores route stays available even where
+  algebra is the default (`edge_method = "scores"`), and a standing test asserts
+  algebra-vs-scores agreement within tolerance for every linear engine — the package's cheapest
+  correctness oracle. (§5.4; D-004.)
+- **IP3 — Light core, heavy opt-in.** The object always carries loadings/variance/fit/weights/
+  edges/lineage/`R`/meta; `scores`, raw `fits`, raw `data` are NULL by default and recomputable.
+  Small-and-shareable by default is a privacy promise, not just a memory one. (§6; D-005.)
+- **IP4 — Sign alignment anchors to the primary parent**, never "all positive" (impossible —
+  sign is one DoF per factor). Each child orients against its parent's *already-aligned* sign;
+  secondary edges may legitimately be negative. (§7; D-010.)
+- **IP5 — Lineage lives in edges, never in IDs.** `m{k}f{j}` are stable labels; parentage is
+  edge structure; no verb ever mutates an ID. (§7; D-009, D-029.)
+- **IP6 — Loud defaults.** Every consequential auto-choice announces itself via cli; the
+  package advises loudly and never silently switches basis or any consequential setting.
+  (§9; D-006, D-008.)
+- **IP7 — Convergence is data, not an error.** A non-converging level (or replicate, or split
+  half) warns and is recorded/skipped; the result still builds to the deepest converged level.
+  One bad level never aborts a run. (§4; D-003, D-023.)
+- **IP8 — Oracle-backed numerics.** Every numeric result is verified against ≥2 independent
+  oracle *types* (published/closed-form, independent package, seeded simulation); no unsourced
+  or unreproducible reference value ships; committed fixtures carry a structured `provenance`
+  attr naming their `data-raw/` generator. Registry: `cairn/ORACLES.md`. Live independent-impl
+  oracles are the stronger form — don't freeze them into fixtures without cause (M57).
+- **IP9 — Forbes (2023) reproducibility is a permanent *capability*, not a default lock-in.**
+  The package must always be able to reproduce Forbes's published results exactly — test-backed
+  (M44 sims + M53 AMH, 54/54 chase components) with the reproducing settings available and
+  documented. Defaults, however, are free to adopt a better method when one arrives, with loud
+  documentation (IP6) and a D-entry. (Adopted 2026-07-17; supersedes the earlier "default
+  output must reproduce Forbes's examples exactly" contract wording.)
+
+### Guiding principles
+
+- **GP1 — Published-method capability bar.** A new methodological capability earns its place by
+  implementing or directly serving a *published* method with verifiable fidelity;
+  package-invented conventions stay out (the D-020 precedent). Sound-engineering utilities are
+  the tradeable exception, with stated justification.
+- **GP2 — Report-first, flag-second.** Computed flags (`above_cut`, prune flags) never appear
+  without the underlying values beside them, and contested cutoffs never become returned
+  verdicts — thresholds render as reference lines/annotations, not pass/fail columns.
+  (D-014, D-017, D-028, D-030.)
+- **GP3 — Descriptive honesty.** A bass-ackwards result is presented as a series of linked
+  solutions whose edges are score correlations — never as a fitted hierarchical model — and
+  docs + `print()` keep saying so. (D-001.)
+- **GP4 — Wrap, don't reimplement.** Prefer wrapping established engines (psych, lavaan,
+  stats) over reimplementing numerics; self-implement only where no wrapper exists (the D-016
+  tenBerge-weights precedent shows the justified trade).
+- **GP5 — Lean install.** `psych` is the only heavy Imports; everything else heavy sits in
+  Suggests behind `rlang` guards; no Rcpp. New Imports go through the dependency gate and a
+  D-entry. (§3, §12; D-011.)
+- **GP6 — Reproducible by construction.** Stochastic results carry their seeds in the object;
+  parallel and serial execution agree bit-for-bit (D-023); where an upstream defeats seeding
+  (`psych::fa.parallel`), the exception is documented loudly, never hidden. (§8.)
+
+### Lineage map (pre-interview numbering → principles)
+
+CLAUDE.md's "Invariants" 1–8 — cited as `Invariant N` in ~22 `R/` and `tests/` files — map
+**identically**: Invariant N → IPn for N = 1..8. No in-code repoint is required; existing
+comments keep resolving. IP9 and all GPs are new numbers with no legacy citations.
+
 ## 4. Engines
 
 Three engines, all first-class, behind one user-facing function (`ackwards()`) that dispatches.
@@ -349,12 +421,12 @@ announced via cli and documented in roxygen with its rationale.
 | `edge_method` | `"auto"` | algebra when linear, scores otherwise. |
 | `pairs` (`ackwards()`) | `"adjacent"` | classic Goldberg; `"all"` reveals skip-level correlations for inspection/plotting. Since M34, `prune()` recomputes its own all-pairs edges on demand regardless of this setting — pruning no longer requires (or auto-upgrades) `pairs = "all"` here. |
 | `prune()` `rules` (standalone verb, M34 — not an `ackwards()` argument) | **`"none"`** | pruning is an interpretive choice with thresholds, kept as a separate, cheap, re-runnable step piped off an already-extracted object (`ackwards(...) |> prune(...)`) so new thresholds never require re-extraction. Turning it on silently would change results — opt-in with documented thresholds (|r| ≥ .9, congruence > .95). Canonical rule name is `"artifact"` (US spelling); `"artefact"` is accepted as an alias (nod to Commonwealth spelling and to Forbes). |
-| `redundancy_phi` (`prune()` argument, M34) | **`NULL` (auto)** — PCA → no φ filter (component scores are **determinate** — exact linear functions of the data — so `|r|` is the true correlation between the components themselves and suffices alone); EFA/ESEM → `0.95` (Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy makes `|r|`-only liberal; φ adds a congruence guard). Explicit number overrides on any engine. `NA` is the opt-out (no φ filter regardless of engine). Announces auto-resolve via cli (Invariant 6). **Added M25**; moved from an `ackwards()` argument to a `prune()` argument in M34. *(Rationale wording corrected M43: the earlier "W′RW algebra is exact" phrasing conflated algebra-exactness — equally true of tenBerge EFA — with score determinacy, the actual reason.)* |
+| `redundancy_phi` (`prune()` argument, M34) | **`NULL` (auto)** — PCA → no φ filter (component scores are **determinate** — exact linear functions of the data — so `|r|` is the true correlation between the components themselves and suffices alone); EFA/ESEM → `0.95` (Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy makes `|r|`-only liberal; φ adds a congruence guard). Explicit number overrides on any engine. `NA` is the opt-out (no φ filter regardless of engine). Announces auto-resolve via cli (IP6). **Added M25**; moved from an `ackwards()` argument to a `prune()` argument in M34. *(Rationale wording corrected M43: the earlier "W′RW algebra is exact" phrasing conflated algebra-exactness — equally true of tenBerge EFA — with score determinacy, the actual reason.)* |
 | sign `align_signs` | `TRUE` | unaligned signs make output unreadable. |
 | `keep_fits` / `keep_scores` | `FALSE` / `FALSE` | memory + privacy. |
 | `k_max` | required | force a deliberate choice; don't silently pick. |
 | `seed` | `NULL` but captured | stochastic engines (rotation starts, ML) need reproducibility; encourage setting. |
-| `missing` | **`"pairwise"`** | preserves existing behaviour (pairwise-complete correlations); warns when NAs present. `"listwise"` gives fully consistent N across fit and edges (reduces to complete cases pre-fit). `"fiml"` uses Full Information ML: for ESEM (ML/MLR) it derives edge R from lavaan's FIML saturated model; for **PCA/EFA on the Pearson basis** (M38) it estimates R via `psych::corFiml()` and feeds it to the `W'RW` algebra (Invariant 1 — one edge path; no new dep). FIML **errors** for WLSMV/ULSMV and for a **non-Pearson PCA/EFA basis** (corFiml is MVN-only). Added M16; PCA/EFA route added M38; **see the "Known limitations" section's ESEM ML/MLR pairwise entry** (the ML/MLR fit-vs-edges inconsistency under missingness is resolved for `"listwise"` and `"fiml"`; `"pairwise"` retains the existing minor inconsistency and now warns). Ignored (with a warning) when a correlation matrix is supplied — added M22. |
+| `missing` | **`"pairwise"`** | preserves existing behaviour (pairwise-complete correlations); warns when NAs present. `"listwise"` gives fully consistent N across fit and edges (reduces to complete cases pre-fit). `"fiml"` uses Full Information ML: for ESEM (ML/MLR) it derives edge R from lavaan's FIML saturated model; for **PCA/EFA on the Pearson basis** (M38) it estimates R via `psych::corFiml()` and feeds it to the `W'RW` algebra (IP1 — one edge path; no new dep). FIML **errors** for WLSMV/ULSMV and for a **non-Pearson PCA/EFA basis** (corFiml is MVN-only). Added M16; PCA/EFA route added M38; **see the "Known limitations" section's ESEM ML/MLR pairwise entry** (the ML/MLR fit-vs-edges inconsistency under missingness is resolved for `"listwise"` and `"fiml"`; `"pairwise"` retains the existing minor inconsistency and now warns). Ignored (with a warning) when a correlation matrix is supplied — added M22. |
 | `n_obs` | `NULL` (M22); **string `"total"`/`"complete"` on the raw-data FIML PCA/EFA path (M38)** | Correlation-matrix input: a positive integer, required for `engine = "efa"` (psych needs N for chi-square/RMSEA), optional for `"pca"` (stored as `NA_integer_`). Raw data: N normally comes from `nrow(data)` and a numeric `n_obs` is ignored (warning). Under `missing = "fiml"` (PCA/EFA), `n_obs` may be `"total"` (**default** — all rows contributing to the FIML likelihood, matching the FIML convention; Enders 2010) or `"complete"` (complete-case N, conservative lower bound). Point estimates are unaffected by the choice; only the EFA fit indices, which are *approximate* under this two-step (FIML matrix → normal-theory EFA) route regardless of N (Zhang & Savalei 2020). `"effective"` was considered and dropped — no canonical formula, so it would be a package-invented convention. A string `n_obs` is rejected off this path. |
 
 ### Documentation standard (owner priority)
@@ -380,7 +452,7 @@ announced via cli and documented in roxygen with its rationale.
   factor; `by = "item"` inverts to list, per item, the factors it loads on (cross-loading view);
   `n`/`sort` apply within the chosen unit. When the fit data carried per-column `"label"` attributes
   (captured into `meta$item_labels`), `show_labels = TRUE` (default) prints items as `code: label`
-  with a per-item bare-code fallback. Loadings reflect primary-parent sign alignment (Inv. 4). The
+  with a per-item bare-code fallback. Loadings reflect primary-parent sign alignment (IP4). The
   `$data` field is a subset of the `tidy(what = "loadings")` table (plus a `label` column when
   labels are available).
 - **broom-style tidiers:**
@@ -478,7 +550,7 @@ that needs it. **No Rcpp dependency planned** (see §3).
 - testthat 3e; snapshot tests of the **PCA path against `psych::bassAckward()`** on `psych::bfi`
   to prove numerical agreement on the original method.
 - The §5.4 **algebra-vs-scores cross-check** as a standing test for every linear engine.
-- **Oracle discipline (CLAUDE.md Invariant 8).** Every numeric result is pinned by ≥2 independent
+- **Oracle discipline (IP8).** Every numeric result is pinned by ≥2 independent
   oracle *types*; no unsourced/unreproducible reference value ships. The full registry — every
   oracle classified as frozen / live / invariant / closed-form, with its asserting test and
   provenance — is `cairn/ORACLES.md`; committed fixtures carry a structured `provenance` attr
@@ -514,7 +586,7 @@ historical `§14.x` citation resolves. Live known limitations moved to the next 
 - **ESEM convergence at depth on real ordinal data** is flakier than the calm warn-and-skip
   framing suggests (owner-reported, design interview 2026-07-17): the M49 polychoric robustness
   work (sparse cross-cells, `correct = 0.5`, `check_items()`) exists because real clinical data
-  is messier than the bundled teaching sets. Invariant 7's warn+skip is a load-bearing safety
+  is messier than the bundled teaching sets. IP7's warn+skip is a load-bearing safety
   net, not a rarity.
 - **ESEM ML/MLR with `missing = "pairwise"`**: lavaan uses listwise deletion for the model fit
   while edges are computed from a separately-computed pairwise `stats::cor()` — a minor

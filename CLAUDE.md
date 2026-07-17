@@ -13,10 +13,11 @@ descendants (PCA / EFA / ESEM engines) for hierarchical structural analysis. Ext
 rationale, contracts, object spec, and resolved defaults are in `DESIGN.md`.
 
 **Note:** Forbes (2023) footnote 3 cites this package (`github.com/jmgirard/ackwards`) as the
-reference implementation of the extended bass-ackwards approach. Fidelity to the paper's algorithm
-is the baseline contract for anything Forbes-related; additive enrichments are acceptable but the
-default output must reproduce Forbes's examples exactly. **This contract is test-backed** (M44 +
-M53): `tests/testthat/test-forbes-fidelity.R` reproduces the paper's three simulation studies
+reference implementation of the extended bass-ackwards approach. Exact reproduction of Forbes's
+published results is a permanent, test-backed **capability** (DESIGN IP9): the reproducing
+settings stay available and documented, while defaults are free to adopt improved methods with
+loud documentation and a D-entry (D-031 walked back the earlier "default output must reproduce
+Forbes exactly" wording). **The fidelity suite** (M44 + M53): `tests/testthat/test-forbes-fidelity.R` reproduces the paper's three simulation studies
 *and* her 155-variable AMH applied example (`k_max = 10`) against expected values computed with
 Forbes's own reference implementation (OSF `pcwm8`; provenance in each fixture). AMH matched to
 1.3e-14 across all 45 level-pairs. The AMH matrix ships as a CC-BY fixture (M53 — Forbes licensed
@@ -26,41 +27,20 @@ ancestor level, which `prune("redundant")` now adopts as its default (`redundanc
 "direct"`) — the pre-M53 adjacent-hop walk diverged on 7/54 AMH components because correlation is
 non-transitive (they agree on the shallow simulations). See M53 in `MILESTONES.md`.
 
-## Invariants — do not violate without flagging
+## Principles (IP/GP)
 
-These encode hard-won reasoning from the design phase. Changing them is a design decision, not a
-refactor.
-
-1. **One edge path.** All between-level correlations go through `compute_edges()`. Use the algebra
-   (`W'RW`, standardized) when scoring is linear; materialize scores only when nonlinear (EAP) or
-   when the user asks. **Always** standardize by real score SDs `sqrt(diag(W'RW))` — never assume
-   unit variance (Bartlett/oblique scores are not unit-variance).
-2. **Keep the cross-check.** Retain the scores route even where algebra is the default, and keep the
-   test asserting they agree within tolerance for linear engines.
-3. **Light core, heavy opt-in.** The object always carries loadings/variance/fit/weights/edges/
-   lineage/`R`/meta. `scores`, raw `fits`, raw `data` are NULL by default and recomputable.
-4. **Sign alignment anchors to the primary parent**, not "all positive" (that's impossible).
-5. **Lineage lives in edges, never in IDs.** `m{k}f{j}` are stable labels; parentage is in the edge
-   structure.
-6. **Loud defaults.** Announce consequential auto-choices via cli (e.g., the ordinal-detection
-   warning). Advise loudly; never switch basis silently.
-7. **Convergence is data, not an error.** A non-converging level warns + is skipped; the object
-   still builds to the deepest converged level. Never let one bad level abort the run.
-8. **Oracle-backed numerics.** Every numeric result is verified against ≥2 independent oracle *types*
-   (published/closed-form, an independent package, or seeded simulation); **no unsourced or
-   unreproducible reference value ships**. Committed fixtures carry a structured `provenance` attr
-   naming their `data-raw/` generator (guarded by `test-oracle-provenance.R`); the full catalogue of
-   every oracle in the suite, classified by type, is `cairn/ORACLES.md`. Live independent-impl
-   oracles (`psych`/`lavaan`, recomputed at test time) are the stronger form — do not freeze them
-   into fixtures unless they become expensive/network-bound (M57). *(This is the interim home for the
-   oracle principle; fold it in as a numbered DESIGN IP/GP when the design-interview pass runs.)*
+The package's numbered principles — nine inviolable (IP1–IP9) and six guiding (GP1–GP6) — live
+in `cairn/DESIGN.md` ("Design principles"), formalized from this file's former "Invariants" list
+at the 2026-07-17 design interview (D-031). In-code comments citing `Invariant N` map
+**identically** to IPn (N = 1..8). Changing an IP is a design decision requiring a D-entry,
+never a refactor; trading off a GP requires stated justification.
 
 ## Resolved defaults
 
 High-stakes defaults (varimax rotation, `cor = "pearson"`, `tenBerge` scoring, WLSMV for ordinal
 ESEM, `k_max` required, `align_signs`, `keep_scores`/`keep_fits = FALSE`, `redundancy_phi`
 auto-resolve, `redundancy_criterion = "direct"`) and their full rationale live in `cairn/DESIGN.md`
-§9 + `cairn/DECISIONS.md`. Announce auto-resolved choices loudly (Invariant 6); never change these silently.
+§9 + `cairn/DECISIONS.md`. Announce auto-resolved choices loudly (IP6); never change these silently.
 
 ## Dependencies
 
