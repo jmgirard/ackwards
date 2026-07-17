@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-07-17 (M65 merged + archived; terminal-row retention pruned M60)_
+_Last hygiene check: 2026-07-17 (M66 merged + archived; terminal-row retention pruned M61)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,12 +10,11 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M66 | Upstream re-oracle watch (weekly CRAN-current CI) | review | — | normal | milestones/M66-upstream-reoracle-watch.md |
+| M66 | Upstream re-oracle watch (weekly CRAN-current CI) | done | — | normal | milestones/archive/M66-upstream-reoracle-watch.md |
 | M65 | Mechanize the precomputed-vignette staleness guard | done | — | normal | milestones/archive/M65-vignette-staleness-guard.md |
 | M64 | DESIGN §14 → DECISIONS.md extraction (hybrid + entomb) | done | — | normal | milestones/archive/M64-design-s14-extraction.md |
 | M63 | User-facing text accuracy pass (Goldberg 2006 citations + PCA n_obs message) | done | — | normal | milestones/archive/M63-text-accuracy-pass.md |
 | M62 | Worked Forbes (2023) AMH example vignette | done | — | normal | milestones/archive/M62-forbes2023-vignette.md |
-| M61 | Enrich suggest_k() docs with verified k-selection citations | done | — | normal | milestones/archive/M61-suggest-k-citations.md |
 <!-- M01–M59 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent. -->
 
 ## Candidates

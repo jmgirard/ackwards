@@ -21,11 +21,6 @@ One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
   the buggy pattern, not just the audit's enumerated sites — the plan scoped `suggest_k`'s
   `n_obs = NA` bug but missed the byte-identical twin in `ackwards()`'s R-matrix `n_obs` check;
   the independent review caught it (`grep -n 'n_obs != as.integer'` would have too).
-- 2026-07-12 (M57): before swapping a test-input fixture, check downstream *hardcoded* test literals
-  for topology-stability — the new Forbes sim matrices changed the chase labels but preserved the
-  redundancy topology, so `test-forbes-fidelity.R`'s prune `{m3f1,m3f2,m3f3}`/`{m2f2,m4f1,m4f2}`
-  literals held. Verify, don't assume. (data-raw is `.Rbuildignore`d, so a fixture guard can only
-  check that provenance *names* a generator, not that the file exists at R CMD check time.)
 - 2026-07-13 (M59): line-based coverage can mark an untested branch as covered when `if/else` sits
   on one line — covr counts the line hit if either arm runs. Splitting it during a refactor can
   surface a real, pre-existing gap (here `print`'s non-converged red-cross arm); cover it with a
@@ -47,3 +42,4 @@ One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
 - 2026-07-16 (M64): when summarizing a source into a D-entry, any added detail beyond the source is
   a new claim to verify — review caught an invented `lavPredict()` enumeration (extends M63's lesson).
 - 2026-07-17 (M65): a file-content hash guard must normalize line endings before hashing — git autocrlf checks out text files as CRLF on Windows, so a raw `tools::md5sum` stamp computed on LF (macOS/Linux) false-fails there; `readLines` + `writeLines(sep="\n")` to a binary connection canonicalizes to LF on both the stamp-write and stamp-verify sides. Windows-only CI caught it.
+- 2026-07-17 (M66): to exercise a workflow that only triggers on `schedule`/`workflow_dispatch`, add a temporary branch-scoped `push:` trigger (dispatch registers only once the file is on the default branch) and revert it before review; dispatch-only inputs (`dry_fail`) can't be set on a push, so drive the failure path with a temporary `|| github.event_name == 'push'` on the force-fail step. (Aside: YAML `|` strips the `run:` block indent, so an indented heredoc `EOF` still lands at column 0 at runtime — a recurring reviewer false-positive; verify against the rendered output, not the raw file.)
