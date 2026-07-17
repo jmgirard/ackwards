@@ -28,16 +28,16 @@ worked around.
 
 ## Acceptance criteria
 
-- [ ] `re-oracle.yaml` exists with a weekly `schedule:` trigger and `workflow_dispatch`
+- [x] `re-oracle.yaml` exists with a weekly `schedule:` trigger and `workflow_dispatch`
       (with a `dry_fail` input); header comment states purpose, the CRAN-not-RSPM choice, and
       the 60-day auto-disable caveat.
-- [ ] A normal run completes green on the milestone branch (via the temporary branch-push
+- [x] A normal run completes green on the milestone branch (via the temporary branch-push
       trigger — `workflow_dispatch` only registers once the file is on the default branch) and
       its log records the installed psych and lavaan versions.
-- [ ] A `dry_fail` run opens a labeled issue containing the psych/lavaan versions; a second
+- [x] A `dry_fail` run opens a labeled issue containing the psych/lavaan versions; a second
       `dry_fail` run updates that same issue (no duplicate); the issue is closed afterward as
       test evidence; the temporary branch-push trigger is removed before review.
-- [ ] The diff touches only `.github/` (no package surface; `git diff --stat` evidence), so
+- [x] The diff touches only `.github/` (no package surface; `git diff --stat` evidence), so
       no R-level verify is required beyond the standard PR CI being green.
 
 ## Coverage
@@ -80,3 +80,56 @@ worked around.
 ## Decisions
 
 ## Review
+
+**Reviewed 2026-07-17 · PR #70 · branch `m66-upstream-reoracle-watch` vs `master`.**
+
+### Acceptance-criteria evidence (fresh, by command)
+
+- **AC1 (PASS).** `re-oracle.yaml` present; `schedule: cron '0 6 * * 1'` (weekly Mon 06:00
+  UTC) + `workflow_dispatch` with boolean `dry_fail` input (`grep` confirmed). Header carries
+  `PURPOSE.`, `CRAN, NOT RSPM.`, and `AUTO-DISABLE CAVEAT.` sections.
+- **AC2 (PASS).** Re-queried run [29600465220]: `conclusion=success`, `event=push` on the
+  branch; log records `psych=2.6.5`, `lavaan=0.7.2` (package passes against current CRAN
+  lavaan 0.7.2).
+- **AC3 (PASS).** Re-queried GitHub: run [29601623972] (`failure`) opened issue #69 (label
+  `upstream-watch`, body references that run + versions); run [29601746921] (`failure`)
+  commented on the *same* #69 — issue now CLOSED, **0** open `upstream-watch` issues, no
+  duplicate. Body renders clean (no heredoc `EOF` artifact — verified against #69). Production
+  workflow has no `TEMP-M66-TEST` / branch-push scaffolding.
+- **AC4 (PASS).** `git diff --name-only master..HEAD` = `.github/workflows/re-oracle.yaml`,
+  `cairn/ROADMAP.md`, `cairn/milestones/M66-*.md`; zero package-surface files
+  (`R/`,`man/`,`tests/`,`vignettes/`,`data`,`DESCRIPTION`,`NAMESPACE`).
+
+### Consistency gate
+
+- `cairn_validate` → exit 0, all checks PASS (78 dangling-id WARNs are advisory pre-existing
+  refs to entombed pre-migration milestone IDs; untouched by this diff).
+- No DESIGN principle changed (DESIGN.md untouched) → `cairn_impact` skipped.
+- R-toolchain `consistency-gate`: **vacuous** — `git diff` proves no package surface, so
+  `document()` no-diff / generated-file / README / pkgdown-reference checks are trivially clean;
+  a `.Rbuildignore`'d CI workflow is dev infra (not user-visible), so no NEWS entry required;
+  `re-oracle.yaml` is under the existing `^\.github$` ignore. Authoritative `R CMD check` =
+  PR #70's CI matrix (AC4's plan-sanctioned waiver of local R-level verify).
+
+### Independent fresh-context review (3 lenses + scorer)
+
+- **[O] diff-bug (Opus):** verified dry_fail `if:` complementarity (exactly one of force-fail
+  / real-check runs on every event; uses typed `inputs` not stringy `github.event.inputs`),
+  `failure()` semantics, heredoc column-0 rendering, no injection, least-privilege
+  permissions, `tee`→step-output propagation. One finding (F1, below).
+- **[S] blame-history (Sonnet):** change consistent with the intent/history it touches — every
+  divergence from sibling workflows (`use-public-rspm: false`, scoped `permissions`, no
+  paths-ignore, omitted vignette-freshness step) is plan-called-for, not a silent undo. Its
+  heredoc "aside" was a false positive (tested the raw file, not the YAML-stripped script;
+  refuted against #69's clean body).
+- **[S] prior-PR-comments (Sonnet):** no prior-PR review-comment evidence in this repo
+  (lessons live in cairn, not GitHub PRs); no regressions.
+
+**Below-threshold findings — logged, not actioned (1):**
+- **F1 (score 72/100, `concurrency`):** the find-then-create issue step has no `concurrency:`
+  group; a slow scheduled run overlapping a manual `workflow_dispatch`, both failing, could
+  each read `existing=""` and open two issues. Real but low-probability (weekly cron can't
+  self-overlap; needs a coincident manual dispatch and two independent failures on a solo
+  repo). Not an AC failure — AC3 covers the verified sequential dedup, not concurrent
+  in-flight. Scorer 72 < 80 → excluded from actioned list; one-line fix
+  (`concurrency: { group: re-oracle }`) available if the owner opts in.
