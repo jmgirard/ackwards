@@ -1,6 +1,10 @@
 # Changelog
 
-## ackwards (development version)
+## ackwards 0.1.1
+
+CRAN resubmission of the first release, addressing reviewer feedback on
+the 0.1.0 submission; also picks up everything added since that
+submission.
 
 - **Fixed compatibility with lavaan 0.7.** lavaan 0.7 renamed its
   sample-statistics slot argument (breaking the ESEM engine’s
@@ -33,12 +37,6 @@
   structures from the top down”) in the
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
   help page and four vignettes.
-
-## ackwards 0.1.1
-
-CRAN resubmission of the first release, addressing reviewer feedback on
-the 0.1.0 submission; also picks up everything added since that
-submission.
 
 - **Corrected the historical citations for
   [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)’s
