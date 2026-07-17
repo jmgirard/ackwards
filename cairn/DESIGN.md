@@ -18,6 +18,11 @@ correlations between factor/component scores at adjacent (and, for extensions, a
 The package provides multiple extraction engines, principled tooling for choosing `k`,
 sign/lineage-aware naming, tidy outputs, and attractive console + graphical reporting.
 
+**Audience (design interview 2026-07-17).** The primary audience is applied hierarchy
+researchers — personality and psychopathology researchers running the published
+Goldberg/Forbes/HiTOP workflows. Teaching and methodological extension are served but secondary;
+when audiences conflict, the applied researcher running a published workflow wins.
+
 ## 2. Scope & positioning
 
 **Prior art.** `psych::bassAckward()` (Revelle) already implements the core loop for PCA and
@@ -39,6 +44,26 @@ we wrap established engines and add what `psych` does not.
   recommended end-to-end workflow documented in `vignette("ackwards-girard")`.
 - A clean, tidy, serializable **result object** with `print`/`summary`/`tidy`/`glance`/`autoplot`.
 - A **lineage-aligned layered diagram** rather than a misleading tree.
+
+**Contract boundary (design interview 2026-07-17).** The package's job ends at interpretation
+aids: fit, characterize, and help interpret the hierarchy (`tidy`/`autoplot`/`top_items`/
+`comparability`). Publication-quality *table* exports (e.g. gt-based) are open future work;
+generating manuscript *prose* is permanently out of scope. (Today gt appears only inside
+vignettes; no table-export function is exported.)
+
+**Ambition & maintenance posture (design interview 2026-07-17).** ackwards is maintained
+indefinitely as the citable reference implementation of the extended bass-ackwards method
+(Forbes 2023 footnote 3 already points readers here). Consequences: upstream-compatibility
+vigilance is standing work, not incident response (the lavaan 0.7 episode, PR #66, is the
+model), and the Forbes fidelity tests are a permanent contract. Upstream posture:
+**track CRAN-current** psych/lavaan; the declared floors (`lavaan >= 0.6-13`, `R >= 4.1`) are
+best-effort, droppable without ceremony when they become a burden — no old-version CI leg.
+
+**Capability bar (design interview 2026-07-17).** A new capability earns a place by implementing
+or directly serving a *published* method, with verifiable fidelity (the pattern set by the
+Forbes M44/M53 oracle tests and `comparability()`'s Everett/Saucier lineage). Package-invented
+conventions stay out (cf. D-020 dropping `n_obs = "effective"` for exactly this reason). Demand
+can prioritize the queue, but publication lineage is the gate.
 
 **Honesty caveat to state in docs and `print`.** A bass-ackwards result is a *series of linked
 solutions*, not a fitted hierarchical model. The "hierarchy" is descriptive/emergent (edges are
@@ -72,6 +97,11 @@ These are the project's standing priorities (owner-stated) and the recommended s
 - **Safe, reproducible, and *loud* defaults.** (See §9.) The guiding rule: when the package makes
   a consequential automatic choice (correlation basis, `k`, rotation), it **announces it via cli**
   so the user who never reads an argument still sees what happened.
+- **API stability: fluid until 1.0; 1.0 is paper-coupled** (design interview 2026-07-17). While
+  0.x, exported behavior may break with a NEWS notice (the tracking-rules pre-1.0 waiver is
+  standing). The 1.0 trigger is publication of the companion BRM methods paper: a published
+  paper freezes the API its worked examples demonstrate. From 1.0, changes follow a deprecation
+  cycle.
 
 ## 4. Engines
 
@@ -481,6 +511,11 @@ historical `§14.x` citation resolves. Live known limitations moved to the next 
   them, so there is no false-failure risk, but the cross-check does not *certify* those paths.
 - `cor = "spearman"` + `engine = "esem"` is semantically inconsistent (lavaan fits Pearson ML on
   raw data while edges use Spearman R); a warning is emitted (M10).
+- **ESEM convergence at depth on real ordinal data** is flakier than the calm warn-and-skip
+  framing suggests (owner-reported, design interview 2026-07-17): the M49 polychoric robustness
+  work (sparse cross-cells, `correct = 0.5`, `check_items()`) exists because real clinical data
+  is messier than the bundled teaching sets. Invariant 7's warn+skip is a load-bearing safety
+  net, not a rarity.
 - **ESEM ML/MLR with `missing = "pairwise"`**: lavaan uses listwise deletion for the model fit
   while edges are computed from a separately-computed pairwise `stats::cor()` — a minor
   inconsistency (fit statistics at complete-case N, edges at full pairwise N). Documented in
