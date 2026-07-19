@@ -81,7 +81,7 @@ disposition.
       describe it and the VSS-1/VSS-2 criterion. `Traces to`: `R/suggest_k.R:400`,
       `R/suggest_k.R:156`; `R/suggest_k.R:20`, `R/suggest_k.R:366`,
       `cairn/DESIGN.md:378`.
-- [ ] **T3** — Author + verify `maccallum1999` — the sample-size-depends-on-
+- [x] **T3** — Author + verify `maccallum1999` — the sample-size-depends-on-
       communalities-not-a-fixed-ratio claim printed by `factorability()`. Confirm
       the claim wording against the source. `Traces to`: `R/factorability.R:26`,
       `R/factorability.R:349`.
@@ -110,6 +110,7 @@ disposition.
   M67/M68 docs-only mold (drift routes to /hotfix), documentary-only (no guard tests).
 - 2026-07-19: T1 — hu1999 + kaiser1974 authored, verified against rendered source pages. hu1999 p.27: CFI/TLI .95, RMSEA .06, SRMR .08 all match `.fit_cutoffs()` (`R/tidy.R:283-286`); noted the paper's two-index rule pairs .95 with SRMR .09. kaiser1974 p.35: six KMO bands + cutoffs match `.kmo_band()`; DRIFT — code prints "marvellous" (Commonwealth) vs Kaiser's "marvelous" (user-visible label → drift ledger, /hotfix owner-call).
 - 2026-07-19: T2 — ruscio2012a + revelle1979 authored, verified. ruscio p.282 abstract + pp.285-286: CD generate-and-increase logic faithful; two user-visible wording notes — source term is RMSR (7×, never RMSE) vs roxygen "RMSE" (EFAtools' term); roxygen title "of a known" vs paper "of Known" (→ drift ledger, low-severity). revelle p.403/405-406: VSS complexity-1/2 matches roxygen + DESIGN:378, no drift. DOIs not printed on hu1999/kaiser1974/revelle scans — marked registered-not-source-verified (ruscio DOI was printed).
+- 2026-07-19: T3 — maccallum1999 authored, verified against p.84 abstract. The "required N depends on communalities and overdetermination, not a fixed ratio" claim (roxygen + printout footnote) is faithful; citation matches `R/factorability.R:52-53`. No drift.
 
 ## Decisions
 
