@@ -1,7 +1,9 @@
 # kaiser1974 — the KMO sampling-adequacy band labels printed by `factorability()`
 
 **Full citation.** Kaiser, H. F. (1974). An index of factorial simplicity.
-*Psychometrika, 39*(1), 31–36. https://doi.org/10.1007/BF02291575
+*Psychometrika, 39*(1), 31–36. Registered DOI 10.1007/BF02291575 *(not printed
+on the scan — vol/issue/pages are from the source header; the DOI is the
+publisher-registered identifier, not source-verified)*.
 
 **Provenance.** Ingested 2026-07-19 by M69 from
 `cairn/references/sources/kaiser1974.pdf` (gitignored). Pagination: journal

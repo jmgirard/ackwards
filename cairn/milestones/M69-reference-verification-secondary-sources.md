@@ -76,7 +76,7 @@ disposition.
       .60/.50`). `Traces to`: `R/tidy.R:283-286`, `R/tidy.R:275`,
       `R/autoplot.R:720`, `R/autoplot.R:792`; `R/factorability.R:178-193`,
       `R/factorability.R:349`.
-- [ ] **T2** — Author + verify `ruscio2012a` and `revelle1979`, the two
+- [x] **T2** — Author + verify `ruscio2012a` and `revelle1979`, the two
       `suggest_k` method backers. Confirm the Comparison Data algorithm as we
       describe it and the VSS-1/VSS-2 criterion. `Traces to`: `R/suggest_k.R:400`,
       `R/suggest_k.R:156`; `R/suggest_k.R:20`, `R/suggest_k.R:366`,
@@ -109,6 +109,7 @@ disposition.
 - 2026-07-19: created by /milestone-plan. Shape set at the question gate — pure
   M67/M68 docs-only mold (drift routes to /hotfix), documentary-only (no guard tests).
 - 2026-07-19: T1 — hu1999 + kaiser1974 authored, verified against rendered source pages. hu1999 p.27: CFI/TLI .95, RMSEA .06, SRMR .08 all match `.fit_cutoffs()` (`R/tidy.R:283-286`); noted the paper's two-index rule pairs .95 with SRMR .09. kaiser1974 p.35: six KMO bands + cutoffs match `.kmo_band()`; DRIFT — code prints "marvellous" (Commonwealth) vs Kaiser's "marvelous" (user-visible label → drift ledger, /hotfix owner-call).
+- 2026-07-19: T2 — ruscio2012a + revelle1979 authored, verified. ruscio p.282 abstract + pp.285-286: CD generate-and-increase logic faithful; two user-visible wording notes — source term is RMSR (7×, never RMSE) vs roxygen "RMSE" (EFAtools' term); roxygen title "of a known" vs paper "of Known" (→ drift ledger, low-severity). revelle p.403/405-406: VSS complexity-1/2 matches roxygen + DESIGN:378, no drift. DOIs not printed on hu1999/kaiser1974/revelle scans — marked registered-not-source-verified (ruscio DOI was printed).
 
 ## Decisions
 
