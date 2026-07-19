@@ -7,7 +7,8 @@ https://doi.org/10.1037/a0025697
 
 **Provenance.** Ingested 2026-07-19 by M69 from
 `cairn/references/sources/ruscio2012a.pdf` (gitignored). Pagination: journal
-pages (282–292). Extraction: verified 2026-07-19 (M69) — the citation and the
+pages (282–292).
+Extraction: verified 2026-07-19 (M69) — the citation and the
 method's generate-and-increase logic read directly against the source (p. 282
 abstract; pp. 285–286 method), and the RMSR terminology count taken from the
 full-text extraction.

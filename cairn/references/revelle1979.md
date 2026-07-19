@@ -8,7 +8,8 @@ none.)*
 
 **Provenance.** Ingested 2026-07-19 by M69 from
 `cairn/references/sources/revelle1979.pdf` (gitignored). Pagination: journal
-pages (403–414). Extraction: verified 2026-07-19 (M69) — the title, citation,
+pages (403–414).
+Extraction: verified 2026-07-19 (M69) — the title, citation,
 and the complexity-v VSS criterion read directly against the source (p. 403
 title/abstract; pp. 405–406 criterion definition).
 

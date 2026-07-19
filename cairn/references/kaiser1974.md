@@ -7,7 +7,8 @@ publisher-registered identifier, not source-verified)*.
 
 **Provenance.** Ingested 2026-07-19 by M69 from
 `cairn/references/sources/kaiser1974.pdf` (gitignored). Pagination: journal
-pages (31–36). Extraction: verified 2026-07-19 (M69) — the six-band evaluation
+pages (31–36).
+Extraction: verified 2026-07-19 (M69) — the six-band evaluation
 and its cutoffs were read directly against the source (p. 35, rendered) and the
 citation header against p. 31.
 

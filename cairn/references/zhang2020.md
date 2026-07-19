@@ -8,13 +8,14 @@ p. 1; published online 5 Sep 2019)*.
 
 **Provenance.** Ingested 2026-07-19 by M69 from
 `cairn/references/sources/zhang2020.pdf` (gitignored). Pagination: journal pages
-(219–239). Extraction: verified 2026-07-19 (M69) — citation and the core finding
+(219–239).
+Extraction: verified 2026-07-19 (M69) — citation and the core finding
 read directly against the source (p. 219 abstract).
 
 ## Why this is a primary source
 
-The source cited for the caveat that EFA fit indices computed on the FIML
-missing-data path (`missing = "fiml"`) are *approximate* — the value the package
+The source cited for the caveat that EFA fit indices ([[hu1999]] RMSEA/CFI)
+computed on the FIML missing-data path (`missing = "fiml"`) are *approximate* — the value the package
 emits via cli and the D-020 rationale in DECISIONS.
 
 ## Extracted values

@@ -8,7 +8,8 @@ identifier, not source-verified)*.
 
 **Provenance.** Ingested 2026-07-19 by M69 from
 `cairn/references/sources/maccallum1999.pdf` (gitignored). Pagination: journal
-pages (84–99). Extraction: verified 2026-07-19 (M69) — citation and the
+pages (84–99).
+Extraction: verified 2026-07-19 (M69) — citation and the
 sample-size claim read directly against the source (p. 84 abstract).
 
 ## Why this is a primary source

@@ -9,7 +9,8 @@ Rapee and Krueger)*.
 
 **Provenance.** Ingested 2026-07-19 by M69 from
 `cairn/references/sources/forbes2021.pdf` (gitignored). Pagination: journal
-pages (139–168). Extraction: verified 2026-07-19 (M69) — citation, sample size,
+pages (139–168).
+Extraction: verified 2026-07-19 (M69) — citation, sample size,
 and disorder count read directly against the source (p. 139 header + abstract).
 
 ## Why this is a primary source
