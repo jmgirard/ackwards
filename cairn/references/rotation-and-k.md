@@ -13,8 +13,8 @@ cited in `achim2021`'s reference list, p. 73), not from the shelf copy.
 Extraction: verified 2026-07-19 (M68) — all six entries re-read against their
 shelf PDFs (crawford1970 pp. 321–332; browne2001a pp. 111–150 incl. Table 1
 p. 119; horn1965 pp. 179–185; velicer1976 pp. 321–327; lim2019 abstract;
-achim2021 pp. 69–73). One correction, marked inline below — observed
-2026-07-19.
+achim2021 pp. 69–73). One correction, marked inline below.
+— observed 2026-07-19.
 
 ## Rotation
 
