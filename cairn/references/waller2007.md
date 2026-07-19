@@ -8,7 +8,7 @@ https://doi.org/10.1016/j.jrp.2006.08.005
 **Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
 commit `351a916`) from `cairn/references/sources/waller2007.pdf` (local only;
 gitignored). Pagination: journal pages (745–752).
-Extraction: verified 2026-07-19 (M67) — all equation/section/appendix anchors read directly against the source (pp. 745–752): Eq. 14, S = [I|0], Eqs. 9–10, §3's oblique form, §4's caveat with Guttman (1955) and McDonald & Mulaik (1979), and Appendix A's signature and sign convention all confirmed exactly; two corrections made (the Eqs. 6–7 attribution, the dropped priority claim). The issue number `41(4)` is **not** printed in the source — the PDF carries only "41 (2007) 745–752" plus the DOI — so it rests on the publisher record, not on this reading — observed 2026-07-19.
+Extraction: verified 2026-07-19 (M67) — all equation/section/appendix anchors read directly against the source (pp. 745–752): Eq. 14, S = [I|0], Eqs. 9–10, §3's oblique form, §4's caveat with Guttman (1955) and McDonald & Mulaik (1979), and Appendix A's signature and sign convention all confirmed exactly; two corrections made (the Eqs. 6–7 attribution, the dropped priority claim), plus one review-time fix (Appendix A's sign-convention code is now quoted in full — the first pass joined two non-adjacent lines with a semicolon and dropped `key[key < 0] <- -1` without marking the elision). The issue number `41(4)` is **not** printed in the source — the PDF carries only "41 (2007) 745–752" plus the DOI — so it rests on the publisher record, not on this reading — observed 2026-07-19.
 
 ## Why this is a primary source
 
@@ -66,9 +66,16 @@ estimates as the latent factors themselves.
 
 A complete R function `BASS(R, maxP = 5, Print = "ON")` — eigen → varimax per
 level → `t(T[[i-1]]) %*% S %*% T[[i]]` cross-level correlations. Sign convention
-is column-sum-positive on the unrotated eigenvectors — `key <- sign(apply(U, 2,
-sum)); U <- U %*% diag(key)` (contrast with our primary-parent alignment,
-Invariant 4). Not used as an oracle (superseded by Forbes's implementation,
+is column-sum-positive on the unrotated eigenvectors — Appendix A's three
+consecutive statements, quoted in full:
+
+```
+key <- sign(apply(U, 2, sum))
+key[key < 0] <- -1
+U <- U %*% diag(key)
+```
+
+(contrast with our primary-parent alignment, Invariant 4). Not used as an oracle (superseded by Forbes's implementation,
 which is the test-backed contract — [[forbes2023]]).
 
 *(Corrected M67: this page previously called Appendix A "historically the first

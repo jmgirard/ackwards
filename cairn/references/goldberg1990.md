@@ -7,7 +7,7 @@ Social Psychology, 59*(6), 1216–1229. https://doi.org/10.1037/0022-3514.59.6.1
 **Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
 commit `b85bee0`) from `cairn/references/sources/goldberg1990.pdf` (local only;
 gitignored). Pagination: journal pages (1216–1229).
-Extraction: verified 2026-07-19 (M67) — every standing fact read directly against the source (pp. 1216–1224): Study 1's 1,431 terms / 75 Norman categories / N = 187, the 10 method combinations (5 extractions × varimax/oblimin), the .950–.996 inter-method range, the 30-of-3,750 (< 1%) modal-factor result, the verbatim "nearly invariant across rotations of up to 13 factors" (p. 1221), Study 2's 479 terms / 133 clusters / four samples with congruence .86–.94 averaging .91 (p. 1222), and Study 3's 100 clusters from 339 terms (p. 1223) — all confirmed exactly. The ⚠ block's negative claim was re-confirmed against the full text. Two corrections: the stale "docs currently over-attribute" observation (the repointing has landed) and the "established the label-set" overclaim. Issue number `59(6)` **is** printed in the source — observed 2026-07-19.
+Extraction: verified 2026-07-19 (M67) — every standing fact read directly against the source (pp. 1216–1224): Study 1's 1,431 terms / 75 Norman categories / N = 187, the 10 method combinations (5 extractions × varimax/oblimin), the .950–.996 inter-method range, the 30-of-3,750 (< 1%) modal-factor result, the verbatim "nearly invariant across rotations of up to 13 factors" (p. 1221), Study 2's 479 terms / 133 clusters / four samples with congruence .86–.94 averaging .91 (p. 1222), and Study 3's 100 clusters from 339 terms (p. 1223) — all confirmed exactly. The ⚠ block's negative claim was re-confirmed against the full text. Two corrections: the stale "docs currently over-attribute" observation (the repointing has landed) and the "established the label-set" overclaim — the latter re-corrected at review, whose first fix wrongly said the traditional list ran I–IV and credited the Intellect reading to this paper; p. 1217 lists I–V (V = Culture) and credits Intellect to Digman & Takemoto-Chock (1981) and Peabody & Goldberg (1989), and is now quoted directly. Issue number `59(6)` **is** printed in the source — observed 2026-07-19.
 
 ## Why this is a primary source
 
@@ -71,9 +71,16 @@ replication-gate ethos, as intended.)*
   useful in the manuscript when defending engine-agnostic defaults.
 - Historical note: the source of the Big Five label-set used throughout
   ackwards' bfi25 examples — Table 2's factor headings are exactly Surgency,
-  Agreeableness, Conscientiousness, Emotional Stability, Intellect. Note the
-  paper presents I–IV as *traditional* labels it inherits, not ones it coins
-  ("these 'Big-Five' factors have **traditionally** been numbered and labeled
-  as follows", p. 1217); its own move is adopting **Intellect** for Factor V,
-  where the traditional label was *Culture*. *(Corrected M67: previously said
-  this paper "established" the label-set, which it explicitly disclaims.)*
+  Agreeableness, Conscientiousness, Emotional Stability, Intellect. The paper
+  coins none of these. It reports the full traditional list as **I–V** —
+  "(I) Surgency (or Extraversion), (II) Agreeableness, (III) Conscientiousness
+  (or Dependability), (IV) Emotional Stability (vs. Neuroticism), and
+  (V) Culture" — and immediately credits the Factor V alternatives to prior
+  authors: "Alternatively, Factor V has been interpreted as Intellect (e.g.,
+  Digman & Takemoto-Chock, 1981; Peabody & Goldberg, 1989) and as Openness
+  (e.g., McCrae & Costa, 1987)" (both p. 1217). So *Intellect* is an existing
+  reading this paper adopts, not one it originates. *(Corrected twice: M67
+  first replaced "established the label-set" — which the paper disclaims —
+  with a claim that adopting Intellect was "its own move" and that the
+  traditional list ran I–IV; the M67 review caught that as a fresh unsourced
+  priority attribution and an undercount, and it is now quoted directly.)*

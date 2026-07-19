@@ -33,20 +33,20 @@ anchors, verbatim wordings. Discrepancies are corrected in place and marked.
 
 ## Acceptance criteria
 
-- [ ] All nine pages carry an extraction status naming a verification verb
+- [x] All nine pages carry an extraction status naming a verification verb
       (`verified` / `checked against` / `read against` / `read directly`) and its own
       `— observed YYYY-MM-DD`; no page still reads `unverified — first pass`.
-- [ ] `cairn_validate`'s `references staleness` advisory drops from 12 to exactly 3,
+- [x] `cairn_validate`'s `references staleness` advisory drops from 12 to exactly 3,
       those 3 being the collapsed pages M68 owns.
-- [ ] Every standing fact on each of the nine pages is checked against its shelf PDF;
+- [x] Every standing fact on each of the nine pages is checked against its shelf PDF;
       each page's work-log line names what was checked and what, if anything, was wrong.
-- [ ] Each corrected fact is grepped across `R/`, `man/`, `vignettes/`, and `NEWS.md`;
+- [x] Each corrected fact is grepped across `R/`, `man/`, `vignettes/`, and `NEWS.md`;
       any propagation is enumerated with `file:line` and routed to `/hotfix`. A
       milestone that corrects a page silently leaving wrong user-facing text fails.
-- [ ] Prior verification is absorbed, not re-derived: `goldberg2006`'s issue number
+- [x] Prior verification is absorbed, not re-derived: `goldberg2006`'s issue number
       (M63, Crossref) and `saucier1997`'s DOI + fn-14 evidence (M61) are cited in
       their status lines rather than re-checked from scratch.
-- [ ] Docs-only — no files outside `cairn/` modified; `cairn_validate` all checks PASS.
+- [x] Docs-only — no files outside `cairn/` modified; `cairn_validate` all checks PASS.
 
 ## Coverage
 
@@ -82,6 +82,7 @@ anchors, verbatim wordings. Discrepancies are corrected in place and marked.
 
 - 2026-07-19: created by /milestone-plan.
 - 2026-07-19: implement started on `m67-reference-verification`; no question gate (plan settled depth/split/defect handling; nothing open).
+- 2026-07-19: review found 2 defects (scored 90, 93), both introduced by this diff and both fixed on the branch; dod-gate PASSED; 2 of 3 lenses zero-findings. See Review.
 - 2026-07-19: review opened draft PR #71; master had not moved since the branch was cut (0 commits behind), no merge needed. AC evidence gathering in progress; dod-gate and three review lenses running.
 - 2026-07-19: T8 propagation sweep — all nine corrected facts grepped across `R/`, `man/`, `vignettes/`, `NEWS.md`, `README`: **zero hits**, every correction confined to the reference pages, so no `/hotfix` is owed. Spot-checked how the package actually cites Saucier et al. (2005): the .90 benchmark, Everett's 81%-shared-variance rationale, the single-split precedent, and `n_splits = 10` owned as our own choice are all accurate against the verified sources.
 - 2026-07-19: T9 — `cairn_validate` all checks PASS, `references staleness` 12 → 3 (exactly the three collapsed pages M68 owns); branch diff is `cairn/`-only, so the r-package `verify` slot (devtools::test/document) is not triggered — no R code, roxygen, or generated file changed. Status → review.
@@ -97,3 +98,64 @@ anchors, verbatim wordings. Discrepancies are corrected in place and marked.
 ## Decisions
 
 ## Review
+
+Evidence gathered 2026-07-19 on branch `m67-reference-verification`, PR #71.
+
+**Acceptance criteria — fresh evidence**
+
+- **AC1** — all nine pages carry `Extraction: verified 2026-07-19 (M67)` with its own
+  `— observed 2026-07-19`, each a *single physical line* (424–1162 chars; checked by
+  byte inspection, since a wrapped status silently loses its stamp). The only pages
+  still reading `unverified — first pass` are the three M68 owns.
+- **AC2** — `cairn_validate` `references staleness` 12 → 3; the three named are
+  `applications.md`, `background.md`, `rotation-and-k.md`. The drop independently
+  proves the guard parses all nine as verified.
+- **AC3** — nine dated work-log lines, one per page, naming what was checked and what
+  was wrong; each cites the source page range read.
+- **AC4** — fresh 9-pattern sweep of every corrected fact across `R/ man/ vignettes/
+  NEWS.md README*`: zero hits. No `/hotfix` owed. Live citations of Saucier et al.
+  (2005) spot-checked and accurate.
+- **AC5** — `goldberg2006` cites M63's Crossref evidence for the 40(4) issue number;
+  `saucier1997` cites M61's DOI + fn-14 evidence. Neither re-derived.
+- **AC6** — `git diff --name-only master..HEAD` yields nothing outside `cairn/`;
+  11 files, +122/−63 before review fixes.
+
+**Consistency gate**
+
+- Universal: `cairn_validate` exit 0, all checks PASS (staleness is a WARN advisory,
+  not a gate failure). No IP/GP principle changed, so `cairn_impact` was not run.
+- Toolchain (`r-package` `consistency-gate` slot), via `tools/dod-gate.R`:
+  **GATE PASSED** — `check` 0 error/0 warning/0 note, coverage 100%, styler clean
+  (69 files unchanged), lintr clean, pkgdown reference index complete. NEWS.md entry
+  not owed: no user-visible change (`cairn/` is `.Rbuildignore`d via `^cairn$`).
+
+**Independent review — three lenses + scorer**
+
+- **[O] diff-bug (Opus):** 2 findings, both actioned (below). Verified the
+  one-physical-line contract, scope, status↔body consistency, and absence of undated
+  claims; independently spot-checked six corrections against the PDFs — all held.
+- **[S] blame-history (Sonnet):** zero findings. Confirmed M63's issue-number
+  correction and M61's DOI/fn-14 work are intact and cited rather than re-derived,
+  that the `goldberg1990` ⚠ rewrite preserved its load-bearing content, and that both
+  removed claims originated in unreviewed ingest commits, not deliberate prior work.
+- **[S] prior-PR-comments (Sonnet):** no prior-PR evidence — the touched files were
+  changed by direct-to-master commits, and PRs #61/#64/#65 carry no review comments.
+  Clean no-op, zero findings.
+- Findings scoring below 80: none logged (both findings scored ≥ 90).
+
+**Findings actioned**
+
+1. *(90)* `goldberg1990.md` — the M67 correction replaced one novelty overclaim with a
+   smaller source-contradicted one: it said the paper presents "I–IV" as traditional
+   labels and that adopting **Intellect** was "its own move". p. 1217 lists the
+   traditional set as I–**V** (V = Culture) and credits the Intellect reading to
+   Digman & Takemoto-Chock (1981) and Peabody & Goldberg (1989) — so "its own move"
+   was a fresh unsourced priority attribution, the very error this milestone corrected
+   on `waller2007`. **Fixed:** both passages now quoted directly from p. 1217.
+2. *(93)* `waller2007.md` — the newly added Appendix A sign-convention snippet joined
+   two non-adjacent lines with `;` and dropped `key[key < 0] <- -1`, an unmarked
+   elision — the same defect class this milestone corrected on `asparouhov2009`.
+   **Fixed:** Appendix A's three consecutive statements now quoted in full.
+
+Both fixes are prose-only, on the reference pages; `cairn_validate` re-run clean and
+both amended status lines re-checked as single physical lines carrying their stamps.
