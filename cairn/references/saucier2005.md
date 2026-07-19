@@ -5,8 +5,11 @@ L. R. (2005). The factor structure of Greek personality adjectives. *Journal
 of Personality and Social Psychology, 88*(5), 856–875.
 https://doi.org/10.1037/0022-3514.88.5.856
 
-**PDF.** `pdf/saucier2005.pdf` (local only; gitignored; fetched 2026-07-16
-from Goldberg's ORI page, `projects.ori.org/lrg/`).
+**Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
+commit `254e023`) from `cairn/references/sources/saucier2005.pdf` (local only;
+gitignored; fetched 2026-07-16 from Goldberg's ORI page,
+`projects.ori.org/lrg/`). Pagination: journal pages (856–875).
+Extraction: unverified — first pass, values not re-read against the source — observed 2026-07-19.
 
 ## Why this is a primary source
 

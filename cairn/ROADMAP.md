@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-07-17 (M66 merged + archived; terminal-row retention pruned M61)_
+_Last hygiene check: 2026-07-19 (provenance blocks backfilled on all 13 references pages; `references/pdf/` renamed to `references/sources/`)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.

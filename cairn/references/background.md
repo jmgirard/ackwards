@@ -3,7 +3,13 @@
 _Collapsed entries: context for the BRM manuscript and docs — the taxonomy
 framework applications target, and the bottom-up hierarchical models
 bass-ackwards is positioned against. No bass-ackwards analyses, no oracle
-material. PDFs in `pdf/` (gitignored)._
+material. PDFs in `sources/` (gitignored)._
+
+**Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
+commit `b85bee0`) from the shelf PDFs named per entry below, under
+`cairn/references/sources/` (local only; gitignored). Pagination: journal pages,
+per entry. Extraction: unverified — first pass, values not re-read against the
+sources — observed 2026-07-19.
 
 ## kotov2017 — Kotov et al. (2017) _(HiTOP founding paper)_
 

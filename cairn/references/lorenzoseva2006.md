@@ -7,7 +7,10 @@ congruence coefficient as a meaningful index of factor similarity.
 which does **not** resolve; the registered DOI above — online ISSN — is the
 one `prune()`'s roxygen correctly cites. Verified 2026-07-16.)*
 
-**PDF.** `pdf/lorenzoseva2006.pdf` (local only; gitignored).
+**Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
+commit `229fdd6`) from `cairn/references/sources/lorenzoseva2006.pdf` (local only;
+gitignored). Pagination: journal pages (57–64).
+Extraction: unverified — first pass; only the printed-DOI discrepancy above was read directly against the source (2026-07-16), the rest not re-read — observed 2026-07-19.
 
 ## Why this is a primary source
 

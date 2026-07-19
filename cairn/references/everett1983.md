@@ -5,7 +5,10 @@ determining the number of factors and their rotation. *Multivariate
 Behavioral Research, 18*(2), 197–218.
 https://doi.org/10.1207/s15327906mbr1802_5
 
-**PDF.** `pdf/everett1983.pdf` (local only; gitignored).
+**Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
+commit `b85bee0`) from `cairn/references/sources/everett1983.pdf` (local only;
+gitignored). Pagination: journal pages (197–218).
+Extraction: unverified — first pass, values not re-read against the source — observed 2026-07-19.
 
 ## Why this is a primary source
 

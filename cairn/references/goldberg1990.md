@@ -4,7 +4,10 @@
 personality": The Big-Five factor structure. *Journal of Personality and
 Social Psychology, 59*(6), 1216–1229. https://doi.org/10.1037/0022-3514.59.6.1216
 
-**PDF.** `pdf/goldberg1990.pdf` (local only; gitignored).
+**Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
+commit `b85bee0`) from `cairn/references/sources/goldberg1990.pdf` (local only;
+gitignored). Pagination: journal pages (1216–1229).
+Extraction: unverified — first pass, values not re-read against the source — observed 2026-07-19.
 
 ## Why this is a primary source
 

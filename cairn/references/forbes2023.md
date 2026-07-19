@@ -4,6 +4,15 @@
 individual differences: An extension of Goldberg's bass-ackward method.
 *Psychological Methods.* https://doi.org/10.1037/met0000546
 
+**Provenance.** Ingested 2026-07-12 by M57, primarily from the OSF project
+below — every oracle value here is code-derived by running Forbes's own
+reference implementation, not transcribed from a printed page. The article PDF
+is also on the shelf at `cairn/references/sources/forbes2023.pdf` (local only;
+gitignored). Pagination: journal pages (advance online publication).
+Extraction: verified 2026-07-16 — the numeric claims are re-derived against the
+source artifacts by the M44 + M53 fidelity suite, which reproduces the paper's
+three simulations and the AMH applied example to 1.3e-14 — observed 2026-07-19.
+
 **OSF project.** `pcwm8` — <https://osf.io/pcwm8/>. Licensed **CC-BY 4.0
 International** (<https://creativecommons.org/licenses/by/4.0/>). The project was
 briefly CC-BY-NC in early July 2026; Forbes switched it to CC-BY on learning of
@@ -58,7 +67,7 @@ oracle in the suite.
 
 ## Open questions
 
-- None outstanding. The article PDF is not vendored to `cairn/references/pdf/`
-  because every oracle value is code-derived from the OSF artifacts above (run
-  by her reference implementation), not transcribed from a page/table — so there
-  is no verbatim-critical printed value to anchor here.
+- None outstanding. Nothing on this page needs anchoring to a printed page or
+  table: every oracle value is code-derived from the OSF artifacts above (run by
+  her reference implementation), not transcribed — so there is no
+  verbatim-critical printed value to re-verify against the article PDF.

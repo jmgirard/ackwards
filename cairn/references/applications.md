@@ -2,8 +2,14 @@
 
 _Collapsed entries: these are **examples of the method in use** (plus one
 background review), not method or oracle sources. Kept for manuscript/vignette
-citation and as precedents for engine/design choices. PDFs in `pdf/`
+citation and as precedents for engine/design choices. PDFs in `sources/`
 (gitignored)._
+
+**Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
+commit `351a916`) from the shelf PDFs named per entry below, under
+`cairn/references/sources/` (local only; gitignored). Pagination: journal pages,
+per entry. Extraction: unverified — first pass, values not re-read against the
+sources — observed 2026-07-19.
 
 ## kim2015 — Kim & Eaton (2015)
 

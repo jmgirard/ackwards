@@ -5,7 +5,10 @@ hierarchical component structures by Goldberg's Bass-Ackwards method.
 *Journal of Research in Personality, 41*(4), 745–752.
 https://doi.org/10.1016/j.jrp.2006.08.005
 
-**PDF.** `pdf/waller2007.pdf` (local only; gitignored).
+**Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
+commit `351a916`) from `cairn/references/sources/waller2007.pdf` (local only;
+gitignored). Pagination: journal pages (745–752).
+Extraction: unverified — first pass, values not re-read against the source — observed 2026-07-19.
 
 ## Why this is a primary source
 

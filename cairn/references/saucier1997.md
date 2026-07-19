@@ -4,8 +4,11 @@
 factor structure of person descriptors. *Journal of Personality and Social
 Psychology, 73*(6), 1296–1312. https://doi.org/10.1037/0022-3514.73.6.1296
 
-**PDF.** `pdf/saucier1997.pdf` (local only; gitignored; fetched 2026-07-16
-from Saucier's public page, `pages.uoregon.edu/gsaucier/`).
+**Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
+commit `254e023`) from `cairn/references/sources/saucier1997.pdf` (local only;
+gitignored; fetched 2026-07-16 from Saucier's public page,
+`pages.uoregon.edu/gsaucier/`). Pagination: journal pages (1296–1312).
+Extraction: unverified — first pass, values not re-read against the source — observed 2026-07-19.
 
 ## Why this is a primary source
 

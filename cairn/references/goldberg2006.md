@@ -5,7 +5,10 @@ development of hierarchical factor structures from the top down. *Journal of
 Research in Personality, 40*(4), 347–358.
 https://doi.org/10.1016/j.jrp.2006.01.001
 
-**PDF.** `pdf/goldberg2006.pdf` (local only; gitignored).
+**Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
+commit `351a916`) from `cairn/references/sources/goldberg2006.pdf` (local only;
+gitignored). Pagination: journal pages (347–358).
+Extraction: unverified — first pass, values not re-read against the source — observed 2026-07-19.
 
 ## Why this is a primary source
 

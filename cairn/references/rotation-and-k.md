@@ -2,7 +2,13 @@
 
 _Collapsed entries: methodological supports for the varimax default and the
 k-selection advisory table (DESIGN §9 + the PA/MAP table). None is an oracle
-source. PDFs in `pdf/` (gitignored)._
+source. PDFs in `sources/` (gitignored)._
+
+**Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
+commit `b85bee0`) from the shelf PDFs named per entry below, under
+`cairn/references/sources/` (local only; gitignored). Pagination: journal pages,
+per entry. Extraction: unverified — first pass, values not re-read against the
+sources — observed 2026-07-19.
 
 ## Rotation
 

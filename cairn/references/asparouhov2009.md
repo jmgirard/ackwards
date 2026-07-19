@@ -4,7 +4,10 @@
 structural equation modeling. *Structural Equation Modeling, 16*(3),
 397–438. https://doi.org/10.1080/10705510903008204
 
-**PDF.** `pdf/asparouhov2009.pdf` (local only; gitignored).
+**Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
+commit `b85bee0`) from `cairn/references/sources/asparouhov2009.pdf` (local only;
+gitignored). Pagination: journal pages (397–438).
+Extraction: unverified — first pass, values not re-read against the source — observed 2026-07-19.
 
 ## Why this is a primary source
 

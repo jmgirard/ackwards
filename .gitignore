@@ -38,7 +38,7 @@ tests/testthat/testthat-problems.rds
 docs
 
 # cairn tracking
-cairn/references/pdf/
+cairn/references/sources/
 cairn/.merge-approved
 cairn/.merge-approved.pending
 
