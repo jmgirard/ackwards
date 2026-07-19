@@ -10,7 +10,7 @@ one `prune()`'s roxygen correctly cites. Verified 2026-07-16.)*
 **Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
 commit `229fdd6`) from `cairn/references/sources/lorenzoseva2006.pdf` (local only;
 gitignored). Pagination: journal pages (57–64).
-Extraction: unverified — first pass; only the printed-DOI discrepancy above was read directly against the source (2026-07-16), the rest not re-read — observed 2026-07-19.
+Extraction: verified 2026-07-19 (M67) — every standing fact below read directly against the source (pp. 57–61): Eq. 1, the four invariance properties, the prior thresholds, 56 judges / 48 constructed pairs / 448 evaluations, φ ∈ {.62….97}, r = .974, and both threshold bands; all confirmed, one clarification added (48 vs 448). The printed-DOI discrepancy above was read directly 2026-07-16 — observed 2026-07-19.
 
 ## Why this is a primary source
 
@@ -30,9 +30,13 @@ sensitive to additive constants.
 
 Prior thresholds were unsourced rules of thumb (.80 Horn; .90 Mulaik/Bentler;
 Tucker's own tiered bands via MacCallum et al. 1999). This study calibrates φ
-against **expert judgment**: 56 factor-analysis practitioners rated the
-similarity of 448 loading-column pairs with constructed φ ∈ {.62 … .97};
-subjective ratings tracked φ nearly linearly (r = .974). Calibration:
+against **expert judgment**: 56 factor-analysis practitioners (university
+professors applying EFA in their own research) rated loading-column pairs with
+constructed φ ∈ {.62, .66, .72, .79, .85, .90, .94, .97}; subjective ratings
+tracked φ nearly linearly (r = .974). Note the two counts the paper reports —
+**48** distinct constructed pairs (six real-life loading matrices × eight
+artificial columns; Table 1) and **448** total evaluations (56 judges × 8 pairs
+each, p. 59); they are easy to conflate. Calibration:
 
 - **φ .85–.94 → "fair" similarity** — and, importantly, **φ < .85 should not
   be read as indicating any factor similarity at all**;

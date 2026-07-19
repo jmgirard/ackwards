@@ -8,7 +8,7 @@ https://doi.org/10.1016/j.jrp.2006.01.001
 **Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
 commit `351a916`) from `cairn/references/sources/goldberg2006.pdf` (local only;
 gitignored). Pagination: journal pages (347–358).
-Extraction: unverified — first pass, values not re-read against the source — observed 2026-07-19.
+Extraction: verified 2026-07-19 (M67) — every standing fact read directly against the source (pp. 347–358): the stopping criterion and one-large-correlational-analysis wording (p. 350), the "adjoining levels"/path-coefficient framing (abstract, p. 350), FUPC and the size-ordered `4/1` labels (p. 349), the "virtually identical" components-over-factors quote (p. 350), the ≥ .30 display threshold (p. 351, "and all others in this article"), all six illustrations against their figure captions, the §5 "sequential"/part-whole caveats (pp. 356–357), and the Waller footnote (p. 347) — all confirmed exactly, no corrections. The issue number `40(4)` is not printed in the source; it was Crossref-verified at M63 (which corrected it from 40(3)) and is carried on that evidence — observed 2026-07-19.
 
 ## Why this is a primary source
 

@@ -8,7 +8,7 @@ https://doi.org/10.1207/s15327906mbr1802_5
 **Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
 commit `b85bee0`) from `cairn/references/sources/everett1983.pdf` (local only;
 gitignored). Pagination: journal pages (197–218).
-Extraction: unverified — first pass, values not re-read against the source — observed 2026-07-19.
+Extraction: verified 2026-07-19 (M67) — every standing fact read directly against the source (pp. 197–204): the three-step procedure and its `F₁ₜ = S₁·Vₜ` notation (pp. 199–200), the comparability-vs-congruence distinction (p. 200), the ≥ .90 / 26° / 81% passage verbatim (p. 200), the sub-population split advice (abstract, p. 201), and all six Table 2 values (p. 203) — all confirmed exactly, no corrections; one source-backed addition (the p. 204 matching procedure). Issue number `18(2)` **is** printed in the source (cover page) — observed 2026-07-19.
 
 ## Why this is a primary source
 
@@ -44,6 +44,12 @@ Key positions:
   comparabilities .98/.97/.96 at k = 3 vs .99/.94/.82/**.04** at k = 4).
 - For non-homogeneous populations, split by subpopulation as well as at
   random — factors should be stable across both.
+- **Matching is greedy-with-removal.** Comparabilities are computed as a full
+  cross-half matrix, then read off by "selecting the largest value in the
+  matrix, deleting its row and column, and then repeating the procedure until
+  all the rows and columns are deleted" (p. 204) — the reported coefficients
+  need not lie on the diagonal. This is the same bijection `comparability()`
+  uses (DECISIONS D-022), sourced here rather than invented.
 
 ## Relation to our implementation
 

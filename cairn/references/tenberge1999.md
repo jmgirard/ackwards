@@ -8,7 +8,7 @@ https://doi.org/10.1016/S0024-3795(97)10007-6
 **Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
 commit `229fdd6`) from `cairn/references/sources/tenberge1999.pdf` (local only;
 gitignored). Pagination: journal pages (311–318).
-Extraction: unverified — first pass, values not re-read against the source — observed 2026-07-19.
+Extraction: verified 2026-07-19 (M67) — every standing fact read directly against the source (pp. 311–318): Eq. 3's LCP form, Eqs. 5/7/9, the three loss functions, Thm 1 (Eq. 9 is uniquely minimizing when Ψ is nonsingular, despite being introduced in Lemma 1's singular case), Thm 2, Thm 3, Cor. 1, and the p. 318 conclusion that all LCP methods coincide under orthogonality — all confirmed exactly, no corrections. The issue number `289(1–3)` is **not** printed in the source (header reads "289 (1999) 311–318"); the printed PII `S0024-3795(97)10007-6` matches the cited DOI — observed 2026-07-19.
 
 ## Why this is a primary source
 

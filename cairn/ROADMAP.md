@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M67 | Re-verify the 9 single-source reference pages against their shelf PDFs | planned | — | normal | milestones/M67-reference-verification-method-pages.md |
+| M67 | Re-verify the 9 single-source reference pages against their shelf PDFs | review | — | normal | milestones/M67-reference-verification-method-pages.md |
 | M68 | Re-verify the 3 collapsed synthesis pages against their member sources | planned | M67 | normal | milestones/M68-reference-verification-collapsed-pages.md |
 | M66 | Upstream re-oracle watch (weekly CRAN-current CI) | done | — | normal | milestones/archive/M66-upstream-reoracle-watch.md |
 | M65 | Mechanize the precomputed-vignette staleness guard | done | — | normal | milestones/archive/M65-vignette-staleness-guard.md |

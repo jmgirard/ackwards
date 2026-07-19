@@ -7,7 +7,7 @@ Social Psychology, 59*(6), 1216–1229. https://doi.org/10.1037/0022-3514.59.6.1
 **Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
 commit `b85bee0`) from `cairn/references/sources/goldberg1990.pdf` (local only;
 gitignored). Pagination: journal pages (1216–1229).
-Extraction: unverified — first pass, values not re-read against the source — observed 2026-07-19.
+Extraction: verified 2026-07-19 (M67) — every standing fact read directly against the source (pp. 1216–1224): Study 1's 1,431 terms / 75 Norman categories / N = 187, the 10 method combinations (5 extractions × varimax/oblimin), the .950–.996 inter-method range, the 30-of-3,750 (< 1%) modal-factor result, the verbatim "nearly invariant across rotations of up to 13 factors" (p. 1221), Study 2's 479 terms / 133 clusters / four samples with congruence .86–.94 averaging .91 (p. 1222), and Study 3's 100 clusters from 339 terms (p. 1223) — all confirmed exactly. The ⚠ block's negative claim was re-confirmed against the full text. Two corrections: the stale "docs currently over-attribute" observation (the repointing has landed) and the "established the label-set" overclaim — the latter re-corrected at review, whose first fix wrongly said the traditional list ran I–IV and credited the Intellect reading to this paper; p. 1217 lists I–V (V = Culture) and credits Intellect to Digman & Takemoto-Chock (1981) and Peabody & Goldberg (1989), and is now quoted directly. Issue number `59(6)` **is** printed in the source — observed 2026-07-19.
 
 ## Why this is a primary source
 
@@ -33,26 +33,32 @@ which factors are real, applied at scale years before the 2006 method paper.
 ## ⚠ Citation caution (found at ingest, 2026-07-16)
 
 **The paper contains no Everett-style comparability coefficients, no
-split-halves, and no "repeated random splits" anywhere.** Its quality gate is
-replication across *methods* (Study 1) and across *whole samples* (Studies
-2–3), measured by inter-method score correlations and cross-sample Tucker
-congruence. The package docs currently attribute more to it than it contains:
-`comparability()`'s roxygen ("the depth gate Goldberg's own lab applied to
-its hierarchies"), the `.95 comfortable / .90 floor (Everett, 1983; Goldberg,
-1990)` benchmark lines in `print.comparability()` + `autoplot()`, the
-`n_splits` doc ("following Goldberg's practice"), and
-`vignettes/ackwards-girard.Rmd.orig` line ~51 ("Goldberg (1990) retained
-factor solutions only when they held up across repeated random
-split-halves" — **false as stated**). **Resolved 2026-07-16 after checking
-five lab papers** (this one, Saucier & Goldberg 1996, Goldberg & Somer 2000
-Turkish, Ashton/Lee/Goldberg 2004 hierarchy — all negative): the real
-lineage is **[[saucier1997]]** (split-half stability gate; tried Everett's
-method and de-emphasized it; drop-off criterion ~.70) and **[[saucier2005]]**
-(random participant halves, congruence, "conventional threshold of .90",
-used to choose the hierarchical level). The .90 floor is *also* independently
-traceable to [[everett1983]] (his 26°/81% passage). Repoint the package
-citations to Everett 1983 + Saucier 1997 + Saucier et al. 2005; keep
-Goldberg 1990 only for the generic replication-gate ethos.
+split-halves, and no "repeated random splits" anywhere** — re-confirmed
+against the full text at M67 (2026-07-19). Its quality gate is replication
+across *methods* (Study 1: 10 extraction × rotation combinations) and across
+*whole, independent samples* (Study 2's four samples A–D; Study 3's reuse of
+two of them), measured by inter-method score correlations and cross-sample
+Tucker congruence — never by partitioning one sample.
+
+**Resolved 2026-07-16 after checking five lab papers** (this one, Saucier &
+Goldberg 1996, Goldberg & Somer 2000 Turkish, Ashton/Lee/Goldberg 2004
+hierarchy — all negative): the real lineage is **[[saucier1997]]** (split-half
+stability gate; tried Everett's method and de-emphasized it; drop-off
+criterion ~.70) and **[[saucier2005]]** (random participant halves,
+congruence, "conventional threshold of .90", used to choose the hierarchical
+level). The .90 floor is *also* independently traceable to [[everett1983]]
+(his 26°/81% passage).
+
+**The repointing is done** — observed 2026-07-19. The four over-attributing
+sites this block once listed (`comparability()`'s "Goldberg's own lab"
+roxygen, the `(Everett, 1983; Goldberg, 1990)` benchmark lines in
+`print.comparability()` + `autoplot()`, the `n_splits` "following Goldberg's
+practice" doc, and the `ackwards-girard` vignette's "repeated random
+split-halves" sentence) were all corrected by M61/M63 and none survives in
+`R/`, `man/`, or `vignettes/`. *(Corrected M67: this block previously said
+the docs "currently" over-attribute — a dated observation left standing after
+the fix landed. Goldberg 1990 is now cited only for the generic
+replication-gate ethos, as intended.)*
 
 ## Relation to our implementation
 
@@ -63,6 +69,18 @@ Goldberg 1990 only for the generic replication-gate ethos.
   vs. oblique: near-identical scores) is the empirical backing for
   Goldberg's "virtually identical either way" claim in [[goldberg2006]] and
   useful in the manuscript when defending engine-agnostic defaults.
-- Historical note: the paper that established the Big Five label-set
-  (Surgency, Agreeableness, Conscientiousness, Emotional Stability,
-  Intellect) used throughout ackwards' bfi25 examples.
+- Historical note: the source of the Big Five label-set used throughout
+  ackwards' bfi25 examples — Table 2's factor headings are exactly Surgency,
+  Agreeableness, Conscientiousness, Emotional Stability, Intellect. The paper
+  coins none of these. It reports the full traditional list as **I–V** —
+  "(I) Surgency (or Extraversion), (II) Agreeableness, (III) Conscientiousness
+  (or Dependability), (IV) Emotional Stability (vs. Neuroticism), and
+  (V) Culture" — and immediately credits the Factor V alternatives to prior
+  authors: "Alternatively, Factor V has been interpreted as Intellect (e.g.,
+  Digman & Takemoto-Chock, 1981; Peabody & Goldberg, 1989) and as Openness
+  (e.g., McCrae & Costa, 1987)" (both p. 1217). So *Intellect* is an existing
+  reading this paper adopts, not one it originates. *(Corrected twice: M67
+  first replaced "established the label-set" — which the paper disclaims —
+  with a claim that adopting Intellect was "its own move" and that the
+  traditional list ran I–IV; the M67 review caught that as a fresh unsourced
+  priority attribution and an undercount, and it is now quoted directly.)*
