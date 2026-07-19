@@ -31,8 +31,8 @@ CF family is equivalent to the orthomax family (pp. 324–326). The CF
 parameterization is what modern software (incl. Mplus/lavaan rotation
 machinery) implements; **CF-varimax with κ = 1/p is the rotation Kim & Eaton
 (2015) used** for the ESEM bass-ackwards precedent (`applications.md`) — the
-κ indexing is [[browne2001a]]'s Table 1 (p. 119), not Crawford & Ferguson's own
-`K₁`/`K₂` notation.
+κ indexing comes from browne2001a's Table 1 (p. 119, below), not Crawford &
+Ferguson's own `K₁`/`K₂` notation.
 
 Their closing argument (Discussion, p. 331) is the direct support for our
 varimax default: "The most important factor bearing on which of these two

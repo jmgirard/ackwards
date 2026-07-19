@@ -57,7 +57,7 @@ Same bar as M67 — standing facts only, corrections marked in place.
 - [x] T1: `rotation-and-k.md` — the varimax-default and k-advice supports; check the
       CF-varimax κ = 1/p claim, Horn's PA and Velicer's MAP descriptions, and absorb
       M61's verified DOIs for `lim2019` / `achim2021`.
-- [ ] T2: `applications.md` — six published-application entries; verify each citation's
+- [x] T2: `applications.md` — six published-application entries; verify each citation's
       standing facts and the "precedent for" claims that name a specific finding.
 - [ ] T3: `background.md` — five framing entries; check the Schmid–Leiman and
       Yung et al. descriptions especially, since DESIGN cites them for what is
@@ -71,8 +71,23 @@ Same bar as M67 — standing facts only, corrections marked in place.
 
 - 2026-07-19: created by /milestone-plan.
 - 2026-07-19: status → in-progress; branch `m68-reference-verification-collapsed-pages` cut from master.
+- 2026-07-19: T2 `applications.md` verified — kim2015 and forbush2018 accurate to the digit (kim2015 p. 1067 recorded as the verbatim source for DESIGN §9's orthogonal-rotation rationale and κ = 1/p); **three corrections** — markon2005's "goldberg2006 §5 singles it out" (Goldberg p. 356 names Saucier 1997; Markon is one of four "recent reports"), forbush2024's conflation of two results (92.4%/58.7% own variance vs the 0.88–334× / 1.95–80.8× comparisons, the low end below parity), cowan2024's "pure Goldberg recipe" (minres EFA + regression scores, not PCA + component scores). Added wright2014a's oblique geomin rotation and forbush2024's ULSMV estimator. One propagation found (`R/engine_esem.R:5-6`) — see Decisions.
 - 2026-07-19: T1 `rotation-and-k.md` verified — crawford1970/browne2001a/horn1965/velicer1976 accurate (anchors added: CF Eq. 7 p. 323, orthomax equivalence pp. 324–326, Browne Table 1 p. 119 for κ = 1/p, MAP Eq. 9 p. 323); lim2019 abstract-verbatim, M61's variant-scoping absorbed as a ⚠ note; **achim2021 corrected** — the ~17% is the share of noise-factor simulations (16.8%, p. 70), not of "correct" retentions. Added crawford1970 p. 331's explicit varimax-when-k-unknown recommendation. Noted lim2019's shelf PDF is online-first (no journal pagination). No propagation into `R/`, `man/`, `vignettes/`, `NEWS.md`.
 
 ## Decisions
+
+- **2026-07-19 (T2/T4) — one propagation found; not a hotfix.**
+  `R/engine_esem.R:5-6` says ordinal data "uses WLSMV estimation (Kim & Eaton
+  2015; **Forbush et al. 2024**)". Forbush et al. (2024, p. 633) used a
+  mean-and-variance-adjusted **unweighted** least squares estimator (ULSMV),
+  not WLSMV; kim2015 is the correct and only WLSMV precedent. **Disposition:**
+  the line is an internal code comment — not rendered in any help page,
+  vignette, or NEWS entry — so it is not user-visible and the hotfix bar
+  (tracking-rules: "user-visible bug") is not met. It is also barred from this
+  milestone by AC6 (docs-only, nothing outside `cairn/`). Routed as a
+  **trivial** comment fix for a direct commit to master after this merge.
+  The neighbouring `R/ackwards.R:14-15` varimax claim was checked and stands:
+  forbush2024 used an orthogonal Crawford-Ferguson rotation, so "matches" is
+  fair, though the paper does not state κ.
 
 ## Review
