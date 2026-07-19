@@ -65,7 +65,7 @@ anchors, verbatim wordings. Discrepancies are corrected in place and marked.
 - [x] T2: `waller2007.md` — Eq. 14, Eqs. 9–10, Eqs. 6–7, the §3 oblique extension, the
       §4 estimated-scores caveat, and Appendix A's `BASS(R, maxP, Print)` signature and
       column-sum-positive sign convention (backs IP1/IP2).
-- [ ] T3: `tenberge1999.md` — the LCP definition and closed-form solution behind the
+- [x] T3: `tenberge1999.md` — the LCP definition and closed-form solution behind the
       `tenBerge` scoring default; three page/table anchors.
 - [ ] T4: `goldberg2006.md` — six anchors incl. the stopping criterion and the ≥ .30
       display threshold; absorb M63's Crossref-verified issue number rather than re-derive.
@@ -82,6 +82,7 @@ anchors, verbatim wordings. Discrepancies are corrected in place and marked.
 
 - 2026-07-19: created by /milestone-plan.
 - 2026-07-19: implement started on `m67-reference-verification`; no question gate (plan settled depth/split/defect handling; nothing open).
+- 2026-07-19: T3 `tenberge1999` verified against pp. 311–318 — Eq. 3, Eqs. 5/7/9, all three loss functions, Thm 1/2/3, Cor. 1, and the orthogonality-coincidence conclusion all exact; no corrections. Checked the one suspicious anchor: Eq. 9 first appears in Lemma 1 (singular Ψ) but Thm 1 is precisely about it, so the page's "(Eq. 9, Thm 1)" is correct. Issue number not printed in source.
 - 2026-07-19: T2 `waller2007` verified against pp. 745–752 — Eq. 14, S = [I|0], Eqs. 9–10, §3 oblique form, §4 caveat (Guttman 1955; McDonald & Mulaik 1979), Appendix A signature + column-sum-positive sign convention all exact. Two corrections: the "Eqs. 6–7" anchor over-attributed the rotated `W_i = QΛ^{-1/2}T_i` (Eq. 7 is unrotated `W`, Eq. 6 is `P`); dropped the unsourced "first public R implementation" priority claim (M64 lesson). Noted the issue number is not printed in the source.
 - 2026-07-19: T1 `lorenzoseva2006` verified against pp. 57–61 — all 14 standing facts confirmed (Eq. 1, four invariance properties, prior thresholds .80/.90/MacCallum bands, 56 judges, φ set, r = .974, .85–.94 fair, >.95 equal, judge-disparity and label/variable-count findings). No errors. Clarified 48 distinct pairs vs 448 evaluations — both printed in the source.
 
