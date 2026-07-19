@@ -90,7 +90,7 @@ disposition.
       claim and the "approximate under the two-step FIML→EFA route regardless of
       N" claim. `Traces to`: `R/engine_esem.R:269`, `R/tidy.R:44`;
       `R/ackwards.R:58`, `R/ackwards.R:161`, `cairn/DECISIONS.md:151`.
-- [ ] **T5** — Author + verify `forbes2021` — dataset provenance for the
+- [x] **T5** — Author + verify `forbes2021` — dataset provenance for the
       N = 3,175 Australian general-population sample. Confirm the N and sample
       description. `Traces to`: `R/data.R:139`, `R/data.R:157`,
       `vignettes/ackwards-forbes2023.Rmd.orig:24`.
@@ -112,6 +112,7 @@ disposition.
 - 2026-07-19: T2 — ruscio2012a + revelle1979 authored, verified. ruscio p.282 abstract + pp.285-286: CD generate-and-increase logic faithful; two user-visible wording notes — source term is RMSR (7×, never RMSE) vs roxygen "RMSE" (EFAtools' term); roxygen title "of a known" vs paper "of Known" (→ drift ledger, low-severity). revelle p.403/405-406: VSS complexity-1/2 matches roxygen + DESIGN:378, no drift. DOIs not printed on hu1999/kaiser1974/revelle scans — marked registered-not-source-verified (ruscio DOI was printed).
 - 2026-07-19: T3 — maccallum1999 authored, verified against p.84 abstract. The "required N depends on communalities and overdetermination, not a fixed ratio" claim (roxygen + printout footnote) is faithful; citation matches `R/factorability.R:52-53`. No drift.
 - 2026-07-19: T4 — xia2019 + zhang2020 authored, verified against abstracts (both source-printed DOIs). xia p.409: DWLS/ULS optimistic vs ML "regardless of scaling" — supports the direction of the code caveat, but the code's naive-vs-scaled framing (engine_esem:269 comment, tidy.R:44 roxygen) is a nuance note, not clearly false → ledger low-severity. zhang p.219: FIML AFIs distorted at population level → "approximate regardless of N" faithful; scope-note added (they study FIML-in-SEM, code applies to its two-step route). Fixed the D-entry ref (D-020, not D-016).
+- 2026-07-19: T5 — forbes2021 authored, verified against p.139 header+abstract (source-printed DOI). N=3,175 Australian general-population + 18 DSM disorders match `R/data.R:139-140`; noted the US clinical n=1,775 sample is correctly not the one shipped. No drift.
 
 ## Decisions
 
