@@ -70,7 +70,7 @@ anchors, verbatim wordings. Discrepancies are corrected in place and marked.
 - [x] T4: `goldberg2006.md` — six anchors incl. the stopping criterion and the ≥ .30
       display threshold; absorb M63's Crossref-verified issue number rather than re-derive.
 - [x] T5: `asparouhov2009.md` — the ESEM definition and the WLSMV ordinal basis claim.
-- [ ] T6: `everett1983.md` + `goldberg1990.md` — the `comparability()` precedent pair;
+- [x] T6: `everett1983.md` + `goldberg1990.md` — the `comparability()` precedent pair;
       check the ⚠ mis-attribution block on `goldberg1990` still states the source correctly.
 - [ ] T7: `saucier1997.md` + `saucier2005.md` — the Goldberg-lab split-half pair (fn 14's
       PA-overextraction note; the explicit .90 replication gate); absorb M61's DOI evidence.
@@ -82,6 +82,8 @@ anchors, verbatim wordings. Discrepancies are corrected in place and marked.
 
 - 2026-07-19: created by /milestone-plan.
 - 2026-07-19: implement started on `m67-reference-verification`; no question gate (plan settled depth/split/defect handling; nothing open).
+- 2026-07-19: T6a `everett1983` verified against pp. 197–204 — the F₁ₜ = S₁·Vₜ procedure, comparability-vs-congruence, the ≥ .90 / 26° / 81% passage, sub-population splits, and all six Table 2 values (.98/.97/.96 at k=3; .99/.94/.82/.04 at k=4) exact; no corrections. Added the p. 204 greedy-with-removal matching procedure — source-backed, and the bijection D-022 already uses.
+- 2026-07-19: T6b `goldberg1990` verified against pp. 1216–1224 — Study 1/2/3 counts, the 10 method combinations, .950–.996, 30-of-3,750, the verbatim 13-factor invariance quote, and Study 2's .86–.94 (mean .91) congruence all exact. ⚠ block's core negative claim re-confirmed (no split-halves anywhere; Studies 2–3 use independent samples). Two corrections: its "docs currently over-attribute" was stale — all four flagged sites were repointed by M61/M63 and none survives (grep-verified); and "established the Big Five label-set" contradicted p. 1217, which calls I–IV traditional.
 - 2026-07-19: T5 `asparouhov2009` verified against pp. 397–401 — m² restrictions, Jennrich-extending rotated SEs + fit tests, and Eq. 3's probit/underlying-normal formulation with limited-information WLS (Muthén 1984) all exact. One correction: the Browne (2001, p. 113) quotation had dropped "the examination of model" with the elision unmarked; restored verbatim with the p. 398 block-quote location. No propagation into user-facing text. Issue number not printed in source.
 - 2026-07-19: T4 `goldberg2006` verified against pp. 347–358 — stopping criterion, one-large-correlational-analysis step, adjoining-levels path coefficients, FUPC, `4/1` size labels, "virtually identical", the ≥ .30 threshold, all six figure descriptions, the §5 sequential/part-whole caveats, and the Waller footnote all exact; no corrections. M63's Crossref issue number absorbed by citation (not printed in the source). Also cross-confirmed Ashton/Lee/Goldberg 2004 and Yung/Thissen/McLeod 1999 in the reference list (the latter feeds M68's `background.md`).
 - 2026-07-19: T3 `tenberge1999` verified against pp. 311–318 — Eq. 3, Eqs. 5/7/9, all three loss functions, Thm 1/2/3, Cor. 1, and the orthogonality-coincidence conclusion all exact; no corrections. Checked the one suspicious anchor: Eq. 9 first appears in Lemma 1 (singular Ψ) but Thm 1 is precisely about it, so the page's "(Eq. 9, Thm 1)" is correct. Issue number not printed in source.
