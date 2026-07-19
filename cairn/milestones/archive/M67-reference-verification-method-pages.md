@@ -1,0 +1,11 @@
+# M67: Re-verify the 9 single-source reference pages against their shelf PDFs — done 2026-07-19
+
+**Goal.** Read every standing fact on the nine single-source `cairn/references/` pages back against its shelf PDF, replacing each unverified first-pass extraction status with a dated verification.
+
+**Outcome.** All nine now read `Extraction: verified 2026-07-19 (M67)` with a source page range; `references staleness` 12 → 3 (the collapsed pages M68 owns). Four were fully accurate: `lorenzoseva2006` (the numbers behind the `.95` default), `tenberge1999`, `goldberg2006`, `everett1983` (Table 2 matched to the digit). Corrections — **`saucier2005`**: a sample size (201) absent from the paper (samples are 991/429/538; the 201 was `saucier1997`'s acquaintance N, cross-contaminated via the shared ingest commit) plus an asserted varimax rotation the source never names ("varimax"/"oblique"/"promax" occur zero times). **`goldberg1990`**: its ⚠ block still warned docs "currently" over-attribute, but M61/M63 had repointed all four sites; the core no-split-halves claim was re-confirmed. **`waller2007`**: "Eqs. 6–7" over-attributed the rotated `W_i = QΛ^{-1/2}T_i` (Eq. 7 is unrotated `W`), plus an unsourced priority claim. **`asparouhov2009`**: a Browne (2001) quotation compressed with an unmarked elision. **`saucier1997`**: "nested" selections unsupported. Added Everett p. 204's greedy-with-removal matching as the source for D-022's bijection. Zero propagation to user-facing text — no hotfix owed.
+
+**Key decisions.** Bar set at *standing facts* (values, formulas, page/table/equation anchors, verbatim wordings), not interpretive prose. Corrections confined to reference pages; user-facing propagation would have routed to `/hotfix`. Merged on local-green per the 2026-07-01 override with 3 platform CI jobs pending (diff is `cairn/`-only, `.Rbuildignore`d).
+
+**Verification.** 6/6 ACs with fresh evidence; `cairn_validate` exit 0; dod-gate PASSED (check 0 err/0 warn/0 note, coverage 100%, style/lint/pkgdown clean). Independent review: 2 of 3 lenses zero findings; diff-bug found 2 (scored 90, 93) — **both introduced by the correction pass itself**, each the error class being corrected elsewhere in the same diff. Both fixed before merge.
+
+**PR.** https://github.com/jmgirard/ackwards/pull/71
