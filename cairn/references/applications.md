@@ -8,11 +8,12 @@ citation and as precedents for engine/design choices. PDFs in `sources/`
 **Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
 commit `351a916`) from the shelf PDFs named per entry below, under
 `cairn/references/sources/` (local only; gitignored). Pagination: journal pages,
-per entry. Extraction: verified 2026-07-19 (M68) — all six entries re-read
+per entry.
+Extraction: verified 2026-07-19 (M68) — all six entries re-read
 against their shelf PDFs (kim2015 pp. 1064–1078; markon2005 pp. 139–157;
 wright2014a pp. 43–54; forbush2018 pp. 710–721; forbush2024 pp. 625–643;
 cowan2024 pp. 3–21), plus [[goldberg2006]] p. 356 for the markon2005
-attribution. Three corrections, marked inline below.
+attribution. Three corrections, marked inline below — observed 2026-07-19.
 
 ## kim2015 — Kim & Eaton (2015)
 

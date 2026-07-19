@@ -1,6 +1,6 @@
 # M68: Re-verify the 3 collapsed synthesis pages against their member sources
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** M67
 - **Branch:** `m68-reference-verification-collapsed-pages`
@@ -65,12 +65,13 @@ Same bar as M67 — standing facts only, corrections marked in place.
       source" note against what that paper actually says.
 - [x] T4: grep every corrected fact across `R/`, `man/`, `vignettes/`, `NEWS.md`;
       enumerate propagation with `file:line`; open `/hotfix` if any is user-facing.
-- [ ] T5: re-run `cairn_validate`; confirm staleness 0 and all checks PASS; commit.
+- [x] T5: re-run `cairn_validate`; confirm staleness 0 and all checks PASS; commit.
 
 ## Work log
 
 - 2026-07-19: created by /milestone-plan.
 - 2026-07-19: status → in-progress; branch `m68-reference-verification-collapsed-pages` cut from master.
+- 2026-07-19: T5 — `cairn_validate` all checks PASS, `references staleness` **0** (12 → 3 at M67 → 0 now); 80 dangling-id-token advisories are pre-existing and untouched by this diff. First run reported staleness 2: `Extraction:` must begin its own line for the parser to see it, and two pages had it mid-line after `per entry.` — fixed. Diff is `cairn/`-only (AC6). `Rscript tools/dod-gate.R` PASSED (check 0/0/0, coverage 100%, style/lint clean, pkgdown index complete); status → review.
 - 2026-07-19: T4 propagation sweep — every corrected fact grepped across `R/`, `man/`, `vignettes/`, `NEWS.md`. Zero user-facing propagation, so no `/hotfix` is owed. One internal code comment is wrong (`R/engine_esem.R:5-6`, WLSMV attributed to forbush2024) — enumerated and dispositioned in Decisions. Confirmed clean: the intro vignette's `CF(κ = 1/p)` claim for kim2015 (exact, p. 1067) and `comparability()`'s citations (Everett 1983 / saucier1997 / saucier2005 — correctly not saucier1996).
 - 2026-07-19: T3 `background.md` verified — **no corrections**; all five entries confirmed, including the two claims about goldberg2006 (p. 348's "received wisdom" quote and p. 356–357's "sequential" concession) and saucier1996's "ruled out as comparability source" negative (re-confirmed: "split"/"comparab" occur zero times in it). kotov2017's 40-author count verified exactly and its level definitions quoted from the paper. Sharpened saucier1996's `(.95–.84)` shorthand into the actual non-monotone series, and flagged its congruence correlations as not comparability coefficients. Noted kotov2017's shelf PDF is online-first (no journal pagination).
 - 2026-07-19: T2 `applications.md` verified — kim2015 and forbush2018 accurate to the digit (kim2015 p. 1067 recorded as the verbatim source for DESIGN §9's orthogonal-rotation rationale and κ = 1/p); **three corrections** — markon2005's "goldberg2006 §5 singles it out" (Goldberg p. 356 names Saucier 1997; Markon is one of four "recent reports"), forbush2024's conflation of two results (92.4%/58.7% own variance vs the 0.88–334× / 1.95–80.8× comparisons, the low end below parity), cowan2024's "pure Goldberg recipe" (minres EFA + regression scores, not PCA + component scores). Added wright2014a's oblique geomin rotation and forbush2024's ULSMV estimator. One propagation found (`R/engine_esem.R:5-6`) — see Decisions.

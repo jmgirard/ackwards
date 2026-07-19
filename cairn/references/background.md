@@ -10,13 +10,14 @@ commit `b85bee0`) from the shelf PDFs named per entry below, under
 `cairn/references/sources/` (local only; gitignored). Pagination: journal pages,
 per entry — **except `kotov2017`, whose shelf PDF is the APA online-first
 version paginated from 1**; its 454–477 range is taken from the published
-record, not the shelf copy. Extraction: verified 2026-07-19 (M68) — all five
+record, not the shelf copy.
+Extraction: verified 2026-07-19 (M68) — all five
 entries re-read against their shelf PDFs (kotov2017 front matter + the
 level-definition passage; schmid1957 pp. 53–61; yung1999 pp. 113–128;
 saucier1996 pp. 61–77; widiger2019 pp. 345–355), plus [[goldberg2006]]
 pp. 348 and 356–357 for the two claims this page makes about it. **No
 corrections** — every standing fact confirmed; several sharpened with
-anchors.
+anchors — observed 2026-07-19.
 
 ## kotov2017 — Kotov et al. (2017) _(HiTOP founding paper)_
 
