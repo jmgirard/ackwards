@@ -3,7 +3,7 @@
 #
 # Wraps lavaan::efa() for each level 1..k_max, returning the standard s.4 level
 # contract. For ordinal/polychoric data uses WLSMV estimation (Kim & Eaton 2015;
-# Forbush et al. 2024); for continuous data uses ML. Scoring uses self-computed
+# Forbush et al. 2024 use ULSMV); for continuous data uses ML. Scoring uses self-computed
 # tenBerge weights from lavaan's estimated loadings and the underlying correlation
 # matrix, keeping compute_edges() on the algebra path (DESIGN.md s.14 item 12).
 #
