@@ -25,13 +25,13 @@ Rocklin (1979).
 - Method (abstract, p. 403), verbatim: "The new method evaluates the magnitude
   of the Very Simple Structure index of goodness of fit for factor solutions of
   increasing rank. The number of factors which maximizes the VSS criterion is
-  taken [as the estimate]."
-- Complexity parameter (p. 405–406): the criterion is defined "For a Very Simple
-  Structure solution of factor complexity v" as `VSS_vk`, and "the number of
-  interpretable factors (of complexity v) is the number of factors, k, which
-  maximizes VSS_vk." The two commonly-used cases are complexity **v = 1**
-  (VSS-1) and **v = 2** (VSS-2) — exactly what `psych::vss()` returns and what
-  `suggest_k()` reports.
+  taken as being the optimal number of factors to extract."
+- Complexity parameter (p. 406), verbatim: "The optimal number of interpretable
+  factors (of complexity v) is the number of factors, k, which maximizes VSSvk.
+  If a very simple structure of factor complexity one is believed appropriate,
+  then only VSS1k needs to be evaluated." The two commonly-used cases are
+  complexity **v = 1** (VSS-1) and **v = 2** (VSS-2) — exactly what
+  `psych::vss()` returns and what `suggest_k()` reports.
 
 The package's roxygen — "Very Simple Structure fit at complexities 1 and 2
 (VSS-1 and VSS-2). Finds the k maximising the fit of a very simple loading

@@ -36,26 +36,26 @@ disposition.
 
 ## Acceptance criteria
 
-- [ ] All eight source notes exist under `cairn/references/`, each authored from
+- [x] All eight source notes exist under `cairn/references/`, each authored from
       `source-note.md` with the full citation as printed and a `**Provenance.**`
       block whose `Extraction:` line records a dated M69 verification against the
       shelf PDF; the specific value/attribution each backs is quoted verbatim
       with its page/table anchor.
-- [ ] Each page's `Traces to` names the exact code sites it backs (the file:line
+- [x] Each page's `Traces to` names the exact code sites it backs (the file:line
       map in the Tasks below), and each backing claim is confirmed against the
       source or its discrepancy recorded in-page.
-- [ ] The two user-visible constant sets are each checked against their source
+- [x] The two user-visible constant sets are each checked against their source
       with a page anchor and confirmed-or-recorded: Hu & Bentler CFI/TLI `.95`,
       RMSEA `.06`, SRMR `.08` (`R/tidy.R:283-286`) against `hu1999`; the Kaiser
       KMO bands `.90/.80/.70/.60/.50` (`R/factorability.R:185`) against `kaiser1974`.
-- [ ] `INDEX.md` carries one filename-first line per new page; `cairn_validate`
+- [x] `INDEX.md` carries one filename-first line per new page; `cairn_validate`
       exits 0 with its references check clean and the `references staleness`
       advisory showing the eight new pages as verified (not first-pass), with no
       regression on the existing 12.
-- [ ] Every discrepancy found is enumerated in the work log with its routing
+- [x] Every discrepancy found is enumerated in the work log with its routing
       disposition (hotfix / trivial / none); no user-facing text is corrected
       inside M69.
-- [ ] Diff is `cairn/`-only (no `R/`, `tests/`, `man/`, `NAMESPACE`, or
+- [x] Diff is `cairn/`-only (no `R/`, `tests/`, `man/`, `NAMESPACE`, or
       `NEWS.md` change); the DoD gate stays green (no code touched).
 
 ## Coverage
@@ -115,6 +115,7 @@ disposition.
 - 2026-07-19: T6 — new INDEX.md section "Secondary methods & diagnostics backers" (8 filename-first lines); cross-links [[hu1999]] added to xia2019/zhang2020, [[forbes2023]] in forbes2021. cairn_validate exit 0: references index<->disk PASS, staleness OK (all 8 verified). Fixed the M60/M68 trap — `Extraction:` must begin its own physical line (7 of 8 initially reported "no extraction status").
 - 2026-07-19: T7 — drift ledger consolidated in Decisions below (4 discrepancies, all wording/attribution; no wrong user-visible numbers). Per the M69 gate none corrected here — routed to /hotfix (owner's call) or trivial follow-up.
 - 2026-07-19: T8 — diff confirmed cairn/-only (R package byte-unchanged → last green DoD carries); cairn_validate exit 0. Status → review.
+- 2026-07-19: review — PR #73; DoD gate re-run PASSED (check 0/0/0, coverage 100%, style/lint/pkgdown clean). 3 independent lenses: blame-history + diff-bug clean; prior-PR-comments caught 2 quote-accuracy defects in revelle1979.md (fabricated "[as the estimate]" ending p.403; dropped leading "The optimal" p.406) — both confirmed by rendering the source pages and FIXED. Diff-bug lens false-negatived these (trusted flattened text) — recorded. All 6 ACs verified.
 
 ## Decisions
 
@@ -163,9 +164,9 @@ code values/claims match their sources.
 - **AC5** (drift ledger + no in-milestone fix): 4 discrepancies enumerated in
   the work log and the Decisions drift ledger with routing dispositions; diff
   touches no user-facing text (proven cairn/-only, below).
-- **AC6** (cairn/-only + DoD green): `git diff --name-only master...HEAD` = 11
-  files, all under `cairn/` (R package byte-unchanged). DoD-gate result: _[pending
-  background run]_.
+- **AC6** (cairn/-only + DoD green): `git diff --name-only master...HEAD` = all
+  under `cairn/` (R package byte-unchanged). DoD-gate PASSED — check 0 err/0
+  warn/0 note, coverage 100%, style/lint clean, pkgdown index complete.
 
 ### Consistency gate
 
@@ -175,4 +176,29 @@ code values/claims match their sources.
 
 ### Independent review
 
-_[3 fresh-context reviewers + scorer pending.]_
+Three fresh-context lenses (ref-based git; shared tree). Two of the three cleared
+cleanly; the prior-PR lens caught two real quote-accuracy defects, both fixed.
+
+- **[O] diff-bug (Opus):** no findings — independently re-verified all 8 page
+  anchors, DOIs, code traces, drift ledger, and INDEX against the shelf PDFs.
+  (Note: it cleared revelle's quotes as "verbatim" — a false negative; it trusted
+  flattened text and missed the two defects the prior-PR lens caught. Recorded
+  honestly, not silently.)
+- **[S] blame-history (Sonnet):** no findings — no contradiction of
+  DECISIONS/DESIGN, no M67/M68 lesson repeated, no prior work undone, INDEX
+  conventions correct.
+- **[S] prior-PR-comments (Sonnet):** 2 findings on `revelle1979.md`, both
+  regressing the M67 "unmarked-elision / a quotation is a new claim" lesson.
+
+**Findings triage** (both adjudicated by rendering the source page directly —
+primary-source ground truth, stronger than a confidence score; both ≫80, fixed):
+
+1. `revelle1979.md` abstract quote (was) "…is taken [as the estimate]." — p. 403
+   (rendered) actually reads "…is taken **as being the optimal number of factors
+   to extract**." Fabricated bracketed ending under a "verbatim" label. **Fixed.**
+2. `revelle1979.md` complexity quote dropped the leading "The optimal" and began
+   mid-sentence with lowercase "the number", unmarked. p. 406 (rendered) reads
+   "**The optimal** number of interpretable factors (of complexity v) is the
+   number of factors, k, which maximizes VSSvk." **Fixed** (re-anchored p. 406).
+
+No sub-80 findings to log. Both fixes re-verified against the rendered PDF pages.
