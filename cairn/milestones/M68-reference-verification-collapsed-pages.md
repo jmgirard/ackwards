@@ -1,8 +1,9 @@
 # M68: Re-verify the 3 collapsed synthesis pages against their member sources
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** M67
+- **Branch:** `m68-reference-verification-collapsed-pages`
 - **Principles touched:** IP8
 
 ## Goal
@@ -69,6 +70,7 @@ Same bar as M67 — standing facts only, corrections marked in place.
 ## Work log
 
 - 2026-07-19: created by /milestone-plan.
+- 2026-07-19: status → in-progress; branch `m68-reference-verification-collapsed-pages` cut from master.
 
 ## Decisions
 
