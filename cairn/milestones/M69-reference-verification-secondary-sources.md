@@ -1,10 +1,10 @@
 # M69: Author + verify the 8 secondary-methods source notes against their shelf PDFs
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** —
-- **Branch/PR:** —
+- **Branch/PR:** `m69-reference-verification-secondary-sources`
 
 ## Goal
 
