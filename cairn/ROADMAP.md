@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-07-19 (M67 merged + archived; terminal-row retention pruned M62)_
+_Last hygiene check: 2026-07-19 (M68 merged + archived; M63 row pruned under terminal-row retention)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -11,11 +11,10 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
 | M67 | Re-verify the 9 single-source reference pages against their shelf PDFs | done | — | normal | milestones/archive/M67-reference-verification-method-pages.md |
-| M68 | Re-verify the 3 collapsed synthesis pages against their member sources | review | M67 | normal | milestones/M68-reference-verification-collapsed-pages.md |
+| M68 | Re-verify the 3 collapsed synthesis pages against their member sources | done | M67 | normal | milestones/archive/M68-reference-verification-collapsed-pages.md |
 | M66 | Upstream re-oracle watch (weekly CRAN-current CI) | done | — | normal | milestones/archive/M66-upstream-reoracle-watch.md |
 | M65 | Mechanize the precomputed-vignette staleness guard | done | — | normal | milestones/archive/M65-vignette-staleness-guard.md |
 | M64 | DESIGN §14 → DECISIONS.md extraction (hybrid + entomb) | done | — | normal | milestones/archive/M64-design-s14-extraction.md |
-| M63 | User-facing text accuracy pass (Goldberg 2006 citations + PCA n_obs message) | done | — | normal | milestones/archive/M63-text-accuracy-pass.md |
 <!-- M01–M59 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent. -->
 
 ## Candidates
