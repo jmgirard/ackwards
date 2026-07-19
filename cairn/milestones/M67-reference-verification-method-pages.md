@@ -62,7 +62,7 @@ anchors, verbatim wordings. Discrepancies are corrected in place and marked.
 - [x] T1: `lorenzoseva2006.md` — highest stakes; the numbers backing the package's
       `.95` `redundancy_phi` default (56 practitioners, 448 loading-column pairs,
       φ ∈ {.62….97}, r = .974, the .85–.94 "fair" band, φ > .95 "equal", their Eq. 1).
-- [ ] T2: `waller2007.md` — Eq. 14, Eqs. 9–10, Eqs. 6–7, the §3 oblique extension, the
+- [x] T2: `waller2007.md` — Eq. 14, Eqs. 9–10, Eqs. 6–7, the §3 oblique extension, the
       §4 estimated-scores caveat, and Appendix A's `BASS(R, maxP, Print)` signature and
       column-sum-positive sign convention (backs IP1/IP2).
 - [ ] T3: `tenberge1999.md` — the LCP definition and closed-form solution behind the
@@ -82,6 +82,7 @@ anchors, verbatim wordings. Discrepancies are corrected in place and marked.
 
 - 2026-07-19: created by /milestone-plan.
 - 2026-07-19: implement started on `m67-reference-verification`; no question gate (plan settled depth/split/defect handling; nothing open).
+- 2026-07-19: T2 `waller2007` verified against pp. 745–752 — Eq. 14, S = [I|0], Eqs. 9–10, §3 oblique form, §4 caveat (Guttman 1955; McDonald & Mulaik 1979), Appendix A signature + column-sum-positive sign convention all exact. Two corrections: the "Eqs. 6–7" anchor over-attributed the rotated `W_i = QΛ^{-1/2}T_i` (Eq. 7 is unrotated `W`, Eq. 6 is `P`); dropped the unsourced "first public R implementation" priority claim (M64 lesson). Noted the issue number is not printed in the source.
 - 2026-07-19: T1 `lorenzoseva2006` verified against pp. 57–61 — all 14 standing facts confirmed (Eq. 1, four invariance properties, prior thresholds .80/.90/MacCallum bands, 56 judges, φ set, r = .974, .85–.94 fair, >.95 equal, judge-disparity and label/variable-count findings). No errors. Clarified 48 distinct pairs vs 448 evaluations — both printed in the source.
 
 ## Decisions

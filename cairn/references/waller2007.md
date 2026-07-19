@@ -8,7 +8,7 @@ https://doi.org/10.1016/j.jrp.2006.08.005
 **Provenance.** Ingested 2026-07-16 by a cairn hygiene pass (no milestone;
 commit `351a916`) from `cairn/references/sources/waller2007.pdf` (local only;
 gitignored). Pagination: journal pages (745–752).
-Extraction: unverified — first pass, values not re-read against the source — observed 2026-07-19.
+Extraction: verified 2026-07-19 (M67) — all equation/section/appendix anchors read directly against the source (pp. 745–752): Eq. 14, S = [I|0], Eqs. 9–10, §3's oblique form, §4's caveat with Guttman (1955) and McDonald & Mulaik (1979), and Appendix A's signature and sign convention all confirmed exactly; two corrections made (the Eqs. 6–7 attribution, the dropped priority claim). The issue number `41(4)` is **not** printed in the source — the PDF carries only "41 (2007) 745–752" plus the DOI — so it rests on the publisher record, not on this reading — observed 2026-07-19.
 
 ## Why this is a primary source
 
@@ -39,7 +39,11 @@ rotations via `T_i^{-1} S T_j'^{-1}` (out of scope for us — DESIGN §2).
 
 **Correspondence to `compute_edges()`.** Our `W'RW / sqrt(diag(...))` route is
 the same identity in weight-matrix form: for standardized PCA scores,
-`W_i = Q Λ^{-1/2} T_i` (his Eqs. 6–7), so `W_i' R W_j` collapses to
+`W_i = Q Λ^{-1/2} T_i` — his Eq. 7 gives the *unrotated* `W = QΛ^{-1/2}`
+(Eq. 6 is the loading matrix `P = QΛ^{1/2}`); the `T_i` factor is the rotation
+of Eq. 8 carried through, ours to derive, not a numbered result of his
+*(attribution corrected M67: the page previously cited "Eqs. 6–7" for the
+rotated form, which neither equation states)*. So `W_i' R W_j` collapses to
 `T_i' S T_j`. We use the `W'RW` form because it also covers EFA/ESEM scoring
 weights (tenBerge, Bartlett, …) where the transformation-matrix shortcut does
 not apply, and we standardize by the real score SDs because non-PCA scores are
@@ -60,9 +64,14 @@ estimates as the latent factors themselves.
 
 ## Appendix A
 
-A complete R function `BASS(R, maxP, Print)` — eigen → varimax per level →
-`t(T[[i-1]]) %*% S %*% T[[i]]` cross-level correlations. Historically the
-first public R implementation of the method; sign convention is
-column-sum-positive on the unrotated eigenvectors (contrast with our
-primary-parent alignment, Invariant 4). Not used as an oracle (superseded by
-Forbes's implementation, which is the test-backed contract — [[forbes2023]]).
+A complete R function `BASS(R, maxP = 5, Print = "ON")` — eigen → varimax per
+level → `t(T[[i-1]]) %*% S %*% T[[i]]` cross-level correlations. Sign convention
+is column-sum-positive on the unrotated eigenvectors — `key <- sign(apply(U, 2,
+sum)); U <- U %*% diag(key)` (contrast with our primary-parent alignment,
+Invariant 4). Not used as an oracle (superseded by Forbes's implementation,
+which is the test-backed contract — [[forbes2023]]).
+
+*(Corrected M67: this page previously called Appendix A "historically the first
+public R implementation of the method". Waller claims no priority and the
+source cannot settle it — an unsourced historical claim in our own voice, now
+dropped rather than restated.)*
