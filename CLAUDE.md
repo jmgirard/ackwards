@@ -36,7 +36,7 @@ correlation to each ancestor level, which `prune("redundant")` now
 adopts as its default (`redundancy_criterion = "direct"`) — the pre-M53
 adjacent-hop walk diverged on 7/54 AMH components because correlation is
 non-transitive (they agree on the shallow simulations). See M53 in
-`MILESTONES.md`.
+`cairn/legacy/MILESTONES.md`.
 
 ## Principles (IP/GP)
 
