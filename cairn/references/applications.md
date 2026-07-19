@@ -13,7 +13,7 @@ Extraction: verified 2026-07-19 (M68) — all six entries re-read
 against their shelf PDFs (kim2015 pp. 1064–1078; markon2005 pp. 139–157;
 wright2014a pp. 43–54; forbush2018 pp. 710–721; forbush2024 pp. 625–643;
 cowan2024 pp. 3–21), plus [[goldberg2006]] p. 356 for the markon2005
-attribution. Three corrections, marked inline below — observed 2026-07-19.
+attribution, and pp. 47 + 49 for wright2014a's two rotations. Three corrections, marked inline below — observed 2026-07-19.
 
 ## kim2015 — Kim & Eaton (2015)
 
@@ -58,10 +58,13 @@ matrix and an empirical sample (abstract, p. 139). The two-factor solution
 replicated less well under varimax, so they rotated the meta-analytic loadings
 to Study 2's via a partially specified target criterion, giving congruences of
 .97 and .98. The 2→5 unfolding is what wright2014a and the psychopathology
-applications take as the expected top-of-hierarchy pattern; "Big Two → Big
-Three → Big Four → Big Five" is *our* shorthand for it, not the paper's
-language (those terms do not appear in it), and the paper never uses the word
-"bass-ackwards" — it predates [[goldberg2006]]'s publication.
+applications take as the expected top-of-hierarchy pattern. The "Big Two /
+Big Three / Big Four" labels are **the paper's own** — it carries a section
+headed "The Big Two, Three, and Four." and states that "the hierarchical
+framework proposed here also extends Digman's (1997) model in explicitly
+relating the Big Two to the Big Three and Big Four models of personality
+structure." What the paper never uses is the word "bass-ackwards" (zero
+occurrences) — it predates [[goldberg2006]]'s publication.
 
 *(Corrected M68: the page previously said [[goldberg2006]] "§5 singles it
 out" as the most influential early application. It does not. At p. 356
@@ -88,11 +91,21 @@ three measures (abstract, p. 43); higher levels recover
 Internalizing/Externalizing-like spectra. Canonical personality-pathology
 application; the "a" suffix distinguishes it from other Wright 2014 papers.
 
-⚠ **Note the rotation: oblique geomin, not varimax** — "due to its desirable
-weighting of factor complexity and interpretability (Browne, 2001; Sass &
-Schmitt, 2010)." This is a published bass-ackwards-style application that
-departs from the orthogonal-only stance DESIGN §9 rests on (Goldberg 2006;
-kim2015 above), so do not cite it as support for that stance.
+**Two analyses, two rotations — do not conflate them.** The *conjoint
+five-factor* EFA/ESEM used an **oblique** Geomin rotation, "due to its
+desirable weighting of factor complexity and interpretability (Browne, 2001;
+Sass & Schmitt, 2010)" (p. 47). The **hierarchical** (bass-ackwards) analysis
+did not: "we estimated a series of **orthogonal** Geomin rotated models
+ranging from two to five factors" (p. 49).
+
+Their stated reason is DESIGN §9's rationale, reached independently — worth
+citing alongside kim2015 above: "We used orthogonal factor rotation for the
+hierarchical models because unrelated factors maximize the interpretability of
+relations between adjacent levels of the hierarchy, as the cross-level paths
+from oblique solutions would not only capture the factors that emerge from a
+higher-order factor but also be influenced by the within-level covariation"
+(p. 49). Note the rotation *family* still differs from ours (Geomin, not
+CF/varimax); what matches is the orthogonality and the argument for it.
 
 ## forbush2018 — Forbush et al. (2018)
 
@@ -125,7 +138,7 @@ involved sequentially extracting latent factors using exploratory structural
 equation modeling" — yielding a 10-factor hierarchical-dimensional model
 (abstract, p. 625).
 
-**Method detail (p. 633).** 73 indicators; parallel analysis set the maximum,
+**Method detail (p. 632).** 73 indicators; parallel analysis set the maximum,
 so they ran ESEMs from 1 to 11 factors and correlated factor scores between
 *consecutive* levels. They state the lineage explicitly: "Whereas Goldberg
 extracted the factors using the principal component analysis, we followed the
@@ -167,7 +180,7 @@ chosen by parallel analysis + all factors having "at least two items loaded
 ≥ .30" (11- and 12-factor solutions failed the second test) — a concrete
 published stopping rule to cite alongside `k_max`. Psychosis-risk (CHR)
 mapping onto HiTOP; analysis code public at
-`github.com/hrcowan/HiTOP-MAP`. p. 8 also states the rationale we rely on:
+`github.com/hrcowan/HiTOP-MAP`. p. 7 also states the rationale we rely on:
 "Orthogonal rotation is typical in unfolding analyses (e.g., Kim & Eaton,
 2015) because it produces interpretable cross-level correlations between
 latent variables (Goldberg, 2006)."

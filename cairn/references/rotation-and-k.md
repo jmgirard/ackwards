@@ -12,7 +12,7 @@ paginated from 1**; its 452–467 range is taken from the published record (as
 cited in `achim2021`'s reference list, p. 73), not from the shelf copy.
 Extraction: verified 2026-07-19 (M68) — all six entries re-read against their
 shelf PDFs (crawford1970 pp. 321–332; browne2001a pp. 111–150 incl. Table 1
-p. 119; horn1965 pp. 179–185; velicer1976 pp. 321–327; lim2019 abstract;
+p. 118; horn1965 pp. 179–185; velicer1976 pp. 321–327; lim2019 abstract;
 achim2021 pp. 69–73). One correction, marked inline below.
 — observed 2026-07-19.
 
@@ -32,7 +32,7 @@ CF family is equivalent to the orthomax family (pp. 324–326). The CF
 parameterization is what modern software (incl. Mplus/lavaan rotation
 machinery) implements; **CF-varimax with κ = 1/p is the rotation Kim & Eaton
 (2015) used** for the ESEM bass-ackwards precedent (`applications.md`) — the
-κ indexing comes from browne2001a's Table 1 (p. 119, below), not Crawford &
+κ indexing comes from browne2001a's Table 1 (p. 118, below), not Crawford &
 Ferguson's own `K₁`/`K₂` notation.
 
 Their closing argument (Discussion, p. 331) is the direct support for our
@@ -52,7 +52,7 @@ https://doi.org/10.1207/S15327906MBR3601_05
 
 The standard modern survey of analytic rotation (CF family, Yates' geomin,
 oblique target rotation; behavior under complex patterns — abstract, p. 111).
-**Table 1, p. 119** ("The Orthomax Family of Rotation Criteria") is the source
+**Table 1, p. 118** ("The Orthomax Family of Rotation Criteria") is the source
 of the κ indexing DESIGN §9 uses: κ = 0 quartimax, **κ = 1/p varimax**,
 κ = m/(2p) equamax, κ = (m−1)/(p+m−2) parsimax, κ = 1 factor parsimony — p
 variables, m factors. Cited in DESIGN's key refs for the rotation-choice

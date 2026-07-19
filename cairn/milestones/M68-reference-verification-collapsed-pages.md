@@ -140,6 +140,60 @@ Universal: `cairn_validate` exit 0 — `scaffold present` PASS, `coverage
 complete` PASS, `references staleness` OK. No IP/GP principle changed, so
 `cairn_impact` was skipped.
 
+### Independent review — 3 lenses + scorer
+
+- **[S] blame-history:** no findings. Confirmed the diff does not undo M61's
+  vignette-overclaim fix (`man/suggest_k.Rd` still correctly scoped), M63's
+  Goldberg issue-number fix, or M67's asparouhov2009 elision / goldberg1990
+  corrections; every deleted paragraph is replaced by an informational
+  superset.
+- **[S] prior-PR-comments:** no findings. PRs #71 and #62 carry no substantive
+  GitHub review comments (Codecov bot only) — this repo reviews locally, so
+  the lens no-ops. It cross-checked the diff against M67's two defect *classes*
+  (unmarked elision, unsourced priority claim) and found neither reintroduced.
+- **[O] diff-bug:** 9 findings. **The correction pass introduced 6 of them** —
+  the same failure mode M67 hit, and the reason this lens exists.
+
+**Actioned (score ≥ 80) — all 6 fixed on-branch:**
+
+- **F1 (96) — the wright2014a ⚠ block was inverted.** It asserted the paper
+  used *oblique* geomin for the hierarchy and told readers "do not cite it as
+  support for" DESIGN §9's orthogonal-only stance. The oblique Geomin is from
+  the *conjoint five-factor* EFA (p. 47); the **hierarchical** analysis used
+  **orthogonal** Geomin (p. 49) for DESIGN §9's own reason, reached
+  independently. Rewritten into a two-analyses/two-rotations block that cites
+  it as support. Verified by page render.
+- **F2 (93) — markon2005 "those terms do not appear in it" was false.** The
+  paper has a section headed "The Big Two, Three, and Four." and explicitly
+  relates Big Two → Big Three → Big Four (15/12/7 occurrences). My original
+  grep was defective: the PDF text extraction strips spaces, so `Big Two`
+  matched nothing. Rewritten to credit the labels to the paper; the true
+  zero-occurrence claim ("bass-ackwards") retained.
+- **F3 (92) — browne2001a Table 1 is p. 118, not p. 119**, wrong in all three
+  places, and it anchors DESIGN §9's κ = 1/p indexing. Verified by page render.
+- **F4 (90) — forbush2024 "Method detail (p. 633)" is p. 632**; only the
+  ULSMV/"crawfer" sentence is on p. 633.
+- **F5 (88) — cowan2024's orthogonal-rotation rationale is p. 7, not p. 8.**
+  Verified by page render.
+- **F6 (88) — widiger2019's bass-ackwards mention is p. 348, not p. 347.**
+  Verified by page render.
+
+**Below threshold — logged, not actioned (IP3):**
+
+- **F7 (68) — `cairn/DESIGN.md:418` repeats the forbush2024/WLSMV error.**
+  Scored down as arguably outside M68's stated scope (AC5's grep list named
+  `R/`, `man/`, `vignettes/`, `NEWS.md`, not `cairn/`). The defect itself is
+  real and independently confirmed. Folded into the same post-merge trivial
+  follow-up as `R/engine_esem.R:5-6` (see Decisions) rather than fixed here,
+  and surfaced to the user at the approval gate.
+- **F8 (75) — kotov2017 "top-down definitions" framing.** The paper presents
+  its levels "from narrowest to broadest"; the page lists them broadest-first.
+  The four quoted definitions are verbatim-exact, so this is presentation
+  framing, not a wrong fact.
+- **F9 (45) — forbush2018's bare "Verified exact."** is an undated
+  repo-state claim, but the provenance block already carries the dated stamp
+  covering all six entries, and sibling pages use the same unstamped idiom.
+
 Toolchain (`r-package` profile `consistency-gate` slot): `devtools::document()`
 produced no diff; README.md in sync with README.Rmd; `pkgdown::check_pkgdown()`
 reference index complete; no NEWS entry owed (zero non-`cairn/` files changed,

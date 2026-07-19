@@ -121,7 +121,7 @@ deficits) belongs in HiTOP, largely via the g-PD/p-factor literature
 purpose is "to discuss the potential inclusion and placement of the
 self-interpersonal deficits of the DSM-5 Section III Criterion A within
 HiTOP" (abstract, p. 345). No hierarchical structural analysis of its own —
-context only; omit from method citations. It does, at p. 347, summarize one
+context only; omit from method citations. It does, at p. 348, summarize one
 bass-ackwards application not otherwise on our shelf: Muñoz-Champel,
 Gutiérrez, Peri, & Torrubia used "Goldberg's exploratory bass-ackwards method"
 on self-reported PD symptom criteria. *(Moved here from applications.md
