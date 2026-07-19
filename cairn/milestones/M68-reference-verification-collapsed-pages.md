@@ -31,17 +31,17 @@ Same bar as M67 — standing facts only, corrections marked in place.
 
 ## Acceptance criteria
 
-- [ ] All three pages carry an extraction status naming a verification verb and its
+- [x] All three pages carry an extraction status naming a verification verb and its
       own `— observed YYYY-MM-DD`.
-- [ ] `cairn_validate`'s `references staleness` advisory reaches 0.
-- [ ] Every member entry's standing facts are checked against that member's shelf PDF;
+- [x] `cairn_validate`'s `references staleness` advisory reaches 0.
+- [x] Every member entry's standing facts are checked against that member's shelf PDF;
       each page's work-log line names the members checked and any correction made.
-- [ ] M61's already-verified `lim2019` / `achim2021` entries are absorbed by citation,
+- [x] M61's already-verified `lim2019` / `achim2021` entries are absorbed by citation,
       not re-derived — including its finding that a vignette clause overclaimed
       `lim2019` (best among 13 PA *variants*, not all criteria).
-- [ ] Each corrected fact is grepped across `R/`, `man/`, `vignettes/`, `NEWS.md`;
+- [x] Each corrected fact is grepped across `R/`, `man/`, `vignettes/`, `NEWS.md`;
       any propagation is enumerated with `file:line` and routed to `/hotfix`.
-- [ ] Docs-only — no files outside `cairn/` modified; `cairn_validate` all checks PASS.
+- [x] Docs-only — no files outside `cairn/` modified; `cairn_validate` all checks PASS.
 
 ## Coverage
 
@@ -71,6 +71,7 @@ Same bar as M67 — standing facts only, corrections marked in place.
 
 - 2026-07-19: created by /milestone-plan.
 - 2026-07-19: status → in-progress; branch `m68-reference-verification-collapsed-pages` cut from master.
+- 2026-07-19: review pass — PR #72 opened; all 6 ACs verified with fresh evidence; `cairn_validate` exit 0; dod-gate PASSED; full CI matrix green. Independent review: blame-history and prior-PR lenses clean; diff-bug lens returned 9 findings, **6 of them introduced by this milestone's own correction pass** (scores 96/93/92/90/88/88) — all fixed on-branch: the wright2014a ⚠ block was inverted (the hierarchy used *orthogonal* Geomin, p. 49, and is a support for DESIGN §9 rather than a departure), markon2005's "those terms do not appear" was false (the paper has a section headed "The Big Two, Three, and Four."), and four page anchors were wrong. **Supersedes the T1 line below:** browne2001a's Table 1 is p. **118**, not p. 119. Three sub-threshold findings logged, not actioned (F7/68 DESIGN.md:418, F8/75, F9/45).
 - 2026-07-19: T5 — `cairn_validate` all checks PASS, `references staleness` **0** (12 → 3 at M67 → 0 now); 80 dangling-id-token advisories are pre-existing and untouched by this diff. First run reported staleness 2: `Extraction:` must begin its own line for the parser to see it, and two pages had it mid-line after `per entry.` — fixed. Diff is `cairn/`-only (AC6). `Rscript tools/dod-gate.R` PASSED (check 0/0/0, coverage 100%, style/lint clean, pkgdown index complete); status → review.
 - 2026-07-19: T4 propagation sweep — every corrected fact grepped across `R/`, `man/`, `vignettes/`, `NEWS.md`. Zero user-facing propagation, so no `/hotfix` is owed. One internal code comment is wrong (`R/engine_esem.R:5-6`, WLSMV attributed to forbush2024) — enumerated and dispositioned in Decisions. Confirmed clean: the intro vignette's `CF(κ = 1/p)` claim for kim2015 (exact, p. 1067) and `comparability()`'s citations (Everett 1983 / saucier1997 / saucier2005 — correctly not saucier1996).
 - 2026-07-19: T3 `background.md` verified — **no corrections**; all five entries confirmed, including the two claims about goldberg2006 (p. 348's "received wisdom" quote and p. 356–357's "sequential" concession) and saucier1996's "ruled out as comparability source" negative (re-confirmed: "split"/"comparab" occur zero times in it). kotov2017's 40-author count verified exactly and its level definitions quoted from the paper. Sharpened saucier1996's `(.95–.84)` shorthand into the actual non-monotone series, and flagged its congruence correlations as not comparability coefficients. Noted kotov2017's shelf PDF is online-first (no journal pagination).
