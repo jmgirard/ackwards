@@ -1,6 +1,6 @@
 # M69: Author + verify the 8 secondary-methods source notes against their shelf PDFs
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** —
@@ -97,10 +97,10 @@ disposition.
 - [x] **T6** — Add eight filename-first lines to `INDEX.md` (a new
       "Secondary methods & diagnostics backers" section is fine), and cross-link
       related pages with `[[…]]` where natural (e.g. `hu1999` ↔ the ESEM notes).
-- [ ] **T7** — Drift ledger: enumerate in the work log every discrepancy found
+- [x] **T7** — Drift ledger: enumerate in the work log every discrepancy found
       across T1–T5 and its routing disposition (hotfix / trivial / none). Make no
       user-facing correction here.
-- [ ] **T8** — Gate: `cairn_validate` exit 0 with references check clean and the
+- [x] **T8** — Gate: `cairn_validate` exit 0 with references check clean and the
       staleness advisory showing the eight new pages verified; confirm the diff is
       `cairn/`-only; run the DoD gate as a code-untouched safety check.
 
@@ -114,7 +114,31 @@ disposition.
 - 2026-07-19: T4 — xia2019 + zhang2020 authored, verified against abstracts (both source-printed DOIs). xia p.409: DWLS/ULS optimistic vs ML "regardless of scaling" — supports the direction of the code caveat, but the code's naive-vs-scaled framing (engine_esem:269 comment, tidy.R:44 roxygen) is a nuance note, not clearly false → ledger low-severity. zhang p.219: FIML AFIs distorted at population level → "approximate regardless of N" faithful; scope-note added (they study FIML-in-SEM, code applies to its two-step route). Fixed the D-entry ref (D-020, not D-016).
 - 2026-07-19: T5 — forbes2021 authored, verified against p.139 header+abstract (source-printed DOI). N=3,175 Australian general-population + 18 DSM disorders match `R/data.R:139-140`; noted the US clinical n=1,775 sample is correctly not the one shipped. No drift.
 - 2026-07-19: T6 — new INDEX.md section "Secondary methods & diagnostics backers" (8 filename-first lines); cross-links [[hu1999]] added to xia2019/zhang2020, [[forbes2023]] in forbes2021. cairn_validate exit 0: references index<->disk PASS, staleness OK (all 8 verified). Fixed the M60/M68 trap — `Extraction:` must begin its own physical line (7 of 8 initially reported "no extraction status").
+- 2026-07-19: T7 — drift ledger consolidated in Decisions below (4 discrepancies, all wording/attribution; no wrong user-visible numbers). Per the M69 gate none corrected here — routed to /hotfix (owner's call) or trivial follow-up.
+- 2026-07-19: T8 — diff confirmed cairn/-only (R package byte-unchanged → last green DoD carries); cairn_validate exit 0. Status → review.
 
 ## Decisions
+
+**M69 drift ledger** (2026-07-19). Four discrepancies found; all wording/
+attribution, none a wrong user-visible number. Per the M69 gate, none corrected
+in M69 — recorded here and in each source page, routed out:
+
+- **kaiser1974** — code prints `"marvellous"` where Kaiser (p. 35) prints
+  `"marvelous"`. User-visible band label → `/hotfix` (owner's call; possibly
+  intentional Commonwealth spelling).
+- **ruscio2012a** — roxygen says `RMSE` where the source says **RMSR** (7×,
+  never RMSE); the delegated `EFAtools::CD()` wrapper uses "RMSE". User-visible
+  roxygen → `/hotfix`, low-severity.
+- **ruscio2012a** — `@references` title reads "…comparison data **of a** known
+  factorial structure"; the paper's title is "…of Known Factorial Structure".
+  User-visible → `/hotfix`, low-severity.
+- **xia2019** — the naive-vs-scaled framing (`R/engine_esem.R:269` internal
+  comment; `R/tidy.R:44` roxygen) is a nuance, not false: Xia & Yang's optimism
+  is DWLS/ULS-vs-ML "regardless of scaling", so "only the scaled are defensible"
+  is a lavaan-reporting choice they do not endorse as sufficient. Internal
+  comment → trivial follow-up if reworded; roxygen owner's call.
+
+No drift: **hu1999, revelle1979, maccallum1999, zhang2020, forbes2021** — the
+code values/claims match their sources.
 
 ## Review
