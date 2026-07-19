@@ -33,7 +33,7 @@ _One line per source summary: `citekey — full title — which milestones/oracl
 - wright2014a — Wright & Simms (2014), structure of PD traits (CAT-PD/PID-5/NEO-PI-3) — canonical personality-pathology application.
 - forbush2018 — Forbush et al. (2018), Hi-TIDE eating-disorder classification — self-report application.
 - forbush2024 — Forbush et al. (2024), lumpers vs. splitters ED taxonomy — clinician-rating ESEM application.
-- cowan2024 — Cowan et al. (2024), psychosis risk onto HiTOP — pure-Goldberg-recipe application; public code.
+- cowan2024 — Cowan et al. (2024), psychosis risk onto HiTOP — Goldberg's procedure on a minres-EFA engine (not PCA); public code.
 
 ## Framing & contrasts (collapsed in background.md)
 

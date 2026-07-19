@@ -14,6 +14,12 @@ against their shelf PDFs (kim2015 pp. 1064–1078; markon2005 pp. 139–157;
 wright2014a pp. 43–54; forbush2018 pp. 710–721; forbush2024 pp. 625–643;
 cowan2024 pp. 3–21), plus [[goldberg2006]] p. 356 for the markon2005
 attribution, and pp. 47 + 49 for wright2014a's two rotations. Three corrections, marked inline below — observed 2026-07-19.
+**Re-checked 2026-07-19 (post-M68, trivial pass)** for the forbush2024 rotation
+claim only, against two sources the M68 pass had not consulted: the authors' own
+Mplus code (<https://github.com/KU-CARE-lab/HITIDE>, named in the paper at
+p. 633) and the *Mplus User's Guide* v8 ch. 16, ROTATION option
+(<https://www.statmodel.com/download/usersguide/Chapter16.pdf>, retrieved
+2026-07-19). One correction, marked inline — observed 2026-07-19.
 
 ## kim2015 — Kim & Eaton (2015)
 
@@ -146,9 +152,31 @@ modification from Kim and Eaton (2015) and used exploratory structural
 equation models (ESEMs) for factor extraction." ⚠ **Their estimator is
 ULSMV, not WLSMV** — "a mean-and-variance-adjusted *unweighted* least squares
 estimator with the orthogonal Crawford-Ferguson rotation ('crawfer' in
-Mplus)." kim2015 (above) is the WLSMV precedent; this paper is not. (κ is not
-stated here, so this supports *orthogonal CF* generally, not κ = 1/p
-specifically.)
+Mplus)." kim2015 (above) is the WLSMV precedent; this paper is not.
+
+**Their rotation *is* varimax, on a three-artifact chain.** The prose leaves κ
+unstated, but the authors posted their Mplus code (p. 633:
+"We provided the Mplus analysis code on Github at our lab page:
+<https://github.com/KU-CARE-lab/HITIDE>"), and all 18 `.inp` files there read
+exactly `estimator = ULSMV; rotation = crawfer(orthogonal);` — the parenthetical
+is Mplus's rotation-*type* keyword, and **no kappa argument is supplied**, so the
+default governs. The *Mplus User's Guide* v8 ch. 16 (ROTATION) states: "The
+CRAWFER rotation is a general form of the Crawford-Ferguson family of rotations
+where kappa can be specified as a value from 0 through 1. **The default value of
+kappa is 1/p where p is the number of variables**," and its CF table gives
+`CF-VARIMAX = 1/p`. So κ = 1/p is in force and this is orthogonal CF-varimax —
+a valid varimax precedent for DESIGN §9, alongside [[goldberg2006]] and kim2015.
+The same 18 files independently corroborate the ULSMV correction above (a second
+evidence type, code rather than prose). Scope limit: the posted code covers only
+the **10-factor outcome models**, not the 1–11 factor extraction sequence the
+hierarchy came from — the rotation settings there are not separately documented.
+
+*(Corrected 2026-07-19, post-M68: this block previously read "(κ is not stated
+here, so this supports orthogonal CF generally, not κ = 1/p specifically.)" That
+inference treated κ-unstated-in-prose as κ-unknown, without consulting the code
+or the Mplus default; both were available and settle it the other way. M67's
+lesson — a correction is itself a new claim needing the same verification bar —
+applied to M68's own correction.)*
 
 Two *distinct* results, easily conflated: (a) the dimensions predicted
 **92.4%** and **58.7%** of the variance in recovery outcomes at 6 months and
