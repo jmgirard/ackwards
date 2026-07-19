@@ -1,10 +1,10 @@
 # M67: Re-verify the 9 single-source reference pages against their shelf PDFs
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** IP1, IP2, IP8
-- **Branch/PR:** —
+- **Branch/PR:** `m67-reference-verification`
 
 ## Goal
 
@@ -59,7 +59,7 @@ anchors, verbatim wordings. Discrepancies are corrected in place and marked.
 
 ## Tasks
 
-- [ ] T1: `lorenzoseva2006.md` — highest stakes; the numbers backing the package's
+- [x] T1: `lorenzoseva2006.md` — highest stakes; the numbers backing the package's
       `.95` `redundancy_phi` default (56 practitioners, 448 loading-column pairs,
       φ ∈ {.62….97}, r = .974, the .85–.94 "fair" band, φ > .95 "equal", their Eq. 1).
 - [ ] T2: `waller2007.md` — Eq. 14, Eqs. 9–10, Eqs. 6–7, the §3 oblique extension, the
@@ -81,6 +81,8 @@ anchors, verbatim wordings. Discrepancies are corrected in place and marked.
 ## Work log
 
 - 2026-07-19: created by /milestone-plan.
+- 2026-07-19: implement started on `m67-reference-verification`; no question gate (plan settled depth/split/defect handling; nothing open).
+- 2026-07-19: T1 `lorenzoseva2006` verified against pp. 57–61 — all 14 standing facts confirmed (Eq. 1, four invariance properties, prior thresholds .80/.90/MacCallum bands, 56 judges, φ set, r = .974, .85–.94 fair, >.95 equal, judge-disparity and label/variable-count findings). No errors. Clarified 48 distinct pairs vs 448 evaluations — both printed in the source.
 
 ## Decisions
 
