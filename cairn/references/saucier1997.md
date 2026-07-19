@@ -8,7 +8,7 @@ Psychology, 73*(6), 1296–1312. https://doi.org/10.1037/0022-3514.73.6.1296
 commit `254e023`) from `cairn/references/sources/saucier1997.pdf` (local only;
 gitignored; fetched 2026-07-16 from Saucier's public page,
 `pages.uoregon.edu/gsaucier/`). Pagination: journal pages (1296–1312).
-Extraction: unverified — first pass, values not re-read against the source — observed 2026-07-19.
+Extraction: verified 2026-07-19 (M67) — standing facts read directly against the source (pp. 1296–1305): the 500 descriptors, N = 700 / N = 201 samples, PCA + varimax at 2–10 factors, the "single estimate of factor reliability for each factor solution" averaging, the maximize-magnitude matching, the variables-split-not-participants design, the Everett-method quotation (p. 1304, ellipsis correct), the "substantially decrease, well below .70" drop-off after seven factors (five for dispositions), and footnote 14's parallel-analysis quotation — all confirmed exactly; one correction ("nested" variable selections). M61's DOI and fn-14 evidence absorbed by citation. Issue number `73(6)` **is** printed in the source — observed 2026-07-19.
 
 ## Why this is a primary source
 
@@ -16,8 +16,12 @@ Extraction: unverified — first pass, values not re-read against the source —
 gate** — the fact-checked replacement for the mis-attributed "Goldberg
 (1990)" in `comparability()`'s docs (see the ⚠ block in [[goldberg1990]];
 G1990 contains no split-halves). 500 familiar English person descriptors,
-four nested variable selections; self (N = 700) and acquaintance (N = 201)
-samples; PCA + varimax at 2–10 factors.
+four variable selections of differing breadth (all 500 terms, 455 nonphysical,
+broad dispositions, dispositions-and-states); self (N = 700) and acquaintance
+(N = 201) samples; PCA + varimax at 2–10 factors. *(Corrected M67: "four
+nested variable selections" — the paper describes four selections varying in
+breadth and never calls them nested, and strict containment does not hold
+between the two disposition selections.)*
 
 ## The stability procedure (Method, "Analyses")
 
