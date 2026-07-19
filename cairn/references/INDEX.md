@@ -43,3 +43,16 @@ _One line per source summary: `citekey — full title — which milestones/oracl
 - schmid1957 — Schmid & Leiman (1957), hierarchical factor solutions — the bottom-up contrast; out-of-scope citation (DESIGN §2).
 - yung1999 — Yung, Thissen, & McLeod (1999), higher-order vs. hierarchical factor models — the "sequential, not truly hierarchical" caveat.
 - widiger2019 — Widiger et al. (2019), Criterion A of the AMPD in HiTOP — background review only; no bass-ackwards analysis.
+
+## Secondary methods & diagnostics backers (one note per source)
+
+_Sources backing hard-coded values, printed labels, and announced caveats in the diagnostic/reporting code (`suggest_k`, `factorability`, `tidy`/`autoplot`, the ESEM/FIML fit-index caveats). Authored + verified in M69._
+
+- hu1999.md — Hu & Bentler (1999), cutoff criteria for fit indexes — the source of the CFI/TLI .95, RMSEA .06, SRMR .08 reference lines in `tidy()`/`autoplot()`.
+- kaiser1974.md — Kaiser (1974), an index of factorial simplicity — the source of the KMO band labels (`.90/.80/…`) printed by `factorability()`.
+- ruscio2012a.md — Ruscio & Roche (2012), comparison data — the CD number-of-factors method in `suggest_k()` (RMSR-vs-RMSE wording note).
+- revelle1979.md — Revelle & Rocklin (1979), very simple structure — the VSS-1/VSS-2 criterion in `suggest_k()` and the DESIGN k-advice table.
+- maccallum1999.md — MacCallum et al. (1999), sample size in factor analysis — the "required N depends on communalities, not a fixed ratio" caveat in `factorability()`.
+- xia2019.md — Xia & Yang (2019), RMSEA/CFI/TLI with ordered categorical data — why the naive/ordinal fit indices under WLSMV are treated as optimistic.
+- zhang2020.md — Zhang & Savalei (2020), missing data effect on RMSEA/CFI under FIML — why the FIML-path EFA fit indices are flagged as approximate (D-020).
+- forbes2021.md — Forbes et al. (2021), detailed hierarchical model of psychopathology — provenance for the N = 3,175 AMH sample behind the `forbes2023` dataset.
