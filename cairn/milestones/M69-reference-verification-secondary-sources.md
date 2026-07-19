@@ -4,7 +4,7 @@
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** —
-- **Branch/PR:** `m69-reference-verification-secondary-sources`
+- **Branch/PR:** `m69-reference-verification-secondary-sources` · https://github.com/jmgirard/ackwards/pull/73
 
 ## Goal
 
@@ -106,8 +106,7 @@ disposition.
 
 ## Work log
 
-- 2026-07-19: created by /milestone-plan. Shape set at the question gate — pure
-  M67/M68 docs-only mold (drift routes to /hotfix), documentary-only (no guard tests).
+- 2026-07-19: created by /milestone-plan. Shape set at the question gate — pure M67/M68 docs-only mold (drift routes to /hotfix), documentary-only (no guard tests).
 - 2026-07-19: T1 — hu1999 + kaiser1974 authored, verified against rendered source pages. hu1999 p.27: CFI/TLI .95, RMSEA .06, SRMR .08 all match `.fit_cutoffs()` (`R/tidy.R:283-286`); noted the paper's two-index rule pairs .95 with SRMR .09. kaiser1974 p.35: six KMO bands + cutoffs match `.kmo_band()`; DRIFT — code prints "marvellous" (Commonwealth) vs Kaiser's "marvelous" (user-visible label → drift ledger, /hotfix owner-call).
 - 2026-07-19: T2 — ruscio2012a + revelle1979 authored, verified. ruscio p.282 abstract + pp.285-286: CD generate-and-increase logic faithful; two user-visible wording notes — source term is RMSR (7×, never RMSE) vs roxygen "RMSE" (EFAtools' term); roxygen title "of a known" vs paper "of Known" (→ drift ledger, low-severity). revelle p.403/405-406: VSS complexity-1/2 matches roxygen + DESIGN:378, no drift. DOIs not printed on hu1999/kaiser1974/revelle scans — marked registered-not-source-verified (ruscio DOI was printed).
 - 2026-07-19: T3 — maccallum1999 authored, verified against p.84 abstract. The "required N depends on communalities and overdetermination, not a fixed ratio" claim (roxygen + printout footnote) is faithful; citation matches `R/factorability.R:52-53`. No drift.
@@ -142,3 +141,38 @@ No drift: **hu1999, revelle1979, maccallum1999, zhang2020, forbes2021** — the
 code values/claims match their sources.
 
 ## Review
+
+**Reviewed 2026-07-19. PR #73.**
+
+### Acceptance-criterion evidence
+
+- **AC1** (8 notes, citation + dated-M69 Provenance + quoted value w/ anchor):
+  all 8 files present under `cairn/references/`; `cairn_validate` `references
+  staleness` = OK (all 8 read as `verified 2026-07-19 (M69)`, none first-pass).
+  Each carries a full citation and a page/table-anchored value.
+- **AC2** (Traces to + confirmed-or-recorded): each page has a `Traces to` list
+  of concrete file:lines; drift recorded in-page for the 4 discrepant sources,
+  "no drift" stated for the other 4.
+- **AC3** (user-visible constants vs source): Hu & Bentler p. 27 rendered —
+  CFI/TLI .95, SRMR .08, RMSEA .06 match `.fit_cutoffs()` (`R/tidy.R:283-286`);
+  Kaiser p. 35 rendered — six KMO bands + cutoffs match `.kmo_band()`
+  (`R/factorability.R:185-197`), one spelling variant recorded.
+- **AC4** (INDEX + validate): INDEX.md gained 8 filename-first lines in a new
+  "Secondary methods & diagnostics backers" section; `cairn_validate` exit 0
+  (`references index<->disk` PASS, `references staleness` OK, `weight caps` PASS).
+- **AC5** (drift ledger + no in-milestone fix): 4 discrepancies enumerated in
+  the work log and the Decisions drift ledger with routing dispositions; diff
+  touches no user-facing text (proven cairn/-only, below).
+- **AC6** (cairn/-only + DoD green): `git diff --name-only master...HEAD` = 11
+  files, all under `cairn/` (R package byte-unchanged). DoD-gate result: _[pending
+  background run]_.
+
+### Consistency gate
+
+- `cairn_validate` exit 0; all structural checks PASS. Advisories only: 81
+  pre-existing dangling-id tokens (entombed milestone refs, not from this diff).
+- No principle change (Principles touched: —) → `cairn_impact` skipped.
+
+### Independent review
+
+_[3 fresh-context reviewers + scorer pending.]_
