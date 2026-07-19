@@ -597,11 +597,17 @@ historical `§14.x` citation resolves. Live known limitations moved to the next 
 
 ## 15. Milestones
 
-The milestone history is **no longer duplicated here** — it lives in a single
-detailed log, [`MILESTONES.md`](MILESTONES.md), with a one-line index in `CLAUDE.md`. This section
-was originally a forward-looking roadmap; now that the roadmap is complete, keeping a second copy
+The milestone history is **not duplicated here** — status lives in
+[`ROADMAP.md`](ROADMAP.md), finished milestones in
+[`milestones/archive/`](milestones/archive/) plus git, and the pre-migration
+history (M1–M53) is entombed verbatim in
+[`legacy/MILESTONES.md`](legacy/MILESTONES.md). This section was originally a
+forward-looking roadmap; now that the roadmap is complete, keeping a second copy
 of the log invited drift (see the git history around 2026-06-30). For what remains / is deferred,
 see `DECISIONS.md`, the "Known limitations" section, and `CLAUDE.md`'s "Out of scope" list.
+*(Corrected 2026-07-19: this section previously pointed at a repo-root
+`MILESTONES.md` and a CLAUDE.md milestone index, both of which the cairn
+migration removed.)*
 
 ### Key references
 - Everett, J. E. (1983). Factor comparability as a means of determining the number of factors and their rotation. *Multivariate Behavioral Research*, 18(2), 197–218.
