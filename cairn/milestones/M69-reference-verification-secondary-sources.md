@@ -69,7 +69,7 @@ disposition.
 
 ## Tasks
 
-- [ ] **T1** — Author + verify `hu1999` and `kaiser1974`, the two user-visible
+- [x] **T1** — Author + verify `hu1999` and `kaiser1974`, the two user-visible
       constant backers. Read the fit-index cutoffs against Hu & Bentler (1999)
       and quote each verbatim with a page anchor (CFI/TLI `.95`, RMSEA `.06`,
       SRMR `.08`); read the KMO band labels against Kaiser (1974) (`.90/.80/.70/
@@ -108,6 +108,7 @@ disposition.
 
 - 2026-07-19: created by /milestone-plan. Shape set at the question gate — pure
   M67/M68 docs-only mold (drift routes to /hotfix), documentary-only (no guard tests).
+- 2026-07-19: T1 — hu1999 + kaiser1974 authored, verified against rendered source pages. hu1999 p.27: CFI/TLI .95, RMSEA .06, SRMR .08 all match `.fit_cutoffs()` (`R/tidy.R:283-286`); noted the paper's two-index rule pairs .95 with SRMR .09. kaiser1974 p.35: six KMO bands + cutoffs match `.kmo_band()`; DRIFT — code prints "marvellous" (Commonwealth) vs Kaiser's "marvelous" (user-visible label → drift ledger, /hotfix owner-call).
 
 ## Decisions
 
