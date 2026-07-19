@@ -54,7 +54,7 @@ Same bar as M67 — standing facts only, corrections marked in place.
 
 ## Tasks
 
-- [ ] T1: `rotation-and-k.md` — the varimax-default and k-advice supports; check the
+- [x] T1: `rotation-and-k.md` — the varimax-default and k-advice supports; check the
       CF-varimax κ = 1/p claim, Horn's PA and Velicer's MAP descriptions, and absorb
       M61's verified DOIs for `lim2019` / `achim2021`.
 - [ ] T2: `applications.md` — six published-application entries; verify each citation's
@@ -71,6 +71,7 @@ Same bar as M67 — standing facts only, corrections marked in place.
 
 - 2026-07-19: created by /milestone-plan.
 - 2026-07-19: status → in-progress; branch `m68-reference-verification-collapsed-pages` cut from master.
+- 2026-07-19: T1 `rotation-and-k.md` verified — crawford1970/browne2001a/horn1965/velicer1976 accurate (anchors added: CF Eq. 7 p. 323, orthomax equivalence pp. 324–326, Browne Table 1 p. 119 for κ = 1/p, MAP Eq. 9 p. 323); lim2019 abstract-verbatim, M61's variant-scoping absorbed as a ⚠ note; **achim2021 corrected** — the ~17% is the share of noise-factor simulations (16.8%, p. 70), not of "correct" retentions. Added crawford1970 p. 331's explicit varimax-when-k-unknown recommendation. Noted lim2019's shelf PDF is online-first (no journal pagination). No propagation into `R/`, `man/`, `vignettes/`, `NEWS.md`.
 
 ## Decisions
 
