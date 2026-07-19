@@ -4,7 +4,7 @@
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** IP1, IP2, IP8
-- **Branch/PR:** `m67-reference-verification`
+- **Branch/PR:** `m67-reference-verification` · https://github.com/jmgirard/ackwards/pull/71
 
 ## Goal
 
@@ -82,6 +82,7 @@ anchors, verbatim wordings. Discrepancies are corrected in place and marked.
 
 - 2026-07-19: created by /milestone-plan.
 - 2026-07-19: implement started on `m67-reference-verification`; no question gate (plan settled depth/split/defect handling; nothing open).
+- 2026-07-19: review opened draft PR #71; master had not moved since the branch was cut (0 commits behind), no merge needed. AC evidence gathering in progress; dod-gate and three review lenses running.
 - 2026-07-19: T8 propagation sweep — all nine corrected facts grepped across `R/`, `man/`, `vignettes/`, `NEWS.md`, `README`: **zero hits**, every correction confined to the reference pages, so no `/hotfix` is owed. Spot-checked how the package actually cites Saucier et al. (2005): the .90 benchmark, Everett's 81%-shared-variance rationale, the single-split precedent, and `n_splits = 10` owned as our own choice are all accurate against the verified sources.
 - 2026-07-19: T9 — `cairn_validate` all checks PASS, `references staleness` 12 → 3 (exactly the three collapsed pages M68 owns); branch diff is `cairn/`-only, so the r-package `verify` slot (devtools::test/document) is not triggered — no R code, roxygen, or generated file changed. Status → review.
 - 2026-07-19: T7 `saucier1997` + `saucier2005` verified. saucier1997 (pp. 1296–1305): the 500 descriptors, N = 700/201, PCA+varimax 2–10, the "single estimate of factor reliability" averaging, maximize-magnitude matching, the variables-split design, the p. 1304 Everett quotation (ellipsis correct), the "well below .70" drop-off after 7 (5 for dispositions), and fn 14's PA quotation all exact; one correction ("nested" selections — paper never says nested, and containment fails between the two disposition selections). saucier2005: all three quoted passages verbatim, 3,302 adjectives and the emic 6-factor claim exact — but **two errors in the summary line**: "N ≈ 991 + 201" (no "201" anywhere in the paper; Samples are 991/429/538 — the 201 is saucier1997's acquaintance N, cross-contaminated via the shared ingest commit `254e023`) and "PCA + varimax" ("varimax"/"oblique"/"promax" occur zero times; the paper says only "1 unrotated and 2 to 10 rotated factors"). Also retired that page's undated second "verified against the PDF" note in favour of the provenance block.
