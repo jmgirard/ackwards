@@ -1,6 +1,6 @@
 # M67: Re-verify the 9 single-source reference pages against their shelf PDFs
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Principles touched:** IP1, IP2, IP8
@@ -74,14 +74,16 @@ anchors, verbatim wordings. Discrepancies are corrected in place and marked.
       check the ⚠ mis-attribution block on `goldberg1990` still states the source correctly.
 - [x] T7: `saucier1997.md` + `saucier2005.md` — the Goldberg-lab split-half pair (fn 14's
       PA-overextraction note; the explicit .90 replication gate); absorb M61's DOI evidence.
-- [ ] T8: grep every corrected fact across `R/`, `man/`, `vignettes/`, `NEWS.md`;
+- [x] T8: grep every corrected fact across `R/`, `man/`, `vignettes/`, `NEWS.md`;
       enumerate propagation with `file:line`; open `/hotfix` if any is user-facing.
-- [ ] T9: re-run `cairn_validate`; confirm staleness 12 → 3 and all checks PASS; commit.
+- [x] T9: re-run `cairn_validate`; confirm staleness 12 → 3 and all checks PASS; commit.
 
 ## Work log
 
 - 2026-07-19: created by /milestone-plan.
 - 2026-07-19: implement started on `m67-reference-verification`; no question gate (plan settled depth/split/defect handling; nothing open).
+- 2026-07-19: T8 propagation sweep — all nine corrected facts grepped across `R/`, `man/`, `vignettes/`, `NEWS.md`, `README`: **zero hits**, every correction confined to the reference pages, so no `/hotfix` is owed. Spot-checked how the package actually cites Saucier et al. (2005): the .90 benchmark, Everett's 81%-shared-variance rationale, the single-split precedent, and `n_splits = 10` owned as our own choice are all accurate against the verified sources.
+- 2026-07-19: T9 — `cairn_validate` all checks PASS, `references staleness` 12 → 3 (exactly the three collapsed pages M68 owns); branch diff is `cairn/`-only, so the r-package `verify` slot (devtools::test/document) is not triggered — no R code, roxygen, or generated file changed. Status → review.
 - 2026-07-19: T7 `saucier1997` + `saucier2005` verified. saucier1997 (pp. 1296–1305): the 500 descriptors, N = 700/201, PCA+varimax 2–10, the "single estimate of factor reliability" averaging, maximize-magnitude matching, the variables-split design, the p. 1304 Everett quotation (ellipsis correct), the "well below .70" drop-off after 7 (5 for dispositions), and fn 14's PA quotation all exact; one correction ("nested" selections — paper never says nested, and containment fails between the two disposition selections). saucier2005: all three quoted passages verbatim, 3,302 adjectives and the emic 6-factor claim exact — but **two errors in the summary line**: "N ≈ 991 + 201" (no "201" anywhere in the paper; Samples are 991/429/538 — the 201 is saucier1997's acquaintance N, cross-contaminated via the shared ingest commit `254e023`) and "PCA + varimax" ("varimax"/"oblique"/"promax" occur zero times; the paper says only "1 unrotated and 2 to 10 rotated factors"). Also retired that page's undated second "verified against the PDF" note in favour of the provenance block.
 - 2026-07-19: T6a `everett1983` verified against pp. 197–204 — the F₁ₜ = S₁·Vₜ procedure, comparability-vs-congruence, the ≥ .90 / 26° / 81% passage, sub-population splits, and all six Table 2 values (.98/.97/.96 at k=3; .99/.94/.82/.04 at k=4) exact; no corrections. Added the p. 204 greedy-with-removal matching procedure — source-backed, and the bijection D-022 already uses.
 - 2026-07-19: T6b `goldberg1990` verified against pp. 1216–1224 — Study 1/2/3 counts, the 10 method combinations, .950–.996, 30-of-3,750, the verbatim 13-factor invariance quote, and Study 2's .86–.94 (mean .91) congruence all exact. ⚠ block's core negative claim re-confirmed (no split-halves anywhere; Studies 2–3 use independent samples). Two corrections: its "docs currently over-attribute" was stale — all four flagged sites were repointed by M61/M63 and none survives (grep-verified); and "established the Big Five label-set" contradicted p. 1217, which calls I–IV traditional.
