@@ -84,3 +84,9 @@ Author a verified `cairn/references/` source note for each of the 5 default-rati
 - README untouched (not in the diff); no `.Rbuildignore` change needed (no new top-level files).
 - **NEWS.md — justified skip:** no behavior/API/feature change; the diff adds bibliographic `@references` to existing help pages and rationale citations to DESIGN — documentation refinements, matching the M67/M69 reference-work precedent (no NEWS entry).
 - `cairn_impact` skipped — Principles touched `—`; no IP/GP changed.
+
+**Independent fresh-context review (3 lenses + scorer):**
+- [O] diff-bug (Opus): **0 findings** — independently rendered every cited PDF page; all 5 citations, DOIs, author names (incl. "Kuhl"), and verbatim quotes exact; DESIGN §9 wiring adds citations only (no default value changed); roxygen/`.Rd`/INDEX conventions correct.
+- [S] blame-history (Sonnet): **0 findings** — M43 redundancy_phi correction + M13 rotation framing preserved verbatim; added citations support D-002/D-007, do not reopen them; M67–M69 INDEX conventions followed.
+- [S] prior-review (Sonnet): **0 findings** — no regression of the M67/M69 quote-fabrication, M67 cross-contamination, M63 DOI, or M60/M68 formatting lessons; all 5 DOIs re-confirmed against Crossref; `gh` probe found no GitHub PR-thread evidence (`[]`).
+- Scorer: no-op — zero surviving findings to score.
