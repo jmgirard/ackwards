@@ -1,11 +1,11 @@
 # M74: Draft the manuscript Discussion + enrich the seeded sections with method-backer citations
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** M73
 - **Driving RR:** —
 - **Principles touched:** —
-- **Branch/PR:** —
+- **Branch/PR:** m74-manuscript-discussion-citations
 
 ## Goal
 
