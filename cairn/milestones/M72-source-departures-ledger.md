@@ -5,7 +5,7 @@
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** IP9, GP1
-- **Branch/PR:** —
+- **Branch/PR:** m72-source-departures-ledger · https://github.com/jmgirard/ackwards/pull/75
 
 ## Goal
 
@@ -29,12 +29,12 @@ Correct the pre-D-031 contract wording in `forbes2023.md` and author a consolida
 
 ## Acceptance criteria
 
-- [ ] AC1: `forbes2023.md` no longer asserts "default output must reproduce Forbes's examples exactly" as a live contract; the claim is replaced with the IP9/D-031 capability framing and marked `(corrected M72)`; a grep of `cairn/references/` for the old contract assertion returns nothing (git history + this milestone file's task description aside).
-- [ ] AC2: a synthesis note exists at `cairn/references/source-departures.md`, authored from `templates/synthesis-note.md`, carrying every required section (Provenance with `Ingested`/`Extraction:` lines, Scope + tracking disclaimer, Evidence snapshot, characterization, an ID'd ledger table, Disposition, Open questions).
-- [ ] AC3: the ledger enumerates each of the 5 default-level departures (required `k_max` vs auto-stop; W′RW algebra vs score-then-correlate; tenBerge vs components; primary-parent sign alignment vs unaligned `comp.corr`; exact Tucker φ vs rounded congruence) + the 2 matches (`cut_show = 0.3` = Goldberg .30; `redundancy_criterion = "direct"` = Forbes `ChaseCorrPaths`); each row carries a stable ID and states source behavior, ackwards behavior, rationale location, empirical support.
-- [ ] AC4: every departure claim cites a verifiable location (DESIGN §9 row / `D-0NN` / citekey) and, where it claims empirical support, names the oracle/test/source (tong2025; Waller 2007 + IP2 test; fidelity suite 1.3e-14; φ within 0.005); additive extensions noted as GP1-governed, not itemized.
-- [ ] AC5: any departure lacking empirical support has a search-first ROADMAP `candidate` row; if none lack it, the Disposition states that explicitly.
-- [ ] AC6: `INDEX.md` gains a filename-first line for the note; `cairn_validate` exits 0 (`references index<->disk` PASS); diff is docs-only, `cairn/`-only.
+- [x] AC1: `forbes2023.md` no longer asserts "default output must reproduce Forbes's examples exactly" as a live contract; the claim is replaced with the IP9/D-031 capability framing and marked `(corrected M72)`; a grep of `cairn/references/` for the old contract assertion returns nothing (git history + this milestone file's task description aside).
+- [x] AC2: a synthesis note exists at `cairn/references/source-departures.md`, authored from `templates/synthesis-note.md`, carrying every required section (Provenance with `Ingested`/`Extraction:` lines, Scope + tracking disclaimer, Evidence snapshot, characterization, an ID'd ledger table, Disposition, Open questions).
+- [x] AC3: the ledger enumerates each of the 5 default-level departures (required `k_max` vs auto-stop; W′RW algebra vs score-then-correlate; tenBerge vs components; primary-parent sign alignment vs unaligned `comp.corr`; exact Tucker φ vs rounded congruence) + the 2 matches (`cut_show = 0.3` = Goldberg .30; `redundancy_criterion = "direct"` = Forbes `ChaseCorrPaths`); each row carries a stable ID and states source behavior, ackwards behavior, rationale location, empirical support.
+- [x] AC4: every departure claim cites a verifiable location (DESIGN §9 row / `D-0NN` / citekey) and, where it claims empirical support, names the oracle/test/source (tong2025; Waller 2007 + IP2 test; fidelity suite 1.3e-14; φ within 0.005); additive extensions noted as GP1-governed, not itemized.
+- [x] AC5: any departure lacking empirical support has a search-first ROADMAP `candidate` row; if none lack it, the Disposition states that explicitly.
+- [x] AC6: `INDEX.md` gains a filename-first line for the note; `cairn_validate` exits 0 (`references index<->disk` PASS); diff is docs-only, `cairn/`-only.
 
 ## Coverage
 
@@ -65,3 +65,18 @@ Correct the pre-D-031 contract wording in `forbes2023.md` and author a consolida
 ## Decisions
 
 ## Review
+
+**Fresh evidence per acceptance criterion** (2026-07-23, PR #75):
+
+- AC1 ✓ — `grep` of `cairn/references/` for "reproduce … examples exactly" returns nothing; forbes2023.md now carries the IP9/D-031 capability framing + `(corrected M72)` marker (2 hits).
+- AC2 ✓ — `source-departures.md` exists with every required template section: Provenance (`Ingested`/`Extraction:`), Scope + "reference, not an authority" disclaimer, Evidence snapshot, characterization, an ID'd ledger table, Disposition, Open questions (all grep-confirmed present).
+- AC3 ✓ — ledger holds 5 departure rows (E1–E5) + 2 match rows (M1–M2), each with a stable ID, source behavior, ackwards behavior, rationale location, and support column.
+- AC4 ✓ — every departure cites a verifiable location (DESIGN §9 / D-0NN / citekey) and names its empirical/mathematical support (tong2025 58%/71%; Waller proof + IP2; fidelity 1.3e-14; φ 0.005); all anchors verified to exist at T3 (D-entries, IP1/2/4/9+GP1, `R/ackwards.R:34`/`:292`, 6 linked notes); GP1-extensions note present (line 35).
+- AC5 ✓ — no departure is a `depart-gap` (E1–E5 all `depart-supported`), so no candidate row spawned; Disposition states this explicitly; ROADMAP diff adds no candidate row.
+- AC6 ✓ — INDEX.md "Design-provenance synthesis" line present; `cairn_validate` exit 0 (`references index<->disk` PASS); `git diff --name-only master..HEAD` is entirely under `cairn/`.
+
+**Consistency gate (r-package `consistency-gate` slot + universal cairn checks):**
+- `cairn_validate` exit 0 — every check PASS (incl. `coverage complete`, `references index<->disk`, `weight caps`).
+- `cairn_impact` skipped — Principles touched IP9/GP1 are *worked under*, not changed; the diff edits no DESIGN.md principle text.
+- `devtools::check()` — **not re-run, deliberately:** the diff is entirely under `cairn/`, which is `.Rbuildignore`d (`^cairn$`), so it is build-excluded and cannot affect `check()`; last green at M70 (dac7f2b, same day). No `R/`, `man/`, DESCRIPTION, NAMESPACE, README, or vignette touched → `document()` no-diff trivially, pkgdown unaffected.
+- NEWS.md — justified skip: `cairn/` is internal tracking, not user-facing; no behavior/API/doc-page change.
