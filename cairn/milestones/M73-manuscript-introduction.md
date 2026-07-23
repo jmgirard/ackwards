@@ -5,7 +5,7 @@
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** —
-- **Branch/PR:** —
+- **Branch/PR:** `m73-manuscript-introduction` · https://github.com/jmgirard/ackwards/pull/77
 
 ## Goal
 
@@ -33,22 +33,22 @@ has a committed, extraction-verified note (M69–M72).
 
 ## Acceptance criteria
 
-- [ ] The `# Introduction` `[AUTHOR TO DRAFT]` blockquote stub is gone, replaced
+- [x] The `# Introduction` `[AUTHOR TO DRAFT]` blockquote stub is gone, replaced
       by drafted prose that addresses each of the four suggested beats (verified
       against a beat→paragraph checklist recorded in the Review section).
-- [ ] Every `@citekey` newly used in the Introduction traces to a committed,
+- [x] Every `@citekey` newly used in the Introduction traces to a committed,
       extraction-verified `cairn/references/` note (source note or a member of
       `applications.md`/`background.md`); the citekey→note map is recorded as
       evidence.
-- [ ] The Introduction cites `kotov2017` for HiTOP framing and ≥1 personality-domain
+- [x] The Introduction cites `kotov2017` for HiTOP framing and ≥1 personality-domain
       and ≥1 psychopathology-domain application exemplar; no domain claim is made
       without a citation tracing to a verified note.
-- [ ] Every new `@citekey` resolves in `manuscript/references.bib`, and its
+- [x] Every new `@citekey` resolves in `manuscript/references.bib`, and its
       bibliographic entry (author/year/title/journal/DOI) is Crossref-checked
       (per the M63 lesson: re-verify before propagating).
-- [ ] `manuscript/manuscript.qmd` renders to **both** PDF and docx with no
+- [x] `manuscript/manuscript.qmd` renders to **both** PDF and docx with no
       unresolved-citation warnings and no new LaTeX errors (render log recorded).
-- [ ] `git diff` for the milestone touches only `manuscript/` and `cairn/` — no
+- [x] `git diff` for the milestone touches only `manuscript/` and `cairn/` — no
       package `R/`, `tests/`, `NAMESPACE`, or `DESCRIPTION` change.
 
 ## Coverage
@@ -84,3 +84,15 @@ has a committed, extraction-verified note (M69–M72).
 ## Decisions
 
 ## Review
+
+**PR:** https://github.com/jmgirard/ackwards/pull/77 (draft) · branch `m73-manuscript-introduction`, 3 commits ahead of `master` (unmoved since cut).
+
+**Consistency gate.** `cairn_validate` exit 0 (82 pre-existing advisories, none introduced). `devtools::document()` no generated-file drift. No `IPn/GPn` changed → `cairn_impact` skipped. Remaining `consistency-gate` slot checks (README.Rmd knit, pkgdown, NEWS, `.Rbuildignore`, full `devtools::check()`) are package-artifact checks **not implicated**: the branch diff touches zero package files (`git diff --name-only master..HEAD` = `manuscript/{manuscript.qmd,references.bib,README.md}` + `cairn/`), and `manuscript/` is `.Rbuildignore`d — so the package is byte-identical to `master`, already green.
+
+**AC evidence (fresh):**
+- AC1 — `grep "AUTHOR TO DRAFT"` = 1 hit (line 352, the Discussion stub, untouched); Intro stub gone. Beat→paragraph map: ¶1 how-many-factors reframe (@goldberg2006); ¶2 hierarchical view across personality (@markon2005, @wright2014a, @partsch2022) + psychopathology (@kotov2017; @kim2015, @forbush2018, @cowan2024, @michelini2019, @carmichael2025, @forbes2025); ¶3 bass-ackwards as shared engine + the tooling gap (@goldberg2006, @waller2007, @forbes2023); ¶4 paper roadmap. All four beats present.
+- AC2 — the 13 Intro `@keys` (10 new + 3 lineage) each carry an `INDEX.md` line and a committed extraction-verified note (kotov2017→background.md; markon2005/wright2014a/kim2015/forbush2018/cowan2024→applications.md; partsch2022/michelini2019/carmichael2025/forbes2025→own notes; all provenance-verified 2026-07-16/19/23).
+- AC3 — kotov2017 (HiTOP) ✓; personality exemplars markon2005/wright2014a/partsch2022 ✓; psychopathology exemplars kim2015/forbush2018/cowan2024/michelini2019/carmichael2025/forbes2025 ✓.
+- AC4 — all 10 new keys have a `references.bib` entry; all 10 DOIs Crossref-verified (title/journal/vol/issue/pages/full author list; version-of-record issue years for the 3 online-first-year cases: partsch2022, cowan2024, forbes2025).
+- AC5 — fresh `quarto render`: exit 0, PDF (194 KB, 16pp) + docx (1.1 MB); 0 "not found"/LaTeX-error lines; `pdftotext` shows 0 `??` markers; all 10 new surnames appear both in-text and in the reference list.
+- AC6 — `git diff --name-only master..HEAD` = manuscript/ + cairn/ only; no `R/`, `tests/`, `man/`, `NAMESPACE`, `DESCRIPTION`.
