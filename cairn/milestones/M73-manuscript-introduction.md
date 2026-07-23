@@ -62,11 +62,11 @@ has a committed, extraction-verified note (M69–M72).
 
 ## Tasks
 
-- [ ] T1: Triage the shelf's application + framing notes into the curated Intro
+- [x] T1: Triage the shelf's application + framing notes into the curated Intro
       citation set — list each chosen citekey, the beat it supports, and confirm
       it has a committed, extraction-verified note (`INDEX.md` + the note's
       provenance block). Record the citekey→note map.
-- [ ] T2: Add the selected keys to `manuscript/references.bib` with
+- [x] T2: Add the selected keys to `manuscript/references.bib` with
       Crossref-verified entries (author, year, title, journal, volume/issue,
       pages, DOI).
 - [ ] T3: Draft the Introduction prose replacing the stub — the four beats,
@@ -78,6 +78,7 @@ has a committed, extraction-verified note (M69–M72).
 ## Work log
 
 - 2026-07-23: created by /milestone-plan (split from the "Draft author-owned Intro + Discussion" candidate; M56 lineage). Intro half; Discussion + citation enrichment is M74.
+- 2026-07-23: T1+T2 — curated 10-source Intro set (kotov2017; markon2005/wright2014a/partsch2022; kim2015/forbush2018/cowan2024/michelini2019/carmichael2025/forbes2025), each with a committed verified note; all 10 DOIs Crossref-verified (full author lists, version-of-record issue years) and added to references.bib. Dropped forbush2024/forbes2025a as redundant exemplars.
 
 ## Decisions
 
