@@ -163,6 +163,23 @@
 #'   *Structural Equation Modeling*, 27(2), 219--239.
 #'   \doi{10.1080/10705511.2019.1642111}
 #'
+#' Kaiser, H. F. (1958). The varimax criterion for analytic rotation in factor
+#'   analysis. *Psychometrika*, 23(3), 187--200. \doi{10.1007/BF02289233}
+#'
+#' Grice, J. W. (2001). Computing and evaluating factor scores. *Psychological
+#'   Methods*, 6(4), 430--450. \doi{10.1037/1082-989X.6.4.430}
+#'
+#' Beauducel, A., Hilger, N., & Kuhl, T. (2024). The trade-off between factor
+#'   score determinacy and the preservation of inter-factor correlations.
+#'   *Educational and Psychological Measurement*, 84(2), 289--313.
+#'   \doi{10.1177/00131644231171137}
+#'
+#' Williams, A. L., Conway, C. C., Olino, T. M., Revelle, W., Zinbarg, R. E., &
+#'   HiTOP Utility Workgroup. (2025). Testing criterion validity in hierarchical
+#'   models of psychopathology: Comparison of latent-variable and factor-score
+#'   approaches. *Clinical Psychological Science*, 13(1), 128--145.
+#'   \doi{10.1177/21677026231225414}
+#'
 #' @section Performance (ESEM, large item sets):
 #' The ESEM engine fits a separate `lavaan` model at every level 1..`k_max`.
 #' For ordinal data (`cor = "polychoric"`, WLSMV) the costly sample statistics

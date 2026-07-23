@@ -194,6 +194,11 @@ Forbes, M. K. (2023). Improving hierarchical models of individual
 differences: An extension of Goldberg's bass-ackward method.
 \emph{Psychological Methods}. \doi{10.1037/met0000546}
 
+Tong, L., Qu, W., & Zhang, Z. (2025). Comparison of the K1 rule, parallel
+analysis, and the Bass-Ackward method on identifying the number of factors
+in factor analysis. \emph{Fudan Journal of the Humanities and Social Sciences},
+18(1), 17--44. \doi{10.1007/s40647-024-00423-2}
+
 Horn, J. L. (1965). A rationale and test for the number of factors in factor
 analysis. \emph{Psychometrika}, 30, 179--185.
 
