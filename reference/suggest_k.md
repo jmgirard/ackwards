@@ -246,6 +246,12 @@ differences: An extension of Goldberg's bass-ackward method.
 *Psychological Methods*.
 [doi:10.1037/met0000546](https://doi.org/10.1037/met0000546)
 
+Tong, L., Qu, W., & Zhang, Z. (2025). Comparison of the K1 rule,
+parallel analysis, and the Bass-Ackward method on identifying the number
+of factors in factor analysis. *Fudan Journal of the Humanities and
+Social Sciences*, 18(1), 17–44.
+[doi:10.1007/s40647-024-00423-2](https://doi.org/10.1007/s40647-024-00423-2)
+
 Horn, J. L. (1965). A rationale and test for the number of factors in
 factor analysis. *Psychometrika*, 30, 179–185.
 
@@ -285,13 +291,13 @@ the other pre-analysis diagnostics.
 # \donttest{
 sk <- suggest_k(sim16)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [219ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [224ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [85ms]
+#> ✔ Running MAP and VSS... [80ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [4s]
+#> ✔ Running Comparison Data (CD)... [4.1s]
 #> 
 sk
 #> 
@@ -332,7 +338,7 @@ autoplot(sk)
 # Run only MAP (fast; skips parallel analysis and CD)
 suggest_k(sim16, criteria = "map")
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [52ms]
+#> ✔ Running MAP and VSS... [54ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -365,7 +371,7 @@ suggest_k(sim16, criteria = "map")
 # Run only the parallel-analysis criteria
 suggest_k(sim16, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [90ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [84ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -402,10 +408,10 @@ suggest_k(sim16, k_max = 6, n_iter = 5)
 #> ✔ Running parallel analysis (5 iterations, PC + FA)... [89ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [69ms]
+#> ✔ Running MAP and VSS... [76ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [4.2s]
+#> ✔ Running Comparison Data (CD)... [4.3s]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -444,10 +450,10 @@ suggest_k(R, n_obs = nrow(sim16))
 #> ℹ CD is skipped when a correlation matrix is supplied (CD requires raw item
 #>   distributions for resampling).
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [240ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [237ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [92ms]
+#> ✔ Running MAP and VSS... [94ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
