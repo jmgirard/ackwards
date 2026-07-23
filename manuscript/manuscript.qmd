@@ -364,16 +364,18 @@ to the analysis reported by @forbes2023.
 
 # Discussion
 
-**ackwards** assembles into one tested, documented package a workflow that has
-until now existed only as bespoke, paper-specific scripts. Three extraction
-engines—principal component analysis, exploratory factor analysis, and
-exploratory structural equation modeling—sit behind a common interface, so an
-analyst can move from Goldberg's original component-scores procedure to an
-EFA-in-SEM formulation with per-level fit indices, standard errors, and ordinal
-support without leaving the package or rewriting the pipeline. All three engines
-route their between-level correlations through a single verified computation:
-Waller's (2007) closed-form algebra when scoring is linear, cross-checked against
-materialized factor scores. The applied example reproduces Forbes's (2023)
+**ackwards** gathers into one tested, documented package a bass-ackwards workflow
+whose modern extensions have until now existed only as bespoke, paper-specific
+scripts. The core top-down loop has long been available in the **psych** package;
+what **ackwards** adds is the rest of that workflow, brought behind a single tidy
+interface. Three extraction engines (principal component analysis, exploratory
+factor analysis, and exploratory structural equation modeling) sit behind that
+interface, so an analyst can move from Goldberg's original component-scores
+procedure to an EFA-in-SEM formulation with per-level fit indices, standard
+errors, and ordinal support without leaving the package or rewriting the
+pipeline. All three engines route their between-level correlations through a
+single verified computation: Waller's (2007) closed-form algebra when scoring is
+linear, cross-checked against materialized factor scores. The applied example reproduces Forbes's (2023)
 155-variable analysis to machine precision, and that agreement is exercised by
 the test suite rather than merely asserted. Researchers who adopt the package
 inherit a computation that has already been checked, and readers who want to
@@ -392,7 +394,7 @@ attention; they never delete a level or alter an estimate, which preserves both
 the full hierarchy and the fidelity check that rides on it. And because a
 bass-ackwards diagram draws the eye to the single strongest edge leaving each
 factor, the package reports every edge with its correlation and, through
-`boot_edges()`, bootstrap confidence intervals—a statement of precision that a
+`boot_edges()`, bootstrap confidence intervals, a statement of precision that a
 strongest-edge-only reading omits.
 
 A further caution concerns the factor scores themselves. Because the method's
@@ -411,8 +413,8 @@ The package's scope is bounded by the method it implements. Rotation within each
 level is orthogonal (varimax) only: correlated factors would confound the very
 cross-level signal the method exists to measure, and the closed-form algebra
 depends on the orthonormality that oblique rotation gives up. The resulting
-hierarchy is, in Goldberg's own words, sequential rather than truly hierarchical
-in the sense of Yung, Thissen, and McLeod [-@yung1999], and its between-level
+hierarchy is, as Goldberg himself acknowledged, sequential rather than truly
+hierarchical in the sense of Yung, Thissen, and McLeod [-@yung1999], and its between-level
 "path coefficients" are more nearly part-whole correlations than the structural
 parameters of a bottom-up model. **ackwards** is therefore not a substitute for a
 confirmatory higher-order or Schmid–Leiman analysis [@schmid1957; @yung1999] when
@@ -420,7 +422,7 @@ a fitted model is what a question calls for; the two describe structure in
 different senses. Consistent with that boundary, higher-order structural equation
 modeling, the Schmid–Leiman transformation, and expected-a-posteriori factor
 scores are out of scope by design rather than by oversight. At deep levels an
-extraction may fail to converge—most often in the ESEM engine—and the package
+extraction may fail to converge (most often in the ESEM engine), and the package
 treats this as information rather than failure: the level is recorded, warned
 about, and skipped, and the hierarchy is built to the deepest converged level
 rather than abandoned.
@@ -429,7 +431,7 @@ Two extensions already on the package's roadmap would widen the verified workflo
 further. Split-half factor comparability and bootstrap edge confidence intervals
 are currently available for the linear (PCA and EFA) engines; carrying them to
 the ESEM and polychoric bases is the natural next step. Because the package is
-developed in the open, such extensions—and others the community may need—can be
+developed in the open, such extensions (and others the community may need) can be
 contributed, reviewed, and tested against the same fidelity guarantees. As
 dimensional, hierarchical taxonomies continue to expand across clinical and
 personality science [@kotov2017; @michelini2019], a tested and shared
