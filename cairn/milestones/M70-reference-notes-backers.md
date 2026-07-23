@@ -5,7 +5,7 @@
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** —
-- **Branch/PR:** —
+- **Branch/PR:** m70-reference-notes-backers · https://github.com/jmgirard/ackwards/pull/74
 
 ## Goal
 
@@ -57,6 +57,7 @@ Author a verified `cairn/references/` source note for each of the 5 default-rati
 - 2026-07-23: created by /milestone-plan.
 - 2026-07-23: set in-progress; branch m70-reference-notes-backers cut from master.
 - 2026-07-23: T1 — renamed shelf williams2025a.pdf → williams2025.pdf (gitignored). Minor AC1 wording refinement: scoped the grep to citekey usages (INDEX/note/roxygen), since the milestone file itself names the rename. (Reverted an over-eager AC1 tick — AC boxes are review-owned.)
+- 2026-07-23: review — dropped the literal `williams2025a` token from williams2025.md provenance (kept the rename fact, pointed to this work log) so AC1's grep resolves to only this milestone file. Brief in-progress→review blip; no code/gate impact.
 - 2026-07-23: T6 — DoD gate PASSED (check 0/0/0, coverage 100%, style/lint clean, pkgdown index complete); cairn_validate exit 0. All tasks done → status review.
 - 2026-07-23: T5 — added @references (ackwards.R: kaiser1958, grice2001, beauducel2024, williams2025; suggest_k.R: tong2025); devtools::document() regenerated ackwards.Rd + suggest_k.Rd; NAMESPACE unchanged.
 - 2026-07-23: T4 — wired the 5 citations into DESIGN §9: rotation row (kaiser1958), scores row (grice2001, beauducel2024, williams2025), redundancy_phi row (grice2001), k_max row (tong2025). Citations only; no default value changed.

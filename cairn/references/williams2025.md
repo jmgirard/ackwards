@@ -1,8 +1,8 @@
 # williams2025 — SEM vs factor-score hierarchies for criterion validity (backs the factor-score approach + its categorical-indicator caveat)
 
 **Provenance.** Ingested 2026-07-23 by M70 from
-`cairn/references/sources/williams2025.pdf` (gitignored; the shelf file was
-renamed from `williams2025a.pdf` at M70).
+`cairn/references/sources/williams2025.pdf` (gitignored; shelf file renamed to
+this citekey at M70 — see the M70 work log for the prior name).
 Pagination: journal pages (128–145).
 Extraction: verified 2026-07-23 against the rendered source — the title and abstract (p. 128) were read directly; DOI confirmed via Crossref — observed 2026-07-23.
 
