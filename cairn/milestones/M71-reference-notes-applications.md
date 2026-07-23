@@ -1,11 +1,11 @@
 # M71: Author + verify the 5 application source notes as citation precedents + Forbes drift-watch
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** M70
 - **Driving RR:** —
 - **Principles touched:** —
-- **Branch/PR:** —
+- **Branch/PR:** m71-reference-notes-applications
 
 ## Goal
 
@@ -51,6 +51,7 @@ Author a verified `cairn/references/` source note for each of the 5 application 
 ## Work log
 
 - 2026-07-23: created by /milestone-plan.
+- 2026-07-23: /milestone-implement — set in-progress; branch `m71-reference-notes-applications` cut from master; cairn_validate baseline exits 0.
 
 ## Decisions
 
