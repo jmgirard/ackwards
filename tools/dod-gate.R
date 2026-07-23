@@ -31,6 +31,20 @@ if (length(fresh_problems) > 0) {
   note("vignette-freshness: clean")
 }
 
+# Departures-ledger anchor integrity (M72), fail-fast like the vignette check.
+# The test-ledger-anchors.R wrapper SKIPS under check() (cairn/ + tools/ are
+# .Rbuildignore'd), so enforce the guard directly here against the source
+# checkout. Base R only; sys.source blocks the script's own body.
+ledger_env <- new.env()
+sys.source("tools/check-ledger-anchors.R", envir = ledger_env)
+ledger_problems <- ledger_env$check_ledger_anchors(".")
+if (length(ledger_problems) > 0) {
+  for (p in ledger_problems) note("ledger-anchors: %s", p)
+  failures <- c(failures, "ledger anchor integrity (see cairn/references/source-departures.md)")
+} else {
+  note("ledger-anchors: clean")
+}
+
 t0 <- Sys.time()
 chk <- devtools::check(error_on = "never", quiet = TRUE)
 n_bad <- length(chk$errors) + length(chk$warnings) + length(chk$notes)
