@@ -60,6 +60,7 @@ between-level pairs; OSF `pcwm8`).
 
 ## Status
 
-The **Introduction** and **Discussion** sections are structured stubs (marked
-`[AUTHOR TO DRAFT]`) awaiting the author's scholarly prose. The Abstract,
-Method, package description, worked examples, tables, and figures are complete.
+The **Introduction** is a complete first draft awaiting the author's revision;
+the **Discussion** remains a structured stub (marked `[AUTHOR TO DRAFT]`)
+awaiting scholarly prose. The Abstract, Method, package description, worked
+examples, tables, and figures are complete.

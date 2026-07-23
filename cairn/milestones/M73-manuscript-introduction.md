@@ -69,16 +69,17 @@ has a committed, extraction-verified note (M69–M72).
 - [x] T2: Add the selected keys to `manuscript/references.bib` with
       Crossref-verified entries (author, year, title, journal, volume/issue,
       pages, DOI).
-- [ ] T3: Draft the Introduction prose replacing the stub — the four beats,
+- [x] T3: Draft the Introduction prose replacing the stub — the four beats,
       integrating the citations; keep the scholarly argument the author's to
       refine (a complete draft, not the final word).
-- [ ] T4: Render PDF + docx (`quarto render`); confirm no unresolved citations /
+- [x] T4: Render PDF + docx (`quarto render`); confirm no unresolved citations /
       new LaTeX errors; confirm the diff scope is manuscript + tracking only.
 
 ## Work log
 
 - 2026-07-23: created by /milestone-plan (split from the "Draft author-owned Intro + Discussion" candidate; M56 lineage). Intro half; Discussion + citation enrichment is M74.
 - 2026-07-23: T1+T2 — curated 10-source Intro set (kotov2017; markon2005/wright2014a/partsch2022; kim2015/forbush2018/cowan2024/michelini2019/carmichael2025/forbes2025), each with a committed verified note; all 10 DOIs Crossref-verified (full author lists, version-of-record issue years) and added to references.bib. Dropped forbush2024/forbes2025a as redundant exemplars.
+- 2026-07-23: T3+T4 — drafted 4-paragraph Introduction replacing the stub (all 4 beats, 10 new + 3 lineage citations). `quarto render` clean: PDF 16pp + docx, 0 unresolved-citation warnings, 0 LaTeX errors, all 10 new keys resolve in-text and in the reference list. Diff scope = manuscript/ + cairn/ only (no package files). Updated manuscript/README.md status (Intro now a complete draft; Discussion still stub → M74).
 
 ## Decisions
 
