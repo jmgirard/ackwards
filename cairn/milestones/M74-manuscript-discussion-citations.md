@@ -72,7 +72,7 @@ only. Package R code change → not here.
       sections at each named uncited claim (`kaiser1958`, `asparouhov2009`,
       `grice2001`, `revelle1979`, `ruscio2012a`), citations only — no technical
       wording change.
-- [ ] T3: Add all new keys to `manuscript/references.bib` with Crossref-verified
+- [x] T3: Add all new keys to `manuscript/references.bib` with Crossref-verified
       entries.
 - [ ] T4: Record the citekey→note map for every newly cited source (Discussion +
       seeded-section backfill), confirming each has a committed, verified note.
@@ -85,6 +85,7 @@ only. Package R code change → not here.
 - 2026-07-23: question gate — author chose full Discussion citations (add beauducel2024/williams2025 factor-score caution + kotov2017/michelini2019 context) and concrete future-directions prose (ESEM/polychoric comparability + boot_edges).
 - 2026-07-23: T1 done — replaced the `[AUTHOR TO DRAFT]` Discussion stub with a five-paragraph draft covering the four beats; cites hu1999, beauducel2024, williams2025, yung1999, schmid1957, kotov2017, michelini2019.
 - 2026-07-23: T2 done — four citations-only backfill edits (kaiser1958 at varimax; asparouhov2009 at ESEM engine; grice2001 at factor-score materialization; revelle1979+ruscio2012a at the suggest_k retention-criteria group). `git diff` confirms no technical wording changed.
+- 2026-07-23: T3 done — added 7 new bib keys (kaiser1958, asparouhov2009, grice2001, revelle1979, ruscio2012a, beauducel2024, williams2025). Each DOI verified live against the Crossref API (title/authors/journal/volume/issue/pages/year); revelle1979's DOI 10.1207/s15327906mbr1404_2 recovered from Crossref (source prints none); full given names pulled from Crossref for beauducel2024 + williams2025.
 
 ## Decisions
 
