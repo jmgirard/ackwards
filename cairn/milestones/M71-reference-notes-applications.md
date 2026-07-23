@@ -43,7 +43,7 @@ Author a verified `cairn/references/` source note for each of the 5 application 
 
 ## Tasks
 
-- [ ] T1: Author + verify the 3 new-domain notes (carmichael2025 — TBI; michelini2019 — ABCD child/adolescent; partsch2022 — VIA character strengths) against rendered shelf pages, each stating domain + method; for partsch2022 confirm bass-ackwards use with a page anchor.
+- [x] T1: Author + verify the 3 new-domain notes (carmichael2025 — TBI; michelini2019 — ABCD child/adolescent; partsch2022 — VIA character strengths) against rendered shelf pages, each stating domain + method; for partsch2022 confirm bass-ackwards use with a page anchor.
 - [ ] T2: Author + verify the 2 Forbes continuation notes (forbes2025 — DSM-5 reconstruction; forbes2025a — youth), each recording the extended-BA/hPCA procedure and a dated observation on forbes2023 fidelity-contract divergence.
 - [ ] T3: Add the 5 filename-first `INDEX.md` Applications lines.
 - [ ] T4: Run `cairn_validate` (exit 0) and confirm the diff is `cairn/`-only; fix any fallout.
@@ -52,6 +52,8 @@ Author a verified `cairn/references/` source note for each of the 5 application 
 
 - 2026-07-23: created by /milestone-plan.
 - 2026-07-23: /milestone-implement — set in-progress; branch `m71-reference-notes-applications` cut from master; cairn_validate baseline exits 0.
+- 2026-07-23: T1 — authored carmichael2025.md (TBI; Forbes' extended BA, redundancy r≥.90 & φ>.95), michelini2019.md (ABCD child/adult; Goldberg BA on EFA/geomin, edge ≥.65), partsch2022.md (VIA strengths; Goldberg BA via Waller-2007 code, oblique Promax). partsch bass-ackwards confirmed p.832. All verbatim quotes read from rendered pages + cross-checked against pdftotext.
+- 2026-07-23: minor amendment (INDEX placement) — the 5 standalone application notes go under a new `## Applications (one note per source)` INDEX subsection paralleling the existing "Method sources"/"Default-rationale backers" standalone subsections, not the "Applications (collapsed in applications.md)" block (those are collapsed, these are standalone). Executed in T3.
 
 ## Decisions
 
