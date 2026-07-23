@@ -96,3 +96,12 @@ has a committed, extraction-verified note (M69–M72).
 - AC4 — all 10 new keys have a `references.bib` entry; all 10 DOIs Crossref-verified (title/journal/vol/issue/pages/full author list; version-of-record issue years for the 3 online-first-year cases: partsch2022, cowan2024, forbes2025).
 - AC5 — fresh `quarto render`: exit 0, PDF (194 KB, 16pp) + docx (1.1 MB); 0 "not found"/LaTeX-error lines; `pdftotext` shows 0 `??` markers; all 10 new surnames appear both in-text and in the reference list.
 - AC6 — `git diff --name-only master..HEAD` = manuscript/ + cairn/ only; no `R/`, `tests/`, `man/`, `NAMESPACE`, `DESCRIPTION`.
+
+**Independent review (3 fresh-context lenses + scorer).**
+- [O] diff-bug: citation accuracy + all 10 bib entries verified clean against the reference notes (author lists, years incl. version-of-record issue years, DOIs; kotov2017's 40-author list, David-vs-Lewis Goldberg distinction). One finding (below).
+- [S] blame-history: **no findings** — Waller-title (M56), bfi25 n (M56), D-002, D-031/IP9 all clean.
+- [S] prior-review: **no findings** — M56's three recorded findings (Waller title, bfi25 n, 54-vs-55) none regressed; GitHub inline-comment probe returned `[]`.
+
+Findings triaged:
+- **F1 (score 85, ACTIONED — fixed):** the new Introduction "gap" paragraph near-verbatim duplicated the Package-section Statement-of-Need paragraph (same four-part "(a) spans engines … (d) documented and tested" enumeration + same "three decades / bespoke scripts" opener). Fixed by rewriting Intro ¶3 to *motivate* the gap (barrier to routine use + reproducibility) and leaving the four-part *specification* to the Package section; re-rendered clean; `grep "spans the extraction engines"` now = 1.
+- **F2 (score 64, LOGGED, not actioned):** "three decades of use" overstates for a 2006-seminal method (defensible only via mid-1990s precursors). Pre-existing in the unmodified Package body; the F1 rewrite incidentally removed the Intro's introduced instance, so it now appears once (the pre-existing body line) — left as approved M56 prose.

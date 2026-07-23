@@ -103,15 +103,12 @@ and where a dimension is essentially stable across levels of resolution.
 The empirical workhorse behind many of these analyses is Goldberg's
 bass-ackwards method [@goldberg2006], frequently implemented through the exact
 algebra of @waller2007 and, more recently, through the all-levels and
-redundancy-pruning extensions of @forbes2023. Yet despite three decades of use,
-the method has been applied almost entirely through bespoke, paper-specific
-scripts. No general implementation has existed that spans the extraction engines
-researchers actually use, computes the between-level correlations through a
-single verified path, reproduces the published method exactly, and is documented
-and tested to the standard expected of research software. Investigators who wish
-to build a hierarchy must therefore reimplement the method, and readers who wish
-to check one must reconstruct it — an avoidable barrier to both use and
-reproducibility.
+redundancy-pruning extensions of @forbes2023. Yet for all its use, the method
+has been applied almost entirely through bespoke, paper-specific scripts written
+afresh for each study. Investigators who wish to build a hierarchy must
+reimplement the method, and readers who wish to check one must reconstruct it —
+an avoidable barrier to both routine use and reproducibility that a general,
+tested, and documented tool would remove.
 
 This paper introduces **ackwards**, an R package that closes that gap. We first
 describe the bass-ackwards method and Forbes's extension, then present the
