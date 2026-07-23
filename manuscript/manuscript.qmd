@@ -24,8 +24,8 @@ author-note:
       AI system is not an author. See the Use of Generative AI section for
       details.
 abstract: |
-  Factor analysis confronts every investigator with the same question — how many
-  factors to retain — yet solutions at different levels of resolution are
+  Factor analysis confronts every investigator with the same question: how many
+  factors to retain? Yet solutions at different levels of resolution are
   complementary rather than competing. Goldberg's (2006) bass-ackwards method
   makes this explicit by extracting factor solutions from one to *k* factors and
   characterizing the resulting hierarchy through between-level factor-score
@@ -73,47 +73,48 @@ options(digits = 3)
 
 Factor analysis is among the most widely used tools in the individual-differences
 sciences, and nearly every application begins with the same question: how many
-factors should be retained? The candidate answers are numerous — parallel
-analysis, the scree test, the minimum-average-partial criterion, a theoretically
-favored number — and they frequently disagree. Treated as rival estimates of a
+factors should be retained? The candidate answers are numerous. Parallel
+analysis, the scree test, the minimum-average-partial criterion, and a
+theoretically favored number often disagree. Treated as rival estimates of a
 single true quantity, that disagreement is a nuisance to be resolved.
-@goldberg2006 argued instead that it is informative: solutions extracted at
-different numbers of factors are not competing answers but complementary
-descriptions of the same structure viewed at different resolutions, and the
-relationships *between* those levels are themselves worth studying.
+@goldberg2006 argued instead that it is informative. Solutions extracted at
+different numbers of factors are complementary rather than competing. Each
+describes the same structure at a different resolution, and the relationships
+between levels are themselves worth studying.
 
 This reframing matters because a hierarchical view of structure has become
 central to how individual differences are organized. In personality, integrative
 models relate a few broad dimensions to progressively narrower traits
-[@markon2005], a logic that extends from normal-range traits to the structure of
-personality-disorder pathology [@wright2014a] and to the taxonomy of character
+[@markon2005]. The same logic extends from normal-range traits to the structure
+of personality-disorder pathology [@wright2014a] and to the taxonomy of character
 strengths [@partsch2022]. In psychopathology, the Hierarchical Taxonomy of
 Psychopathology [HiTOP; @kotov2017] organizes signs and symptoms into a
-dimensional hierarchy running from a general factor of psychopathology through
+dimensional hierarchy that runs from a general factor of psychopathology through
 broad spectra down to specific syndromes. Empirical hierarchies in this spirit
-have now been constructed across an unusually wide range of domains — common
-mental disorders [@kim2015], eating disorders [@forbush2018], psychosis-risk
-states [@cowan2024], child and adolescent psychopathology [@michelini2019],
-psychopathology following traumatic brain injury [@carmichael2025], and a
-data-driven reorganization of the DSM-5 symptom set [@forbes2025]. Each such
-hierarchy answers concrete empirical questions: which narrow dimension descends
-from which broad one, where a broad dimension splits into distinguishable parts,
-and where a dimension is essentially stable across levels of resolution.
+have now been built across a wide range of domains: common mental disorders
+[@kim2015], eating disorders [@forbush2018], psychosis-risk states [@cowan2024],
+child and adolescent psychopathology [@michelini2019], psychopathology following
+traumatic brain injury [@carmichael2025], and a data-driven reorganization of the
+DSM-5 symptom set [@forbes2025]. Each hierarchy shows how narrow dimensions
+descend from broad ones and where the structure reorganizes as resolution
+increases.
 
-The empirical workhorse behind many of these analyses is Goldberg's
-bass-ackwards method [@goldberg2006], frequently implemented through the exact
-algebra of @waller2007 and, more recently, through the all-levels and
-redundancy-pruning extensions of @forbes2023. Yet for all its use, the method
-has been applied almost entirely through bespoke, paper-specific scripts written
-afresh for each study. Investigators who wish to build a hierarchy must
-reimplement the method, and readers who wish to check one must reconstruct it —
-an avoidable barrier to both routine use and reproducibility that a general,
-tested, and documented tool would remove.
+Many of these analyses are built with Goldberg's bass-ackwards method
+[@goldberg2006], for which @waller2007 later derived a general closed-form
+algebra and @forbes2023 added all-levels and redundancy-pruning extensions. The
+available tooling has not kept pace. The core top-down loop is implemented in the
+widely used **psych** package [@psych], but the extensions that recent studies
+rely on have been available only as bespoke, paper-specific scripts. These
+extensions include exploratory structural equation modeling with per-level fit
+and ordinal support, along with Forbes's all-levels and redundancy-pruning
+method. Researchers who want the current workflow must assemble it by hand, and
+readers who want to check an analysis must reconstruct it. This is an avoidable
+barrier to routine use and to reproducibility.
 
-This paper introduces **ackwards**, an R package that closes that gap. We first
-describe the bass-ackwards method and Forbes's extension, then present the
-package's design and its tidy, pipe-friendly interface. We illustrate the
-workflow on a Big Five personality dataset and then reproduce Forbes's
+This paper introduces **ackwards**, an R package that closes this gap. We first
+describe the bass-ackwards method and Forbes's extension. We then present the
+package's design and its tidy, pipe-friendly interface. Finally, we illustrate
+the workflow on a Big Five personality dataset and reproduce Forbes's
 155-variable applied example, whose between-level correlations the package
 matches to machine precision against her reference implementation.
 
@@ -126,25 +127,25 @@ matches to machine precision against her reference implementation.
 Anyone who applies factor analysis faces the same dilemma: how many factors
 should be extracted? Parallel analysis might indicate five, a scree plot three,
 and a reviewer one. It is tempting to treat these as competing answers to a
-single question. @goldberg2006 reframed the problem: the solutions are not
-competing but complementary. A one-factor solution captures the broadest shared
-variance in the data — the dimension along which all variables correlate — while
-a five-factor solution captures narrower, more specific dimensions. The two
-levels describe the same underlying structure from different vantage points, much
-as a satellite image and a street map describe the same city.
+single question. @goldberg2006 reframed the problem. The solutions are
+complementary, not competing. A one-factor solution captures the broadest shared
+variance in the data, the dimension along which all variables correlate. A
+five-factor solution captures narrower, more specific dimensions. The two levels
+describe the same underlying structure from different vantage points.
 
 The bass-ackwards method makes this relationship explicit. It fits factor models
 at every level from 1 up to *k* and then computes the correlations between factor
 *scores* across levels. Those correlations reveal which narrow factor inherits
 from which broad factor (the lineage of each dimension as resolution increases),
-where a broad factor *splits* into sub-dimensions, and where a factor is *stable*
-— correlating near 1.0 with its counterpart at an adjacent level, and thus
+where a broad factor *splits* into sub-dimensions, and where a factor is *stable*,
+correlating near 1.0 with its counterpart at an adjacent level and remaining
 essentially the same construct at two resolutions. The result is a hierarchy map:
 a visual and numerical account of how the factor structure builds from broad to
-narrow. Importantly, this is a descriptive, data-driven hierarchy, not a
-confirmatory model such as Schmid–Leiman or higher-order structural equation
-modeling; the between-level correlations are score correlations (or their
-algebraic equivalents), not model parameters.
+narrow. This is a descriptive, data-driven hierarchy, not a confirmatory model
+such as Schmid–Leiman [@schmid1957] or higher-order structural equation modeling
+[@yung1999]. The
+between-level correlations are score correlations (or their algebraic
+equivalents), not model parameters.
 
 ## Computing between-level correlations
 
@@ -154,7 +155,7 @@ correlates them. @waller2007 showed that, when scoring is a linear function of
 the items, the same correlations follow in closed form from the factor weight
 matrices and the item correlation matrix, without ever computing scores. For
 factor weights $W_a$ and $W_b$ at two levels and item correlation matrix $R$, the
-cross-level score covariance is $W_a' R W_b$; standardizing by the score standard
+cross-level score covariance is $W_a' R W_b$. Standardizing by the score standard
 deviations $\sqrt{\operatorname{diag}(W'RW)}$ yields the correlations. **ackwards**
 uses this algebra by default and falls back to materialized scores only for
 nonlinear scoring, cross-checking the two routes against one another for linear
@@ -168,15 +169,15 @@ the method exists to measure.
 
 @goldberg2006 computed correlations only between *adjacent* levels (1↔2, 2↔3, …).
 @forbes2023 extended the method in two ways. First, correlations are computed
-across *all* level pairs, not just neighbors, which exposes skip-level
-connections: a factor that persists nearly unchanged across several levels
-correlates near 1.0 with its distant counterpart, revealing that the intermediate
-levels add refinement rather than new information. Second, these all-pairs
-correlations support automatic detection of **redundant** factors — chains of
-near-identical factors across levels — and researcher-guided inspection of
-**artifactual** factors, whose loading patterns duplicate a factor elsewhere in
-the hierarchy (measured by Tucker's congruence coefficient; @lorenzoseva2006) or
-whose structure appears under-identified. Forbes's redundancy chase follows the
+across *all* level pairs rather than only adjacent ones, which exposes skip-level
+connections. A factor that persists nearly unchanged across several levels
+correlates near 1.0 with its distant counterpart, showing that the intermediate
+levels add refinement and not new information. Second, these all-pairs
+correlations support automatic detection of **redundant** factors (chains of
+near-identical factors across levels) and researcher-guided inspection of
+**artifactual** factors. An artifactual factor is one whose loading pattern
+duplicates a factor elsewhere in the hierarchy (measured by Tucker's congruence
+coefficient; @lorenzoseva2006) or whose structure appears under-identified. Forbes's redundancy chase follows the
 *direct* correlation from a factor to each ancestor level, the criterion
 **ackwards** adopts by default.
 
@@ -186,13 +187,15 @@ whose structure appears under-identified. Forbes's redundancy chase follows the
 
 # The ackwards package
 
-Despite three decades of use, bass-ackwards analyses have been conducted with
-bespoke, paper-specific scripts [@goldberg2006; @waller2007; @forbes2023]. No
-general implementation existed that (a) spans the extraction engines researchers
-actually use, (b) computes between-level correlations through a single, verified
-path, (c) reproduces the published method exactly, and (d) is documented and
-tested to the standard expected of research software. **ackwards** fills that
-gap. It is available from CRAN and developed openly at
+The core bass-ackwards loop is already available in the widely used **psych**
+package, whose `bassAckward()` function extracts successive principal-component
+or factor solutions and correlates them across levels [@psych]. No implementation
+has offered the rest of the workflow that recent studies require: exploratory
+structural equation modeling engines with per-level fit indices, standard errors,
+and ordinal support; Forbes's (2023) all-levels correlations and redundancy
+pruning; a single verified between-level computation; and a tidy, tested,
+documented interface. **ackwards** builds on **psych** to provide these. It is
+available from CRAN and developed openly at
 `https://github.com/jmgirard/ackwards`.
 
 The package builds a hierarchy with a single call, `ackwards(data, k_max, ...)`,
@@ -202,22 +205,28 @@ principal component analysis (`"pca"`, the default), exploratory factor analysis
 EFA-in-SEM formulation via **lavaan** [@lavaan] that adds per-level fit indices
 and standard errors). Component and factor extraction rest on the **psych**
 package [@psych]. Correlation input may be Pearson (default), Spearman, or
-polychoric for ordinal items, and a consequential auto-choice — the basis, the
-number of factors, an estimator — is always announced rather than made silently.
-Non-convergence at a deep level is treated as information, not failure: the level
-is recorded, warned about, and skipped, and the hierarchy is still built to the
-deepest converged level.
+polychoric for ordinal items, and a consequential auto-choice such as the basis,
+the number of factors, or an estimator is always announced rather than made
+silently. Non-convergence at a deep level is treated as information, not failure.
+The level is recorded, warned about, and skipped, and the hierarchy is still
+built to the deepest converged level.
 
 The result is a light object carrying loadings, variance, fit, weights, edges,
-lineage, and the input correlation matrix; heavy artifacts such as factor scores
-and raw fits are optional and recomputable, keeping results small and shareable.
-A tidy, pipe-friendly surface supports the full workflow: `suggest_k()` for a
-plausible range of hierarchy depths, `ackwards()` to fit, `print()` / `summary()`
-/ `glance()` to inspect, `autoplot()` to draw the hierarchy diagram, `tidy()` and
-`top_items()` to extract and read factors, `augment()` / `predict()` to score
-observations in or out of sample, and `prune()` to apply the Forbes redundancy
-and artifact diagnostics. The two sections that follow demonstrate this workflow:
-first a compact illustrative walkthrough, then Forbes's full applied example.
+lineage, and the input correlation matrix. Heavy artifacts such as factor scores
+and raw fits are optional and recomputable, which keeps results small and
+shareable. A tidy, pipe-friendly surface supports the full workflow: `suggest_k()`
+for a plausible range of hierarchy depths, `ackwards()` to fit, `print()` /
+`summary()` / `glance()` to inspect, `autoplot()` to draw the hierarchy diagram,
+`tidy()` and `top_items()` to extract and read factors, `augment()` / `predict()`
+to score observations in or out of sample, and `prune()` to apply the Forbes
+redundancy and artifact diagnostics. **ackwards** leans on **psych** for the
+underlying numerics but repackages them for this workflow. `suggest_k()`
+consolidates psych's parallel-analysis, minimum-average-partial, and
+very-simple-structure criteria into a single consensus range instead of several
+separate calls. `autoplot()` replaces psych's base-graphics diagram with a
+customizable, lineage-aligned ggplot2 graphic. The two sections that follow
+demonstrate this workflow: first a compact illustrative walkthrough, then
+Forbes's full applied example.
 
 <!-- ======================================================================= -->
 <!-- ILLUSTRATIVE WALKTHROUGH — live from the package (bfi25).                -->
@@ -226,8 +235,8 @@ first a compact illustrative walkthrough, then Forbes's full applied example.
 # An illustrative walkthrough
 
 We use `bfi25`, a built-in dataset of 1,000 respondents answering 25 personality
-items measuring the Big Five traits — Agreeableness, Conscientiousness,
-Extraversion, Neuroticism, and Openness — each on a six-point scale. For this
+items measuring the Big Five traits (Agreeableness, Conscientiousness,
+Extraversion, Neuroticism, and Openness), each on a six-point scale. For this
 illustration we restrict to respondents with complete data:
 
 ```{r}
@@ -243,6 +252,11 @@ number:
 ```{r}
 #| label: suggest-k
 sk <- suggest_k(bfi, seed = 42)
+```
+
+```{r}
+#| label: suggest-k-show
+#| message: true
 sk
 ```
 
@@ -256,7 +270,7 @@ x <- ackwards(bfi, k_max = 5, cor = "polychoric")
 
 The hierarchy diagram (@fig-bfi) is the centerpiece of the method. Each row is a
 level (*k* = 1 at the top), and each arrow connects a factor to its *primary
-parent* — the factor one level up with which it correlates most strongly. Arrow
+parent*, the factor one level up with which it correlates most strongly. Arrow
 thickness is proportional to $|r|$ and color encodes sign.
 
 ```{r}
@@ -294,9 +308,9 @@ observations with `predict()` without refitting.
 
 # Applied example: the AMH hierarchy
 
-The package's fidelity to the published method is not merely asserted; it is
-tested. We reproduce @forbes2023's applied example, a hierarchical analysis of
-155 mental-health variables from the Assessing Mental Health (AMH) study. The
+The package's fidelity to the published method is verified by the test suite, not
+just asserted. We reproduce @forbes2023's applied example, a hierarchical analysis
+of 155 mental-health variables from the Assessing Mental Health (AMH) study. The
 correlation matrix ships with the package as `forbes2023` (licensed CC-BY 4.0 by
 its author). Following Forbes, we extract from one to ten factors with all-pairs
 correlations:
@@ -308,21 +322,12 @@ dim(forbes2023)
 amh <- ackwards(forbes2023, k_max = 10, pairs = "all")
 ```
 
-The full ten-level hierarchy (@fig-amh) is far richer than the illustrative
-example, with broad internalizing and externalizing dimensions at the top
-progressively differentiating into specific syndromes.
-
-```{r}
-#| label: fig-amh
-#| fig-cap: "The Assessing Mental Health (AMH) bass-ackwards hierarchy, 155 variables extracted from one to ten factors with all-pairs between-level correlations, reproducing @forbes2023. Only edges at or above the display threshold are drawn."
-#| fig-width: 9
-#| fig-height: 7
-autoplot(amh)
-```
-
-Piping the result through `prune("redundant")` applies Forbes's redundancy
-diagnostic, flagging factors that persist near-unchanged across levels rather
-than differentiating:
+The full ten-level hierarchy is far richer than the illustrative example, with
+broad internalizing and externalizing dimensions at the top progressively
+differentiating into specific syndromes. At this depth, though, many factors
+simply persist near-unchanged from one level to the next rather than splitting
+into something new. Piping the result through `prune("redundant")` applies
+Forbes's redundancy diagnostic, which flags those persistent chains:
 
 ```{r}
 #| label: amh-prune
@@ -331,14 +336,27 @@ nodes <- tidy(amh_pruned, what = "nodes")
 c(total_factors = nrow(nodes), flagged_redundant = sum(nodes$pruned))
 ```
 
+Plotting the pruned result with `drop_pruned = TRUE` omits those redundant
+factors and their edges, leaving the distinct dimensions and how they
+differentiate (@fig-amh):
+
+```{r}
+#| label: fig-amh
+#| fig-cap: "The Assessing Mental Health (AMH) bass-ackwards hierarchy of 155 variables, extracted from one to ten factors with all-pairs between-level correlations and reproducing @forbes2023. Factors flagged by Forbes's redundancy diagnostic are dropped (`drop_pruned = TRUE`), leaving the distinct dimensions and their strongest between-level connections."
+#| fig-width: 9
+#| fig-height: 7
+autoplot(amh_pruned, drop_pruned = TRUE)
+```
+
 **Fidelity.** This is the same computation exercised by the package's test suite,
 which verifies it against Forbes's own reference implementation (OSF `pcwm8`).
 Across all 45 between-level pairs, **ackwards**'s edge correlations reproduce the
-reference values to within `r sprintf("%.1e", 1.3e-14)` in absolute magnitude,
-and the redundancy chase reproduces her published result for all 54 components
-(the direct-correlation criterion **ackwards** adopts as its default). The
-applied example a reader renders here is thus numerically identical, to machine
-precision, to the analysis reported by @forbes2023.
+reference values to within `r sprintf("%.1e", 1.3e-14)` in absolute magnitude. Of
+the 55 factors across the ten levels, the redundancy chase evaluates the 54 below
+the single apex and reproduces Forbes's published result for every one, using the
+direct-correlation criterion **ackwards** adopts as its default. The applied
+example a reader renders here is thus numerically identical, to machine precision,
+to the analysis reported by @forbes2023.
 
 <!-- ======================================================================= -->
 <!-- DISCUSSION — author-owned stub. Draft the closing argument here.         -->
@@ -381,11 +399,11 @@ the author, who takes full responsibility for the final code, analyses, and text
 Consistent with journal and publisher policy, no AI system is credited as an
 author.
 
-Crucially, AI assistance does not stand in for the manuscript's verification
-guarantees. Every numeric result reported here is checked against at least two
-independent oracle types — published or closed-form values, an independent
-software implementation, or seeded simulation — and the central applied example
-reproduces the reference implementation of @forbes2023 to machine precision. The
+AI assistance does not stand in for the manuscript's verification guarantees.
+Every numeric result reported here is checked against at least two independent
+oracle types (published or closed-form values, an independent software
+implementation, or seeded simulation), and the central applied example reproduces
+the reference implementation of @forbes2023 to machine precision. The
 complete development record, including design decisions, milestone histories, and
 the catalogue of verification oracles, is version-controlled in the package
 repository and can be inspected independently of the assistant used to produce
