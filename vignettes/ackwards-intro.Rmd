@@ -79,13 +79,13 @@ range:
 ``` r
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [244ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [145ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [68ms]
+#> ✔ Running MAP and VSS... [45ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [9.7s]
+#> ✔ Running Comparison Data (CD)... [6.1s]
 #> 
 print(sk)
 #> 
@@ -97,14 +97,16 @@ print(sk)
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*
-#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -
-#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -
+#>   k  PA-PC  PA-FA      MAP    VSS-1    VSS-2  CD
+#>   1     ✔      ✔   0.0254   0.5178   0.0000   ✔ 
+#>   2     ✔      ✔   0.0194   0.5839   0.6719   ✔ 
+#>   3     ✔      ✔   0.0175   0.5913   0.7354   ✔ 
+#>   4     ✔      ✔   0.0164   0.6215*  0.7837   ✔ 
+#>   5     ✔      ✔   0.0160*  0.5738   0.7950*  ✔ 
+#>   6     -      ✔   0.0172   0.5594   0.7629   ✔*
+#>   7     -      -   0.0205   0.5613   0.7616   - 
+#>   8     -      -   0.0236   0.5600   0.7215   -
+#>   ✔ retained   * optimal k   - not retained
 #> 
 #> ── Recommendations ──
 #> 

@@ -10,6 +10,13 @@ CRAN resubmission of the first release, addressing reviewer feedback on the
   with continuous data. The ESEM engine detects the installed lavaan's
   argument vocabulary and works with both lavaan >= 0.7 and >= 0.6-13.
 
+* **`print()` for `suggest_k()` now renders an aligned criteria table.** The
+  per-criterion evidence prints as a column-aligned grid (one row per k, one
+  column per requested criterion) with a header row and a glyph legend, instead
+  of the previous per-k concatenated lines. Numeric columns are right-aligned so
+  the optimal-k star never shifts the decimals. The returned object and all
+  criteria values are unchanged; only the printed layout is new.
+
 * **New vignette: "Reproducing Forbes (2023): The AMH Applied Example"**
   (`vignette("ackwards-forbes2023")`). A full worked reproduction of the
   paper's 155-variable applied example on the bundled `forbes2023` dataset:

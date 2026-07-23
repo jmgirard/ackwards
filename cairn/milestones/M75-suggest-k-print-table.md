@@ -80,7 +80,7 @@ object's fields, the criteria semantics (D-013), or the report-only stance
       `cli::cli_verbatim`/`cli_text`, and print the legend. Keep dynamic columns,
       CD footer, recommendations, consensus (incl. undetermined/no-Inf), and
       cautionary notes intact. Make T1 green.
-- [ ] T3: Update `ackwards-suggest-k.Rmd.orig` prose to describe the table+legend;
+- [x] T3: Update `ackwards-suggest-k.Rmd.orig` prose to describe the table+legend;
       `Rscript vignettes/precompute.R`; `git checkout --` untouched
       `vignettes/*.Rmd` + `vignettes/assets/`; add a NEWS.md bullet.
 - [ ] T4: Run `Rscript tools/dod-gate.R`; resolve any snapshot/coverage/lint fallout.
@@ -89,6 +89,7 @@ object's fields, the criteria semantics (D-013), or the report-only stance
 
 - 2026-07-23: created by /milestone-plan.
 - 2026-07-23: T1+T2 done — aligned criteria table + adaptive legend in print.suggest_k(); snapshot + ANSI-alignment tests added. Not-retained glyph kept as grey dash (cli::symbol$bullet aliases to "*" in ASCII terminals, colliding with the optimal star). suggest_k + print-snapshot suites 0 fail/0 warn.
+- 2026-07-23: T3 done — vignette prose (ackwards-suggest-k) describes the table+legend; precompute re-run; intro + girard vignettes regenerated (they print(sk), so the new table appears); engines/visualization + autoplot PNGs reverted as gt-ID/render noise (M61). NEWS.md bullet added. Vignette-freshness OK.
 
 ## Decisions
 
