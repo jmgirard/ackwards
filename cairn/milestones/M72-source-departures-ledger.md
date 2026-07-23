@@ -1,6 +1,6 @@
 # M72: Correct the stale Forbes contract line + author the Goldberg/Forbes departures ledger
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -31,13 +31,13 @@ Correct the pre-D-031 contract wording in `forbes2023.md` and author a consolida
 
 ## Acceptance criteria
 
-- [ ] AC1: `forbes2023.md` no longer asserts "default output must reproduce Forbes's examples exactly" as a live contract; the claim is replaced with the IP9/D-031 capability framing and marked `(corrected M72)`; a grep of `cairn/references/` for the old contract assertion returns nothing (git history + this milestone file's task description aside).
-- [ ] AC2: a synthesis note exists at `cairn/references/source-departures.md`, authored from `templates/synthesis-note.md`, carrying every required section (Provenance with `Ingested`/`Extraction:` lines, Scope + tracking disclaimer, Evidence snapshot, characterization, an ID'd ledger table, Disposition, Open questions).
-- [ ] AC3: the ledger enumerates each of the 5 default-level departures (required `k_max` vs auto-stop; W′RW algebra vs score-then-correlate; tenBerge vs components; primary-parent sign alignment vs unaligned `comp.corr`; exact Tucker φ vs rounded congruence) + the 2 matches (`cut_show = 0.3` = Goldberg .30; `redundancy_criterion = "direct"` = Forbes `ChaseCorrPaths`); each row carries a stable ID and states source behavior, ackwards behavior, rationale location, empirical support.
-- [ ] AC4: every departure claim cites a verifiable location (DESIGN §9 row / `D-0NN` / citekey) and, where it claims empirical support, names the oracle/test/source (tong2025; Waller 2007 + IP2 test; fidelity suite 1.3e-14; φ within 0.005); additive extensions noted as GP1-governed, not itemized.
-- [ ] AC5: any departure lacking empirical support has a search-first ROADMAP `candidate` row; if none lack it, the Disposition states that explicitly.
-- [ ] AC6: `INDEX.md` gains a filename-first line for the note; `cairn_validate` exits 0 (`references index<->disk` PASS); the `cairn/` documentation changes carry no package-code edits beyond the anchor test (T7); the full DoD gate (`Rscript tools/dod-gate.R`) passes (check 0/0/0, coverage maintained, style/lint/pkgdown clean).
-- [ ] AC7: the maintenance hook exists — a Maintenance clause in `source-departures.md` + a one-line pointer in the DESIGN §9 defaults table; `tools/check-ledger-anchors.R` passes on the current ledger **and** fails when a cited anchor is broken (mutation-verified); `tests/testthat/test-ledger-anchors.R` runs the check and skips when `cairn/` is absent (built package).
+- [x] AC1: `forbes2023.md` no longer asserts "default output must reproduce Forbes's examples exactly" as a live contract; the claim is replaced with the IP9/D-031 capability framing and marked `(corrected M72)`; a grep of `cairn/references/` for the old contract assertion returns nothing (git history + this milestone file's task description aside).
+- [x] AC2: a synthesis note exists at `cairn/references/source-departures.md`, authored from `templates/synthesis-note.md`, carrying every required section (Provenance with `Ingested`/`Extraction:` lines, Scope + tracking disclaimer, Evidence snapshot, characterization, an ID'd ledger table, Disposition, Open questions).
+- [x] AC3: the ledger enumerates each of the 5 default-level departures (required `k_max` vs auto-stop; W′RW algebra vs score-then-correlate; tenBerge vs components; primary-parent sign alignment vs unaligned `comp.corr`; exact Tucker φ vs rounded congruence) + the 2 matches (`cut_show = 0.3` = Goldberg .30; `redundancy_criterion = "direct"` = Forbes `ChaseCorrPaths`); each row carries a stable ID and states source behavior, ackwards behavior, rationale location, empirical support.
+- [x] AC4: every departure claim cites a verifiable location (DESIGN §9 row / `D-0NN` / citekey) and, where it claims empirical support, names the oracle/test/source (tong2025; Waller 2007 + IP2 test; fidelity suite 1.3e-14; φ within 0.005); additive extensions noted as GP1-governed, not itemized.
+- [x] AC5: any departure lacking empirical support has a search-first ROADMAP `candidate` row; if none lack it, the Disposition states that explicitly.
+- [x] AC6: `INDEX.md` gains a filename-first line for the note; `cairn_validate` exits 0 (`references index<->disk` PASS); the `cairn/` documentation changes carry no package-code edits beyond the anchor test (T7); the full DoD gate (`Rscript tools/dod-gate.R`) passes (check 0/0/0, coverage maintained, style/lint/pkgdown clean).
+- [x] AC7: the maintenance hook exists — a Maintenance clause in `source-departures.md` + a one-line pointer in the DESIGN §9 defaults table; `tools/check-ledger-anchors.R` passes on the current ledger **and** fails when a cited anchor is broken (mutation-verified); `tests/testthat/test-ledger-anchors.R` runs the check and skips when `cairn/` is absent (built package).
 
 ## Coverage
 
@@ -57,13 +57,15 @@ Correct the pre-D-031 contract wording in `forbes2023.md` and author a consolida
 - [x] T4: For any departure lacking empirical support, add a search-first ROADMAP `candidate` row; else state "all documented departures carry support" in the Disposition.
 - [x] T5: Add the `INDEX.md` line; run `cairn_validate` (exit 0); confirm the diff is docs-only `cairn/`-only.
 - [x] T6: (review fixes) Reword E3's "see M1" misdirect (finding 1); drop the dangling "DESIGN §9" anchor from M1's rationale (finding 2); record the 58%/71% recovery figure in `tong2025.md` with its anchor and update that note's Open-questions so E1 is fully traceable.
-- [ ] T7: Build the maintenance hook — Maintenance clause in `source-departures.md`; one-line pointer in the DESIGN §9 defaults table; `tools/check-ledger-anchors.R` (parse the ledger's `D-0NN`/`IPn`/`GPn`/`[[citekey]]`/R-file anchors, assert each resolves) + `tests/testthat/test-ledger-anchors.R` (skips when `cairn/` absent); mutation-verify the check fails on a broken anchor.
-- [ ] T8: Full DoD gate (`Rscript tools/dod-gate.R`) + `cairn_validate`; fix any fallout.
+- [x] T7: Build the maintenance hook — Maintenance clause in `source-departures.md`; one-line pointer in the DESIGN §9 defaults table; `tools/check-ledger-anchors.R` (parse the ledger's `D-0NN`/`IPn`/`GPn`/`[[citekey]]`/R-file anchors, assert each resolves) + `tests/testthat/test-ledger-anchors.R` (skips when `cairn/` absent); mutation-verify the check fails on a broken anchor.
+- [x] T8: Full DoD gate (`Rscript tools/dod-gate.R`) + `cairn_validate`; fix any fallout.
 
 ## Work log
 
 - 2026-07-23: created by /milestone-plan.
 - 2026-07-23: set in-progress; branch m72-source-departures-ledger cut from master.
+- 2026-07-23: T8 — DoD gate PASSED with the new test (check 0/0/0, coverage 100%, style/lint/pkgdown clean); cairn_validate exit 0. Tasks done → back to review.
+- 2026-07-23: T7 — maintenance hook: Maintenance clause in source-departures.md + DESIGN §9 pointer + tools/check-ledger-anchors.R + tests/testthat/test-ledger-anchors.R (skips in built pkg). Mutation-verified: checker passes on the real ledger, FAILS on injected D-999/[[nosuchnote]], passes after revert; the test runs (not skips) in the source checkout.
 - 2026-07-23: T6 — fixed findings 1 (E3 "see M1" reworded; the PCA-matches fact moved into E3's ackwards column) and 2 (dropped dangling "DESIGN §9" from M1). Traceability: rendered tong2025 p.14 (Results) — the 58%/71% figure is on **p. 14**, not p. 11 as the diff-bug reviewer stated; recorded it verbatim in tong2025.md Extracted values + anchored E1 to p. 14; updated tong2025.md Open-questions (headline rates now recorded, per-condition detail not).
 - 2026-07-23: T5 — added INDEX.md "Design-provenance synthesis" section + source-departures.md line; cairn_validate exit 0 (references index<->disk PASS); diff cairn/-only. All tasks done → review.
 - 2026-07-23: T4 — no departure is a depart-gap (E1–E5 all supported), so no candidate row spawned; Disposition states this explicitly (satisfies AC5's else-branch).
@@ -98,3 +100,14 @@ Correct the pre-D-031 contract wording in `forbes2023.md` and author a consolida
   - Finding 3 (score 35, **logged, not actioned**): E3's classification as a Goldberg departure is borderline (tenBerge is factor-engine-only); scorer + reviewer agree it is intentional, transparently-scoped structure, not a defect — left as-is.
 - Also actioned in T6 (traceability, surfaced by blame-history): `tong2025.md`'s Open-questions said the recovery rates "were not transcribed", but E1 now cites 58%/71% — record that figure in tong2025.md with its p. 11 anchor.
 - Milestone returned to in-progress to action findings 1–2 + the traceability fix + the user-approved maintenance hook (T6–T8); ACs re-verified in pass 2 below.
+
+**Pass-2 fresh evidence (after T6–T8):**
+- AC1 ✓ (unchanged) — forbes2023.md capability framing + `(corrected M72)`; old assertion absent from `cairn/references/`.
+- AC2 ✓ (unchanged) — all required template sections present.
+- AC3 ✓ — 5 E-rows + 2 M-rows, stable IDs; E3 reworded (finding 1) and M1 anchor trimmed (finding 2) without losing a row.
+- AC4 ✓ — `tools/check-ledger-anchors.R` reports "all anchors resolve"; E1 now anchored `[[tong2025]] (p. 14)` and `tong2025.md` records the verbatim 58%/71% figure (rendered from p. 14 — corrected from the reviewer's stated p. 11).
+- AC5 ✓ (unchanged) — no `depart-gap`; Disposition states it; no candidate row added.
+- AC6 ✓ — INDEX line present; `cairn_validate` exit 0; DoD gate PASSED (check 0/0/0, coverage 100%, style/lint/pkgdown clean) with the new test.
+- AC7 ✓ — Maintenance clause in `source-departures.md` + DESIGN §9 pointer present; `check-ledger-anchors.R` passes on the ledger and FAILS on an injected broken anchor (mutation-verified, work log T7); `test-ledger-anchors.R` runs in-source (PASS 1) and skips in the built package (`cairn`/`tools` both `.Rbuildignore`d).
+
+**Findings triage — all resolved:** F1 (92) fixed, F2 (88) fixed, F3 (35) logged/not-actioned; plus the tong2025 p.14 traceability fix (the review pass's own page attribution corrected by rendering).

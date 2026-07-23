@@ -20,6 +20,16 @@ Tracking disclaimer: this is a reference, not an authority — status lives in
 `DESIGN.md`. A synthesis note that starts asserting status is a second tracking
 system.
 
+**Maintenance.** Every departure from Goldberg/Forbes requires a D-entry (IP9),
+so the forcing function is: the milestone that **adds or changes** such a
+departure adds or updates its row here in the **same change** — a new departure,
+its D-entry, and its ledger row travel together. `tools/check-ledger-anchors.R`
+(run at the DoD gate and by `tests/testthat/test-ledger-anchors.R`) mechanically
+verifies every anchor this page cites still resolves, but it **cannot** verify
+*completeness* — that a new departure was recorded is the process obligation
+above, not a checkable property. The `references staleness` advisory re-flags
+this page for audit at 180 days.
+
 **Evidence snapshot.**
 
 - DESIGN §9 defaults table + IP1/IP2/IP4/IP9/GP1 — `cairn/DESIGN.md` — observed 2026-07-23.
