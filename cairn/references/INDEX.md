@@ -39,6 +39,16 @@ _One line per source summary: `citekey — full title — which milestones/oracl
 - forbush2024 — Forbush et al. (2024), lumpers vs. splitters ED taxonomy — clinician-rating ESEM application.
 - cowan2024 — Cowan et al. (2024), psychosis risk onto HiTOP — Goldberg's procedure on a minres-EFA engine (not PCA); public code.
 
+## Applications (one note per source)
+
+_Standalone application source notes — manuscript/vignette citation precedents; the two Forbes notes double as `forbes2023` fidelity drift-watch. Authored + verified in M71._
+
+- carmichael2025.md — Carmichael et al. (2025), A transdiagnostic, hierarchical taxonomy of psychopathology following TBI (HiTOP-TBI) — Forbes' extended bass-ackwards (redundancy r≥.9 & φ>.95) in the **traumatic brain injury** domain; citation precedent.
+- michelini2019.md — Michelini et al. (2019), higher-order dimensions of psychopathology in the ABCD study — Goldberg's bass-ackwards on EFA/geomin factor scores (edge ≥.65) in the **child/adolescent** domain; citation precedent.
+- partsch2022.md — Partsch, Bluemke, & Lechner (2022), hierarchical structure of the 24 VIA character strengths — Goldberg's bass-ackwards via Waller (2007) code (oblique Promax) in the **personality / character-strengths** domain; citation precedent.
+- forbes2025.md — Forbes et al. (2025), Reconstructing Psychopathology (DSM-5 reorganization) — Forbes-authored extended-bass-ackward continuation in the **DSM-5 psychopathology** domain; fidelity drift-watch (redundancy matches the contract).
+- forbes2025a.md — Forbes et al. (2025), symptom-level structure of psychopathology in youth — Forbes-authored extended-bass-ackward continuation in the **youth** domain; drift-watch (records the deliberate φ-conjunction divergence — MD-1).
+
 ## Framing & contrasts (collapsed in background.md)
 
 - background.md — synthesis note collapsing the five framing/method-contrast sources below (BRM manuscript background).
