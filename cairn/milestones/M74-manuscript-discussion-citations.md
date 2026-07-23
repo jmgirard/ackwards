@@ -5,7 +5,7 @@
 - **Depends on:** M73
 - **Driving RR:** —
 - **Principles touched:** —
-- **Branch/PR:** m74-manuscript-discussion-citations
+- **Branch/PR:** m74-manuscript-discussion-citations · PR #78 (https://github.com/jmgirard/ackwards/pull/78)
 
 ## Goal
 
@@ -36,22 +36,22 @@ only. Package R code change → not here.
 
 ## Acceptance criteria
 
-- [ ] The `# Discussion` `[AUTHOR TO DRAFT]` blockquote stub is gone, replaced by
+- [x] The `# Discussion` `[AUTHOR TO DRAFT]` blockquote stub is gone, replaced by
       drafted prose addressing each of the four suggested beats (verified against
       a beat→paragraph checklist recorded in the Review section).
-- [ ] The Discussion cites `schmid1957` and `yung1999` at the scope-boundary beat;
+- [x] The Discussion cites `schmid1957` and `yung1999` at the scope-boundary beat;
       every `@citekey` newly used in the Discussion traces to a committed,
       extraction-verified `cairn/references/` note (citekey→note map recorded).
-- [ ] The seeded Method and Package sections gain method-backer citations for
+- [x] The seeded Method and Package sections gain method-backer citations for
       their previously-uncited claims (≥ the varimax, ESEM, tenBerge/factor-score,
       and `suggest_k`-criteria claims named In-scope), each tracing to a verified
       note; a diff review confirms no technical claim in those sections was
       changed — only citations added.
-- [ ] Every new `@citekey` resolves in `manuscript/references.bib` with a
+- [x] Every new `@citekey` resolves in `manuscript/references.bib` with a
       Crossref-checked entry.
-- [ ] `manuscript/manuscript.qmd` renders to **both** PDF and docx with no
+- [x] `manuscript/manuscript.qmd` renders to **both** PDF and docx with no
       unresolved-citation warnings and no new LaTeX errors (render log recorded).
-- [ ] `git diff` for the milestone touches only `manuscript/` and `cairn/` — no
+- [x] `git diff` for the milestone touches only `manuscript/` and `cairn/` — no
       package `R/`, `tests/`, `NAMESPACE`, or `DESCRIPTION` change.
 
 ## Coverage
@@ -113,3 +113,21 @@ others were already in the bib.
 | ruscio2012a | B (suggest_k CD) | ruscio2012a.md — verified 2026-07-19 (M69) | new (M74) |
 
 ## Review
+
+**Reviewed 2026-07-23** · PR #78 · branch `m74-manuscript-discussion-citations` (base `master` @ `1629d26`, no divergence).
+
+### Consistency gate
+- `cairn_validate`: **PASS** (exit 0; "all checks passed"). 82 advisory warnings, all pre-existing historical milestone-ID cross-references (M46/M53/…) in DESIGN/references/archive — not introduced by M74, advisory not gate.
+- Coverage completeness: **PASS** (bundled in `cairn_validate`; AC1–AC6 all map to existing tasks per the Coverage section).
+- `cairn_impact`: **N/A** — no IP/GP principle changed (`Principles touched: —`).
+- R-toolchain gate (`r-package` `consistency-gate` slot): **vacuously satisfied — built package untouched.** `git diff master...HEAD` changes only `manuscript/` + `cairn/`, both `.Rbuildignore`d (`^manuscript$` L23, `^cairn$` L2); no `R/`, `man/`, `NAMESPACE`, `DESCRIPTION`, `README`, `_pkgdown`, or `NEWS` change. Hence `document()` is no-diff (no roxygen touched) and `devtools::check()` is byte-identical to M73's green state — re-running it on an unchanged package is the needless-suite-run CLAUDE.md warns against, so justified-skipped on provable non-impact. `pkgdown::check_pkgdown()` ran anyway: "✔ No problems found." NEWS entry not required (the manuscript is `.Rbuildignore`d, not a shipped package surface).
+
+### Acceptance criteria (fresh evidence)
+- **AC1 — stub replaced, four beats covered.** `grep -c "AUTHOR TO DRAFT"` = 0; the Discussion is five paragraphs. Beat→paragraph checklist: ¶1 = what the package enables over bespoke scripts (engine breadth, single verified edge path, machine-precision reproduction, tested/documented); ¶2 = interpretive cautions (descriptive-not-confirmatory, fit-values-not-verdicts, `prune()` flags-not-deletions, precision beyond the single strongest edge); ¶3 = factor-score-validity caution; ¶4 = scope/limitations (orthogonal-only, sequential-not-hierarchical vs. Schmid–Leiman/higher-order, EAP + higher-order SEM out of scope, deep-level convergence); ¶5 = future directions (concrete: ESEM/polychoric comparability + `boot_edges`) + availability (CRAN, GitHub, docs, MIT). All four beats present. **PASS.**
+- **AC2 — scope-beat cites + Discussion citekey traceability.** `@schmid1957` (×1) and `@yung1999` (×2) appear in the scope-boundary paragraph (¶4). All Discussion citekeys — schmid1957, yung1999, beauducel2024, hu1999, kotov2017, michelini2019, williams2025 — are in the citekey→note map (Decisions section) and each traces to an extraction-verified `cairn/references/` note. **PASS.**
+- **AC3 — seeded-section citations only, no wording change.** `git diff master...HEAD -- manuscript.qmd` outside the Discussion shows exactly four hunks, each an inserted `[@key]` on an otherwise byte-identical line: `grice2001` (factor-score materialization), `kaiser1958` (varimax), `asparouhov2009` (ESEM engine), `revelle1979`+`ruscio2012a` (suggest_k criteria). No technical claim altered. Each cited note extraction-verified. **PASS.**
+- **AC4 — new keys resolve, Crossref-checked.** All 7 new keys (`kaiser1958`, `asparouhov2009`, `grice2001`, `revelle1979`, `ruscio2012a`, `beauducel2024`, `williams2025`) defined in `references.bib`; each DOI verified live against the Crossref API during T3 (title/authors/journal/volume/issue/pages/year matched); `revelle1979` DOI recovered from Crossref. **PASS.**
+- **AC5 — renders both formats, clean.** `quarto render manuscript.qmd` (Quarto 1.9.38, ackwards 0.1.1) produced `manuscript.pdf` + `manuscript.docx`; render-log scan found no citeproc "not found", no LaTeX error/undefined/missing; docx text confirms all 7 new references resolve with 0 literal `@citekey` leaks. **PASS.**
+- **AC6 — diff scope.** `git diff --name-only master...HEAD` = `cairn/ROADMAP.md`, milestone file, `manuscript/manuscript.qmd`, `manuscript/references.bib` — no `R/`, `tests/`, `NAMESPACE`, or `DESCRIPTION`. **PASS.**
+
+### Independent review (three lenses + scorer)
