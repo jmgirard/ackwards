@@ -3,7 +3,7 @@
 **Provenance.** Ingested 2026-07-23 by M70 from
 `cairn/references/sources/kaiser1958.pdf` (gitignored).
 Pagination: journal pages (article begins p. 187; range 187–200).
-Extraction: verified 2026-07-23 against the rendered source — the title page and abstract (p. 187) were read directly; the 1958 source prints no DOI (predates DOI registration), so the registered `10.1007/BF02289233` is carried unverified-against-source — observed 2026-07-23.
+Extraction: verified 2026-07-23 against the rendered source — the title page and abstract (p. 187) were read directly. (The 1958 source prints no DOI, predating DOI registration; the registered `10.1007/BF02289233` is carried from the DOI registry, as the Citation block records.) — observed 2026-07-23.
 
 **Citation.** Kaiser, H. F. (1958). The varimax criterion for analytic rotation
 in factor analysis. *Psychometrika, 23*(3), 187–200. The source prints no DOI;
