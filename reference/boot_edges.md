@@ -146,7 +146,7 @@ for the augmented edge table.
 x <- ackwards(sim16, k_max = 3)
 x <- boot_edges(x, sim16, n_boot = 100, seed = 1)
 #> ℹ Fitting 100 bootstrap replicates (pca, k = 1-3)...
-#> ✔ Fitting 100 bootstrap replicates (pca, k = 1-3)... [1.5s]
+#> ✔ Fitting 100 bootstrap replicates (pca, k = 1-3)... [1.2s]
 #> 
 x$boot$edges
 #>   from   to level_from level_to           r         se          lo          hi
