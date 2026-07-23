@@ -1,6 +1,6 @@
 # M72: Correct the stale Forbes contract line + author the Goldberg/Forbes departures ledger
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —

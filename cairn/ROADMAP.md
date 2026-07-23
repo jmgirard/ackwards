@@ -12,7 +12,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 |---|---|---|---|---|---|
 | M70 | Author + verify the 5 default-rationale backer notes and wire them into DESIGN §9 + roxygen | done | — | normal | milestones/archive/M70-reference-notes-backers.md |
 | M71 | Author + verify the 5 application source notes as citation precedents + Forbes drift-watch | planned | M70 | normal | milestones/M71-reference-notes-applications.md |
-| M72 | Correct the stale Forbes contract line + author the Goldberg/Forbes departures ledger | planned | — | normal | milestones/M72-source-departures-ledger.md |
+| M72 | Correct the stale Forbes contract line + author the Goldberg/Forbes departures ledger | in-progress | — | normal | milestones/M72-source-departures-ledger.md |
 | M69 | Author + verify the 8 secondary-methods source notes against their shelf PDFs | done | — | normal | milestones/archive/M69-reference-verification-secondary-sources.md |
 | M67 | Re-verify the 9 single-source reference pages against their shelf PDFs | done | — | normal | milestones/archive/M67-reference-verification-method-pages.md |
 | M68 | Re-verify the 3 collapsed synthesis pages against their member sources | done | M67 | normal | milestones/archive/M68-reference-verification-collapsed-pages.md |
