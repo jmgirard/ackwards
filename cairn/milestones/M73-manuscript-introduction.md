@@ -1,6 +1,6 @@
 # M73: Draft the manuscript Introduction with the verified framing + application sources
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —

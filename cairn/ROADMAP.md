@@ -15,7 +15,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | M72 | Correct the stale Forbes contract line + author the Goldberg/Forbes departures ledger | done | — | normal | milestones/archive/M72-source-departures-ledger.md |
 | M69 | Author + verify the 8 secondary-methods source notes against their shelf PDFs | done | — | normal | milestones/archive/M69-reference-verification-secondary-sources.md |
 | M68 | Re-verify the 3 collapsed synthesis pages against their member sources | done | M67 | normal | milestones/archive/M68-reference-verification-collapsed-pages.md |
-| M73 | Draft the manuscript Introduction with the verified framing + application sources | in-progress | — | normal | milestones/M73-manuscript-introduction.md |
+| M73 | Draft the manuscript Introduction with the verified framing + application sources | review | — | normal | milestones/M73-manuscript-introduction.md |
 | M74 | Draft the manuscript Discussion + enrich seeded sections with method-backer citations | planned | M73 | normal | milestones/M74-manuscript-discussion-citations.md |
 <!-- M01–M59 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent. -->
 
