@@ -2,6 +2,10 @@
 
 _One line per source summary: `citekey — full title — which milestones/oracles use it`._
 
+## Design-provenance synthesis
+
+- source-departures.md — synthesis note cataloguing every `ackwards` departure from Goldberg (2006) / Forbes (2023) with its rationale location + empirical/mathematical support (the auditable IP9/GP1 surface; M72).
+
 ## Method sources (one note per source)
 
 - goldberg2006.md — Goldberg, L. R. (2006). Doing it all Bass-Ackwards: The development of hierarchical factor structures from the top down. *Journal of Research in Personality.* — founding paper of the method; no oracle material.
