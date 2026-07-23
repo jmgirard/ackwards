@@ -44,7 +44,7 @@ Author a verified `cairn/references/` source note for each of the 5 application 
 ## Tasks
 
 - [x] T1: Author + verify the 3 new-domain notes (carmichael2025 — TBI; michelini2019 — ABCD child/adolescent; partsch2022 — VIA character strengths) against rendered shelf pages, each stating domain + method; for partsch2022 confirm bass-ackwards use with a page anchor.
-- [ ] T2: Author + verify the 2 Forbes continuation notes (forbes2025 — DSM-5 reconstruction; forbes2025a — youth), each recording the extended-BA/hPCA procedure and a dated observation on forbes2023 fidelity-contract divergence.
+- [x] T2: Author + verify the 2 Forbes continuation notes (forbes2025 — DSM-5 reconstruction; forbes2025a — youth), each recording the extended-BA/hPCA procedure and a dated observation on forbes2023 fidelity-contract divergence.
 - [ ] T3: Add the 5 filename-first `INDEX.md` Applications lines.
 - [ ] T4: Run `cairn_validate` (exit 0) and confirm the diff is `cairn/`-only; fix any fallout.
 
@@ -54,7 +54,10 @@ Author a verified `cairn/references/` source note for each of the 5 application 
 - 2026-07-23: /milestone-implement — set in-progress; branch `m71-reference-notes-applications` cut from master; cairn_validate baseline exits 0.
 - 2026-07-23: T1 — authored carmichael2025.md (TBI; Forbes' extended BA, redundancy r≥.90 & φ>.95), michelini2019.md (ABCD child/adult; Goldberg BA on EFA/geomin, edge ≥.65), partsch2022.md (VIA strengths; Goldberg BA via Waller-2007 code, oblique Promax). partsch bass-ackwards confirmed p.832. All verbatim quotes read from rendered pages + cross-checked against pdftotext.
 - 2026-07-23: minor amendment (INDEX placement) — the 5 standalone application notes go under a new `## Applications (one note per source)` INDEX subsection paralleling the existing "Method sources"/"Default-rationale backers" standalone subsections, not the "Applications (collapsed in applications.md)" block (those are collapsed, these are standalone). Executed in T3.
+- 2026-07-23: T2 — authored forbes2025.md (DSM-5; hPCA/extended-BA, oblique oblimin, redundancy r>.9 & φ>.95 = matches contract) and forbes2025a.md (youth; extended-BA, deliberate divergence — dropped φ conjunction, r≥.9 only, p.287). AC4 drift-watch section in each. Divergence disposition recorded as MD-1 (no candidate row: already parameterized by `redundancy_phi`). All quotes read from rendered pages + cross-checked against pdftotext.
 
 ## Decisions
+
+- MD-1 (2026-07-23): The forbes2025a redundancy divergence gets no ROADMAP candidate row. **Context:** the plan's Out scope said a genuine forbes2023 fidelity-contract divergence surfaced by a Forbes note "becomes a new `candidate` ROADMAP row." forbes2025a (p. 287) states a deliberate divergence — it dropped forbes2023's Tucker-φ conjunction, using `r ≥ .9` only. **Decision:** no candidate row is created — the looser cutoff is already expressible as `prune("redundant")` with the φ filter off (`redundancy_phi = NA` / the PCA auto-default), and the stricter forbes2023 conjunction is `redundancy_phi = 0.95` (DESIGN §9; D-017); there is no capability gap, so a row would be a no-op. The divergence is recorded as the AC4 drift-watch observation in `forbes2025a.md`. **Consequences:** AC4 satisfied by the observation, not a row; surfaced to the owner at the completion gate for override.
 
 ## Review
