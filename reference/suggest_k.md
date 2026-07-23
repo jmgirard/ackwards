@@ -291,13 +291,13 @@ the other pre-analysis diagnostics.
 # \donttest{
 sk <- suggest_k(sim16)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [221ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [228ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [87ms]
+#> ✔ Running MAP and VSS... [83ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [4.2s]
+#> ✔ Running Comparison Data (CD)... [3s]
 #> 
 sk
 #> 
@@ -338,7 +338,7 @@ autoplot(sk)
 # Run only MAP (fast; skips parallel analysis and CD)
 suggest_k(sim16, criteria = "map")
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [49ms]
+#> ✔ Running MAP and VSS... [57ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -371,7 +371,7 @@ suggest_k(sim16, criteria = "map")
 # Run only the parallel-analysis criteria
 suggest_k(sim16, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [79ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [102ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -405,13 +405,13 @@ suggest_k(sim16, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 # Faster exploratory run
 suggest_k(sim16, k_max = 6, n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [95ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [99ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [78ms]
+#> ✔ Running MAP and VSS... [67ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [4.3s]
+#> ✔ Running Comparison Data (CD)... [3.1s]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -450,10 +450,10 @@ suggest_k(R, n_obs = nrow(sim16))
 #> ℹ CD is skipped when a correlation matrix is supplied (CD requires raw item
 #>   distributions for resampling).
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [226ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [248ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [94ms]
+#> ✔ Running MAP and VSS... [85ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
