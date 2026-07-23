@@ -68,7 +68,7 @@ only. Package R code change → not here.
 - [x] T1: Draft the Discussion prose replacing the stub — the four beats,
       integrating `schmid1957`/`yung1999` at the scope-boundary caveat and
       application/factor-score context where apt (a complete draft to refine).
-- [ ] T2: Backfill method-backer citations into the seeded Method/Package
+- [x] T2: Backfill method-backer citations into the seeded Method/Package
       sections at each named uncited claim (`kaiser1958`, `asparouhov2009`,
       `grice2001`, `revelle1979`, `ruscio2012a`), citations only — no technical
       wording change.
@@ -84,6 +84,7 @@ only. Package R code change → not here.
 - 2026-07-23: created by /milestone-plan (split from the "Draft author-owned Intro + Discussion" candidate; M56 lineage). Discussion + citation-enrichment half; depends on M73 (shared manuscript file, sequenced to avoid conflicts).
 - 2026-07-23: question gate — author chose full Discussion citations (add beauducel2024/williams2025 factor-score caution + kotov2017/michelini2019 context) and concrete future-directions prose (ESEM/polychoric comparability + boot_edges).
 - 2026-07-23: T1 done — replaced the `[AUTHOR TO DRAFT]` Discussion stub with a five-paragraph draft covering the four beats; cites hu1999, beauducel2024, williams2025, yung1999, schmid1957, kotov2017, michelini2019.
+- 2026-07-23: T2 done — four citations-only backfill edits (kaiser1958 at varimax; asparouhov2009 at ESEM engine; grice2001 at factor-score materialization; revelle1979+ruscio2012a at the suggest_k retention-criteria group). `git diff` confirms no technical wording changed.
 
 ## Decisions
 

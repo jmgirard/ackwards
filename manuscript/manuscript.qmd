@@ -151,7 +151,7 @@ equivalents), not model parameters.
 
 The between-level correlations are the heart of the method, and there are two
 routes to them. The direct route materializes factor scores at each level and
-correlates them. @waller2007 showed that, when scoring is a linear function of
+correlates them [@grice2001]. @waller2007 showed that, when scoring is a linear function of
 the items, the same correlations follow in closed form from the factor weight
 matrices and the item correlation matrix, without ever computing scores. For
 factor weights $W_a$ and $W_b$ at two levels and item correlation matrix $R$, the
@@ -159,7 +159,7 @@ cross-level score covariance is $W_a' R W_b$. Standardizing by the score standar
 deviations $\sqrt{\operatorname{diag}(W'RW)}$ yields the correlations. **ackwards**
 uses this algebra by default and falls back to materialized scores only for
 nonlinear scoring, cross-checking the two routes against one another for linear
-engines. Orthogonal (varimax) rotation within each level is what makes the
+engines. Orthogonal (varimax) rotation [@kaiser1958] within each level is what makes the
 algebra exact: an orthonormal rotation satisfies $T' = T^{-1}$, so the closed
 form holds rather than approximates. Oblique rotation is deliberately not
 offered, because correlated factors would confound the very cross-level signal
@@ -201,7 +201,7 @@ available from CRAN and developed openly at
 The package builds a hierarchy with a single call, `ackwards(data, k_max, ...)`,
 dispatching to one of three extraction engines behind a common interface:
 principal component analysis (`"pca"`, the default), exploratory factor analysis
-(`"efa"`), and exploratory structural equation modeling (`"esem"`, an
+(`"efa"`), and exploratory structural equation modeling [@asparouhov2009] (`"esem"`, an
 EFA-in-SEM formulation via **lavaan** [@lavaan] that adds per-level fit indices
 and standard errors). Component and factor extraction rest on the **psych**
 package [@psych]. Correlation input may be Pearson (default), Spearman, or
@@ -246,7 +246,7 @@ dim(bfi)
 ```
 
 Before fitting, `suggest_k()` reports several complementary factor-retention
-criteria [@horn1965; @velicer1976] and a consensus range, rather than a single
+criteria [@horn1965; @velicer1976; @revelle1979; @ruscio2012a] and a consensus range, rather than a single
 number:
 
 ```{r}
