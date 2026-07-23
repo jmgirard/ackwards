@@ -1,11 +1,11 @@
 # M75: Beautify suggest_k() print output as an aligned criteria table
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** GP2
-- **Branch/PR:** —
+- **Branch/PR:** m75-suggest-k-print-table
 
 ## Goal
 
