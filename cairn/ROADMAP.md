@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M70 | Author + verify the 5 default-rationale backer notes and wire them into DESIGN §9 + roxygen | planned | — | normal | milestones/M70-reference-notes-backers.md |
+| M70 | Author + verify the 5 default-rationale backer notes and wire them into DESIGN §9 + roxygen | in-progress | — | normal | milestones/M70-reference-notes-backers.md |
 | M71 | Author + verify the 5 application source notes as citation precedents + Forbes drift-watch | planned | M70 | normal | milestones/M71-reference-notes-applications.md |
 | M69 | Author + verify the 8 secondary-methods source notes against their shelf PDFs | done | — | normal | milestones/archive/M69-reference-verification-secondary-sources.md |
 | M67 | Re-verify the 9 single-source reference pages against their shelf PDFs | done | — | normal | milestones/archive/M67-reference-verification-method-pages.md |

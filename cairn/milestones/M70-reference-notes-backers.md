@@ -1,6 +1,6 @@
 # M70: Author + verify the 5 default-rationale backer notes and wire them into DESIGN §9 + roxygen
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
