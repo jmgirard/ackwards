@@ -56,7 +56,7 @@ Correct the pre-D-031 contract wording in `forbes2023.md` and author a consolida
 - [x] T3: Fill each ledger row's rationale location + empirical support, verifying each citation/anchor against its source (DESIGN §9 lines, D-entries, tong2025/Waller/fidelity suite); add the GP1-extensions note; set each row's tag.
 - [x] T4: For any departure lacking empirical support, add a search-first ROADMAP `candidate` row; else state "all documented departures carry support" in the Disposition.
 - [x] T5: Add the `INDEX.md` line; run `cairn_validate` (exit 0); confirm the diff is docs-only `cairn/`-only.
-- [ ] T6: (review fixes) Reword E3's "see M1" misdirect (finding 1); drop the dangling "DESIGN §9" anchor from M1's rationale (finding 2); record the 58%/71% recovery figure in `tong2025.md` with its p. 11 / Table 1 anchor and update that note's Open-questions so E1 is fully traceable.
+- [x] T6: (review fixes) Reword E3's "see M1" misdirect (finding 1); drop the dangling "DESIGN §9" anchor from M1's rationale (finding 2); record the 58%/71% recovery figure in `tong2025.md` with its anchor and update that note's Open-questions so E1 is fully traceable.
 - [ ] T7: Build the maintenance hook — Maintenance clause in `source-departures.md`; one-line pointer in the DESIGN §9 defaults table; `tools/check-ledger-anchors.R` (parse the ledger's `D-0NN`/`IPn`/`GPn`/`[[citekey]]`/R-file anchors, assert each resolves) + `tests/testthat/test-ledger-anchors.R` (skips when `cairn/` absent); mutation-verify the check fails on a broken anchor.
 - [ ] T8: Full DoD gate (`Rscript tools/dod-gate.R`) + `cairn_validate`; fix any fallout.
 
@@ -64,6 +64,7 @@ Correct the pre-D-031 contract wording in `forbes2023.md` and author a consolida
 
 - 2026-07-23: created by /milestone-plan.
 - 2026-07-23: set in-progress; branch m72-source-departures-ledger cut from master.
+- 2026-07-23: T6 — fixed findings 1 (E3 "see M1" reworded; the PCA-matches fact moved into E3's ackwards column) and 2 (dropped dangling "DESIGN §9" from M1). Traceability: rendered tong2025 p.14 (Results) — the 58%/71% figure is on **p. 14**, not p. 11 as the diff-bug reviewer stated; recorded it verbatim in tong2025.md Extracted values + anchored E1 to p. 14; updated tong2025.md Open-questions (headline rates now recorded, per-condition detail not).
 - 2026-07-23: T5 — added INDEX.md "Design-provenance synthesis" section + source-departures.md line; cairn_validate exit 0 (references index<->disk PASS); diff cairn/-only. All tasks done → review.
 - 2026-07-23: T4 — no departure is a depart-gap (E1–E5 all supported), so no candidate row spawned; Disposition states this explicitly (satisfies AC5's else-branch).
 - 2026-07-23: T2+T3 — authored source-departures.md: 5 departures (E1–E5) + 2 matches (M1–M2), each with rationale location + empirical/math support and a tag (all E1–E5 `depart-supported`). Verified every anchor exists (R/ackwards.R:34/:292; D-004/007/010/017/031 + extension D-003/020/021/022/023; IP1/2/4/9 + GP1; 6 linked notes) and every empirical figure traces to source (tong2025 58%/71%, fidelity 1.3e-14, φ 0.005, chase 54/54). GP1-extensions note added.
