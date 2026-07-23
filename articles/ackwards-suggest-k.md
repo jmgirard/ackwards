@@ -320,10 +320,10 @@ starred k.
 **CD — Comparison Data (bottom-right, when available).** Shows the mean
 RMSE between observed and comparison-data eigenvalues at each k. The
 curve is drawn only over the levels that were actually computed by
-[`EFAtools::CD`](https://rdrr.io/pkg/EFAtools/man/CD.html) (up to the
-first non-significant improvement plus one). The starred k is the last
-level retained by the sequential Wilcoxon test — it need not be the
-visible minimum of the plotted curve. Requires `EFAtools`.
+[`EFAtools::CD`](https://mdsteiner.github.io/EFAtools/reference/CD.html)
+(up to the first non-significant improvement plus one). The starred k is
+the last level retained by the sequential Wilcoxon test — it need not be
+the visible minimum of the plotted curve. Requires `EFAtools`.
 
 Look for visual convergence across panels. When the scree elbow, the MAP
 minimum, and a VSS peak all occur at roughly the same k, the evidence is
@@ -434,7 +434,8 @@ internally, which does not respond reliably to
 [`set.seed()`](https://rdrr.io/r/base/Random.html). PA simulation
 results will vary slightly from run to run regardless of the `seed`
 argument — this is a known limitation of the underlying function. CD,
-which uses [`EFAtools::CD()`](https://rdrr.io/pkg/EFAtools/man/CD.html),
+which uses
+[`EFAtools::CD()`](https://mdsteiner.github.io/EFAtools/reference/CD.html),
 does respond to [`set.seed()`](https://rdrr.io/r/base/Random.html) and
 is reproducible when `seed` is set.
 
