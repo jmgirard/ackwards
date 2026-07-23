@@ -1,6 +1,6 @@
 # M74: Draft the manuscript Discussion + enrich the seeded sections with method-backer citations
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** M73
 - **Driving RR:** —
@@ -76,7 +76,7 @@ only. Package R code change → not here.
       entries.
 - [x] T4: Record the citekey→note map for every newly cited source (Discussion +
       seeded-section backfill), confirming each has a committed, verified note.
-- [ ] T5: Render PDF + docx; confirm no unresolved citations / new LaTeX errors;
+- [x] T5: Render PDF + docx; confirm no unresolved citations / new LaTeX errors;
       confirm the diff scope is manuscript + tracking only.
 
 ## Work log
@@ -87,6 +87,7 @@ only. Package R code change → not here.
 - 2026-07-23: T2 done — four citations-only backfill edits (kaiser1958 at varimax; asparouhov2009 at ESEM engine; grice2001 at factor-score materialization; revelle1979+ruscio2012a at the suggest_k retention-criteria group). `git diff` confirms no technical wording changed.
 - 2026-07-23: T3 done — added 7 new bib keys (kaiser1958, asparouhov2009, grice2001, revelle1979, ruscio2012a, beauducel2024, williams2025). Each DOI verified live against the Crossref API (title/authors/journal/volume/issue/pages/year); revelle1979's DOI 10.1207/s15327906mbr1404_2 recovered from Crossref (source prints none); full given names pulled from Crossref for beauducel2024 + williams2025.
 - 2026-07-23: T4 done — recorded the citekey→note map (12 keys) in the Decisions section; every added citekey traces to an extraction-verified reference note.
+- 2026-07-23: T5 done — `quarto render manuscript.qmd` produced both manuscript.pdf and manuscript.docx (Quarto 1.9.38, ackwards 0.1.1); render log clean (no citeproc "not found", no LaTeX errors); docx text confirms all 7 new references resolved and 0 literal `@citekey` leaks; `git diff master...HEAD` touches only `manuscript/` + `cairn/` (no R/tests/NAMESPACE/DESCRIPTION); render outputs are gitignored. All tasks complete → status review.
 
 ## Decisions
 
