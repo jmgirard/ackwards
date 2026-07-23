@@ -68,13 +68,13 @@ object's fields, the criteria semantics (D-013), or the report-only stance
 
 ## Tasks
 
-- [ ] T1: Tests-first. In `test-print-snapshot.R` add `snap_print()` snapshots for
+- [x] T1: Tests-first. In `test-print-snapshot.R` add `snap_print()` snapshots for
       (a) a full-criteria `suggest_k` object and (b) a subset-criteria object; add
       an ANSI-stripped alignment assertion (header + rows share column offsets,
       numeric columns right-aligned) and a legend-present check. Confirm the
       existing M42/m1 undetermined test (`test-suggest_k.R:183`) still targets the
       new renderer.
-- [ ] T2: Rewrite the criteria block of `print.suggest_k()` (`R/suggest_k.R`) to
+- [x] T2: Rewrite the criteria block of `print.suggest_k()` (`R/suggest_k.R`) to
       build a header + rows table with ANSI-aware padding (reuse `.ok_glyph`;
       add/borrow a pad helper or `cli::ansi_align`), star optimal cells, emit via
       `cli::cli_verbatim`/`cli_text`, and print the legend. Keep dynamic columns,
@@ -88,6 +88,7 @@ object's fields, the criteria semantics (D-013), or the report-only stance
 ## Work log
 
 - 2026-07-23: created by /milestone-plan.
+- 2026-07-23: T1+T2 done — aligned criteria table + adaptive legend in print.suggest_k(); snapshot + ANSI-alignment tests added. Not-retained glyph kept as grey dash (cli::symbol$bullet aliases to "*" in ASCII terminals, colliding with the optimal star). suggest_k + print-snapshot suites 0 fail/0 warn.
 
 ## Decisions
 

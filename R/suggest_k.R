@@ -555,52 +555,78 @@ print.suggest_k <- function(x, ...) {
   cli::cli_h2("Criteria (k = 1-{x$k_max})")
 
   cr <- x$criteria
+  nk <- nrow(cr)
   tick <- cli::col_green(cli::symbol$tick)
+  # A plain dash for "not retained": its ASCII-fallback stays distinct from the
+  # optimal "*" (cli::symbol$bullet collapses to "*" in non-unicode terminals,
+  # colliding with the star), so the two markers never alias.
   dash <- cli::col_grey("-")
   star <- cli::col_cyan("*")
+  gap <- "  " # inter-column separator
 
-  # Pre-format only the columns that will actually be printed.
-  map_fmt <- if ("map" %in% cr_req) formatC(cr$map, digits = 4, format = "f") else NULL
-  vss1_fmt <- if ("vss" %in% cr_req) formatC(cr$vss1, digits = 4, format = "f") else NULL
-  vss2_fmt <- if ("vss" %in% cr_req) formatC(cr$vss2, digits = 4, format = "f") else NULL
+  # Assemble one column of already-styled cell strings under a header label,
+  # then right-align header + cells to one width. ansi_align measures *display*
+  # width, so the coloured glyphs (tick/dash/star carry ANSI escapes) pad
+  # correctly instead of counting their escape bytes.
+  cols_header <- character(0)
+  cols_cells <- list()
+  add_col <- function(header, cells) {
+    w <- max(cli::ansi_nchar(header), cli::ansi_nchar(cells))
+    cols_header[[length(cols_header) + 1L]] <<-
+      cli::ansi_align(header, width = w, align = "right")
+    cols_cells[[length(cols_cells) + 1L]] <<-
+      cli::ansi_align(cells, width = w, align = "right")
+  }
 
-  if (!is.null(map_fmt)) map_fmt[x$k_map] <- paste0(map_fmt[x$k_map], star)
-  if (!is.null(vss1_fmt)) vss1_fmt[x$k_vss1] <- paste0(vss1_fmt[x$k_vss1], star)
-  if (!is.null(vss2_fmt)) vss2_fmt[x$k_vss2] <- paste0(vss2_fmt[x$k_vss2], star)
+  # A retention column (PA-PC, PA-FA): tick where retained, dash above the
+  # ceiling. PA has no single optimal k, so the marker slot is always blank --
+  # kept so every symbolic cell is glyph + slot and columns line up.
+  retain_cells <- function(suggested) paste0(ifelse(suggested %in% TRUE, tick, dash), " ")
 
-  for (i in seq_len(nrow(cr))) {
-    parts <- character(0)
+  # A score column (MAP, VSS): the value right-justified to a common width, plus
+  # a trailing marker slot starred at the optimal k. Reserving the slot outside
+  # the numeric field keeps every decimal point in the column aligned.
+  score_cells <- function(vals, opt_k) {
+    fmt <- formatC(vals, digits = 4, format = "f")
+    fmt <- formatC(vals, digits = 4, format = "f", width = max(nchar(fmt)))
+    paste0(fmt, ifelse(seq_len(nk) == opt_k, star, " "))
+  }
 
-    if ("pa_pc" %in% cr_req) {
-      pc_sym <- if (isTRUE(cr$pa_pc_suggested[i])) tick else dash
-      parts <- c(parts, paste0("PA-PC ", pc_sym))
-    }
+  add_col("k", as.character(cr$k))
+  if ("pa_pc" %in% cr_req) add_col("PA-PC", retain_cells(cr$pa_pc_suggested))
+  if ("pa_fa" %in% cr_req) add_col("PA-FA", retain_cells(cr$pa_fa_suggested))
+  if ("map" %in% cr_req) add_col("MAP", score_cells(cr$map, x$k_map))
+  if ("vss" %in% cr_req) {
+    add_col("VSS-1", score_cells(cr$vss1, x$k_vss1))
+    add_col("VSS-2", score_cells(cr$vss2, x$k_vss2))
+  }
+  if ("cd" %in% cr_req && x$cd_available) {
+    kc <- x$k_cd
+    retained <- !is.na(kc) & seq_len(nk) <= kc
+    is_opt <- !is.na(kc) & seq_len(nk) == kc
+    add_col("CD", paste0(ifelse(retained, tick, dash), ifelse(is_opt, star, " ")))
+  }
 
-    if ("pa_fa" %in% cr_req) {
-      fa_sym <- if (isTRUE(cr$pa_fa_suggested[i])) tick else dash
-      parts <- c(parts, paste0("PA-FA ", fa_sym))
-    }
+  header_line <- paste(vapply(cols_header, identity, character(1)), collapse = gap)
+  row_lines <- vapply(seq_len(nk), function(i) {
+    paste(vapply(cols_cells, `[[`, character(1), i), collapse = gap)
+  }, character(1))
+  cli::cli_verbatim(paste0("  ", c(header_line, row_lines)))
 
-    if ("map" %in% cr_req) {
-      parts <- c(parts, paste0("MAP ", map_fmt[i]))
-    }
-
-    if ("vss" %in% cr_req) {
-      parts <- c(parts, paste0("VSS-1 ", vss1_fmt[i], "  VSS-2 ", vss2_fmt[i]))
-    }
-
-    if ("cd" %in% cr_req && x$cd_available) {
-      cd_sym <- if (!is.na(x$k_cd) && i == x$k_cd) {
-        paste0("CD ", tick, star)
-      } else if (!is.na(x$k_cd) && i < x$k_cd) {
-        paste0("CD ", tick)
-      } else {
-        paste0("CD ", dash)
-      }
-      parts <- c(parts, cd_sym)
-    }
-
-    cli::cli_text(paste0("  k = ", cr$k[i], ":  ", paste(parts, collapse = "  ")))
+  # Legend for the glyphs actually present: the tick/dash appear only in
+  # retention (PA) and CD columns; the star marks the optimal k of any score
+  # (MAP/VSS) or CD column. Naming a glyph the table never shows would mislead.
+  has_retain <- any(c("pa_pc", "pa_fa") %in% cr_req) ||
+    ("cd" %in% cr_req && x$cd_available)
+  has_optimal <- any(c("map", "vss") %in% cr_req) ||
+    ("cd" %in% cr_req && x$cd_available)
+  legend <- c(
+    if (has_retain) paste0(tick, " retained"),
+    if (has_optimal) paste0(star, " optimal k"),
+    if (has_retain) paste0(dash, " not retained")
+  )
+  if (length(legend) > 0L) {
+    cli::cli_verbatim(paste0("  ", paste(legend, collapse = "   ")))
   }
 
   # Footer notes for unavailable CD.
