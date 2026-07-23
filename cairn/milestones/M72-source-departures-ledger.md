@@ -29,7 +29,7 @@ Correct the pre-D-031 contract wording in `forbes2023.md` and author a consolida
 
 ## Acceptance criteria
 
-- [ ] AC1: `forbes2023.md` no longer asserts "default output must reproduce Forbes's examples exactly" as a live contract; the claim is replaced with the IP9/D-031 capability framing and marked `(corrected M72)`; `grep` for the old wording returns nothing live (only git history).
+- [ ] AC1: `forbes2023.md` no longer asserts "default output must reproduce Forbes's examples exactly" as a live contract; the claim is replaced with the IP9/D-031 capability framing and marked `(corrected M72)`; a grep of `cairn/references/` for the old contract assertion returns nothing (git history + this milestone file's task description aside).
 - [ ] AC2: a synthesis note exists at `cairn/references/source-departures.md`, authored from `templates/synthesis-note.md`, carrying every required section (Provenance with `Ingested`/`Extraction:` lines, Scope + tracking disclaimer, Evidence snapshot, characterization, an ID'd ledger table, Disposition, Open questions).
 - [ ] AC3: the ledger enumerates each of the 5 default-level departures (required `k_max` vs auto-stop; W′RW algebra vs score-then-correlate; tenBerge vs components; primary-parent sign alignment vs unaligned `comp.corr`; exact Tucker φ vs rounded congruence) + the 2 matches (`cut_show = 0.3` = Goldberg .30; `redundancy_criterion = "direct"` = Forbes `ChaseCorrPaths`); each row carries a stable ID and states source behavior, ackwards behavior, rationale location, empirical support.
 - [ ] AC4: every departure claim cites a verifiable location (DESIGN §9 row / `D-0NN` / citekey) and, where it claims empirical support, names the oracle/test/source (tong2025; Waller 2007 + IP2 test; fidelity suite 1.3e-14; φ within 0.005); additive extensions noted as GP1-governed, not itemized.
@@ -47,7 +47,7 @@ Correct the pre-D-031 contract wording in `forbes2023.md` and author a consolida
 
 ## Tasks
 
-- [ ] T1: Correct `forbes2023.md` — replace the pre-D-031 "must reproduce exactly" contract framing with IP9/D-031 capability wording, marked `(corrected M72)`; verify the old wording greps clean.
+- [x] T1: Correct `forbes2023.md` — replace the pre-D-031 "must reproduce exactly" contract framing with IP9/D-031 capability wording, marked `(corrected M72)`; verify the old wording greps clean.
 - [ ] T2: Author `source-departures.md` from the template — Provenance/Scope/Evidence snapshot/characterization + the ID'd ledger table skeleton with all 5 departures + 2 matches.
 - [ ] T3: Fill each ledger row's rationale location + empirical support, verifying each citation/anchor against its source (DESIGN §9 lines, D-entries, tong2025/Waller/fidelity suite); add the GP1-extensions note; set each row's tag.
 - [ ] T4: For any departure lacking empirical support, add a search-first ROADMAP `candidate` row; else state "all documented departures carry support" in the Disposition.
@@ -56,6 +56,8 @@ Correct the pre-D-031 contract wording in `forbes2023.md` and author a consolida
 ## Work log
 
 - 2026-07-23: created by /milestone-plan.
+- 2026-07-23: set in-progress; branch m72-source-departures-ledger cut from master.
+- 2026-07-23: T1 — corrected forbes2023.md "Why this is the primary source" to the IP9/D-031 capability framing (was the superseded "default output must reproduce Forbes's examples exactly"), marked (corrected M72). Refined AC1 to scope its grep to cairn/references/ (the milestone file legitimately quotes the old wording). Old assertion greps clean in references/.
 
 ## Decisions
 

@@ -20,11 +20,15 @@ the NonCommercial implications, so the AMH matrix can be bundled (legacy M53).
 
 ## Why this is the primary source
 
-CLAUDE.md's baseline contract: ackwards' default output must **reproduce
-Forbes's examples exactly**. Forbes (2023) footnote 3 names this package
-(`github.com/jmgirard/ackwards`) as the reference implementation of the extended
-bass-ackward method. Fidelity to her algorithm is therefore test-backed, not
-aspirational (M44 + M53).
+Forbes (2023) footnote 3 names this package (`github.com/jmgirard/ackwards`) as
+the reference implementation of the extended bass-ackward method, so exact
+reproduction of her results is a permanent, **test-backed capability** (M44 sims
++ M53 AMH), not aspirational. It is a *capability*, **not** a default lock-in:
+under IP9 / D-031 the reproducing settings stay available and documented, while
+defaults are free to adopt a better method with loud documentation (IP6) and a
+D-entry. *(Contract framing corrected M72: the pre-D-031 wording that made exact
+Forbes reproduction a **default** requirement was superseded by D-031,
+2026-07-17; git holds the original.)*
 
 ## Artifacts used as oracles (provenance, not page-transcription)
 
