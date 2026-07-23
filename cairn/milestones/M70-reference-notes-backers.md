@@ -1,6 +1,6 @@
 # M70: Author + verify the 5 default-rationale backer notes and wire them into DESIGN §9 + roxygen
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -50,13 +50,14 @@ Author a verified `cairn/references/` source note for each of the 5 default-rati
 - [x] T3: Add the 5 filename-first `INDEX.md` lines under the right section.
 - [x] T4: Wire each citation into the matching DESIGN §9 rationale row (rotation / scores / redundancy_phi / k_max) — citations only, no value change.
 - [x] T5: Add the `@references` entries (`R/ackwards.R`, `R/suggest_k.R`) in the existing citation style; run `devtools::document()`.
-- [ ] T6: Run `Rscript tools/dod-gate.R` + `cairn_validate`; fix any fallout.
+- [x] T6: Run `Rscript tools/dod-gate.R` + `cairn_validate`; fix any fallout.
 
 ## Work log
 
 - 2026-07-23: created by /milestone-plan.
 - 2026-07-23: set in-progress; branch m70-reference-notes-backers cut from master.
 - 2026-07-23: T1 — renamed shelf williams2025a.pdf → williams2025.pdf (gitignored). Minor AC1 wording refinement: scoped the grep to citekey usages (INDEX/note/roxygen), since the milestone file itself names the rename. (Reverted an over-eager AC1 tick — AC boxes are review-owned.)
+- 2026-07-23: T6 — DoD gate PASSED (check 0/0/0, coverage 100%, style/lint clean, pkgdown index complete); cairn_validate exit 0. All tasks done → status review.
 - 2026-07-23: T5 — added @references (ackwards.R: kaiser1958, grice2001, beauducel2024, williams2025; suggest_k.R: tong2025); devtools::document() regenerated ackwards.Rd + suggest_k.Rd; NAMESPACE unchanged.
 - 2026-07-23: T4 — wired the 5 citations into DESIGN §9: rotation row (kaiser1958), scores row (grice2001, beauducel2024, williams2025), redundancy_phi row (grice2001), k_max row (tong2025). Citations only; no default value changed.
 - 2026-07-23: T3 — added a new INDEX.md section "Default-rationale backers" with the 5 filename-first lines.
