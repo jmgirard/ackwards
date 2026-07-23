@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-07-23 (M72 merged + archived; M66 row pruned under terminal-row retention)_
+_Last hygiene check: 2026-07-23 (M71 merged + archived; M67 row pruned under terminal-row retention)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -11,10 +11,9 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
 | M70 | Author + verify the 5 default-rationale backer notes and wire them into DESIGN §9 + roxygen | done | — | normal | milestones/archive/M70-reference-notes-backers.md |
-| M71 | Author + verify the 5 application source notes as citation precedents + Forbes drift-watch | review | M70 | normal | milestones/M71-reference-notes-applications.md |
+| M71 | Author + verify the 5 application source notes as citation precedents + Forbes drift-watch | done | M70 | normal | milestones/archive/M71-reference-notes-applications.md |
 | M72 | Correct the stale Forbes contract line + author the Goldberg/Forbes departures ledger | done | — | normal | milestones/archive/M72-source-departures-ledger.md |
 | M69 | Author + verify the 8 secondary-methods source notes against their shelf PDFs | done | — | normal | milestones/archive/M69-reference-verification-secondary-sources.md |
-| M67 | Re-verify the 9 single-source reference pages against their shelf PDFs | done | — | normal | milestones/archive/M67-reference-verification-method-pages.md |
 | M68 | Re-verify the 3 collapsed synthesis pages against their member sources | done | M67 | normal | milestones/archive/M68-reference-verification-collapsed-pages.md |
 <!-- M01–M59 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent. -->
 
