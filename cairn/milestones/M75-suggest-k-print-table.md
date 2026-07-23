@@ -1,6 +1,6 @@
 # M75: Beautify suggest_k() print output as an aligned criteria table
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -83,7 +83,7 @@ object's fields, the criteria semantics (D-013), or the report-only stance
 - [x] T3: Update `ackwards-suggest-k.Rmd.orig` prose to describe the table+legend;
       `Rscript vignettes/precompute.R`; `git checkout --` untouched
       `vignettes/*.Rmd` + `vignettes/assets/`; add a NEWS.md bullet.
-- [ ] T4: Run `Rscript tools/dod-gate.R`; resolve any snapshot/coverage/lint fallout.
+- [x] T4: Run `Rscript tools/dod-gate.R`; resolve any snapshot/coverage/lint fallout.
 
 ## Work log
 
