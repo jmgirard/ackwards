@@ -27,12 +27,12 @@ Author a verified `cairn/references/` source note for each of the 5 default-rati
 
 ## Acceptance criteria
 
-- [ ] AC1: `williams2025a.pdf` renamed to `williams2025.pdf` on the shelf; no INDEX line, note heading/body, or roxygen entry uses the `williams2025a` citekey (grep hits only this milestone file's own rename description).
-- [ ] AC2: 5 notes exist at `cairn/references/{grice2001,beauducel2024,tong2025,williams2025,kaiser1958}.md`; each provenance `Extraction:` line begins its own line (M60 lesson) and reads `verified <YYYY-MM-DD> … — observed <YYYY-MM-DD>`; every extracted standing fact carries a page/table anchor; each verbatim quote transcribed from the rendered page, not flattened `pdftotext` (M67/M69 lesson).
-- [ ] AC3: `INDEX.md` gains one filename-first line (`- <name>.md — …`) per new note under the appropriate section.
-- [ ] AC4: each backer citation appears in the DESIGN §9 rationale for the default it supports (kaiser1958→rotation; grice2001+beauducel2024+williams2025→scores/tenBerge & redundancy_phi; tong2025→k_max).
-- [ ] AC5: each backer appears as a roxygen `@references` entry on the relevant function (`R/ackwards.R`: kaiser1958, grice2001, beauducel2024, williams2025; `R/suggest_k.R`: tong2025); `devtools::document()` re-run, `.Rd` updated, NAMESPACE unchanged.
-- [ ] AC6: `Rscript tools/dod-gate.R` passes (check 0 err/0 warn/0 note, coverage maintained, style/lint/pkgdown clean) and `cairn_validate` exits 0.
+- [x] AC1: `williams2025a.pdf` renamed to `williams2025.pdf` on the shelf; no INDEX line, note heading/body, or roxygen entry uses the `williams2025a` citekey (grep hits only this milestone file's own rename description).
+- [x] AC2: 5 notes exist at `cairn/references/{grice2001,beauducel2024,tong2025,williams2025,kaiser1958}.md`; each provenance `Extraction:` line begins its own line (M60 lesson) and reads `verified <YYYY-MM-DD> … — observed <YYYY-MM-DD>`; every extracted standing fact carries a page/table anchor; each verbatim quote transcribed from the rendered page, not flattened `pdftotext` (M67/M69 lesson).
+- [x] AC3: `INDEX.md` gains one filename-first line (`- <name>.md — …`) per new note under the appropriate section.
+- [x] AC4: each backer citation appears in the DESIGN §9 rationale for the default it supports (kaiser1958→rotation; grice2001+beauducel2024+williams2025→scores/tenBerge & redundancy_phi; tong2025→k_max).
+- [x] AC5: each backer appears as a roxygen `@references` entry on the relevant function (`R/ackwards.R`: kaiser1958, grice2001, beauducel2024, williams2025; `R/suggest_k.R`: tong2025); `devtools::document()` re-run, `.Rd` updated, NAMESPACE unchanged.
+- [x] AC6: `Rscript tools/dod-gate.R` passes (check 0 err/0 warn/0 note, coverage maintained, style/lint/pkgdown clean) and `cairn_validate` exits 0.
 
 ## Coverage
 
@@ -67,3 +67,20 @@ Author a verified `cairn/references/` source note for each of the 5 default-rati
 ## Decisions
 
 ## Review
+
+**Fresh evidence per acceptance criterion** (2026-07-23, PR #74):
+
+- AC1 ✓ — shelf holds `williams2025.pdf` (no `williams2025a.pdf`); `grep -rln williams2025a cairn/ R/ man/` resolves to only this milestone file's rename description (the note provenance token was dropped during review).
+- AC2 ✓ — all 5 notes exist; each `Extraction:` line begins its own line and matches `verified 2026-07-23 … — observed 2026-07-23` (grep-confirmed for all 5); standing facts carry page/table anchors; every verbatim quote transcribed from the *rendered* page (kaiser p. 187, grice p. 430, beauducel p. 289, tong preprint p. 2, williams p. 128).
+- AC3 ✓ — 5 filename-first INDEX lines under a new "Default-rationale backers" section (INDEX.md:64–68); `cairn_validate` `references index<->disk` PASS.
+- AC4 ✓ — DESIGN §9 rows cite each backer: `rotation`→Kaiser (1958); `scores`→Grice (2001), Beauducel, Hilger, & Kuhl (2024), Williams et al. (2025); `redundancy_phi`→Grice (2001); `k_max`→Tong, Qu, & Zhang (2025).
+- AC5 ✓ — `@references` present in `man/ackwards.Rd` (Kaiser/Grice/Beauducel/Williams) and `man/suggest_k.Rd` (Tong); `devtools::document()` produces no diff; NAMESPACE unchanged.
+- AC6 ✓ — `Rscript tools/dod-gate.R` PASSED fresh: check 0 err/0 warn/0 note, coverage 100.00%, style/lint clean, pkgdown reference index complete; `cairn_validate` exit 0.
+
+**Consistency gate (r-package `consistency-gate` slot + universal cairn checks):**
+- `cairn_validate` exit 0 — every check PASS (incl. `coverage complete`, `references index<->disk`).
+- `document()` no-diff; generated files (`man/`, NAMESPACE) not hand-edited.
+- `devtools::check()` 0/0/0; `pkgdown::check_pkgdown()` reference index complete.
+- README untouched (not in the diff); no `.Rbuildignore` change needed (no new top-level files).
+- **NEWS.md — justified skip:** no behavior/API/feature change; the diff adds bibliographic `@references` to existing help pages and rationale citations to DESIGN — documentation refinements, matching the M67/M69 reference-work precedent (no NEWS entry).
+- `cairn_impact` skipped — Principles touched `—`; no IP/GP changed.
