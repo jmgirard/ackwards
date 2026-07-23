@@ -71,19 +71,51 @@ options(digits = 3)
 
 # Introduction
 
-> **\[AUTHOR TO DRAFT — structured stub]**
-> The seeded Method and Package sections below supply the technical substance;
-> the Introduction should supply the scholarly framing and argument. Suggested
-> beats:
->
-> - The recurring "how many factors?" problem and why competing single-solution
->   answers misframe it [@goldberg2006].
-> - The appeal of a *hierarchical* view of individual-differences structure
->   (personality, psychopathology) and the empirical questions it answers.
-> - The gap: bass-ackwards analyses have been run with bespoke scripts
->   [@goldberg2006; @waller2007; @forbes2023], with no general, tested,
->   documented tool — motivating a package.
-> - A one-paragraph roadmap of the paper.
+Factor analysis is among the most widely used tools in the individual-differences
+sciences, and nearly every application begins with the same question: how many
+factors should be retained? The candidate answers are numerous — parallel
+analysis, the scree test, the minimum-average-partial criterion, a theoretically
+favored number — and they frequently disagree. Treated as rival estimates of a
+single true quantity, that disagreement is a nuisance to be resolved.
+@goldberg2006 argued instead that it is informative: solutions extracted at
+different numbers of factors are not competing answers but complementary
+descriptions of the same structure viewed at different resolutions, and the
+relationships *between* those levels are themselves worth studying.
+
+This reframing matters because a hierarchical view of structure has become
+central to how individual differences are organized. In personality, integrative
+models relate a few broad dimensions to progressively narrower traits
+[@markon2005], a logic that extends from normal-range traits to the structure of
+personality-disorder pathology [@wright2014a] and to the taxonomy of character
+strengths [@partsch2022]. In psychopathology, the Hierarchical Taxonomy of
+Psychopathology [HiTOP; @kotov2017] organizes signs and symptoms into a
+dimensional hierarchy running from a general factor of psychopathology through
+broad spectra down to specific syndromes. Empirical hierarchies in this spirit
+have now been constructed across an unusually wide range of domains — common
+mental disorders [@kim2015], eating disorders [@forbush2018], psychosis-risk
+states [@cowan2024], child and adolescent psychopathology [@michelini2019],
+psychopathology following traumatic brain injury [@carmichael2025], and a
+data-driven reorganization of the DSM-5 symptom set [@forbes2025]. Each such
+hierarchy answers concrete empirical questions: which narrow dimension descends
+from which broad one, where a broad dimension splits into distinguishable parts,
+and where a dimension is essentially stable across levels of resolution.
+
+The empirical workhorse behind many of these analyses is Goldberg's
+bass-ackwards method [@goldberg2006], frequently implemented through the exact
+algebra of @waller2007 and, more recently, through the all-levels and
+redundancy-pruning extensions of @forbes2023. Yet for all its use, the method
+has been applied almost entirely through bespoke, paper-specific scripts written
+afresh for each study. Investigators who wish to build a hierarchy must
+reimplement the method, and readers who wish to check one must reconstruct it —
+an avoidable barrier to both routine use and reproducibility that a general,
+tested, and documented tool would remove.
+
+This paper introduces **ackwards**, an R package that closes that gap. We first
+describe the bass-ackwards method and Forbes's extension, then present the
+package's design and its tidy, pipe-friendly interface. We illustrate the
+workflow on a Big Five personality dataset and then reproduce Forbes's
+155-variable applied example, whose between-level correlations the package
+matches to machine precision against her reference implementation.
 
 <!-- ======================================================================= -->
 <!-- THE BASS-ACKWARDS METHOD — seeded draft (Method background).             -->
