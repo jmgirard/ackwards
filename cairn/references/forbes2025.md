@@ -11,7 +11,7 @@ Rodriguez-Seijas, C., Sunderland, M., Watson, D., Watts, A. L., Wright,
 A. G. C., & Clark, L. A. (2025). Reconstructing psychopathology: A data-driven
 reorganization of the symptoms in the *Diagnostic and Statistical Manual of
 Mental Disorders*. *Clinical Psychological Science, 13*(3), 462–488.
-https://doi.org/10.1177/21677026241268545 (© The Author(s) 2024.)
+https://doi.org/10.1177/21677026241268345 (© The Author(s) 2024.)
 
 **Role.** Manuscript/vignette **citation precedent** and a **Forbes-authored
 extended-bass-ackward continuation** of [[forbes2023]] — Miriam K. Forbes is
@@ -39,7 +39,7 @@ fidelity contract (`ackwards`' O1/O2 reproduction target; redundancy chased at
 
 - **Redundancy pruning — no divergence.** forbes2025 uses "correlations > .9 and congruence coefficients > .95 for all variables in a chain" (p. 467) — the same conjunctive criterion as forbes2023, i.e. `prune("redundant")` with `redundancy_phi = 0.95` and the direct/chain criterion (D-017) — observed 2026-07-23.
 - **Stopping/extraction — a study-design heuristic `ackwards` does not adopt as a default.** It caps extraction by a component well-definedness rule (parallel analysis, then "at least three variables … unique primary loading ≥ |.4|"; p. 467–468). `ackwards` requires an explicit `k_max` and retains every level 1..k_max for inspection (D-013; [[tong2025]]); it neither auto-selects nor imposes this well-definedness cap. Not a fidelity-contract divergence (the contract is the redundancy chase, which matches); it is a downstream analytic choice — observed 2026-07-23.
-- **Rotation — oblique oblimin, versus `ackwards`' orthogonal-only default (D-002).** A departure at the rotation layer, shared with [[wright2014a]]'s conjoint step, [[michelini2019]], and [[partsch2022]]; already catalogued as a Goldberg/Forbes-vs-ackwards departure in [[source-departures]] — observed 2026-07-23.
+- **Rotation — oblique oblimin, versus `ackwards`' orthogonal-only default (D-002).** A departure at the rotation layer, shared with [[partsch2022]]'s oblique Promax and wright2014a's conjoint-step oblique Geomin (`applications.md`); already catalogued as a Goldberg/Forbes-vs-ackwards departure in [[source-departures]] — observed 2026-07-23.
 
 ## Traces to
 

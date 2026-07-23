@@ -18,9 +18,13 @@ child/adolescent psychopathology (N = 9987 nine- and ten-year-olds plus their
 parents, ABCD study), yielding a general 'p' factor over five specific
 dimensions. Method is **Goldberg's bass-ackwards** run on **EFA** factor
 scores (PCA extraction, geomin rotation) — an EFA-engine precedent (like
-[[cowan2024]]), *not* Goldberg's original PCA-with-component-scores recipe, and
-its rotation is **oblique geomin**, differing from `ackwards`' orthogonal
-default (D-002). Its adjacent-level edge threshold (≥ 0.65) is a concrete
+cowan2024, in `applications.md`), *not* Goldberg's original
+PCA-with-component-scores recipe. Its rotation is **geomin** — a different
+rotation *family* from `ackwards`' CF/varimax default (D-002); the paper does
+**not** state the geomin orientation, so whether it also departs on
+orthogonality is unconfirmed (in this literature geomin has been run
+*orthogonally* — wright2014a's hierarchical step, `applications.md`). Its
+adjacent-level edge threshold (≥ 0.65) is a concrete
 published cut worth citing beside `prune()`'s `redundancy_r`. States the
 strongest available "why bass-ackwards" rationale for the EFA case.
 
