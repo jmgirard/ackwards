@@ -27,7 +27,7 @@ Author a verified `cairn/references/` source note for each of the 5 default-rati
 
 ## Acceptance criteria
 
-- [ ] AC1: `williams2025a.pdf` renamed to `williams2025.pdf` on the shelf; `grep -rn williams2025a cairn/ R/` returns nothing.
+- [x] AC1: `williams2025a.pdf` renamed to `williams2025.pdf` on the shelf; no INDEX line, note heading/body, or roxygen entry uses the `williams2025a` citekey (grep hits only this milestone file's own rename description).
 - [ ] AC2: 5 notes exist at `cairn/references/{grice2001,beauducel2024,tong2025,williams2025,kaiser1958}.md`; each provenance `Extraction:` line begins its own line (M60 lesson) and reads `verified <YYYY-MM-DD> … — observed <YYYY-MM-DD>`; every extracted standing fact carries a page/table anchor; each verbatim quote transcribed from the rendered page, not flattened `pdftotext` (M67/M69 lesson).
 - [ ] AC3: `INDEX.md` gains one filename-first line (`- <name>.md — …`) per new note under the appropriate section.
 - [ ] AC4: each backer citation appears in the DESIGN §9 rationale for the default it supports (kaiser1958→rotation; grice2001+beauducel2024+williams2025→scores/tenBerge & redundancy_phi; tong2025→k_max).
@@ -45,7 +45,7 @@ Author a verified `cairn/references/` source note for each of the 5 default-rati
 
 ## Tasks
 
-- [ ] T1: Rename `cairn/references/sources/williams2025a.pdf` → `williams2025.pdf`; grep the repo for `williams2025a` and fix any stray reference.
+- [x] T1: Rename `cairn/references/sources/williams2025a.pdf` → `williams2025.pdf`; grep the repo for `williams2025a` and fix any stray reference.
 - [ ] T2: Author + verify the 5 backer notes against rendered shelf pages — grice2001 (factor-score indeterminacy; regression/Bartlett vs correlation-preserving), beauducel2024 (determinacy vs inter-factor-correlation trade-off), tong2025 (bass-ackward stopping-criterion simulation; the two BA criteria), williams2025 (latent-variable vs factor-score criterion validity; note the provided R function), kaiser1958 (the varimax criterion). Each note names in its Role which DESIGN §9 default it backs.
 - [ ] T3: Add the 5 filename-first `INDEX.md` lines under the right section.
 - [ ] T4: Wire each citation into the matching DESIGN §9 rationale row (rotation / scores / redundancy_phi / k_max) — citations only, no value change.
@@ -55,6 +55,8 @@ Author a verified `cairn/references/` source note for each of the 5 default-rati
 ## Work log
 
 - 2026-07-23: created by /milestone-plan.
+- 2026-07-23: set in-progress; branch m70-reference-notes-backers cut from master.
+- 2026-07-23: T1 — renamed shelf williams2025a.pdf → williams2025.pdf (gitignored). Minor AC1 wording refinement: scoped the grep to citekey usages (INDEX/note/roxygen), since the milestone file itself names the rename.
 
 ## Decisions
 
