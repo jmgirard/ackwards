@@ -74,7 +74,7 @@ only. Package R code change → not here.
       wording change.
 - [x] T3: Add all new keys to `manuscript/references.bib` with Crossref-verified
       entries.
-- [ ] T4: Record the citekey→note map for every newly cited source (Discussion +
+- [x] T4: Record the citekey→note map for every newly cited source (Discussion +
       seeded-section backfill), confirming each has a committed, verified note.
 - [ ] T5: Render PDF + docx; confirm no unresolved citations / new LaTeX errors;
       confirm the diff scope is manuscript + tracking only.
@@ -86,7 +86,29 @@ only. Package R code change → not here.
 - 2026-07-23: T1 done — replaced the `[AUTHOR TO DRAFT]` Discussion stub with a five-paragraph draft covering the four beats; cites hu1999, beauducel2024, williams2025, yung1999, schmid1957, kotov2017, michelini2019.
 - 2026-07-23: T2 done — four citations-only backfill edits (kaiser1958 at varimax; asparouhov2009 at ESEM engine; grice2001 at factor-score materialization; revelle1979+ruscio2012a at the suggest_k retention-criteria group). `git diff` confirms no technical wording changed.
 - 2026-07-23: T3 done — added 7 new bib keys (kaiser1958, asparouhov2009, grice2001, revelle1979, ruscio2012a, beauducel2024, williams2025). Each DOI verified live against the Crossref API (title/authors/journal/volume/issue/pages/year); revelle1979's DOI 10.1207/s15327906mbr1404_2 recovered from Crossref (source prints none); full given names pulled from Crossref for beauducel2024 + williams2025.
+- 2026-07-23: T4 done — recorded the citekey→note map (12 keys) in the Decisions section; every added citekey traces to an extraction-verified reference note.
 
 ## Decisions
+
+**Citekey→note map (T4 citation-provenance evidence).** Every `@citekey` this
+milestone adds — Discussion (D) + seeded-section backfill (B) — traces to a
+committed, extraction-verified `cairn/references/` note, and every new-to-bib key
+resolves in `manuscript/references.bib`. `bib?` = new bib entry added by M74 (T3);
+others were already in the bib.
+
+| citekey | where | note (verified) | bib? |
+|---|---|---|---|
+| schmid1957 | D (scope beat) | background.md — verified 2026-07-19 (M68) | pre-existing |
+| yung1999 | D (scope beat) | background.md — verified 2026-07-19 (M68) | pre-existing |
+| beauducel2024 | D (factor-score caution) | beauducel2024.md — verified 2026-07-23 (M70) | new (M74) |
+| williams2025 | D (factor-score caution) | williams2025.md — verified 2026-07-23 (M70) | new (M74) |
+| hu1999 | D (fit-values caution) | hu1999.md — verified 2026-07-19 (M69) | pre-existing |
+| kotov2017 | D (taxonomy context) | background.md — verified 2026-07-19 (M68) | pre-existing |
+| michelini2019 | D (taxonomy context) | michelini2019.md — verified 2026-07-23 (M71) | pre-existing |
+| kaiser1958 | B (varimax) | kaiser1958.md — verified 2026-07-23 (M70) | new (M74) |
+| asparouhov2009 | B (ESEM engine) | asparouhov2009.md — verified 2026-07-19 (M67) | new (M74) |
+| grice2001 | B (factor scores) | grice2001.md — verified 2026-07-23 (M70) | new (M74) |
+| revelle1979 | B (suggest_k VSS) | revelle1979.md — verified 2026-07-19 (M69) | new (M74) |
+| ruscio2012a | B (suggest_k CD) | ruscio2012a.md — verified 2026-07-19 (M69) | new (M74) |
 
 ## Review
