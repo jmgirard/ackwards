@@ -429,6 +429,12 @@ announced via cli and documented in roxygen with its rationale.
 | `missing` | **`"pairwise"`** | preserves existing behaviour (pairwise-complete correlations); warns when NAs present. `"listwise"` gives fully consistent N across fit and edges (reduces to complete cases pre-fit). `"fiml"` uses Full Information ML: for ESEM (ML/MLR) it derives edge R from lavaan's FIML saturated model; for **PCA/EFA on the Pearson basis** (M38) it estimates R via `psych::corFiml()` and feeds it to the `W'RW` algebra (IP1 — one edge path; no new dep). FIML **errors** for WLSMV/ULSMV and for a **non-Pearson PCA/EFA basis** (corFiml is MVN-only). Added M16; PCA/EFA route added M38; **see the "Known limitations" section's ESEM ML/MLR pairwise entry** (the ML/MLR fit-vs-edges inconsistency under missingness is resolved for `"listwise"` and `"fiml"`; `"pairwise"` retains the existing minor inconsistency and now warns). Ignored (with a warning) when a correlation matrix is supplied — added M22. |
 | `n_obs` | `NULL` (M22); **string `"total"`/`"complete"` on the raw-data FIML PCA/EFA path (M38)** | Correlation-matrix input: a positive integer, required for `engine = "efa"` (psych needs N for chi-square/RMSEA), optional for `"pca"` (stored as `NA_integer_`). Raw data: N normally comes from `nrow(data)` and a numeric `n_obs` is ignored (warning). Under `missing = "fiml"` (PCA/EFA), `n_obs` may be `"total"` (**default** — all rows contributing to the FIML likelihood, matching the FIML convention; Enders 2010) or `"complete"` (complete-case N, conservative lower bound). Point estimates are unaffected by the choice; only the EFA fit indices, which are *approximate* under this two-step (FIML matrix → normal-theory EFA) route regardless of N (Zhang & Savalei 2020). `"effective"` was considered and dropped — no canonical formula, so it would be a package-invented convention. A string `n_obs` is rejected off this path. |
 
+Where any default above **departs** from Goldberg (2006) or Forbes (2023) — or
+deliberately matches them — the divergence, its rationale, and its empirical/
+mathematical support are catalogued in `cairn/references/source-departures.md`
+(kept current per that page's Maintenance clause: a new/changed departure carries
+a D-entry per IP9 and a ledger row in the same change).
+
 ### Documentation standard (owner priority)
 
 - Every default above is documented in roxygen with **why**, not just **what**.

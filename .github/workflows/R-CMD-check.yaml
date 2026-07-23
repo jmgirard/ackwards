@@ -71,6 +71,13 @@ jobs:
         run: Rscript tools/check-vignette-freshness.R
         shell: bash
 
+      # Fail fast if the departures ledger cites an anchor that no longer
+      # resolves (M72). Base R only; needs the source checkout (cairn/ + tools/
+      # are .Rbuildignore'd, so the tarball R CMD check below cannot see this).
+      - name: Check departures-ledger anchor integrity
+        run: Rscript tools/check-ledger-anchors.R
+        shell: bash
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
