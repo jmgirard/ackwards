@@ -151,7 +151,7 @@ equivalents), not model parameters.
 
 The between-level correlations are the heart of the method, and there are two
 routes to them. The direct route materializes factor scores at each level and
-correlates them. @waller2007 showed that, when scoring is a linear function of
+correlates them [@grice2001]. @waller2007 showed that, when scoring is a linear function of
 the items, the same correlations follow in closed form from the factor weight
 matrices and the item correlation matrix, without ever computing scores. For
 factor weights $W_a$ and $W_b$ at two levels and item correlation matrix $R$, the
@@ -159,7 +159,7 @@ cross-level score covariance is $W_a' R W_b$. Standardizing by the score standar
 deviations $\sqrt{\operatorname{diag}(W'RW)}$ yields the correlations. **ackwards**
 uses this algebra by default and falls back to materialized scores only for
 nonlinear scoring, cross-checking the two routes against one another for linear
-engines. Orthogonal (varimax) rotation within each level is what makes the
+engines. Orthogonal (varimax) rotation [@kaiser1958] within each level is what makes the
 algebra exact: an orthonormal rotation satisfies $T' = T^{-1}$, so the closed
 form holds rather than approximates. Oblique rotation is deliberately not
 offered, because correlated factors would confound the very cross-level signal
@@ -201,7 +201,7 @@ available from CRAN and developed openly at
 The package builds a hierarchy with a single call, `ackwards(data, k_max, ...)`,
 dispatching to one of three extraction engines behind a common interface:
 principal component analysis (`"pca"`, the default), exploratory factor analysis
-(`"efa"`), and exploratory structural equation modeling (`"esem"`, an
+(`"efa"`), and exploratory structural equation modeling [@asparouhov2009] (`"esem"`, an
 EFA-in-SEM formulation via **lavaan** [@lavaan] that adds per-level fit indices
 and standard errors). Component and factor extraction rest on the **psych**
 package [@psych]. Correlation input may be Pearson (default), Spearman, or
@@ -246,7 +246,7 @@ dim(bfi)
 ```
 
 Before fitting, `suggest_k()` reports several complementary factor-retention
-criteria [@horn1965; @velicer1976] and a consensus range, rather than a single
+criteria [@horn1965; @velicer1976; @revelle1979; @ruscio2012a] and a consensus range, rather than a single
 number:
 
 ```{r}
@@ -364,20 +364,81 @@ to the analysis reported by @forbes2023.
 
 # Discussion
 
-> **\[AUTHOR TO DRAFT — structured stub]**
-> Suggested beats:
->
-> - What the package enables that bespoke scripts did not: engine breadth, a
->   single verified edge path, exact reproduction of the published method, tested
->   and documented software.
-> - Interpretive cautions the package deliberately enforces: descriptive not
->   confirmatory hierarchy; reporting fit values rather than pass/fail verdicts;
->   redundancy/artifact flags as guides, not deletions; selection bias in reading
->   the single strongest edge.
-> - Scope and limitations: orthogonal rotation only; EAP scoring and higher-order
->   SEM out of scope; convergence behavior at deep levels.
-> - Future directions and an availability statement (CRAN, GitHub, documentation
->   site, open-source license).
+**ackwards** gathers into one tested, documented package a bass-ackwards workflow
+whose modern extensions have until now existed only as bespoke, paper-specific
+scripts. The core top-down loop has long been available in the **psych** package;
+what **ackwards** adds is the rest of that workflow, brought behind a single tidy
+interface. Three extraction engines (principal component analysis, exploratory
+factor analysis, and exploratory structural equation modeling) sit behind that
+interface, so an analyst can move from Goldberg's original component-scores
+procedure to an EFA-in-SEM formulation with per-level fit indices, standard
+errors, and ordinal support without leaving the package or rewriting the
+pipeline. All three engines route their between-level correlations through a
+single verified computation: Waller's (2007) closed-form algebra when scoring is
+linear, cross-checked against materialized factor scores. The applied example reproduces Forbes's (2023)
+155-variable analysis to machine precision, and that agreement is exercised by
+the test suite rather than merely asserted. Researchers who adopt the package
+inherit a computation that has already been checked, and readers who want to
+verify an analysis can re-run it rather than reconstruct it.
+
+Several of the package's design choices are deliberately conservative, encoding
+interpretive cautions rather than leaving them to the analyst's discipline. The
+hierarchy **ackwards** produces is descriptive, not confirmatory: its
+between-level edges are correlations among factor scores, not parameters of a
+fitted model, and the package says as much in its own printed output. Fit indices
+are reported as values, never as a computed pass/fail verdict against contested
+cutoffs [@hu1999], because a returned "acceptable/unacceptable" column would
+invite exactly the mechanical reading those cutoffs were cautioned against. The
+redundancy and artifact diagnostics of `prune()` flag factors for the analyst's
+attention; they never delete a level or alter an estimate, which preserves both
+the full hierarchy and the fidelity check that rides on it. And because a
+bass-ackwards diagram draws the eye to the single strongest edge leaving each
+factor, the package reports every edge with its correlation and, through
+`boot_edges()`, bootstrap confidence intervals, a statement of precision that a
+strongest-edge-only reading omits.
+
+A further caution concerns the factor scores themselves. Because the method's
+entire output is a set of between-level correlations, **ackwards** defaults to
+correlation-preserving (ten Berge) scores, which recover the inter-factor
+correlations without bias, though at a cost in factor-score determinacy relative
+to regression scores [@beauducel2024]. For continuously distributed indicators
+the factor-score approach and a full latent-variable model tend to agree; for
+dichotomous or categorical indicators, structural equation modeling can estimate
+criterion associations more accurately than factor scores [@williams2025], which
+is why the package pairs its ordinal path with polychoric correlations and a
+WLSMV estimator and stays explicit about what a factor-score hierarchy does and
+does not support.
+
+The package's scope is bounded by the method it implements. Rotation within each
+level is orthogonal (varimax) only: correlated factors would confound the very
+cross-level signal the method exists to measure, and the closed-form algebra
+depends on the orthonormality that oblique rotation gives up. The resulting
+hierarchy is, as Goldberg himself acknowledged, sequential rather than truly
+hierarchical in the sense of Yung, Thissen, and McLeod [-@yung1999], and its between-level
+"path coefficients" are more nearly part-whole correlations than the structural
+parameters of a bottom-up model. **ackwards** is therefore not a substitute for a
+confirmatory higher-order or Schmid–Leiman analysis [@schmid1957; @yung1999] when
+a fitted model is what a question calls for; the two describe structure in
+different senses. Consistent with that boundary, higher-order structural equation
+modeling, the Schmid–Leiman transformation, and expected-a-posteriori factor
+scores are out of scope by design rather than by oversight. At deep levels an
+extraction may fail to converge (most often in the ESEM engine), and the package
+treats this as information rather than failure: the level is recorded, warned
+about, and skipped, and the hierarchy is built to the deepest converged level
+rather than abandoned.
+
+Two extensions already on the package's roadmap would widen the verified workflow
+further. Split-half factor comparability and bootstrap edge confidence intervals
+are currently available for the linear (PCA and EFA) engines; carrying them to
+the ESEM and polychoric bases is the natural next step. Because the package is
+developed in the open, such extensions (and others the community may need) can be
+contributed, reviewed, and tested against the same fidelity guarantees. As
+dimensional, hierarchical taxonomies continue to expand across clinical and
+personality science [@kotov2017; @michelini2019], a tested and shared
+implementation of the method those taxonomies are built with lowers the barrier
+to both routine use and independent verification. **ackwards** is available from
+CRAN, developed at <https://github.com/jmgirard/ackwards> with documentation at
+<https://jmgirard.github.io/ackwards/>, and released under the MIT license.
 
 # Reproducibility
 
