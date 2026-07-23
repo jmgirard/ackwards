@@ -47,7 +47,7 @@ Author a verified `cairn/references/` source note for each of the 5 default-rati
 
 - [x] T1: Rename `cairn/references/sources/williams2025a.pdf` → `williams2025.pdf`; grep the repo for `williams2025a` and fix any stray reference.
 - [x] T2: Author + verify the 5 backer notes against rendered shelf pages — grice2001 (factor-score indeterminacy; regression/Bartlett vs correlation-preserving), beauducel2024 (determinacy vs inter-factor-correlation trade-off), tong2025 (bass-ackward stopping-criterion simulation; the two BA criteria), williams2025 (latent-variable vs factor-score criterion validity; note the provided R function), kaiser1958 (the varimax criterion). Each note names in its Role which DESIGN §9 default it backs.
-- [ ] T3: Add the 5 filename-first `INDEX.md` lines under the right section.
+- [x] T3: Add the 5 filename-first `INDEX.md` lines under the right section.
 - [ ] T4: Wire each citation into the matching DESIGN §9 rationale row (rotation / scores / redundancy_phi / k_max) — citations only, no value change.
 - [ ] T5: Add the `@references` entries (`R/ackwards.R`, `R/suggest_k.R`) in the existing citation style; run `devtools::document()`.
 - [ ] T6: Run `Rscript tools/dod-gate.R` + `cairn_validate`; fix any fallout.
@@ -57,6 +57,7 @@ Author a verified `cairn/references/` source note for each of the 5 default-rati
 - 2026-07-23: created by /milestone-plan.
 - 2026-07-23: set in-progress; branch m70-reference-notes-backers cut from master.
 - 2026-07-23: T1 — renamed shelf williams2025a.pdf → williams2025.pdf (gitignored). Minor AC1 wording refinement: scoped the grep to citekey usages (INDEX/note/roxygen), since the milestone file itself names the rename. (Reverted an over-eager AC1 tick — AC boxes are review-owned.)
+- 2026-07-23: T3 — added a new INDEX.md section "Default-rationale backers" with the 5 filename-first lines.
 - 2026-07-23: T2 — authored 5 backer notes (kaiser1958, grice2001, beauducel2024, tong2025, williams2025), each verified against rendered shelf pages. DOIs Crossref-confirmed for williams2025 (21677026231225414) + tong2025 (s40647-024-00423-2); beauducel third author confirmed "Kuhl" (not "Kühl"). tong2025 shelf copy is the preprint — pagination basis recorded as preprint pages. kaiser1958 prints no DOI (registered BF02289233).
 
 ## Decisions

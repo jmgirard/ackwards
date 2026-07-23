@@ -56,3 +56,13 @@ _Sources backing hard-coded values, printed labels, and announced caveats in the
 - xia2019.md — Xia & Yang (2019), RMSEA/CFI/TLI with ordered categorical data — why the naive/ordinal fit indices under WLSMV are treated as optimistic.
 - zhang2020.md — Zhang & Savalei (2020), missing data effect on RMSEA/CFI under FIML — why the FIML-path EFA fit indices are flagged as approximate (D-020).
 - forbes2021.md — Forbes et al. (2021), detailed hierarchical model of psychopathology — provenance for the N = 3,175 AMH sample behind the `forbes2023` dataset.
+
+## Default-rationale backers (one note per source)
+
+_Sources supplying the published evidence behind the high-stakes DESIGN §9 defaults (varimax, tenBerge scoring, required `k_max`). Wired into the §9 rationale + roxygen `@references`. Authored + verified in M70._
+
+- kaiser1958.md — Kaiser (1958), the varimax criterion for analytic rotation — origin of the varimax default (DESIGN §9 `rotation`; D-002), beside Crawford & Ferguson 1970 / Browne 2001.
+- grice2001.md — Grice (2001), computing and evaluating factor scores — factor-score indeterminacy backing the `tenBerge` default + `redundancy_phi` rationale (DESIGN §9 `scores`; D-007).
+- beauducel2024.md — Beauducel, Hilger, & Kuhl (2024), determinacy vs inter-factor-correlation trade-off — why correlation-preserving (tenBerge) scores buy unbiased edges at some determinacy cost (DESIGN §9 `scores`/`redundancy_phi`).
+- williams2025.md — Williams et al. (2025), latent-variable vs factor-score approaches — validity of the factor-score hierarchy + its dichotomous-indicator caveat (DESIGN §9 `scores`; ordinal ESEM).
+- tong2025.md — Tong, Qu, & Zhang (2025), K1 vs PA vs Bass-Ackward — simulation evidence on bass-ackward stopping criteria backing required-`k_max` (DESIGN §9 `k_max`; `suggest_k`).
