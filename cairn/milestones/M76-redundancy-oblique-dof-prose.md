@@ -60,7 +60,7 @@ Rewrite the `redundancy_criterion` explanation with a worked micro-example, corr
 - [x] T6: Append a correction parenthetical to D-002's Context in `cairn/DECISIONS.md` (append-only, per RR01 rec 4).
 - [x] T7: Reframe the investigator-DoF paragraph (`ackwards-forbes.Rmd.orig:307-313`).
 - [x] T8: Add the `match` ledger row to `cairn/references/source-departures.md`.
-- [ ] T9: Re-run `Rscript vignettes/precompute.R`; `git checkout --` untouched `vignettes/assets`; confirm freshness stamps (`tools/check-vignette-freshness.R`).
+- [x] T9: Re-run `Rscript vignettes/precompute.R`; `git checkout --` untouched `vignettes/assets`; confirm freshness stamps (`tools/check-vignette-freshness.R`).
 - [ ] T10: NEWS.md entry (doc clarifications); `Rscript tools/dod-gate.R`.
 
 ## Work log
@@ -73,6 +73,7 @@ Rewrite the `redundancy_criterion` explanation with a worked micro-example, corr
 - 2026-07-23: T1/T2 done — star/anchor-on-leaf worked micro-example added to prune.R @details + forbes vignette redundancy prose (document()/precompute deferred to T9/T10).
 - 2026-07-23: T3–T6 done — oblique rationale corrected at all four sites (intro-vignette aside, roxygen `rotation` bullet, DESIGN §9 rotation row w/ M43-style parenthetical, D-002 Context parenthetical). BC6 preserved: §5.1 + forbes2023.md correspondence untouched. document()/precompute deferred to T9.
 - 2026-07-23: T7/T8 done — DoF paragraph reframed (flagging removes DoF; the auto-drop decision is what's substantive); `match` row M3 added to source-departures.md ledger + Disposition line updated.
+- 2026-07-23: T9 done — document() regenerated man/ackwards.Rd + man/prune.Rd (no NAMESPACE change); precompute regenerated vignettes. Reverted the 4 untouched vignettes + 3 asset PNGs (run noise); restored intro.Rmd from master and re-applied stamp + prose only, dropping suggest_k timing churn AND the ✔→✔︎ tick-glyph drift that #80/2a0122d fixed (M75 lesson). Freshness check passes.
 
 ## Decisions
 

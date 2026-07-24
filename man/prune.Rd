@@ -120,6 +120,19 @@ with the \code{prune} generics already defined by recursive-partitioning
 packages (e.g. \code{rpart::prune}) regardless of package load order.
 }
 \details{
+\strong{The \code{"direct"} criterion is a star anchored on the leaf, not a walk.}
+Take a three-level chain candidate with deepest leaf \code{m3f1} and shallower
+factors \code{m2f1} (level 2) and \code{m1f1} (level 1). Under the default \code{"direct"}
+criterion the chain \code{m1f1 -> m2f1 -> m3f1} forms when \strong{both} direct-to-leaf
+correlations \verb{|r(m1f1, m3f1)|} and \verb{|r(m2f1, m3f1)|} meet \code{redundancy_r} --
+every member is judged by its own direct correlation to the \emph{same} deepest
+factor (a star centred on the leaf). It does \strong{not} require the adjacent hop
+\verb{|r(m1f1, m2f1)|} to meet the threshold (that is the \code{"adjacent"} criterion),
+and it does \strong{not} screen every ancestor pair against every other (there is
+no all-pairs test). So an ancestor can join on a strong direct link to the
+leaf even where its adjacent hop to the next chain member is weak -- which is
+exactly why \code{r_to_prev} (below) can sit under \code{redundancy_r}.
+
 \strong{Reading \code{x$prune$chains} under \code{redundancy_criterion = "direct"}.} The
 \code{r_to_prev} and \code{phi_to_prev} columns report the \strong{adjacent-level}
 correlation and congruence between consecutive chain members (for continuity
