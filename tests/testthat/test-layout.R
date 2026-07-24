@@ -143,6 +143,12 @@ test_that(".count_crossings() counts adjacent-band inversions, ignores skip arcs
   ))
   skip_nodes <- rbind(nodes, data.frame(id = "root", level = 1L, x = 5))
   expect_equal(ackwards:::.count_crossings(list(nodes = skip_nodes, edges = skip)), 1L)
+
+  # A band holding a single edge cannot cross anything (no pair to compare).
+  lone <- data.frame(
+    from = "p1", to = "c1", level_from = 2L, level_to = 3L
+  )
+  expect_equal(ackwards:::.count_crossings(list(nodes = nodes, edges = lone)), 0L)
 })
 
 test_that("ba_layout() removes primary-tree crossings in a deep (k=10) hierarchy", {
@@ -204,6 +210,20 @@ test_that("ba_layout() stays faithful and deterministic at k=10", {
 
   # Deterministic across calls.
   expect_identical(ba_layout(x)$nodes, nodes)
+})
+
+test_that("ba_layout() node coordinates are stable (shallow snapshot)", {
+  x <- cached(ackwards(sim16, k_max = 5))
+  nodes <- ba_layout(x)$nodes
+  # Coordinates derive from ordinal ranks via .assign_x (rationals), so a value
+  # snapshot pins the layout deterministically. Tolerance guards float low bits.
+  expect_snapshot_value(nodes, style = "json2", tolerance = 1e-6)
+})
+
+test_that("ba_layout() node coordinates are stable (deep k=10 snapshot)", {
+  x <- cached(ackwards(forbes2023, k_max = 10, pairs = "all"))
+  nodes <- ba_layout(x)$nodes
+  expect_snapshot_value(nodes, style = "json2", tolerance = 1e-6)
 })
 
 test_that(".dodge_edge_labels() separates colliding labels beyond the threshold", {

@@ -1,6 +1,6 @@
 # M80: Deep-hierarchy layout quality at k>=10 — crossing reduction + edge-label dodging
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -84,7 +84,7 @@ bent" at ten levels).
       and AC2 (faithfulness + parent-above-primary-child).
 - [x] T3: Extract `.dodge_edge_labels(lx, ly, threshold)` pure helper; call it from
       the `geom_label` path (`autoplot.R:592-598`); unit-test on colliding coords.
-- [ ] T4: Add `expect_snapshot_value()` coordinate snapshots (shallow `sim16` k=5 +
+- [x] T4: Add `expect_snapshot_value()` coordinate snapshots (shallow `sim16` k=5 +
       k=10 fixture); NEWS.md entry; `Rscript tools/dod-gate.R`.
 
 ## Work log
@@ -115,6 +115,9 @@ bent" at ten levels).
   tests on coincident/band/separated/single inputs + a k=10 `show_r` render.
   Vectorised after an interpreted-loop version rendered the 312-label dense view
   in ~10s (now ~1.9s).
+- 2026-07-24: T4 done — `expect_snapshot_value()` coordinate snapshots for
+  `sim16` k=5 and AMH k=10 (`_snaps/layout.md`); NEWS.md entry. All new helpers
+  internal (no pkgdown reference change). Running DoD gate next.
 
 ## Decisions
 

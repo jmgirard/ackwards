@@ -3,6 +3,16 @@
 CRAN resubmission of the first release, addressing reviewer feedback on the
 0.1.0 submission; also picks up everything added since that submission.
 
+* **Cleaner deep-hierarchy diagrams (`k >= 10`).** `ba_layout()` now orders each
+  level by a traversal of the primary-parent forest, laying every subtree out as
+  a contiguous block. This drives primary-tree edge crossings to zero in deep
+  hierarchies (the "bent levels" the previous single-pass ordering left behind —
+  e.g. 3 crossings down to 0 on the 155-variable AMH example at `k_max = 10`),
+  with no change to shallow layouts and the primary-child x-placement unchanged.
+  Separately, `autoplot(show_r = TRUE)` now dodges overlapping edge-correlation
+  labels apart so dense diagrams stay legible. The layout stays fully
+  deterministic.
+
 * **`autoplot(drop_pruned = TRUE)` can now draw secondary correlation edges.**
   A new `show_secondary = TRUE` adds the between-level correlations the pruned
   view otherwise hides — every kept cross-level factor pair with
