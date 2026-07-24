@@ -1,11 +1,11 @@
 # M76: Clarify redundancy-criterion + oblique-rotation prose and reframe artifact-mode DoF wording
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** —
-- **Branch/PR:** —
+- **Branch/PR:** m76-redundancy-oblique-dof-prose
 
 ## Goal
 
@@ -50,6 +50,7 @@ Rewrite the `redundancy_criterion` and oblique-rotation explanations with a work
 ## Work log
 
 - 2026-07-23: created by /milestone-plan.
+- 2026-07-23: in-progress; branch m76-redundancy-oblique-dof-prose cut from master.
 
 ## Decisions
 

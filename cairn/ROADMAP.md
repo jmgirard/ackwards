@@ -15,7 +15,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | M73 | Draft the manuscript Introduction with the verified framing + application sources | done | — | normal | milestones/archive/M73-manuscript-introduction.md |
 | M74 | Draft the manuscript Discussion + enrich seeded sections with method-backer citations | done | M73 | normal | milestones/archive/M74-manuscript-discussion-citations.md |
 | M75 | Beautify suggest_k() print output as an aligned criteria table | done | — | normal | milestones/archive/M75-suggest-k-print-table.md |
-| M76 | Clarify redundancy-criterion + oblique-rotation prose and reframe artifact-mode DoF wording | planned | — | normal | milestones/M76-redundancy-oblique-dof-prose.md |
+| M76 | Clarify redundancy-criterion + oblique-rotation prose and reframe artifact-mode DoF wording | in-progress | — | normal | milestones/M76-redundancy-oblique-dof-prose.md |
 | M77 | Near-redundant band flag in artifact mode + fix artifact vignette example | planned | M76 | normal | milestones/M77-near-redundant-band.md |
 | M78 | Gap-tolerant (skip-level) direct redundancy chains — gated on ChaseCorrPaths semantics | planned | — | normal | milestones/M78-skip-level-redundancy-chains.md |
 | M79 | Secondary-correlation edges in the pruned/publication view | planned | — | normal | milestones/M79-secondary-correlation-edges.md |
