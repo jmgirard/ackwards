@@ -83,9 +83,16 @@ alias.}
 does not use colour (\code{"linetype"} or \code{"none"}). Default \code{"black"}.
 \code{colour_edge} is an accepted British alias.}
 
-\item{node_width}{Width of factor boxes in layout units. Default \code{0.8}.}
+\item{node_width}{Width of factor boxes in layout units. Either a single
+value applied to every box (default \code{0.8}), or a \strong{named numeric vector}
+keyed by factor ID (e.g. \code{c(m5f1 = 1.6)}) giving a per-box width; boxes not
+named fall back to the \code{0.8} default. Use a per-box width to fit a long
+manual \code{node_labels} string. Names matching no factor ID warn.}
 
-\item{node_height}{Height of factor boxes in layout units. Default \code{0.4}.}
+\item{node_height}{Height of factor boxes in layout units. Either a single
+value applied to every box (default \code{0.4}), or a named numeric vector keyed
+by factor ID for a per-box height (unnamed boxes fall back to \code{0.4}); useful
+for multi-line manual labels. Names matching no factor ID warn.}
 
 \item{min_sep}{Minimum horizontal separation between nodes; passed to
 \code{\link[=ba_layout]{ba_layout()}}. Default \code{1.0}.}
@@ -261,6 +268,12 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 
   # Custom node labels for the 5-factor level
   autoplot(x, node_labels = c(m5f1 = "Factor A", m5f2 = "Factor B"))
+
+  # Widen two boxes to fit long manual labels (per-box sizing)
+  autoplot(x,
+    node_labels = c(m5f1 = "Conscientiousness"),
+    node_width = c(m5f1 = 1.8)
+  )
 
   # Primary links only -- clean hierarchy tree
   autoplot(x, primary_only = TRUE)

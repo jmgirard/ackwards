@@ -1528,3 +1528,70 @@ test_that("autoplot() forwards order= to ba_layout()", {
   d4 <- lab[lab$label %in% perm, , drop = FALSE]
   expect_equal(d4$label[order(d4$x)], perm)
 })
+
+# --- M81: per-node box sizes (node_width / node_height) ----------------------
+
+test_that(".resolve_node_size resolves scalars, named overrides, and errors", {
+  ids <- c("a", "b", "c")
+  # a bare scalar applies to every box
+  expect_equal(.resolve_node_size(ids, 0.8, 0.8, "node_width"), c(0.8, 0.8, 0.8))
+  # a named vector overrides named boxes; unnamed boxes fall back to the default
+  expect_equal(
+    .resolve_node_size(ids, c(b = 1.6), 0.8, "node_width"),
+    c(0.8, 1.6, 0.8)
+  )
+  # names matching no factor ID warn
+  expect_warning(
+    .resolve_node_size(ids, c(z = 2), 0.8, "node_width"),
+    "match no factor ID"
+  )
+  # invalid values error
+  expect_error(.resolve_node_size(ids, -1, 0.8, "node_width"), "positive")
+  expect_error(.resolve_node_size(ids, "x", 0.8, "node_width"), "positive")
+})
+
+test_that("autoplot() applies per-node node_width overrides to the tiles", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  p <- autoplot(x, node_width = c(m4f1 = 1.9), min_sep = 2.5)
+  bd <- ggplot2::ggplot_build(p)$data
+
+  # tile layer: carries fill + xmin/xmax (box width = xmax - xmin)
+  tl <- Filter(function(d) all(c("xmin", "xmax", "fill") %in% names(d)), bd)[[1L]]
+  tl$w <- tl$xmax - tl$xmin
+
+  # node-label layer(s) carry x, y, label(= id); match tiles to ids by (x, y)
+  all_ids <- unlist(lapply(x$levels, `[[`, "labels"), use.names = FALSE)
+  txt <- do.call(rbind, lapply(
+    Filter(function(d) all(c("x", "y", "label") %in% names(d)), bd),
+    function(d) d[, c("x", "y", "label")]
+  ))
+  txt <- txt[txt$label %in% all_ids, , drop = FALSE]
+  key <- function(d) paste(round(d$x, 6), round(d$y, 6))
+  tl$label <- txt$label[match(key(tl), key(txt))]
+
+  expect_equal(tl$w[tl$label == "m4f1"], 1.9)
+  expect_equal(tl$w[tl$label == "m4f2"], 0.8) # unnamed box keeps the default
+})
+
+test_that("autoplot() overlap warning is vector-safe (widest box vs min_sep)", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  expect_warning(
+    autoplot(x, node_width = c(m4f1 = 1.9), min_sep = 1.0),
+    "widest box"
+  )
+})
+
+test_that("autoplot() bare-scalar node sizes give every box the same size", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  p <- autoplot(x, node_width = 0.8, node_height = 0.4)
+  bd <- ggplot2::ggplot_build(p)$data
+  tl <- Filter(function(d) all(c("xmin", "xmax", "fill") %in% names(d)), bd)[[1L]]
+  expect_true(all(abs((tl$xmax - tl$xmin) - 0.8) < 1e-8))
+  expect_true(all(abs((tl$ymax - tl$ymin) - 0.4) < 1e-8))
+})

@@ -77,8 +77,15 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' @param color_edge,colour_edge Single colour for all edges when `sign_by`
 #'   does not use colour (`"linetype"` or `"none"`). Default `"black"`.
 #'   `colour_edge` is an accepted British alias.
-#' @param node_width Width of factor boxes in layout units. Default `0.8`.
-#' @param node_height Height of factor boxes in layout units. Default `0.4`.
+#' @param node_width Width of factor boxes in layout units. Either a single
+#'   value applied to every box (default `0.8`), or a **named numeric vector**
+#'   keyed by factor ID (e.g. `c(m5f1 = 1.6)`) giving a per-box width; boxes not
+#'   named fall back to the `0.8` default. Use a per-box width to fit a long
+#'   manual `node_labels` string. Names matching no factor ID warn.
+#' @param node_height Height of factor boxes in layout units. Either a single
+#'   value applied to every box (default `0.4`), or a named numeric vector keyed
+#'   by factor ID for a per-box height (unnamed boxes fall back to `0.4`); useful
+#'   for multi-line manual labels. Names matching no factor ID warn.
 #' @param min_sep Minimum horizontal separation between nodes; passed to
 #'   [ba_layout()]. Default `1.0`.
 #' @param order Optional manual left-to-right ordering of the **deepest**
@@ -198,6 +205,12 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   # Custom node labels for the 5-factor level
 #'   autoplot(x, node_labels = c(m5f1 = "Factor A", m5f2 = "Factor B"))
 #'
+#'   # Widen two boxes to fit long manual labels (per-box sizing)
+#'   autoplot(x,
+#'     node_labels = c(m5f1 = "Conscientiousness"),
+#'     node_width = c(m5f1 = 1.8)
+#'   )
+#'
 #'   # Primary links only -- clean hierarchy tree
 #'   autoplot(x, primary_only = TRUE)
 #'
@@ -312,13 +325,6 @@ autoplot.ackwards <- function(
   # colour+linetype pairing stays legible; plain "linetype" uses dashed.
   neg_linetype <- if (sign_by == "both") "twodash" else "dashed"
 
-  if (min_sep < node_width) {
-    cli::cli_warn(
-      "{.arg min_sep} ({min_sep}) is less than {.arg node_width} ({node_width}); \\
-       adjacent boxes may overlap."
-    )
-  }
-
   if (!is.null(edge_linewidth) &&
     (!is.numeric(edge_linewidth) ||
       length(edge_linewidth) != 1L ||
@@ -340,6 +346,23 @@ autoplot.ackwards <- function(
 
   layout <- ba_layout(object, min_sep = min_sep, order = order)
   nodes <- layout$nodes
+
+  # (b) Per-node box sizes (M81): node_width/node_height may be a single value
+  # (every box) or a named vector keyed by factor ID (per-box override, unnamed
+  # boxes fall back to the 0.8 / 0.4 defaults). Resolved to per-node `nw`/`nh`
+  # columns consumed by geom_tile and the edge-face attachment below.
+  nodes$nw <- .resolve_node_size(nodes$id, node_width, 0.8, "node_width")
+  nodes$nh <- .resolve_node_size(nodes$id, node_height, 0.4, "node_height")
+  nwv <- stats::setNames(nodes$nw, nodes$id)
+  nhv <- stats::setNames(nodes$nh, nodes$id)
+  nw_max <- max(nodes$nw)
+  nh_max <- max(nodes$nh)
+  if (min_sep < nw_max) {
+    cli::cli_warn(
+      "{.arg min_sep} ({min_sep}) is less than the widest box ({nw_max}); \\
+       adjacent boxes may overlap."
+    )
+  }
 
   # (d2) Stored factor labels (M51) form the node-text baseline: a labeled
   # factor shows its substantive name only (no parenthetical ID -- a stored
@@ -380,15 +403,15 @@ autoplot.ackwards <- function(
   # bottom->top faces when vertical, right->left faces when horizontal.
   .attach_coords <- function(e, nx, ny) {
     if (direction == "horizontal") {
-      e$x_from <- nx[e$from] + node_width / 2 # right face of parent box
+      e$x_from <- nx[e$from] + nwv[e$from] / 2 # right face of parent box
       e$y_from <- ny[e$from]
-      e$x_to <- nx[e$to] - node_width / 2 # left face of child box
+      e$x_to <- nx[e$to] - nwv[e$to] / 2 # left face of child box
       e$y_to <- ny[e$to]
     } else {
       e$x_from <- nx[e$from]
-      e$y_from <- ny[e$from] - node_height / 2 # bottom of parent box
+      e$y_from <- ny[e$from] - nhv[e$from] / 2 # bottom of parent box
       e$x_to <- nx[e$to]
-      e$y_to <- ny[e$to] + node_height / 2 # top of child box
+      e$y_to <- ny[e$to] + nhv[e$to] / 2 # top of child box
     }
     e
   }
@@ -438,7 +461,7 @@ autoplot.ackwards <- function(
          no edges possible. Returning a node-only plot."
       )
       return(.ba_degenerate_plot(
-        .orient_nodes(nodes), node_width, node_height,
+        .orient_nodes(nodes), nw_max, nh_max,
         show_level_labels, level_label_size,
         legend = legend, direction = direction
       ))
@@ -618,7 +641,7 @@ autoplot.ackwards <- function(
   }
 
   # Node tiles and labels (drawn on top of all edges)
-  p <- .ba_add_nodes(p, nodes, node_width, node_height)
+  p <- .ba_add_nodes(p, nodes)
 
   # Edge scales -- one per active encoding channel, each with its own legend.
   # When sign_by = "both", the colour and linetype scales share the name
@@ -651,8 +674,8 @@ autoplot.ackwards <- function(
   # levels' nodes; under drop_pruned they were removed, so nothing matches.
   if (show_level_labels) {
     p <- p + .ba_level_labels(
-      nodes, node_width, level_label_size,
-      direction = direction, node_height = node_height,
+      nodes, nw_max, level_label_size,
+      direction = direction, node_height = nh_max,
       pruned_levels = if (drop_pruned) integer(0) else .fully_pruned_levels(object)
     )
   }
@@ -671,16 +694,47 @@ autoplot.ackwards <- function(
   }
 }
 
+# Resolve node_width / node_height into a per-node numeric vector in `ids` order
+# (M81). `arg` is either a single value applied to every box, or a named numeric
+# vector keyed by factor ID (named boxes overridden, unnamed boxes fall back to
+# `default`). Names matching no factor ID warn, mirroring node_labels. Validates
+# positive numeric.
+.resolve_node_size <- function(ids, arg, default, argname) {
+  if (!is.numeric(arg) || anyNA(arg) || any(arg <= 0)) {
+    cli::cli_abort("{.arg {argname}} must be a positive number or named vector.")
+  }
+  if (is.null(names(arg))) {
+    if (length(arg) != 1L) {
+      cli::cli_abort(
+        "{.arg {argname}} must be a single value or a vector named by factor ID."
+      )
+    }
+    return(rep(as.numeric(arg), length(ids)))
+  }
+  unknown <- setdiff(names(arg), ids)
+  if (length(unknown) > 0L) {
+    cli::cli_warn(
+      "Some {.arg {argname}} name{?s} match no factor ID: {.val {unknown}}"
+    )
+  }
+  out <- stats::setNames(rep(default, length(ids)), ids)
+  known <- intersect(names(arg), ids)
+  out[known] <- arg[known]
+  unname(out)
+}
+
 # Add the node tiles + labels to a plot (M59). Shared by the main render path
 # and the degenerate node-only plot so both draw identical nodes; tiles land on
-# top of any edges already on `p`.
-.ba_add_nodes <- function(p, nodes, node_width, node_height) {
+# top of any edges already on `p`. Box width/height are per-node (`nw`/`nh`
+# columns, M81), mapped so each box can size to its own label.
+.ba_add_nodes <- function(p, nodes) {
   p +
     ggplot2::geom_tile(
       data = nodes,
-      ggplot2::aes(x = .data$x, y = .data$y, fill = .data$fill),
-      width = node_width,
-      height = node_height,
+      ggplot2::aes(
+        x = .data$x, y = .data$y, fill = .data$fill,
+        width = .data$nw, height = .data$nh
+      ),
       color = "black",
       linewidth = 0.4
     ) +
@@ -709,7 +763,7 @@ autoplot.ackwards <- function(
   nodes, node_width, node_height, show_level_labels, level_label_size,
   legend = TRUE, direction = "vertical"
 ) {
-  p <- .ba_add_nodes(ggplot2::ggplot(), nodes, node_width, node_height)
+  p <- .ba_add_nodes(ggplot2::ggplot(), nodes)
 
   if (show_level_labels && nrow(nodes) > 0L) {
     p <- p + .ba_level_labels(
