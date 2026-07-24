@@ -81,7 +81,7 @@ lands first, the second rebases.
   `layer_data` tests for the new render (secondary layer alpha/linewidth present;
   sign colour/linetype intact) and for the `FALSE` default (no extra layer,
   existing edge layer unchanged).
-- [ ] T3: roxygen `@param` + `@example`; showcase in
+- [x] T3: roxygen `@param` + `@example`; showcase in
   `ackwards-visualization.Rmd.orig` then re-run `Rscript vignettes/precompute.R`
   (revert timing-only churn line-by-line per M75/M61, confirm freshness stamp);
   NEWS.md entry; `_pkgdown.yml` iff exports change; `Rscript tools/dod-gate.R`.
@@ -103,6 +103,13 @@ lands first, the second rebases.
   linetype-sign tests green. Minor discovered fix (M77 lesson): reworded
   prune.R roxygen `` `r = 0.89` `` → `` `|r| = 0.89` `` to clear a non-fatal
   document() markdown warning.
+- 2026-07-24: T3 — roxygen `@param`/`@example`; `ackwards-visualization` vignette
+  subsection (re-precomputed, timing churn on the 5 untouched vignettes reverted
+  per M61/M75, freshness stamp current); NEWS entry; no `_pkgdown.yml` change
+  (new arg, not a new export). Gate: check 0/0/0, coverage 100% (layout +
+  autoplot 100%), lint 0, style applied, pkgdown OK. (dod-gate.R exit 144 after
+  a clean check was resource pressure from covr running back-to-back with check;
+  each piece passes standalone.)
 
 ## Decisions
 

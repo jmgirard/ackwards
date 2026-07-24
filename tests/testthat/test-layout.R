@@ -388,8 +388,10 @@ test_that("show_secondary preserves the sign channel under sign_by='linetype' (M
   # (encoding sign), not reuse it as its own distinct channel -- AC2, no
   # conflation with the sign dash. The secondary and primary layers therefore
   # draw from the same linetype set.
-  p <- ggplot2::autoplot(xp, drop_pruned = TRUE, show_secondary = TRUE,
-    sign_by = "linetype")
+  p <- ggplot2::autoplot(xp,
+    drop_pruned = TRUE, show_secondary = TRUE,
+    sign_by = "linetype"
+  )
   sec <- .dp_secondary_data(p)
   expect_false(is.null(sec))
   # All secondary edges share the primary channel: same (constant) colour and
