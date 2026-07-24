@@ -49,16 +49,16 @@ lands first, the second rebases.
 
 ## Acceptance criteria
 
-- [ ] AC1: With `show_secondary = TRUE` on a pruned object, `autoplot` draws a
+- [x] AC1: With `show_secondary = TRUE` on a pruned object, `autoplot` draws a
   secondary edge for every kept cross-level pair `|r| >= cut_show` that is not the
   primary edge — including at least one cross-branch pair and one same-lineage
   skip pair (verified on the returned secondary set + `layer_data`).
-- [ ] AC2: Secondary edges render dimmed (reduced alpha) + thinner and inherit
+- [x] AC2: Secondary edges render dimmed (reduced alpha) + thinner and inherit
   the sign encoding; the sign channel (colour/dash) is byte-identical to the
   `show_secondary = FALSE` render (verified via `layer_data` colour/linetype).
-- [ ] AC3: The default (`show_secondary = FALSE`) reproduces the current pruned
+- [x] AC3: The default (`show_secondary = FALSE`) reproduces the current pruned
   view exactly — no extra layer, existing edge `layer_data` unchanged.
-- [ ] AC4: `devtools::test()` clean; `devtools::document()` no diff; the
+- [x] AC4: `devtools::test()` clean; `devtools::document()` no diff; the
   `ackwards-visualization` vignette re-precomputed with its freshness stamp
   current; `_pkgdown.yml` updated iff the surface changed; `devtools::check()`
   clean.
@@ -114,3 +114,23 @@ lands first, the second rebases.
 ## Decisions
 
 ## Review
+
+**AC evidence (fresh, 2026-07-24):**
+- AC1 — `test-layout.R` M79 tests green: helper test asserts primary/secondary
+  disjoint, union = all kept cross-level pairs, both an adjacent second-parent
+  (gap 1) and a same-lineage skip (gap ≥ 2) present; render test asserts the
+  drawn secondary count == `sum(|r| ≥ cut_show)` on `$secondary`. FAIL 0.
+- AC2 — render test: secondary `layer_data` colours ⊆ sign palette
+  (`{#2166AC,#D6604D}`), primary layer colours byte-identical with/without
+  secondary; `sign_by="linetype"` test: secondary linetype set == primary's.
+- AC3 — default test: `drop_pruned` alone has exactly one `GeomSegment` layer,
+  no dimmed (alpha 0.4) layer; matches the prior pruned view.
+- AC4 — layout suite FAIL 0 (249 assertions); `document()` no diff; vignette
+  freshness OK; NEWS entry present, no milestone numbers; no `_pkgdown.yml`
+  change (new arg, not a new export); `check()` 0 err/0 warn/0 note.
+
+**Consistency gate:** `cairn_validate` all checks passed (108 advisory warnings
+= pre-existing archive cross-refs, not gate failures); coverage-completeness map
+clean. `document()` no diff (generated files not hand-edited). `pkgdown::check_pkgdown()`
+"No problems found." coverage 100% (layout + autoplot 100%; diagnostic only).
+lint 0, styled. No `IPn`/`GPn` added or changed (IP1/GP2 worked-under) → `cairn_impact` skipped.
