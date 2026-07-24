@@ -1,11 +1,11 @@
 # M79: Secondary-correlation edges in the pruned/publication view
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** IP1, GP2
-- **Branch/PR:** —
+- **Branch/PR:** m79-secondary-correlation-edges
 
 ## Goal
 
