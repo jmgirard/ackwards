@@ -37,6 +37,7 @@
   primary_only = FALSE,
   drop_pruned = FALSE,
   compress_levels = FALSE,
+  show_secondary = FALSE,
   show_arrows = TRUE,
   legend = TRUE,
   ...
@@ -165,6 +166,19 @@ vertical gaps left by pruned levels so retained levels are evenly spaced;
 level axis labels (d) still show the original level numbers. Ignored when
 \code{drop_pruned = FALSE}. Default \code{FALSE}.}
 
+\item{show_secondary}{When \code{TRUE} under \code{drop_pruned = TRUE}, also draws the
+between-level correlation edges the single-strongest-ancestor primary view
+hides: every kept cross-level factor pair with \verb{|r| >= cut_show} that is not
+already a primary edge. This includes cross-branch second parents \emph{and}
+same-lineage skip arcs (a direct skip-level \code{r} is a distinct, non-transitive
+fact, not implied by the primary path). Secondary edges render in a channel
+deliberately distinct from the primary edges -- dimmed (reduced opacity) and
+thinner, with plain line ends -- while still inheriting the sign encoding
+(\code{sign_by}), so the sign colour/linetype is never conflated with the
+secondary channel. By construction each node's secondaries are weaker than
+its primary edge, so a secondary edge never appears while that node's primary
+is below \code{cut_show}. Ignored when \code{drop_pruned = FALSE}. Default \code{FALSE}.}
+
 \item{show_arrows}{When \code{FALSE}, edges are drawn with plain line ends instead
 of closed arrowheads (\code{arrow = NULL}). Applies to both straight and curved
 edge layers. Default \code{TRUE}. Forbes (2023) figures use plain line ends.}
@@ -249,6 +263,10 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   autoplot(xp, drop_pruned = TRUE)
   autoplot(xp, drop_pruned = TRUE, show_r = TRUE)
   autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
+
+  # Add the secondary between-level correlations the primary view hides
+  # (dimmed + thinner, drawn beneath the primary edges)
+  autoplot(xp, drop_pruned = TRUE, show_secondary = TRUE)
 
   # Plain line ends without arrowheads
   autoplot(x, show_arrows = FALSE)

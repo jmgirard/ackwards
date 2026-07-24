@@ -154,13 +154,20 @@ ba_layout <- function(x, min_sep = 1.0) {
 }
 
 # Given an ackwards object with pruning annotations and a ba_layout() nodes
-# data frame, returns the kept-only node set and a reduced primary-edge table
-# for the drop_pruned rendering path.
+# data frame, returns the kept-only node set, a reduced primary-edge table, and
+# the secondary-edge set for the drop_pruned rendering path.
 #
 # Edge selection: for each kept node, picks the single edge with the largest
 # |r| to any kept node at a shallower level -- a primary-parent recomputation
 # on the reduced graph. The original is_primary must NOT be reused (it was
 # computed on the full adjacent lineage).
+#
+# Secondary edges (M79): every kept cross-level pair that is *not* a primary
+# edge -- the between-level correlations the single-strongest-ancestor primary
+# view hides. Returned unfiltered by |r| (autoplot applies cut_show); the set
+# includes both cross-branch second parents (e.g. f1 -> d2) and same-lineage
+# skip arcs (e.g. f1 -> b1 when the primary path is f1 -> d1 -> b1), consistent
+# with D-032/D-017 that a direct skip-level r is a distinct, non-transitive fact.
 #
 # All-pairs edges are recomputed fresh from the stored levels/R (M42, fixing
 # an M34 regression): x$edges$tidy holds only adjacent pairs under the default
@@ -206,7 +213,19 @@ ba_layout <- function(x, min_sep = 1.0) {
     tidy_edges[0L, , drop = FALSE]
   }
 
-  list(nodes = nodes_kept, edges = edges_kept)
+  # Secondary edges: all kept cross-level pairs minus the per-node primary
+  # edges just selected. tidy_edges is directed shallow -> deep, so filtering
+  # to kept endpoints already restricts to cross-level pairs; the anti-join on
+  # (from, to) removes exactly the primary rows (each pair is unique).
+  kept_cross <- tidy_edges[
+    tidy_edges$from %in% kept_ids & tidy_edges$to %in% kept_ids, ,
+    drop = FALSE
+  ]
+  primary_key <- paste(edges_kept$from, edges_kept$to)
+  is_primary_row <- paste(kept_cross$from, kept_cross$to) %in% primary_key
+  secondary_kept <- kept_cross[!is_primary_row, , drop = FALSE]
+
+  list(nodes = nodes_kept, edges = edges_kept, secondary = secondary_kept)
 }
 
 # Enforce minimum separation between positions while preserving order.

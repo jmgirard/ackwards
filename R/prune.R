@@ -751,7 +751,7 @@
 #' **The near-redundant band (`"artifact"` mode).** `prune("redundant")` drops
 #' *full* redundancy -- pairs at or above the thresholds. Forbes (2023) uses the
 #' artifact flags mainly for the messier band *just below* them: a pair that
-#' correlates, say, `r = 0.89` and shares a loading pattern `phi = 0.93` is not
+#' correlates, say, `|r| = 0.89` and shares a loading pattern `phi = 0.93` is not
 #' quite redundant but is a candidate re-rotation worth a second look. Artifact
 #' mode surfaces this as `x$prune$near_redundant` -- a data frame of every
 #' cross-level pair that is **not** itself fully redundant yet has its direct
