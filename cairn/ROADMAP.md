@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-07-23 (M75 planned; M74 merged + archived; M69 row pruned under terminal-row retention)_
+_Last hygiene check: 2026-07-23 (M75 merged + archived; M70 row pruned under terminal-row retention)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,13 +10,12 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M70 | Author + verify the 5 default-rationale backer notes and wire them into DESIGN §9 + roxygen | done | — | normal | milestones/archive/M70-reference-notes-backers.md |
 | M71 | Author + verify the 5 application source notes as citation precedents + Forbes drift-watch | done | M70 | normal | milestones/archive/M71-reference-notes-applications.md |
 | M72 | Correct the stale Forbes contract line + author the Goldberg/Forbes departures ledger | done | — | normal | milestones/archive/M72-source-departures-ledger.md |
 | M73 | Draft the manuscript Introduction with the verified framing + application sources | done | — | normal | milestones/archive/M73-manuscript-introduction.md |
 | M74 | Draft the manuscript Discussion + enrich seeded sections with method-backer citations | done | M73 | normal | milestones/archive/M74-manuscript-discussion-citations.md |
-| M75 | Beautify suggest_k() print output as an aligned criteria table | review | — | normal | milestones/M75-suggest-k-print-table.md |
-<!-- M01–M59 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent. -->
+| M75 | Beautify suggest_k() print output as an aligned criteria table | done | — | normal | milestones/archive/M75-suggest-k-print-table.md |
+<!-- M01–M70 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent. -->
 
 ## Candidates
 
