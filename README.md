@@ -3,6 +3,8 @@
 
 # ackwards <a href="https://jmgirard.github.io/ackwards/"><img src="man/figures/logo.png" align="right" height="138" alt="ackwards website" /></a>
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/ackwards)](https://CRAN.R-project.org/package=ackwards)
 [![R-CMD-check](https://github.com/jmgirard/ackwards/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jmgirard/ackwards/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/jmgirard/ackwards/branch/master/graph/badge.svg)](https://app.codecov.io/gh/jmgirard/ackwards?branch=master)
@@ -80,14 +82,16 @@ sk
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0246 VSS-1 0.5121 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0190 VSS-1 0.5761 VSS-2 0.6636 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0172 VSS-1 0.5969 VSS-2 0.7288 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6198* VSS-2 0.7781 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5730 VSS-2 0.7912* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0170 VSS-1 0.5592 VSS-2 0.7530 CD ✔
-#> k = 7: PA-PC - PA-FA - MAP 0.0201 VSS-1 0.5698 VSS-2 0.7290 CD ✔
-#> k = 8: PA-PC - PA-FA - MAP 0.0231 VSS-1 0.5615 VSS-2 0.7252 CD ✔*
+#>   k  PA-PC  PA-FA      MAP    VSS-1    VSS-2  CD
+#>   1     ✔︎      ✔︎   0.0246   0.5121   0.0000   ✔︎ 
+#>   2     ✔︎      ✔︎   0.0190   0.5761   0.6636   ✔︎ 
+#>   3     ✔︎      ✔︎   0.0172   0.5969   0.7288   ✔︎ 
+#>   4     ✔︎      ✔︎   0.0164   0.6198*  0.7781   ✔︎ 
+#>   5     ✔︎      ✔︎   0.0160*  0.5730   0.7912*  ✔︎ 
+#>   6     -      ✔︎   0.0170   0.5592   0.7530   ✔︎ 
+#>   7     -      -   0.0201   0.5698   0.7290   ✔︎*
+#>   8     -      -   0.0231   0.5615   0.7252   -
+#>   ✔︎ retained   * optimal k   - not retained
 #> 
 #> ── Recommendations ──
 #> 
@@ -96,8 +100,8 @@ sk
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
-#> • CD: k = 8
-#> Consensus range: k = 4-8
+#> • CD: k = 7
+#> Consensus range: k = 4-7
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.
