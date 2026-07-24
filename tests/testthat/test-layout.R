@@ -206,6 +206,41 @@ test_that("ba_layout() stays faithful and deterministic at k=10", {
   expect_identical(ba_layout(x)$nodes, nodes)
 })
 
+test_that(".dodge_edge_labels() separates colliding labels beyond the threshold", {
+  min_pair_dist <- function(r) min(stats::dist(cbind(r$lx, r$ly)))
+
+  # Three coincident anchors are pushed apart to at least the threshold.
+  r <- ackwards:::.dodge_edge_labels(c(0, 0, 0), c(0, 0, 0), threshold = 0.4)
+  expect_gte(min_pair_dist(r), 0.4 - 1e-6)
+
+  # A dense horizontal band of near-colliding labels is declutttered.
+  set.seed(1)
+  band <- ackwards:::.dodge_edge_labels(
+    stats::runif(8, 0, 0.5), rep(-2.5, 8),
+    threshold = 0.4
+  )
+  expect_gte(min_pair_dist(band), 0.4 - 1e-6)
+
+  # Already-separated anchors are left untouched (no spurious motion).
+  lx <- c(0, 1, 2)
+  ly <- c(0, 0, 0)
+  same <- ackwards:::.dodge_edge_labels(lx, ly, threshold = 0.4)
+  expect_identical(same$lx, lx)
+  expect_identical(same$ly, ly)
+
+  # A single label (or none) is a no-op.
+  one <- ackwards:::.dodge_edge_labels(5, 5)
+  expect_identical(one, list(lx = 5, ly = 5))
+})
+
+test_that("autoplot(show_r = TRUE) dodges overlapping edge labels", {
+  skip_if_not_installed("ggplot2")
+  x <- cached(ackwards(forbes2023, k_max = 10, pairs = "all"))
+  # Renders without error and produces the labelled layer with dodged anchors.
+  expect_no_error(p <- ggplot2::autoplot(x, show_r = TRUE))
+  expect_s3_class(p, "ggplot")
+})
+
 test_that(".spread_positions() enforces min_sep, preserves order, and recentres", {
   # Access internal function from the package namespace
   spread <- ackwards:::.spread_positions

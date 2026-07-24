@@ -82,7 +82,7 @@ bent" at ten levels).
       `ba_layout`; leave Pass 2 x-assignment unchanged; update the roxygen
       docstring. Assert AC1 (0 primary crossings on k=10, no shallow regression)
       and AC2 (faithfulness + parent-above-primary-child).
-- [ ] T3: Extract `.dodge_edge_labels(lx, ly, threshold)` pure helper; call it from
+- [x] T3: Extract `.dodge_edge_labels(lx, ly, threshold)` pure helper; call it from
       the `geom_label` path (`autoplot.R:592-598`); unit-test on colliding coords.
 - [ ] T4: Add `expect_snapshot_value()` coordinate snapshots (shallow `sim16` k=5 +
       k=10 fixture); NEWS.md entry; `Rscript tools/dod-gate.R`.
@@ -110,6 +110,11 @@ bent" at ten levels).
   `.seed_order()`, `.primary_forest_order()`; rewired `ba_layout` Stage 1 to
   keep-best (seed vs traversal). k=10 primary crossings 3→0, shallow unchanged,
   deterministic. Tests + docstring updated; layout suite green.
+- 2026-07-24: T3 done — `.dodge_edge_labels()` (vectorised force-directed
+  repulsion, deterministic) wired into `autoplot`'s `show_r` label path; unit
+  tests on coincident/band/separated/single inputs + a k=10 `show_r` render.
+  Vectorised after an interpreted-loop version rendered the 312-label dense view
+  in ~10s (now ~1.9s).
 
 ## Decisions
 

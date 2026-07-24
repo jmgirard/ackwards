@@ -386,3 +386,42 @@ ba_layout <- function(x, min_sep = 1.0) {
   result[ord] <- p
   result
 }
+
+# Dodge overlapping edge-label anchors. Edge correlation labels are drawn at
+# edge midpoints; in dense (deep) hierarchies several midpoints collide (the
+# .99/1.00/.64 pile-ups). Any pair closer than `threshold` is repelled apart
+# along the line joining them (coincident points separate deterministically
+# along x, by index) in simultaneous force-directed steps, iterating until no
+# pair collides or a cap is reached. Vectorised (matrix force step, no
+# interpreted pairwise loop), deterministic (no RNG) and pure -- takes/returns
+# plain numeric vectors, so it is testable without ggplot2. Returns a
+# list(lx, ly) of adjusted anchors.
+.dodge_edge_labels <- function(lx, ly, threshold = 0.4, max_iter = 200L) {
+  n <- length(lx)
+  if (n < 2L) {
+    return(list(lx = lx, ly = ly))
+  }
+  idx_sign <- outer(seq_len(n), seq_len(n), function(a, b) sign(a - b))
+  for (iter in seq_len(max_iter)) {
+    dx <- outer(lx, lx, "-") # dx[i, j] = lx[i] - lx[j]
+    dy <- outer(ly, ly, "-")
+    dist <- sqrt(dx^2 + dy^2)
+    close <- dist < threshold
+    diag(close) <- FALSE
+    if (!any(close)) break
+
+    # Unit vectors pointing from j toward i; coincident pairs (dist ~ 0) push
+    # along x with a deterministic sign so duplicates always separate.
+    coincident <- close & dist < 1e-9
+    ux <- ifelse(coincident, idx_sign, dx / dist)
+    uy <- ifelse(coincident, 0, dy / dist)
+    shift <- (threshold - dist) / 2 + 1e-6
+    ux[!close] <- 0
+    uy[!close] <- 0
+    shift[!close] <- 0
+
+    lx <- lx + rowSums(ux * shift)
+    ly <- ly + rowSums(uy * shift)
+  }
+  list(lx = lx, ly = ly)
+}
