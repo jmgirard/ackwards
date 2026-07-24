@@ -8,13 +8,15 @@
 #' @section Defaults and why:
 #' * **`engine = "pca"`** -- the original Goldberg (2006) method; fastest; never
 #'   fails to converge; the Waller (2007) algebra is exact for components.
-#' * **`rotation = "varimax"`** -- the `T'=T^-1` property of orthogonal
-#'   rotation enables the closed-form `W'RW` edge algebra and keeps
-#'   within-level factors uncorrelated so cross-level edges reflect only the
-#'   hierarchical signal. Matches Goldberg (2006), Kim & Eaton (2015), and
-#'   Forbush et al. (2024). Varimax is the only supported rotation; oblique
-#'   rotation would confound the between-level signal that is the method's
-#'   core output.
+#' * **`rotation = "varimax"`** -- varimax keeps the within-level factors
+#'   mutually uncorrelated (orthogonal), so each between-level edge reflects
+#'   only the cross-level relationship; an oblique rotation's correlated
+#'   within-level factors would leak into the between-level edges and confound
+#'   the between-level signal that is the method's core output. The closed-form
+#'   `W'RW` edge algebra is itself exact for any fixed linear scoring, orthogonal
+#'   or not, so the choice is interpretive, not a numerical necessity. Matches
+#'   Goldberg (2006), Kim & Eaton (2015), and Forbush et al. (2024); varimax is
+#'   the only supported rotation.
 #' * **`cor = "pearson"`** -- no silent basis switching. If your items look
 #'   ordinal (<= 7 distinct integer values), a cli warning will suggest
 #'   `cor = "polychoric"`, which is available for all three engines.

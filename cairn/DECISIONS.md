@@ -20,7 +20,7 @@ _Source: DESIGN §2._
 
 ### D-002 (2026-06): Varimax is the only rotation; oblique out of scope
 
-**Context:** Only orthogonal rotation (`T' = T^-1`) yields interpretable between-level score correlations and the closed-form `W'RW` algebra; oblique confounds the cross-level signal that is the method's point.
+**Context:** Only orthogonal rotation (`T' = T^-1`) yields interpretable between-level score correlations and the closed-form `W'RW` algebra; oblique confounds the cross-level signal that is the method's point. *(Wording corrected M76 per RR01: the "and the closed-form `W'RW` algebra" clause conflates — the `W'RW` identity is exact for any fixed linear scoring, oblique included; orthogonality's role is the interpretive `Φ = I` (uncorrelated within-level factors), not enabling the algebra. Decision unchanged.)*
 **Decision:** Varimax hardcoded as an internal constant (not a user argument); oblique out of scope; the `kappa` arg removed since CF(κ=1/p) ≡ varimax.
 **Consequences:** No `rotation` argument; algebra path valid for all engines; `factor_cor = I` everywhere.
 _Source: DESIGN §14.1; M13._
