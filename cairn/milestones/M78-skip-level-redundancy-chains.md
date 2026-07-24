@@ -1,6 +1,6 @@
 # M78: Gap-tolerant (skip-level) direct redundancy chains — gated on ChaseCorrPaths semantics
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -28,7 +28,7 @@ Determine whether Forbes's `ChaseCorrPaths` is contiguous or gap-tolerant, and �
 - [x] AC3: `test-forbes-fidelity.R` still passes — AMH 54/54 components matched to the fixture's stated tolerance (1.3e-14).
 - [x] AC4: A regression test exercises a planted hierarchy with a mid-chain gap where contiguous vs skip-tolerant chains diverge, asserting the chosen semantics. — `test-prune.R` "M78: direct chase stops at a mid-chain gap".
 - [x] AC5: A D-entry extending/superseding D-017 is appended to `cairn/DECISIONS.md`. — D-032.
-- [ ] AC6: `devtools::test()` clean; `devtools::check()` clean.
+- [x] AC6: `devtools::test()` clean; `devtools::check()` clean. — dod-gate PASSED (check 0/0/0, coverage 100%, style/lint clean, pkgdown complete).
 
 ## Coverage
 
@@ -46,7 +46,7 @@ Determine whether Forbes's `ChaseCorrPaths` is contiguous or gap-tolerant, and �
 - [x] T3: If warranted, change `break`→skip-and-continue in `.strong_links_direct` (`prune.R:152-197`), preserving one-level-apart emitted links. — **not warranted** (contiguous); code unchanged.
 - [x] T4: Re-run `test-forbes-fidelity.R`; confirm AMH 54/54 to tolerance. — green.
 - [x] T5: Append the D-entry extending D-017. — D-032.
-- [ ] T6: NEWS.md entry if behavior changed; `Rscript tools/dod-gate.R`. — no behavior change → no NEWS entry; dod-gate pending.
+- [x] T6: NEWS.md entry if behavior changed; `Rscript tools/dod-gate.R`. — no behavior change → no NEWS entry; dod-gate PASSED.
 
 ## Work log
 
