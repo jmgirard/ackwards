@@ -1277,7 +1277,8 @@ test_that("prune() works on an ESEM object with a polychoric basis", {
 test_that(".near_redundant_pairs flags the |r| just-below band and excludes full redundancy", {
   mx <- .mock_near_x()
   band <- ackwards:::.near_redundant_pairs(
-    mx$levels, mx, redundancy_r = 0.9, redundancy_phi = NULL, near_margin = 0.1
+    mx$levels, mx,
+    redundancy_r = 0.9, redundancy_phi = NULL, near_margin = 0.1
   )
   expect_s3_class(band, "data.frame")
   expect_named(band, c("from", "to", "level_from", "level_to", "r", "phi", "near_r", "near_phi"))
@@ -1303,7 +1304,8 @@ test_that(".near_redundant_pairs lower bound is inclusive, upper bound exclusive
   # margin 0.05 -> band [0.85, 0.90). m1f1-m3f1 (0.82) now excluded;
   # m1f1-m2f2 (0.85) still included (lower bound inclusive).
   band <- ackwards:::.near_redundant_pairs(
-    mx$levels, mx, redundancy_r = 0.9, redundancy_phi = NULL, near_margin = 0.05
+    mx$levels, mx,
+    redundancy_r = 0.9, redundancy_phi = NULL, near_margin = 0.05
   )
   key <- paste(band$from, band$to, sep = "-")
   expect_true("m1f1-m2f2" %in% key)
@@ -1311,20 +1313,38 @@ test_that(".near_redundant_pairs lower bound is inclusive, upper bound exclusive
   expect_false("m1f1-m3f3" %in% key) # 0.90 is fully redundant, never near
 })
 
+test_that(".near_redundant_pairs skips a level pair with an absent edge matrix", {
+  # Defensive missing-edge branch: if a level pair has no edge matrix (e.g. a
+  # convergence-truncated hierarchy), that pair is skipped, not errored.
+  mx <- .mock_near_x()
+  mx$edges$matrices[["2:3"]] <- NULL
+  band <- ackwards:::.near_redundant_pairs(
+    mx$levels, mx,
+    redundancy_r = 0.9, redundancy_phi = NULL, near_margin = 0.1
+  )
+  key <- paste(band$from, band$to, sep = "-")
+  # The 2:3 pairs (incl. m2f1-m3f1) are gone; the 1:2 / 1:3 band pairs remain.
+  expect_false(any(band$level_from == 2L & band$level_to == 3L))
+  expect_true("m1f1-m2f2" %in% key)
+})
+
 test_that(".near_redundant_pairs applies the signed phi band and honours NA phi", {
   # Two levels, congruent loadings giving phi in [0.85, 0.95), with a low direct
   # r so only the phi band can flag. A second pair has an all-zero loading vector
   # (phi = NA) to exercise the NA guard.
-  La <- matrix(c(0.9, 0.6, 0.1, 0, 0, 0), ncol = 2L,
+  La <- matrix(c(0.9, 0.6, 0.1, 0, 0, 0),
+    ncol = 2L,
     dimnames = list(paste0("x", 1:3), c("m1f1", "m1f2"))
   )
-  Lb <- matrix(c(0.6, 0.9, 0.2, 0.1, 0.1, 0.1), ncol = 2L,
+  Lb <- matrix(c(0.6, 0.9, 0.2, 0.1, 0.1, 0.1),
+    ncol = 2L,
     dimnames = list(paste0("x", 1:3), c("m2f1", "m2f2"))
   )
   phi_target <- ackwards:::.tucker_phi(La[, "m1f1"], Lb[, "m2f1"])
   expect_true(phi_target >= 0.85 && phi_target < 0.95) # in the phi band by construction
 
-  E_1_2 <- matrix(c(0.4, 0.1, 0.1, 0.1), nrow = 2L,
+  E_1_2 <- matrix(c(0.4, 0.1, 0.1, 0.1),
+    nrow = 2L,
     dimnames = list(c("m1f1", "m1f2"), c("m2f1", "m2f2"))
   )
   mx <- list(
@@ -1335,7 +1355,8 @@ test_that(".near_redundant_pairs applies the signed phi band and honours NA phi"
     edges = list(matrices = list("1:2" = E_1_2))
   )
   band <- ackwards:::.near_redundant_pairs(
-    mx$levels, mx, redundancy_r = 0.9, redundancy_phi = 0.95, near_margin = 0.1
+    mx$levels, mx,
+    redundancy_r = 0.9, redundancy_phi = 0.95, near_margin = 0.1
   )
   key <- paste(band$from, band$to, sep = "-")
   # m1f1-m2f1 flagged on the phi band alone (r = 0.4 is not near).

@@ -3,6 +3,20 @@
 CRAN resubmission of the first release, addressing reviewer feedback on the
 0.1.0 submission; also picks up everything added since that submission.
 
+* **`prune(x, "artifact")` now reports a near-redundant band.** A new
+  `x$prune$near_redundant` table flags cross-level factor pairs that sit *just
+  below* the redundancy thresholds — where `prune(x, "redundant")` drops full
+  redundancy (`|r| >= redundancy_r`), the band surfaces the messier candidates a
+  hair under it (e.g. `|r| = 0.89` / `phi = 0.94`), which Forbes (2023) treats as
+  the main use of the artifact flags. A pair is flagged when its direct
+  (skip-level) `|r|` **or** its Tucker `phi` falls within the new `near_margin`
+  argument (default `0.1`) below the corresponding threshold, and the pair is not
+  itself fully redundant. The band is report-only — no factor is dropped on its
+  basis. Under EFA/ESEM, `redundancy_phi` now auto-resolves in artifact mode too
+  (announced via cli), so the `phi` band is active; under PCA only the `|r|` band
+  applies. The Forbes-extension vignette's artifact example now illustrates a
+  genuinely near-redundant pair rather than one redundancy already drops.
+
 * **Fixed compatibility with lavaan 0.7.** lavaan 0.7 renamed its
   sample-statistics slot argument (breaking the ESEM engine's multi-level
   reuse of anchor-level sample statistics — every level beyond k = 1 failed
