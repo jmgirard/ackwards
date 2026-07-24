@@ -52,8 +52,8 @@ Rewrite the `redundancy_criterion` explanation with a worked micro-example, corr
 
 ## Tasks
 
-- [ ] T1: Rewrite the `redundancy_criterion` `@details` (`prune.R:618-627`) with the worked micro-example; `devtools::document()`.
-- [ ] T2: Mirror the rewritten redundancy explanation into the redundancy section of `ackwards-forbes.Rmd.orig`.
+- [x] T1: Rewrite the `redundancy_criterion` `@details` (`prune.R:618-627`) with the worked micro-example; `devtools::document()`.
+- [x] T2: Mirror the rewritten redundancy explanation into the redundancy section of `ackwards-forbes.Rmd.orig`.
 - [ ] T3: Rewrite the oblique "why" aside in `ackwards-intro.Rmd.orig:123-132` per RR01's proposed intro replacement (BC1/BC3/BC4/BC5); preserve the surrounding Goldberg/CF-VARIMAX/confound sentences.
 - [ ] T4: Rewrite the roxygen `rotation` bullet (`R/ackwards.R:11-17`) per RR01's proposed roxygen replacement (BC2/BC3/BC4/BC5); keep the literature-match + "only supported rotation" sentences; `devtools::document()`.
 - [ ] T5: Correct the DESIGN §9 `rotation` row with an M43-style parenthetical citing RR01 (BC7); confirm §5.1 + `forbes2023.md` correspondence notes untouched (BC6).
@@ -70,6 +70,7 @@ Rewrite the `redundancy_criterion` explanation with a worked micro-example, corr
 - 2026-07-23: T1/T2 investigation found the oblique "why" already lives in ackwards-intro.Rmd.orig:123-132 + R/ackwards.R:11-17, both overstating orthogonality's role (claiming it makes W'RW "exact", which DESIGN §5.1 says holds for any linear scoring). Proposed correcting both in place (a substantive scope amendment). At the amendment gate the owner chose to escalate the math claim (algebra exact under oblique; orthogonality interpretive not numerical, per D-002) to Fable via /milestone-brief before rewriting. Paused pending RR.
 - 2026-07-23: blocked on RB01 (oblique-rotation algebra claim).
 - 2026-07-23: RR01 ingested — concern confirmed (identity exact for any fixed linear scoring; Waller 2007 §3 gives the oblique closed form; orthogonality buys D=I convenience only). Scope broadened to correct 4 sites (intro vignette, roxygen, DESIGN §9 rotation row, D-002 Context); BC1–BC7 ingested verbatim as AC5–AC11 (Driving RR: RR01, no deviations). Beyond-brief triage: DESIGN §9 = apply (BC7); D-002 Context parenthetical upgraded consider→apply (append-only, completes the 4-site correction, T6). Status back to in-progress.
+- 2026-07-23: T1/T2 done — star/anchor-on-leaf worked micro-example added to prune.R @details + forbes vignette redundancy prose (document()/precompute deferred to T9/T10).
 
 ## Decisions
 
