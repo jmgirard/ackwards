@@ -15,10 +15,10 @@ One per line: `- YYYY-MM-DD (M<NN>): <lesson>`.
   reproduced them; even same R/psych version strings) because no generator was committed. `set.seed`
   is deterministic on a fixed env but the specific draw is lost once the generation path is; pin a
   committed `data-raw/` generator, not a claim. `test-oracle-provenance.R` now enforces this.
-- 2026-07-13 (M58): when a milestone fixes a bug caused by copy-drift, grep the ENTIRE codebase for
+- 2026-07-13 (M58; extended M76): when a milestone fixes a bug caused by copy-drift, grep the ENTIRE codebase for
   the buggy pattern, not just the audit's enumerated sites — the plan scoped `suggest_k`'s
   `n_obs = NA` bug but missed the byte-identical twin in `ackwards()`'s R-matrix `n_obs` check;
-  the independent review caught it (`grep -n 'n_obs != as.integer'` would have too).
+  the independent review caught it (`grep -n 'n_obs != as.integer'` would have too). **Holds for prose, not just code (M76):** a repeated doc conflation recurs across sections/vignettes exactly like a copy-drift bug — even a Fable review's enumeration (RR01) named only DESIGN §9 + D-002, yet the "orthogonality enables closed-form `W'RW`" claim also sat in §4 and a 2nd "investigator DoF" paragraph survived in the forbes vignette; grep the exact phrase repo-wide before trusting any site-list.
 - 2026-07-13 (M59): line-based coverage can mark an untested branch as covered when `if/else` sits
   on one line — covr counts the line hit if either arm runs. Splitting it during a refactor can
   surface a real, pre-existing gap (here `print`'s non-converged red-cross arm); cover it with a

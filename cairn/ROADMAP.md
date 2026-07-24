@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-07-23 (Forbes feedback A/B→M76, D→M77, C→M78, E→M79, G→M80 planned; F+H remain candidates)_
+_Last hygiene check: 2026-07-23 (M76 merged + archived, PR #81; M71 row pruned under terminal-row retention; M77 now workable)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,12 +10,11 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M71 | Author + verify the 5 application source notes as citation precedents + Forbes drift-watch | done | M70 | normal | milestones/archive/M71-reference-notes-applications.md |
 | M72 | Correct the stale Forbes contract line + author the Goldberg/Forbes departures ledger | done | — | normal | milestones/archive/M72-source-departures-ledger.md |
 | M73 | Draft the manuscript Introduction with the verified framing + application sources | done | — | normal | milestones/archive/M73-manuscript-introduction.md |
 | M74 | Draft the manuscript Discussion + enrich seeded sections with method-backer citations | done | M73 | normal | milestones/archive/M74-manuscript-discussion-citations.md |
 | M75 | Beautify suggest_k() print output as an aligned criteria table | done | — | normal | milestones/archive/M75-suggest-k-print-table.md |
-| M76 | Clarify redundancy-criterion + oblique-rotation prose and reframe artifact-mode DoF wording | review | — | normal | milestones/M76-redundancy-oblique-dof-prose.md |
+| M76 | Clarify redundancy-criterion + oblique-rotation prose and reframe artifact-mode DoF wording | done | — | normal | milestones/archive/M76-redundancy-oblique-dof-prose.md |
 | M77 | Near-redundant band flag in artifact mode + fix artifact vignette example | planned | M76 | normal | milestones/M77-near-redundant-band.md |
 | M78 | Gap-tolerant (skip-level) direct redundancy chains — gated on ChaseCorrPaths semantics | planned | — | normal | milestones/M78-skip-level-redundancy-chains.md |
 | M79 | Secondary-correlation edges in the pruned/publication view | planned | — | normal | milestones/M79-secondary-correlation-edges.md |
