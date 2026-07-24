@@ -60,3 +60,21 @@ Determine whether Forbes's `ChaseCorrPaths` is contiguous or gap-tolerant, and �
 - **D-032** (extends D-017): Forbes's `ChaseCorrPaths` is contiguous — the direct criterion's break-at-first-sub-threshold-hop is faithful; the gap-tolerant variant is rejected. No code/output change. Evidence: 54/54 contiguous reproduction of her chase endpoints + the decisive `g2--null` case; determined from the committed AMH fixture alone.
 
 ## Review
+
+**Reviewed 2026-07-24 (PR #83).**
+
+Acceptance-criterion evidence (fresh):
+- AC1 — re-ran the empirical determination on the committed AMH fixture: a contiguous direct-chase over Forbes's own `comp_corr` reproduces her `corr_chase` endpoints **54/54**; the sole divergent component `g2` (level-7 mid-chain gap: direct `|r|` to level 6 = 0.8981 < .9, re-emerging 0.9084 ≥ .9 at level 5) matches contiguous (`g2--null`), 0/54 gap-tolerant. **Contiguous** — recorded in D-032.
+- AC2 — contiguous branch: no `R/` change; D-032 records `.strong_links_direct`'s break-at-first-gap as faithful. Confirmed no code file in the diff.
+- AC3 — `test-forbes-fidelity.R`: 217 pass, 0 fail (AMH 54/54 block green).
+- AC4 — `test-prune.R`: 218 pass, 0 fail, incl. "M78: direct chase stops at a mid-chain gap".
+- AC5 — D-032 present in `cairn/DECISIONS.md` (extends D-017).
+- AC6 — dod-gate PASSED (check 0/0/0, coverage 100%, style/lint clean, pkgdown complete); `cairn_validate` all checks passed (91 advisories, all pre-existing legacy-milestone refs); `document()` no-diff.
+
+Consistency gate: `cairn_validate` exit 0; `document()` no diff (NAMESPACE/man clean); no DESIGN principle text changed → `cairn_impact` skipped.
+
+Independent review (three lenses, fresh context): **zero findings** across all three.
+- Diff-bug (Opus): hand-traced the mock; `expect_null` discriminates contiguous from gap-tolerant for the right reason; positive control meaningful. One benign, non-actionable aside: the `E_1_2` fill in the positive control is cosmetic (j=1 gating uses the direct 1:3 link, not the recorded `r_link`) — harmless, no change.
+- Blame-history (Sonnet): the contiguous `break` was M53's deliberate design (D-017); `.direct_chase` in the fidelity test already contiguous and in sync; D-032 extends, not contradicts, D-017.
+- Prior-review (Sonnet): no regressions; GitHub PR-comment probe empty; no implicated LESSONS entry.
+Scorer: no surviving findings to score (no-op).
