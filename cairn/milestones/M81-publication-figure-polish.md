@@ -1,10 +1,11 @@
 # M81: Publication-figure polish — item lists, per-node box sizes, manual factor ordering
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** M80
 - **Driving RR:** —
 - **Principles touched:** GP5 (lean install — ggplot2 stays Suggests); works under D-015 (light `ba_layout`, layered DAG not a tree) and D-029 (persistent factor labels)
+- **Branch/PR:** m81-publication-figure-polish
 
 ## Goal
 
