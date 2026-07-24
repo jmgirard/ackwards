@@ -1,11 +1,11 @@
 # M78: Gap-tolerant (skip-level) direct redundancy chains — gated on ChaseCorrPaths semantics
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** IP8, IP9
-- **Branch/PR:** —
+- **Branch/PR:** m78-skip-level-redundancy-chains
 
 ## Goal
 

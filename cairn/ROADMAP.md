@@ -15,7 +15,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | M75 | Beautify suggest_k() print output as an aligned criteria table | done | — | normal | milestones/archive/M75-suggest-k-print-table.md |
 | M76 | Clarify redundancy-criterion + oblique-rotation prose and reframe artifact-mode DoF wording | done | — | normal | milestones/archive/M76-redundancy-oblique-dof-prose.md |
 | M77 | Near-redundant band flag in artifact mode + fix artifact vignette example | done | M76 | normal | milestones/archive/M77-near-redundant-band.md |
-| M78 | Gap-tolerant (skip-level) direct redundancy chains — gated on ChaseCorrPaths semantics | planned | — | normal | milestones/M78-skip-level-redundancy-chains.md |
+| M78 | Gap-tolerant (skip-level) direct redundancy chains — gated on ChaseCorrPaths semantics | in-progress | — | normal | milestones/M78-skip-level-redundancy-chains.md |
 | M79 | Secondary-correlation edges in the pruned/publication view | planned | — | normal | milestones/M79-secondary-correlation-edges.md |
 | M80 | Deep-hierarchy layout quality at k>=10 — crossing reduction + edge-label dodging | planned | — | normal | milestones/M80-deep-hierarchy-layout-quality.md |
 <!-- M01–M70 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent done rows. -->
