@@ -5,7 +5,7 @@
 - **Depends on:** M80
 - **Driving RR:** —
 - **Principles touched:** GP5 (lean install — ggplot2 stays Suggests); works under D-015 (light `ba_layout`, layered DAG not a tree) and D-029 (persistent factor labels)
-- **Branch/PR:** m81-publication-figure-polish
+- **Branch/PR:** m81-publication-figure-polish / https://github.com/jmgirard/ackwards/pull/86
 
 ## Goal
 
