@@ -63,6 +63,7 @@ cite them, never renumber.
 | E5 | Forbes: `cong = psych::factor.congruence`, rounded to 2 dp | **Exact** Tucker's φ | [[forbes2023]] correspondence conventions | Fidelity suite: agreement within **0.005** (M44) — a precision gain, not a divergence | `depart-supported` |
 | M1 | Goldberg: display paths ≥ **.30** in figures | `cut_show = 0.3` (default show-cut) | `R/ackwards.R:292`; [[goldberg2006]] | — (matches the source) | `match` |
 | M2 | Forbes: `ChaseCorrPaths` uses the **direct/skip-level** correlation to each ancestor | `redundancy_criterion = "direct"` (default) | D-017; [[forbes2023]]; legacy M53 | Fidelity: reproduced her redundancy chase 54/54 components (M53) | `match` |
+| M3 | Forbes: identifying an artifact requires researcher judgment (no automated drop) | `prune("artifact")` **reports** evidence (φ for every cross-level pair + structural signals), **never auto-drops** | GP2 (report-first, flag-second); [[forbes2023]] | The *drop decision* is substantive; a standardized always-computed flag *removes* investigator DoF rather than adding it — the earlier "automating would manufacture investigator DoF" vignette framing had the causality backwards (corrected M76, per Forbes's 2026-07 website review) | `match` |
 
 ## Disposition
 
@@ -71,7 +72,7 @@ cite them, never renumber.
   grice2001/beauducel2024 + Goldberg; E4/E5 the fidelity suite). **No departure
   is currently a `depart-gap`, so no candidate row is spawned** — the "ideally
   empirical support" bar is met across the board.
-- **M1, M2** are `match`: recorded so a future reader confirms they are deliberate
+- **M1, M2, M3** are `match`: recorded so a future reader confirms they are deliberate
   alignments, not accidents.
 - **The governing principle** is IP9 / D-031 (exact Forbes reproduction is a
   permanent *capability*, not a default lock-in; defaults may adopt a better

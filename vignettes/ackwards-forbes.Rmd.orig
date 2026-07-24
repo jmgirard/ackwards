@@ -309,13 +309,15 @@ $$\phi(F_a, F_b) = \frac{\sum_i \lambda_{ia}\lambda_{ib}}
 near-identical loading patterns regardless of sign (Lorenzo-Seva & ten Berge,
 2006).
 
-Unlike `"redundant"`, the artifact mode **never flags anything
-automatically**. Forbes (2023) is explicit that identifying an artifact
-requires researcher judgment — automating it would manufacture investigator
-degrees of freedom — so `prune(x, "artifact")` computes and stores the
-evidence for *you* to weigh: Tucker's φ for **every** cross-level factor pair
-in `x$prune$phi`, plus the structural signals of the next section in
-`x$prune$structural`.
+Unlike `"redundant"`, the artifact mode **never drops anything
+automatically**. The reason is not that flagging would add investigator degrees
+of freedom — a standardized flag that is always computed the same way *removes*
+researcher discretion rather than adding it. It is that the *decision* to drop a
+factor as an artifact is substantive: Forbes (2023) is explicit that identifying
+an artifact requires researcher judgment. So `prune(x, "artifact")` computes and
+stores the evidence for *you* to weigh — Tucker's φ for **every** cross-level
+factor pair in `x$prune$phi`, plus the structural signals of the next section in
+`x$prune$structural` — and leaves the drop decision to you.
 
 ```{r prune-artifact}
 x_art <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all") |>

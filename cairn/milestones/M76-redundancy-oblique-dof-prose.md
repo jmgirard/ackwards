@@ -58,8 +58,8 @@ Rewrite the `redundancy_criterion` explanation with a worked micro-example, corr
 - [x] T4: Rewrite the roxygen `rotation` bullet (`R/ackwards.R:11-17`) per RR01's proposed roxygen replacement (BC2/BC3/BC4/BC5); keep the literature-match + "only supported rotation" sentences; `devtools::document()`.
 - [x] T5: Correct the DESIGN §9 `rotation` row with an M43-style parenthetical citing RR01 (BC7); confirm §5.1 + `forbes2023.md` correspondence notes untouched (BC6).
 - [x] T6: Append a correction parenthetical to D-002's Context in `cairn/DECISIONS.md` (append-only, per RR01 rec 4).
-- [ ] T7: Reframe the investigator-DoF paragraph (`ackwards-forbes.Rmd.orig:307-313`).
-- [ ] T8: Add the `match` ledger row to `cairn/references/source-departures.md`.
+- [x] T7: Reframe the investigator-DoF paragraph (`ackwards-forbes.Rmd.orig:307-313`).
+- [x] T8: Add the `match` ledger row to `cairn/references/source-departures.md`.
 - [ ] T9: Re-run `Rscript vignettes/precompute.R`; `git checkout --` untouched `vignettes/assets`; confirm freshness stamps (`tools/check-vignette-freshness.R`).
 - [ ] T10: NEWS.md entry (doc clarifications); `Rscript tools/dod-gate.R`.
 
@@ -72,6 +72,7 @@ Rewrite the `redundancy_criterion` explanation with a worked micro-example, corr
 - 2026-07-23: RR01 ingested — concern confirmed (identity exact for any fixed linear scoring; Waller 2007 §3 gives the oblique closed form; orthogonality buys D=I convenience only). Scope broadened to correct 4 sites (intro vignette, roxygen, DESIGN §9 rotation row, D-002 Context); BC1–BC7 ingested verbatim as AC5–AC11 (Driving RR: RR01, no deviations). Beyond-brief triage: DESIGN §9 = apply (BC7); D-002 Context parenthetical upgraded consider→apply (append-only, completes the 4-site correction, T6). Status back to in-progress.
 - 2026-07-23: T1/T2 done — star/anchor-on-leaf worked micro-example added to prune.R @details + forbes vignette redundancy prose (document()/precompute deferred to T9/T10).
 - 2026-07-23: T3–T6 done — oblique rationale corrected at all four sites (intro-vignette aside, roxygen `rotation` bullet, DESIGN §9 rotation row w/ M43-style parenthetical, D-002 Context parenthetical). BC6 preserved: §5.1 + forbes2023.md correspondence untouched. document()/precompute deferred to T9.
+- 2026-07-23: T7/T8 done — DoF paragraph reframed (flagging removes DoF; the auto-drop decision is what's substantive); `match` row M3 added to source-departures.md ledger + Disposition line updated.
 
 ## Decisions
 
