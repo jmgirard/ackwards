@@ -291,13 +291,13 @@ the other pre-analysis diagnostics.
 # \donttest{
 sk <- suggest_k(sim16)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [209ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [186ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [90ms]
+#> ✔ Running MAP and VSS... [73ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [4.3s]
+#> ✔ Running Comparison Data (CD)... [3s]
 #> 
 sk
 #> 
@@ -310,15 +310,15 @@ sk
 #> ── Criteria (k = 1-8) ──
 #> 
 #>   k  PA-PC  PA-FA      MAP    VSS-1    VSS-2  CD
-#>   1     ✔      ✔   0.0668   0.5505   0.0000   ✔ 
-#>   2     ✔      ✔   0.0495   0.7439   0.7834   ✔ 
-#>   3     ✔      ✔   0.0402   0.7685   0.8641   ✔ 
-#>   4     ✔      ✔   0.0230*  0.7884*  0.9002*  ✔*
+#>   1     ✔︎      ✔︎   0.0668   0.5505   0.0000   ✔︎ 
+#>   2     ✔︎      ✔︎   0.0495   0.7439   0.7834   ✔︎ 
+#>   3     ✔︎      ✔︎   0.0402   0.7685   0.8641   ✔︎ 
+#>   4     ✔︎      ✔︎   0.0230*  0.7884*  0.9002*  ✔︎*
 #>   5     -      -   0.0320   0.7881   0.8882   - 
 #>   6     -      -   0.0425   0.7870   0.8633   - 
 #>   7     -      -   0.0545   0.7867   0.8557   - 
 #>   8     -      -   0.0714   0.7336   0.8372   - 
-#>   ✔ retained   * optimal k   - not retained
+#>   ✔︎ retained   * optimal k   - not retained
 #> 
 #> ── Recommendations ──
 #> 
@@ -340,7 +340,7 @@ autoplot(sk)
 # Run only MAP (fast; skips parallel analysis and CD)
 suggest_k(sim16, criteria = "map")
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [52ms]
+#> ✔ Running MAP and VSS... [38ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -375,7 +375,7 @@ suggest_k(sim16, criteria = "map")
 # Run only the parallel-analysis criteria
 suggest_k(sim16, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [89ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [65ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -387,15 +387,15 @@ suggest_k(sim16, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 #> ── Criteria (k = 1-8) ──
 #> 
 #>   k  PA-PC  PA-FA
-#>   1     ✔      ✔ 
-#>   2     ✔      ✔ 
-#>   3     ✔      ✔ 
-#>   4     ✔      ✔ 
+#>   1     ✔︎      ✔︎ 
+#>   2     ✔︎      ✔︎ 
+#>   3     ✔︎      ✔︎ 
+#>   4     ✔︎      ✔︎ 
 #>   5     -      - 
 #>   6     -      - 
 #>   7     -      - 
 #>   8     -      - 
-#>   ✔ retained   - not retained
+#>   ✔︎ retained   - not retained
 #> 
 #> ── Recommendations ──
 #> 
@@ -411,13 +411,13 @@ suggest_k(sim16, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 # Faster exploratory run
 suggest_k(sim16, k_max = 6, n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [131ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [80ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [81ms]
+#> ✔ Running MAP and VSS... [58ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [4.6s]
+#> ✔ Running Comparison Data (CD)... [3.2s]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -429,13 +429,13 @@ suggest_k(sim16, k_max = 6, n_iter = 5)
 #> ── Criteria (k = 1-6) ──
 #> 
 #>   k  PA-PC  PA-FA      MAP    VSS-1    VSS-2  CD
-#>   1     ✔      ✔   0.0668   0.5505   0.0000   ✔ 
-#>   2     ✔      ✔   0.0495   0.7439   0.7834   ✔ 
-#>   3     ✔      ✔   0.0402   0.7685   0.8641   ✔ 
-#>   4     ✔      ✔   0.0230*  0.7884*  0.9002*  ✔*
+#>   1     ✔︎      ✔︎   0.0668   0.5505   0.0000   ✔︎ 
+#>   2     ✔︎      ✔︎   0.0495   0.7439   0.7834   ✔︎ 
+#>   3     ✔︎      ✔︎   0.0402   0.7685   0.8641   ✔︎ 
+#>   4     ✔︎      ✔︎   0.0230*  0.7884*  0.9002*  ✔︎*
 #>   5     -      -   0.0320   0.7881   0.8882   - 
 #>   6     -      -   0.0425   0.7870   0.8633   - 
-#>   ✔ retained   * optimal k   - not retained
+#>   ✔︎ retained   * optimal k   - not retained
 #> 
 #> ── Recommendations ──
 #> 
@@ -458,10 +458,10 @@ suggest_k(R, n_obs = nrow(sim16))
 #> ℹ CD is skipped when a correlation matrix is supplied (CD requires raw item
 #>   distributions for resampling).
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [225ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [161ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [100ms]
+#> ✔ Running MAP and VSS... [76ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -473,15 +473,15 @@ suggest_k(R, n_obs = nrow(sim16))
 #> ── Criteria (k = 1-8) ──
 #> 
 #>   k  PA-PC  PA-FA      MAP    VSS-1    VSS-2
-#>   1     ✔      ✔   0.0668   0.5505   0.0000 
-#>   2     ✔      ✔   0.0495   0.7439   0.7834 
-#>   3     ✔      ✔   0.0402   0.7685   0.8641 
-#>   4     ✔      ✔   0.0230*  0.7884*  0.9002*
+#>   1     ✔︎      ✔︎   0.0668   0.5505   0.0000 
+#>   2     ✔︎      ✔︎   0.0495   0.7439   0.7834 
+#>   3     ✔︎      ✔︎   0.0402   0.7685   0.8641 
+#>   4     ✔︎      ✔︎   0.0230*  0.7884*  0.9002*
 #>   5     -      -   0.0320   0.7881   0.8882 
 #>   6     -      -   0.0425   0.7870   0.8633 
 #>   7     -      -   0.0545   0.7867   0.8557 
 #>   8     -      -   0.0714   0.7336   0.8372 
-#>   ✔ retained   * optimal k   - not retained
+#>   ✔︎ retained   * optimal k   - not retained
 #> + CD skipped (requires raw data; not available for matrix input).
 #> 
 #> ── Recommendations ──
