@@ -1,11 +1,11 @@
 # M77: Near-redundant band flag in artifact mode + fix the artifact vignette example
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** M76
 - **Driving RR:** —
 - **Principles touched:** GP2, IP6
-- **Branch/PR:** —
+- **Branch/PR:** m77-near-redundant-band
 
 ## Goal
 
