@@ -14,8 +14,10 @@ CRAN resubmission of the first release, addressing reviewer feedback on the
   per-criterion evidence prints as a column-aligned grid (one row per k, one
   column per requested criterion) with a header row and a glyph legend, instead
   of the previous per-k concatenated lines. Numeric columns are right-aligned so
-  the optimal-k star never shifts the decimals. The returned object and all
-  criteria values are unchanged; only the printed layout is new.
+  the optimal-k star never shifts the decimals, and the "retained" tick is drawn
+  in text presentation so terminals that render it as a wide emoji keep the
+  columns aligned. The returned object and all criteria values are unchanged;
+  only the printed layout is new.
 
 * **New vignette: "Reproducing Forbes (2023): The AMH Applied Example"**
   (`vignette("ackwards-forbes2023")`). A full worked reproduction of the

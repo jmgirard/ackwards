@@ -556,7 +556,7 @@ print.suggest_k <- function(x, ...) {
 
   cr <- x$criteria
   nk <- nrow(cr)
-  tick <- cli::col_green(cli::symbol$tick)
+  tick <- cli::col_green(.tick_text())
   # A plain dash for "not retained": its ASCII-fallback stays distinct from the
   # optimal "*" (cli::symbol$bullet collapses to "*" in non-unicode terminals,
   # colliding with the star), so the two markers never alias.
