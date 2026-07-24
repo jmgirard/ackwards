@@ -28,6 +28,16 @@
 #' @param x An `ackwards` object.
 #' @param min_sep Minimum horizontal separation between adjacent nodes at the
 #'   same level. Default `1.0`. Increase for wider diagrams.
+#' @param order Optional manual left-to-right ordering of the **deepest**
+#'   (`k_max`) level, overriding Stage 1. Supply either a character vector of the
+#'   deepest level's factor IDs in the desired order, or a named list with an
+#'   entry for the deepest level (keyed by the level number as a string, e.g.
+#'   `list("5" = c("m5f2", "m5f1", ...))`). Fixing the leaf order propagates
+#'   upward: every upper factor stays at the mean-x of its primary children, so
+#'   any arrangement of the primary forest is reachable from the leaf order.
+#'   Entries for non-deepest levels are ignored with a warning (an upper factor's
+#'   position is derived, not free). The vector must be a permutation of the
+#'   deepest level's IDs. `NULL` (default) uses the automatic ordering.
 #'
 #' @return A list with two data frames:
 #'   \item{nodes}{One row per factor: `id`, `level`, `x`, `y`, `label`.
@@ -42,7 +52,7 @@
 #' head(lay$nodes)
 #'
 #' @export
-ba_layout <- function(x, min_sep = 1.0) {
+ba_layout <- function(x, min_sep = 1.0, order = NULL) {
   if (!inherits(x, "ackwards")) {
     cli::cli_abort("{.arg x} must be an {.cls ackwards} object.")
   }
@@ -61,30 +71,40 @@ ba_layout <- function(x, min_sep = 1.0) {
   # pass leaves behind. Scoring is lexicographic (primary crossings, then all
   # crossings) and keep-best guarantees the result is never worse than the seed.
   seed_ord <- .seed_order(levels_lst, tidy_edges, K)
-  dfs_ord <- .primary_forest_order(seed_ord, levels_lst, tidy_edges, K)
 
-  prim_edges <- tidy_edges[
-    !is.na(tidy_edges$is_primary) & tidy_edges$is_primary, ,
-    drop = FALSE
-  ]
-  score <- function(nx) {
-    xmap <- do.call(c, unname(nx))
-    c(
-      .count_crossings_xmap(xmap, prim_edges),
-      .count_crossings_xmap(xmap, tidy_edges)
-    )
+  if (!is.null(order)) {
+    # Manual deepest-level order (M81): the leaf order is the only free variable
+    # in Pass-2 (upper levels are placed at their primary children's mean), so a
+    # fixed leaf order bypasses the two-candidate scoring entirely -- both
+    # candidates collapse to the same layout once level K is pinned.
+    seed_ord[[as.character(K)]] <- .resolve_manual_order(order, levels_lst, K)
+    node_x <- .assign_x(seed_ord, levels_lst, tidy_edges, K, min_sep)
+  } else {
+    dfs_ord <- .primary_forest_order(seed_ord, levels_lst, tidy_edges, K)
+
+    prim_edges <- tidy_edges[
+      !is.na(tidy_edges$is_primary) & tidy_edges$is_primary, ,
+      drop = FALSE
+    ]
+    score <- function(nx) {
+      xmap <- do.call(c, unname(nx))
+      c(
+        .count_crossings_xmap(xmap, prim_edges),
+        .count_crossings_xmap(xmap, tidy_edges)
+      )
+    }
+    best_x <- .assign_x(seed_ord, levels_lst, tidy_edges, K, min_sep)
+    best_cross <- score(best_x)
+    cand_x <- .assign_x(dfs_ord, levels_lst, tidy_edges, K, min_sep)
+    cand_cross <- score(cand_x)
+    # Lexicographic improvement: fewer primary crossings, or equal primary and
+    # fewer total crossings.
+    if (cand_cross[1L] < best_cross[1L] ||
+      (cand_cross[1L] == best_cross[1L] && cand_cross[2L] < best_cross[2L])) {
+      best_x <- cand_x
+    }
+    node_x <- best_x
   }
-  best_x <- .assign_x(seed_ord, levels_lst, tidy_edges, K, min_sep)
-  best_cross <- score(best_x)
-  cand_x <- .assign_x(dfs_ord, levels_lst, tidy_edges, K, min_sep)
-  cand_cross <- score(cand_x)
-  # Lexicographic improvement: fewer primary crossings, or equal primary and
-  # fewer total crossings.
-  if (cand_cross[1L] < best_cross[1L] ||
-    (cand_cross[1L] == best_cross[1L] && cand_cross[2L] < best_cross[2L])) {
-    best_x <- cand_x
-  }
-  node_x <- best_x
 
   # --- Global shift: level-1 node is always at x = 0 -------------------------
   offset <- node_x[["1"]][[1L]]
@@ -181,6 +201,52 @@ ba_layout <- function(x, min_sep = 1.0) {
   secondary_kept <- kept_cross[!is_primary_row, , drop = FALSE]
 
   list(nodes = nodes_kept, edges = edges_kept, secondary = secondary_kept)
+}
+
+# Resolve a manual `order` argument into a named ordinal vector for the deepest
+# level (M81). Accepts either a bare character vector (the deepest level's IDs in
+# order) or a named list keyed by level string, of which only the deepest (K)
+# entry is honoured -- upper-level positions are derived from primary children,
+# not free, so a non-deepest entry is dropped with a warning. The honoured vector
+# must be a permutation of the deepest level's IDs. Returns a named integer
+# vector mapping each deepest-level ID to its 1-based left-to-right rank, matching
+# the shape .seed_order produces for that level.
+.resolve_manual_order <- function(order, levels_lst, K) {
+  labs_K <- levels_lst[[as.character(K)]]$labels
+  Kc <- as.character(K)
+
+  if (is.list(order)) {
+    ignored <- setdiff(names(order), Kc)
+    if (length(ignored) > 0L) {
+      cli::cli_warn(c(
+        "!" = "{.arg order} entr{?y/ies} for level{?s} {.val {ignored}} \\
+               {?is/are} ignored.",
+        "i" = "Only the deepest level ({.val {Kc}}) can be ordered manually; \\
+               upper factors sit above their primary children."
+      ))
+    }
+    if (is.null(order[[Kc]])) {
+      cli::cli_abort(c(
+        "!" = "{.arg order} supplies no entry for the deepest level ({.val {Kc}}).",
+        "i" = "Provide a permutation of the level-{K} factor IDs."
+      ))
+    }
+    ord_vec <- order[[Kc]]
+  } else {
+    ord_vec <- order
+  }
+
+  if (!is.character(ord_vec) || anyDuplicated(ord_vec) > 0L ||
+    !setequal(ord_vec, labs_K)) {
+    cli::cli_abort(c(
+      "!" = "{.arg order} must be a permutation of the deepest level's \\
+             factor IDs.",
+      "i" = "Expected the {length(labs_K)} ID{?s}: {.val {labs_K}}.",
+      "x" = "Got: {.val {ord_vec}}."
+    ))
+  }
+
+  stats::setNames(match(labs_K, ord_vec), labs_K)
 }
 
 # Order every level by a depth-first traversal of the primary forest. Each node

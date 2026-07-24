@@ -1464,3 +1464,227 @@ test_that("autoplot(what='fit') panel titles are engine-aware (EFA: no CFI/SRMR)
   expect_true(any(grepl("TLI", panels)))
   expect_true(any(grepl("RMSEA", panels)))
 })
+
+# --- M81: manual deepest-level ordering (order=) ----------------------------
+
+test_that("ba_layout() order= places the deepest level in the supplied order", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  perm <- rev(x$levels[["4"]]$labels)
+  lay <- ba_layout(x, order = perm)
+  d <- lay$nodes[lay$nodes$level == 4L, ]
+  # left-to-right (increasing x) order equals the requested permutation
+  expect_equal(d$id[order(d$x)], perm)
+  # unchanged invariant: the single level-1 node is still anchored at x = 0
+  expect_equal(lay$nodes$x[lay$nodes$level == 1L], 0)
+})
+
+test_that("ba_layout() order= accepts a level-keyed list, ignoring non-deepest", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  perm <- rev(x$levels[["4"]]$labels)
+  expect_warning(
+    lay <- ba_layout(x, order = list("3" = rev(x$levels[["3"]]$labels), "4" = perm)),
+    "level.*3.*ignored|ignored"
+  )
+  d <- lay$nodes[lay$nodes$level == 4L, ]
+  expect_equal(d$id[order(d$x)], perm)
+})
+
+test_that("ba_layout() order= errors on a non-permutation of deepest IDs", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  labs <- x$levels[["4"]]$labels
+  # missing one ID
+  expect_error(ba_layout(x, order = labs[-1L]), "permutation")
+  # an extra / unknown ID
+  expect_error(ba_layout(x, order = c(labs, "m4f9")), "permutation")
+  # a duplicate
+  expect_error(ba_layout(x, order = c(labs[1L], labs)), "permutation")
+  # wrong type
+  expect_error(ba_layout(x, order = seq_along(labs)), "permutation")
+})
+
+test_that("ba_layout() order= errors when a list omits the deepest level", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  expect_error(
+    suppressWarnings(ba_layout(x, order = list("3" = rev(x$levels[["3"]]$labels)))),
+    "deepest level"
+  )
+})
+
+test_that("autoplot() forwards order= to ba_layout()", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  perm <- rev(x$levels[["4"]]$labels)
+  p <- autoplot(x, order = perm)
+  bd <- ggplot2::ggplot_build(p)$data
+  # the node-label layer carries one row per node with x, y and label(= id)
+  lab <- do.call(rbind, lapply(bd, function(d) {
+    if (all(c("x", "y", "label") %in% names(d))) d[, c("x", "y", "label")] else NULL
+  }))
+  d4 <- lab[lab$label %in% perm, , drop = FALSE]
+  expect_equal(d4$label[order(d4$x)], perm)
+})
+
+# --- M81: per-node box sizes (node_width / node_height) ----------------------
+
+test_that(".resolve_node_size resolves scalars, named overrides, and errors", {
+  ids <- c("a", "b", "c")
+  # a bare scalar applies to every box
+  expect_equal(.resolve_node_size(ids, 0.8, 0.8, "node_width"), c(0.8, 0.8, 0.8))
+  # a named vector overrides named boxes; unnamed boxes fall back to the default
+  expect_equal(
+    .resolve_node_size(ids, c(b = 1.6), 0.8, "node_width"),
+    c(0.8, 1.6, 0.8)
+  )
+  # names matching no factor ID warn
+  expect_warning(
+    .resolve_node_size(ids, c(z = 2), 0.8, "node_width"),
+    "match no factor ID"
+  )
+  # invalid values error
+  expect_error(.resolve_node_size(ids, -1, 0.8, "node_width"), "positive")
+  expect_error(.resolve_node_size(ids, "x", 0.8, "node_width"), "positive")
+})
+
+test_that("autoplot() applies per-node node_width overrides to the tiles", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  p <- autoplot(x, node_width = c(m4f1 = 1.9), min_sep = 2.5)
+  bd <- ggplot2::ggplot_build(p)$data
+
+  # tile layer: carries fill + xmin/xmax (box width = xmax - xmin)
+  tl <- Filter(function(d) all(c("xmin", "xmax", "fill") %in% names(d)), bd)[[1L]]
+  tl$w <- tl$xmax - tl$xmin
+
+  # node-label layer(s) carry x, y, label(= id); match tiles to ids by (x, y)
+  all_ids <- unlist(lapply(x$levels, `[[`, "labels"), use.names = FALSE)
+  txt <- do.call(rbind, lapply(
+    Filter(function(d) all(c("x", "y", "label") %in% names(d)), bd),
+    function(d) d[, c("x", "y", "label")]
+  ))
+  txt <- txt[txt$label %in% all_ids, , drop = FALSE]
+  key <- function(d) paste(round(d$x, 6), round(d$y, 6))
+  tl$label <- txt$label[match(key(tl), key(txt))]
+
+  expect_equal(tl$w[tl$label == "m4f1"], 1.9)
+  expect_equal(tl$w[tl$label == "m4f2"], 0.8) # unnamed box keeps the default
+})
+
+test_that("autoplot() overlap warning is vector-safe (widest box vs min_sep)", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  expect_warning(
+    autoplot(x, node_width = c(m4f1 = 1.9), min_sep = 1.0),
+    "widest box"
+  )
+})
+
+test_that("autoplot() bare-scalar node sizes give every box the same size", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  p <- autoplot(x, node_width = 0.8, node_height = 0.4)
+  bd <- ggplot2::ggplot_build(p)$data
+  tl <- Filter(function(d) all(c("xmin", "xmax", "fill") %in% names(d)), bd)[[1L]]
+  expect_true(all(abs((tl$xmax - tl$xmin) - 0.8) < 1e-8))
+  expect_true(all(abs((tl$ymax - tl$ymin) - 0.4) < 1e-8))
+})
+
+# --- M81: deepest-level item lists (show_items) ------------------------------
+
+test_that("autoplot(show_items=TRUE) draws top-n items under the deepest level", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  # oracle: the item set the console listing would show for the deepest level
+  want <- top_items(x, level = 4, cut = 0.3, n = 3)$data
+  p <- autoplot(x, show_items = TRUE, n_items = 3, item_cut = 0.3)
+  bd <- ggplot2::ggplot_build(p)$data
+
+  # collect every text label drawn, then check the item IDs are present
+  labs <- unlist(lapply(
+    Filter(function(d) "label" %in% names(d), bd),
+    function(d) as.character(d$label)
+  ))
+  expect_true(all(want$item %in% labs))
+  # at most n_items per factor
+  cnt <- table(want$factor)
+  expect_true(all(cnt <= 3))
+})
+
+test_that("autoplot(show_items=FALSE) draws no item layer (default unchanged)", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  p_off <- autoplot(x)
+  p_on <- autoplot(x, show_items = TRUE)
+  # the item layer adds geom_text rows, so the "on" plot has strictly more
+  # drawn-text rows than the default.
+  n_text <- function(p) {
+    bd <- ggplot2::ggplot_build(p)$data
+    sum(vapply(bd, function(d) if ("label" %in% names(d)) nrow(d) else 0L, integer(1L)))
+  }
+  expect_gt(n_text(p_on), n_text(p_off))
+})
+
+test_that("autoplot(show_items=TRUE) works in horizontal direction", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  p <- autoplot(x, show_items = TRUE, direction = "horizontal", n_items = 2)
+  expect_s3_class(p, "ggplot")
+  # building must not error and must place item text
+  bd <- ggplot2::ggplot_build(p)$data
+  labs <- unlist(lapply(
+    Filter(function(d) "label" %in% names(d), bd), function(d) as.character(d$label)
+  ))
+  want <- top_items(x, level = 4, cut = 0.3, n = 2)$data
+  expect_true(all(want$item %in% labs))
+})
+
+test_that("autoplot(show_items=TRUE) with too-high item_cut draws no items", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  # no |loading| reaches 0.999, so no item qualifies -> no item layer, no error
+  p <- autoplot(x, show_items = TRUE, item_cut = 0.999)
+  expect_s3_class(p, "ggplot")
+  it <- .ba_item_text(x,
+    {
+      nn <- ba_layout(x)$nodes
+      nn$nw <- 0.8
+      nn$nh <- 0.4
+      nn
+    },
+    "vertical",
+    n_items = 5,
+    item_cut = 0.999
+  )
+  expect_null(it)
+})
+
+test_that(".resolve_node_size rejects an unnamed multi-element vector", {
+  expect_error(
+    .resolve_node_size(c("a", "b"), c(1, 2), 0.8, "node_width"),
+    "single value or a vector named"
+  )
+})
+
+test_that(".ba_item_text uses variable labels when the fit carried them", {
+  skip_if_not_installed("psych")
+  # bfi carries no column labels; build a tiny labeled frame so a label shows.
+  d <- psych::bfi[, 1:10]
+  for (j in seq_len(ncol(d))) attr(d[[j]], "label") <- paste0("LBL_", names(d)[j])
+  x <- cached(ackwards(d, k_max = 3))
+  nodes <- ba_layout(x)$nodes
+  nodes$nw <- 0.8
+  nodes$nh <- 0.4
+  it <- .ba_item_text(x, nodes, "vertical", n_items = 2, item_cut = 0.3)
+  expect_true(any(grepl("^LBL_", it$label)))
+})

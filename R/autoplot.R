@@ -77,10 +77,22 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' @param color_edge,colour_edge Single colour for all edges when `sign_by`
 #'   does not use colour (`"linetype"` or `"none"`). Default `"black"`.
 #'   `colour_edge` is an accepted British alias.
-#' @param node_width Width of factor boxes in layout units. Default `0.8`.
-#' @param node_height Height of factor boxes in layout units. Default `0.4`.
+#' @param node_width Width of factor boxes in layout units. Either a single
+#'   value applied to every box (default `0.8`), or a **named numeric vector**
+#'   keyed by factor ID (e.g. `c(m5f1 = 1.6)`) giving a per-box width; boxes not
+#'   named fall back to the `0.8` default. Use a per-box width to fit a long
+#'   manual `node_labels` string. Names matching no factor ID warn.
+#' @param node_height Height of factor boxes in layout units. Either a single
+#'   value applied to every box (default `0.4`), or a named numeric vector keyed
+#'   by factor ID for a per-box height (unnamed boxes fall back to `0.4`); useful
+#'   for multi-line manual labels. Names matching no factor ID warn.
 #' @param min_sep Minimum horizontal separation between nodes; passed to
 #'   [ba_layout()]. Default `1.0`.
+#' @param order Optional manual left-to-right ordering of the **deepest**
+#'   (`k_max`) level, passed to [ba_layout()]; a character vector of that level's
+#'   factor IDs (or a named list keyed by the level number) fixes the leaf order
+#'   and every upper factor re-centres above its primary children. Use it to
+#'   untangle a figure by hand. `NULL` (default) uses the automatic ordering.
 #' @param show_skip Whether to draw skip-level (non-adjacent) edges. `NULL`
 #'   (default) auto-detects: `TRUE` when the object was run with
 #'   `pairs = "all"`, `FALSE` otherwise. Ignored when `drop_pruned = TRUE`.
@@ -118,6 +130,17 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   for that node, so this argument is a per-call last word over the persistent
 #'   labels. A warning is issued for names that match no factor ID in the object.
 #'   Default `NULL`.
+#' @param show_items When `TRUE`, lists the salient observed items beneath each
+#'   **deepest-level** (`k_max`) factor box, so a publication figure shows what
+#'   each most-granular factor is made of. Items are the top `n_items` by
+#'   `|loading|` at or above `item_cut`, using the same extraction as
+#'   [top_items()] (variable labels are shown when the fit carried them, else the
+#'   item IDs). Listed below the boxes in a vertical layout, to their right in a
+#'   horizontal one. Default `FALSE`.
+#' @param n_items Maximum number of items listed per deepest-level factor when
+#'   `show_items = TRUE`. `NULL` lists every item meeting `item_cut`. Default `5`.
+#' @param item_cut Absolute-loading threshold for `show_items`: only items with
+#'   `|loading| >= item_cut` are listed. Default `0.3`.
 #' @param primary_only When `TRUE`, only primary-parent edges (`is_primary ==
 #'   TRUE`) are drawn. Because skip-level edges are never primary, this also
 #'   suppresses skip arcs. Ignored when `drop_pruned = TRUE`. Default `FALSE`.
@@ -183,6 +206,9 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   # Left-to-right layout (wide slides / posters)
 #'   autoplot(x, direction = "horizontal")
 #'
+#'   # List the top items under each deepest-level factor
+#'   autoplot(x, show_items = TRUE, n_items = 4)
+#'
 #'   # Per-level fit index chart (EFA or ESEM only)
 #'   x_efa <- ackwards(sim16, k_max = 5, engine = "efa")
 #'   autoplot(x_efa, what = "fit")
@@ -193,8 +219,18 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   # Custom node labels for the 5-factor level
 #'   autoplot(x, node_labels = c(m5f1 = "Factor A", m5f2 = "Factor B"))
 #'
+#'   # Widen two boxes to fit long manual labels (per-box sizing)
+#'   autoplot(x,
+#'     node_labels = c(m5f1 = "Conscientiousness"),
+#'     node_width = c(m5f1 = 1.8)
+#'   )
+#'
 #'   # Primary links only -- clean hierarchy tree
 #'   autoplot(x, primary_only = TRUE)
+#'
+#'   # Manually order the deepest level to untangle the figure by hand
+#'   ids5 <- paste0("m5f", c(2, 1, 3, 5, 4))
+#'   autoplot(x, order = ids5)
 #'
 #'   # Forbes pruned view: omit redundant nodes, straight spanning arrows
 #'   xp <- ackwards(sim16, k_max = 5) |> prune("redundant")
@@ -241,6 +277,10 @@ autoplot.ackwards <- function(
   node_width = 0.8,
   node_height = 0.4,
   min_sep = 1.0,
+  order = NULL,
+  show_items = FALSE,
+  n_items = 5,
+  item_cut = 0.3,
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
@@ -302,13 +342,6 @@ autoplot.ackwards <- function(
   # colour+linetype pairing stays legible; plain "linetype" uses dashed.
   neg_linetype <- if (sign_by == "both") "twodash" else "dashed"
 
-  if (min_sep < node_width) {
-    cli::cli_warn(
-      "{.arg min_sep} ({min_sep}) is less than {.arg node_width} ({node_width}); \\
-       adjacent boxes may overlap."
-    )
-  }
-
   if (!is.null(edge_linewidth) &&
     (!is.numeric(edge_linewidth) ||
       length(edge_linewidth) != 1L ||
@@ -328,8 +361,25 @@ autoplot.ackwards <- function(
   cut_show <- cut_show %||% object$meta$cut_show %||% 0.3
   show_skip <- show_skip %||% isTRUE(object$meta$pairs == "all")
 
-  layout <- ba_layout(object, min_sep = min_sep)
+  layout <- ba_layout(object, min_sep = min_sep, order = order)
   nodes <- layout$nodes
+
+  # (b) Per-node box sizes (M81): node_width/node_height may be a single value
+  # (every box) or a named vector keyed by factor ID (per-box override, unnamed
+  # boxes fall back to the 0.8 / 0.4 defaults). Resolved to per-node `nw`/`nh`
+  # columns consumed by geom_tile and the edge-face attachment below.
+  nodes$nw <- .resolve_node_size(nodes$id, node_width, 0.8, "node_width")
+  nodes$nh <- .resolve_node_size(nodes$id, node_height, 0.4, "node_height")
+  nwv <- stats::setNames(nodes$nw, nodes$id)
+  nhv <- stats::setNames(nodes$nh, nodes$id)
+  nw_max <- max(nodes$nw)
+  nh_max <- max(nodes$nh)
+  if (min_sep < nw_max) {
+    cli::cli_warn(
+      "{.arg min_sep} ({min_sep}) is less than the widest box ({nw_max}); \\
+       adjacent boxes may overlap."
+    )
+  }
 
   # (d2) Stored factor labels (M51) form the node-text baseline: a labeled
   # factor shows its substantive name only (no parenthetical ID -- a stored
@@ -370,15 +420,15 @@ autoplot.ackwards <- function(
   # bottom->top faces when vertical, right->left faces when horizontal.
   .attach_coords <- function(e, nx, ny) {
     if (direction == "horizontal") {
-      e$x_from <- nx[e$from] + node_width / 2 # right face of parent box
+      e$x_from <- nx[e$from] + nwv[e$from] / 2 # right face of parent box
       e$y_from <- ny[e$from]
-      e$x_to <- nx[e$to] - node_width / 2 # left face of child box
+      e$x_to <- nx[e$to] - nwv[e$to] / 2 # left face of child box
       e$y_to <- ny[e$to]
     } else {
       e$x_from <- nx[e$from]
-      e$y_from <- ny[e$from] - node_height / 2 # bottom of parent box
+      e$y_from <- ny[e$from] - nhv[e$from] / 2 # bottom of parent box
       e$x_to <- nx[e$to]
-      e$y_to <- ny[e$to] + node_height / 2 # top of child box
+      e$y_to <- ny[e$to] + nhv[e$to] / 2 # top of child box
     }
     e
   }
@@ -428,7 +478,7 @@ autoplot.ackwards <- function(
          no edges possible. Returning a node-only plot."
       )
       return(.ba_degenerate_plot(
-        .orient_nodes(nodes), node_width, node_height,
+        .orient_nodes(nodes), nw_max, nh_max,
         show_level_labels, level_label_size,
         legend = legend, direction = direction
       ))
@@ -608,7 +658,20 @@ autoplot.ackwards <- function(
   }
 
   # Node tiles and labels (drawn on top of all edges)
-  p <- .ba_add_nodes(p, nodes, node_width, node_height)
+  p <- .ba_add_nodes(p, nodes)
+
+  # (a) Item lists (M81): the salient items under each deepest-level box.
+  if (isTRUE(show_items)) {
+    item_df <- .ba_item_text(object, nodes, direction, n_items, item_cut)
+    if (!is.null(item_df) && nrow(item_df) > 0L) {
+      p <- p + ggplot2::geom_text(
+        data = item_df,
+        ggplot2::aes(x = .data$x, y = .data$y, label = .data$label),
+        hjust = if (direction == "horizontal") 0 else 0.5,
+        vjust = 1, size = 2.4, lineheight = 0.9
+      )
+    }
+  }
 
   # Edge scales -- one per active encoding channel, each with its own legend.
   # When sign_by = "both", the colour and linetype scales share the name
@@ -641,36 +704,118 @@ autoplot.ackwards <- function(
   # levels' nodes; under drop_pruned they were removed, so nothing matches.
   if (show_level_labels) {
     p <- p + .ba_level_labels(
-      nodes, node_width, level_label_size,
-      direction = direction, node_height = node_height,
+      nodes, nw_max, level_label_size,
+      direction = direction, node_height = nh_max,
       pruned_levels = if (drop_pruned) integer(0) else .fully_pruned_levels(object)
     )
   }
 
-  .ba_finish_theme(p, legend, show_level_labels, direction)
+  .ba_finish_theme(p, legend, show_level_labels, direction, show_items = show_items)
 }
 
 # Plot margin that leaves room for the level-axis labels: on the left when
-# vertical, along the bottom when horizontal.
-.ba_label_margin <- function(show_level_labels, direction) {
+# vertical, along the bottom when horizontal. `show_items` (M81) adds extra
+# padding on the side the item lists extend toward (bottom vertical, right
+# horizontal) so the deepest-level item text is not cramped against the edge.
+.ba_label_margin <- function(show_level_labels, direction, show_items = FALSE) {
   pad <- if (show_level_labels) 50 else 10
+  ipad <- if (show_items) 36 else 0
   if (direction == "horizontal") {
-    ggplot2::margin(10, 10, pad, 10)
+    ggplot2::margin(10, 10 + ipad, pad, 10)
   } else {
-    ggplot2::margin(10, 10, 10, pad)
+    ggplot2::margin(10, 10, 10 + ipad, pad)
   }
+}
+
+# Build the geom_text data for the deepest-level item lists (M81). Reuses
+# top_items() so the figure lists exactly the items its console listing would
+# (top `n_items` by |loading| at or above `item_cut`), showing variable labels
+# when the fit carried them, else the item IDs. Positions each factor's items in
+# a stacked column just beyond its box -- below in a vertical layout, to the
+# right in a horizontal one -- keyed to the (already-oriented) node coordinates
+# and per-node box sizes. Returns NULL when no deepest node has qualifying items.
+.ba_item_text <- function(object, nodes, direction, n_items, item_cut) {
+  K <- object$k_max
+  nk <- nodes[nodes$level == K, , drop = FALSE]
+  if (nrow(nk) == 0L) {
+    return(NULL) # nocov (defensive: every level has >= 1 factor)
+  }
+  ti <- top_items(object, level = K, cut = item_cut, n = n_items)$data
+  # Keep only items for deepest factors still on the diagram (drop_pruned may
+  # have removed some), then bail if nothing qualifies at this cut.
+  ti <- ti[ti$factor %in% nk$id, , drop = FALSE]
+  if (nrow(ti) == 0L) {
+    return(NULL)
+  }
+  ti$disp <- if ("label" %in% names(ti)) {
+    ifelse(is.na(ti$label) | ti$label == "", ti$item, ti$label)
+  } else {
+    ti$item
+  }
+
+  line_h <- 0.30 # layout units between stacked item lines
+  gap <- 0.14 # gap between the box face and the first item
+  # top_items() already orders items by descending |loading| within each factor;
+  # rank them 1..m per factor to stack the lines. All vectorised over `ti`.
+  ti$rank <- stats::ave(seq_len(nrow(ti)), ti$factor, FUN = seq_along)
+  idx <- match(ti$factor, nk$id)
+  step <- (ti$rank - 1L) * line_h
+  if (direction == "horizontal") {
+    data.frame(
+      x = nk$x[idx] + nk$nw[idx] / 2 + gap,
+      y = nk$y[idx] + nk$nh[idx] / 2 - step,
+      label = ti$disp, stringsAsFactors = FALSE
+    )
+  } else {
+    data.frame(
+      x = nk$x[idx],
+      y = nk$y[idx] - nk$nh[idx] / 2 - gap - step,
+      label = ti$disp, stringsAsFactors = FALSE
+    )
+  }
+}
+
+# Resolve node_width / node_height into a per-node numeric vector in `ids` order
+# (M81). `arg` is either a single value applied to every box, or a named numeric
+# vector keyed by factor ID (named boxes overridden, unnamed boxes fall back to
+# `default`). Names matching no factor ID warn, mirroring node_labels. Validates
+# positive numeric.
+.resolve_node_size <- function(ids, arg, default, argname) {
+  if (!is.numeric(arg) || anyNA(arg) || any(arg <= 0)) {
+    cli::cli_abort("{.arg {argname}} must be a positive number or named vector.")
+  }
+  if (is.null(names(arg))) {
+    if (length(arg) != 1L) {
+      cli::cli_abort(
+        "{.arg {argname}} must be a single value or a vector named by factor ID."
+      )
+    }
+    return(rep(as.numeric(arg), length(ids)))
+  }
+  unknown <- setdiff(names(arg), ids)
+  if (length(unknown) > 0L) {
+    cli::cli_warn(
+      "Some {.arg {argname}} name{?s} match no factor ID: {.val {unknown}}"
+    )
+  }
+  out <- stats::setNames(rep(default, length(ids)), ids)
+  known <- intersect(names(arg), ids)
+  out[known] <- arg[known]
+  unname(out)
 }
 
 # Add the node tiles + labels to a plot (M59). Shared by the main render path
 # and the degenerate node-only plot so both draw identical nodes; tiles land on
-# top of any edges already on `p`.
-.ba_add_nodes <- function(p, nodes, node_width, node_height) {
+# top of any edges already on `p`. Box width/height are per-node (`nw`/`nh`
+# columns, M81), mapped so each box can size to its own label.
+.ba_add_nodes <- function(p, nodes) {
   p +
     ggplot2::geom_tile(
       data = nodes,
-      ggplot2::aes(x = .data$x, y = .data$y, fill = .data$fill),
-      width = node_width,
-      height = node_height,
+      ggplot2::aes(
+        x = .data$x, y = .data$y, fill = .data$fill,
+        width = .data$nw, height = .data$nh
+      ),
       color = "black",
       linewidth = 0.4
     ) +
@@ -684,13 +829,14 @@ autoplot.ackwards <- function(
 
 # Shared final theme (M59): clip-off cartesian coords, theme_void, and the
 # legend / level-label margin. Used by both the main and degenerate paths.
-.ba_finish_theme <- function(p, legend, show_level_labels, direction) {
+.ba_finish_theme <- function(p, legend, show_level_labels, direction,
+                             show_items = FALSE) {
   p +
     ggplot2::coord_cartesian(clip = "off") +
     ggplot2::theme_void(base_size = 11) +
     ggplot2::theme(
       legend.position = if (legend) "right" else "none",
-      plot.margin     = .ba_label_margin(show_level_labels, direction)
+      plot.margin     = .ba_label_margin(show_level_labels, direction, show_items)
     )
 }
 
@@ -699,7 +845,7 @@ autoplot.ackwards <- function(
   nodes, node_width, node_height, show_level_labels, level_label_size,
   legend = TRUE, direction = "vertical"
 ) {
-  p <- .ba_add_nodes(ggplot2::ggplot(), nodes, node_width, node_height)
+  p <- .ba_add_nodes(ggplot2::ggplot(), nodes)
 
   if (show_level_labels && nrow(nodes) > 0L) {
     p <- p + .ba_level_labels(

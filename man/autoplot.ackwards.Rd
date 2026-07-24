@@ -20,6 +20,10 @@
   node_width = 0.8,
   node_height = 0.4,
   min_sep = 1,
+  order = NULL,
+  show_items = FALSE,
+  n_items = 5,
+  item_cut = 0.3,
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
@@ -82,12 +86,39 @@ alias.}
 does not use colour (\code{"linetype"} or \code{"none"}). Default \code{"black"}.
 \code{colour_edge} is an accepted British alias.}
 
-\item{node_width}{Width of factor boxes in layout units. Default \code{0.8}.}
+\item{node_width}{Width of factor boxes in layout units. Either a single
+value applied to every box (default \code{0.8}), or a \strong{named numeric vector}
+keyed by factor ID (e.g. \code{c(m5f1 = 1.6)}) giving a per-box width; boxes not
+named fall back to the \code{0.8} default. Use a per-box width to fit a long
+manual \code{node_labels} string. Names matching no factor ID warn.}
 
-\item{node_height}{Height of factor boxes in layout units. Default \code{0.4}.}
+\item{node_height}{Height of factor boxes in layout units. Either a single
+value applied to every box (default \code{0.4}), or a named numeric vector keyed
+by factor ID for a per-box height (unnamed boxes fall back to \code{0.4}); useful
+for multi-line manual labels. Names matching no factor ID warn.}
 
 \item{min_sep}{Minimum horizontal separation between nodes; passed to
 \code{\link[=ba_layout]{ba_layout()}}. Default \code{1.0}.}
+
+\item{order}{Optional manual left-to-right ordering of the \strong{deepest}
+(\code{k_max}) level, passed to \code{\link[=ba_layout]{ba_layout()}}; a character vector of that level's
+factor IDs (or a named list keyed by the level number) fixes the leaf order
+and every upper factor re-centres above its primary children. Use it to
+untangle a figure by hand. \code{NULL} (default) uses the automatic ordering.}
+
+\item{show_items}{When \code{TRUE}, lists the salient observed items beneath each
+\strong{deepest-level} (\code{k_max}) factor box, so a publication figure shows what
+each most-granular factor is made of. Items are the top \code{n_items} by
+\verb{|loading|} at or above \code{item_cut}, using the same extraction as
+\code{\link[=top_items]{top_items()}} (variable labels are shown when the fit carried them, else the
+item IDs). Listed below the boxes in a vertical layout, to their right in a
+horizontal one. Default \code{FALSE}.}
+
+\item{n_items}{Maximum number of items listed per deepest-level factor when
+\code{show_items = TRUE}. \code{NULL} lists every item meeting \code{item_cut}. Default \code{5}.}
+
+\item{item_cut}{Absolute-loading threshold for \code{show_items}: only items with
+\verb{|loading| >= item_cut} are listed. Default \code{0.3}.}
 
 \item{show_skip}{Whether to draw skip-level (non-adjacent) edges. \code{NULL}
 (default) auto-detects: \code{TRUE} when the object was run with
@@ -245,6 +276,9 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   # Left-to-right layout (wide slides / posters)
   autoplot(x, direction = "horizontal")
 
+  # List the top items under each deepest-level factor
+  autoplot(x, show_items = TRUE, n_items = 4)
+
   # Per-level fit index chart (EFA or ESEM only)
   x_efa <- ackwards(sim16, k_max = 5, engine = "efa")
   autoplot(x_efa, what = "fit")
@@ -255,8 +289,18 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   # Custom node labels for the 5-factor level
   autoplot(x, node_labels = c(m5f1 = "Factor A", m5f2 = "Factor B"))
 
+  # Widen two boxes to fit long manual labels (per-box sizing)
+  autoplot(x,
+    node_labels = c(m5f1 = "Conscientiousness"),
+    node_width = c(m5f1 = 1.8)
+  )
+
   # Primary links only -- clean hierarchy tree
   autoplot(x, primary_only = TRUE)
+
+  # Manually order the deepest level to untangle the figure by hand
+  ids5 <- paste0("m5f", c(2, 1, 3, 5, 4))
+  autoplot(x, order = ids5)
 
   # Forbes pruned view: omit redundant nodes, straight spanning arrows
   xp <- ackwards(sim16, k_max = 5) |> prune("redundant")
