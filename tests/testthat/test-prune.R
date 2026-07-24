@@ -433,25 +433,40 @@ test_that("M78: direct chase stops at a mid-chain gap and does NOT skip to a dee
   # Leaf m3f1: its DIRECT |r| to level 2 is sub-threshold (gap), but its direct
   # |r| to level 1 re-emerges >= 0.9. A gap-tolerant builder would skip the gap
   # and emit an m1f1 -> m3f1 link; the contiguous builder emits nothing.
-  L1 <- matrix(c(.8, .8, .8), ncol = 1L,
-    dimnames = list(paste0("x", 1:3), "m1f1"))
-  L2 <- matrix(c(.8, .8, .8, .1, .1, .1), ncol = 2L,
-    dimnames = list(paste0("x", 1:3), c("m2f1", "m2f2")))
-  L3 <- matrix(c(.8, .8, .8, .1, .1, .1, .1, .1, .1), ncol = 3L,
-    dimnames = list(paste0("x", 1:3), c("m3f1", "m3f2", "m3f3")))
+  L1 <- matrix(c(.8, .8, .8),
+    ncol = 1L,
+    dimnames = list(paste0("x", 1:3), "m1f1")
+  )
+  L2 <- matrix(c(.8, .8, .8, .1, .1, .1),
+    ncol = 2L,
+    dimnames = list(paste0("x", 1:3), c("m2f1", "m2f2"))
+  )
+  L3 <- matrix(c(.8, .8, .8, .1, .1, .1, .1, .1, .1),
+    ncol = 3L,
+    dimnames = list(paste0("x", 1:3), c("m3f1", "m3f2", "m3f3"))
+  )
 
   # Adjacent hops all sub-threshold (no chain forms level-to-level)...
-  E_1_2 <- matrix(c(0.50, 0.40), nrow = 1L,
-    dimnames = list("m1f1", c("m2f1", "m2f2")))
+  E_1_2 <- matrix(c(0.50, 0.40),
+    nrow = 1L,
+    dimnames = list("m1f1", c("m2f1", "m2f2"))
+  )
   E_2_3 <- matrix(
-    c(0.50, 0.40,        # m3f1: gap -- no level-2 parent >= 0.9
-      0.30, 0.30,        # m3f2
-      0.30, 0.30),       # m3f3
-    nrow = 2L, dimnames = list(c("m2f1", "m2f2"),
-                               c("m3f1", "m3f2", "m3f3")))
+    c(
+      0.50, 0.40, # m3f1: gap -- no level-2 parent >= 0.9
+      0.30, 0.30, # m3f2
+      0.30, 0.30
+    ), # m3f3
+    nrow = 2L, dimnames = list(
+      c("m2f1", "m2f2"),
+      c("m3f1", "m3f2", "m3f3")
+    )
+  )
   # ...but the DIRECT (skip-level) 1:3 link for m3f1 re-emerges >= 0.9.
-  E_1_3 <- matrix(c(0.95, 0.20, 0.20), nrow = 1L,
-    dimnames = list("m1f1", c("m3f1", "m3f2", "m3f3")))
+  E_1_3 <- matrix(c(0.95, 0.20, 0.20),
+    nrow = 1L,
+    dimnames = list("m1f1", c("m3f1", "m3f2", "m3f3"))
+  )
 
   mock_gap <- list(
     k_max = 3L,
