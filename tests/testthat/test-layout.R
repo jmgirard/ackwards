@@ -180,10 +180,17 @@ test_that("ba_layout() never increases crossings on a shallow hierarchy", {
 
   seed <- ackwards:::.seed_order(x$levels, x$edges$tidy, x$k_max)
   seed_x <- ackwards:::.assign_x(seed, x$levels, x$edges$tidy, x$k_max, 1.0)
+  seed_xmap <- do.call(c, unname(seed_x))
+  new_xmap <- stats::setNames(lay$nodes$x, lay$nodes$id)
 
+  # AC1 shallow clause: neither primary nor total crossings increase vs the seed.
   expect_lte(
     ackwards:::.count_crossings(list(nodes = lay$nodes, edges = prim)),
-    ackwards:::.count_crossings_xmap(do.call(c, unname(seed_x)), prim)
+    ackwards:::.count_crossings_xmap(seed_xmap, prim)
+  )
+  expect_lte(
+    ackwards:::.count_crossings_xmap(new_xmap, x$edges$tidy),
+    ackwards:::.count_crossings_xmap(seed_xmap, x$edges$tidy)
   )
 })
 

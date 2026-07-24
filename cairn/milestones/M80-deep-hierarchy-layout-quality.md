@@ -151,3 +151,25 @@ bent" at ten levels).
 - AC5: full suite 0 fail / 0 skip / 2453 tests (the 1 "warning" is the pre-existing
   M42/e3 `test-pca.R:117` ordinal-detection assertion, outside this diff); DoD gate
   ran `check()` 0/0/0 + coverage 100% on byte-identical code.
+
+### Consistency gate
+
+- `cairn_validate`: all checks passed (113 pre-existing advisories, not failures).
+- No principle change (`Principles touched: —`) → `cairn_impact` skipped.
+- Profile `consistency-gate` (NEWS.md): M80 entry present.
+
+### Independent review (three lenses + scorer)
+
+- **diff-bug (Opus):** no hard correctness bug; two test-adequacy findings (below).
+- **blame-history (Sonnet):** no findings — `.assign_x` byte-identical to old Pass-2,
+  determinism/`.spread_positions`/`pmax` guard intact, D-015/D-017/D-032 not violated.
+- **prior-review (Sonnet):** no prior-review evidence (M79/M59 findings on disjoint
+  paths; GH probe empty).
+- **F1 (scored 85 — actioned):** shallow test asserted only *primary* crossings, not
+  AC1's "never increases *total*" clause. Fixed — added a total-crossing `expect_lte`
+  vs the seed on `sim16` (`test-layout.R`).
+- **F2 (scored 45 — logged, not actioned):** autoplot `show_r` integration test asserts
+  only no-error, not real-diagram label separation. Materiality low: AC3's stated
+  verification is the synthetic unit test (passes exactly); realistic views have no
+  label collisions, and the dense 312-label worst case lands 0.0002 short of threshold
+  at the iteration cap — an imperceptible near-miss, not a visible defect.
