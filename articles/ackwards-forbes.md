@@ -286,8 +286,10 @@ x_art <- ackwards(bfi, k_max = 5, cor = "polychoric", pairs = "all") |>
 #> ℹ Artifact mode: Tucker's φ computed for all cross-level factor pairs.
 #> ℹ Structural signals computed: 2 factors flagged (few_items / orphan /
 #>   split_merge).
-#> ℹ Inspect `x$prune$phi` and `x$prune$structural`; removal is a researcher
-#>   judgment (Forbes, 2023).
+#> ℹ Near-redundant band: 5 cross-level pairs just below the redundancy thresholds
+#>   (|r| in [0.8, 0.9)).
+#> ℹ Inspect `x$prune$phi`, `x$prune$structural`, and `x$prune$near_redundant`;
+#>   removal is a researcher judgment (Forbes, 2023).
 ```
 
 The table to read is `x$prune$phi`. The natural first cut is the
@@ -309,11 +311,52 @@ classic candidate:
 | m2f1 | m5f1 | 2 | 5 | 0.85 |
 
 For these data the strongest non-adjacent congruence is \|φ\| = 0.99.
-Values near 1 mean the deeper factor recycles an earlier loading
-pattern; whether that makes it a rotation artifact — or a faithfully
-*persisting* construct, which is the redundancy view of the same fact —
-is a judgment made with the substantive content of the items in view,
-not a threshold the package applies for you.
+Values near 1 mean the deeper factor recycles an earlier loading pattern
+— but a congruence *this* high travels with a near-perfect score
+correlation too, so these top pairs are already the province of
+`prune(x, "redundant")`: the factor they name is flagged (and dropped
+from the publication diagram) by the redundancy rule above. The
+distinctive contribution of artifact mode is not re-flagging what
+redundancy already caught; it is surfacing the messier band *just below*
+the redundancy thresholds.
+
+### The near-redundant band
+
+Full redundancy — `|r| ≥ redundancy_r` — is dropped in the redundancy
+stage. Forbes (2023) uses the artifact flags mainly for the pairs that
+sit *just under* that line: a pair that correlates, say, `|r| = 0.89`
+and shares a loading pattern `φ = 0.94` is not quite redundant, but it
+is a candidate re-rotation worth a second look rather than a clean new
+level of resolution. `prune(x, "artifact")` collects exactly these in
+`x$prune$near_redundant`: every cross-level pair that is **not** itself
+fully redundant yet has its direct score correlation `|r|` (or, off PCA,
+its Tucker `φ`) within `near_margin` (default `0.1`) *below* the
+corresponding threshold.
+
+    #> ℹ Redundancy pruning (direct criterion, |r| ≥ 0.9) flagged 6 nodes.
+    #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+    #>   `x$prune$chains`.
+
+| Near-redundant band |  |  |  |  |  |
+|----|----|----|----|----|----|
+| Cross-level pairs just below the redundancy thresholds — evidence, not flags |  |  |  |  |  |
+| From | To | Level (from) | Level (to) | r | φ |
+| m1f1 | m2f1 | 1 | 2 | 0.89 | 0.94 |
+| m2f1 | m3f1 | 2 | 3 | 0.87 | 0.94 |
+| m2f1 | m4f1 | 2 | 4 | 0.85 | 0.93 |
+| m4f1 | m5f1 | 4 | 5 | 0.84 | 0.93 |
+| m3f1 | m5f1 | 3 | 5 | 0.82 | 0.92 |
+
+The strongest near-redundant pair here is m1f1 ↔︎ m2f1 (r = 0.89, φ =
+0.94) — and, unlike the top-φ pairs above, neither factor is flagged by
+prune(x, “redundant”): this pair is a genuine near-miss, not something
+redundancy already drops. The examples here use the default PCA engine,
+so `redundancy_phi` is `NULL` and only the `|r|` band is active; on an
+EFA or ESEM fit `redundancy_phi` auto-resolves to `0.95` and the `φ`
+band switches on too
+([`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+announces this). Widen or narrow the band with `near_margin`. Like the φ
+table, the band is **report-only** — no factor is dropped on its basis.
 
 The two modes surface different fingerprints of the same underlying
 question:
