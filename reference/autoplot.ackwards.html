@@ -119,6 +119,7 @@ without a matching legend.</p>
 <span>  primary_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  drop_pruned <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  compress_levels <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  show_secondary <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_arrows <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  legend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -306,6 +307,21 @@ level axis labels (d) still show the original level numbers. Ignored when
 <code>drop_pruned = FALSE</code>. Default <code>FALSE</code>.</p></dd>
 
 
+<dt id="arg-show-secondary">show_secondary<a class="anchor" aria-label="anchor" href="#arg-show-secondary"></a></dt>
+<dd><p>When <code>TRUE</code> under <code>drop_pruned = TRUE</code>, also draws the
+between-level correlation edges the single-strongest-ancestor primary view
+hides: every kept cross-level factor pair with <code>|r| &gt;= cut_show</code> that is not
+already a primary edge. This includes cross-branch second parents <em>and</em>
+same-lineage skip arcs (a direct skip-level <code>r</code> is a distinct, non-transitive
+fact, not implied by the primary path). Secondary edges render in a channel
+deliberately distinct from the primary edges – dimmed (reduced opacity) and
+thinner, with plain line ends – while still inheriting the sign encoding
+(<code>sign_by</code>), so the sign colour/linetype is never conflated with the
+secondary channel. By construction each node's secondaries are weaker than
+its primary edge, so a secondary edge never appears while that node's primary
+is below <code>cut_show</code>. Ignored when <code>drop_pruned = FALSE</code>. Default <code>FALSE</code>.</p></dd>
+
+
 <dt id="arg-show-arrows">show_arrows<a class="anchor" aria-label="anchor" href="#arg-show-arrows"></a></dt>
 <dd><p>When <code>FALSE</code>, edges are drawn with plain line ends instead
 of closed arrowheads (<code>arrow = NULL</code>). Applies to both straight and curved
@@ -392,6 +408,10 @@ directly. For a wide slide or poster, pair it with
 <span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">xp</span>, drop_pruned <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">xp</span>, drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>, show_r <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">xp</span>, drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>, compress_levels <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Add the secondary between-level correlations the primary view hides</span></span></span>
+<span class="r-in"><span>  <span class="co"># (dimmed + thinner, drawn beneath the primary edges)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">xp</span>, drop_pruned <span class="op">=</span> <span class="cn">TRUE</span>, show_secondary <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># Plain line ends without arrowheads</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_arrows <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>

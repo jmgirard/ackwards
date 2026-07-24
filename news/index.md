@@ -8,6 +8,19 @@ CRAN resubmission of the first release, addressing reviewer feedback on
 the 0.1.0 submission; also picks up everything added since that
 submission.
 
+- **`autoplot(drop_pruned = TRUE)` can now draw secondary correlation
+  edges.** A new `show_secondary = TRUE` adds the between-level
+  correlations the pruned view otherwise hides — every kept cross-level
+  factor pair with `|r| >= cut_show` that is not the single
+  strongest-ancestor primary edge, including a factor’s weaker second
+  parents *and* direct skip-level correlations (a skip-level `|r|` is
+  its own non-transitive fact). They render in a channel deliberately
+  distinct from the primary edges — dimmed and thinner, drawn beneath
+  them — while still inheriting the sign encoding (`sign_by`), so the
+  sign color/linetype is never conflated with the secondary channel.
+  Default `FALSE` leaves the pruned view unchanged. The visualization
+  vignette illustrates the new argument.
+
 - **`prune(x, "artifact")` now reports a near-redundant band.** A new
   `x$prune$near_redundant` table flags cross-level factor pairs that sit
   *just below* the redundancy thresholds — where `prune(x, "redundant")`

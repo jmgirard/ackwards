@@ -267,6 +267,45 @@ primary-only](assets/ackwards-visualization-primary-only-1.png)
 
 plot of chunk primary-only
 
+### `drop_pruned` + `show_secondary` — the pruned view and its hidden correlations
+
+Pruning (see
+[`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md))
+flags redundant factors; `drop_pruned = TRUE` then renders the reduced
+hierarchy, joining each retained factor to its single strongest
+surviving ancestor. That primary view hides every *other* between-level
+correlation. `show_secondary = TRUE` adds them back — each kept
+cross-level pair with `|r| >= cut_show` that is not a primary edge —
+drawn dimmed and thinner beneath the primary arrows, so the sign colors
+stay intact. These are a factor’s weaker second parents *and* direct
+skip-level correlations the primary path would otherwise obscure (a
+skip-level \|r\| is its own fact: correlation is not transitive, so it
+need not equal the product along the path).
+
+``` r
+
+xp <- prune(x, "redundant")
+#> ℹ Redundancy pruning (direct criterion, |r| ≥ 0.9) flagged 6 nodes.
+#> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
+#>   `x$prune$chains`.
+autoplot(xp, drop_pruned = TRUE) # primary view: one ancestor per factor
+```
+
+![plot of chunk
+drop-pruned-secondary](assets/ackwards-visualization-drop-pruned-secondary-1.png)
+
+plot of chunk drop-pruned-secondary
+
+``` r
+
+autoplot(xp, drop_pruned = TRUE, show_secondary = TRUE) # + secondary correlations
+```
+
+![plot of chunk
+drop-pruned-secondary](assets/ackwards-visualization-drop-pruned-secondary-2.png)
+
+plot of chunk drop-pruned-secondary
+
 ## Level labels
 
 ### `show_level_labels` / `level_label_size`

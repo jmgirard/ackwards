@@ -247,7 +247,7 @@ meets <code>redundancy_r</code>.</p>
 <p><strong>The near-redundant band (<code>"artifact"</code> mode).</strong> <code>prune("redundant")</code> drops
 <em>full</em> redundancy – pairs at or above the thresholds. Forbes (2023) uses the
 artifact flags mainly for the messier band <em>just below</em> them: a pair that
-correlates, say, <code>r = 0.89</code> and shares a loading pattern <code>phi = 0.93</code> is not
+correlates, say, <code>|r| = 0.89</code> and shares a loading pattern <code>phi = 0.93</code> is not
 quite redundant but is a candidate re-rotation worth a second look. Artifact
 mode surfaces this as <code>x$prune$near_redundant</code> – a data frame of every
 cross-level pair that is <strong>not</strong> itself fully redundant yet has its direct
