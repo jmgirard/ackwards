@@ -134,3 +134,24 @@ lands first, the second rebases.
 clean. `document()` no diff (generated files not hand-edited). `pkgdown::check_pkgdown()`
 "No problems found." coverage 100% (layout + autoplot 100%; diagnostic only).
 lint 0, styled. No `IPn`/`GPn` added or changed (IP1/GP2 worked-under) → `cairn_impact` skipped.
+
+**Independent three-lens review** (fresh-context, parallel, distinct evidence bases):
+- blame-history (Sonnet): **0 findings** — secondary set reuses M42's single
+  `compute_edges(pairs="all")` table (IP1/D-004 intact), doesn't disturb
+  primary-edge selection, preserves "no unmapped aesthetic" + default-unchanged.
+- prior-review (Sonnet): **0 findings** — vignette churn correctly scoped to the
+  one touched vignette + its 2 assets (M61/M75), no M59 one-line branch, the
+  prune.R edit is the M77 fix; PR-comment probe returned `[]` (no thread walk).
+- diff-bug (Opus): 2 raised. Scorer (Sonnet, independent):
+  - **F1 (85, actioned → fixed):** secondary `linewidth` was hardcoded `0.3`,
+    so a user `edge_linewidth < 0.3` (e.g. `0.2`) rendered the *primary* thinner
+    than the secondary — inverting the documented "thinner" contract. Fixed:
+    `sec_linewidth <- min(0.3, 0.6 * width_val)`, strictly below the primary in
+    every mode (mapped range floor 0.4, or any constant primary width). Regression
+    test added (`edge_linewidth = 0.2` → secondary 0.12 < primary 0.2).
+  - **F2 (40, logged, not actioned):** `show_r` labels only primary edges, not
+    secondary. Reviewer + scorer agree this is an intentional de-emphasis; no
+    roxygen promises secondary labels. Below the 80 action bar.
+
+**Post-fix gate:** layout suite 252 assertions FAIL 0; `check()` 0/0/0;
+coverage 100% (layout + autoplot); lint 0; styled.

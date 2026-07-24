@@ -399,6 +399,26 @@ test_that("show_secondary preserves the sign channel under sign_by='linetype' (M
   expect_setequal(unique(sec$linetype), unique(.dp_primary_data(p)$linetype))
 })
 
+test_that("show_secondary stays thinner than the primary under a thin edge_linewidth (M79)", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    xp <- cached(ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all") |>
+      prune("redundant", redundancy_r = 0.9))
+  ))
+  # Regression: a user-supplied edge_linewidth below the fixed secondary width
+  # must not make secondary edges *thicker* than the primary ones. Secondary
+  # width scales under the primary width (min(0.3, 0.6 * width_val)).
+  p <- ggplot2::autoplot(xp,
+    drop_pruned = TRUE, show_secondary = TRUE, edge_linewidth = 0.2
+  )
+  prim_w <- unique(.dp_primary_data(p)$linewidth)
+  sec_w <- unique(.dp_secondary_data(p)$linewidth)
+  expect_equal(prim_w, 0.2)
+  expect_true(all(sec_w < prim_w)) # strictly thinner, not inverted
+  expect_equal(sec_w, 0.12) # min(0.3, 0.6 * 0.2)
+})
+
 test_that("autoplot.ackwards() handles objects with prune=NULL (no pruning)", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")

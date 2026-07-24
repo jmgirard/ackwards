@@ -549,15 +549,19 @@ autoplot.ackwards <- function(
     p + do.call(ggplot2::geom_curve, args)
   }
   # Secondary edges (M79): a distinct channel from the primary edges -- dimmed
-  # (alpha) + thin (constant linewidth below the primary range) + plain line
-  # ends -- while inheriting the sign colour/linetype so sign still reads. The
-  # magnitude channel is deliberately not mapped here, so secondary aesthetics
-  # reuse edge_aes minus any linewidth mapping.
+  # (alpha) + thinner + plain line ends -- while inheriting the sign
+  # colour/linetype so sign still reads. The magnitude channel is deliberately
+  # not mapped here, so secondary aesthetics reuse edge_aes minus any linewidth
+  # mapping. The secondary width must stay *below* the primary in every mode:
+  # min(0.3, 0.6 * width_val) clears the mapped range's 0.4 floor
+  # (width_val defaults to 0.7 when magnitude is mapped) and stays under any
+  # constant primary width, including a thin user edge_linewidth.
+  sec_linewidth <- min(0.3, 0.6 * width_val)
   .add_secondary <- function(p, data) {
     sec_aes <- edge_aes
     sec_aes[["linewidth"]] <- NULL # never scale secondary width by |r|
     sec_const <- const_args
-    sec_const[["linewidth"]] <- 0.3 # thin: below the primary linewidth range
+    sec_const[["linewidth"]] <- sec_linewidth # thinner than the primary edges
     sec_const[["alpha"]] <- 0.4 # dimmed
     args <- c(list(data = data, mapping = sec_aes, arrow = NULL), sec_const)
     p + do.call(ggplot2::geom_segment, args)
