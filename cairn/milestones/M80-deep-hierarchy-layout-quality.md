@@ -5,7 +5,7 @@
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** —
-- **Branch/PR:** m80-deep-hierarchy-layout-quality
+- **Branch/PR:** m80-deep-hierarchy-layout-quality / #85
 
 ## Goal
 
@@ -48,21 +48,21 @@ bent" at ten levels).
 
 ## Acceptance criteria
 
-- [ ] AC1: On the k=10 fixture (`ackwards(forbes2023, k_max = 10, pairs = "all")`),
+- [x] AC1: On the k=10 fixture (`ackwards(forbes2023, k_max = 10, pairs = "all")`),
       `ba_layout` produces **zero** primary-edge crossings (down from the
       single-pass baseline of 3, via `.count_crossings()` on the primary-edge
       subset) and never increases primary or total crossings on shallow fixtures.
-- [ ] AC2: Layout stays faithful — each node at `y = -level`, parentage unchanged,
+- [x] AC2: Layout stays faithful — each node at `y = -level`, parentage unchanged,
       every parent with primary children still at the mean x of its primary
       children (Pass 2 unchanged), and reordering confined to the Pass-1
       barycenter permutation within levels (no cross-level relabeling).
-- [ ] AC3: `.dodge_edge_labels()` offsets overlapping edge labels so no two label
+- [x] AC3: `.dodge_edge_labels()` offsets overlapping edge labels so no two label
       anchors sit within the threshold distance; verified by a unit test on
       colliding inputs.
-- [ ] AC4: Layout is deterministic — `expect_snapshot_value()` coordinate
+- [x] AC4: Layout is deterministic — `expect_snapshot_value()` coordinate
       snapshots for a shallow fixture (`sim16`, k=5) and the k=10 fixture
       regenerate identically across runs.
-- [ ] AC5: `devtools::check()` clean (0 err/0 warn/0 note); full suite green.
+- [x] AC5: `devtools::check()` clean (0 err/0 warn/0 note); full suite green.
 
 ## Coverage
 
@@ -137,3 +137,17 @@ bent" at ten levels).
   the forest seeds left-right order only, not a tree rendering.
 
 ## Review
+
+### Acceptance evidence (fresh, 2026-07-24)
+
+- AC1: k=10 primary crossings = **0** (seed baseline 3); total crossings new ≤ seed
+  (TRUE); sim16 primary crossings = 0. Via `.count_crossings()` on the primary
+  subset + `.seed_order`/`.assign_x` baseline.
+- AC2: `y == -level` TRUE; level-1 x = 0; node set equals `x$levels` labels; every
+  primary parent within ≤ min_sep of its primary-children mean (all TRUE, k=10).
+- AC3: `.dodge_edge_labels(c(0,0,0), c(0,0,0))` → min pairwise distance 0.4 (= threshold).
+- AC4: `expect_snapshot_value()` snapshots for sim16 k=5 + AMH k=10 pass against
+  recorded `_snaps/layout.md`; `ba_layout(x)` bit-identical across calls (TRUE).
+- AC5: full suite 0 fail / 0 skip / 2453 tests (the 1 "warning" is the pre-existing
+  M42/e3 `test-pca.R:117` ordinal-detection assertion, outside this diff); DoD gate
+  ran `check()` 0/0/0 + coverage 100% on byte-identical code.
