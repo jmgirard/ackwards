@@ -90,6 +90,7 @@ object's fields, the criteria semantics (D-013), or the report-only stance
 - 2026-07-23: created by /milestone-plan.
 - 2026-07-23: T1+T2 done — aligned criteria table + adaptive legend in print.suggest_k(); snapshot + ANSI-alignment tests added. Not-retained glyph kept as grey dash (cli::symbol$bullet aliases to "*" in ASCII terminals, colliding with the optimal star). suggest_k + print-snapshot suites 0 fail/0 warn.
 - 2026-07-23: T3 done — vignette prose (ackwards-suggest-k) describes the table+legend; precompute re-run; intro + girard vignettes regenerated (they print(sk), so the new table appears); engines/visualization + autoplot PNGs reverted as gt-ID/render noise (M61). NEWS.md bullet added. Vignette-freshness OK.
+- 2026-07-23: review — all 6 ACs verified with fresh evidence; check 0/0/0, coverage 100%, cairn_validate exit 0, full CI matrix green. Three-lens review: prior-review lens found an M61 timing-churn regression in intro/girard (score 90); fixed by reverting the 8 timing-only lines to master, keeping table hunks. Two below-80 findings logged (score_cells NA path unreachable; double formatC style-only).
 
 ## Decisions
 
@@ -121,3 +122,26 @@ advisory warnings on legacy milestone-ID references, none from M75). No principl
 change (GP2 worked-under, not modified) → `cairn_impact` skipped. Toolchain
 consistency-gate (document no-diff, pkgdown, NEWS entry, freshness, full check) all
 clean.
+
+**CI:** full matrix green (macOS, Ubuntu devel/release/oldrel, Windows, pkgdown,
+coverage) on PR #79 — the Windows/ASCII-terminal leg exercises the dash-not-bullet
+portability decision.
+
+**Independent review — three lenses + scorer.** Diff-bug (Opus) and blame-history
+(Sonnet) lenses: no defects; both independently confirmed the M42 Inf-guard, M50
+ordinal warning, CD footers, D-013/D-014, and the dash-not-bullet reasoning are
+intact, and that the `integer(0)` degenerate score path degrades gracefully.
+Prior-review (Sonnet) lens: one finding. Scorer (fresh Sonnet) results:
+
+- **Finding 1 (score 90) — ACTIONED (fixed).** M61-lesson regression: the
+  regenerated `ackwards-girard.Rmd` / `ackwards-intro.Rmd` carried unrelated cli
+  `[Nms]` progress-timing churn (girard's `comparability()` `[455ms]→[382ms]` and
+  `boot_edges()` `[3.6s]→[2.6s]`, plus suggest_k PA/MAP-VSS/CD timings in both)
+  outside the legitimate `print(sk)` table hunk. Fix: restored the eight
+  timing-only lines to their master values (a line-level equivalent of M61's
+  `git checkout --`), leaving only the table hunks; vignette-freshness still OK.
+- **Finding 2 (score 12) — logged, no action.** `score_cells()` `opt_k` NA path:
+  self-refuting — `opt_k` is always a valid scalar from `which.min`/`which.max`,
+  and `paste0` drops a zero-length slot gracefully (confirmed by the diff-bug lens).
+- **Finding 3 (score 8) — logged, no action.** Double `formatC()` at
+  R/suggest_k.R:~590 is the standard two-pass decimal-alignment idiom; style-only.
