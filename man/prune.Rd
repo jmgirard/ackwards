@@ -16,6 +16,7 @@ prune(x, ...)
   redundancy_criterion = c("direct", "adjacent"),
   min_items = 3L,
   orphan_r = 0.5,
+  near_margin = 0.1,
   ...
 )
 }
@@ -37,10 +38,11 @@ Flagged nodes get \code{pruned = TRUE} and \code{prune_reason = "redundant"} in
 \code{x$prune$nodes}.
 \item \code{"artifact"} (or the alias \code{"artefact"}, normalized to \code{"artifact"}) --
 compute Tucker's congruence coefficient (phi) for all cross-level factor
-pairs and store in \code{x$prune$phi}, plus structural signals
-(\code{few_items}/\code{orphan}/\code{split_merge}) in \code{x$prune$structural}. No factors
-are auto-flagged; artifact identification requires judgment (Forbes,
-2023; Wicherts et al., 2016).
+pairs and store in \code{x$prune$phi}, structural signals
+(\code{few_items}/\code{orphan}/\code{split_merge}) in \code{x$prune$structural}, and the
+\strong{near-redundant band} (\code{near_margin}, see Details) in
+\code{x$prune$near_redundant}. No factors are auto-flagged; artifact
+identification requires judgment (Forbes, 2023; Wicherts et al., 2016).
 }}
 
 \item{manual}{Character vector of factor labels (e.g. \code{c("m4f3", "m4f4")})
@@ -100,6 +102,14 @@ and so does not replicate across the hierarchy. Only used when \code{rules}
 includes \code{"artifact"}. Default \code{0.5} -- a moderate correlation; a factor
 that shares less than a quarter of its variance with every neighbour is a
 structural outlier worth inspecting.}
+
+\item{near_margin}{Scalar in \verb{(0, 1]}. Width of the \strong{near-redundant band}
+reported by \code{"artifact"} mode (see Details). A cross-level pair is flagged
+near-redundant when its direct \verb{|r|} sits in
+\verb{[redundancy_r - near_margin, redundancy_r)} \strong{or} its Tucker \code{phi} sits in
+\verb{[redundancy_phi - near_margin, redundancy_phi)} -- i.e. within \code{near_margin}
+\emph{below} a redundancy threshold -- while the pair is not itself fully
+redundant. Only used when \code{rules} includes \code{"artifact"}. Default \code{0.1}.}
 }
 \value{
 \code{x}, with \verb{$prune} populated (replacing any prior pruning).
@@ -143,6 +153,23 @@ stronger direct link is what justified it. The \code{endpoint_r} column gives th
 direct root-to-leaf correlation as an at-a-glance cross-check. Under
 \code{redundancy_criterion = "adjacent"}, \code{r_to_prev} \emph{is} the criterion and always
 meets \code{redundancy_r}.
+
+\strong{The near-redundant band (\code{"artifact"} mode).} \code{prune("redundant")} drops
+\emph{full} redundancy -- pairs at or above the thresholds. Forbes (2023) uses the
+artifact flags mainly for the messier band \emph{just below} them: a pair that
+correlates, say, \code{r = 0.89} and shares a loading pattern \code{phi = 0.93} is not
+quite redundant but is a candidate re-rotation worth a second look. Artifact
+mode surfaces this as \code{x$prune$near_redundant} -- a data frame of every
+cross-level pair that is \strong{not} itself fully redundant yet has its direct
+(skip-level) \verb{|r|} \strong{or} its Tucker \code{phi} within \code{near_margin} \emph{below} the
+corresponding threshold (\code{redundancy_r} / \code{redundancy_phi}). Columns:
+\code{from}, \code{to}, \code{level_from}, \code{level_to}, \code{r} (direct score correlation), \code{phi}
+(loading congruence), and the logical band flags \code{near_r} / \code{near_phi}. Under
+the PCA engine \code{redundancy_phi} is \code{NULL} (component scores are determinate),
+so only the \verb{|r|} band applies; under EFA/ESEM \code{redundancy_phi} auto-resolves
+to \code{0.95} (announced via cli) and the \code{phi} band is active too. Like phi and
+the structural signals, the band is \strong{report-only} -- it never drops or
+mutates the kept node set.
 }
 \examples{
 # sim16 has a planted redundant chain + overextraction artifact at k = 5,

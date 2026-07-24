@@ -42,7 +42,7 @@ Add a report-only "near-redundant" band signal to `prune("artifact")` flagging f
 
 - [x] T1: (test-first) tests: fixture (planted near-redundant pair, e.g. a `data-raw/` matrix or `sim16` at a chosen `k`) → `prune("artifact")` flags it; report-only invariant (kept set unchanged); boundary edges (`NA` phi, exactly-at-threshold, disabled phi).
 - [x] T2: Implement the near-redundant band in artifact mode (`prune.R`); add `near_margin` arg + default resolution (mirror `redundancy_phi`'s auto-resolve/announce pattern where engine-dependent).
-- [ ] T3: roxygen `@param`/`@details`; `devtools::document()`; update `_pkgdown.yml` if the surface changed.
+- [x] T3: roxygen `@param`/`@details`; `devtools::document()`; update `_pkgdown.yml` if the surface changed.
 - [ ] T4: Fix the artifact vignette example + prose; re-run `Rscript vignettes/precompute.R`; `git checkout --` untouched assets.
 - [ ] T5: NEWS.md entry; `Rscript tools/dod-gate.R`.
 

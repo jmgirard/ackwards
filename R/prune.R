@@ -661,10 +661,11 @@
 #'     `x$prune$nodes`.
 #'   * `"artifact"` (or the alias `"artefact"`, normalized to `"artifact"`) --
 #'     compute Tucker's congruence coefficient (phi) for all cross-level factor
-#'     pairs and store in `x$prune$phi`, plus structural signals
-#'     (`few_items`/`orphan`/`split_merge`) in `x$prune$structural`. No factors
-#'     are auto-flagged; artifact identification requires judgment (Forbes,
-#'     2023; Wicherts et al., 2016).
+#'     pairs and store in `x$prune$phi`, structural signals
+#'     (`few_items`/`orphan`/`split_merge`) in `x$prune$structural`, and the
+#'     **near-redundant band** (`near_margin`, see Details) in
+#'     `x$prune$near_redundant`. No factors are auto-flagged; artifact
+#'     identification requires judgment (Forbes, 2023; Wicherts et al., 2016).
 #' @param manual Character vector of factor labels (e.g. `c("m4f3", "m4f4")`)
 #'   to flag directly, in addition to or instead of an auto rule. Standalone
 #'   manual pruning is supported: `prune(x, manual = c("m4f3"))`. Unknown
@@ -713,6 +714,13 @@
 #'   includes `"artifact"`. Default `0.5` -- a moderate correlation; a factor
 #'   that shares less than a quarter of its variance with every neighbour is a
 #'   structural outlier worth inspecting.
+#' @param near_margin Scalar in `(0, 1]`. Width of the **near-redundant band**
+#'   reported by `"artifact"` mode (see Details). A cross-level pair is flagged
+#'   near-redundant when its direct `|r|` sits in
+#'   `[redundancy_r - near_margin, redundancy_r)` **or** its Tucker `phi` sits in
+#'   `[redundancy_phi - near_margin, redundancy_phi)` -- i.e. within `near_margin`
+#'   *below* a redundancy threshold -- while the pair is not itself fully
+#'   redundant. Only used when `rules` includes `"artifact"`. Default `0.1`.
 #' @param ... Reserved for future methods/arguments.
 #'
 #' @details
@@ -739,6 +747,23 @@
 #' direct root-to-leaf correlation as an at-a-glance cross-check. Under
 #' `redundancy_criterion = "adjacent"`, `r_to_prev` *is* the criterion and always
 #' meets `redundancy_r`.
+#'
+#' **The near-redundant band (`"artifact"` mode).** `prune("redundant")` drops
+#' *full* redundancy -- pairs at or above the thresholds. Forbes (2023) uses the
+#' artifact flags mainly for the messier band *just below* them: a pair that
+#' correlates, say, `r = 0.89` and shares a loading pattern `phi = 0.93` is not
+#' quite redundant but is a candidate re-rotation worth a second look. Artifact
+#' mode surfaces this as `x$prune$near_redundant` -- a data frame of every
+#' cross-level pair that is **not** itself fully redundant yet has its direct
+#' (skip-level) `|r|` **or** its Tucker `phi` within `near_margin` *below* the
+#' corresponding threshold (`redundancy_r` / `redundancy_phi`). Columns:
+#' `from`, `to`, `level_from`, `level_to`, `r` (direct score correlation), `phi`
+#' (loading congruence), and the logical band flags `near_r` / `near_phi`. Under
+#' the PCA engine `redundancy_phi` is `NULL` (component scores are determinate),
+#' so only the `|r|` band applies; under EFA/ESEM `redundancy_phi` auto-resolves
+#' to `0.95` (announced via cli) and the `phi` band is active too. Like phi and
+#' the structural signals, the band is **report-only** -- it never drops or
+#' mutates the kept node set.
 #'
 #' @return `x`, with `$prune` populated (replacing any prior pruning).
 #'
