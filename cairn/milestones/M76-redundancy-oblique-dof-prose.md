@@ -5,7 +5,7 @@
 - **Depends on:** —
 - **Driving RR:** RR01
 - **Principles touched:** IP1
-- **Branch/PR:** m76-redundancy-oblique-dof-prose
+- **Branch/PR:** m76-redundancy-oblique-dof-prose · https://github.com/jmgirard/ackwards/pull/81
 
 ## Goal
 
@@ -24,17 +24,17 @@ Rewrite the `redundancy_criterion` explanation with a worked micro-example, corr
 
 ## Acceptance criteria
 
-- [ ] AC1: The `redundancy_criterion` `@details` in `prune.R` and the matching forbes-vignette prose carry a worked micro-example stating the star/anchor-on-leaf rule (each ancestor `|r| >= redundancy_r` direct-to-leaf) and explicitly denying both all-pairs and adjacent-hop readings.
-- [ ] AC2: The artifact-mode DoF prose no longer states that flagging manufactures investigator DoF; it states the auto-drop *decision* is substantive.
-- [ ] AC3: `cairn/references/source-departures.md` carries a ledger row recording the corrected DoF framing.
-- [ ] AC4: Touched `*.Rmd.orig` re-precomputed; vignette-freshness stamp check passes; `devtools::document()` no diff; `devtools::test()` clean; `devtools::check()` clean (0/0, NOTEs justified).
-- [ ] AC5 (BC1): The rewritten vignette aside contains no claim that orthogonality (or `T' = T^{-1}`) is necessary for, enables, or is what makes the `W'RW` closed form exact; it states affirmatively that the identity is exact for any (fixed) linear scoring, oblique included.
-- [ ] AC6 (BC2): The rewritten roxygen `rotation` bullet contains no "enables the closed-form" (or equivalent necessity) claim about orthogonality, and states the interpretive Φ = I rationale (within-level factors uncorrelated, so between-level edges are not confounded by within-level factor intercorrelation).
-- [ ] AC7 (BC3): Both rewritten texts retain the substantive point that an oblique rotation's within-level factor correlation would contaminate/confound the between-level edges — the interpretive rationale must not be weakened while removing the numerical one.
-- [ ] AC8 (BC4): Neither rewritten text suggests oblique rotation is supported, supportable, or desirable (D-002 unchanged).
-- [ ] AC9 (BC5): Uncorrelatedness claims in the rewritten texts are attributed to the factors (Φ = I), not asserted unconditionally of estimated factor scores.
-- [ ] AC10 (BC6): The rewrite does not remove or contradict (i) DESIGN §5.1's "holds for any linear W" and "standardization is the trap" notes, or (ii) the `forbes2023.md` correspondence note that `W'RW = I` for varimax PCA is what makes Forbes's unstandardized `comp.corr` equal the standardized edges.
-- [ ] AC11 (BC7): The DESIGN §9 `rotation` row no longer asserts that `T' = T^{-1}` enables the closed-form algebra; the corrected row carries an M43-style parenthetical noting the wording correction and this review (RR01) as its source.
+- [x] AC1: The `redundancy_criterion` `@details` in `prune.R` and the matching forbes-vignette prose carry a worked micro-example stating the star/anchor-on-leaf rule (each ancestor `|r| >= redundancy_r` direct-to-leaf) and explicitly denying both all-pairs and adjacent-hop readings.
+- [x] AC2: The artifact-mode DoF prose no longer states that flagging manufactures investigator DoF; it states the auto-drop *decision* is substantive.
+- [x] AC3: `cairn/references/source-departures.md` carries a ledger row recording the corrected DoF framing.
+- [x] AC4: Touched `*.Rmd.orig` re-precomputed; vignette-freshness stamp check passes; `devtools::document()` no diff; `devtools::test()` clean; `devtools::check()` clean (0/0, NOTEs justified).
+- [x] AC5 (BC1): The rewritten vignette aside contains no claim that orthogonality (or `T' = T^{-1}`) is necessary for, enables, or is what makes the `W'RW` closed form exact; it states affirmatively that the identity is exact for any (fixed) linear scoring, oblique included.
+- [x] AC6 (BC2): The rewritten roxygen `rotation` bullet contains no "enables the closed-form" (or equivalent necessity) claim about orthogonality, and states the interpretive Φ = I rationale (within-level factors uncorrelated, so between-level edges are not confounded by within-level factor intercorrelation).
+- [x] AC7 (BC3): Both rewritten texts retain the substantive point that an oblique rotation's within-level factor correlation would contaminate/confound the between-level edges — the interpretive rationale must not be weakened while removing the numerical one.
+- [x] AC8 (BC4): Neither rewritten text suggests oblique rotation is supported, supportable, or desirable (D-002 unchanged).
+- [x] AC9 (BC5): Uncorrelatedness claims in the rewritten texts are attributed to the factors (Φ = I), not asserted unconditionally of estimated factor scores.
+- [x] AC10 (BC6): The rewrite does not remove or contradict (i) DESIGN §5.1's "holds for any linear W" and "standardization is the trap" notes, or (ii) the `forbes2023.md` correspondence note that `W'RW = I` for varimax PCA is what makes Forbes's unstandardized `comp.corr` equal the standardized edges.
+- [x] AC11 (BC7): The DESIGN §9 `rotation` row no longer asserts that `T' = T^{-1}` enables the closed-form algebra; the corrected row carries an M43-style parenthetical noting the wording correction and this review (RR01) as its source.
 
 ## Coverage
 
@@ -82,3 +82,22 @@ Rewrite the `redundancy_criterion` explanation with a worked micro-example, corr
 - 2026-07-23 (RR01 Q1/Q5): The genuine exact-vs-approximate distinction is the component-vs-estimated-factor-score (determinacy; Grice 2001) axis, rotation-independent and engine-level — the same conflation M43 already corrected in the `redundancy_phi` row. The rewrite must NOT move that caveat onto the orthogonal/oblique axis inside these rotation passages (RR01 rec 6, reject).
 
 ## Review
+
+**Reviewed 2026-07-23 · PR #81 · branch `m76-redundancy-oblique-dof-prose` (master unmoved since cut).**
+
+**Driving RR:** RR01 — its binding criteria (BC1–BC7) are prose assertions with no numeric projections, so projection-vs-outcome no-ops.
+
+**Fresh AC evidence** (all against committed branch text):
+- AC1 ✓ — `prune.R` `@details` carries the star/anchor-on-leaf micro-example (2× "star"); `ackwards-forbes.Rmd.orig` states the star framing + explicitly denies adjacent-hop (`:163-164`) and all-pairs (`:164` "does not screen every ancestor pair").
+- AC2 ✓ — DoF paragraph reframed (`:314-316` "standardized flag … *removes* … the *decision* … is substantive"); "manufacture investigator degrees of freedom" no longer present.
+- AC3 ✓ — `source-departures.md:66` carries `match` row M3; Disposition line updated to M1–M3.
+- AC4 ✓ — fresh dod-gate: `check` 0/0/0, coverage 100%, styler clean, lintr clean, pkgdown index complete, vignette-freshness OK; `document()` no diff; `cairn_validate` all-pass (mirror, binding criteria, coverage complete, principles slot).
+- AC5 (BC1) ✓ — intro aside (`:125-126`) affirms "exact for **any** fixed linear scoring, oblique included"; no orthogonality-necessity/"exact rather than an approximation" claim remains.
+- AC6 (BC2) ✓ — roxygen `rotation` bullet: "enables the closed-form" removed; states Φ = I rationale + "interpretive, not a numerical necessity" (`ackwards.R:12,17`).
+- AC7 (BC3) ✓ — confound retained: `ackwards-intro.Rmd.orig` 2×, `ackwards.R` 1×.
+- AC8 (BC4) ✓ — both texts state oblique confounds / "deliberately not offered"; no pro-oblique language (read).
+- AC9 (BC5) ✓ — uncorrelatedness attributed to factors ("factors within a level uncorrelated (Φ = I)"; "within-level factors mutually uncorrelated").
+- AC10 (BC6) ✓ — `DESIGN.md` diff is line 417 only (§5.1 untouched); `references/forbes2023.md` absent from the diff.
+- AC11 (BC7) ✓ — DESIGN §9 rotation row: main clause no longer asserts `T'=T^-1` enables the algebra; M43-style parenthetical present, citing RR01 + Waller 2007 §3.
+
+**Consistency gate:** `cairn_validate` exit 0 (2 advisory WARN: 11-AC sizing tripwire — expected from verbatim BC ingestion, not split; entombed-ID tokens). Toolchain `consistency-gate`: `document()` no diff, NEWS entry present, pkgdown reference complete, vignette freshness enforced — all clean via dod-gate. No IPn/GPn *definition* changed (slot IP1 = "works under"), so `cairn_impact` not required.
