@@ -1232,3 +1232,189 @@ test_that("prune() works on an ESEM object with a polychoric basis", {
   # x$edges is never mutated even on the polychoric path
   expect_identical(xp$edges, x$edges)
 })
+
+# ---- M77: near-redundant band in artifact mode ------------------------------
+
+# A minimal mock with planted cross-level correlations. k = 3, level 1 has one
+# factor, level 2 two, level 3 three; all-pairs edge matrices supplied directly
+# so the r band can be exercised deterministically. Loadings are arbitrary
+# (phi is computed but the redundancy_phi = NULL default means phi does not gate).
+.mock_near_x <- function() {
+  L1 <- matrix(rep(0.8, 6), ncol = 1L, dimnames = list(paste0("x", 1:6), "m1f1"))
+  L2 <- matrix(c(0.8, 0.8, 0.8, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.8, 0.8, 0.8),
+    ncol = 2L, dimnames = list(paste0("x", 1:6), c("m2f1", "m2f2"))
+  )
+  L3 <- matrix(
+    c(
+      0.8, 0.8, 0.1, 0.1, 0.1, 0.1,
+      0.1, 0.1, 0.8, 0.8, 0.1, 0.1,
+      0.1, 0.1, 0.1, 0.1, 0.8, 0.8
+    ),
+    ncol = 3L, dimnames = list(paste0("x", 1:6), c("m3f1", "m3f2", "m3f3"))
+  )
+  # Planted direct correlations:
+  #   1:2  m1f1-m2f1 = 0.95 (fully redundant, excluded); m1f1-m2f2 = 0.85 (near_r)
+  #   1:3  m1f1-m3f1 = 0.82 (near_r); m1f1-m3f2 = 0.50 (below, excluded);
+  #        m1f1-m3f3 = 0.90 (== redundancy_r -> fully redundant, excluded)
+  #   2:3  m2f1-m3f1 = -0.86 (|r| near_r, negative); rest 0.30 (excluded)
+  E_1_2 <- matrix(c(0.95, 0.85), nrow = 1L, dimnames = list("m1f1", c("m2f1", "m2f2")))
+  E_1_3 <- matrix(c(0.82, 0.50, 0.90), nrow = 1L, dimnames = list("m1f1", c("m3f1", "m3f2", "m3f3")))
+  E_2_3 <- matrix(c(-0.86, 0.30, 0.30, 0.30, 0.30, 0.30),
+    nrow = 2L, byrow = TRUE, dimnames = list(c("m2f1", "m2f2"), c("m3f1", "m3f2", "m3f3"))
+  )
+  list(
+    k_max = 3L,
+    levels = list(
+      "1" = list(labels = "m1f1", loadings = L1),
+      "2" = list(labels = c("m2f1", "m2f2"), loadings = L2),
+      "3" = list(labels = c("m3f1", "m3f2", "m3f3"), loadings = L3)
+    ),
+    lineage = list("1" = NULL, "2" = c(1L, 1L), "3" = c(1L, 2L, 3L)),
+    edges = list(matrices = list("1:2" = E_1_2, "1:3" = E_1_3, "2:3" = E_2_3))
+  )
+}
+
+test_that(".near_redundant_pairs flags the |r| just-below band and excludes full redundancy", {
+  mx <- .mock_near_x()
+  band <- ackwards:::.near_redundant_pairs(
+    mx$levels, mx, redundancy_r = 0.9, redundancy_phi = NULL, near_margin = 0.1
+  )
+  expect_s3_class(band, "data.frame")
+  expect_named(band, c("from", "to", "level_from", "level_to", "r", "phi", "near_r", "near_phi"))
+
+  key <- paste(band$from, band$to, sep = "-")
+  # Flagged: |r| in [0.8, 0.9) and not fully redundant.
+  expect_setequal(key, c("m1f1-m2f2", "m1f1-m3f1", "m2f1-m3f1"))
+  # Fully redundant (|r| = 0.95) and exactly-at-threshold (|r| = 0.90) excluded.
+  expect_false("m1f1-m2f1" %in% key)
+  expect_false("m1f1-m3f3" %in% key)
+  # Below the band (|r| = 0.50) excluded.
+  expect_false("m1f1-m3f2" %in% key)
+
+  # With redundancy_phi = NULL the phi band is inactive: near_r drives all rows.
+  expect_true(all(band$near_r))
+  expect_true(all(!band$near_phi))
+  # |r| is used (negative direct r is flagged on its magnitude).
+  expect_equal(band$r[key == "m2f1-m3f1"], -0.86)
+})
+
+test_that(".near_redundant_pairs lower bound is inclusive, upper bound exclusive", {
+  mx <- .mock_near_x()
+  # margin 0.05 -> band [0.85, 0.90). m1f1-m3f1 (0.82) now excluded;
+  # m1f1-m2f2 (0.85) still included (lower bound inclusive).
+  band <- ackwards:::.near_redundant_pairs(
+    mx$levels, mx, redundancy_r = 0.9, redundancy_phi = NULL, near_margin = 0.05
+  )
+  key <- paste(band$from, band$to, sep = "-")
+  expect_true("m1f1-m2f2" %in% key)
+  expect_false("m1f1-m3f1" %in% key)
+  expect_false("m1f1-m3f3" %in% key) # 0.90 is fully redundant, never near
+})
+
+test_that(".near_redundant_pairs applies the signed phi band and honours NA phi", {
+  # Two levels, congruent loadings giving phi in [0.85, 0.95), with a low direct
+  # r so only the phi band can flag. A second pair has an all-zero loading vector
+  # (phi = NA) to exercise the NA guard.
+  La <- matrix(c(0.9, 0.6, 0.1, 0, 0, 0), ncol = 2L,
+    dimnames = list(paste0("x", 1:3), c("m1f1", "m1f2"))
+  )
+  Lb <- matrix(c(0.6, 0.9, 0.2, 0.1, 0.1, 0.1), ncol = 2L,
+    dimnames = list(paste0("x", 1:3), c("m2f1", "m2f2"))
+  )
+  phi_target <- ackwards:::.tucker_phi(La[, "m1f1"], Lb[, "m2f1"])
+  expect_true(phi_target >= 0.85 && phi_target < 0.95) # in the phi band by construction
+
+  E_1_2 <- matrix(c(0.4, 0.1, 0.1, 0.1), nrow = 2L,
+    dimnames = list(c("m1f1", "m1f2"), c("m2f1", "m2f2"))
+  )
+  mx <- list(
+    levels = list(
+      "1" = list(labels = c("m1f1", "m1f2"), loadings = La),
+      "2" = list(labels = c("m2f1", "m2f2"), loadings = Lb)
+    ),
+    edges = list(matrices = list("1:2" = E_1_2))
+  )
+  band <- ackwards:::.near_redundant_pairs(
+    mx$levels, mx, redundancy_r = 0.9, redundancy_phi = 0.95, near_margin = 0.1
+  )
+  key <- paste(band$from, band$to, sep = "-")
+  # m1f1-m2f1 flagged on the phi band alone (r = 0.4 is not near).
+  expect_true("m1f1-m2f1" %in% key)
+  expect_true(band$near_phi[key == "m1f1-m2f1"])
+  expect_false(band$near_r[key == "m1f1-m2f1"])
+  # m1f2 has an all-zero loading vector -> phi = NA -> never flagged on phi.
+  expect_false(any(grepl("^m1f2-", key)))
+})
+
+test_that("prune(x, 'artifact') returns a report-only near-redundant band", {
+  skip_if_not_installed("psych")
+  # bfi25 at k = 5 (polychoric, PCA) has a genuine band, including m1f1<->m2f1
+  # (r ~ .89 / phi ~ .94) that prune('redundant') does NOT flag.
+  x <- suppressWarnings(suppressMessages(
+    ackwards(na.omit(bfi25), k_max = 5, cor = "polychoric", pairs = "all")
+  ))
+  xa <- suppressMessages(prune(x, "artifact"))
+
+  band <- xa$prune$near_redundant
+  expect_s3_class(band, "data.frame")
+  expect_named(band, c("from", "to", "level_from", "level_to", "r", "phi", "near_r", "near_phi"))
+  expect_gt(nrow(band), 0L)
+  # All flagged pairs are cross-level and carry at least one near signal.
+  expect_true(all(band$level_to > band$level_from))
+  expect_true(all(band$near_r | band$near_phi))
+  # The planted near pair is present and unflagged by the redundant rule.
+  key <- paste(band$from, band$to, sep = "-")
+  expect_true("m1f1-m2f1" %in% key)
+
+  # Report-only (GP2): no node is pruned because of the band.
+  expect_true(all(!xa$prune$nodes$pruned))
+  # near_margin is recorded on the prune slot.
+  expect_equal(xa$prune$near_margin, 0.1)
+
+  # Cross-check: no pair in the band is itself fully redundant (|r| >= 0.9;
+  # PCA -> no phi gate).
+  expect_true(all(abs(band$r) < 0.9))
+})
+
+test_that("prune(x, 'artifact') band is empty (not error) when nothing is near", {
+  skip_if_not_installed("psych")
+  # sim16's planted hierarchy has no cross-level |r| in the just-below band.
+  x <- suppressWarnings(suppressMessages(
+    ackwards(sim16, k_max = 5, pairs = "all")
+  ))
+  xa <- suppressMessages(prune(x, "artifact"))
+  expect_null(xa$prune$near_redundant)
+  expect_true(all(!xa$prune$nodes$pruned))
+})
+
+test_that("prune(x, 'artifact') auto-resolves redundancy_phi for EFA/ESEM and announces it", {
+  skip_if_not_installed("psych")
+  set.seed(11)
+  data <- as.data.frame(matrix(rnorm(1500), 250, 6))
+  x <- suppressWarnings(suppressMessages(ackwards(data, k_max = 3, engine = "efa")))
+  # The auto-resolution message must fire in artifact mode (the band consumes phi).
+  expect_message(
+    prune(x, "artifact"),
+    "redundancy_phi.*0.95",
+    class = NULL
+  )
+  xa <- suppressWarnings(suppressMessages(prune(x, "artifact")))
+  expect_equal(xa$prune$redundancy_phi, 0.95)
+
+  # redundancy_phi = NA disables the phi band even on EFA.
+  xa_na <- suppressWarnings(suppressMessages(prune(x, "artifact", redundancy_phi = NA)))
+  expect_null(xa_na$prune$redundancy_phi)
+  if (!is.null(xa_na$prune$near_redundant)) {
+    expect_true(all(!xa_na$prune$near_redundant$near_phi))
+  }
+})
+
+test_that("near_margin is validated and adjustable", {
+  skip_if_not_installed("psych")
+  set.seed(12)
+  data <- as.data.frame(matrix(rnorm(600), 100, 6))
+  x <- cached(ackwards(data, k_max = 3))
+  expect_error(prune(x, "artifact", near_margin = -0.1), "near_margin")
+  expect_error(prune(x, "artifact", near_margin = c(0.1, 0.2)), "near_margin")
+  expect_error(prune(x, "artifact", near_margin = 2), "near_margin")
+})
