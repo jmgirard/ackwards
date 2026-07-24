@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-07-24 (M80 merged + archived, PR #85; terminal-row retention keeps the 5 most recent done rows — M75 row pruned)_
+_Last hygiene check: 2026-07-24 (M81 planned from Forbes [F]; [F] candidate graduated + header note updated)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -15,6 +15,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | M78 | Gap-tolerant (skip-level) direct redundancy chains — gated on ChaseCorrPaths semantics | done | — | normal | milestones/archive/M78-skip-level-redundancy-chains.md |
 | M79 | Secondary-correlation edges in the pruned/publication view | done | — | normal | milestones/archive/M79-secondary-correlation-edges.md |
 | M80 | Deep-hierarchy layout quality at k>=10 — crossing reduction + edge-label dodging | done | — | normal | milestones/archive/M80-deep-hierarchy-layout-quality.md |
+| M81 | Publication-figure polish — item lists, per-node box sizes, manual factor ordering | planned | M80 | normal | milestones/M81-publication-figure-polish.md |
 <!-- M01–M70 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent done rows. -->
 
 ## Candidates
@@ -24,7 +25,6 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 ### Forbes website-review feedback (2026-07-23)
 
-Batch from Forbes's hands-on review of the package website/vignettes. **A, B → M76; D → M77; C → M78; E → M79; G → M80 (all planned 2026-07-23).** F and H remain below.
+Batch from Forbes's hands-on review of the package website/vignettes. **A, B → M76; D → M77; C → M78; E → M79; G → M80 (planned 2026-07-23); F → M81 (planned 2026-07-24).** H remains below.
 
-- **[F] feature — publication-figure polish (plan as ONE milestone, 3 tasks — owner-confirmed 2026-07-23).** Three asks: (a) list the top items under the lowest-level factors; (b) adjustable box sizes to fit manual node labels; (c) manual factor ordering per level to untangle/arrange the plot (override `ba_layout`'s ordinal pass). **Depends on M80 (done 2026-07-24)** — (c) overrides the primary-forest ordering M80 shipped; now unblocked and ready to plan. — added 2026-07-23
 - **[H] collaboration — replicability-gated hierarchies (PARKED).** Forbes offered to co-develop this. Overlaps existing `comparability()` (split-half per level) + `boot_edges()`. **Gated:** design-interview territory with Forbes in the room — do not spec unilaterally; schedule a design session before planning. — added 2026-07-23
