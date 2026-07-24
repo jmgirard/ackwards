@@ -210,7 +210,9 @@ print(sk)
 ```
 
 The output prints in two sections. The **criteria table** shows the raw evidence
-at each k, using two display conventions:
+as an aligned grid — one row per k, one column per requested criterion (`k`,
+then PA-PC, PA-FA, MAP, VSS-1, VSS-2, and CD as applicable) — with a legend
+beneath naming the glyphs. It uses two display conventions:
 
 - **Checkmark / dash** (PA-PC, PA-FA, and CD): a checkmark (✔) marks each k the
   criterion *retains*, up to its recommended ceiling; a dash (-) marks the levels
@@ -218,9 +220,13 @@ at each k, using two display conventions:
   yes/no "keep this level?" question at each k, so there is no number to show.
 - **Number with a star** (MAP, VSS-1, VSS-2): these criteria produce a *score*
   at each k — a quantity to minimize (MAP) or maximize (VSS) — so the raw value
-  is printed, and the single optimal k (the min or max) is starred (`*`). Reading
-  the surrounding numbers tells you how sharp the optimum is: a lone tall peak is
-  decisive, a near-flat plateau is not.
+  is printed in its column, and the single optimal k (the min or max) is starred
+  (`*`). Reading down the column tells you how sharp the optimum is: a lone tall
+  peak is decisive, a near-flat plateau is not.
+
+CD is a hybrid: it retains levels (✔ up to its ceiling, - above) *and* stars its
+optimal k like the score criteria. Only the criteria you request get columns, so
+a subset run (for example `criteria = "map"`) prints a narrower table.
 
 The **recommendations block** summarizes each criterion's single suggested k (or
 range for PA), and the **consensus range** spans the minimum to maximum across

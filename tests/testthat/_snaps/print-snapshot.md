@@ -324,3 +324,78 @@
     Output
       
 
+# print.suggest_k() snapshot: full criteria table with CD
+
+    Code
+      snap_print(.sk_synthetic(c("pa_pc", "pa_fa", "map", "vss", "cd"), cd_available = TRUE))
+    Message
+      
+      -- Factor / Component Count Suggestion (ackwards) ------------------------------
+      Variables: 16
+      n: 1,000
+      Basis: pearson
+      Tested k: 1-5
+      
+      -- Criteria (k = 1-5) --
+      
+        k  PA-PC  PA-FA      MAP    VSS-1    VSS-2  CD
+        1     v      v   0.0668   0.5505   0.0000   v 
+        2     v      v   0.0495   0.7439   0.7834   v*
+        3     v      v   0.0402   0.7685   0.8641   - 
+        4     v      -   0.0230*  0.7884*  0.9002*  - 
+        5     -      -   0.0320   0.7881   0.8882   - 
+        v retained   * optimal k   - not retained
+      
+      -- Recommendations --
+      
+      * PA-PC: k <= 4
+      * PA-FA: k <= 3
+      * MAP: k = 4
+      * VSS-1: k = 4
+      * VSS-2: k = 4
+      * CD: k = 2
+      Consensus range: k = 2-4
+      --------------------------------------------------------------------------------
+      Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
+      above the consensus to observe factor fragmentation is intentional.
+      Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
+      2023). PA-FA and CD are more conservative. Use the range.
+    Output
+      
+
+# print.suggest_k() snapshot: subset criteria (map + vss only)
+
+    Code
+      snap_print(.sk_synthetic(c("map", "vss")))
+    Message
+      
+      -- Factor / Component Count Suggestion (ackwards) ------------------------------
+      Variables: 16
+      n: 1,000
+      Basis: pearson
+      Tested k: 1-5
+      
+      -- Criteria (k = 1-5) --
+      
+        k      MAP    VSS-1    VSS-2
+        1  0.0668   0.5505   0.0000 
+        2  0.0495   0.7439   0.7834 
+        3  0.0402   0.7685   0.8641 
+        4  0.0230*  0.7884*  0.9002*
+        5  0.0320   0.7881   0.8882 
+        * optimal k
+      
+      -- Recommendations --
+      
+      * MAP: k = 4
+      * VSS-1: k = 4
+      * VSS-2: k = 4
+      Consensus: k = 4
+      --------------------------------------------------------------------------------
+      Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
+      above the consensus to observe factor fragmentation is intentional.
+      Caution: PA-PC tends to overextract; structures may not replicate (Forbes,
+      2023). PA-FA and CD are more conservative. Use the range.
+    Output
+      
+
