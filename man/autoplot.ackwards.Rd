@@ -21,6 +21,9 @@
   node_height = 0.4,
   min_sep = 1,
   order = NULL,
+  show_items = FALSE,
+  n_items = 5,
+  item_cut = 0.3,
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
@@ -102,6 +105,20 @@ for multi-line manual labels. Names matching no factor ID warn.}
 factor IDs (or a named list keyed by the level number) fixes the leaf order
 and every upper factor re-centres above its primary children. Use it to
 untangle a figure by hand. \code{NULL} (default) uses the automatic ordering.}
+
+\item{show_items}{When \code{TRUE}, lists the salient observed items beneath each
+\strong{deepest-level} (\code{k_max}) factor box, so a publication figure shows what
+each most-granular factor is made of. Items are the top \code{n_items} by
+\verb{|loading|} at or above \code{item_cut}, using the same extraction as
+\code{\link[=top_items]{top_items()}} (variable labels are shown when the fit carried them, else the
+item IDs). Listed below the boxes in a vertical layout, to their right in a
+horizontal one. Default \code{FALSE}.}
+
+\item{n_items}{Maximum number of items listed per deepest-level factor when
+\code{show_items = TRUE}. \code{NULL} lists every item meeting \code{item_cut}. Default \code{5}.}
+
+\item{item_cut}{Absolute-loading threshold for \code{show_items}: only items with
+\verb{|loading| >= item_cut} are listed. Default \code{0.3}.}
 
 \item{show_skip}{Whether to draw skip-level (non-adjacent) edges. \code{NULL}
 (default) auto-detects: \code{TRUE} when the object was run with
@@ -258,6 +275,9 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 
   # Left-to-right layout (wide slides / posters)
   autoplot(x, direction = "horizontal")
+
+  # List the top items under each deepest-level factor
+  autoplot(x, show_items = TRUE, n_items = 4)
 
   # Per-level fit index chart (EFA or ESEM only)
   x_efa <- ackwards(sim16, k_max = 5, engine = "efa")

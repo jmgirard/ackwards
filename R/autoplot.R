@@ -130,6 +130,17 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   for that node, so this argument is a per-call last word over the persistent
 #'   labels. A warning is issued for names that match no factor ID in the object.
 #'   Default `NULL`.
+#' @param show_items When `TRUE`, lists the salient observed items beneath each
+#'   **deepest-level** (`k_max`) factor box, so a publication figure shows what
+#'   each most-granular factor is made of. Items are the top `n_items` by
+#'   `|loading|` at or above `item_cut`, using the same extraction as
+#'   [top_items()] (variable labels are shown when the fit carried them, else the
+#'   item IDs). Listed below the boxes in a vertical layout, to their right in a
+#'   horizontal one. Default `FALSE`.
+#' @param n_items Maximum number of items listed per deepest-level factor when
+#'   `show_items = TRUE`. `NULL` lists every item meeting `item_cut`. Default `5`.
+#' @param item_cut Absolute-loading threshold for `show_items`: only items with
+#'   `|loading| >= item_cut` are listed. Default `0.3`.
 #' @param primary_only When `TRUE`, only primary-parent edges (`is_primary ==
 #'   TRUE`) are drawn. Because skip-level edges are never primary, this also
 #'   suppresses skip arcs. Ignored when `drop_pruned = TRUE`. Default `FALSE`.
@@ -194,6 +205,9 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'
 #'   # Left-to-right layout (wide slides / posters)
 #'   autoplot(x, direction = "horizontal")
+#'
+#'   # List the top items under each deepest-level factor
+#'   autoplot(x, show_items = TRUE, n_items = 4)
 #'
 #'   # Per-level fit index chart (EFA or ESEM only)
 #'   x_efa <- ackwards(sim16, k_max = 5, engine = "efa")
@@ -264,6 +278,9 @@ autoplot.ackwards <- function(
   node_height = 0.4,
   min_sep = 1.0,
   order = NULL,
+  show_items = FALSE,
+  n_items = 5,
+  item_cut = 0.3,
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
@@ -643,6 +660,19 @@ autoplot.ackwards <- function(
   # Node tiles and labels (drawn on top of all edges)
   p <- .ba_add_nodes(p, nodes)
 
+  # (a) Item lists (M81): the salient items under each deepest-level box.
+  if (isTRUE(show_items)) {
+    item_df <- .ba_item_text(object, nodes, direction, n_items, item_cut)
+    if (!is.null(item_df) && nrow(item_df) > 0L) {
+      p <- p + ggplot2::geom_text(
+        data = item_df,
+        ggplot2::aes(x = .data$x, y = .data$y, label = .data$label),
+        hjust = if (direction == "horizontal") 0 else 0.5,
+        vjust = 1, size = 2.4, lineheight = 0.9
+      )
+    }
+  }
+
   # Edge scales -- one per active encoding channel, each with its own legend.
   # When sign_by = "both", the colour and linetype scales share the name
   # "Direction" (and identical breaks/labels) so ggplot2 merges them into a
@@ -680,18 +710,70 @@ autoplot.ackwards <- function(
     )
   }
 
-  .ba_finish_theme(p, legend, show_level_labels, direction)
+  .ba_finish_theme(p, legend, show_level_labels, direction, show_items = show_items)
 }
 
 # Plot margin that leaves room for the level-axis labels: on the left when
-# vertical, along the bottom when horizontal.
-.ba_label_margin <- function(show_level_labels, direction) {
+# vertical, along the bottom when horizontal. `show_items` (M81) adds extra
+# padding on the side the item lists extend toward (bottom vertical, right
+# horizontal) so the deepest-level item text is not cramped against the edge.
+.ba_label_margin <- function(show_level_labels, direction, show_items = FALSE) {
   pad <- if (show_level_labels) 50 else 10
+  ipad <- if (show_items) 36 else 0
   if (direction == "horizontal") {
-    ggplot2::margin(10, 10, pad, 10)
+    ggplot2::margin(10, 10 + ipad, pad, 10)
   } else {
-    ggplot2::margin(10, 10, 10, pad)
+    ggplot2::margin(10, 10, 10 + ipad, pad)
   }
+}
+
+# Build the geom_text data for the deepest-level item lists (M81). Reuses
+# top_items() so the figure lists exactly the items its console listing would
+# (top `n_items` by |loading| at or above `item_cut`), showing variable labels
+# when the fit carried them, else the item IDs. Positions each factor's items in
+# a stacked column just beyond its box -- below in a vertical layout, to the
+# right in a horizontal one -- keyed to the (already-oriented) node coordinates
+# and per-node box sizes. Returns NULL when no deepest node has qualifying items.
+.ba_item_text <- function(object, nodes, direction, n_items, item_cut) {
+  K <- object$k_max
+  nk <- nodes[nodes$level == K, , drop = FALSE]
+  if (nrow(nk) == 0L) {
+    return(NULL)
+  }
+  ti <- top_items(object, level = K, cut = item_cut, n = n_items)$data
+  if (is.null(ti) || nrow(ti) == 0L) {
+    return(NULL)
+  }
+  ti$disp <- if ("label" %in% names(ti)) {
+    ifelse(is.na(ti$label) | ti$label == "", ti$item, ti$label)
+  } else {
+    ti$item
+  }
+
+  line_h <- 0.30 # layout units between stacked item lines
+  gap <- 0.14 # gap between the box face and the first item
+  parts <- lapply(seq_len(nrow(nk)), function(i) {
+    d <- ti[ti$factor == nk$id[i], , drop = FALSE]
+    if (nrow(d) == 0L) {
+      return(NULL)
+    }
+    step <- (seq_len(nrow(d)) - 1L) * line_h
+    if (direction == "horizontal") {
+      data.frame(
+        x = nk$x[i] + nk$nw[i] / 2 + gap,
+        y = nk$y[i] + nk$nh[i] / 2 - step,
+        label = d$disp, stringsAsFactors = FALSE
+      )
+    } else {
+      data.frame(
+        x = nk$x[i],
+        y = nk$y[i] - nk$nh[i] / 2 - gap - step,
+        label = d$disp, stringsAsFactors = FALSE
+      )
+    }
+  })
+  out <- do.call(rbind, Filter(Negate(is.null), parts))
+  if (is.null(out) || nrow(out) == 0L) NULL else out
 }
 
 # Resolve node_width / node_height into a per-node numeric vector in `ids` order
@@ -748,13 +830,14 @@ autoplot.ackwards <- function(
 
 # Shared final theme (M59): clip-off cartesian coords, theme_void, and the
 # legend / level-label margin. Used by both the main and degenerate paths.
-.ba_finish_theme <- function(p, legend, show_level_labels, direction) {
+.ba_finish_theme <- function(p, legend, show_level_labels, direction,
+                             show_items = FALSE) {
   p +
     ggplot2::coord_cartesian(clip = "off") +
     ggplot2::theme_void(base_size = 11) +
     ggplot2::theme(
       legend.position = if (legend) "right" else "none",
-      plot.margin     = .ba_label_margin(show_level_labels, direction)
+      plot.margin     = .ba_label_margin(show_level_labels, direction, show_items)
     )
 }
 

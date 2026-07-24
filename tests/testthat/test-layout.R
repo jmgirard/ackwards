@@ -1595,3 +1595,68 @@ test_that("autoplot() bare-scalar node sizes give every box the same size", {
   expect_true(all(abs((tl$xmax - tl$xmin) - 0.8) < 1e-8))
   expect_true(all(abs((tl$ymax - tl$ymin) - 0.4) < 1e-8))
 })
+
+# --- M81: deepest-level item lists (show_items) ------------------------------
+
+test_that("autoplot(show_items=TRUE) draws top-n items under the deepest level", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  # oracle: the item set the console listing would show for the deepest level
+  want <- top_items(x, level = 4, cut = 0.3, n = 3)$data
+  p <- autoplot(x, show_items = TRUE, n_items = 3, item_cut = 0.3)
+  bd <- ggplot2::ggplot_build(p)$data
+
+  # collect every text label drawn, then check the item IDs are present
+  labs <- unlist(lapply(
+    Filter(function(d) "label" %in% names(d), bd),
+    function(d) as.character(d$label)
+  ))
+  expect_true(all(want$item %in% labs))
+  # at most n_items per factor
+  cnt <- table(want$factor)
+  expect_true(all(cnt <= 3))
+})
+
+test_that("autoplot(show_items=FALSE) draws no item layer (default unchanged)", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  p_off <- autoplot(x)
+  p_on <- autoplot(x, show_items = TRUE)
+  # the item layer adds geom_text rows, so the "on" plot has strictly more
+  # drawn-text rows than the default.
+  n_text <- function(p) {
+    bd <- ggplot2::ggplot_build(p)$data
+    sum(vapply(bd, function(d) if ("label" %in% names(d)) nrow(d) else 0L, integer(1L)))
+  }
+  expect_gt(n_text(p_on), n_text(p_off))
+})
+
+test_that("autoplot(show_items=TRUE) works in horizontal direction", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  p <- autoplot(x, show_items = TRUE, direction = "horizontal", n_items = 2)
+  expect_s3_class(p, "ggplot")
+  # building must not error and must place item text
+  bd <- ggplot2::ggplot_build(p)$data
+  labs <- unlist(lapply(
+    Filter(function(d) "label" %in% names(d), bd), function(d) as.character(d$label)
+  ))
+  want <- top_items(x, level = 4, cut = 0.3, n = 2)$data
+  expect_true(all(want$item %in% labs))
+})
+
+test_that(".ba_item_text uses variable labels when the fit carried them", {
+  skip_if_not_installed("psych")
+  # bfi carries no column labels; build a tiny labeled frame so a label shows.
+  d <- psych::bfi[, 1:10]
+  for (j in seq_len(ncol(d))) attr(d[[j]], "label") <- paste0("LBL_", names(d)[j])
+  x <- cached(ackwards(d, k_max = 3))
+  nodes <- ba_layout(x)$nodes
+  nodes$nw <- 0.8
+  nodes$nh <- 0.4
+  it <- .ba_item_text(x, nodes, "vertical", n_items = 2, item_cut = 0.3)
+  expect_true(any(grepl("^LBL_", it$label)))
+})
