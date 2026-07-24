@@ -7,7 +7,7 @@ barycenter algorithm in two stages:
 ## Usage
 
 ``` r
-ba_layout(x, min_sep = 1)
+ba_layout(x, min_sep = 1, order = NULL)
 ```
 
 ## Arguments
@@ -20,6 +20,20 @@ ba_layout(x, min_sep = 1)
 
   Minimum horizontal separation between adjacent nodes at the same
   level. Default `1.0`. Increase for wider diagrams.
+
+- order:
+
+  Optional manual left-to-right ordering of the **deepest** (`k_max`)
+  level, overriding Stage 1. Supply either a character vector of the
+  deepest level's factor IDs in the desired order, or a named list with
+  an entry for the deepest level (keyed by the level number as a string,
+  e.g. `list("5" = c("m5f2", "m5f1", ...))`). Fixing the leaf order
+  propagates upward: every upper factor stays at the mean-x of its
+  primary children, so any arrangement of the primary forest is
+  reachable from the leaf order. Entries for non-deepest levels are
+  ignored with a warning (an upper factor's position is derived, not
+  free). The vector must be a permutation of the deepest level's IDs.
+  `NULL` (default) uses the automatic ordering.
 
 ## Value
 

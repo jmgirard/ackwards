@@ -225,6 +225,28 @@ node-labels-multiline](assets/ackwards-visualization-node-labels-multiline-1.png
 
 plot of chunk node-labels-multiline
 
+### `node_width` / `node_height` — size individual boxes to fit a label
+
+A long substantive name may not fit the default box. `node_width` and
+`node_height` each accept a **named vector** keyed by factor ID, sizing
+those boxes individually; boxes you do not name keep the default.
+Increase `min_sep` to make room when a box grows wider than the spacing
+between siblings.
+
+``` r
+
+autoplot(x,
+  node_labels = c(m5f1 = "Neuroticism", m5f3 = "Conscientiousness"),
+  node_width = c(m5f1 = 1.8, m5f3 = 2.2),
+  min_sep = 2.4
+)
+```
+
+![plot of chunk
+node-size](assets/ackwards-visualization-node-size-1.png)
+
+plot of chunk node-size
+
 ### `label_template()` — generate the scaffold
 
 Typing out every factor ID is tedious for large objects.
@@ -248,6 +270,31 @@ For the full naming workflow — reading factors, the sign convention, and
 choosing labels across the hierarchy — see
 [`vignette("ackwards-interpret")`](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md).
 
+## Item content
+
+### `show_items` — list the items under the deepest-level factors
+
+For a publication figure it helps to show *what* each most-granular
+factor is made of. `show_items = TRUE` lists the salient items beneath
+each deepest-level (`k_max`) box: the top `n_items` by `|loading|` at or
+above `item_cut`, using the same extraction as
+[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+(variable labels appear when the data carried them into the fit; here
+[`na.omit()`](https://rdrr.io/r/stats/na.fail.html) stripped `bfi25`’s
+label attributes, so the item IDs are shown — see
+[`vignette("ackwards-interpret")`](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md)
+on keeping labels).
+
+``` r
+
+autoplot(x, show_items = TRUE, n_items = 4)
+```
+
+![plot of chunk
+show-items](assets/ackwards-visualization-show-items-1.png)
+
+plot of chunk show-items
+
 ## Structural simplifications
 
 ### `primary_only = TRUE` — show only primary-parent edges
@@ -266,6 +313,28 @@ autoplot(x, primary_only = TRUE)
 primary-only](assets/ackwards-visualization-primary-only-1.png)
 
 plot of chunk primary-only
+
+### `order` — arrange the deepest level by hand
+
+The layout orders factors automatically to minimise edge crossings, but
+you may want a specific left-to-right arrangement — to match a paper, or
+to untangle a figure. `order` fixes the order of the **deepest**
+(`k_max`) level; supply that level’s factor IDs in the desired order.
+Every factor above stays centred over its primary children, so fixing
+the leaf order rearranges the whole tree coherently — any arrangement of
+the hierarchy is reachable this way.
+
+``` r
+
+# Reverse the deepest level's left-to-right order
+deepest <- paste0("m5f", 5:1)
+autoplot(x, order = deepest)
+```
+
+![plot of chunk
+manual-order](assets/ackwards-visualization-manual-order-1.png)
+
+plot of chunk manual-order
 
 ### `drop_pruned` + `show_secondary` — the pruned view and its hidden correlations
 

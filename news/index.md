@@ -8,6 +8,22 @@ CRAN resubmission of the first release, addressing reviewer feedback on
 the 0.1.0 submission; also picks up everything added since that
 submission.
 
+- **Publication-figure controls for
+  [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md).**
+  Three additions make hand-tuned figures easier. `show_items = TRUE`
+  lists the salient items (top `n_items` by `|loading|`, via the same
+  extraction as
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md))
+  beneath each deepest-level factor box, so a figure shows what each
+  most-granular factor is made of. `node_width` / `node_height` now also
+  accept a **named vector** keyed by factor ID, sizing individual boxes
+  to fit long manual labels. And `order =` (also on
+  [`ba_layout()`](https://jmgirard.github.io/ackwards/reference/ba_layout.md))
+  fixes the deepest level’s left-to-right order by hand — every factor
+  above stays centred over its primary children, so any arrangement of
+  the hierarchy is reachable from the leaf order. All are opt-in;
+  defaults are unchanged. The visualization vignette demonstrates each.
+
 - **Cleaner deep-hierarchy diagrams (`k >= 10`).**
   [`ba_layout()`](https://jmgirard.github.io/ackwards/reference/ba_layout.md)
   now orders each level by a traversal of the primary-parent forest,

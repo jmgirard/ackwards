@@ -102,6 +102,10 @@ without a matching legend.</p>
 <span>  node_width <span class="op">=</span> <span class="fl">0.8</span>,</span>
 <span>  node_height <span class="op">=</span> <span class="fl">0.4</span>,</span>
 <span>  min_sep <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  order <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  show_items <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  n_items <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  item_cut <span class="op">=</span> <span class="fl">0.3</span>,</span>
 <span>  show_skip <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  curvature <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  color_pruned <span class="op">=</span> <span class="st">"grey80"</span>,</span>
@@ -186,16 +190,51 @@ does not use colour (<code>"linetype"</code> or <code>"none"</code>). Default <c
 
 
 <dt id="arg-node-width">node_width<a class="anchor" aria-label="anchor" href="#arg-node-width"></a></dt>
-<dd><p>Width of factor boxes in layout units. Default <code>0.8</code>.</p></dd>
+<dd><p>Width of factor boxes in layout units. Either a single
+value applied to every box (default <code>0.8</code>), or a <strong>named numeric vector</strong>
+keyed by factor ID (e.g. <code>c(m5f1 = 1.6)</code>) giving a per-box width; boxes not
+named fall back to the <code>0.8</code> default. Use a per-box width to fit a long
+manual <code>node_labels</code> string. Names matching no factor ID warn.</p></dd>
 
 
 <dt id="arg-node-height">node_height<a class="anchor" aria-label="anchor" href="#arg-node-height"></a></dt>
-<dd><p>Height of factor boxes in layout units. Default <code>0.4</code>.</p></dd>
+<dd><p>Height of factor boxes in layout units. Either a single
+value applied to every box (default <code>0.4</code>), or a named numeric vector keyed
+by factor ID for a per-box height (unnamed boxes fall back to <code>0.4</code>); useful
+for multi-line manual labels. Names matching no factor ID warn.</p></dd>
 
 
 <dt id="arg-min-sep">min_sep<a class="anchor" aria-label="anchor" href="#arg-min-sep"></a></dt>
 <dd><p>Minimum horizontal separation between nodes; passed to
 <code><a href="ba_layout.html">ba_layout()</a></code>. Default <code>1.0</code>.</p></dd>
+
+
+<dt id="arg-order">order<a class="anchor" aria-label="anchor" href="#arg-order"></a></dt>
+<dd><p>Optional manual left-to-right ordering of the <strong>deepest</strong>
+(<code>k_max</code>) level, passed to <code><a href="ba_layout.html">ba_layout()</a></code>; a character vector of that level's
+factor IDs (or a named list keyed by the level number) fixes the leaf order
+and every upper factor re-centres above its primary children. Use it to
+untangle a figure by hand. <code>NULL</code> (default) uses the automatic ordering.</p></dd>
+
+
+<dt id="arg-show-items">show_items<a class="anchor" aria-label="anchor" href="#arg-show-items"></a></dt>
+<dd><p>When <code>TRUE</code>, lists the salient observed items beneath each
+<strong>deepest-level</strong> (<code>k_max</code>) factor box, so a publication figure shows what
+each most-granular factor is made of. Items are the top <code>n_items</code> by
+<code>|loading|</code> at or above <code>item_cut</code>, using the same extraction as
+<code><a href="top_items.html">top_items()</a></code> (variable labels are shown when the fit carried them, else the
+item IDs). Listed below the boxes in a vertical layout, to their right in a
+horizontal one. Default <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-n-items">n_items<a class="anchor" aria-label="anchor" href="#arg-n-items"></a></dt>
+<dd><p>Maximum number of items listed per deepest-level factor when
+<code>show_items = TRUE</code>. <code>NULL</code> lists every item meeting <code>item_cut</code>. Default <code>5</code>.</p></dd>
+
+
+<dt id="arg-item-cut">item_cut<a class="anchor" aria-label="anchor" href="#arg-item-cut"></a></dt>
+<dd><p>Absolute-loading threshold for <code>show_items</code>: only items with
+<code>|loading| &gt;= item_cut</code> are listed. Default <code>0.3</code>.</p></dd>
 
 
 <dt id="arg-show-skip">show_skip<a class="anchor" aria-label="anchor" href="#arg-show-skip"></a></dt>
@@ -390,6 +429,9 @@ directly. For a wide slide or poster, pair it with
 <span class="r-in"><span>  <span class="co"># Left-to-right layout (wide slides / posters)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, direction <span class="op">=</span> <span class="st">"horizontal"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># List the top items under each deepest-level factor</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, show_items <span class="op">=</span> <span class="cn">TRUE</span>, n_items <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># Per-level fit index chart (EFA or ESEM only)</span></span></span>
 <span class="r-in"><span>  <span class="va">x_efa</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">sim16</span>, k_max <span class="op">=</span> <span class="fl">5</span>, engine <span class="op">=</span> <span class="st">"efa"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x_efa</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span></span>
@@ -400,8 +442,18 @@ directly. For a wide slide or poster, pair it with
 <span class="r-in"><span>  <span class="co"># Custom node labels for the 5-factor level</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, node_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m5f1 <span class="op">=</span> <span class="st">"Factor A"</span>, m5f2 <span class="op">=</span> <span class="st">"Factor B"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Widen two boxes to fit long manual labels (per-box sizing)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>,</span></span>
+<span class="r-in"><span>    node_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m5f1 <span class="op">=</span> <span class="st">"Conscientiousness"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    node_width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m5f1 <span class="op">=</span> <span class="fl">1.8</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># Primary links only -- clean hierarchy tree</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, primary_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># Manually order the deepest level to untangle the figure by hand</span></span></span>
+<span class="r-in"><span>  <span class="va">ids5</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"m5f"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="autoplot.html">autoplot</a></span><span class="op">(</span><span class="va">x</span>, order <span class="op">=</span> <span class="va">ids5</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># Forbes pruned view: omit redundant nodes, straight spanning arrows</span></span></span>
 <span class="r-in"><span>  <span class="va">xp</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">sim16</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="prune.html">prune</a></span><span class="op">(</span><span class="st">"redundant"</span><span class="op">)</span></span></span>
@@ -429,6 +481,7 @@ directly. For a wide slide or poster, pair it with
 <span class="r-in"><span>    edge_linewidth <span class="op">=</span> <span class="fl">0.6</span>, show_arrows <span class="op">=</span> <span class="cn">FALSE</span>, legend <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`min_sep` (1) is less than the widest box (1.8); adjacent boxes may overlap.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Redundancy pruning (direct criterion, |r| ≥ 0.9) flagged 7 nodes.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Nodes are retained in the object; inspect with `x$prune$nodes` and</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   `x$prune$chains`.</span>

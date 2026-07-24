@@ -29,6 +29,10 @@ autoplot(
   node_width = 0.8,
   node_height = 0.4,
   min_sep = 1,
+  order = NULL,
+  show_items = FALSE,
+  n_items = 5,
+  item_cut = 0.3,
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
@@ -110,17 +114,56 @@ plot(x, ...)
 
 - node_width:
 
-  Width of factor boxes in layout units. Default `0.8`.
+  Width of factor boxes in layout units. Either a single value applied
+  to every box (default `0.8`), or a **named numeric vector** keyed by
+  factor ID (e.g. `c(m5f1 = 1.6)`) giving a per-box width; boxes not
+  named fall back to the `0.8` default. Use a per-box width to fit a
+  long manual `node_labels` string. Names matching no factor ID warn.
 
 - node_height:
 
-  Height of factor boxes in layout units. Default `0.4`.
+  Height of factor boxes in layout units. Either a single value applied
+  to every box (default `0.4`), or a named numeric vector keyed by
+  factor ID for a per-box height (unnamed boxes fall back to `0.4`);
+  useful for multi-line manual labels. Names matching no factor ID warn.
 
 - min_sep:
 
   Minimum horizontal separation between nodes; passed to
   [`ba_layout()`](https://jmgirard.github.io/ackwards/reference/ba_layout.md).
   Default `1.0`.
+
+- order:
+
+  Optional manual left-to-right ordering of the **deepest** (`k_max`)
+  level, passed to
+  [`ba_layout()`](https://jmgirard.github.io/ackwards/reference/ba_layout.md);
+  a character vector of that level's factor IDs (or a named list keyed
+  by the level number) fixes the leaf order and every upper factor
+  re-centres above its primary children. Use it to untangle a figure by
+  hand. `NULL` (default) uses the automatic ordering.
+
+- show_items:
+
+  When `TRUE`, lists the salient observed items beneath each
+  **deepest-level** (`k_max`) factor box, so a publication figure shows
+  what each most-granular factor is made of. Items are the top `n_items`
+  by `|loading|` at or above `item_cut`, using the same extraction as
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
+  (variable labels are shown when the fit carried them, else the item
+  IDs). Listed below the boxes in a vertical layout, to their right in a
+  horizontal one. Default `FALSE`.
+
+- n_items:
+
+  Maximum number of items listed per deepest-level factor when
+  `show_items = TRUE`. `NULL` lists every item meeting `item_cut`.
+  Default `5`.
+
+- item_cut:
+
+  Absolute-loading threshold for `show_items`: only items with
+  `|loading| >= item_cut` are listed. Default `0.3`.
 
 - show_skip:
 
@@ -325,6 +368,9 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   # Left-to-right layout (wide slides / posters)
   autoplot(x, direction = "horizontal")
 
+  # List the top items under each deepest-level factor
+  autoplot(x, show_items = TRUE, n_items = 4)
+
   # Per-level fit index chart (EFA or ESEM only)
   x_efa <- ackwards(sim16, k_max = 5, engine = "efa")
   autoplot(x_efa, what = "fit")
@@ -335,8 +381,18 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   # Custom node labels for the 5-factor level
   autoplot(x, node_labels = c(m5f1 = "Factor A", m5f2 = "Factor B"))
 
+  # Widen two boxes to fit long manual labels (per-box sizing)
+  autoplot(x,
+    node_labels = c(m5f1 = "Conscientiousness"),
+    node_width = c(m5f1 = 1.8)
+  )
+
   # Primary links only -- clean hierarchy tree
   autoplot(x, primary_only = TRUE)
+
+  # Manually order the deepest level to untangle the figure by hand
+  ids5 <- paste0("m5f", c(2, 1, 3, 5, 4))
+  autoplot(x, order = ids5)
 
   # Forbes pruned view: omit redundant nodes, straight spanning arrows
   xp <- ackwards(sim16, k_max = 5) |> prune("redundant")
@@ -364,6 +420,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
     edge_linewidth = 0.6, show_arrows = FALSE, legend = FALSE
   )
 }
+#> Warning: `min_sep` (1) is less than the widest box (1.8); adjacent boxes may overlap.
 #> ℹ Redundancy pruning (direct criterion, |r| ≥ 0.9) flagged 7 nodes.
 #> ℹ Nodes are retained in the object; inspect with `x$prune$nodes` and
 #>   `x$prune$chains`.

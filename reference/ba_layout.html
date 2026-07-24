@@ -68,7 +68,7 @@ algorithm in two stages:</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ba_layout</span><span class="op">(</span><span class="va">x</span>, min_sep <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ba_layout</span><span class="op">(</span><span class="va">x</span>, min_sep <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -82,6 +82,19 @@ algorithm in two stages:</p>
 <dt id="arg-min-sep">min_sep<a class="anchor" aria-label="anchor" href="#arg-min-sep"></a></dt>
 <dd><p>Minimum horizontal separation between adjacent nodes at the
 same level. Default <code>1.0</code>. Increase for wider diagrams.</p></dd>
+
+
+<dt id="arg-order">order<a class="anchor" aria-label="anchor" href="#arg-order"></a></dt>
+<dd><p>Optional manual left-to-right ordering of the <strong>deepest</strong>
+(<code>k_max</code>) level, overriding Stage 1. Supply either a character vector of the
+deepest level's factor IDs in the desired order, or a named list with an
+entry for the deepest level (keyed by the level number as a string, e.g.
+<code>list("5" = c("m5f2", "m5f1", ...))</code>). Fixing the leaf order propagates
+upward: every upper factor stays at the mean-x of its primary children, so
+any arrangement of the primary forest is reachable from the leaf order.
+Entries for non-deepest levels are ignored with a warning (an upper factor's
+position is derived, not free). The vector must be a permutation of the
+deepest level's IDs. <code>NULL</code> (default) uses the automatic ordering.</p></dd>
 
 </dl></div>
     <div class="section level2">
