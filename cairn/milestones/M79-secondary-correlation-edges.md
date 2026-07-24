@@ -76,7 +76,7 @@ lands first, the second rebases.
   secondary-edge set (all non-primary kept cross-level pairs, unfiltered by cut);
   unit-test the selection at the helper level — a planted cross-branch pair and a
   planted same-lineage skip both present, every primary edge absent.
-- [ ] T2: add the `show_secondary` arg + the dimmed/thinner secondary
+- [x] T2: add the `show_secondary` arg + the dimmed/thinner secondary
   `geom_segment` layer in the `drop_pruned` branch (`autoplot.R:398-429`);
   `layer_data` tests for the new render (secondary layer alpha/linewidth present;
   sign colour/linetype intact) and for the `FALSE` default (no extra layer,
@@ -97,6 +97,12 @@ lands first, the second rebases.
 - 2026-07-24: T1 — `.drop_pruned_nodes` now returns `secondary` (all non-primary
   kept cross-level pairs); helper-level selection test green (bfi25 k_max=4 →
   9 secondary edges, both adjacent + skip kinds present).
+- 2026-07-24: T2 — `show_secondary` arg (default FALSE) + a distinct secondary
+  `geom_segment` layer (alpha 0.4, linewidth 0.3, no arrowheads) drawn beneath
+  the primary edges, inheriting the sign colour/linetype. Render + default +
+  linetype-sign tests green. Minor discovered fix (M77 lesson): reworded
+  prune.R roxygen `` `r = 0.89` `` → `` `|r| = 0.89` `` to clear a non-fatal
+  document() markdown warning.
 
 ## Decisions
 

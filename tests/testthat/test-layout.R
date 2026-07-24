@@ -306,6 +306,97 @@ test_that(".drop_pruned_nodes() returns the secondary edge set (M79)", {
   expect_true(any(gaps >= 2L))
 })
 
+# M79 secondary-edge render helpers: the drop_pruned path draws only
+# geom_segment edges. The secondary layer is the segment layer carrying the
+# constant dimmed alpha (0.4); the primary layer carries alpha = NA.
+.dp_seg_layers <- function(p) {
+  which(vapply(p$layers, function(l) inherits(l$geom, "GeomSegment"), logical(1L)))
+}
+.dp_secondary_data <- function(p) {
+  for (i in .dp_seg_layers(p)) {
+    ld <- ggplot2::layer_data(p, i)
+    if (nrow(ld) > 0L && all(!is.na(ld$alpha)) && all(ld$alpha == 0.4)) {
+      return(ld)
+    }
+  }
+  NULL
+}
+.dp_primary_data <- function(p) {
+  for (i in .dp_seg_layers(p)) {
+    ld <- ggplot2::layer_data(p, i)
+    if (nrow(ld) > 0L && all(is.na(ld$alpha))) {
+      return(ld)
+    }
+  }
+  NULL
+}
+
+test_that("autoplot(drop_pruned, show_secondary=TRUE) draws a distinct dimmed+thin layer (M79)", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    xp <- cached(ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all") |>
+      prune("redundant", redundancy_r = 0.9))
+  ))
+  p_no <- ggplot2::autoplot(xp, drop_pruned = TRUE)
+  p_yes <- ggplot2::autoplot(xp, drop_pruned = TRUE, show_secondary = TRUE)
+
+  # AC1: show_secondary adds exactly one segment layer (the secondary edges).
+  expect_length(.dp_seg_layers(p_yes), length(.dp_seg_layers(p_no)) + 1L)
+
+  sec <- .dp_secondary_data(p_yes)
+  expect_false(is.null(sec))
+  # Dimmed + thinner, distinct from the primary channel.
+  expect_true(all(sec$alpha == 0.4))
+  expect_true(all(sec$linewidth == 0.3))
+
+  # AC1: the drawn set == every non-primary kept cross-level pair >= cut_show.
+  dp <- ackwards:::.drop_pruned_nodes(xp, ba_layout(xp)$nodes)
+  n_exp <- sum(abs(dp$secondary$r) >= 0.3)
+  expect_equal(nrow(sec), n_exp)
+  expect_gt(n_exp, 0L)
+
+  # AC2: secondary edges inherit the sign colour (not a single flattened hue),
+  # and the primary edge layer's colours are byte-identical with/without them.
+  expect_true(all(sec$colour %in% c("#2166AC", "#D6604D")))
+  expect_identical(.dp_primary_data(p_yes)$colour, .dp_primary_data(p_no)$colour)
+})
+
+test_that("autoplot(drop_pruned) default (show_secondary=FALSE) adds no secondary layer (M79)", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    xp <- cached(ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all") |>
+      prune("redundant", redundancy_r = 0.9))
+  ))
+  # AC3: the default reproduces the prior pruned view -- a single (primary)
+  # segment layer, no dimmed secondary layer.
+  p_def <- ggplot2::autoplot(xp, drop_pruned = TRUE)
+  expect_length(.dp_seg_layers(p_def), 1L)
+  expect_null(.dp_secondary_data(p_def))
+  expect_false(is.null(.dp_primary_data(p_def)))
+})
+
+test_that("show_secondary preserves the sign channel under sign_by='linetype' (M79)", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("ggplot2")
+  suppressWarnings(suppressMessages(
+    xp <- cached(ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all") |>
+      prune("redundant", redundancy_r = 0.9))
+  ))
+  # Sign carried by linetype: the secondary layer must inherit the linetype
+  # (encoding sign), not reuse it as its own distinct channel -- AC2, no
+  # conflation with the sign dash. The secondary and primary layers therefore
+  # draw from the same linetype set.
+  p <- ggplot2::autoplot(xp, drop_pruned = TRUE, show_secondary = TRUE,
+    sign_by = "linetype")
+  sec <- .dp_secondary_data(p)
+  expect_false(is.null(sec))
+  # All secondary edges share the primary channel: same (constant) colour and
+  # a linetype drawn from the sign-encoding set the primary layer uses.
+  expect_setequal(unique(sec$linetype), unique(.dp_primary_data(p)$linetype))
+})
+
 test_that("autoplot.ackwards() handles objects with prune=NULL (no pruning)", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")

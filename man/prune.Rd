@@ -157,7 +157,7 @@ meets \code{redundancy_r}.
 \strong{The near-redundant band (\code{"artifact"} mode).} \code{prune("redundant")} drops
 \emph{full} redundancy -- pairs at or above the thresholds. Forbes (2023) uses the
 artifact flags mainly for the messier band \emph{just below} them: a pair that
-correlates, say, \code{r = 0.89} and shares a loading pattern \code{phi = 0.93} is not
+correlates, say, \verb{|r| = 0.89} and shares a loading pattern \code{phi = 0.93} is not
 quite redundant but is a candidate re-rotation worth a second look. Artifact
 mode surfaces this as \code{x$prune$near_redundant} -- a data frame of every
 cross-level pair that is \strong{not} itself fully redundant yet has its direct

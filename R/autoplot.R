@@ -131,6 +131,18 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   vertical gaps left by pruned levels so retained levels are evenly spaced;
 #'   level axis labels (d) still show the original level numbers. Ignored when
 #'   `drop_pruned = FALSE`. Default `FALSE`.
+#' @param show_secondary When `TRUE` under `drop_pruned = TRUE`, also draws the
+#'   between-level correlation edges the single-strongest-ancestor primary view
+#'   hides: every kept cross-level factor pair with `|r| >= cut_show` that is not
+#'   already a primary edge. This includes cross-branch second parents *and*
+#'   same-lineage skip arcs (a direct skip-level `r` is a distinct, non-transitive
+#'   fact, not implied by the primary path). Secondary edges render in a channel
+#'   deliberately distinct from the primary edges -- dimmed (reduced opacity) and
+#'   thinner, with plain line ends -- while still inheriting the sign encoding
+#'   (`sign_by`), so the sign colour/linetype is never conflated with the
+#'   secondary channel. By construction each node's secondaries are weaker than
+#'   its primary edge, so a secondary edge never appears while that node's primary
+#'   is below `cut_show`. Ignored when `drop_pruned = FALSE`. Default `FALSE`.
 #' @param show_arrows When `FALSE`, edges are drawn with plain line ends instead
 #'   of closed arrowheads (`arrow = NULL`). Applies to both straight and curved
 #'   edge layers. Default `TRUE`. Forbes (2023) figures use plain line ends.
@@ -190,6 +202,10 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   autoplot(xp, drop_pruned = TRUE, show_r = TRUE)
 #'   autoplot(xp, drop_pruned = TRUE, compress_levels = TRUE)
 #'
+#'   # Add the secondary between-level correlations the primary view hides
+#'   # (dimmed + thinner, drawn beneath the primary edges)
+#'   autoplot(xp, drop_pruned = TRUE, show_secondary = TRUE)
+#'
 #'   # Plain line ends without arrowheads
 #'   autoplot(x, show_arrows = FALSE)
 #'
@@ -242,6 +258,7 @@ autoplot.ackwards <- function(
   primary_only = FALSE,
   drop_pruned = FALSE,
   compress_levels = FALSE,
+  show_secondary = FALSE,
   show_arrows = TRUE,
   legend = TRUE,
   ...
@@ -380,6 +397,10 @@ autoplot.ackwards <- function(
   # Build draw_edges -- branching on drop_pruned
   # --------------------------------------------------------------------------
 
+  # Secondary edges (M79) exist only in the drop_pruned path; NULL otherwise so
+  # the shared draw section skips them.
+  secondary_draw <- NULL
+
   if (drop_pruned) {
     if (is.null(object$prune)) {
       cli::cli_abort(c(
@@ -427,6 +448,16 @@ autoplot.ackwards <- function(
     edges <- .ann(.attach_coords(edges, nx, ny))
     edges$curved <- rep(FALSE, nrow(edges))
     draw_edges <- edges
+
+    # Secondary edges: non-primary kept cross-level pairs, filtered by the same
+    # cut_show, drawn dimmed + thin beneath the primary edges (sign preserved).
+    if (isTRUE(show_secondary)) {
+      sec <- dp$secondary
+      sec <- sec[abs(sec$r) >= cut_show, , drop = FALSE]
+      if (nrow(sec) > 0L) {
+        secondary_draw <- .ann(.attach_coords(sec, nx, ny))
+      }
+    }
   } else {
     # --- Normal rendering path ---
     edges <- layout$edges
@@ -517,8 +548,27 @@ autoplot.ackwards <- function(
     )
     p + do.call(ggplot2::geom_curve, args)
   }
+  # Secondary edges (M79): a distinct channel from the primary edges -- dimmed
+  # (alpha) + thin (constant linewidth below the primary range) + plain line
+  # ends -- while inheriting the sign colour/linetype so sign still reads. The
+  # magnitude channel is deliberately not mapped here, so secondary aesthetics
+  # reuse edge_aes minus any linewidth mapping.
+  .add_secondary <- function(p, data) {
+    sec_aes <- edge_aes
+    sec_aes[["linewidth"]] <- NULL # never scale secondary width by |r|
+    sec_const <- const_args
+    sec_const[["linewidth"]] <- 0.3 # thin: below the primary linewidth range
+    sec_const[["alpha"]] <- 0.4 # dimmed
+    args <- c(list(data = data, mapping = sec_aes, arrow = NULL), sec_const)
+    p + do.call(ggplot2::geom_segment, args)
+  }
 
   p <- ggplot2::ggplot()
+
+  # Secondary edges first, so the primary hierarchy is drawn on top of them.
+  if (!is.null(secondary_draw) && nrow(secondary_draw) > 0L) {
+    p <- .add_secondary(p, secondary_draw)
+  }
 
   # Straight edges (adjacent in normal mode; all edges in drop_pruned mode)
   ed_str <- draw_edges[!draw_edges$curved, , drop = FALSE]
