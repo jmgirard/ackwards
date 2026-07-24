@@ -43,7 +43,7 @@ Add three opt-in `autoplot()`/`ba_layout()` controls for publication figures: it
 
 ## Tasks
 
-- [ ] T1 — Manual ordering (`ba_layout`, `R/layout.R:45`): add `order =` (character vector or list keyed by level; only the `k_max` entry honored). Validate it is a permutation of the deepest level's ids; error otherwise; warn+ignore non-deepest entries. When supplied, set the deepest ordinal to the manual order and run `.assign_x` once (skip the two-candidate keep-best, which collapses when the deepest order is fixed). Add `order =` to `autoplot.ackwards()` and pass through. Tests + roxygen (`@param order`, `@examples`).
+- [x] T1 — Manual ordering (`ba_layout`, `R/layout.R:45`): add `order =` (character vector or list keyed by level; only the `k_max` entry honored). Validate it is a permutation of the deepest level's ids; error otherwise; warn+ignore non-deepest entries. When supplied, set the deepest ordinal to the manual order and run `.assign_x` once (skip the two-candidate keep-best, which collapses when the deepest order is fixed). Add `order =` to `autoplot.ackwards()` and pass through. Tests + roxygen (`@param order`, `@examples`).
 - [ ] T2 — Per-node box sizes (`R/autoplot.R`): let `node_width`/`node_height` be a scalar **or** a named numeric vector; resolve to a per-node `width`/`height` column consumed by `geom_tile` in `.ba_add_nodes()`; make the `min_sep < node_width` warning vector-safe (compare against `max`). Tests + roxygen update.
 - [ ] T3 — Item lists (`R/autoplot.R`): add `show_items = FALSE`, `n_items = 5`, `item_cut = 0.3`. When on, extract deepest-level items via the shared `top_items()` path and draw a stacked text layer beyond the `k_max` boxes (below when vertical, right when horizontal); extend the plot margin. Tests + roxygen + one `@example`.
 - [ ] T4 — Docs: NEWS.md entry; update `vignettes/ackwards-visualization.Rmd.orig` to show all three; `Rscript vignettes/precompute.R`; commit regenerated `.Rmd` + `assets/` (revert unrelated timing churn per M61/M75); confirm `tools/check-vignette-freshness.R` clean. Run `Rscript tools/dod-gate.R` at the gate.
@@ -51,3 +51,4 @@ Add three opt-in `autoplot()`/`ba_layout()` controls for publication figures: it
 ## Work log
 
 - 2026-07-24: created by /milestone-plan.
+- 2026-07-24: T1 done — `order=` on `ba_layout()` (deepest-level permutation, list-keyed or bare vector; validates, warns+ignores non-deepest, errors on non-permutation) + `autoplot()` pass-through. `.resolve_manual_order()` helper; 6 tests. Layout suite 330 pass.

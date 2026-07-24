@@ -20,6 +20,7 @@
   node_width = 0.8,
   node_height = 0.4,
   min_sep = 1,
+  order = NULL,
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
@@ -88,6 +89,12 @@ does not use colour (\code{"linetype"} or \code{"none"}). Default \code{"black"}
 
 \item{min_sep}{Minimum horizontal separation between nodes; passed to
 \code{\link[=ba_layout]{ba_layout()}}. Default \code{1.0}.}
+
+\item{order}{Optional manual left-to-right ordering of the \strong{deepest}
+(\code{k_max}) level, passed to \code{\link[=ba_layout]{ba_layout()}}; a character vector of that level's
+factor IDs (or a named list keyed by the level number) fixes the leaf order
+and every upper factor re-centres above its primary children. Use it to
+untangle a figure by hand. \code{NULL} (default) uses the automatic ordering.}
 
 \item{show_skip}{Whether to draw skip-level (non-adjacent) edges. \code{NULL}
 (default) auto-detects: \code{TRUE} when the object was run with
@@ -257,6 +264,10 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 
   # Primary links only -- clean hierarchy tree
   autoplot(x, primary_only = TRUE)
+
+  # Manually order the deepest level to untangle the figure by hand
+  ids5 <- paste0("m5f", c(2, 1, 3, 5, 4))
+  autoplot(x, order = ids5)
 
   # Forbes pruned view: omit redundant nodes, straight spanning arrows
   xp <- ackwards(sim16, k_max = 5) |> prune("redundant")

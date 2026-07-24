@@ -1464,3 +1464,67 @@ test_that("autoplot(what='fit') panel titles are engine-aware (EFA: no CFI/SRMR)
   expect_true(any(grepl("TLI", panels)))
   expect_true(any(grepl("RMSEA", panels)))
 })
+
+# --- M81: manual deepest-level ordering (order=) ----------------------------
+
+test_that("ba_layout() order= places the deepest level in the supplied order", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  perm <- rev(x$levels[["4"]]$labels)
+  lay <- ba_layout(x, order = perm)
+  d <- lay$nodes[lay$nodes$level == 4L, ]
+  # left-to-right (increasing x) order equals the requested permutation
+  expect_equal(d$id[order(d$x)], perm)
+  # unchanged invariant: the single level-1 node is still anchored at x = 0
+  expect_equal(lay$nodes$x[lay$nodes$level == 1L], 0)
+})
+
+test_that("ba_layout() order= accepts a level-keyed list, ignoring non-deepest", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  perm <- rev(x$levels[["4"]]$labels)
+  expect_warning(
+    lay <- ba_layout(x, order = list("3" = rev(x$levels[["3"]]$labels), "4" = perm)),
+    "level.*3.*ignored|ignored"
+  )
+  d <- lay$nodes[lay$nodes$level == 4L, ]
+  expect_equal(d$id[order(d$x)], perm)
+})
+
+test_that("ba_layout() order= errors on a non-permutation of deepest IDs", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  labs <- x$levels[["4"]]$labels
+  # missing one ID
+  expect_error(ba_layout(x, order = labs[-1L]), "permutation")
+  # an extra / unknown ID
+  expect_error(ba_layout(x, order = c(labs, "m4f9")), "permutation")
+  # a duplicate
+  expect_error(ba_layout(x, order = c(labs[1L], labs)), "permutation")
+  # wrong type
+  expect_error(ba_layout(x, order = seq_along(labs)), "permutation")
+})
+
+test_that("ba_layout() order= errors when a list omits the deepest level", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  expect_error(
+    suppressWarnings(ba_layout(x, order = list("3" = rev(x$levels[["3"]]$labels)))),
+    "deepest level"
+  )
+})
+
+test_that("autoplot() forwards order= to ba_layout()", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  perm <- rev(x$levels[["4"]]$labels)
+  p <- autoplot(x, order = perm)
+  bd <- ggplot2::ggplot_build(p)$data
+  # the node-label layer carries one row per node with x, y and label(= id)
+  lab <- do.call(rbind, lapply(bd, function(d) {
+    if (all(c("x", "y", "label") %in% names(d))) d[, c("x", "y", "label")] else NULL
+  }))
+  d4 <- lab[lab$label %in% perm, , drop = FALSE]
+  expect_equal(d4$label[order(d4$x)], perm)
+})

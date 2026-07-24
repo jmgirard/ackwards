@@ -81,6 +81,11 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' @param node_height Height of factor boxes in layout units. Default `0.4`.
 #' @param min_sep Minimum horizontal separation between nodes; passed to
 #'   [ba_layout()]. Default `1.0`.
+#' @param order Optional manual left-to-right ordering of the **deepest**
+#'   (`k_max`) level, passed to [ba_layout()]; a character vector of that level's
+#'   factor IDs (or a named list keyed by the level number) fixes the leaf order
+#'   and every upper factor re-centres above its primary children. Use it to
+#'   untangle a figure by hand. `NULL` (default) uses the automatic ordering.
 #' @param show_skip Whether to draw skip-level (non-adjacent) edges. `NULL`
 #'   (default) auto-detects: `TRUE` when the object was run with
 #'   `pairs = "all"`, `FALSE` otherwise. Ignored when `drop_pruned = TRUE`.
@@ -196,6 +201,10 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #'   # Primary links only -- clean hierarchy tree
 #'   autoplot(x, primary_only = TRUE)
 #'
+#'   # Manually order the deepest level to untangle the figure by hand
+#'   ids5 <- paste0("m5f", c(2, 1, 3, 5, 4))
+#'   autoplot(x, order = ids5)
+#'
 #'   # Forbes pruned view: omit redundant nodes, straight spanning arrows
 #'   xp <- ackwards(sim16, k_max = 5) |> prune("redundant")
 #'   autoplot(xp, drop_pruned = TRUE)
@@ -241,6 +250,7 @@ autoplot.ackwards <- function(
   node_width = 0.8,
   node_height = 0.4,
   min_sep = 1.0,
+  order = NULL,
   show_skip = NULL,
   curvature = 0.2,
   color_pruned = "grey80",
@@ -328,7 +338,7 @@ autoplot.ackwards <- function(
   cut_show <- cut_show %||% object$meta$cut_show %||% 0.3
   show_skip <- show_skip %||% isTRUE(object$meta$pairs == "all")
 
-  layout <- ba_layout(object, min_sep = min_sep)
+  layout <- ba_layout(object, min_sep = min_sep, order = order)
   nodes <- layout$nodes
 
   # (d2) Stored factor labels (M51) form the node-text baseline: a labeled
