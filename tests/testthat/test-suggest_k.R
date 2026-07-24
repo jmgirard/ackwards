@@ -343,6 +343,36 @@ test_that("print.suggest_k() runs without error and returns x invisibly", {
   expect_invisible(print(sk))
 })
 
+test_that("print.suggest_k() draws the tick in text (width-1) presentation", {
+  # The retention tick is cli's U+2714, which many terminals render as a
+  # width-2 emoji while every width metric counts it as 1 -- so the aligned
+  # criteria table drifts one cell right after each tick. The fix appends
+  # U+FE0E (VARIATION SELECTOR-15) to request the narrow text glyph. Guard the
+  # output: every tick carries the selector, none stands bare.
+  old_opts <- options(cli.unicode = TRUE, cli.num_colors = 1L)
+  on.exit(options(old_opts), add = TRUE)
+  sk <- structure(
+    list(
+      k_parallel_pc = 2L, k_parallel_fa = NA_integer_,
+      k_map = NA_integer_, k_vss1 = NA_integer_, k_vss2 = NA_integer_,
+      k_cd = NA_integer_, cd_available = FALSE, cd_rmse = NULL,
+      criteria = data.frame(
+        k = 1:3,
+        pa_pc_suggested = c(TRUE, TRUE, FALSE)
+      ),
+      criteria_requested = "pa_pc", k_max = 3L, n_obs = 100L, n_vars = 10L,
+      cor = "pearson", input_type = "data"
+    ),
+    class = "suggest_k"
+  )
+  out <- paste(capture.output(print(sk), type = "message"), collapse = "\n")
+  skip_if_not(grepl("✔", out), "terminal has no unicode tick to test")
+  # A tick immediately followed by the text-presentation selector appears...
+  expect_match(out, "✔︎")
+  # ...and no tick appears without it.
+  expect_no_match(out, "✔(?!︎)", perl = TRUE)
+})
+
 test_that("print.suggest_k() does not error when k_parallel_fa is NA", {
   skip_if_not_installed("psych")
   sk <- .get_sk(4L)

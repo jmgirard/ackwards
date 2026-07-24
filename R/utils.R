@@ -73,6 +73,19 @@
   if (ok) cli::symbol$tick else cli::symbol$cross
 }
 
+# cli's tick (U+2714) forced to *text* presentation. Many terminals draw
+# U+2714 as a width-2 emoji even though every width metric (nchar / ansi_nchar)
+# counts it as 1 -- so a right-aligned table column that reserves the measured
+# width drifts one cell right after each tick. Appending U+FE0E (VARIATION
+# SELECTOR-15) requests the narrow text glyph, which those terminals honour, and
+# the selector is itself zero-width so the measured width is unchanged. Only the
+# real unicode tick needs it: in a non-UTF-8 terminal cli::symbol$tick is the
+# ASCII "v", which carries no emoji presentation to override.
+.tick_text <- function() {
+  tick <- cli::symbol$tick
+  if (any(utf8ToInt(tick) > 127L)) paste0(tick, "\uFE0E") else tick
+}
+
 # Generate standard factor labels for level k with j factors: "m{k}f{j}"
 make_labels <- function(k) {
   paste0("m", k, "f", seq_len(k))
