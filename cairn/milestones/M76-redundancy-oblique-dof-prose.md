@@ -75,6 +75,7 @@ Rewrite the `redundancy_criterion` explanation with a worked micro-example, corr
 - 2026-07-23: T7/T8 done — DoF paragraph reframed (flagging removes DoF; the auto-drop decision is what's substantive); `match` row M3 added to source-departures.md ledger + Disposition line updated.
 - 2026-07-23: T9 done — document() regenerated man/ackwards.Rd + man/prune.Rd (no NAMESPACE change); precompute regenerated vignettes. Reverted the 4 untouched vignettes + 3 asset PNGs (run noise); restored intro.Rmd from master and re-applied stamp + prose only, dropping suggest_k timing churn AND the ✔→✔︎ tick-glyph drift that #80/2a0122d fixed (M75 lesson). Freshness check passes.
 - 2026-07-23: T10 done — NEWS.md entry added; dod-gate PASSED (check 0/0/0, coverage 100%, style/lint clean, pkgdown index complete, vignettes render, freshness OK). All tasks complete; status → review.
+- 2026-07-23: review — 11/11 ACs verified fresh; consistency gate clean; PR #81 (draft). Three-lens independent review surfaced 2 findings, both scored ≥80 and fixed now: F1 second DoF paragraph in forbes vignette (:435-438); F2 fifth oblique-conflation site DESIGN §4 (:181-182). Post-fix freshness + dod-gate green.
 
 ## Decisions
 
@@ -101,3 +102,15 @@ Rewrite the `redundancy_criterion` explanation with a worked micro-example, corr
 - AC11 (BC7) ✓ — DESIGN §9 rotation row: main clause no longer asserts `T'=T^-1` enables the algebra; M43-style parenthetical present, citing RR01 + Waller 2007 §3.
 
 **Consistency gate:** `cairn_validate` exit 0 (2 advisory WARN: 11-AC sizing tripwire — expected from verbatim BC ingestion, not split; entombed-ID tokens). Toolchain `consistency-gate`: `document()` no diff, NEWS entry present, pkgdown reference complete, vignette freshness enforced — all clean via dod-gate. No IPn/GPn *definition* changed (slot IP1 = "works under"), so `cairn_impact` not required.
+
+**Independent review — three fresh-context lenses + scorer:**
+- **[S] blame-history:** items 1/3 clean (no undo of deliberate intent; D-002 preserved; correction follows the M43 precedent); item 2 clean (verified `ackwards-intro.Rmd` vs commit 2a0122d — no ✔→✔︎ tick-glyph or timing churn). **1 finding.**
+- **[S] prior-review:** no regression on any touched file; independently re-derived the algebra + confirmed BC1–BC7 in committed text + `man/*.Rd` match; GitHub PR-comment probe empty. **0 findings.**
+- **[O] diff-bug:** oblique prose accurate + consistent across all corrected sites; star example faithful to `.strong_links_direct`; `man/` + vignettes clean (no churn); BC1–BC7 satisfied. **1 finding.**
+- **[S] scorer (fresh):** scored both surviving findings.
+
+**Findings actioned (both ≥80, both fixed now):**
+- **F1 (blame-history, score 93):** `vignettes/ackwards-forbes.Rmd.orig:435-438` — a second artifact-mode paragraph still read "Identifying an artifact requires researcher judgment (Forbes is explicit that this step introduces investigator degrees of freedom)," the exact backwards framing AC2 corrects 120 lines above → self-contradiction. **Fixed:** reworded to the corrected causality (standardized signal *removes* discretion; the drop *decision* is substantive). Re-precomputed forbes vignette.
+- **F2 (diff-bug, score 92):** `cairn/DESIGN.md:181-182` (§4 Engines overview) — a fifth conflation site RR01's scan missed: "varimax (orthogonal; the `T'=T^-1` property enables the closed-form W'RW algebra)," contradicting §5.1/§9 in the same file. **Fixed:** reworded to the interpretive Φ=I reason + "algebra itself is exact for any linear W (see §5.1/§9)," matching the §9 correction.
+
+Both are the M58/M63 "fix every occurrence" class — the milestone corrected the pattern at 4/5+2 sites but two more copies survived; leaving either would ship a self-contradiction on the milestone's own subject. No findings scored below 80. Post-fix: freshness OK, dod-gate green, AC2/AC10 evidence strengthened (both DoF paragraphs + all DESIGN conflation sites now consistent; §5.1 still unmodified).

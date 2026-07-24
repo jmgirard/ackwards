@@ -433,10 +433,11 @@ if (has_gt) {
 ```
 
 Like Tucker's φ, these signals are **flag-and-report only** — `prune()` never
-removes a factor on their basis. Identifying an artifact requires researcher
-judgment (Forbes is explicit that this step introduces investigator degrees of
-freedom); the signals simply point you to the factors worth a closer look. The
-two thresholds, `min_items` and `orphan_r`, are arguments to `prune()`.
+removes a factor on their basis. As before, a standardized signal *removes*
+researcher discretion rather than adding it; what requires judgment is the
+substantive *decision* to treat a factor as an artifact, which the signals
+simply point you toward. The two thresholds, `min_items` and `orphan_r`, are
+arguments to `prune()`.
 
 ## Tuning the thresholds
 

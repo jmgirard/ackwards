@@ -178,8 +178,9 @@ comments keep resolving. IP9 and all GPs are new numbers with no legacy citation
 ## 4. Engines
 
 Three engines, all first-class, behind one user-facing function (`ackwards()`) that dispatches.
-Rotation is a single fixed choice across all engines: **varimax** (orthogonal; the `T'=T^-1`
-property enables the closed-form W'RW algebra). Oblique rotation is out of scope — see §9 and D-002.
+Rotation is a single fixed choice across all engines: **varimax** (orthogonal; keeps within-level
+factors uncorrelated so between-level edges are not confounded — the W'RW algebra itself is exact
+for any linear `W`, see §5.1/§9). Oblique rotation is out of scope — see §9 and D-002.
 
 | Engine | Extraction | Typical use | Notes |
 |---|---|---|---|
