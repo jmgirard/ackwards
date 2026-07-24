@@ -1,11 +1,11 @@
 # M80: Deep-hierarchy layout quality at k>=10 — crossing reduction + edge-label dodging
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** —
-- **Branch/PR:** —
+- **Branch/PR:** m80-deep-hierarchy-layout-quality
 
 ## Goal
 
