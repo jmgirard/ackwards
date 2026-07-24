@@ -419,6 +419,74 @@ test_that("B1 regression: parent with 2 strong-link children produces 2 chains",
   expect_true(res_adj$node_flags$pruned[res_adj$node_flags$id == "m1f1"])
 })
 
+# --- M78: direct-criterion chase is CONTIGUOUS, not gap-tolerant -------------
+
+test_that("M78: direct chase stops at a mid-chain gap and does NOT skip to a deeper ancestor", {
+  # Regression lock for the contiguity semantics of .strong_links_direct
+  # (prune.R: `if (abs(dcol[p]) < threshold_r) break`). M78 determined from
+  # Forbes's committed AMH ChaseCorrPaths output that her chase is CONTIGUOUS:
+  # on component g2 (the one AMH case where the two semantics diverge) her chase
+  # reports "g2--null" -- it stops at the sub-threshold hop rather than skipping
+  # it to reach a deeper ancestor that still correlates directly. This planted
+  # 3-level hierarchy is that g2 case in miniature.
+  #
+  # Leaf m3f1: its DIRECT |r| to level 2 is sub-threshold (gap), but its direct
+  # |r| to level 1 re-emerges >= 0.9. A gap-tolerant builder would skip the gap
+  # and emit an m1f1 -> m3f1 link; the contiguous builder emits nothing.
+  L1 <- matrix(c(.8, .8, .8), ncol = 1L,
+    dimnames = list(paste0("x", 1:3), "m1f1"))
+  L2 <- matrix(c(.8, .8, .8, .1, .1, .1), ncol = 2L,
+    dimnames = list(paste0("x", 1:3), c("m2f1", "m2f2")))
+  L3 <- matrix(c(.8, .8, .8, .1, .1, .1, .1, .1, .1), ncol = 3L,
+    dimnames = list(paste0("x", 1:3), c("m3f1", "m3f2", "m3f3")))
+
+  # Adjacent hops all sub-threshold (no chain forms level-to-level)...
+  E_1_2 <- matrix(c(0.50, 0.40), nrow = 1L,
+    dimnames = list("m1f1", c("m2f1", "m2f2")))
+  E_2_3 <- matrix(
+    c(0.50, 0.40,        # m3f1: gap -- no level-2 parent >= 0.9
+      0.30, 0.30,        # m3f2
+      0.30, 0.30),       # m3f3
+    nrow = 2L, dimnames = list(c("m2f1", "m2f2"),
+                               c("m3f1", "m3f2", "m3f3")))
+  # ...but the DIRECT (skip-level) 1:3 link for m3f1 re-emerges >= 0.9.
+  E_1_3 <- matrix(c(0.95, 0.20, 0.20), nrow = 1L,
+    dimnames = list("m1f1", c("m3f1", "m3f2", "m3f3")))
+
+  mock_gap <- list(
+    k_max = 3L,
+    levels = list(
+      "1" = list(labels = "m1f1", loadings = L1),
+      "2" = list(labels = c("m2f1", "m2f2"), loadings = L2),
+      "3" = list(labels = c("m3f1", "m3f2", "m3f3"), loadings = L3)
+    ),
+    lineage = list("1" = NULL, "2" = c(1L, 1L), "3" = c(1L, 2L, 2L)),
+    edges = list(matrices = list(
+      "1:2" = E_1_2, "2:3" = E_2_3, "1:3" = E_1_3
+    ))
+  )
+
+  # Contiguous: the leaf's chase breaks at the level-2 gap -> no strong link,
+  # even though its direct 1:3 correlation is 0.95. (Gap-tolerant would return
+  # an m1f1 -> m3f1 row here.)
+  sl <- ackwards:::.strong_links_direct(mock_gap, threshold_r = 0.9, threshold_phi = NULL)
+  expect_null(sl)
+
+  # No redundant chain reaching level 1 either.
+  res <- ackwards:::.find_redundant_chains(mock_gap, threshold_r = 0.9, threshold_phi = NULL)
+  expect_null(res$chains)
+
+  # Positive control: fill the gap (make the 2:3 hop for m3f1 >= 0.9) and the
+  # contiguous chase now walks m3f1 -> m2f1 -> m1f1, proving the NULL above is
+  # the gap blocking the chase, not an inert harness.
+  mock_filled <- mock_gap
+  mock_filled$edges$matrices[["2:3"]]["m2f1", "m3f1"] <- 0.95
+  mock_filled$edges$matrices[["1:2"]]["m1f1", "m2f1"] <- 0.95
+  sl_f <- ackwards:::.strong_links_direct(mock_filled, threshold_r = 0.9, threshold_phi = NULL)
+  expect_false(is.null(sl_f))
+  expect_true("m1f1" %in% sl_f$from_label) # chain reaches the top contiguously
+})
+
 # --- B3: internal helper coverage (M23) --------------------------------------
 
 test_that(".tucker_phi() returns NA_real_ when one loading vector is all zeros", {
