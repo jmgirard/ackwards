@@ -5,7 +5,7 @@
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** IP1, GP2
-- **Branch/PR:** m79-secondary-correlation-edges
+- **Branch/PR:** m79-secondary-correlation-edges / #84
 
 ## Goal
 
