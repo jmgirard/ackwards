@@ -1,6 +1,6 @@
 # M76: Clarify redundancy-criterion + oblique-rotation prose and reframe artifact-mode DoF wording
 
-- **Status:** in-progress
+- **Status:** blocked
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -52,6 +52,7 @@ Rewrite the `redundancy_criterion` and oblique-rotation explanations with a work
 - 2026-07-23: created by /milestone-plan.
 - 2026-07-23: in-progress; branch m76-redundancy-oblique-dof-prose cut from master.
 - 2026-07-23: T1/T2 investigation found the oblique "why" already lives in ackwards-intro.Rmd.orig:123-132 + R/ackwards.R:11-17, both overstating orthogonality's role (claiming it makes W'RW "exact", which DESIGN §5.1 says holds for any linear scoring). Proposed correcting both in place (a substantive scope amendment). At the amendment gate the owner chose to escalate the math claim (algebra exact under oblique; orthogonality interpretive not numerical, per D-002) to Fable via /milestone-brief before rewriting. Paused pending RR.
+- 2026-07-23: blocked on RB01 (oblique-rotation algebra claim).
 
 ## Decisions
 
