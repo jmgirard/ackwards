@@ -145,6 +145,20 @@ prune(
 
 ## Details
 
+**The `"direct"` criterion is a star anchored on the leaf, not a walk.**
+Take a three-level chain candidate with deepest leaf `m3f1` and
+shallower factors `m2f1` (level 2) and `m1f1` (level 1). Under the
+default `"direct"` criterion the chain `m1f1 -> m2f1 -> m3f1` forms when
+**both** direct-to-leaf correlations `|r(m1f1, m3f1)|` and
+`|r(m2f1, m3f1)|` meet `redundancy_r` – every member is judged by its
+own direct correlation to the *same* deepest factor (a star centred on
+the leaf). It does **not** require the adjacent hop `|r(m1f1, m2f1)|` to
+meet the threshold (that is the `"adjacent"` criterion), and it does
+**not** screen every ancestor pair against every other (there is no
+all-pairs test). So an ancestor can join on a strong direct link to the
+leaf even where its adjacent hop to the next chain member is weak –
+which is exactly why `r_to_prev` (below) can sit under `redundancy_r`.
+
 **Reading `x$prune$chains` under `redundancy_criterion = "direct"`.**
 The `r_to_prev` and `phi_to_prev` columns report the **adjacent-level**
 correlation and congruence between consecutive chain members (for

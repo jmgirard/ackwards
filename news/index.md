@@ -25,6 +25,22 @@ submission.
   it as a wide emoji keep the columns aligned. The returned object and
   all criteria values are unchanged; only the printed layout is new.
 
+- **Clarified documentation (no behavior change).** The
+  [`?prune`](https://jmgirard.github.io/ackwards/reference/prune.md)
+  help and the bass-ackward vignette now explain the default
+  `redundancy_criterion = "direct"` as a *star anchored on the chain’s
+  deepest factor* — each ancestor correlates directly with that leaf —
+  distinct from adjacent-hop chaining and from an all-pairs screen. The
+  [`?ackwards`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  rationale for varimax now states the reason correctly: the
+  between-level edge algebra is exact for any linear scoring, so
+  orthogonality is an interpretive choice (it keeps within-level factors
+  uncorrelated, so between-level edges are not confounded by
+  within-level factor intercorrelation), not a numerical necessity. The
+  artifact-mode discussion now frames automated flags as *removing*
+  investigator degrees of freedom, leaving only the substantive drop
+  decision to the researcher.
+
 - **New vignette: “Reproducing Forbes (2023): The AMH Applied Example”**
   ([`vignette("ackwards-forbes2023")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes2023.md)).
   A full worked reproduction of the paper’s 155-variable applied example
