@@ -43,7 +43,7 @@ Add a report-only "near-redundant" band signal to `prune("artifact")` flagging f
 - [x] T1: (test-first) tests: fixture (planted near-redundant pair, e.g. a `data-raw/` matrix or `sim16` at a chosen `k`) → `prune("artifact")` flags it; report-only invariant (kept set unchanged); boundary edges (`NA` phi, exactly-at-threshold, disabled phi).
 - [x] T2: Implement the near-redundant band in artifact mode (`prune.R`); add `near_margin` arg + default resolution (mirror `redundancy_phi`'s auto-resolve/announce pattern where engine-dependent).
 - [x] T3: roxygen `@param`/`@details`; `devtools::document()`; update `_pkgdown.yml` if the surface changed.
-- [ ] T4: Fix the artifact vignette example + prose; re-run `Rscript vignettes/precompute.R`; `git checkout --` untouched assets.
+- [x] T4: Fix the artifact vignette example + prose; re-run `Rscript vignettes/precompute.R`; `git checkout --` untouched assets.
 - [ ] T5: NEWS.md entry; `Rscript tools/dod-gate.R`.
 
 ## Work log
@@ -51,6 +51,8 @@ Add a report-only "near-redundant" band signal to `prune("artifact")` flagging f
 - 2026-07-23: created by /milestone-plan.
 - 2026-07-23: question gate — confirmed OR band semantics + `near_margin = 0.1` default (both recommended).
 - 2026-07-23: T1+T2 — added `.near_redundant_pairs()` + `near_margin` arg to `prune()`; artifact mode now stores `x$prune$near_redundant`; `redundancy_phi` auto-resolve extended to artifact mode; cli announces the band. Unit + integration tests pass (bfi25 k=5 polychoric band includes the planted m1f1↔m2f1 r=.89/φ=.94 pair; sim16 empty-band case).
+- 2026-07-23: T3 — roxygen `@param near_margin` + `@details` near-redundant-band section; `document()`; `pkgdown::check_pkgdown()` clean (no new export).
+- 2026-07-23: T4 — rewrote the artifact vignette's φ prose (the top-φ pair m3f2↔m5f2 φ=.987 is already redundancy-flagged, a poor illustration) and added a "The near-redundant band" subsection featuring the genuine near-miss m1f1↔m2f1 (r=.89/φ=.94, unflagged by redundancy). Re-precomputed; reverted incidental gt-id/png churn in the seven untouched vignettes; freshness passes.
 
 ## Decisions
 
