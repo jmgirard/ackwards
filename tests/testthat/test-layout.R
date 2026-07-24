@@ -1648,6 +1648,34 @@ test_that("autoplot(show_items=TRUE) works in horizontal direction", {
   expect_true(all(want$item %in% labs))
 })
 
+test_that("autoplot(show_items=TRUE) with too-high item_cut draws no items", {
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 4))
+  # no |loading| reaches 0.999, so no item qualifies -> no item layer, no error
+  p <- autoplot(x, show_items = TRUE, item_cut = 0.999)
+  expect_s3_class(p, "ggplot")
+  it <- .ba_item_text(x,
+    {
+      nn <- ba_layout(x)$nodes
+      nn$nw <- 0.8
+      nn$nh <- 0.4
+      nn
+    },
+    "vertical",
+    n_items = 5,
+    item_cut = 0.999
+  )
+  expect_null(it)
+})
+
+test_that(".resolve_node_size rejects an unnamed multi-element vector", {
+  expect_error(
+    .resolve_node_size(c("a", "b"), c(1, 2), 0.8, "node_width"),
+    "single value or a vector named"
+  )
+})
+
 test_that(".ba_item_text uses variable labels when the fit carried them", {
   skip_if_not_installed("psych")
   # bfi carries no column labels; build a tiny labeled frame so a label shows.

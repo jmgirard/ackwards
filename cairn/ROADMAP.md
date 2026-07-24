@@ -15,7 +15,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | M78 | Gap-tolerant (skip-level) direct redundancy chains — gated on ChaseCorrPaths semantics | done | — | normal | milestones/archive/M78-skip-level-redundancy-chains.md |
 | M79 | Secondary-correlation edges in the pruned/publication view | done | — | normal | milestones/archive/M79-secondary-correlation-edges.md |
 | M80 | Deep-hierarchy layout quality at k>=10 — crossing reduction + edge-label dodging | done | — | normal | milestones/archive/M80-deep-hierarchy-layout-quality.md |
-| M81 | Publication-figure polish — item lists, per-node box sizes, manual factor ordering | in-progress | M80 | normal | milestones/M81-publication-figure-polish.md |
+| M81 | Publication-figure polish — item lists, per-node box sizes, manual factor ordering | review | M80 | normal | milestones/M81-publication-figure-polish.md |
 <!-- M01–M70 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent done rows. -->
 
 ## Candidates

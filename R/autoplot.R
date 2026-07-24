@@ -738,10 +738,13 @@ autoplot.ackwards <- function(
   K <- object$k_max
   nk <- nodes[nodes$level == K, , drop = FALSE]
   if (nrow(nk) == 0L) {
-    return(NULL)
+    return(NULL) # nocov (defensive: every level has >= 1 factor)
   }
   ti <- top_items(object, level = K, cut = item_cut, n = n_items)$data
-  if (is.null(ti) || nrow(ti) == 0L) {
+  # Keep only items for deepest factors still on the diagram (drop_pruned may
+  # have removed some), then bail if nothing qualifies at this cut.
+  ti <- ti[ti$factor %in% nk$id, , drop = FALSE]
+  if (nrow(ti) == 0L) {
     return(NULL)
   }
   ti$disp <- if ("label" %in% names(ti)) {
@@ -752,28 +755,24 @@ autoplot.ackwards <- function(
 
   line_h <- 0.30 # layout units between stacked item lines
   gap <- 0.14 # gap between the box face and the first item
-  parts <- lapply(seq_len(nrow(nk)), function(i) {
-    d <- ti[ti$factor == nk$id[i], , drop = FALSE]
-    if (nrow(d) == 0L) {
-      return(NULL)
-    }
-    step <- (seq_len(nrow(d)) - 1L) * line_h
-    if (direction == "horizontal") {
-      data.frame(
-        x = nk$x[i] + nk$nw[i] / 2 + gap,
-        y = nk$y[i] + nk$nh[i] / 2 - step,
-        label = d$disp, stringsAsFactors = FALSE
-      )
-    } else {
-      data.frame(
-        x = nk$x[i],
-        y = nk$y[i] - nk$nh[i] / 2 - gap - step,
-        label = d$disp, stringsAsFactors = FALSE
-      )
-    }
-  })
-  out <- do.call(rbind, Filter(Negate(is.null), parts))
-  if (is.null(out) || nrow(out) == 0L) NULL else out
+  # top_items() already orders items by descending |loading| within each factor;
+  # rank them 1..m per factor to stack the lines. All vectorised over `ti`.
+  ti$rank <- stats::ave(seq_len(nrow(ti)), ti$factor, FUN = seq_along)
+  idx <- match(ti$factor, nk$id)
+  step <- (ti$rank - 1L) * line_h
+  if (direction == "horizontal") {
+    data.frame(
+      x = nk$x[idx] + nk$nw[idx] / 2 + gap,
+      y = nk$y[idx] + nk$nh[idx] / 2 - step,
+      label = ti$disp, stringsAsFactors = FALSE
+    )
+  } else {
+    data.frame(
+      x = nk$x[idx],
+      y = nk$y[idx] - nk$nh[idx] / 2 - gap - step,
+      label = ti$disp, stringsAsFactors = FALSE
+    )
+  }
 }
 
 # Resolve node_width / node_height into a per-node numeric vector in `ids` order
