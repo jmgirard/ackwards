@@ -1,6 +1,6 @@
 # M76: Clarify redundancy-criterion + oblique-rotation prose and reframe artifact-mode DoF wording
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** RR01
@@ -61,7 +61,7 @@ Rewrite the `redundancy_criterion` explanation with a worked micro-example, corr
 - [x] T7: Reframe the investigator-DoF paragraph (`ackwards-forbes.Rmd.orig:307-313`).
 - [x] T8: Add the `match` ledger row to `cairn/references/source-departures.md`.
 - [x] T9: Re-run `Rscript vignettes/precompute.R`; `git checkout --` untouched `vignettes/assets`; confirm freshness stamps (`tools/check-vignette-freshness.R`).
-- [ ] T10: NEWS.md entry (doc clarifications); `Rscript tools/dod-gate.R`.
+- [x] T10: NEWS.md entry (doc clarifications); `Rscript tools/dod-gate.R`.
 
 ## Work log
 
@@ -74,6 +74,7 @@ Rewrite the `redundancy_criterion` explanation with a worked micro-example, corr
 - 2026-07-23: T3–T6 done — oblique rationale corrected at all four sites (intro-vignette aside, roxygen `rotation` bullet, DESIGN §9 rotation row w/ M43-style parenthetical, D-002 Context parenthetical). BC6 preserved: §5.1 + forbes2023.md correspondence untouched. document()/precompute deferred to T9.
 - 2026-07-23: T7/T8 done — DoF paragraph reframed (flagging removes DoF; the auto-drop decision is what's substantive); `match` row M3 added to source-departures.md ledger + Disposition line updated.
 - 2026-07-23: T9 done — document() regenerated man/ackwards.Rd + man/prune.Rd (no NAMESPACE change); precompute regenerated vignettes. Reverted the 4 untouched vignettes + 3 asset PNGs (run noise); restored intro.Rmd from master and re-applied stamp + prose only, dropping suggest_k timing churn AND the ✔→✔︎ tick-glyph drift that #80/2a0122d fixed (M75 lesson). Freshness check passes.
+- 2026-07-23: T10 done — NEWS.md entry added; dod-gate PASSED (check 0/0/0, coverage 100%, style/lint clean, pkgdown index complete, vignettes render, freshness OK). All tasks complete; status → review.
 
 ## Decisions
 
