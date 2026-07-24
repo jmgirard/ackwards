@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-07-23 (M75 merged + archived; M70 row pruned under terminal-row retention; Forbes website-review feedback batch A–H added as candidates)_
+_Last hygiene check: 2026-07-23 (Forbes feedback A/B→M76, D→M77, C→M78, E→M79, G→M80 planned; F+H remain candidates)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -15,7 +15,12 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | M73 | Draft the manuscript Introduction with the verified framing + application sources | done | — | normal | milestones/archive/M73-manuscript-introduction.md |
 | M74 | Draft the manuscript Discussion + enrich seeded sections with method-backer citations | done | M73 | normal | milestones/archive/M74-manuscript-discussion-citations.md |
 | M75 | Beautify suggest_k() print output as an aligned criteria table | done | — | normal | milestones/archive/M75-suggest-k-print-table.md |
-<!-- M01–M70 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent. -->
+| M76 | Clarify redundancy-criterion + oblique-rotation prose and reframe artifact-mode DoF wording | planned | — | normal | milestones/M76-redundancy-oblique-dof-prose.md |
+| M77 | Near-redundant band flag in artifact mode + fix artifact vignette example | planned | M76 | normal | milestones/M77-near-redundant-band.md |
+| M78 | Gap-tolerant (skip-level) direct redundancy chains — gated on ChaseCorrPaths semantics | planned | — | normal | milestones/M78-skip-level-redundancy-chains.md |
+| M79 | Secondary-correlation edges in the pruned/publication view | planned | — | normal | milestones/M79-secondary-correlation-edges.md |
+| M80 | Deep-hierarchy layout quality at k>=10 — crossing reduction + edge-label dodging | planned | — | normal | milestones/M80-deep-hierarchy-layout-quality.md |
+<!-- M01–M70 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent done rows. -->
 
 ## Candidates
 
@@ -24,13 +29,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 ### Forbes website-review feedback (2026-07-23)
 
-Batch from Forbes's hands-on review of the package website/vignettes. Grouped; register/plan individually as picked up.
+Batch from Forbes's hands-on review of the package website/vignettes. **A, B → M76; D → M77; C → M78; E → M79; G → M80 (all planned 2026-07-23).** F and H remain below.
 
-- **[A] doc — clarify redundancy-criterion + oblique-rotation prose.** Rewrite the `redundancy_criterion` explanation (Forbes found the "direct/non-transitive" paragraph hard to follow) with a worked micro-example, and make explicit *why* oblique rotation confounds between-level signal: varimax gives `T'=T⁻¹` so the `W'RW` edge algebra is exact and all cross-level correlation is read cleanly between levels; oblique's within-level `Φ≠I` leaks into every between-level edge, confounding the within-vs-between question that is the method's point (DESIGN §5.1, §9, D-002). Also clarify the default chain semantics: `direct` anchors on the deepest leaf and requires each ancestor to correlate |r|≥.9 *directly with the leaf* (star pattern), NOT every-pair-with-every-pair and NOT adjacent-hop chaining (`prune.R:618-627`, `.strong_links_direct`). Ready. — added 2026-07-23
-- **[B] doc — reframe "investigator degrees of freedom" wording.** Forbes (the source author) says the current artifact-mode framing is backwards: researcher *decisions* create DoF; standardized automated *flags* remove them (`ackwards-forbes.Rmd.orig:307-313`). Soften to: package declines to *auto-drop* because the drop *decision* is substantive, not because flagging adds DoF. Note in the M72 departures ledger. Ready. — added 2026-07-23
-- **[C] behavior+design — gap-tolerant (skip-level) direct redundancy chains.** Forbes: a chain should skip a whole intermediate artifact level (e.g. b2→d2→e2→f2 skipping c). Current `.strong_links_direct` (`prune.R:152-197`) uses a `for(j in L-1:1)` loop with `break`, so a sub-threshold level *terminates* the chain even when the leaf still correlates ≥.9 with a grandparent directly. Change `break`→skip-and-continue to be truly direct/skip-tolerant. **Gated:** confirm her `ChaseCorrPaths` semantics (contiguous or not) and re-verify the M44/M53 fidelity suite (AMH 54/54) before changing; needs a D-entry (redundancy-semantics change). — added 2026-07-23
-- **[D] feature+doc — "near-redundant" band flag in artifact mode.** Forbes uses φ/r flags mainly for the *near-redundant* band (just below thresholds, e.g. r=.89/φ=.93 — a messy re-rotation), since full redundancy is already dropped in the redundancy stage. Add a near-redundant band signal (within a margin of `redundancy_r`/`redundancy_phi`) to `prune("artifact")`, and fix the artifact vignette example (φ=.99 pair would already be flagged by `prune("redundant")` — poor illustration). Ready. — added 2026-07-23
-- **[E] feature — secondary-correlation edges in the pruned/publication view.** After pruning, plot secondary edges |r|≥.3 that are NOT already implied by the primary hierarchy path (e.g. f1→d2 when the primary path is f1→d1→b1) as dashed lines. `drop_pruned=TRUE` currently draws primary-parent edges only (`layout.R:157-173`, `autoplot.R:398-400`); note "dashed" already encodes *sign*, so this needs a distinct visual channel. Ready. — added 2026-07-23
-- **[F] feature — publication-figure polish.** Three asks: (a) list the top items under the lowest-level factors; (b) adjustable box sizes to fit manual node labels; (c) manual factor ordering per level to untangle/arrange the plot (override `ba_layout`'s ordinal pass). Ready; may split. — added 2026-07-23
-- **[G] feature — deep-hierarchy layout quality at k≥10 (screenshot received; ungated 2026-07-23).** Forbes: "levels got a bit bent" at ten levels. Diagnosed from her k=10 figure: NOT a correctness bug — every level is on a clean horizontal row and the tree is faithful. The "bent" look is layout quality: (1) **unresolved edge crossings** in bushy subtrees (two X-crossings bottom-right: H4/H2→I2/I4 and I2/I4→J9/J3/J4) because `ba_layout` (`layout.R:47-132`) does a single top-down ordering pass + single bottom-up x-assignment with no iterative reconciliation, so order-by-parents conflicts with position-by-children; (2) **edge-label collisions** (`.99`/`1.00`/`.64` overlapping near G6/H7/H2/I2/I4 — labels placed at segment midpoint, no dodging); (3) global lopsidedness (rigid left spine vs sprawling right; A1 pulled off-center over B1). Fix: alternating up/down barycenter sweeps (Sugiyama-style crossing reduction) until crossings stabilize, plus edge-label dodging. — added 2026-07-23
+- **[F] feature — publication-figure polish (plan as ONE milestone, 3 tasks — owner-confirmed 2026-07-23).** Three asks: (a) list the top items under the lowest-level factors; (b) adjustable box sizes to fit manual node labels; (c) manual factor ordering per level to untangle/arrange the plot (override `ba_layout`'s ordinal pass). **Depends on M80** — (c) overrides the same ordinal pass M80 rewrites, so plan F after M80 lands. Ready to plan. — added 2026-07-23
 - **[H] collaboration — replicability-gated hierarchies (PARKED).** Forbes offered to co-develop this. Overlaps existing `comparability()` (split-half per level) + `boot_edges()`. **Gated:** design-interview territory with Forbes in the room — do not spec unilaterally; schedule a design session before planning. — added 2026-07-23
