@@ -72,7 +72,7 @@ lands first, the second rebases.
 
 ## Tasks
 
-- [ ] T1: (test-first) extend `.drop_pruned_nodes` (`layout.R:173`) to return the
+- [x] T1: (test-first) extend `.drop_pruned_nodes` (`layout.R:173`) to return the
   secondary-edge set (all non-primary kept cross-level pairs, unfiltered by cut);
   unit-test the selection at the helper level — a planted cross-branch pair and a
   planted same-lineage skip both present, every primary edge absent.
@@ -94,6 +94,9 @@ lands first, the second rebases.
   channel (dimmed + thinner, sign preserved), and the vignette showcase; corrected
   the test method from the non-existent "vdiffr snapshot" to the repo's
   `ggplot_build()`/`layer_data()` introspection pattern.
+- 2026-07-24: T1 — `.drop_pruned_nodes` now returns `secondary` (all non-primary
+  kept cross-level pairs); helper-level selection test green (bfi25 k_max=4 →
+  9 secondary edges, both adjacent + skip kinds present).
 
 ## Decisions
 

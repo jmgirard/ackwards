@@ -274,6 +274,38 @@ test_that(".drop_pruned_nodes() bridges fully-pruned levels on pairs='adjacent' 
   expect_equal(dp$edges[, cols], dp_all$edges[, cols], tolerance = 1e-12)
 })
 
+test_that(".drop_pruned_nodes() returns the secondary edge set (M79)", {
+  skip_if_not_installed("psych")
+  suppressWarnings(suppressMessages(
+    xp <- cached(ackwards(psych::bfi[, 1:25], k_max = 4, pairs = "all") |>
+      prune("redundant", redundancy_r = 0.9))
+  ))
+  lay <- ba_layout(xp)
+  dp <- ackwards:::.drop_pruned_nodes(xp, lay$nodes)
+
+  kept <- dp$nodes$id
+  ekey <- function(e) paste(e$from, e$to)
+
+  # Secondary and primary are disjoint: every primary edge is absent from the
+  # secondary set (AC1: secondary = pairs that are *not* the primary edge).
+  expect_length(intersect(ekey(dp$secondary), ekey(dp$edges)), 0L)
+
+  # Union of primary + secondary == every kept cross-level pair (shallower kept
+  # node -> deeper kept node). Nothing dropped, nothing invented.
+  te <- ackwards:::compute_edges(
+    levels = xp$levels, R = xp$r, edge_method = "auto",
+    pairs = "all", cut_show = 0.3
+  )$tidy
+  cross <- te[te$from %in% kept & te$to %in% kept, , drop = FALSE]
+  expect_setequal(c(ekey(dp$edges), ekey(dp$secondary)), ekey(cross))
+
+  # The set spans both kinds the milestone promises: an adjacent-level second
+  # parent (level gap 1) and a same-lineage skip arc (level gap >= 2).
+  gaps <- dp$secondary$level_to - dp$secondary$level_from
+  expect_true(any(gaps == 1L))
+  expect_true(any(gaps >= 2L))
+})
+
 test_that("autoplot.ackwards() handles objects with prune=NULL (no pruning)", {
   skip_if_not_installed("psych")
   skip_if_not_installed("ggplot2")
