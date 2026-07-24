@@ -17,13 +17,16 @@ bent" at ten levels).
 ## Scope
 
 **In:**
-- Make **Pass 1 (ordinal ordering)** iterative: alternating up/down barycenter
-  sweeps (Sugiyama-style crossing reduction) until crossings stabilize or an
-  iteration cap is hit, replacing the single top-down sweep at `layout.R:47-76`.
-  Deterministic tie-break (`rank(ties.method = "first")`, as today). **Pass 2**
-  (primary-child x-assignment, `layout.R:78-132`) is left unchanged — it supplies
-  the "parent sits directly above its primary child" property that AC2 and the
-  existing test lock (gate 2026-07-24: ordering only).
+- Replace the single top-down ordinal pass with a **primary-forest traversal
+  ordering**: the primary edges form a forest (one primary parent per node), so a
+  depth-first, subtree-contiguous leaf order eliminates primary-tree crossings.
+  Chosen keep-best against the single-pass barycenter seed (lexicographic:
+  primary crossings, then all crossings), so shallow layouts never regress.
+  Deterministic tie-break (`rank(ties.method = "first")`). **Pass 2**
+  (primary-child x-assignment) is left unchanged — it supplies the "parent sits
+  directly above its primary child" property that AC2 and the existing test lock
+  (gate 2026-07-24: ordering only). Amended 2026-07-24: barycenter *sweeps*
+  yielded no reduction (single pass is already a local optimum) — see work log.
 - Extract a pure, dependency-light `.dodge_edge_labels(lx, ly, threshold)` helper
   and wire it into `autoplot`'s edge-label path (`autoplot.R:592-598`) so
   overlapping midpoint labels (the `.99`/`1.00`/`.64` collisions Forbes saw) are
@@ -46,9 +49,9 @@ bent" at ten levels).
 ## Acceptance criteria
 
 - [ ] AC1: On the k=10 fixture (`ackwards(forbes2023, k_max = 10, pairs = "all")`),
-      `ba_layout` produces **strictly fewer** edge crossings than the captured
-      single-pass baseline, measured by `.count_crossings()`; on shallow fixtures
-      crossings are never increased.
+      `ba_layout` produces **zero** primary-edge crossings (down from the
+      single-pass baseline of 3, via `.count_crossings()` on the primary-edge
+      subset) and never increases primary or total crossings on shallow fixtures.
 - [ ] AC2: Layout stays faithful — each node at `y = -level`, parentage unchanged,
       every parent with primary children still at the mean x of its primary
       children (Pass 2 unchanged), and reordering confined to the Pass-1
@@ -71,15 +74,14 @@ bent" at ten levels).
 
 ## Tasks
 
-- [ ] T1: (test-first) add a pure `.count_crossings(layout)` helper; capture the
-      current single-pass algorithm's crossing count on the k=10 fixture as a
-      documented baseline constant, asserting the fixture actually exhibits
-      reducible crossings (if it does not, pick/construct a deep fixture that
-      does).
-- [ ] T2: Make Pass 1 ordering iterative (alternating up/down barycenter sweeps,
-      iteration cap, deterministic tie-break) in `ba_layout` (`layout.R:47-76`);
-      leave Pass 2 (`78-132`) unchanged; update the roxygen docstring. Assert AC1
-      (new < baseline on k=10) and AC2 (faithfulness + parent-above-primary-child).
+- [x] T1: (test-first) add a pure `.count_crossings(layout)` helper; assert the
+      single-pass seed yields 3 primary crossings on the k=10 fixture and the new
+      ordering yields 0 (the baseline the fix must beat).
+- [x] T2: Replace Pass 1 with `.primary_forest_order()` chosen keep-best against
+      the barycenter seed (lexicographic primary-then-all crossings) in
+      `ba_layout`; leave Pass 2 x-assignment unchanged; update the roxygen
+      docstring. Assert AC1 (0 primary crossings on k=10, no shallow regression)
+      and AC2 (faithfulness + parent-above-primary-child).
 - [ ] T3: Extract `.dodge_edge_labels(lx, ly, threshold)` pure helper; call it from
       the `geom_label` path (`autoplot.R:592-598`); unit-test on colliding coords.
 - [ ] T4: Add `expect_snapshot_value()` coordinate snapshots (shallow `sim16` k=5 +
@@ -93,6 +95,21 @@ bent" at ten levels).
   structural invariants in `test-layout.R`); resolved four gate questions (see
   Decisions). Scope now: iterate Pass-1 ordering only, pure dodge + crossing-count
   helpers, coordinate snapshots.
+- 2026-07-24: **substantive amendment (user-approved)** — the planned "alternating
+  up/down barycenter sweeps" yield NO crossing reduction: the single top-down pass
+  is already a local optimum (proven by sweeps + adjacent transposition both
+  re-converging to it), and in `.assign_x` only level-K order is free. The all-edge
+  crossing metric (3762 on k=10) is insensitive to ordering (dominated by the dense
+  all-pairs secondary edges). Adopted `.primary_forest_order()` instead: the
+  primary edges form a forest, and a subtree-contiguous DFS leaf order takes k=10
+  primary crossings 3→0 (before/after rendered and confirmed). Amended Scope In(1)
+  + AC1 accordingly; Pass-2 x-placement and D-015 unchanged (still a layered
+  barycenter layout, not a tree rendering).
+
+- 2026-07-24: T1+T2 done — added `.count_crossings()`/`.count_crossings_xmap()`,
+  `.seed_order()`, `.primary_forest_order()`; rewired `ba_layout` Stage 1 to
+  keep-best (seed vs traversal). k=10 primary crossings 3→0, shallow unchanged,
+  deterministic. Tests + docstring updated; layout suite green.
 
 ## Decisions
 
@@ -104,7 +121,11 @@ bent" at ten levels).
   (gate 2026-07-24).
 - AC1 anchors on a `.count_crossings()` helper + a captured single-pass baseline
   constant on the k=10 fixture (gate 2026-07-24).
-- Iterative sweeps touch Pass-1 ordering only; Pass-2 primary-child x-assignment
+- Stage-1 ordering touches ordering only; Pass-2 primary-child x-assignment
   is unchanged, preserving the direct-above-child alignment (gate 2026-07-24).
+- Ordering mechanism is primary-forest DFS (keep-best vs the barycenter seed),
+  not barycenter sweeps, which yielded no reduction (amendment 2026-07-24). Within
+  D-015: Pass-2 barycenter placement and all secondary/skip edges are unchanged —
+  the forest seeds left-right order only, not a tree rendering.
 
 ## Review

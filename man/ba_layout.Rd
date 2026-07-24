@@ -20,24 +20,31 @@ A list with two data frames:
 }
 \description{
 Returns tidy node coordinates and the edge table needed to render a
-bass-ackwards diagram. The layout uses a two-pass barycenter algorithm:
+bass-ackwards diagram. The layout is a layered (Sugiyama-style) barycenter
+algorithm in two stages:
 }
 \details{
 \enumerate{
-\item \strong{Top-down pass} -- determines the left-to-right \emph{order} of factors at
-each level. Each factor's ordinal rank is the |r|-weighted mean of its
-parents' ranks in the level above, so siblings that share a parent are
-grouped together.
-\item \strong{Bottom-up pass} -- assigns actual x coordinates. The deepest level
-(level k) is spread evenly; every upper-level factor is placed at the
-simple mean x of its \strong{primary} children: a factor with one primary child
-lands directly above it; a factor with two primary children lands exactly
-halfway between them. Falls back to |r|-weighted mean of all children for
-factors with no primary children. Spreading resolves any remaining overlaps.
+\item \strong{Ordering} -- determines the left-to-right \emph{order} of factors at each
+level. Two candidate orderings are scored and the crossing-minimising one
+kept: a single top-down |r|-weighted barycenter sweep (the historical
+order), and a \strong{primary-forest traversal} -- each factor has exactly one
+primary parent, so the primary edges form a forest, and a depth-first,
+subtree-contiguous leaf order lays every subtree out as an unbroken run.
+In deep hierarchies (\code{k >= 10}) the traversal drives primary-tree crossings
+to zero (the "bent levels" a single pass leaves behind); keep-best scoring
+(lexicographic: primary crossings, then all crossings) means shallow
+layouts are never made worse.
+\item \strong{X-assignment} -- assigns actual x coordinates bottom-up. The deepest
+level is spread evenly; every upper-level factor is placed at the simple
+mean x of its \strong{primary} children: a factor with one primary child lands
+directly above it; a factor with two primary children lands exactly halfway
+between them. Falls back to |r|-weighted mean of all children for factors
+with no primary children. Spreading resolves any remaining overlaps.
 }
 
-After both passes the layout is shifted so that the single level-1 node is
-always at x = 0.
+After both stages the layout is shifted so that the single level-1 node is
+always at x = 0. The result is fully deterministic.
 }
 \examples{
 x <- ackwards(sim16, k_max = 5)

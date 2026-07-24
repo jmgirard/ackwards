@@ -1,22 +1,29 @@
 #' Compute a layered layout for a bass-ackwards diagram
 #'
 #' Returns tidy node coordinates and the edge table needed to render a
-#' bass-ackwards diagram. The layout uses a two-pass barycenter algorithm:
+#' bass-ackwards diagram. The layout is a layered (Sugiyama-style) barycenter
+#' algorithm in two stages:
 #'
-#' 1. **Top-down pass** -- determines the left-to-right *order* of factors at
-#'    each level. Each factor's ordinal rank is the |r|-weighted mean of its
-#'    parents' ranks in the level above, so siblings that share a parent are
-#'    grouped together.
+#' 1. **Ordering** -- determines the left-to-right *order* of factors at each
+#'    level. Two candidate orderings are scored and the crossing-minimising one
+#'    kept: a single top-down |r|-weighted barycenter sweep (the historical
+#'    order), and a **primary-forest traversal** -- each factor has exactly one
+#'    primary parent, so the primary edges form a forest, and a depth-first,
+#'    subtree-contiguous leaf order lays every subtree out as an unbroken run.
+#'    In deep hierarchies (`k >= 10`) the traversal drives primary-tree crossings
+#'    to zero (the "bent levels" a single pass leaves behind); keep-best scoring
+#'    (lexicographic: primary crossings, then all crossings) means shallow
+#'    layouts are never made worse.
 #'
-#' 2. **Bottom-up pass** -- assigns actual x coordinates. The deepest level
-#'    (level k) is spread evenly; every upper-level factor is placed at the
-#'    simple mean x of its **primary** children: a factor with one primary child
-#'    lands directly above it; a factor with two primary children lands exactly
-#'    halfway between them. Falls back to |r|-weighted mean of all children for
-#'    factors with no primary children. Spreading resolves any remaining overlaps.
+#' 2. **X-assignment** -- assigns actual x coordinates bottom-up. The deepest
+#'    level is spread evenly; every upper-level factor is placed at the simple
+#'    mean x of its **primary** children: a factor with one primary child lands
+#'    directly above it; a factor with two primary children lands exactly halfway
+#'    between them. Falls back to |r|-weighted mean of all children for factors
+#'    with no primary children. Spreading resolves any remaining overlaps.
 #'
-#' After both passes the layout is shifted so that the single level-1 node is
-#' always at x = 0.
+#' After both stages the layout is shifted so that the single level-1 node is
+#' always at x = 0. The result is fully deterministic.
 #'
 #' @param x An `ackwards` object.
 #' @param min_sep Minimum horizontal separation between adjacent nodes at the
@@ -44,92 +51,40 @@ ba_layout <- function(x, min_sep = 1.0) {
   levels_lst <- x$levels
   tidy_edges <- x$edges$tidy
 
-  # --- Pass 1: Top-down -- determine ordinal order at each level --------------
-  # For each level k, rank factors by the |r|-weighted mean of their parents'
-  # ranks. This groups siblings together and minimises crossings.
-  ordinals <- vector("list", K)
-  names(ordinals) <- as.character(seq_len(K))
-  ordinals[["1"]] <- stats::setNames(1L, levels_lst[["1"]]$labels)
+  # --- Stage 1: Ordering ------------------------------------------------------
+  # Two candidate orderings are scored and the crossing-minimising one kept:
+  #   (a) the historical single top-down barycenter sweep, and
+  #   (b) a primary-forest traversal that lays sibling subtrees out contiguously.
+  # Each node has exactly one primary parent, so the primary edges form a forest;
+  # a depth-first leaf order makes every subtree an unbroken run, which drives
+  # primary-tree crossings to zero -- the deep-hierarchy "bent levels" the single
+  # pass leaves behind. Scoring is lexicographic (primary crossings, then all
+  # crossings) and keep-best guarantees the result is never worse than the seed.
+  seed_ord <- .seed_order(levels_lst, tidy_edges, K)
+  dfs_ord <- .primary_forest_order(seed_ord, levels_lst, tidy_edges, K)
 
-  for (k in seq(2L, K)) {
-    labs_k <- levels_lst[[as.character(k)]]$labels
-    parent_ords <- ordinals[[as.character(k - 1L)]]
-
-    ep <- tidy_edges[
-      tidy_edges$level_from == k - 1L & tidy_edges$level_to == k, ,
-      drop = FALSE
-    ]
-
-    bary <- vapply(labs_k, function(lab) {
-      pe <- ep[ep$to == lab, , drop = FALSE]
-      w <- abs(pe$r)
-      if (nrow(pe) == 0L || sum(w) == 0) { # nocov start
-        return(mean(as.numeric(parent_ords)))
-      } # nocov end
-      sum(w * parent_ords[pe$from]) / sum(w)
-    }, numeric(1L))
-
-    ordinals[[as.character(k)]] <- stats::setNames(
-      rank(bary, ties.method = "first"),
-      labs_k
+  prim_edges <- tidy_edges[
+    !is.na(tidy_edges$is_primary) & tidy_edges$is_primary, ,
+    drop = FALSE
+  ]
+  score <- function(nx) {
+    xmap <- do.call(c, unname(nx))
+    c(
+      .count_crossings_xmap(xmap, prim_edges),
+      .count_crossings_xmap(xmap, tidy_edges)
     )
   }
-
-  # --- Pass 2: Bottom-up -- assign x coordinates ----------------------------
-  # The deepest level is evenly spread; every upper-level factor is placed at
-  # the simple mean x of its *primary* children so that:
-  #   - a factor with one primary child sits directly above it, and
-  #   - a factor with multiple primary children sits exactly halfway between them.
-  # Falls back to |r|-weighted mean of all children for factors with no primary
-  # children (can occur when matching assigns all level-k+1 factors elsewhere).
-  # Spreading is applied afterward only to resolve overlaps.
-  node_x <- vector("list", K)
-  names(node_x) <- as.character(seq_len(K))
-
-  # Level K: evenly spaced by ordinal rank, centred at 0
-  labs_K <- levels_lst[[as.character(K)]]$labels
-  ords_K <- ordinals[[as.character(K)]]
-  center <- (K + 1) / 2
-  node_x[[as.character(K)]] <- stats::setNames(
-    (ords_K[labs_K] - center) * min_sep,
-    labs_K
-  )
-
-  # Levels K-1 down to 1
-  for (k in seq(K - 1L, 1L)) {
-    labs_k <- levels_lst[[as.character(k)]]$labels
-    x_below <- node_x[[as.character(k + 1L)]]
-
-    primary_ep <- tidy_edges[
-      tidy_edges$level_from == k & tidy_edges$level_to == k + 1L &
-        !is.na(tidy_edges$is_primary) & tidy_edges$is_primary, ,
-      drop = FALSE
-    ]
-    all_ep <- tidy_edges[
-      tidy_edges$level_from == k & tidy_edges$level_to == k + 1L, ,
-      drop = FALSE
-    ]
-
-    bary <- vapply(labs_k, function(lab) {
-      # Ideal: simple mean of primary children -- gives exact alignment
-      pc <- primary_ep[primary_ep$from == lab, , drop = FALSE]
-      if (nrow(pc) > 0L) {
-        return(mean(x_below[pc$to]))
-      }
-      # Fallback for orphaned parents: |r|-weighted mean of all children
-      ce <- all_ep[all_ep$from == lab, , drop = FALSE] # nocov start
-      w <- abs(ce$r)
-      if (nrow(ce) == 0L || sum(w) == 0) {
-        return(mean(x_below))
-      }
-      sum(w * x_below[ce$to]) / sum(w) # nocov end
-    }, numeric(1L))
-
-    node_x[[as.character(k)]] <- stats::setNames(
-      .spread_positions(bary, min_sep),
-      labs_k
-    )
+  best_x <- .assign_x(seed_ord, levels_lst, tidy_edges, K, min_sep)
+  best_cross <- score(best_x)
+  cand_x <- .assign_x(dfs_ord, levels_lst, tidy_edges, K, min_sep)
+  cand_cross <- score(cand_x)
+  # Lexicographic improvement: fewer primary crossings, or equal primary and
+  # fewer total crossings.
+  if (cand_cross[1L] < best_cross[1L] ||
+    (cand_cross[1L] == best_cross[1L] && cand_cross[2L] < best_cross[2L])) {
+    best_x <- cand_x
   }
+  node_x <- best_x
 
   # --- Global shift: level-1 node is always at x = 0 -------------------------
   offset <- node_x[["1"]][[1L]]
@@ -226,6 +181,182 @@ ba_layout <- function(x, min_sep = 1.0) {
   secondary_kept <- kept_cross[!is_primary_row, , drop = FALSE]
 
   list(nodes = nodes_kept, edges = edges_kept, secondary = secondary_kept)
+}
+
+# Order every level by a depth-first traversal of the primary forest. Each node
+# (level >= 2) has exactly one primary parent, so primary edges form a forest
+# rooted at level 1; a pre-order walk emits each subtree as a contiguous run, so
+# siblings never interleave and primary-tree crossings vanish. Children are
+# visited in seed-ordinal order, keeping the result deterministic and close to
+# the barycenter seed where the tree leaves order free. Returns a per-level list
+# of ordinal ranks (the same shape .barycenter_sweep produces).
+.primary_forest_order <- function(seed_ord, levels_lst, tidy_edges, K) {
+  prim <- tidy_edges[
+    !is.na(tidy_edges$is_primary) & tidy_edges$is_primary, ,
+    drop = FALSE
+  ]
+  kids <- split(prim$to, prim$from)
+
+  node_level <- integer(0)
+  for (k in seq_len(K)) {
+    labs <- levels_lst[[as.character(k)]]$labels
+    node_level[labs] <- k
+  }
+
+  # Order a set of same-level nodes by their seed ordinal.
+  by_seed <- function(nodes) {
+    lev <- node_level[[nodes[[1L]]]]
+    nodes[order(seed_ord[[as.character(lev)]][nodes])]
+  }
+  visit <- function(node) {
+    ch <- kids[[node]]
+    if (length(ch) == 0L) {
+      return(node)
+    }
+    c(node, unlist(lapply(by_seed(ch), visit), use.names = FALSE))
+  }
+
+  roots <- levels_lst[["1"]]$labels
+  seq_all <- unlist(lapply(roots, visit), use.names = FALSE)
+  # Defensive: append any node the forest walk missed (deterministically), so
+  # every level is fully ranked even if a primary parent were absent.
+  missing <- setdiff(unlist(lapply(levels_lst, `[[`, "labels")), seq_all)
+  if (length(missing) > 0L) seq_all <- c(seq_all, sort(missing)) # nocov
+
+  pos <- stats::setNames(seq_along(seq_all), seq_all)
+  ordinals <- vector("list", K)
+  names(ordinals) <- as.character(seq_len(K))
+  for (k in seq_len(K)) {
+    labs <- levels_lst[[as.character(k)]]$labels
+    ordinals[[as.character(k)]] <- stats::setNames(
+      rank(pos[labs], ties.method = "first"),
+      labs
+    )
+  }
+  ordinals
+}
+
+# Seed ordering: a single top-down pass ranking each level by the |r|-weighted
+# mean of its parents' ranks (the historical single-pass order). This is the
+# baseline the primary-forest traversal is scored against. Deterministic -- rank
+# ties break "first".
+.seed_order <- function(levels_lst, tidy_edges, K) {
+  ordinals <- vector("list", K)
+  names(ordinals) <- as.character(seq_len(K))
+  ordinals[["1"]] <- stats::setNames(1L, levels_lst[["1"]]$labels)
+  for (k in seq(2L, K)) {
+    labs_k <- levels_lst[[as.character(k)]]$labels
+    parent_ords <- ordinals[[as.character(k - 1L)]]
+    ep <- tidy_edges[
+      tidy_edges$level_from == k - 1L & tidy_edges$level_to == k, ,
+      drop = FALSE
+    ]
+    bary <- vapply(labs_k, function(lab) {
+      pe <- ep[ep$to == lab, , drop = FALSE]
+      w <- abs(pe$r)
+      if (nrow(pe) == 0L || sum(w) == 0) { # nocov start
+        return(mean(as.numeric(parent_ords)))
+      } # nocov end
+      sum(w * parent_ords[pe$from]) / sum(w)
+    }, numeric(1L))
+    ordinals[[as.character(k)]] <- stats::setNames(
+      rank(bary, ties.method = "first"),
+      labs_k
+    )
+  }
+  ordinals
+}
+
+# Assign x coordinates bottom-up from a fixed per-level ordering. The deepest
+# level is spread evenly by ordinal rank; every upper-level factor is placed at
+# the simple mean x of its *primary* children so that a factor with one primary
+# child sits directly above it and one with several sits halfway between them.
+# Falls back to |r|-weighted mean of all children for orphaned parents (matching
+# can assign all level-k+1 factors elsewhere). Spreading resolves overlaps.
+# Returns a per-level list of named x vectors (pre global-shift).
+.assign_x <- function(ordinals, levels_lst, tidy_edges, K, min_sep) {
+  node_x <- vector("list", K)
+  names(node_x) <- as.character(seq_len(K))
+
+  labs_K <- levels_lst[[as.character(K)]]$labels
+  ords_K <- ordinals[[as.character(K)]]
+  center <- (K + 1) / 2
+  node_x[[as.character(K)]] <- stats::setNames(
+    (ords_K[labs_K] - center) * min_sep,
+    labs_K
+  )
+
+  for (k in seq(K - 1L, 1L)) {
+    labs_k <- levels_lst[[as.character(k)]]$labels
+    x_below <- node_x[[as.character(k + 1L)]]
+
+    primary_ep <- tidy_edges[
+      tidy_edges$level_from == k & tidy_edges$level_to == k + 1L &
+        !is.na(tidy_edges$is_primary) & tidy_edges$is_primary, ,
+      drop = FALSE
+    ]
+    all_ep <- tidy_edges[
+      tidy_edges$level_from == k & tidy_edges$level_to == k + 1L, ,
+      drop = FALSE
+    ]
+
+    bary <- vapply(labs_k, function(lab) {
+      pc <- primary_ep[primary_ep$from == lab, , drop = FALSE]
+      if (nrow(pc) > 0L) {
+        return(mean(x_below[pc$to]))
+      }
+      ce <- all_ep[all_ep$from == lab, , drop = FALSE] # nocov start
+      w <- abs(ce$r)
+      if (nrow(ce) == 0L || sum(w) == 0) {
+        return(mean(x_below))
+      }
+      sum(w * x_below[ce$to]) / sum(w) # nocov end
+    }, numeric(1L))
+
+    node_x[[as.character(k)]] <- stats::setNames(
+      .spread_positions(bary, min_sep),
+      labs_k
+    )
+  }
+  node_x
+}
+
+# Count edge crossings given an id -> x map and the tidy edge table (the Sugiyama
+# crossing number the barycenter ordering minimises). Considers only edges
+# spanning a single adjacent level band (level_to == level_from + 1) -- the bands
+# the ordering controls; skip-level arcs (present under pairs = "all") are
+# excluded because their crossings are a rendering property of the arc, not of
+# the row ordering. Two same-band edges (a1->b1), (a2->b2) cross iff their
+# endpoint x-orders invert: sign(x[a1]-x[a2]) != sign(x[b1]-x[b2]), neither zero.
+.count_crossings_xmap <- function(xmap, edges) {
+  band <- edges[edges$level_to == edges$level_from + 1L, , drop = FALSE]
+  total <- 0L
+  for (lf in sort(unique(band$level_from))) {
+    be <- band[band$level_from == lf, , drop = FALSE]
+    n <- nrow(be)
+    if (n < 2L) next
+    xf <- xmap[be$from]
+    xt <- xmap[be$to]
+    for (i in seq_len(n - 1L)) {
+      for (j in seq(i + 1L, n)) {
+        df <- xf[i] - xf[j]
+        dt <- xt[i] - xt[j]
+        if (df != 0 && dt != 0 && sign(df) != sign(dt)) {
+          total <- total + 1L
+        }
+      }
+    }
+  }
+  total
+}
+
+# Count crossings from a ba_layout() result (nodes + edges). Thin wrapper over
+# .count_crossings_xmap for callers/tests holding a full layout.
+.count_crossings <- function(layout) {
+  .count_crossings_xmap(
+    stats::setNames(layout$nodes$x, layout$nodes$id),
+    layout$edges
+  )
 }
 
 # Enforce minimum separation between positions while preserving order.
