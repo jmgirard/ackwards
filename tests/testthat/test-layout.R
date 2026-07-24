@@ -117,6 +117,157 @@ test_that("ba_layout() places each parent at mean x of its primary children", {
   }
 })
 
+test_that(".count_crossings() counts adjacent-band inversions, ignores skip arcs", {
+  nodes <- data.frame(
+    id = c("p1", "p2", "c1", "c2"),
+    level = c(2L, 2L, 3L, 3L),
+    x = c(0, 1, 0, 1)
+  )
+  # p1(0)->c2(1), p2(1)->c1(0): endpoint x-orders invert -> one crossing.
+  crossing <- data.frame(
+    from = c("p1", "p2"), to = c("c2", "c1"),
+    level_from = c(2L, 2L), level_to = c(3L, 3L)
+  )
+  expect_equal(ackwards:::.count_crossings(list(nodes = nodes, edges = crossing)), 1L)
+
+  # p1->c1, p2->c2: no inversion.
+  parallel <- data.frame(
+    from = c("p1", "p2"), to = c("c1", "c2"),
+    level_from = c(2L, 2L), level_to = c(3L, 3L)
+  )
+  expect_equal(ackwards:::.count_crossings(list(nodes = nodes, edges = parallel)), 0L)
+
+  # A skip arc (level_to == level_from + 2) is not an adjacent band -> ignored.
+  skip <- rbind(crossing, data.frame(
+    from = "root", to = "c1", level_from = 1L, level_to = 3L
+  ))
+  skip_nodes <- rbind(nodes, data.frame(id = "root", level = 1L, x = 5))
+  expect_equal(ackwards:::.count_crossings(list(nodes = skip_nodes, edges = skip)), 1L)
+
+  # A band holding a single edge cannot cross anything (no pair to compare).
+  lone <- data.frame(
+    from = "p1", to = "c1", level_from = 2L, level_to = 3L
+  )
+  expect_equal(ackwards:::.count_crossings(list(nodes = nodes, edges = lone)), 0L)
+})
+
+test_that("ba_layout() removes primary-tree crossings in a deep (k=10) hierarchy", {
+  # AMH applied example (M53): the single top-down seed leaves 3 primary-edge
+  # crossings; the primary-forest traversal ordering (M80) drives them to zero.
+  x <- cached(ackwards(forbes2023, k_max = 10, pairs = "all"))
+  lay <- ba_layout(x)
+  prim <- lay$edges[!is.na(lay$edges$is_primary) & lay$edges$is_primary, ]
+
+  # Baseline: the seed ordering alone.
+  seed <- ackwards:::.seed_order(x$levels, x$edges$tidy, x$k_max)
+  seed_x <- ackwards:::.assign_x(seed, x$levels, x$edges$tidy, x$k_max, 1.0)
+  seed_prim <- ackwards:::.count_crossings_xmap(do.call(c, unname(seed_x)), prim)
+  expect_equal(seed_prim, 3L)
+
+  # M80 ordering: zero primary crossings, and never worse on total crossings.
+  expect_equal(ackwards:::.count_crossings(list(nodes = lay$nodes, edges = prim)), 0L)
+  expect_lte(
+    ackwards:::.count_crossings(lay),
+    ackwards:::.count_crossings_xmap(do.call(c, unname(seed_x)), x$edges$tidy)
+  )
+})
+
+test_that("ba_layout() never increases crossings on a shallow hierarchy", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(psych::bfi[, 1:25], k_max = 5))
+  lay <- ba_layout(x)
+  prim <- lay$edges[!is.na(lay$edges$is_primary) & lay$edges$is_primary, ]
+
+  seed <- ackwards:::.seed_order(x$levels, x$edges$tidy, x$k_max)
+  seed_x <- ackwards:::.assign_x(seed, x$levels, x$edges$tidy, x$k_max, 1.0)
+  seed_xmap <- do.call(c, unname(seed_x))
+  new_xmap <- stats::setNames(lay$nodes$x, lay$nodes$id)
+
+  # AC1 shallow clause: neither primary nor total crossings increase vs the seed.
+  expect_lte(
+    ackwards:::.count_crossings(list(nodes = lay$nodes, edges = prim)),
+    ackwards:::.count_crossings_xmap(seed_xmap, prim)
+  )
+  expect_lte(
+    ackwards:::.count_crossings_xmap(new_xmap, x$edges$tidy),
+    ackwards:::.count_crossings_xmap(seed_xmap, x$edges$tidy)
+  )
+})
+
+test_that("ba_layout() stays faithful and deterministic at k=10", {
+  x <- cached(ackwards(forbes2023, k_max = 10, pairs = "all"))
+  lay <- ba_layout(x)
+  nodes <- lay$nodes
+
+  # Each node on its own row; level-1 anchored; full node set; no relabeling.
+  expect_equal(nodes$y, -nodes$level)
+  expect_equal(nodes$x[nodes$level == 1L], 0)
+  expect_equal(nrow(nodes), sum(seq_len(10L)))
+  expect_setequal(nodes$id, unlist(lapply(x$levels, `[[`, "labels")))
+
+  # Every parent still sits at the mean x of its primary children (Pass 2 intact).
+  nx <- stats::setNames(nodes$x, nodes$id)
+  prim <- lay$edges[!is.na(lay$edges$is_primary) & lay$edges$is_primary, ]
+  for (parent_id in unique(prim$from)) {
+    kids <- prim$to[prim$from == parent_id]
+    expect_lte(abs(nx[[parent_id]] - mean(nx[kids])), 1.0 + 1e-9,
+      label = paste(parent_id, "aligned to primary children")
+    )
+  }
+
+  # Deterministic across calls.
+  expect_identical(ba_layout(x)$nodes, nodes)
+})
+
+test_that("ba_layout() node coordinates are stable (shallow snapshot)", {
+  x <- cached(ackwards(sim16, k_max = 5))
+  nodes <- ba_layout(x)$nodes
+  # Coordinates derive from ordinal ranks via .assign_x (rationals), so a value
+  # snapshot pins the layout deterministically. Tolerance guards float low bits.
+  expect_snapshot_value(nodes, style = "json2", tolerance = 1e-6)
+})
+
+test_that("ba_layout() node coordinates are stable (deep k=10 snapshot)", {
+  x <- cached(ackwards(forbes2023, k_max = 10, pairs = "all"))
+  nodes <- ba_layout(x)$nodes
+  expect_snapshot_value(nodes, style = "json2", tolerance = 1e-6)
+})
+
+test_that(".dodge_edge_labels() separates colliding labels beyond the threshold", {
+  min_pair_dist <- function(r) min(stats::dist(cbind(r$lx, r$ly)))
+
+  # Three coincident anchors are pushed apart to at least the threshold.
+  r <- ackwards:::.dodge_edge_labels(c(0, 0, 0), c(0, 0, 0), threshold = 0.4)
+  expect_gte(min_pair_dist(r), 0.4 - 1e-6)
+
+  # A dense horizontal band of near-colliding labels is declutttered.
+  set.seed(1)
+  band <- ackwards:::.dodge_edge_labels(
+    stats::runif(8, 0, 0.5), rep(-2.5, 8),
+    threshold = 0.4
+  )
+  expect_gte(min_pair_dist(band), 0.4 - 1e-6)
+
+  # Already-separated anchors are left untouched (no spurious motion).
+  lx <- c(0, 1, 2)
+  ly <- c(0, 0, 0)
+  same <- ackwards:::.dodge_edge_labels(lx, ly, threshold = 0.4)
+  expect_identical(same$lx, lx)
+  expect_identical(same$ly, ly)
+
+  # A single label (or none) is a no-op.
+  one <- ackwards:::.dodge_edge_labels(5, 5)
+  expect_identical(one, list(lx = 5, ly = 5))
+})
+
+test_that("autoplot(show_r = TRUE) dodges overlapping edge labels", {
+  skip_if_not_installed("ggplot2")
+  x <- cached(ackwards(forbes2023, k_max = 10, pairs = "all"))
+  # Renders without error and produces the labelled layer with dodged anchors.
+  expect_no_error(p <- ggplot2::autoplot(x, show_r = TRUE))
+  expect_s3_class(p, "ggplot")
+})
+
 test_that(".spread_positions() enforces min_sep, preserves order, and recentres", {
   # Access internal function from the package namespace
   spread <- ackwards:::.spread_positions

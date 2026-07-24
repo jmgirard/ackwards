@@ -592,6 +592,10 @@ autoplot.ackwards <- function(
     r_nudge <- 0.15
     de$lx <- (de$x_from + de$x_to) / 2 + (-de$edy / de$elen) * r_nudge
     de$ly <- (de$y_from + de$y_to) / 2 + (de$edx / de$elen) * r_nudge
+    # Dodge colliding midpoint labels apart so dense hierarchies stay legible.
+    dodged <- .dodge_edge_labels(de$lx, de$ly)
+    de$lx <- dodged$lx
+    de$ly <- dodged$ly
     de$rl <- .format_r(de$r, r_digits)
     p <- p + ggplot2::geom_label(
       data = de,
