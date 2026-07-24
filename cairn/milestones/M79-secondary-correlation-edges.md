@@ -1,6 +1,6 @@
 # M79: Secondary-correlation edges in the pruned/publication view
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
