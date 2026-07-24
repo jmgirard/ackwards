@@ -220,13 +220,13 @@ and citations — see
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [255ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [152ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [65ms]
+#> ✔ Running MAP and VSS... [46ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [8.4s]
+#> ✔ Running Comparison Data (CD)... [6.4s]
 #> 
 print(sk)
 #> 
@@ -238,14 +238,16 @@ print(sk)
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*
-#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -
-#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -
+#>   k  PA-PC  PA-FA      MAP    VSS-1    VSS-2  CD
+#>   1     ✔      ✔   0.0254   0.5178   0.0000   ✔ 
+#>   2     ✔      ✔   0.0194   0.5839   0.6719   ✔ 
+#>   3     ✔      ✔   0.0175   0.5913   0.7354   ✔ 
+#>   4     ✔      ✔   0.0164   0.6215*  0.7837   ✔ 
+#>   5     ✔      ✔   0.0160*  0.5738   0.7950*  ✔ 
+#>   6     -      ✔   0.0172   0.5594   0.7629   ✔*
+#>   7     -      -   0.0205   0.5613   0.7616   - 
+#>   8     -      -   0.0236   0.5600   0.7215   -
+#>   ✔ retained   * optimal k   - not retained
 #> 
 #> ── Recommendations ──
 #> 
@@ -264,7 +266,10 @@ print(sk)
 ```
 
 The output prints in two sections. The **criteria table** shows the raw
-evidence at each k, using two display conventions:
+evidence as an aligned grid — one row per k, one column per requested
+criterion (`k`, then PA-PC, PA-FA, MAP, VSS-1, VSS-2, and CD as
+applicable) — with a legend beneath naming the glyphs. It uses two
+display conventions:
 
 - **Checkmark / dash** (PA-PC, PA-FA, and CD): a checkmark (✔) marks
   each k the criterion *retains*, up to its recommended ceiling; a dash
@@ -273,10 +278,15 @@ evidence at each k, using two display conventions:
   so there is no number to show.
 - **Number with a star** (MAP, VSS-1, VSS-2): these criteria produce a
   *score* at each k — a quantity to minimize (MAP) or maximize (VSS) —
-  so the raw value is printed, and the single optimal k (the min or max)
-  is starred (`*`). Reading the surrounding numbers tells you how sharp
-  the optimum is: a lone tall peak is decisive, a near-flat plateau is
-  not.
+  so the raw value is printed in its column, and the single optimal k
+  (the min or max) is starred (`*`). Reading down the column tells you
+  how sharp the optimum is: a lone tall peak is decisive, a near-flat
+  plateau is not.
+
+CD is a hybrid: it retains levels (✔ up to its ceiling, - above) *and*
+stars its optimal k like the score criteria. Only the criteria you
+request get columns, so a subset run (for example `criteria = "map"`)
+prints a narrower table.
 
 The **recommendations block** summarizes each criterion’s single
 suggested k (or range for PA), and the **consensus range** spans the
@@ -499,14 +509,16 @@ print(sk) # reproduced from earlier
 #> 
 #> ── Criteria (k = 1-8) ──
 #> 
-#> k = 1: PA-PC ✔ PA-FA ✔ MAP 0.0254 VSS-1 0.5178 VSS-2 0.0000 CD ✔
-#> k = 2: PA-PC ✔ PA-FA ✔ MAP 0.0194 VSS-1 0.5839 VSS-2 0.6719 CD ✔
-#> k = 3: PA-PC ✔ PA-FA ✔ MAP 0.0175 VSS-1 0.5913 VSS-2 0.7354 CD ✔
-#> k = 4: PA-PC ✔ PA-FA ✔ MAP 0.0164 VSS-1 0.6215* VSS-2 0.7837 CD ✔
-#> k = 5: PA-PC ✔ PA-FA ✔ MAP 0.0160* VSS-1 0.5738 VSS-2 0.7950* CD ✔
-#> k = 6: PA-PC - PA-FA ✔ MAP 0.0172 VSS-1 0.5594 VSS-2 0.7629 CD ✔*
-#> k = 7: PA-PC - PA-FA - MAP 0.0205 VSS-1 0.5613 VSS-2 0.7616 CD -
-#> k = 8: PA-PC - PA-FA - MAP 0.0236 VSS-1 0.5600 VSS-2 0.7215 CD -
+#>   k  PA-PC  PA-FA      MAP    VSS-1    VSS-2  CD
+#>   1     ✔      ✔   0.0254   0.5178   0.0000   ✔ 
+#>   2     ✔      ✔   0.0194   0.5839   0.6719   ✔ 
+#>   3     ✔      ✔   0.0175   0.5913   0.7354   ✔ 
+#>   4     ✔      ✔   0.0164   0.6215*  0.7837   ✔ 
+#>   5     ✔      ✔   0.0160*  0.5738   0.7950*  ✔ 
+#>   6     -      ✔   0.0172   0.5594   0.7629   ✔*
+#>   7     -      -   0.0205   0.5613   0.7616   - 
+#>   8     -      -   0.0236   0.5600   0.7215   -
+#>   ✔ retained   * optimal k   - not retained
 #> 
 #> ── Recommendations ──
 #> 
