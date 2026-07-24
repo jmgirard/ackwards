@@ -362,11 +362,73 @@ if (has_gt) {
 ```
 
 For these data the strongest non-adjacent congruence is |φ| = `r max_phi`.
-Values near 1 mean the deeper factor recycles an earlier loading pattern;
-whether that makes it a rotation artifact — or a faithfully *persisting*
-construct, which is the redundancy view of the same fact — is a judgment made
-with the substantive content of the items in view, not a threshold the
-package applies for you.
+Values near 1 mean the deeper factor recycles an earlier loading pattern — but a
+congruence *this* high travels with a near-perfect score correlation too, so
+these top pairs are already the province of `prune(x, "redundant")`: the factor
+they name is flagged (and dropped from the publication diagram) by the
+redundancy rule above. The distinctive contribution of artifact mode is not
+re-flagging what redundancy already caught; it is surfacing the messier band
+*just below* the redundancy thresholds.
+
+### The near-redundant band
+
+Full redundancy — `|r| ≥ redundancy_r` — is dropped in the redundancy stage.
+Forbes (2023) uses the artifact flags mainly for the pairs that sit *just under*
+that line: a pair that correlates, say, `|r| = 0.89` and shares a loading pattern
+`φ = 0.94` is not quite redundant, but it is a candidate re-rotation worth a
+second look rather than a clean new level of resolution. `prune(x, "artifact")`
+collects exactly these in `x$prune$near_redundant`: every cross-level pair that
+is **not** itself fully redundant yet has its direct score correlation `|r|` (or,
+off PCA, its Tucker `φ`) within `near_margin` (default `0.1`) *below* the
+corresponding threshold.
+
+```{r near-band, echo = FALSE}
+band <- x_art$prune$near_redundant
+band <- band[order(-abs(band$r)), , drop = FALSE]
+band_show <- band[, c("from", "to", "level_from", "level_to", "r", "phi")]
+
+# Drift-proof prose helpers: feature the strongest band pair, and confirm neither
+# of its factors is caught by the redundancy rule (a genuinely near-redundant
+# example, not one redundancy already handles).
+top <- band[1, ]
+redundant_ids <- {
+  nn <- tidy(prune(x_all, "redundant"), what = "nodes")
+  nn$id[nn$pruned]
+}
+top_clean <- !(top$from %in% redundant_ids) && !(top$to %in% redundant_ids)
+
+if (has_gt) {
+  gt::gt(band_show) |>
+    gt::tab_header(
+      title    = "Near-redundant band",
+      subtitle = "Cross-level pairs just below the redundancy thresholds — evidence, not flags"
+    ) |>
+    gt::cols_label(
+      from       = "From",
+      to         = "To",
+      level_from = "Level (from)",
+      level_to   = "Level (to)",
+      r          = "r",
+      phi        = "φ"
+    ) |>
+    gt::fmt_number(columns = c(r, phi), decimals = 2)
+} else {
+  knitr::kable(
+    band_show,
+    digits = 2, row.names = FALSE,
+    caption = "Near-redundant band (cross-level pairs just below the redundancy thresholds)"
+  )
+}
+```
+
+The strongest near-redundant pair here is `r top$from` ↔ `r top$to`
+(`r sprintf("r = %.2f", top$r)`, `r sprintf("φ = %.2f", top$phi)`) —
+`r if (top_clean) "and, unlike the top-φ pairs above, neither factor is flagged by prune(x, \"redundant\"): this pair is a genuine near-miss, not something redundancy already drops." else "worth reading alongside the redundancy flags."`
+The examples here use the default PCA engine, so `redundancy_phi` is `NULL` and
+only the `|r|` band is active; on an EFA or ESEM fit `redundancy_phi`
+auto-resolves to `0.95` and the `φ` band switches on too (`prune()` announces
+this). Widen or narrow the band with `near_margin`. Like the φ table, the band is
+**report-only** — no factor is dropped on its basis.
 
 The two modes surface different fingerprints of the same underlying question:
 

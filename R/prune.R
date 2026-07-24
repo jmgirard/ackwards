@@ -78,6 +78,86 @@
   out
 }
 
+# Report-only "near-redundant" band (M77): cross-level factor pairs sitting JUST
+# below the redundancy thresholds -- caught by neither prune("redundant") (which
+# drops FULL redundancy, |r| >= redundancy_r [and, off-PCA, phi > redundancy_phi])
+# nor a casual read of the phi table. Forbes uses the artifact flags mainly for
+# exactly this just-below band (a messy re-rotation, e.g. r = .89 / phi = .93),
+# since anything above threshold is already dropped upstream. Flag-and-report
+# only (GP2): the caller never drops or mutates the kept node set because of it.
+#
+# A cross-level pair (shallower a -> deeper b) is in the band iff it is NOT itself
+# fully redundant AND at least one signal sits in its just-below window (OR, not
+# AND -- either a near score correlation or a near loading congruence is worth a
+# look):
+#   near_r  : redundancy_r   - near_margin <= |r| < redundancy_r
+#   near_phi: redundancy_phi - near_margin <= phi < redundancy_phi
+# |r| is the DIRECT (skip-level) score correlation from the all-pairs edges -- the
+# same quantity redundancy_criterion = "direct" chases. phi is SIGNED, mirroring
+# the redundant rule's own `phi > threshold` comparison (sign alignment makes
+# congruent pairs positive). The phi window is active only when a phi threshold is
+# in force (redundancy_phi non-NULL); under PCA it is NULL -- component scores are
+# determinate, so |r| alone is the signal (D-008) -- and only near_r can flag.
+# "Not already flagged" is judged at the PAIR level (does this pair itself meet
+# full redundancy) rather than against the chain/retention node flags, because
+# redundancy flags NODES and correlation is non-transitive.
+# Returns a data frame of the flagged pairs, or NULL when none qualify.
+.near_redundant_pairs <- function(levels_list, edges_view, redundancy_r,
+                                  redundancy_phi, near_margin) {
+  ks <- sort(as.integer(names(levels_list)))
+  K <- length(ks)
+  r_lo <- redundancy_r - near_margin
+  phi_lo <- if (is.null(redundancy_phi)) NULL else redundancy_phi - near_margin
+
+  rows <- list()
+  for (i in seq_len(K - 1L)) {
+    for (j in seq(i + 1L, K)) {
+      ka <- ks[i]
+      kb <- ks[j]
+      E <- edges_view$edges$matrices[[paste0(ka, ":", kb)]]
+      if (is.null(E)) next
+      La <- levels_list[[as.character(ka)]]$loadings
+      Lb <- levels_list[[as.character(kb)]]$loadings
+      labs_a <- colnames(La)
+      labs_b <- colnames(Lb)
+
+      for (a in seq_along(labs_a)) {
+        for (b in seq_along(labs_b)) {
+          la <- labs_a[a]
+          lb <- labs_b[b]
+          r_val <- E[la, lb]
+          abs_r <- abs(r_val)
+          phi_val <- .tucker_phi(La[, a], Lb[, b])
+
+          # Fully redundant (would be dropped by prune("redundant")) -> not "near".
+          fully_redundant <- abs_r >= redundancy_r &&
+            (is.null(redundancy_phi) ||
+              (!is.na(phi_val) && phi_val > redundancy_phi))
+          if (fully_redundant) next
+
+          near_r <- abs_r >= r_lo && abs_r < redundancy_r
+          near_phi <- !is.null(phi_lo) && !is.na(phi_val) &&
+            phi_val >= phi_lo && phi_val < redundancy_phi
+          if (!near_r && !near_phi) next
+
+          rows[[length(rows) + 1L]] <- data.frame(
+            from = la, to = lb, level_from = ka, level_to = kb,
+            r = r_val, phi = phi_val, near_r = near_r, near_phi = near_phi,
+            stringsAsFactors = FALSE
+          )
+        }
+      }
+    }
+  }
+
+  if (length(rows) == 0L) {
+    return(NULL)
+  }
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
+  out
+}
+
 # --- Strong-link builders (one row per redundancy link: shallower -> deeper) ---
 # Both return a data frame with columns from_label, to_label, level_from,
 # level_to, r_link, phi_link (r_link/phi_link are the ADJACENT-level stats for
@@ -445,11 +525,13 @@
 # pairs. `rules` here is the auto-rule subset only (never "none"/"manual").
 # Returns the $prune slot (minus $manual, added by the caller).
 .apply_pruning <- function(levels_list, edges_view, rules, redundancy_r, redundancy_phi,
-                           min_items, orphan_r, redundancy_criterion = "direct") {
+                           min_items, orphan_r, near_margin,
+                           redundancy_criterion = "direct") {
   base_nodes <- .base_prune_nodes(levels_list)
 
   chains_df <- NULL
   phi_df <- NULL
+  near_df <- NULL
 
   if ("redundant" %in% rules) {
     chain_result <- .find_redundant_chains(
@@ -476,6 +558,12 @@
 
     # Compute structural artifact signals: flag/report only, never auto-prune.
     structural_df <- .compute_structural_signals(edges_view, min_items, orphan_r)
+
+    # Near-redundant band: cross-level pairs just below the redundancy thresholds
+    # (report-only; never mutates the kept set -- GP2).
+    near_df <- .near_redundant_pairs(
+      levels_list, edges_view, redundancy_r, redundancy_phi, near_margin
+    )
   }
 
   n_flagged <- sum(base_nodes$pruned)
@@ -505,14 +593,25 @@
     # structural_df is always set above when artifact pruning runs.
     n_struct <- sum(structural_df$few_items | structural_df$orphan |
       structural_df$split_merge, na.rm = TRUE)
+    n_near <- if (is.null(near_df)) 0L else nrow(near_df)
+    r_lo <- round(redundancy_r - near_margin, 3)
+    band_note <- if (!is.null(redundancy_phi)) {
+      phi_lo <- round(redundancy_phi - near_margin, 3)
+      paste0(", or phi in [", phi_lo, ", ", redundancy_phi, ")")
+    } else {
+      ""
+    }
     cli::cli_inform(c(
       # cli::symbol has no $phi entry (renders empty); use the escaped glyph.
       "i" = "Artifact mode: Tucker's \u03c6 computed for all \\
              cross-level factor pairs.",
       "i" = "Structural signals computed: {n_struct} factor{?s} flagged \\
              (few_items / orphan / split_merge).",
-      "i" = "Inspect {.code x$prune$phi} and {.code x$prune$structural}; \\
-             removal is a researcher judgment (Forbes, 2023)."
+      "i" = "Near-redundant band: {n_near} cross-level pair{?s} just below the \\
+             redundancy thresholds (|r| in [{r_lo}, {redundancy_r}){band_note}).",
+      "i" = "Inspect {.code x$prune$phi}, {.code x$prune$structural}, and \\
+             {.code x$prune$near_redundant}; removal is a researcher judgment \\
+             (Forbes, 2023)."
     ))
   }
 
@@ -523,10 +622,12 @@
     redundancy_criterion = redundancy_criterion,
     min_items            = min_items,
     orphan_r             = orphan_r,
+    near_margin          = near_margin,
     nodes                = base_nodes,
     chains               = chains_df,
     phi                  = phi_df,
-    structural           = structural_df
+    structural           = structural_df,
+    near_redundant       = near_df
   )
 }
 
@@ -560,10 +661,11 @@
 #'     `x$prune$nodes`.
 #'   * `"artifact"` (or the alias `"artefact"`, normalized to `"artifact"`) --
 #'     compute Tucker's congruence coefficient (phi) for all cross-level factor
-#'     pairs and store in `x$prune$phi`, plus structural signals
-#'     (`few_items`/`orphan`/`split_merge`) in `x$prune$structural`. No factors
-#'     are auto-flagged; artifact identification requires judgment (Forbes,
-#'     2023; Wicherts et al., 2016).
+#'     pairs and store in `x$prune$phi`, structural signals
+#'     (`few_items`/`orphan`/`split_merge`) in `x$prune$structural`, and the
+#'     **near-redundant band** (`near_margin`, see Details) in
+#'     `x$prune$near_redundant`. No factors are auto-flagged; artifact
+#'     identification requires judgment (Forbes, 2023; Wicherts et al., 2016).
 #' @param manual Character vector of factor labels (e.g. `c("m4f3", "m4f4")`)
 #'   to flag directly, in addition to or instead of an auto rule. Standalone
 #'   manual pruning is supported: `prune(x, manual = c("m4f3"))`. Unknown
@@ -612,6 +714,13 @@
 #'   includes `"artifact"`. Default `0.5` -- a moderate correlation; a factor
 #'   that shares less than a quarter of its variance with every neighbour is a
 #'   structural outlier worth inspecting.
+#' @param near_margin Scalar in `(0, 1]`. Width of the **near-redundant band**
+#'   reported by `"artifact"` mode (see Details). A cross-level pair is flagged
+#'   near-redundant when its direct `|r|` sits in
+#'   `[redundancy_r - near_margin, redundancy_r)` **or** its Tucker `phi` sits in
+#'   `[redundancy_phi - near_margin, redundancy_phi)` -- i.e. within `near_margin`
+#'   *below* a redundancy threshold -- while the pair is not itself fully
+#'   redundant. Only used when `rules` includes `"artifact"`. Default `0.1`.
 #' @param ... Reserved for future methods/arguments.
 #'
 #' @details
@@ -638,6 +747,23 @@
 #' direct root-to-leaf correlation as an at-a-glance cross-check. Under
 #' `redundancy_criterion = "adjacent"`, `r_to_prev` *is* the criterion and always
 #' meets `redundancy_r`.
+#'
+#' **The near-redundant band (`"artifact"` mode).** `prune("redundant")` drops
+#' *full* redundancy -- pairs at or above the thresholds. Forbes (2023) uses the
+#' artifact flags mainly for the messier band *just below* them: a pair that
+#' correlates, say, `r = 0.89` and shares a loading pattern `phi = 0.93` is not
+#' quite redundant but is a candidate re-rotation worth a second look. Artifact
+#' mode surfaces this as `x$prune$near_redundant` -- a data frame of every
+#' cross-level pair that is **not** itself fully redundant yet has its direct
+#' (skip-level) `|r|` **or** its Tucker `phi` within `near_margin` *below* the
+#' corresponding threshold (`redundancy_r` / `redundancy_phi`). Columns:
+#' `from`, `to`, `level_from`, `level_to`, `r` (direct score correlation), `phi`
+#' (loading congruence), and the logical band flags `near_r` / `near_phi`. Under
+#' the PCA engine `redundancy_phi` is `NULL` (component scores are determinate),
+#' so only the `|r|` band applies; under EFA/ESEM `redundancy_phi` auto-resolves
+#' to `0.95` (announced via cli) and the `phi` band is active too. Like phi and
+#' the structural signals, the band is **report-only** -- it never drops or
+#' mutates the kept node set.
 #'
 #' @return `x`, with `$prune` populated (replacing any prior pruning).
 #'
@@ -679,7 +805,7 @@ prune <- function(x, ...) {
 prune.ackwards <- function(x, rules = "none", manual = NULL,
                            redundancy_r = 0.9, redundancy_phi = NULL,
                            redundancy_criterion = c("direct", "adjacent"),
-                           min_items = 3L, orphan_r = 0.5, ...) {
+                           min_items = 3L, orphan_r = 0.5, near_margin = 0.1, ...) {
   .check_unknown_dots(list(...), "prune")
   levels_list <- x$levels
   all_ids <- unlist(lapply(levels_list, `[[`, "labels"))
@@ -727,6 +853,10 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
     is.na(orphan_r) || orphan_r < 0 || orphan_r > 1) {
     cli::cli_abort("{.arg orphan_r} must be a single number in [0, 1].")
   }
+  if (!is.numeric(near_margin) || length(near_margin) != 1L ||
+    is.na(near_margin) || near_margin <= 0 || near_margin > 1) {
+    cli::cli_abort("{.arg near_margin} must be a single number in (0, 1].")
+  }
   min_items <- as.integer(min_items)
 
   auto_rules <- setdiff(rules, "none")
@@ -736,9 +866,11 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
     return(x)
   }
 
-  # Auto-resolve redundancy_phi = NULL (Invariant 6: announce loud).
+  # Auto-resolve redundancy_phi = NULL (Invariant 6: announce loud). Both rules
+  # consume the threshold: "redundant" as the conjunctive chain filter, and
+  # "artifact" as the upper edge of the near-redundant phi band (M77).
   # NA is the explicit opt-out and maps to NULL internally.
-  if ("redundant" %in% auto_rules) {
+  if (any(c("redundant", "artifact") %in% auto_rules)) {
     if (is.null(redundancy_phi)) {
       if (x$engine %in% c("efa", "esem")) {
         redundancy_phi <- 0.95
@@ -771,15 +903,16 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
     )
     result <- .apply_pruning(
       levels_list, edges_view, auto_rules, redundancy_r, redundancy_phi,
-      min_items = min_items, orphan_r = orphan_r,
+      min_items = min_items, orphan_r = orphan_r, near_margin = near_margin,
       redundancy_criterion = redundancy_criterion
     )
   } else {
     result <- list(
       rules = "none", redundancy_r = redundancy_r, redundancy_phi = redundancy_phi,
       redundancy_criterion = redundancy_criterion,
-      min_items = min_items, orphan_r = orphan_r,
-      nodes = .base_prune_nodes(levels_list), chains = NULL, phi = NULL, structural = NULL
+      min_items = min_items, orphan_r = orphan_r, near_margin = near_margin,
+      nodes = .base_prune_nodes(levels_list), chains = NULL, phi = NULL,
+      structural = NULL, near_redundant = NULL
     )
   }
 
