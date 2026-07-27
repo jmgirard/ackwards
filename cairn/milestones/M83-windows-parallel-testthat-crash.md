@@ -31,18 +31,18 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
 
 ## Acceptance criteria
 
-- [ ] AC1: A `workflow_dispatch` workflow runs the test suite on `windows-latest`
+- [x] AC1: A `workflow_dispatch` workflow runs the test suite on `windows-latest`
       a configurable number of times (default 30), prints a per-iteration
       pass/crash tally, and exits non-zero if any iteration reports a worker
       access violation — the `crashed with exit code -1073741819` signature,
       which the parent process surfaces while itself exiting 1.
-- [ ] AC2: A baseline run of AC1's workflow against unmitigated code records the
+- [x] AC2: A baseline run of AC1's workflow against unmitigated code records the
       crash count over ≥30 iterations; the tally is quoted in the work log.
-- [ ] AC3: For each candidate trigger examined — worker count, `EFAtools::CD()`,
+- [x] AC3: For each candidate trigger examined — worker count, `EFAtools::CD()`,
       `polychoric`/`mnormt`, runner memory — the milestone records the iteration
       tally or log excerpt that implicates or eliminates it. A trigger left
       unexamined is named as such rather than omitted.
-- [ ] AC4: The mitigation is chosen on measured evidence, and its effect is
+- [x] AC4: The mitigation is chosen on measured evidence, and its effect is
       stated at the confidence the data supports rather than asserted. The
       milestone records the crash rate at every setting measured (≥60
       iterations each), names the setting applied and why, and states plainly
@@ -51,7 +51,7 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
       consequence: a red Windows job carrying the `-1073741819` signature is
       re-run before it is believed, and a *second* occurrence in one run is
       treated as a real failure.
-- [ ] AC5: The milestone states whether the mitigation changed tarball content.
+- [x] AC5: The milestone states whether the mitigation changed tarball content.
       If it did, `NEWS.md` carries a user-facing line, and R-hub `atlas` + `nold`
       are re-run green on the mitigated code so the pending 0.2.0 resubmission
       rests on fresh evidence. If it is confined to `.github/`, the milestone
@@ -125,3 +125,19 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
 ## Decisions
 
 ## Review
+
+Reviewed 2026-07-27 against master at `741ab7f`. PR #91. Returns: 1 (AC4, resolved at `bdba56b`).
+
+**AC1 — stress workflow.** `.github/workflows/windows-stress.yaml` is `workflow_dispatch`-only with `iterations` (default 5), `shards` (default 6), `testthat_cpus` and `drop_efatools` inputs; both inputs are validated as positive integers before use. Each iteration is scored by grepping its output for `crashed with exit code -1073741819` and a per-iteration line plus a per-shard tally is printed. Exit behaviour verified on run 30287517203: the 2 shards that hit the signature exited `failure`, the 10 clean ones `success`.
+
+**AC2 — baseline.** Run 30276820048, 6 shards x 5 iterations at `TESTTHAT_CPUS=4`: 5 access violations / 25 pass / 0 other-failure of 30 (16.7%), per shard 0,0,2,2,1,0. Quoted in the work log. An earlier sweep (30275503958) is excluded from the baseline: an errexit defect in the harness truncated each crashing shard.
+
+**AC3 — triggers.** Worker count measured at three settings (below). EFAtools measured by removal (run 30287517203). Memory measured by per-iteration probe: ~13.7-14.0 GB free throughout, and the shard-3 crash landed at 14,030,532 KB free, the highest reading of its five iterations. `mnormt` recorded as UNEXAMINED, with the reason: `psych` requires it, so it cannot be removed the way EFAtools can.
+
+**AC4 — measured characterisation, no elimination claimed.** Rates, each over >=60 iterations: 1 worker 15/120 (12.5%, run 30283223501); 2 workers 11/230 (4.8%, runs 30280589659 + 30283139298); 4 workers 6/60 (10.0%, runs 30276820048 + 30279395749); 4 workers without EFAtools 2/120 (1.7%, run 30287517203). Non-monotonic — serial is worst. Applied setting is 2 workers on the Windows job, named in `R-CMD-check.yaml` with its reason (best measured; matches CRAN's effective `_R_CHECK_LIMIT_CORES_`), and that comment states plainly that no setting eliminates the crash. Operating policy recorded at the same site: re-run a signature-carrying red job; a second occurrence within one run is real; a red job without the signature is never re-run away.
+
+**AC5 — tarball content.** `git diff --stat master...HEAD` touches only `.github/workflows/` and `cairn/`. No tarball content changed, so no NEWS entry is owed and no R-hub re-verification: the pending 0.2.0 resubmission still rests on the `atlas`/`nold` runs at `653d2df`.
+
+**AC6 — gate.** Pending: DoD gate clean at `259f12b` (check 0 err/0 warn/0 note, coverage 100%, style/lint clean, pkgdown complete); re-run required after `bdba56b`, and full CI on the merge commit.
+
+**Consistency gate.** `cairn_validate` exit 0, all checks PASS (94 dangling-id advisories are pre-existing legacy M-references, unrelated to this diff). `tools/check-ci-path-filters.R` clean. No DESIGN principle changed, so `cairn_impact` is skipped.
