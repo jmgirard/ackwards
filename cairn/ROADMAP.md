@@ -15,12 +15,13 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | M79 | Secondary-correlation edges in the pruned/publication view | done | — | normal | milestones/archive/M79-secondary-correlation-edges.md |
 | M80 | Deep-hierarchy layout quality at k>=10 — crossing reduction + edge-label dodging | done | — | normal | milestones/archive/M80-deep-hierarchy-layout-quality.md |
 | M81 | Publication-figure polish — item lists, per-node box sizes, manual factor ordering | done | M80 | normal | milestones/archive/M81-publication-figure-polish.md |
+| M82 | macOS oldrel (arm64) CI visibility + skip-filter repair | planned | — | normal | milestones/M82-macos-oldrel-ci-visibility.md |
 <!-- M01–M70 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent done rows. -->
 
 ## Candidates
 
 - Owner-only post-M55 release tail: 0.1.1 **ACCEPTED on CRAN 2026-07-24** (submitted 2026-07-17, tarball from master `0a5da58`). Remaining acceptance follow-up: **tag `v0.1.1`** at `0a5da58` and push it (README refreshed and CRAN status badge added at `cc0bdbc`, so that half is done — corrected 2026-07-27). Note 0.1.1 now shows an ERROR on `r-oldrel-macos-arm64`, fixed on master by the 2026-07-27 fork-safety hotfix but only reaching CRAN via a next submission, whose timing is the owner's call. — added 2026-07-12, updated 2026-07-27
-- CI cannot see CRAN's macOS arm64 check flavours: the 0.1.1 `r-oldrel-macos-arm64` segfault shipped past a fully green matrix, which runs macOS at `release` only, and R-hub is dispatch-only. Candidate: add `{os: macos-latest, r: 'oldrel-1'}` to `.github/workflows/R-CMD-check.yaml` (macos-latest is arm64, so it exercises the configuration that failed), and/or make an R-hub macOS run a standing pre-submission step. Promote on any further CRAN macOS-only failure the matrix could have caught. — added 2026-07-27
+- Further CRAN-flavour coverage beyond M82 (grouped): a standing R-hub macOS run in `PROFILE.md`'s release-walk (M82 declined it as subsumed by its own push-to-master job) and a macOS **x86_64** row (`macos-13`) — the 0.1.1 failure was arm64-specific and `r-oldrel-macos-x86_64` passed. Promote either on any CRAN macOS failure M82's job could not have caught. — added 2026-07-27
 - ESEM engine/basis extensions (grouped, demand-gated — keep off schedule until asked): `comparability()` split-half per level per factor (feasible; 2·n_splits lavaan hierarchies per call, per-half convergence handling — D-022 / M46) and `boot_edges()` WLSMV/polychoric bootstrap edges (expensive, n_boot × (k_max−1) fits; resample can drop a response category — D-023 / M47) — added 2026-07-11, merged 2026-07-16
 
 ### Forbes website-review feedback (2026-07-23)
