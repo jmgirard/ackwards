@@ -55,7 +55,9 @@ jobs:
       matrix:
         config:
           - {os: macos-latest,   r: 'release'}
-          - {os: windows-latest, r: 'release'}
+          # Windows runs 2 testthat workers, not 4 -- see the TESTTHAT_CPUS
+          # note under env: below.
+          - {os: windows-latest, r: 'release', testthat-cpus: 2}
           - {os: ubuntu-latest,  r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,  r: 'release'}
           - {os: ubuntu-latest,  r: 'oldrel-1'}
@@ -65,7 +67,20 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
       # Parallel testthat (M48): hosted runners have 4 vCPUs; testthat
       # otherwise defaults to 2 workers.
-      TESTTHAT_CPUS: 4
+      #
+      # WINDOWS RUNS 2, NOT 4 (M83). At 4 workers a testthat worker
+      # intermittently died on a Windows access violation (0xC0000005),
+      # failing this job roughly 4% of the time -- in a different test file
+      # each occurrence, so no single test was at fault. Measured with
+      # windows-stress.yaml: 6 crashes / 60 iterations at 4 workers, 0 / 30 at
+      # 2. Memory was never the constraint (~14 GB free at every crash), and
+      # the same tests and compiled dependencies are exercised either way, so
+      # the trigger is the 4-way concurrency itself.
+      #
+      # 2 also matches what CRAN effectively runs (_R_CHECK_LIMIT_CORES_),
+      # which is consistent with CRAN's Windows flavours staying green while
+      # this job flaked. Other platforms keep 4 and keep M48's speedup.
+      TESTTHAT_CPUS: ${{ matrix.config.testthat-cpus || 4 }}
 
     steps:
       - uses: actions/checkout@v4

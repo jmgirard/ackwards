@@ -76,12 +76,12 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
 - [x] T2: Run it on unmitigated `master` for ≥30 iterations; record the tally.
       Re-run if zero crashes appear, since the observed rate is ~4% and a single
       30-iteration clean sweep is ~29% likely by chance.
-- [ ] T3: Bisect with stress variants, one variable at a time:
+- [x] T3: Bisect with stress variants, one variable at a time:
       `TESTTHAT_CPUS` 4 → 2 → 1; `EFAtools` absent (its `suggest_k()` CD path
       skips); `cor = "polychoric"` paths skipped; runner memory logged per
       iteration. Record each tally against `TESTTHAT_CPUS: 4`
       ([R-CMD-check.yaml:68](.github/workflows/R-CMD-check.yaml:68)).
-- [ ] T4: Apply the mitigation the T3 evidence supports, preferring
+- [x] T4: Apply the mitigation the T3 evidence supports, preferring
       `TESTTHAT_CPUS: 2` on the Windows job (what CRAN effectively runs) so
       M48's parallel speedup survives everywhere else.
 - [ ] T5: Re-run the stress workflow for ≥60 iterations on the mitigated code.
@@ -101,6 +101,9 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
 - 2026-07-27: T3 variant 1 started — TESTTHAT_CPUS=2 (what CRAN effectively runs), plus a per-iteration free-physical-memory probe so the memory axis rests on numbers.
 - 2026-07-27: T3 variant 1 RESULT (run 30278024728, 6x5 @ TESTTHAT_CPUS=2): **0 access violations / 30 pass of 30**, all six shards clean — including shards 3 and 4, which each crashed twice at 4 workers. Fisher's exact on 5/30 vs 0/30 is p=0.026 one-sided: strong, not yet conclusive, which is what AC4's 60-iteration confirmation is for. Worker count is the axis.
 - 2026-07-27: T3 memory axis at 2 workers — free physical memory ~13.7-14.0 GB before every iteration, so gross memory exhaustion is not the mechanism. Probe postdates the baseline, so a second 4-worker sweep follows to capture memory at the crashing setting.
+- 2026-07-27: T3 second 4-worker sweep (run 30279395749) — 1 crash / 30, giving a combined 4-worker baseline of **6 / 60 (10%)**; the second sweep ran cooler than the first, which lowers the effect size rather than flattering it. Memory axis CLOSED: shard 3 crashed at iteration 4 with 14,030,532 KB free, the highest reading of its five iterations, so memory pressure is not the mechanism.
+- 2026-07-27: T3 dependency axes (EFAtools::CD, polychoric/mnormt) resolved without isolating either: the same test content and the same compiled dependencies run 30/30 clean at 2 workers and fault at 4, so neither is sufficient on its own — the 4-way concurrency is. Neither was removed in a dedicated variant; naming that rather than claiming an elimination we did not run. TESTTHAT_CPUS=1 was not tested: 2 already gives 0 crashes and keeps parallelism.
+- 2026-07-27: T4 — R-CMD-check.yaml's windows-latest row now sets TESTTHAT_CPUS=2 via a matrix key, other platforms keep 4 and M48's speedup. Confined to .github/, so no tarball content changes.
 
 ## Decisions
 

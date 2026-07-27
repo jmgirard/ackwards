@@ -69,7 +69,7 @@ jobs:
     steps:
       - id: build
         run: |
-          n='${{ github.event.inputs.shards || '6' }}'
+          n='${{ github.event.inputs.shards || '12' }}'
           case "$n" in ''|*[!0-9]*) echo "shards must be a positive integer, got '$n'" >&2; exit 1;; esac
           [ "$n" -ge 1 ] || { echo "shards must be >= 1, got $n" >&2; exit 1; }
           echo "shards=$(seq 1 "$n" | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
@@ -87,7 +87,7 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      TESTTHAT_CPUS: ${{ github.event.inputs.testthat_cpus || '4' }}
+      TESTTHAT_CPUS: ${{ github.event.inputs.testthat_cpus || '2' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -115,7 +115,7 @@ jobs:
           # every command below that may legitimately fail is either an `if`
           # condition or `|| true`-guarded.
           set -u
-          iterations='${{ github.event.inputs.iterations || '5' }}'
+          iterations='${{ github.event.inputs.iterations || '10' }}'
           case "$iterations" in ''|*[!0-9]*) echo "iterations must be a positive integer, got '$iterations'" >&2; exit 1;; esac
 
           crashes=0
