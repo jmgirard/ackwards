@@ -108,6 +108,15 @@ published.
   platforms (ATLAS and no-long-double builds). A hierarchy left with
   fewer than two usable levels now reports that directly.
 
+- The package’s own tests no longer require two identically seeded
+  [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
+  runs to agree bit-for-bit. A multi-threaded linear-algebra library may
+  reassociate its reductions between runs, which moves aggregated
+  bootstrap quantities in the last unit of precision (~1e-16, seen on
+  ATLAS builds); the test now allows that while still holding the seed
+  to a far tighter standard than any real reproducibility failure would
+  pass. Nothing user-facing changed.
+
 - Fixed a crash in the package’s own test suite on macOS. Two tests set
   a *forking* parallel plan
   ([`future::multicore`](https://future.futureverse.org/reference/multicore.html))
