@@ -1,22 +1,10 @@
-# ackwards (development version)
-
-* **Fixed an error when a level of the hierarchy is degenerate.** If an
-  extraction produced a factor whose scores carry no variance — reachable when
-  `k_max` exceeds what the data can identify — `ackwards()` aborted with an
-  opaque `invalid subscript type 'list'` message instead of handling it. Such a
-  level is now recorded, warned about, and skipped, with every level above it
-  kept, which is how a non-converged level has always been treated. The failure
-  was platform-dependent: the same fit is merely ill-conditioned under most
-  numerical libraries and fully degenerate under others, so it surfaced only on
-  some check platforms (ATLAS and no-long-double builds). A hierarchy left with
-  fewer than two usable levels now reports that directly.
-
 # ackwards 0.2.0
 
 New publication-figure controls for `autoplot()`, secondary correlation edges
 in the pruned view, a near-redundant band in `prune()`, and cleaner layouts for
-deep hierarchies. Also clears an error in the package's own test suite that
-appeared on one of CRAN's macOS check flavours after 0.1.1 was published.
+deep hierarchies. Also fixes an error on degenerate hierarchies, and a crash in
+the package's own test suite — both of which surfaced only on particular
+numerical platforms after 0.1.1 was published.
 
 * **Publication-figure controls for `autoplot()`.** Three additions make
   hand-tuned figures easier. `show_items = TRUE` lists the salient items (top
@@ -85,6 +73,17 @@ appeared on one of CRAN's macOS check flavours after 0.1.1 was published.
   intercorrelation), not a numerical necessity. The artifact-mode discussion now
   frames automated flags as *removing* investigator degrees of freedom, leaving
   only the substantive drop decision to the researcher.
+
+* **Fixed an error when a level of the hierarchy is degenerate.** If an
+  extraction produced a factor whose scores carry no variance — reachable when
+  `k_max` exceeds what the data can identify — `ackwards()` aborted with an
+  opaque `invalid subscript type 'list'` message instead of handling it. Such a
+  level is now recorded, warned about, and skipped, with every level above it
+  kept, which is how a non-converged level has always been treated. The failure
+  was platform-dependent: the same fit is merely ill-conditioned under most
+  numerical libraries and fully degenerate under others, so it surfaced only on
+  some check platforms (ATLAS and no-long-double builds). A hierarchy left with
+  fewer than two usable levels now reports that directly.
 
 * Fixed a crash in the package's own test suite on macOS. Two tests set a
   *forking* parallel plan (`future::multicore`) to verify that parallel and
