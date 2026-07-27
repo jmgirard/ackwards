@@ -12,16 +12,16 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/jmgirard/ackwards/blob/v0.2.0/inst/CITATION)
+[`inst/CITATION`](https://github.com/jmgirard/ackwards/blob/master/inst/CITATION)
 
 Girard J (2026). *ackwards: Bass-Ackwards Hierarchical Structural
-Analysis*. R package version 0.2.0,
+Analysis*. R package version 0.2.0.9000,
 <https://github.com/jmgirard/ackwards>.
 
     @Manual{,
       title = {ackwards: Bass-Ackwards Hierarchical Structural Analysis},
       author = {Jeffrey M. Girard},
       year = {2026},
-      note = {R package version 0.2.0},
+      note = {R package version 0.2.0.9000},
       url = {https://github.com/jmgirard/ackwards},
     }
