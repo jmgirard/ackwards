@@ -4,9 +4,10 @@
 # `r-oldrel-macos-arm64` flavour: two tests set `future::plan(future::multicore)`,
 # and forking alongside R's threaded BLAS segfaulted inside lavaan. Fixed at
 # 5d2fcbd by skipping those blocks on macOS. The break was invisible to CI
-# because R-CMD-check.yaml and test-coverage.yaml both run macOS at `release`
-# only, and rhub.yaml is `workflow_dispatch`-only -- so nothing exercised macOS
-# at oldrel until CRAN did.
+# because R-CMD-check.yaml is the only workflow that runs macOS at all and it
+# runs it at `release` only (test-coverage.yaml is ubuntu-only, and rhub.yaml is
+# `workflow_dispatch`-only) -- so nothing exercised macOS at oldrel until CRAN
+# did.
 #
 # PUSH-ONLY, NOT PER-PR. Owner's call at the 2026-07-27 plan gate: this runs on
 # push to master and on demand, never on pull requests. The accepted trade is
@@ -25,7 +26,7 @@
 # there.
 on:
   push:
-    branches: [master]
+    branches: [master, m82-macos-oldrel-ci-visibility]  # TEMPORARY: reverted below
     paths-ignore:
       - 'CLAUDE.md'
       - 'cran-comments.md'

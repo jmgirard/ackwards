@@ -102,3 +102,37 @@ added, ledger-read paths deliberately left unmatched.
 ## Decisions
 
 ## Review
+
+Reviewed 2026-07-27 on branch `m82-macos-oldrel-ci-visibility`, PR #88. master had not moved
+since the branch was cut (0 commits ahead/behind), so no re-merge was needed.
+
+### Evidence per criterion
+
+- **AC1** — `on:` block read from the file: `push: branches: [master]` + `workflow_dispatch`, no
+  `pull_request`, with the nine-entry repaired filter. Steps in order: `actions/checkout@v4`,
+  `setup-pandoc@v2`, `setup-r@v2` (`r-version: 'oldrel-1'`), the assertion, `setup-r-dependencies@v2`
+  (`needs: check`, `extra-packages: any::rcmdcheck`), `check-r-package@v2`. `runs-on: macos-latest`.
+- **AC2** — assertion at line 70, check step at line 80, so it precedes the check *and* the
+  dependency install. Fresh local execution of the same expression: passes on
+  `aarch64-apple-darwin25.4.0`, fires on a simulated `x86_64-apple-darwin20`.
+- **AC3** — run [30245095260](https://github.com/jmgirard/ackwards/actions/runs/30245095260),
+  `conclusion=success`, sha `bb69970`; log shows R 4.5.3, `platform: aarch64-apple-darwin20`, and
+  `Status: OK`. `git diff -U0 bb69970 HEAD` over the workflow: **0** changed lines outside the
+  `branches:` line.
+- **AC4** — `Rscript tools/check-ci-path-filters.R` exit 0 across 5 blocks. Guard
+  inversion-verified at implement time four ways (dead literal, dropped cairn entry, blanket
+  `cairn/**`, deleted block) — each exits 1 naming the offending block.
+- **AC5** — both rewritten comments read from the files; each names the ledger-read carve-out.
+  R-CMD-check.yaml's retains the original pkgdown-not-filtered note verbatim (confirmed by the
+  blame-history lens against commit `9030125`).
+- **AC6** — `Rscript tools/dod-gate.R` exit 0: check 0 errors / 0 warnings / 0 notes [142s],
+  coverage 100.00% [77s], styler clean, lintr clean, pkgdown reference index complete; all three
+  source-checkout guards clean.
+
+### Consistency gate
+
+`cairn_validate` exit 0 — `weight caps`, `roadmap<->disk orphans`, `scaffold present`,
+`coverage complete`, `binding criteria` all PASS; the 91 `dangling id tokens` WARNs are
+pre-existing legacy M-ids. No `DESIGN.md` principle changed, so `cairn_impact` was skipped.
+Profile `consistency-gate` slot: check/coverage/style/lint/pkgdown via the DoD gate above; no new
+top-level file (nothing owed `.Rbuildignore`); no NEWS entry owed — nothing user-visible ships.

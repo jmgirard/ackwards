@@ -1,0 +1,18 @@
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - 'CLAUDE.md'
+      - 'cran-comments.md'
+      - '.claude/**'
+      - 'cairn/ROADMAP.md'
+      - 'cairn/LESSONS.md'
+      - 'cairn/PROFILE.md'
+      - 'cairn/milestones/**'
+      - 'cairn/legacy/**'
+      - 'cairn/reviews/**'
+      # tracking docs never affect the build
+      - 'cairn/**'
+jobs:
+  x:
+    runs-on: ubuntu-latest
