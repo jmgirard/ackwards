@@ -52,6 +52,10 @@ on:
         description: 'TESTTHAT_CPUS per run (CI uses 4; CRAN effectively runs 2)'
         required: false
         default: '4'
+      drop_efatools:
+        description: 'Remove EFAtools before running, to test whether its compiled code is the faulting component'
+        required: false
+        default: 'false'
 
 name: windows-stress.yaml
 
@@ -87,7 +91,10 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      TESTTHAT_CPUS: ${{ github.event.inputs.testthat_cpus || '1' }}
+      TESTTHAT_CPUS: ${{ github.event.inputs.testthat_cpus || '4' }}
+      # TEMPORARY, alongside the push trigger -- drives the branch sweeps,
+      # removed with it before review.
+      DROP_EFATOOLS: 'true'
 
     steps:
       - uses: actions/checkout@v4
@@ -106,6 +113,20 @@ jobs:
 
       - name: Install the package once
         run: R CMD INSTALL --no-multiarch --with-keep.source .
+        shell: bash
+
+      # Dependency bisection (M83 T3). EFAtools is one of only two compiled
+      # dependencies reachable from the crashing tests (mnormt, via polychoric,
+      # is the other and cannot be removed -- psych needs it). `suggest_k()`
+      # gates its CD() path behind rlang::is_installed("EFAtools"), so removing
+      # the package makes that path skip rather than error. Tests that then
+      # fail are counted as other-failure, never as crashes, so the two cannot
+      # be confused.
+      - name: Remove EFAtools (bisection variant)
+        if: ${{ github.event.inputs.drop_efatools == 'true' || env.DROP_EFATOOLS == 'true' }}
+        run: |
+          R CMD REMOVE EFAtools || true
+          Rscript -e 'cat("EFAtools installed after removal:", requireNamespace("EFAtools", quietly = TRUE), "\n")'
         shell: bash
 
       - name: Stress the test suite
