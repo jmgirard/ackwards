@@ -59,7 +59,13 @@ test_that("boot_edges() is reproducible under a seed", {
   x <- suppressMessages(suppressWarnings(ackwards(sim16, k_max = 3)))
   a <- suppressMessages(boot_edges(x, sim16, n_boot = 80, seed = 11))
   b <- suppressMessages(boot_edges(x, sim16, n_boot = 80, seed = 11))
-  expect_identical(a$boot$edges, b$boot$edges)
+  # Tolerant, not bit-identical: a threaded BLAS may reassociate reductions
+  # between two otherwise identical runs, and aggregating 80 replicates carries
+  # that into the last ULP of `se`/`hi` (seen on ATLAS, ~1e-16). No package can
+  # promise bit-identity there. The oracle is undamaged -- the seed check below
+  # separates seeds by ~1e-2, eight orders of magnitude above this tolerance --
+  # and it matches the serial-vs-parallel oracle beneath, already `expect_equal`.
+  expect_equal(a$boot$edges, b$boot$edges)
 
   # A different seed gives a different (but same-shaped) result.
   c <- suppressMessages(boot_edges(x, sim16, n_boot = 80, seed = 12))
