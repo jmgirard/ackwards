@@ -111,6 +111,9 @@ jobs:
       - name: Stress the test suite
         id: stress
         run: |
+          # errexit is already on (GitHub's bash shell adds -eo pipefail);
+          # every command below that may legitimately fail is either an `if`
+          # condition or `|| true`-guarded.
           set -u
           iterations='${{ github.event.inputs.iterations || '5' }}'
           case "$iterations" in ''|*[!0-9]*) echo "iterations must be a positive integer, got '$iterations'" >&2; exit 1;; esac
@@ -123,22 +126,32 @@ jobs:
             echo "::group::iteration $i of $iterations (shard ${{ matrix.shard }}, TESTTHAT_CPUS=$TESTTHAT_CPUS)"
             out="iteration-$i.log"
             # Run from tests/ so testthat.R resolves its paths exactly as the
-            # check test phase does. The exit status is read directly rather
-            # than through `|| true`, which would clobber it and score every
-            # iteration a pass; the script does not `set -e`, so a failing
-            # iteration does not end the loop -- and a stress run that stopped
-            # at the first crash would measure nothing.
-            (cd tests && Rscript testthat.R) > "$out" 2>&1
-            status=$?
+            # check test phase does.
+            #
+            # The `if` form is load-bearing. GitHub's `shell: bash` runs
+            # `bash --noprofile --norc -eo pipefail`, so errexit is ON: a bare
+            # `Rscript ...; status=$?` dies at the first failing iteration
+            # before it can be scored, taking the tally with it -- which is
+            # exactly the "stops at the first crash and measures nothing"
+            # failure this harness exists to avoid (observed on the first
+            # baseline sweep, run 30275503958). A command in an `if` condition
+            # is exempt from errexit, so this captures the status instead of
+            # dying on it. `|| true` would not do: it clobbers the status and
+            # scores every iteration a pass.
+            if (cd tests && Rscript testthat.R) > "$out" 2>&1; then
+              status=0
+            else
+              status=$?
+            fi
 
             if grep -q "crashed with exit code -1073741819" "$out"; then
               crashes=$((crashes + 1))
               echo "ITERATION $i: ACCESS VIOLATION"
-              grep -E "subprocess exited in file|crashed with exit code" "$out" | head -5
+              grep -E "subprocess exited in file|crashed with exit code" "$out" | head -5 || true
             elif [ "$status" -ne 0 ]; then
               failures=$((failures + 1))
               echo "ITERATION $i: test failure (exit $status, no access violation)"
-              grep -E "^(Failure|Error) \(" "$out" | head -5
+              grep -E "^(Failure|Error) \(" "$out" | head -5 || true
             else
               passes=$((passes + 1))
               echo "ITERATION $i: pass"

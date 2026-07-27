@@ -96,6 +96,7 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
 - 2026-07-27: plan gate chose implementing before the 0.2.0 resubmission over deferring until CRAN accepts, at the user's direction; falsified by a mitigation that changes tarball content and fails re-verification, which would return the release to the pre-M83 tarball.
 - 2026-07-27: implement gate amended AC1 — the parent process exits 1 and only reports the worker's -1073741819, so detection keys on that signature; chose matrix fan-out over one long job (wall-clock, and each shard samples a fresh runner) and the check test phase over full R CMD check per iteration (~1 min vs ~7), escalating to full check only if a sweep comes back empty.
 - 2026-07-27: T1 done — .github/workflows/windows-stress.yaml, sharded dispatch stress run. Carries a TEMPORARY push trigger scoped to this branch (M66: workflow_dispatch registers only from the default branch), to be removed before review.
+- 2026-07-27: T2 first sweep (run 30275503958, 6x5 @ TESTTHAT_CPUS=4) REPRODUCED the crash — shard 2 iteration 4, test-suggest_k.R, the exact CI signature. But the harness was defective: GitHub's `shell: bash` runs `-eo pipefail`, so errexit killed the loop at each shard's first crashing iteration, before scoring it or printing a tally. Partial data: 2 crashes over 29 iterations actually run (~7%). Harness fixed to capture status via an `if` condition; sweep re-run for a clean baseline.
 
 ## Decisions
 
