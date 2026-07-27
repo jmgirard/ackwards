@@ -1,11 +1,11 @@
 # M83: Windows parallel-testthat crash — measure, diagnose, mitigate
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** high
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** —
-- **Branch/PR:** —
+- **Branch/PR:** `m83-windows-parallel-testthat-crash`
 
 ## Goal
 
@@ -32,9 +32,10 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
 ## Acceptance criteria
 
 - [ ] AC1: A `workflow_dispatch` workflow runs the test suite on `windows-latest`
-      a configurable number of times (default 30) within one job, prints a
-      per-iteration pass/crash tally, and exits non-zero if any iteration dies
-      with exit code `-1073741819`.
+      a configurable number of times (default 30), prints a per-iteration
+      pass/crash tally, and exits non-zero if any iteration reports a worker
+      access violation — the `crashed with exit code -1073741819` signature,
+      which the parent process surfaces while itself exiting 1.
 - [ ] AC2: A baseline run of AC1's workflow against unmitigated code records the
       crash count over ≥30 iterations; the tally is quoted in the work log.
 - [ ] AC3: For each candidate trigger examined — worker count, `EFAtools::CD()`,
@@ -65,11 +66,13 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
 
 ## Tasks
 
-- [ ] T1: Author `.github/workflows/windows-stress.yaml` — `workflow_dispatch`
-      with an `iterations` input (default 30), looping `R CMD check`'s test phase
-      (or `devtools::test()`) on `windows-latest`, capturing each iteration's exit
-      code and detecting `-1073741819`. Model the job on `macos-oldrel-check.yaml`
-      (M82's single-flavour job).
+- [x] T1: Author `.github/workflows/windows-stress.yaml` — `workflow_dispatch`
+      with `iterations` (per-shard, default 5) and `shards` (default 6) inputs,
+      fanning out across a `windows-latest` matrix. Each shard installs the
+      package once, then loops what `R CMD check`'s test phase runs
+      (`tests/testthat.R`), scanning each iteration's output for the AC1
+      signature. Model the job on `macos-oldrel-check.yaml` (M82's
+      single-flavour job).
 - [ ] T2: Run it on unmitigated `master` for ≥30 iterations; record the tally.
       Re-run if zero crashes appear, since the observed rate is ~4% and a single
       30-iteration clean sweep is ~29% likely by chance.
@@ -91,6 +94,8 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
 - 2026-07-27: created by /milestone-plan.
 - 2026-07-27: plan gate chose a before/after stress-workflow measurement over counting consecutive green CI runs because at the observed ~4% rate 20 clean runs occur by luck 44% of the time; falsified by a post-fix stress run that still crashes.
 - 2026-07-27: plan gate chose implementing before the 0.2.0 resubmission over deferring until CRAN accepts, at the user's direction; falsified by a mitigation that changes tarball content and fails re-verification, which would return the release to the pre-M83 tarball.
+- 2026-07-27: implement gate amended AC1 — the parent process exits 1 and only reports the worker's -1073741819, so detection keys on that signature; chose matrix fan-out over one long job (wall-clock, and each shard samples a fresh runner) and the check test phase over full R CMD check per iteration (~1 min vs ~7), escalating to full check only if a sweep comes back empty.
+- 2026-07-27: T1 done — .github/workflows/windows-stress.yaml, sharded dispatch stress run. Carries a TEMPORARY push trigger scoped to this branch (M66: workflow_dispatch registers only from the default branch), to be removed before review.
 
 ## Decisions
 

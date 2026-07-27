@@ -1,0 +1,172 @@
+# Windows test-suite stress run (M83).
+#
+# WHY THIS EXISTS. The `windows-latest` job in R-CMD-check.yaml fails
+# intermittently -- roughly 4% of runs -- with a testthat parallel worker dying
+# on a Windows access violation:
+#
+#     ! testthat subprocess exited in file 'test-suggest_k.R'.
+#     ! R session crashed with exit code -1073741819
+#
+# -1073741819 is 0xC0000005, ACCESS_VIOLATION. Four occurrences between
+# 2026-07-23 and 2026-07-27, in two different test files, each green on re-run.
+# At that rate a handful of green runs proves nothing: 20 clean runs happen by
+# luck 44% of the time. This workflow exists to turn "seems fine now" into a
+# measured rate, so a mitigation can be shown to work rather than assumed to.
+#
+# WHAT AN ITERATION RUNS. `tests/testthat.R` against the installed package --
+# exactly what `R CMD check`'s test phase runs, without paying check's build and
+# vignette cost. If a baseline shows zero crashes across a full sweep, escalate
+# to full `R CMD check` iterations before concluding the crash is gone; check
+# sets environment variables the bare test phase does not.
+#
+# THE PARENT DOES NOT CARRY THE CRASH CODE. When a worker dies, the parent R
+# process exits 1 and *reports* the worker's -1073741819. So an iteration is
+# scored by scanning its combined output for that signature, not by reading its
+# own exit status. A non-zero exit without the signature is a plain test
+# failure and is counted separately -- conflating the two would let a genuine
+# regression masquerade as the flake being hunted.
+#
+# DISPATCH-ONLY. Never runs on pull_request: it is a measuring instrument
+# costing shards x iterations minutes of runner time, not a gate.
+#
+# TEMPORARY PUSH TRIGGER -- REMOVE BEFORE REVIEW (M83 T1). `workflow_dispatch`
+# registers only once the file is on the default branch, so the milestone branch
+# cannot dispatch this to collect its own baseline (M66's lesson). The push
+# trigger below is scoped to the M83 branch and comes out before the PR; the
+# input fallbacks it needs (`inputs.x || 'default'`) are permanent and harmless,
+# since a push event supplies no inputs at all.
+on:
+  push:
+    branches: [m83-windows-parallel-testthat-crash]
+  workflow_dispatch:
+    inputs:
+      iterations:
+        description: 'Test-suite runs per shard'
+        required: false
+        default: '5'
+      shards:
+        description: 'Parallel shards (each on its own runner)'
+        required: false
+        default: '6'
+      testthat_cpus:
+        description: 'TESTTHAT_CPUS per run (CI uses 4; CRAN effectively runs 2)'
+        required: false
+        default: '4'
+
+name: windows-stress.yaml
+
+permissions: read-all
+
+jobs:
+  # The matrix needs a list, but the shard count is a string input, so build the
+  # list first. Fanning out beats one long job twice over: wall-clock, and
+  # sampling -- each shard lands on a freshly provisioned runner, so a crash
+  # that depends on machine state is not masked by reusing one lucky machine.
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.build.outputs.shards }}
+    steps:
+      - id: build
+        run: |
+          n='${{ github.event.inputs.shards || '6' }}'
+          case "$n" in ''|*[!0-9]*) echo "shards must be a positive integer, got '$n'" >&2; exit 1;; esac
+          [ "$n" -ge 1 ] || { echo "shards must be >= 1, got $n" >&2; exit 1; }
+          echo "shards=$(seq 1 "$n" | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+  stress:
+    needs: plan
+    runs-on: windows-latest
+    name: stress shard ${{ matrix.shard }}
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJson(needs.plan.outputs.shards) }}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      TESTTHAT_CPUS: ${{ github.event.inputs.testthat_cpus || '4' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - name: Install the package once
+        run: R CMD INSTALL --no-multiarch --with-keep.source .
+        shell: bash
+
+      - name: Stress the test suite
+        id: stress
+        run: |
+          set -u
+          iterations='${{ github.event.inputs.iterations || '5' }}'
+          case "$iterations" in ''|*[!0-9]*) echo "iterations must be a positive integer, got '$iterations'" >&2; exit 1;; esac
+
+          crashes=0
+          failures=0
+          passes=0
+
+          for i in $(seq 1 "$iterations"); do
+            echo "::group::iteration $i of $iterations (shard ${{ matrix.shard }}, TESTTHAT_CPUS=$TESTTHAT_CPUS)"
+            out="iteration-$i.log"
+            # Run from tests/ so testthat.R resolves its paths exactly as the
+            # check test phase does. The exit status is read directly rather
+            # than through `|| true`, which would clobber it and score every
+            # iteration a pass; the script does not `set -e`, so a failing
+            # iteration does not end the loop -- and a stress run that stopped
+            # at the first crash would measure nothing.
+            (cd tests && Rscript testthat.R) > "$out" 2>&1
+            status=$?
+
+            if grep -q "crashed with exit code -1073741819" "$out"; then
+              crashes=$((crashes + 1))
+              echo "ITERATION $i: ACCESS VIOLATION"
+              grep -E "subprocess exited in file|crashed with exit code" "$out" | head -5
+            elif [ "$status" -ne 0 ]; then
+              failures=$((failures + 1))
+              echo "ITERATION $i: test failure (exit $status, no access violation)"
+              grep -E "^(Failure|Error) \(" "$out" | head -5
+            else
+              passes=$((passes + 1))
+              echo "ITERATION $i: pass"
+            fi
+            echo "::endgroup::"
+          done
+
+          echo "shard ${{ matrix.shard }} tally: $passes pass / $crashes access-violation / $failures other-failure (of $iterations)"
+          {
+            echo "### Shard ${{ matrix.shard }} (TESTTHAT_CPUS=$TESTTHAT_CPUS)"
+            echo ""
+            echo "| iterations | pass | access violation | other failure |"
+            echo "|---|---|---|---|"
+            echo "| $iterations | $passes | $crashes | $failures |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$crashes" -gt 0 ]; then
+            echo "shard reproduced $crashes access violation(s)" >&2
+            exit 1
+          fi
+        shell: bash
+
+      # Every shard's logs are kept, including the green ones -- a measured rate
+      # needs the runs that passed as much as the ones that did not.
+      - name: Upload iteration logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stress-logs-shard-${{ matrix.shard }}
+          path: iteration-*.log
+          if-no-files-found: warn

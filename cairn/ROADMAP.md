@@ -14,7 +14,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | M80 | Deep-hierarchy layout quality at k>=10 — crossing reduction + edge-label dodging | done | — | normal | milestones/archive/M80-deep-hierarchy-layout-quality.md |
 | M81 | Publication-figure polish — item lists, per-node box sizes, manual factor ordering | done | M80 | normal | milestones/archive/M81-publication-figure-polish.md |
 | M82 | macOS oldrel (arm64) CI visibility + skip-filter repair | done | — | normal | milestones/archive/M82-macos-oldrel-ci-visibility.md |
-| M83 | Windows parallel-testthat crash — measure, diagnose, mitigate | planned | — | high | milestones/M83-windows-parallel-testthat-crash.md |
+| M83 | Windows parallel-testthat crash — measure, diagnose, mitigate | in-progress | — | high | milestones/M83-windows-parallel-testthat-crash.md |
 <!-- M01–M70 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent done rows. -->
 
 ## Candidates
