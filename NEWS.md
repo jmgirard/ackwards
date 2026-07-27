@@ -1,3 +1,15 @@
+# ackwards (development version)
+
+* Fixed a crash in the package's own test suite on macOS. Two tests set a
+  *forking* parallel plan (`future::multicore`) to verify that parallel and
+  serial fits agree exactly. Forking does not mix with the multi-threaded
+  numerical libraries R's linear algebra runs through — `?mclapply` warns against
+  the combination — and R segfaulted inside the forked worker on one of CRAN's
+  macOS check flavours. Both tests now skip macOS and continue to run everywhere
+  else. Nothing user-facing changed: `ackwards()` and `boot_edges()` never set a
+  parallel plan themselves — the default plan is sequential, and choosing one is
+  the caller's business.
+
 # ackwards 0.1.1
 
 CRAN resubmission of the first release, addressing reviewer feedback on the

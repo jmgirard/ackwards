@@ -613,7 +613,13 @@ test_that("ESEM results are identical across serial and parallel future plans", 
   skip_if_not_installed("lavaan")
   skip_if_not_installed("future")
   skip_if_not_installed("future.apply")
-  skip_on_os("windows")
+  # macOS is skipped because this block FORKS, and `?mclapply` strongly
+  # discourages forking alongside multi-threaded libraries -- R's threaded
+  # BLAS/LAPACK included. lavaan's WLSMV standardized solution segfaulted in the
+  # forked child on r-oldrel-macos-arm64 at 0.1.1. `supportsMulticore()` answers
+  # only whether the platform *can* fork, so the skip must be explicit.
+  # See test-fork-safety.R, which enforces this at every forking call site.
+  skip_on_os(c("mac", "windows"))
   skip_if(!future::supportsMulticore(), "multicore plan unavailable here")
 
   d <- .make_ordinal_data()
