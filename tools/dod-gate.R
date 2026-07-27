@@ -45,6 +45,21 @@ if (length(ledger_problems) > 0) {
   note("ledger-anchors: clean")
 }
 
+# CI paths-ignore filter integrity (M82), fail-fast like the two above. The
+# filters skip the check matrix on tracking-only commits; four dead entries in
+# them went unnoticed for months, and a blanket cairn/** would silently disable
+# the ledger-anchor guard. Needs the source checkout (.github/ is
+# .Rbuildignore'd). sys.source blocks the script's own body.
+ci_env <- new.env()
+sys.source("tools/check-ci-path-filters.R", envir = ci_env)
+ci_problems <- ci_env$check_ci_path_filters(".")
+if (length(ci_problems) > 0) {
+  for (p in ci_problems) note("ci-path-filters: %s", p)
+  failures <- c(failures, "CI paths-ignore filters (see tools/check-ci-path-filters.R)")
+} else {
+  note("ci-path-filters: clean")
+}
+
 t0 <- Sys.time()
 chk <- devtools::check(error_on = "never", quiet = TRUE)
 n_bad <- length(chk$errors) + length(chk$warnings) + length(chk$notes)

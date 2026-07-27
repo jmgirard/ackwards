@@ -80,15 +80,20 @@ added, ledger-read paths deliberately left unmatched.
       run green and the platform line; record run ID, conclusion line, and platform line.
 - [ ] T4 Revert the temporary trigger (M66 lesson); capture the AC3 diff proving nothing else in the
       file moved since the tested commit.
-- [ ] T5 Repair the four existing `paths-ignore` blocks: drop `DESIGN.md`, `MILESTONES.md`,
+- [x] T5 Repair the four existing `paths-ignore` blocks: drop `DESIGN.md`, `MILESTONES.md`,
       `ROADMAP.md`, `nested-cv-guide.md`; add the six cairn tracking paths; leave the three
       ledger-read paths unmatched. The new workflow's own block (T1) uses the same list.
-- [ ] T6 Rewrite the justifying comment above each block per AC5 (currently
+- [x] T6 Rewrite the justifying comment above each block per AC5 (currently
       `R-CMD-check.yaml:5-9`).
+- [x] T8 (discovered) `tools/check-ci-path-filters.R` — base-R guard asserting AC4's clauses plus
+      block existence, wired into `tools/dod-gate.R`, an `R-CMD-check.yaml` fail-fast step, and
+      `tests/testthat/test-ci-path-filters.R`. Makes AC4's carve-out mechanical rather than a
+      comment nobody re-reads.
 - [ ] T7 Verify AC4's three clauses mechanically, then run `Rscript tools/dod-gate.R`.
 
 ## Work log
 
+- 2026-07-27: T5+T6+T8. Discovered sub-task T8 (minor amendment): AC5's carve-out was a comment only, so added tools/check-ci-path-filters.R to enforce it. Written in base R after a first yaml-package draft — it runs as a CI fail-fast step before setup-r-dependencies, where only base R exists. Inversion-verified: dead literal, dropped cairn entry, blanket cairn/**, and a deleted block each exit 1 with the right message; clean exits 0.
 - 2026-07-27: T1+T2 done in one commit (minor merge — creating the file without the assertion then patching it is make-work). Gated amendment: the new workflow carries the same repaired paths-ignore filter, so AC1 and AC4 now cover five blocks, not four. Assertion verified both ways locally: passes on aarch64-apple-darwin25.4.0, fails on a simulated x86_64-apple-darwin20.
 - 2026-07-27: created by /milestone-plan; promotes the 2026-07-27 CI-flavour-visibility candidate row. Owner chose push-to-master over per-PR at the plan gate. Two fresh-context criteria audits ran; the second found `test-coverage.yaml` carries the same stale filter block twice, widening scope from two blocks to four.
 
