@@ -84,7 +84,7 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
 - [x] T4: Apply the mitigation the T3 evidence supports, preferring
       `TESTTHAT_CPUS: 2` on the Windows job (what CRAN effectively runs) so
       M48's parallel speedup survives everywhere else.
-- [ ] T5: Re-run the stress workflow for ≥60 iterations on the mitigated code.
+- [x] T5: Re-run the stress workflow for ≥60 iterations on the mitigated code.
 - [ ] T6: Settle the tarball question per AC5 — `NEWS.md` line and a green R-hub
       `atlas` + `nold` re-run if shipped content changed, otherwise a recorded
       statement that it did not — then run the DoD gate and open the PR.
@@ -106,6 +106,9 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
 - 2026-07-27: T4 — R-CMD-check.yaml's windows-latest row now sets TESTTHAT_CPUS=2 via a matrix key, other platforms keep 4 and M48's speedup. Confined to .github/, so no tarball content changes.
 - 2026-07-27: T5 CONFIRMATION REFUTES the T3 reading (run 30280589659, 12x10 @ TESTTHAT_CPUS=2): **4 access violations / 116 pass of 120 = 3.3%**, not zero. Per shard: 0,0,0,0,1,0,2,0,0,0,1,0. Against the 4-worker baseline of 6/60 (10%), Fisher's exact is p~0.1 — NOT significant. The earlier 0/30 at 2 workers was a lucky sample and I over-read it; the crash occurs at 2 workers too, so "the trigger is the 4-way concurrency" was wrong. **AC4 is not met as written.** R-CMD-check.yaml's comment corrected in the same commit — it claimed 0/30.
 - 2026-07-27: T3 variant 3 started — TESTTHAT_CPUS=1 (serial), 12x10 = 120 iterations. Decisive either way: clean means parallelism is the mechanism and a config fix can meet AC4 (at the cost of M48's speedup on this job); crashing means no worker-count setting can, and the milestone's premise needs re-cutting.
+- 2026-07-27: T3 variant 3 RESULT (run 30283223501, 12x10 @ TESTTHAT_CPUS=1): **15 access violations / 120 = 12.5%** — serial is the WORST setting, not the best. Plus an incidental second 2-worker sweep (run 30283139298) at 7/110, pooling 2 workers to **11/230 = 4.8%**. Pooled: 1w 12.5% (n=120), 2w 4.8% (n=230), 4w 10.0% (n=60). Non-monotonic; only 1-vs-2 is solid (p~0.01), 2-vs-4 is not (p~0.13).
+- 2026-07-27: **NO worker-count setting eliminates the crash**, so AC4 is unreachable on this axis and the milestone's mitigation premise is refuted. Shape is consistent with risk accumulating inside a single worker process (fewer workers = more test files per process) but that is untested and asserted nowhere. R-CMD-check.yaml keeps 2 workers as the best measured setting, labelled a reduction and not a fix.
+- 2026-07-27: data-quality note — two shard tallies were initially missing: serial shard 8 was a TLS timeout on log fetch (recovered, 10 pass / 0 crash) and extra-2w shard 4 never ran the stress step (setup-r-dependencies failed on the `pak` flake), so it contributed 0 iterations rather than 10 clean ones and is excluded from the denominator.
 
 ## Decisions
 
