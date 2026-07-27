@@ -25,12 +25,13 @@ patch.
 
 0 errors | 0 warnings on every platform below.
 
-The only notes are:
+The only note is:
 
-* **Possibly misspelled words** (win-builder R-devel only) — `ackwards` /
-  `Ackwards` (the package name, a deliberate play on "bass-ackwards") and
-  `EFA` / `ESEM` (acronyms, each spelled out at first use in the
-  Description text per the 0.1.0 review). All intentional.
+* **"Days since last update: 3"** — expected, and the reason is the section
+  above: 0.1.1 was accepted on 2026-07-24 and then began erroring on
+  `r-oldrel-macos-arm64`. This submission exists to clear that ERROR. I would
+  otherwise have held the release for the usual interval, and I do not intend
+  to submit again on this cadence.
 
 | Platform | R version | Errors / Warnings |
 |---|---|---|
