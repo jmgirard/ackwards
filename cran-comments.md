@@ -1,37 +1,25 @@
-# CRAN submission comments — ackwards 0.1.1
+# CRAN submission comments — ackwards 0.2.0
 
-## Resubmission
+## Reason for this update
 
-This tarball replaces the 0.1.1 submission that was withdrawn from the
-incoming queue on 2026-07-16: lavaan 0.7-2, published on 2026-07-16 (after
-that submission), renamed an argument the ESEM engine relied on and made the
-withdrawn tarball's test suite fail. This build detects the installed
-lavaan's argument vocabulary and passes its full test suite under both
-lavaan 0.6-21 and 0.7-2 (the ubuntu devel and win-builder results below ran
-against lavaan 0.7-2).
+This release arrives sooner than the usual gap between updates because it
+fixes a check failure on the currently published version. `ackwards` 0.1.1
+shows an ERROR on `r-oldrel-macos-arm64`: two of the package's own tests set
+a *forking* parallel plan (`future::multicore`) to verify that parallel and
+serial fits agree exactly, and R segfaults inside the forked worker on that
+flavour — forking does not mix with the multi-threaded numerical libraries R's
+linear algebra runs through (`?mclapply` warns against the combination). Both
+tests now skip on macOS and continue to run on every other platform.
 
-The 0.1.1 version itself addresses both points from the CRAN review of the
-0.1.0 submission (2026-07-12):
+Nothing user-facing was affected: `ackwards()` and `boot_edges()` never set a
+parallel plan themselves, the default plan is sequential, and choosing one is
+the caller's business. The failure was confined to the test suite.
 
-1. **"Please always explain all acronyms in the description text."**
-   The Description field now spells out principal component analysis (PCA),
-   exploratory factor analysis (EFA), and exploratory structural equation
-   modeling (ESEM) at first use.
-
-2. **"You write information messages to the console that cannot be easily
-   suppressed" (R/label_template.R).** `label_template()` no longer writes
-   to the console. It now returns its result visibly as a small classed
-   object (`"ackwards_labels"`), and the copy-paste `c(...)` scaffold is
-   rendered by that class's `print()` method — so it displays on a
-   top-level call but is silent on assignment or when nested in another
-   call. This was the only such call site: all other console output in the
-   package already lives in `print()`/`summary()` methods, and
-   advisory/progress messaging goes through suppressible `cli` conditions.
-
-The version is bumped to 0.1.1, which also folds in two additions made
-since the 0.1.0 submission: a bundled CC-BY 4.0 dataset (`forbes2023`,
-attributed in `Authors@R` and `LICENSE.note`) and a corrected default for
-the redundancy-pruning criterion (see NEWS.md).
+The release also carries the user-visible additions made since 0.1.1 —
+publication-figure controls for `autoplot()`, secondary correlation edges in
+the pruned view, a near-redundant band in `prune()`, and cleaner layouts for
+deep hierarchies (see NEWS.md). Hence the minor version bump rather than a
+patch.
 
 ## R CMD check results
 
@@ -39,8 +27,6 @@ the redundancy-pruning criterion (see NEWS.md).
 
 The only notes are:
 
-* **New submission** — expected; the package is not yet on CRAN. Emitted by
-  the incoming-feasibility check on every `--as-cran` run.
 * **Possibly misspelled words** (win-builder R-devel only) — `ackwards` /
   `Ackwards` (the package name, a deliberate play on "bass-ackwards") and
   `EFA` / `ESEM` (acronyms, each spelled out at first use in the
@@ -51,8 +37,13 @@ The only notes are:
 | macOS 26 arm64 (local, `--as-cran`) | R 4.6.1 | 0 / 0 |
 | ubuntu-latest (GitHub Actions) | release / devel / oldrel-1 | 0 / 0 |
 | macos-latest (GitHub Actions) | release | 0 / 0 |
+| macos-latest arm64 (GitHub Actions) | oldrel-1 | 0 / 0 |
 | windows-latest (GitHub Actions) | release | 0 / 0 |
 | win-builder | R-devel | 0 / 0 |
+
+The `macos-latest arm64 / oldrel-1` row is new in this release: it reproduces
+the CRAN flavour the 0.1.1 ERROR appeared on, which the previous check matrix
+did not cover.
 
 ## Package scope
 
@@ -78,8 +69,7 @@ error messages when a required `Suggests` package is absent.
 
 ## Downstream dependencies
 
-This is a new package (first submission). There are no reverse dependencies on
-CRAN to check.
+There are no reverse dependencies on CRAN to check.
 
 ## Notes on `\donttest{}`
 

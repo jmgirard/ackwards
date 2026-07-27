@@ -1,19 +1,9 @@
-# ackwards (development version)
+# ackwards 0.2.0
 
-* Fixed a crash in the package's own test suite on macOS. Two tests set a
-  *forking* parallel plan (`future::multicore`) to verify that parallel and
-  serial fits agree exactly. Forking does not mix with the multi-threaded
-  numerical libraries R's linear algebra runs through — `?mclapply` warns against
-  the combination — and R segfaulted inside the forked worker on one of CRAN's
-  macOS check flavours. Both tests now skip macOS and continue to run everywhere
-  else. Nothing user-facing changed: `ackwards()` and `boot_edges()` never set a
-  parallel plan themselves — the default plan is sequential, and choosing one is
-  the caller's business.
-
-# ackwards 0.1.1
-
-CRAN resubmission of the first release, addressing reviewer feedback on the
-0.1.0 submission; also picks up everything added since that submission.
+New publication-figure controls for `autoplot()`, secondary correlation edges
+in the pruned view, a near-redundant band in `prune()`, and cleaner layouts for
+deep hierarchies. Also clears an error in the package's own test suite that
+appeared on one of CRAN's macOS check flavours after 0.1.1 was published.
 
 * **Publication-figure controls for `autoplot()`.** Three additions make
   hand-tuned figures easier. `show_items = TRUE` lists the salient items (top
@@ -25,16 +15,6 @@ CRAN resubmission of the first release, addressing reviewer feedback on the
   by hand — every factor above stays centred over its primary children, so any
   arrangement of the hierarchy is reachable from the leaf order. All are opt-in;
   defaults are unchanged. The visualization vignette demonstrates each.
-
-* **Cleaner deep-hierarchy diagrams (`k >= 10`).** `ba_layout()` now orders each
-  level by a traversal of the primary-parent forest, laying every subtree out as
-  a contiguous block. This drives primary-tree edge crossings to zero in deep
-  hierarchies (the "bent levels" the previous single-pass ordering left behind —
-  e.g. 3 crossings down to 0 on the 155-variable AMH example at `k_max = 10`),
-  with no change to shallow layouts and the primary-child x-placement unchanged.
-  Separately, `autoplot(show_r = TRUE)` now dodges overlapping edge-correlation
-  labels apart so dense diagrams stay legible. The layout stays fully
-  deterministic.
 
 * **`autoplot(drop_pruned = TRUE)` can now draw secondary correlation edges.**
   A new `show_secondary = TRUE` adds the between-level correlations the pruned
@@ -62,12 +42,15 @@ CRAN resubmission of the first release, addressing reviewer feedback on the
   applies. The Forbes-extension vignette's artifact example now illustrates a
   genuinely near-redundant pair rather than one redundancy already drops.
 
-* **Fixed compatibility with lavaan 0.7.** lavaan 0.7 renamed its
-  sample-statistics slot argument (breaking the ESEM engine's multi-level
-  reuse of anchor-level sample statistics — every level beyond k = 1 failed
-  to build) and now requires an explicit `ordered = FALSE` to use WLSMV/ULSMV
-  with continuous data. The ESEM engine detects the installed lavaan's
-  argument vocabulary and works with both lavaan >= 0.7 and >= 0.6-13.
+* **Cleaner deep-hierarchy diagrams (`k >= 10`).** `ba_layout()` now orders each
+  level by a traversal of the primary-parent forest, laying every subtree out as
+  a contiguous block. This drives primary-tree edge crossings to zero in deep
+  hierarchies (the "bent levels" the previous single-pass ordering left behind —
+  e.g. 3 crossings down to 0 on the 155-variable AMH example at `k_max = 10`),
+  with no change to shallow layouts and the primary-child x-placement unchanged.
+  Separately, `autoplot(show_r = TRUE)` now dodges overlapping edge-correlation
+  labels apart so dense diagrams stay legible. The layout stays fully
+  deterministic.
 
 * **`print()` for `suggest_k()` now renders an aligned criteria table.** The
   per-criterion evidence prints as a column-aligned grid (one row per k, one
@@ -89,6 +72,28 @@ CRAN resubmission of the first release, addressing reviewer feedback on the
   intercorrelation), not a numerical necessity. The artifact-mode discussion now
   frames automated flags as *removing* investigator degrees of freedom, leaving
   only the substantive drop decision to the researcher.
+
+* Fixed a crash in the package's own test suite on macOS. Two tests set a
+  *forking* parallel plan (`future::multicore`) to verify that parallel and
+  serial fits agree exactly. Forking does not mix with the multi-threaded
+  numerical libraries R's linear algebra runs through — `?mclapply` warns against
+  the combination — and R segfaulted inside the forked worker on one of CRAN's
+  macOS check flavours. Both tests now skip macOS and continue to run everywhere
+  else. Nothing user-facing changed: `ackwards()` and `boot_edges()` never set a
+  parallel plan themselves — the default plan is sequential, and choosing one is
+  the caller's business.
+
+# ackwards 0.1.1
+
+CRAN resubmission of the first release, addressing reviewer feedback on the
+0.1.0 submission; also picks up everything added since that submission.
+
+* **Fixed compatibility with lavaan 0.7.** lavaan 0.7 renamed its
+  sample-statistics slot argument (breaking the ESEM engine's multi-level
+  reuse of anchor-level sample statistics — every level beyond k = 1 failed
+  to build) and now requires an explicit `ordered = FALSE` to use WLSMV/ULSMV
+  with continuous data. The ESEM engine detects the installed lavaan's
+  argument vocabulary and works with both lavaan >= 0.7 and >= 0.6-13.
 
 * **New vignette: "Reproducing Forbes (2023): The AMH Applied Example"**
   (`vignette("ackwards-forbes2023")`). A full worked reproduction of the
