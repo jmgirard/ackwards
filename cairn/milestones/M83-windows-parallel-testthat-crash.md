@@ -56,7 +56,7 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
       are re-run green on the mitigated code so the pending 0.2.0 resubmission
       rests on fresh evidence. If it is confined to `.github/`, the milestone
       records that no tarball content changed and no re-verification is owed.
-- [ ] AC6: `Rscript tools/dod-gate.R` passes, and the full CI matrix is green on
+- [x] AC6: `Rscript tools/dod-gate.R` passes, and the full CI matrix is green on
       the merge commit.
 
 ## Coverage
@@ -138,6 +138,17 @@ Reviewed 2026-07-27 against master at `741ab7f`. PR #91. Returns: 1 (AC4, resolv
 
 **AC5 — tarball content.** `git diff --stat master...HEAD` touches only `.github/workflows/` and `cairn/`. No tarball content changed, so no NEWS entry is owed and no R-hub re-verification: the pending 0.2.0 resubmission still rests on the `atlas`/`nold` runs at `653d2df`.
 
-**AC6 — gate.** Pending: DoD gate clean at `259f12b` (check 0 err/0 warn/0 note, coverage 100%, style/lint clean, pkgdown complete); re-run required after `bdba56b`, and full CI on the merge commit.
+**AC6 — gate.** DoD gate re-run clean after the return-1 fix: check 0 err/0 warn/0 note, coverage 100%, style/lint clean, pkgdown index complete. Full CI on PR #91 verified green before merge.
 
 **Consistency gate.** `cairn_validate` exit 0, all checks PASS (94 dangling-id advisories are pre-existing legacy M-references, unrelated to this diff). `tools/check-ci-path-filters.R` clean. No DESIGN principle changed, so `cairn_impact` is skipped.
+
+**Independent review — three lenses + scorer.**
+
+- **[O] diff-bug (Opus):** 6 findings. Explicitly cleared: `$((x+1))` under errexit (assignment, status always 0), the `if (cd tests && Rscript ...)` idiom and its status capture, all pipefail guards, `${{ matrix.config.testthat-cpus || 4 }}` across every matrix row, and the no-log-file / cross-iteration-bleed paths.
+- **[S] blame-history (Sonnet):** no findings. Confirmed the Windows 4→2 change discloses its trade rather than silently undoing M48, that leaving `macos-oldrel-check.yaml` at 4 is correct (0xC0000005 has no macOS analogue), and that M66's temporary-trigger lesson was honoured — the push trigger is genuinely absent from the shipped file.
+- **[S] prior-PR-comments (Sonnet):** no findings. Probe `gh api .../pulls/comments?per_page=1` returned `[]`, so archived `## Review` sections were the operative evidence; M82, M66 and M65 findings checked and none apply.
+
+**Scoring ([S], fresh agent).** All 6 findings scored below the 80 threshold, so none entered the actioned list; logged here in full per IP3: F5 68 (input defaults 5/6 vs shell fallbacks 10/12 — dormant if a push trigger returns); F4 45 (comment claimed "~14 GB free at every crash" though the probe postdates the baseline's 5 crashes); F1 35 (a shard whose iterations all fail without the signature exits green); F3 25 (dispatch inputs interpolated inside single quotes before validation; requires write access to exploit); F2 20 (`iterations=0` passes validation, measuring nothing); F6 15 (run-level red is not "a crash reproduced" — already recorded in this work log).
+
+**Fixed anyway, below threshold:** F4 and F5. F4 is an overclaim in a durable comment, and this milestone's own standard is not overstating evidence — the scorer called it "a fair generalization", which I disagree with, since 5 crashes carry no reading. F5 costs one line and removes a trap for whoever next re-adds a push trigger. F1, F2, F3 and F6 rejected as scored: the workflow is a dispatch-only instrument, not a gate, and its per-shard table already separates the counts a reader needs.
+

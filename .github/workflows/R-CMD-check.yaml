@@ -82,7 +82,10 @@ jobs:
       # 2-vs-4 is not (p ~ 0.13). 2 is kept as the best measured setting and
       # because it matches what CRAN effectively runs
       # (_R_CHECK_LIMIT_CORES_), not because it fixes anything. Memory is not
-      # the constraint (~14 GB free at every crash).
+      # the constraint: ~14 GB was free before every iteration once the probe
+      # existed, and one crash landed at the highest reading of its shard. The
+      # probe postdates the first baseline sweep, so its 5 crashes carry no
+      # memory reading -- the claim covers the measured crashes, not all of them.
       #
       # OPERATING POLICY, since the crash is expected to recur: a red Windows
       # job whose log carries `crashed with exit code -1073741819` is re-run

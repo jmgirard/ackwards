@@ -32,7 +32,9 @@
 # The input fallbacks (`inputs.x || 'default'`) are retained: they cost nothing
 # and keep the job runnable from a branch-scoped push trigger, which is how M83
 # collected its measurements (workflow_dispatch registers only from the default
-# branch -- M66).
+# branch -- M66). They deliberately MATCH the declared input defaults, so
+# re-adding a push trigger reproduces the documented 6 x 5 sweep rather than a
+# silently larger one.
 on:
   workflow_dispatch:
     inputs:
@@ -69,7 +71,7 @@ jobs:
     steps:
       - id: build
         run: |
-          n='${{ github.event.inputs.shards || '12' }}'
+          n='${{ github.event.inputs.shards || '6' }}'
           case "$n" in ''|*[!0-9]*) echo "shards must be a positive integer, got '$n'" >&2; exit 1;; esac
           [ "$n" -ge 1 ] || { echo "shards must be >= 1, got $n" >&2; exit 1; }
           echo "shards=$(seq 1 "$n" | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
@@ -129,7 +131,7 @@ jobs:
           # every command below that may legitimately fail is either an `if`
           # condition or `|| true`-guarded.
           set -u
-          iterations='${{ github.event.inputs.iterations || '10' }}'
+          iterations='${{ github.event.inputs.iterations || '5' }}'
           case "$iterations" in ''|*[!0-9]*) echo "iterations must be a positive integer, got '$iterations'" >&2; exit 1;; esac
 
           crashes=0
