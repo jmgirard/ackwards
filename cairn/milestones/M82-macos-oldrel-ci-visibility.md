@@ -1,6 +1,6 @@
 # M82: macOS oldrel (arm64) CI visibility + skip-filter repair
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -89,10 +89,11 @@ added, ledger-read paths deliberately left unmatched.
       block existence, wired into `tools/dod-gate.R`, an `R-CMD-check.yaml` fail-fast step, and
       `tests/testthat/test-ci-path-filters.R`. Makes AC4's carve-out mechanical rather than a
       comment nobody re-reads.
-- [ ] T7 Verify AC4's three clauses mechanically, then run `Rscript tools/dod-gate.R`.
+- [x] T7 Verify AC4's three clauses mechanically, then run `Rscript tools/dod-gate.R`.
 
 ## Work log
 
+- 2026-07-27: T7 + status review. DoD gate exit 0: check 0 err/0 warn/0 note, coverage 100.00%, styler/lintr clean, pkgdown index complete, all three source guards clean. No NEWS.md entry — nothing user-visible ships (.github/, tools/, tests/ only).
 - 2026-07-27: T3+T4. Run 30245095260 (commit bb69970) succeeded on macos-latest at R 4.5.3; assertion printed `platform: aarch64-apple-darwin20`; R CMD check reported `Status: OK`. Temporary trigger reverted; `git diff bb69970` over the workflow shows 0 changed lines outside the `branches:` line.
 - 2026-07-27: T5+T6+T8. Discovered sub-task T8 (minor amendment): AC5's carve-out was a comment only, so added tools/check-ci-path-filters.R to enforce it. Written in base R after a first yaml-package draft — it runs as a CI fail-fast step before setup-r-dependencies, where only base R exists. Inversion-verified: dead literal, dropped cairn entry, blanket cairn/**, and a deleted block each exit 1 with the right message; clean exits 0.
 - 2026-07-27: T1+T2 done in one commit (minor merge — creating the file without the assertion then patching it is make-work). Gated amendment: the new workflow carries the same repaired paths-ignore filter, so AC1 and AC4 now cover five blocks, not four. Assertion verified both ways locally: passes on aarch64-apple-darwin25.4.0, fails on a simulated x86_64-apple-darwin20.
