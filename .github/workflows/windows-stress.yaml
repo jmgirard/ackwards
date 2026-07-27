@@ -29,15 +29,11 @@
 # DISPATCH-ONLY. Never runs on pull_request: it is a measuring instrument
 # costing shards x iterations minutes of runner time, not a gate.
 #
-# TEMPORARY PUSH TRIGGER -- REMOVE BEFORE REVIEW (M83 T1). `workflow_dispatch`
-# registers only once the file is on the default branch, so the milestone branch
-# cannot dispatch this to collect its own baseline (M66's lesson). The push
-# trigger below is scoped to the M83 branch and comes out before the PR; the
-# input fallbacks it needs (`inputs.x || 'default'`) are permanent and harmless,
-# since a push event supplies no inputs at all.
+# The input fallbacks (`inputs.x || 'default'`) are retained: they cost nothing
+# and keep the job runnable from a branch-scoped push trigger, which is how M83
+# collected its measurements (workflow_dispatch registers only from the default
+# branch -- M66).
 on:
-  push:
-    branches: [m83-windows-parallel-testthat-crash]
   workflow_dispatch:
     inputs:
       iterations:
@@ -92,9 +88,6 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       TESTTHAT_CPUS: ${{ github.event.inputs.testthat_cpus || '4' }}
-      # TEMPORARY, alongside the push trigger -- drives the branch sweeps,
-      # removed with it before review.
-      DROP_EFATOOLS: 'true'
 
     steps:
       - uses: actions/checkout@v4
@@ -123,7 +116,7 @@ jobs:
       # fail are counted as other-failure, never as crashes, so the two cannot
       # be confused.
       - name: Remove EFAtools (bisection variant)
-        if: ${{ github.event.inputs.drop_efatools == 'true' || env.DROP_EFATOOLS == 'true' }}
+        if: ${{ github.event.inputs.drop_efatools == 'true' }}
         run: |
           R CMD REMOVE EFAtools || true
           Rscript -e 'cat("EFAtools installed after removal:", requireNamespace("EFAtools", quietly = TRUE), "\n")'
