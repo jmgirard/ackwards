@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-07-27 (M82 done and archived; CI-flavour candidate promoted and replaced by a grouped successor; two M82 lessons captured; validate green)_
+_Last hygiene check: 2026-07-27 (release-tail row corrected — `v0.1.1` tag was already pushed; row repointed at the 0.2.0 submission and the NEWS misfiling recorded)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -18,7 +18,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 ## Candidates
 
-- Owner-only post-M55 release tail: 0.1.1 **ACCEPTED on CRAN 2026-07-24** (submitted 2026-07-17, tarball from master `0a5da58`). Remaining acceptance follow-up: **tag `v0.1.1`** at `0a5da58` and push it (README refreshed and CRAN status badge added at `cc0bdbc`, so that half is done — corrected 2026-07-27). Note 0.1.1 now shows an ERROR on `r-oldrel-macos-arm64`, fixed on master by the 2026-07-27 fork-safety hotfix but only reaching CRAN via a next submission, whose timing is the owner's call. — added 2026-07-12, updated 2026-07-27
+- Owner-only post-M55 release tail: 0.1.1 **ACCEPTED on CRAN 2026-07-24** (submitted 2026-07-17, tarball from master `0a5da58`). **Acceptance follow-up is complete** — annotated tag `v0.1.1` exists at `0a5da58` and is on origin, README refreshed and CRAN status badge added at `cc0bdbc` (the earlier "tag it and push it" item was already done when written; corrected 2026-07-27). Next release action: **0.2.0 submission**, clearing the `r-oldrel-macos-arm64` ERROR that 0.1.1 still shows (fixed on master by the 2026-07-27 fork-safety hotfix) and shipping the M75/M77/M79/M80/M81 features master has accumulated since the tarball. Known pre-submission defect: `NEWS.md` files those five milestones' bullets under the `# ackwards 0.1.1` heading, but none of them are in the accepted tarball — they belong in the 0.2.0 section. — added 2026-07-12, updated 2026-07-27
 - Further CRAN-flavour coverage beyond M82 (grouped): a standing R-hub macOS run in `PROFILE.md`'s release-walk (M82 declined it as subsumed by its own push-to-master job) and a macOS **x86_64** row (`macos-13`) — the 0.1.1 failure was arm64-specific and `r-oldrel-macos-x86_64` passed. Promote either on any CRAN macOS failure M82's job could not have caught. — added 2026-07-27
 - ESEM engine/basis extensions (grouped, demand-gated — keep off schedule until asked): `comparability()` split-half per level per factor (feasible; 2·n_splits lavaan hierarchies per call, per-half convergence handling — D-022 / M46) and `boot_edges()` WLSMV/polychoric bootstrap edges (expensive, n_boot × (k_max−1) fits; resample can drop a response category — D-023 / M47) — added 2026-07-11, merged 2026-07-16
 
