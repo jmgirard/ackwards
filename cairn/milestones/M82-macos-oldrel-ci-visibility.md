@@ -5,7 +5,7 @@
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** GP6
-- **Branch/PR:** `m82-macos-oldrel-ci-visibility`
+- **Branch/PR:** `m82-macos-oldrel-ci-visibility` · [#88](https://github.com/jmgirard/ackwards/pull/88)
 
 ## Goal
 
