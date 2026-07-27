@@ -5,7 +5,7 @@
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** —
-- **Branch/PR:** `m83-windows-parallel-testthat-crash`
+- **Branch/PR:** `m83-windows-parallel-testthat-crash` · https://github.com/jmgirard/ackwards/pull/91
 
 ## Goal
 
@@ -119,6 +119,8 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
 - 2026-07-27: AC4 amended at the implement gate — from "zero crashes over >=60 iterations" to a measured characterisation plus a stated re-run policy, because the evidence shows no test-execution setting reaches zero. Original wording and the refuting data both stand in this log.
 - 2026-07-27: T6 — the mitigation is confined to `.github/` (R-CMD-check.yaml matrix key + the new windows-stress.yaml). **No tarball content changed**, so no NEWS entry is owed and no R-hub re-verification: the pending 0.2.0 resubmission still rests on the `atlas`/`nold` runs at 653d2df and is unblocked. Temporary push trigger and DROP_EFATOOLS switch removed from windows-stress.yaml.
 - 2026-07-27: DoD gate clean at 259f12b — check 0 err/0 warn/0 note, coverage 100%, style/lint clean, pkgdown index complete. Status -> review.
+- 2026-07-27: REVIEW RETURN 1 — AC4 failed. It requires the milestone to record the operating consequence (re-run a signature-carrying red Windows job; a second occurrence in one run is real), but the policy existed only inside AC4's own wording plus a half-statement in the R-CMD-check.yaml comment, which omitted the second-occurrence clause. A criterion restating itself is not a record. Status -> in-progress.
+- 2026-07-27: return 1 resolved — the operating policy is now recorded in the R-CMD-check.yaml TESTTHAT_CPUS comment, where someone investigating a red Windows job reads it: re-run a signature-carrying failure, treat a second occurrence in one run as real, and never re-run away a red job lacking the signature. Status -> review.
 
 ## Decisions
 

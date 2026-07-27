@@ -82,8 +82,17 @@ jobs:
       # 2-vs-4 is not (p ~ 0.13). 2 is kept as the best measured setting and
       # because it matches what CRAN effectively runs
       # (_R_CHECK_LIMIT_CORES_), not because it fixes anything. Memory is not
-      # the constraint (~14 GB free at every crash). A red Windows job here
-      # still warrants a re-run before it is believed.
+      # the constraint (~14 GB free at every crash).
+      #
+      # OPERATING POLICY, since the crash is expected to recur: a red Windows
+      # job whose log carries `crashed with exit code -1073741819` is re-run
+      # before it is believed. A SECOND occurrence within one run is treated as
+      # a real failure, not the flake -- at a ~5% per-run rate, twice in one run
+      # is not what this looks like. A red Windows job WITHOUT that signature is
+      # always a real failure and is never re-run away.
+      #
+      # To re-measure the rate after any change here, dispatch
+      # windows-stress.yaml from the Actions tab.
       #
       # Other platforms keep 4 and keep M48's speedup.
       TESTTHAT_CPUS: ${{ matrix.config.testthat-cpus || 4 }}
