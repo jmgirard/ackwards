@@ -25,7 +25,7 @@
 # there.
 on:
   push:
-    branches: [master, m82-macos-oldrel-ci-visibility]  # TEMPORARY: revert before review (M82 T4)
+    branches: [master]
     paths-ignore:
       - 'CLAUDE.md'
       - 'cran-comments.md'
