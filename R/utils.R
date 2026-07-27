@@ -220,8 +220,36 @@ detect_ordinal <- function(data, max_levels = 7L) {
 # share a parent -- that is normal and expected in the bass-ackwards hierarchy.
 # LSAP (bijection) is wrong here: adjacent levels always have n_b = n_a + 1, so
 # a bijection would need a padding row that can return an index > nrow(E).
+#
+# A column that is entirely NA has no assignable parent: the factor's scores
+# carry no usable variance, so it correlates with nothing above it. It gets
+# NA_integer_, and `.first_degenerate_level()` turns that into a truncation.
+# `vapply()` rather than `apply()` is load-bearing -- `which.max()` returns
+# integer(0) on an all-NA column, which makes `apply()` fall back to a *list*
+# and the caller abort on "invalid subscript type 'list'".
 match_parents <- function(E) {
-  apply(abs(E), 2, which.max)
+  vapply(
+    seq_len(ncol(E)),
+    function(j) {
+      col <- abs(E[, j])
+      if (all(is.na(col))) NA_integer_ else which.max(col)
+    },
+    integer(1L)
+  )
+}
+
+# Shallowest level whose primary-parent assignment is unusable (any NA from
+# match_parents), or NA_integer_ when every level is usable. Level 1 has no
+# parents and is never a candidate (its lineage slot is NULL).
+.first_degenerate_level <- function(lineage) {
+  ks <- sort(as.integer(names(lineage)))
+  for (k in ks) {
+    parents <- lineage[[as.character(k)]]
+    if (length(parents) > 0L && anyNA(parents)) {
+      return(k)
+    }
+  }
+  NA_integer_
 }
 
 # Sign-align a list of per-level loadings matrices and a corresponding list of

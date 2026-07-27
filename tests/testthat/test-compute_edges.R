@@ -211,6 +211,115 @@ test_that("match_parents: square case assigns correct parents", {
   expect_equal(result, c(1L, 2L, 3L))
 })
 
+# A degenerate factor -- one whose scores carry no usable variance -- has an
+# all-NA edge column, and `which.max()` returns integer(0) for it. `apply()`
+# then cannot simplify and hands back a *list*, which the caller subscripts
+# with, aborting on "invalid subscript type 'list'". Seen on CRAN's ATLAS and
+# noLD check flavours, where an under-identified level degenerates that far
+# while merely being ill-conditioned under reference BLAS.
+
+test_that("match_parents: an all-NA column yields NA, not a list", {
+  E <- matrix(
+    c(
+      0.9, NA, 0.1,
+      0.1, NA, 0.7
+    ),
+    nrow = 2, byrow = TRUE
+  )
+  result <- ackwards:::match_parents(E)
+  expect_type(result, "integer")
+  expect_length(result, 3L)
+  expect_equal(result, c(1L, NA_integer_, 2L))
+})
+
+test_that("match_parents: a partly-NA column still picks the finite argmax", {
+  E <- matrix(
+    c(
+      0.2, NA,
+      0.8, 0.3
+    ),
+    nrow = 2, byrow = TRUE
+  )
+  expect_equal(ackwards:::match_parents(E), c(2L, 2L))
+})
+
+test_that("match_parents: every column NA still returns an integer vector", {
+  E <- matrix(NA_real_, nrow = 2, ncol = 2)
+  result <- ackwards:::match_parents(E)
+  expect_type(result, "integer")
+  expect_equal(result, c(NA_integer_, NA_integer_))
+})
+
+# --- .first_degenerate_level unit tests -----------------------------------------
+# Truncation point for a hierarchy that degenerates partway down. IP7 (D-003):
+# an unusable level is recorded, warned, and skipped -- never thrown.
+
+test_that(".first_degenerate_level: NA-free lineage reports no degeneracy", {
+  lineage <- list("1" = NULL, "2" = c(1L, 1L), "3" = c(1L, 2L, 2L))
+  expect_true(is.na(ackwards:::.first_degenerate_level(lineage)))
+})
+
+test_that(".first_degenerate_level: reports the shallowest unusable level", {
+  lineage <- list(
+    "1" = NULL,
+    "2" = c(1L, 1L),
+    "3" = c(1L, NA_integer_, 2L),
+    "4" = c(1L, NA_integer_, 2L, 3L)
+  )
+  expect_equal(ackwards:::.first_degenerate_level(lineage), 3L)
+})
+
+test_that(".first_degenerate_level: level 2 degenerate leaves no hierarchy", {
+  lineage <- list("1" = NULL, "2" = c(NA_integer_, 1L))
+  expect_equal(ackwards:::.first_degenerate_level(lineage), 2L)
+})
+
+# End-to-end: a degenerate level is skipped, not thrown (Invariant 7). The
+# degeneracy is injected via the parent assignment because reference BLAS does
+# not reach that state on data ATLAS/noLD degenerate on.
+
+test_that("ackwards() truncates at a degenerate level instead of aborting", {
+  real_match_parents <- ackwards:::match_parents
+  testthat::local_mocked_bindings(
+    match_parents = function(E) {
+      out <- real_match_parents(E)
+      # Level 4 (4 factors) loses its second factor to degeneracy
+      if (length(out) == 4L) out[2L] <- NA_integer_
+      out
+    },
+    .package = "ackwards"
+  )
+
+  expect_warning(
+    x <- ackwards(sim16, k_max = 4, engine = "pca"),
+    "truncated at k = 3"
+  )
+
+  expect_equal(x$k_max, 3L)
+  expect_named(x$levels, c("1", "2", "3"))
+  expect_false(anyNA(unlist(x$lineage)))
+  # The surviving object is fully usable, not a half-built husk
+  expect_no_error(summary(x))
+  expect_no_error(suppressMessages(prune(x, "redundant")))
+})
+
+test_that("ackwards() aborts when degeneracy leaves fewer than 2 levels", {
+  real_match_parents <- ackwards:::match_parents
+  testthat::local_mocked_bindings(
+    match_parents = function(E) {
+      out <- real_match_parents(E)
+      if (length(out) == 2L) out[1L] <- NA_integer_ # level 2 degenerates
+      out
+    },
+    .package = "ackwards"
+  )
+
+  expect_error(
+    ackwards(sim16, k_max = 4, engine = "pca"),
+    "degenerate solution at k = 2"
+  )
+})
+
 # --- .align_signs sign-propagation unit tests -----------------------------------
 # Regression (M35): a level-k factor's flip must be chosen against its primary
 # parent's *aligned* sign, so that a parent which is itself flipped does not leave

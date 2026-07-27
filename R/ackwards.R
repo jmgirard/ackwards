@@ -875,6 +875,46 @@ ackwards <- function(
     lineage[[as.character(ki)]] <- match_parents(raw_edges_adj$matrices[[key]])
   }
 
+  # --- Handle degeneracy truncation (Invariant 7) -----------------------------
+  # A level can converge and still be unusable: an under-identified extraction
+  # can yield a factor whose scores carry no variance, so it correlates with
+  # nothing at the level above and has no assignable primary parent. That is a
+  # numerically fragile state -- the same fit is merely ill-conditioned under
+  # one BLAS and fully degenerate under another -- so it is detected here from
+  # the lineage rather than trusted to the engine's own convergence flag.
+  # Invariant 7 says such a level is recorded, warned, and skipped, never
+  # thrown, and the hierarchy keeps every level above it. NA must not survive
+  # into `lineage`: downstream consumers (`fill_primary()`, `prune()`,
+  # `summary()`) index labels by parent and would fail on an NA subscript.
+  degenerate_at <- .first_degenerate_level(lineage)
+  if (!is.na(degenerate_at)) {
+    k_usable <- degenerate_at - 1L
+    if (k_usable < 2L) {
+      cli::cli_abort(
+        c(
+          "!" = "The {engine} engine produced a degenerate solution at k = \\
+                 {degenerate_at}: at least one factor has no usable variance \\
+                 and correlates with no factor at k = {degenerate_at - 1L}.",
+          "i" = "At least 2 usable levels are required for a hierarchy.",
+          "i" = "Try fewer factors, or check your data for perfect \\
+                 multicollinearity or near-singular correlation."
+        )
+      )
+    }
+    cli::cli_warn(
+      c(
+        "!" = "Hierarchy truncated at k = {k_usable}: levels \\
+               {degenerate_at} to {k_eff} are degenerate (at least one factor \\
+               has no usable variance and correlates with no factor at the \\
+               level above).",
+        "i" = "Set {.arg k_max = {k_usable}} to suppress this message."
+      )
+    )
+    levels_list <- levels_list[as.character(seq_len(k_usable))]
+    lineage <- lineage[as.character(seq_len(k_usable))]
+    k_eff <- k_usable
+  }
+
   # --- Sign alignment (DESIGN.md s.7) -----------------------------------------
   if (align_signs) {
     loadings_list <- lapply(levels_list, `[[`, "loadings")
