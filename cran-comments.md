@@ -1,9 +1,30 @@
 # CRAN submission comments — ackwards 0.2.0
 
+## Resubmission
+
+This replaces the 0.2.0 tarball auto-rejected on 2026-07-27, whose noLD special
+check reported 1 ERROR. That is the same failure recorded against the published
+0.1.1 under both ATLAS and noLD (CRAN issue database, deadline 2026-08-21), and
+it is fixed here.
+
+The cause: the internal primary-parent assignment used
+`apply(abs(E), 2, which.max)`. `which.max()` returns `integer(0)` for an all-NA
+column, so `apply()` could not simplify and returned a list where an integer
+vector was expected, and the caller aborted on "invalid subscript type 'list'".
+An all-NA column means a factor whose scores carry no usable variance, which
+arises when the requested number of factors exceeds what the data can identify.
+Under most numerical libraries the affected fit is merely ill-conditioned;
+under ATLAS and no-long-double it degenerates fully. Such a level is now
+recorded, warned about, and skipped — matching how the package has always
+treated a non-converged level — and the hierarchy keeps every level above it.
+
+Verified on R-hub's `atlas` and `nold` containers; results in the table below.
+
 ## Reason for this update
 
 This release arrives sooner than the usual gap between updates because it
-fixes a check failure on the currently published version. `ackwards` 0.1.1
+fixes check failures on the currently published version — the ATLAS/noLD
+issue described above, and the one below. `ackwards` 0.1.1
 shows an ERROR on `r-oldrel-macos-arm64`: two of the package's own tests set
 a *forking* parallel plan (`future::multicore`) to verify that parallel and
 serial fits agree exactly, and R segfaults inside the forked worker on that
@@ -27,11 +48,11 @@ patch.
 
 The only note is:
 
-* **"Days since last update: 3"** — expected, and the reason is the section
-  above: 0.1.1 was accepted on 2026-07-24 and then began erroring on
-  `r-oldrel-macos-arm64`. This submission exists to clear that ERROR. I would
-  otherwise have held the release for the usual interval, and I do not intend
-  to submit again on this cadence.
+* **"Days since last update"** — expected, and the reason is the two sections
+  above: 0.1.1 was accepted on 2026-07-24 and is now failing two of CRAN's
+  check flavours. This submission exists to clear both. I would otherwise have
+  held the release for the usual interval, and I do not intend to submit again
+  on this cadence.
 
 | Platform | R version | Errors / Warnings |
 |---|---|---|
