@@ -1,0 +1,10 @@
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - 'CLAUDE.md'
+    paths-ignore:
+      - 'cairn/**'
+jobs:
+  x:
+    runs-on: ubuntu-latest

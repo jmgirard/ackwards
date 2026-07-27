@@ -21,3 +21,4 @@
 ^vignettes/.*\.Rmd\.orig$
 ^vignettes/precompute\.R$
 ^manuscript$
+^tests/testthat/fixtures/ci-filters$

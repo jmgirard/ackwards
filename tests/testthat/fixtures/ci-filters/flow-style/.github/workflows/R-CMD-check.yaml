@@ -1,0 +1,6 @@
+on:
+  push:
+    paths-ignore: ['docs/**']
+jobs:
+  x:
+    runs-on: ubuntu-latest

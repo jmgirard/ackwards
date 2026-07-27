@@ -4,24 +4,36 @@ on:
     branches: [main, master]
     # Skip coverage when a commit touches ONLY process/meta docs (all
     # .Rbuildignore'd; they carry no code, so coverage cannot change).
+    #
+    # Kept byte-identical to R-CMD-check.yaml's filter, which is the stricter
+    # of the two: that workflow runs tools/check-ledger-anchors.R over the
+    # source checkout, so it must not ignore cairn/DECISIONS.md,
+    # cairn/DESIGN.md, or cairn/references/**. Nothing here reads those, but
+    # four copies of this list drifting apart is how the four dead entries
+    # this replaces survived unnoticed. Edit both files together.
     paths-ignore:
       - 'CLAUDE.md'
-      - 'DESIGN.md'
-      - 'MILESTONES.md'
-      - 'ROADMAP.md'
       - 'cran-comments.md'
-      - 'nested-cv-guide.md'
       - '.claude/**'
+      - 'cairn/ROADMAP.md'
+      - 'cairn/LESSONS.md'
+      - 'cairn/PROFILE.md'
+      - 'cairn/milestones/**'
+      - 'cairn/legacy/**'
+      - 'cairn/reviews/**'
   pull_request:
     branches: [main, master]
+    # Identical to the push filter above.
     paths-ignore:
       - 'CLAUDE.md'
-      - 'DESIGN.md'
-      - 'MILESTONES.md'
-      - 'ROADMAP.md'
       - 'cran-comments.md'
-      - 'nested-cv-guide.md'
       - '.claude/**'
+      - 'cairn/ROADMAP.md'
+      - 'cairn/LESSONS.md'
+      - 'cairn/PROFILE.md'
+      - 'cairn/milestones/**'
+      - 'cairn/legacy/**'
+      - 'cairn/reviews/**'
 
 name: test-coverage.yaml
 

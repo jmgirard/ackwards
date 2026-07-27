@@ -7,24 +7,39 @@ on:
     # cannot affect the build. Any non-doc file in the same commit still runs
     # the matrix. (pkgdown.yaml is intentionally NOT filtered -- it renders
     # these .md files into the site.)
+    #
+    # DELIBERATELY NOT IGNORED: cairn/DECISIONS.md, cairn/DESIGN.md, and
+    # cairn/references/**. Those are .Rbuildignore'd like the rest of cairn/,
+    # but tools/check-ledger-anchors.R reads them, and it runs as a step of
+    # this workflow against the source checkout rather than the tarball. A
+    # blanket 'cairn/**' would let exactly the commits that can break an
+    # anchor -- renumbering a D-entry, deleting a reference note -- skip the
+    # checker that exists to catch it. Keep any new cairn/ entry below out of
+    # that set.
     paths-ignore:
       - 'CLAUDE.md'
-      - 'DESIGN.md'
-      - 'MILESTONES.md'
-      - 'ROADMAP.md'
       - 'cran-comments.md'
-      - 'nested-cv-guide.md'
       - '.claude/**'
+      - 'cairn/ROADMAP.md'
+      - 'cairn/LESSONS.md'
+      - 'cairn/PROFILE.md'
+      - 'cairn/milestones/**'
+      - 'cairn/legacy/**'
+      - 'cairn/reviews/**'
   pull_request:
     branches: [main, master]
+    # Identical to the push filter above; see its comment for the cairn/
+    # carve-out.
     paths-ignore:
       - 'CLAUDE.md'
-      - 'DESIGN.md'
-      - 'MILESTONES.md'
-      - 'ROADMAP.md'
       - 'cran-comments.md'
-      - 'nested-cv-guide.md'
       - '.claude/**'
+      - 'cairn/ROADMAP.md'
+      - 'cairn/LESSONS.md'
+      - 'cairn/PROFILE.md'
+      - 'cairn/milestones/**'
+      - 'cairn/legacy/**'
+      - 'cairn/reviews/**'
 
 name: R-CMD-check.yaml
 
@@ -76,6 +91,13 @@ jobs:
       # are .Rbuildignore'd, so the tarball R CMD check below cannot see this).
       - name: Check departures-ledger anchor integrity
         run: Rscript tools/check-ledger-anchors.R
+        shell: bash
+
+      # Fail fast if a paths-ignore filter has gone stale or been widened to
+      # cover a path the ledger check reads (M82). Needs the source checkout
+      # (.github/ is .Rbuildignore'd).
+      - name: Check CI paths-ignore filters
+        run: Rscript tools/check-ci-path-filters.R
         shell: bash
 
       - uses: r-lib/actions/setup-r-dependencies@v2

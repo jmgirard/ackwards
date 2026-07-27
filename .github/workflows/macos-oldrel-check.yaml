@@ -1,0 +1,84 @@
+# macOS oldrel (arm64) check.
+#
+# WHY THIS EXISTS. ackwards 0.1.1 shipped an ERROR on CRAN's
+# `r-oldrel-macos-arm64` flavour: two tests set `future::plan(future::multicore)`,
+# and forking alongside R's threaded BLAS segfaulted inside lavaan. Fixed at
+# 5d2fcbd by skipping those blocks on macOS. The break was invisible to CI
+# because R-CMD-check.yaml is the only workflow that runs macOS at all and it
+# runs it at `release` only (test-coverage.yaml is ubuntu-only, and rhub.yaml is
+# `workflow_dispatch`-only) -- so nothing exercised macOS at oldrel until CRAN
+# did.
+#
+# PUSH-ONLY, NOT PER-PR. Owner's call at the 2026-07-27 plan gate: this runs on
+# push to master and on demand, never on pull requests. The accepted trade is
+# that a macOS-oldrel break surfaces after the merge rather than on the branch.
+# Before a CRAN submission, run it by hand from the Actions tab.
+#
+# ARCHITECTURE ASSERTION. `macos-latest` runners are arm64, but setup-r can
+# install an x86_64 build of R when no arm64 build is available for the
+# requested version. Silently, that would leave this job green while checking
+# `r-oldrel-macos-x86_64` -- the flavour that already PASSED at 0.1.1 -- so the
+# job asserts the interpreter is aarch64 before it checks anything, and before
+# it spends several minutes installing dependencies.
+#
+# The paths-ignore filter below is deliberately identical to the ones in
+# R-CMD-check.yaml and test-coverage.yaml; the cairn/ carve-out is explained
+# there.
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - 'CLAUDE.md'
+      - 'cran-comments.md'
+      - '.claude/**'
+      - 'cairn/ROADMAP.md'
+      - 'cairn/LESSONS.md'
+      - 'cairn/PROFILE.md'
+      - 'cairn/milestones/**'
+      - 'cairn/legacy/**'
+      - 'cairn/reviews/**'
+  workflow_dispatch:
+
+name: macos-oldrel-check.yaml
+
+permissions: read-all
+
+jobs:
+  macos-oldrel:
+    runs-on: macos-latest
+    name: macos-latest (oldrel-1, arm64)
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      # Parallel testthat (M48): hosted runners have 4 vCPUs; testthat
+      # otherwise defaults to 2 workers.
+      TESTTHAT_CPUS: 4
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'oldrel-1'
+          use-public-rspm: true
+
+      # Fail fast if setup-r handed us an x86_64 interpreter (see the
+      # ARCHITECTURE ASSERTION note in the header). Placed before the
+      # dependency install so a fallback costs seconds, not minutes.
+      - name: Assert the interpreter is arm64
+        run: |
+          Rscript -e 'p <- R.version$platform; cat("platform:", p, "\n"); if (!grepl("^aarch64-apple-darwin", p)) stop("expected an aarch64-apple-darwin build of R, got ", p, " -- setup-r fell back to x86_64, so this job would be checking r-oldrel-macos-x86_64, not the arm64 flavour it exists for")'
+        shell: bash
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
