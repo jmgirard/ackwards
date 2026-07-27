@@ -69,9 +69,15 @@ test_that("boot_edges() is reproducible under a seed", {
 test_that("serial and parallel dispatch agree exactly (upfront indices)", {
   skip_if_not_installed("future.apply")
   skip_if_not_installed("future")
-  x <- suppressMessages(suppressWarnings(ackwards(sim16, k_max = 3)))
-
+  # macOS is skipped because this block FORKS, and `?mclapply` strongly
+  # discourages forking alongside multi-threaded libraries -- R's threaded
+  # BLAS/LAPACK included (this is what segfaulted r-oldrel-macos-arm64 at 0.1.1).
+  # See test-fork-safety.R, which enforces this; the serial-vs-parallel oracle
+  # still runs on every Linux flavour.
+  skip_on_os("mac")
   skip_if(!future::supportsMulticore(), "multicore plan unavailable here")
+
+  x <- suppressMessages(suppressWarnings(ackwards(sim16, k_max = 3)))
 
   future::plan(future::sequential)
   serial <- suppressMessages(boot_edges(x, sim16, n_boot = 60, seed = 21))
