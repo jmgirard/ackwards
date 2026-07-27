@@ -62,6 +62,11 @@ The only note is:
 | macos-latest arm64 (GitHub Actions) | oldrel-1 | 0 / 0 |
 | windows-latest (GitHub Actions) | release | 0 / 0 |
 | win-builder | R-devel | 0 / 0 |
+| R-hub `atlas` (ATLAS BLAS) | R-devel | 0 / 0 |
+| R-hub `nold` (no long double) | R-devel | 0 / 0 |
+
+The `atlas` and `nold` rows are the two flavours the previous 0.2.0 tarball
+failed on; both now report `Status: OK` with 0 test failures.
 
 The `macos-latest arm64 / oldrel-1` row is new in this release: it reproduces
 the CRAN flavour the 0.1.1 ERROR appeared on, which the previous check matrix
