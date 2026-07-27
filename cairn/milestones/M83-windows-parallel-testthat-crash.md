@@ -1,6 +1,6 @@
 # M83: Windows parallel-testthat crash — measure, diagnose, mitigate
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** high
 - **Depends on:** —
 - **Driving RR:** —
@@ -118,6 +118,7 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
 - 2026-07-27: crash-location tally across all sweeps — NINE distinct files (suggest_k 14, cor-input 7, comparability 4, data 2, esem 2, predict 2, boot_edges 1, print-snapshot 1, scores 1). Not localized to one test or one dependency; suggest_k is over-represented as the heaviest file. The spread points at something process-wide in R-on-Windows under testthat's subprocess machinery rather than one package's compiled bug — stated as the reading the evidence supports, not as a finding.
 - 2026-07-27: AC4 amended at the implement gate — from "zero crashes over >=60 iterations" to a measured characterisation plus a stated re-run policy, because the evidence shows no test-execution setting reaches zero. Original wording and the refuting data both stand in this log.
 - 2026-07-27: T6 — the mitigation is confined to `.github/` (R-CMD-check.yaml matrix key + the new windows-stress.yaml). **No tarball content changed**, so no NEWS entry is owed and no R-hub re-verification: the pending 0.2.0 resubmission still rests on the `atlas`/`nold` runs at 653d2df and is unblocked. Temporary push trigger and DROP_EFATOOLS switch removed from windows-stress.yaml.
+- 2026-07-27: DoD gate clean at 259f12b — check 0 err/0 warn/0 note, coverage 100%, style/lint clean, pkgdown index complete. Status -> review.
 
 ## Decisions
 
