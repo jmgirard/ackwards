@@ -87,7 +87,7 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      TESTTHAT_CPUS: ${{ github.event.inputs.testthat_cpus || '4' }}
+      TESTTHAT_CPUS: ${{ github.event.inputs.testthat_cpus || '2' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -125,6 +125,11 @@ jobs:
           for i in $(seq 1 "$iterations"); do
             echo "::group::iteration $i of $iterations (shard ${{ matrix.shard }}, TESTTHAT_CPUS=$TESTTHAT_CPUS)"
             out="iteration-$i.log"
+            # Free physical memory before the run, so the memory axis of the
+            # diagnosis rests on numbers rather than a guess. Guarded: a
+            # probe failure must not end a measurement run.
+            free_kb=$(powershell -NoProfile -Command "(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory" 2>/dev/null | tr -d "\r" || true)
+            echo "free physical memory before iteration $i: ${free_kb:-unknown} KB"
             # Run from tests/ so testthat.R resolves its paths exactly as the
             # check test phase does.
             #

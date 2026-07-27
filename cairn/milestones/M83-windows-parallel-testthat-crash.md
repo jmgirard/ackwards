@@ -73,7 +73,7 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
       (`tests/testthat.R`), scanning each iteration's output for the AC1
       signature. Model the job on `macos-oldrel-check.yaml` (M82's
       single-flavour job).
-- [ ] T2: Run it on unmitigated `master` for ≥30 iterations; record the tally.
+- [x] T2: Run it on unmitigated `master` for ≥30 iterations; record the tally.
       Re-run if zero crashes appear, since the observed rate is ~4% and a single
       30-iteration clean sweep is ~29% likely by chance.
 - [ ] T3: Bisect with stress variants, one variable at a time:
@@ -97,6 +97,8 @@ change to the package's own runtime parallelism (`future` plans in `ackwards()` 
 - 2026-07-27: implement gate amended AC1 — the parent process exits 1 and only reports the worker's -1073741819, so detection keys on that signature; chose matrix fan-out over one long job (wall-clock, and each shard samples a fresh runner) and the check test phase over full R CMD check per iteration (~1 min vs ~7), escalating to full check only if a sweep comes back empty.
 - 2026-07-27: T1 done — .github/workflows/windows-stress.yaml, sharded dispatch stress run. Carries a TEMPORARY push trigger scoped to this branch (M66: workflow_dispatch registers only from the default branch), to be removed before review.
 - 2026-07-27: T2 first sweep (run 30275503958, 6x5 @ TESTTHAT_CPUS=4) REPRODUCED the crash — shard 2 iteration 4, test-suggest_k.R, the exact CI signature. But the harness was defective: GitHub's `shell: bash` runs `-eo pipefail`, so errexit killed the loop at each shard's first crashing iteration, before scoring it or printing a tally. Partial data: 2 crashes over 29 iterations actually run (~7%). Harness fixed to capture status via an `if` condition; sweep re-run for a clean baseline.
+- 2026-07-27: T2 BASELINE (run 30276820048, 6x5 @ TESTTHAT_CPUS=4, harness fixed): **5 access violations / 25 pass / 0 other-failure of 30 iterations = 16.7%**. Per shard: 0,0,2,2,1,0. Higher than the ~4% per-CI-run figure, as expected from repeated runs on a warm runner; zero ordinary test failures, so nothing confounds the count. Gives real power: 0/30 at a variant setting is a 0.4% event if the rate were unchanged.
+- 2026-07-27: T3 variant 1 started — TESTTHAT_CPUS=2 (what CRAN effectively runs), plus a per-iteration free-physical-memory probe so the memory axis rests on numbers.
 
 ## Decisions
 
