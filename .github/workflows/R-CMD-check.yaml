@@ -55,7 +55,9 @@ jobs:
       matrix:
         config:
           - {os: macos-latest,   r: 'release'}
-          - {os: windows-latest, r: 'release'}
+          # Windows runs 2 testthat workers, not 4 -- see the TESTTHAT_CPUS
+          # note under env: below.
+          - {os: windows-latest, r: 'release', testthat-cpus: 2}
           - {os: ubuntu-latest,  r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,  r: 'release'}
           - {os: ubuntu-latest,  r: 'oldrel-1'}
@@ -65,7 +67,38 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
       # Parallel testthat (M48): hosted runners have 4 vCPUs; testthat
       # otherwise defaults to 2 workers.
-      TESTTHAT_CPUS: 4
+      #
+      # WINDOWS RUNS 2, NOT 4 (M83). A testthat worker intermittently dies on a
+      # Windows access violation (0xC0000005), failing this job roughly 4% of
+      # the time -- in a different test file each occurrence, so no single test
+      # is at fault. Measured with windows-stress.yaml:
+      #
+      #     1 worker  (serial): 15 crashes / 120 iterations  12.5%
+      #     2 workers:          11 / 230                      4.8%
+      #     4 workers:           6 / 60                      10.0%
+      #
+      # NO SETTING ELIMINATES IT, and the relationship is not monotonic --
+      # serial is the WORST. Only 1-vs-2 is statistically solid (p ~ 0.01);
+      # 2-vs-4 is not (p ~ 0.13). 2 is kept as the best measured setting and
+      # because it matches what CRAN effectively runs
+      # (_R_CHECK_LIMIT_CORES_), not because it fixes anything. Memory is not
+      # the constraint: ~14 GB was free before every iteration once the probe
+      # existed, and one crash landed at the highest reading of its shard. The
+      # probe postdates the first baseline sweep, so its 5 crashes carry no
+      # memory reading -- the claim covers the measured crashes, not all of them.
+      #
+      # OPERATING POLICY, since the crash is expected to recur: a red Windows
+      # job whose log carries `crashed with exit code -1073741819` is re-run
+      # before it is believed. A SECOND occurrence within one run is treated as
+      # a real failure, not the flake -- at a ~5% per-run rate, twice in one run
+      # is not what this looks like. A red Windows job WITHOUT that signature is
+      # always a real failure and is never re-run away.
+      #
+      # To re-measure the rate after any change here, dispatch
+      # windows-stress.yaml from the Actions tab.
+      #
+      # Other platforms keep 4 and keep M48's speedup.
+      TESTTHAT_CPUS: ${{ matrix.config.testthat-cpus || 4 }}
 
     steps:
       - uses: actions/checkout@v4
