@@ -15,9 +15,9 @@ stale docs skip-filter that now runs both check matrices on every tracking commi
 ## Scope
 
 **In:** a new push-to-master workflow running `R CMD check` on `macos-latest` at `oldrel-1`, with a
-step that fails on an x86_64 interpreter; repair of all four `paths-ignore` blocks (two in
-`R-CMD-check.yaml`, two in `test-coverage.yaml`) — dead entries removed, cairn tracking paths
-added, ledger-read paths deliberately left unmatched.
+step that fails on an x86_64 interpreter; repair of all five `paths-ignore` blocks (two in
+`R-CMD-check.yaml`, two in `test-coverage.yaml`, one in the new workflow) — dead entries removed,
+cairn tracking paths added, ledger-read paths deliberately left unmatched.
 
 **Out:**
 - macOS x86_64 (`macos-13`) coverage → candidate row; the 0.1.1 failure was arm64-specific and
@@ -71,9 +71,9 @@ added, ledger-read paths deliberately left unmatched.
 ## Tasks
 
 - [x] T1 Author `.github/workflows/macos-oldrel-check.yaml` per AC1. Header comment names the 0.1.1
-      `r-oldrel-macos-arm64` ERROR and its fix (`5d2fcbd`), why the flavour was invisible (both
-      matrices run macOS at `release` only), and that push-only rather than per-PR was the owner's
-      call at the 2026-07-27 plan gate.
+      `r-oldrel-macos-arm64` ERROR and its fix (`5d2fcbd`), why the flavour was invisible
+      (`R-CMD-check.yaml` is the only workflow that runs macOS, and only at `release`), and that
+      push-only rather than per-PR was the owner's call at the 2026-07-27 plan gate.
 - [x] T2 Add the architecture-assertion step ahead of the check step, so a fallback fails fast
       rather than after a full check.
 - [x] T3 Temporarily add the milestone branch to the workflow's `push: branches:`; push; confirm the
@@ -93,6 +93,8 @@ added, ledger-read paths deliberately left unmatched.
 
 ## Work log
 
+- 2026-07-27: gated amendment at the merge gate — Scope "In:" corrected from four `paths-ignore` blocks to five (the implement-time amendment updated AC1/AC4 but not Scope), and T1's "both matrices run macOS at release only" corrected to name `R-CMD-check.yaml` alone (the same false claim F6 fixed in the workflow header). Docs only; nothing executable changed, so no re-run.
+- 2026-07-27: review — 3 lenses + scorer. Actioned F1 (93, fail-open parser), F4 (82, tests would pass against a stub), F6 (76, below threshold but verified false), F7 (self-found, fixtures tripped a hidden-directory NOTE). Logged unactioned: F2 (74), F3 (58), F5 (42). AC3 re-proved at run 30247411925 rather than reinterpreted after the comment fix.
 - 2026-07-27: T7 + status review. DoD gate exit 0: check 0 err/0 warn/0 note, coverage 100.00%, styler/lintr clean, pkgdown index complete, all three source guards clean. No NEWS.md entry — nothing user-visible ships (.github/, tools/, tests/ only).
 - 2026-07-27: T3+T4. Run 30245095260 (commit bb69970) succeeded on macos-latest at R 4.5.3; assertion printed `platform: aarch64-apple-darwin20`; R CMD check reported `Status: OK`. Temporary trigger reverted; `git diff bb69970` over the workflow shows 0 changed lines outside the `branches:` line.
 - 2026-07-27: T5+T6+T8. Discovered sub-task T8 (minor amendment): AC5's carve-out was a comment only, so added tools/check-ci-path-filters.R to enforce it. Written in base R after a first yaml-package draft — it runs as a CI fail-fast step before setup-r-dependencies, where only base R exists. Inversion-verified: dead literal, dropped cairn entry, blanket cairn/**, and a deleted block each exit 1 with the right message; clean exits 0.
@@ -139,10 +141,11 @@ pre-existing legacy M-ids. No `DESIGN.md` principle changed, so `cairn_impact` w
 Profile `consistency-gate` slot: check/coverage/style/lint/pkgdown via the DoD gate above; no NEWS
 entry owed — nothing user-visible ships. One `.Rbuildignore` entry was owed and added (F7).
 
-### Recorded inconsistencies in plan-owned text (not edited review-side)
+### Recorded inconsistencies in plan-owned text (amended at the merge gate, 2026-07-27)
 
-Two stale sentences survive in plan-owned sections. Neither affects what shipped, and review does
-not edit plan-owned wording, so both are recorded rather than fixed:
+Two stale sentences were found in plan-owned sections. Review does not edit plan-owned wording, so
+both were put to the user at the merge-approval gate and amended there with the text shown in
+chat. Neither affected what shipped. What they said before the amendment:
 
 1. **Scope "In:"** still says "all four `paths-ignore` blocks (two in `R-CMD-check.yaml`, two in
    `test-coverage.yaml`)". The gated amendment at implement made it five (the new workflow carries
