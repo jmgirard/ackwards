@@ -4,6 +4,8 @@
 
 ## ackwards 0.2.0
 
+CRAN release: 2026-07-27
+
 New publication-figure controls for
 [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md),
 secondary correlation edges in the pruned view, a near-redundant band in
