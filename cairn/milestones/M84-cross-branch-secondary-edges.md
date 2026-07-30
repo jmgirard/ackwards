@@ -1,11 +1,11 @@
 # M84: Cross-branch-only secondary edges in the pruned view
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** IP1, IP5, IP6
-- **Branch/PR:** —
+- **Branch/PR:** `m84-cross-branch-secondary-edges`
 
 ## Goal
 
