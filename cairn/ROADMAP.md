@@ -14,6 +14,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | M81 | Publication-figure polish — item lists, per-node box sizes, manual factor ordering | done | M80 | normal | milestones/archive/M81-publication-figure-polish.md |
 | M82 | macOS oldrel (arm64) CI visibility + skip-filter repair | done | — | normal | milestones/archive/M82-macos-oldrel-ci-visibility.md |
 | M83 | Windows parallel-testthat crash — measure, diagnose, mitigate | done | — | high | milestones/archive/M83-windows-parallel-testthat-crash.md |
+| M84 | Cross-branch-only secondary edges in the pruned view | planned | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 <!-- M01–M70 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 5 most recent done rows. -->
 
 ## Candidates
@@ -28,3 +29,10 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 Batch from Forbes's hands-on review of the package website/vignettes. **A, B → M76; D → M77; C → M78; E → M79; G → M80; F → M81 (all done).** H remains below.
 
 - **[H] collaboration — replicability-gated hierarchies (PARKED).** Forbes offered to co-develop this. Overlaps existing `comparability()` (split-half per level) + `boot_edges()`. **Gated:** design-interview territory with Forbes in the room — do not spec unilaterally; schedule a design session before planning. — added 2026-07-23
+
+### Forbes correspondence (2026-07-30)
+
+Batch from her reply to the M76–M81 write-up. The cross-branch secondary-edge request → M84 (planned). The two below are gated on the same design session as [H] above; her publication-figure and near-redundant-band feedback needed no action.
+
+- **Oblique rotation reconsidered — D-002 challenged by its own method's author.** Forbes uses oblique rotations in her applied work: each level is useful in isolation, so oblique better reflects the intercorrelated constructs, and the between-level correlations then double as a check on whether those rotations are consistent/robust. D-002 (2026-06) rejected oblique as confounding the cross-level signal and M13 removed `rotation` as a user argument. This is new evidence against a standing rejection, not a re-litigation of it — but superseding D-002 needs a D-entry and the author in the room. **Gated:** do not spec unilaterally; take it to the [H] design session, ahead of the other two items, since what a level *is* sits upstream of both. — added 2026-07-30
+- **D-032's premise contradicted by its source.** D-032 (2026-07-24) rejected gap-tolerant redundancy chains partly on the inference that Forbes's contiguous `ChaseCorrPaths` was deliberate. She confirms the empirical finding and denies the inference — the contiguity is a coding limitation, and she handles a dead intervening level by hand at the artefact stage, still on the redundancy criterion. M53's 54/54 reproduction and M78's `g2` regression test stand; only the reading of intent falls. **Gated:** a supersede takes the call. — added 2026-07-30
