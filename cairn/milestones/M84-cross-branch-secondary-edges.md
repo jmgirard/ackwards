@@ -1,11 +1,11 @@
 # M84: Cross-branch-only secondary edges in the pruned view
 
-- **Status:** planned
+- **Status:** blocked
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** IP1, IP5, IP6
-- **Branch/PR:** —
+- **Branch/PR:** `m84-cross-branch-secondary-edges`
 
 ## Goal
 
@@ -113,7 +113,30 @@ ROADMAP candidates, both gated on the Forbes design session.
 - 2026-07-30: plan chose the Figure 6B edge set as the fidelity oracle over stipulate-and-
   self-check; the figure carries exactly three secondary edges and zero same-lineage arcs,
   so the criterion can fail; falsified by the figure proving unreadable at render time.
+- 2026-07-30: blocked on Forbes — AC2 is unsatisfiable as written (the cross-branch scope yields 4 edges on her node set, her figure draws 3); asked whether the omitted `E2→J7` (r = .387) is deliberate. Findings in ## Decisions.
+- 2026-07-30: implement gate recorded the D-017 retention-vs-Figure-6B divergence as a ROADMAP candidate rather than growing M84's scope, at the user's direction.
 
 ## Decisions
+
+### 2026-07-30 — Figure 6B oracle: 18 of 19 rows agree, one omission unexplained
+
+Probing the oracle before writing its test settled three things and blocked one.
+
+(a) Her 18-node set had to be supplied by hand (`prune(manual = )`): D-017's retention rule
+reaches a different 18 — it keeps `C2`, which she drops as a grey artefact by judgment
+(D-012 rightly makes our artifact rule flag-only), and drops `E1`, which her figure keeps.
+Given her node set, our recomputed reduced primary tree reproduces **all 17 solid lines**
+in Figure 6B.
+
+(b) The secondary set above `cut_show = .3` holds 19 rows — 15 same-lineage, 4 cross-branch.
+She draws **none** of the 15. The cross-branch convention is confirmed on her own data.
+
+(c) She draws only 3 of the 4 cross-branch pairs. The omitted `E2→J7` (`r = .387`) is
+stronger than two she did draw (`E2→G7` .339, `E1→J7` .316); no display cutoff, level-gap
+rule, or per-node cap accounts for it, and our `r` is hers to 1.3e-14 (M53).
+
+Parked `blocked` pending her answer on whether (c) is deliberate or a slip — AC2's final
+wording depends on it. T2/T3/T4 (classification, argument, warning) do not depend on the
+answer and can proceed once the milestone is unparked.
 
 ## Review

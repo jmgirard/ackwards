@@ -57,6 +57,21 @@ match matters).
 See `cairn/ORACLES.md` for the full registry and the classification of every
 oracle in the suite.
 
+## Rotation stance (fn. 1; added M84 per RR02, verified from page image)
+
+The main text (p. 2) frames the method as using PCA or EFA "with orthogonal or
+oblique rotations", and footnote 1 records that she focuses on orthogonal
+(varimax) PCA **in this paper's examples only**, notes oblique rotations and EFA
+are also possible and give closely similar results with many variables, and states
+that her supplemental `ExtendedBassAckward` function is equipped to do orthogonal
+or oblique PCA or EFA.
+
+This is the most decision-relevant fact in the paper for the rotation question, and
+it cuts against reading her published varimax usage as a methodological requirement:
+the AMH fidelity match (1.3e-14, M53) confirms varimax for *these analyses*, not a
+stance that oblique is invalid. Her 2026-07-30 correspondence confirms she uses
+oblique rotations in her own applied work. See D-034 and `cairn/reviews/archive/RR02-oblique-rotation-reconsidered.md`.
+
 ## Correspondence conventions (verified M44)
 
 - Her `comp.corr` is `t(W_a) %*% R %*% W_b` with no sign alignment; ours is the

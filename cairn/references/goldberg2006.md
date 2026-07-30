@@ -35,8 +35,16 @@ Key methodological positions taken in the paper:
   2007 ([[waller2007]]) later showed the score-correlation step itself is
   unnecessary; Kim & Eaton 2015 argue the EFA side — see `applications.md`.)
 - **Orthogonal (varimax) rotation at every level** — matches ackwards' default
-  (DESIGN §9; only orthogonal rotations make between-level score correlations
-  cleanly interpretable).
+  (DESIGN §9). *(Corrected M84 per RR02, verified from page images: the earlier
+  gloss here — "only orthogonal rotations make between-level score correlations
+  cleanly interpretable" — is **not a position this paper takes**. At p. 356
+  Goldberg calls examining orthogonal factors at each level the author's own
+  preference, grants it has critics and that many readers may opt for the oblique
+  alternative, and justifies it by regression parsimony (Goldberg 1993) and marker
+  separation (Saucier 2002) — not by between-level confounding. His one rejection
+  of an oblique route, at p. 348, targets the oblique → Schmid–Leiman orthogonalized
+  hierarchy. The strong claim originates with Kim & Eaton (2015, p. 1067), who
+  attribute it here.)*
 - **Size-ordered labels within level** ("4/1" = largest component of the
   four-component solution) — the ancestor of our `m{k}f{j}` labels; like ours,
   the labels carry no lineage (CLAUDE.md Invariant 5).
