@@ -578,10 +578,11 @@ historical `§14.x` citation resolves. Live known limitations moved to the next 
 
 ## Known limitations
 
-- `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Safe
-  permanently: only orthogonal rotation is supported (`factor_cor = I`; permutation of I is I), and
-  oblique rotation is out of scope (§9, D-002). The guard comment in `engine_esem.R` documents what
-  *would* be required if that decision were ever reversed.
+- `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Harmless while
+  varimax is the sole rotation (`factor_cor = I`; permutation of I is I) — but not *permanently*
+  safe: D-034 superseded D-002 and made oblique a gated, documented non-default option (§9), so
+  this becomes a live defect if oblique ships. The guard comment in `engine_esem.R` states what the
+  permutation would require. *(corrected 2026-09-06.)*
 - Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (§5.4), nor the
   `missing = "fiml"` PCA/EFA path (D-020): there the algebra uses the `psych::corFiml()` matrix
   while the scores route standardizes the raw, NA-bearing data (pairwise Pearson SDs), so the two
