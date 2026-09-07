@@ -62,7 +62,16 @@ Followed by `/cairn-release` — a CRAN release walk (never self-submits):
 - Full local verification: `devtools::document()` (no diff), `devtools::test()`
   and `devtools::check()` clean, `devtools::build_readme()`, `pkgdown::check_pkgdown()`,
   `urlchecker::url_check()`.
-- Wide checks as applicable: `devtools::check_win_devel()` and/or R-hub; `revdepcheck` if dependents exist.
+- Wide checks as applicable: `devtools::check_win_devel()`; `revdepcheck` if dependents exist.
+- **Alternative-numerics checks (required, not "as applicable").** Dispatch the committed
+  R-hub workflow on both flavours: `gh workflow run rhub.yaml -f config=atlas,nold`
+  (`.github/workflows/rhub.yaml` is dispatch-only; `config` takes a comma-separated
+  platform list). `atlas` links a different BLAS, `nold` drops long double — arithmetic no
+  local `check()` and no CI-matrix flavour exercises, where a level that is merely
+  ill-conditioned under reference BLAS can degenerate fully. An ERROR or WARNING here
+  blocks submission; never carry one into `cran-comments.md` as a justified note. Added
+  after 0.2.0 was auto-rejected 2026-07-27 on a noLD ERROR the full green
+  macOS/Windows/Ubuntu matrix could not see (fixed in PR #89).
 - Update `cran-comments.md` (test environments, check results, NOTE justifications, revdep summary).
 - Bump `Version:` in DESCRIPTION.
 - Handoff checklist (user runs): `devtools::submit_cran()`, confirm the CRAN
