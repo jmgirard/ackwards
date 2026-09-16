@@ -1,13 +1,13 @@
 # M87: Plain-English pass — vignettes B (girard, forbes, forbes2023, ordinal, interpret)
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** M85, M88
 - **Driving RR:** —
 - **Principles touched:** GP3, IP6, IP9
 - **Resolves:** —
 - **Surface tier:** user-facing — vignettes are the pkgdown articles users read
-- **Branch/PR:** —
+- **Branch/PR:** `m087-plain-english-vignettes-b`
 
 ## Goal
 
@@ -67,7 +67,7 @@ appended to `tools/prose-terms.txt` with a work-log line.
 
 ## Tasks
 
-- [ ] T1: Rewrite `ackwards-girard.Rmd.orig` (89 sentences, 32 em dashes on master); check.
+- [x] T1: Rewrite `ackwards-girard.Rmd.orig` (89 sentences, 32 em dashes on master); check.
 - [ ] T2: Rewrite `ackwards-forbes.Rmd.orig` (94 sentences, 43 em dashes); check.
 - [ ] T3: Rewrite `ackwards-forbes2023.Rmd.orig` (43 sentences, 15 em dashes); check.
 - [ ] T4: Rewrite `ackwards-ordinal.Rmd.orig` (65 sentences, 20 em dashes); check.
@@ -83,6 +83,8 @@ appended to `tools/prose-terms.txt` with a work-log line.
 - 2026-09-16: created by /milestone-plan as the second vignette batch of the plain-English sweep; depends on M85 for the checker and term list.
 - 2026-09-16: criteria audit ([O], fresh context, full mode) ran on the shared vignette-batch wording; its generated-`.Rmd` diff clause was dropped as unenforceable (stamp, PNG, and gt-id churn), and an inline-span guard was added.
 - 2026-09-16: /milestone-plan (M88 gate) added `Depends on: M88` so the vignette batch runs against the hardened checker and the opt-in `DOD_CODE_UNCHANGED=1` gate step.
+- 2026-09-16: /milestone-implement started; branch `m087-plain-english-vignettes-b` cut from pushed master. Question gate skipped: nothing open (batch-A conventions reused: page ranges as `--`, Schmid-Leiman hyphenated, gloss in the first prose paragraph that uses a term).
+- 2026-09-16: T1 girard rewritten; checker 0 reports, `--code-unchanged master` OK. Glossed: factor, parallel analysis, factor score, split-half, redundancy, PCA, polychoric, ordinal, EFA, loading. `rotation` and `congruence` appear only inside bibliography entry titles (treated as not appearing, like a link title). Step 4 heading's em dash became a comma (anchor changes).
 
 ## Decisions
 
