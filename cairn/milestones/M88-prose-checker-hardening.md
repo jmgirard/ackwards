@@ -115,6 +115,7 @@ change). Banned-phrase or sentence-cap policy changes (none requested).
 - 2026-09-16: T6 done. Test file run against `git show master:tools/check-prose.R`: 16 failures, 90 pass (every new assertion fails on the old checker); on the branch 107 pass, 0 fail. Two test lines wrapped for `line_length_linter`. `Rscript tools/dod-gate.R` with the variable unset: skip note printed, check 0/0/0, coverage 100.00%, styler and lintr clean, pkgdown index complete, exit 0.
 - 2026-09-16: claim audit: not owed — internal tier.
 - 2026-09-16: all tasks checked; status set to review.
+- 2026-09-16: /milestone-review: AC1-AC7 verified, gate green twice, three lenses run, 8 findings fixed on the branch, 6 rejected. step-7 approval: m088-prose-checker-hardening approved for merge.
 
 ## Decisions
 
