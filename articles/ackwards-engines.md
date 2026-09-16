@@ -1,13 +1,27 @@
 # Choosing an Engine: PCA, EFA, and ESEM
 
-**ackwards** supports three factor extraction engines. They share the
-same downstream machinery — the same rotation, the same tenBerge scoring
-weights, the same between-level correlation algebra — but differ in
-their statistical model and what they report. This vignette explains
-when each one is appropriate and what the differences look like in
-practice.
+**ackwards** supports three factor extraction engines. A factor is an
+unobserved dimension that explains why a set of items correlate. The
+engines share the same downstream machinery: the same rotation, the same
+tenBerge scoring weights, and the same between-level correlation
+algebra. A rotation re-orients the factors within a level without
+changing how well they fit. The engines differ in their statistical
+model and in what they report. This vignette explains when each one is
+appropriate and what the differences look like in practice.
 
 ## The three engines at a glance
+
+A few terms recur in the table below. PCA (principal component analysis)
+summarizes the items with weighted sums called components. EFA
+(exploratory factor analysis) models the items as a small number of
+shared factors plus item-specific noise. ESEM (exploratory structural
+equation modeling) fits that same factor model in lavaan and adds
+standard errors. A polychoric correlation estimates the correlation
+between two ordinal items, items recorded on an ordered scale with few
+categories, as if each were a continuous variable cut into categories.
+FIML (full-information maximum likelihood) uses every partially observed
+row of the data instead of dropping it. A loading is the correlation
+between an item and a factor.
 
 |  | `"pca"` | `"efa"` | `"esem"` |
 |----|----|----|----|
@@ -15,7 +29,7 @@ practice.
 | **Engine substrate** | [`psych::principal()`](https://rdrr.io/pkg/psych/man/principal.html) | [`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html) | `lavaan` |
 | **Communalities** | All 1.0 (by definition) | Estimated from data | Estimated from data |
 | **Correlations** | Pearson or polychoric | Pearson or polychoric | Pearson or polychoric |
-| **Estimators** | Eigen-decomposition | `minres` (OLS), `ml`, or `pa` — via `psych`’s `fm=` | ML, MLR — continuous (+ FIML for missing data); WLSMV, ULSMV — ordinal |
+| **Estimators** | Eigen-decomposition | `minres` (OLS), `ml`, or `pa`, via `psych`’s `fm=` | ML or MLR for continuous data (plus FIML for missing data). WLSMV or ULSMV for ordinal data |
 | **Fit indices** | Eigenvalues only | χ², RMSEA, TLI, BIC | CFI, TLI, RMSEA, SRMR, χ² |
 | **Loading SEs** | No | No | Yes |
 | **Speed** | Fast | Moderate | Slowest |
@@ -26,7 +40,7 @@ All three produce the same labels (`m{k}f{j}`), the same
 [`glance()`](https://generics.r-lib.org/reference/glance.html) /
 [`augment()`](https://generics.r-lib.org/reference/augment.html)
 interface, and comparable between-level edges for well-structured data.
-The hierarchy they reveal is usually the same; the statistical
+The hierarchy they reveal is usually the same. The statistical
 guarantees differ.
 
 ## Setup
@@ -37,22 +51,22 @@ library(ackwards)
 bfi <- na.omit(bfi25)
 ```
 
-We use the BFI-25 with polychoric correlations throughout so that
-differences in output reflect the engine, not the correlation basis.
+We use the BFI-25 with polychoric correlations throughout, so that
+differences in output reflect the engine and not the correlation basis.
 
 ## PCA: components from total variance
 
-PCA extracts **principal components** — linear combinations of the
+PCA extracts **principal components**, linear combinations of the
 observed variables that capture maximum variance, including measurement
 error. Every item is modeled with communality 1.0: the components
 account for 100% of each item’s variance. This is not a true latent
-variable model; it is a data reduction method.
+variable model. It is a data reduction method.
 
 In the bass-ackwards context, PCA is the natural default. It is fast,
 always converges, and produces eigenvalues that can guide the choice of
 k. Waller (2007) showed that the between-level algebra (`W'RW`) holds
-exactly for components, making the edges algebraically exact rather than
-approximated from materialized scores.
+exactly for components. The edges are therefore algebraically exact
+rather than approximated from materialized scores.
 
 ``` r
 
@@ -82,7 +96,7 @@ x_pca
 #> they do not validate the edges or the hierarchy itself.
 ```
 
-The “fit” for PCA is just the eigenvalue of each component — the amount
+The “fit” for PCA is just the eigenvalue of each component, the amount
 of variance it captures. There are no chi-square tests, no RMSEA, no
 model rejection.
 
@@ -103,8 +117,8 @@ tidy(x_pca, what = "fit")
 EFA extracts **latent factors** that model only the variance shared
 among items. Each item retains a unique variance (communality \< 1.0)
 that the factors do not explain. This is the classical common-factor
-model, and it is more appropriate than PCA when you believe the items
-are fallible indicators of latent constructs rather than the constructs
+model. It is more appropriate than PCA when you believe the items are
+fallible indicators of latent constructs rather than the constructs
 themselves.
 
 ``` r
@@ -163,31 +177,31 @@ tidy(x_efa, what = "fit")
 #> 18     3       BIC 1001.1717891
 ```
 
-The RMSEA values here are large (\> 0.10), indicating that 1–3 factors
-do not fully account for the BFI item correlations — unsurprising,
-because the true structure is 5 factors. Fit improves steadily from k =
-1 to k = 3, which is exactly the kind of evidence bass-ackwards analysis
-is designed to make visible.
+The RMSEA values here are large (\> 0.10). They indicate that 1 to 3
+factors do not fully account for the BFI item correlations, which is no
+surprise, because the true structure is 5 factors. Fit improves steadily
+from k = 1 to k = 3. That is exactly the kind of evidence bass-ackwards
+analysis is designed to make visible.
 
 ### How close are EFA and PCA loadings?
 
 For clean, continuous data with moderate-to-strong factor structure, EFA
 and PCA loadings are highly correlated but not identical. EFA loadings
 are systematically somewhat smaller because they model only the common
-variance; PCA inflates loadings by fitting noise alongside signal.
+variance. PCA inflates loadings by fitting noise alongside signal.
 
-The table below compares primary loadings — the loading of each item on
-its dominant factor — for six representative items (two each from the
-Neuroticism, Extraversion, and Conscientiousness families) at k = 3. The
-Δ column is the teaching point: how much smaller EFA loadings are in
-absolute value once measurement error is partitioned into uniqueness.
-Using \|EFA\| − \|PCA\| keeps the attenuation consistently negative
-regardless of loading sign.
+The table below compares primary loadings, the loading of each item on
+its dominant factor, for six representative items at k = 3. The items
+are two each from the Neuroticism, Extraversion, and Conscientiousness
+families. The Δ column is the teaching point: how much smaller EFA
+loadings are in absolute value once measurement error is partitioned
+into uniqueness. Using \|EFA\| − \|PCA\| keeps the attenuation
+consistently negative regardless of loading sign.
 
 [TABLE]
 
-EFA loadings for the same items are consistently a few points lower —
-the PCA loadings include some noise variance that EFA partitions into
+EFA loadings for the same items are consistently a few points lower. The
+PCA loadings include some noise variance that EFA partitions into
 uniqueness. The factor structure (which items define which factor) is
 unchanged.
 
@@ -195,13 +209,13 @@ unchanged.
 
 ESEM (exploratory structural equation modeling, Asparouhov & Muthén,
 2009) fits the same common-factor model as EFA but uses **lavaan** as
-the engine. ESEM is not an ordinal-only tool: it handles **continuous**
-items with maximum-likelihood estimators (ML, MLR — the default for
-continuous data) and **ordinal** items with WLSMV, and it unlocks three
+the engine. ESEM is not an ordinal-only tool. It handles **continuous**
+items with maximum-likelihood estimators (ML or MLR, the default for
+continuous data) and **ordinal** items with WLSMV. It unlocks three
 capabilities that EFA cannot provide:
 
-1.  **Standard errors for every loading**, enabling confidence intervals
-    and significance tests — for continuous *and* ordinal data.
+1.  **Standard errors for every loading**, which enable confidence
+    intervals and significance tests, for continuous *and* ordinal data.
 2.  **Full maximum-likelihood estimation** for continuous data (ML/MLR),
     including **FIML** for missing data (`missing = "fiml"`), which uses
     all partially observed rows rather than deleting them.
@@ -212,12 +226,12 @@ capabilities that EFA cannot provide:
 
 Those three are the *only* reasons to pay ESEM’s cost (a lavaan fit per
 level, occasional convergence trouble). EFA is otherwise a first-class
-reporting engine: it returns the same loadings, variance, and
-between-level edges *plus* per-level RMSEA and TLI — enough to report a
-hierarchy. Reach for ESEM when you specifically need loading standard
-errors (especially at smaller *n*), the field-standard WLSMV estimator
-for ordinal indicators, or true FIML for missing data; otherwise EFA is
-the simpler, faster choice.
+reporting engine. It returns the same loadings, variance, and
+between-level edges *plus* per-level RMSEA and TLI, which is enough to
+report a hierarchy. Reach for ESEM when you need loading standard errors
+(especially at smaller *n*), the field-standard WLSMV estimator for
+ordinal indicators, or true FIML for missing data. Otherwise EFA is the
+simpler, faster choice.
 
 ``` r
 
@@ -248,13 +262,13 @@ x_esem
 ```
 
 ESEM fit indices include CFI and SRMR in addition to RMSEA and TLI,
-giving a richer picture of model adequacy. See the “Per-level fit”
+which gives a richer picture of model adequacy. See the “Per-level fit”
 section below for how to report and interpret these indices.
 
 ### Loading standard errors and confidence intervals
 
 The unique output from ESEM is the rotation-aware **standard error** of
-every loading. These SEs are now returned as part of
+every loading. These SEs are returned as part of
 `tidy(what = "loadings")`, alongside `ci_lower` and `ci_upper` columns:
 
 ``` r
@@ -270,45 +284,44 @@ head(ld)
 #> 6     1   m1f1   C1  0.4138252 0.02754885  0.3598304  0.4678200
 ```
 
-The intervals are computed as loading ± *z* × SE (default 95%; set
-`conf_level = 0.99` for wider intervals). With the 875 complete cases
-used here the SEs are fairly small; with smaller samples they become
+The intervals are computed as loading ± *z* × SE (default 95%). Set
+`conf_level = 0.99` for wider intervals. With the 875 complete cases
+used here the SEs are fairly small. With smaller samples they become
 important for judging which loadings are meaningfully non-zero. For PCA
 and EFA objects the `se`, `ci_lower`, and `ci_upper` columns are present
-but `NA` — those engines carry no loading SEs.
+but `NA`, because those engines carry no loading SEs.
 
-## Per-level fit: what it tells you (and what it doesn’t)
+## Per-level fit: what it tells you (and what it does not)
 
 ### The key distinction
 
 Bass-ackwards produces a **series of independent factor solutions**, not
 a fitted hierarchical model. The between-level edges are descriptive
-correlations between factor scores — they have no sampling distribution
-of their own. Per-level fit indices therefore describe something
-narrower: **does a k-factor model adequately reproduce the items at this
-level?**
+correlations between factor scores, each person’s estimated position on
+a factor. They have no sampling distribution of their own. Per-level fit
+indices therefore describe something narrower: **does a k-factor model
+adequately reproduce the items at this level?**
 
 That is a real, bounded question. A level that fits terribly is one you
-shouldn’t over-interpret — the k factors are not cleanly separating the
+must not over-interpret. Its k factors are not cleanly separating the
 items. A level that fits well tells you the factor structure at that
 depth is stable. But good fit at k = 3 does **not** validate the edges
-connecting k = 3 to k = 2; it only says the k = 3 solution itself is
+connecting k = 3 to k = 2. It only says the k = 3 solution itself is
 trustworthy. Keep that boundary in mind whenever you report or interpret
 fit.
 
 The converse question comes up often: *if the k = 3 solution fits badly,
 should I distrust the edges connecting k = 2 to k = 3?* The honest
-answer is nuanced. The edge correlation is still a **faithful
+answer has two parts. The edge correlation is still a **faithful
 description** of the relationship between the k = 2 and k = 3 factor
-scores as extracted — the arithmetic is not wrong. What poor fit
-undermines is the **interpretation** of the k = 3 factors themselves: if
-three factors don’t cleanly reproduce the items, then “factor `m3f2`” is
-a shakier construct, and any edge *incident to it* inherits that
-shakiness. So a badly-fitting level does weaken the edges touching it —
-not because the correlation is miscomputed, but because one of the
-things it connects is poorly defined. The edges between two
-*well*-fitting levels are on firmer ground than edges touching a
-poorly-fitting one.
+scores as extracted. The arithmetic is not wrong. What poor fit
+undermines is the **interpretation** of the k = 3 factors themselves. If
+three factors do not cleanly reproduce the items, then “factor `m3f2`”
+is a shakier construct, and any edge *incident to it* inherits that
+shakiness. So a badly-fitting level does weaken the edges touching it.
+The correlation is not miscomputed. Rather, one of the things it
+connects is poorly defined. The edges between two *well*-fitting levels
+are on firmer ground than edges touching a poorly-fitting one.
 
 ### Reporting fit with `tidy()` and `autoplot()`
 
@@ -324,17 +337,17 @@ tidy(x_esem, what = "fit", format = "wide")
 ```
 
 [`tidy()`](https://generics.r-lib.org/reference/tidy.html) does not flag
-rows against a threshold — the Hu & Bentler (1999) conventional cutoffs
+rows against a threshold. The Hu & Bentler (1999) conventional cutoffs
 (CFI/TLI ≥ .95, RMSEA ≤ .06, SRMR ≤ .08) are conventional and contested,
 so a pass/fail column would overstate their authority. Instead they
-appear only as visual/inline reference points in
+appear only as visual or inline reference points in
 [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
 and [`summary()`](https://rdrr.io/r/base/summary.html):
 
 > **Thresholds are conventional and contested.** They were derived from
-> specific simulation conditions (continuous, well-distributed items;
+> specific simulation conditions (continuous, well-distributed items and
 > balanced designs). WLSMV fit for ordinal data tends to produce lower
-> CFI and higher RMSEA than ML on the same underlying structure; do not
+> CFI and higher RMSEA than ML on the same underlying structure. Do not
 > interpret WLSMV cutoffs as strictly as ML-based rules. Use them as a
 > rough orientation, not a gatekeeping criterion.
 
@@ -350,23 +363,23 @@ autoplot(x_esem, what = "fit")
 
 plot of chunk fit-plot
 
-The shape of the trajectory matters as much as the absolute values: a
+The shape of the trajectory matters as much as the absolute values. A
 sharp improvement from k = 2 to k = 3 suggests the third factor is
-capturing genuine signal; flat or worsening indices suggest adding
+capturing genuine signal. Flat or worsening indices suggest adding
 another level is splitting noise.
 
-The examples in this vignette deliberately stop at `k_max = 3` so the
-ESEM chunks build quickly and the tables stay legible — not because the
-BFI hierarchy ends there. For these data
+The examples in this vignette stop at `k_max = 3` on purpose, so the
+ESEM chunks build quickly and the tables stay legible. The BFI hierarchy
+does not end there. For these data
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-points to roughly **k = 5** (see the
+points to roughly **k = 5** (see
 [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md)),
 so a real analysis would extend the trajectory further and read the fit
 curve across all five levels. The truncated plot here shows the
 *mechanics* of reading a fit trajectory, not the recommended depth for
 the BFI.
 
-[`glance()`](https://generics.r-lib.org/reference/glance.html) now also
+[`glance()`](https://generics.r-lib.org/reference/glance.html) also
 carries the deepest-level fit for quick inspection:
 
 ``` r
@@ -392,11 +405,11 @@ It depends on your goal:
   hierarchy. The wide table and `autoplot(what = "fit")` are designed
   for this.
 - **Ordinal data**: WLSMV (ESEM) gives fit indices appropriate for
-  categorical items; EFA’s RMSEA/TLI under Pearson correlation is a
+  categorical items. EFA’s RMSEA/TLI under Pearson correlation is a
   rougher diagnostic.
 
-The bottom line: **per-level fit qualifies each level of the hierarchy;
-it does not bless the hierarchy as a whole.** Use it to decide how deep
+The bottom line: **per-level fit qualifies each level of the hierarchy.
+It does not bless the hierarchy as a whole.** Use it to decide how deep
 the structure is credibly resolved, not to claim the overall model is
 “good”.
 
@@ -408,30 +421,31 @@ closely on the hierarchy.
 
 The table below compares the primary-parent edge strength for every
 adjacent level transition. The Δ column is the shift in connection
-strength (\|EFA\| − \|PCA\|) — a direct, sign-robust measure of how much
-the latent-variable model changes your inference about the hierarchy.
+strength (\|EFA\| − \|PCA\|). It is a direct, sign-safe measure of how
+much the latent-variable model changes your inference about the
+hierarchy.
 
 [TABLE]
 
-The r values are very close between engines: the hierarchy that PCA
-reveals is essentially the same hierarchy that EFA reveals. This
-convergence across methods is reassuring — it suggests the structure is
+The r values are very close between engines. The hierarchy that PCA
+reveals is in effect the same hierarchy that EFA reveals. This
+convergence across methods is reassuring. It suggests the structure is
 real and not an artifact of the extraction method.
 
 How clean this convergence looks depends on how strong the underlying
 structure is. The simulated `sim16` dataset
 ([`?sim16`](https://jmgirard.github.io/ackwards/reference/sim16.md)) is
-an *idealized* case — its planted 1 → 2 → 4 hierarchy is strong enough
+an *idealized* case. Its planted 1 → 2 → 4 hierarchy is strong enough
 that engines and
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-criteria agree almost perfectly. Real data is messier: for `bfi25` the
+criteria agree almost perfectly. Real data is messier. For `bfi25` the
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-criteria span k = 4–6 even though the engines agree on the edges. Treat
-clean cross-method consensus as the best case, not the norm; the
+criteria span k = 4 to 6 even though the engines agree on the edges.
+Treat clean cross-method consensus as the best case, not the norm. The
 [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md)
-develops this idealized-vs-realistic contrast in full.
+develops this idealized-versus-realistic contrast in full.
 
-When the engines disagree on edges, that is itself informative: it
+When the engines disagree on edges, that is itself informative. It
 usually indicates factors whose definition depends on whether you
 account for measurement error (EFA/ESEM) or not (PCA).
 
@@ -440,54 +454,54 @@ account for measurement error (EFA/ESEM) or not (PCA).
 | Situation | Recommendation |
 |----|----|
 | Exploratory, large k, unknown structure | Start with `"pca"` |
-| Report a hierarchy with per-level fit (RMSEA/TLI) | `"efa"` — a complete reporting engine |
+| Report a hierarchy with per-level fit (RMSEA/TLI) | `"efa"`, a complete reporting engine |
 | You specifically need loading SEs / CIs (especially smaller *n*) | `"esem"` |
 | Ordinal items and you want the field-standard WLSMV estimator | `"esem"` with `cor = "polychoric"` |
 | Missing data you want handled by true FIML | `"esem"` (ML/MLR) or PCA/EFA with `missing = "fiml"` |
-| Replicating Goldberg (2006) or [`psych::bassAckward()`](https://rdrr.io/pkg/psych/man/bassAckward.html) | `"pca"` (the default engine; `fm` applies only to `"efa"`) |
+| Replicating Goldberg (2006) or [`psych::bassAckward()`](https://rdrr.io/pkg/psych/man/bassAckward.html) | `"pca"` (the default engine. `fm` applies only to `"efa"`) |
 
 A practical workflow: start with PCA to get a feel for the hierarchy and
-choose k. EFA is enough to *confirm and report* — it returns loadings,
+choose k. EFA is enough to *confirm and report*. It returns loadings,
 variance, edges, and per-level RMSEA/TLI. Reach for ESEM only when you
-need one of the three things it adds (loading SEs, WLSMV, or FIML); it
+need one of the three things it adds (loading SEs, WLSMV, or FIML). It
 is not a required “publication” upgrade. If PCA and EFA/ESEM edges
-agree, you have robust evidence for the hierarchy; if they disagree,
+agree, you have strong evidence for the hierarchy. If they disagree,
 investigate why.
 
 ## Missing data
 
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-accepts a `missing` argument controlling how incomplete rows are handled
-before the correlation matrix, engine fit, and edges are computed. The
-full per-engine semantics — including the minor ESEM ML/MLR pairwise
-fit-vs-edges inconsistency and the `$meta` fields that record it — are
-documented in
+accepts a `missing` argument that controls how incomplete rows are
+handled before the correlation matrix, engine fit, and edges are
+computed. The full per-engine semantics, including the minor ESEM ML/MLR
+pairwise fit-versus-edges inconsistency and the `$meta` fields that
+record it, are documented in
 [`?ackwards`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
 In brief:
 
-- **`"pairwise"` (default)** — all available observations, pairwise.
-  MCAR-valid, full N; warns when NAs are present.
-- **`"listwise"`** — complete cases only, applied before *all* steps, so
+- **`"pairwise"` (default)**: all available observations, pairwise.
+  MCAR-valid, full N. Warns when NAs are present.
+- **`"listwise"`**: complete cases only, applied before *all* steps, so
   the correlation matrix, fit, and edges are fully consistent. Valid for
   all engines.
-- **`"fiml"`** — Full Information ML, on two routes. For
+- **`"fiml"`**: full-information ML, on two routes. For
   **`engine = "esem"`** (with `estimator = "ML"` or `"MLR"`), lavaan
   estimates under FIML and the edges derive from its FIML saturated
   model. For **`engine = "pca"` or `"efa"`** on the Pearson basis, the
   correlation matrix is estimated by
-  [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html) —
-  full-information ML under multivariate normality, MAR-valid — and fed
-  to the usual between-level algebra; the route announces itself via a
-  message. Errors for WLSMV/ULSMV (limited-information estimators have
-  no FIML extension) and for a non-Pearson PCA/EFA basis (`corFiml()`
-  estimates a multivariate-normal matrix). FIML improves estimation but
-  does not impute items, so `keep_scores = TRUE` still yields `NA` for
-  incomplete rows.
+  [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html)
+  (full-information ML under multivariate normality, MAR-valid) and fed
+  to the usual between-level algebra. The route announces itself with a
+  message. `missing = "fiml"` errors for WLSMV/ULSMV
+  (limited-information estimators have no FIML extension) and for a
+  non-Pearson PCA/EFA basis (`corFiml()` estimates a multivariate-normal
+  matrix). FIML improves estimation but does not impute items, so
+  `keep_scores = TRUE` still yields `NA` for incomplete rows.
 
 ### FIML for continuous PCA/EFA
 
 For continuous data with MAR missingness, pass `missing = "fiml"`
-directly — more principled than pairwise deletion, which is only
+directly. It is more principled than pairwise deletion, which is only
 MCAR-valid:
 
 ``` r
@@ -532,44 +546,43 @@ x_fiml
 
 Under the hood this estimates the correlation matrix with
 [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html) and
-runs the normal `W'RW` algebra on it, so the loadings and edges are
+runs the normal `W'RW` algebra on it. So the loadings and edges are
 exactly what the manual `ackwards(psych::corFiml(sim_na), …)`
-correlation-matrix call would give (that
+correlation-matrix call would give. That
 [seam](#correlation-matrix-input) remains available for non-standard
-cases, e.g. a FIML matrix you have already computed elsewhere).
+cases, e.g. a FIML matrix you have already computed elsewhere.
 
 Two caveats matter. First, **the fit-index N is your call.** FIML draws
 information from every partially observed row, so there is no single
 “correct” N for the EFA fit indices, and the `n_obs` argument selects it
-on this route: `"total"` (the default — every row contributing to the
-FIML likelihood, the convention a FIML analysis reports) is mildly
-*anti-conservative* — χ² and RMSEA then treat partial rows as if
-complete — while `"complete"` (the complete-case count) is conservative.
-Crucially, the loading and edge **point estimates are unaffected by this
-choice** — only the fit indices depend on it, and those are approximate
-under this two-step (FIML matrix into normal-theory EFA) route
-regardless of N. Second, the route assumes **multivariate normality**,
-so it is for **continuous** data only; for ordinal items use
-`engine = "esem"` with `cor = "polychoric"` instead.
+on this route. `"total"` is the default: every row contributing to the
+FIML likelihood, the convention a FIML analysis reports. It is mildly
+*anti-conservative*, because χ² and RMSEA then treat partial rows as if
+complete. `"complete"` (the complete-case count) is conservative. The
+loading and edge **point estimates are unaffected by this choice**. Only
+the fit indices depend on it, and those are approximate under this
+two-step route (FIML matrix into normal-theory EFA) regardless of N.
+Second, the route assumes **multivariate normality**, so it is for
+**continuous** data only. For ordinal items use `engine = "esem"` with
+`cor = "polychoric"` instead.
 
 ### Which option to use?
 
 | Situation | Recommendation |
 |----|----|
 | Continuous data, little missingness | `"pairwise"` (default) |
-| Ordinal data + WLSMV, any missingness | `"pairwise"` (uses `available.cases` — MCAR-valid, full N) |
+| Ordinal data + WLSMV, any missingness | `"pairwise"` (uses `available.cases`, MCAR-valid, full N) |
 | Want consistent fit statistics and edges (continuous ML/MLR) | `"listwise"` |
 | ESEM ML/MLR, meaningful missingness, want all rows used in estimation | `"fiml"` |
-| **Continuous PCA/EFA, MAR missingness** | **`"fiml"`** (via [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html); see above) |
+| **Continuous PCA/EFA, MAR missingness** | **`"fiml"`** (via [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html). See above) |
 | MAR-valid with ordinal (not yet built-in) | MI via `lavaan.mi` or `mirt` |
 
 ## Correlation-matrix input
 
-When you have a pre-computed correlation matrix — a published table, a
+You may have a pre-computed correlation matrix: a published table, a
 polychoric matrix computed externally, a [FIML estimate for missing
-data](#fiml-for-continuous-pcaefa-via-a-fiml-correlation-matrix), or a
-subset you want to analyse without refitting — you can pass it directly
-to
+data](#fiml-for-continuous-pcaefa), or a subset you want to analyse
+without refitting. You can pass it directly to
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 or
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md).
@@ -594,12 +607,12 @@ all.equal(tidy(x_R)$r, tidy(x_d)$r) # TRUE within floating-point tolerance
 
 | Constraint | Detail |
 |----|----|
-| **Engine** | `"pca"` and `"efa"` only — `"esem"` errors (lavaan needs raw data) |
-| **`n_obs`** | Required for `"efa"`; optional for `"pca"` (stored as `NA`) |
-| **`cor` argument** | Ignored (basis is fixed); warns if set explicitly |
-| **`missing` argument** | Ignored; warns if set explicitly |
+| **Engine** | `"pca"` and `"efa"` only. `"esem"` errors (lavaan needs raw data) |
+| **`n_obs`** | Required for `"efa"`. Optional for `"pca"` (stored as `NA`) |
+| **`cor` argument** | Ignored (basis is fixed). Warns if set explicitly |
+| **`missing` argument** | Ignored. Warns if set explicitly |
 | **Factor scores** | `keep_scores = TRUE`, [`augment()`](https://generics.r-lib.org/reference/augment.html), `tidy(what = "scores")` all error |
-| **`$cor` field** | Stored as `NA`; shown as `"(user-supplied matrix)"` in print |
+| **`$cor` field** | Stored as `NA`. Shown as `"(user-supplied matrix)"` in print |
 
 ### suggest_k() with a correlation matrix
 
@@ -612,20 +625,20 @@ sk_R <- suggest_k(R, n_obs = 875L)
 
 ## Performance with many items (ESEM)
 
-Bass-ackwards analyses often involve large item pools, and ESEM is the
-most expensive engine because it fits a separate `lavaan` model at every
+Bass-ackwards analyses often involve large item pools. ESEM is the most
+expensive engine because it fits a separate `lavaan` model at every
 level. Two automatic optimisations keep this manageable:
 
 - **Sample statistics are computed once.** For ordinal data
   (`cor = "polychoric"`, WLSMV), lavaan’s thresholds, polychoric matrix,
-  and asymptotic weight matrix depend only on the data — not on the
-  number of factors — so
+  and asymptotic weight matrix depend only on the data, not on the
+  number of factors. So
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
   computes them at the first level and reuses them for every deeper
   level. This is the single biggest saving at large item counts.
 - **Levels can be fit in parallel.** The per-level fits are independent.
   Install `future.apply` and set a
-  [future](https://future.futureverse.org) plan before your call; the
+  [future](https://future.futureverse.org) plan before your call. The
   default plan is sequential (no change in behaviour).
 
 ``` r
@@ -641,18 +654,18 @@ plan(sequential) # restore when done
 [`plan()`](https://future.futureverse.org/reference/plan.html) comes
 from **future** (it is *not* re-exported by `future.apply`), so load
 `future` directly rather than reaching for `future.apply::plan()`.
-Parallelism pays off only when the per-level fits are genuinely heavy;
-for small problems the worker startup cost can outweigh the gain.
+Parallelism pays off only when the per-level fits are genuinely heavy.
+For small problems the worker startup cost can outweigh the gain.
 Results are reproducible across plans when you pass `seed`. PCA and EFA
 compute their correlation matrix once and do not need this.
 
-If you only need the hierarchy (loadings and edges) and not ESEM’s
-rotation-aware standard errors and per-level fit indices,
+You may only need the hierarchy (loadings and edges) and not ESEM’s
+rotation-aware standard errors and per-level fit indices. In that case
 `engine = "efa"` with `cor = "polychoric"` computes the polychoric
 matrix once and runs
-[`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html) at each level —
-substantially cheaper than k WLSMV fits — and recovers the same
-structure.
+[`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html) at each level.
+That is substantially cheaper than k WLSMV fits, and it recovers the
+same structure.
 
 ## References
 

@@ -2,11 +2,13 @@
 
 [`autoplot.ackwards()`](https://jmgirard.github.io/ackwards/reference/autoplot.ackwards.md)
 exposes a large number of arguments for controlling the appearance of
-the hierarchy diagram. This vignette is a visual reference: each section
-demonstrates one group of arguments with rendered figures so you can see
-the effect before writing any code.
+the hierarchy diagram. The diagram shows the factors at every level of
+the hierarchy, where a factor is an unobserved dimension that explains
+why a set of items correlate. This vignette is a visual reference. Each
+section demonstrates one group of arguments with rendered figures, so
+you can see the effect before writing any code.
 
-All options shown here are **presentation-only** — they do not change
+All options shown here are **presentation-only**. They do not change
 which factors were extracted or how the between-level correlations were
 computed. Options that change *which nodes appear* (`drop_pruned`,
 `compress_levels`) are specific to the Forbes pruning extension and are
@@ -36,11 +38,11 @@ plot of chunk base
 
 Factors are labeled `m{k}f{j}` (level k, factor j). Two edge aesthetics
 carry the between-level correlations, and each one comes with its own
-legend: arrow **thickness** encodes the magnitude \|r\|, and edge
-**color** encodes the direction (blue = positive, red–orange =
+legend. Arrow **thickness** encodes the magnitude \|r\|, and edge
+**color** encodes the direction (blue = positive, red-orange =
 negative). Level labels on the left count factors per level.
 
-Primary-parent edges are always positive after sign alignment; a red
+Primary-parent edges are always positive after sign alignment. A red
 (negative) edge is therefore a genuine *secondary* relationship, not an
 artifact.
 
@@ -50,13 +52,13 @@ You choose which aesthetic carries which piece of information. `sign_by`
 picks the channel for direction and `magnitude_by` picks the channel for
 \|r\|. No aesthetic is ever mapped without a matching legend.
 
-### `sign_by` — how direction is shown
+### `sign_by`: how direction is shown
 
 `sign_by = "color"` (the default) uses `color_pos`/`color_neg`.
-`"linetype"` draws positive edges solid and negative edges dashed,
-freeing color for a single-hue figure. `"both"` uses color *and*
-linetype together — negatives get a distinct double-dash so they still
-read in greyscale — and merges the two into a single “Direction” legend.
+`"linetype"` draws positive edges solid and negative edges dashed, which
+frees color for a single-hue figure. `"both"` uses color *and* linetype
+together. Negatives get a distinct double-dash so they still read in
+greyscale, and the two are merged into a single “Direction” legend.
 `"none"` drops sign encoding entirely.
 
 ``` r
@@ -77,7 +79,7 @@ autoplot(x, sign_by = "both")
 
 plot of chunk sign-by
 
-### `magnitude_by` — how \|r\| is shown
+### `magnitude_by`: how \|r\| is shown
 
 By default `magnitude_by = "linewidth"` maps \|r\| to arrow thickness
 with a `|r|` legend. Set `magnitude_by = "none"` for uniform-width edges
@@ -95,7 +97,7 @@ plot of chunk magnitude-by
 
 ## Filtering edges
 
-### `cut_show` — minimum \|r\| to display
+### `cut_show`: minimum \|r\| to display
 
 Edges below `cut_show` are hidden entirely. Raising it produces a
 sparser diagram that emphasises only the strongest connections.
@@ -112,7 +114,7 @@ plot of chunk cut-show
 
 ## Edge colors
 
-### `color_pos` / `color_neg` — custom direction colors
+### `color_pos` / `color_neg`: custom direction colors
 
 The default blue/red palette can be replaced with any colors recognised
 by R. British spellings (`colour_pos`, `colour_neg`) are accepted as
@@ -128,16 +130,16 @@ autoplot(x, color_pos = "darkorchid", color_neg = "darkorange")
 plot of chunk colours
 
 When sign is *not* encoded by color (`sign_by = "linetype"` or
-`"none"`), all edges take the single `color_edge` (default black) — the
-basis for the Forbes (2023) publication style (see the worked example at
-the end of this vignette).
+`"none"`), all edges take the single `color_edge` (default black). That
+is the basis for the Forbes (2023) publication style (see the worked
+example at the end of this vignette).
 
 ## Monochrome mode
 
-### `mono = TRUE` — a black-and-white convenience wrapper
+### `mono = TRUE`: a black-and-white convenience wrapper
 
-`mono = TRUE` is shorthand for `sign_by = "linetype"` with black edges:
-solid lines are positive correlations, dashed lines are negative.
+`mono = TRUE` is shorthand for `sign_by = "linetype"` with black edges.
+Solid lines are positive correlations, dashed lines are negative.
 `magnitude_by` still applies, so `linewidth` continues to encode \|r\|.
 
 ``` r
@@ -155,7 +157,7 @@ as well, add `show_r = TRUE` (documented next).
 
 ## Correlation labels
 
-### `show_r` / `r_digits` — annotate edges with r values
+### `show_r` / `r_digits`: annotate edges with r values
 
 `show_r = TRUE` draws the rounded (signed) correlation at each edge
 midpoint. `r_digits` controls the number of decimal places (default 2).
@@ -181,17 +183,17 @@ plot of chunk show-r-digits
 
 ## Node labels
 
-### `node_labels` — rename individual factors
+### `node_labels`: rename individual factors
 
 `node_labels` is a named character vector mapping factor IDs to display
 strings. Unspecified factors keep any name attached with
 [`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md),
-falling back to their `m{k}f{j}` labels. If you have already labelled
+and fall back to their `m{k}f{j}` labels. If you have already labelled
 the object with
 [`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md)
 (see
 [`vignette("ackwards-interpret")`](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md)),
-those names appear on the diagram automatically and `node_labels` is
+those names appear on the diagram automatically. Then `node_labels` is
 only needed to override a particular node for this one plot.
 
 ``` r
@@ -225,11 +227,11 @@ node-labels-multiline](assets/ackwards-visualization-node-labels-multiline-1.png
 
 plot of chunk node-labels-multiline
 
-### `node_width` / `node_height` — size individual boxes to fit a label
+### `node_width` / `node_height`: size individual boxes to fit a label
 
 A long substantive name may not fit the default box. `node_width` and
-`node_height` each accept a **named vector** keyed by factor ID, sizing
-those boxes individually; boxes you do not name keep the default.
+`node_height` each accept a **named vector** keyed by factor ID, which
+sizes those boxes individually. Boxes you do not name keep the default.
 Increase `min_sep` to make room when a box grows wider than the spacing
 between siblings.
 
@@ -247,7 +249,7 @@ node-size](assets/ackwards-visualization-node-size-1.png)
 
 plot of chunk node-size
 
-### `label_template()` — generate the scaffold
+### `label_template()`: generate the scaffold
 
 Typing out every factor ID is tedious for large objects.
 [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
@@ -266,24 +268,24 @@ label-template-forbes](assets/ackwards-visualization-label-template-forbes-1.png
 
 plot of chunk label-template-forbes
 
-For the full naming workflow — reading factors, the sign convention, and
-choosing labels across the hierarchy — see
+For the full naming workflow (reading factors, the sign convention, and
+choosing labels across the hierarchy) see
 [`vignette("ackwards-interpret")`](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md).
 
 ## Item content
 
-### `show_items` — list the items under the deepest-level factors
+### `show_items`: list the items under the deepest-level factors
 
 For a publication figure it helps to show *what* each most-granular
-factor is made of. `show_items = TRUE` lists the salient items beneath
-each deepest-level (`k_max`) box: the top `n_items` by `|loading|` at or
-above `item_cut`, using the same extraction as
-[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
-(variable labels appear when the data carried them into the fit; here
+factor is made of. Set `show_items = TRUE` to list the salient items
+beneath each deepest-level (`k_max`) box. It shows the top `n_items` by
+`|loading|` at or above `item_cut`, using the same extraction as
+[`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md).
+Variable labels appear when the data carried them into the fit. Here
 [`na.omit()`](https://rdrr.io/r/stats/na.fail.html) stripped `bfi25`’s
-label attributes, so the item IDs are shown — see
+label attributes, so the item IDs are shown. See
 [`vignette("ackwards-interpret")`](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md)
-on keeping labels).
+on keeping labels.
 
 ``` r
 
@@ -297,12 +299,12 @@ plot of chunk show-items
 
 ## Structural simplifications
 
-### `primary_only = TRUE` — show only primary-parent edges
+### `primary_only = TRUE`: show only primary-parent edges
 
 Setting `primary_only = TRUE` keeps only the single strongest edge per
-factor (its primary parent), producing a clean tree. Because skip-level
-edges are never primary, this also suppresses curved arcs when
-`pairs = "all"` was used.
+factor (its primary parent), which produces a clean tree. Because
+skip-level edges are never primary, this also suppresses curved arcs
+when `pairs = "all"` was used.
 
 ``` r
 
@@ -314,14 +316,14 @@ primary-only](assets/ackwards-visualization-primary-only-1.png)
 
 plot of chunk primary-only
 
-### `order` — arrange the deepest level by hand
+### `order`: arrange the deepest level by hand
 
-The layout orders factors automatically to minimise edge crossings, but
-you may want a specific left-to-right arrangement — to match a paper, or
+The layout orders factors automatically to minimise edge crossings. But
+you may want a specific left-to-right arrangement, to match a paper or
 to untangle a figure. `order` fixes the order of the **deepest**
-(`k_max`) level; supply that level’s factor IDs in the desired order.
+(`k_max`) level. Supply that level’s factor IDs in the desired order.
 Every factor above stays centred over its primary children, so fixing
-the leaf order rearranges the whole tree coherently — any arrangement of
+the leaf order rearranges the whole tree coherently. Any arrangement of
 the hierarchy is reachable this way.
 
 ``` r
@@ -336,20 +338,21 @@ manual-order](assets/ackwards-visualization-manual-order-1.png)
 
 plot of chunk manual-order
 
-### `drop_pruned` + `show_secondary` — the pruned view and its hidden correlations
+### `drop_pruned` + `show_secondary`: the pruned view and its hidden correlations
 
 Pruning (see
 [`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md))
-flags redundant factors; `drop_pruned = TRUE` then renders the reduced
-hierarchy, joining each retained factor to its single strongest
-surviving ancestor. That primary view hides every *other* between-level
-correlation. `show_secondary = TRUE` adds them back — each kept
-cross-level pair with `|r| >= cut_show` that is not a primary edge —
-drawn dimmed and thinner beneath the primary arrows, so the sign colors
-stay intact. These are a factor’s weaker second parents *and* direct
-skip-level correlations the primary path would otherwise obscure (a
-skip-level \|r\| is its own fact: correlation is not transitive, so it
-need not equal the product along the path).
+flags redundant factors, factors that persist across levels without
+changing. `drop_pruned = TRUE` then renders the reduced hierarchy,
+joining each retained factor to its single strongest surviving ancestor.
+That primary view hides every *other* between-level correlation.
+`show_secondary = TRUE` adds them back: each kept cross-level pair with
+`|r| >= cut_show` that is not a primary edge. They are drawn dimmed and
+thinner beneath the primary arrows, so the sign colors stay intact.
+These are a factor’s weaker second parents *and* direct skip-level
+correlations the primary path would otherwise obscure. A skip-level
+\|r\| is its own fact: correlation is not transitive, so it need not
+equal the product along the path.
 
 ``` r
 
@@ -404,7 +407,7 @@ plot of chunk level-labels-size
 
 ## Arrowheads
 
-### `show_arrows = FALSE` — plain line ends
+### `show_arrows = FALSE`: plain line ends
 
 By default, edges end with closed arrowheads. Setting
 `show_arrows = FALSE` draws plain line ends. This applies to both
@@ -422,12 +425,12 @@ plot of chunk no-arrows
 
 ## Edge width
 
-### `edge_linewidth` — uniform vs. \|r\|-scaled width
+### `edge_linewidth`: uniform vs. \|r\|-scaled width
 
 By default, edge width is proportional to \|r\| (via `magnitude_by`). A
 numeric `edge_linewidth` draws every edge at that constant width and
-removes the `|r|` legend — like `magnitude_by = "none"`, but at a width
-you choose.
+removes the `|r|` legend. It works like `magnitude_by = "none"`, but at
+a width you choose.
 
 ``` r
 
@@ -441,11 +444,11 @@ plot of chunk edge-linewidth
 
 ## Layout orientation
 
-### `direction = "horizontal"` — left-to-right layout
+### `direction = "horizontal"`: left-to-right layout
 
 By default levels stack top-to-bottom (level 1 at top).
 `direction = "horizontal"` lays them out left-to-right (level 1 at
-left), which fits wide slides and posters; the level labels move to the
+left), which fits wide slides and posters. The level labels move to the
 bottom margin.
 
 ``` r
@@ -460,11 +463,11 @@ plot of chunk direction
 
 ## Legend
 
-### `legend = FALSE` — suppress all guides
+### `legend = FALSE`: suppress all guides
 
-`legend = FALSE` removes all legends from the plot. Most useful when the
-diagram is self-explanatory or the legend duplicates information
-conveyed by labels.
+`legend = FALSE` removes all legends from the plot. It is most useful
+when the diagram is self-explanatory or the legend duplicates
+information conveyed by labels.
 
 ``` r
 
@@ -542,8 +545,8 @@ p <- autoplot(x, direction = "horizontal")
 ggplot2::ggsave("hierarchy.png", p, width = 9, height = 5, dpi = 300)
 ```
 
-`ackwards` does not re-export `ggsave()` — that would move `ggplot2`
-from Suggests into Imports — so call it from `ggplot2` directly.
+`ackwards` does not re-export `ggsave()`, because that would move
+`ggplot2` from Suggests into Imports. Call it from `ggplot2` directly.
 
 ------------------------------------------------------------------------
 
@@ -552,10 +555,11 @@ from Suggests into Imports — so call it from `ggplot2` directly.
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
 also has its own
 [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
-method, producing a multi-panel scree / parallel-analysis / VSS
-diagnostic. It is documented in depth in
-[`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md);
-here we only note that the same
+method. It produces a multi-panel diagnostic with a scree plot, parallel
+analysis (which keeps a factor only when it explains more variance than
+random data would), and VSS. It is documented in depth in
+[`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md).
+Here we only show that the same
 [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
 generic covers it.
 
@@ -563,13 +567,13 @@ generic covers it.
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [168ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [101ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [61ms]
+#> ✔ Running MAP and VSS... [33ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [6.8s]
+#> ✔ Running Comparison Data (CD)... [3.9s]
 #> 
 autoplot(sk)
 ```

@@ -10,11 +10,12 @@ bfi <- na.omit(bfi25)
 
 Before you can run
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md),
-you need a value for `k_max` — the *maximum depth* of the hierarchy.
-This is not the same question as “how many factors does my data really
-have?” There is no single true k hidden in the data, and different
-selection criteria will give different answers depending on their
-assumptions and what they are optimized for.
+you need a value for `k_max`, the *maximum depth* of the hierarchy. A
+factor is an unobserved dimension that explains why a set of items
+correlate. Choosing `k_max` is not the same question as “how many
+factors does my data really have?” There is no single true k hidden in
+the data. Different selection criteria give different answers, depending
+on their assumptions and what they are optimized for.
 
 The practical question is: **what range of k is defensible, and where
 should I look?**
@@ -30,23 +31,25 @@ Setting `k_max = 5` tells
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 to fit models at every level from 1 to 5 and examine how the structure
 evolves across those levels. It does not assert that exactly five
-factors exist. In fact, deliberately setting k_max one or two levels
-past the consensus — to watch factors fragment at the deeper levels — is
+factors exist. In fact, setting k_max one or two levels past the
+consensus on purpose, to watch factors fragment at the deeper levels, is
 a normal and informative part of the analysis.
 
 **Overextraction is the dominant error mode.** Simulation studies
 consistently find that the most common mistake is retaining too many
 factors, not too few. An overextracted level introduces factors with
-only 1–2 strong loadings and between-level correlations near 1.0 (a sign
-that the parent factor simply split in two without adding interpretive
-content). Forbes (2023) documents this explicitly for the bass-ackwards
+only one or two strong loadings and between-level correlations near 1.0.
+A loading is the correlation between an item and a factor. Correlations
+that high are a sign that the parent factor split in two without adding
+interpretive content. Forbes (2023) documents this for the bass-ackwards
 context: non-replicable structure tends to appear at the deeper levels
 of an overextracted hierarchy. Use the criteria below to identify the
 upper end of the plausible range, and treat levels near that ceiling
 with appropriate skepticism. Replicability near the ceiling can also be
-measured directly, with split-half
-[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
-— see
+measured directly with split-half
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md),
+which checks whether each factor re-emerges in repeated random
+half-splits of the sample. See
 [`vignette("ackwards-girard")`](https://jmgirard.github.io/ackwards/articles/ackwards-girard.md)
 for that workflow.
 
@@ -54,10 +57,11 @@ for that workflow.
 captures a different aspect of the data, tends to err in a different
 direction, and can fail in different circumstances. A consensus across
 multiple criteria is more trustworthy than any single recommendation.
-Even for parallel analysis, Lim and Jahng (2019) recommend treating the
-estimate as a range of roughly ±1 factor resolved by interpretability —
-and Achim (2021) argues that even that overstates its precision. That
-disagreement is why
+Parallel analysis keeps a factor only when it explains more variance
+than random data would. Even for that criterion, Lim and Jahng (2019)
+recommend reading the estimate as a range of about ±1 factor resolved by
+interpretability. Achim (2021) argues that even that overstates its
+precision. That disagreement is why
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
 reports a consensus range, never a single number.
 
@@ -67,17 +71,19 @@ reports a consensus range, never a single number.
 computes five criteria from the same data. Here they are with their
 logic, typical behavior, and practical limitations.
 
-### PA-PC — Parallel Analysis (PC basis)
+### PA-PC: parallel analysis on the PC basis
 
 **What it does.** Computes PC eigenvalues for the observed correlation
-matrix, then simulates a large number of random correlation matrices of
-the same dimensions. Retains components whose observed eigenvalues
-exceed the 95th percentile of the simulated distribution.
+matrix. A PC (principal component) is a weighted sum of the items that
+captures as much of their variance as possible. It then simulates a
+large number of random correlation matrices of the same dimensions. It
+retains components whose observed eigenvalues exceed the 95th percentile
+of the simulated distribution.
 
-**Typical behavior.** Tends to *overextract* — it often recommends more
+**Typical behavior.** Tends to *overextract*. It often recommends more
 components than replicate in independent samples, particularly when
-items are moderately correlated (which they usually are in personality
-and clinical research). Saucier (1997, footnote 14) reported parallel
+items are moderately correlated, which they usually are in personality
+and clinical research. Saucier (1997, footnote 14) reported parallel
 analysis suggesting as many as 30 factors in wide lexical item sets.
 Treat its recommendation as an *upper bound*.
 
@@ -92,7 +98,7 @@ threshold.
 
 ------------------------------------------------------------------------
 
-### PA-FA — Parallel Analysis (FA basis)
+### PA-FA: parallel analysis on the FA basis
 
 **What it does.** The same logic as PA-PC, but applied to common-factor
 eigenvalues rather than PC eigenvalues. The observed FA eigenvalues are
@@ -105,25 +111,29 @@ below PA-PC.
 
 **When it is useful.** The model-consistent criterion for
 `engine = "efa"` or `engine = "esem"` in
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md):
-if your analysis assumes a common-factor model, comparing FA eigenvalues
-to a FA baseline is the better-matched test.
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+EFA (exploratory factor analysis) models the items as shared factors
+plus item-specific noise, and ESEM (exploratory structural equation
+modeling) fits that same model in lavaan with standard errors. If your
+analysis assumes a common-factor model, comparing FA eigenvalues to a FA
+baseline is the better-matched test.
 
-**Limitation.** Like PA-PC, it can be underpowered with small samples
-and returns `NA` when no observed FA eigenvalue exceeds the random
-threshold (a sign that the data may not support a factor model at all).
+**Limitation.** Like PA-PC, it can be underpowered with small samples.
+It returns `NA` when no observed FA eigenvalue exceeds the random
+threshold, which is a sign that the data may not support a factor model
+at all.
 
 ------------------------------------------------------------------------
 
-### MAP — Minimum Average Partial
+### MAP: minimum average partial
 
 **What it does.** After extracting k components, computes the partial
 correlations among items (the correlations that remain after removing
 the k components). Reports the average squared partial correlation at
-each k. Recommends the k that *minimizes* this average — the point at
+each k. Recommends the k that *minimizes* this average, the point at
 which the components have removed as much shared variance as possible.
 
-**Typical behavior.** Usually conservative — often recommends fewer
+**Typical behavior.** Usually conservative. It often recommends fewer
 factors than PA. Simulation studies find it performs well across a range
 of sample sizes and factor structures, particularly when the true number
 of factors is small to moderate.
@@ -140,56 +150,58 @@ framework even when you plan to use an EFA or ESEM engine in
 
 ------------------------------------------------------------------------
 
-### VSS-1 and VSS-2 — Very Simple Structure
+### VSS-1 and VSS-2: very simple structure
 
 **What it does.** Fits a “very simple structure” model at each k: a
 loading matrix where each item loads on only one factor (VSS-1) or at
 most two factors (VSS-2). Reports the fit of that simplified model at
 each k. Recommends the k that *maximizes* this fit.
 
-**Typical behavior.** VSS-1 often peaks early (small k), making it
+**Typical behavior.** VSS-1 often peaks early (small k), which makes it
 conservative. VSS-2 tends to peak at a higher k. Both are sensitive to
 whether the true structure actually has a simple-structure form.
 
 **When it is useful.** As a cross-check on the other criteria. When
-VSS-1 and VSS-2 agree with MAP, the simple-structure interpretation is
-robust. When they disagree, the data may have a more complex loading
+VSS-1 and VSS-2 agree with MAP, the simple-structure interpretation
+holds up. When they disagree, the data may have a more complex loading
 structure.
 
 **Limitation.** VSS criteria work poorly when items have meaningful
-cross-loadings (a common situation with personality scales). In those
+cross-loadings, a common situation with personality scales. In those
 cases, VSS-1 in particular may underestimate k.
 
 ------------------------------------------------------------------------
 
-### CD — Comparison Data
+### CD: comparison data
 
 **What it does.** Generates comparison datasets by drawing from the
-marginal distributions of the observed items (preserving each item’s
-shape without assuming multivariate normality). Computes eigenvalues for
-each comparison dataset and applies a sequential one-sided Wilcoxon test
-(default α = 0.30): a factor is retained while adding it significantly
-reduces RMSE relative to the previous level; the procedure stops at the
-first non-significant improvement. The recommended k is the last
-retained level — it is not necessarily the minimum of the RMSE curve.
+marginal distributions of the observed items. This preserves each item’s
+shape without assuming multivariate normality. It computes eigenvalues
+for each comparison dataset and applies a sequential one-sided Wilcoxon
+test (default α = 0.30). A factor is retained while adding it
+significantly reduces RMSE relative to the previous level. The procedure
+stops at the first non-significant improvement. The recommended k is the
+last retained level. It is not necessarily the minimum of the RMSE
+curve.
 
 **Typical behavior.** Among the most accurate criteria in simulation
 studies (Ruscio & Roche, 2012), particularly when items have non-normal
-distributions — a common feature of Likert-scale data. More conservative
+distributions, a common feature of Likert-scale data. More conservative
 than PA-PC.
 
-**When it is useful.** Ordinal or skewed data where the normality
-assumptions underlying PA are questionable. CD samples from the actual
-marginal distributions, so it implicitly captures item skewness and
+**When it is useful.** Ordinal or skewed data, where the normality
+assumptions underlying PA are questionable. An ordinal item is recorded
+on an ordered scale with a small number of categories. CD samples from
+the actual marginal distributions, so it captures item skewness and
 discreteness.
 
 **Limitation.** Requires the `EFAtools` package (install separately).
-Needs the raw data matrix — it cannot run from a correlation matrix
+Needs the raw data matrix, so it cannot run from a correlation matrix
 alone. The resampling step is stochastic, so results can vary slightly
 across runs (use `seed` for reproducibility).
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
 reports `cd_available = FALSE` when `EFAtools` is absent and skips CD
-gracefully.
+without error.
 
 A note on `cor = "spearman"`: the other four criteria respect the `cor`
 argument and compute their eigenvalues from the requested correlation
@@ -208,10 +220,10 @@ warns that CD and the other criteria may diverge.
 | PA-FA | Conservative | `engine = "efa"` / `"esem"` | `psych` |
 | MAP | Conservative | General secondary check | `psych` |
 | VSS-1/2 | Variable | Simple-structure check | `psych` |
-| CD | Accurate in simulation; can over-retain on large, correlated samples | Ordinal/non-normal data | `EFAtools` |
+| CD | Accurate in simulation. Can over-retain on large, correlated samples | Ordinal/non-normal data | `EFAtools` |
 
-For a complete reference — argument definitions, return value structure,
-and citations — see
+For a complete reference, with argument definitions, return value
+structure, and citations, see
 [`?suggest_k`](https://jmgirard.github.io/ackwards/reference/suggest_k.md).
 
 ## Running suggest_k()
@@ -220,13 +232,13 @@ and citations — see
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [152ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [93ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [46ms]
+#> ✔ Running MAP and VSS... [30ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [6.4s]
+#> ✔ Running Comparison Data (CD)... [3.8s]
 #> 
 print(sk)
 #> 
@@ -239,15 +251,15 @@ print(sk)
 #> ── Criteria (k = 1-8) ──
 #> 
 #>   k  PA-PC  PA-FA      MAP    VSS-1    VSS-2  CD
-#>   1     ✔      ✔   0.0254   0.5178   0.0000   ✔ 
-#>   2     ✔      ✔   0.0194   0.5839   0.6719   ✔ 
-#>   3     ✔      ✔   0.0175   0.5913   0.7354   ✔ 
-#>   4     ✔      ✔   0.0164   0.6215*  0.7837   ✔ 
-#>   5     ✔      ✔   0.0160*  0.5738   0.7950*  ✔ 
-#>   6     -      ✔   0.0172   0.5594   0.7629   ✔*
+#>   1     ✔︎      ✔︎   0.0254   0.5178   0.0000   ✔︎ 
+#>   2     ✔︎      ✔︎   0.0194   0.5839   0.6719   ✔︎ 
+#>   3     ✔︎      ✔︎   0.0175   0.5913   0.7354   ✔︎ 
+#>   4     ✔︎      ✔︎   0.0164   0.6215*  0.7837   ✔︎ 
+#>   5     ✔︎      ✔︎   0.0160*  0.5738   0.7950*  ✔︎ 
+#>   6     -      ✔︎   0.0172   0.5594   0.7629   ✔︎*
 #>   7     -      -   0.0205   0.5613   0.7616   - 
 #>   8     -      -   0.0236   0.5600   0.7215   -
-#>   ✔ retained   * optimal k   - not retained
+#>   ✔︎ retained   * optimal k   - not retained
 #> 
 #> ── Recommendations ──
 #> 
@@ -266,21 +278,21 @@ print(sk)
 ```
 
 The output prints in two sections. The **criteria table** shows the raw
-evidence as an aligned grid — one row per k, one column per requested
-criterion (`k`, then PA-PC, PA-FA, MAP, VSS-1, VSS-2, and CD as
-applicable) — with a legend beneath naming the glyphs. It uses two
-display conventions:
+evidence as an aligned grid. It has one row per k and one column per
+requested criterion (`k`, then PA-PC, PA-FA, MAP, VSS-1, VSS-2, and CD
+as applicable). A legend beneath names the glyphs. It uses two display
+conventions:
 
 - **Checkmark / dash** (PA-PC, PA-FA, and CD): a checkmark (✔) marks
-  each k the criterion *retains*, up to its recommended ceiling; a dash
+  each k the criterion *retains*, up to its recommended ceiling. A dash
   (-) marks the levels above that ceiling, which it does not retain.
   These criteria answer a yes/no “keep this level?” question at each k,
   so there is no number to show.
 - **Number with a star** (MAP, VSS-1, VSS-2): these criteria produce a
-  *score* at each k — a quantity to minimize (MAP) or maximize (VSS) —
-  so the raw value is printed in its column, and the single optimal k
-  (the min or max) is starred (`*`). Reading down the column tells you
-  how sharp the optimum is: a lone tall peak is decisive, a near-flat
+  *score* at each k, a quantity to minimize (MAP) or maximize (VSS). So
+  the raw value is printed in its column, and the single optimal k (the
+  min or max) is starred (`*`). Reading down the column tells you how
+  sharp the optimum is. A lone tall peak is decisive. A near-flat
   plateau is not.
 
 CD is a hybrid: it retains levels (✔ up to its ceiling, - above) *and*
@@ -289,15 +301,15 @@ request get columns, so a subset run (for example `criteria = "map"`)
 prints a narrower table.
 
 The **recommendations block** summarizes each criterion’s single
-suggested k (or range for PA), and the **consensus range** spans the
-minimum to maximum across all available recommendations. Note that this
-block lists **six** lines by default even though
+suggested k (or range for PA). The **consensus range** spans the minimum
+to maximum across all available recommendations. This block lists
+**six** lines by default even though
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-runs **five** criteria: `"vss"` is one entry in the `criteria` argument
-(they share a single
+runs **five** criteria. The reason is that `"vss"` is one entry in the
+`criteria` argument (they share a single
 [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html) call) but
-reports two numbers, VSS-1 and VSS-2, since it fits simple structure at
-two different complexities.
+reports two numbers, VSS-1 and VSS-2. It fits simple structure at two
+different complexities.
 
 ### The diagnostic plot
 
@@ -310,15 +322,15 @@ autoplot(sk)
 
 plot of chunk autoplot
 
-When `EFAtools` is installed and CD is computed, the plot is a 2×2 grid;
-otherwise it falls back to a single-column three-panel layout.
+When `EFAtools` is installed and CD is computed, the plot is a 2×2 grid.
+Otherwise it falls back to a single-column three-panel layout.
 
 **Scree / Parallel Analysis (top-left).** The solid blue line is the
-observed PC eigenvalue profile; the grey dashed line is the PA-PC
+observed PC eigenvalue profile. The grey dashed line is the PA-PC
 95th-percentile threshold. Retain PC-based components where the blue
 line is above the grey dashed line (left of the PA-PC star). The solid
 teal line and grey dotted line show the same for the FA basis (PA-FA).
-The two comparisons are independent — you read each pair against its own
+The two comparisons are independent. You read each pair against its own
 threshold.
 
 **MAP (top-right).** Lower is better. The criterion minimizes at the
@@ -327,12 +339,12 @@ starred k.
 **VSS (bottom-left).** Higher is better. VSS-1 (solid green) and VSS-2
 (dashed purple) each peak at their starred k.
 
-**CD — Comparison Data (bottom-right, when available).** Shows the mean
+**CD, comparison data (bottom-right, when available).** Shows the mean
 RMSE between observed and comparison-data eigenvalues at each k. The
 curve is drawn only over the levels that were actually computed by
 [`EFAtools::CD`](https://mdsteiner.github.io/EFAtools/reference/CD.html)
 (up to the first non-significant improvement plus one). The starred k is
-the last level retained by the sequential Wilcoxon test — it need not be
+the last level retained by the sequential Wilcoxon test. It need not be
 the visible minimum of the plotted curve. Requires `EFAtools`.
 
 Look for visual convergence across panels. When the scree elbow, the MAP
@@ -347,23 +359,24 @@ is the right response.
 | If you plan to use… | Prefer… | Rationale |
 |----|----|----|
 | `engine = "pca"` | PA-PC, MAP | PA-PC uses the same PC basis as the engine |
-| `engine = "efa"` | PA-FA, MAP, CD | PA-FA is basis-consistent; MAP and CD are robust across models |
+| `engine = "efa"` | PA-FA, MAP, CD | PA-FA is basis-consistent. MAP and CD hold up across models |
 | `engine = "esem"` | PA-FA, MAP, CD | Same rationale as EFA |
 
 This is a best-practice recommendation, not a hard rule. Running all
-five criteria regardless of your engine is cheap and informative — you
+five criteria regardless of your engine is cheap and informative. You
 will see where the criteria agree and where they pull in different
 directions.
 
 ## The arguments
 
-### `criteria` — which criteria to compute
+### `criteria`: which criteria to compute
 
 By default
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
 runs all five criteria (CD only if **EFAtools** is installed). The
-`criteria` argument lets you request a subset — useful when you only
-trust certain criteria for your data, or when you want a faster run:
+`criteria` argument lets you request a subset. That is useful when you
+only trust certain criteria for your data, or when you want a faster
+run:
 
 ``` r
 
@@ -374,7 +387,7 @@ suggest_k(bfi25, criteria = "map")
 suggest_k(bfi25, criteria = c("pa_pc", "pa_fa"))
 ```
 
-Skipping is a genuine computational saving, not just output filtering:
+Skipping is a genuine computational saving, not only output filtering.
 `"pa_pc"` and `"pa_fa"` share a single
 [`psych::fa.parallel()`](https://rdrr.io/pkg/psych/man/fa.parallel.html)
 call (so both run, or neither), and `"map"` and `"vss"` share a single
@@ -390,7 +403,7 @@ method and the
 diagnostic render only the criteria you asked for, and the consensus
 range is computed from the requested criteria only.
 
-### `cor` — correlation basis
+### `cor`: correlation basis
 
 `cor` controls the correlation matrix used to compute eigenvalues for
 PA, MAP, and VSS. It should match (or approximate) the `cor` argument
@@ -400,21 +413,22 @@ you plan to use in
 **Ordinal data caveat.** If your items are ordinal (e.g., Likert
 scales), you may plan to use `cor = "polychoric"` in
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
-But
+A polychoric correlation estimates the correlation between two ordinal
+items as if each were a continuous variable cut into categories. But
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-does not support `cor = "polychoric"` — parallel analysis and MAP do not
-have a polychoric eigen-decomposition path. The standard practice is to
-run
+does not support `cor = "polychoric"`, because parallel analysis and MAP
+do not have a polychoric eigen-decomposition path. The standard practice
+is to run
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
 with the default `cor = "pearson"` and then switch to
 `cor = "polychoric"` in
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
 The PA-PC and PA-FA recommendations on the Pearson matrix serve as a
-reasonable upper and lower bound for the polychoric analysis; see
+reasonable upper and lower bound for the polychoric analysis. See
 [`vignette("ackwards-ordinal")`](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.md)
 for more.
 
-### `n_iter` — Monte Carlo iterations
+### `n_iter`: Monte Carlo iterations
 
 `n_iter` controls how many random matrices are simulated for parallel
 analysis. The default is 20, which is fast but noisy. For a
@@ -425,46 +439,46 @@ publication-ready result, increase to 100 or more:
 sk_hi <- suggest_k(bfi, n_iter = 100, seed = 42)
 ```
 
-For a quick initial exploration, `n_iter = 5` is often sufficient:
+For a quick initial exploration, `n_iter = 5` is often enough:
 
 ``` r
 
 sk_fast <- suggest_k(bfi, n_iter = 5)
 ```
 
-### `seed` — reproducibility
+### `seed`: reproducibility
 
 The `seed` argument is passed to
-[`set.seed()`](https://rdrr.io/r/base/Random.html) before the Comparison
-Data (CD) step, making CD results reproducible across runs.
+[`set.seed()`](https://rdrr.io/r/base/Random.html) before the comparison
+data (CD) step, which makes CD results reproducible across runs.
 
 **Honest caveat.** Parallel analysis uses
 [`psych::fa.parallel()`](https://rdrr.io/pkg/psych/man/fa.parallel.html)
 internally, which does not respond reliably to
 [`set.seed()`](https://rdrr.io/r/base/Random.html). PA simulation
 results will vary slightly from run to run regardless of the `seed`
-argument — this is a known limitation of the underlying function. CD,
+argument. This is a known limitation of the underlying function. CD,
 which uses
 [`EFAtools::CD()`](https://mdsteiner.github.io/EFAtools/reference/CD.html),
 does respond to [`set.seed()`](https://rdrr.io/r/base/Random.html) and
 is reproducible when `seed` is set.
 
-### `k_max` — ceiling for the search
+### `k_max`: ceiling for the search
 
 `k_max` is the maximum number of factors tested. The default is
-`min(ncol(data) - 1, 8)`. Increase it if you expect a deeper hierarchy;
-reduce it to speed up computation when you already have a strong prior.
-Note that `k_max` here is a search ceiling for
-[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-and need not equal the `k_max` you ultimately pass to
+`min(ncol(data) - 1, 8)`. Increase it if you expect a deeper hierarchy.
+Reduce it to speed up computation when you already have a strong prior.
+Here `k_max` is a search ceiling for
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md),
+and it need not equal the `k_max` you ultimately pass to
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
 
-## When the criteria agree — and when they don’t
+## When the criteria agree, and when they do not
 
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-earns its keep precisely when the criteria *disagree*, because the
-spread tells you how much the choice of k is a judgement call rather
-than a fact read off the data. It helps to see both extremes.
+earns its keep precisely when the criteria *disagree*. The spread tells
+you how much the choice of k is a judgement call rather than a fact read
+off the data. It helps to see both extremes.
 
 **Idealized data.** `sim16` is a built-in simulated dataset (1,000
 cases, 16 continuous variables) with a known, cleanly separated 1 → 2 →
@@ -479,18 +493,18 @@ sk_sim <- suggest_k(sim16, seed = 42)
 print(sk_sim)
 ```
 
-The criteria collapse onto essentially one answer — the consensus is k =
-4, recovering the four factors built into `sim16`. This is what “watch
+The criteria collapse onto nearly one answer. The consensus is k = 4,
+which recovers the four factors built into `sim16`. This is what “watch
 the method recover a known structure” looks like. It is *not*, however,
 what most real datasets look like, so do not treat this tidy consensus
 as the normal case.
 
 **Realistic data.** The BFI-25, worked through next, is the contrast.
-Its criteria span k = 4–6, and no single value is obviously correct.
-That disagreement is not a defect in the criteria; it is a faithful
+Its criteria span k = 4 to 6, and no single value is obviously correct.
+That disagreement is not a defect in the criteria. It is a faithful
 signal that the data support a *band* of defensible depths. Reasoning
-under that kind of disagreement — not chasing a single number — is the
-skill this vignette is really about.
+under that kind of disagreement, rather than chasing a single number, is
+the skill this vignette is really about.
 
 ## A worked recommendation for the BFI
 
@@ -510,15 +524,15 @@ print(sk) # reproduced from earlier
 #> ── Criteria (k = 1-8) ──
 #> 
 #>   k  PA-PC  PA-FA      MAP    VSS-1    VSS-2  CD
-#>   1     ✔      ✔   0.0254   0.5178   0.0000   ✔ 
-#>   2     ✔      ✔   0.0194   0.5839   0.6719   ✔ 
-#>   3     ✔      ✔   0.0175   0.5913   0.7354   ✔ 
-#>   4     ✔      ✔   0.0164   0.6215*  0.7837   ✔ 
-#>   5     ✔      ✔   0.0160*  0.5738   0.7950*  ✔ 
-#>   6     -      ✔   0.0172   0.5594   0.7629   ✔*
+#>   1     ✔︎      ✔︎   0.0254   0.5178   0.0000   ✔︎ 
+#>   2     ✔︎      ✔︎   0.0194   0.5839   0.6719   ✔︎ 
+#>   3     ✔︎      ✔︎   0.0175   0.5913   0.7354   ✔︎ 
+#>   4     ✔︎      ✔︎   0.0164   0.6215*  0.7837   ✔︎ 
+#>   5     ✔︎      ✔︎   0.0160*  0.5738   0.7950*  ✔︎ 
+#>   6     -      ✔︎   0.0172   0.5594   0.7629   ✔︎*
 #>   7     -      -   0.0205   0.5613   0.7616   - 
 #>   8     -      -   0.0236   0.5600   0.7215   -
-#>   ✔ retained   * optimal k   - not retained
+#>   ✔︎ retained   * optimal k   - not retained
 #> 
 #> ── Recommendations ──
 #> 
@@ -537,12 +551,12 @@ print(sk) # reproduced from earlier
 ```
 
 Reading the rendered table (the numbers below are computed from the `sk`
-object, so they always match the table above — PA values can vary across
-builds):
+object, so they always match the table above, while PA values can vary
+across builds):
 
-**The conservative criteria.** MAP recommends k = 5; VSS-1 and VSS-2
+**The conservative criteria.** MAP recommends k = 5. VSS-1 and VSS-2
 peak at k = 4 and 5. Where two of these converge, that value is a
-meaningful signal — they err on the side of too few factors, so their
+meaningful signal. They err on the side of too few factors, so their
 answer is a floor worth taking seriously.
 
 **The liberal criteria.** PA-PC retains k ≤ 5 and PA-FA k ≤ 6. In this
@@ -573,15 +587,15 @@ x <- ackwards(bfi, k_max = k_upper, cor = "polychoric")
 autoplot(x)
 ```
 
-If the deepest level looks like overextraction (very thin arrows,
-factors that split and immediately re-merge, between-level r ≈ 1), you
-can interpret one level down with confidence that you have not missed
-structure. If it reveals interpretable sub-facets instead, you have
-found something worth reporting.
+The deepest level may look like overextraction: very thin arrows,
+factors that split and immediately re-merge, between-level r ≈ 1. If so,
+you can interpret one level down with confidence that you have not
+missed structure. If it reveals interpretable sub-facets instead, you
+have found something worth reporting.
 
 This “set k slightly high, then interpret down” approach is the standard
-bass-ackwards workflow. The method is specifically designed for this
-kind of structured exploration.
+bass-ackwards workflow. The method is designed for this kind of
+structured exploration.
 
 ## References
 
