@@ -1,6 +1,6 @@
 # M87: Plain-English pass — vignettes B (girard, forbes, forbes2023, ordinal, interpret)
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** M85, M88
 - **Driving RR:** —
@@ -91,6 +91,8 @@ appended to `tools/prose-terms.txt` with a work-log line.
 - 2026-09-16: T5 interpret rewritten; checker 0 reports; knitted once to the scratchpad with `rmarkdown::render()` (renders). `check_code_unchanged()` reads only `*.Rmd.orig`, so the live file's 79 chunk lines and spans were compared to `master:` with `.code_lines_rmd()` directly: identical. Glossed: factor, loading. The `E4: Make friends easily` label quote kept verbatim (AC4). A sentence that opens with a code span never splits in the checker (the span becomes a space, so no capital follows the period): three such sentences were re-opened with a word.
 - 2026-09-16: T6: `Rscript tools/check-prose.R --code-unchanged master` OK on the branch head (four `.Rmd.orig` sources; interpret compared by hand, see T5). The five AC4 sites re-read against `git show master:<file>`: girard Step 5 bullet (score correlations, descriptive, not a fitted model), forbes direct-criterion paragraph, forbes2023 `k_max = 10` fit plus direct default plus "reproduces ... exactly, all 54 components", ordinal "Automatic detection" (Pearson default, warning, polychoric opt-in), interpret `E4: Make friends easily` (matches `attr(bfi25$E4, "label")`). No drift found.
 - 2026-09-16: T7: `Rscript vignettes/precompute.R` re-run (exit 0); intro, suggest-k, engines, visualization `.Rmd` and their assets reverted with `git checkout --` (M61). In the four regenerated batch outputs only stamps, one gt div id, cli timing lines, and the check-mark variation selector differ; PNGs re-rendered. `tools/dod-gate.R` prose step now calls `check_prose()` with no path argument (full default domain; M86 has merged). NEWS: third documentation entry added, and the M85 entry's "The vignettes are unchanged" sentence, no longer true for this release, now points at the two vignette entries. `DOD_CODE_UNCHANGED=1 Rscript tools/dod-gate.R`: GATE PASSED (prose clean, code-unchanged clean, check 0 err/0 warn/0 note, coverage 100%, style/lint clean, pkgdown index complete).
+- 2026-09-16: claim audit: 41 claims read, 2 corrected — vignettes/ackwards-girard.Rmd.orig, ackwards-forbes.Rmd.orig, ackwards-forbes2023.Rmd.orig, ackwards-ordinal.Rmd.orig, ackwards-interpret.Rmd, NEWS.md, tools/dod-gate.R. Corrected: the girard table cell had called `suggest_k()`'s criteria variance-explained rules (MAP, VSS, CD are not), now "computed from the item correlation matrix"; the new redundancy gloss said the partner sits at a "deeper" level, but a chain that stops short of `k_max` keeps its top node, so all three files now say "another level". Both re-read once by the same reader: correct. The reader also called the ESEM gloss ("adds standard errors") weak but not wrong; kept for consistency with batch A. Precompute re-run for the three sources, untouched vignettes reverted, gate re-run: GATE PASSED (check 0 err/0 warn/0 note, coverage 100%).
+- 2026-09-16: all tasks done, gate clean; status → review.
 
 ## Decisions
 

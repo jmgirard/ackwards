@@ -24,7 +24,7 @@ factor score is each person's estimated position on a factor. Forbes (2023)
 extended the method in two ways. It computes correlations across *all* level
 pairs, not only adjacent ones, and it uses those extra connections to identify
 and flag **redundant** or **artifactual** factors in the hierarchy. A redundant
-factor restates a factor at a deeper level rather than refining it. An
+factor restates a factor at another level rather than refining it. An
 artifactual factor is a by-product of the extraction rather than a construct in
 the data.
 

@@ -72,11 +72,11 @@ edges.
 The workflow below leans on the fact that this package now separates three
 questions that are easy to conflate. The third of them is redundancy. A
 redundant factor is one whose scores correlate at .9 or above with a factor at
-a deeper level, so it restates that factor rather than refining it.
+another level, so the pair restates one construct rather than refining it.
 
 | Question | Verb | What it measures |
 |---|---|---|
-| What depth range is *plausible*? | `suggest_k()` | Retention criteria based on how much variance each factor explains (consensus range) |
+| What depth range is *plausible*? | `suggest_k()` | Retention criteria computed from the item correlation matrix (consensus range) |
 | Which factors *replicate*? | `comparability()` | Split-half score comparability per factor per level |
 | Which factors *differentiate*? | `prune()` | Forbes (2023) redundancy: factors that persist without adding resolution |
 

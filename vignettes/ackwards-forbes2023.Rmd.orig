@@ -20,7 +20,7 @@ has_gt <- requireNamespace("gt", quietly = TRUE)
 Forbes (2023) introduced the extended bass-ackwards method: all-pairs
 between-level correlations plus redundancy pruning. A factor is an unobserved
 dimension that explains why a set of items correlate. A redundant factor
-restates a factor at a deeper level rather than refining it. She demonstrated
+restates a factor at another level rather than refining it. She demonstrated
 the method on a real, deep hierarchy: the **Assessing Mental Health (AMH)**
 study. That study measured 155 mental-health symptom variables spanning 18 DSM
 disorders in an Australian general-population sample (N = 3,175, Forbes et
