@@ -21,8 +21,8 @@ for every factor at every level. A factor is a summary variable standing in
 for a group of items that move together. A loading is the correlation
 between an item and a factor, and congruence is a 0 to 1 index of how
 similar two loading patterns are. Grey points are individual splits, and
-black points
-are the per-factor medians. Dashed and dotted reference lines mark the
+black points are the per-factor medians. Dashed and dotted reference lines
+mark the
 conventional .90 and .95 benchmarks, which are visual guides, not tests.
 }
 \details{

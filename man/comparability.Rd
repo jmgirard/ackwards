@@ -45,8 +45,8 @@ when \code{engine = "efa"}. One of \code{"minres"} (default), \code{"ml"}, or \c
 
 \item{n_splits}{Number of random split-half replicates. Default \code{10L}.
 The published precedents used a single split (Saucier et al., 2005).
-Repeating the split guards against the luck of one draw, and that is why
-this implementation repeats it. Each replicate fits \code{2 * k_max}
+Repeating the split guards against the luck of one draw, so the
+coefficients are summarised over replicates. Each replicate fits \code{2 * k_max}
 solutions, so the default costs 20 hierarchy fits. PCA (principal
 component analysis) and EFA (exploratory factor analysis) are fast
 enough that this is typically a few seconds.}

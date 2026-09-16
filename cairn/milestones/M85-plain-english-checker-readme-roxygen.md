@@ -211,3 +211,24 @@ Review pass 2, 2026-09-16, on branch head a474f9b (code identical to 39ffdfa, th
 - [x] AC7: `devtools::document()` left `man/`, `NAMESPACE`, and `DESCRIPTION` unchanged. `devtools::build_readme()` run twice against the committed README.md: build one changed 8 lines, all `#>`-prefixed, at README.md lines 109-110 and 121-122, inside the `suggest-print` output block (lines 93-143); build two changed 0 lines. `man/figures/` was byte-identical after both. `Rscript tools/dod-gate.R` exited 0 on this code (check 0/0/0 in 87s, coverage 100.00%, styler clean, lintr clean, pkgdown index complete), and a planted em dash in NEWS.md made it exit 1 in 0.6s before `check()`. NEWS.md carries the documentation entry. Ticked.
 
 **Consistency gate (pass 2).** `cairn_validate.py` exit 0, 16 checks pass, the same 16 M84 work-log advisories. No principle changed. Profile checks all pass via the gate run above and the document() and README reads.
+
+**Independent review (pass 2)**, three fresh lenses over the updated diff. Prior-review lens [S]: every fix the work log claims for pass-1 findings 1-6 and 10 and the five AC5 sites is present in the code; nothing regressed; GitHub probe empty. Blame-history lens [S]: the glosses and the checker hardening preserve every prior intent; one finding, the gate header comment "printing every failure it found" is false after the early exit. Diff-bug lens [O], 26 ranked findings. Triage chosen by the user at the gate, each disposition below.
+
+Fix now (committed on the branch before the merge chip):
+- [O]2 wrapped-phrase matcher joined two roxygen blocks separated by a code line: a paragraph now also ends at a gap in source line numbers, with a test.
+- [O]3 a one-line `\preformatted{ x }` errored as unclosed: a line carrying its own `}` opens no block, with a test.
+- [O]4 a line-1 `---` rule errored as YAML: line 1 opens YAML only when line 2 is a `key:` line, with tests for both cases.
+- [O]6 the sentence sentinel was a raw control byte: now the visible string `<<SENTENCE-END>>`.
+- [O]8 word forms: `delved`, `worth noting`, `noting that` added.
+- [O]11 a checker error aborted the gate with a raw R error: the gate now catches it as a "checker error" prose failure, so the "GATE FAILED before check()" report still prints (answers [O]5 as well).
+- [O]19 tests for the above: 88 expectations, 0 failures.
+- [S] gate header comment rewritten to state the two-phase behaviour.
+- [O]12 the doubled "A factor is … A factor is retained" in `autoplot.suggest_k`: second sentence now "CD retains a factor while …". The checker then caught the first attempt at 36 words, which was split.
+- [O]13 reflow: `R/comparability.R` "black points" line, `R/suggest_k.R` long line, `README.Rmd:107-108`. The `README.Rmd:90-91` break is an ordinary wrap and was left.
+- [O]14 `n_splits` rationale: "so the coefficients are summarised over replicates" replaces the circular clause.
+- [O]15 `R/layout.R` crossing rule: stated once, "fewer primary crossings, and on a tie fewer crossings overall".
+- [O]16 and [O]17 NEWS: "In those files … The vignettes are unchanged" and "A prose check in the development workflow".
+
+Follow-up, one candidate row (search-first, no existing row on the checker): [O]9 `.prose_tools_dir()` default resolves wrongly when sourced; [O]21 table cells and headings are never length-checked (AC1 letter); [O]22 semicolons and dashes inside a bare URL are false positives; [O]24 `check_code_unchanged()` is not wired into the gate.
+
+Rejected with reason: [O]1 an even count of stray backticks is indistinguishable from spans, the odd-count error and the double-backtick escape are the bound; [O]5 an error is loud and the gate now reports it; [O]7 whitespace-only lines as paragraph breaks is the chosen rule; [O]10 the report shows the matched text, which is the post-strip text; [O]18 the British and American spelling mix is pre-existing and out of scope; [O]20 the 18-byte PNG change is a graphics-device artifact and AC7 binds build-to-build; [O]23 the `.lintr` line keeps the gate runnable on lintr 3.4.0, logged at implement; [O]25 the caller guards the zero-row case; [O]26 adding `*.md` to directory expansion would contradict AC1's letter.

@@ -90,8 +90,8 @@
 #'   when `engine = "efa"`. One of `"minres"` (default), `"ml"`, or `"pa"`.
 #' @param n_splits Number of random split-half replicates. Default `10L`.
 #'   The published precedents used a single split (Saucier et al., 2005).
-#'   Repeating the split guards against the luck of one draw, and that is why
-#'   this implementation repeats it. Each replicate fits `2 * k_max`
+#'   Repeating the split guards against the luck of one draw, so the
+#'   coefficients are summarised over replicates. Each replicate fits `2 * k_max`
 #'   solutions, so the default costs 20 hierarchy fits. PCA (principal
 #'   component analysis) and EFA (exploratory factor analysis) are fast
 #'   enough that this is typically a few seconds.
@@ -483,8 +483,8 @@ print.comparability <- function(x, ...) {
 #' for a group of items that move together. A loading is the correlation
 #' between an item and a factor, and congruence is a 0 to 1 index of how
 #' similar two loading patterns are. Grey points are individual splits, and
-#' black points
-#' are the per-factor medians. Dashed and dotted reference lines mark the
+#' black points are the per-factor medians. Dashed and dotted reference lines
+#' mark the
 #' conventional .90 and .95 benchmarks, which are visual guides, not tests.
 #'
 #' Requires the \pkg{ggplot2} package.

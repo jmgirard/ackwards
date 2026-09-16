@@ -6,16 +6,17 @@
 #'
 #' 1. **Ordering** determines the left-to-right *order* of factors at each
 #'    level. A factor is a summary variable standing in for a group of items
-#'    that move together. Two candidate orderings are scored and the one with
-#'    fewest crossings is kept. The first is a single top-down |r|-weighted
+#'    that move together. Two candidate orderings are scored and the better one
+#'    is kept. The first is a single top-down |r|-weighted
 #'    barycenter sweep (the historical order). The second is a
 #'    **primary-forest traversal**. Each factor has exactly one primary parent,
 #'    so the primary edges form a forest. A depth-first, subtree-contiguous
 #'    leaf order then lays every subtree out as an unbroken run.
 #'    In deep hierarchies (`k >= 10`) the traversal drives primary-tree
 #'    crossings to zero, removing the "bent levels" a single pass leaves
-#'    behind. Keep-best scoring counts primary crossings first and then all
-#'    crossings, so shallow layouts are never made worse.
+#'    behind. The better ordering is the one with fewer primary crossings, and
+#'    on a tie the one with fewer crossings overall, so shallow layouts are
+#'    never made worse.
 #'
 #' 2. **X-assignment** assigns actual x coordinates bottom-up. The deepest
 #'    level is spread evenly. Every upper-level factor is placed at the simple

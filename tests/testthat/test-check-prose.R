@@ -209,6 +209,40 @@ test_that("an unclosed span, fence, or YAML header is an error, not silence", {
   expect_error(.run(env, yaml), "YAML header", fixed = TRUE)
 })
 
+test_that("a paragraph never spans a code line, a one-line preformatted block, or a leading rule", {
+  env <- .prose_env()
+  # Two roxygen blocks separated by a code line are two paragraphs: a phrase
+  # split across them is not matched, and a backtick in each is not a span.
+  rf <- .write_fixture(c(
+    "#' Alpha beta not",
+    "f <- 1",
+    "#' just gamma with a stray ` mark",
+    "g <- 2",
+    "#' and another ` mark here"
+  ), ".R")
+  expect_error(.run(env, rf), "unmatched backtick", fixed = TRUE)
+  rf2 <- .write_fixture(c("#' Alpha beta not", "f <- 1", "#' just gamma"), ".R")
+  expect_equal(nrow(.run(env, rf2)), 0L)
+
+  one_line <- .write_fixture(c(
+    "#' Title",
+    "#'",
+    "#' \\preformatted{x <- 1}",
+    "#' Prose with an em dash — after it.",
+    "f <- function(x) x"
+  ), ".R")
+  res <- .run(env, one_line)
+  expect_equal(res$line[res$class == "em dash"], 4L)
+
+  rule_first <- .write_fixture(c("---", "", "Prose; with a semicolon."), ".Rmd")
+  res <- .run(env, rule_first)
+  expect_equal(res$line[res$class == "semicolon"], 3L)
+
+  yaml_first <- .write_fixture(c("---", "title: x", "---", "Prose; here."), ".Rmd")
+  res <- .run(env, yaml_first)
+  expect_equal(res$line[res$class == "semicolon"], 4L)
+})
+
 test_that("a sentence is counted between terminators, not per line", {
   env <- .prose_env()
   md <- .write_fixture(c(

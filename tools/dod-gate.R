@@ -9,7 +9,11 @@
 #   -> pkgdown::check_pkgdown() (mirrors the pkgdown GHA; catches exported
 #      topics missing from _pkgdown.yml, which R CMD check does not)
 # Usage, from the package root:  Rscript tools/dod-gate.R
-# Exits non-zero if any step fails, printing every failure it found.
+# Runs in two phases. The four base-R guards (vignette freshness, ledger
+# anchors, CI path filters, prose) cost seconds; if any fails, the gate prints
+# those failures and exits before check(). Otherwise the remaining steps all
+# run and every failure among them is printed at the end. Non-zero exit on any
+# failure.
 
 # Parallel testthat (DESCRIPTION Config) defaults to 2 workers; use the
 # machine. Applies to the check()'s test phase and the coverage run alike.
@@ -68,10 +72,20 @@ if (length(ci_problems) > 0) {
 # only; sys.source blocks the script's own body.
 prose_env <- new.env()
 sys.source("tools/check-prose.R", envir = prose_env)
-prose_reports <- prose_env$check_prose(
-  c("README.Rmd", "DESCRIPTION", "NEWS.md", "R"),
-  banned = prose_env$read_prose_list("prose-banned.txt", "tools"),
-  abbrev = prose_env$read_prose_list("prose-abbrev.txt", "tools")
+# The checker errors on an unclosed span, fence, or YAML header; that error is
+# a prose failure like any report, not a raw R abort.
+prose_reports <- tryCatch(
+  prose_env$check_prose(
+    c("README.Rmd", "DESCRIPTION", "NEWS.md", "R"),
+    banned = prose_env$read_prose_list("prose-banned.txt", "tools"),
+    abbrev = prose_env$read_prose_list("prose-abbrev.txt", "tools")
+  ),
+  error = function(e) {
+    data.frame(
+      file = "", line = NA_integer_, class = "checker error",
+      text = conditionMessage(e), stringsAsFactors = FALSE
+    )
+  }
 )
 if (nrow(prose_reports) > 0) {
   for (i in seq_len(nrow(prose_reports))) {

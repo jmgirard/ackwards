@@ -66,7 +66,11 @@ read_prose_list <- function(name, dir = .prose_tools_dir()) {
   i <- 1L
   # YAML header: a `---` on line 1 through the next `---`. An unterminated
   # header is an error, never a silently empty file.
-  if (skip_yaml && length(lines) > 0L && grepl("^---\\s*$", lines[[1L]])) {
+  # A `---` on line 1 opens YAML only when line 2 looks like a `key:` line;
+  # otherwise it is a horizontal rule.
+  yaml_open <- skip_yaml && length(lines) > 1L && grepl("^---\\s*$", lines[[1L]]) &&
+    grepl("^[A-Za-z_][A-Za-z0-9_-]*\\s*:", lines[[2L]])
+  if (yaml_open) {
     end <- which(grepl("^(---|\\.\\.\\.)\\s*$", lines))
     end <- end[end > 1L]
     if (length(end) == 0L) {
@@ -160,10 +164,13 @@ read_prose_list <- function(name, dir = .prose_tools_dir()) {
       keep[[i]] <- FALSE
       next
     }
-    # Rd's own code block, `\preformatted{ ... }`, closed by a lone `}`.
+    # Rd's own code block, `\preformatted{ ... }`, closed by a lone `}`. A
+    # one-line `\preformatted{ ... }` opens no block.
     if (grepl("\\\\preformatted\\{", t)) {
-      in_fence <- TRUE
-      fence_at <- i
+      if (!grepl("\\}\\s*$", t)) {
+        in_fence <- TRUE
+        fence_at <- i
+      }
       keep[[i]] <- FALSE
       next
     }
@@ -206,12 +213,19 @@ extract_prose <- function(path, kind = .prose_kind(path)) {
 
 # ---- code-span removal -------------------------------------------------------
 
-# Paragraph ids for a vector of prose lines: consecutive non-empty lines share
-# an id, and an empty line ends the paragraph. Spans and wrapped phrases are
-# matched within a paragraph, never across one.
-.paragraph_ids <- function(text) {
+# Paragraph ids for a vector of prose lines: consecutive non-empty lines on
+# consecutive source lines share an id. A blank line or a gap in the source
+# line numbers (a code line or fenced block between two roxygen or markdown
+# prose lines) ends the paragraph. Spans and wrapped phrases are matched within
+# a paragraph, never across one.
+.paragraph_ids <- function(text, line = seq_along(text)) {
+  if (length(text) == 0L) {
+    return(integer(0L))
+  }
   blank <- !nzchar(trimws(text))
-  cumsum(c(TRUE, blank[-length(blank)] & !blank[-1L])) * !blank
+  gap <- c(FALSE, diff(line) != 1L)
+  starts <- !blank & (c(TRUE, blank[-length(blank)]) | gap)
+  cumsum(starts) * !blank
 }
 
 .strip_one_paragraph <- function(text) {
@@ -245,7 +259,7 @@ extract_prose <- function(path, kind = .prose_kind(path)) {
 # numbers stay aligned. A backtick left unmatched within its paragraph is an
 # error: a stray backtick would otherwise swallow the prose up to the next one.
 strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
-  ids <- .paragraph_ids(text)
+  ids <- .paragraph_ids(text, line)
   out <- text
   for (id in setdiff(unique(ids), 0L)) {
     at <- which(ids == id)
@@ -288,7 +302,7 @@ strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
   # Banned phrases are matched over each paragraph joined with newlines, so a
   # multi-word phrase wrapped across a line break is still found. The report
   # names the line where the match starts.
-  ids <- .paragraph_ids(prose$text)
+  ids <- .paragraph_ids(prose$text, prose$line)
   for (b in banned) {
     esc <- gsub("([][{}()+*^$|\\\\.?])", "\\\\\\1", b)
     esc <- gsub("\\s+", "\\\\s+", esc)
@@ -344,7 +358,7 @@ strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
   # PCRE lookbehind must be fixed-width, so mark the split point with a
   # sentinel and split on that instead.
   mark_re <- paste0("(", term, ")\\s+(?=[(\\[\"'*_]*[A-Z])")
-  sentinel <- ""
+  sentinel <- "<<SENTENCE-END>>"
 
   reports <- list()
   cur_words <- 0L

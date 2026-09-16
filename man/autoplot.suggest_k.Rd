@@ -34,11 +34,11 @@ threshold.
 The CD panel plots the mean RMSE between observed and comparison-data
 eigenvalues at each k. CD uses a sequential one-sided Wilcoxon test
 (Ruscio & Roche, 2012). A factor is a summary variable standing in for a
-group of items that move together. A factor is retained while adding it
+group of items that move together. CD retains a factor while adding it
 significantly reduces RMSE (default \eqn{\alpha = 0.30}), and the starred
-k is the last retained factor. The curve is shown only over the levels that were actually
-computed. The starred k need not be the visible minimum of the plotted
-curve.
+k is the last retained factor. The curve is shown only over the levels
+that were actually computed. The starred k need not be the visible minimum
+of the plotted curve.
 
 Requires the \pkg{ggplot2} package.
 }
