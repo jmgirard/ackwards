@@ -29,6 +29,42 @@
 
 long_sentence <- paste(c("Word", rep("word", 30)), collapse = " ")
 
+test_that("the list defaults resolve to the checker's own directory from any working directory", {
+  root <- normalizePath(test_path("..", ".."), mustWork = FALSE)
+  checker <- file.path(root, "tools", "check-prose.R")
+  skip_if_not(file.exists(checker), "tools/check-prose.R absent (built package)")
+  expected <- readLines(file.path(root, "tools", "prose-banned.txt"), encoding = "UTF-8")
+  expected <- trimws(expected)
+  expected <- expected[nzchar(expected) & !startsWith(expected, "#")]
+
+  wd <- tempfile("prose-wd-")
+  dir.create(wd)
+  old <- setwd(wd)
+  on.exit(setwd(old), add = TRUE)
+  expect_false(file.exists(file.path("tools", "prose-banned.txt")))
+
+  e1 <- new.env()
+  source(checker, local = e1)
+  expect_identical(e1$read_prose_list("prose-banned.txt"), expected)
+
+  e2 <- new.env()
+  sys.source(checker, envir = e2)
+  expect_identical(e2$read_prose_list("prose-banned.txt"), expected)
+
+  # The namespace-qualified loader is the same route.
+  e3 <- new.env()
+  base::sys.source(checker, envir = e3)
+  expect_identical(e3$read_prose_list("prose-banned.txt"), expected)
+
+  # A relative load path is made absolute at load time, so a later working
+  # directory change does not move the tools directory.
+  setwd(root)
+  e4 <- new.env()
+  sys.source(file.path("tools", "check-prose.R"), envir = e4)
+  setwd(wd)
+  expect_identical(e4$read_prose_list("prose-banned.txt"), expected)
+})
+
 test_that("each report class fires at each location, for each dash form", {
   env <- .prose_env()
   dashes <- c("—", "–", " -- ")
@@ -243,6 +279,71 @@ test_that("a paragraph never spans a code line, a one-line preformatted block, o
   expect_equal(res$line[res$class == "semicolon"], 4L)
 })
 
+test_that("a table cell and a heading each count as one sentence under max_words", {
+  env <- .prose_env()
+  words <- function(n) paste(rep("word", n), collapse = " ")
+  md <- .write_fixture(c(
+    paste("#", words(31)),
+    "",
+    paste("##", words(29)),
+    "",
+    "| a | b |",
+    "|---|---|",
+    paste0("| ", words(31), " | short |"),
+    paste0("| ", words(29), " | ", words(29), " |"),
+    "",
+    "Prose after the table."
+  ), ".Rmd")
+  res <- .run(env, md)
+  over <- res[grepl("^sentence over 30 words", res$class), , drop = FALSE]
+  expect_setequal(over$line, c(1L, 7L))
+  expect_true(all(grepl("\\(31\\)$", over$class)))
+  expect_equal(nrow(res), 2L, info = paste(res$class, res$line, collapse = "; "))
+
+  # A heading or cell is one sentence whatever terminators it holds, and an
+  # escaped pipe does not split a cell.
+  md2 <- .write_fixture(c(
+    paste("# Foo bar. Baz", words(28)),
+    "",
+    "| a |",
+    "|---|",
+    paste0("| ", words(20), " \\| ", words(20), " |")
+  ), ".Rmd")
+  res2 <- .run(env, md2)
+  expect_equal(res2$line, c(1L, 5L))
+  expect_equal(res2$class, c("sentence over 30 words (31)", "sentence over 30 words (41)"))
+})
+
+test_that("a dash or semicolon inside a URL is never reported, and in link text it is", {
+  env <- .prose_env()
+  marks <- "a—b–c;d"
+  md <- .write_fixture(c(
+    paste0("See https://example.org/", marks, "/page for it."),
+    paste0("See <https://example.org/", marks, "/page> for it."),
+    paste0("See [plain text](https://example.org/", marks, "/page) for it."),
+    paste0("See [text ", marks, " here](https://example.org/", marks, "/page) for it."),
+    "",
+    paste0("A bare URL ends the sentence https://example.org/x. Then ", paste(rep("w", 28), collapse = " "), ".")
+  ), ".Rmd")
+  res <- .run(env, md)
+  for (cls in c("em dash", "en dash", "semicolon")) {
+    expect_equal(res$line[res$class == cls], 4L, info = cls)
+  }
+  expect_false(any(grepl("^sentence over", res$class)), info = paste(res$class, collapse = "; "))
+  expect_equal(nrow(res), 3L)
+
+  # A link target with one level of parentheses or a quoted title is blanked
+  # whole, and a bare URL ends at a brace, so the prose after it is still seen.
+  md2 <- .write_fixture(c(
+    paste0("See [wiki](https://en.wikipedia.org/wiki/A_(", marks, ")) now."),
+    paste0("See [t](https://example.org/x \"A", marks, " title\") now."),
+    "\\href{https://example.org/a}{Best; guide} here."
+  ), ".Rmd")
+  res2 <- .run(env, md2)
+  expect_equal(res2$line, 3L)
+  expect_equal(res2$class, "semicolon")
+})
+
 test_that("a sentence is counted between terminators, not per line", {
   env <- .prose_env()
   md <- .write_fixture(c(
@@ -367,7 +468,11 @@ test_that("check_code_unchanged sees only code and reports a changed code line",
     "New prose `r 1 + 2` here.",
     "```{r}", "x <- 1", "```"
   ), "README.Rmd")
-  expect_match(env$check_code_unchanged("master", root), "README.Rmd: chunk or inline-code item 4")
+  expect_match(
+    env$check_code_unchanged("master", root),
+    "README.Rmd: chunk or inline-code item 1 differs from the merge base (line 4: ",
+    fixed = TRUE
+  )
   git("checkout", "-q", "--", "README.Rmd")
 
   writeLines(c(
@@ -375,30 +480,68 @@ test_that("check_code_unchanged sees only code and reports a changed code line",
     "New prose `r 1 + 1` here.",
     "```{r}", "x <- 2", "```"
   ), "README.Rmd")
-  expect_match(env$check_code_unchanged("master", root), "README.Rmd: chunk or inline-code item 2")
+  expect_match(
+    env$check_code_unchanged("master", root),
+    "README.Rmd: chunk or inline-code item 3 differs from the merge base (line 6: ",
+    fixed = TRUE
+  )
   git("checkout", "-q", "--", "README.Rmd")
 
   # A vignette source is guarded the same way: a chunk option, a chunk body
-  # line, and an inline span each report by file and item.
+  # line, and an inline span each report by file, item, and working-tree line.
   v2 <- vig
   v2[5] <- "```{r chunk, eval = TRUE}"
   writeLines(v2, "vignettes/v.Rmd.orig")
   expect_match(
     env$check_code_unchanged("master", root),
-    "vignettes/v.Rmd.orig: chunk or inline-code item 1"
+    "vignettes/v.Rmd.orig: chunk or inline-code item 2 differs from the merge base (line 5: ",
+    fixed = TRUE
   )
   v2 <- vig
   v2[6] <- "y <- 2"
   writeLines(v2, "vignettes/v.Rmd.orig")
   expect_match(
     env$check_code_unchanged("master", root),
-    "vignettes/v.Rmd.orig: chunk or inline-code item 2"
+    "vignettes/v.Rmd.orig: chunk or inline-code item 3 differs from the merge base (line 6: ",
+    fixed = TRUE
   )
   v2 <- vig
   v2[4] <- "New vignette prose `r 2 + 3` here."
   writeLines(v2, "vignettes/v.Rmd.orig")
   expect_match(
     env$check_code_unchanged("master", root),
-    "vignettes/v.Rmd.orig: chunk or inline-code item 4"
+    "vignettes/v.Rmd.orig: chunk or inline-code item 1 differs from the merge base (line 4: ",
+    fixed = TRUE
   )
+
+  # A span moved, byte-identical, from before the chunk to after it changes
+  # the document order of the items: the first item is now the fence.
+  v2 <- c(vig[1:3], "New vignette prose here.", vig[5:7], "Moved `r 2 + 2` span.")
+  writeLines(v2, "vignettes/v.Rmd.orig")
+  expect_match(
+    env$check_code_unchanged("master", root),
+    "vignettes/v.Rmd.orig: chunk or inline-code item 1 differs from the merge base (line 5: ",
+    fixed = TRUE
+  )
+
+  # A renamed vignette source is two problems, one per path, in the R-file form.
+  writeLines(vig, "vignettes/v.Rmd.orig")
+  git("mv", "vignettes/v.Rmd.orig", "vignettes/w.Rmd.orig")
+  problems <- env$check_code_unchanged("master", root)
+  expect_length(problems, 2L)
+  expect_true(any(grepl("^vignettes/v.Rmd.orig exists on only one side of ", problems)))
+  expect_true(any(grepl("^vignettes/w.Rmd.orig exists on only one side of ", problems)))
+  git("mv", "vignettes/w.Rmd.orig", "vignettes/v.Rmd.orig")
+  expect_equal(env$check_code_unchanged("master", root), character(0L))
+
+  # README.Rmd is listed by name; absent on both sides of the merge base it is
+  # no problem. Both branches drop it, so the merge that moves the base is clean.
+  git("rm", "-q", "README.Rmd")
+  git("commit", "-q", "-m", "noreadme-work")
+  git("checkout", "-q", "master")
+  git("rm", "-q", "README.Rmd")
+  git("commit", "-q", "-m", "noreadme")
+  git("checkout", "-q", "work")
+  expect_length(git("merge", "-q", "-m", "merge", "master"), 0L)
+  expect_equal(env$check_code_unchanged("master", root), character(0L))
 })

@@ -11,9 +11,10 @@
 # `check_code_unchanged(ref)` is the companion guard: it proves a prose
 # rewrite left the code alone by comparing, against the merge base with `ref`,
 # the non-roxygen lines of R/*.R, the `#'` lines inside `@examples`, the
-# fenced chunks and inline `r` spans of README.Rmd and of every
-# vignettes/*.Rmd.orig present on both sides of the merge base, and every
-# DESCRIPTION field other than `Description:`.
+# fenced chunks and inline `r` spans (in document order) of README.Rmd and of
+# every vignettes/*.Rmd.orig, and every DESCRIPTION field other than
+# `Description:`. An R file or vignette source present on one side of the
+# merge base only is itself a problem.
 #
 # Base R only, so it runs before any dependency install.
 #
@@ -31,17 +32,57 @@
 
 # ---- lists -------------------------------------------------------------------
 
+# The directory this script lives in, resolved once while the file is being
+# read (the loading call's frame is gone by the time a list default is
+# evaluated). `source()` keeps the path in `ofile`; `sys.source()` keeps it in
+# `file`; `Rscript` passes it as `--file=`. No hit yields NULL, and
+# `.prose_tools_dir()` then stops rather than guess `tools` (M82 lesson: a
+# guard fails closed).
+.resolve_prose_script <- function() {
+  # The loader's frame is recognised by its call (`source`, `sys.source`, or
+  # the `base::` form), never by a variable name alone, and the path is made
+  # absolute here, before any later working-directory change.
+  path_in <- function(fr, var, call, fun) {
+    if (!is.call(call)) {
+      return(NULL)
+    }
+    name <- paste(deparse(call[[1L]]), collapse = "")
+    if (!name %in% c(fun, paste0("base::", fun))) {
+      return(NULL)
+    }
+    if (!exists(var, envir = fr, inherits = FALSE)) {
+      return(NULL)
+    }
+    f <- get(var, envir = fr)
+    if (is.character(f) && length(f) == 1L && nzchar(f)) f else NULL
+  }
+  for (i in rev(seq_len(sys.nframe()))) {
+    fr <- sys.frame(i)
+    call <- sys.call(i)
+    f <- path_in(fr, "ofile", call, "source")
+    if (is.null(f)) f <- path_in(fr, "file", call, "sys.source")
+    if (!is.null(f)) {
+      return(normalizePath(f, mustWork = FALSE))
+    }
+  }
+  arg <- grep("^--file=", commandArgs(FALSE), value = TRUE)
+  if (length(arg) > 0L) {
+    return(normalizePath(sub("^--file=", "", arg[[1L]]), mustWork = FALSE))
+  }
+  NULL
+}
+
+.prose_script_path <- .resolve_prose_script()
+
 .prose_tools_dir <- function() {
-  # When sourced, sys.frame carries the file; when run, commandArgs does.
-  f <- tryCatch(sys.frame(1L)$ofile, error = function(e) NULL)
-  if (is.null(f)) {
-    arg <- grep("^--file=", commandArgs(FALSE), value = TRUE)
-    if (length(arg) > 0L) f <- sub("^--file=", "", arg[[1L]])
+  if (is.null(.prose_script_path)) {
+    stop(
+      "check-prose.R cannot locate its own directory: load it with source(), ",
+      "sys.source(), or Rscript, or pass `dir` explicitly.",
+      call. = FALSE
+    )
   }
-  if (is.null(f) || !nzchar(f)) {
-    return("tools")
-  }
-  dirname(normalizePath(f, mustWork = FALSE))
+  dirname(.prose_script_path)
 }
 
 read_prose_list <- function(name, dir = .prose_tools_dir()) {
@@ -277,6 +318,37 @@ strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
   out
 }
 
+# ---- URL removal -------------------------------------------------------------
+
+.blank_match <- function(text, pat, keep_trailing = FALSE) {
+  m <- gregexpr(pat, text, perl = TRUE)
+  regmatches(text, m) <- lapply(regmatches(text, m), function(hits) {
+    vapply(hits, function(h) {
+      tail <- if (keep_trailing) sub("^.*?([.,;:!?]*)$", "\\1", h, perl = TRUE) else ""
+      paste0(strrep("x", nchar(h) - nchar(tail)), tail)
+    }, character(1L), USE.NAMES = FALSE)
+  })
+  text
+}
+
+# Replace every URL with a same-length run of `x` so that the dash and
+# semicolon flags and the banned phrases never see one. The filler carries no
+# space, so a URL stays the single word token it already was, line numbers
+# hold, and a link `[text](target)` keeps its word count. Three forms: a
+# markdown link target `](...)` (the text inside the parentheses), an autolink
+# `<http(s)://...>` (the text inside the angle brackets), and a bare
+# `http(s)://` run up to the next space, bracket, or brace. A link target may
+# hold one level of parentheses (a Wikipedia-style path) and a quoted title.
+# A bare URL's trailing sentence punctuation is kept, so a sentence ending in
+# a URL still ends.
+.blank_urls <- function(text) {
+  text <- .blank_match(
+    text, "(?<=\\]\\()(?:[^()\\s\"]|\\([^()\\s]*\\))*(?:\\s+\"[^\"]*\")?(?=\\))"
+  )
+  text <- .blank_match(text, "(?<=<)https?://[^>\\s]*(?=>)")
+  .blank_match(text, "https?://[^\\s<>()\\[\\]{}]+", keep_trailing = TRUE)
+}
+
 # ---- reports -----------------------------------------------------------------
 
 .report <- function(file, line, class, text) {
@@ -333,18 +405,21 @@ strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
 
 # Sentences. A sentence is the text between terminators: `.`, `?`, or `!`
 # (optionally followed by a closing quote, bracket, or emphasis mark) followed
-# by whitespace and an uppercase letter, or standing at a line end. Headings,
-# bullet markers, table rows, roxygen tags, and the listed abbreviations are
-# removed first. A paragraph break (empty prose line, new bullet, new roxygen
-# tag, or block end) also ends a sentence.
+# by whitespace and an uppercase letter, or standing at a line end. Bullet
+# markers, roxygen tags, and the listed abbreviations are removed first. A
+# paragraph break (empty prose line, new bullet, new roxygen tag, or block end)
+# also ends a sentence. A markdown heading (its text after the `#` marks) and
+# each cell of a table row (the text between `|` separators) are each counted
+# as one sentence of their own; a separator-only row (`|---|`) carries none.
 .sentence_reports <- function(file, prose, abbrev, max_words) {
-  text <- prose$text
-  line <- prose$line
-  # Headings and table rows carry no sentence.
-  drop <- grepl("^\\s*#{1,6}\\s", text) | grepl("^\\s*\\|", text) | grepl("^@section\\b", text)
-  starts <- grepl("^\\s*([-*+]|\\d+[.)])\\s", text) | grepl("^@[A-Za-z]", text)
+  units <- .sentence_units(prose$text, prose$line)
+  text <- units$text
+  line <- units$line
+  starts <- units$starts
+  standalone <- units$standalone
   # Roxygen `@section Title:` is a heading; other tags are markers whose tag
   # word (and, for @param, the argument name) is not prose.
+  drop <- grepl("^@section\\b", text)
   text <- sub("^@param\\s+\\S+\\s*", "", text)
   text <- sub("^@[A-Za-z]+\\s*", "", text)
   text <- sub("^\\s*([-*+]|\\d+[.)])\\s+", "", text)
@@ -378,10 +453,16 @@ strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
   }
   for (i in seq_along(text)) {
     t <- trimws(text[[i]])
-    if (!nzchar(t) || starts[[i]]) flush()
+    if (!nzchar(t) || starts[[i]] || standalone[[i]]) flush()
     if (!nzchar(t)) next
-    marked <- gsub(mark_re, paste0("\\1", sentinel), t, perl = TRUE)
-    pieces <- strsplit(marked, sentinel, fixed = TRUE)[[1L]]
+    # A standalone unit (heading, table cell) is one sentence whatever
+    # terminators it holds; other text splits at sentence ends.
+    pieces <- if (standalone[[i]]) {
+      t
+    } else {
+      marked <- gsub(mark_re, paste0("\\1", sentinel), t, perl = TRUE)
+      strsplit(marked, sentinel, fixed = TRUE)[[1L]]
+    }
     for (j in seq_along(pieces)) {
       p <- trimws(pieces[[j]])
       if (!nzchar(p)) next
@@ -392,12 +473,53 @@ strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
       ends <- j < length(pieces) || grepl(paste0(term, "$"), p, perl = TRUE)
       if (ends) flush()
     }
+    if (standalone[[i]]) flush()
   }
   flush()
   if (length(reports) == 0L) {
     return(.empty_report())
   }
   do.call(rbind, reports)
+}
+
+# Expand prose lines into sentence units. A heading becomes one standalone
+# unit (its text after the `#` marks); a table row becomes one standalone
+# unit per cell, all at the row's line; a separator-only row is dropped; every
+# other line is one unit. `starts` marks a bullet or roxygen tag (a paragraph
+# break before it), `standalone` a unit that is a sentence on its own.
+.sentence_units <- function(text, line) {
+  out_text <- character(0L)
+  out_line <- integer(0L)
+  out_start <- logical(0L)
+  out_alone <- logical(0L)
+  add <- function(t, l, s, a) {
+    out_text <<- c(out_text, t)
+    out_line <<- c(out_line, rep(l, length(t)))
+    out_start <<- c(out_start, rep(s, length(t)))
+    out_alone <<- c(out_alone, rep(a, length(t)))
+  }
+  for (i in seq_along(text)) {
+    t <- text[[i]]
+    if (grepl("^\\s*#{1,6}\\s", t)) {
+      add(sub("^\\s*#{1,6}\\s+", "", t), line[[i]], TRUE, TRUE)
+    } else if (grepl("^\\s*\\|", t)) {
+      if (grepl("^\\s*\\|[\\s:|-]*\\|?\\s*$", t, perl = TRUE)) next
+      # Split on unescaped pipes only: `\|` is a literal pipe inside a cell.
+      row <- sub("\\|\\s*$", "", sub("^\\s*\\|", "", t))
+      cells <- strsplit(row, "(?<!\\\\)\\|", perl = TRUE)[[1L]]
+      cells <- trimws(cells)
+      cells <- cells[nzchar(cells)]
+      if (length(cells) == 0L) next
+      add(cells, line[[i]], TRUE, TRUE)
+    } else {
+      add(
+        t, line[[i]],
+        grepl("^\\s*([-*+]|\\d+[.)])\\s", t) || grepl("^@[A-Za-z]", t),
+        FALSE
+      )
+    }
+  }
+  list(text = out_text, line = out_line, starts = out_start, standalone = out_alone)
 }
 
 # ---- public: check_prose -----------------------------------------------------
@@ -440,6 +562,7 @@ check_prose <- function(paths = NULL, banned = read_prose_list("prose-banned.txt
     prose <- extract_prose(p)
     if (nrow(prose) == 0L) next
     prose$text <- strip_code_spans(prose$text, file = p, line = prose$line)
+    prose$text <- .blank_urls(prose$text)
     out[[length(out) + 1L]] <- .char_reports(p, prose, banned)
     out[[length(out) + 1L]] <- .sentence_reports(p, prose, abbrev, max_words)
   }
@@ -497,21 +620,28 @@ check_prose <- function(paths = NULL, banned = read_prose_list("prose-banned.txt
   lines[keep]
 }
 
-# The code of an R Markdown source (README.Rmd, vignettes/*.Rmd.orig): fenced
-# chunk lines (fences included) and inline `r` spans, in order.
+# The code of an R Markdown source (README.Rmd, vignettes/*.Rmd.orig): a
+# data.frame(line, text) of fenced chunk lines (fences included) and inline
+# `r` spans, in document order, so a span moved past a chunk is a change.
 .code_lines_rmd <- function(lines) {
   in_fence <- FALSE
-  keep <- rep(FALSE, length(lines))
+  out_line <- integer(0L)
+  out_text <- character(0L)
   for (i in seq_along(lines)) {
     if (.is_fence(lines[[i]])) {
       in_fence <- !in_fence
-      keep[[i]] <- TRUE
+      out_line <- c(out_line, i)
+      out_text <- c(out_text, lines[[i]])
     } else if (in_fence) {
-      keep[[i]] <- TRUE
+      out_line <- c(out_line, i)
+      out_text <- c(out_text, lines[[i]])
+    } else {
+      spans <- regmatches(lines[[i]], gregexpr("`r [^`]*`", lines[[i]]))[[1L]]
+      out_line <- c(out_line, rep(i, length(spans)))
+      out_text <- c(out_text, spans)
     }
   }
-  inline <- regmatches(lines[!keep], gregexpr("`r [^`]*`", lines[!keep]))
-  c(lines[keep], unlist(inline))
+  data.frame(line = out_line, text = out_text, stringsAsFactors = FALSE)
 }
 
 .fields_description <- function(lines) {
@@ -570,14 +700,24 @@ check_code_unchanged <- function(ref = "master", root = ".") {
   )))
   for (f in rmd_files) {
     before <- .git_show(base, f)
-    if (is.null(before) || !file.exists(f)) next
+    after <- if (file.exists(f)) readLines(f, warn = FALSE) else NULL
+    # README.Rmd is listed unconditionally; absent on both sides it is no problem.
+    if (is.null(before) && is.null(after)) next
+    if (is.null(before) || is.null(after)) {
+      problems <- c(problems, sprintf("%s exists on only one side of %s.", f, substr(base, 1, 7)))
+      next
+    }
     a <- .code_lines_rmd(before)
-    b <- .code_lines_rmd(readLines(f, warn = FALSE))
-    d <- .first_diff(a, b)
+    b <- .code_lines_rmd(after)
+    d <- .first_diff(a$text, b$text)
     if (!is.na(d)) {
       problems <- c(problems, sprintf(
         "%s: chunk or inline-code item %d differs from the merge base (%s).", f, d,
-        if (is.na(b[d])) "item removed" else b[d]
+        if (d > nrow(b)) {
+          sprintf("item removed after line %d", if (nrow(b) > 0L) b$line[[nrow(b)]] else 0L)
+        } else {
+          sprintf("line %d: %s", b$line[[d]], b$text[[d]])
+        }
       ))
     }
   }

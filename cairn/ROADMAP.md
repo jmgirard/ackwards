@@ -15,7 +15,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | M85 | Plain-English pass — prose checker, README, DESCRIPTION, NEWS, roxygen | done | — | normal | milestones/archive/M85-plain-english-checker-readme-roxygen.md |
 | M86 | Plain-English pass — vignettes A (intro, suggest-k, engines, visualization) | done | M85 | normal | milestones/archive/M86-plain-english-vignettes-a.md |
 | M87 | Plain-English pass — vignettes B (girard, forbes, forbes2023, ordinal, interpret) | planned | M85, M88 | normal | milestones/M87-plain-english-vignettes-b.md |
-| M88 | Prose-checker hardening (`tools/check-prose.R`) | planned | — | high | milestones/M88-prose-checker-hardening.md |
+| M88 | Prose-checker hardening (`tools/check-prose.R`) | review | — | high | milestones/M88-prose-checker-hardening.md |
 <!-- M01–M80 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 3 most recent terminal rows. -->
 
 ## Candidates
