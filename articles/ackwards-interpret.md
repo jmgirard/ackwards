@@ -9,11 +9,13 @@ x <- ackwards(bfi25, k_max = 5, cor = "polychoric", missing = "listwise")
 ```
 
 Fitting an `ackwards` model gives you a hierarchy of factors with stable
-but opaque IDs — `m1f1`, `m2f1`, `m2f2`, and so on. Turning those IDs
-into something you can reason about is *interpretive* work: you read
-each factor’s loadings, decide what construct it represents, and give it
-a name. This is the part of the analysis that requires judgment, and it
-is harder in a bass-ackwards hierarchy than in a single flat factor
+but opaque IDs: `m1f1`, `m2f1`, `m2f2`, and so on. A factor is an
+unobserved dimension that explains why a set of items correlate. Turning
+those IDs into something you can reason about is *interpretive* work.
+You read each factor’s loadings (a loading is the correlation between an
+item and a factor), decide what construct it represents, and give it a
+name. This is the part of the analysis that requires judgment. It is
+harder in a bass-ackwards hierarchy than in a single flat factor
 solution, because the same construct can appear, split, and merge across
 levels.
 
@@ -21,9 +23,9 @@ This article covers the full workflow:
 
 1.  **Read** each factor with
     [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md).
-2.  **Understand** the sign convention so you don’t misread a factor.
+2.  **Understand** the sign convention so you do not misread a factor.
 3.  **Name** factors in a way that respects the hierarchy.
-4.  **Apply** your names — to a single diagram with
+4.  **Apply** your names, either to a single diagram with
     [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
     and `autoplot(node_labels = ...)`, or persistently to the whole
     object with
@@ -88,12 +90,13 @@ top_items(x, level = 5, cut = 0.5)
 ```
 
 The `cut` threshold controls how inclusive the listing is. Here we raise
-it to `0.5` to keep each factor to its defining items; the default is
+it to `0.5` to keep each factor to its defining items. The default is
 `0.3`. Raise it further to isolate only the strongest markers, or lower
 it to surface weaker cross-loadings (see below). When a factor has many
-salient items, `n` caps the list at the strongest few, and
+salient items, `n` caps the list at the strongest few. Setting
 `sort = FALSE` keeps items in their original order instead of sorting by
-`|loading|` — useful when your items follow a meaningful sequence.
+`|loading|`, which is useful when your items follow a meaningful
+sequence.
 
 ``` r
 
@@ -142,8 +145,8 @@ top_items(x, level = 5, cut = 0.3, n = 4)
 
 ### Cross-loadings are signal
 
-Items that load on more than one factor are not noise to be suppressed —
-they often tell you how two factors relate. The `by = "item"` mode
+Items that load on more than one factor are not noise to be suppressed.
+They often tell you how two factors relate. The `by = "item"` mode
 inverts the grouping: instead of listing the items under each factor, it
 lists, for each item, the factors it loads on. Lowering the cut then
 makes cross-loadings easy to read item by item:
@@ -247,29 +250,29 @@ top_items(x, level = 3, cut = 0.25, by = "item")
 
 An item that appears under two factors at the same level marks a point
 where the constructs overlap. Whether that overlap is substantively
-meaningful or a sign of overextraction is a judgment call — see
+meaningful or a sign of overextraction is a judgment call. See
 [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md)
 for the overextraction discussion.
 
 ### Showing item wording instead of codes
 
 Item codes like `A1` or `N3` are compact but opaque. The wording you
-have been seeing above — `E4: Make friends easily` — comes for free:
-`bfi25` ships each item’s IPIP stem as a **variable label** (a `"label"`
-column attribute),
+have been seeing above, `E4: Make friends easily`, comes for free. The
+`bfi25` dataset ships each item’s IPIP stem as a **variable label** (a
+`"label"` column attribute). The
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-captures those labels at fit time, and
+call captures those labels at fit time, and
 [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
 prints them as `code: label`.
 
 Your own data often carries the same attribute (packages like
 **labelled** and **haven** set it, and survey exports frequently include
-it). If it does *not*, attach the wording yourself — with
+it). If it does *not*, attach the wording yourself, with
 `labelled::var_label()` or base
-[`attr()`](https://rdrr.io/r/base/attr.html) — on the data you actually
-fit (base row-subsetting such as
+[`attr()`](https://rdrr.io/r/base/attr.html), on the data you actually
+fit. Base row-subsetting such as
 [`na.omit()`](https://rdrr.io/r/stats/na.fail.html) drops plain
-attributes, which is why we fit the raw `bfi25` above):
+attributes, which is why we fit the raw `bfi25` above:
 
 ``` r
 
@@ -280,30 +283,30 @@ labelled::var_label(my_data$item1) <- "Full wording of item 1"
 attr(my_data$item1, "label") <- "Full wording of item 1"
 ```
 
-Labelled items show their wording; unlabelled ones fall back to the bare
-code, so a partially labelled data set still prints cleanly. Pass
+Labelled items show their wording, and unlabelled ones fall back to the
+bare code, so a partially labelled data set still prints cleanly. Pass
 `show_labels = FALSE` to force the bare codes even when labels are
 present.
 
 These *variable* labels (item wording) are distinct from the *factor*
-labels (the names you give `m1f1`, `m2f1`, … below): one describes your
-measured items, the other names the latent factors the hierarchy
-discovers. Keep the two ideas — and the word “label” — separate.
+labels (the names you give `m1f1`, `m2f1`, and so on below). One
+describes your measured items, the other names the latent factors the
+hierarchy discovers. Keep the two ideas, and the word “label”, separate.
 
 ## The sign convention: negative does not mean “low”
 
 Before naming anything, understand how `ackwards` orients factors.
 Loadings are **sign-aligned to the primary parent** (see
-[`?ackwards`](https://jmgirard.github.io/ackwards/reference/ackwards.md)):
-the level-1 factor is anchored so its loadings sum positive, and every
+[`?ackwards`](https://jmgirard.github.io/ackwards/reference/ackwards.md)).
+The level-1 factor is anchored so its loadings sum positive, and every
 deeper factor is flipped so its correlation with its primary parent is
 positive. This makes the diagram readable, but it has a consequence for
 interpretation.
 
 A factor’s *sign* is arbitrary in the sense that flipping every loading
 and the factor’s orientation describes the same dimension. So a column
-of negative loadings does **not** mean “low” on that construct — it
-means the construct’s positive pole was oriented the other way by the
+of negative loadings does **not** mean “low” on that construct. It means
+the construct’s positive pole was oriented the other way by the
 alignment step. Read the *pattern* of items, not the bare sign:
 
 ``` r
@@ -363,7 +366,7 @@ consistent with the diagram and the edge table.
 
 In a flat factor solution you name each factor once. In a bass-ackwards
 hierarchy you are naming factors at *every* level, and the levels are
-related — so the names should be related too. The lineage tells you how.
+related, so the names should be related too. The lineage tells you how.
 
 ``` r
 
@@ -428,11 +431,11 @@ children. Use it to name **top-down**:
 - **Upper-level factors are broader.** A level-2 factor that is the
   primary parent of two level-3 factors is the construct they share.
   Name it for the blend, not for one child. In the `bfi25` data above,
-  the level-1 factor is a single broad dimension; at level 2 it
+  the level-1 factor is a single broad dimension. At level 2 it
   separates into a Neuroticism factor (`m2f2`, defined by the N items)
   and a broad factor blending the remaining four trait families
-  (`m2f1`). The Big Five themselves do not appear cleanly until level 5
-  — so a substantive name for `m2f1` (“broad well-adjustment”, say) is
+  (`m2f1`). The Big Five themselves do not appear cleanly until level 5.
+  So a substantive name for `m2f1` (“broad well-adjustment”, say) is
   necessarily coarser than the names you give its descendants.
 
 - **A split is a refinement, not a contradiction.** When a parent factor
@@ -441,10 +444,10 @@ children. Use it to name **top-down**:
   that reading down a branch tells a coherent story.
 
 - **Watch for factors that reorganize.** A child whose strongest parent
-  is at the *other* side of the level above (a crossing edge), or a
-  factor whose primary edge is weak (`|r|` well below the near-1.0
-  values of stable dimensions), is a place where the structure is
-  genuinely rearranging. The edge table makes these visible:
+  is at the *other* side of the level above (a crossing edge) is a place
+  where the structure is genuinely rearranging. So is a factor whose
+  primary edge is weak (`|r|` well below the near-1.0 values of stable
+  dimensions). The edge table makes these visible:
 
 ``` r
 
@@ -459,10 +462,10 @@ tidy(x, what = "edges", primary_only = TRUE, sort = "strength") |> tail()
 #> 14 m1f1 m2f2          1        2 0.4558587       TRUE      TRUE
 ```
 
-Edges with `|r|` near 1.0 are factors that pass through nearly unchanged
-— name the child the same as the parent. The smaller `|r|` values at the
-bottom flag where a new, distinct construct is emerging and deserves its
-own name.
+Edges with `|r|` near 1.0 are factors that pass through nearly
+unchanged. Name the child the same as the parent. The smaller `|r|`
+values at the bottom flag where a new, distinct construct is emerging
+and deserves its own name.
 
 ### Borrowing names for the upper levels
 
@@ -473,25 +476,25 @@ that has already charted the level *above* your usual constructs. Two
 are especially handy for personality and psychopathology data:
 
 - **Big Five metatraits.** Above the five factors sit two higher-order
-  dimensions — **Stability** (the shared variance of Agreeableness,
-  Conscientiousness, and low Neuroticism) and **Plasticity**
-  (Extraversion and Openness) — from DeYoung’s work on the metatraits.
-  In a `bfi25` hierarchy these are frequently what a two- or
-  three-factor level *is*, so “Stability” / “Plasticity” are ready-made
-  names for factors that would otherwise be an awkward “broad
+  dimensions from DeYoung’s work on the metatraits. **Stability** is the
+  shared variance of Agreeableness, Conscientiousness, and low
+  Neuroticism, and **Plasticity** is the shared variance of Extraversion
+  and Openness. In a `bfi25` hierarchy these are frequently what a two-
+  or three-factor level *is*. So “Stability” and “Plasticity” are
+  ready-made names for factors that would otherwise be an awkward “broad
   well-adjustment”.
 - **HiTOP spectra.** In clinical data, the Hierarchical Taxonomy of
-  Psychopathology names the broad bands directly — *internalizing*,
+  Psychopathology names the broad bands directly: *internalizing*,
   *externalizing (disinhibited and antagonistic)*, *thought disorder*,
-  *detachment*, and *somatoform* — with a general **p-factor** at the
+  *detachment*, and *somatoform*, with a general **p-factor** at the
   apex. A level whose items span several disorders is usually one of
-  these spectra, and naming it as such keeps your hierarchy legible to
+  these spectra. Naming it as such keeps your hierarchy legible to
   readers who already think in HiTOP terms.
 
-The point is not to force your data onto either scheme, but to recognise
-that an upper-level factor is often a *known* superordinate construct —
-and that reusing its established name communicates far more than a
-bespoke one.
+The point is not to force your data onto either scheme. It is to
+recognise that an upper-level factor is often a *known* superordinate
+construct, and that reusing its established name communicates far more
+than a bespoke one.
 
 ## Applying your names
 
@@ -502,7 +505,7 @@ IDs to display strings.
 
 Typing that vector out by hand is tedious and error-prone, so
 [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
-generates it for you, in the same order the diagram uses, and prints an
+generates it for you, in the same order the diagram uses. It prints an
 editable `c(...)` literal you can paste straight into your script:
 
 ``` r
@@ -549,16 +552,16 @@ autoplot(x, node_labels = c(
 ### Making the names stick with `set_factor_labels()`
 
 `node_labels` styles a single plot. When you want the same names to
-follow the object everywhere — in
+follow the object everywhere (in
 [`print()`](https://rdrr.io/r/base/print.html),
 [`summary()`](https://rdrr.io/r/base/summary.html),
 [`tidy()`](https://generics.r-lib.org/reference/tidy.html), and
 [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md),
-not just one diagram — attach them once with
+not only one diagram), attach them once with
 [`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md).
 It takes the same named vector
 [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
-scaffolds, and returns the object so it pipes:
+scaffolds, and it returns the object so it pipes:
 
 ``` r
 
@@ -635,9 +638,9 @@ summary(x)
 
 `top_items(by = "factor")` uses them on its group headers, and
 [`tidy()`](https://generics.r-lib.org/reference/tidy.html) adds a
-`factor_label` column (and `from_label`/`to_label` for edges) — but
-*only* when labels are set, so unlabelled objects keep their exact
-previous output:
+`factor_label` column (and `from_label` and `to_label` for edges). It
+does so *only* when labels are set, so unlabelled objects keep their
+exact previous output:
 
 ``` r
 
@@ -653,20 +656,20 @@ head(tidy(x, what = "loadings"))
 
 [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
 uses stored labels as the node text automatically, so you no longer need
-to pass `node_labels` for a labelled object; a call-time `node_labels`
+to pass `node_labels` for a labelled object. A call-time `node_labels`
 entry still overrides a stored label for that one node. Labels are
-display only — factor IDs never change — and they ride along through
+display only, and factor IDs never change. They ride along through
 [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md),
 [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md),
 [`augment()`](https://generics.r-lib.org/reference/augment.html), and
 [`predict()`](https://rdrr.io/r/stats/predict.html). Read them back with
-`factor_labels(x)`; clear one by setting it to `NA`, or all of them by
+`factor_labels(x)`. Clear one by setting it to `NA`, or all of them by
 passing `NULL`.
 
 ### The Forbes letter convention
 
-Forbes (2023) labels nodes by level-letter and within-level index — `A1`
-for the single level-1 factor, `B1`/`B2` at level 2, and so on.
+Forbes (2023) labels nodes by level-letter and within-level index: `A1`
+for the single level-1 factor, `B1` and `B2` at level 2, and so on.
 [`label_template()`](https://jmgirard.github.io/ackwards/reference/label_template.md)
 produces this convention directly with `style = "forbes"`:
 
@@ -678,8 +681,8 @@ autoplot(x, node_labels = label_template(x, style = "forbes"))
 ![](ackwards-interpret_files/figure-html/label-forbes-1.png)
 
 This is useful when you want to refer to nodes by position rather than
-by substantive name — for example, in a methods section that walks
-through the hierarchy before interpreting it.
+by substantive name. A methods section that walks through the hierarchy
+before interpreting it is one example.
 
 ### Starting from a blank slate
 
@@ -701,9 +704,9 @@ autoplot(x, node_labels = labs)
 
 This article is about *what* to put on the diagram.
 
-> **Note:** For *how* the diagram looks — colours, edge thresholds,
+> **Note:** For *how* the diagram looks (colours, edge thresholds,
 > monochrome and publication styling, level labels, and the Forbes
-> pruned-diagram mode — see
+> pruned-diagram mode) see
 > [`vignette("ackwards-visualization")`](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.md).
 
 ## References

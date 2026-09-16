@@ -1,9 +1,9 @@
 # Replicability-Gated Hierarchies: A Recommended Workflow
 
 The other vignettes in this package document its individual verbs. This
-one takes a position: it lays out the workflow we recommend for
-answering the questions bass-ackwards analysis exists to answer, and
-explains why each step is there. We refer to it as the
+one takes a position. It lays out the workflow we recommend for
+answering the questions that bass-ackwards analysis exists to answer,
+and it explains why each step is there. We call it the
 **replicability-gated** (or Girard) workflow, because its central move
 is to let *replication*, not fit, decide how deep the hierarchy you
 interpret goes.
@@ -14,54 +14,65 @@ A bass-ackwards analysis asks two questions: *how does the structure of
 this domain organize hierarchically*, and *how deep is that hierarchy
 meaningful?* The first question is what the method computes. The second
 is where published applications most often stumble, and the failure mode
-is consistent: **overextraction**, followed by substantive
-interpretation of deep-level factors that would not re-emerge in a new
-sample. Forbes (2023) documents this directly for the bass-ackwards
-context — non-replicable structure concentrates in the deeper levels of
-an overextracted hierarchy.
+is consistent. A factor is an unobserved dimension that explains why a
+set of items correlate. The analyst extracts too many factors, a mistake
+called **overextraction**, and then interprets deep-level factors that
+would not re-emerge in a new sample. Forbes (2023) documents this
+directly for the bass-ackwards context: non-replicable structure
+concentrates in the deeper levels of an overextracted hierarchy.
 
-The standard tooling half-addresses this. Retention criteria like
-parallel analysis
-([`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md))
-estimate a *plausible range* for k from the eigenstructure, and they are
-the right first screen. But they do not measure the thing the caution is
-actually about: whether the specific factors in *your* solution would
-show up again in another sample from the same population. A level can
-sit comfortably inside the plausible range and still contain a factor
-that is pure sample idiosyncrasy.
+The standard tooling half-addresses this. Retention criteria estimate a
+*plausible range* for k, the number of factors, and they are the right
+first screen. Parallel analysis, the best known of them, keeps a factor
+only when it explains more variance than random data of the same size
+would.
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
+runs it and several other criteria. But these criteria do not measure
+the thing the caution is about: whether the specific factors in *your*
+solution would show up again in another sample from the same population.
+A level can sit comfortably inside the plausible range and still contain
+a factor that is pure sample idiosyncrasy.
 
 There was, historically, a direct instrument for exactly this. Everett
-(1983) proposed **factor comparability coefficients**: split the sample
+(1983) proposed **factor comparability coefficients**. Split the sample
 in half, fit the solution in each half independently, apply *both*
 halves’ scoring weights to the full sample, and correlate the matched
-factor scores. A factor that is real re-emerges in both halves and its
-two score estimates correlate near 1; a factor that is noise does not.
-Split-half replication was a working gate in the research program that
-produced the bass-ackwards method itself: Saucier (1997) screened factor
-solutions by their stability across sample halves (computing Everett’s
-coefficients alongside), and Saucier, Georgiades, Tsaousis, and Goldberg
-(2005) chose the optimal hierarchical level — the number of factors — by
-requiring split-half replication above the conventional .90 threshold.
-The modern bass-ackwards literature largely dropped the practice.
+factor scores. A factor score is each person’s estimated position on a
+factor, computed as a weighted sum of their item responses. A factor
+that is real re-emerges in both halves, and its two score estimates
+correlate near 1. A factor that is noise does not. This split-half
+replication, fitting in two halves of one sample and comparing the
+results, was a working gate in the research program that produced the
+bass-ackwards method itself. Saucier (1997) screened factor solutions by
+their stability across sample halves and computed Everett’s coefficients
+alongside. Saucier, Georgiades, Tsaousis, and Goldberg (2005) chose the
+optimal hierarchical level, the number of factors, by requiring
+split-half replication above the conventional .90 threshold. The modern
+bass-ackwards literature largely dropped the practice.
 
 [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
 restores that gate as a first-class verb, extended to the bass-ackwards
-setting: coefficients for every factor at every level, computed through
-the same score-correlation algebra as the hierarchy’s own edges.
+setting. It computes a coefficient for every factor at every level,
+through the same score-correlation algebra as the hierarchy’s own edges.
 
 ## Three verbs, three different questions
 
 The workflow below leans on the fact that this package now separates
-three questions that are easy to conflate:
+three questions that are easy to conflate. The third of them is
+redundancy. Two factors at different levels are redundant when their
+scores correlate at .9 or above, so the pair restates one construct
+rather than refining it.
+[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+keeps one of the pair and flags the other.
 
 | Question | Verb | What it measures |
 |----|----|----|
-| What depth range is *plausible*? | [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md) | Eigenstructure retention criteria (consensus range) |
+| What depth range is *plausible*? | [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md) | Several retention criteria (consensus range) |
 | Which factors *replicate*? | [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md) | Split-half score comparability per factor per level |
 | Which factors *differentiate*? | [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) | Forbes (2023) redundancy: factors that persist without adding resolution |
 
 These are genuinely different. A factor can replicate perfectly and
-still be redundant (the same construct restated at every level); a level
+still be redundant (the same construct restated at every level). A level
 can sit inside the plausible range and still fail to replicate. You need
 all three answers, and no one of them substitutes for another.
 
@@ -69,16 +80,19 @@ all three answers, and no one of them substitutes for another.
 
 We use the `bfi25` Big Five data (25 items, n = 875 after removing
 incomplete rows), analyzed with the default PCA engine on the Pearson
-basis throughout. That basis is deliberate:
+basis throughout. PCA (principal component analysis) summarizes the
+items with weighted sums called components. That basis is deliberate.
 [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
 and
 [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
-screen on Pearson/Spearman by design — polychoric estimation in every
-split-half or bootstrap resample is slow and unstable — so the
-ordinal-detection warning `bfi25` triggers is *expected* here and
-suppressed below for readability. You screen structure and depth on
-Pearson, then fit the model you actually *report* with
-`cor = "polychoric"`.
+screen on Pearson or Spearman correlations by design, because polychoric
+estimation in every split-half or bootstrap resample is slow and
+unstable. A polychoric correlation estimates the correlation between the
+continuous traits assumed to underlie two ordinal items, items recorded
+on an ordered scale with few categories. So the ordinal-detection
+warning that `bfi25` triggers is *expected* here, and the chunks below
+suppress it for readability. You screen structure and depth on Pearson,
+then fit the model you *report* with `cor = "polychoric"`.
 
 ``` r
 
@@ -137,14 +151,14 @@ print(sk)
 #> 2023). PA-FA and CD are more conservative. Use the range.
 ```
 
-The criteria disagree — they always do — but they bracket a range (here
-k = 4–6). Treat the top of that range as a ceiling worth *probing*, not
-a depth worth *asserting*: parallel analysis on the PC basis in
+The criteria disagree, as they always do, but they bracket a range (here
+k = 4 to 6). Treat the top of that range as a ceiling worth *probing*,
+not a depth worth *asserting*. Parallel analysis on the PC basis in
 particular tends to overextract, and
 [`vignette("ackwards-suggest-k")`](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.md)
 explains each criterion’s bias direction in detail. Deliberately looking
-one or two levels past the consensus is a normal part of the method —
-the point of the next step is that you can now do so safely.
+one or two levels past the consensus is a normal part of the method. The
+point of the next step is that you can now do so safely.
 
 ## Step 2: Gate the depth on replicability with `comparability()`
 
@@ -185,12 +199,12 @@ print(cmp)
 
 Read the per-level minima, not the medians: a level is only as
 interpretable as its least replicable factor. Here every factor through
-k = 5 clears the conventional floor (the weakest median comparability at
-any of those levels is .92), and the structure degrades past it — at k =
-7, m7f7 reaches a median of only .58 and dips to -.24 on its worst
-split. Those deep factors are not stable dimensions of the data; they
-are different factors in every half-sample that happen to occupy the
-same slot.
+k = 5 clears the conventional floor. The weakest median comparability at
+any of those levels is .92. The structure degrades past it: at k = 7,
+m7f7 reaches a median of only .58 and dips to -.24 on its worst split.
+Those deep factors are not stable dimensions of the data. They are
+different factors in every half-sample that happen to occupy the same
+slot.
 
 ``` r
 
@@ -202,21 +216,21 @@ comparability-plot](assets/ackwards-girard-comparability-plot-1.png)
 
 plot of chunk comparability-plot
 
-Two honesty notes. First, the conventional benchmarks marked on the plot
-(.90, the replication threshold of Goldberg’s lexical research program —
-Everett, 1983; Saucier et al., 2005 — and .95, the stricter bound at
-which factors are conventionally treated as interchangeable) are
-conventions, not tests —
+Two honesty notes. First, the benchmarks marked on the plot are
+conventions, not tests. The .90 line is the replication threshold of
+Goldberg’s lexical research program (Everett, 1983, and Saucier et al.,
+2005). The .95 line is the stricter bound at which factors are
+conventionally treated as interchangeable.
 [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
 reports every coefficient and flags nothing, so borderline cases stay
 visible and the judgment stays yours. Second, comparability is
 *internal* replication: it asks whether the structure re-emerges in
 halves of the *same* sample. That is the right gate for “is this factor
-real here,” and a necessary condition for — but not a demonstration of —
-replication in a new population.
+real here”. It is a necessary condition for replication in a new
+population, but not a demonstration of it.
 
 The result is a **hierarchy floor**: the deepest level at which every
-factor replicates. For these data that is k = 5 — the Big Five, as it
+factor replicates. For these data that is k = 5, the Big Five, as it
 should be.
 
 ## Step 3: Fit the hierarchy to the gated depth
@@ -261,15 +275,15 @@ hierarchy-plot](assets/ackwards-girard-hierarchy-plot-1.png)
 
 plot of chunk hierarchy-plot
 
-If you prefer to *display* the fragmentation beyond the floor (it can be
-substantively interesting to show a factor dissolving), fit one level
-deeper and say explicitly in your report which levels passed the
-replicability gate. What the gate rules out is interpreting the deeper
-factors as constructs.
+You may prefer to *display* the fragmentation beyond the floor, since it
+can be substantively interesting to show a factor dissolving. Then fit
+one level deeper, and say explicitly in your report which levels passed
+the replicability gate. What the gate rules out is interpreting the
+deeper factors as constructs.
 
-## Step 4: Find what perpetuates without differentiating — `prune()`
+## Step 4: Find what perpetuates without differentiating, with `prune()`
 
-Replicability is necessary but not sufficient: a factor can re-emerge in
+Replicability is necessary but not sufficient. A factor can re-emerge in
 every half-sample and still add nothing, because it is the same
 construct restated level after level. That is Forbes’s (2023) redundancy
 question, and it is
@@ -309,12 +323,12 @@ pr$prune$chains
 ```
 
 Here the chains tell us that several of the Big Five arrive early and
-simply persist — for example one factor emerges at k = 2 and travels
-essentially unchanged (r ≥ .97 at every link) down to k = 5. Every node
-on that chain *replicates* beautifully; the chain flags that the
-intermediate appearances add no resolution. The two verbs answer
-different questions, and reporting both gives the honest picture: which
-levels are real, and which levels are new. See
+then persist. For example, one factor emerges at k = 2 and travels
+almost unchanged (r ≥ .97 at every link) down to k = 5. Every node on
+that chain *replicates* well. The chain flags that the intermediate
+appearances add no resolution. The two verbs answer different questions,
+and reporting both gives the honest picture: which levels are real, and
+which levels are new. See
 [`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md)
 for chain mechanics, thresholds, and the retention rule.
 
@@ -323,21 +337,25 @@ for chain mechanics, thresholds, and the retention rule.
 [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)’s
 redundancy rule and the Forbes practice of reading off the strongest
 skip-level correlation both consume a point estimate at a hard
-threshold, so the natural follow-up is how precisely each edge is
+threshold. The natural follow-up is how precisely each edge is
 estimated.
 [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
 attaches a nonparametric bootstrap standard error and percentile
-confidence interval to every edge. Each replicate resamples respondents,
-recomputes the correlations, refits the whole hierarchy, and —
-importantly — re-anchors each replicate’s factors to the full-sample
-solution (the same matching and sign-orientation
+confidence interval to every edge. A bootstrap resamples the respondents
+with replacement many times and refits on each resample, so the spread
+of results shows the estimate’s precision. Each replicate resamples
+respondents, recomputes the correlations, and refits the whole
+hierarchy. It then re-anchors each replicate’s factors to the
+full-sample solution, using the same matching and sign orientation that
 [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
-uses), so factor label-switching across replicates does not contaminate
+uses, so factor label-switching across replicates does not contaminate
 the intervals. It runs on the PCA and EFA engines with a Pearson or
-Spearman basis — a polychoric matrix is too slow and unstable to
-re-estimate in every replicate (the same scope as
-[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)),
-so screen edge stability on the Pearson basis even when the final model
+Spearman basis. EFA (exploratory factor analysis) models the items as a
+small number of shared factors plus item-specific noise. A polychoric
+matrix is too slow and unstable to re-estimate in every replicate (the
+same scope as
+[`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)).
+So screen edge stability on the Pearson basis even when the final model
 is polychoric.
 
 ``` r
@@ -363,13 +381,13 @@ head(skip_boot, 6)
 #> 15 m3f1 m5f1 0.8080606 0.6585810 0.9044025
 ```
 
-The `lo`/`hi` columns are the 95% percentile interval. A skip-level edge
-whose interval sits comfortably above
+The `lo` and `hi` columns are the 95% percentile interval. A skip-level
+edge whose interval sits comfortably above
 [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)’s
 `redundancy_r` threshold (0.9 by default) is a defensible “same
-construct” claim; one whose interval straddles the threshold should not
+construct” claim. One whose interval straddles the threshold should not
 be treated as decisively redundant. The intervals are per-edge error
-bars, not a familywise guarantee: they do not correct for having
+bars, not a familywise guarantee. They do not correct for having
 *searched* the full edge table for the largest value, so a
 strongest-edge claim should still be pre-specified rather than selected
 after the fact.
@@ -429,15 +447,15 @@ Three interpretation habits keep the analysis honest (all covered in
 depth in
 [`vignette("ackwards-interpret")`](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.md)):
 
-- **Negative loadings do not mean “low”** — sign is anchored to the
-  primary parent, and a negative secondary edge is information, not
-  error.
-- **Name factors within levels, borrowing names down the lineage**
+- **Negative loadings do not mean “low”.** A loading is the correlation
+  between an item and a factor. Sign is anchored to the primary parent,
+  and a negative secondary edge is information, not error.
+- **Name factors within levels, and borrow names down the lineage**
   rather than treating each level as a fresh exploratory result.
 - **Say what the hierarchy is.** A bass-ackwards result is a series of
-  linked solutions whose edges are score correlations — it is
-  descriptive, not a fitted hierarchical model (no Schmid–Leiman, no
-  higher-order SEM), and should be reported as such.
+  linked solutions whose edges are score correlations. It is
+  descriptive, not a fitted hierarchical model (no Schmid-Leiman, no
+  higher-order SEM), and it should be reported as such.
 
 ## Step 6: Validate downstream, out of sample
 
@@ -461,22 +479,22 @@ round(head(test_scores[, grep("^\\.m5", names(test_scores))], 3), 2)
 
 If a downstream claim (a correlation with an outcome, a group
 difference) holds for training-sample scores but not test-sample scores,
-the hierarchy was fine and the claim was overfit — a different failure
-than anything in Steps 1–5, and one only held-out data can catch. The
-train/test mechanics are covered in
+the hierarchy was fine and the claim was overfit. That is a different
+failure from anything in Steps 1 to 5, and one that only held-out data
+can catch. The train/test mechanics are covered in
 [`vignette("ackwards-intro")`](https://jmgirard.github.io/ackwards/articles/ackwards-intro.md).
 
 ## Common mistakes this workflow prevents
 
 **Interpreting non-replicable deep factors.** The classic failure.
 Without a replicability instrument the deep levels are just *there*,
-printed with the same authority as the robust ones. Step 2 makes their
+printed with the same authority as the stable ones. Step 2 makes their
 status measurable and visible.
 
 **Trusting a single split.** One split-half can flatter or slander a
 factor by luck of the draw.
 [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
-defaults to ten random splits and reports the spread; the minima across
+defaults to ten random splits and reports the spread. The minima across
 splits are as informative as the medians.
 
 **Cherry-picking the strongest edge.** With `pairs = "all"`, the number
@@ -486,10 +504,10 @@ complete diagram), and treat any “strongest link” claim as descriptive
 rather than inferential.
 [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
 (Step 4 above) attaches a bootstrap confidence interval to every edge,
-which makes each estimate’s precision visible — useful for judging
-whether an edge clears
+which makes each estimate’s precision visible. That is useful for
+judging whether an edge clears
 [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)’s
-redundancy threshold — but per-edge intervals do not undo the selection
+redundancy threshold. But per-edge intervals do not undo the selection
 bias of scanning many edges for the largest.
 
 **Mistaking persistence for structure.** A chain of near-1.0
@@ -500,31 +518,31 @@ finding, and it should shorten your reported k range, not lengthen your
 list of constructs.
 
 **Mistaking replicability for validity.** A comparability of .99 means
-the factor is a stable feature of these items in this population — not
-that it is a good construct, and not that it generalizes beyond the
-population sampled. Cross-population replication and external validation
-remain separate, subsequent steps.
+the factor is a stable feature of these items in this population. It
+does not mean the factor is a good construct, and it does not mean the
+factor generalizes beyond the population sampled. Cross-population
+replication and external validation remain separate, subsequent steps.
 
 ## Summary: the workflow in six calls
 
-1.  **`suggest_k(data)`** — screen the plausible depth range; treat its
+1.  **`suggest_k(data)`**: screen the plausible depth range. Treat its
     top as a ceiling to probe.
-2.  **`comparability(data, k_max = ceiling + 1)`** — find the hierarchy
-    floor: the deepest level at which every factor replicates across
+2.  **`comparability(data, k_max = ceiling + 1)`**: find the hierarchy
+    floor, the deepest level at which every factor replicates across
     split-halves.
-3.  **`ackwards(data, k_max = floor)`** — fit the hierarchy to the gated
+3.  **`ackwards(data, k_max = floor)`**: fit the hierarchy to the gated
     depth.
-4.  **`prune(x, "redundant")`** — identify factors that perpetuate
-    without differentiating; report which levels add resolution.
-5.  **`top_items(x)` + `autoplot(x)`** — interpret with the sign,
-    naming, and descriptive-hierarchy guardrails.
-6.  **`predict(x_train, newdata = test)`** — validate downstream claims
+4.  **`prune(x, "redundant")`**: identify factors that perpetuate
+    without differentiating. Report which levels add resolution.
+5.  **`top_items(x)` + `autoplot(x)`**: interpret with the sign, naming,
+    and descriptive-hierarchy guardrails.
+6.  **`predict(x_train, newdata = test)`**: validate downstream claims
     on held-out data in the fit-time metric.
 
 Steps 1, 3, 4, and 5 are the established method. Step 2 restores the
-gate the method’s own inventor applied to it, and Step 6 extends the
-same logic — *show me it holds in data you did not fit* — to whatever
-you do with the scores.
+gate the method’s own inventor applied to it. Step 6 extends the same
+logic, *show me it holds in data you did not fit*, to whatever you do
+with the scores.
 
 ## References
 

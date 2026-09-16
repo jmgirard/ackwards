@@ -1,26 +1,29 @@
 # Reproducing Forbes (2023): The AMH Applied Example
 
-Forbes (2023) introduced the extended bass-ackwards method — all-pairs
-between-level correlations plus redundancy pruning — and demonstrated it
-on a real, deep hierarchy: the **Assessing Mental Health (AMH)** study,
-155 mental-health symptom variables spanning 18 DSM disorders, measured
-in an Australian general-population sample (N = 3,175; Forbes et al.,
-2021). Her paper cites this package as the reference implementation of
-the extension.
+Forbes (2023) introduced the extended bass-ackwards method: all-pairs
+between-level correlations plus redundancy pruning. A factor is an
+unobserved dimension that explains why a set of items correlate. A
+redundant factor restates a factor at another level rather than refining
+it. She demonstrated the method on a real, deep hierarchy: the
+**Assessing Mental Health (AMH)** study. That study measured 155
+mental-health symptom variables spanning 18 DSM disorders in an
+Australian general-population sample (N = 3,175, Forbes et al., 2021).
+Her paper cites this package as the reference implementation of the
+extension.
 
 The Spearman correlation matrix from that applied example ships with the
 package as the `forbes2023` dataset (redistributed from Forbes’s OSF
-project under CC-BY 4.0; see
+project under CC-BY 4.0, see
 [`?forbes2023`](https://jmgirard.github.io/ackwards/reference/forbes2023.md)).
 This vignette reproduces her published analysis end-to-end: the 10-level
 hierarchy, the skip-level correlations, the redundancy chase, and the
 pruned-factor diagram.
 
-If the *concepts* here are new — what skip-level edges are, how
+If the *concepts* here are new (what skip-level edges are, how
 [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
-decides what to flag — read
+decides what to flag), read
 [`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md)
-first: it teaches the method extension on a small didactic dataset. This
+first. It teaches the method extension on a small didactic dataset. This
 vignette runs the real thing.
 
 ## The data
@@ -40,10 +43,11 @@ forbes2023[1:3, 1:3]
 ```
 
 A correlation matrix carries no sample size, so we supply the AMH
-study’s N explicitly with `n_obs = 3175`. (For the PCA engine used here
-nothing downstream depends on N; supplying it is still good practice —
-it is recorded in the object and enables N-dependent fit statistics
-under the factor engines.)
+study’s N explicitly with `n_obs = 3175`. For the PCA engine used here
+nothing downstream depends on N. PCA (principal component analysis)
+summarizes the items with weighted sums called components. Supplying N
+is still good practice: it is recorded in the object, and it enables
+N-dependent fit statistics under the factor engines.
 
 ## Fitting the 10-level hierarchy
 
@@ -88,24 +92,25 @@ x
 The hierarchy unfolds a general factor of psychopathology at the top (k
 = 1, ~31% of variance) down to ten fine-grained components (cumulatively
 ~58%). With `pairs = "all"`, the edge table holds 1320 correlations
-across all 45 level pairs — every one of which is matched against
-Forbes’s own reference implementation by the package regression test
-(see *Fidelity*, below).
+across all 45 level pairs. Every one of them is matched against Forbes’s
+own reference implementation by the package regression test (see
+*Fidelity*, below).
 
 **Label mapping.** Forbes labels components by level letter and position
-within the level: `a1` for the single component at k = 1, `b1`–`b2` at k
-= 2, down to `j1`–`j10` at k = 10. `ackwards` uses `m{k}f{j}` for the
-same positions, so her `d4` is `m4f4` and her `j4` is `m10f4`. Signs may
-differ component-by-component (the package aligns each factor to its
-primary parent; see
-[`vignette("ackwards-intro")`](https://jmgirard.github.io/ackwards/articles/ackwards-intro.md)),
-which leaves every correlation identical in absolute value.
+within the level. Her `a1` is the single component at k = 1, `b1` and
+`b2` sit at k = 2, and `j1` through `j10` sit at k = 10. This package
+uses `m{k}f{j}` for the same positions, so her `d4` is `m4f4` and her
+`j4` is `m10f4`. Signs may differ component by component, because the
+package aligns each factor to its primary parent (see
+[`vignette("ackwards-intro")`](https://jmgirard.github.io/ackwards/articles/ackwards-intro.md)).
+That leaves every correlation identical in absolute value.
 
 ## Skip-level structure
 
 The deep hierarchy is where skip-level correlations earn their keep.
-Among the non-adjacent pairs alone, 48 correlations exceed \|r\| = 0.9 —
-components that persist essentially unchanged across two or more levels:
+Among the non-adjacent pairs alone, 48 correlations exceed \|r\| = 0.9.
+These are components that persist almost unchanged across two or more
+levels:
 
 | Strongest skip-level edges in the AMH hierarchy |  |  |  |  |
 |----|----|----|----|----|
@@ -130,11 +135,11 @@ formalizes.
 ## The redundancy chase
 
 Forbes’s `ChaseCorrPaths()` procedure walks each component upward
-through the hierarchy, at every ancestor level taking the component with
-the largest **direct** (skip-level) correlation, and continuing while
-\|r\| ≥ 0.9. Chains of near-identical components are then collapsed to a
-single retained node. `prune(x, "redundant")` implements the same rule
-as its default (`redundancy_criterion = "direct"`):
+through the hierarchy. At every ancestor level it takes the component
+with the largest **direct** (skip-level) correlation, and it continues
+while \|r\| ≥ 0.9. Chains of near-identical components are then
+collapsed to a single retained node. `prune(x, "redundant")` implements
+the same rule as its default (`redundancy_criterion = "direct"`):
 
 ``` r
 
@@ -145,11 +150,12 @@ xp <- prune(x, "redundant")
 ```
 
 Of the 55 components in the full hierarchy, **37 are flagged as
-redundant**, leaving 18 distinct constructs — the same decomposition
-reported in Forbes (2023). As always,
+redundant**, leaving 18 distinct constructs. That is the same
+decomposition reported in Forbes (2023). As always,
 [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) only
-*annotates*: nothing is removed from the object, and every flagged
-component keeps its loadings, scores, and edges.
+*annotates*. Nothing is removed from the object, and every flagged
+component keeps its loadings (a loading is the correlation between an
+item and a factor), scores, and edges.
 
 ### A chain, worked
 
@@ -173,9 +179,9 @@ d4
 ```
 
 Because the chain reaches the deepest level, the retention rule keeps
-its **bottom** node — `m10f4` (her `j4`), the most specific,
-best-defined manifestation — and flags the six components above it as
-redundant. A chain that stops short of k = 10 instead keeps its *top*
+its **bottom** node, `m10f4` (her `j4`), the most specific and
+best-defined manifestation. The rule flags the six components above it
+as redundant. A chain that stops short of k = 10 instead keeps its *top*
 node, the broadest manifestation.
 
 The full retained set (13 chain-retained components, in level order):
@@ -188,7 +194,7 @@ m10f8, m10f9. The other 5 kept components were never part of a \|r\| ≥
 Correlation is not transitive: a chain of adjacent links each ≥ 0.9 does
 not guarantee the two ends correlate ≥ 0.9 directly. On shallow
 hierarchies the distinction rarely bites, but on this 10-level hierarchy
-it does — Forbes’s direct rule and an adjacent-hop walk disagree on 7 of
+it does. Forbes’s direct rule and an adjacent-hop walk disagree on 7 of
 the 54 chased components:
 
 ``` r
@@ -201,9 +207,9 @@ xa <- prune(x, "redundant", redundancy_criterion = "adjacent")
 
 The adjacent opt-in flags 36 components (vs 37 under the default) and
 retains `m3f3`, which the direct rule chases further up the hierarchy.
-The default reproduces Forbes’s published chase exactly — all 54
-components, including those 7 divergences — so stick with it when your
-goal is comparability with her method;
+The default reproduces Forbes’s published chase exactly, all 54
+components, including those 7 divergences. So stick with it when your
+goal is comparability with her method.
 `redundancy_criterion = "adjacent"` remains available for sensitivity
 analysis.
 
@@ -211,8 +217,9 @@ analysis.
 
 Dropping the flagged components and bridging each retained component
 directly to its strongest kept ancestor yields the pruned-factor
-diagram, in the same publication style as Forbes (2023) — black lines,
-uniform width, no legend, correlation labels on each spanning arrow:
+diagram. It uses the same publication style as Forbes (2023): black
+lines, uniform width, no legend, and correlation labels on each spanning
+arrow.
 
 ``` r
 
@@ -251,7 +258,7 @@ For the full set of cosmetic controls, see
 
 ## Fidelity
 
-This reproduction is not merely visual — it is pinned by the package’s
+This reproduction is not merely visual. It is pinned by the package’s
 regression suite (`tests/testthat/test-forbes-fidelity.R`), which
 verifies on every check run that:
 
@@ -263,7 +270,7 @@ verifies on every check run that:
 
 The expected values were computed with Forbes’s reference implementation
 (from her OSF project, `https://osf.io/pcwm8/`) on the same md5-pinned
-matrix that ships as `forbes2023`, so the dataset and the oracle cannot
+matrix that ships as `forbes2023`. So the dataset and the oracle cannot
 drift apart. Only
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 runs at test time.

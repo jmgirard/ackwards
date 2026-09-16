@@ -6,10 +6,10 @@
   and the help pages were revised so that a reader outside the field can
   follow them on one read. In those files sentences are shorter, dashes
   and semicolons are gone, and each statistical term is explained in
-  plain words where it is first used. The vignettes are unchanged. No
-  function, argument, default, or example changed. A prose check in the
-  development workflow now guards these files, so later documentation
-  keeps the same style.
+  plain words where it is first used. The vignettes are covered by the
+  two entries below. No function, argument, default, or example changed.
+  A prose check in the development workflow now guards these files, so
+  later documentation keeps the same style.
 
 - **Plain-English vignettes, first batch.** The introduction, the
   choosing-k article, the engines article, and the diagram-customization
@@ -18,6 +18,16 @@
   those articles and the results they show did not change. The
   code-unchanged guard in `tools/check-prose.R` now reads every vignette
   source, so that claim can be checked against any git reference.
+
+- **Plain-English vignettes, second batch.** The recommended-workflow
+  article, the Forbes-extension article, the Forbes (2023) reproduction,
+  the ordinal data article, and the interpreting-and-labeling article
+  were revised in the same style, which completes the set. Every
+  statistical term is explained in plain words where each article first
+  uses it. The code in those articles and the results they show did not
+  change. The settings that reproduce Forbes (2023), the Pearson default
+  with its ordinal-data warning, and the descriptive reading of the
+  hierarchy are stated as before.
 
 ## ackwards 0.2.0
 
