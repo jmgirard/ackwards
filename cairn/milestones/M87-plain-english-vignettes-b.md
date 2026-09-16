@@ -32,18 +32,18 @@ appended to `tools/prose-terms.txt` with a work-log line.
 
 ## Acceptance criteria
 
-- [ ] AC1: `Rscript tools/check-prose.R vignettes/ackwards-girard.Rmd.orig
+- [x] AC1: `Rscript tools/check-prose.R vignettes/ackwards-girard.Rmd.orig
       vignettes/ackwards-forbes.Rmd.orig vignettes/ackwards-forbes2023.Rmd.orig
       vignettes/ackwards-ordinal.Rmd.orig vignettes/ackwards-interpret.Rmd` exits 0 on the
       branch head.
-- [ ] AC2: `check_code_unchanged()` from `tools/check-prose.R`, run against the merge base
+- [x] AC2: `check_code_unchanged()` from `tools/check-prose.R`, run against the merge base
       with `master`, reports no differing fenced-chunk line (options and code) and no
       differing inline `` `r ` `` span in the five batch sources, and each such span still
       sits on one line or is byte-identical to its master form when it crosses a line break.
-- [ ] AC3: Every term in `tools/prose-terms.txt` is glossed in plain words at its first use
+- [x] AC3: Every term in `tools/prose-terms.txt` is glossed in plain words at its first use
       in each batch vignette where it appears; the review reads the gloss sites from
       `grep -n` of each term over the five sources.
-- [ ] AC4: These claims survive with unchanged meaning at the site named: the forbes and
+- [x] AC4: These claims survive with unchanged meaning at the site named: the forbes and
       forbes2023 vignettes' statement that the reproducing settings for Forbes (2023) are
       available and which ones they are (`redundancy_criterion = "direct"`, `k_max = 10` on
       the AMH matrix; IP9); the girard vignette's statement that edges are score correlations
@@ -51,7 +51,7 @@ appended to `tools/prose-terms.txt` with a work-log line.
       statement that the Pearson default is kept and polychoric is opt-in with a warning
       (IP6); and the interpret vignette's IPIP-label lesson, including every item label it
       quotes verbatim from `bfi25`.
-- [ ] AC5: `Rscript vignettes/precompute.R` has been re-run, the regenerated `.Rmd` and
+- [x] AC5: `Rscript vignettes/precompute.R` has been re-run, the regenerated `.Rmd` and
       `vignettes/assets/` committed, untouched vignettes carry no diff against the merge
       base, and `Rscript tools/dod-gate.R` exits 0 with its prose step running
       `check_prose()` over the full default domain when M86 has merged, or over M85's paths
@@ -97,3 +97,11 @@ appended to `tools/prose-terms.txt` with a work-log line.
 ## Decisions
 
 ## Review
+
+- 2026-09-16 review start: branch `m087-plain-english-vignettes-b` at bb64b14; `origin/master` unchanged since the branch was cut (no merge needed); no PR exists; tree clean.
+- AC1: `Rscript tools/check-prose.R <five sources>` at bb64b14 printed "Prose OK" and exited 0. PASS.
+- AC2: `Rscript tools/check-prose.R --code-unchanged master` printed "Code unchanged OK" and exited 0 (four `.Rmd.orig` sources). The live interpret file is outside that guard, so `.code_lines_rmd()` was run on `master:vignettes/ackwards-interpret.Rmd` and the branch file: 79 chunk-and-span lines each, texts identical. Every `` `r `` span in the five sources opens and closes on one line (0 unclosed-span lines per file). PASS.
+- AC3: each of the 16 terms was grepped over the five sources and its first prose use read. Glossed at first use: girard (factor L31, parallel analysis L41, factor score L52, split-half L56, redundancy L73, PCA/component L92, polychoric/ordinal L95-97, EFA L229, loading L266); forbes (factor and factor score L21-23, redundant L26, loading L240, congruence L309, rotation L386, PCA/component L392, EFA L441, ESEM L442, split-half L603); forbes2023 (factor and redundancy L21, PCA/component L53, loading L164); ordinal (ordinal L24, loading and factor L27-29, parallel analysis L50, polychoric L56, rotation L72, ESEM L288, factor score L352, EFA L368); interpret (factor L27, loading L30). Terms not present in prose: varimax and FIML (no vignette), rotation and congruence in girard (bibliography titles only), polychoric in forbes (chunks only), and the rest per file. PASS.
+- AC4: sites re-read on the branch and against `git show master:`. girard L271-274 keeps "edges are score correlations. It is descriptive, not a fitted hierarchical model"; forbes L161-166 keeps `redundancy_criterion = "direct"` as the default star criterion and "the rule Forbes's own code uses"; forbes2023 L64 keeps `k_max = 10, pairs = "all", n_obs = 3175`, L144 the direct default, L210-211 "reproduces Forbes's published chase exactly, all 54 components"; ordinal L78-93 keeps the Pearson default, the warning, and `cor = "polychoric"` as the opt-in that suppresses it; interpret quotes one item label, `E4: Make friends easily` (L88), identical to master and to `attr(bfi25$E4, "label")`. Meaning unchanged at all sites. PASS.
+- AC5: the five regenerated `.Rmd` files and eight `vignettes/assets/` PNGs are committed on the branch (T7 and the claim-audit commits); `git diff origin/master --name-only -- vignettes/` lists only the batch files, so the untouched vignettes carry no diff. `DOD_CODE_UNCHANGED=1 TESTTHAT_CPUS=8 Rscript tools/dod-gate.R` at bb64b14 exited 0: vignette-freshness clean, prose clean, code-unchanged clean, check 0 errors / 0 warnings / 0 notes, coverage 100%, styler and lintr clean, pkgdown reference index complete. The gate's prose step calls `check_prose()` with no path argument (full default domain; M86 is merged). NEWS.md carries the "Plain-English vignettes, second batch" documentation entry. PASS.
+- Consistency gate: `cairn_validate.py` all checks passed (16 pre-existing work-log format advisories on M84, not gate failures); no IP/GP changed, so `cairn_impact.py` was skipped; the r-package toolchain checks (document no-diff, check clean, pkgdown index, NEWS entry) are covered by the gate run above. No new top-level files. PASS.
