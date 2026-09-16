@@ -308,6 +308,33 @@ strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
   out
 }
 
+# ---- URL removal -------------------------------------------------------------
+
+.blank_match <- function(text, pat, keep_trailing = FALSE) {
+  m <- gregexpr(pat, text, perl = TRUE)
+  regmatches(text, m) <- lapply(regmatches(text, m), function(hits) {
+    vapply(hits, function(h) {
+      tail <- if (keep_trailing) sub("^.*?([.,;:!?]*)$", "\\1", h, perl = TRUE) else ""
+      paste0(strrep("x", nchar(h) - nchar(tail)), tail)
+    }, character(1L), USE.NAMES = FALSE)
+  })
+  text
+}
+
+# Replace every URL with a same-length run of `x` so that the dash and
+# semicolon flags and the banned phrases never see one. The filler carries no
+# space, so a URL stays the single word token it already was, line numbers
+# hold, and a link `[text](target)` keeps its word count. Three forms: a
+# markdown link target `](...)` (the text inside the parentheses), an autolink
+# `<http(s)://...>` (the text inside the angle brackets), and a bare
+# `http(s)://` run up to the next space or bracket. A bare URL's trailing
+# sentence punctuation is kept, so a sentence ending in a URL still ends.
+.blank_urls <- function(text) {
+  text <- .blank_match(text, "(?<=\\]\\()[^()\\s]*(?=\\))")
+  text <- .blank_match(text, "(?<=<)https?://[^>\\s]*(?=>)")
+  .blank_match(text, "https?://[^\\s<>()\\[\\]]+", keep_trailing = TRUE)
+}
+
 # ---- reports -----------------------------------------------------------------
 
 .report <- function(file, line, class, text) {
@@ -513,6 +540,7 @@ check_prose <- function(paths = NULL, banned = read_prose_list("prose-banned.txt
     prose <- extract_prose(p)
     if (nrow(prose) == 0L) next
     prose$text <- strip_code_spans(prose$text, file = p, line = prose$line)
+    prose$text <- .blank_urls(prose$text)
     out[[length(out) + 1L]] <- .char_reports(p, prose, banned)
     out[[length(out) + 1L]] <- .sentence_reports(p, prose, abbrev, max_words)
   }

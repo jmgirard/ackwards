@@ -288,6 +288,25 @@ test_that("a table cell and a heading each count as one sentence under max_words
   expect_equal(nrow(res), 2L, info = paste(res$class, res$line, collapse = "; "))
 })
 
+test_that("a dash or semicolon inside a URL is never reported, and in link text it is", {
+  env <- .prose_env()
+  marks <- "a—b–c;d"
+  md <- .write_fixture(c(
+    paste0("See https://example.org/", marks, "/page for it."),
+    paste0("See <https://example.org/", marks, "/page> for it."),
+    paste0("See [plain text](https://example.org/", marks, "/page) for it."),
+    paste0("See [text ", marks, " here](https://example.org/", marks, "/page) for it."),
+    "",
+    paste0("A bare URL ends the sentence https://example.org/x. Then ", paste(rep("w", 28), collapse = " "), ".")
+  ), ".Rmd")
+  res <- .run(env, md)
+  for (cls in c("em dash", "en dash", "semicolon")) {
+    expect_equal(res$line[res$class == cls], 4L, info = cls)
+  }
+  expect_false(any(grepl("^sentence over", res$class)), info = paste(res$class, collapse = "; "))
+  expect_equal(nrow(res), 3L)
+})
+
 test_that("a sentence is counted between terminators, not per line", {
   env <- .prose_env()
   md <- .write_fixture(c(
