@@ -1,6 +1,6 @@
 # M89: Real within-level factor correlations and Φ-partialled edge reporting
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -64,6 +64,9 @@ Carry each level's real within-level factor correlation through column reorderin
 - 2026-09-16: T5 done. `tidy(what = "factor_cor")` (`.tidy_factor_cor()`, upper-triangle pair order, label columns when factor labels are set) and a `summary()` block gated at max |cor| > 1e-8, one line per pair for each level that has a correlated pair. Tests: default fit all 0, k = 1-only copy zero rows, planted level-3 matrix; snapshots at 5e-9 (silent) and 2e-8 (prints). Existing snapshots unchanged. `k_max = 1` is illegal in `ackwards()`, so the k = 1 case runs on a copy holding only level 1.
 - 2026-09-16: T6 done. `.partialled_edges(W_a, R, E, level)` in `R/utils.R` (the `level` argument feeds the warning text); `beta` after `r` on the edge table for every stored pair, `r2` after `cumulative` on the variance table. `test-partialled-edges.R`: varimax identity on pca/efa/esem within 1e-10, skip-level pairs under `pairs = "all"`, lm() oracle on mixed level-2 weights within 1e-8 (beta differs from r there), singular level-2 weights give NA and one warning naming k = 2. Files reading edge/variance tables (print, factor-labels, boot_edges, baseline): 0 failures.
 - 2026-09-16: T7 done. Roxygen for `tidy()` (`beta`, `r2`, `"factor_cor"`, label columns, example) and `summary()` (the block and its 1e-8 gate); two NEWS entries; DESIGN Known-limitations entry on `factor_cor`/`ord` removed; ORACLES rows O14 (varimax identity, invariant) and O15 (`lm()` oracle, live). Intro vignette gained two sentences on `beta` and `r2`; all precomputed vignettes regenerated (the baked edge and variance tables now show the new columns). `tools/check-prose.R` clean after shortening four sentences. First `dod-gate.R` run: freshness clean, check 0/0/0, coverage 100%, lint clean, pkgdown complete; failed only on styler restyling uncommitted files, which this commit carries.
+- 2026-09-16: second `Rscript tools/dod-gate.R` run on the committed tree: GATE PASSED (freshness, ledger anchors, CI path filters, prose, check 0/0/0, coverage 100%, styler clean, lintr clean, pkgdown index complete).
+- 2026-09-16: claim audit: 49 claims read, 0 corrected — NEWS.md, R/tidy.R, R/summary.R, R/utils.R, R/ackwards.R, R/engine_pca.R, R/engine_efa.R, R/engine_esem.R, data-raw/baseline-m89.R, vignettes/ackwards-intro.Rmd.orig, tests. One claim marked unverifiable by the reader (the ~1e-6 unseeded ESEM run-to-run figure in the generator header); it is a dated observation this session made twice before writing it. Reader's incidental note: `.tidy_edges()` would error if a stored edge-matrix cell ever lacked a row in `edges$tidy`; every construction path writes both from one matrix set, so no change made.
+- 2026-09-16: all tasks checked, gate clean; status set to review.
 
 ## Decisions
 

@@ -14,7 +14,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | M86 | Plain-English pass — vignettes A (intro, suggest-k, engines, visualization) | done | M85 | normal | milestones/archive/M86-plain-english-vignettes-a.md |
 | M87 | Plain-English pass — vignettes B (girard, forbes, forbes2023, ordinal, interpret) | done | M85, M88 | normal | milestones/archive/M87-plain-english-vignettes-b.md |
 | M88 | Prose-checker hardening (`tools/check-prose.R`) | done | — | high | milestones/archive/M88-prose-checker-hardening.md |
-| M89 | Real within-level factor correlations and Φ-partialled edge reporting | in-progress | — | normal | milestones/M89-factor-cor-partialled-edges.md |
+| M89 | Real within-level factor correlations and Φ-partialled edge reporting | review | — | normal | milestones/M89-factor-cor-partialled-edges.md |
 | M90 | Oblique rotation as a documented non-default option | blocked | M89 | normal | milestones/M90-oblique-rotation-option.md |
 <!-- M01–M80 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 3 most recent terminal rows. -->
 
