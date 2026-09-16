@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-09-16 (M85 done and archived; M81's terminal row pruned under the three-row retention; one candidate row added for the prose-checker follow-ups; two LESSONS lines added; ROADMAP 8.6 kB and LESSONS 14 kB against their budgets)_
+_Last hygiene check: 2026-09-16 (M86 done and archived; M82's terminal row pruned under the three-row retention; the prose-checker candidate row absorbed M86's three deferred findings and was promoted to [high] at a disposition chip, to be planned before M87; one LESSONS line added; ROADMAP 8.7 kB and LESSONS 14.4 kB against their budgets)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,19 +10,18 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M82 | macOS oldrel (arm64) CI visibility + skip-filter repair | done | — | normal | milestones/archive/M82-macos-oldrel-ci-visibility.md |
 | M83 | Windows parallel-testthat crash — measure, diagnose, mitigate | done | — | high | milestones/archive/M83-windows-parallel-testthat-crash.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 | M85 | Plain-English pass — prose checker, README, DESCRIPTION, NEWS, roxygen | done | — | normal | milestones/archive/M85-plain-english-checker-readme-roxygen.md |
-| M86 | Plain-English pass — vignettes A (intro, suggest-k, engines, visualization) | review | M85 | normal | milestones/M86-plain-english-vignettes-a.md |
+| M86 | Plain-English pass — vignettes A (intro, suggest-k, engines, visualization) | done | M85 | normal | milestones/archive/M86-plain-english-vignettes-a.md |
 | M87 | Plain-English pass — vignettes B (girard, forbes, forbes2023, ordinal, interpret) | planned | M85 | normal | milestones/M87-plain-english-vignettes-b.md |
 <!-- M01–M80 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 3 most recent terminal rows. -->
 
 ## Candidates
 
+- [high] Prose-checker hardening (`tools/check-prose.R`), promotion chosen at the M86 hygiene pass, to be planned before M87 runs: `.prose_tools_dir()` resolves to the wrong directory when the script is sourced, so the list-path defaults are dead outside the repo root; table cells and headings are never length-checked (the four M86 sources carry 61 table rows); semicolons and dashes inside a bare URL are false positives; `check_code_unchanged()` is not wired into `tools/dod-gate.R`; `.code_lines_rmd()` returns all chunk lines then all spans, so its item index and a span moved across a chunk boundary are invisible to the guard; a `.Rmd.orig` present on one side of the merge base only (a rename) is skipped silently, unlike the R-file loop. Items 1-4 from the M85 review, 5-7 from M86. — added 2026-09-16, promoted 2026-09-16
 - Further CRAN **macOS**-flavour coverage beyond M82: a standing R-hub macOS run in `PROFILE.md`'s release-walk (M82 declined it as subsumed by its own push-to-master job) and a macOS **x86_64** row (`macos-13`) — the 0.1.1 failure was arm64-specific and `r-oldrel-macos-x86_64` passed. Promote either on any CRAN macOS failure M82's job could not have caught. The row's alternative-numerics half shipped 2026-09-07 (R-hub `atlas` + `nold` mandated in the release-walk, no longer "as applicable"). — added 2026-07-27, trimmed 2026-09-07
 - Untested axis from M83: **disabling testthat parallelism outright** (`Config/testthat/parallel: false` / `TESTTHAT_PARALLEL=false`), as distinct from the worker counts M83 measured. Evidence it matters: at `TESTTHAT_CPUS=1` the crashes still read `testthat subprocess exited`, so the parallel machinery still spawned a subprocess — the crashing component was never removed in any sweep. Plausibly the actual fix, and the only candidate that eliminates rather than reduces. Costs M48's speedup (27s parallel vs 81s serial locally) and, unlike M83's mitigation, changes **tarball content** (DESCRIPTION), so it needs release re-verification. Promote if a CRAN Windows flavour fails with the -1073741819 signature. — added 2026-07-27
-- [low] Prose checker follow-ups deferred at the M85 review gate (`tools/check-prose.R`): `.prose_tools_dir()` resolves to the wrong directory when the script is sourced, so the list-path defaults are dead outside the repo root; table cells and headings are never length-checked (AC1 letter); semicolons and dashes inside a bare URL are false positives; `check_code_unchanged()` is not wired into `tools/dod-gate.R`. Promote when M86/M87 hit any of them on the vignette sources. — added 2026-09-16
 - [low] Upstream report for the M83 Windows crash, if it isolates to a dependency's compiled code (`EFAtools` or `mnormt`; `psych`/`lavaan`/`GPArotation` are pure R): file with a minimal reproducer. Held out of M83 at the 2026-07-27 plan gate because a maintainer's timeline must not gate our CI health. Promote when M83's bisection names a component. — added 2026-07-27
 - [low] ESEM engine/basis extensions (grouped, demand-gated — keep off schedule until asked): `comparability()` split-half per level per factor (feasible; 2·n_splits lavaan hierarchies per call, per-half convergence handling — D-022 / M46) and `boot_edges()` WLSMV/polychoric bootstrap edges (expensive, n_boot × (k_max−1) fits; resample can drop a response category — D-023 / M47) — added 2026-07-11, merged 2026-07-16
 
