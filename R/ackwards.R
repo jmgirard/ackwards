@@ -40,8 +40,9 @@
 #'   columns, observations in rows). Alternatively, a pre-computed **correlation
 #'   matrix** may be supplied (a square, symmetric, numeric matrix with unit
 #'   diagonal). When a correlation matrix is supplied, `engine` must be `"pca"`
-#'   or `"efa"` (ESEM requires raw data), and the `missing` and `cor` arguments
-#'   are ignored. See the *Correlation-matrix input* section below.
+#'   or `"efa"`, because ESEM (exploratory structural equation modeling) needs
+#'   raw data. The `missing` and `cor` arguments are then ignored. See the
+#'   *Correlation-matrix input* section below.
 #' @param k_max Maximum number of factors or components to extract. It is
 #'   required, so use [suggest_k()] if uncertain. It sets the *depth* of the
 #'   hierarchy: levels 1 through `k_max` are all extracted and retained. (The

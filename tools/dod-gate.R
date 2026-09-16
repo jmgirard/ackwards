@@ -85,6 +85,14 @@ if (nrow(prose_reports) > 0) {
   note("prose: clean")
 }
 
+# Fail fast: the four base-R guards above cost seconds, so a failure among them
+# stops the gate here rather than after the minutes-long check().
+if (length(failures) > 0) {
+  cat("\n")
+  note("GATE FAILED before check():\n- %s", paste(failures, collapse = "\n- "))
+  quit(status = 1L)
+}
+
 t0 <- Sys.time()
 chk <- devtools::check(error_on = "never", quiet = TRUE)
 n_bad <- length(chk$errors) + length(chk$warnings) + length(chk$notes)

@@ -119,6 +119,10 @@ set_factor_labels <- function(x, labels) {
 
 #' Read the factor labels stored on an ackwards object
 #'
+#' A factor is a summary variable standing in for a group of items that move
+#' together. This function returns the labels that [set_factor_labels()]
+#' stored on the object.
+#'
 #' @param x An `ackwards` object.
 #'
 #' @return The named character vector of factor labels (names are factor IDs), or

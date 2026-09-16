@@ -165,6 +165,50 @@ test_that("the checker is silent on every protected location", {
   expect_equal(nrow(res), 0L, info = paste(res$class, res$line, collapse = "; "))
 })
 
+test_that("a multi-word banned phrase is found when it wraps across a line", {
+  env <- .prose_env()
+  md <- .write_fixture(c(
+    "We did this in order",
+    "to make it work. It is worth",
+    "noting that robustness matters.",
+    "",
+    "in order",
+    "",
+    "to: a paragraph break never joins a phrase."
+  ), ".Rmd")
+  res <- .run(env, md)
+  expect_equal(res$line[res$class == "banned phrase: in order to"], 1L)
+  expect_equal(res$line[res$class == "banned phrase: it is worth noting"], 2L)
+  expect_equal(res$line[res$class == "banned phrase: robustness"], 3L)
+  expect_false(any(res$line %in% c(5L, 7L)))
+})
+
+test_that("an unclosed span, fence, or YAML header is an error, not silence", {
+  env <- .prose_env()
+  stray <- .write_fixture(c(
+    "A stray backtick ` here opens nothing.",
+    "",
+    "em dash — and robust.",
+    "",
+    "closes it ` finally."
+  ), ".Rmd")
+  expect_error(.run(env, stray), "unmatched backtick", fixed = TRUE)
+  expect_error(.run(env, stray), ":1: ", fixed = TRUE)
+
+  fence <- .write_fixture(c("Prose.", "```{r}", "code", "em dash — and robust."), ".Rmd")
+  expect_error(.run(env, fence), "fenced code block is never closed", fixed = TRUE)
+  expect_error(.run(env, fence), ":2: ", fixed = TRUE)
+
+  rox <- .write_fixture(c(
+    "#' Title", "#'", "#' ```", "#' code", "#' em dash — and robust.", "f <- 1"
+  ), ".R")
+  expect_error(.run(env, rox), "roxygen fenced code is never closed", fixed = TRUE)
+  expect_error(.run(env, rox), ":3: ", fixed = TRUE)
+
+  yaml <- .write_fixture(c("---", "title: x", "", "em dash — and robust."), ".Rmd")
+  expect_error(.run(env, yaml), "YAML header", fixed = TRUE)
+})
+
 test_that("a sentence is counted between terminators, not per line", {
   env <- .prose_env()
   md <- .write_fixture(c(

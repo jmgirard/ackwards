@@ -28,8 +28,9 @@ ackwards(
 columns, observations in rows). Alternatively, a pre-computed \strong{correlation
 matrix} may be supplied (a square, symmetric, numeric matrix with unit
 diagonal). When a correlation matrix is supplied, \code{engine} must be \code{"pca"}
-or \code{"efa"} (ESEM requires raw data), and the \code{missing} and \code{cor} arguments
-are ignored. See the \emph{Correlation-matrix input} section below.}
+or \code{"efa"}, because ESEM (exploratory structural equation modeling) needs
+raw data. The \code{missing} and \code{cor} arguments are then ignored. See the
+\emph{Correlation-matrix input} section below.}
 
 \item{k_max}{Maximum number of factors or components to extract. It is
 required, so use \code{\link[=suggest_k]{suggest_k()}} if uncertain. It sets the \emph{depth} of the

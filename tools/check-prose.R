@@ -5,6 +5,8 @@
 # (tools/prose-banned.txt), and sentence over `max_words` words. It never
 # touches code: fenced chunks, roxygen `@examples` blocks, roxygen fenced code,
 # YAML headers, and inline code spans are removed before any pattern runs.
+# It errors, rather than going quiet, on a YAML header or fenced block that is
+# never closed and on a backtick left unmatched within its paragraph.
 #
 # `check_code_unchanged(ref)` is the companion guard: it proves a prose
 # rewrite left the code alone by comparing, against the merge base with `ref`,
@@ -59,26 +61,35 @@ read_prose_list <- function(name, dir = .prose_tools_dir()) {
 
 .is_fence <- function(x) grepl("^\\s*(```|~~~)", x)
 
-.extract_markdown <- function(lines, skip_yaml = TRUE) {
+.extract_markdown <- function(lines, skip_yaml = TRUE, file = "<text>") {
   keep <- rep(TRUE, length(lines))
   i <- 1L
-  # YAML header: a `---` on line 1 through the next `---`.
+  # YAML header: a `---` on line 1 through the next `---`. An unterminated
+  # header is an error, never a silently empty file.
   if (skip_yaml && length(lines) > 0L && grepl("^---\\s*$", lines[[1L]])) {
     end <- which(grepl("^(---|\\.\\.\\.)\\s*$", lines))
     end <- end[end > 1L]
-    stop_at <- if (length(end) > 0L) end[[1L]] else length(lines)
+    if (length(end) == 0L) {
+      stop(file, ":1: YAML header opened by `---` is never closed.", call. = FALSE)
+    }
+    stop_at <- end[[1L]]
     keep[1L:stop_at] <- FALSE
     i <- stop_at + 1L
   }
   in_fence <- FALSE
+  fence_at <- NA_integer_
   while (i <= length(lines)) {
     if (.is_fence(lines[[i]])) {
       in_fence <- !in_fence
+      fence_at <- i
       keep[[i]] <- FALSE
     } else if (in_fence) {
       keep[[i]] <- FALSE
     }
     i <- i + 1L
+  }
+  if (in_fence) {
+    stop(file, ":", fence_at, ": fenced code block is never closed.", call. = FALSE)
   }
   # A markdown horizontal rule and the precompute stamp comment carry no prose.
   keep[grepl("^\\s*[-*_]{3,}\\s*$", lines)] <- FALSE
@@ -86,14 +97,14 @@ read_prose_list <- function(name, dir = .prose_tools_dir()) {
   data.frame(line = seq_along(lines)[keep], text = lines[keep], stringsAsFactors = FALSE)
 }
 
-.extract_news <- function(lines) {
+.extract_news <- function(lines, file = "<text>") {
   heads <- which(grepl("^# ", lines))
   if (length(heads) == 0L) {
     return(data.frame(line = integer(0L), text = character(0L)))
   }
   from <- heads[[1L]]
   to <- if (length(heads) >= 2L) heads[[2L]] - 1L else length(lines)
-  md <- .extract_markdown(lines[from:to], skip_yaml = FALSE)
+  md <- .extract_markdown(lines[from:to], skip_yaml = FALSE, file = file)
   md$line <- md$line + from - 1L
   md
 }
@@ -111,15 +122,20 @@ read_prose_list <- function(name, dir = .prose_tools_dir()) {
   data.frame(line = start:end, text = text, stringsAsFactors = FALSE)
 }
 
-.extract_roxygen <- function(lines) {
+.extract_roxygen <- function(lines, file = "<text>") {
   is_rox <- grepl("^#'", lines)
   text <- sub("^#' ?", "", lines)
   keep <- is_rox
   in_examples <- FALSE
   in_fence <- FALSE
-  for (i in seq_along(lines)) {
-    if (!is_rox[[i]]) {
-      # Leaving a roxygen block resets both states.
+  fence_at <- NA_integer_
+  for (i in c(seq_along(lines), length(lines) + 1L)) {
+    if (i > length(lines) || !is_rox[[i]]) {
+      # Leaving a roxygen block resets both states. An open fence at that
+      # point is an error, never a silently dropped block.
+      if (in_fence) {
+        stop(file, ":", fence_at, ": roxygen fenced code is never closed.", call. = FALSE)
+      }
       in_examples <- FALSE
       in_fence <- FALSE
       next
@@ -140,12 +156,14 @@ read_prose_list <- function(name, dir = .prose_tools_dir()) {
     }
     if (.is_fence(t)) {
       in_fence <- !in_fence
+      fence_at <- i
       keep[[i]] <- FALSE
       next
     }
     # Rd's own code block, `\preformatted{ ... }`, closed by a lone `}`.
     if (grepl("\\\\preformatted\\{", t)) {
       in_fence <- TRUE
+      fence_at <- i
       keep[[i]] <- FALSE
       next
     }
@@ -180,19 +198,23 @@ extract_prose <- function(path, kind = .prose_kind(path)) {
   lines <- readLines(path, warn = FALSE, encoding = "UTF-8")
   switch(kind,
     description = .extract_description(lines),
-    news = .extract_news(lines),
-    roxygen = .extract_roxygen(lines),
-    .extract_markdown(lines)
+    news = .extract_news(lines, file = path),
+    roxygen = .extract_roxygen(lines, file = path),
+    .extract_markdown(lines, file = path)
   )
 }
 
 # ---- code-span removal -------------------------------------------------------
 
-# Remove single- and double-backtick spans (including spans that cross a line
-# break) from a vector of consecutive prose lines, preserving line count. A
-# span's content is replaced by a single space so neighbouring words never
-# merge; the newlines inside a span are kept so line numbers stay aligned.
-strip_code_spans <- function(text) {
+# Paragraph ids for a vector of prose lines: consecutive non-empty lines share
+# an id, and an empty line ends the paragraph. Spans and wrapped phrases are
+# matched within a paragraph, never across one.
+.paragraph_ids <- function(text) {
+  blank <- !nzchar(trimws(text))
+  cumsum(c(TRUE, blank[-length(blank)] & !blank[-1L])) * !blank
+}
+
+.strip_one_paragraph <- function(text) {
   joined <- paste(text, collapse = "\n")
   # Double backticks first so a single backtick inside them is not a span start.
   pat <- "``[\\s\\S]*?``|`[^`\\n][\\s\\S]*?`|``"
@@ -214,6 +236,30 @@ strip_code_spans <- function(text) {
   }
   strsplit(joined, "\n", fixed = TRUE)[[1L]] |>
     (\(x) if (length(x) < length(text)) c(x, rep("", length(text) - length(x))) else x)()
+}
+
+# Remove single- and double-backtick spans (including spans that cross a line
+# break, never a paragraph break) from a vector of consecutive prose lines,
+# preserving line count. A span's content is replaced by a single space so
+# neighbouring words never merge; the newlines inside a span are kept so line
+# numbers stay aligned. A backtick left unmatched within its paragraph is an
+# error: a stray backtick would otherwise swallow the prose up to the next one.
+strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
+  ids <- .paragraph_ids(text)
+  out <- text
+  for (id in setdiff(unique(ids), 0L)) {
+    at <- which(ids == id)
+    stripped <- .strip_one_paragraph(text[at])
+    left <- grepl("`", stripped, fixed = TRUE)
+    if (any(left)) {
+      stop(
+        file, ":", line[at][left][[1L]], ": unmatched backtick in this paragraph.",
+        call. = FALSE
+      )
+    }
+    out[at] <- stripped
+  }
+  out
 }
 
 # ---- reports -----------------------------------------------------------------
@@ -239,10 +285,30 @@ strip_code_spans <- function(text) {
   flag("–", "en dash", fixed = TRUE)
   flag(" -- ", "double hyphen", fixed = TRUE)
   flag(";", "semicolon", fixed = TRUE)
+  # Banned phrases are matched over each paragraph joined with newlines, so a
+  # multi-word phrase wrapped across a line break is still found. The report
+  # names the line where the match starts.
+  ids <- .paragraph_ids(prose$text)
   for (b in banned) {
     esc <- gsub("([][{}()+*^$|\\\\.?])", "\\\\\\1", b)
     esc <- gsub("\\s+", "\\\\s+", esc)
-    flag(paste0("\\b", esc, "\\b"), paste0("banned phrase: ", b), ignore.case = TRUE, perl = TRUE)
+    pat <- paste0("\\b", esc, "\\b")
+    for (id in setdiff(unique(ids), 0L)) {
+      at <- which(ids == id)
+      joined <- paste(prose$text[at], collapse = "\n")
+      m <- gregexpr(pat, joined, ignore.case = TRUE, perl = TRUE)[[1L]]
+      if (m[[1L]] == -1L) next
+      # Line of each match: count the newlines before its start.
+      nl_before <- vapply(
+        as.integer(m),
+        function(s) nchar(gsub("[^\n]", "", substr(joined, 1L, s - 1L))),
+        integer(1L)
+      )
+      rows <- unique(at[nl_before + 1L])
+      out[[length(out) + 1L]] <- .report(
+        file, prose$line[rows], paste0("banned phrase: ", b), trimws(prose$text[rows])
+      )
+    }
   }
   if (length(out) == 0L) {
     return(.empty_report())
@@ -358,7 +424,7 @@ check_prose <- function(paths = NULL, banned = read_prose_list("prose-banned.txt
   for (p in paths) {
     prose <- extract_prose(p)
     if (nrow(prose) == 0L) next
-    prose$text <- strip_code_spans(prose$text)
+    prose$text <- strip_code_spans(prose$text, file = p, line = prose$line)
     out[[length(out) + 1L]] <- .char_reports(p, prose, banned)
     out[[length(out) + 1L]] <- .sentence_reports(p, prose, abbrev, max_words)
   }

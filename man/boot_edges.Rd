@@ -76,8 +76,9 @@ This is the same matching machinery \code{\link[=comparability]{comparability()}
 All resample indices are drawn upfront from \code{seed}, so results are
 reproducible and identical whether replicates run serially or in parallel.
 Replicate fits are dispatched through \pkg{future.apply} when it is
-installed and the user has set a \code{\link[future:plan]{future::plan()}} (serial otherwise, as in
-\code{\link[=ackwards]{ackwards()}}'s ESEM engine).
+installed and the user has set a \code{\link[future:plan]{future::plan()}}. Otherwise they run
+serially, as in the ESEM (exploratory structural equation modeling) engine
+of \code{\link[=ackwards]{ackwards()}}.
 }
 \section{What the intervals do and do not fix}{
 
