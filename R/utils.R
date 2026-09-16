@@ -119,6 +119,12 @@ make_labels <- function(k) {
   out
 }
 
+# Label a k x k factor correlation with the level's stored factor labels.
+.label_phi <- function(Phi, labels) {
+  dimnames(Phi) <- list(labels, labels)
+  Phi
+}
+
 # The within-level factor correlation a psych fit carries. psych's pca() and
 # fa() set `$Phi` only under an oblique rotation; under varimax (the
 # default) the factors are orthogonal and `$Phi` is absent, so the identity

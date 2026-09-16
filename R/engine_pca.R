@@ -55,7 +55,12 @@ pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE) {
       variance = variance,
       fit = fit_info,
       converged = TRUE,
-      factor_cor = diag(k), # orthogonal: identity
+      # psych sets $Phi only under an oblique rotation; varimax leaves it
+      # absent and .engine_phi() returns the identity. psych's column sort is
+      # already applied to both loadings and Phi, so the carry order is the
+      # identity and the signs are unit (ackwards() applies align_signs).
+      # Unnamed, as before: tidy() reads the level's labels.
+      factor_cor = .carry_factor_cor(.engine_phi(fit, k), seq_len(k), rep(1, k)),
       labels = make_labels(k),
       scoring = list(
         linear    = TRUE,

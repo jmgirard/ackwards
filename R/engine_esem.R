@@ -191,10 +191,8 @@
   labels_k <- make_labels(k)
 
   # Sort factors by descending variance explained (consistent with PCA/EFA convention).
-  # NOTE: factor_cor is extracted independently below and does NOT apply ord.
-  # For orthogonal rotation (factor_cor = I) this is safe. If oblique
-  # rotation were ever added, factor_cor must also be permuted by ord to stay consistent
-  # with the column ordering of L.
+  # `ord` is applied to the loadings here and to lavaan's factor correlation
+  # below (.carry_factor_cor), so factor_cor always matches the column order of L.
   # colSums(L^2) is an order-equivalent key for variance explained (constant
   # divisor p); the variance vector itself is computed once, post-sort (M60).
   ord <- order(colSums(L^2), decreasing = TRUE)
@@ -291,20 +289,18 @@
     BIC = .fm("bic")
   )
 
-  # Within-level factor correlations (identity for orthogonal rotation)
-  factor_cor <- tryCatch(
+  # Within-level factor correlations: lavaan's cor.lv in lavaan's factor
+  # order, permuted by the same `ord` that sorted the loadings above (unit
+  # signs here; ackwards() applies the align_signs flips). Identity under
+  # orthogonal rotation.
+  Phi_lav <- tryCatch(
     {
       Phi <- lavaan::lavInspect(fit, "cor.lv")
-      if (is.matrix(Phi) && nrow(Phi) == k) {
-        rownames(Phi) <- labels_k
-        colnames(Phi) <- labels_k
-        Phi
-      } else {
-        diag(k) # nocov
-      }
+      if (is.matrix(Phi) && nrow(Phi) == k) unname(Phi) else diag(k) # nocov
     },
     error = function(e) diag(k)
   )
+  factor_cor <- .label_phi(.carry_factor_cor(Phi_lav, ord, rep(1, k)), labels_k)
 
   level <- list(
     k = k,
