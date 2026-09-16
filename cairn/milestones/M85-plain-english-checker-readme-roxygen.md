@@ -39,15 +39,19 @@ the Plain register, so `may`/`might`/`should` stay allowed).
       exactly these prose lines: README.Rmd, `vignettes/*.Rmd.orig`, and
       `vignettes/ackwards-interpret.Rmd` outside the YAML header and outside fenced chunks;
       the `Description:` field of `DESCRIPTION`; NEWS.md between its first `# ` heading and
-      its second; and every `#'` line of `R/*.R` outside `@examples` blocks and outside
-      roxygen fenced code. Before matching it removes single- and double-backtick code
-      spans, including spans that cross a line break. It reports file and line for each
-      em dash, en dash, ` -- `, semicolon, phrase in `tools/prose-banned.txt`, and
-      sentence over 30 words, where a sentence is the text between terminators (`.`, `?`,
-      `!` followed by whitespace and an uppercase letter or a line end) after headings,
-      bullet markers, table rows, and the abbreviations in `tools/prose-abbrev.txt`
-      (`e.g.`, `i.e.`, `et al.`, `vs.`, `p.`, `pp.`, `cf.`, `Fig.`, `No.`) are removed;
-      it exits non-zero on any report.
+      its second; and every `#'` line of `R/*.R` outside `@examples` blocks, outside
+      roxygen fenced code, and outside Rd `\preformatted{}` blocks. Before matching it
+      removes single- and double-backtick code spans, including spans that cross a line
+      break. It reports file and line for each em dash, en dash, ` -- `, semicolon,
+      phrase in `tools/prose-banned.txt`, and sentence over 30 words, where a sentence is
+      the text between terminators (`.`, `?`, `!`, optionally followed by a closing
+      quote, bracket, or emphasis mark, then whitespace and an optional opening quote,
+      bracket, or emphasis mark before an uppercase letter, or a line end) after
+      headings, table rows, and section titles are dropped, bullet markers and roxygen
+      tag words are stripped, and the abbreviations in `tools/prose-abbrev.txt` (`e.g.`,
+      `i.e.`, `et al.`, `vs.`, `p.`, `pp.`, `cf.`, `Fig.`, `No.`) are removed, and where
+      a paragraph break, a new bullet, or a new roxygen tag also ends a sentence; it
+      exits non-zero on any report.
 - [x] AC2: `tests/testthat/test-check-prose.R` runs `check_prose()` on fixture text and is red
       on each report class in each of these forms and locations: dash forms `—`, `–`,
       ` -- `; locations YAML-adjacent prose, heading, bullet item, table cell, link text,
@@ -78,9 +82,12 @@ the Plain register, so `may`/`might`/`should` stay allowed).
       Forbes (2023) stay available and documented (`R/prune.R` `redundancy_criterion`, IP9);
       and every `@param` default rationale in `R/ackwards.R`, `R/prune.R`, and
       `R/suggest_k.R` names the same default value and reason as on master.
-- [ ] AC7: `devtools::document()` and `devtools::build_readme()` produce no diff on the branch
-      head; `Rscript tools/dod-gate.R` exits 0 with the prose check run fail-fast over the
-      AC3 paths before `devtools::check()`; NEWS.md carries a documentation entry.
+- [ ] AC7: `devtools::document()` produces no diff, and `devtools::build_readme()` changes
+      only `#>`-prefixed output lines of the `suggest_k` chunk in README.md (that chunk is
+      unseeded and AC4 forbids adding a seed), leaving the rest of README.md and
+      `man/figures/` byte-identical over two consecutive builds; `Rscript tools/dod-gate.R`
+      exits 0 with the prose check run fail-fast over the AC3 paths before
+      `devtools::check()`; NEWS.md carries a documentation entry.
 
 ## Coverage
 
@@ -135,6 +142,10 @@ the Plain register, so `may`/`might`/`should` stay allowed).
 - 2026-09-16: amendment return: AC1 — "where a sentence is the text between terminators (`.`, `?`, `!`, optionally followed by a closing quote, bracket, or emphasis mark, then whitespace and an optional opening quote or bracket before an uppercase letter, or a line end)" and "outside roxygen fenced code and Rd `\preformatted{}` blocks". The implementation splits at these sites and the letter does not.
 - 2026-09-16: return fixes. The five AC5 sites now gloss at first use (ackwards.R data param, boot_edges.R description, autoplot.comparability, autoplot.suggest_k, factor_labels() description). Checker hardened per [O] findings 1-5: an unmatched backtick within a paragraph, an unclosed fence (markdown or roxygen), and an unterminated YAML header now error with file and line instead of going quiet, spans never cross a paragraph break, and banned phrases match across a wrapped line (finding 3). Word forms added to prose-banned.txt (finding 4). Test file gains a wrapped-phrase case and the three error paths (finding 10): 83 expectations, 0 failures. dod-gate now exits before check() when any base-R guard failed, so AC7's "fail-fast" holds by the letter (finding 6). AC3 sweep clean, code guard clean, document() regenerated five Rd files.
 - 2026-09-16: amendment return: AC7 — "`devtools::document()` produces no diff and `devtools::build_readme()` produces no diff outside knitted output blocks on the branch head". The README `suggest_k(bfi25)` chunk is unseeded, its CD criterion varies per build, and AC4 forbids adding a seed.
+
+- 2026-09-16: amendment gate accepted both amendment returns (AC1 sentence rule and preformatted blocks, AC7 README exemption) and the return fixes (five glosses plus [O] findings 1-5 and 10).
+- 2026-09-16: re-audit: AC1 (full) — four findings: the opener class omitted emphasis marks, the paragraph/bullet/roxygen-tag sentence boundaries were unstated, "removed" conflated dropped and stripped items, and "exactly" outran the silent extraction paths. First three fixed in the wording; the fourth closed by the checker now erroring on those paths.
+- 2026-09-16: re-audit: AC7 (full) — four findings: "fail-fast" was false of the gate, "knitted output block" had no mechanical referent, the file domain (man/figures/) was unstated, and the exemption was wider than its cause. First closed by the gate's early exit; the other three fixed by narrowing the clause to the `#>` lines of the `suggest_k` chunk over two consecutive builds.
 
 ## Decisions
 
