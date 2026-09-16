@@ -431,7 +431,11 @@ test_that("check_code_unchanged sees only code and reports a changed code line",
     "New prose `r 1 + 2` here.",
     "```{r}", "x <- 1", "```"
   ), "README.Rmd")
-  expect_match(env$check_code_unchanged("master", root), "README.Rmd: chunk or inline-code item 1 differs from the merge base (line 4: ", fixed = TRUE)
+  expect_match(
+    env$check_code_unchanged("master", root),
+    "README.Rmd: chunk or inline-code item 1 differs from the merge base (line 4: ",
+    fixed = TRUE
+  )
   git("checkout", "-q", "--", "README.Rmd")
 
   writeLines(c(
@@ -439,7 +443,11 @@ test_that("check_code_unchanged sees only code and reports a changed code line",
     "New prose `r 1 + 1` here.",
     "```{r}", "x <- 2", "```"
   ), "README.Rmd")
-  expect_match(env$check_code_unchanged("master", root), "README.Rmd: chunk or inline-code item 3 differs from the merge base (line 6: ", fixed = TRUE)
+  expect_match(
+    env$check_code_unchanged("master", root),
+    "README.Rmd: chunk or inline-code item 3 differs from the merge base (line 6: ",
+    fixed = TRUE
+  )
   git("checkout", "-q", "--", "README.Rmd")
 
   # A vignette source is guarded the same way: a chunk option, a chunk body
