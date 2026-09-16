@@ -1,6 +1,6 @@
 # M85: Plain-English pass — prose checker, README, DESCRIPTION, NEWS, roxygen
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -38,8 +38,8 @@ the Plain register, so `may`/`might`/`should` stay allowed).
       `*.Rmd`, and `*.Rmd.orig` files; no argument means the full default domain), sweeps
       exactly these prose lines: README.Rmd, `vignettes/*.Rmd.orig`, and
       `vignettes/ackwards-interpret.Rmd` outside the YAML header and outside fenced chunks;
-      the `Description:` field of `DESCRIPTION`; NEWS.md between its first `# ` heading and
-      its second; and every `#'` line of `R/*.R` outside `@examples` blocks, outside
+      the `Description:` field of `DESCRIPTION`; NEWS.md from its first `# ` heading through
+      the line before its second; and every `#'` line of `R/*.R` outside `@examples` blocks, outside
       roxygen fenced code, and outside Rd `\preformatted{}` blocks. Before matching it
       removes single- and double-backtick code spans, including spans that cross a line
       break. It reports file and line for each em dash, en dash, ` -- `, semicolon,
@@ -83,7 +83,7 @@ the Plain register, so `may`/`might`/`should` stay allowed).
       and every `@param` default rationale in `R/ackwards.R`, `R/prune.R`, and
       `R/suggest_k.R` names the same default value and reason as on master.
 - [ ] AC7: `devtools::document()` produces no diff, and `devtools::build_readme()` changes
-      only `#>`-prefixed output lines of the `suggest_k` chunk in README.md (that chunk is
+      only `#>`-prefixed output lines of the `suggest-print` chunk in README.md (that chunk is
       unseeded and AC4 forbids adding a seed), leaving the rest of README.md and
       `man/figures/` byte-identical over two consecutive builds; `Rscript tools/dod-gate.R`
       exits 0 with the prose check run fail-fast over the AC3 paths before
@@ -147,7 +147,11 @@ the Plain register, so `may`/`might`/`should` stay allowed).
 - 2026-09-16: re-audit: AC1 (full) — four findings: the opener class omitted emphasis marks, the paragraph/bullet/roxygen-tag sentence boundaries were unstated, "removed" conflated dropped and stripped items, and "exactly" outran the silent extraction paths. First three fixed in the wording; the fourth closed by the checker now erroring on those paths.
 - 2026-09-16: re-audit: AC7 (full) — four findings: "fail-fast" was false of the gate, "knitted output block" had no mechanical referent, the file domain (man/figures/) was unstated, and the exemption was wider than its cause. First closed by the gate's early exit; the other three fixed by narrowing the clause to the `#>` lines of the `suggest_k` chunk over two consecutive builds.
 
+- 2026-09-16: re-audit: AC1 (full) — sentence rule matches the code on all eight probed axes. Three findings: the error paths (unclosed fence, YAML, unmatched backtick) are unbound by any criterion, "between its first heading and its second" reads as excluding the heading line the code sweeps, and the `@param` name and `\item{}` label strips are unstated. Second re-entry, so disposition went to the user.
+- 2026-09-16: re-audit: AC7 (full) — four findings: the fail-fast clause is unwitnessed by an exit-0 run (a planted failure is the witness), the chunk is named `suggest-print` in README.Rmd not `suggest_k`, `man/figures/` byte-identity binds the graphics device, and the diff baseline is unstated. Second re-entry, so disposition went to the user.
 - 2026-09-16: claim audit: 23 claims read, 0 corrected — R/ackwards.R, R/boot_edges.R, R/comparability.R, R/factor_labels.R, R/suggest_k.R, tools/check-prose.R, tools/prose-banned.txt, tools/dod-gate.R, tests/testthat/test-check-prose.R (lines added since 2b08b8f; the earlier audit covered the rest). Gate re-run exit 0 (check 0/0/0, coverage 100%, style, lint, pkgdown). Planted em dash in NEWS.md made the gate exit 1 in 0.6s before check(), then restored.
+
+- 2026-09-16: user chose the two clear wording fixes (AC1 NEWS boundary, AC7 chunk name `suggest-print`) and held the rest, declining the error-path widening. Return work complete, gate green, status set to review for pass 2.
 
 ## Decisions
 
