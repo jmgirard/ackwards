@@ -1,0 +1,11 @@
+# M85: Plain-English pass — prose checker, README, DESCRIPTION, NEWS, roxygen
+
+**Status:** done (2026-09-16, PR #92 https://github.com/jmgirard/ackwards/pull/92)
+
+**Goal:** Rewrite README.Rmd, the DESCRIPTION `Description` field, the NEWS development section, and every roxygen comment into plain English a reader outside the field follows on one read, enforced by a prose checker that later milestones widen to the vignettes.
+
+**Outcome:** `tools/check-prose.R` (`check_prose()`, `check_code_unchanged()`, with `tools/prose-banned.txt`, `prose-abbrev.txt`, `prose-terms.txt`) sweeps README.Rmd, the DESCRIPTION Description field, the NEWS development section, and roxygen outside `@examples` and fenced code for em and en dashes, ` -- `, semicolons, banned phrases, and sentences over 30 words. It errors on an unclosed span, fence, or YAML header, and it is wired into `tools/dod-gate.R` as a fast pre-check that exits before `devtools::check()`. Every roxygen topic, README.Rmd, the Description field, and the NEWS entry were rewritten with the 16 listed terms glossed at first use. Code, examples, chunks, and every other DESCRIPTION field are byte-identical to the merge base. `.lintr` now permits `<<-` (lintr 3.4.0 drift). The nine vignettes are M86 and M87.
+
+**Decisions:** none milestone-local. The Plain register (modals allowed), the 30-word cap, the standing gate, and the must-survive claim list were plan-gate choices recorded in the work log.
+
+**Review:** two passes, three fresh lenses each. Pass 1 returned the milestone on five unglossed first uses and sent AC1 (sentence rule, preformatted blocks) and AC7 (README exemption for the unseeded `suggest-print` chunk, checked over two builds) to a gated amendment, each re-audited twice by fresh readers. Pass 2 logged 27 findings: 14 fixed on the branch (paragraph-scoped span and phrase matching, one-line preformatted blocks, a line-1 rule not read as YAML, a visible sentence sentinel, word forms, the gate catching checker errors and documenting its two phases, six prose readability items), 4 deferred to one ROADMAP candidate row, 9 rejected with reasons. Merged on local green under the CLAUDE.md CI override with seven checks pending at the merge. Nothing graduated or retired.

@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-09-07 (trivial-tier: R-hub `atlas` + `nold` mandated in `PROFILE.md`'s release-walk, replacing the "as applicable" wording that let the flavours be skipped before the 0.2.0 noLD auto-rejection; the promoted CRAN-flavour row trimmed to its unfired macOS-flavour remainder. Prior pass 2026-09-06 triaged 15 items: 1 promote, 3 re-rates, 1 compress, plus the terminal-row retention fix)_
+_Last hygiene check: 2026-09-16 (M85 done and archived; M81's terminal row pruned under the three-row retention; one candidate row added for the prose-checker follow-ups; two LESSONS lines added; ROADMAP 8.6 kB and LESSONS 14 kB against their budgets)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,11 +10,10 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M81 | Publication-figure polish — item lists, per-node box sizes, manual factor ordering | done | M80 | normal | milestones/archive/M81-publication-figure-polish.md |
 | M82 | macOS oldrel (arm64) CI visibility + skip-filter repair | done | — | normal | milestones/archive/M82-macos-oldrel-ci-visibility.md |
 | M83 | Windows parallel-testthat crash — measure, diagnose, mitigate | done | — | high | milestones/archive/M83-windows-parallel-testthat-crash.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
-| M85 | Plain-English pass — prose checker, README, DESCRIPTION, NEWS, roxygen | review | — | normal | milestones/M85-plain-english-checker-readme-roxygen.md |
+| M85 | Plain-English pass — prose checker, README, DESCRIPTION, NEWS, roxygen | done | — | normal | milestones/archive/M85-plain-english-checker-readme-roxygen.md |
 | M86 | Plain-English pass — vignettes A (intro, suggest-k, engines, visualization) | planned | M85 | normal | milestones/M86-plain-english-vignettes-a.md |
 | M87 | Plain-English pass — vignettes B (girard, forbes, forbes2023, ordinal, interpret) | planned | M85 | normal | milestones/M87-plain-english-vignettes-b.md |
 <!-- M01–M80 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 3 most recent terminal rows. -->
