@@ -99,6 +99,40 @@ make_labels <- function(k) {
   c(stats::setNames(var_per_factor, labels), cumulative = sum(var_per_factor))
 }
 
+# Carry an engine's within-level factor correlation through a column
+# permutation and a per-factor sign flip. `Phi` is the k x k correlation the
+# engine reports (rows and columns in the engine's own factor order), `ord`
+# the permutation that puts the loadings' columns in stored order (so the
+# stored factor j is the engine's factor ord[j]), and `signs` the +/-1 vector
+# applied to the stored columns. A permuted, sign-flipped correlation is
+# Phi[ord, ord] * (signs %o% signs): flipping factor j negates its row and
+# column, and the diagonal is unchanged because signs^2 = 1. The single site
+# for this algebra: the engines call it with their sort order and unit signs,
+# and ackwards() calls it again with the identity order and the
+# `align_signs` flips, so `factor_cor` always matches the stored loadings.
+# Row/column names follow `dimnames(Phi)` permuted by `ord`.
+.carry_factor_cor <- function(Phi, ord, signs) {
+  Phi <- as.matrix(Phi)
+  k <- nrow(Phi)
+  stopifnot(ncol(Phi) == k, length(ord) == k, length(signs) == k)
+  out <- Phi[ord, ord, drop = FALSE] * tcrossprod(as.numeric(signs))
+  out
+}
+
+# The within-level factor correlation a psych fit carries. psych's pca() and
+# fa() set `$Phi` only under an oblique rotation; under varimax (the
+# default) the factors are orthogonal and `$Phi` is absent, so the identity
+# is the correct correlation. k = 1 has no rotation and returns the 1 x 1
+# identity. A stored `$Phi` is returned as a plain unnamed matrix so the
+# caller applies its own labels.
+.engine_phi <- function(fit, k) {
+  Phi <- fit$Phi
+  if (is.null(Phi) || k == 1L) {
+    return(diag(k))
+  }
+  unname(as.matrix(Phi))
+}
+
 # Actual score variances diag(W' R W) -- never assumed 1 (Invariant 1). Shared
 # by the engines ($scoring$score_var) and compute_edges()'s standardization.
 .score_var <- function(W, R) {

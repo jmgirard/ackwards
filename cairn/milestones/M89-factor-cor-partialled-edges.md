@@ -42,7 +42,7 @@ Carry each level's real within-level factor correlation through column reorderin
 ## Tasks
 
 - [x] T1: Before you touch `R/`, write `data-raw/baseline-m89.R` (default fits per AC1, `provenance` attr with generator path and `git rev-parse HEAD`). Run it on master `a645e32`. Commit the `.rds` under `tests/testthat/fixtures/`. Add the frozen oracle row to `cairn/ORACLES.md`. Write `tests/testthat/test-baseline-m89.R` (1e-12). It must pass on the unchanged code first.
-- [ ] T2: Add `.carry_factor_cor(Phi, ord, signs)` and `.engine_phi(fit, k)` to `R/utils.R` next to `.variance_explained()` (`R/utils.R:97`), with the AC2 and AC3 direct tests.
+- [x] T2: Add `.carry_factor_cor(Phi, ord, signs)` and `.engine_phi(fit, k)` to `R/utils.R` next to `.variance_explained()` (`R/utils.R:97`), with the AC2 and AC3 direct tests.
 - [ ] T3: Route the engines. `R/engine_pca.R:58` and `R/engine_efa.R:143` replace `diag(k)` with `.engine_phi(fit, k)`. `R/engine_esem.R:193-200` and `:294-307` permute `cor.lv` by `ord` through the helper and drop the guard comment. Add the `local_mocked_bindings()` routing test.
 - [ ] T4: In `ackwards()` after `.align_signs()` (`R/ackwards.R:922-929`, where loadings and weights are flipped), flip each level's `factor_cor` through the helper with `ord` set to the identity. Test per AC3.
 - [ ] T5: Add `"factor_cor"` to `tidy()`'s `what` (`R/tidy.R:117`) with `.tidy_factor_cor()`, and the conditional `summary()` block (`R/summary.R`, `print.summary_ackwards`). Snapshots per AC4.
@@ -58,6 +58,7 @@ Carry each level's real within-level factor correlation through column reorderin
 - 2026-09-16: plan gate chose a master-generated regression fixture over "the fidelity suite passes" as the unchanged-output oracle because the fidelity suite is PCA-only while M89 edits all three engines. Falsified by a default-output change the fixture's five fits do not cover.
 - 2026-09-16: /milestone-implement started. Branch cut from master `ee71316` (code tree equal to `a645e32`; the two later commits touched only `cairn/`). No question gate: the plan left no open implementation choice. Column placement chosen in session: `beta` after `r` on the edge table, `r2` after `cumulative` on the variance table.
 - 2026-09-16: T1 done. Generator `data-raw/baseline-m89.R`, fixture `baseline-m89.rds` (O13 in ORACLES.md), test `test-baseline-m89.R` passes on the unchanged code (5 fits, 0 failures). Minor amendment to AC1's enumerating procedure: the ESEM fit carries `seed = 1`, because an unseeded ESEM fit differs run to run at about 1e-6 (lavaan rotation random starts, observed twice this session) and cannot serve a 1e-12 oracle. The seed changes no method argument. AC1 wording unchanged.
+- 2026-09-16: T2 done. `.carry_factor_cor()` and `.engine_phi()` in `R/utils.R`; direct tests in `test-utils.R` (five permutation/sign cases over k in {2, 4}, psych `$Phi` present/absent/k = 1). psych sets `$Phi` only under oblique rotation (checked on `pca()` and `fa()` with varimax and oblimin this session).
 
 ## Decisions
 

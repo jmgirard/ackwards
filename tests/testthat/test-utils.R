@@ -360,3 +360,52 @@ test_that(".check_count() validates a single positive integer and returns int", 
   expect_error(cc(1, "n_boot", min = 2L), "integer >= 2")
   expect_error(cc(NA_real_, "n_boot", min = 2L), "integer >= 2")
 })
+
+# ── .carry_factor_cor() / .engine_phi() (factor-correlation carry) ───────────
+
+test_that(".carry_factor_cor() permutes and sign-flips a factor correlation", {
+  carry <- ackwards:::.carry_factor_cor
+  set.seed(89)
+  make_phi <- function(k) {
+    A <- matrix(stats::rnorm(k * k), k)
+    P <- stats::cov2cor(crossprod(A) + diag(k))
+    dimnames(P) <- list(paste0("f", seq_len(k)), paste0("f", seq_len(k)))
+    P
+  }
+  cases <- list(
+    list(k = 2L, ord = c(2L, 1L), signs = c(1, -1)), # self-inverse, mixed
+    list(k = 2L, ord = c(2L, 1L), signs = c(-1, -1)), # self-inverse, all negative
+    list(k = 4L, ord = c(2L, 3L, 4L, 1L), signs = c(1, -1, 1, -1)), # cycle, mixed
+    list(k = 4L, ord = c(2L, 3L, 4L, 1L), signs = c(-1, -1, -1, -1)), # cycle, all negative
+    list(k = 4L, ord = c(4L, 3L, 2L, 1L), signs = c(-1, 1, 1, 1)) # self-inverse, one flip
+  )
+  for (cs in cases) {
+    Phi <- make_phi(cs$k)
+    out <- carry(Phi, cs$ord, cs$signs)
+    expected <- Phi[cs$ord, cs$ord] * tcrossprod(cs$signs)
+    expect_equal(out, expected, label = paste("k =", cs$k, "ord =", paste(cs$ord, collapse = "")))
+    # The diagonal survives every flip and the result stays symmetric.
+    expect_equal(unname(diag(out)), rep(1, cs$k))
+    expect_true(isSymmetric(unname(out)))
+    # Row/column names travel with the permutation.
+    expect_identical(rownames(out), rownames(Phi)[cs$ord])
+  }
+  # Identity order and unit signs are a no-op (the ackwards() call shape
+  # under align_signs = FALSE).
+  Phi <- make_phi(3L)
+  expect_equal(carry(Phi, 1:3, c(1, 1, 1)), Phi)
+  # k = 1 is a 1 x 1 identity whatever the sign.
+  expect_equal(unname(carry(diag(1), 1L, -1)), diag(1))
+})
+
+test_that(".engine_phi() reads a psych $Phi and falls back to the identity", {
+  phi_of <- ackwards:::.engine_phi
+  P <- matrix(c(1, .4, .2, .4, 1, .3, .2, .3, 1), 3, dimnames = list(letters[1:3], letters[1:3]))
+  # A fit-shaped list carrying a non-identity $Phi (oblique rotation).
+  expect_equal(phi_of(list(Phi = P, loadings = NULL), 3L), unname(P))
+  # No $Phi (orthogonal rotation): the identity of the right size.
+  expect_equal(phi_of(list(Phi = NULL, loadings = NULL), 3L), diag(3L))
+  expect_equal(phi_of(list(loadings = NULL), 4L), diag(4L))
+  # k = 1 has no rotation: a 1 x 1 identity even if a $Phi slot exists.
+  expect_equal(phi_of(list(Phi = matrix(1)), 1L), diag(1L))
+})
