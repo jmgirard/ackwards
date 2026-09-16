@@ -34,17 +34,17 @@ behavior, and keeps M85's tests green); term-list additions → appended to
 
 ## Acceptance criteria
 
-- [ ] AC1: `Rscript tools/check-prose.R vignettes/ackwards-intro.Rmd.orig
+- [x] AC1: `Rscript tools/check-prose.R vignettes/ackwards-intro.Rmd.orig
       vignettes/ackwards-suggest-k.Rmd.orig vignettes/ackwards-engines.Rmd.orig
       vignettes/ackwards-visualization.Rmd.orig` exits 0 on the branch head.
-- [ ] AC2: `check_code_unchanged()` from `tools/check-prose.R`, run against the merge base
+- [x] AC2: `check_code_unchanged()` from `tools/check-prose.R`, run against the merge base
       with `master`, reports no differing fenced-chunk line (options and code) and no
       differing inline `` `r ` `` span in the four batch sources, and each such span still
       sits on one line or is byte-identical to its master form when it crosses a line break.
-- [ ] AC3: Every term in `tools/prose-terms.txt` is glossed in plain words at its first use
+- [x] AC3: Every term in `tools/prose-terms.txt` is glossed in plain words at its first use
       in each batch vignette where it appears; the review reads the gloss sites from
       `grep -n` of each term over the four sources.
-- [ ] AC4: These claims survive with unchanged meaning at the site named: the intro's framing
+- [x] AC4: These claims survive with unchanged meaning at the site named: the intro's framing
       that levels are complementary linked solutions whose edges are score correlations, not
       a fitted hierarchical model (`ackwards-intro`, GP3); the suggest-k vignette's statement
       that `suggest_k()` returns several criteria and a range, never one number
@@ -55,7 +55,7 @@ behavior, and keeps M85's tests green); term-list additions → appended to
       `missing = "fiml"` announces the PCA/EFA route with a message, and errors rather than
       switching basis or estimator silently, for WLSMV/ULSMV on the ESEM route and for a
       non-Pearson PCA/EFA basis (`ackwards-engines`, IP6).
-- [ ] AC5: `Rscript vignettes/precompute.R` has been re-run, the regenerated `.Rmd` and
+- [x] AC5: `Rscript vignettes/precompute.R` has been re-run, the regenerated `.Rmd` and
       `vignettes/assets/` committed, untouched vignettes carry no diff against the merge
       base, and `Rscript tools/dod-gate.R` exits 0 with its prose step widened to the four
       batch sources; NEWS.md carries a documentation entry.
@@ -101,3 +101,10 @@ behavior, and keeps M85's tests green); term-list additions → appended to
 ## Decisions
 
 ## Review
+
+- 2026-09-16 AC1: `Rscript tools/check-prose.R` over the four batch sources on branch head 44cea84 exits 0 ("Prose OK"). PASS.
+- 2026-09-16 AC2: `Rscript tools/check-prose.R --code-unchanged master` exits 0 (merge base d17b646, master unmoved). A grep for an unclosed `` `r `` span on any line finds none in the four sources on either side, and span counts match master (2, 11, 1, 0). PASS.
+- 2026-09-16 AC3: `grep -n -i -w` of each of the 16 terms over the four sources. Intro: 13 terms present in prose, each glossed at first prose use (factor 21, parallel analysis 23, factor score 39, ordinal 93, PCA/EFA/ESEM/component/loading 116-121, polychoric 124, varimax/rotation 137-139, redundancy 287, split-half 401). Suggest-k: 9 terms, glossed at 27, 50, 57, 64, 79, 111-113, 181-182, 327 (PCA appears only inside a code span). Engines: 9 terms, glossed at 21-25 and the 32-41 paragraph before the table. Visualization: factor 22 and parallel analysis 389 glossed (loading and polychoric appear only in code). PASS.
+- 2026-09-16 AC4: intro lines 28-33 (complementary solutions) and 53-56 (score correlations, not a confirmatory hierarchical model) stand. Suggest-k lines 68-69 ("reports a consensus range, never a single number") stand. Engines lines 269-272 (descriptive score correlations with no sampling distribution of their own) and 357-358 (per-level fit qualifies each level, not the hierarchy as a whole) stand. Engines lines 462-470 state that the FIML PCA/EFA route announces itself with a message and errors for WLSMV/ULSMV and for a non-Pearson PCA/EFA basis. PASS.
+- 2026-09-16 AC5: `git diff d17b646..HEAD --name-only` lists only the four batch `.Rmd.orig`, their four regenerated `.Rmd`, the two prose tools, the prose test, NEWS.md, and cairn files (no other vignette and no `vignettes/assets/` file differs). `Rscript tools/dod-gate.R` exit 0 on head 44cea84: vignette-freshness clean, prose clean over the four sources, check 0 errors 0 warnings 0 notes, coverage 100%, styler and lintr clean, pkgdown index complete. NEWS.md carries the "Plain-English vignettes, first batch" documentation entry with no milestone number. PASS.
+- 2026-09-16 consistency gate: `cairn_validate.py` exit 0 (all checks pass, 16 advisory work-log warnings, all in M84). No principle changed, impact report skipped. Toolchain slot: `document()` produces no diff (tree clean after the gate's check), README.Rmd untouched, `pkgdown::check_pkgdown()` passed inside the gate, NEWS entry present, no new top-level file, full check 0/0/0. PASS.
