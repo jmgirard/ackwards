@@ -12,8 +12,9 @@
   article, the engines article, and the diagram-customization article were
   revised in the same style. Every statistical term is explained in plain
   words where each article first uses it. The code in those articles and the
-  results they show did not change, and a check in the development workflow
-  now proves that for every vignette source.
+  results they show did not change. The code-unchanged guard in
+  `tools/check-prose.R` now reads every vignette source, so that claim can be
+  checked against any git reference.
 
 # ackwards 0.2.0
 

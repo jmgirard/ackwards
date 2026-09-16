@@ -399,8 +399,8 @@ These six functions are the basic **ackwards** toolkit:
 
 Fitting is only half of a defensible analysis. The *recommended workflow* gates
 hierarchy depth on split-half replicability with `comparability()`, which
-checks whether each factor re-emerges in two random halves of the sample. It
-also flags non-differentiating factors with `prune()` before you interpret. See
+checks whether each factor re-emerges in repeated random half-splits of the
+sample. It also flags non-differentiating factors with `prune()` before you interpret. See
 `vignette("ackwards-girard")`.
 
 ## Next steps

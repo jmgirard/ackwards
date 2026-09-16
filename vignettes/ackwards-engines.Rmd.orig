@@ -465,7 +465,7 @@ documented in `?ackwards`. In brief:
   `"efa"`** on the Pearson basis, the correlation matrix is estimated by
   `psych::corFiml()` (full-information ML under multivariate normality,
   MAR-valid) and fed to the usual between-level algebra. The route announces
-  itself with a message. It errors for WLSMV/ULSMV (limited-information
+  itself with a message. `missing = "fiml"` errors for WLSMV/ULSMV (limited-information
   estimators have no FIML extension) and for a non-Pearson PCA/EFA basis
   (`corFiml()` estimates a multivariate-normal matrix). FIML improves
   estimation but does not impute items, so `keep_scores = TRUE` still yields

@@ -55,8 +55,8 @@ deeper levels of an overextracted hierarchy. Use the criteria below to identify
 the upper end of the plausible range, and treat levels near that ceiling with
 appropriate skepticism. Replicability near the ceiling can also be measured
 directly with split-half `comparability()`, which checks whether each factor
-re-emerges in two random halves of the sample. See `vignette("ackwards-girard")`
-for that workflow.
+re-emerges in repeated random half-splits of the sample. See
+`vignette("ackwards-girard")` for that workflow.
 
 **No criterion is decisive on its own.** Each of the five criteria below
 captures a different aspect of the data, tends to err in a different direction,
@@ -406,7 +406,7 @@ bfi_lo <- min(bfi_ks, na.rm = TRUE)
 bfi_hi <- max(bfi_ks, na.rm = TRUE)
 ```
 
-The criteria collapse onto one answer. The consensus is `r sim_consensus`,
+The criteria collapse onto nearly one answer. The consensus is `r sim_consensus`,
 which recovers the four factors built into `sim16`. This is what "watch the
 method recover a known structure" looks like. It is *not*, however, what most
 real datasets look like, so do not treat this tidy consensus as the normal
