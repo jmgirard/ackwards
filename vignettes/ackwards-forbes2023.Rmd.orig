@@ -178,7 +178,7 @@ d4
 
 Because the chain reaches the deepest level, the retention rule keeps its
 **bottom** node, `m10f4` (her `j4`), the most specific and best-defined
-manifestation. It flags the six components above it as redundant. A chain
+manifestation. The rule flags the six components above it as redundant. A chain
 that stops short of k = 10 instead keeps its *top* node, the broadest
 manifestation.
 

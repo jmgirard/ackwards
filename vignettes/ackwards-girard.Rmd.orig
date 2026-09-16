@@ -70,13 +70,14 @@ edges.
 ## Three verbs, three different questions
 
 The workflow below leans on the fact that this package now separates three
-questions that are easy to conflate. The third of them is redundancy. A
-redundant factor is one whose scores correlate at .9 or above with a factor at
-another level, so the pair restates one construct rather than refining it.
+questions that are easy to conflate. The third of them is redundancy. Two
+factors at different levels are redundant when their scores correlate at .9 or
+above, so the pair restates one construct rather than refining it. `prune()`
+keeps one of the pair and flags the other.
 
 | Question | Verb | What it measures |
 |---|---|---|
-| What depth range is *plausible*? | `suggest_k()` | Retention criteria computed from the item correlation matrix (consensus range) |
+| What depth range is *plausible*? | `suggest_k()` | Several retention criteria (consensus range) |
 | Which factors *replicate*? | `comparability()` | Split-half score comparability per factor per level |
 | Which factors *differentiate*? | `prune()` | Forbes (2023) redundancy: factors that persist without adding resolution |
 
@@ -93,9 +94,9 @@ PCA (principal component analysis) summarizes the items with weighted sums
 called components. That basis is deliberate. `comparability()` and
 `boot_edges()` screen on Pearson or Spearman correlations by design, because
 polychoric estimation in every split-half or bootstrap resample is slow and
-unstable. A polychoric correlation estimates the correlation between two
-ordinal items, items recorded on an ordered scale with few categories, as if
-each were a continuous variable cut into categories. So the ordinal-detection
+unstable. A polychoric correlation estimates the correlation between the
+continuous traits assumed to underlie two ordinal items, items recorded on an
+ordered scale with few categories. So the ordinal-detection
 warning that `bfi25` triggers is *expected* here, and the chunks below
 suppress it for readability. You screen structure and depth on Pearson, then
 fit the model you *report* with `cor = "polychoric"`.
