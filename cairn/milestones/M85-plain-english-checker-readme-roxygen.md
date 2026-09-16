@@ -147,6 +147,8 @@ the Plain register, so `may`/`might`/`should` stay allowed).
 - 2026-09-16: re-audit: AC1 (full) — four findings: the opener class omitted emphasis marks, the paragraph/bullet/roxygen-tag sentence boundaries were unstated, "removed" conflated dropped and stripped items, and "exactly" outran the silent extraction paths. First three fixed in the wording; the fourth closed by the checker now erroring on those paths.
 - 2026-09-16: re-audit: AC7 (full) — four findings: "fail-fast" was false of the gate, "knitted output block" had no mechanical referent, the file domain (man/figures/) was unstated, and the exemption was wider than its cause. First closed by the gate's early exit; the other three fixed by narrowing the clause to the `#>` lines of the `suggest_k` chunk over two consecutive builds.
 
+- 2026-09-16: claim audit: 23 claims read, 0 corrected — R/ackwards.R, R/boot_edges.R, R/comparability.R, R/factor_labels.R, R/suggest_k.R, tools/check-prose.R, tools/prose-banned.txt, tools/dod-gate.R, tests/testthat/test-check-prose.R (lines added since 2b08b8f; the earlier audit covered the rest). Gate re-run exit 0 (check 0/0/0, coverage 100%, style, lint, pkgdown). Planted em dash in NEWS.md made the gate exit 1 in 0.6s before check(), then restored.
+
 ## Decisions
 
 ## Review
