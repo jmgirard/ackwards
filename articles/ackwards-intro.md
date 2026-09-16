@@ -74,13 +74,13 @@ range:
 
 sk <- suggest_k(bfi, seed = 42)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [89ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [93ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [25ms]
+#> ✔ Running MAP and VSS... [30ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [3.6s]
+#> ✔ Running Comparison Data (CD)... [3.9s]
 #> 
 print(sk)
 #> 
@@ -491,32 +491,35 @@ input correlation matrix.
 
 # Each factor's primary-parent edge, strongest first
 tidy(x, what = "edges", primary_only = TRUE, sort = "strength")
-#>    from   to level_from level_to         r is_primary above_cut
-#> 1  m4f2 m5f2          4        5 0.9984791       TRUE      TRUE
-#> 2  m3f1 m4f1          3        4 0.9938371       TRUE      TRUE
-#> 3  m4f4 m5f5          4        5 0.9894063       TRUE      TRUE
-#> 4  m2f2 m3f2          2        3 0.9873651       TRUE      TRUE
-#> 5  m4f3 m5f3          4        5 0.9824895       TRUE      TRUE
-#> 6  m3f2 m4f2          3        4 0.9761484       TRUE      TRUE
-#> 7  m1f1 m2f1          1        2 0.8900522       TRUE      TRUE
-#> 8  m2f1 m3f1          2        3 0.8740850       TRUE      TRUE
-#> 9  m4f1 m5f1          4        5 0.8377659       TRUE      TRUE
-#> 10 m3f3 m4f3          3        4 0.7316162       TRUE      TRUE
-#> 11 m3f3 m4f4          3        4 0.6802343       TRUE      TRUE
-#> 12 m4f1 m5f4          4        5 0.5458269       TRUE      TRUE
-#> 13 m2f1 m3f3          2        3 0.4814452       TRUE      TRUE
-#> 14 m1f1 m2f2          1        2 0.4558587       TRUE      TRUE
+#>    from   to level_from level_to         r      beta is_primary above_cut
+#> 1  m4f2 m5f2          4        5 0.9984791 0.9984791       TRUE      TRUE
+#> 2  m3f1 m4f1          3        4 0.9938371 0.9938371       TRUE      TRUE
+#> 3  m4f4 m5f5          4        5 0.9894063 0.9894063       TRUE      TRUE
+#> 4  m2f2 m3f2          2        3 0.9873651 0.9873651       TRUE      TRUE
+#> 5  m4f3 m5f3          4        5 0.9824895 0.9824895       TRUE      TRUE
+#> 6  m3f2 m4f2          3        4 0.9761484 0.9761484       TRUE      TRUE
+#> 7  m1f1 m2f1          1        2 0.8900522 0.8900522       TRUE      TRUE
+#> 8  m2f1 m3f1          2        3 0.8740850 0.8740850       TRUE      TRUE
+#> 9  m4f1 m5f1          4        5 0.8377659 0.8377659       TRUE      TRUE
+#> 10 m3f3 m4f3          3        4 0.7316162 0.7316162       TRUE      TRUE
+#> 11 m3f3 m4f4          3        4 0.6802343 0.6802343       TRUE      TRUE
+#> 12 m4f1 m5f4          4        5 0.5458269 0.5458269       TRUE      TRUE
+#> 13 m2f1 m3f3          2        3 0.4814452 0.4814452       TRUE      TRUE
+#> 14 m1f1 m2f2          1        2 0.4558587 0.4558587       TRUE      TRUE
 ```
 
 `primary_only = TRUE` keeps just the strongest-connecting edge for each
 factor, its primary parent, and `sort = "strength"` orders them by
-`|r|`. An r close to 1.0 means a factor is nearly identical to its
-parent one level up: the dimension is stable across that step. But a
-factor that stays near 1.0 at *every* level is also a candidate for
-pruning. It is persisting without differentiating, which is the
-redundancy question of Forbes (2023). A redundant factor is one that
-persists across levels without changing. See
-[`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md) and
+`|r|`. The `beta` column is the regression weight of the child on all
+parents together. Under the default varimax rotation the factors within
+a level are uncorrelated, so `beta` equals `r`. An r close to 1.0 means
+a factor is nearly identical to its parent one level up: the dimension
+is stable across that step. But a factor that stays near 1.0 at *every*
+level is also a candidate for pruning. It is persisting without
+differentiating, which is the redundancy question of Forbes (2023). A
+redundant factor is one that persists across levels without changing.
+See [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+and
 [`vignette("ackwards-forbes")`](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.md).
 Smaller values indicate where the structure is reorganizing.
 
@@ -525,27 +528,29 @@ Smaller values indicate where the structure is reorganizing.
 ``` r
 
 tidy(x, what = "variance")
-#>    level factor proportion cumulative
-#> 1      1   m1f1 0.23211212  0.2321121
-#> 2      2   m2f1 0.20937655  0.2093766
-#> 3      2   m2f2 0.14544064  0.3548172
-#> 4      3   m3f1 0.18038118  0.1803812
-#> 5      3   m3f2 0.13889810  0.3192793
-#> 6      3   m3f3 0.12655466  0.4458339
-#> 7      4   m4f1 0.17500851  0.1750085
-#> 8      4   m4f2 0.13632849  0.3113370
-#> 9      4   m4f3 0.11825358  0.4295906
-#> 10     4   m4f4 0.09208697  0.5216775
-#> 11     5   m5f1 0.13753091  0.1375309
-#> 12     5   m5f2 0.13556865  0.2730996
-#> 13     5   m5f3 0.11899787  0.3920974
-#> 14     5   m5f4 0.10086586  0.4929633
-#> 15     5   m5f5 0.09121399  0.5841773
+#>    level factor proportion cumulative        r2
+#> 1      1   m1f1 0.23211212  0.2321121        NA
+#> 2      2   m2f1 0.20937655  0.2093766 0.7921929
+#> 3      2   m2f2 0.14544064  0.3548172 0.2078071
+#> 4      3   m3f1 0.18038118  0.1803812 0.7642169
+#> 5      3   m3f2 0.13889810  0.3192793 0.9790756
+#> 6      3   m3f3 0.12655466  0.4458339 0.2567076
+#> 7      4   m4f1 0.17500851  0.1750085 0.9889584
+#> 8      4   m4f2 0.13632849  0.3113370 0.9539468
+#> 9      4   m4f3 0.11825358  0.4295906 0.5605046
+#> 10     4   m4f4 0.09208697  0.5216775 0.4965901
+#> 11     5   m5f1 0.13753091  0.1375309 0.7221097
+#> 12     5   m5f2 0.13556865  0.2730996 0.9971874
+#> 13     5   m5f3 0.11899787  0.3920974 0.9659996
+#> 14     5   m5f4 0.10086586  0.4929633 0.3355305
+#> 15     5   m5f5 0.09121399  0.5841773 0.9791728
 ```
 
 Each row is one factor at one level. `proportion` is the fraction (0-1)
 of total item variance explained by that factor. `cumulative`
-accumulates within a level. Multiply by 100 for a percentage.
+accumulates within a level. Multiply by 100 for a percentage. `r2` is
+the share of the factor’s score variance that the level just above
+accounts for. It is `NA` at level 1.
 
 ## Step 6: Score observations `augment()`
 

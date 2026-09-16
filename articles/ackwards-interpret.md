@@ -453,13 +453,13 @@ children. Use it to name **top-down**:
 
 # Primary-parent edges, weakest last: the bottom rows are where structure shifts
 tidy(x, what = "edges", primary_only = TRUE, sort = "strength") |> tail()
-#>    from   to level_from level_to         r is_primary above_cut
-#> 9  m4f1 m5f1          4        5 0.8377659       TRUE      TRUE
-#> 10 m3f3 m4f3          3        4 0.7316162       TRUE      TRUE
-#> 11 m3f3 m4f4          3        4 0.6802343       TRUE      TRUE
-#> 12 m4f1 m5f4          4        5 0.5458269       TRUE      TRUE
-#> 13 m2f1 m3f3          2        3 0.4814452       TRUE      TRUE
-#> 14 m1f1 m2f2          1        2 0.4558587       TRUE      TRUE
+#>    from   to level_from level_to         r      beta is_primary above_cut
+#> 9  m4f1 m5f1          4        5 0.8377659 0.8377659       TRUE      TRUE
+#> 10 m3f3 m4f3          3        4 0.7316162 0.7316162       TRUE      TRUE
+#> 11 m3f3 m4f4          3        4 0.6802343 0.6802343       TRUE      TRUE
+#> 12 m4f1 m5f4          4        5 0.5458269 0.5458269       TRUE      TRUE
+#> 13 m2f1 m3f3          2        3 0.4814452 0.4814452       TRUE      TRUE
+#> 14 m1f1 m2f2          1        2 0.4558587 0.4558587       TRUE      TRUE
 ```
 
 Edges with `|r|` near 1.0 are factors that pass through nearly

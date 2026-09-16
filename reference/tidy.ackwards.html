@@ -74,7 +74,7 @@ together, and a loading is the correlation between an item and a factor.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'ackwards'</span></span>
 <span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
-<span>  what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"edges"</span>, <span class="st">"loadings"</span>, <span class="st">"variance"</span>, <span class="st">"fit"</span>, <span class="st">"nodes"</span>, <span class="st">"scores"</span><span class="op">)</span>,</span>
+<span>  what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"edges"</span>, <span class="st">"loadings"</span>, <span class="st">"variance"</span>, <span class="st">"fit"</span>, <span class="st">"nodes"</span>, <span class="st">"scores"</span>, <span class="st">"factor_cor"</span><span class="op">)</span>,</span>
 <span>  primary_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  sort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"strength"</span><span class="op">)</span>,</span>
 <span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"long"</span>, <span class="st">"wide"</span><span class="op">)</span>,</span>
@@ -93,8 +93,22 @@ together, and a loading is the correlation between an item and a factor.</p>
 
 <dt id="arg-what">what<a class="anchor" aria-label="anchor" href="#arg-what"></a></dt>
 <dd><p>What to extract:</p><ul><li><p><code>"edges"</code> <em>(default)</em>: one row per directed between-level edge, with
-columns
-<code>from</code>, <code>to</code>, <code>level_from</code>, <code>level_to</code>, <code>r</code>, <code>is_primary</code>, <code>above_cut</code>.
+columns <code>from</code>, <code>to</code>, <code>level_from</code>, <code>level_to</code>, <code>r</code>, <code>beta</code>,
+<code>is_primary</code>, <code>above_cut</code>. The column <code>r</code> is the correlation between
+the two factors' scores. The column <code>beta</code> is the partialled
+coefficient. It is the standardized regression weight of the <code>to</code>
+factor on all factors of the <code>from</code> level together. It removes the
+part of <code>r</code> that the other factors at the <code>from</code> level share. Under the
+default varimax rotation the factors within a level are uncorrelated,
+so <code>beta</code> equals <code>r</code>. The two come apart only when the factors within
+a level are correlated. When the within-level score correlation of the
+<code>from</code> level cannot be inverted, <code>beta</code> is <code>NA</code> for that level's edges
+and a warning names the level. That within-level score correlation
+always comes from the stored score weights and the fit's correlation
+matrix. This holds even when <code>r</code> came from materialised scores
+(<code>edge_method = "scores"</code>, or the scores path under missing data). On
+those paths the two bases can differ slightly, so <code>beta</code> is then an
+approximation of the regression weight.
 If <code><a href="boot_edges.html">boot_edges()</a></code> has been run on the object, four bootstrap columns are
 appended: <code>se</code>, <code>lo</code>, <code>hi</code> (bootstrap standard error and percentile
 confidence-interval endpoints), and <code>n_boot_ok</code> (usable replicates).</p></li>
@@ -107,8 +121,22 @@ interpretable one. They are <code>NA</code> for PCA (principal component
 analysis) and EFA (exploratory factor analysis). The confidence level
 is controlled by <code>conf_level</code>.</p></li>
 <li><p><code>"variance"</code>: one row per factor x level, with columns
-<code>level</code>, <code>factor</code>, <code>proportion</code>, <code>cumulative</code>. Both are proportions of
-total item variance on a 0-1 scale (multiply by 100 for a percentage).</p></li>
+<code>level</code>, <code>factor</code>, <code>proportion</code>, <code>cumulative</code>, <code>r2</code>. The first two are
+proportions of total item variance on a 0-1 scale (multiply by 100
+for a percentage). The column <code>r2</code> is the share of the factor's score
+variance that all factors of the level just above account for
+together. It is also a proportion on a 0-1 scale, but of that
+factor's own score variance, not of total item variance, so it is not
+comparable with <code>proportion</code> or <code>cumulative</code>. It is <code>NA</code> at level 1, which has no
+level above. Under the default varimax rotation <code>r2</code> equals the sum of
+the squared <code>r</code> values of that factor's edges from the level above.
+It is <code>NA</code>, with a warning, when the level above's within-level score
+correlation cannot be inverted.</p></li>
+<li><p><code>"factor_cor"</code>: one row per pair of factors within a level, with
+columns <code>level</code>, <code>factor_a</code>, <code>factor_b</code>, <code>cor</code>. The column <code>cor</code> is
+the correlation between the two factors as the engine reports it, in
+the stored column order and sign. Level 1 has one factor and contributes
+no row. Under the default varimax rotation every <code>cor</code> is 0.</p></li>
 <li><p><code>"fit"</code>: one row per fit statistic x level, with columns <code>level</code>,
 <code>statistic</code>, <code>value</code>. For PCA objects the statistics are eigenvalues.
 For EFA objects they are <code>chi</code>, <code>dof</code>, <code>p_value</code>, <code>RMSEA</code>, <code>TLI</code>, and
@@ -191,8 +219,8 @@ that carry no SEs (PCA, EFA). Errors for all other values of <code>what</code>.<
 
 
 <p>If <a href="set_factor_labels.html">factor labels</a> have been attached to the object, the
-output gains display-only label columns: <code>factor_label</code> for <code>what = "loadings"</code>, <code>"variance"</code>, or <code>"scores"</code>, and <code>from_label</code>/<code>to_label</code> for
-<code>what = "edges"</code>. Each carries the label for a labeled factor and <code>NA</code>
+output gains display-only label columns: <code>factor_label</code> for <code>what = "loadings"</code>, <code>"variance"</code>, or <code>"scores"</code>, <code>from_label</code>/<code>to_label</code> for
+<code>what = "edges"</code>, and <code>factor_a_label</code>/<code>factor_b_label</code> for <code>what = "factor_cor"</code>. Each carries the label for a labeled factor and <code>NA</code>
 otherwise. These columns are <strong>absent</strong> when no labels are set, so an
 unlabeled object's output is unchanged. The ID columns (<code>factor</code>, <code>from</code>,
 <code>to</code>) are never altered.</p>
@@ -206,105 +234,187 @@ unlabeled object's output is unchanged. The ID columns (<code>factor</code>, <co
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">sim16</span>, k_max <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="co"># edges in natural order</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to             r is_primary above_cut</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  m1f1 m2f1          1        2  0.7072961126       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  m1f1 m2f2          1        2  0.7069173991       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m2f1 m3f1          2        3 -0.0113423946      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  m2f1 m3f2          2        3  0.6970929809       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  m2f1 m3f3          2        3  0.7168910141       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m2f2 m3f1          2        3  0.9955932310       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  m2f2 m3f2          2        3  0.0746157674      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  m2f2 m3f3          2        3 -0.0568032178      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  m3f1 m4f1          3        4 -0.0164580578      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 m3f1 m4f2          3        4 -0.0048128349      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11 m3f1 m4f3          3        4  0.6639134885       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12 m3f1 m4f4          3        4  0.7476127666       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13 m3f2 m4f1          3        4  0.9406477359       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14 m3f2 m4f2          3        4  0.0317352150      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15 m3f2 m4f3          3        4  0.2627656201      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16 m3f2 m4f4          3        4 -0.2124357359      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17 m3f3 m4f1          3        4  0.0512578921      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18 m3f3 m4f2          3        4  0.9707784269       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19 m3f3 m4f3          3        4 -0.1715840980      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20 m3f3 m4f4          3        4  0.1597522194      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21 m4f1 m5f1          4        5  0.9997725525       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22 m4f1 m5f2          4        5  0.0020429352      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23 m4f1 m5f3          4        5 -0.0043948033      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24 m4f1 m5f4          4        5  0.0034107252      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25 m4f1 m5f5          4        5 -0.0204871256      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26 m4f2 m5f1          4        5 -0.0019639857      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27 m4f2 m5f2          4        5  0.9999850115       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28 m4f2 m5f3          4        5 -0.0025910717      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29 m4f2 m5f4          4        5 -0.0012689323      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30 m4f2 m5f5          4        5  0.0042184956      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31 m4f3 m5f1          4        5  0.0043781997      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32 m4f3 m5f2          4        5  0.0026035592      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33 m4f3 m5f3          4        5  0.9999840561       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34 m4f3 m5f4          4        5  0.0024297386      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35 m4f3 m5f5          4        5 -0.0001914960      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 36 m4f4 m5f1          4        5 -0.0016399230      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 37 m4f4 m5f2          4        5  0.0008901375      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 38 m4f4 m5f3          4        5 -0.0023992589      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 39 m4f4 m5f4          4        5  0.9962530528       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 40 m4f4 m5f5          4        5  0.0864327285       TRUE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to             r          beta is_primary</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  m1f1 m2f1          1        2  0.7072961126  0.7072961126       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  m1f1 m2f2          1        2  0.7069173991  0.7069173991       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m2f1 m3f1          2        3 -0.0113423946 -0.0113423946      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  m2f1 m3f2          2        3  0.6970929809  0.6970929809       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  m2f1 m3f3          2        3  0.7168910141  0.7168910141       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m2f2 m3f1          2        3  0.9955932310  0.9955932310       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  m2f2 m3f2          2        3  0.0746157674  0.0746157674      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  m2f2 m3f3          2        3 -0.0568032178 -0.0568032178      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  m3f1 m4f1          3        4 -0.0164580578 -0.0164580578      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 m3f1 m4f2          3        4 -0.0048128349 -0.0048128349      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 m3f1 m4f3          3        4  0.6639134885  0.6639134885       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 m3f1 m4f4          3        4  0.7476127666  0.7476127666       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 m3f2 m4f1          3        4  0.9406477359  0.9406477359       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 m3f2 m4f2          3        4  0.0317352150  0.0317352150      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 m3f2 m4f3          3        4  0.2627656201  0.2627656201      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 m3f2 m4f4          3        4 -0.2124357359 -0.2124357359      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 m3f3 m4f1          3        4  0.0512578921  0.0512578921      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 m3f3 m4f2          3        4  0.9707784269  0.9707784269       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 m3f3 m4f3          3        4 -0.1715840980 -0.1715840980      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 m3f3 m4f4          3        4  0.1597522194  0.1597522194      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21 m4f1 m5f1          4        5  0.9997725525  0.9997725525       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22 m4f1 m5f2          4        5  0.0020429352  0.0020429352      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23 m4f1 m5f3          4        5 -0.0043948033 -0.0043948033      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24 m4f1 m5f4          4        5  0.0034107252  0.0034107252      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 m4f1 m5f5          4        5 -0.0204871256 -0.0204871256      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26 m4f2 m5f1          4        5 -0.0019639857 -0.0019639857      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27 m4f2 m5f2          4        5  0.9999850115  0.9999850115       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28 m4f2 m5f3          4        5 -0.0025910717 -0.0025910717      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29 m4f2 m5f4          4        5 -0.0012689323 -0.0012689323      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30 m4f2 m5f5          4        5  0.0042184956  0.0042184956      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31 m4f3 m5f1          4        5  0.0043781997  0.0043781997      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32 m4f3 m5f2          4        5  0.0026035592  0.0026035592      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33 m4f3 m5f3          4        5  0.9999840561  0.9999840561       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34 m4f3 m5f4          4        5  0.0024297386  0.0024297386      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35 m4f3 m5f5          4        5 -0.0001914960 -0.0001914960      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36 m4f4 m5f1          4        5 -0.0016399230 -0.0016399230      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37 m4f4 m5f2          4        5  0.0008901375  0.0008901375      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38 m4f4 m5f3          4        5 -0.0023992589 -0.0023992589      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39 m4f4 m5f4          4        5  0.9962530528  0.9962530528       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40 m4f4 m5f5          4        5  0.0864327285  0.0864327285       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    above_cut</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40     FALSE</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span> <span class="co"># strongest edges first</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to             r is_primary above_cut</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  m4f2 m5f2          4        5  0.9999850115       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  m4f3 m5f3          4        5  0.9999840561       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m4f1 m5f1          4        5  0.9997725525       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  m4f4 m5f4          4        5  0.9962530528       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  m2f2 m3f1          2        3  0.9955932310       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m3f3 m4f2          3        4  0.9707784269       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  m3f2 m4f1          3        4  0.9406477359       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  m3f1 m4f4          3        4  0.7476127666       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  m2f1 m3f3          2        3  0.7168910141       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 m1f1 m2f1          1        2  0.7072961126       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11 m1f1 m2f2          1        2  0.7069173991       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12 m2f1 m3f2          2        3  0.6970929809       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13 m3f1 m4f3          3        4  0.6639134885       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14 m3f2 m4f3          3        4  0.2627656201      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15 m3f2 m4f4          3        4 -0.2124357359      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16 m3f3 m4f3          3        4 -0.1715840980      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17 m3f3 m4f4          3        4  0.1597522194      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18 m4f4 m5f5          4        5  0.0864327285       TRUE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19 m2f2 m3f2          2        3  0.0746157674      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20 m2f2 m3f3          2        3 -0.0568032178      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21 m3f3 m4f1          3        4  0.0512578921      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22 m3f2 m4f2          3        4  0.0317352150      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23 m4f1 m5f5          4        5 -0.0204871256      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24 m3f1 m4f1          3        4 -0.0164580578      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25 m2f1 m3f1          2        3 -0.0113423946      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26 m3f1 m4f2          3        4 -0.0048128349      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27 m4f1 m5f3          4        5 -0.0043948033      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28 m4f3 m5f1          4        5  0.0043781997      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29 m4f2 m5f5          4        5  0.0042184956      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30 m4f1 m5f4          4        5  0.0034107252      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31 m4f3 m5f2          4        5  0.0026035592      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32 m4f2 m5f3          4        5 -0.0025910717      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33 m4f3 m5f4          4        5  0.0024297386      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34 m4f4 m5f3          4        5 -0.0023992589      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35 m4f1 m5f2          4        5  0.0020429352      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 36 m4f2 m5f1          4        5 -0.0019639857      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 37 m4f4 m5f1          4        5 -0.0016399230      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 38 m4f2 m5f4          4        5 -0.0012689323      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 39 m4f4 m5f2          4        5  0.0008901375      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 40 m4f3 m5f5          4        5 -0.0001914960      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to             r          beta is_primary</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  m4f2 m5f2          4        5  0.9999850115  0.9999850115       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  m4f3 m5f3          4        5  0.9999840561  0.9999840561       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m4f1 m5f1          4        5  0.9997725525  0.9997725525       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  m4f4 m5f4          4        5  0.9962530528  0.9962530528       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  m2f2 m3f1          2        3  0.9955932310  0.9955932310       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m3f3 m4f2          3        4  0.9707784269  0.9707784269       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  m3f2 m4f1          3        4  0.9406477359  0.9406477359       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  m3f1 m4f4          3        4  0.7476127666  0.7476127666       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  m2f1 m3f3          2        3  0.7168910141  0.7168910141       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 m1f1 m2f1          1        2  0.7072961126  0.7072961126       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 m1f1 m2f2          1        2  0.7069173991  0.7069173991       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 m2f1 m3f2          2        3  0.6970929809  0.6970929809       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 m3f1 m4f3          3        4  0.6639134885  0.6639134885       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 m3f2 m4f3          3        4  0.2627656201  0.2627656201      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 m3f2 m4f4          3        4 -0.2124357359 -0.2124357359      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 m3f3 m4f3          3        4 -0.1715840980 -0.1715840980      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 m3f3 m4f4          3        4  0.1597522194  0.1597522194      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 m4f4 m5f5          4        5  0.0864327285  0.0864327285       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 m2f2 m3f2          2        3  0.0746157674  0.0746157674      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 m2f2 m3f3          2        3 -0.0568032178 -0.0568032178      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21 m3f3 m4f1          3        4  0.0512578921  0.0512578921      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22 m3f2 m4f2          3        4  0.0317352150  0.0317352150      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23 m4f1 m5f5          4        5 -0.0204871256 -0.0204871256      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24 m3f1 m4f1          3        4 -0.0164580578 -0.0164580578      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 m2f1 m3f1          2        3 -0.0113423946 -0.0113423946      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26 m3f1 m4f2          3        4 -0.0048128349 -0.0048128349      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27 m4f1 m5f3          4        5 -0.0043948033 -0.0043948033      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28 m4f3 m5f1          4        5  0.0043781997  0.0043781997      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29 m4f2 m5f5          4        5  0.0042184956  0.0042184956      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30 m4f1 m5f4          4        5  0.0034107252  0.0034107252      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31 m4f3 m5f2          4        5  0.0026035592  0.0026035592      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32 m4f2 m5f3          4        5 -0.0025910717 -0.0025910717      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33 m4f3 m5f4          4        5  0.0024297386  0.0024297386      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34 m4f4 m5f3          4        5 -0.0023992589 -0.0023992589      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35 m4f1 m5f2          4        5  0.0020429352  0.0020429352      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36 m4f2 m5f1          4        5 -0.0019639857 -0.0019639857      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37 m4f4 m5f1          4        5 -0.0016399230 -0.0016399230      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38 m4f2 m5f4          4        5 -0.0012689323 -0.0012689323      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39 m4f4 m5f2          4        5  0.0008901375  0.0008901375      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40 m4f3 m5f5          4        5 -0.0001914960 -0.0001914960      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    above_cut</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9       TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40     FALSE</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, primary_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># just the primary-parent lineage</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to          r is_primary above_cut</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  m1f1 m2f1          1        2 0.70729611       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  m1f1 m2f2          1        2 0.70691740       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m2f1 m3f2          2        3 0.69709298       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  m2f1 m3f3          2        3 0.71689101       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  m2f2 m3f1          2        3 0.99559323       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m3f1 m4f3          3        4 0.66391349       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  m3f1 m4f4          3        4 0.74761277       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  m3f2 m4f1          3        4 0.94064774       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  m3f3 m4f2          3        4 0.97077843       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 m4f1 m5f1          4        5 0.99977255       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11 m4f2 m5f2          4        5 0.99998501       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12 m4f3 m5f3          4        5 0.99998406       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13 m4f4 m5f4          4        5 0.99625305       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14 m4f4 m5f5          4        5 0.08643273       TRUE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to          r       beta is_primary above_cut</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  m1f1 m2f1          1        2 0.70729611 0.70729611       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  m1f1 m2f2          1        2 0.70691740 0.70691740       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m2f1 m3f2          2        3 0.69709298 0.69709298       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  m2f1 m3f3          2        3 0.71689101 0.71689101       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  m2f2 m3f1          2        3 0.99559323 0.99559323       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m3f1 m4f3          3        4 0.66391349 0.66391349       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  m3f1 m4f4          3        4 0.74761277 0.74761277       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  m3f2 m4f1          3        4 0.94064774 0.94064774       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  m3f3 m4f2          3        4 0.97077843 0.97077843       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 m4f1 m5f1          4        5 0.99977255 0.99977255       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 m4f2 m5f2          4        5 0.99998501 0.99998501       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 m4f3 m5f3          4        5 0.99998406 0.99998406       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 m4f4 m5f4          4        5 0.99625305 0.99625305       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 m4f4 m5f5          4        5 0.08643273 0.08643273       TRUE     FALSE</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"loadings"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     level factor item      loading se ci_lower ci_upper</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1       1   m1f1   i1  0.461752431 NA       NA       NA</span>
@@ -548,22 +658,44 @@ unlabeled object's output is unchanged. The ID columns (<code>factor</code>, <co
 <span class="r-out co"><span class="r-pr">#&gt;</span> 239     5   m5f5  i15 -0.110696540 NA       NA       NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 240     5   m5f5  i16  0.417028618 NA       NA       NA</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    level factor proportion cumulative</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      1   m1f1 0.28172978  0.2817298</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      2   m2f1 0.23251408  0.2325141</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      2   m2f2 0.23246133  0.4649754</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4      3   m3f1 0.23028614  0.2302861</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      3   m3f2 0.17522787  0.4055140</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6      3   m3f3 0.16924345  0.5747575</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7      4   m4f1 0.17155300  0.1715530</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8      4   m4f2 0.16895577  0.3405088</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9      4   m4f3 0.16846890  0.5089777</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10     4   m4f4 0.16753770  0.6765154</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11     5   m5f1 0.17147388  0.1714739</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12     5   m5f2 0.16935421  0.3408281</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13     5   m5f3 0.16774286  0.5085710</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14     5   m5f4 0.16695127  0.6755222</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15     5   m5f5 0.03262035  0.7081426</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    level factor proportion cumulative          r2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      1   m1f1 0.28172978  0.2817298          NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      2   m2f1 0.23251408  0.2325141 0.500267791</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      2   m2f2 0.23246133  0.4649754 0.499732209</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      3   m3f1 0.23028614  0.2302861 0.991334532</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      3   m3f2 0.17522787  0.4055140 0.491506137</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      3   m3f3 0.16924345  0.5747575 0.517159332</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7      4   m4f1 0.17155300  0.1715530 0.887716402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      4   m4f2 0.16895577  0.3405088 0.943441041</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9      4   m4f3 0.16846890  0.5089777 0.539267994</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10     4   m4f4 0.16753770  0.6765154 0.629574562</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11     5   m5f1 0.17147388  0.1714739 0.999570872</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12     5   m5f2 0.16935421  0.3408281 0.999981768</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13     5   m5f3 0.16774286  0.5085710 0.999999897</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14     5   m5f4 0.16695127  0.6755222 0.992539292</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15     5   m5f5 0.03262035  0.7081426 0.007908171</span>
+<span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"factor_cor"</span><span class="op">)</span> <span class="co"># all 0 under varimax</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    level factor_a factor_b cor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      2     m2f1     m2f2   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      3     m3f1     m3f2   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      3     m3f1     m3f3   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      3     m3f2     m3f3   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      4     m4f1     m4f2   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      4     m4f1     m4f3   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7      4     m4f1     m4f4   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      4     m4f2     m4f3   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9      4     m4f2     m4f4   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10     4     m4f3     m4f4   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11     5     m5f1     m5f2   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12     5     m5f1     m5f3   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13     5     m5f1     m5f4   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14     5     m5f1     m5f5   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15     5     m5f2     m5f3   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16     5     m5f2     m5f4   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17     5     m5f2     m5f5   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18     5     m5f3     m5f4   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19     5     m5f3     m5f5   0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20     5     m5f4     m5f5   0</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"fit"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    level       statistic     value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      1 eigenvalue.m1f1 4.5076765</span>

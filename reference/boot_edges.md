@@ -156,7 +156,7 @@ for the augmented edge table.
 x <- ackwards(sim16, k_max = 3)
 x <- boot_edges(x, sim16, n_boot = 100, seed = 1)
 #> ℹ Fitting 100 bootstrap replicates (pca, k = 1-3)...
-#> ✔ Fitting 100 bootstrap replicates (pca, k = 1-3)... [1.3s]
+#> ✔ Fitting 100 bootstrap replicates (pca, k = 1-3)... [1.8s]
 #> 
 x$boot$edges
 #>   from   to level_from level_to           r         se          lo          hi
@@ -178,19 +178,19 @@ x$boot$edges
 #> 7       100
 #> 8       100
 head(tidy(x)) # now carries se / lo / hi
-#>   from   to level_from level_to           r is_primary above_cut         se
-#> 1 m1f1 m2f1          1        2  0.70729611       TRUE      TRUE 0.03334587
-#> 2 m1f1 m2f2          1        2  0.70691740       TRUE      TRUE 0.03221841
-#> 3 m2f1 m3f1          2        3 -0.01134239      FALSE     FALSE 0.02483636
-#> 4 m2f1 m3f2          2        3  0.69709298       TRUE      TRUE 0.20160298
-#> 5 m2f1 m3f3          2        3  0.71689101       TRUE      TRUE 0.09283102
-#> 6 m2f2 m3f1          2        3  0.99559323       TRUE      TRUE 0.09091406
-#>            lo          hi n_boot_ok
-#> 1  0.62894118 0.755307440       100
-#> 2  0.65534452 0.777438710       100
-#> 3 -0.08601120 0.007369852       100
-#> 4  0.03830045 0.734809599       100
-#> 5  0.67793763 0.998542647       100
-#> 6  0.69647708 0.999880140       100
+#>   from   to level_from level_to           r        beta is_primary above_cut
+#> 1 m1f1 m2f1          1        2  0.70729611  0.70729611       TRUE      TRUE
+#> 2 m1f1 m2f2          1        2  0.70691740  0.70691740       TRUE      TRUE
+#> 3 m2f1 m3f1          2        3 -0.01134239 -0.01134239      FALSE     FALSE
+#> 4 m2f1 m3f2          2        3  0.69709298  0.69709298       TRUE      TRUE
+#> 5 m2f1 m3f3          2        3  0.71689101  0.71689101       TRUE      TRUE
+#> 6 m2f2 m3f1          2        3  0.99559323  0.99559323       TRUE      TRUE
+#>           se          lo          hi n_boot_ok
+#> 1 0.03334587  0.62894118 0.755307440       100
+#> 2 0.03221841  0.65534452 0.777438710       100
+#> 3 0.02483636 -0.08601120 0.007369852       100
+#> 4 0.20160298  0.03830045 0.734809599       100
+#> 5 0.09283102  0.67793763 0.998542647       100
+#> 6 0.09091406  0.69647708 0.999880140       100
 # }
 ```

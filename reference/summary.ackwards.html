@@ -93,6 +93,15 @@ designed for inspection and reporting.</p>
 <code><a href="print.summary_ackwards.html">print.summary_ackwards()</a></code>.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>A "Within-level factor correlations" block lists, for each level, the
+correlation between every pair of factors at that level (the same values
+as <code>tidy(x, what = "factor_cor")</code>). The block appears only when some pair
+is correlated, that is when at least one within-level correlation exceeds
+1e-8 in size. Under the default varimax rotation the factors within a
+level are uncorrelated, so the block is absent.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="print.ackwards.html">print.ackwards()</a></code>, <code><a href="tidy.ackwards.html">tidy.ackwards()</a></code>, <code><a href="glance.ackwards.html">glance.ackwards()</a></code></p></div>
     </div>

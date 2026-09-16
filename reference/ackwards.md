@@ -476,27 +476,27 @@ print(x)
 #> (EFA/ESEM) describe how well a k-factor model fits the items at that level --
 #> they do not validate the edges or the hierarchy itself.
 tidy(x)
-#>    from   to level_from level_to            r is_primary above_cut
-#> 1  m1f1 m2f1          1        2  0.707296113       TRUE      TRUE
-#> 2  m1f1 m2f2          1        2  0.706917399       TRUE      TRUE
-#> 3  m2f1 m3f1          2        3 -0.011342395      FALSE     FALSE
-#> 4  m2f1 m3f2          2        3  0.697092981       TRUE      TRUE
-#> 5  m2f1 m3f3          2        3  0.716891014       TRUE      TRUE
-#> 6  m2f2 m3f1          2        3  0.995593231       TRUE      TRUE
-#> 7  m2f2 m3f2          2        3  0.074615767      FALSE     FALSE
-#> 8  m2f2 m3f3          2        3 -0.056803218      FALSE     FALSE
-#> 9  m3f1 m4f1          3        4 -0.016458058      FALSE     FALSE
-#> 10 m3f1 m4f2          3        4 -0.004812835      FALSE     FALSE
-#> 11 m3f1 m4f3          3        4  0.663913488       TRUE      TRUE
-#> 12 m3f1 m4f4          3        4  0.747612767       TRUE      TRUE
-#> 13 m3f2 m4f1          3        4  0.940647736       TRUE      TRUE
-#> 14 m3f2 m4f2          3        4  0.031735215      FALSE     FALSE
-#> 15 m3f2 m4f3          3        4  0.262765620      FALSE     FALSE
-#> 16 m3f2 m4f4          3        4 -0.212435736      FALSE     FALSE
-#> 17 m3f3 m4f1          3        4  0.051257892      FALSE     FALSE
-#> 18 m3f3 m4f2          3        4  0.970778427       TRUE      TRUE
-#> 19 m3f3 m4f3          3        4 -0.171584098      FALSE     FALSE
-#> 20 m3f3 m4f4          3        4  0.159752219      FALSE     FALSE
+#>    from   to level_from level_to            r         beta is_primary above_cut
+#> 1  m1f1 m2f1          1        2  0.707296113  0.707296113       TRUE      TRUE
+#> 2  m1f1 m2f2          1        2  0.706917399  0.706917399       TRUE      TRUE
+#> 3  m2f1 m3f1          2        3 -0.011342395 -0.011342395      FALSE     FALSE
+#> 4  m2f1 m3f2          2        3  0.697092981  0.697092981       TRUE      TRUE
+#> 5  m2f1 m3f3          2        3  0.716891014  0.716891014       TRUE      TRUE
+#> 6  m2f2 m3f1          2        3  0.995593231  0.995593231       TRUE      TRUE
+#> 7  m2f2 m3f2          2        3  0.074615767  0.074615767      FALSE     FALSE
+#> 8  m2f2 m3f3          2        3 -0.056803218 -0.056803218      FALSE     FALSE
+#> 9  m3f1 m4f1          3        4 -0.016458058 -0.016458058      FALSE     FALSE
+#> 10 m3f1 m4f2          3        4 -0.004812835 -0.004812835      FALSE     FALSE
+#> 11 m3f1 m4f3          3        4  0.663913488  0.663913488       TRUE      TRUE
+#> 12 m3f1 m4f4          3        4  0.747612767  0.747612767       TRUE      TRUE
+#> 13 m3f2 m4f1          3        4  0.940647736  0.940647736       TRUE      TRUE
+#> 14 m3f2 m4f2          3        4  0.031735215  0.031735215      FALSE     FALSE
+#> 15 m3f2 m4f3          3        4  0.262765620  0.262765620      FALSE     FALSE
+#> 16 m3f2 m4f4          3        4 -0.212435736 -0.212435736      FALSE     FALSE
+#> 17 m3f3 m4f1          3        4  0.051257892  0.051257892      FALSE     FALSE
+#> 18 m3f3 m4f2          3        4  0.970778427  0.970778427       TRUE      TRUE
+#> 19 m3f3 m4f3          3        4 -0.171584098 -0.171584098      FALSE     FALSE
+#> 20 m3f3 m4f4          3        4  0.159752219  0.159752219      FALSE     FALSE
 glance(x)
 #>   engine rotation     cor k_max n_obs deepest_converged n_edges CFI TLI RMSEA
 #> 1    pca  varimax pearson     4  1000                 4      20  NA  NA    NA

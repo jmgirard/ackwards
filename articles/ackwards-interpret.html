@@ -527,13 +527,13 @@ visible:</p></li>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Primary-parent edges, weakest last: the bottom rows are where structure shifts</span></span>
 <span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, what <span class="op">=</span> <span class="st">"edges"</span>, primary_only <span class="op">=</span> <span class="cn">TRUE</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    from   to level_from level_to         r is_primary above_cut</span></span>
-<span><span class="co">#&gt; 9  m4f1 m5f1          4        5 0.8377659       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 10 m3f3 m4f3          3        4 0.7316162       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 11 m3f3 m4f4          3        4 0.6802343       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 12 m4f1 m5f4          4        5 0.5458269       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 13 m2f1 m3f3          2        3 0.4814452       TRUE      TRUE</span></span>
-<span><span class="co">#&gt; 14 m1f1 m2f2          1        2 0.4558587       TRUE      TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt;    from   to level_from level_to         r      beta is_primary above_cut</span></span>
+<span><span class="co">#&gt; 9  m4f1 m5f1          4        5 0.8377659 0.8377659       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 10 m3f3 m4f3          3        4 0.7316162 0.7316162       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 11 m3f3 m4f4          3        4 0.6802343 0.6802343       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 12 m4f1 m5f4          4        5 0.5458269 0.5458269       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 13 m2f1 m3f3          2        3 0.4814452 0.4814452       TRUE      TRUE</span></span>
+<span><span class="co">#&gt; 14 m1f1 m2f2          1        2 0.4558587 0.4558587       TRUE      TRUE</span></span></code></pre></div>
 <p>Edges with <code>|r|</code> near 1.0 are factors that pass through
 nearly unchanged. Name the child the same as the parent. The smaller
 <code>|r|</code> values at the bottom flag where a new, distinct

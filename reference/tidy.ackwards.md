@@ -12,7 +12,7 @@ item and a factor.
 # S3 method for class 'ackwards'
 tidy(
   x,
-  what = c("edges", "loadings", "variance", "fit", "nodes", "scores"),
+  what = c("edges", "loadings", "variance", "fit", "nodes", "scores", "factor_cor"),
   primary_only = FALSE,
   sort = c("none", "strength"),
   format = c("long", "wide"),
@@ -32,8 +32,23 @@ tidy(
   What to extract:
 
   - `"edges"` *(default)*: one row per directed between-level edge, with
-    columns `from`, `to`, `level_from`, `level_to`, `r`, `is_primary`,
-    `above_cut`. If
+    columns `from`, `to`, `level_from`, `level_to`, `r`, `beta`,
+    `is_primary`, `above_cut`. The column `r` is the correlation between
+    the two factors' scores. The column `beta` is the partialled
+    coefficient. It is the standardized regression weight of the `to`
+    factor on all factors of the `from` level together. It removes the
+    part of `r` that the other factors at the `from` level share. Under
+    the default varimax rotation the factors within a level are
+    uncorrelated, so `beta` equals `r`. The two come apart only when the
+    factors within a level are correlated. When the within-level score
+    correlation of the `from` level cannot be inverted, `beta` is `NA`
+    for that level's edges and a warning names the level. That
+    within-level score correlation always comes from the stored score
+    weights and the fit's correlation matrix. This holds even when `r`
+    came from materialised scores (`edge_method = "scores"`, or the
+    scores path under missing data). On those paths the two bases can
+    differ slightly, so `beta` is then an approximation of the
+    regression weight. If
     [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
     has been run on the object, four bootstrap columns are appended:
     `se`, `lo`, `hi` (bootstrap standard error and percentile
@@ -49,8 +64,25 @@ tidy(
     level is controlled by `conf_level`.
 
   - `"variance"`: one row per factor x level, with columns `level`,
-    `factor`, `proportion`, `cumulative`. Both are proportions of total
-    item variance on a 0-1 scale (multiply by 100 for a percentage).
+    `factor`, `proportion`, `cumulative`, `r2`. The first two are
+    proportions of total item variance on a 0-1 scale (multiply by 100
+    for a percentage). The column `r2` is the share of the factor's
+    score variance that all factors of the level just above account for
+    together. It is also a proportion on a 0-1 scale, but of that
+    factor's own score variance, not of total item variance, so it is
+    not comparable with `proportion` or `cumulative`. It is `NA` at
+    level 1, which has no level above. Under the default varimax
+    rotation `r2` equals the sum of the squared `r` values of that
+    factor's edges from the level above. It is `NA`, with a warning,
+    when the level above's within-level score correlation cannot be
+    inverted.
+
+  - `"factor_cor"`: one row per pair of factors within a level, with
+    columns `level`, `factor_a`, `factor_b`, `cor`. The column `cor` is
+    the correlation between the two factors as the engine reports it, in
+    the stored column order and sign. Level 1 has one factor and
+    contributes no row. Under the default varimax rotation every `cor`
+    is 0.
 
   - `"fit"`: one row per fit statistic x level, with columns `level`,
     `statistic`, `value`. For PCA objects the statistics are
@@ -143,7 +175,8 @@ If [factor
 labels](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md)
 have been attached to the object, the output gains display-only label
 columns: `factor_label` for `what = "loadings"`, `"variance"`, or
-`"scores"`, and `from_label`/`to_label` for `what = "edges"`. Each
+`"scores"`, `from_label`/`to_label` for `what = "edges"`, and
+`factor_a_label`/`factor_b_label` for `what = "factor_cor"`. Each
 carries the label for a labeled factor and `NA` otherwise. These columns
 are **absent** when no labels are set, so an unlabeled object's output
 is unchanged. The ID columns (`factor`, `from`, `to`) are never altered.
@@ -159,105 +192,187 @@ is unchanged. The ID columns (`factor`, `from`, `to`) are never altered.
 ``` r
 x <- ackwards(sim16, k_max = 5)
 tidy(x) # edges in natural order
-#>    from   to level_from level_to             r is_primary above_cut
-#> 1  m1f1 m2f1          1        2  0.7072961126       TRUE      TRUE
-#> 2  m1f1 m2f2          1        2  0.7069173991       TRUE      TRUE
-#> 3  m2f1 m3f1          2        3 -0.0113423946      FALSE     FALSE
-#> 4  m2f1 m3f2          2        3  0.6970929809       TRUE      TRUE
-#> 5  m2f1 m3f3          2        3  0.7168910141       TRUE      TRUE
-#> 6  m2f2 m3f1          2        3  0.9955932310       TRUE      TRUE
-#> 7  m2f2 m3f2          2        3  0.0746157674      FALSE     FALSE
-#> 8  m2f2 m3f3          2        3 -0.0568032178      FALSE     FALSE
-#> 9  m3f1 m4f1          3        4 -0.0164580578      FALSE     FALSE
-#> 10 m3f1 m4f2          3        4 -0.0048128349      FALSE     FALSE
-#> 11 m3f1 m4f3          3        4  0.6639134885       TRUE      TRUE
-#> 12 m3f1 m4f4          3        4  0.7476127666       TRUE      TRUE
-#> 13 m3f2 m4f1          3        4  0.9406477359       TRUE      TRUE
-#> 14 m3f2 m4f2          3        4  0.0317352150      FALSE     FALSE
-#> 15 m3f2 m4f3          3        4  0.2627656201      FALSE     FALSE
-#> 16 m3f2 m4f4          3        4 -0.2124357359      FALSE     FALSE
-#> 17 m3f3 m4f1          3        4  0.0512578921      FALSE     FALSE
-#> 18 m3f3 m4f2          3        4  0.9707784269       TRUE      TRUE
-#> 19 m3f3 m4f3          3        4 -0.1715840980      FALSE     FALSE
-#> 20 m3f3 m4f4          3        4  0.1597522194      FALSE     FALSE
-#> 21 m4f1 m5f1          4        5  0.9997725525       TRUE      TRUE
-#> 22 m4f1 m5f2          4        5  0.0020429352      FALSE     FALSE
-#> 23 m4f1 m5f3          4        5 -0.0043948033      FALSE     FALSE
-#> 24 m4f1 m5f4          4        5  0.0034107252      FALSE     FALSE
-#> 25 m4f1 m5f5          4        5 -0.0204871256      FALSE     FALSE
-#> 26 m4f2 m5f1          4        5 -0.0019639857      FALSE     FALSE
-#> 27 m4f2 m5f2          4        5  0.9999850115       TRUE      TRUE
-#> 28 m4f2 m5f3          4        5 -0.0025910717      FALSE     FALSE
-#> 29 m4f2 m5f4          4        5 -0.0012689323      FALSE     FALSE
-#> 30 m4f2 m5f5          4        5  0.0042184956      FALSE     FALSE
-#> 31 m4f3 m5f1          4        5  0.0043781997      FALSE     FALSE
-#> 32 m4f3 m5f2          4        5  0.0026035592      FALSE     FALSE
-#> 33 m4f3 m5f3          4        5  0.9999840561       TRUE      TRUE
-#> 34 m4f3 m5f4          4        5  0.0024297386      FALSE     FALSE
-#> 35 m4f3 m5f5          4        5 -0.0001914960      FALSE     FALSE
-#> 36 m4f4 m5f1          4        5 -0.0016399230      FALSE     FALSE
-#> 37 m4f4 m5f2          4        5  0.0008901375      FALSE     FALSE
-#> 38 m4f4 m5f3          4        5 -0.0023992589      FALSE     FALSE
-#> 39 m4f4 m5f4          4        5  0.9962530528       TRUE      TRUE
-#> 40 m4f4 m5f5          4        5  0.0864327285       TRUE     FALSE
+#>    from   to level_from level_to             r          beta is_primary
+#> 1  m1f1 m2f1          1        2  0.7072961126  0.7072961126       TRUE
+#> 2  m1f1 m2f2          1        2  0.7069173991  0.7069173991       TRUE
+#> 3  m2f1 m3f1          2        3 -0.0113423946 -0.0113423946      FALSE
+#> 4  m2f1 m3f2          2        3  0.6970929809  0.6970929809       TRUE
+#> 5  m2f1 m3f3          2        3  0.7168910141  0.7168910141       TRUE
+#> 6  m2f2 m3f1          2        3  0.9955932310  0.9955932310       TRUE
+#> 7  m2f2 m3f2          2        3  0.0746157674  0.0746157674      FALSE
+#> 8  m2f2 m3f3          2        3 -0.0568032178 -0.0568032178      FALSE
+#> 9  m3f1 m4f1          3        4 -0.0164580578 -0.0164580578      FALSE
+#> 10 m3f1 m4f2          3        4 -0.0048128349 -0.0048128349      FALSE
+#> 11 m3f1 m4f3          3        4  0.6639134885  0.6639134885       TRUE
+#> 12 m3f1 m4f4          3        4  0.7476127666  0.7476127666       TRUE
+#> 13 m3f2 m4f1          3        4  0.9406477359  0.9406477359       TRUE
+#> 14 m3f2 m4f2          3        4  0.0317352150  0.0317352150      FALSE
+#> 15 m3f2 m4f3          3        4  0.2627656201  0.2627656201      FALSE
+#> 16 m3f2 m4f4          3        4 -0.2124357359 -0.2124357359      FALSE
+#> 17 m3f3 m4f1          3        4  0.0512578921  0.0512578921      FALSE
+#> 18 m3f3 m4f2          3        4  0.9707784269  0.9707784269       TRUE
+#> 19 m3f3 m4f3          3        4 -0.1715840980 -0.1715840980      FALSE
+#> 20 m3f3 m4f4          3        4  0.1597522194  0.1597522194      FALSE
+#> 21 m4f1 m5f1          4        5  0.9997725525  0.9997725525       TRUE
+#> 22 m4f1 m5f2          4        5  0.0020429352  0.0020429352      FALSE
+#> 23 m4f1 m5f3          4        5 -0.0043948033 -0.0043948033      FALSE
+#> 24 m4f1 m5f4          4        5  0.0034107252  0.0034107252      FALSE
+#> 25 m4f1 m5f5          4        5 -0.0204871256 -0.0204871256      FALSE
+#> 26 m4f2 m5f1          4        5 -0.0019639857 -0.0019639857      FALSE
+#> 27 m4f2 m5f2          4        5  0.9999850115  0.9999850115       TRUE
+#> 28 m4f2 m5f3          4        5 -0.0025910717 -0.0025910717      FALSE
+#> 29 m4f2 m5f4          4        5 -0.0012689323 -0.0012689323      FALSE
+#> 30 m4f2 m5f5          4        5  0.0042184956  0.0042184956      FALSE
+#> 31 m4f3 m5f1          4        5  0.0043781997  0.0043781997      FALSE
+#> 32 m4f3 m5f2          4        5  0.0026035592  0.0026035592      FALSE
+#> 33 m4f3 m5f3          4        5  0.9999840561  0.9999840561       TRUE
+#> 34 m4f3 m5f4          4        5  0.0024297386  0.0024297386      FALSE
+#> 35 m4f3 m5f5          4        5 -0.0001914960 -0.0001914960      FALSE
+#> 36 m4f4 m5f1          4        5 -0.0016399230 -0.0016399230      FALSE
+#> 37 m4f4 m5f2          4        5  0.0008901375  0.0008901375      FALSE
+#> 38 m4f4 m5f3          4        5 -0.0023992589 -0.0023992589      FALSE
+#> 39 m4f4 m5f4          4        5  0.9962530528  0.9962530528       TRUE
+#> 40 m4f4 m5f5          4        5  0.0864327285  0.0864327285       TRUE
+#>    above_cut
+#> 1       TRUE
+#> 2       TRUE
+#> 3      FALSE
+#> 4       TRUE
+#> 5       TRUE
+#> 6       TRUE
+#> 7      FALSE
+#> 8      FALSE
+#> 9      FALSE
+#> 10     FALSE
+#> 11      TRUE
+#> 12      TRUE
+#> 13      TRUE
+#> 14     FALSE
+#> 15     FALSE
+#> 16     FALSE
+#> 17     FALSE
+#> 18      TRUE
+#> 19     FALSE
+#> 20     FALSE
+#> 21      TRUE
+#> 22     FALSE
+#> 23     FALSE
+#> 24     FALSE
+#> 25     FALSE
+#> 26     FALSE
+#> 27      TRUE
+#> 28     FALSE
+#> 29     FALSE
+#> 30     FALSE
+#> 31     FALSE
+#> 32     FALSE
+#> 33      TRUE
+#> 34     FALSE
+#> 35     FALSE
+#> 36     FALSE
+#> 37     FALSE
+#> 38     FALSE
+#> 39      TRUE
+#> 40     FALSE
 tidy(x, sort = "strength") # strongest edges first
-#>    from   to level_from level_to             r is_primary above_cut
-#> 1  m4f2 m5f2          4        5  0.9999850115       TRUE      TRUE
-#> 2  m4f3 m5f3          4        5  0.9999840561       TRUE      TRUE
-#> 3  m4f1 m5f1          4        5  0.9997725525       TRUE      TRUE
-#> 4  m4f4 m5f4          4        5  0.9962530528       TRUE      TRUE
-#> 5  m2f2 m3f1          2        3  0.9955932310       TRUE      TRUE
-#> 6  m3f3 m4f2          3        4  0.9707784269       TRUE      TRUE
-#> 7  m3f2 m4f1          3        4  0.9406477359       TRUE      TRUE
-#> 8  m3f1 m4f4          3        4  0.7476127666       TRUE      TRUE
-#> 9  m2f1 m3f3          2        3  0.7168910141       TRUE      TRUE
-#> 10 m1f1 m2f1          1        2  0.7072961126       TRUE      TRUE
-#> 11 m1f1 m2f2          1        2  0.7069173991       TRUE      TRUE
-#> 12 m2f1 m3f2          2        3  0.6970929809       TRUE      TRUE
-#> 13 m3f1 m4f3          3        4  0.6639134885       TRUE      TRUE
-#> 14 m3f2 m4f3          3        4  0.2627656201      FALSE     FALSE
-#> 15 m3f2 m4f4          3        4 -0.2124357359      FALSE     FALSE
-#> 16 m3f3 m4f3          3        4 -0.1715840980      FALSE     FALSE
-#> 17 m3f3 m4f4          3        4  0.1597522194      FALSE     FALSE
-#> 18 m4f4 m5f5          4        5  0.0864327285       TRUE     FALSE
-#> 19 m2f2 m3f2          2        3  0.0746157674      FALSE     FALSE
-#> 20 m2f2 m3f3          2        3 -0.0568032178      FALSE     FALSE
-#> 21 m3f3 m4f1          3        4  0.0512578921      FALSE     FALSE
-#> 22 m3f2 m4f2          3        4  0.0317352150      FALSE     FALSE
-#> 23 m4f1 m5f5          4        5 -0.0204871256      FALSE     FALSE
-#> 24 m3f1 m4f1          3        4 -0.0164580578      FALSE     FALSE
-#> 25 m2f1 m3f1          2        3 -0.0113423946      FALSE     FALSE
-#> 26 m3f1 m4f2          3        4 -0.0048128349      FALSE     FALSE
-#> 27 m4f1 m5f3          4        5 -0.0043948033      FALSE     FALSE
-#> 28 m4f3 m5f1          4        5  0.0043781997      FALSE     FALSE
-#> 29 m4f2 m5f5          4        5  0.0042184956      FALSE     FALSE
-#> 30 m4f1 m5f4          4        5  0.0034107252      FALSE     FALSE
-#> 31 m4f3 m5f2          4        5  0.0026035592      FALSE     FALSE
-#> 32 m4f2 m5f3          4        5 -0.0025910717      FALSE     FALSE
-#> 33 m4f3 m5f4          4        5  0.0024297386      FALSE     FALSE
-#> 34 m4f4 m5f3          4        5 -0.0023992589      FALSE     FALSE
-#> 35 m4f1 m5f2          4        5  0.0020429352      FALSE     FALSE
-#> 36 m4f2 m5f1          4        5 -0.0019639857      FALSE     FALSE
-#> 37 m4f4 m5f1          4        5 -0.0016399230      FALSE     FALSE
-#> 38 m4f2 m5f4          4        5 -0.0012689323      FALSE     FALSE
-#> 39 m4f4 m5f2          4        5  0.0008901375      FALSE     FALSE
-#> 40 m4f3 m5f5          4        5 -0.0001914960      FALSE     FALSE
+#>    from   to level_from level_to             r          beta is_primary
+#> 1  m4f2 m5f2          4        5  0.9999850115  0.9999850115       TRUE
+#> 2  m4f3 m5f3          4        5  0.9999840561  0.9999840561       TRUE
+#> 3  m4f1 m5f1          4        5  0.9997725525  0.9997725525       TRUE
+#> 4  m4f4 m5f4          4        5  0.9962530528  0.9962530528       TRUE
+#> 5  m2f2 m3f1          2        3  0.9955932310  0.9955932310       TRUE
+#> 6  m3f3 m4f2          3        4  0.9707784269  0.9707784269       TRUE
+#> 7  m3f2 m4f1          3        4  0.9406477359  0.9406477359       TRUE
+#> 8  m3f1 m4f4          3        4  0.7476127666  0.7476127666       TRUE
+#> 9  m2f1 m3f3          2        3  0.7168910141  0.7168910141       TRUE
+#> 10 m1f1 m2f1          1        2  0.7072961126  0.7072961126       TRUE
+#> 11 m1f1 m2f2          1        2  0.7069173991  0.7069173991       TRUE
+#> 12 m2f1 m3f2          2        3  0.6970929809  0.6970929809       TRUE
+#> 13 m3f1 m4f3          3        4  0.6639134885  0.6639134885       TRUE
+#> 14 m3f2 m4f3          3        4  0.2627656201  0.2627656201      FALSE
+#> 15 m3f2 m4f4          3        4 -0.2124357359 -0.2124357359      FALSE
+#> 16 m3f3 m4f3          3        4 -0.1715840980 -0.1715840980      FALSE
+#> 17 m3f3 m4f4          3        4  0.1597522194  0.1597522194      FALSE
+#> 18 m4f4 m5f5          4        5  0.0864327285  0.0864327285       TRUE
+#> 19 m2f2 m3f2          2        3  0.0746157674  0.0746157674      FALSE
+#> 20 m2f2 m3f3          2        3 -0.0568032178 -0.0568032178      FALSE
+#> 21 m3f3 m4f1          3        4  0.0512578921  0.0512578921      FALSE
+#> 22 m3f2 m4f2          3        4  0.0317352150  0.0317352150      FALSE
+#> 23 m4f1 m5f5          4        5 -0.0204871256 -0.0204871256      FALSE
+#> 24 m3f1 m4f1          3        4 -0.0164580578 -0.0164580578      FALSE
+#> 25 m2f1 m3f1          2        3 -0.0113423946 -0.0113423946      FALSE
+#> 26 m3f1 m4f2          3        4 -0.0048128349 -0.0048128349      FALSE
+#> 27 m4f1 m5f3          4        5 -0.0043948033 -0.0043948033      FALSE
+#> 28 m4f3 m5f1          4        5  0.0043781997  0.0043781997      FALSE
+#> 29 m4f2 m5f5          4        5  0.0042184956  0.0042184956      FALSE
+#> 30 m4f1 m5f4          4        5  0.0034107252  0.0034107252      FALSE
+#> 31 m4f3 m5f2          4        5  0.0026035592  0.0026035592      FALSE
+#> 32 m4f2 m5f3          4        5 -0.0025910717 -0.0025910717      FALSE
+#> 33 m4f3 m5f4          4        5  0.0024297386  0.0024297386      FALSE
+#> 34 m4f4 m5f3          4        5 -0.0023992589 -0.0023992589      FALSE
+#> 35 m4f1 m5f2          4        5  0.0020429352  0.0020429352      FALSE
+#> 36 m4f2 m5f1          4        5 -0.0019639857 -0.0019639857      FALSE
+#> 37 m4f4 m5f1          4        5 -0.0016399230 -0.0016399230      FALSE
+#> 38 m4f2 m5f4          4        5 -0.0012689323 -0.0012689323      FALSE
+#> 39 m4f4 m5f2          4        5  0.0008901375  0.0008901375      FALSE
+#> 40 m4f3 m5f5          4        5 -0.0001914960 -0.0001914960      FALSE
+#>    above_cut
+#> 1       TRUE
+#> 2       TRUE
+#> 3       TRUE
+#> 4       TRUE
+#> 5       TRUE
+#> 6       TRUE
+#> 7       TRUE
+#> 8       TRUE
+#> 9       TRUE
+#> 10      TRUE
+#> 11      TRUE
+#> 12      TRUE
+#> 13      TRUE
+#> 14     FALSE
+#> 15     FALSE
+#> 16     FALSE
+#> 17     FALSE
+#> 18     FALSE
+#> 19     FALSE
+#> 20     FALSE
+#> 21     FALSE
+#> 22     FALSE
+#> 23     FALSE
+#> 24     FALSE
+#> 25     FALSE
+#> 26     FALSE
+#> 27     FALSE
+#> 28     FALSE
+#> 29     FALSE
+#> 30     FALSE
+#> 31     FALSE
+#> 32     FALSE
+#> 33     FALSE
+#> 34     FALSE
+#> 35     FALSE
+#> 36     FALSE
+#> 37     FALSE
+#> 38     FALSE
+#> 39     FALSE
+#> 40     FALSE
 tidy(x, primary_only = TRUE) # just the primary-parent lineage
-#>    from   to level_from level_to          r is_primary above_cut
-#> 1  m1f1 m2f1          1        2 0.70729611       TRUE      TRUE
-#> 2  m1f1 m2f2          1        2 0.70691740       TRUE      TRUE
-#> 3  m2f1 m3f2          2        3 0.69709298       TRUE      TRUE
-#> 4  m2f1 m3f3          2        3 0.71689101       TRUE      TRUE
-#> 5  m2f2 m3f1          2        3 0.99559323       TRUE      TRUE
-#> 6  m3f1 m4f3          3        4 0.66391349       TRUE      TRUE
-#> 7  m3f1 m4f4          3        4 0.74761277       TRUE      TRUE
-#> 8  m3f2 m4f1          3        4 0.94064774       TRUE      TRUE
-#> 9  m3f3 m4f2          3        4 0.97077843       TRUE      TRUE
-#> 10 m4f1 m5f1          4        5 0.99977255       TRUE      TRUE
-#> 11 m4f2 m5f2          4        5 0.99998501       TRUE      TRUE
-#> 12 m4f3 m5f3          4        5 0.99998406       TRUE      TRUE
-#> 13 m4f4 m5f4          4        5 0.99625305       TRUE      TRUE
-#> 14 m4f4 m5f5          4        5 0.08643273       TRUE     FALSE
+#>    from   to level_from level_to          r       beta is_primary above_cut
+#> 1  m1f1 m2f1          1        2 0.70729611 0.70729611       TRUE      TRUE
+#> 2  m1f1 m2f2          1        2 0.70691740 0.70691740       TRUE      TRUE
+#> 3  m2f1 m3f2          2        3 0.69709298 0.69709298       TRUE      TRUE
+#> 4  m2f1 m3f3          2        3 0.71689101 0.71689101       TRUE      TRUE
+#> 5  m2f2 m3f1          2        3 0.99559323 0.99559323       TRUE      TRUE
+#> 6  m3f1 m4f3          3        4 0.66391349 0.66391349       TRUE      TRUE
+#> 7  m3f1 m4f4          3        4 0.74761277 0.74761277       TRUE      TRUE
+#> 8  m3f2 m4f1          3        4 0.94064774 0.94064774       TRUE      TRUE
+#> 9  m3f3 m4f2          3        4 0.97077843 0.97077843       TRUE      TRUE
+#> 10 m4f1 m5f1          4        5 0.99977255 0.99977255       TRUE      TRUE
+#> 11 m4f2 m5f2          4        5 0.99998501 0.99998501       TRUE      TRUE
+#> 12 m4f3 m5f3          4        5 0.99998406 0.99998406       TRUE      TRUE
+#> 13 m4f4 m5f4          4        5 0.99625305 0.99625305       TRUE      TRUE
+#> 14 m4f4 m5f5          4        5 0.08643273 0.08643273       TRUE     FALSE
 tidy(x, what = "loadings")
 #>     level factor item      loading se ci_lower ci_upper
 #> 1       1   m1f1   i1  0.461752431 NA       NA       NA
@@ -501,22 +616,44 @@ tidy(x, what = "loadings")
 #> 239     5   m5f5  i15 -0.110696540 NA       NA       NA
 #> 240     5   m5f5  i16  0.417028618 NA       NA       NA
 tidy(x, what = "variance")
-#>    level factor proportion cumulative
-#> 1      1   m1f1 0.28172978  0.2817298
-#> 2      2   m2f1 0.23251408  0.2325141
-#> 3      2   m2f2 0.23246133  0.4649754
-#> 4      3   m3f1 0.23028614  0.2302861
-#> 5      3   m3f2 0.17522787  0.4055140
-#> 6      3   m3f3 0.16924345  0.5747575
-#> 7      4   m4f1 0.17155300  0.1715530
-#> 8      4   m4f2 0.16895577  0.3405088
-#> 9      4   m4f3 0.16846890  0.5089777
-#> 10     4   m4f4 0.16753770  0.6765154
-#> 11     5   m5f1 0.17147388  0.1714739
-#> 12     5   m5f2 0.16935421  0.3408281
-#> 13     5   m5f3 0.16774286  0.5085710
-#> 14     5   m5f4 0.16695127  0.6755222
-#> 15     5   m5f5 0.03262035  0.7081426
+#>    level factor proportion cumulative          r2
+#> 1      1   m1f1 0.28172978  0.2817298          NA
+#> 2      2   m2f1 0.23251408  0.2325141 0.500267791
+#> 3      2   m2f2 0.23246133  0.4649754 0.499732209
+#> 4      3   m3f1 0.23028614  0.2302861 0.991334532
+#> 5      3   m3f2 0.17522787  0.4055140 0.491506137
+#> 6      3   m3f3 0.16924345  0.5747575 0.517159332
+#> 7      4   m4f1 0.17155300  0.1715530 0.887716402
+#> 8      4   m4f2 0.16895577  0.3405088 0.943441041
+#> 9      4   m4f3 0.16846890  0.5089777 0.539267994
+#> 10     4   m4f4 0.16753770  0.6765154 0.629574562
+#> 11     5   m5f1 0.17147388  0.1714739 0.999570872
+#> 12     5   m5f2 0.16935421  0.3408281 0.999981768
+#> 13     5   m5f3 0.16774286  0.5085710 0.999999897
+#> 14     5   m5f4 0.16695127  0.6755222 0.992539292
+#> 15     5   m5f5 0.03262035  0.7081426 0.007908171
+tidy(x, what = "factor_cor") # all 0 under varimax
+#>    level factor_a factor_b cor
+#> 1      2     m2f1     m2f2   0
+#> 2      3     m3f1     m3f2   0
+#> 3      3     m3f1     m3f3   0
+#> 4      3     m3f2     m3f3   0
+#> 5      4     m4f1     m4f2   0
+#> 6      4     m4f1     m4f3   0
+#> 7      4     m4f1     m4f4   0
+#> 8      4     m4f2     m4f3   0
+#> 9      4     m4f2     m4f4   0
+#> 10     4     m4f3     m4f4   0
+#> 11     5     m5f1     m5f2   0
+#> 12     5     m5f1     m5f3   0
+#> 13     5     m5f1     m5f4   0
+#> 14     5     m5f1     m5f5   0
+#> 15     5     m5f2     m5f3   0
+#> 16     5     m5f2     m5f4   0
+#> 17     5     m5f2     m5f5   0
+#> 18     5     m5f3     m5f4   0
+#> 19     5     m5f3     m5f5   0
+#> 20     5     m5f4     m5f5   0
 tidy(x, what = "fit")
 #>    level       statistic     value
 #> 1      1 eigenvalue.m1f1 4.5076765

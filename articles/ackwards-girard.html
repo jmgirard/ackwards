@@ -220,13 +220,13 @@ depth on Pearson, then fit the model you <em>report</em> with
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Running parallel analysis (20 iterations, PC + FA)...</span></span>
-<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [130ms]</span></span>
+<span><span class="co">#&gt; ✔ Running parallel analysis (20 iterations, PC + FA)... [99ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Running MAP and VSS...</span></span>
-<span><span class="co">#&gt; ✔ Running MAP and VSS... [98ms]</span></span>
+<span><span class="co">#&gt; ✔ Running MAP and VSS... [62ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Running Comparison Data (CD)...</span></span>
-<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [7.5s]</span></span>
+<span><span class="co">#&gt; ✔ Running Comparison Data (CD)... [3.5s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sk</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -239,15 +239,15 @@ depth on Pearson, then fit the model you <em>report</em> with
 <span><span class="co">#&gt; ── Criteria (k = 1-8) ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   k  PA-PC  PA-FA      MAP    VSS-1    VSS-2  CD</span></span>
-<span><span class="co">#&gt;   1     ✔      ✔   0.0254   0.5178   0.0000   ✔ </span></span>
-<span><span class="co">#&gt;   2     ✔      ✔   0.0194   0.5839   0.6719   ✔ </span></span>
-<span><span class="co">#&gt;   3     ✔      ✔   0.0175   0.5913   0.7354   ✔ </span></span>
-<span><span class="co">#&gt;   4     ✔      ✔   0.0164   0.6215*  0.7837   ✔ </span></span>
-<span><span class="co">#&gt;   5     ✔      ✔   0.0160*  0.5738   0.7950*  ✔ </span></span>
-<span><span class="co">#&gt;   6     -      ✔   0.0172   0.5594   0.7629   ✔*</span></span>
+<span><span class="co">#&gt;   1     ✔︎      ✔︎   0.0254   0.5178   0.0000   ✔︎ </span></span>
+<span><span class="co">#&gt;   2     ✔︎      ✔︎   0.0194   0.5839   0.6719   ✔︎ </span></span>
+<span><span class="co">#&gt;   3     ✔︎      ✔︎   0.0175   0.5913   0.7354   ✔︎ </span></span>
+<span><span class="co">#&gt;   4     ✔︎      ✔︎   0.0164   0.6215*  0.7837   ✔︎ </span></span>
+<span><span class="co">#&gt;   5     ✔︎      ✔︎   0.0160*  0.5738   0.7950*  ✔︎ </span></span>
+<span><span class="co">#&gt;   6     -      ✔︎   0.0172   0.5594   0.7629   ✔︎*</span></span>
 <span><span class="co">#&gt;   7     -      -   0.0205   0.5613   0.7616   - </span></span>
 <span><span class="co">#&gt;   8     -      -   0.0236   0.5600   0.7215   -</span></span>
-<span><span class="co">#&gt;   ✔ retained   * optimal k   - not retained</span></span>
+<span><span class="co">#&gt;   ✔︎ retained   * optimal k   - not retained</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Recommendations ──</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -281,7 +281,7 @@ up to one past the ceiling, across ten random split-halves:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/comparability.html">comparability</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="va">sk_hi</span> <span class="op">+</span> <span class="fl">1</span>, n_splits <span class="op">=</span> <span class="fl">10</span>, seed <span class="op">=</span> <span class="fl">2026</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Fitting 10 split-half replicates (pca, k = 1-7)...</span></span>
-<span><span class="co">#&gt; ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [455ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting 10 split-half replicates (pca, k = 1-7)... [253ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">cmp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -448,7 +448,7 @@ basis even when the final model is polychoric.</p>
 <code class="sourceCode R"><span><span class="va">x_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ackwards.html">ackwards</a></span><span class="op">(</span><span class="va">bfi</span>, k_max <span class="op">=</span> <span class="fl">5</span>, pairs <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/boot_edges.html">boot_edges</a></span><span class="op">(</span><span class="va">bfi</span>, n_boot <span class="op">=</span> <span class="fl">200</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Fitting 200 bootstrap replicates (pca, k = 1-5)...</span></span>
-<span><span class="co">#&gt; ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [3.6s]</span></span>
+<span><span class="co">#&gt; ✔ Fitting 200 bootstrap replicates (pca, k = 1-5)... [1.8s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="va">boot_tbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x_boot</span>, what <span class="op">=</span> <span class="st">"edges"</span>, sort <span class="op">=</span> <span class="st">"strength"</span><span class="op">)</span></span>

@@ -49,7 +49,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   autoplot(cmp)
 }
 #> ℹ Fitting 5 split-half replicates (pca, k = 1-5)...
-#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [196ms]
+#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [254ms]
 #> 
 
 # }

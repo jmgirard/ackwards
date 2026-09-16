@@ -463,27 +463,27 @@ result of this function</p></div>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">(EFA/ESEM) describe how well a k-factor model fits the items at that level --</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">they do not validate the edges or the hierarchy itself.</span></span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to            r is_primary above_cut</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  m1f1 m2f1          1        2  0.707296113       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  m1f1 m2f2          1        2  0.706917399       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m2f1 m3f1          2        3 -0.011342395      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  m2f1 m3f2          2        3  0.697092981       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  m2f1 m3f3          2        3  0.716891014       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m2f2 m3f1          2        3  0.995593231       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  m2f2 m3f2          2        3  0.074615767      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  m2f2 m3f3          2        3 -0.056803218      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  m3f1 m4f1          3        4 -0.016458058      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 m3f1 m4f2          3        4 -0.004812835      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11 m3f1 m4f3          3        4  0.663913488       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12 m3f1 m4f4          3        4  0.747612767       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13 m3f2 m4f1          3        4  0.940647736       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14 m3f2 m4f2          3        4  0.031735215      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15 m3f2 m4f3          3        4  0.262765620      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16 m3f2 m4f4          3        4 -0.212435736      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17 m3f3 m4f1          3        4  0.051257892      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18 m3f3 m4f2          3        4  0.970778427       TRUE      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19 m3f3 m4f3          3        4 -0.171584098      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20 m3f3 m4f4          3        4  0.159752219      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from   to level_from level_to            r         beta is_primary above_cut</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  m1f1 m2f1          1        2  0.707296113  0.707296113       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  m1f1 m2f2          1        2  0.706917399  0.706917399       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  m2f1 m3f1          2        3 -0.011342395 -0.011342395      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  m2f1 m3f2          2        3  0.697092981  0.697092981       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  m2f1 m3f3          2        3  0.716891014  0.716891014       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  m2f2 m3f1          2        3  0.995593231  0.995593231       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  m2f2 m3f2          2        3  0.074615767  0.074615767      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  m2f2 m3f3          2        3 -0.056803218 -0.056803218      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  m3f1 m4f1          3        4 -0.016458058 -0.016458058      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 m3f1 m4f2          3        4 -0.004812835 -0.004812835      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 m3f1 m4f3          3        4  0.663913488  0.663913488       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 m3f1 m4f4          3        4  0.747612767  0.747612767       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 m3f2 m4f1          3        4  0.940647736  0.940647736       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 m3f2 m4f2          3        4  0.031735215  0.031735215      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 m3f2 m4f3          3        4  0.262765620  0.262765620      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 m3f2 m4f4          3        4 -0.212435736 -0.212435736      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 m3f3 m4f1          3        4  0.051257892  0.051257892      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 m3f3 m4f2          3        4  0.970778427  0.970778427       TRUE      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 m3f3 m4f3          3        4 -0.171584098 -0.171584098      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 m3f3 m4f4          3        4  0.159752219  0.159752219      FALSE     FALSE</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   engine rotation     cor k_max n_obs deepest_converged n_edges CFI TLI RMSEA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    pca  varimax pearson     4  1000                 4      20  NA  NA    NA</span>
