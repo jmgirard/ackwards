@@ -67,6 +67,8 @@ Carry each level's real within-level factor correlation through column reorderin
 - 2026-09-16: second `Rscript tools/dod-gate.R` run on the committed tree: GATE PASSED (freshness, ledger anchors, CI path filters, prose, check 0/0/0, coverage 100%, styler clean, lintr clean, pkgdown index complete).
 - 2026-09-16: claim audit: 49 claims read, 0 corrected — NEWS.md, R/tidy.R, R/summary.R, R/utils.R, R/ackwards.R, R/engine_pca.R, R/engine_efa.R, R/engine_esem.R, data-raw/baseline-m89.R, vignettes/ackwards-intro.Rmd.orig, tests. One claim marked unverifiable by the reader (the ~1e-6 unseeded ESEM run-to-run figure in the generator header); it is a dated observation this session made twice before writing it. Reader's incidental note: `.tidy_edges()` would error if a stored edge-matrix cell ever lacked a row in `edges$tidy`; every construction path writes both from one matrix set, so no change made.
 - 2026-09-16: all tasks checked, gate clean; status set to review.
+- 2026-09-16: /milestone-review ran: all seven criteria verified, three-lens review (16 [O] findings, 4 fixed at the gate, 5 routed to M90 or a candidate row, 7 rejected with reason), AC1's commit-hash and ESEM-seed deviations accepted by the maintainer as recorded evidence.
+- 2026-09-16: step-7 approval: m089-factor-cor-partialled-edges approved for merge
 
 ## Decisions
 
