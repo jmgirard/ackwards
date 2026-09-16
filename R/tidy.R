@@ -26,7 +26,12 @@ generics::glance
 #'     so `beta` equals `r`. The two come apart only when the factors within
 #'     a level are correlated. When the within-level score correlation of the
 #'     `from` level cannot be inverted, `beta` is `NA` for that level's edges
-#'     and a warning names the level.
+#'     and a warning names the level. That within-level score correlation
+#'     always comes from the stored score weights and the fit's correlation
+#'     matrix. This holds even when `r` came from materialised scores
+#'     (`edge_method = "scores"`, or the scores path under missing data). On
+#'     those paths the two bases can differ slightly, so `beta` is then an
+#'     approximation of the regression weight.
 #'     If [boot_edges()] has been run on the object, four bootstrap columns are
 #'     appended: `se`, `lo`, `hi` (bootstrap standard error and percentile
 #'     confidence-interval endpoints), and `n_boot_ok` (usable replicates).
@@ -43,7 +48,9 @@ generics::glance
 #'     proportions of total item variance on a 0-1 scale (multiply by 100
 #'     for a percentage). The column `r2` is the share of the factor's score
 #'     variance that all factors of the level just above account for
-#'     together, on the same 0-1 scale. It is `NA` at level 1, which has no
+#'     together. It is also a proportion on a 0-1 scale, but of that
+#'     factor's own score variance, not of total item variance, so it is not
+#'     comparable with `proportion` or `cumulative`. It is `NA` at level 1, which has no
 #'     level above. Under the default varimax rotation `r2` equals the sum of
 #'     the squared `r` values of that factor's edges from the level above.
 #'     It is `NA`, with a warning, when the level above's within-level score
@@ -215,10 +222,16 @@ tidy.ackwards <- function(
   # Phi-partialled coefficient beside the marginal r: for every stored pair
   # (adjacent, and skip-level under pairs = "all"), B = Phi_s^-1 E from the
   # shallower level's stored weights (.partialled_edges). Equal to r under
-  # varimax. Joined on the directed (from, to) key.
+  # varimax. Joined on the directed (from, to) key. A singular shallower
+  # level warns once, however many stored pairs start from it (skip-level
+  # pairs under pairs = "all" share the level's Phi_s).
   out$beta <- NA_real_
+  warned <- character(0L)
   for (key in names(x$edges$matrices)) {
-    B <- .partialled_pair(x, key)$beta
+    ka <- strsplit(key, ":", fixed = TRUE)[[1L]][1L]
+    res <- .partialled_pair(x, key, warn = !(ka %in% warned))
+    B <- res$beta
+    if (anyNA(B)) warned <- union(warned, ka)
     cells <- expand.grid(i = seq_len(nrow(B)), j = seq_len(ncol(B)))
     m <- match(
       paste(rownames(B)[cells$i], colnames(B)[cells$j], sep = "\r"),
@@ -226,7 +239,9 @@ tidy.ackwards <- function(
     )
     out$beta[m] <- B[cbind(cells$i, cells$j)]
   }
-  out <- out[, c("from", "to", "level_from", "level_to", "r", "beta", "is_primary", "above_cut")]
+  # Place beta right after r, keeping every other column in its place.
+  nm <- setdiff(names(out), "beta")
+  out <- out[, append(nm, "beta", after = match("r", nm))]
   # M47: when boot_edges() has run, expose its SE + percentile-CI columns on
   # the edge table. Joined on the directed (from, to) key -- boot rows are in
   # the same order, but match by key so the merge is robust to reordering.

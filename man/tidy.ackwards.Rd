@@ -30,7 +30,12 @@ default varimax rotation the factors within a level are uncorrelated,
 so \code{beta} equals \code{r}. The two come apart only when the factors within
 a level are correlated. When the within-level score correlation of the
 \code{from} level cannot be inverted, \code{beta} is \code{NA} for that level's edges
-and a warning names the level.
+and a warning names the level. That within-level score correlation
+always comes from the stored score weights and the fit's correlation
+matrix. This holds even when \code{r} came from materialised scores
+(\code{edge_method = "scores"}, or the scores path under missing data). On
+those paths the two bases can differ slightly, so \code{beta} is then an
+approximation of the regression weight.
 If \code{\link[=boot_edges]{boot_edges()}} has been run on the object, four bootstrap columns are
 appended: \code{se}, \code{lo}, \code{hi} (bootstrap standard error and percentile
 confidence-interval endpoints), and \code{n_boot_ok} (usable replicates).
@@ -47,7 +52,9 @@ is controlled by \code{conf_level}.
 proportions of total item variance on a 0-1 scale (multiply by 100
 for a percentage). The column \code{r2} is the share of the factor's score
 variance that all factors of the level just above account for
-together, on the same 0-1 scale. It is \code{NA} at level 1, which has no
+together. It is also a proportion on a 0-1 scale, but of that
+factor's own score variance, not of total item variance, so it is not
+comparable with \code{proportion} or \code{cumulative}. It is \code{NA} at level 1, which has no
 level above. Under the default varimax rotation \code{r2} equals the sum of
 the squared \code{r} values of that factor's edges from the level above.
 It is \code{NA}, with a warning, when the level above's within-level score

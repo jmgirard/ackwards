@@ -122,6 +122,22 @@ test_that("a non-invertible within-level score correlation gives NA beta/r2 and 
   expect_true(all(is.na(v$r2[v$level == 3L])))
   expect_false(anyNA(v$r2[v$level == 2L]))
 
+  # Under pairs = "all" the singular level starts two stored pairs (2:3 and
+  # 2:4) but tidy() warns once for the level, not once per pair.
+  z <- cached(ackwards(sim16, k_max = 4, pairs = "all"))
+  z$levels[["2"]]$scoring$weights <- W2
+  n_tidy_warn <- 0L
+  e_all <- withCallingHandlers(
+    tidy(z, what = "edges"),
+    warning = function(w) {
+      n_tidy_warn <<- n_tidy_warn + 1L
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_identical(n_tidy_warn, 1L)
+  expect_true(all(is.na(e_all$beta[e_all$level_from == 2L])))
+  expect_false(anyNA(e_all$beta[e_all$level_from != 2L]))
+
   # The direct helper: exactly one warning, NA of the right shape.
   E <- y$edges$matrices[["2:3"]]
   res <- NULL

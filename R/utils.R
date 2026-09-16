@@ -155,20 +155,24 @@ make_labels <- function(k) {
 # r2 = E_j' Phi_s^-1 E_j is that regression's R-squared. Under varimax
 # Phi_s = I, so B = E and r2 = colSums(E^2); under an oblique rotation the
 # two come apart. When Phi_s cannot be inverted both are NA and one cli
-# warning names the level. Returns list(beta = <k_a x k_b>, r2 = <named k_b>).
-.partialled_edges <- function(W_a, R, E, level = NA_integer_) {
+# warning names the level (`warn = FALSE` keeps a caller that already
+# warned for this level quiet). Returns list(beta = <k_a x k_b>,
+# r2 = <named k_b>).
+.partialled_edges <- function(W_a, R, E, level = NA_integer_, warn = TRUE) {
   C <- crossprod(W_a, R %*% W_a)
   d <- sqrt(diag(C))
   Phi_s <- C / tcrossprod(d)
   B <- tryCatch(solve(Phi_s, E), error = function(e) NULL)
   if (is.null(B)) {
-    cli::cli_warn(c(
-      "!" = "The within-level score correlation at k = {level} cannot be \\
+    if (warn) {
+      cli::cli_warn(c(
+        "!" = "The within-level score correlation at k = {level} cannot be \\
              inverted; {.code beta} and {.code r2} are {.code NA} for edges \\
              from that level.",
-      "i" = "Two factors at that level have identical or perfectly \\
+        "i" = "Two factors at that level have identical or perfectly \\
              collinear score weights."
-    ))
+      ))
+    }
     B <- matrix(NA_real_, nrow(E), ncol(E), dimnames = dimnames(E))
     r2 <- stats::setNames(rep(NA_real_, ncol(E)), colnames(E))
     return(list(beta = B, r2 = r2))
@@ -180,11 +184,11 @@ make_labels <- function(k) {
 
 # Run .partialled_edges() for one stored pair key "a:b" of an ackwards
 # object, reading the shallower level's weights and the fit's R.
-.partialled_pair <- function(x, key) {
+.partialled_pair <- function(x, key, warn = TRUE) {
   ka <- strsplit(key, ":", fixed = TRUE)[[1L]][1L]
   W_a <- x$levels[[ka]]$scoring$weights
   E <- x$edges$matrices[[key]]
-  .partialled_edges(W_a, x$r, E, level = as.integer(ka))
+  .partialled_edges(W_a, x$r, E, level = as.integer(ka), warn = warn)
 }
 
 # Tucker's congruence coefficient between two loading vectors (Lorenzo-Seva &
