@@ -1,13 +1,13 @@
 # M86: Plain-English pass — vignettes A (intro, suggest-k, engines, visualization)
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** M85
 - **Driving RR:** —
 - **Principles touched:** GP3, IP6
 - **Resolves:** —
 - **Surface tier:** user-facing — vignettes are the pkgdown articles users read
-- **Branch/PR:** —
+- **Branch/PR:** `m086-plain-english-vignettes-a`
 
 ## Goal
 
