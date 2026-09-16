@@ -145,6 +145,48 @@ make_labels <- function(k) {
   diag(crossprod(W, R %*% W))
 }
 
+# Phi-partialled edge quantities for one level pair. `E` is the stored
+# (k_a x k_b) edge matrix of score correlations between level a and level b,
+# `W_a` the stored weights of the shallower level a, and `R` the item
+# correlation matrix the fit used. The within-level score correlation of
+# level a is Phi_s = D^-1/2 W_a' R W_a D^-1/2 with D = diag(W_a' R W_a). The
+# partialled coefficient B = Phi_s^-1 E is the standardized regression of
+# each level-b score on all level-a scores together, and each column's
+# r2 = E_j' Phi_s^-1 E_j is that regression's R-squared. Under varimax
+# Phi_s = I, so B = E and r2 = colSums(E^2); under an oblique rotation the
+# two come apart. When Phi_s cannot be inverted both are NA and one cli
+# warning names the level. Returns list(beta = <k_a x k_b>, r2 = <named k_b>).
+.partialled_edges <- function(W_a, R, E, level = NA_integer_) {
+  C <- crossprod(W_a, R %*% W_a)
+  d <- sqrt(diag(C))
+  Phi_s <- C / tcrossprod(d)
+  B <- tryCatch(solve(Phi_s, E), error = function(e) NULL)
+  if (is.null(B)) {
+    cli::cli_warn(c(
+      "!" = "The within-level score correlation at k = {level} cannot be \\
+             inverted; {.code beta} and {.code r2} are {.code NA} for edges \\
+             from that level.",
+      "i" = "Two factors at that level have identical or perfectly \\
+             collinear score weights."
+    ))
+    B <- matrix(NA_real_, nrow(E), ncol(E), dimnames = dimnames(E))
+    r2 <- stats::setNames(rep(NA_real_, ncol(E)), colnames(E))
+    return(list(beta = B, r2 = r2))
+  }
+  dimnames(B) <- dimnames(E)
+  r2 <- stats::setNames(colSums(E * B), colnames(E))
+  list(beta = B, r2 = r2)
+}
+
+# Run .partialled_edges() for one stored pair key "a:b" of an ackwards
+# object, reading the shallower level's weights and the fit's R.
+.partialled_pair <- function(x, key) {
+  ka <- strsplit(key, ":", fixed = TRUE)[[1L]][1L]
+  W_a <- x$levels[[ka]]$scoring$weights
+  E <- x$edges$matrices[[key]]
+  .partialled_edges(W_a, x$r, E, level = as.integer(ka))
+}
+
 # Tucker's congruence coefficient between two loading vectors (Lorenzo-Seva &
 # ten Berge, 2006). Formula: phi = sum(a*b) / sqrt(sum(a^2) * sum(b^2)).
 # General utility used by both prune() (redundancy/artifact phi) and

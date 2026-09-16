@@ -189,6 +189,21 @@ tidy.ackwards <- function(
 
 .tidy_edges <- function(x) {
   out <- x$edges$tidy
+  # Phi-partialled coefficient beside the marginal r: for every stored pair
+  # (adjacent, and skip-level under pairs = "all"), B = Phi_s^-1 E from the
+  # shallower level's stored weights (.partialled_edges). Equal to r under
+  # varimax. Joined on the directed (from, to) key.
+  out$beta <- NA_real_
+  for (key in names(x$edges$matrices)) {
+    B <- .partialled_pair(x, key)$beta
+    cells <- expand.grid(i = seq_len(nrow(B)), j = seq_len(ncol(B)))
+    m <- match(
+      paste(rownames(B)[cells$i], colnames(B)[cells$j], sep = "\r"),
+      paste(out$from, out$to, sep = "\r")
+    )
+    out$beta[m] <- B[cbind(cells$i, cells$j)]
+  }
+  out <- out[, c("from", "to", "level_from", "level_to", "r", "beta", "is_primary", "above_cut")]
   # M47: when boot_edges() has run, expose its SE + percentile-CI columns on
   # the edge table. Joined on the directed (from, to) key -- boot rows are in
   # the same order, but match by key so the merge is robust to reordering.
@@ -369,11 +384,20 @@ tidy.ackwards <- function(
     k <- as.integer(ki)
     fac_labels <- lev$labels
     var_vals <- lev$variance[fac_labels]
+    # r2: how much of each factor's score the adjacent level above accounts
+    # for together (E_j' Phi_s^-1 E_j, .partialled_edges); NA at the anchor.
+    key <- paste0(k - 1L, ":", k)
+    r2 <- if (k >= 2L && !is.null(x$edges$matrices[[key]])) {
+      unname(.partialled_pair(x, key)$r2[fac_labels])
+    } else {
+      rep(NA_real_, length(fac_labels))
+    }
     data.frame(
       level = k,
       factor = fac_labels,
       proportion = var_vals,
       cumulative = cumsum(var_vals),
+      r2 = r2,
       stringsAsFactors = FALSE
     )
   })
