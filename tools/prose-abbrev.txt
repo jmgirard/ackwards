@@ -1,0 +1,11 @@
+# Abbreviations whose period never ends a sentence. The prose checker
+# (tools/check-prose.R) removes them before it splits sentences.
+e.g.
+i.e.
+et al.
+vs.
+p.
+pp.
+cf.
+Fig.
+No.

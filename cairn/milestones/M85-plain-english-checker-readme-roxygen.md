@@ -1,13 +1,13 @@
 # M85: Plain-English pass — prose checker, README, DESCRIPTION, NEWS, roxygen
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** GP3, IP6, IP9
 - **Resolves:** —
 - **Surface tier:** user-facing — README, DESCRIPTION, NEWS, and roxygen are what users read on CRAN and pkgdown
-- **Branch/PR:** —
+- **Branch/PR:** m085-plain-english-checker-readme-roxygen
 
 ## Goal
 
@@ -94,15 +94,15 @@ the Plain register, so `may`/`might`/`should` stay allowed).
 
 ## Tasks
 
-- [ ] T1: Write `tools/check-prose.R` (`check_prose()`, `check_code_unchanged()`, script
+- [x] T1: Write `tools/check-prose.R` (`check_prose()`, `check_code_unchanged()`, script
       body guarded by `sys.nframe()` as in `tools/check-vignette-freshness.R:109`) plus
       `tools/prose-banned.txt` (at least: robust, crucial, simply, essentially, importantly,
       not just, note that, nuance, seamless, comprehensive, leverage, delve, in order to,
       it is worth noting, in conclusion), `tools/prose-abbrev.txt`, and
       `tools/prose-terms.txt`; `.Rbuildignore` the new files.
-- [ ] T2: Write `tests/testthat/test-check-prose.R` with the AC2 fixture matrix; skip in the
+- [x] T2: Write `tests/testthat/test-check-prose.R` with the AC2 fixture matrix; skip in the
       built package as `test-vignette-freshness.R` does.
-- [ ] T3: Rewrite README.Rmd, `DESCRIPTION` `Description:`, and the NEWS development section;
+- [x] T3: Rewrite README.Rmd, `DESCRIPTION` `Description:`, and the NEWS development section;
       run `devtools::build_readme()`.
 - [ ] T4: Rewrite roxygen in `R/ackwards.R`, `R/engine_*.R`, `R/compute_edges.R`,
       `R/data.R`; run `devtools::document()`; run the checker on those files.
@@ -121,6 +121,10 @@ the Plain register, so `may`/`might`/`should` stay allowed).
 - 2026-09-16: plan gate chose a standing gate (checker wired into dod-gate) over a one-off script because docs written after M87 would otherwise regress unseen; falsified by the checker blocking a legitimate future doc edit more often than it catches a regression.
 - 2026-09-16: plan gate chose the Plain register with a 30-word cap over Strict STE modals because hedged statistical claims (may not converge) would have to be overstated as will or must; falsified by a reader report that allowed modals still confuse.
 - 2026-09-16: plan chose a must-survive claim list (AC6) over an open fresh-reader read because the audit showed the open read has a built-in escape and no oracle; falsified by a meaning change at a site the list does not name.
+- 2026-09-16: implement started; branch m085-plain-english-checker-readme-roxygen cut from pushed master. Question gate skipped: the plan fixes the checker contract, the lists, the register, and the domain, so nothing was open.
+- 2026-09-16: T1 done. Checker written with two refinements beyond the AC1 letter, both documented in the script header: a terminator may be followed by a closing bracket or quote before the split, and an opening bracket or quote may precede the uppercase letter; Rd `\preformatted{}` blocks count as roxygen fenced code. The three lists are already covered by the `^tools$` `.Rbuildignore` entry, so no new entry was needed. First sweep of the AC3 domain: 376 reports (137 semicolons, 128 double hyphens, 88 long sentences, 19 em dashes, 4 banned phrases).
+- 2026-09-16: T2 done. Fixture matrix passes (57 expectations across the three dash forms and nine locations, plus the silent fixture, the sentence-counting fixture, the non-empty-domain check, and a git-backed `check_code_unchanged()` fixture that plants one change per guarded class). Three fixture slips fixed on the way, none a checker bug. Dev library under R 4.6 lacked styler, EFAtools, and gt; installed from CRAN.
+- 2026-09-16: T3 done. README.Rmd, `DESCRIPTION` `Description:`, and the NEWS development entry rewritten; README glosses factor, PCA, EFA, ESEM, ordinal, polychoric, split-half, redundancy, parallel analysis, factor score, and loading at first use. Checker clean on the three files; `check_code_unchanged("master")` clean; README.md rebuilt; suite 726 tests, 0 failures.
 
 ## Decisions
 
