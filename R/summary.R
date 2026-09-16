@@ -5,6 +5,13 @@
 #' present) pruning annotations. It says more than [print.ackwards()] and is
 #' designed for inspection and reporting.
 #'
+#' A "Within-level factor correlations" block lists, for each level, the
+#' correlation between every pair of factors at that level (the same values
+#' as `tidy(x, what = "factor_cor")`). The block appears only when some pair
+#' is correlated, that is when at least one within-level correlation exceeds
+#' 1e-8 in size. Under the default varimax rotation the factors within a
+#' level are uncorrelated, so the block is absent.
+#'
 #' @param object An `ackwards` object.
 #' @param ... Ignored.
 #'

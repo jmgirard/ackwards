@@ -16,8 +16,17 @@ generics::glance
 #' @param x An `ackwards` object.
 #' @param what What to extract:
 #'   * `"edges"` *(default)*: one row per directed between-level edge, with
-#'     columns
-#'     `from`, `to`, `level_from`, `level_to`, `r`, `is_primary`, `above_cut`.
+#'     columns `from`, `to`, `level_from`, `level_to`, `r`, `beta`,
+#'     `is_primary`, `above_cut`. The column `r` is the correlation between
+#'     the two factors' scores. The column `beta` is the partialled
+#'     coefficient. It is the standardized regression weight of the `to`
+#'     factor on all factors of the `from` level together. It removes the
+#'     part of `r` that the other factors at the `from` level share. Under the
+#'     default varimax rotation the factors within a level are uncorrelated,
+#'     so `beta` equals `r`. The two come apart only when the factors within
+#'     a level are correlated. When the within-level score correlation of the
+#'     `from` level cannot be inverted, `beta` is `NA` for that level's edges
+#'     and a warning names the level.
 #'     If [boot_edges()] has been run on the object, four bootstrap columns are
 #'     appended: `se`, `lo`, `hi` (bootstrap standard error and percentile
 #'     confidence-interval endpoints), and `n_boot_ok` (usable replicates).
@@ -30,8 +39,20 @@ generics::glance
 #'     analysis) and EFA (exploratory factor analysis). The confidence level
 #'     is controlled by `conf_level`.
 #'   * `"variance"`: one row per factor x level, with columns
-#'     `level`, `factor`, `proportion`, `cumulative`. Both are proportions of
-#'     total item variance on a 0-1 scale (multiply by 100 for a percentage).
+#'     `level`, `factor`, `proportion`, `cumulative`, `r2`. The first two are
+#'     proportions of total item variance on a 0-1 scale (multiply by 100
+#'     for a percentage). The column `r2` is the share of the factor's score
+#'     variance that all factors of the level just above account for
+#'     together, on the same 0-1 scale. It is `NA` at level 1, which has no
+#'     level above. Under the default varimax rotation `r2` equals the sum of
+#'     the squared `r` values of that factor's edges from the level above.
+#'     It is `NA`, with a warning, when the level above's within-level score
+#'     correlation cannot be inverted.
+#'   * `"factor_cor"`: one row per pair of factors within a level, with
+#'     columns `level`, `factor_a`, `factor_b`, `cor`. The column `cor` is
+#'     the correlation between the two factors as the engine reports it, in
+#'     the stored column order and sign. Level 1 has one factor and contributes
+#'     no row. Under the default varimax rotation every `cor` is 0.
 #'   * `"fit"`: one row per fit statistic x level, with columns `level`,
 #'     `statistic`, `value`. For PCA objects the statistics are eigenvalues.
 #'     For EFA objects they are `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, and
@@ -93,8 +114,9 @@ generics::glance
 #' @section Factor labels:
 #' If [factor labels][set_factor_labels] have been attached to the object, the
 #' output gains display-only label columns: `factor_label` for `what =
-#' "loadings"`, `"variance"`, or `"scores"`, and `from_label`/`to_label` for
-#' `what = "edges"`. Each carries the label for a labeled factor and `NA`
+#' "loadings"`, `"variance"`, or `"scores"`, `from_label`/`to_label` for
+#' `what = "edges"`, and `factor_a_label`/`factor_b_label` for `what =
+#' "factor_cor"`. Each carries the label for a labeled factor and `NA`
 #' otherwise. These columns are **absent** when no labels are set, so an
 #' unlabeled object's output is unchanged. The ID columns (`factor`, `from`,
 #' `to`) are never altered.
@@ -108,6 +130,7 @@ generics::glance
 #' tidy(x, primary_only = TRUE) # just the primary-parent lineage
 #' tidy(x, what = "loadings")
 #' tidy(x, what = "variance")
+#' tidy(x, what = "factor_cor") # all 0 under varimax
 #' tidy(x, what = "fit")
 #' tidy(x, what = "fit", format = "wide")
 #'
@@ -149,12 +172,12 @@ tidy.ackwards <- function(
     )
   }
   out <- switch(what,
-    edges    = .tidy_edges(x),
+    edges = .tidy_edges(x),
     loadings = .tidy_loadings(x, conf_level = conf_level),
     variance = .tidy_variance(x),
-    fit      = .tidy_fit(x),
-    nodes    = .tidy_nodes(x),
-    scores   = .tidy_scores(x),
+    fit = .tidy_fit(x),
+    nodes = .tidy_nodes(x),
+    scores = .tidy_scores(x),
     factor_cor = .tidy_factor_cor(x)
   )
   # Factor labels (M51): display-only columns, present only when labels have

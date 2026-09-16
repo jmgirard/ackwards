@@ -1,5 +1,28 @@
 # ackwards (development version)
 
+* **Within-level factor correlations are carried and shown.** Every engine
+  now stores the factor correlation it reports for each level. That matrix
+  is permuted and sign-flipped in step with the loadings, in place of a
+  fixed identity matrix. The new table `tidy(x, what = "factor_cor")` has
+  one row per pair of factors within a level. Its columns are `level`,
+  `factor_a`, `factor_b`, and `cor`. The `summary()` output prints a
+  "Within-level factor correlations" block only when some pair is
+  correlated, which means a within-level correlation above 1e-8 in size.
+  Under the default varimax rotation every within-level correlation is 0, so
+  no number changes and the block is absent.
+
+* **Partialled edge columns.** The edge table from `tidy()` gains `beta`
+  beside `r`, and the variance table gains `r2`. The `beta` column is the
+  standardized regression weight of the child factor on all factors of the
+  parent level together. It removes the part of `r` that the other factors
+  at the parent level share. The `r2` column is the share of a factor's
+  score variance that all factors of the level just above account for
+  together. It is `NA` at level 1. Under varimax `beta` equals `r`, and
+  `r2` equals the sum of that factor's squared `r` values from the level
+  above. The two pairs of quantities come apart only when the factors within
+  a level are correlated. Both are `NA`, with a warning, when a level's
+  within-level score correlation cannot be inverted.
+
 * **Plain-English documentation.** The README, the package description, and
   the help pages were revised so that a reader outside the field can follow
   them on one read. In those files sentences are shorter, dashes and semicolons

@@ -6,7 +6,7 @@
 \usage{
 \method{tidy}{ackwards}(
   x,
-  what = c("edges", "loadings", "variance", "fit", "nodes", "scores"),
+  what = c("edges", "loadings", "variance", "fit", "nodes", "scores", "factor_cor"),
   primary_only = FALSE,
   sort = c("none", "strength"),
   format = c("long", "wide"),
@@ -20,8 +20,17 @@
 \item{what}{What to extract:
 \itemize{
 \item \code{"edges"} \emph{(default)}: one row per directed between-level edge, with
-columns
-\code{from}, \code{to}, \code{level_from}, \code{level_to}, \code{r}, \code{is_primary}, \code{above_cut}.
+columns \code{from}, \code{to}, \code{level_from}, \code{level_to}, \code{r}, \code{beta},
+\code{is_primary}, \code{above_cut}. The column \code{r} is the correlation between
+the two factors' scores. The column \code{beta} is the partialled
+coefficient. It is the standardized regression weight of the \code{to}
+factor on all factors of the \code{from} level together. It removes the
+part of \code{r} that the other factors at the \code{from} level share. Under the
+default varimax rotation the factors within a level are uncorrelated,
+so \code{beta} equals \code{r}. The two come apart only when the factors within
+a level are correlated. When the within-level score correlation of the
+\code{from} level cannot be inverted, \code{beta} is \code{NA} for that level's edges
+and a warning names the level.
 If \code{\link[=boot_edges]{boot_edges()}} has been run on the object, four bootstrap columns are
 appended: \code{se}, \code{lo}, \code{hi} (bootstrap standard error and percentile
 confidence-interval endpoints), and \code{n_boot_ok} (usable replicates).
@@ -34,8 +43,20 @@ interpretable one. They are \code{NA} for PCA (principal component
 analysis) and EFA (exploratory factor analysis). The confidence level
 is controlled by \code{conf_level}.
 \item \code{"variance"}: one row per factor x level, with columns
-\code{level}, \code{factor}, \code{proportion}, \code{cumulative}. Both are proportions of
-total item variance on a 0-1 scale (multiply by 100 for a percentage).
+\code{level}, \code{factor}, \code{proportion}, \code{cumulative}, \code{r2}. The first two are
+proportions of total item variance on a 0-1 scale (multiply by 100
+for a percentage). The column \code{r2} is the share of the factor's score
+variance that all factors of the level just above account for
+together, on the same 0-1 scale. It is \code{NA} at level 1, which has no
+level above. Under the default varimax rotation \code{r2} equals the sum of
+the squared \code{r} values of that factor's edges from the level above.
+It is \code{NA}, with a warning, when the level above's within-level score
+correlation cannot be inverted.
+\item \code{"factor_cor"}: one row per pair of factors within a level, with
+columns \code{level}, \code{factor_a}, \code{factor_b}, \code{cor}. The column \code{cor} is
+the correlation between the two factors as the engine reports it, in
+the stored column order and sign. Level 1 has one factor and contributes
+no row. Under the default varimax rotation every \code{cor} is 0.
 \item \code{"fit"}: one row per fit statistic x level, with columns \code{level},
 \code{statistic}, \code{value}. For PCA objects the statistics are eigenvalues.
 For EFA objects they are \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, and
@@ -110,8 +131,8 @@ together, and a loading is the correlation between an item and a factor.
 \section{Factor labels}{
 
 If \link[=set_factor_labels]{factor labels} have been attached to the object, the
-output gains display-only label columns: \code{factor_label} for \code{what = "loadings"}, \code{"variance"}, or \code{"scores"}, and \code{from_label}/\code{to_label} for
-\code{what = "edges"}. Each carries the label for a labeled factor and \code{NA}
+output gains display-only label columns: \code{factor_label} for \code{what = "loadings"}, \code{"variance"}, or \code{"scores"}, \code{from_label}/\code{to_label} for
+\code{what = "edges"}, and \code{factor_a_label}/\code{factor_b_label} for \code{what = "factor_cor"}. Each carries the label for a labeled factor and \code{NA}
 otherwise. These columns are \strong{absent} when no labels are set, so an
 unlabeled object's output is unchanged. The ID columns (\code{factor}, \code{from},
 \code{to}) are never altered.
@@ -124,6 +145,7 @@ tidy(x, sort = "strength") # strongest edges first
 tidy(x, primary_only = TRUE) # just the primary-parent lineage
 tidy(x, what = "loadings")
 tidy(x, what = "variance")
+tidy(x, what = "factor_cor") # all 0 under varimax
 tidy(x, what = "fit")
 tidy(x, what = "fit", format = "wide")
 
