@@ -71,7 +71,7 @@ behavior, and keeps M85's tests green); term-list additions → appended to
 ## Tasks
 
 - [x] T1: Rewrite `ackwards-intro.Rmd.orig` (93 sentences, 34 em dashes on master); check.
-- [ ] T2: Rewrite `ackwards-suggest-k.Rmd.orig` (148 sentences, 37 em dashes); check.
+- [x] T2: Rewrite `ackwards-suggest-k.Rmd.orig` (148 sentences, 37 em dashes); check.
 - [ ] T3: Rewrite `ackwards-engines.Rmd.orig` (115 sentences, 42 em dashes); check.
 - [ ] T4: Rewrite `ackwards-visualization.Rmd.orig` (47 sentences, 31 em dashes); check.
 - [ ] T5: Widen `check_code_unchanged()` to the vignette sources with a planted-edit test;
@@ -90,6 +90,7 @@ behavior, and keeps M85's tests green); term-list additions → appended to
 - 2026-09-16: re-audit: AC4 (full) — residual scope ambiguity in the WLSMV/ULSMV clause; split-clause repair adopted at a user gate (second re-audit line is the stop; no further reader).
 - 2026-09-16: substantive amendment (mini gate, user selected): `check_code_unchanged()` read only README.Rmd, R/, and DESCRIPTION, so AC2's instrument could not reach the vignette sources; Scope Out now permits widening it to `vignettes/*.Rmd.orig`, T5 carries the widening plus a planted-edit test, AC2 wording unchanged.
 - 2026-09-16: T1 done: intro rewritten; `check-prose.R` clean on the file; all 79 fenced-chunk lines and both inline spans byte-identical to master; 13 terms glossed at first prose use (FIML and congruence absent); the varimax note now says the package "does not offer" oblique rotation instead of "deliberately not offered", matching D-034.
+- 2026-09-16: T2 done: suggest-k rewritten; checker clean; 108 chunk lines and 11 inline spans byte-identical to master (the en dash between two spans on the old line 405 became " to ", outside both spans); three criterion headings lost their em dashes; 8 terms glossed (rotation, varimax, factor score, FIML, PCA, congruence, redundancy absent from prose); the D-013 sentence stands at line 69.
 
 ## Decisions
 
