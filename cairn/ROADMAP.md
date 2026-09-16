@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-09-16 (M86 done and archived; M82's terminal row pruned under the three-row retention; the prose-checker candidate row absorbed M86's three deferred findings and was promoted to [high] at a disposition chip, to be planned before M87; one LESSONS line added; ROADMAP 8.7 kB and LESSONS 14.4 kB against their budgets)_
+_Last hygiene check: 2026-09-16 (M88 done and archived; M83's terminal row pruned under the three-row retention; M87 is now unblocked; one LESSONS line added; ROADMAP 7.7 kB and LESSONS 15.0 kB against their budgets)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,12 +10,11 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M83 | Windows parallel-testthat crash — measure, diagnose, mitigate | done | — | high | milestones/archive/M83-windows-parallel-testthat-crash.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 | M85 | Plain-English pass — prose checker, README, DESCRIPTION, NEWS, roxygen | done | — | normal | milestones/archive/M85-plain-english-checker-readme-roxygen.md |
 | M86 | Plain-English pass — vignettes A (intro, suggest-k, engines, visualization) | done | M85 | normal | milestones/archive/M86-plain-english-vignettes-a.md |
 | M87 | Plain-English pass — vignettes B (girard, forbes, forbes2023, ordinal, interpret) | planned | M85, M88 | normal | milestones/M87-plain-english-vignettes-b.md |
-| M88 | Prose-checker hardening (`tools/check-prose.R`) | review | — | high | milestones/M88-prose-checker-hardening.md |
+| M88 | Prose-checker hardening (`tools/check-prose.R`) | done | — | high | milestones/archive/M88-prose-checker-hardening.md |
 <!-- M01–M80 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 3 most recent terminal rows. -->
 
 ## Candidates
