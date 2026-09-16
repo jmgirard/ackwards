@@ -114,3 +114,9 @@ Driving RR: none, so no projection-vs-outcome pairs.
   15. AC1's commit text (`a645e32`) differs from the fixture's (`ee71316`). — recorded under AC1 above; disposition at the gate.
   16. Under every supported configuration the new columns equal existing ones. — **reject**: the plan-gate intent, with its falsifier already recorded in the work log.
 - Return floor: no finding demonstrates a criterion failing inside its procedure's domain; no load-bearing user-facing defect. No status change from the findings.
+
+### Gate disposition (2026-09-16)
+
+- Maintainer chose "apply the four fixes, then merge", accepting AC1's two recorded deviations as evidence.
+- Fix-now work landed in one commit on the branch: `?tidy.ackwards` states that Φ_s always comes from the stored weights and R, so `beta` approximates the regression weight on scores-path objects (finding 2; DESIGN Known-limitations algebra-vs-scores entry extended); `.partialled_edges()` gained `warn =` and `.tidy_edges()` warns once per singular shallower level, with a `pairs = "all"` test asserting exactly one warning where two stored pairs start from the singular level (finding 3); `beta` is spliced after `r` instead of a column whitelist (finding 7); the `r2` roxygen names its denominator as the factor's score variance, not comparable with `proportion` (finding 8).
+- Gate rerun on the committed tree after the fixes (commit `ddfb198`): GATE PASSED. Freshness, prose, check 0/0/0, coverage 100.00%, styler, lintr, pkgdown all clean. Targeted files after the fixes: partialled-edges 4/4, factor-cor 5/5, boot_edges 24/24, factor-labels 11/11, baseline-m89 5/5, 0 failures.
