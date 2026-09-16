@@ -68,7 +68,7 @@ appended to `tools/prose-terms.txt` with a work-log line.
 ## Tasks
 
 - [x] T1: Rewrite `ackwards-girard.Rmd.orig` (89 sentences, 32 em dashes on master); check.
-- [ ] T2: Rewrite `ackwards-forbes.Rmd.orig` (94 sentences, 43 em dashes); check.
+- [x] T2: Rewrite `ackwards-forbes.Rmd.orig` (94 sentences, 43 em dashes); check.
 - [ ] T3: Rewrite `ackwards-forbes2023.Rmd.orig` (43 sentences, 15 em dashes); check.
 - [ ] T4: Rewrite `ackwards-ordinal.Rmd.orig` (65 sentences, 20 em dashes); check.
 - [ ] T5: Rewrite the live `ackwards-interpret.Rmd` (66 sentences, 27 em dashes); it is not
@@ -85,6 +85,7 @@ appended to `tools/prose-terms.txt` with a work-log line.
 - 2026-09-16: /milestone-plan (M88 gate) added `Depends on: M88` so the vignette batch runs against the hardened checker and the opt-in `DOD_CODE_UNCHANGED=1` gate step.
 - 2026-09-16: /milestone-implement started; branch `m087-plain-english-vignettes-b` cut from pushed master. Question gate skipped: nothing open (batch-A conventions reused: page ranges as `--`, Schmid-Leiman hyphenated, gloss in the first prose paragraph that uses a term).
 - 2026-09-16: T1 girard rewritten; checker 0 reports, `--code-unchanged master` OK. Glossed: factor, parallel analysis, factor score, split-half, redundancy, PCA, polychoric, ordinal, EFA, loading. `rotation` and `congruence` appear only inside bibliography entry titles (treated as not appearing, like a link title). Step 4 heading's em dash became a comma (anchor changes).
+- 2026-09-16: T2 forbes rewritten; checker 0 reports, code guard OK. Glossed: factor, factor score, redundant, artifactual, loading, congruence, rotation, PCA/component, EFA, ESEM, split-half. `polychoric` appears only inside chunks. The em dash before the conditional `r if (top_clean)` span became a space (the span's own text supplies the connective). The direct-criterion paragraph and its "the rule Forbes's own code uses" claim kept (AC4).
 
 ## Decisions
 
