@@ -66,17 +66,24 @@ if (length(ci_problems) > 0) {
 }
 
 # Plain-English prose check (M85), fail-fast like the three above. Sweeps the
-# README, DESCRIPTION, the NEWS development section, and every roxygen line
-# for dashes, semicolons, banned phrases, and sentences over 30 words. The
-# vignette sources join this domain when their own rewrite lands. Base R
-# only; sys.source blocks the script's own body.
+# README, DESCRIPTION, the NEWS development section, every roxygen line, and
+# the rewritten vignette sources (M86: intro, suggest-k, engines,
+# visualization) for dashes, semicolons, banned phrases, and sentences over 30
+# words. The remaining vignette sources join this domain when their own
+# rewrite lands. Base R only; sys.source blocks the script's own body.
 prose_env <- new.env()
 sys.source("tools/check-prose.R", envir = prose_env)
 # The checker errors on an unclosed span, fence, or YAML header; that error is
 # a prose failure like any report, not a raw R abort.
 prose_reports <- tryCatch(
   prose_env$check_prose(
-    c("README.Rmd", "DESCRIPTION", "NEWS.md", "R"),
+    c(
+      "README.Rmd", "DESCRIPTION", "NEWS.md", "R",
+      "vignettes/ackwards-intro.Rmd.orig",
+      "vignettes/ackwards-suggest-k.Rmd.orig",
+      "vignettes/ackwards-engines.Rmd.orig",
+      "vignettes/ackwards-visualization.Rmd.orig"
+    ),
     banned = prose_env$read_prose_list("prose-banned.txt", "tools"),
     abbrev = prose_env$read_prose_list("prose-abbrev.txt", "tools")
   ),

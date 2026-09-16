@@ -11,8 +11,9 @@
 # `check_code_unchanged(ref)` is the companion guard: it proves a prose
 # rewrite left the code alone by comparing, against the merge base with `ref`,
 # the non-roxygen lines of R/*.R, the `#'` lines inside `@examples`, the
-# fenced chunks and inline `r` spans of README.Rmd, and every DESCRIPTION
-# field other than `Description:`.
+# fenced chunks and inline `r` spans of README.Rmd and of every
+# vignettes/*.Rmd.orig present on both sides of the merge base, and every
+# DESCRIPTION field other than `Description:`.
 #
 # Base R only, so it runs before any dependency install.
 #
@@ -496,8 +497,8 @@ check_prose <- function(paths = NULL, banned = read_prose_list("prose-banned.txt
   lines[keep]
 }
 
-# The code of README.Rmd: fenced chunk lines (fences included) and inline `r`
-# spans, in order.
+# The code of an R Markdown source (README.Rmd, vignettes/*.Rmd.orig): fenced
+# chunk lines (fences included) and inline `r` spans, in order.
 .code_lines_rmd <- function(lines) {
   in_fence <- FALSE
   keep <- rep(FALSE, length(lines))
@@ -560,14 +561,22 @@ check_code_unchanged <- function(ref = "master", root = ".") {
     }
   }
 
-  before <- .git_show(base, "README.Rmd")
-  if (!is.null(before) && file.exists("README.Rmd")) {
+  # README.Rmd and the vignette sources share one extraction: fenced chunks
+  # and inline `r` spans, in order.
+  rmd_files <- sort(unique(c(
+    "README.Rmd",
+    list.files("vignettes", pattern = "\\.Rmd\\.orig$", full.names = TRUE),
+    grep("^vignettes/.*\\.Rmd\\.orig$", .git("ls-tree", "--name-only", base, "vignettes/"), value = TRUE)
+  )))
+  for (f in rmd_files) {
+    before <- .git_show(base, f)
+    if (is.null(before) || !file.exists(f)) next
     a <- .code_lines_rmd(before)
-    b <- .code_lines_rmd(readLines("README.Rmd", warn = FALSE))
+    b <- .code_lines_rmd(readLines(f, warn = FALSE))
     d <- .first_diff(a, b)
     if (!is.na(d)) {
       problems <- c(problems, sprintf(
-        "README.Rmd: chunk or inline-code item %d differs from the merge base (%s).", d,
+        "%s: chunk or inline-code item %d differs from the merge base (%s).", f, d,
         if (is.na(b[d])) "item removed" else b[d]
       ))
     }
