@@ -33,7 +33,7 @@ the Plain register, so `may`/`might`/`should` stay allowed).
 
 ## Acceptance criteria
 
-- [ ] AC1: `tools/check-prose.R` defines `check_prose(paths)` and, run as
+- [x] AC1: `tools/check-prose.R` defines `check_prose(paths)` and, run as
       `Rscript tools/check-prose.R [paths]` (a directory argument expands to its `*.R`,
       `*.Rmd`, and `*.Rmd.orig` files; no argument means the full default domain), sweeps
       exactly these prose lines: README.Rmd, `vignettes/*.Rmd.orig`, and
@@ -67,7 +67,7 @@ the Plain register, so `may`/`might`/`should` stay allowed).
       lines inside `@examples`, fenced-chunk lines and inline `` `r ` `` spans of
       README.Rmd, and every `DESCRIPTION` field other than `Description:`; and it exits 0 on
       the branch head.
-- [ ] AC5: Every term in `tools/prose-terms.txt` (the statistical terms of art the rewrite
+- [x] AC5: Every term in `tools/prose-terms.txt` (the statistical terms of art the rewrite
       meets, committed in T1 after a grep of the domain, at least: factor, component,
       loading, rotation, varimax, factor score, polychoric, ordinal, FIML, ESEM, EFA, PCA,
       congruence, redundancy, parallel analysis, split-half) is glossed in plain words at
@@ -82,7 +82,7 @@ the Plain register, so `may`/`might`/`should` stay allowed).
       Forbes (2023) stay available and documented (`R/prune.R` `redundancy_criterion`, IP9);
       and every `@param` default rationale in `R/ackwards.R`, `R/prune.R`, and
       `R/suggest_k.R` names the same default value and reason as on master.
-- [ ] AC7: `devtools::document()` produces no diff, and `devtools::build_readme()` changes
+- [x] AC7: `devtools::document()` produces no diff, and `devtools::build_readme()` changes
       only `#>`-prefixed output lines of the `suggest-print` chunk in README.md (that chunk is
       unseeded and AC4 forbids adding a seed), leaving the rest of README.md and
       `man/figures/` byte-identical over two consecutive builds; `Rscript tools/dod-gate.R`
@@ -197,3 +197,17 @@ Review pass 1, 2026-09-16, on branch head 2b08b8f (merge base with master 79ce39
 
 - AC1 amended clause proposal: "where a sentence is the text between terminators (`.`, `?`, `!`, optionally followed by a closing quote, bracket, or emphasis mark, then whitespace and an optional opening quote or bracket before an uppercase letter, or a line end)" and "outside roxygen fenced code and Rd `\preformatted{}` blocks".
 - AC7 amended clause proposal: "`devtools::document()` produces no diff and `devtools::build_readme()` produces no diff outside knitted output blocks on the branch head" (the `suggest_k` chunk is unseeded and AC4 forbids a seed).
+
+Review pass 2, 2026-09-16, on branch head a474f9b (code identical to 39ffdfa, the last gate run; master unmoved at 79ce393; no PR).
+
+**Evidence per criterion (pass 2).**
+
+- [x] AC1: the amended sentence rule was compared clause by clause with `.sentence_reports` by the second fresh reader, who probed eight axes (closer set, opener set including emphasis marks, line-end terminator, paragraph break, new bullet, new roxygen tag, dropped headings and table rows and section titles, stripped bullet markers and tag words) and found all agreeing. Directory expansion, default domain, the extraction rules including `\preformatted{}`, and the abbreviation list were re-read against the script. `Rscript tools/check-prose.R` with no argument exits 1 on the vignette sources. Ticked.
+- AC2 (ticked in pass 1): `test_file` under `load_all()` gave 83 expectations passed, 0 failed, 0 skipped.
+- AC3 (ticked in pass 1): the AC3 sweep printed "Prose OK" and exited 0.
+- AC4 (ticked in pass 1): `--code-unchanged master` printed "Code unchanged OK" and exited 0 against merge base 79ce393.
+- [x] AC5: the first-use listing was re-run and is byte-stable across two runs. The five pass-1 sites now gloss at first use: `R/ackwards.R:43` ESEM, `R/boot_edges.R:49` ESEM, `R/comparability.R:482` factor, `R/suggest_k.R:752` factor, `R/factor_labels.R:122` factor (the title line precedes the description gloss, as in every titled topic). Every other site reads as in pass 1. Ticked.
+- AC6 (ticked in pass 1): the per-`@param` default extraction was re-run on master and branch for the three files with the same result as pass 1. `README.Rmd:111-112`, `R/ackwards.R:8`, `R/ackwards.R:25`, `R/prune.R:687`, and `R/prune.R:658` carry the named claims.
+- [x] AC7: `devtools::document()` left `man/`, `NAMESPACE`, and `DESCRIPTION` unchanged. `devtools::build_readme()` run twice against the committed README.md: build one changed 8 lines, all `#>`-prefixed, at README.md lines 109-110 and 121-122, inside the `suggest-print` output block (lines 93-143); build two changed 0 lines. `man/figures/` was byte-identical after both. `Rscript tools/dod-gate.R` exited 0 on this code (check 0/0/0 in 87s, coverage 100.00%, styler clean, lintr clean, pkgdown index complete), and a planted em dash in NEWS.md made it exit 1 in 0.6s before `check()`. NEWS.md carries the documentation entry. Ticked.
+
+**Consistency gate (pass 2).** `cairn_validate.py` exit 0, 16 checks pass, the same 16 M84 work-log advisories. No principle changed. Profile checks all pass via the gate run above and the document() and README reads.
