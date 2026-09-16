@@ -34,7 +34,7 @@ compute_edges(
 - edge_method:
 
   One of `"auto"` (algebra when possible, scores otherwise), `"algebra"`
-  (force; errors if conditions not met), or `"scores"` (always
+  (force, and error if conditions are not met), or `"scores"` (always
   materialise).
 
 - pairs:
@@ -74,8 +74,8 @@ A list with:
 - tidy:
 
   A data frame with one row per directed edge: `from`, `to`,
-  `level_from`, `level_to`, `r`, `is_primary`, `above_cut` – or `NULL`
-  when `build_tidy = FALSE`.
+  `level_from`, `level_to`, `r`, `is_primary`, and `above_cut`. It is
+  `NULL` when `build_tidy = FALSE`.
 
 ## Details
 
@@ -83,8 +83,8 @@ A list with:
 
 where `R` is the input correlation matrix and `D_x = diag(W_x' R W_x)`
 are the **actual** score variances (not assumed to be 1). This avoids
-materialising scores while remaining exact for PCA, EFA (regression /
-Bartlett / tenBerge) – all of which produce linear score maps.
+materialising scores while remaining exact for PCA and EFA (regression,
+Bartlett, or tenBerge). All of those produce linear score maps.
 
 When the algebra cannot be used (nonlinear scoring, missing `R`, or the
 user forces `edge_method = "scores"`), scores are materialised from

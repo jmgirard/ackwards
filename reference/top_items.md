@@ -1,10 +1,12 @@
 # Display the salient items for each factor
 
-Returns, per level and factor, the items whose absolute loading meets or
-exceeds `cut`, sorted by descending absolute loading. This gives a
-concise reading of "what each factor is about" without printing a full
-item-by-factor matrix, which does not scale well to large `k` or many
-items.
+A factor is a summary variable standing in for a group of items that
+move together. A loading is the correlation between an item and a
+factor. Returns, per level and factor, the items whose absolute loading
+meets or exceeds `cut`, sorted by descending absolute loading. This
+gives a concise reading of "what each factor is about" without printing
+a full item-by-factor matrix, which does not scale well to large `k` or
+many items.
 
 ## Usage
 
@@ -50,19 +52,19 @@ top_items(
 
 - by:
 
-  One of `"factor"` (default) or `"item"`. `"factor"` groups the listing
-  by factor (the salient items *of* each factor – "what is this factor
-  about?"). `"item"` inverts the grouping to list, for each item, the
-  factors it loads on – which makes cross-loadings legible ("where does
-  this item go?"). `n` and `sort` apply within whichever unit `by`
-  selects.
+  One of `"factor"` (default) or `"item"`. Option `"factor"` groups the
+  listing by factor, giving the salient items *of* each factor, which
+  answers "what is this factor about?". Option `"item"` inverts the
+  grouping, so for each item it lists the factors it loads on. That
+  makes cross-loadings legible, and answers "where does this item go?".
+  Both `n` and `sort` apply within whichever unit `by` selects.
 
 - show_labels:
 
   Logical. When `TRUE` (default) and the data carried a variable-label
   attribute at fit time (see
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)),
-  items are shown as `id: label`; items without a label fall back to the
+  items are shown as `id: label`. Items without a label fall back to the
   bare id. Set to `FALSE` to always show the bare `m{k}f{j}`-style item
   ids.
 
@@ -81,13 +83,13 @@ Loadings are signed and reflect the object's primary-parent sign
 alignment (see
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)).
 Items near the cut threshold may appear for one sign orientation but not
-the other; this is expected and informative.
+the other. That is expected and informative.
 
 If [factor
 labels](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md)
 have been attached, the factor dimension is shown as `label (id)`
-wherever it appears – the group headers under `by = "factor"` and the
-body entries under `by = "item"`.
+wherever it appears. That covers the group headers under `by = "factor"`
+and the body entries under `by = "item"`.
 
 ## See also
 

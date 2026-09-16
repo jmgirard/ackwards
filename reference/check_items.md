@@ -1,22 +1,26 @@
 # Screen items for problems before factor analysis
 
 Real-world item sets often contain columns that break or *silently*
-degrade a factor analysis: an item everyone answered the same way (no
-variance), an item dominated by one response with a couple of stray
-answers, or an item with heavy missingness. On the polychoric basis
-these are especially costly – a near-empty response category can make
+degrade a factor analysis. A factor is a summary variable standing in
+for a group of items that move together. Three columns cause most of the
+trouble. One is an item everyone answered the same way (no variance).
+Another is an item dominated by one response with a couple of stray
+answers. The third is an item with heavy missingness. These are
+especially costly on the polychoric basis, which estimates the
+correlation between the continuous traits assumed to underlie ordered
+responses. A near-empty response category can make
 [`psych::polychoric()`](https://rdrr.io/pkg/psych/man/tetrachor.html)
 fail outright (see the `correct` argument of
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)),
-and a near-constant item can produce a plausible-looking but meaningless
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)).
+A near-constant item can produce a plausible-looking but meaningless
 factor with no warning.
 
 `check_items()` reports these problems *before* you fit, one row per
 item, so you can collapse rare categories, drop degenerate items, or set
-`cor`/`correct` deliberately rather than debugging a cryptic error. It
-only reports; it never changes your data.
+`cor` and `correct` deliberately rather than debugging a cryptic error.
+It only reports, and never changes your data.
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-runs the same screen internally: it **errors** on a constant item and
+runs the same screen internally. It **errors** on a constant item and
 **warns** on a near-degenerate one, naming the offenders.
 
 ## Usage
@@ -34,24 +38,25 @@ check_items(data, cor = c("polychoric", "pearson", "spearman"))
 - cor:
 
   The correlation basis you plan to use: `"polychoric"` (default),
-  `"pearson"`, or `"spearman"`. Only affects which problems are flagged
-  – sparse response categories destabilise the polychoric basis but not
-  the others.
+  `"pearson"`, or `"spearman"`. This only affects which problems are
+  flagged, because sparse response categories destabilise the polychoric
+  basis but not the others.
 
 ## Value
 
 A data frame (class `check_items`) with one row per item and columns
 `item`, `n_valid`, `pct_missing`, `n_distinct`, `min_count` (smallest
 observed category count), `top_prop` (proportion of valid responses in
-the most common value), and `flag` – one of `"ok"`, `"constant"`,
-`"near-constant"`, `"sparse category"`, or `"high missing"`. Print it
-for a grouped summary with guidance; treat it as a plain data frame for
-the full per-item table.
+the most common value). The last column, `flag`, is one of `"ok"`,
+`"constant"`, `"near-constant"`, `"sparse category"`, or
+`"high missing"`. Print it for a grouped summary with guidance. Treat it
+as a plain data frame for the full per-item table.
 
 ## See also
 
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-and its `correct` argument (the polychoric failure this screens for);
+and its `correct` argument (the polychoric failure this screens for).
+Also
 [`factorability()`](https://jmgirard.github.io/ackwards/reference/factorability.md),
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md),
 and

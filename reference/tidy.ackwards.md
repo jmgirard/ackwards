@@ -2,7 +2,9 @@
 
 Returns structured data from an `ackwards` object in tidy format. The
 default (`what = "edges"`) returns the graph edge list that drives
-diagrams.
+diagrams. A factor is a summary variable standing in for a group of
+items that move together, and a loading is the correlation between an
+item and a factor.
 
 ## Usage
 
@@ -29,66 +31,74 @@ tidy(
 
   What to extract:
 
-  - `"edges"` *(default)* – one row per directed between-level edge:
-    `from`, `to`, `level_from`, `level_to`, `r`, `is_primary`,
+  - `"edges"` *(default)*: one row per directed between-level edge, with
+    columns `from`, `to`, `level_from`, `level_to`, `r`, `is_primary`,
     `above_cut`. If
     [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
     has been run on the object, four bootstrap columns are appended:
     `se`, `lo`, `hi` (bootstrap standard error and percentile
     confidence-interval endpoints), and `n_boot_ok` (usable replicates).
 
-  - `"loadings"` – one row per item x factor x level: `level`, `factor`,
-    `item`, `loading`, `se`, `ci_lower`, `ci_upper`. `se`, `ci_lower`,
-    and `ci_upper` are populated only for `engine = "esem"` (which
-    produces rotation-aware loading SEs); they are `NA` for PCA and EFA.
-    The confidence level is controlled by `conf_level`.
+  - `"loadings"`: one row per item x factor x level, with columns
+    `level`, `factor`, `item`, `loading`, `se`, `ci_lower`, `ci_upper`.
+    The columns `se`, `ci_lower`, and `ci_upper` are populated only for
+    `engine = "esem"`. That engine produces loading SEs that account for
+    the rotation, which is the step that turns the raw solution into a
+    more interpretable one. They are `NA` for PCA (principal component
+    analysis) and EFA (exploratory factor analysis). The confidence
+    level is controlled by `conf_level`.
 
-  - `"variance"` – one row per factor x level: `level`, `factor`,
-    `proportion`, `cumulative`. Both are proportions of total item
-    variance on a 0-1 scale (multiply by 100 for a percentage).
+  - `"variance"`: one row per factor x level, with columns `level`,
+    `factor`, `proportion`, `cumulative`. Both are proportions of total
+    item variance on a 0-1 scale (multiply by 100 for a percentage).
 
-  - `"fit"` – one row per fit statistic x level: `level`, `statistic`,
-    `value`. For PCA objects the statistics are eigenvalues; for EFA
-    objects they are `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, `BIC` –
-    where `chi` is the likelihood-ratio chi-square
-    ([`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html)'s
-    `STATISTIC`), so `chi`, `dof`, `p_value`, `RMSEA`, and `TLI` all
-    share one statistical framing (psych's residual-based *empirical*
-    chi-square is a different statistic and is not reported); for ESEM
-    they are `chi`, `dof`, `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`,
-    `BIC`. For ESEM under a scaled-test estimator (`"WLSMV"`/`"ULSMV"`
-    for ordinal data, `"MLR"` for continuous), the whole row –
-    `chi`/`dof`/ `p_value` **and** `CFI`/`TLI`/`RMSEA` – reports
-    lavaan's mean-and-variance-adjusted ("scaled") variant, so every
-    quantity shares one scaling. This matters most for WLSMV/ULSMV: the
-    naive chi-square has no valid reference distribution (lavaan's own
-    [`summary()`](https://rdrr.io/r/base/summary.html) labels its
-    p-value "Unknown"), and the naive `CFI`/`TLI` are badly optimistic
-    for ordinal data (Xia & Yang, 2019). `"ML"` has no scaled variant,
-    so it reports the naive values (the correct ones for ML). `SRMR` has
-    no scaled variant and is reported as-is. `BIC` is `NA` under
-    WLSMV/ULSMV (no proper log-likelihood for a limited-information
-    estimator) and populated under ML/MLR. Use `format = "wide"` for one
-    row per **non-anchor** level (k \>= 2; the saturated 1-factor anchor
-    is dropped, matching
+  - `"fit"`: one row per fit statistic x level, with columns `level`,
+    `statistic`, `value`. For PCA objects the statistics are
+    eigenvalues. For EFA objects they are `chi`, `dof`, `p_value`,
+    `RMSEA`, `TLI`, and `BIC`, where `chi` is the likelihood-ratio
+    chi-square ([`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html)'s
+    `STATISTIC`). So `chi`, `dof`, `p_value`, `RMSEA`, and `TLI` all
+    share one statistical framing. (psych's residual-based *empirical*
+    chi-square is a different statistic and is not reported.) For ESEM
+    (exploratory structural equation modeling) they are `chi`, `dof`,
+    `p_value`, `CFI`, `TLI`, `RMSEA`, `SRMR`, `BIC`. Three estimators
+    run a scaled test: `"WLSMV"` and `"ULSMV"` for ordinal items (a few
+    ordered categories, such as a 1 to 5 rating), and `"MLR"` for
+    continuous ones. Under any of them the whole row reports lavaan's
+    mean-and-variance-adjusted ("scaled") variant, so every quantity
+    shares one scaling. That covers `chi`, `dof`, and `p_value` **and**
+    `CFI`, `TLI`, and `RMSEA`. This matters most for WLSMV and ULSMV.
+    The naive chi-square has no valid reference distribution (lavaan's
+    own [`summary()`](https://rdrr.io/r/base/summary.html) labels its
+    p-value "Unknown"), and the naive `CFI` and `TLI` are badly
+    optimistic for ordinal data (Xia & Yang, 2019). The estimator `"ML"`
+    has no scaled variant, so it reports the naive values (the correct
+    ones for ML). The statistic `SRMR` has no scaled variant and is
+    reported as-is. The statistic `BIC` is `NA` under WLSMV and ULSMV,
+    because a limited-information estimator has no proper
+    log-likelihood, and it is populated under ML and MLR. Use
+    `format = "wide"` for one row per **non-anchor** level and one
+    column per statistic. Non-anchor means k \>= 2, because the
+    saturated 1-factor anchor is dropped, matching
     [`summary()`](https://rdrr.io/r/base/summary.html) and
-    `autoplot(what = "fit")`), one column per statistic. Conventional
-    fit cutoffs (Hu & Bentler 1999) are shown as reference lines in
+    `autoplot(what = "fit")`. Conventional fit cutoffs (Hu &
+    Bentler 1999) are shown as reference lines in
     `autoplot(what = "fit")` and inline in
     [`summary()`](https://rdrr.io/r/base/summary.html), but are not
-    returned as a pass/fail column here – they are contested thresholds,
+    returned as a pass/fail column here. They are contested thresholds,
     report-only, and never gate anything (see those functions' docs).
-    `format` is oriented to the EFA/ESEM model-fit statistics; for PCA
-    the "statistics" are per-component eigenvalues.
+    The `format` argument is oriented to the EFA and ESEM model-fit
+    statistics. For PCA the "statistics" are per-component eigenvalues.
 
-  - `"nodes"` – Forbes-extension pruning annotations (requires
+  - `"nodes"`: Forbes-extension pruning annotations (requires
     `prune != "none"` when the object was created). One row per factor
-    across all levels: `id`, `level`, `pruned`, `prune_reason`. Returns
-    an empty data frame with the same columns when no pruning was
-    applied.
+    across all levels, with columns `id`, `level`, `pruned`,
+    `prune_reason`. Returns an empty data frame with the same columns
+    when no pruning was applied.
 
-  - `"scores"` – long-format per-observation factor scores (requires
-    `keep_scores = TRUE` at fit time or use
+  - `"scores"`: long-format per-observation factor scores, where a
+    factor score is each person's estimated standing on a factor
+    (requires `keep_scores = TRUE` at fit time or use
     [`augment.ackwards()`](https://jmgirard.github.io/ackwards/reference/augment.ackwards.md)
     for on-the-fly computation). Columns: `obs` (row index), `level`,
     `factor`, `score`.
@@ -96,9 +106,9 @@ tidy(
 - primary_only:
 
   For `what = "edges"` only. When `TRUE`, returns just each factor's
-  primary-parent edge (`is_primary == TRUE`) – the lineage tree that the
-  diagram draws as solid arrows. Default `FALSE` (all edges). Errors for
-  any other value of `what`.
+  primary-parent edge (`is_primary == TRUE`). That is the lineage tree
+  that the diagram draws as solid arrows. Default `FALSE` (all edges).
+  Errors for any other value of `what`.
 
 - sort:
 
@@ -115,7 +125,7 @@ tidy(
 - conf_level:
 
   For `what = "loadings"` only. Confidence level for the loading
-  intervals; default `0.95`. The intervals are computed as
+  intervals. Default `0.95`. The intervals are computed as
   `loading ± qnorm((1 + conf_level) / 2) * se` and are `NA` for engines
   that carry no SEs (PCA, EFA). Errors for all other values of `what`.
 
@@ -136,7 +146,7 @@ columns: `factor_label` for `what = "loadings"`, `"variance"`, or
 `"scores"`, and `from_label`/`to_label` for `what = "edges"`. Each
 carries the label for a labeled factor and `NA` otherwise. These columns
 are **absent** when no labels are set, so an unlabeled object's output
-is unchanged; the ID columns (`factor`, `from`, `to`) are never altered.
+is unchanged. The ID columns (`factor`, `from`, `to`) are never altered.
 
 ## See also
 

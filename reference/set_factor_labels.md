@@ -1,7 +1,8 @@
 # Attach persistent factor labels to an ackwards object
 
-Store substantive names for factors (e.g. `"Neuroticism"` for `"m5f1"`)
-on the object itself, so that
+A factor is a summary variable standing in for a group of items that
+move together. Store substantive names for factors (e.g. `"Neuroticism"`
+for `"m5f1"`) on the object itself, so that
 [print()](https://jmgirard.github.io/ackwards/reference/print.ackwards.md),
 [summary()](https://jmgirard.github.io/ackwards/reference/summary.ackwards.md),
 [tidy()](https://jmgirard.github.io/ackwards/reference/tidy.ackwards.md),
@@ -9,11 +10,11 @@ on the object itself, so that
 and
 [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
 display them without re-supplying the labels each time. This is the
-*factor*-label counterpart to item / variable labels (see
+*factor*-label counterpart to item or variable labels (see
 [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
 and
-[`?ackwards`](https://jmgirard.github.io/ackwards/reference/ackwards.md));
-the two are distinct and never interchanged.
+[`?ackwards`](https://jmgirard.github.io/ackwards/reference/ackwards.md)).
+The two are distinct and never interchanged.
 
 ## Usage
 
@@ -31,10 +32,10 @@ set_factor_labels(x, labels)
 
   A named character vector mapping factor IDs (`"m{k}f{j}"`) to label
   strings, or `NULL` to clear all stored labels. Every name must match a
-  factor ID in `x` (an unknown ID is an error, not a warning – the
-  object's IDs are knowable up front; see
+  factor ID in `x`. An unknown ID is an error, not a warning, because
+  the object's IDs are knowable up front. See
   [`factor_labels()`](https://jmgirard.github.io/ackwards/reference/factor_labels.md)
-  to read the current set).
+  to read the current set.
 
 ## Value
 
@@ -42,8 +43,8 @@ The `ackwards` object, with `meta$factor_labels` updated. Pipeable.
 
 ## Details
 
-Labels are display only – they never change a factor's stable ID
-(`m{k}f{j}`), and every lineage / edge / score column continues to key
+Labels are display only. They never change a factor's stable ID
+(`m{k}f{j}`), and every lineage, edge, and score column continues to key
 on the ID. A factor with no label falls back to its ID everywhere. The
 stored labels ride along through
 [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md),
@@ -58,9 +59,9 @@ unchanged.
 `set_factor_labels()` **merges** into any labels already stored, so you
 can build them up incrementally. Within a single call:
 
-- a normal string sets (or overwrites) that factor's label;
+- a normal string sets (or overwrites) that factor's label,
 
-- an `NA` or `""` value **removes** just that factor's label;
+- an `NA` or `""` value **removes** just that factor's label,
 
 - passing `labels = NULL` clears **all** labels at once.
 

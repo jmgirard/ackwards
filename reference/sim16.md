@@ -1,9 +1,12 @@
 # Simulated continuous bass-ackwards teaching example (16 items, known hierarchy)
 
 A 1 000-row, fully continuous dataset simulated from a population model
-with a known 1 -\> 2 -\> 4 bass-ackwards hierarchy, for showcasing the
-default `cor = "pearson"` extraction path without the ordinal-detection
-warning that `bfi25`'s Likert items trigger.
+with a known 1 -\> 2 -\> 4 bass-ackwards hierarchy. A factor is a
+summary variable that stands in for a group of items that move together.
+The dataset showcases the default `cor = "pearson"` extraction path
+without the ordinal-detection warning that `bfi25`'s Likert items
+trigger. Ordinal items have a few ordered categories, such as a 1 to 5
+rating.
 
 ## Usage
 
@@ -13,63 +16,66 @@ sim16
 
 ## Format
 
-A data frame with 1 000 rows and 16 numeric columns (`i1`–`i16`,
+A data frame with 1 000 rows and 16 numeric columns (`i1` to `i16`,
 continuous, no missing values).
 
 ## Source
 
-Simulated; see `data-raw/sim16.R` for the full generative model.
+Simulated. See `data-raw/sim16.R` for the full generative model.
 
 ## Details
 
 **Population model.** `Sigma = Lambda %*% Phi %*% t(Lambda) + Psi`, an
 oblique common-factor model with 4 true group factors, sampled via a
-Cholesky factorization (base R; no `MASS` dependency):
+Cholesky factorization (base R, with no `MASS` dependency):
 
-|        |             |               |
-|--------|-------------|---------------|
-| Factor | Items       | Metatrait     |
-| `f1`   | `i1`–`i4`   | 1 (with `f2`) |
-| `f2`   | `i5`–`i8`   | 1 (with `f1`) |
-| `f3`   | `i9`–`i12`  | 2 (with `f4`) |
-| `f4`   | `i13`–`i16` | 2 (with `f3`) |
+|        |                |               |
+|--------|----------------|---------------|
+| Factor | Items          | Metatrait     |
+| `f1`   | `i1` to `i4`   | 1 (with `f2`) |
+| `f2`   | `i5` to `i8`   | 1 (with `f1`) |
+| `f3`   | `i9` to `i12`  | 2 (with `f4`) |
+| `f4`   | `i13` to `i16` | 2 (with `f3`) |
 
-All items load `0.75` on their true factor (no cross-loadings). Factor
-correlations: `0.45` within a metatrait (`f1`-`f2`, `f3`-`f4`), `0.15`
-between metatraits. Uniquenesses are `1 - communality` (uniform `0.4375`
-by the symmetry of the design above).
+All items load `0.75` on their true factor, with no cross-loadings. A
+loading is the correlation between an item and a factor. Factor
+correlations are `0.45` within a metatrait (`f1`-`f2`, `f3`-`f4`) and
+`0.15` between metatraits. Uniquenesses are `1 - communality` (uniform
+`0.4375` by the symmetry of the design above).
 
 **Ground-truth hierarchy** (verified against
-`ackwards(engine = "efa")`): `k=1` recovers a single general factor
-across all 16 items; `k=2` splits along the metatrait line (`i1`-`i8`
-vs. `i9`-`i16`); `k=4` recovers the 4 true group factors exactly; all
+`ackwards(engine = "efa")`). `k=1` recovers a single general factor
+across all 16 items. `k=2` splits along the metatrait line (`i1`-`i8`
+vs. `i9`-`i16`). `k=4` recovers the 4 true group factors exactly. All
 six
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-recommendations (five criteria – VSS reports at complexities 1 and 2)
-reach a consensus of `k = 4`.
+recommendations reach a consensus of `k = 4`, from five criteria,
+because VSS reports at complexities 1 and 2.
 
 **Idealized by design.** The planted signal is strong and clean, so all
 six
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
-recommendations converge on `k = 4` – deliberately the *easy* case, for
-building intuition about what recovering a known hierarchy looks like.
-Real data rarely agree this cleanly: on `bfi25` the same criteria span
-`k = 4`–`6`. The two datasets are complementary teaching foils – `sim16`
-for "watch the method recover a structure we planted," `bfi25` for
-"reason about a hierarchy when the criteria disagree." Present `sim16`'s
-consensus as the ideal, not the norm.
+recommendations converge on `k = 4`. That is deliberately the *easy*
+case, for building intuition about what recovering a known hierarchy
+looks like. Real data rarely agree this cleanly: on `bfi25` the same
+criteria span `k = 4` to `6`. The two datasets are complementary
+teaching foils. Use `sim16` for "watch the method recover a structure we
+planted," and `bfi25` for "reason about a hierarchy when the criteria
+disagree." Present `sim16`'s consensus as the ideal, not the norm.
 
 **Deliberate overextraction artifact at k=5.** The population has
-exactly 4 factors, so requesting a 5th finds no real dimension: EFA
-produces an orphan factor with zero primary-loading items. With
-`prune(x, "artifact")` (default `min_items = 3`, `orphan_r = 0.5`), that
-factor is flagged both `few_items` and `orphan`. Because the true (non-
-splitting) factors persist essentially unchanged from `k=3` onward,
-their parent-child score correlations approach 1 and are flagged by
-`prune(x, "redundant")` (`|r| >= .9` and, under the EFA auto-default,
-Tucker's phi `> .95`). This is a textbook overextraction artifact,
-included so the Forbes/redundancy examples have a guaranteed finding to
-teach against (unlike `bfi25`, which does not reliably trigger one).
+exactly 4 factors, so requesting a 5th finds no real dimension. EFA
+(exploratory factor analysis) produces an orphan factor with zero
+primary-loading items. With `prune(x, "artifact")` (default
+`min_items = 3`, `orphan_r = 0.5`), that factor is flagged both
+`few_items` and `orphan`. The true factors, the ones that do not split,
+persist almost unchanged from `k=3` onward. So their parent-child score
+correlations approach 1 and are flagged by `prune(x, "redundant")`
+(`|r| >= .9` and, under the EFA auto-default, Tucker's phi `> .95`). Two
+factors are redundant when one adds nothing over the other. This is a
+textbook overextraction artifact, included so the Forbes and redundancy
+examples have a guaranteed finding to teach against (unlike `bfi25`,
+which does not reliably trigger one).
 
 To regenerate this dataset, run `source("data-raw/sim16.R")` from the
 package root (`set.seed(42)`).

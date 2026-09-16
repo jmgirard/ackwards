@@ -1,9 +1,9 @@
 # Print an ackwards object
 
 Displays a compact summary of the bass-ackwards result using cli
-formatting. No matrix dumps – use
+formatting. It prints no matrix dumps. Use
 [`tidy.ackwards()`](https://jmgirard.github.io/ackwards/reference/tidy.ackwards.md)
-to access values programmatically.
+to read values in code.
 
 ## Usage
 

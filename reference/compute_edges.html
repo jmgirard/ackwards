@@ -93,8 +93,8 @@ engine. Each must contain a <code>scoring</code> sub-list with fields <code>line
 
 <dt id="arg-edge-method">edge_method<a class="anchor" aria-label="anchor" href="#arg-edge-method"></a></dt>
 <dd><p>One of <code>"auto"</code> (algebra when possible, scores otherwise),
-<code>"algebra"</code> (force; errors if conditions not met), or <code>"scores"</code> (always
-materialise).</p></dd>
+<code>"algebra"</code> (force, and error if conditions are not met), or
+<code>"scores"</code> (always materialise).</p></dd>
 
 
 <dt id="arg-pairs">pairs<a class="anchor" aria-label="anchor" href="#arg-pairs"></a></dt>
@@ -130,8 +130,8 @@ tidy tibble.</p></dd>
 
 <dt>tidy</dt>
 <dd><p>A data frame with one row per directed edge: <code>from</code>, <code>to</code>,
-<code>level_from</code>, <code>level_to</code>, <code>r</code>, <code>is_primary</code>, <code>above_cut</code> – or <code>NULL</code>
-when <code>build_tidy = FALSE</code>.</p></dd>
+<code>level_from</code>, <code>level_to</code>, <code>r</code>, <code>is_primary</code>, and <code>above_cut</code>. It is
+<code>NULL</code> when <code>build_tidy = FALSE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -139,8 +139,8 @@ when <code>build_tidy = FALSE</code>.</p></dd>
     <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">E</span>(a,b) <span class="ot">=</span> D_a<span class="sc">^</span>{<span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>} (W_a<span class="st">' R W_b) D_b^{-1/2}</span></span></code></pre><p></p></div>
 <p>where <code>R</code> is the input correlation matrix and <code>D_x = diag(W_x' R W_x)</code> are
 the <strong>actual</strong> score variances (not assumed to be 1). This avoids
-materialising scores while remaining exact for PCA, EFA (regression /
-Bartlett / tenBerge) – all of which produce linear score maps.</p>
+materialising scores while remaining exact for PCA and EFA (regression,
+Bartlett, or tenBerge). All of those produce linear score maps.</p>
 <p>When the algebra cannot be used (nonlinear scoring, missing <code>R</code>, or the user
 forces <code>edge_method = "scores"</code>), scores are materialised from <code>data</code> instead.</p>
     </div>

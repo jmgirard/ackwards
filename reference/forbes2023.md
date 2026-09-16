@@ -2,10 +2,11 @@
 
 The 155 x 155 Spearman correlation matrix among 155 mental-health
 symptom variables that forms the applied example in Forbes (2023). It is
-a real, deep hierarchy: `ackwards(forbes2023, k_max = 10)` unfolds a
+a real, deep hierarchy. `ackwards(forbes2023, k_max = 10)` unfolds a
 general factor of psychopathology at the top down to 10 fine-grained
-components, the worked example that motivates the Forbes extension
-(`pairs = "all"`,
+components. A factor (or component) is a summary variable standing in
+for a group of variables that move together. This is the worked example
+that motivates the Forbes extension (`pairs = "all"`,
 [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)).
 
 ## Usage
@@ -17,7 +18,7 @@ forbes2023
 ## Format
 
 A 155 x 155 numeric matrix of Spearman correlations: symmetric, unit
-diagonal, correlations in roughly `0.01`–`0.94`. Row and column names
+diagonal, correlations in roughly `0.01` to `0.94`. Row and column names
 are the 155 symptom-variable labels (e.g. `Impulsivity`, `Blurting`).
 
 ## Source
@@ -35,12 +36,14 @@ fidelity/reproduction dataset: a large, messy, published case bundled so
 the package can reproduce the exact applied example analyzed in Forbes's
 paper.
 
-The correlations come from the Assessing Mental Health (AMH) study – the
-Australian general-population sample (N = 3,175) of Forbes et al. (2021)
-– spanning symptoms of 18 DSM disorders. Being a correlation matrix, it
-carries no per-variable sample size; supply `n_obs = 3175` to
+The correlations come from the Assessing Mental Health (AMH) study. That
+is the Australian general-population sample (N = 3,175) of Forbes et al.
+(2021), spanning symptoms of 18 DSM disorders. Being a correlation
+matrix, it carries no per-variable sample size. Supply `n_obs = 3175` to
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-if you want EFA/ESEM fit statistics scaled to the original sample.
+if you want fit statistics scaled to the original sample for EFA
+(exploratory factor analysis) or ESEM (exploratory structural equation
+modeling).
 
 This matrix reproduces Forbes's published results exactly: the package
 regression test `test-forbes-fidelity.R` runs

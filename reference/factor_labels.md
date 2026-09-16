@@ -1,6 +1,9 @@
 # Read the factor labels stored on an ackwards object
 
-Read the factor labels stored on an ackwards object
+A factor is a summary variable standing in for a group of items that
+move together. This function returns the labels that
+[`set_factor_labels()`](https://jmgirard.github.io/ackwards/reference/set_factor_labels.md)
+stored on the object.
 
 ## Usage
 

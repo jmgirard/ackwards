@@ -1,16 +1,19 @@
 # Split-half factor comparability
 
 Measures how well each factor at each level of a bass-ackwards hierarchy
-**replicates** across random split-halves of the sample – Everett's
-(1983) factor comparability coefficients, reviving the split-half
+**replicates** across random split-halves of the sample. A factor is a
+summary variable standing in for a group of items that move together. In
+a split-half analysis the sample is split into two random halves and
+each half is analysed separately. The coefficients are Everett's (1983)
+factor comparability coefficients. They revive the split-half
 replication gate of the research program that produced the bass-ackwards
-method: Saucier (1997) screened factor solutions by their split-half
+method. Saucier (1997) screened factor solutions by their split-half
 stability, and Saucier, Georgiades, Tsaousis, and Goldberg (2005) chose
 the optimal hierarchical level by requiring split-half replication above
-a .90 threshold. It is also the direct instrument for the overextraction
-caution in
-[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md):
-non-replicable structure concentrates in the deeper levels of an
+a .90 threshold. This is also the direct instrument for the
+overextraction caution in
+[`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md),
+because non-replicable structure concentrates in the deeper levels of an
 overextracted hierarchy (Forbes, 2023).
 
 ## Usage
@@ -33,50 +36,56 @@ comparability(
 - data:
 
   A data frame or numeric matrix of observed variables (items in
-  columns, observations in rows). **Raw data only** – splitting needs
-  rows, so a correlation matrix is not accepted. Missing values are
-  handled pairwise throughout (as in
+  columns, observations in rows). **Raw data only**, because splitting
+  needs rows, so a correlation matrix is not accepted. Missing values
+  are handled pairwise throughout (as in
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)'s
   default).
 
 - k_max:
 
-  Maximum number of factors/components to evaluate – normally the same
-  value (or one or two above it) you intend to pass to
+  Maximum number of factors or components to evaluate. Normally this is
+  the same value (or one or two above it) you intend to pass to
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
   Required.
 
 - engine:
 
   Extraction engine: `"pca"` (default) or `"efa"`. `"esem"` is not yet
-  supported here (fitting `2 * n_splits` lavaan hierarchies needs its
-  own performance treatment); for ESEM workflows, run `comparability()`
-  with `engine = "efa"` as a structural screen.
+  supported here, because fitting `2 * n_splits` lavaan hierarchies
+  needs its own performance treatment. For ESEM (exploratory structural
+  equation modeling) workflows, run `comparability()` with
+  `engine = "efa"` as a structural screen.
 
 - cor:
 
   Correlation basis: `"pearson"` (default) or `"spearman"`. As with
   [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md),
-  `"polychoric"` is not supported (estimating polychoric matrices in
-  every half-sample is slow and unstable); users analysing ordinal data
-  should screen replicability on the Pearson basis and fit the final
-  model with `cor = "polychoric"` in
-  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+  `"polychoric"` is not supported, because estimating polychoric
+  matrices in every half-sample is slow and unstable. Users analysing
+  ordinal items (a few ordered categories, such as a 1 to 5 rating)
+  should screen replicability on the Pearson basis. They should then fit
+  the final model with `cor = "polychoric"` in
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md),
+  which estimates the correlation between the continuous traits assumed
+  to underlie the ordered responses.
 
 - fm:
 
   Factor extraction method passed to
-  [`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html); only used when
-  `engine = "efa"`. One of `"minres"` (default), `"ml"`, or `"pa"`.
+  [`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html). It is only
+  used when `engine = "efa"`. One of `"minres"` (default), `"ml"`, or
+  `"pa"`.
 
 - n_splits:
 
   Number of random split-half replicates. Default `10L`. The published
-  precedents used a single split (Saucier et al., 2005); repeating the
-  split guards against the luck of one draw and is this implementation's
-  robustness choice. Each replicate fits `2 * k_max` solutions, so the
-  default costs 20 hierarchy fits; PCA and EFA are fast enough that this
-  is typically a few seconds.
+  precedents used a single split (Saucier et al., 2005). Repeating the
+  split guards against the luck of one draw, so the coefficients are
+  summarised over replicates. Each replicate fits `2 * k_max` solutions,
+  so the default costs 20 hierarchy fits. PCA (principal component
+  analysis) and EFA (exploratory factor analysis) are fast enough that
+  this is typically a few seconds.
 
 - seed:
 
@@ -89,29 +98,30 @@ comparability(
 
 ## Value
 
-An object of class `"comparability"`. Print it for a per-level summary;
-call
+An object of class `"comparability"`. Print it for a per-level summary,
+or call
 [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
 on it for a diagnostic plot. The list contains:
 
 - coefficients:
 
-  Data frame with one row per split x level x factor: `split`, `level`,
-  `factor` (full-sample `m{k}f{j}` label), `r` (score comparability),
-  `phi` (Tucker's congruence of the matched loading columns). `NA` when
-  the level did not converge in one of the halves.
+  Data frame with one row per split x level x factor. Its columns are
+  `split`, `level`, `factor` (full-sample `m{k}f{j}` label), `r` (score
+  comparability), and `phi` (Tucker's congruence of the matched loading
+  columns). A value is `NA` when the level did not converge in one of
+  the halves.
 
 - summary:
 
-  Data frame with one row per level x factor: `level`, `factor`,
-  `r_median`, `r_min`, `phi_median`, `phi_min` (across splits), and
-  `n_splits_ok` (splits in which both halves converged).
+  Data frame with one row per level x factor. Its columns are `level`,
+  `factor`, `r_median`, `r_min`, `phi_median`, `phi_min` (across
+  splits), and `n_splits_ok` (splits in which both halves converged).
 
 - k_max:
 
-  Deepest level evaluated. Can be lower than the `k_max` you asked for
-  when the full-sample fit truncated (non-convergence at deep levels);
-  the original request is kept in `k_requested`.
+  Deepest level evaluated. It can be lower than the `k_max` you asked
+  for when the full-sample fit truncated, that is, when deep levels did
+  not converge. The original request is kept in `k_requested`.
 
 - k_requested, n_splits, n_half, engine, cor, fm, n_obs, n_vars, seed:
 
@@ -119,42 +129,45 @@ on it for a diagnostic plot. The list contains:
 
 ## Details
 
-For each of `n_splits` random half-splits, solutions at every level
-`1..k_max` are fit independently in each half. Each half-solution's
-factors are matched to the **full-sample** solution's factors (so
+For each of `n_splits` random half-splits, solutions at every level from
+1 to `k_max` are fit independently in each half. Each half-solution's
+factors are matched to the **full-sample** solution's factors, so
 coefficients are reported under the same `m{k}f{j}` labels you get from
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)),
-and the comparability coefficient for a factor is the correlation
-between its two matched half-solution scores, computed on the pooled
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+The comparability coefficient for a factor is the correlation between
+its two matched half-solution scores. It is computed on the pooled
 correlation matrix via the same `W'RW` algebra used for between-level
-edges – applying both halves' scoring weights to the full sample,
-exactly Everett's procedure. Tucker's congruence coefficient (phi)
-between the matched half-solution loading columns is reported alongside:
-comparability asks whether the two halves' *scores* agree; phi asks
-whether their *loading patterns* agree.
+edges, applying both halves' scoring weights to the full sample, exactly
+Everett's procedure. Tucker's congruence coefficient (phi) between the
+matched half-solution loading columns is reported alongside. A loading
+is the correlation between an item and a factor, and congruence is a 0
+to 1 index of how similar two loading patterns are. So comparability
+asks whether the two halves' *scores* agree, and phi asks whether their
+*loading patterns* agree.
 
 ## Interpreting the output
 
 Coefficients near 1 mean the factor re-emerges in independent
-half-samples; a factor whose comparability is low is
+half-samples. A factor whose comparability is low is
 sample-idiosyncratic and should not anchor substantive interpretation.
-Conventional benchmarks: **.90** is the split-half replication threshold
-of Goldberg's lexical research program (Saucier et al., 2005) and
-follows from Everett's (1983) rationale (split-half factors sharing at
-least 81% of their variance); **.95** is the stricter bound at which two
-factors are conventionally treated as interchangeable (Lorenzo-Seva &
-ten Berge, 2006). These are conventions, not tests, so `comparability()`
-reports every coefficient and flags nothing. The deepest level at which
-all factors replicate is a natural **hierarchy floor** for
+Two benchmarks are conventional. The first, **.90**, is the split-half
+replication threshold of Goldberg's lexical research program (Saucier et
+al., 2005). It follows from Everett's (1983) rationale, under which
+split-half factors share at least 81% of their variance. The second,
+**.95**, is the stricter bound at which two factors are conventionally
+treated as interchangeable (Lorenzo-Seva & ten Berge, 2006). These are
+conventions, not tests, so `comparability()` reports every coefficient
+and flags nothing. The deepest level at which all factors replicate is a
+natural **hierarchy floor** for
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)'s
-`k_max`; see
+`k_max`. See
 [`vignette("ackwards-girard")`](https://jmgirard.github.io/ackwards/articles/ackwards-girard.md)
 for the full workflow.
 
 A level that fails to converge in a half-sample yields `NA` coefficients
-for that split (convergence is data, not an error); the number of usable
-splits per factor is reported in `summary$n_splits_ok` and a message
-summarises any shortfall.
+for that split, because convergence is data, not an error. The number of
+usable splits per factor is reported in `summary$n_splits_ok` and a
+message summarises any shortfall.
 
 ## References
 
@@ -200,7 +213,7 @@ for the extraction itself.
 # \donttest{
 cmp <- comparability(sim16, k_max = 5, n_splits = 5, seed = 1)
 #> ℹ Fitting 5 split-half replicates (pca, k = 1-5)...
-#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [270ms]
+#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [258ms]
 #> 
 cmp
 #> 

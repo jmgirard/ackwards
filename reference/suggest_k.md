@@ -1,8 +1,9 @@
 # Suggest a maximum number of factors for bass-ackwards analysis
 
 Runs complementary factor-retention criteria and reports their
-recommendations. No single criterion is definitive; the goal is a
-consensus range to inform your choice of `k` in
+recommendations. A factor is a summary variable standing in for a group
+of items that move together. No single criterion is definitive. The goal
+is a consensus range to inform your choice of `k` in
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
 
 ## Usage
@@ -28,30 +29,30 @@ suggest_k(
   rows). Alternatively, a pre-computed **correlation matrix** may be
   supplied (a square, symmetric, numeric matrix with unit diagonal).
   When a correlation matrix is supplied, `n_obs` is required (PA and VSS
-  need N), the `cor` argument is ignored, and the Comparison Data (CD)
-  criterion is skipped (CD requires raw item distributions for
-  resampling).
+  need N) and the `cor` argument is ignored. The Comparison Data (CD)
+  criterion is then skipped, because CD requires raw item distributions
+  for resampling.
 
 - k_max:
 
-  Maximum number of factors/components to *evaluate* when recommending a
-  depth – not a depth itself. Defaults to `min(ncol(data) - 1, 8)`.
-  Increase if you expect a deeper hierarchy. (Note: this is a distinct
-  meaning from
+  Maximum number of factors or components to *evaluate* when
+  recommending a depth. It is not a depth itself. Defaults to
+  `min(ncol(data) - 1, 8)`. Increase if you expect a deeper hierarchy.
+  (One caution: this is a distinct meaning from
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)'s
-  `k_max`, which *is* the extraction depth; the two share a name because
-  they're the same dial in the `suggest_k() -> ackwards()` workflow,
+  `k_max`, which *is* the extraction depth. The two share a name because
+  they are the same dial in the `suggest_k() -> ackwards()` workflow,
   just applied at different stages.)
 
 - criteria:
 
   Character vector of criteria to compute. Any subset of
-  `c("pa_pc", "pa_fa", "map", "vss", "cd")`; default is all five.
-  `"pa_pc"` and `"pa_fa"` share one parallel-analysis call (both or
-  neither are fast); `"map"` and `"vss"` share one VSS call. Criteria
-  not requested are skipped entirely (no computation) and their `k_*`
-  fields in the result are `NA`. `"vss"` selects both VSS-1 and VSS-2 as
-  a unit.
+  `c("pa_pc", "pa_fa", "map", "vss", "cd")`, and the default is all
+  five. The criteria `"pa_pc"` and `"pa_fa"` share one parallel-analysis
+  call, so both or neither are fast, and `"map"` and `"vss"` share one
+  VSS call. Criteria not requested are skipped entirely (no computation)
+  and their `k_*` fields in the result are `NA`. The choice `"vss"`
+  selects both VSS-1 and VSS-2 as a unit.
 
 - cor:
 
@@ -70,7 +71,7 @@ suggest_k(
 - n_iter:
 
   Number of Monte Carlo iterations for parallel analysis. Default `20`.
-  Reduce to `5` for fast/exploratory runs; increase to `100+` for
+  Reduce to `5` for fast or exploratory runs, and increase to `100+` for
   publication.
 
 - seed:
@@ -81,7 +82,7 @@ suggest_k(
   state. **Note:** the parallel-analysis step uses
   [`psych::fa.parallel()`](https://rdrr.io/pkg/psych/man/fa.parallel.html),
   which does not respond reliably to
-  [`set.seed()`](https://rdrr.io/r/base/Random.html) – PA simulation
+  [`set.seed()`](https://rdrr.io/r/base/Random.html). PA simulation
   results will vary across calls regardless of `seed`.
 
 - ...:
@@ -90,52 +91,55 @@ suggest_k(
 
 ## Value
 
-An object of class `"suggest_k"`. Print it for a formatted summary; call
+An object of class `"suggest_k"`. Print it for a formatted summary, or
+call
 [`autoplot()`](https://jmgirard.github.io/ackwards/reference/autoplot.md)
 on it for a diagnostic scree/criteria plot. The list contains:
 
 - k_parallel_pc:
 
-  Recommended k from PC-based parallel analysis (`NA_integer_` when
-  `"pa_pc"` not in `criteria`).
+  Recommended k from PC-based parallel analysis. It is `NA_integer_`
+  when `"pa_pc"` is not in `criteria`.
 
 - k_parallel_fa:
 
-  Recommended k from FA-based parallel analysis (`NA_integer_` if no FA
-  factor exceeded the random threshold, or when `"pa_fa"` not in
-  `criteria`).
+  Recommended k from FA-based parallel analysis. It is `NA_integer_` if
+  no FA factor exceeded the random threshold, or when `"pa_fa"` is not
+  in `criteria`.
 
 - k_map:
 
-  Recommended k from MAP (`NA_integer_` when `"map"` not in `criteria`).
+  Recommended k from MAP. It is `NA_integer_` when `"map"` is not in
+  `criteria`.
 
 - k_vss1:
 
-  Recommended k from VSS complexity-1 (`NA_integer_` when `"vss"` not in
-  `criteria`).
+  Recommended k from VSS complexity-1. It is `NA_integer_` when `"vss"`
+  is not in `criteria`.
 
 - k_vss2:
 
-  Recommended k from VSS complexity-2 (`NA_integer_` when `"vss"` not in
-  `criteria`).
+  Recommended k from VSS complexity-2. It is `NA_integer_` when `"vss"`
+  is not in `criteria`.
 
 - k_cd:
 
-  Recommended k from Comparison Data (`NA_integer_` when `"cd"` not in
-  `criteria`, EFAtools is not installed, or CD fails).
+  Recommended k from Comparison Data. It is `NA_integer_` when `"cd"` is
+  not in `criteria`, EFAtools is not installed, or CD fails.
 
 - cd_available:
 
-  Logical; `TRUE` when `"cd"` was requested, EFAtools was found, and CD
-  ran successfully.
+  Logical. It is `TRUE` when `"cd"` was requested, EFAtools was found,
+  and CD ran successfully.
 
 - criteria:
 
-  Data frame with one row per k: `k`, `ev_obs` (observed PC eigenvalue),
-  `ev_obs_fa` (observed FA eigenvalue), `pa_pc_quant` / `pa_fa_quant`
-  (95th-pct simulated eigenvalue for each basis), `pa_pc_suggested` /
-  `pa_fa_suggested` (logical retention), `map`, `vss1`, `vss2`. Columns
-  for non-requested criteria are `NA`.
+  Data frame with one row per k. Its columns are `k`, `ev_obs` (observed
+  PC eigenvalue), `ev_obs_fa` (observed FA eigenvalue), `pa_pc_quant`
+  and `pa_fa_quant` (95th-percentile simulated eigenvalue for each
+  basis), `pa_pc_suggested` and `pa_fa_suggested` (logical retention),
+  `map`, `vss1`, and `vss2`. Columns for non-requested criteria are
+  `NA`.
 
 - criteria_requested:
 
@@ -150,35 +154,38 @@ on it for a diagnostic scree/criteria plot. The list contains:
 
 **Criteria available (controlled by the `criteria` argument):**
 
-- **PA-PC** (`"pa_pc"`) – Horn (1965) parallel analysis on PC
-  eigenvalues. Compares observed eigenvalues to those from random
-  correlation matrices; suggests retaining components whose eigenvalues
-  exceed the 95th percentile of chance. Tends to overextract; treat as
-  an upper bound.
+- **PA-PC** (`"pa_pc"`): Horn (1965) parallel analysis on PC
+  eigenvalues. Parallel analysis compares the eigenvalues of your data
+  with those of random data of the same shape. It suggests retaining
+  components (weighted sums of the items) whose eigenvalues exceed the
+  95th percentile of chance. It tends to overextract, so treat it as an
+  upper bound.
 
-- **PA-FA** (`"pa_fa"`) – Horn (1965) parallel analysis using
+- **PA-FA** (`"pa_fa"`): Horn (1965) parallel analysis using
   common-factor eigenvalues. More conservative than PA-PC and the better
-  match for the EFA and ESEM engines in
+  match for the EFA (exploratory factor analysis) and ESEM (exploratory
+  structural equation modeling) engines in
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
   Shares one
   [`psych::fa.parallel()`](https://rdrr.io/pkg/psych/man/fa.parallel.html)
   call with PA-PC.
 
-- **MAP** (`"map"`) – Velicer (1976) Minimum Average Partial criterion.
+- **MAP** (`"map"`): Velicer (1976) Minimum Average Partial criterion.
   Finds the k that minimises the average squared partial correlation
   remaining after extracting k components. Usually conservative. Shares
   one [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html) call with
   VSS.
 
-- **VSS** (`"vss"`) – Revelle & Rocklin (1979) Very Simple Structure fit
+- **VSS** (`"vss"`): Revelle & Rocklin (1979) Very Simple Structure fit
   at complexities 1 and 2 (VSS-1 and VSS-2). Finds the k maximising the
-  fit of a very simple loading structure. Shares one
+  fit of a very simple loading structure, where a loading is the
+  correlation between an item and a factor. Shares one
   [`psych::vss()`](https://rdrr.io/pkg/psych/man/VSS.html) call with
   MAP.
 
-- **CD** (`"cd"`) – Ruscio & Roche (2012) Comparison Data. Resamples
-  from the observed item distributions to generate comparison eigenvalue
-  profiles; retains factors until adding one no longer improves RMSE
+- **CD** (`"cd"`): Ruscio & Roche (2012) Comparison Data. Resamples from
+  the observed item distributions to generate comparison eigenvalue
+  profiles. It retains factors until adding one no longer improves RMSE
   beyond chance. Requires the EFAtools package (install separately).
   Skipped with an informational message when EFAtools is absent or when
   a correlation matrix is supplied.
@@ -193,36 +200,39 @@ CD operates on the raw data matrix directly (required for resampling).
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 is a **maximum depth**, not a claim that exactly k factors exist. Users
 commonly set k one or two levels above the consensus to watch
-higher-level factors fragment – this is a feature of the method, not
+higher-level factors fragment. This is a feature of the method, not
 overextraction.
 
 Treating retention estimates as a range rather than a verdict has direct
-support in the parallel-analysis literature: Lim and Jahng (2019)
+support in the parallel-analysis literature. Lim and Jahng (2019)
 recommend interpreting the PA estimate as a range of roughly plus or
-minus one factor, resolved by interpretability, and Achim (2021) argues
-that even that overstates PA's precision – the disagreement itself is
-why `suggest_k()` reports several criteria and a consensus range, never
-a single number.
+minus one factor, resolved by interpretability. Achim (2021) argues that
+even that overstates PA's precision. The disagreement itself is why
+`suggest_k()` reports several criteria and a consensus range, never a
+single number.
 
 ## Ordinal (Likert) data
 
 `suggest_k()` screens on the Pearson or Spearman basis by design and
-never computes polychoric correlations itself, so when the raw data look
-ordinal (at most 7 distinct integer values per column) it emits a
-one-per-session warning – the same `detect_ordinal()` signal
+never computes polychoric correlations itself. Polychoric correlations
+estimate the correlation between the continuous traits assumed to
+underlie ordered responses. Ordinal items have a few ordered categories,
+such as a 1 to 5 rating. So when the raw data look ordinal (at most 7
+distinct integer values per column) this function emits a
+one-per-session warning. That is the same `detect_ordinal()` signal
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
 and
 [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
-use (Invariant 6: announce consequential defaults loudly). Crucially,
-the advice points at the *final*
+use (Invariant 6: announce consequential defaults loudly). The advice
+points at the *final*
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-fit (`cor = "polychoric"`), **not** at `suggest_k()` itself: the
-screening basis is intentional. The plausible-k *range* is robust to the
-Pearson-vs-polychoric choice, so screening on Pearson and fitting the
-final model polychoric is the recommended workflow – computing
-polychoric correlations at the screening stage would only add cost and
-NPD risk without changing the range. The warning is skipped for
-correlation-matrix input (there are no items to inspect).
+fit (`cor = "polychoric"`), **not** at `suggest_k()` itself, because the
+screening basis is intentional. The plausible-k *range* changes little
+whether you use Pearson or polychoric correlations. So screening on
+Pearson and fitting the final model polychoric is the recommended
+workflow. Computing polychoric correlations at the screening stage would
+only add cost and NPD risk without changing the range. The warning is
+skipped for correlation-matrix input (there are no items to inspect).
 
 ## A note on overextraction
 
@@ -278,7 +288,8 @@ matrix of partial correlations. *Psychometrika*, 41, 321–327.
 
 ## See also
 
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md);
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+See also
 [`factorability()`](https://jmgirard.github.io/ackwards/reference/factorability.md),
 [`check_items()`](https://jmgirard.github.io/ackwards/reference/check_items.md),
 and
@@ -291,13 +302,13 @@ the other pre-analysis diagnostics.
 # \donttest{
 sk <- suggest_k(sim16)
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [215ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [219ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [93ms]
+#> ✔ Running MAP and VSS... [87ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [4.2s]
+#> ✔ Running Comparison Data (CD)... [4.1s]
 #> 
 sk
 #> 
@@ -340,7 +351,7 @@ autoplot(sk)
 # Run only MAP (fast; skips parallel analysis and CD)
 suggest_k(sim16, criteria = "map")
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [56ms]
+#> ✔ Running MAP and VSS... [53ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -375,7 +386,7 @@ suggest_k(sim16, criteria = "map")
 # Run only the parallel-analysis criteria
 suggest_k(sim16, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [85ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [80ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -411,13 +422,13 @@ suggest_k(sim16, criteria = c("pa_pc", "pa_fa"), n_iter = 5)
 # Faster exploratory run
 suggest_k(sim16, k_max = 6, n_iter = 5)
 #> ℹ Running parallel analysis (5 iterations, PC + FA)...
-#> ✔ Running parallel analysis (5 iterations, PC + FA)... [108ms]
+#> ✔ Running parallel analysis (5 iterations, PC + FA)... [88ms]
 #> 
 #> ℹ Running MAP and VSS...
 #> ✔ Running MAP and VSS... [70ms]
 #> 
 #> ℹ Running Comparison Data (CD)...
-#> ✔ Running Comparison Data (CD)... [4.3s]
+#> ✔ Running Comparison Data (CD)... [4.2s]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────
@@ -458,10 +469,10 @@ suggest_k(R, n_obs = nrow(sim16))
 #> ℹ CD is skipped when a correlation matrix is supplied (CD requires raw item
 #>   distributions for resampling).
 #> ℹ Running parallel analysis (20 iterations, PC + FA)...
-#> ✔ Running parallel analysis (20 iterations, PC + FA)... [239ms]
+#> ✔ Running parallel analysis (20 iterations, PC + FA)... [219ms]
 #> 
 #> ℹ Running MAP and VSS...
-#> ✔ Running MAP and VSS... [90ms]
+#> ✔ Running MAP and VSS... [87ms]
 #> 
 #> 
 #> ── Factor / Component Count Suggestion (ackwards) ──────────────────────────────

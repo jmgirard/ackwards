@@ -8,8 +8,8 @@ is available without requiring
 [`library(ggplot2)`](https://ggplot2.tidyverse.org). When ggplot2 is
 also loaded its own `autoplot` generic takes over in the search path,
 but S3 dispatch still finds `autoplot.ackwards` correctly via either
-route. Defining our own generic is intentional – it avoids putting
-ggplot2 in Imports while keeping the `autoplot(x)` ergonomic without a
+route. Defining our own generic is intentional. It avoids putting
+ggplot2 in Imports while keeping `autoplot(x)` easy to call without a
 [`library()`](https://rdrr.io/r/base/library.html) call.
 
 ## Usage

@@ -1,10 +1,11 @@
 # Generate a node-label scaffold for autoplot
 
 Returns a named character vector covering all factor IDs in the object,
-ready to pass to `autoplot(x, node_labels = ...)`. Printing the result
-shows an editable `c(...)` literal so you can copy it into a script,
-fill in substantive labels, and use it directly; assigning the result
-(`labs <- label_template(x)`) produces no console output.
+ready to pass to `autoplot(x, node_labels = ...)`. A factor is a summary
+variable standing in for a group of items that move together. Printing
+the result shows an editable `c(...)` literal. You can copy it into a
+script, fill in substantive labels, and use it directly. Assigning the
+result (`labs <- label_template(x)`) produces no console output.
 
 ## Usage
 
@@ -28,7 +29,7 @@ print(x, ...)
 
 - ...:
 
-  Ignored; included for S3 method consistency.
+  Ignored. Included for S3 method consistency.
 
 ## Value
 
@@ -50,19 +51,19 @@ so the printed literal maps directly onto the diagram.
 
 ## Style options
 
-- `"id"` *(default)* – every value equals the factor ID (`"m1f1"`,
-  `"m2f1"`, ...). This is a round-trip no-op: passing the result to
-  `node_labels` without editing reproduces the default labels exactly.
-  Useful as the starting point for adding substantive labels.
+- `"id"` *(default)* makes every value equal the factor ID (`"m1f1"`,
+  `"m2f1"`, ...). This is a round-trip no-op, because passing the result
+  to `node_labels` without editing reproduces the default labels
+  exactly. It is a good starting point for adding substantive labels.
 
-- `"forbes"` – values follow the Forbes (2023) convention:
-  level-letter + within-level index (`"A1"`, `"B1"`, `"B2"`, ...). Level
-  1 -\> `A`, level 2 -\> `B`, level 3 -\> `C`, and so on. Within-level
-  indices are assigned in canonical layout order (left to right).
-  Requires `k_max <= 26` (LETTERS has 26 entries); an error is raised
-  for deeper objects.
+- `"forbes"` gives values that follow the Forbes (2023) convention, a
+  level-letter plus a within-level index (`"A1"`, `"B1"`, `"B2"`, ...).
+  Level 1 -\> `A`, level 2 -\> `B`, level 3 -\> `C`, and so on.
+  Within-level indices are assigned in canonical layout order (left to
+  right). This requires `k_max <= 26`, because LETTERS has 26 entries.
+  An error is raised for deeper objects.
 
-- `"blank"` – all values are empty strings. Useful as a starting
+- `"blank"` makes all values empty strings. Useful as a starting
   scaffold when you want to supply every label from scratch with no
   defaults showing through.
 

@@ -2,9 +2,9 @@
 
 Returns a structured `summary_ackwards` object that, when printed, shows
 per-level variance and fit indices, a readable lineage list, and (when
-present) pruning annotations. More verbose than
-[`print.ackwards()`](https://jmgirard.github.io/ackwards/reference/print.ackwards.md);
-designed for inspection and reporting.
+present) pruning annotations. It says more than
+[`print.ackwards()`](https://jmgirard.github.io/ackwards/reference/print.ackwards.md)
+and is designed for inspection and reporting.
 
 ## Usage
 

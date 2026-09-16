@@ -93,7 +93,7 @@ Diagram and layout helpers for the bass-ackwards hierarchy.
 Example datasets bundled with the package.
 
 - [`bfi25`](https://jmgirard.github.io/ackwards/reference/bfi25.md) :
-  Big Five Inventory – 25-item IPIP example dataset
+  Big Five Inventory: 25-item IPIP example dataset
 - [`sim16`](https://jmgirard.github.io/ackwards/reference/sim16.md) :
   Simulated continuous bass-ackwards teaching example (16 items, known
   hierarchy)

@@ -1,11 +1,12 @@
 # Plot a bass-ackwards diagram or per-level fit index chart
 
 When `what = "hierarchy"` (default), renders the layered bass-ackwards
-hierarchy as a ggplot2 diagram. Factors appear as labelled boxes
-arranged in levels (level 1 at top, level k at bottom by default; set
-`direction = "horizontal"` for a left-to-right layout). Between-level
-edges below `cut_show` are hidden. Two aesthetics carry the edge
-information, each explained by its own legend: **sign**
+hierarchy as a ggplot2 diagram. A factor is a summary variable standing
+in for a group of items that move together. Factors appear as labelled
+boxes arranged in levels. Level 1 sits at the top and level k at the
+bottom by default. Set `direction = "horizontal"` for a left-to-right
+layout. Between-level edges below `cut_show` are hidden. Two aesthetics
+carry the edge information, each explained by its own legend: **sign**
 (positive/negative) is shown by `sign_by` (edge colour by default) and
 **magnitude** (`|r|`) by `magnitude_by` (line thickness by default). No
 aesthetic is ever mapped without a matching legend.
@@ -74,20 +75,21 @@ plot(x, ...)
 
 - sign_by:
 
-  How edge **sign** (positive vs negative correlation) is encoded. One
-  of `"color"` (default; positive = `color_pos`, negative =
-  `color_neg`), `"linetype"` (positive = solid, negative = dashed),
-  `"both"` (colour *and* linetype, with negative drawn as a distinct
-  double-dash so it reads clearly in greyscale), or `"none"` (sign not
-  encoded; all edges `color_edge` and solid). Whichever channel is used
+  How edge **sign** (positive vs negative correlation) is encoded. There
+  are four choices. The default `"color"` draws positive edges in
+  `color_pos` and negative edges in `color_neg`. Option `"linetype"`
+  draws positive as solid and negative as dashed. Option `"both"` uses
+  colour *and* linetype, with negative drawn as a distinct double-dash
+  so it reads clearly in greyscale. Option `"none"` does not encode sign
+  and draws all edges `color_edge` and solid. Whichever channel is used
   gets a "Direction" legend. Colour is the default because it reads sign
-  pre-attentively and leaves linetype free; switch to `"linetype"` or
+  at a glance and leaves linetype free. Switch to `"linetype"` or
   `"both"` for greyscale or colour-blind-safe figures.
 
 - magnitude_by:
 
-  How edge **magnitude** (`|r|`) is encoded. One of `"linewidth"`
-  (default; thicker = stronger, with a `|r|` legend) or `"none"`
+  How edge **magnitude** (`|r|`) is encoded. One of `"linewidth"` (the
+  default, where thicker = stronger, with a `|r|` legend) or `"none"`
   (constant width). A numeric `edge_linewidth` also forces constant
   width at that value.
 
@@ -116,7 +118,7 @@ plot(x, ...)
 
   Width of factor boxes in layout units. Either a single value applied
   to every box (default `0.8`), or a **named numeric vector** keyed by
-  factor ID (e.g. `c(m5f1 = 1.6)`) giving a per-box width; boxes not
+  factor ID (e.g. `c(m5f1 = 1.6)`) giving a per-box width. Boxes not
   named fall back to the `0.8` default. Use a per-box width to fit a
   long manual `node_labels` string. Names matching no factor ID warn.
 
@@ -124,12 +126,13 @@ plot(x, ...)
 
   Height of factor boxes in layout units. Either a single value applied
   to every box (default `0.4`), or a named numeric vector keyed by
-  factor ID for a per-box height (unnamed boxes fall back to `0.4`);
-  useful for multi-line manual labels. Names matching no factor ID warn.
+  factor ID for a per-box height (unnamed boxes fall back to `0.4`).
+  This helps with multi-line manual labels. Names matching no factor ID
+  warn.
 
 - min_sep:
 
-  Minimum horizontal separation between nodes; passed to
+  Minimum horizontal separation between nodes, passed to
   [`ba_layout()`](https://jmgirard.github.io/ackwards/reference/ba_layout.md).
   Default `1.0`.
 
@@ -137,22 +140,24 @@ plot(x, ...)
 
   Optional manual left-to-right ordering of the **deepest** (`k_max`)
   level, passed to
-  [`ba_layout()`](https://jmgirard.github.io/ackwards/reference/ba_layout.md);
-  a character vector of that level's factor IDs (or a named list keyed
-  by the level number) fixes the leaf order and every upper factor
-  re-centres above its primary children. Use it to untangle a figure by
-  hand. `NULL` (default) uses the automatic ordering.
+  [`ba_layout()`](https://jmgirard.github.io/ackwards/reference/ba_layout.md).
+  Supply a character vector of that level's factor IDs, or a named list
+  keyed by the level number. That fixes the leaf order, and every upper
+  factor re-centres above its primary children. Use it to untangle a
+  figure by hand. `NULL` (default) uses the automatic ordering.
 
 - show_items:
 
   When `TRUE`, lists the salient observed items beneath each
   **deepest-level** (`k_max`) factor box, so a publication figure shows
   what each most-granular factor is made of. Items are the top `n_items`
-  by `|loading|` at or above `item_cut`, using the same extraction as
-  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
-  (variable labels are shown when the fit carried them, else the item
-  IDs). Listed below the boxes in a vertical layout, to their right in a
-  horizontal one. Default `FALSE`.
+  by loading (the correlation between an item and a factor), taken in
+  absolute value at or above `item_cut`. The extraction is the same as
+  in
+  [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md).
+  Variable labels are shown when the fit carried them, else the item
+  IDs. Listed below the boxes in a vertical layout, and to their right
+  in a horizontal one. Default `FALSE`.
 
 - n_items:
 
@@ -175,13 +180,14 @@ plot(x, ...)
 
   Curvature of skip-level edge arcs. Passed to
   [`ggplot2::geom_curve()`](https://ggplot2.tidyverse.org/reference/geom_segment.html).
-  Positive values curve right; default `0.2`. Ignored when
+  Positive values curve right. Default `0.2`. Ignored when
   `drop_pruned = TRUE`.
 
 - color_pruned, colour_pruned:
 
-  Fill colour for nodes flagged as pruned/redundant. Default `"grey80"`.
-  Only applied when the object carries pruning annotations (`x$prune` is
+  Fill colour for nodes flagged as pruned or redundant (a factor that
+  persists across levels without changing). Default `"grey80"`. Only
+  applied when the object carries pruning annotations (`x$prune` is
   non-`NULL`) and `drop_pruned = FALSE` (pruned nodes are omitted
   entirely when `drop_pruned = TRUE`). `colour_pruned` is an accepted
   British alias.
@@ -215,30 +221,31 @@ plot(x, ...)
   `NULL` (default) uses `magnitude_by` to decide edge width. A numeric
   value forces every edge to that constant width (implying
   `magnitude_by = "none"`) and drops the `|r|` legend. Forbes figures
-  use uniform thin lines (~= 0.5–0.6).
+  use uniform thin lines (about 0.5 to 0.6).
 
 - cut_strong:
 
   **Deprecated** in M35 and ignored (with a warning). Edge magnitude is
-  now shown by `magnitude_by` (linewidth) and sign by `sign_by`; the old
-  strong/weak linetype split double-encoded magnitude. Retained only so
-  existing calls do not error.
+  now shown by `magnitude_by` (linewidth) and sign by `sign_by`, because
+  the old strong/weak linetype split double-encoded magnitude. Retained
+  only so existing calls do not error.
 
 - direction:
 
-  Layout orientation. `"vertical"` (default) stacks levels top-to-bottom
-  (level 1 at top); `"horizontal"` lays them out left-to-right (level 1
-  at left), which suits wide slides or posters. Level-axis labels move
-  to the bottom margin under `"horizontal"`.
+  Layout orientation. `"vertical"` (default) stacks levels
+  top-to-bottom, with level 1 at top. `"horizontal"` lays them out
+  left-to-right, with level 1 at left, which suits wide slides or
+  posters. Level-axis labels move to the bottom margin under
+  `"horizontal"`.
 
 - show_level_labels:
 
   Whether to draw level axis labels ("1 factor", "2 factors", ...) to
-  the left of the diagram. Default `TRUE`. When the object carries
-  pruning annotations (`x$prune` non-`NULL`) and `drop_pruned = FALSE`,
-  a level whose factors are *all* pruned has its axis label rendered in
-  italic to denote its status (matching the grey node fill);
-  partially-pruned levels keep a plain label.
+  the left of the diagram. Default `TRUE`. Sometimes the object carries
+  pruning annotations (`x$prune` non-`NULL`) and `drop_pruned = FALSE`.
+  Then a level whose factors are *all* pruned has its axis label
+  rendered in italic to denote its status. The italic matches the grey
+  node fill. Partially-pruned levels keep a plain label.
 
 - level_label_size:
 
@@ -264,19 +271,19 @@ plot(x, ...)
 
 - drop_pruned:
 
-  When `TRUE`, activates the Forbes (2023) pruned-view rendering path:
-  pruned nodes are removed from the diagram entirely and each retained
-  node is connected to its single strongest kept ancestor by a straight
-  arrow (even across level gaps). Requires the object to carry pruning
-  annotations (piped through
-  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md));
-  errors if not. Overrides `show_skip`, `curvature`, and `primary_only`.
-  Default `FALSE`.
+  When `TRUE`, activates the Forbes (2023) pruned-view rendering path.
+  Pruned nodes are removed from the diagram entirely. Each retained node
+  is connected to its single strongest kept ancestor by a straight
+  arrow, even across level gaps. This requires the object to carry
+  pruning annotations (piped through
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)),
+  and errors if not. Overrides `show_skip`, `curvature`, and
+  `primary_only`. Default `FALSE`.
 
 - compress_levels:
 
   When `TRUE` under `drop_pruned = TRUE`, closes vertical gaps left by
-  pruned levels so retained levels are evenly spaced; level axis
+  pruned levels so retained levels are evenly spaced. Level axis
   labels (d) still show the original level numbers. Ignored when
   `drop_pruned = FALSE`. Default `FALSE`.
 
@@ -288,12 +295,12 @@ plot(x, ...)
   already a primary edge. This includes cross-branch second parents
   *and* same-lineage skip arcs (a direct skip-level `r` is a distinct,
   non-transitive fact, not implied by the primary path). Secondary edges
-  render in a channel deliberately distinct from the primary edges –
-  dimmed (reduced opacity) and thinner, with plain line ends – while
-  still inheriting the sign encoding (`sign_by`), so the sign
-  colour/linetype is never conflated with the secondary channel. By
-  construction each node's secondaries are weaker than its primary edge,
-  so a secondary edge never appears while that node's primary is below
+  render in a channel deliberately distinct from the primary edges. They
+  are dimmed (reduced opacity) and thinner, with plain line ends. They
+  still inherit the sign encoding (`sign_by`), so the sign colour or
+  linetype is never confused with the secondary channel. By construction
+  each node's secondaries are weaker than its primary edge, so a
+  secondary edge never appears while that node's primary is below
   `cut_show`. Ignored when `drop_pruned = FALSE`. Default `FALSE`.
 
 - show_arrows:
@@ -324,11 +331,13 @@ A `ggplot` object.
 ## Details
 
 When `what = "fit"`, renders a two-panel line plot of per-level fit
-indices (CFI/TLI in the top panel; RMSEA/SRMR in the bottom panel) with
-horizontal reference lines at conventional Hu & Bentler (1999)
-thresholds. The anchor level (k = 1, saturated and always fits
-perfectly) is excluded. Requires an EFA or ESEM engine; returns an
-informative empty plot for PCA (which has no model-fit indices).
+indices. CFI and TLI go in the top panel, RMSEA and SRMR in the bottom
+panel. Horizontal reference lines mark the conventional Hu & Bentler
+(1999) thresholds. The anchor level (k = 1, saturated and always fits
+perfectly) is excluded. This needs the EFA (exploratory factor analysis)
+or ESEM (exploratory structural equation modeling) engine. It returns an
+informative empty plot for PCA (principal component analysis), which has
+no model-fit indices.
 
 Requires the ggplot2 package.
 
@@ -342,9 +351,9 @@ returns a standard `ggplot` object, so save it with
       p <- autoplot(x)
       ggplot2::ggsave("hierarchy.png", p, width = 8, height = 6, dpi = 300)
 
-`ggsave()` is not re-exported by ackwards (that would move ggplot2 from
-Suggests into Imports); call it from ggplot2 directly. For a wide slide
-or poster, pair it with `direction = "horizontal"`.
+`ggsave()` is not re-exported by ackwards, because that would move
+ggplot2 from Suggests into Imports. Call it from ggplot2 directly. For a
+wide slide or poster, pair it with `direction = "horizontal"`.
 
 ## See also
 

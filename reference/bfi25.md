@@ -1,4 +1,4 @@
-# Big Five Inventory – 25-item IPIP example dataset
+# Big Five Inventory: 25-item IPIP example dataset
 
 A 1 000-row subset of the 25 IPIP Big Five personality-marker items from
 Revelle's `psych` package
@@ -15,17 +15,17 @@ bfi25
 ## Format
 
 A data frame with 1 000 rows and 25 integer columns (Likert responses
-scored 1–6, with some `NA`s reflecting genuine missing values in the
+scored 1 to 6, with some `NA`s reflecting genuine missing values in the
 original survey). The 25 items span the Big Five personality domains:
 
-|           |                   |
-|-----------|-------------------|
-| Columns   | Domain            |
-| `A1`–`A5` | Agreeableness     |
-| `C1`–`C5` | Conscientiousness |
-| `E1`–`E5` | Extraversion      |
-| `N1`–`N5` | Neuroticism       |
-| `O1`–`O5` | Openness          |
+|              |                   |
+|--------------|-------------------|
+| Columns      | Domain            |
+| `A1` to `A5` | Agreeableness     |
+| `C1` to `C5` | Conscientiousness |
+| `E1` to `E5` | Extraversion      |
+| `N1` to `N5` | Neuroticism       |
+| `O1` to `O5` | Openness          |
 
 ## Source
 
@@ -58,12 +58,11 @@ a `label` attribute, so
 captures it at fit time and
 [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md)
 prints the wording as `code: label` (e.g. `E4: Make friends easily`)
-with no setup. These are plain attributes: base row-subsetting (e.g.
-`na.omit(bfi25)`, `bfi25[rows, ]`) drops them, as base R does for any
-non-`labelled`-class vector, so fit on `bfi25` **directly** – its `NA`s
-are handled by the `missing` argument of
-[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-– to keep the labels.
+with no setup. These are plain attributes, so base row-subsetting (e.g.
+`na.omit(bfi25)`, `bfi25[rows, ]`) drops them. Base R does that for any
+vector that is not of class `labelled`. To keep the labels, fit on
+`bfi25` **directly**. Its `NA`s are handled by the `missing` argument of
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
 
 To regenerate this dataset, run `source("data-raw/bfi25.R")` from the
 package root.
