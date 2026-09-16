@@ -75,7 +75,7 @@ appended to `tools/prose-terms.txt` with a work-log line.
       precomputed, so knit it once locally to confirm it still renders; check.
 - [x] T6: Run `check_code_unchanged()` against the merge base; re-read the AC4 sites against
       `git show master:<file>`; fix drift.
-- [ ] T7: `Rscript vignettes/precompute.R`; revert timing-only churn in untouched vignettes;
+- [x] T7: `Rscript vignettes/precompute.R`; revert timing-only churn in untouched vignettes;
       set the dod-gate prose step per AC5; NEWS entry; `Rscript tools/dod-gate.R`.
 
 ## Work log
@@ -90,6 +90,7 @@ appended to `tools/prose-terms.txt` with a work-log line.
 - 2026-09-16: T4 ordinal rewritten; checker 0 reports, code guard OK. Glossed: ordinal, loading, factor, parallel analysis, polychoric, rotation, ESEM, factor score, EFA. The "Automatic detection" section (Pearson default, warning, `cor = "polychoric"` opt-in) kept (AC4). Recommendation-table cells changed `—` to parentheses. Blockquote `>` markers count as words in the checker, so the score-computation note was split finer.
 - 2026-09-16: T5 interpret rewritten; checker 0 reports; knitted once to the scratchpad with `rmarkdown::render()` (renders). `check_code_unchanged()` reads only `*.Rmd.orig`, so the live file's 79 chunk lines and spans were compared to `master:` with `.code_lines_rmd()` directly: identical. Glossed: factor, loading. The `E4: Make friends easily` label quote kept verbatim (AC4). A sentence that opens with a code span never splits in the checker (the span becomes a space, so no capital follows the period): three such sentences were re-opened with a word.
 - 2026-09-16: T6: `Rscript tools/check-prose.R --code-unchanged master` OK on the branch head (four `.Rmd.orig` sources; interpret compared by hand, see T5). The five AC4 sites re-read against `git show master:<file>`: girard Step 5 bullet (score correlations, descriptive, not a fitted model), forbes direct-criterion paragraph, forbes2023 `k_max = 10` fit plus direct default plus "reproduces ... exactly, all 54 components", ordinal "Automatic detection" (Pearson default, warning, polychoric opt-in), interpret `E4: Make friends easily` (matches `attr(bfi25$E4, "label")`). No drift found.
+- 2026-09-16: T7: `Rscript vignettes/precompute.R` re-run (exit 0); intro, suggest-k, engines, visualization `.Rmd` and their assets reverted with `git checkout --` (M61). In the four regenerated batch outputs only stamps, one gt div id, cli timing lines, and the check-mark variation selector differ; PNGs re-rendered. `tools/dod-gate.R` prose step now calls `check_prose()` with no path argument (full default domain; M86 has merged). NEWS: third documentation entry added, and the M85 entry's "The vignettes are unchanged" sentence, no longer true for this release, now points at the two vignette entries. `DOD_CODE_UNCHANGED=1 Rscript tools/dod-gate.R`: GATE PASSED (prose clean, code-unchanged clean, check 0 err/0 warn/0 note, coverage 100%, style/lint clean, pkgdown index complete).
 
 ## Decisions
 
