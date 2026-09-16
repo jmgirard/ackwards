@@ -285,7 +285,7 @@ its primary parent, and `sort = "strength"` orders them by `|r|`. An r close to
 dimension is stable across that step. But a factor that stays near 1.0 at
 *every* level is also a candidate for pruning. It is persisting without
 differentiating, which is the redundancy question of Forbes (2023). A redundant
-factor is one that adds no new dimension over its parent. See `prune()` and
+factor is one that persists across levels without changing. See `prune()` and
 `vignette("ackwards-forbes")`. Smaller values indicate where the structure is
 reorganizing.
 

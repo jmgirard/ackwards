@@ -1,6 +1,6 @@
 # M86: Plain-English pass — vignettes A (intro, suggest-k, engines, visualization)
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** M85
 - **Driving RR:** —
@@ -95,6 +95,8 @@ behavior, and keeps M85's tests green); term-list additions → appended to
 - 2026-09-16: T4 done: visualization rewritten; checker clean; 135 chunk lines byte-identical to master, no inline spans; 17 argument headings lost their em dashes; factor and parallel analysis glossed (the only two terms in its prose); the AC1 command over all four sources exits 0.
 - 2026-09-16: T5 done: `check_code_unchanged()` now runs its README chunk-and-span extraction over every `vignettes/*.Rmd.orig` on either side of the merge base; `test-check-prose.R` plants a chunk-option edit, a chunk-body edit, and an inline-span edit in a vignette source and sees each reported by file and item (9 expectations, 0 failures); a planted `k_max` edit in the real intro source turned the CLI red (item 23) before the restore; `--code-unchanged master` exits 0 on the branch; styler and lintr clean on both files; the AC4 intro and suggest-k sites re-read against `git show master:` (intro lines 51-54 and 30-32, suggest-k line 69).
 - 2026-09-16: T6 done: precompute re-run (45 s); the four generated `.Rmd` regenerated with new stamps; the other four precomputed vignettes and every `vignettes/assets/` PNG reverted to master (re-render churn only; interpret is live and untouched); in the four regenerated files every `#>` output difference is a cli timing line or the check-mark glyph gaining a variation-selector byte from the current cli build, no number changed; dod-gate prose domain widened to the four sources; NEWS documentation entry added and checker-clean; `Rscript tools/dod-gate.R` exit 0 (freshness clean, prose clean, check 0/0/0, coverage 100%, style/lint clean, pkgdown index complete).
+- 2026-09-16: claim audit: 163 claims read, 2 corrected — vignettes/ackwards-intro.Rmd.orig, vignettes/ackwards-visualization.Rmd.orig, tools/check-prose.R (the redundancy gloss described the non-default parent walk and now uses `prune()`'s own definition; the guard header now says it reads sources present on both sides of the merge base); both corrections re-read once by the same reader and confirmed; precompute re-run, the two regenerated `.Rmd` recommitted, churn elsewhere reverted; `Rscript tools/dod-gate.R` exit 0 again.
+- 2026-09-16: all tasks done; status set to review.
 
 ## Decisions
 

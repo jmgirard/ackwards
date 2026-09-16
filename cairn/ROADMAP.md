@@ -14,7 +14,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | M83 | Windows parallel-testthat crash — measure, diagnose, mitigate | done | — | high | milestones/archive/M83-windows-parallel-testthat-crash.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 | M85 | Plain-English pass — prose checker, README, DESCRIPTION, NEWS, roxygen | done | — | normal | milestones/archive/M85-plain-english-checker-readme-roxygen.md |
-| M86 | Plain-English pass — vignettes A (intro, suggest-k, engines, visualization) | in-progress | M85 | normal | milestones/M86-plain-english-vignettes-a.md |
+| M86 | Plain-English pass — vignettes A (intro, suggest-k, engines, visualization) | review | M85 | normal | milestones/M86-plain-english-vignettes-a.md |
 | M87 | Plain-English pass — vignettes B (girard, forbes, forbes2023, ordinal, interpret) | planned | M85 | normal | milestones/M87-plain-english-vignettes-b.md |
 <!-- M01–M80 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 3 most recent terminal rows. -->
 

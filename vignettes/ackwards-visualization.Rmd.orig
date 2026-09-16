@@ -248,7 +248,7 @@ autoplot(x, order = deepest)
 ### `drop_pruned` + `show_secondary`: the pruned view and its hidden correlations
 
 Pruning (see `vignette("ackwards-forbes")`) flags redundant factors, factors
-that add no new dimension over their parent. `drop_pruned = TRUE` then renders
+that persist across levels without changing. `drop_pruned = TRUE` then renders
 the reduced hierarchy, joining each retained factor to its single strongest
 surviving ancestor. That primary view hides every *other* between-level
 correlation. `show_secondary = TRUE` adds them back: each kept cross-level pair

@@ -12,7 +12,8 @@
 # rewrite left the code alone by comparing, against the merge base with `ref`,
 # the non-roxygen lines of R/*.R, the `#'` lines inside `@examples`, the
 # fenced chunks and inline `r` spans of README.Rmd and of every
-# vignettes/*.Rmd.orig, and every DESCRIPTION field other than `Description:`.
+# vignettes/*.Rmd.orig present on both sides of the merge base, and every
+# DESCRIPTION field other than `Description:`.
 #
 # Base R only, so it runs before any dependency install.
 #
