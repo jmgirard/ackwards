@@ -175,8 +175,9 @@ meets \code{redundancy_r}.
 \emph{full} redundancy, meaning pairs at or above the thresholds. Forbes (2023)
 uses the artifact flags mainly for the messier band \emph{just below} them. Say a
 pair correlates at \verb{|r| = 0.89} and shares a loading pattern at
-\code{phi = 0.93}. It is not
-quite redundant but is a candidate re-rotation worth a second look. Artifact
+\code{phi = 0.93}. It is not quite redundant, but it may be the same factor
+re-rotated (re-oriented without changing fit), so it is worth a second
+look. Artifact
 mode surfaces this as \code{x$prune$near_redundant}. That data frame holds every
 cross-level pair that is \strong{not} itself fully redundant. Such a pair has its
 direct (skip-level) \verb{|r|} \strong{or} its Tucker \code{phi} within \code{near_margin}

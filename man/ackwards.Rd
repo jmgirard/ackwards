@@ -54,8 +54,8 @@ ordinal-looking columns are detected and \code{cor} is not \code{"polychoric"}.
 Ordinal items have a few ordered categories, such as a 1 to 5 rating.}
 
 \item{fm}{Factor extraction method passed to \code{\link[psych:fa]{psych::fa()}}, and used only
-when \code{engine = "efa"}. One of \code{"minres"} (the default, which is ordinary
-least squares and tolerates non-normal data), \code{"ml"}
+when \code{engine = "efa"}. One of \code{"minres"} (the default, an ordinary least
+squares fit that converges reliably), \code{"ml"}
 (maximum likelihood, gives chi-square fit but converges less reliably at
 deep levels), or \code{"pa"} (principal axis). Ignored for \code{engine = "pca"}.}
 

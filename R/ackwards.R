@@ -79,8 +79,8 @@
 #'   recommended for the clinical or HiTOP workflow (Kim & Eaton, 2015,
 #'   Forbush et al., 2024). It requires lavaan >= 0.6-13.
 #' @param fm Factor extraction method passed to [psych::fa()], and used only
-#'   when `engine = "efa"`. One of `"minres"` (the default, which is ordinary
-#'   least squares and tolerates non-normal data), `"ml"`
+#'   when `engine = "efa"`. One of `"minres"` (the default, an ordinary least
+#'   squares fit that converges reliably), `"ml"`
 #'   (maximum likelihood, gives chi-square fit but converges less reliably at
 #'   deep levels), or `"pa"` (principal axis). Ignored for `engine = "pca"`.
 #' @param cor Correlation basis: `"pearson"` (default), `"spearman"`, or

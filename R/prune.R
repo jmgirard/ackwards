@@ -769,8 +769,9 @@
 #' *full* redundancy, meaning pairs at or above the thresholds. Forbes (2023)
 #' uses the artifact flags mainly for the messier band *just below* them. Say a
 #' pair correlates at `|r| = 0.89` and shares a loading pattern at
-#' `phi = 0.93`. It is not
-#' quite redundant but is a candidate re-rotation worth a second look. Artifact
+#' `phi = 0.93`. It is not quite redundant, but it may be the same factor
+#' re-rotated (re-oriented without changing fit), so it is worth a second
+#' look. Artifact
 #' mode surfaces this as `x$prune$near_redundant`. That data frame holds every
 #' cross-level pair that is **not** itself fully redundant. Such a pair has its
 #' direct (skip-level) `|r|` **or** its Tucker `phi` within `near_margin`

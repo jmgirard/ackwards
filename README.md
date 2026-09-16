@@ -34,10 +34,13 @@ analysis) summarizes the items with weighted sums called components. EFA
 latent factors plus item-specific noise. ESEM (exploratory structural
 equation modeling) fits the same kind of factor model inside a
 structural equation framework, which adds fit indices and standard
-errors. Ordinal data are items with a few ordered categories, such as a
-1 to 5 rating. For such data the package can use polychoric
-correlations, which estimate the correlation between the continuous
-traits assumed to underlie the ordered responses.
+errors. After extraction each engine applies a rotation, which
+re-orients the factors without changing how well they fit. The package
+uses varimax, which pushes each item toward one factor and keeps the
+factors uncorrelated. Ordinal data are items with a few ordered
+categories, such as a 1 to 5 rating. For such data the package can use
+polychoric correlations, which estimate the correlation between the
+continuous traits assumed to underlie the ordered responses.
 
 Beyond fitting, the package is a full analysis toolkit. `suggest_k()`
 brackets the plausible depth of the hierarchy. `comparability()` gates
@@ -103,8 +106,8 @@ sk
 #>   3     ✔︎      ✔︎   0.0172   0.5969   0.7288   ✔︎ 
 #>   4     ✔︎      ✔︎   0.0164   0.6198*  0.7781   ✔︎ 
 #>   5     ✔︎      ✔︎   0.0160*  0.5730   0.7912*  ✔︎ 
-#>   6     -      ✔︎   0.0170   0.5592   0.7530   ✔︎*
-#>   7     -      -   0.0201   0.5698   0.7290   - 
+#>   6     -      ✔︎   0.0170   0.5592   0.7530   ✔︎ 
+#>   7     -      -   0.0201   0.5698   0.7290   ✔︎*
 #>   8     -      -   0.0231   0.5615   0.7252   -
 #>   ✔︎ retained   * optimal k   - not retained
 #> 
@@ -115,8 +118,8 @@ sk
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
-#> • CD: k = 6
-#> Consensus range: k = 4-6
+#> • CD: k = 7
+#> Consensus range: k = 4-7
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.
@@ -130,11 +133,12 @@ with the known Big Five structure of this instrument.
 ### Step 2: Fit the hierarchy
 
 `ackwards()` fits factor models at every level from 1 to `k_max`. It
-then computes the correlations between the factor scores at neighbouring
-levels, and those correlations define the hierarchy. A factor score is
-each person’s estimated standing on a factor, computed from their item
-responses. The result is a set of linked solutions whose edges are score
-correlations, never a fitted hierarchical model.
+then computes the correlations between the factor scores of different
+levels, and those correlations define the hierarchy. By default it
+correlates neighbouring levels only. A factor score is each person’s
+estimated standing on a factor, computed from their item responses. The
+result is a set of linked solutions whose edges are score correlations,
+never a fitted hierarchical model.
 
 ``` r
 x <- ackwards(bfi25, k_max = 5, cor = "polychoric", missing = "listwise")

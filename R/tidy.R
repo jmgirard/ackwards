@@ -40,10 +40,10 @@ generics::glance
 #'     one statistical framing. (psych's residual-based *empirical* chi-square
 #'     is a different statistic and is not reported.) For ESEM (exploratory
 #'     structural equation modeling) they are `chi`, `dof`, `p_value`, `CFI`,
-#'     `TLI`, `RMSEA`, `SRMR`, `BIC`. A scaled-test estimator is used for ESEM
-#'     on ordinal items (a few ordered categories, such as a 1 to 5 rating),
-#'     namely `"WLSMV"` or `"ULSMV"`, and `"MLR"` is used for continuous
-#'     items. Under such an estimator the whole row reports lavaan's
+#'     `TLI`, `RMSEA`, `SRMR`, `BIC`. Three estimators run a scaled test:
+#'     `"WLSMV"` and `"ULSMV"` for ordinal items (a few ordered categories,
+#'     such as a 1 to 5 rating), and `"MLR"` for continuous ones. Under any
+#'     of them the whole row reports lavaan's
 #'     mean-and-variance-adjusted ("scaled") variant, so every quantity shares
 #'     one scaling. That covers `chi`, `dof`, and `p_value` **and** `CFI`,
 #'     `TLI`, and `RMSEA`. This matters most for WLSMV and ULSMV. The naive

@@ -1,6 +1,6 @@
 # M85: Plain-English pass — prose checker, README, DESCRIPTION, NEWS, roxygen
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -111,7 +111,7 @@ the Plain register, so `may`/`might`/`should` stay allowed).
 - [x] T6: Rewrite roxygen in the remaining `R/*.R`; document; check the whole AC3 domain.
 - [x] T7: Run `check_code_unchanged()` against the merge base and re-read the AC6 sites
       against `git show master:<file>`; fix any drift.
-- [ ] T8: Wire the prose check into `tools/dod-gate.R` after the CI-filter step; NEWS entry;
+- [x] T8: Wire the prose check into `tools/dod-gate.R` after the CI-filter step; NEWS entry;
       `Rscript tools/dod-gate.R`.
 
 ## Work log
@@ -128,6 +128,9 @@ the Plain register, so `may`/`might`/`should` stay allowed).
 - 2026-09-16: T4, T5, T6 done by three parallel [O] subagents on disjoint file sets (T4: ackwards, compute_edges, data, the engine files carry no prose. T5: prune, suggest_k, tidy, augment, predict, boot_edges, comparability. T6: autoplot, layout, print, summary, check_items, factor_labels, factorability, interpret, label_template, utils has no prose). Each ran the checker to clean and the code guard to clean before returning. Their flagged rewordings were read: the `fm` "robust OLS" gloss, the n_obs FIML clause reorder, the `sign_by` sentence prefixes, and sentence-initial code spans given a noun all keep the stated meaning. One paraphrase was reverted to the term with a gloss ("factor overdetermination" in factorability.R). `devtools::document()` run and re-run with no further diff.
 - 2026-09-16: toolchain drift found on the fresh R 4.6 library and neutralised without code change: roxygen2 8.1.0 rewrote NAMESPACE's importFrom layout and bumped the DESCRIPTION stamp, so roxygen2 8.0.0 (master's version) was installed and the stamp kept; lintr 3.4.0 flags the two pre-existing `<<-` in suggest_k.R that master also trips, so `.lintr` now passes `assignment_linter(operator = c("<-", "<<-"))`. Both are dev tooling, neither touches a user-facing surface.
 - 2026-09-16: T7 done. `check_code_unchanged("master")` clean after the whole rewrite. AC6 sites read on the branch: the ackwards() description keeps "edges are score correlations, not a fitted higher-order SEM"; the `cor = "pearson"` bullet keeps "no silent basis switching" with the warning that suggests polychoric; "Varimax is the only supported rotation" stays; `redundancy_criterion` keeps `"direct"` as the default that reproduces Forbes's ChaseCorrPaths and AMH example with `"adjacent"` as the opt-in. A scripted extraction of "Default `value`" mentions per `@param` matched master for prune.R and suggest_k.R and for ackwards.R apart from regex-form differences on `fm` and `n_obs`, whose values (`"minres"`, `"total"`) are unchanged.
+- 2026-09-16: T8 done. Prose check wired into `tools/dod-gate.R` after the CI-filter step, over README.Rmd, DESCRIPTION, NEWS.md, and R/ (the vignette sources join when M86/M87 land). `Rscript tools/dod-gate.R` exit 0: prose clean, check 0/0/0, coverage 100%, styler and lintr clean, pkgdown index complete.
+- 2026-09-16: claim audit: 186 claims read, 5 corrected — R/tidy.R, R/ackwards.R, R/augment.R, R/prune.R, README.Rmd. The five: tidy.R's fit bullet had turned the list of scaled-test estimators into a claim that ESEM selects MLR for continuous items (the code selects ML), the `fm` minres gloss had invented a non-normality reason for a banned "robust" (restored to the convergence contrast), augment.R's `id_cols` read "ignored, and an error" (now two error sentences), the prune() topic used "re-rotation" without a gloss, and README's Step 2 said edges are computed between neighbouring levels only (now "different levels", neighbouring by default). NEWS softened from "every help page rewritten" to "the help pages were revised". All five re-read once by the same reader and confirmed; one optional tightening left unapplied (rotation is skipped at k = 1, where the README sentence about rotation is vacuously true).
+- 2026-09-16: all tasks done; status set to review. Post-correction re-verification: prose and code guards clean, `document()` and `build_readme()` re-run, suite 726 tests with 0 failures, lint 0, styler 0.
 
 ## Decisions
 

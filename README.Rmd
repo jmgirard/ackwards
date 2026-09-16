@@ -41,7 +41,10 @@ analysis) summarizes the items with weighted sums called components. EFA
 (exploratory factor analysis) instead models the items as caused by latent
 factors plus item-specific noise. ESEM (exploratory structural equation
 modeling) fits the same kind of factor model inside a structural equation
-framework, which adds fit indices and standard errors. Ordinal data are items
+framework, which adds fit indices and standard errors. After extraction each
+engine applies a rotation, which re-orients the factors without changing how
+well they fit. The package uses varimax, which pushes each item toward one
+factor and keeps the factors uncorrelated. Ordinal data are items
 with a few ordered categories, such as a 1 to 5 rating. For such data the
 package can use polychoric correlations, which estimate the correlation between
 the continuous traits assumed to underlie the ordered responses.
@@ -101,8 +104,9 @@ the known Big Five structure of this instrument.
 ### Step 2: Fit the hierarchy
 
 `ackwards()` fits factor models at every level from 1 to `k_max`. It then
-computes the correlations between the factor scores at neighbouring levels,
-and those correlations define the hierarchy. A factor score is each person's
+computes the correlations between the factor scores of different levels, and
+those correlations define the hierarchy. By default it correlates neighbouring
+levels only. A factor score is each person's
 estimated standing on a factor, computed from their item responses. The
 result is a set of linked solutions whose edges are score correlations, never
 a fitted hierarchical model.

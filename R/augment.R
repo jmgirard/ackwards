@@ -81,10 +81,10 @@ generics::augment
 #'   the score columns are returned (plus any `id_cols`).
 #' @param id_cols Optional character vector naming columns of `data` to carry
 #'   through alongside the scores when `append = FALSE` (for example a subject
-#'   identifier, so scores can be rejoined after filtering). It is ignored, and
-#'   an error, when `append = TRUE` (all columns are already kept) or when
-#'   `data` is `NULL` (there are no source columns to carry). `NULL` (default)
-#'   returns the bare score columns.
+#'   identifier, so scores can be rejoined after filtering). Supplying it with
+#'   `append = TRUE` is an error, because all columns are already kept.
+#'   Supplying it with `data = NULL` is also an error, because there are no
+#'   source columns to carry. `NULL` (default) returns the bare score columns.
 #' @param scaling Which item means/SDs standardize `data` before the weights
 #'   are applied. `"fit"` (default) uses the **fit-time** moments stored in the
 #'   object. That is the correct choice for scoring new observations (e.g. a

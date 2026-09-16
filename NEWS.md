@@ -1,7 +1,7 @@
 # ackwards (development version)
 
 * **Plain-English documentation.** The README, the package description, and
-  every help page were rewritten so that a reader outside the field can follow
+  the help pages were revised so that a reader outside the field can follow
   them on one read. Sentences are shorter, dashes and semicolons are gone, and
   each statistical term is explained in plain words where a help page first
   uses it. No function, argument, default, or example changed. A prose checker

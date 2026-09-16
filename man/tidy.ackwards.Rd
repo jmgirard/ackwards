@@ -44,10 +44,10 @@ For EFA objects they are \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \
 one statistical framing. (psych's residual-based \emph{empirical} chi-square
 is a different statistic and is not reported.) For ESEM (exploratory
 structural equation modeling) they are \code{chi}, \code{dof}, \code{p_value}, \code{CFI},
-\code{TLI}, \code{RMSEA}, \code{SRMR}, \code{BIC}. A scaled-test estimator is used for ESEM
-on ordinal items (a few ordered categories, such as a 1 to 5 rating),
-namely \code{"WLSMV"} or \code{"ULSMV"}, and \code{"MLR"} is used for continuous
-items. Under such an estimator the whole row reports lavaan's
+\code{TLI}, \code{RMSEA}, \code{SRMR}, \code{BIC}. Three estimators run a scaled test:
+\code{"WLSMV"} and \code{"ULSMV"} for ordinal items (a few ordered categories,
+such as a 1 to 5 rating), and \code{"MLR"} for continuous ones. Under any
+of them the whole row reports lavaan's
 mean-and-variance-adjusted ("scaled") variant, so every quantity shares
 one scaling. That covers \code{chi}, \code{dof}, and \code{p_value} \strong{and} \code{CFI},
 \code{TLI}, and \code{RMSEA}. This matters most for WLSMV and ULSMV. The naive

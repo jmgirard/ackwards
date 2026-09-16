@@ -26,10 +26,10 @@ the score columns are returned (plus any \code{id_cols}).}
 
 \item{id_cols}{Optional character vector naming columns of \code{data} to carry
 through alongside the scores when \code{append = FALSE} (for example a subject
-identifier, so scores can be rejoined after filtering). It is ignored, and
-an error, when \code{append = TRUE} (all columns are already kept) or when
-\code{data} is \code{NULL} (there are no source columns to carry). \code{NULL} (default)
-returns the bare score columns.}
+identifier, so scores can be rejoined after filtering). Supplying it with
+\code{append = TRUE} is an error, because all columns are already kept.
+Supplying it with \code{data = NULL} is also an error, because there are no
+source columns to carry. \code{NULL} (default) returns the bare score columns.}
 
 \item{scaling}{Which item means/SDs standardize \code{data} before the weights
 are applied. \code{"fit"} (default) uses the \strong{fit-time} moments stored in the
