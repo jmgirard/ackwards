@@ -297,6 +297,13 @@ test_that("check_code_unchanged sees only code and reports a changed code line",
     "Old prose `r 1 + 1` here.",
     "```{r}", "x <- 1", "```"
   ), "README.Rmd")
+  dir.create("vignettes")
+  vig <- c(
+    "---", "title: v", "---",
+    "Old vignette prose `r 2 + 2` here.",
+    "```{r chunk, eval = FALSE}", "y <- 1", "```"
+  )
+  writeLines(vig, "vignettes/v.Rmd.orig")
   git("add", "-A")
   git("commit", "-q", "-m", "base")
   git("checkout", "-q", "-b", "work")
@@ -320,6 +327,8 @@ test_that("check_code_unchanged sees only code and reports a changed code line",
     "New prose `r 1 + 1` here.",
     "```{r}", "x <- 1", "```"
   ), "README.Rmd")
+  vig[4] <- "New vignette prose `r 2 + 2` here."
+  writeLines(vig, "vignettes/v.Rmd.orig")
   git("commit", "-q", "-am", "prose")
   expect_equal(env$check_code_unchanged("master", root), character(0L))
 
@@ -367,4 +376,29 @@ test_that("check_code_unchanged sees only code and reports a changed code line",
     "```{r}", "x <- 2", "```"
   ), "README.Rmd")
   expect_match(env$check_code_unchanged("master", root), "README.Rmd: chunk or inline-code item 2")
+  git("checkout", "-q", "--", "README.Rmd")
+
+  # A vignette source is guarded the same way: a chunk option, a chunk body
+  # line, and an inline span each report by file and item.
+  v2 <- vig
+  v2[5] <- "```{r chunk, eval = TRUE}"
+  writeLines(v2, "vignettes/v.Rmd.orig")
+  expect_match(
+    env$check_code_unchanged("master", root),
+    "vignettes/v.Rmd.orig: chunk or inline-code item 1"
+  )
+  v2 <- vig
+  v2[6] <- "y <- 2"
+  writeLines(v2, "vignettes/v.Rmd.orig")
+  expect_match(
+    env$check_code_unchanged("master", root),
+    "vignettes/v.Rmd.orig: chunk or inline-code item 2"
+  )
+  v2 <- vig
+  v2[4] <- "New vignette prose `r 2 + 3` here."
+  writeLines(v2, "vignettes/v.Rmd.orig")
+  expect_match(
+    env$check_code_unchanged("master", root),
+    "vignettes/v.Rmd.orig: chunk or inline-code item 4"
+  )
 })

@@ -74,7 +74,7 @@ behavior, and keeps M85's tests green); term-list additions → appended to
 - [x] T2: Rewrite `ackwards-suggest-k.Rmd.orig` (148 sentences, 37 em dashes); check.
 - [x] T3: Rewrite `ackwards-engines.Rmd.orig` (115 sentences, 42 em dashes); check.
 - [x] T4: Rewrite `ackwards-visualization.Rmd.orig` (47 sentences, 31 em dashes); check.
-- [ ] T5: Widen `check_code_unchanged()` to the vignette sources with a planted-edit test;
+- [x] T5: Widen `check_code_unchanged()` to the vignette sources with a planted-edit test;
       run it against the merge base; re-read the AC4 sites against `git show master:<file>`;
       fix drift.
 - [ ] T6: `Rscript vignettes/precompute.R`; revert timing-only churn in the other five
@@ -93,6 +93,7 @@ behavior, and keeps M85's tests green); term-list additions → appended to
 - 2026-09-16: T2 done: suggest-k rewritten; checker clean; 108 chunk lines and 11 inline spans byte-identical to master (the en dash between two spans on the old line 405 became " to ", outside both spans); three criterion headings lost their em dashes; 8 terms glossed (rotation, varimax, factor score, FIML, PCA, congruence, redundancy absent from prose); the D-013 sentence stands at line 69.
 - 2026-09-16: T3 done: engines rewritten; checker clean; 188 chunk lines and 1 inline span byte-identical to master (a gt label line retyped with a plain space where master has a no-break space was restored from master by bytes); a gloss paragraph before the comparison table covers PCA, EFA, ESEM, polychoric, ordinal, FIML, and loading, since table cells hit the grep first; the stale in-page anchor `#fiml-for-continuous-pcaefa-via-a-fiml-correlation-matrix` now points at the heading's real anchor `#fiml-for-continuous-pcaefa`; both AC4 engines sites stand (lines 268-271 and 466-469).
 - 2026-09-16: T4 done: visualization rewritten; checker clean; 135 chunk lines byte-identical to master, no inline spans; 17 argument headings lost their em dashes; factor and parallel analysis glossed (the only two terms in its prose); the AC1 command over all four sources exits 0.
+- 2026-09-16: T5 done: `check_code_unchanged()` now runs its README chunk-and-span extraction over every `vignettes/*.Rmd.orig` on either side of the merge base; `test-check-prose.R` plants a chunk-option edit, a chunk-body edit, and an inline-span edit in a vignette source and sees each reported by file and item (9 expectations, 0 failures); a planted `k_max` edit in the real intro source turned the CLI red (item 23) before the restore; `--code-unchanged master` exits 0 on the branch; styler and lintr clean on both files; the AC4 intro and suggest-k sites re-read against `git show master:` (intro lines 51-54 and 30-32, suggest-k line 69).
 
 ## Decisions
 
