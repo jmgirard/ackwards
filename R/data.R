@@ -1,20 +1,20 @@
-#' Big Five Inventory -- 25-item IPIP example dataset
+#' Big Five Inventory: 25-item IPIP example dataset
 #'
 #' A 1 000-row subset of the 25 IPIP Big Five personality-marker items from
 #' Revelle's `psych` package (`psych::bfi`). Included so that package examples
 #' and vignettes run without reaching into `psych`'s namespace directly.
 #'
 #' @format A data frame with 1 000 rows and 25 integer columns (Likert responses
-#'   scored 1--6, with some `NA`s reflecting genuine missing values in the
+#'   scored 1 to 6, with some `NA`s reflecting genuine missing values in the
 #'   original survey). The 25 items span the Big Five personality domains:
 #'
 #'   | Columns | Domain |
 #'   |---------|--------|
-#'   | `A1`--`A5` | Agreeableness |
-#'   | `C1`--`C5` | Conscientiousness |
-#'   | `E1`--`E5` | Extraversion |
-#'   | `N1`--`N5` | Neuroticism |
-#'   | `O1`--`O5` | Openness |
+#'   | `A1` to `A5` | Agreeableness |
+#'   | `C1` to `C5` | Conscientiousness |
+#'   | `E1` to `E5` | Extraversion |
+#'   | `N1` to `N5` | Neuroticism |
+#'   | `O1` to `O5` | Openness |
 #'
 #' @details
 #' Derived from `psych::bfi[, 1:25]` by sampling 1 000 rows with
@@ -25,10 +25,11 @@
 #' Each item column carries its public-domain IPIP stem (Goldberg, 1999) as a
 #' `label` attribute, so `ackwards()` captures it at fit time and `top_items()`
 #' prints the wording as `code: label` (e.g. `E4: Make friends easily`) with
-#' no setup. These are plain attributes: base row-subsetting (e.g.
-#' `na.omit(bfi25)`, `bfi25[rows, ]`) drops them, as base R does for any
-#' non-`labelled`-class vector, so fit on `bfi25` **directly** -- its `NA`s are
-#' handled by the `missing` argument of `ackwards()` -- to keep the labels.
+#' no setup. These are plain attributes, so base row-subsetting (e.g.
+#' `na.omit(bfi25)`, `bfi25[rows, ]`) drops them. Base R does that for any
+#' vector that is not of class `labelled`. To keep the labels, fit on `bfi25`
+#' **directly**. Its `NA`s are handled by the `missing` argument of
+#' `ackwards()`.
 #'
 #' To regenerate this dataset, run `source("data-raw/bfi25.R")` from the
 #' package root.
@@ -56,62 +57,66 @@
 #' Simulated continuous bass-ackwards teaching example (16 items, known hierarchy)
 #'
 #' A 1 000-row, fully continuous dataset simulated from a population model
-#' with a known 1 -> 2 -> 4 bass-ackwards hierarchy, for showcasing the
-#' default `cor = "pearson"` extraction path without the ordinal-detection
-#' warning that `bfi25`'s Likert items trigger.
+#' with a known 1 -> 2 -> 4 bass-ackwards hierarchy. A factor is a summary
+#' variable that stands in for a group of items that move together. The
+#' dataset showcases the default `cor = "pearson"` extraction path without
+#' the ordinal-detection warning that `bfi25`'s Likert items trigger. Ordinal
+#' items have a few ordered categories, such as a 1 to 5 rating.
 #'
-#' @format A data frame with 1 000 rows and 16 numeric columns (`i1`--`i16`,
-#'   continuous, no missing values).
+#' @format A data frame with 1 000 rows and 16 numeric columns (`i1` to
+#'   `i16`, continuous, no missing values).
 #'
 #' @details
 #' **Population model.** `Sigma = Lambda %*% Phi %*% t(Lambda) + Psi`, an
 #' oblique common-factor model with 4 true group factors, sampled via a
-#' Cholesky factorization (base R; no `MASS` dependency):
+#' Cholesky factorization (base R, with no `MASS` dependency):
 #'
 #' | Factor | Items | Metatrait |
 #' |---|---|---|
-#' | `f1` | `i1`--`i4`   | 1 (with `f2`) |
-#' | `f2` | `i5`--`i8`   | 1 (with `f1`) |
-#' | `f3` | `i9`--`i12`  | 2 (with `f4`) |
-#' | `f4` | `i13`--`i16` | 2 (with `f3`) |
+#' | `f1` | `i1` to `i4`   | 1 (with `f2`) |
+#' | `f2` | `i5` to `i8`   | 1 (with `f1`) |
+#' | `f3` | `i9` to `i12`  | 2 (with `f4`) |
+#' | `f4` | `i13` to `i16` | 2 (with `f3`) |
 #'
-#' All items load `0.75` on their true factor (no cross-loadings). Factor
-#' correlations: `0.45` within a metatrait (`f1`-`f2`, `f3`-`f4`), `0.15`
-#' between metatraits. Uniquenesses are `1 - communality` (uniform `0.4375`
-#' by the symmetry of the design above).
+#' All items load `0.75` on their true factor, with no cross-loadings. A
+#' loading is the correlation between an item and a factor. Factor
+#' correlations are `0.45` within a metatrait (`f1`-`f2`, `f3`-`f4`) and
+#' `0.15` between metatraits. Uniquenesses are `1 - communality` (uniform
+#' `0.4375` by the symmetry of the design above).
 #'
-#' **Ground-truth hierarchy** (verified against `ackwards(engine = "efa")`):
-#' `k=1` recovers a single general factor across all 16 items; `k=2` splits
-#' along the metatrait line (`i1`-`i8` vs. `i9`-`i16`); `k=4` recovers the 4
-#' true group factors exactly; all six `suggest_k()` recommendations (five
-#' criteria -- VSS reports at complexities 1 and 2) reach a consensus of
-#' `k = 4`.
+#' **Ground-truth hierarchy** (verified against `ackwards(engine = "efa")`).
+#' `k=1` recovers a single general factor across all 16 items. `k=2` splits
+#' along the metatrait line (`i1`-`i8` vs. `i9`-`i16`). `k=4` recovers the 4
+#' true group factors exactly. All six `suggest_k()` recommendations reach a
+#' consensus of `k = 4`, from five criteria, because VSS reports at
+#' complexities 1 and 2.
 #'
 #' **Idealized by design.** The planted signal is strong and clean, so all six
-#' `suggest_k()` recommendations converge on `k = 4` -- deliberately the *easy* case,
-#' for building intuition about what recovering a known hierarchy looks like.
-#' Real data rarely agree this cleanly: on `bfi25` the same criteria span
-#' `k = 4`--`6`. The two datasets are complementary teaching foils -- `sim16`
-#' for "watch the method recover a structure we planted," `bfi25` for
-#' "reason about a hierarchy when the criteria disagree." Present `sim16`'s
-#' consensus as the ideal, not the norm.
+#' `suggest_k()` recommendations converge on `k = 4`. That is deliberately the
+#' *easy* case, for building intuition about what recovering a known hierarchy
+#' looks like. Real data rarely agree this cleanly: on `bfi25` the same
+#' criteria span `k = 4` to `6`. The two datasets are complementary teaching
+#' foils. Use `sim16` for "watch the method recover a structure we planted,"
+#' and `bfi25` for "reason about a hierarchy when the criteria disagree."
+#' Present `sim16`'s consensus as the ideal, not the norm.
 #'
 #' **Deliberate overextraction artifact at k=5.** The population has exactly
-#' 4 factors, so requesting a 5th finds no real dimension: EFA produces an
-#' orphan factor with zero primary-loading items. With
-#' `prune(x, "artifact")` (default `min_items = 3`, `orphan_r = 0.5`), that
-#' factor is flagged both `few_items` and `orphan`. Because the true (non-
-#' splitting) factors persist essentially unchanged from `k=3` onward, their
-#' parent-child score correlations approach 1 and are flagged by
+#' 4 factors, so requesting a 5th finds no real dimension. EFA (exploratory
+#' factor analysis) produces an orphan factor with zero primary-loading items.
+#' With `prune(x, "artifact")` (default `min_items = 3`, `orphan_r = 0.5`),
+#' that factor is flagged both `few_items` and `orphan`. The true factors, the
+#' ones that do not split, persist almost unchanged from `k=3` onward. So
+#' their parent-child score correlations approach 1 and are flagged by
 #' `prune(x, "redundant")` (`|r| >= .9` and, under the EFA auto-default,
-#' Tucker's phi `> .95`). This is a textbook overextraction artifact, included so the
-#' Forbes/redundancy examples have a guaranteed finding to teach against
+#' Tucker's phi `> .95`). Two factors are redundant when one adds nothing over
+#' the other. This is a textbook overextraction artifact, included so the
+#' Forbes and redundancy examples have a guaranteed finding to teach against
 #' (unlike `bfi25`, which does not reliably trigger one).
 #'
 #' To regenerate this dataset, run `source("data-raw/sim16.R")` from the
 #' package root (`set.seed(42)`).
 #'
-#' @source Simulated; see `data-raw/sim16.R` for the full generative model.
+#' @source Simulated. See `data-raw/sim16.R` for the full generative model.
 #'
 #' @examples
 #' dim(sim16)
@@ -122,24 +127,28 @@
 #'
 #' The 155 x 155 Spearman correlation matrix among 155 mental-health symptom
 #' variables that forms the applied example in Forbes (2023). It is a real,
-#' deep hierarchy: `ackwards(forbes2023, k_max = 10)` unfolds a general factor of
-#' psychopathology at the top down to 10 fine-grained components, the worked
-#' example that motivates the Forbes extension (`pairs = "all"`, `prune()`).
+#' deep hierarchy. `ackwards(forbes2023, k_max = 10)` unfolds a general factor
+#' of psychopathology at the top down to 10 fine-grained components. A factor
+#' (or component) is a summary variable standing in for a group of variables
+#' that move together. This is the worked example that motivates the Forbes
+#' extension (`pairs = "all"`, `prune()`).
 #'
 #' Where `sim16` and `bfi25` are teaching foils, `forbes2023` is a
 #' fidelity/reproduction dataset: a large, messy, published case bundled so the
 #' package can reproduce the exact applied example analyzed in Forbes's paper.
 #'
 #' @format A 155 x 155 numeric matrix of Spearman correlations: symmetric, unit
-#'   diagonal, correlations in roughly `0.01`--`0.94`. Row and column names are
-#'   the 155 symptom-variable labels (e.g. `Impulsivity`, `Blurting`).
+#'   diagonal, correlations in roughly `0.01` to `0.94`. Row and column names
+#'   are the 155 symptom-variable labels (e.g. `Impulsivity`, `Blurting`).
 #'
 #' @details
-#' The correlations come from the Assessing Mental Health (AMH) study -- the
-#' Australian general-population sample (N = 3,175) of Forbes et al. (2021) --
-#' spanning symptoms of 18 DSM disorders. Being a correlation matrix, it carries
-#' no per-variable sample size; supply `n_obs = 3175` to `ackwards()` if you want
-#' EFA/ESEM fit statistics scaled to the original sample.
+#' The correlations come from the Assessing Mental Health (AMH) study. That is
+#' the Australian general-population sample (N = 3,175) of Forbes et al.
+#' (2021), spanning symptoms of 18 DSM disorders. Being a correlation matrix,
+#' it carries no per-variable sample size. Supply `n_obs = 3175` to
+#' `ackwards()` if you want fit statistics scaled to the original sample for
+#' EFA (exploratory factor analysis) or ESEM (exploratory structural equation
+#' modeling).
 #'
 #' This matrix reproduces Forbes's published results exactly: the package
 #' regression test `test-forbes-fidelity.R` runs `ackwards()` on this exported

@@ -2,6 +2,7 @@
 # Definition-of-done gate (M48). Runs the full CLAUDE.md gate sequence once,
 # serially, in one process:
 #   vignette freshness (M65; fail-fast, base R) ->
+#   ledger anchors (M72) -> CI path filters (M82) -> prose check (M85) ->
 #   devtools::check() (must be 0/0/0, vignettes included)
 #   -> covr::package_coverage() (target 100%)
 #   -> styler::style_pkg() -> lintr::lint_package()
@@ -58,6 +59,30 @@ if (length(ci_problems) > 0) {
   failures <- c(failures, "CI paths-ignore filters (see tools/check-ci-path-filters.R)")
 } else {
   note("ci-path-filters: clean")
+}
+
+# Plain-English prose check (M85), fail-fast like the three above. Sweeps the
+# README, DESCRIPTION, the NEWS development section, and every roxygen line
+# for dashes, semicolons, banned phrases, and sentences over 30 words. The
+# vignette sources join this domain when their own rewrite lands. Base R
+# only; sys.source blocks the script's own body.
+prose_env <- new.env()
+sys.source("tools/check-prose.R", envir = prose_env)
+prose_reports <- prose_env$check_prose(
+  c("README.Rmd", "DESCRIPTION", "NEWS.md", "R"),
+  banned = prose_env$read_prose_list("prose-banned.txt", "tools"),
+  abbrev = prose_env$read_prose_list("prose-abbrev.txt", "tools")
+)
+if (nrow(prose_reports) > 0) {
+  for (i in seq_len(nrow(prose_reports))) {
+    note(
+      "prose: %s:%d [%s] %s", prose_reports$file[i], prose_reports$line[i],
+      prose_reports$class[i], prose_reports$text[i]
+    )
+  }
+  failures <- c(failures, sprintf("prose check: %d report(s) (see tools/check-prose.R)", nrow(prose_reports)))
+} else {
+  note("prose: clean")
 }
 
 t0 <- Sys.time()
@@ -120,4 +145,4 @@ if (length(failures) > 0) {
   note("GATE FAILED:\n- %s", paste(failures, collapse = "\n- "))
   quit(status = 1L)
 }
-note("GATE PASSED (check 0/0/0, coverage 100%%, style/lint clean, pkgdown index complete)")
+note("GATE PASSED (prose clean, check 0/0/0, coverage 100%%, style/lint clean, pkgdown index complete)")

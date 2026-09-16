@@ -26,18 +26,18 @@ the score columns are returned (plus any \code{id_cols}).}
 
 \item{id_cols}{Optional character vector naming columns of \code{data} to carry
 through alongside the scores when \code{append = FALSE} (for example a subject
-identifier, so scores can be rejoined after filtering). Ignored -- and an
-error -- when \code{append = TRUE} (all columns are already kept) or when \code{data}
-is \code{NULL} (there are no source columns to carry). \code{NULL} (default) returns
-the bare score columns.}
+identifier, so scores can be rejoined after filtering). It is ignored, and
+an error, when \code{append = TRUE} (all columns are already kept) or when
+\code{data} is \code{NULL} (there are no source columns to carry). \code{NULL} (default)
+returns the bare score columns.}
 
 \item{scaling}{Which item means/SDs standardize \code{data} before the weights
 are applied. \code{"fit"} (default) uses the \strong{fit-time} moments stored in the
-object -- the correct choice for scoring new observations (e.g. a
+object. That is the correct choice for scoring new observations (e.g. a
 cross-validation test split) or subsets on the training metric. \code{"sample"}
 standardizes by the supplied data's own moments (the only option for
 objects fit from a correlation matrix, which carry no raw-data moments).
-Only used when \code{data} is supplied; passing it without \code{data} is an error
+Only used when \code{data} is supplied. Passing it without \code{data} is an error
 (stored scores are returned exactly as computed at fit time).}
 
 \item{...}{Ignored.}
@@ -49,20 +49,23 @@ index when \code{data} is \code{NULL}) with score columns appended. With
 \code{id_cols}. Row order and count always match the input.
 }
 \description{
-Appends per-observation factor scores for every level to a data frame.
+Appends per-observation factor scores to a data frame, for every level. A
+factor is a summary variable standing in for a group of items that move
+together, and a factor score is each person's estimated standing on one.
 Score columns are named \verb{.m\{k\}f\{j\}} (e.g., \code{.m1f1}, \code{.m2f1}, \code{.m2f2}),
 matching the factor labels used throughout the object.
 }
 \details{
 \strong{Score computation.} Scores are \verb{S = Z W / sqrt(score_var)}, where \code{Z} is
-the item z-scores, \code{W} is the per-level weight matrix stored in the object,
-and \code{sqrt(score_var)} standardizes by the real score standard deviations
-(Invariant 1: never assume unit variance). For PCA the method is
-\code{"components"}; for EFA/ESEM it is \code{"tenBerge"}. The \code{scaling} argument
-controls which means/SDs build \code{Z}: by default the \strong{fit-time} moments
-stored in the object, so any data you score — the training data, a subset
-of it, or entirely new observations — lands on the same metric the model
-was estimated in.
+the item z-scores and \code{W} is the per-level weight matrix stored in the
+object. Dividing by \code{sqrt(score_var)} standardizes by the real score
+standard deviations (Invariant 1: never assume unit variance). For PCA
+(principal component analysis) the method is \code{"components"}. For EFA
+(exploratory factor analysis) and ESEM (exploratory structural equation
+modeling) it is \code{"tenBerge"}. The \code{scaling} argument controls which
+means/SDs build \code{Z}. By default these are the \strong{fit-time} moments stored
+in the object. Any data you score then lands on the same metric the model
+was estimated in: the training data, a subset of it, or new observations.
 
 \strong{Scoring new observations (cross-validation).} Because scoring only needs
 the stored weight matrices and the fit-time moments, you can fit
@@ -70,21 +73,24 @@ the stored weight matrices and the fit-time moments, you can fit
 retraining}: \code{augment(x, data = test_set)} (or, equivalently,
 \code{\link[=predict.ackwards]{predict.ackwards()}}). Under the default \code{scaling = "fit"} the test
 observations are standardized by the \emph{training} means/SDs, which is what
-"applying the trained model" means: a test observation's score does not
+"applying the trained model" means. A test observation's score does not
 depend on which other observations happen to share its split, and train and
-test scores are directly comparable. \code{scaling = "sample"} instead
-re-standardizes by the supplied data's own moments — a deliberate choice
-when scoring a sample from a different population in its own metric, and
-the only option for objects fit from a correlation matrix (which carry no
-raw-data moments). For non-Pearson bases (polychoric, Spearman) the usual
-caveat applies either way: the weights derive from the non-Pearson \code{R}
-while \code{Z} is a linear standardization, so empirical score SDs are close to
-but not exactly 1 (a one-time warning says so); train/test comparability
-under \code{scaling = "fit"} is unaffected. For objects fit with
-\code{missing = "fiml"} (PCA/EFA), the stored moments are the observed
-(\code{na.rm}) means/SDs of the training items — the correlation matrix was
-FIML-estimated, but scoring operates on observed responses, so the
-observed moments are the consistent frame; incomplete rows still score
+test scores are directly comparable. Setting \code{scaling = "sample"} instead
+re-standardizes by the supplied data's own moments. That is a deliberate
+choice when scoring a sample from a different population in its own metric.
+It is also the only option for objects fit from a correlation matrix, which
+carry no raw-data moments. For non-Pearson bases the usual caveat applies
+either way. Those bases are Spearman and polychoric correlations, which
+estimate the correlation between the continuous traits assumed to underlie
+ordered responses. The weights derive from the non-Pearson \code{R} while \code{Z} is
+a linear standardization, so empirical score SDs are close to but not
+exactly 1 (a one-time warning says so). Train/test comparability under
+\code{scaling = "fit"} is unaffected. For objects fit with \code{missing = "fiml"}
+(PCA/EFA), the stored moments are the observed (\code{na.rm}) means/SDs of the
+training items. The correlation matrix was estimated by FIML, that is, full
+information maximum likelihood, which uses every observed value without
+dropping incomplete rows. But scoring operates on observed responses, so
+the observed moments are the consistent frame. Incomplete rows still score
 \code{NA} (scoring does not impute).
 
 \strong{Missing data.} Score projection applies weights row-wise and propagates
@@ -94,19 +100,20 @@ pairwise-complete correlations. A warning is issued if NA rows are detected.
 Use \code{na.omit(data)} before scoring if NA rows are unwanted.
 
 \strong{Data source.} If \code{data} is supplied, scores are always recomputed from
-it using the stored weights -- this is how to score new observations. If
+it using the stored weights. This is how to score new observations. If
 \code{data} is \code{NULL} and \code{keep_scores = TRUE} was set at fit time, the stored
 scores are returned. If neither is available an informative error is raised.
 
 \strong{Scores-only output (\code{append = FALSE}).} By default (\code{append = TRUE}) the
 scores are appended to the supplied \code{data}, following the broom convention.
-Set \code{append = FALSE} to return \emph{only} the score columns -- convenient for
-feeding scores straight into \code{\link[=cor]{cor()}}, \code{\link[=lm]{lm()}}, or a clustering call without
-dragging the item columns along. Because \code{augment()} always preserves row
-order and row count, \code{cbind(data, augment(x, data, append = FALSE))}
-reproduces the appended output exactly. A row that scores \code{NA} (because it is
-missing an item -- see \emph{Missing data} above) is still returned in place, so the
-positional alignment holds even with \code{NA} scores. For a rejoin that survives
+Set \code{append = FALSE} to return \emph{only} the score columns. That is convenient
+for feeding scores straight into \code{\link[=cor]{cor()}}, \code{\link[=lm]{lm()}}, or a clustering call
+without dragging the item columns along. Because \code{augment()} always
+preserves row order and row count, the call
+\code{cbind(data, augment(x, data, append = FALSE))}
+reproduces the appended output exactly. A row that scores \code{NA}
+(because it is missing an item, see \emph{Missing data} above) is still returned
+in place, so the alignment holds. For a rejoin that survives
 \emph{filtering} the scores afterwards, name identifier columns with \code{id_cols} so
 they travel with the scores.
 }

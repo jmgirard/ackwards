@@ -16,7 +16,7 @@
 }
 \description{
 Displays a compact summary of the bass-ackwards result using cli formatting.
-No matrix dumps -- use \code{\link[=tidy.ackwards]{tidy.ackwards()}} to access values programmatically.
+It prints no matrix dumps. Use \code{\link[=tidy.ackwards]{tidy.ackwards()}} to read values in code.
 }
 \seealso{
 \code{\link[=tidy.ackwards]{tidy.ackwards()}}, \code{\link[=glance.ackwards]{glance.ackwards()}}

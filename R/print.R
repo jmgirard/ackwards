@@ -88,7 +88,7 @@
 #' Print an ackwards object
 #'
 #' Displays a compact summary of the bass-ackwards result using cli formatting.
-#' No matrix dumps -- use [tidy.ackwards()] to access values programmatically.
+#' It prints no matrix dumps. Use [tidy.ackwards()] to read values in code.
 #'
 #' @param x An `ackwards` object.
 #' @param ... Ignored.

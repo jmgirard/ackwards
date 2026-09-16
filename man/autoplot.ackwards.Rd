@@ -57,17 +57,19 @@ visualisation is produced. All other parameters are ignored when
 \code{what = "fit"}.}
 
 \item{sign_by}{How edge \strong{sign} (positive vs negative correlation) is
-encoded. One of \code{"color"} (default; positive = \code{color_pos}, negative =
-\code{color_neg}), \code{"linetype"} (positive = solid, negative = dashed),
-\code{"both"} (colour \emph{and} linetype, with negative drawn as a distinct
-double-dash so it reads clearly in greyscale), or \code{"none"} (sign not
-encoded; all edges \code{color_edge} and solid). Whichever channel is used gets
-a "Direction" legend. Colour is the default because it reads sign
-pre-attentively and leaves linetype free; switch to \code{"linetype"} or
-\code{"both"} for greyscale or colour-blind-safe figures.}
+encoded. There are four choices. The default \code{"color"} draws positive
+edges in \code{color_pos} and negative edges in \code{color_neg}. Option
+\code{"linetype"} draws positive as solid and negative as dashed. Option
+\code{"both"} uses colour \emph{and} linetype, with negative drawn as a distinct
+double-dash so it reads clearly in greyscale. Option \code{"none"} does not
+encode sign and draws all edges \code{color_edge} and solid.
+Whichever channel is used gets a "Direction" legend. Colour is the default
+because it reads sign at a glance and leaves linetype free. Switch to
+\code{"linetype"} or \code{"both"} for greyscale or colour-blind-safe figures.}
 
 \item{magnitude_by}{How edge \strong{magnitude} (\verb{|r|}) is encoded. One of
-\code{"linewidth"} (default; thicker = stronger, with a \verb{|r|} legend) or
+\code{"linewidth"} (the default, where thicker = stronger, with a \verb{|r|}
+legend) or
 \code{"none"} (constant width). A numeric \code{edge_linewidth} also forces constant
 width at that value.}
 
@@ -88,31 +90,33 @@ does not use colour (\code{"linetype"} or \code{"none"}). Default \code{"black"}
 
 \item{node_width}{Width of factor boxes in layout units. Either a single
 value applied to every box (default \code{0.8}), or a \strong{named numeric vector}
-keyed by factor ID (e.g. \code{c(m5f1 = 1.6)}) giving a per-box width; boxes not
-named fall back to the \code{0.8} default. Use a per-box width to fit a long
+keyed by factor ID (e.g. \code{c(m5f1 = 1.6)}) giving a per-box width. Boxes
+not named fall back to the \code{0.8} default. Use a per-box width to fit a long
 manual \code{node_labels} string. Names matching no factor ID warn.}
 
 \item{node_height}{Height of factor boxes in layout units. Either a single
 value applied to every box (default \code{0.4}), or a named numeric vector keyed
-by factor ID for a per-box height (unnamed boxes fall back to \code{0.4}); useful
-for multi-line manual labels. Names matching no factor ID warn.}
+by factor ID for a per-box height (unnamed boxes fall back to \code{0.4}). This
+helps with multi-line manual labels. Names matching no factor ID warn.}
 
-\item{min_sep}{Minimum horizontal separation between nodes; passed to
+\item{min_sep}{Minimum horizontal separation between nodes, passed to
 \code{\link[=ba_layout]{ba_layout()}}. Default \code{1.0}.}
 
 \item{order}{Optional manual left-to-right ordering of the \strong{deepest}
-(\code{k_max}) level, passed to \code{\link[=ba_layout]{ba_layout()}}; a character vector of that level's
-factor IDs (or a named list keyed by the level number) fixes the leaf order
-and every upper factor re-centres above its primary children. Use it to
+(\code{k_max}) level, passed to \code{\link[=ba_layout]{ba_layout()}}. Supply a character vector of that
+level's factor IDs, or a named list keyed by the level number. That fixes
+the leaf order, and every upper factor re-centres above its primary
+children. Use it to
 untangle a figure by hand. \code{NULL} (default) uses the automatic ordering.}
 
 \item{show_items}{When \code{TRUE}, lists the salient observed items beneath each
 \strong{deepest-level} (\code{k_max}) factor box, so a publication figure shows what
 each most-granular factor is made of. Items are the top \code{n_items} by
-\verb{|loading|} at or above \code{item_cut}, using the same extraction as
-\code{\link[=top_items]{top_items()}} (variable labels are shown when the fit carried them, else the
-item IDs). Listed below the boxes in a vertical layout, to their right in a
-horizontal one. Default \code{FALSE}.}
+loading (the correlation between an item and a factor), taken in absolute
+value at or above \code{item_cut}. The extraction is the same as in
+\code{\link[=top_items]{top_items()}}. Variable labels are shown when the fit carried them, else
+the item IDs. Listed below the boxes in a vertical layout, and to their
+right in a horizontal one. Default \code{FALSE}.}
 
 \item{n_items}{Maximum number of items listed per deepest-level factor when
 \code{show_items = TRUE}. \code{NULL} lists every item meeting \code{item_cut}. Default \code{5}.}
@@ -125,11 +129,12 @@ horizontal one. Default \code{FALSE}.}
 \code{pairs = "all"}, \code{FALSE} otherwise. Ignored when \code{drop_pruned = TRUE}.}
 
 \item{curvature}{Curvature of skip-level edge arcs. Passed to
-\code{\link[ggplot2:geom_curve]{ggplot2::geom_curve()}}. Positive values curve right; default \code{0.2}.
+\code{\link[ggplot2:geom_curve]{ggplot2::geom_curve()}}. Positive values curve right. Default \code{0.2}.
 Ignored when \code{drop_pruned = TRUE}.}
 
-\item{color_pruned, colour_pruned}{Fill colour for nodes flagged as
-pruned/redundant. Default \code{"grey80"}. Only applied when the object carries
+\item{color_pruned, colour_pruned}{Fill colour for nodes flagged as pruned or
+redundant (a factor that persists across levels without changing).
+Default \code{"grey80"}. Only applied when the object carries
 pruning annotations (\code{x$prune} is non-\code{NULL}) and \code{drop_pruned = FALSE}
 (pruned nodes are omitted entirely when \code{drop_pruned = TRUE}).
 \code{colour_pruned} is an accepted British alias.}
@@ -153,24 +158,26 @@ colour arguments). \code{magnitude_by} still applies. Default \code{FALSE}.}
 \item{edge_linewidth}{\code{NULL} (default) uses \code{magnitude_by} to decide edge
 width. A numeric value forces every edge to that constant width (implying
 \code{magnitude_by = "none"}) and drops the \verb{|r|} legend. Forbes figures use
-uniform thin lines (~= 0.5--0.6).}
+uniform thin lines (about 0.5 to 0.6).}
 
 \item{cut_strong}{\strong{Deprecated} in M35 and
 ignored (with a warning). Edge magnitude is now shown by \code{magnitude_by}
-(linewidth) and sign by \code{sign_by}; the old strong/weak linetype split
-double-encoded magnitude. Retained only so existing calls do not error.}
+(linewidth) and sign by \code{sign_by}, because the old strong/weak linetype
+split double-encoded magnitude. Retained only so existing calls do not
+error.}
 
 \item{direction}{Layout orientation. \code{"vertical"} (default) stacks levels
-top-to-bottom (level 1 at top); \code{"horizontal"} lays them out left-to-right
-(level 1 at left), which suits wide slides or posters. Level-axis labels
+top-to-bottom, with level 1 at top. \code{"horizontal"} lays them out
+left-to-right, with level 1 at left, which suits wide slides or posters.
+Level-axis labels
 move to the bottom margin under \code{"horizontal"}.}
 
 \item{show_level_labels}{Whether to draw level axis labels
 ("1 factor", "2 factors", ...) to the left of the diagram. Default \code{TRUE}.
-When the object carries pruning annotations (\code{x$prune} non-\code{NULL}) and
-\code{drop_pruned = FALSE}, a level whose factors are \emph{all} pruned has its axis
-label rendered in italic to denote its status (matching the grey node
-fill); partially-pruned levels keep a plain label.}
+Sometimes the object carries pruning annotations (\code{x$prune} non-\code{NULL})
+and \code{drop_pruned = FALSE}. Then a level whose factors are \emph{all} pruned has
+its axis label rendered in italic to denote its status. The italic matches
+the grey node fill. Partially-pruned levels keep a plain label.}
 
 \item{level_label_size}{Font size for level axis labels. Default \code{3}.}
 
@@ -186,15 +193,15 @@ Default \code{NULL}.}
 suppresses skip arcs. Ignored when \code{drop_pruned = TRUE}. Default \code{FALSE}.}
 
 \item{drop_pruned}{When \code{TRUE}, activates the Forbes (2023) pruned-view
-rendering path: pruned nodes are removed from the diagram entirely and
-each retained node is connected to its single strongest kept ancestor by
-a straight arrow (even across level gaps). Requires the object to carry
-pruning annotations (piped through \code{\link[=prune]{prune()}}); errors if not.
+rendering path. Pruned nodes are removed from the diagram entirely. Each
+retained node is connected to its single strongest kept ancestor by
+a straight arrow, even across level gaps. This requires the object to
+carry pruning annotations (piped through \code{\link[=prune]{prune()}}), and errors if not.
 Overrides \code{show_skip}, \code{curvature}, and \code{primary_only}. Default \code{FALSE}.}
 
 \item{compress_levels}{When \code{TRUE} under \code{drop_pruned = TRUE}, closes
-vertical gaps left by pruned levels so retained levels are evenly spaced;
-level axis labels (d) still show the original level numbers. Ignored when
+vertical gaps left by pruned levels so retained levels are evenly spaced.
+Level axis labels (d) still show the original level numbers. Ignored when
 \code{drop_pruned = FALSE}. Default \code{FALSE}.}
 
 \item{show_secondary}{When \code{TRUE} under \code{drop_pruned = TRUE}, also draws the
@@ -203,10 +210,11 @@ hides: every kept cross-level factor pair with \verb{|r| >= cut_show} that is no
 already a primary edge. This includes cross-branch second parents \emph{and}
 same-lineage skip arcs (a direct skip-level \code{r} is a distinct, non-transitive
 fact, not implied by the primary path). Secondary edges render in a channel
-deliberately distinct from the primary edges -- dimmed (reduced opacity) and
-thinner, with plain line ends -- while still inheriting the sign encoding
-(\code{sign_by}), so the sign colour/linetype is never conflated with the
-secondary channel. By construction each node's secondaries are weaker than
+deliberately distinct from the primary edges. They are dimmed (reduced
+opacity) and thinner, with plain line ends. They still inherit the sign
+encoding (\code{sign_by}), so the sign colour or linetype is never confused
+with the secondary channel. By construction each node's secondaries are
+weaker than
 its primary edge, so a secondary edge never appears while that node's primary
 is below \code{cut_show}. Ignored when \code{drop_pruned = FALSE}. Default \code{FALSE}.}
 
@@ -228,22 +236,25 @@ A \code{ggplot} object.
 }
 \description{
 When \code{what = "hierarchy"} (default), renders the layered bass-ackwards
-hierarchy as a ggplot2 diagram. Factors appear as labelled boxes arranged
-in levels (level 1 at top, level k at bottom by default; set
-\code{direction = "horizontal"} for a left-to-right layout). Between-level edges
-below \code{cut_show} are hidden. Two aesthetics carry the edge information, each
-explained by its own legend: \strong{sign} (positive/negative) is shown by
-\code{sign_by} (edge colour by default) and \strong{magnitude} (\verb{|r|}) by
-\code{magnitude_by} (line thickness by default). No aesthetic is ever mapped
-without a matching legend.
+hierarchy as a ggplot2 diagram. A factor is a summary variable standing in
+for a group of items that move together. Factors appear as labelled boxes
+arranged in levels. Level 1 sits at the top and level k at the bottom by
+default. Set \code{direction = "horizontal"} for a left-to-right layout.
+Between-level edges below \code{cut_show} are hidden. Two aesthetics carry the
+edge information, each explained by its own legend: \strong{sign}
+(positive/negative) is shown by \code{sign_by} (edge colour by default) and
+\strong{magnitude} (\verb{|r|}) by \code{magnitude_by} (line thickness by default). No
+aesthetic is ever mapped without a matching legend.
 }
 \details{
-When \code{what = "fit"}, renders a two-panel line plot of per-level fit indices
-(CFI/TLI in the top panel; RMSEA/SRMR in the bottom panel) with horizontal
-reference lines at conventional Hu & Bentler (1999) thresholds. The anchor
-level (k = 1, saturated and always fits perfectly) is excluded. Requires an
-EFA or ESEM engine; returns an informative empty plot for PCA (which has no
-model-fit indices).
+When \code{what = "fit"}, renders a two-panel line plot of per-level fit indices.
+CFI and TLI go in the top panel, RMSEA and SRMR in the bottom panel.
+Horizontal reference lines mark the conventional Hu & Bentler (1999)
+thresholds. The anchor level (k = 1, saturated and always fits perfectly) is
+excluded. This needs the EFA (exploratory factor analysis) or ESEM
+(exploratory structural equation modeling) engine. It returns an informative
+empty plot for PCA (principal component analysis), which has no model-fit
+indices.
 
 Requires the \pkg{ggplot2} package.
 }
@@ -255,8 +266,8 @@ Requires the \pkg{ggplot2} package.
   p <- autoplot(x)
   ggplot2::ggsave("hierarchy.png", p, width = 8, height = 6, dpi = 300)
 }
-\code{ggsave()} is not re-exported by \pkg{ackwards} (that would move
-\pkg{ggplot2} from Suggests into Imports); call it from \pkg{ggplot2}
+\code{ggsave()} is not re-exported by \pkg{ackwards}, because that would move
+\pkg{ggplot2} from Suggests into Imports. Call it from \pkg{ggplot2}
 directly. For a wide slide or poster, pair it with
 \code{direction = "horizontal"}.
 }

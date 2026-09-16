@@ -15,7 +15,7 @@ label_template(x, style = c("id", "forbes", "blank"))
 \item{style}{One of \code{"id"} (default), \code{"forbes"}, or \code{"blank"}. See
 \strong{Style options} above.}
 
-\item{...}{Ignored; included for S3 method consistency.}
+\item{...}{Ignored. Included for S3 method consistency.}
 }
 \value{
 A named character vector of class \code{"ackwards_labels"}: names are
@@ -26,9 +26,10 @@ vector as an editable \code{c(...)} literal for copy-paste.
 }
 \description{
 Returns a named character vector covering all factor IDs in the object,
-ready to pass to \code{autoplot(x, node_labels = ...)}. Printing the result
-shows an editable \code{c(...)} literal so you can copy it into a script,
-fill in substantive labels, and use it directly; assigning the result
+ready to pass to \code{autoplot(x, node_labels = ...)}. A factor is a summary
+variable standing in for a group of items that move together. Printing the
+result shows an editable \code{c(...)} literal. You can copy it into a script,
+fill in substantive labels, and use it directly. Assigning the result
 (\code{labs <- label_template(x)}) produces no console output.
 }
 \details{
@@ -39,16 +40,17 @@ directly onto the diagram.
 \section{Style options}{
 
 \itemize{
-\item \code{"id"} \emph{(default)} -- every value equals the factor ID (\code{"m1f1"}, \code{"m2f1"},
-...). This is a round-trip no-op: passing the result to \code{node_labels} without
-editing reproduces the default labels exactly. Useful as the starting point
-for adding substantive labels.
-\item \code{"forbes"} -- values follow the Forbes (2023) convention: level-letter +
-within-level index (\code{"A1"}, \code{"B1"}, \code{"B2"}, ...). Level 1 -> \code{A}, level 2 ->
+\item \code{"id"} \emph{(default)} makes every value equal the factor ID (\code{"m1f1"},
+\code{"m2f1"}, ...). This is a round-trip no-op, because passing the result to
+\code{node_labels} without editing reproduces the default labels exactly. It is
+a good starting point for adding substantive labels.
+\item \code{"forbes"} gives values that follow the Forbes (2023) convention, a
+level-letter plus a within-level index (\code{"A1"}, \code{"B1"}, \code{"B2"}, ...).
+Level 1 -> \code{A}, level 2 ->
 \code{B}, level 3 -> \code{C}, and so on. Within-level indices are assigned in
-canonical layout order (left to right). Requires \code{k_max <= 26} (LETTERS has
-26 entries); an error is raised for deeper objects.
-\item \code{"blank"} -- all values are empty strings. Useful as a starting scaffold
+canonical layout order (left to right). This requires \code{k_max <= 26},
+because LETTERS has 26 entries. An error is raised for deeper objects.
+\item \code{"blank"} makes all values empty strings. Useful as a starting scaffold
 when you want to supply every label from scratch with no defaults showing
 through.
 }

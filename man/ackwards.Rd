@@ -31,111 +31,125 @@ diagonal). When a correlation matrix is supplied, \code{engine} must be \code{"p
 or \code{"efa"} (ESEM requires raw data), and the \code{missing} and \code{cor} arguments
 are ignored. See the \emph{Correlation-matrix input} section below.}
 
-\item{k_max}{Maximum number of factors/components to extract. Required; use
-\code{\link[=suggest_k]{suggest_k()}} if uncertain. Sets the \emph{depth} of the hierarchy: levels
-1 through \code{k_max} are all extracted and retained. (Note: \code{suggest_k()}'s
-\code{k_max} means something related but distinct -- the max number of
-factors/components it \emph{evaluates} when recommending a depth, not a depth
-itself; see that function's docs.)}
+\item{k_max}{Maximum number of factors or components to extract. It is
+required, so use \code{\link[=suggest_k]{suggest_k()}} if uncertain. It sets the \emph{depth} of the
+hierarchy: levels 1 through \code{k_max} are all extracted and retained. (The
+\code{k_max} of \code{suggest_k()} means something related but different. It is the
+largest number of factors that function \emph{evaluates} when recommending a
+depth, not a depth itself. See that function's docs.)}
 
 \item{engine}{Extraction engine: \code{"pca"} (default), \code{"efa"}, or \code{"esem"}.
 \code{"esem"} uses \code{\link[lavaan:efa]{lavaan::efa()}} with rotation-aware SEs and per-level fit
-indices; recommended for the clinical/HiTOP workflow (Kim & Eaton, 2015;
-Forbush et al., 2024). Requires lavaan >= 0.6-13.}
+indices. ESEM is exploratory structural equation modeling, and it is
+recommended for the clinical or HiTOP workflow (Kim & Eaton, 2015,
+Forbush et al., 2024). It requires lavaan >= 0.6-13.}
 
 \item{cor}{Correlation basis: \code{"pearson"} (default), \code{"spearman"}, or
-\code{"polychoric"}. For PCA/EFA, \code{"polychoric"} computes a polychoric
-correlation matrix via \code{psych::polychoric()} (requires psych). For ESEM,
+\code{"polychoric"}. For PCA and EFA, \code{"polychoric"} computes a polychoric
+correlation matrix via \code{psych::polychoric()} (requires psych). Polychoric
+correlations estimate the correlation between the continuous traits
+assumed to underlie ordered responses. For ESEM,
 it triggers WLSMV estimation via lavaan. A cli warning is emitted when
-ordinal-looking columns are detected and \code{cor} is not \code{"polychoric"}.}
+ordinal-looking columns are detected and \code{cor} is not \code{"polychoric"}.
+Ordinal items have a few ordered categories, such as a 1 to 5 rating.}
 
-\item{fm}{Factor extraction method passed to \code{\link[psych:fa]{psych::fa()}}; only used when
-\code{engine = "efa"}. One of \code{"minres"} (default, robust OLS), \code{"ml"}
+\item{fm}{Factor extraction method passed to \code{\link[psych:fa]{psych::fa()}}, and used only
+when \code{engine = "efa"}. One of \code{"minres"} (the default, which is ordinary
+least squares and tolerates non-normal data), \code{"ml"}
 (maximum likelihood, gives chi-square fit but converges less reliably at
 deep levels), or \code{"pa"} (principal axis). Ignored for \code{engine = "pca"}.}
 
 \item{estimator}{Estimation method for the ESEM engine. \code{NULL} (default)
 auto-selects: \code{"WLSMV"} when \code{cor = "polychoric"}, \code{"ML"} otherwise.
 Pass explicitly to override: \code{"ULSMV"} (unweighted WLS), \code{"MLR"}
-(robust ML). \code{cor = "polychoric"} with \code{estimator = "ML"}/\code{"MLR"} errors
-(lavaan itself does not support ML/MLR on ordered indicators); \code{"WLSMV"}/
-\code{"ULSMV"} with a continuous \code{cor} is allowed (a valid, if atypical,
-continuous WLS/ADF estimator). Ignored for PCA and EFA engines. The
+(maximum likelihood with standard errors that tolerate non-normal data).
+\code{cor = "polychoric"} with \code{estimator = "ML"}/\code{"MLR"} errors, because
+lavaan itself does not support ML or MLR on ordered indicators.
+\code{"WLSMV"}/\code{"ULSMV"} with a continuous \code{cor} is allowed, and gives a
+valid, if atypical, continuous WLS or ADF estimator. Ignored for PCA and
+EFA engines. The
 effective value (after auto-selection) is recorded in \code{x$meta$estimator}
-(\code{NA} for PCA/EFA).}
+(\code{NA} for PCA and EFA).}
 
 \item{missing}{How to handle missing item responses. One of:
 \itemize{
-\item \code{"pairwise"} (default) -- use all available observations pairwise.
-For PCA/EFA this feeds \code{stats::cor(use = "pairwise.complete.obs")}.
-For ESEM with WLSMV/ULSMV (ordinal), lavaan uses \code{available.cases},
+\item \code{"pairwise"} (the default) uses all available observations pairwise.
+For PCA and EFA this feeds \code{stats::cor(use = "pairwise.complete.obs")}.
+For ESEM with WLSMV or ULSMV (ordinal), lavaan uses \code{available.cases},
 which computes polychoric thresholds and correlations from all rows that
-contribute to each pair -- MCAR-valid and uses the full N.
-For ESEM with ML/MLR (continuous), lavaan uses listwise deletion
-internally while edges are computed from a pairwise correlation matrix;
-this minor inconsistency is documented in \verb{$meta}. A warning is emitted
+contribute to each pair. That is valid under MCAR and uses the full N.
+For ESEM with ML or MLR (continuous), lavaan uses listwise deletion
+internally while edges are computed from a pairwise correlation matrix.
+This small inconsistency is documented in \verb{$meta}. A warning is emitted
 when incomplete rows are detected.
-\item \code{"listwise"} -- only complete rows are used. Reduces data to
+\item \code{"listwise"} uses only complete rows. It reduces the data to
 \code{stats::complete.cases()} before fitting, so the correlation matrix,
 the engine fit, and the edges are all consistent. \code{n_obs} in the result
 reflects the reduced N.
-\item \code{"fiml"} -- Full Information Maximum Likelihood. For \code{engine = "esem"}
-(with \code{estimator = "ML"}/\code{"MLR"}), passes \code{missing = "fiml"} to
+\item \code{"fiml"} is full information maximum likelihood. For \code{engine = "esem"}
+(with \code{estimator = "ML"}/\code{"MLR"}), it passes \code{missing = "fiml"} to
 \code{\link[lavaan:efa]{lavaan::efa()}} and derives edge correlations from lavaan's
 FIML-estimated saturated model. For \code{engine = "pca"}/\code{"efa"} (M38), the
 correlation matrix is estimated via \code{\link[psych:corFiml]{psych::corFiml()}} and fed to the
-usual \verb{W'RW} algebra; this requires \code{cor = "pearson"} (corFiml estimates
-a multivariate-normal matrix) and the route is announced via a cli
-message. Errors for WLSMV/ULSMV and for a non-Pearson PCA/EFA basis.
-Note: FIML improves estimation under missingness but does not impute item
-responses; score materialisation (\code{keep_scores = TRUE}) still produces
+usual \verb{W'RW} algebra. That route requires \code{cor = "pearson"}, because
+corFiml estimates a multivariate-normal matrix, and the route is
+announced via a cli message. It errors for WLSMV and ULSMV, and for a
+non-Pearson PCA or EFA basis. FIML improves estimation under
+missingness but does not impute item responses. So score
+materialisation (\code{keep_scores = TRUE}) still produces
 \code{NA} rows for incomplete observations. See \code{n_obs} for the fit-index
-sample size on the PCA/EFA path.
+sample size on the PCA and EFA path.
 }}
 
-\item{n_obs}{Number of observations, or (on the raw-data FIML path) a string
-selecting which N feeds the fit indices.
+\item{n_obs}{Number of observations. On the raw-data FIML path it may
+instead be a string selecting which N feeds the fit indices. FIML is full
+information maximum likelihood, which uses every observed value without
+dropping incomplete rows.
 \itemize{
-\item \strong{Correlation-matrix input:} a positive integer. Required for
-\code{engine = "efa"} (\code{\link[psych:fa]{psych::fa()}} needs N for chi-square / RMSEA / TLI);
-optional for \code{"pca"} (stored as \code{NA_integer_} if omitted). For PCA it
-is recorded in the result metadata and feeds the N-based
-sampling-adequacy checks only -- PCA level fit is eigenvalue-based and
-computes no N-dependent fit statistics.
+\item \strong{Correlation-matrix input:} a positive integer. It is required for
+\code{engine = "efa"}, because \code{\link[psych:fa]{psych::fa()}} needs N for chi-square, RMSEA,
+and TLI. It is optional for \code{"pca"} (stored as \code{NA_integer_} if
+omitted). For PCA it is recorded in the result metadata and feeds the
+N-based sampling-adequacy checks only. PCA level fit is
+eigenvalue-based and computes no N-dependent fit statistics.
 \item \strong{Raw data:} N is normally taken from \code{nrow(data)} and a numeric \code{n_obs}
 is ignored (with a warning). The exception is \code{missing = "fiml"} with
-\code{engine = "pca"}/\code{"efa"} (M38): because \code{\link[psych:corFiml]{psych::corFiml()}} estimates the
-correlation matrix from incomplete rows, \code{n_obs} may be \code{"total"}
-(default -- every row contributing to the FIML likelihood, matching the
-FIML convention; Enders, 2010) or \code{"complete"} (complete-case N, a
-conservative lower bound). Point estimates (loadings, edges) do not
-depend on this choice; only the EFA fit indices do, and those are
-\emph{approximate} under this two-step (FIML matrix into normal-theory EFA)
-route regardless of N (Zhang & Savalei, 2020). A string \code{n_obs} is
-accepted only on this path.
+\code{engine = "pca"}/\code{"efa"} (M38). \code{\link[psych:corFiml]{psych::corFiml()}} estimates the
+correlation matrix from incomplete rows, so \code{n_obs} may be \code{"total"}
+or \code{"complete"}. The default is \code{"total"}, meaning every row that
+contributes to the FIML likelihood, which matches the FIML convention
+(Enders, 2010). \code{"complete"} is the complete-case N, a conservative
+lower bound. Point estimates do not depend on this choice. Those are
+the loadings (the correlation between each item and a factor) and the
+edges. Only the fit indices of EFA (exploratory factor analysis) do.
+Those indices are \emph{approximate} whatever N you pick, because of this
+two-step route: a FIML matrix fed into normal-theory EFA
+(Zhang & Savalei, 2020). A string \code{n_obs} is accepted only on this
+path.
 }}
 
-\item{align_signs}{Logical; sign-align factors to primary-parent lineage?
+\item{align_signs}{Logical. Sign-align factors to primary-parent lineage?
 Default \code{TRUE}.}
 
-\item{keep_scores}{Logical; store factor scores in the result? Default
+\item{keep_scores}{Logical. Store factor scores in the result? Default
 \code{FALSE} (recomputable via \code{\link[=augment.ackwards]{augment.ackwards()}}). When \code{TRUE},
 per-observation scores are stored in \code{x$scores} as a named list of
 \verb{n x k_j} matrices, one per level, standardized by real score SDs
 (see \code{\link[=augment.ackwards]{augment.ackwards()}}).}
 
-\item{keep_fits}{Logical; store raw engine fit objects? Default \code{FALSE}.
+\item{keep_fits}{Logical. Store raw engine fit objects? Default \code{FALSE}.
 When \code{TRUE}, the per-level fit objects (psych or lavaan) are stored in
 \code{x$fits} as a named list indexed by level.}
 
 \item{seed}{Integer seed for stochastic engines (not used by PCA but
 captured for reproducibility metadata). Default \code{NULL}.}
 
-\item{pairs}{Which level pairs to compute edges for: \code{"adjacent"} (default,
-classic Goldberg -- only consecutive levels) or \code{"all"} (Forbes extension --
-every pair of levels, including skip-level correlations). \code{\link[=prune]{prune()}}
-recomputes its own all-pairs edges on demand regardless of this setting,
-so pruning does not require \code{pairs = "all"} here.}
+\item{pairs}{Which level pairs to compute edges for. \code{"adjacent"} is the
+default and is the classic Goldberg choice of consecutive levels only.
+\code{"all"} is the Forbes extension, which takes
+every pair of levels, including skip-level correlations. The \code{\link[=prune]{prune()}}
+function recomputes its own all-pairs edges on demand whatever this
+setting is, so pruning does not require \code{pairs = "all"} here.}
 
 \item{cut_show}{Edges with \verb{|r| >= cut_show} are flagged \code{above_cut} in
 \code{tidy()} output. Default \code{0.3}.}
@@ -144,9 +158,10 @@ so pruning does not require \code{pairs = "all"} here.}
 PCA/EFA polychoric path (\code{engine = "pca"}/\code{"efa"} with
 \code{cor = "polychoric"}). Default \code{0.5} (psych's own default), which adds that
 value to zero cells before estimating thresholds. \strong{Set \code{correct = 0}} if
-\code{psych::polychoric()} fails on your data (its error suggests exactly this) --
-this typically happens when an item has a near-empty response category or
-when items with unequal category counts produce a sparse cross-cell. Ignored
+\code{psych::polychoric()} fails on your data, and its error suggests exactly
+this. That failure typically happens when an item has a near-empty
+response category, or when items with unequal category counts produce a
+sparse cross-cell. It is ignored
 on other paths: ESEM computes its own polychoric correlations inside lavaan,
 and the Pearson/Spearman bases do not use it.}
 
@@ -158,45 +173,55 @@ An object of class \code{"ackwards"}. See \code{\link[=print.ackwards]{print.ack
 output methods.
 }
 \description{
-Extracts factor/component solutions at levels 1 through \code{k}, then
-characterises the hierarchy by computing between-level factor-score
-correlations. The "hierarchy" is descriptive: edges are score correlations,
-not a fitted higher-order SEM.
+Extracts factor or component solutions at levels 1 through \code{k}. A factor
+(or component) is a summary variable that stands in for a group of items
+that move together. It then characterises the hierarchy by computing the
+correlations between the factor scores of different levels. A factor score
+is each person's estimated standing on a factor. The "hierarchy" is
+descriptive: edges are score correlations, not a fitted higher-order SEM.
 }
 \section{Defaults and why}{
 
 \itemize{
-\item \strong{\code{engine = "pca"}} -- the original Goldberg (2006) method; fastest; never
-fails to converge; the Waller (2007) algebra is exact for components.
-\item \strong{\code{rotation = "varimax"}} -- varimax keeps the within-level factors
-mutually uncorrelated (orthogonal), so each between-level edge reflects
-only the cross-level relationship; an oblique rotation's correlated
-within-level factors would leak into the between-level edges and confound
-the between-level signal that is the method's core output. The closed-form
+\item \strong{\code{engine = "pca"}} is the original Goldberg (2006) method. PCA
+(principal component analysis) is the fastest engine and never fails to
+converge, and the Waller (2007) algebra is exact for components.
+\item \strong{\code{rotation = "varimax"}} keeps the within-level factors mutually
+uncorrelated (orthogonal). A rotation re-orients the factors without
+changing how well they fit, and varimax pushes each item toward one
+factor. So each between-level edge reflects only the cross-level
+relationship. An oblique rotation's correlated within-level factors would
+leak into the between-level edges and confound the between-level signal
+that is the method's core output. The closed-form
 \verb{W'RW} edge algebra is itself exact for any fixed linear scoring, orthogonal
-or not, so the choice is interpretive, not a numerical necessity. Matches
-Goldberg (2006), Kim & Eaton (2015), and Forbush et al. (2024); varimax is
-the only supported rotation.
-\item \strong{\code{cor = "pearson"}} -- no silent basis switching. If your items look
+or not, so the choice is interpretive, not a numerical necessity. It
+matches Goldberg (2006), Kim & Eaton (2015), and Forbush et al. (2024).
+Varimax is the only supported rotation.
+\item \strong{\code{cor = "pearson"}} means no silent basis switching. If your items look
 ordinal (<= 7 distinct integer values), a cli warning will suggest
-\code{cor = "polychoric"}, which is available for all three engines.
-\item \strong{\code{align_signs = TRUE}} -- unaligned signs make the output unreadable.
-Anchor: m1f1 is oriented toward the positive manifold; each subsequent
-factor is flipped so its edge to its primary parent is positive.
-\item \strong{\code{keep_scores = FALSE} / \code{keep_fits = FALSE}} -- memory and privacy.
-Scores are O(n x Sigmak) and often sensitive; raw engine fits can be large.
-Both are recomputable from the stored \code{r} matrix.
+\code{cor = "polychoric"}, which is available for all three engines. Ordinal
+items have a few ordered categories, such as a 1 to 5 rating. Polychoric
+correlations estimate the correlation between the continuous traits
+assumed to underlie those ordered responses.
+\item \strong{\code{align_signs = TRUE}} because unaligned signs make the output
+unreadable. The anchor is m1f1, which is oriented toward the positive
+manifold. Each subsequent factor is flipped so its edge to its primary
+parent is positive.
+\item \strong{\code{keep_scores = FALSE} / \code{keep_fits = FALSE}} for memory and privacy.
+Scores are O(n x Sigmak) and often sensitive, and raw engine fits can be
+large. Both are recomputable from the stored \code{r} matrix.
 }
 }
 
 \section{Performance (ESEM, large item sets)}{
 
 The ESEM engine fits a separate \code{lavaan} model at every level 1..\code{k_max}.
-For ordinal data (\code{cor = "polychoric"}, WLSMV) the costly sample statistics
-lavaan derives from the raw data -- thresholds, the polychoric correlation
-matrix, and the asymptotic weight matrix -- depend only on the data, not on
-the number of factors, so they are \strong{computed once} at the first level and
-\strong{reused} for every deeper level (identical solutions, much less work). This
+For ordinal data (\code{cor = "polychoric"}, WLSMV) lavaan derives costly sample
+statistics from the raw data. Those are the thresholds, the polychoric
+correlation matrix, and the asymptotic weight matrix. They depend only on
+the data, not on the number of factors. So they are \strong{computed once} at
+the first level and \strong{reused} for every deeper level, which gives
+identical solutions for much less work. This
 matters most when you have many items (hundreds), where recomputing those
 statistics at each level dominated the run time.
 
@@ -209,7 +234,7 @@ set a plan once before calling \code{ackwards()}:
   x <- ackwards(items, k_max = 8, engine = "esem", cor = "polychoric")
 }
 Parallelism pays off when the per-level fits are heavy (large \code{p}, several
-levels); for small problems the worker startup cost can outweigh it. Results
+levels). For small problems the worker startup cost can outweigh it. Results
 are reproducible across plans when \code{seed} is supplied. PCA and EFA already
 compute their correlation matrix once and are unaffected.
 }
@@ -218,7 +243,7 @@ compute their correlation matrix once and are unaffected.
 
 When \code{data} is a pre-computed correlation matrix (square, symmetric, unit
 diagonal), \code{ackwards()} runs entirely from that matrix using the \verb{W'RW}
-algebra -- no raw item responses are needed. This is useful when you have
+algebra, so no raw item responses are needed. This is useful when you have
 a published correlation table or a polychoric matrix computed externally.
 
 Constraints and behaviour when a correlation matrix is supplied:
@@ -226,18 +251,19 @@ Constraints and behaviour when a correlation matrix is supplied:
 \item \strong{Engine:} only \code{"pca"} and \code{"efa"} are supported. \code{"esem"} requires raw
 data (for lavaan's own polychoric computation, WLSMV estimation, and
 per-level fit indices) and will error clearly.
-\item \strong{\code{n_obs}:} required for \code{"efa"} (psych needs N for chi-square / RMSEA /
-TLI); optional for \code{"pca"} (stored as \code{NA} if omitted; used for the
-N-based sampling-adequacy checks and result metadata only -- PCA computes
-no N-dependent fit statistics).
-\item \strong{\code{cor} argument:} ignored -- the basis is already determined by the
-matrix you supply. A warning is emitted if you set \code{cor} explicitly.
-\item \strong{\code{missing} argument:} ignored -- missingness was handled when computing
-the matrix. A warning is emitted if you set \code{missing} explicitly.
-\item \strong{Factor scores:} \code{keep_scores = TRUE} will error; \code{augment()} and
+\item \strong{\code{n_obs}:} required for \code{"efa"}, because psych needs N for chi-square,
+RMSEA, and TLI. It is optional for \code{"pca"}, where it is stored as \code{NA} if
+omitted and is used only for the N-based sampling-adequacy checks and the
+result metadata. PCA computes no N-dependent fit statistics.
+\item \strong{\code{cor} argument:} ignored, because the basis is already determined by
+the matrix you supply. A warning is emitted if you set \code{cor} explicitly.
+\item \strong{\code{missing} argument:} ignored, because missingness was handled when
+computing the matrix. A warning is emitted if you set \code{missing}
+explicitly.
+\item \strong{Factor scores:} \code{keep_scores = TRUE} will error. \code{augment()} and
 \code{tidy(what = "scores")} will also error because individual-level scores
 require row-level item responses.
-\item \strong{\verb{$cor} field:} stored as \code{NA_character_}; printed as
+\item \strong{\verb{$cor} field:} stored as \code{NA_character_}, and printed as
 \code{"(user-supplied matrix)"}.
 }
 }
@@ -247,35 +273,38 @@ require row-level item responses.
 \code{ackwards()} raises diagnostics as it fits. They fall into three tiers by
 what they mean for whether you should trust and report the solution:
 
-\strong{Fatal -- fix before trusting.} The result is undefined or rests on a
+\strong{Fatal, so fix before trusting.} The result is undefined or rests on a
 broken correlation matrix:
 \itemize{
-\item A \strong{constant item} (no variance) errors -- drop it (see \code{\link[=check_items]{check_items()}}).
-\item \strong{\code{psych::polychoric()} fails} -- usually a near-empty response category;
-set \code{correct = 0} or collapse rare categories.
-\item A \strong{level fails to converge} -- the hierarchy is truncated to the deepest
-level that did; do not interpret beyond it.
+\item A \strong{constant item} (no variance) errors. Drop it (see \code{\link[=check_items]{check_items()}}).
+\item \strong{\code{psych::polychoric()} fails}, usually because of a near-empty response
+category. Set \code{correct = 0} or collapse rare categories.
+\item A \strong{level fails to converge}. The hierarchy is truncated to the deepest
+level that did converge, and you should not interpret beyond it.
 \item A \strong{near-singular correlation matrix} (smallest eigenvalue \verb{< 1e-4},
 recorded in \code{meta$near_singular} / \code{meta$min_eigenvalue} and re-surfaced by
 \code{print()}/\code{summary()}) means per-level fit indices and factor scores are
-unreliable and the loadings/edges rest on a rank-deficient matrix. (For EFA
-the residual-based fallback inflates \code{TLI}/\code{RMSEA}; for ESEM \code{CFI} comes
-back \code{NA}.) Trim redundant items, use \code{missing = "listwise"}, or -- on the
-polychoric basis -- collapse sparse categories or set \code{correct = 0}.
+unreliable. The loadings and edges then rest on a rank-deficient matrix.
+(For EFA the residual-based fallback inflates \code{TLI} and \code{RMSEA}, and for
+ESEM \code{CFI} comes back \code{NA}.) Trim redundant items, or use
+\code{missing = "listwise"}. On the polychoric basis you can instead collapse
+sparse categories or set \code{correct = 0}.
 }
 
-\strong{Caution -- interpret carefully.} The solution exists but may be unstable:
+\strong{Caution, so interpret carefully.} The solution exists but may be
+unstable:
 \itemize{
-\item A \strong{Heywood case} (communality \verb{> 1} / negative uniqueness) at a level --
-check that level's loadings make substantive sense; consider fewer factors.
+\item A \strong{Heywood case} at a level, meaning a communality \verb{> 1} or a negative
+uniqueness. Check that level's loadings make substantive sense, and
+consider fewer factors.
 \item A \strong{near-constant item} (one response category dominates) can drive a
-meaningless factor -- inspect it with \code{\link[=check_items]{check_items()}}.
-\item \strong{Ordinal data on a Pearson basis} attenuates correlations -- fine for a
-quick look or \code{suggest_k()} screening, but report the final model on
+meaningless factor. Inspect it with \code{\link[=check_items]{check_items()}}.
+\item \strong{Ordinal data on a Pearson basis} attenuates correlations. That is fine
+for a quick look or \code{suggest_k()} screening, but report the final model on
 \code{cor = "polychoric"}.
 }
 
-\strong{Informational -- usually fine.} Proceed, just be aware: the
+\strong{Informational, and usually fine.} Proceed, just be aware of the
 pairwise-missing note, a merely \emph{sparse} (rare-but-present) response
 category, and the ordinal-detection warning when you did intend Pearson.
 }
@@ -335,6 +364,7 @@ approaches. \emph{Clinical Psychological Science}, 13(1), 128--145.
 }
 \seealso{
 \code{\link[=print.ackwards]{print.ackwards()}}, \code{\link[=tidy.ackwards]{tidy.ackwards()}}, \code{\link[=glance.ackwards]{glance.ackwards()}},
-\code{\link[=prune]{prune()}} (Forbes-extension redundancy/artifact flagging, piped off the
-result of this function)
+\code{\link[=prune]{prune()}}, which is the Forbes-extension flagging of redundancy (one
+factor adding nothing over another) and of artifacts, piped off the
+result of this function
 }

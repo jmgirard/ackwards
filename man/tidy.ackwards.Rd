@@ -19,60 +19,70 @@
 
 \item{what}{What to extract:
 \itemize{
-\item \code{"edges"} \emph{(default)} -- one row per directed between-level edge:
+\item \code{"edges"} \emph{(default)}: one row per directed between-level edge, with
+columns
 \code{from}, \code{to}, \code{level_from}, \code{level_to}, \code{r}, \code{is_primary}, \code{above_cut}.
 If \code{\link[=boot_edges]{boot_edges()}} has been run on the object, four bootstrap columns are
 appended: \code{se}, \code{lo}, \code{hi} (bootstrap standard error and percentile
 confidence-interval endpoints), and \code{n_boot_ok} (usable replicates).
-\item \code{"loadings"} -- one row per item x factor x level:
+\item \code{"loadings"}: one row per item x factor x level, with columns
 \code{level}, \code{factor}, \code{item}, \code{loading}, \code{se}, \code{ci_lower}, \code{ci_upper}.
-\code{se}, \code{ci_lower}, and \code{ci_upper} are populated only for
-\code{engine = "esem"} (which produces rotation-aware loading SEs); they are
-\code{NA} for PCA and EFA. The confidence level is controlled by \code{conf_level}.
-\item \code{"variance"} -- one row per factor x level:
+The columns \code{se}, \code{ci_lower}, and \code{ci_upper} are populated only for
+\code{engine = "esem"}. That engine produces loading SEs that account for
+the rotation, which is the step that turns the raw solution into a more
+interpretable one. They are \code{NA} for PCA (principal component
+analysis) and EFA (exploratory factor analysis). The confidence level
+is controlled by \code{conf_level}.
+\item \code{"variance"}: one row per factor x level, with columns
 \code{level}, \code{factor}, \code{proportion}, \code{cumulative}. Both are proportions of
 total item variance on a 0-1 scale (multiply by 100 for a percentage).
-\item \code{"fit"} -- one row per fit statistic x level: \code{level}, \code{statistic},
-\code{value}. For PCA objects the statistics are eigenvalues; for EFA
-objects they are \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, \code{BIC} --
-where \code{chi} is the likelihood-ratio chi-square (\code{\link[psych:fa]{psych::fa()}}'s
-\code{STATISTIC}), so \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, and \code{TLI} all share
-one statistical framing (psych's residual-based \emph{empirical} chi-square
-is a different statistic and is not reported); for
-ESEM they are \code{chi}, \code{dof}, \code{p_value}, \code{CFI}, \code{TLI}, \code{RMSEA}, \code{SRMR},
-\code{BIC}. For ESEM under a scaled-test estimator (\code{"WLSMV"}/\code{"ULSMV"} for
-ordinal data, \code{"MLR"} for continuous), the whole row -- \code{chi}/\code{dof}/
-\code{p_value} \strong{and} \code{CFI}/\code{TLI}/\code{RMSEA} -- reports lavaan's
+\item \code{"fit"}: one row per fit statistic x level, with columns \code{level},
+\code{statistic}, \code{value}. For PCA objects the statistics are eigenvalues.
+For EFA objects they are \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, and
+\code{BIC}, where \code{chi} is the likelihood-ratio chi-square (\code{\link[psych:fa]{psych::fa()}}'s
+\code{STATISTIC}). So \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, and \code{TLI} all share
+one statistical framing. (psych's residual-based \emph{empirical} chi-square
+is a different statistic and is not reported.) For ESEM (exploratory
+structural equation modeling) they are \code{chi}, \code{dof}, \code{p_value}, \code{CFI},
+\code{TLI}, \code{RMSEA}, \code{SRMR}, \code{BIC}. A scaled-test estimator is used for ESEM
+on ordinal items (a few ordered categories, such as a 1 to 5 rating),
+namely \code{"WLSMV"} or \code{"ULSMV"}, and \code{"MLR"} is used for continuous
+items. Under such an estimator the whole row reports lavaan's
 mean-and-variance-adjusted ("scaled") variant, so every quantity shares
-one scaling. This matters most for WLSMV/ULSMV: the naive chi-square
-has no valid reference distribution (lavaan's own \code{summary()} labels
-its p-value "Unknown"), and the naive \code{CFI}/\code{TLI} are badly optimistic
-for ordinal data (Xia & Yang, 2019). \code{"ML"} has no scaled variant, so
-it reports the naive values (the correct ones for ML). \code{SRMR} has no
-scaled variant and is reported as-is. \code{BIC} is \code{NA} under WLSMV/ULSMV
-(no proper log-likelihood for a limited-information estimator) and
-populated under ML/MLR. Use \code{format = "wide"} for one row per
-\strong{non-anchor} level (k >= 2; the saturated 1-factor anchor is dropped,
-matching \code{summary()} and \code{autoplot(what = "fit")}), one column per
-statistic. Conventional fit cutoffs (Hu & Bentler 1999) are shown as
+one scaling. That covers \code{chi}, \code{dof}, and \code{p_value} \strong{and} \code{CFI},
+\code{TLI}, and \code{RMSEA}. This matters most for WLSMV and ULSMV. The naive
+chi-square has no valid reference distribution (lavaan's own
+\code{summary()} labels its p-value "Unknown"), and the naive \code{CFI} and
+\code{TLI} are badly optimistic for ordinal data (Xia & Yang, 2019). The
+estimator \code{"ML"} has no scaled variant, so it reports the naive values
+(the correct ones for ML). The statistic \code{SRMR} has no scaled variant
+and is reported as-is. The statistic \code{BIC} is
+\code{NA} under WLSMV and ULSMV, because a limited-information estimator has
+no proper log-likelihood, and it is populated under ML and MLR. Use
+\code{format = "wide"} for one row per \strong{non-anchor} level and one column
+per statistic. Non-anchor means k >= 2, because the saturated 1-factor
+anchor is dropped, matching \code{summary()} and \code{autoplot(what = "fit")}.
+Conventional fit cutoffs (Hu & Bentler 1999) are shown as
 reference lines in \code{autoplot(what = "fit")} and inline in \code{summary()},
-but are not returned as a pass/fail column here -- they are contested
+but are not returned as a pass/fail column here. They are contested
 thresholds, report-only, and never gate anything (see those functions'
-docs). \code{format} is oriented to the EFA/ESEM model-fit statistics; for
-PCA the "statistics" are per-component eigenvalues.
-\item \code{"nodes"} -- Forbes-extension pruning annotations (requires \code{prune != "none"}
-when the object was created). One row per factor across all levels:
+docs). The \code{format} argument is oriented to the EFA and ESEM model-fit
+statistics. For PCA the "statistics" are per-component eigenvalues.
+\item \code{"nodes"}: Forbes-extension pruning annotations (requires \code{prune != "none"}
+when the object was created). One row per factor across all levels,
+with columns
 \code{id}, \code{level}, \code{pruned}, \code{prune_reason}. Returns an empty data frame with
 the same columns when no pruning was applied.
-\item \code{"scores"} -- long-format per-observation factor scores (requires
+\item \code{"scores"}: long-format per-observation factor scores, where a factor
+score is each person's estimated standing on a factor (requires
 \code{keep_scores = TRUE} at fit time or use \code{\link[=augment.ackwards]{augment.ackwards()}} for on-the-fly
 computation). Columns: \code{obs} (row index), \code{level}, \code{factor}, \code{score}.
 }}
 
 \item{primary_only}{For \code{what = "edges"} only. When \code{TRUE}, returns just each
-factor's primary-parent edge (\code{is_primary == TRUE}) -- the lineage tree that
-the diagram draws as solid arrows. Default \code{FALSE} (all edges). Errors for
-any other value of \code{what}.}
+factor's primary-parent edge (\code{is_primary == TRUE}). That is the lineage
+tree that the diagram draws as solid arrows. Default \code{FALSE} (all edges).
+Errors for any other value of \code{what}.}
 
 \item{sort}{For \code{what = "edges"} only. One of \code{"none"} (default, natural order)
 or \code{"strength"} (descending \verb{|r|}). Ignored for all other values of \code{what}.}
@@ -82,7 +92,7 @@ statistic x level) or \code{"wide"} (one row per level, one column per
 statistic). Errors for all other values of \code{what}.}
 
 \item{conf_level}{For \code{what = "loadings"} only. Confidence level for the
-loading intervals; default \code{0.95}. The intervals are computed as
+loading intervals. Default \code{0.95}. The intervals are computed as
 \verb{loading ± qnorm((1 + conf_level) / 2) * se} and are \code{NA} for engines
 that carry no SEs (PCA, EFA). Errors for all other values of \code{what}.}
 
@@ -94,6 +104,8 @@ A data frame (class \code{data.frame}).
 \description{
 Returns structured data from an \code{ackwards} object in tidy format. The
 default (\code{what = "edges"}) returns the graph edge list that drives diagrams.
+A factor is a summary variable standing in for a group of items that move
+together, and a loading is the correlation between an item and a factor.
 }
 \section{Factor labels}{
 
@@ -101,7 +113,7 @@ If \link[=set_factor_labels]{factor labels} have been attached to the object, th
 output gains display-only label columns: \code{factor_label} for \code{what = "loadings"}, \code{"variance"}, or \code{"scores"}, and \code{from_label}/\code{to_label} for
 \code{what = "edges"}. Each carries the label for a labeled factor and \code{NA}
 otherwise. These columns are \strong{absent} when no labels are set, so an
-unlabeled object's output is unchanged; the ID columns (\code{factor}, \code{from},
+unlabeled object's output is unchanged. The ID columns (\code{factor}, \code{from},
 \code{to}) are never altered.
 }
 

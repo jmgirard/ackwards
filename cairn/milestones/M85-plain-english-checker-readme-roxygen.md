@@ -104,12 +104,12 @@ the Plain register, so `may`/`might`/`should` stay allowed).
       built package as `test-vignette-freshness.R` does.
 - [x] T3: Rewrite README.Rmd, `DESCRIPTION` `Description:`, and the NEWS development section;
       run `devtools::build_readme()`.
-- [ ] T4: Rewrite roxygen in `R/ackwards.R`, `R/engine_*.R`, `R/compute_edges.R`,
+- [x] T4: Rewrite roxygen in `R/ackwards.R`, `R/engine_*.R`, `R/compute_edges.R`,
       `R/data.R`; run `devtools::document()`; run the checker on those files.
-- [ ] T5: Rewrite roxygen in `R/prune.R`, `R/suggest_k.R`, `R/tidy.R`, `R/augment.R`,
+- [x] T5: Rewrite roxygen in `R/prune.R`, `R/suggest_k.R`, `R/tidy.R`, `R/augment.R`,
       `R/predict.R`, `R/boot_edges.R`, `R/comparability.R`; document; check.
-- [ ] T6: Rewrite roxygen in the remaining `R/*.R`; document; check the whole AC3 domain.
-- [ ] T7: Run `check_code_unchanged()` against the merge base and re-read the AC6 sites
+- [x] T6: Rewrite roxygen in the remaining `R/*.R`; document; check the whole AC3 domain.
+- [x] T7: Run `check_code_unchanged()` against the merge base and re-read the AC6 sites
       against `git show master:<file>`; fix any drift.
 - [ ] T8: Wire the prose check into `tools/dod-gate.R` after the CI-filter step; NEWS entry;
       `Rscript tools/dod-gate.R`.
@@ -125,6 +125,9 @@ the Plain register, so `may`/`might`/`should` stay allowed).
 - 2026-09-16: T1 done. Checker written with two refinements beyond the AC1 letter, both documented in the script header: a terminator may be followed by a closing bracket or quote before the split, and an opening bracket or quote may precede the uppercase letter; Rd `\preformatted{}` blocks count as roxygen fenced code. The three lists are already covered by the `^tools$` `.Rbuildignore` entry, so no new entry was needed. First sweep of the AC3 domain: 376 reports (137 semicolons, 128 double hyphens, 88 long sentences, 19 em dashes, 4 banned phrases).
 - 2026-09-16: T2 done. Fixture matrix passes (57 expectations across the three dash forms and nine locations, plus the silent fixture, the sentence-counting fixture, the non-empty-domain check, and a git-backed `check_code_unchanged()` fixture that plants one change per guarded class). Three fixture slips fixed on the way, none a checker bug. Dev library under R 4.6 lacked styler, EFAtools, and gt; installed from CRAN.
 - 2026-09-16: T3 done. README.Rmd, `DESCRIPTION` `Description:`, and the NEWS development entry rewritten; README glosses factor, PCA, EFA, ESEM, ordinal, polychoric, split-half, redundancy, parallel analysis, factor score, and loading at first use. Checker clean on the three files; `check_code_unchanged("master")` clean; README.md rebuilt; suite 726 tests, 0 failures.
+- 2026-09-16: T4, T5, T6 done by three parallel [O] subagents on disjoint file sets (T4: ackwards, compute_edges, data, the engine files carry no prose. T5: prune, suggest_k, tidy, augment, predict, boot_edges, comparability. T6: autoplot, layout, print, summary, check_items, factor_labels, factorability, interpret, label_template, utils has no prose). Each ran the checker to clean and the code guard to clean before returning. Their flagged rewordings were read: the `fm` "robust OLS" gloss, the n_obs FIML clause reorder, the `sign_by` sentence prefixes, and sentence-initial code spans given a noun all keep the stated meaning. One paraphrase was reverted to the term with a gloss ("factor overdetermination" in factorability.R). `devtools::document()` run and re-run with no further diff.
+- 2026-09-16: toolchain drift found on the fresh R 4.6 library and neutralised without code change: roxygen2 8.1.0 rewrote NAMESPACE's importFrom layout and bumped the DESCRIPTION stamp, so roxygen2 8.0.0 (master's version) was installed and the stamp kept; lintr 3.4.0 flags the two pre-existing `<<-` in suggest_k.R that master also trips, so `.lintr` now passes `assignment_linter(operator = c("<-", "<<-"))`. Both are dev tooling, neither touches a user-facing surface.
+- 2026-09-16: T7 done. `check_code_unchanged("master")` clean after the whole rewrite. AC6 sites read on the branch: the ackwards() description keeps "edges are score correlations, not a fitted higher-order SEM"; the `cor = "pearson"` bullet keeps "no silent basis switching" with the warning that suggests polychoric; "Varimax is the only supported rotation" stays; `redundancy_criterion` keeps `"direct"` as the default that reproduces Forbes's ChaseCorrPaths and AMH example with `"adjacent"` as the opt-in. A scripted extraction of "Default `value`" mentions per `@param` matched master for prune.R and suggest_k.R and for ackwards.R apart from regex-form differences on `fm` and `n_obs`, whose values (`"minres"`, `"total"`) are unchanged.
 
 ## Decisions
 

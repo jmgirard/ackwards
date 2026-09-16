@@ -10,33 +10,38 @@ check_items(data, cor = c("polychoric", "pearson", "spearman"))
 \item{data}{A data frame or numeric matrix (items in columns).}
 
 \item{cor}{The correlation basis you plan to use: \code{"polychoric"} (default),
-\code{"pearson"}, or \code{"spearman"}. Only affects which problems are flagged --
-sparse response categories destabilise the polychoric basis but not the
-others.}
+\code{"pearson"}, or \code{"spearman"}. This only affects which problems are
+flagged, because sparse response categories destabilise the polychoric
+basis but not the others.}
 }
 \value{
 A data frame (class \code{check_items}) with one row per item and columns
 \code{item}, \code{n_valid}, \code{pct_missing}, \code{n_distinct}, \code{min_count} (smallest
 observed category count), \code{top_prop} (proportion of valid responses in the
-most common value), and \code{flag} -- one of \code{"ok"}, \code{"constant"},
-\code{"near-constant"}, \code{"sparse category"}, or \code{"high missing"}. Print it for a
-grouped summary with guidance; treat it as a plain data frame for the full
-per-item table.
+most common value). The last column, \code{flag}, is one of \code{"ok"},
+\code{"constant"}, \code{"near-constant"}, \code{"sparse category"}, or \code{"high missing"}.
+Print it for a grouped summary with guidance. Treat it as a plain data
+frame for the full per-item table.
 }
 \description{
-Real-world item sets often contain columns that break or \emph{silently} degrade a
-factor analysis: an item everyone answered the same way (no variance), an
-item dominated by one response with a couple of stray answers, or an item
-with heavy missingness. On the polychoric basis these are especially costly
--- a near-empty response category can make \code{\link[psych:polychoric]{psych::polychoric()}} fail
-outright (see the \code{correct} argument of \code{\link[=ackwards]{ackwards()}}), and a near-constant
-item can produce a plausible-looking but meaningless factor with no warning.
+Real-world item sets often contain columns that break or \emph{silently} degrade
+a factor analysis. A factor is a summary variable standing in for a group of
+items that move together. Three columns cause most of the trouble. One is an
+item everyone answered the same way (no variance). Another is an item
+dominated by one response with a couple of stray answers. The third is an
+item with heavy missingness. These are especially costly on the polychoric
+basis, which estimates the correlation between the continuous traits
+assumed to underlie ordered responses. A near-empty response category can
+make
+\code{\link[psych:polychoric]{psych::polychoric()}} fail outright (see the \code{correct} argument of
+\code{\link[=ackwards]{ackwards()}}). A near-constant item can produce a plausible-looking but
+meaningless factor with no warning.
 
 \code{check_items()} reports these problems \emph{before} you fit, one row per item, so
 you can collapse rare categories, drop degenerate items, or set
-\code{cor}/\code{correct} deliberately rather than debugging a cryptic error. It only
-reports; it never changes your data. \code{\link[=ackwards]{ackwards()}} runs the same screen
-internally: it \strong{errors} on a constant item and \strong{warns} on a
+\code{cor} and \code{correct} deliberately rather than debugging a cryptic error. It
+only reports, and never changes your data. \code{\link[=ackwards]{ackwards()}} runs the same screen
+internally. It \strong{errors} on a constant item and \strong{warns} on a
 near-degenerate one, naming the offenders.
 }
 \examples{
@@ -50,7 +55,7 @@ check_items(d)
 
 }
 \seealso{
-\code{\link[=ackwards]{ackwards()}} and its \code{correct} argument (the polychoric failure this
-screens for); \code{\link[=factorability]{factorability()}}, \code{\link[=suggest_k]{suggest_k()}}, and \code{\link[=comparability]{comparability()}}, the
-other pre-analysis diagnostics.
+\code{\link[=ackwards]{ackwards()}} and its \code{correct} argument (the polychoric failure
+this screens for). Also \code{\link[=factorability]{factorability()}}, \code{\link[=suggest_k]{suggest_k()}}, and
+\code{\link[=comparability]{comparability()}}, the other pre-analysis diagnostics.
 }

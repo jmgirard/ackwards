@@ -634,93 +634,108 @@
 #' Flag redundant or artifactual factors (Forbes 2023 extension)
 #'
 #' @description
-#' `prune()` never removes anything from an `ackwards` object -- it only
-#' annotates factors with `pruned`/`prune_reason` flags in `x$prune$nodes`
-#' (flag-only, never removes; the object keeps every level). Because it is a
+#' `prune()` never removes anything from an `ackwards` object. It only
+#' annotates factors with `pruned` and `prune_reason` flags in `x$prune$nodes`.
+#' A factor is a summary variable standing in for a group of items that move
+#' together. A redundant factor is one that persists across levels without
+#' changing. Pruning is flag-only and never removes, so the object keeps every
+#' level. Because it is a
 #' separate, cheap step from extraction, you can re-prune with new thresholds
-#' without re-running [ackwards()]:
+#' without re-running [ackwards()].
 #' \preformatted{
 #'   x <- ackwards(bfi25, k_max = 6, engine = "esem")  # expensive
 #'   x |> prune("redundant")                            # cheap, repeatable
 #'   x |> prune("redundant", redundancy_r = 0.95)        # no re-extraction
 #' }
-#' `prune()` is an S3 generic (rather than a plain function) so it coexists
+#' The function `prune()` is an S3 generic (rather than a plain function) so
+#' it coexists
 #' with the `prune` generics already defined by recursive-partitioning
 #' packages (e.g. `rpart::prune`) regardless of package load order.
 #'
 #' @param x An `ackwards` object.
 #' @param rules Character vector controlling which auto-rules run. Default
-#'   `"none"` (no auto rule; combine with `manual` for pure manual pruning, or
-#'   call `prune(x)` with no arguments to clear any existing pruning). Options:
-#'   * `"redundant"` -- identify chains of factors connected by score
+#'   `"none"`, which runs no auto rule. Combine it with `manual` for pure
+#'   manual pruning, or call `prune(x)` with no arguments to clear any existing
+#'   pruning. Options:
+#'   * `"redundant"`: identify chains of factors connected by factor-score
 #'     correlations `|r| >= redundancy_r` (and optionally `phi > redundancy_phi`),
 #'     using `redundancy_criterion` (default `"direct"`, faithful to Forbes).
+#'     A factor score is each person's estimated standing on a factor.
 #'     Applies Forbes's (2023) retention rule: keep the bottom node when the
-#'     chain reaches level `k_max` (most specific); keep the top node otherwise.
+#'     chain reaches level `k_max` (most specific), and keep the top node
+#'     otherwise.
 #'     Flagged nodes get `pruned = TRUE` and `prune_reason = "redundant"` in
 #'     `x$prune$nodes`.
-#'   * `"artifact"` (or the alias `"artefact"`, normalized to `"artifact"`) --
+#'   * `"artifact"` (or the alias `"artefact"`, normalized to `"artifact"`):
 #'     compute Tucker's congruence coefficient (phi) for all cross-level factor
-#'     pairs and store in `x$prune$phi`, structural signals
-#'     (`few_items`/`orphan`/`split_merge`) in `x$prune$structural`, and the
-#'     **near-redundant band** (`near_margin`, see Details) in
-#'     `x$prune$near_redundant`. No factors are auto-flagged; artifact
-#'     identification requires judgment (Forbes, 2023; Wicherts et al., 2016).
+#'     pairs and store it in `x$prune$phi`. Congruence is a 0 to 1 index of how
+#'     similar two loading patterns are, where a loading is the correlation
+#'     between an item and a factor. This mode also stores structural signals
+#'     (`few_items`, `orphan`, and `split_merge`) in `x$prune$structural`, and
+#'     the **near-redundant band** (`near_margin`, see Details) in
+#'     `x$prune$near_redundant`. No factors are auto-flagged, because artifact
+#'     identification requires judgment (Forbes, 2023, Wicherts et al., 2016).
 #' @param manual Character vector of factor labels (e.g. `c("m4f3", "m4f4")`)
 #'   to flag directly, in addition to or instead of an auto rule. Standalone
 #'   manual pruning is supported: `prune(x, manual = c("m4f3"))`. Unknown
 #'   labels error. A node already flagged by an auto rule keeps that
-#'   `prune_reason`; only otherwise-unflagged manual nodes get
+#'   `prune_reason`, and only otherwise-unflagged manual nodes get
 #'   `prune_reason = "manual"`.
 #' @param redundancy_r Scalar in `(0, 1]`. Score-correlation `|r|` threshold for
 #'   redundancy chains. Default `0.9` (Forbes, 2023).
 #' @param redundancy_criterion How redundancy chains are traced. One of:
-#'   * `"direct"` (default) -- chase upward via the **direct (skip-level)**
+#'   * `"direct"` (default): chase upward via the **direct (skip-level)**
 #'     correlation between a factor and each ancestor level, continuing while
 #'     `|r| >= redundancy_r` contiguously. This is Forbes's (2023) published
-#'     `ChaseCorrPaths` rule and the honest operationalization of "the same
-#'     construct" (two factor scores share `>= redundancy_r^2` variance
-#'     *directly*). It reproduces her AMH applied example exactly.
-#'   * `"adjacent"` -- trace **adjacent primary-parent** links only (each
-#'     consecutive level `|r| >= redundancy_r`). This was the pre-M53 default;
-#'     because correlation is non-transitive it can both over- and under-flag
-#'     versus `"direct"` in deep (many-level) hierarchies, so it is retained only
-#'     as an opt-in. On shallow/transitive hierarchies the two agree.
+#'     `ChaseCorrPaths` rule and the honest way to operationalize "the same
+#'     construct", because two factor scores share `>= redundancy_r^2` variance
+#'     *directly*. It reproduces her AMH applied example exactly.
+#'   * `"adjacent"`: trace **adjacent primary-parent** links only, so each
+#'     consecutive level must meet `|r| >= redundancy_r`. This was the pre-M53
+#'     default. Because correlation is non-transitive it can both over- and
+#'     under-flag versus `"direct"` in deep (many-level) hierarchies, so it is
+#'     retained only as an opt-in. On shallow or transitive hierarchies the two
+#'     agree.
 #' @param redundancy_phi Scalar in `(0, 1]`, `NULL` (default, auto), or `NA`
 #'   (explicit opt-out). When `NULL`:
-#'   * `x$engine == "pca"` -- no phi filter. Component scores are
-#'     *determinate* (exact linear functions of the data, with no
-#'     factor-score indeterminacy), so the score correlation `|r|` is the
-#'     true correlation between the components themselves; phi adds nothing
-#'     that `|r|` does not already capture.
-#'   * `x$engine` is `"efa"` or `"esem"` -- automatically set to `0.95`
-#'     (Lorenzo-Seva & ten Berge, 2006). Factor-score indeterminacy off-PCA
-#'     means `|r|`-alone is liberal; the conjunctive phi criterion is the
-#'     conservative default. A cli message announces the resolved value.
+#'   * `x$engine == "pca"`: no phi filter. PCA is principal component
+#'     analysis, and a component is a weighted sum of the items. Component
+#'     scores are *determinate*, that is, exact linear functions of the data,
+#'     with no factor-score indeterminacy. So the score correlation `|r|` is
+#'     the true correlation between the components themselves, and phi adds
+#'     nothing that `|r|` does not already capture.
+#'   * `x$engine` is `"efa"` or `"esem"`: automatically set to `0.95`
+#'     (Lorenzo-Seva & ten Berge, 2006). EFA is exploratory factor analysis
+#'     and ESEM is exploratory structural equation modeling. Factor-score
+#'     indeterminacy off-PCA means `|r|` alone is liberal, so the conjunctive
+#'     phi criterion is the conservative default. A cli message announces the
+#'     resolved value.
 #'   Pass `NA` to disable phi filtering regardless of engine. Pass a numeric
 #'   value to override on any engine.
 #' @param min_items Minimum number of items for which a factor must be the
 #'   primary loader (highest `|loading|`). Factors with fewer than `min_items`
 #'   primary items are flagged `few_items = TRUE` in `x$prune$structural`. Only
-#'   used when `rules` includes `"artifact"`. Default `3L` -- a factor defined
-#'   by one or two items is under-identified and frequently an extraction
-#'   artifact rather than a replicable construct (the classic "three-indicator
-#'   rule"; Forbes, 2023, Fig. 2).
+#'   used when `rules` includes `"artifact"`. Default `3L`, because a factor
+#'   defined by one or two items is under-identified and frequently an
+#'   extraction artifact rather than a replicable construct (the classic
+#'   "three-indicator rule", Forbes, 2023, Fig. 2).
 #' @param orphan_r Threshold for the `orphan` structural signal. A factor whose
 #'   maximum **adjacent-level** `|r|` (to the immediately shallower and deeper
 #'   levels) falls below `orphan_r` is flagged `orphan = TRUE` in
-#'   `x$prune$structural` -- it does not connect to the neighbouring solutions
-#'   and so does not replicate across the hierarchy. Only used when `rules`
-#'   includes `"artifact"`. Default `0.5` -- a moderate correlation; a factor
+#'   `x$prune$structural`. Such a factor does not connect to the neighbouring
+#'   solutions and so does not replicate across the hierarchy. Only used when
+#'   `rules` includes `"artifact"`. Default `0.5`, a moderate correlation,
+#'   because a factor
 #'   that shares less than a quarter of its variance with every neighbour is a
 #'   structural outlier worth inspecting.
 #' @param near_margin Scalar in `(0, 1]`. Width of the **near-redundant band**
 #'   reported by `"artifact"` mode (see Details). A cross-level pair is flagged
 #'   near-redundant when its direct `|r|` sits in
 #'   `[redundancy_r - near_margin, redundancy_r)` **or** its Tucker `phi` sits in
-#'   `[redundancy_phi - near_margin, redundancy_phi)` -- i.e. within `near_margin`
-#'   *below* a redundancy threshold -- while the pair is not itself fully
-#'   redundant. Only used when `rules` includes `"artifact"`. Default `0.1`.
+#'   `[redundancy_phi - near_margin, redundancy_phi)`. That is, it sits within
+#'   `near_margin` *below* a redundancy threshold, while the pair is not itself
+#'   fully redundant. Only used when `rules` includes `"artifact"`. Default
+#'   `0.1`.
 #' @param ... Reserved for future methods/arguments.
 #'
 #' @details
@@ -728,41 +743,47 @@
 #' Take a three-level chain candidate with deepest leaf `m3f1` and shallower
 #' factors `m2f1` (level 2) and `m1f1` (level 1). Under the default `"direct"`
 #' criterion the chain `m1f1 -> m2f1 -> m3f1` forms when **both** direct-to-leaf
-#' correlations `|r(m1f1, m3f1)|` and `|r(m2f1, m3f1)|` meet `redundancy_r` --
-#' every member is judged by its own direct correlation to the *same* deepest
-#' factor (a star centred on the leaf). It does **not** require the adjacent hop
-#' `|r(m1f1, m2f1)|` to meet the threshold (that is the `"adjacent"` criterion),
-#' and it does **not** screen every ancestor pair against every other (there is
-#' no all-pairs test). So an ancestor can join on a strong direct link to the
-#' leaf even where its adjacent hop to the next chain member is weak -- which is
+#' correlations `|r(m1f1, m3f1)|` and `|r(m2f1, m3f1)|` meet `redundancy_r`.
+#' Every member is judged by its own direct correlation to the *same* deepest
+#' factor, a star centred on the leaf. It does **not** require the adjacent hop
+#' `|r(m1f1, m2f1)|` to meet the threshold (that is the `"adjacent"`
+#' criterion). It also does **not** screen every ancestor pair against every
+#' other, so there is no all-pairs test. An ancestor can join on a strong
+#' direct link to the
+#' leaf even where its adjacent hop to the next chain member is weak. That is
 #' exactly why `r_to_prev` (below) can sit under `redundancy_r`.
 #'
 #' **Reading `x$prune$chains` under `redundancy_criterion = "direct"`.** The
 #' `r_to_prev` and `phi_to_prev` columns report the **adjacent-level**
-#' correlation and congruence between consecutive chain members (for continuity
-#' of display), but chain *membership* is decided by the **direct (skip-level)**
+#' correlation and congruence between consecutive chain members, for continuity
+#' of display. But chain *membership* is decided by the **direct (skip-level)**
 #' correlation to the chain's deepest factor. A direct chain can therefore
-#' legitimately contain a link whose `r_to_prev` is *below* `redundancy_r` -- the
-#' stronger direct link is what justified it. The `endpoint_r` column gives the
+#' legitimately contain a link whose `r_to_prev` is *below* `redundancy_r`,
+#' because the stronger direct link is what justified it. The `endpoint_r`
+#' column gives the
 #' direct root-to-leaf correlation as an at-a-glance cross-check. Under
 #' `redundancy_criterion = "adjacent"`, `r_to_prev` *is* the criterion and always
 #' meets `redundancy_r`.
 #'
 #' **The near-redundant band (`"artifact"` mode).** `prune("redundant")` drops
-#' *full* redundancy -- pairs at or above the thresholds. Forbes (2023) uses the
-#' artifact flags mainly for the messier band *just below* them: a pair that
-#' correlates, say, `|r| = 0.89` and shares a loading pattern `phi = 0.93` is not
+#' *full* redundancy, meaning pairs at or above the thresholds. Forbes (2023)
+#' uses the artifact flags mainly for the messier band *just below* them. Say a
+#' pair correlates at `|r| = 0.89` and shares a loading pattern at
+#' `phi = 0.93`. It is not
 #' quite redundant but is a candidate re-rotation worth a second look. Artifact
-#' mode surfaces this as `x$prune$near_redundant` -- a data frame of every
-#' cross-level pair that is **not** itself fully redundant yet has its direct
-#' (skip-level) `|r|` **or** its Tucker `phi` within `near_margin` *below* the
-#' corresponding threshold (`redundancy_r` / `redundancy_phi`). Columns:
-#' `from`, `to`, `level_from`, `level_to`, `r` (direct score correlation), `phi`
-#' (loading congruence), and the logical band flags `near_r` / `near_phi`. Under
+#' mode surfaces this as `x$prune$near_redundant`. That data frame holds every
+#' cross-level pair that is **not** itself fully redundant. Such a pair has its
+#' direct (skip-level) `|r|` **or** its Tucker `phi` within `near_margin`
+#' *below* the corresponding threshold (`redundancy_r` or `redundancy_phi`).
+#' Its columns
+#' are `from`, `to`, `level_from`, `level_to`, `r` (direct score correlation),
+#' `phi` (loading congruence), and the logical band flags `near_r` and
+#' `near_phi`. Under
 #' the PCA engine `redundancy_phi` is `NULL` (component scores are determinate),
-#' so only the `|r|` band applies; under EFA/ESEM `redundancy_phi` auto-resolves
+#' so only the `|r|` band applies. Under EFA and ESEM `redundancy_phi`
+#' auto-resolves
 #' to `0.95` (announced via cli) and the `phi` band is active too. Like phi and
-#' the structural signals, the band is **report-only** -- it never drops or
+#' the structural signals, the band is **report-only**. It never drops or
 #' mutates the kept node set.
 #'
 #' @return `x`, with `$prune` populated (replacing any prior pruning).

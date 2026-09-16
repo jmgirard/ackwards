@@ -19,24 +19,25 @@ suggest_k(
 \item{data}{A data frame or numeric matrix (items in columns, observations in
 rows). Alternatively, a pre-computed \strong{correlation matrix} may be supplied
 (a square, symmetric, numeric matrix with unit diagonal). When a
-correlation matrix is supplied, \code{n_obs} is required (PA and VSS need N),
-the \code{cor} argument is ignored, and the Comparison Data (CD) criterion is
-skipped (CD requires raw item distributions for resampling).}
+correlation matrix is supplied, \code{n_obs} is required (PA and VSS need N)
+and the \code{cor} argument is ignored. The Comparison Data (CD) criterion is
+then skipped, because CD requires raw item distributions for resampling.}
 
-\item{k_max}{Maximum number of factors/components to \emph{evaluate} when
-recommending a depth -- not a depth itself. Defaults to
-\code{min(ncol(data) - 1, 8)}. Increase if you expect a deeper hierarchy. (Note:
-this is a distinct meaning from \code{ackwards()}'s \code{k_max}, which \emph{is} the
-extraction depth; the two share a name because they're the same dial in
-the \code{suggest_k() -> ackwards()} workflow, just applied at different
-stages.)}
+\item{k_max}{Maximum number of factors or components to \emph{evaluate} when
+recommending a depth. It is not a depth itself. Defaults to
+\code{min(ncol(data) - 1, 8)}. Increase if you expect a deeper hierarchy. (One
+caution: this is a distinct meaning from \code{ackwards()}'s \code{k_max}, which
+\emph{is} the extraction depth. The two share a name because they are the same
+dial in the \code{suggest_k() -> ackwards()} workflow, just applied at
+different stages.)}
 
 \item{criteria}{Character vector of criteria to compute. Any subset of
-\code{c("pa_pc", "pa_fa", "map", "vss", "cd")}; default is all five.
-\code{"pa_pc"} and \code{"pa_fa"} share one parallel-analysis call (both or neither
-are fast); \code{"map"} and \code{"vss"} share one VSS call. Criteria not requested
+\code{c("pa_pc", "pa_fa", "map", "vss", "cd")}, and the default is all five.
+The criteria \code{"pa_pc"} and \code{"pa_fa"} share one parallel-analysis call, so
+both or neither are fast, and \code{"map"} and \code{"vss"} share one VSS call.
+Criteria not requested
 are skipped entirely (no computation) and their \verb{k_*} fields in the result
-are \code{NA}. \code{"vss"} selects both VSS-1 and VSS-2 as a unit.}
+are \code{NA}. The choice \code{"vss"} selects both VSS-1 and VSS-2 as a unit.}
 
 \item{cor}{Correlation basis: \code{"pearson"} (default) or \code{"spearman"}. Should
 match the \code{cor} argument you plan to use in \code{\link[=ackwards]{ackwards()}}. Ignored when
@@ -47,72 +48,79 @@ correlation matrix (PA and VSS need N). Ignored when raw data are supplied
 (N is determined from \code{nrow(data)}).}
 
 \item{n_iter}{Number of Monte Carlo iterations for parallel analysis. Default
-\code{20}. Reduce to \code{5} for fast/exploratory runs; increase to \verb{100+} for
-publication.}
+\code{20}. Reduce to \code{5} for fast or exploratory runs, and increase to \verb{100+}
+for publication.}
 
 \item{seed}{Integer seed passed to \code{\link[=set.seed]{set.seed()}} before the Comparison Data
 (CD) step. \code{NULL} (default) uses the current RNG state. \strong{Note:} the
 parallel-analysis step uses \code{psych::fa.parallel()}, which does not respond
-reliably to \code{set.seed()} -- PA simulation results will vary across calls
+reliably to \code{set.seed()}. PA simulation results will vary across calls
 regardless of \code{seed}.}
 
 \item{...}{Reserved for future arguments.}
 }
 \value{
-An object of class \code{"suggest_k"}. Print it for a formatted summary;
-call \code{\link[=autoplot]{autoplot()}} on it for a diagnostic scree/criteria plot. The list
+An object of class \code{"suggest_k"}. Print it for a formatted summary,
+or call \code{\link[=autoplot]{autoplot()}} on it for a diagnostic scree/criteria plot. The list
 contains:
-\item{k_parallel_pc}{Recommended k from PC-based parallel analysis
-(\code{NA_integer_} when \code{"pa_pc"} not in \code{criteria}).}
-\item{k_parallel_fa}{Recommended k from FA-based parallel analysis
-(\code{NA_integer_} if no FA factor exceeded the random threshold, or when
-\code{"pa_fa"} not in \code{criteria}).}
-\item{k_map}{Recommended k from MAP (\code{NA_integer_} when \code{"map"} not in
-\code{criteria}).}
-\item{k_vss1}{Recommended k from VSS complexity-1 (\code{NA_integer_} when
-\code{"vss"} not in \code{criteria}).}
-\item{k_vss2}{Recommended k from VSS complexity-2 (\code{NA_integer_} when
-\code{"vss"} not in \code{criteria}).}
-\item{k_cd}{Recommended k from Comparison Data (\code{NA_integer_} when
-\code{"cd"} not in \code{criteria}, \pkg{EFAtools} is not installed, or CD fails).}
-\item{cd_available}{Logical; \code{TRUE} when \code{"cd"} was requested,
+\item{k_parallel_pc}{Recommended k from PC-based parallel analysis.
+It is \code{NA_integer_} when \code{"pa_pc"} is not in \code{criteria}.}
+\item{k_parallel_fa}{Recommended k from FA-based parallel analysis.
+It is \code{NA_integer_} if no FA factor exceeded the random threshold, or
+when \code{"pa_fa"} is not in \code{criteria}.}
+\item{k_map}{Recommended k from MAP. It is \code{NA_integer_} when \code{"map"} is
+not in \code{criteria}.}
+\item{k_vss1}{Recommended k from VSS complexity-1. It is \code{NA_integer_}
+when \code{"vss"} is not in \code{criteria}.}
+\item{k_vss2}{Recommended k from VSS complexity-2. It is \code{NA_integer_}
+when \code{"vss"} is not in \code{criteria}.}
+\item{k_cd}{Recommended k from Comparison Data. It is \code{NA_integer_} when
+\code{"cd"} is not in \code{criteria}, \pkg{EFAtools} is not installed, or CD
+fails.}
+\item{cd_available}{Logical. It is \code{TRUE} when \code{"cd"} was requested,
 \pkg{EFAtools} was found, and CD ran successfully.}
-\item{criteria}{Data frame with one row per k: \code{k}, \code{ev_obs} (observed PC
-eigenvalue), \code{ev_obs_fa} (observed FA eigenvalue),
-\code{pa_pc_quant} / \code{pa_fa_quant} (95th-pct simulated eigenvalue for each
-basis), \code{pa_pc_suggested} / \code{pa_fa_suggested} (logical retention),
-\code{map}, \code{vss1}, \code{vss2}. Columns for non-requested criteria are \code{NA}.}
+\item{criteria}{Data frame with one row per k. Its columns are \code{k},
+\code{ev_obs} (observed PC eigenvalue), \code{ev_obs_fa} (observed FA
+eigenvalue), \code{pa_pc_quant} and \code{pa_fa_quant} (95th-percentile simulated
+eigenvalue for each basis), \code{pa_pc_suggested} and \code{pa_fa_suggested}
+(logical retention), \code{map}, \code{vss1}, and \code{vss2}. Columns for
+non-requested criteria are \code{NA}.}
 \item{criteria_requested}{Character vector of the criteria that were
 requested (and therefore computed).}
 \item{k_max, n_obs, n_vars, cor}{Metadata.}
 }
 \description{
 Runs complementary factor-retention criteria and reports their
-recommendations. No single criterion is definitive; the goal is a consensus
-range to inform your choice of \code{k} in \code{\link[=ackwards]{ackwards()}}.
+recommendations. A factor is a summary variable standing in for a group of
+items that move together. No single criterion is definitive. The goal is a
+consensus range to inform your choice of \code{k} in \code{\link[=ackwards]{ackwards()}}.
 }
 \details{
 \strong{Criteria available (controlled by the \code{criteria} argument):}
 \itemize{
-\item \strong{PA-PC} (\code{"pa_pc"}) -- Horn (1965) parallel analysis on PC eigenvalues.
-Compares observed eigenvalues to those from random correlation matrices;
-suggests retaining components whose eigenvalues exceed the 95th percentile
-of chance. Tends to overextract; treat as an upper bound.
-\item \strong{PA-FA} (\code{"pa_fa"}) -- Horn (1965) parallel analysis using common-factor
-eigenvalues. More conservative than PA-PC and the better match for the EFA
-and ESEM engines in \code{\link[=ackwards]{ackwards()}}. Shares one \code{psych::fa.parallel()} call
-with PA-PC.
-\item \strong{MAP} (\code{"map"}) -- Velicer (1976) Minimum Average Partial criterion.
+\item \strong{PA-PC} (\code{"pa_pc"}): Horn (1965) parallel analysis on PC eigenvalues.
+Parallel analysis compares the eigenvalues of your data with those of
+random data of the same shape. It suggests retaining components (weighted
+sums of the items) whose eigenvalues exceed the 95th percentile of
+chance. It tends to overextract, so treat it as an upper bound.
+\item \strong{PA-FA} (\code{"pa_fa"}): Horn (1965) parallel analysis using common-factor
+eigenvalues. More conservative than PA-PC and the better match for the
+EFA (exploratory factor analysis) and ESEM (exploratory structural
+equation modeling) engines in \code{\link[=ackwards]{ackwards()}}. Shares one
+\code{psych::fa.parallel()} call with PA-PC.
+\item \strong{MAP} (\code{"map"}): Velicer (1976) Minimum Average Partial criterion.
 Finds the k that minimises the average squared partial correlation
 remaining after extracting k components. Usually conservative. Shares one
 \code{psych::vss()} call with VSS.
-\item \strong{VSS} (\code{"vss"}) -- Revelle & Rocklin (1979) Very Simple Structure fit
+\item \strong{VSS} (\code{"vss"}): Revelle & Rocklin (1979) Very Simple Structure fit
 at complexities 1 and 2 (VSS-1 and VSS-2). Finds the k maximising the
-fit of a very simple loading structure. Shares one \code{psych::vss()} call
+fit of a very simple loading structure, where a loading is the
+correlation between an item and a factor. Shares one \code{psych::vss()} call
 with MAP.
-\item \strong{CD} (\code{"cd"}) -- Ruscio & Roche (2012) Comparison Data. Resamples from
-the observed item distributions to generate comparison eigenvalue profiles;
-retains factors until adding one no longer improves RMSE beyond chance.
+\item \strong{CD} (\code{"cd"}): Ruscio & Roche (2012) Comparison Data. Resamples from
+the observed item distributions to generate comparison eigenvalue
+profiles. It retains factors until adding one no longer improves RMSE
+beyond chance.
 Requires the \pkg{EFAtools} package (install separately). Skipped with an
 informational message when \pkg{EFAtools} is absent or when a correlation
 matrix is supplied.
@@ -126,29 +134,33 @@ resampling).
 
 \code{k} in \code{\link[=ackwards]{ackwards()}} is a \strong{maximum depth}, not a claim that exactly k
 factors exist. Users commonly set k one or two levels above the consensus to
-watch higher-level factors fragment -- this is a feature of the method, not
+watch higher-level factors fragment. This is a feature of the method, not
 overextraction.
 
 Treating retention estimates as a range rather than a verdict has direct
-support in the parallel-analysis literature: Lim and Jahng (2019) recommend
+support in the parallel-analysis literature. Lim and Jahng (2019) recommend
 interpreting the PA estimate as a range of roughly plus or minus one factor,
-resolved by interpretability, and Achim (2021) argues that even that
-overstates PA's precision -- the disagreement itself is why \code{suggest_k()}
+resolved by interpretability. Achim (2021) argues that even that
+overstates PA's precision. The disagreement itself is why \code{suggest_k()}
 reports several criteria and a consensus range, never a single number.
 }
 
 \section{Ordinal (Likert) data}{
 
 \code{suggest_k()} screens on the Pearson or Spearman basis by design and never
-computes polychoric correlations itself, so when the raw data look ordinal
-(at most 7 distinct integer values per column) it emits a one-per-session
-warning -- the same \code{detect_ordinal()} signal \code{ackwards()} and
+computes polychoric correlations itself. Polychoric correlations estimate
+the correlation between the continuous traits assumed to underlie ordered
+responses. Ordinal items have a few ordered categories, such as a 1 to 5
+rating. So when the raw data look ordinal (at most 7 distinct integer
+values per column) this function emits a one-per-session
+warning. That is the same \code{detect_ordinal()} signal \code{ackwards()} and
 \code{comparability()} use (Invariant 6: announce consequential defaults loudly).
-Crucially, the advice points at the \emph{final} \code{\link[=ackwards]{ackwards()}} fit
-(\code{cor = "polychoric"}), \strong{not} at \code{suggest_k()} itself: the screening basis
-is intentional. The plausible-k \emph{range} is robust to the Pearson-vs-polychoric
-choice, so screening on Pearson and fitting the final model polychoric is the
-recommended workflow -- computing polychoric correlations at the screening
+The advice points at the \emph{final} \code{\link[=ackwards]{ackwards()}} fit
+(\code{cor = "polychoric"}), \strong{not} at \code{suggest_k()} itself, because the
+screening basis is intentional. The plausible-k \emph{range} changes little
+whether you use Pearson or polychoric correlations. So screening on Pearson
+and fitting the final model polychoric is the recommended workflow.
+Computing polychoric correlations at the screening
 stage would only add cost and NPD risk without changing the range. The
 warning is skipped for correlation-matrix input (there are no items to
 inspect).
@@ -222,6 +234,6 @@ Velicer, W. F. (1976). Determining the number of components from the matrix
 of partial correlations. \emph{Psychometrika}, 41, 321--327.
 }
 \seealso{
-\code{\link[=ackwards]{ackwards()}}; \code{\link[=factorability]{factorability()}}, \code{\link[=check_items]{check_items()}}, and
+\code{\link[=ackwards]{ackwards()}}. See also \code{\link[=factorability]{factorability()}}, \code{\link[=check_items]{check_items()}}, and
 \code{\link[=comparability]{comparability()}}, the other pre-analysis diagnostics.
 }

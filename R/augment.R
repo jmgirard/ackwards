@@ -4,20 +4,23 @@ generics::augment
 
 #' Augment data with factor scores from an ackwards object
 #'
-#' Appends per-observation factor scores for every level to a data frame.
+#' Appends per-observation factor scores to a data frame, for every level. A
+#' factor is a summary variable standing in for a group of items that move
+#' together, and a factor score is each person's estimated standing on one.
 #' Score columns are named `.m{k}f{j}` (e.g., `.m1f1`, `.m2f1`, `.m2f2`),
 #' matching the factor labels used throughout the object.
 #'
 #' @details
 #' **Score computation.** Scores are `S = Z W / sqrt(score_var)`, where `Z` is
-#' the item z-scores, `W` is the per-level weight matrix stored in the object,
-#' and `sqrt(score_var)` standardizes by the real score standard deviations
-#' (Invariant 1: never assume unit variance). For PCA the method is
-#' `"components"`; for EFA/ESEM it is `"tenBerge"`. The `scaling` argument
-#' controls which means/SDs build `Z`: by default the **fit-time** moments
-#' stored in the object, so any data you score — the training data, a subset
-#' of it, or entirely new observations — lands on the same metric the model
-#' was estimated in.
+#' the item z-scores and `W` is the per-level weight matrix stored in the
+#' object. Dividing by `sqrt(score_var)` standardizes by the real score
+#' standard deviations (Invariant 1: never assume unit variance). For PCA
+#' (principal component analysis) the method is `"components"`. For EFA
+#' (exploratory factor analysis) and ESEM (exploratory structural equation
+#' modeling) it is `"tenBerge"`. The `scaling` argument controls which
+#' means/SDs build `Z`. By default these are the **fit-time** moments stored
+#' in the object. Any data you score then lands on the same metric the model
+#' was estimated in: the training data, a subset of it, or new observations.
 #'
 #' **Scoring new observations (cross-validation).** Because scoring only needs
 #' the stored weight matrices and the fit-time moments, you can fit
@@ -25,21 +28,24 @@ generics::augment
 #' retraining*: `augment(x, data = test_set)` (or, equivalently,
 #' [predict.ackwards()]). Under the default `scaling = "fit"` the test
 #' observations are standardized by the *training* means/SDs, which is what
-#' "applying the trained model" means: a test observation's score does not
+#' "applying the trained model" means. A test observation's score does not
 #' depend on which other observations happen to share its split, and train and
-#' test scores are directly comparable. `scaling = "sample"` instead
-#' re-standardizes by the supplied data's own moments — a deliberate choice
-#' when scoring a sample from a different population in its own metric, and
-#' the only option for objects fit from a correlation matrix (which carry no
-#' raw-data moments). For non-Pearson bases (polychoric, Spearman) the usual
-#' caveat applies either way: the weights derive from the non-Pearson `R`
-#' while `Z` is a linear standardization, so empirical score SDs are close to
-#' but not exactly 1 (a one-time warning says so); train/test comparability
-#' under `scaling = "fit"` is unaffected. For objects fit with
-#' `missing = "fiml"` (PCA/EFA), the stored moments are the observed
-#' (`na.rm`) means/SDs of the training items — the correlation matrix was
-#' FIML-estimated, but scoring operates on observed responses, so the
-#' observed moments are the consistent frame; incomplete rows still score
+#' test scores are directly comparable. Setting `scaling = "sample"` instead
+#' re-standardizes by the supplied data's own moments. That is a deliberate
+#' choice when scoring a sample from a different population in its own metric.
+#' It is also the only option for objects fit from a correlation matrix, which
+#' carry no raw-data moments. For non-Pearson bases the usual caveat applies
+#' either way. Those bases are Spearman and polychoric correlations, which
+#' estimate the correlation between the continuous traits assumed to underlie
+#' ordered responses. The weights derive from the non-Pearson `R` while `Z` is
+#' a linear standardization, so empirical score SDs are close to but not
+#' exactly 1 (a one-time warning says so). Train/test comparability under
+#' `scaling = "fit"` is unaffected. For objects fit with `missing = "fiml"`
+#' (PCA/EFA), the stored moments are the observed (`na.rm`) means/SDs of the
+#' training items. The correlation matrix was estimated by FIML, that is, full
+#' information maximum likelihood, which uses every observed value without
+#' dropping incomplete rows. But scoring operates on observed responses, so
+#' the observed moments are the consistent frame. Incomplete rows still score
 #' `NA` (scoring does not impute).
 #'
 #' **Missing data.** Score projection applies weights row-wise and propagates
@@ -49,19 +55,20 @@ generics::augment
 #' Use `na.omit(data)` before scoring if NA rows are unwanted.
 #'
 #' **Data source.** If `data` is supplied, scores are always recomputed from
-#' it using the stored weights -- this is how to score new observations. If
+#' it using the stored weights. This is how to score new observations. If
 #' `data` is `NULL` and `keep_scores = TRUE` was set at fit time, the stored
 #' scores are returned. If neither is available an informative error is raised.
 #'
 #' **Scores-only output (`append = FALSE`).** By default (`append = TRUE`) the
 #' scores are appended to the supplied `data`, following the broom convention.
-#' Set `append = FALSE` to return *only* the score columns -- convenient for
-#' feeding scores straight into [cor()], [lm()], or a clustering call without
-#' dragging the item columns along. Because `augment()` always preserves row
-#' order and row count, `cbind(data, augment(x, data, append = FALSE))`
-#' reproduces the appended output exactly. A row that scores `NA` (because it is
-#' missing an item -- see *Missing data* above) is still returned in place, so the
-#' positional alignment holds even with `NA` scores. For a rejoin that survives
+#' Set `append = FALSE` to return *only* the score columns. That is convenient
+#' for feeding scores straight into [cor()], [lm()], or a clustering call
+#' without dragging the item columns along. Because `augment()` always
+#' preserves row order and row count, the call
+#' `cbind(data, augment(x, data, append = FALSE))`
+#' reproduces the appended output exactly. A row that scores `NA`
+#' (because it is missing an item, see *Missing data* above) is still returned
+#' in place, so the alignment holds. For a rejoin that survives
 #' *filtering* the scores afterwards, name identifier columns with `id_cols` so
 #' they travel with the scores.
 #'
@@ -74,17 +81,17 @@ generics::augment
 #'   the score columns are returned (plus any `id_cols`).
 #' @param id_cols Optional character vector naming columns of `data` to carry
 #'   through alongside the scores when `append = FALSE` (for example a subject
-#'   identifier, so scores can be rejoined after filtering). Ignored -- and an
-#'   error -- when `append = TRUE` (all columns are already kept) or when `data`
-#'   is `NULL` (there are no source columns to carry). `NULL` (default) returns
-#'   the bare score columns.
+#'   identifier, so scores can be rejoined after filtering). It is ignored, and
+#'   an error, when `append = TRUE` (all columns are already kept) or when
+#'   `data` is `NULL` (there are no source columns to carry). `NULL` (default)
+#'   returns the bare score columns.
 #' @param scaling Which item means/SDs standardize `data` before the weights
 #'   are applied. `"fit"` (default) uses the **fit-time** moments stored in the
-#'   object -- the correct choice for scoring new observations (e.g. a
+#'   object. That is the correct choice for scoring new observations (e.g. a
 #'   cross-validation test split) or subsets on the training metric. `"sample"`
 #'   standardizes by the supplied data's own moments (the only option for
 #'   objects fit from a correlation matrix, which carry no raw-data moments).
-#'   Only used when `data` is supplied; passing it without `data` is an error
+#'   Only used when `data` is supplied. Passing it without `data` is an error
 #'   (stored scores are returned exactly as computed at fit time).
 #' @param ... Ignored.
 #'

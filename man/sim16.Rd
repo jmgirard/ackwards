@@ -5,64 +5,68 @@
 \alias{sim16}
 \title{Simulated continuous bass-ackwards teaching example (16 items, known hierarchy)}
 \format{
-A data frame with 1 000 rows and 16 numeric columns (\code{i1}--\code{i16},
-continuous, no missing values).
+A data frame with 1 000 rows and 16 numeric columns (\code{i1} to
+\code{i16}, continuous, no missing values).
 }
 \source{
-Simulated; see \code{data-raw/sim16.R} for the full generative model.
+Simulated. See \code{data-raw/sim16.R} for the full generative model.
 }
 \usage{
 sim16
 }
 \description{
 A 1 000-row, fully continuous dataset simulated from a population model
-with a known 1 -> 2 -> 4 bass-ackwards hierarchy, for showcasing the
-default \code{cor = "pearson"} extraction path without the ordinal-detection
-warning that \code{bfi25}'s Likert items trigger.
+with a known 1 -> 2 -> 4 bass-ackwards hierarchy. A factor is a summary
+variable that stands in for a group of items that move together. The
+dataset showcases the default \code{cor = "pearson"} extraction path without
+the ordinal-detection warning that \code{bfi25}'s Likert items trigger. Ordinal
+items have a few ordered categories, such as a 1 to 5 rating.
 }
 \details{
 \strong{Population model.} \code{Sigma = Lambda \%*\% Phi \%*\% t(Lambda) + Psi}, an
 oblique common-factor model with 4 true group factors, sampled via a
-Cholesky factorization (base R; no \code{MASS} dependency):\tabular{lll}{
+Cholesky factorization (base R, with no \code{MASS} dependency):\tabular{lll}{
    Factor \tab Items \tab Metatrait \cr
-   \code{f1} \tab \code{i1}--\code{i4} \tab 1 (with \code{f2}) \cr
-   \code{f2} \tab \code{i5}--\code{i8} \tab 1 (with \code{f1}) \cr
-   \code{f3} \tab \code{i9}--\code{i12} \tab 2 (with \code{f4}) \cr
-   \code{f4} \tab \code{i13}--\code{i16} \tab 2 (with \code{f3}) \cr
+   \code{f1} \tab \code{i1} to \code{i4} \tab 1 (with \code{f2}) \cr
+   \code{f2} \tab \code{i5} to \code{i8} \tab 1 (with \code{f1}) \cr
+   \code{f3} \tab \code{i9} to \code{i12} \tab 2 (with \code{f4}) \cr
+   \code{f4} \tab \code{i13} to \code{i16} \tab 2 (with \code{f3}) \cr
 }
 
 
-All items load \code{0.75} on their true factor (no cross-loadings). Factor
-correlations: \code{0.45} within a metatrait (\code{f1}-\code{f2}, \code{f3}-\code{f4}), \code{0.15}
-between metatraits. Uniquenesses are \code{1 - communality} (uniform \code{0.4375}
-by the symmetry of the design above).
+All items load \code{0.75} on their true factor, with no cross-loadings. A
+loading is the correlation between an item and a factor. Factor
+correlations are \code{0.45} within a metatrait (\code{f1}-\code{f2}, \code{f3}-\code{f4}) and
+\code{0.15} between metatraits. Uniquenesses are \code{1 - communality} (uniform
+\code{0.4375} by the symmetry of the design above).
 
-\strong{Ground-truth hierarchy} (verified against \code{ackwards(engine = "efa")}):
-\code{k=1} recovers a single general factor across all 16 items; \code{k=2} splits
-along the metatrait line (\code{i1}-\code{i8} vs. \code{i9}-\code{i16}); \code{k=4} recovers the 4
-true group factors exactly; all six \code{suggest_k()} recommendations (five
-criteria -- VSS reports at complexities 1 and 2) reach a consensus of
-\code{k = 4}.
+\strong{Ground-truth hierarchy} (verified against \code{ackwards(engine = "efa")}).
+\code{k=1} recovers a single general factor across all 16 items. \code{k=2} splits
+along the metatrait line (\code{i1}-\code{i8} vs. \code{i9}-\code{i16}). \code{k=4} recovers the 4
+true group factors exactly. All six \code{suggest_k()} recommendations reach a
+consensus of \code{k = 4}, from five criteria, because VSS reports at
+complexities 1 and 2.
 
 \strong{Idealized by design.} The planted signal is strong and clean, so all six
-\code{suggest_k()} recommendations converge on \code{k = 4} -- deliberately the \emph{easy} case,
-for building intuition about what recovering a known hierarchy looks like.
-Real data rarely agree this cleanly: on \code{bfi25} the same criteria span
-\code{k = 4}--\code{6}. The two datasets are complementary teaching foils -- \code{sim16}
-for "watch the method recover a structure we planted," \code{bfi25} for
-"reason about a hierarchy when the criteria disagree." Present \code{sim16}'s
-consensus as the ideal, not the norm.
+\code{suggest_k()} recommendations converge on \code{k = 4}. That is deliberately the
+\emph{easy} case, for building intuition about what recovering a known hierarchy
+looks like. Real data rarely agree this cleanly: on \code{bfi25} the same
+criteria span \code{k = 4} to \code{6}. The two datasets are complementary teaching
+foils. Use \code{sim16} for "watch the method recover a structure we planted,"
+and \code{bfi25} for "reason about a hierarchy when the criteria disagree."
+Present \code{sim16}'s consensus as the ideal, not the norm.
 
 \strong{Deliberate overextraction artifact at k=5.} The population has exactly
-4 factors, so requesting a 5th finds no real dimension: EFA produces an
-orphan factor with zero primary-loading items. With
-\code{prune(x, "artifact")} (default \code{min_items = 3}, \code{orphan_r = 0.5}), that
-factor is flagged both \code{few_items} and \code{orphan}. Because the true (non-
-splitting) factors persist essentially unchanged from \code{k=3} onward, their
-parent-child score correlations approach 1 and are flagged by
+4 factors, so requesting a 5th finds no real dimension. EFA (exploratory
+factor analysis) produces an orphan factor with zero primary-loading items.
+With \code{prune(x, "artifact")} (default \code{min_items = 3}, \code{orphan_r = 0.5}),
+that factor is flagged both \code{few_items} and \code{orphan}. The true factors, the
+ones that do not split, persist almost unchanged from \code{k=3} onward. So
+their parent-child score correlations approach 1 and are flagged by
 \code{prune(x, "redundant")} (\verb{|r| >= .9} and, under the EFA auto-default,
-Tucker's phi \verb{> .95}). This is a textbook overextraction artifact, included so the
-Forbes/redundancy examples have a guaranteed finding to teach against
+Tucker's phi \verb{> .95}). Two factors are redundant when one adds nothing over
+the other. This is a textbook overextraction artifact, included so the
+Forbes and redundancy examples have a guaranteed finding to teach against
 (unlike \code{bfi25}, which does not reliably trigger one).
 
 To regenerate this dataset, run \code{source("data-raw/sim16.R")} from the

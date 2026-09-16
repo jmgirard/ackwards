@@ -31,15 +31,16 @@ kept after applying the cut.}
 ordered by descending \verb{|loading|}. Set to \code{FALSE} to keep the original
 order (useful when items have a meaningful sequence).}
 
-\item{by}{One of \code{"factor"} (default) or \code{"item"}. \code{"factor"} groups the
-listing by factor (the salient items \emph{of} each factor -- "what is this
-factor about?"). \code{"item"} inverts the grouping to list, for each item, the
-factors it loads on -- which makes cross-loadings legible ("where does this
-item go?"). \code{n} and \code{sort} apply within whichever unit \code{by} selects.}
+\item{by}{One of \code{"factor"} (default) or \code{"item"}. Option \code{"factor"} groups
+the listing by factor, giving the salient items \emph{of} each factor, which
+answers "what is this factor about?". Option \code{"item"} inverts the
+grouping, so for each item it lists the factors it loads on. That makes
+cross-loadings legible, and answers "where does this item go?". Both \code{n}
+and \code{sort} apply within whichever unit \code{by} selects.}
 
 \item{show_labels}{Logical. When \code{TRUE} (default) and the data carried a
 variable-label attribute at fit time (see \code{\link[=ackwards]{ackwards()}}), items are shown as
-\code{id: label}; items without a label fall back to the bare id. Set to
+\code{id: label}. Items without a label fall back to the bare id. Set to
 \code{FALSE} to always show the bare \verb{m\{k\}f\{j\}}-style item ids.}
 }
 \value{
@@ -50,6 +51,8 @@ The underlying data frame (one row per selected item) is accessible via
 \code{tidy(x, what = "loadings")} rows (after filtering and optional sorting).
 }
 \description{
+A factor is a summary variable standing in for a group of items that move
+together. A loading is the correlation between an item and a factor.
 Returns, per level and factor, the items whose absolute loading meets or
 exceeds \code{cut}, sorted by descending absolute loading. This gives a concise
 reading of "what each factor is about" without printing a full item-by-factor
@@ -58,11 +61,12 @@ matrix, which does not scale well to large \code{k} or many items.
 \details{
 Loadings are signed and reflect the object's primary-parent sign alignment
 (see \code{\link[=ackwards]{ackwards()}}). Items near the cut threshold may appear for one sign
-orientation but not the other; this is expected and informative.
+orientation but not the other. That is expected and informative.
 
 If \link[=set_factor_labels]{factor labels} have been attached, the factor
-dimension is shown as \code{label (id)} wherever it appears -- the group headers
-under \code{by = "factor"} and the body entries under \code{by = "item"}.
+dimension is shown as \code{label (id)} wherever it appears. That covers the
+group headers under \code{by = "factor"} and the body entries under
+\code{by = "item"}.
 }
 \examples{
 # Fit the raw dataset (not na.omit(), which would drop the column

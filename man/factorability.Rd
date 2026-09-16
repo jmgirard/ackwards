@@ -12,49 +12,59 @@ correlation matrix (detected automatically). KMO and Bartlett are computed
 on the correlation matrix in the basis you name via \code{cor}.}
 
 \item{cor}{The correlation basis to screen on: \code{"pearson"} (default),
-\code{"spearman"}, or \code{"polychoric"}. Ignored when \code{data} is already a
+\code{"spearman"}, or \code{"polychoric"}, which estimates the correlation between
+the continuous traits assumed to underlie ordered responses.
+Ignored when \code{data} is already a
 correlation matrix. Use the same basis you plan to pass to \code{\link[=ackwards]{ackwards()}}.}
 
 \item{n_obs}{Number of observations. Taken from \code{nrow(data)} for raw data
 (a supplied value is ignored with a warning). \strong{Required} for the N-based
-diagnostics (Bartlett, \code{N:p}) when \code{data} is a correlation matrix; those
+diagnostics (Bartlett, \code{N:p}) when \code{data} is a correlation matrix. Those
 are reported as \code{NA} when it is absent.}
 }
 \value{
-An object of class \code{factorability} (a named list): \code{cor}, \code{n_obs},
+An object of class \code{factorability}, a named list. Its entries are
+\code{cor}, \code{n_obs},
 \code{n_vars}, \code{np_ratio}, \code{kmo_overall}, \code{kmo_items} (a data frame of per-item
-MSA), \code{bartlett} (a list of \code{chisq}/\code{df}/\code{p_value}, or \code{NULL} when \code{N} is
-unknown), and \code{ledermann} (the bound). Print it for a banded summary; index
-the list for the raw values.
+MSA), \code{bartlett} (a list of \code{chisq}, \code{df}, and \code{p_value}, or \code{NULL} when
+\code{N} is unknown), and \code{ledermann} (the bound). Print it for a banded
+summary. Index the list for the raw values.
 }
 \description{
-Before extracting a hierarchy, it is worth asking two prior questions:
-\emph{is this correlation matrix even worth factoring}, and \emph{is the sample large
-enough to trust the answer}. \code{factorability()} reports the standard
-diagnostics for both, one object you can print or pull values from:
+Two questions come before extracting a hierarchy. Is this correlation matrix
+even worth factoring, and is the sample large enough to trust the answer?
+A factor is a summary variable standing in for a group of items that move
+together. The function reports the standard
+diagnostics for both, in one object you can print or pull values from:
 \itemize{
-\item \strong{KMO} -- the Kaiser-Meyer-Olkin measure of sampling adequacy, overall
+\item \strong{KMO}, the Kaiser-Meyer-Olkin measure of sampling adequacy, overall
 and per variable (via \code{\link[psych:KMO]{psych::KMO()}}). It contrasts correlations with
-partial correlations: a low value means the variables share little common
+partial correlations. A low value means the variables share little common
 variance once other variables are partialled out, so a factor model has
 little to recover.
-\item \strong{Bartlett's test of sphericity} -- tests whether the correlation matrix
-differs from the identity (via \code{\link[psych:cortest.bartlett]{psych::cortest.bartlett()}}). Needs \code{N}; a
-non-significant result says the correlations are too weak to factor.
-\item \strong{Sample size} -- \code{N}, the number of variables \code{p}, and the \code{N:p} ratio.
-\item \strong{Ledermann bound} -- the largest number of \emph{common factors} identifiable
-from \code{p} variables (a hard limit for EFA/ESEM, though not for PCA).
+\item \strong{Bartlett's test of sphericity}, which tests whether the correlation
+matrix differs from the identity (via \code{\link[psych:cortest.bartlett]{psych::cortest.bartlett()}}). It
+needs \code{N}. A non-significant result says the correlations are too weak to
+factor.
+\item \strong{Sample size}: \code{N}, the number of variables \code{p}, and the \code{N:p} ratio.
+\item \strong{Ledermann bound}, the largest number of \emph{common factors} identifiable
+from \code{p} variables. It is a hard limit for EFA (exploratory factor
+analysis) and ESEM (exploratory structural equation modeling), though not
+for PCA (principal component analysis).
 }
 
-\strong{Read these as conventions, not verdicts.} Every cutoff here -- Kaiser's
-KMO bands, the 5:1 / 10:1 \code{N:p} rules of thumb, Bartlett significance at
-\code{.05} -- is a widely repeated \emph{rule of thumb}, not a settled threshold, and
-each is contested in the methodological literature (the required \code{N} in
-particular depends on communalities and factor overdetermination far more
-than on any fixed ratio; MacCallum et al. 1999). \code{factorability()}
-deliberately reports the numbers and their conventional bands rather than
-returning a pass/fail flag. \code{\link[=ackwards]{ackwards()}} runs the same screen internally and
-warns only at the genuinely consequential extreme (KMO \verb{< 0.5}, \code{N:p < 5}).
+\strong{Read these as conventions, not verdicts.} Three cutoffs appear here:
+Kaiser's KMO bands, the 5:1 and 10:1 \code{N:p} rules of thumb, and Bartlett
+significance at \code{.05}. Each is a widely repeated \emph{rule of thumb}, not a
+settled threshold, and each is contested in the methodological literature.
+The required \code{N} in particular depends far more on two other things than on
+any fixed ratio (MacCallum et al. 1999). One is the communalities (the share
+of each item's variance the factors explain). The other is factor
+overdetermination (how many items load strongly on each factor). This
+function deliberately reports the numbers and their conventional bands rather than
+returning a pass/fail flag. \code{\link[=ackwards]{ackwards()}} runs the same screen internally.
+It warns only at the genuinely consequential extreme (KMO \verb{< 0.5},
+\code{N:p < 5}).
 }
 \examples{
 # Continuous data, Pearson basis
@@ -74,6 +84,8 @@ in factor analysis. \emph{Psychological Methods}, 4(1), 84--99.
 }
 \seealso{
 \code{\link[=check_items]{check_items()}} (per-item screening), \code{\link[=suggest_k]{suggest_k()}} (how many
-factors), and \code{\link[=comparability]{comparability()}} (split-half replicability) -- the other
-pre-analysis diagnostics; \code{\link[=ackwards]{ackwards()}}, which runs this screen internally.
+factors), and \code{\link[=comparability]{comparability()}}, which checks split-half replicability by
+splitting the sample into two random halves. Those are the other
+pre-analysis diagnostics. See also \code{\link[=ackwards]{ackwards()}}, which runs this screen
+internally.
 }
