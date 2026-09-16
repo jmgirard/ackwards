@@ -16,8 +16,22 @@ generics::glance
 #' @param x An `ackwards` object.
 #' @param what What to extract:
 #'   * `"edges"` *(default)*: one row per directed between-level edge, with
-#'     columns
-#'     `from`, `to`, `level_from`, `level_to`, `r`, `is_primary`, `above_cut`.
+#'     columns `from`, `to`, `level_from`, `level_to`, `r`, `beta`,
+#'     `is_primary`, `above_cut`. The column `r` is the correlation between
+#'     the two factors' scores. The column `beta` is the partialled
+#'     coefficient. It is the standardized regression weight of the `to`
+#'     factor on all factors of the `from` level together. It removes the
+#'     part of `r` that the other factors at the `from` level share. Under the
+#'     default varimax rotation the factors within a level are uncorrelated,
+#'     so `beta` equals `r`. The two come apart only when the factors within
+#'     a level are correlated. When the within-level score correlation of the
+#'     `from` level cannot be inverted, `beta` is `NA` for that level's edges
+#'     and a warning names the level. That within-level score correlation
+#'     always comes from the stored score weights and the fit's correlation
+#'     matrix. This holds even when `r` came from materialised scores
+#'     (`edge_method = "scores"`, or the scores path under missing data). On
+#'     those paths the two bases can differ slightly, so `beta` is then an
+#'     approximation of the regression weight.
 #'     If [boot_edges()] has been run on the object, four bootstrap columns are
 #'     appended: `se`, `lo`, `hi` (bootstrap standard error and percentile
 #'     confidence-interval endpoints), and `n_boot_ok` (usable replicates).
@@ -30,8 +44,22 @@ generics::glance
 #'     analysis) and EFA (exploratory factor analysis). The confidence level
 #'     is controlled by `conf_level`.
 #'   * `"variance"`: one row per factor x level, with columns
-#'     `level`, `factor`, `proportion`, `cumulative`. Both are proportions of
-#'     total item variance on a 0-1 scale (multiply by 100 for a percentage).
+#'     `level`, `factor`, `proportion`, `cumulative`, `r2`. The first two are
+#'     proportions of total item variance on a 0-1 scale (multiply by 100
+#'     for a percentage). The column `r2` is the share of the factor's score
+#'     variance that all factors of the level just above account for
+#'     together. It is also a proportion on a 0-1 scale, but of that
+#'     factor's own score variance, not of total item variance, so it is not
+#'     comparable with `proportion` or `cumulative`. It is `NA` at level 1, which has no
+#'     level above. Under the default varimax rotation `r2` equals the sum of
+#'     the squared `r` values of that factor's edges from the level above.
+#'     It is `NA`, with a warning, when the level above's within-level score
+#'     correlation cannot be inverted.
+#'   * `"factor_cor"`: one row per pair of factors within a level, with
+#'     columns `level`, `factor_a`, `factor_b`, `cor`. The column `cor` is
+#'     the correlation between the two factors as the engine reports it, in
+#'     the stored column order and sign. Level 1 has one factor and contributes
+#'     no row. Under the default varimax rotation every `cor` is 0.
 #'   * `"fit"`: one row per fit statistic x level, with columns `level`,
 #'     `statistic`, `value`. For PCA objects the statistics are eigenvalues.
 #'     For EFA objects they are `chi`, `dof`, `p_value`, `RMSEA`, `TLI`, and
@@ -93,8 +121,9 @@ generics::glance
 #' @section Factor labels:
 #' If [factor labels][set_factor_labels] have been attached to the object, the
 #' output gains display-only label columns: `factor_label` for `what =
-#' "loadings"`, `"variance"`, or `"scores"`, and `from_label`/`to_label` for
-#' `what = "edges"`. Each carries the label for a labeled factor and `NA`
+#' "loadings"`, `"variance"`, or `"scores"`, `from_label`/`to_label` for
+#' `what = "edges"`, and `factor_a_label`/`factor_b_label` for `what =
+#' "factor_cor"`. Each carries the label for a labeled factor and `NA`
 #' otherwise. These columns are **absent** when no labels are set, so an
 #' unlabeled object's output is unchanged. The ID columns (`factor`, `from`,
 #' `to`) are never altered.
@@ -108,13 +137,14 @@ generics::glance
 #' tidy(x, primary_only = TRUE) # just the primary-parent lineage
 #' tidy(x, what = "loadings")
 #' tidy(x, what = "variance")
+#' tidy(x, what = "factor_cor") # all 0 under varimax
 #' tidy(x, what = "fit")
 #' tidy(x, what = "fit", format = "wide")
 #'
 #' @export
 tidy.ackwards <- function(
   x,
-  what = c("edges", "loadings", "variance", "fit", "nodes", "scores"),
+  what = c("edges", "loadings", "variance", "fit", "nodes", "scores", "factor_cor"),
   primary_only = FALSE,
   sort = c("none", "strength"),
   format = c("long", "wide"),
@@ -149,12 +179,13 @@ tidy.ackwards <- function(
     )
   }
   out <- switch(what,
-    edges    = .tidy_edges(x),
+    edges = .tidy_edges(x),
     loadings = .tidy_loadings(x, conf_level = conf_level),
     variance = .tidy_variance(x),
-    fit      = .tidy_fit(x),
-    nodes    = .tidy_nodes(x),
-    scores   = .tidy_scores(x)
+    fit = .tidy_fit(x),
+    nodes = .tidy_nodes(x),
+    scores = .tidy_scores(x),
+    factor_cor = .tidy_factor_cor(x)
   )
   # Factor labels (M51): display-only columns, present only when labels have
   # been set (unlabeled objects keep their exact pre-M51 schema; Invariant 5 --
@@ -166,6 +197,9 @@ tidy.ackwards <- function(
     } else if (what == "edges") {
       out$from_label <- unname(labels[out$from])
       out$to_label <- unname(labels[out$to])
+    } else if (what == "factor_cor") {
+      out$factor_a_label <- unname(labels[out$factor_a])
+      out$factor_b_label <- unname(labels[out$factor_b])
     }
   }
   if (what == "edges") {
@@ -185,6 +219,29 @@ tidy.ackwards <- function(
 
 .tidy_edges <- function(x) {
   out <- x$edges$tidy
+  # Phi-partialled coefficient beside the marginal r: for every stored pair
+  # (adjacent, and skip-level under pairs = "all"), B = Phi_s^-1 E from the
+  # shallower level's stored weights (.partialled_edges). Equal to r under
+  # varimax. Joined on the directed (from, to) key. A singular shallower
+  # level warns once, however many stored pairs start from it (skip-level
+  # pairs under pairs = "all" share the level's Phi_s).
+  out$beta <- NA_real_
+  warned <- character(0L)
+  for (key in names(x$edges$matrices)) {
+    ka <- strsplit(key, ":", fixed = TRUE)[[1L]][1L]
+    res <- .partialled_pair(x, key, warn = !(ka %in% warned))
+    B <- res$beta
+    if (anyNA(B)) warned <- union(warned, ka)
+    cells <- expand.grid(i = seq_len(nrow(B)), j = seq_len(ncol(B)))
+    m <- match(
+      paste(rownames(B)[cells$i], colnames(B)[cells$j], sep = "\r"),
+      paste(out$from, out$to, sep = "\r")
+    )
+    out$beta[m] <- B[cbind(cells$i, cells$j)]
+  }
+  # Place beta right after r, keeping every other column in its place.
+  nm <- setdiff(names(out), "beta")
+  out <- out[, append(nm, "beta", after = match("r", nm))]
   # M47: when boot_edges() has run, expose its SE + percentile-CI columns on
   # the edge table. Joined on the directed (from, to) key -- boot rows are in
   # the same order, but match by key so the merge is robust to reordering.
@@ -198,6 +255,45 @@ tidy.ackwards <- function(
     out$hi <- be$hi[m]
     out$n_boot_ok <- be$n_boot_ok[m]
   }
+  out
+}
+
+# One row per unordered factor pair within each level, read from the stored
+# `factor_cor` (already permuted and sign-aligned to the stored loadings).
+# Pairs are listed in upper-triangle order: (1,2), (1,3), (2,3), ... A level
+# with one factor has no pair and contributes no row, so an object whose only
+# level is k = 1 returns zero rows with the same four columns.
+.tidy_factor_cor <- function(x) {
+  empty <- data.frame(
+    level = integer(0L),
+    factor_a = character(0L),
+    factor_b = character(0L),
+    cor = numeric(0L),
+    stringsAsFactors = FALSE
+  )
+  rows <- lapply(names(x$levels), function(ki) {
+    lev <- x$levels[[ki]]
+    k <- as.integer(ki)
+    if (k < 2L) {
+      return(NULL)
+    }
+    Phi <- lev$factor_cor
+    idx <- which(upper.tri(Phi), arr.ind = TRUE)
+    idx <- idx[order(idx[, 1L], idx[, 2L]), , drop = FALSE]
+    data.frame(
+      level = k,
+      factor_a = lev$labels[idx[, 1L]],
+      factor_b = lev$labels[idx[, 2L]],
+      cor = Phi[idx],
+      stringsAsFactors = FALSE
+    )
+  })
+  rows <- Filter(Negate(is.null), rows)
+  if (length(rows) == 0L) {
+    return(empty)
+  }
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
   out
 }
 
@@ -326,11 +422,20 @@ tidy.ackwards <- function(
     k <- as.integer(ki)
     fac_labels <- lev$labels
     var_vals <- lev$variance[fac_labels]
+    # r2: how much of each factor's score the adjacent level above accounts
+    # for together (E_j' Phi_s^-1 E_j, .partialled_edges); NA at the anchor.
+    key <- paste0(k - 1L, ":", k)
+    r2 <- if (k >= 2L && !is.null(x$edges$matrices[[key]])) {
+      unname(.partialled_pair(x, key)$r2[fac_labels])
+    } else {
+      rep(NA_real_, length(fac_labels))
+    }
     data.frame(
       level = k,
       factor = fac_labels,
       proportion = var_vals,
       cumulative = cumsum(var_vals),
+      r2 = r2,
       stringsAsFactors = FALSE
     )
   })

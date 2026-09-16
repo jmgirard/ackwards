@@ -5,6 +5,13 @@
 #' present) pruning annotations. It says more than [print.ackwards()] and is
 #' designed for inspection and reporting.
 #'
+#' A "Within-level factor correlations" block lists, for each level, the
+#' correlation between every pair of factors at that level (the same values
+#' as `tidy(x, what = "factor_cor")`). The block appears only when some pair
+#' is correlated, that is when at least one within-level correlation exceeds
+#' 1e-8 in size. Under the default varimax rotation the factors within a
+#' level are uncorrelated, so the block is absent.
+#'
 #' @param object An `ackwards` object.
 #' @param ... Ignored.
 #'
@@ -33,6 +40,7 @@ summary.ackwards <- function(object, ...) {
       variance = .tidy_variance(object),
       fit = .tidy_fit(object),
       lineage = .summary_lineage(object),
+      factor_cor = .tidy_factor_cor(object),
       prune = .prune_digest(object),
       boot = object$boot,
       factor_labels = object$meta$factor_labels # M51
@@ -156,6 +164,30 @@ print.summary_ackwards <- function(x, ...) {
   } else {
     for (i in seq_len(nrow(lin))) {
       cli::cli_text("  {lin$parent[i]} {cli::symbol$arrow_right} {lin$children[i]}")
+    }
+  }
+
+  # --- Within-level factor correlations -------------------------------------
+  # Shown only when some factor pair is actually correlated. Under varimax
+  # (the default) every within-level correlation is 0 and the block would
+  # only restate the rotation, so it stays silent below 1e-8 in magnitude.
+  # Levels whose pairs are all below that magnitude are left out of the
+  # block too; a listed level shows every one of its pairs.
+  fc <- x$factor_cor
+  if (nrow(fc) > 0L && max(abs(fc$cor)) > 1e-8) {
+    cli::cli_h2("Within-level factor correlations")
+    for (ki in unique(fc$level)) {
+      rows <- fc[fc$level == ki, , drop = FALSE]
+      if (max(abs(rows$cor)) <= 1e-8) next
+      cli::cli_text("  {.strong k = {ki}}")
+      pair <- paste0(
+        .label_id(rows$factor_a, x$factor_labels), " ~ ",
+        .label_id(rows$factor_b, x$factor_labels)
+      )
+      lines <- sprintf(
+        "    %-*s  %s", max(nchar(pair)), pair, .format_r(rows$cor, 2L)
+      )
+      cli::cli_verbatim(lines)
     }
   }
 

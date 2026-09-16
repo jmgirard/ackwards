@@ -280,7 +280,10 @@ tidy(x, what = "edges", primary_only = TRUE, sort = "strength")
 ```
 
 `primary_only = TRUE` keeps just the strongest-connecting edge for each factor,
-its primary parent, and `sort = "strength"` orders them by `|r|`. An r close to
+its primary parent, and `sort = "strength"` orders them by `|r|`. The `beta`
+column is the regression weight of the child on all parents together. Under the
+default varimax rotation the factors within a level are uncorrelated, so `beta`
+equals `r`. An r close to
 1.0 means a factor is nearly identical to its parent one level up: the
 dimension is stable across that step. But a factor that stays near 1.0 at
 *every* level is also a candidate for pruning. It is persisting without
@@ -297,7 +300,8 @@ tidy(x, what = "variance")
 
 Each row is one factor at one level. `proportion` is the fraction (0-1) of total
 item variance explained by that factor. `cumulative` accumulates within a
-level. Multiply by 100 for a percentage.
+level. Multiply by 100 for a percentage. `r2` is the share of the factor's
+score variance that the level just above accounts for. It is `NA` at level 1.
 
 ## Step 6: Score observations `augment()`
 

@@ -78,6 +78,111 @@
     Output
       
 
+# print/summary snapshot: factor-correlation block stays silent at max |cor| = 5e-9
+
+    Code
+      snap_print(summary(y))
+    Message
+      
+      -- Summary: Bass-Ackwards Analysis (ackwards) ----------------------------------
+      Engine: pca
+      Rotation: varimax
+      Basis: pearson
+      n: 1,000
+      k (max): 4
+      
+      -- Levels --
+      
+      k = 1: 1 factor (28.2% cumulative variance)
+      m1f1 28.2% eigenvalue 4.51
+      
+      k = 2: 2 factors (46.5% cumulative variance)
+      m2f1 23.3% eigenvalue 4.51
+      m2f2 23.2% eigenvalue 2.93
+      
+      k = 3: 3 factors (57.5% cumulative variance)
+      m3f1 23.0% eigenvalue 4.51
+      m3f2 17.5% eigenvalue 2.93
+      m3f3 16.9% eigenvalue 1.76
+      
+      k = 4: 4 factors (67.7% cumulative variance)
+      m4f1 17.2% eigenvalue 4.51
+      m4f2 16.9% eigenvalue 2.93
+      m4f3 16.8% eigenvalue 1.76
+      m4f4 16.8% eigenvalue 1.63
+      
+      -- Lineage (primary parents) --
+      
+      m1f1 > m2f1, m2f2
+      m2f1 > m3f2, m3f3
+      m2f2 > m3f1
+      m3f1 > m4f3, m4f4
+      m3f2 > m4f1
+      m3f3 > m4f2
+      --------------------------------------------------------------------------------
+      Note: This is a series of linked solutions, not a fitted hierarchical model.
+      Cross-level edges are descriptive score correlations. Per-level fit indices
+      (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+      they do not validate the edges or the hierarchy itself.
+    Output
+      
+
+# print/summary snapshot: factor-correlation block prints at max |cor| = 2e-8
+
+    Code
+      snap_print(summary(y))
+    Message
+      
+      -- Summary: Bass-Ackwards Analysis (ackwards) ----------------------------------
+      Engine: pca
+      Rotation: varimax
+      Basis: pearson
+      n: 1,000
+      k (max): 4
+      
+      -- Levels --
+      
+      k = 1: 1 factor (28.2% cumulative variance)
+      m1f1 28.2% eigenvalue 4.51
+      
+      k = 2: 2 factors (46.5% cumulative variance)
+      m2f1 23.3% eigenvalue 4.51
+      m2f2 23.2% eigenvalue 2.93
+      
+      k = 3: 3 factors (57.5% cumulative variance)
+      m3f1 23.0% eigenvalue 4.51
+      m3f2 17.5% eigenvalue 2.93
+      m3f3 16.9% eigenvalue 1.76
+      
+      k = 4: 4 factors (67.7% cumulative variance)
+      m4f1 17.2% eigenvalue 4.51
+      m4f2 16.9% eigenvalue 2.93
+      m4f3 16.8% eigenvalue 1.76
+      m4f4 16.8% eigenvalue 1.63
+      
+      -- Lineage (primary parents) --
+      
+      m1f1 > m2f1, m2f2
+      m2f1 > m3f2, m3f3
+      m2f2 > m3f1
+      m3f1 > m4f3, m4f4
+      m3f2 > m4f1
+      m3f3 > m4f2
+      
+      -- Within-level factor correlations --
+      
+      k = 3
+          m3f1 ~ m3f2  .00
+          m3f1 ~ m3f3  -.31
+          m3f2 ~ m3f3  .00
+      --------------------------------------------------------------------------------
+      Note: This is a series of linked solutions, not a fitted hierarchical model.
+      Cross-level edges are descriptive score correlations. Per-level fit indices
+      (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+      they do not validate the edges or the hierarchy itself.
+    Output
+      
+
 # print/summary snapshot: EFA fit-index glyph line
 
     Code

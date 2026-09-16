@@ -140,7 +140,9 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
       variance = variance,
       fit = fit_info,
       converged = TRUE,
-      factor_cor = diag(k), # orthogonal: I_k
+      # psych sets $Phi only under an oblique rotation; varimax leaves it
+      # absent and .engine_phi() returns the identity (see engine_pca.R).
+      factor_cor = .carry_factor_cor(.engine_phi(fit, k), seq_len(k), rep(1, k)),
       labels = labels_k,
       scoring = list(
         linear    = TRUE,

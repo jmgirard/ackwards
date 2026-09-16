@@ -20,6 +20,30 @@ test_that("print/summary snapshot: PCA, converged, no prune", {
   expect_snapshot(snap_print(summary(x)))
 })
 
+# The within-level factor-correlation block prints only when some pair's
+# |cor| exceeds 1e-8; the default (varimax) fit above is the silent case at
+# exactly 0. The two copies below probe the gate from each side of the
+# threshold with a planted level-3 correlation.
+test_that("print/summary snapshot: factor-correlation block stays silent at max |cor| = 5e-9", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(sim16, k_max = 4))
+  y <- x
+  y$levels[["3"]]$factor_cor[1L, 2L] <- 5e-9
+  y$levels[["3"]]$factor_cor[2L, 1L] <- 5e-9
+  expect_snapshot(snap_print(summary(y)))
+})
+
+test_that("print/summary snapshot: factor-correlation block prints at max |cor| = 2e-8", {
+  skip_if_not_installed("psych")
+  x <- cached(ackwards(sim16, k_max = 4))
+  y <- x
+  y$levels[["3"]]$factor_cor[1L, 2L] <- 2e-8
+  y$levels[["3"]]$factor_cor[2L, 1L] <- 2e-8
+  y$levels[["3"]]$factor_cor[1L, 3L] <- -.31
+  y$levels[["3"]]$factor_cor[3L, 1L] <- -.31
+  expect_snapshot(snap_print(summary(y)))
+})
+
 test_that("print/summary snapshot: EFA fit-index glyph line", {
   skip_if_not_installed("psych")
   x <- cached(ackwards(bfi25[, 1:10], k_max = 3, engine = "efa"))

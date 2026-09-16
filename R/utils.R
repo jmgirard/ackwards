@@ -99,10 +99,96 @@ make_labels <- function(k) {
   c(stats::setNames(var_per_factor, labels), cumulative = sum(var_per_factor))
 }
 
+# Carry an engine's within-level factor correlation through a column
+# permutation and a per-factor sign flip. `Phi` is the k x k correlation the
+# engine reports (rows and columns in the engine's own factor order), `ord`
+# the permutation that puts the loadings' columns in stored order (so the
+# stored factor j is the engine's factor ord[j]), and `signs` the +/-1 vector
+# applied to the stored columns. A permuted, sign-flipped correlation is
+# Phi[ord, ord] * (signs %o% signs): flipping factor j negates its row and
+# column, and the diagonal is unchanged because signs^2 = 1. The single site
+# for this algebra: the engines call it with their sort order and unit signs,
+# and ackwards() calls it again with the identity order and the
+# `align_signs` flips, so `factor_cor` always matches the stored loadings.
+# Row/column names follow `dimnames(Phi)` permuted by `ord`.
+.carry_factor_cor <- function(Phi, ord, signs) {
+  Phi <- as.matrix(Phi)
+  k <- nrow(Phi)
+  stopifnot(ncol(Phi) == k, length(ord) == k, length(signs) == k)
+  out <- Phi[ord, ord, drop = FALSE] * tcrossprod(as.numeric(signs))
+  out
+}
+
+# Label a k x k factor correlation with the level's stored factor labels.
+.label_phi <- function(Phi, labels) {
+  dimnames(Phi) <- list(labels, labels)
+  Phi
+}
+
+# The within-level factor correlation a psych fit carries. psych's pca() and
+# fa() set `$Phi` only under an oblique rotation; under varimax (the
+# default) the factors are orthogonal and `$Phi` is absent, so the identity
+# is the correct correlation. k = 1 has no rotation and returns the 1 x 1
+# identity. A stored `$Phi` is returned as a plain unnamed matrix so the
+# caller applies its own labels.
+.engine_phi <- function(fit, k) {
+  Phi <- fit$Phi
+  if (is.null(Phi) || k == 1L) {
+    return(diag(k))
+  }
+  unname(as.matrix(Phi))
+}
+
 # Actual score variances diag(W' R W) -- never assumed 1 (Invariant 1). Shared
 # by the engines ($scoring$score_var) and compute_edges()'s standardization.
 .score_var <- function(W, R) {
   diag(crossprod(W, R %*% W))
+}
+
+# Phi-partialled edge quantities for one level pair. `E` is the stored
+# (k_a x k_b) edge matrix of score correlations between level a and level b,
+# `W_a` the stored weights of the shallower level a, and `R` the item
+# correlation matrix the fit used. The within-level score correlation of
+# level a is Phi_s = D^-1/2 W_a' R W_a D^-1/2 with D = diag(W_a' R W_a). The
+# partialled coefficient B = Phi_s^-1 E is the standardized regression of
+# each level-b score on all level-a scores together, and each column's
+# r2 = E_j' Phi_s^-1 E_j is that regression's R-squared. Under varimax
+# Phi_s = I, so B = E and r2 = colSums(E^2); under an oblique rotation the
+# two come apart. When Phi_s cannot be inverted both are NA and one cli
+# warning names the level (`warn = FALSE` keeps a caller that already
+# warned for this level quiet). Returns list(beta = <k_a x k_b>,
+# r2 = <named k_b>).
+.partialled_edges <- function(W_a, R, E, level = NA_integer_, warn = TRUE) {
+  C <- crossprod(W_a, R %*% W_a)
+  d <- sqrt(diag(C))
+  Phi_s <- C / tcrossprod(d)
+  B <- tryCatch(solve(Phi_s, E), error = function(e) NULL)
+  if (is.null(B)) {
+    if (warn) {
+      cli::cli_warn(c(
+        "!" = "The within-level score correlation at k = {level} cannot be \\
+             inverted; {.code beta} and {.code r2} are {.code NA} for edges \\
+             from that level.",
+        "i" = "Two factors at that level have identical or perfectly \\
+             collinear score weights."
+      ))
+    }
+    B <- matrix(NA_real_, nrow(E), ncol(E), dimnames = dimnames(E))
+    r2 <- stats::setNames(rep(NA_real_, ncol(E)), colnames(E))
+    return(list(beta = B, r2 = r2))
+  }
+  dimnames(B) <- dimnames(E)
+  r2 <- stats::setNames(colSums(E * B), colnames(E))
+  list(beta = B, r2 = r2)
+}
+
+# Run .partialled_edges() for one stored pair key "a:b" of an ackwards
+# object, reading the shallower level's weights and the fit's R.
+.partialled_pair <- function(x, key, warn = TRUE) {
+  ka <- strsplit(key, ":", fixed = TRUE)[[1L]][1L]
+  W_a <- x$levels[[ka]]$scoring$weights
+  E <- x$edges$matrices[[key]]
+  .partialled_edges(W_a, x$r, E, level = as.integer(ka), warn = warn)
 }
 
 # Tucker's congruence coefficient between two loading vectors (Lorenzo-Seva &

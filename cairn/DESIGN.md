@@ -578,17 +578,16 @@ historical `§14.x` citation resolves. Live known limitations moved to the next 
 
 ## Known limitations
 
-- `factor_cor` in the ESEM engine is not permuted by the variance-sort `ord` vector. Harmless while
-  varimax is the sole rotation (`factor_cor = I`; permutation of I is I) — but not *permanently*
-  safe: D-034 superseded D-002 and made oblique a gated, documented non-default option (§9), so
-  this becomes a live defect if oblique ships. The guard comment in `engine_esem.R` states what the
-  permutation would require. *(corrected 2026-09-06.)*
 - Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (§5.4), nor the
   `missing = "fiml"` PCA/EFA path (D-020): there the algebra uses the `psych::corFiml()` matrix
   while the scores route standardizes the raw, NA-bearing data (pairwise Pearson SDs), so the two
   bases diverge under missingness by design — the same reason polychoric is excluded. The oracle
   tests therefore run only on complete-data linear engines; no FIML/polychoric object is fed to
   them, so there is no false-failure risk, but the cross-check does not *certify* those paths.
+  The same basis split reaches the partialled edge columns (M89): `beta` and `r2` always build
+  the within-level score correlation Φ_s from the stored weights and the fit's R, while `r` on a
+  scores-path object comes from materialised scores, so on those paths `beta` approximates the
+  regression weight rather than reproducing it. Documented in `?tidy.ackwards`.
 - `cor = "spearman"` + `engine = "esem"` is semantically inconsistent (lavaan fits Pearson ML on
   raw data while edges use Spearman R); a warning is emitted (M10).
 - **ESEM convergence at depth on real ordinal data** is flakier than the calm warn-and-skip
