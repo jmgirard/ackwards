@@ -1,6 +1,6 @@
 # M85: Plain-English pass — prose checker, README, DESCRIPTION, NEWS, roxygen
 
-- **Status:** review
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -48,7 +48,7 @@ the Plain register, so `may`/`might`/`should` stay allowed).
       bullet markers, table rows, and the abbreviations in `tools/prose-abbrev.txt`
       (`e.g.`, `i.e.`, `et al.`, `vs.`, `p.`, `pp.`, `cf.`, `Fig.`, `No.`) are removed;
       it exits non-zero on any report.
-- [ ] AC2: `tests/testthat/test-check-prose.R` runs `check_prose()` on fixture text and is red
+- [x] AC2: `tests/testthat/test-check-prose.R` runs `check_prose()` on fixture text and is red
       on each report class in each of these forms and locations: dash forms `—`, `–`,
       ` -- `; locations YAML-adjacent prose, heading, bullet item, table cell, link text,
       roxygen `@param`, roxygen `@details`, NEWS entry, DESCRIPTION field; and is silent on
@@ -56,9 +56,9 @@ the Plain register, so `may`/`might`/`should` stay allowed).
       a span crossing a line break, a fenced chunk, roxygen fenced code, an `@examples`
       block, a YAML `---` fence, a markdown `---` rule, the precompute stamp comment, and
       each listed abbreviation.
-- [ ] AC3: `Rscript tools/check-prose.R README.Rmd DESCRIPTION NEWS.md R/` exits 0 on the
+- [x] AC3: `Rscript tools/check-prose.R README.Rmd DESCRIPTION NEWS.md R/` exits 0 on the
       branch head.
-- [ ] AC4: `check_code_unchanged(ref)` in `tools/check-prose.R`, run against the merge base
+- [x] AC4: `check_code_unchanged(ref)` in `tools/check-prose.R`, run against the merge base
       with `master`, reports no differing line among: non-roxygen lines of `R/*.R`, `#'`
       lines inside `@examples`, fenced-chunk lines and inline `` `r ` `` spans of
       README.Rmd, and every `DESCRIPTION` field other than `Description:`; and it exits 0 on
@@ -70,7 +70,7 @@ the Plain register, so `may`/`might`/`should` stay allowed).
       its first use in README.Rmd and at its first use in each exported roxygen topic where
       it appears; the review reads the gloss sites from `grep -n` of each term over the
       domain.
-- [ ] AC6: These claims survive the rewrite with unchanged meaning, each still stated at the
+- [x] AC6: These claims survive the rewrite with unchanged meaning, each still stated at the
       site named: a bass-ackwards result is linked solutions whose edges are score
       correlations, never a fitted hierarchical model (README.Rmd and `R/ackwards.R`
       description, GP3); every auto-resolved default announces itself and never switches
@@ -131,7 +131,51 @@ the Plain register, so `may`/`might`/`should` stay allowed).
 - 2026-09-16: T8 done. Prose check wired into `tools/dod-gate.R` after the CI-filter step, over README.Rmd, DESCRIPTION, NEWS.md, and R/ (the vignette sources join when M86/M87 land). `Rscript tools/dod-gate.R` exit 0: prose clean, check 0/0/0, coverage 100%, styler and lintr clean, pkgdown index complete.
 - 2026-09-16: claim audit: 186 claims read, 5 corrected — R/tidy.R, R/ackwards.R, R/augment.R, R/prune.R, README.Rmd. The five: tidy.R's fit bullet had turned the list of scaled-test estimators into a claim that ESEM selects MLR for continuous items (the code selects ML), the `fm` minres gloss had invented a non-normality reason for a banned "robust" (restored to the convergence contrast), augment.R's `id_cols` read "ignored, and an error" (now two error sentences), the prune() topic used "re-rotation" without a gloss, and README's Step 2 said edges are computed between neighbouring levels only (now "different levels", neighbouring by default). NEWS softened from "every help page rewritten" to "the help pages were revised". All five re-read once by the same reader and confirmed; one optional tightening left unapplied (rotation is skipped at k = 1, where the README sentence about rotation is vacuously true).
 - 2026-09-16: all tasks done; status set to review. Post-correction re-verification: prose and code guards clean, `document()` and `build_readme()` re-run, suite 726 tests with 0 failures, lint 0, styler 0.
+- 2026-09-16: review pass 1 returned the milestone to in-progress (defect return 1 of M85). AC5 fails at five unglossed first-use sites (ackwards.R:43 ESEM, boot_edges.R:49 ESEM, comparability.R:482 factor, suggest_k.R:752 factor, factor_labels.R:120 factor). AC2, AC3, AC4, AC6 ticked against evidence. Gate green (check 0/0/0, coverage 100%, style, lint, pkgdown). 19 [O] findings logged in the Review section for triage at the re-review gate.
+- 2026-09-16: amendment return: AC1 — "where a sentence is the text between terminators (`.`, `?`, `!`, optionally followed by a closing quote, bracket, or emphasis mark, then whitespace and an optional opening quote or bracket before an uppercase letter, or a line end)" and "outside roxygen fenced code and Rd `\preformatted{}` blocks". The implementation splits at these sites and the letter does not.
+- 2026-09-16: amendment return: AC7 — "`devtools::document()` produces no diff and `devtools::build_readme()` produces no diff outside knitted output blocks on the branch head". The README `suggest_k(bfi25)` chunk is unseeded, its CD criterion varies per build, and AC4 forbids adding a seed.
 
 ## Decisions
 
 ## Review
+
+Review pass 1, 2026-09-16, on branch head 2b08b8f (merge base with master 79ce393; master unmoved).
+
+**Evidence per criterion.**
+
+- AC1: `check_prose(paths)` is defined. Directory expansion, the default domain, the extraction rules for YAML, fences, `@examples`, roxygen fences, the NEWS section, and the Description field, cross-line span stripping, the six report classes, and the nine abbreviations all match the script, read line by line. `Rscript tools/check-prose.R` with no argument reports on the vignette sources and exits 1. Not ticked. The sentence splitter also splits after a terminator followed by a closing quote or bracket, and before an uppercase letter preceded by an opening quote or bracket (`term` at line 277, `mark_re` at line 280). It also treats Rd `\preformatted{}` as roxygen fenced code (lines 147-156). Both widen the AC1 letter. Both are documented in the script header and the T1 work-log line. Amendment proposed below.
+- [x] AC2: `test_file("tests/testthat/test-check-prose.R")` under `load_all()` gave 72 expectations passed, 0 failed, 0 skipped.
+- [x] AC3: `Rscript tools/check-prose.R README.Rmd DESCRIPTION NEWS.md R/` printed "Prose OK" and exited 0.
+- [x] AC4: `Rscript tools/check-prose.R --code-unchanged master` printed "Code unchanged OK" and exited 0 against merge base 79ce393.
+- AC5: FAILS at five sites. A script listed the first use of each term in README.Rmd and in every exported roxygen block (`@export` or `@format`, spans stripped). README glosses all 14 terms that appear (FIML and congruence do not appear). Unglossed first uses: `R/ackwards.R:43` ESEM ("ESEM requires raw data", gloss only at line 78). `R/boot_edges.R:49` ESEM (gloss only at line 69). `R/comparability.R:482` factor in the `autoplot.comparability` topic. `R/suggest_k.R:752` factor in the `autoplot.suggest_k` topic. `R/factor_labels.R:120-126` factor in the `factor_labels()` topic, which has its own Rd. Read as not appearing: a term only inside another term's expansion (component inside "principal component analysis", factor inside "exploratory factor analysis") and a term only in a cited paper title (`R/data.R:47`, `R/comparability.R:128`).
+- [x] AC6: `README.Rmd:111-112` and `R/ackwards.R:8` keep "edges are score correlations, never a fitted hierarchical model" and "not a fitted higher-order SEM". `R/ackwards.R:25` keeps "no silent basis switching" with the polychoric suggestion. `R/prune.R:686-698` keeps `"direct"` as the default that reproduces Forbes's `ChaseCorrPaths`, with `"adjacent"` as the opt-in. A script extracted every "default" sentence per `@param` on master and on the branch for `R/ackwards.R`, `R/prune.R`, and `R/suggest_k.R`. Every parameter names the same value and reason. `fm` swaps "robust OLS" for "converges reliably" and keeps the contrast with `"ml"`. `rules` keeps "no auto rule", and the clear-with-no-arguments hint survives at `R/prune.R:658`.
+- AC7: `devtools::document()` produced no diff. `Rscript tools/dod-gate.R` exited 0 with the prose step before `check()`. The gate printed check 0/0/0 (72s), coverage 100.00%, styler clean, lintr clean, pkgdown index complete. NEWS.md carries the documentation entry. Not ticked. `devtools::build_readme()` changed README.md in the `suggest_k(bfi25)` output only (CD criterion k = 7 became k = 6, consensus range 4-7 became 4-6). The chunk at `README.Rmd:94` is unseeded, so the comparison-data criterion varies per build. A seed is chunk code, which AC4 forbids changing. Amendment proposed below. README.md was restored to the committed version after the read.
+
+**Consistency gate.** `cairn_validate.py` exit 0, all checks pass (16 pre-existing work-log format advisories, all in M84). No principle changed, so `cairn_impact` was skipped. Profile checks: document() no diff (above). README.md sync fails only by the unseeded output above. pkgdown, the NEWS entry, `.Rbuildignore` (`^tools$` covers the four new files), and the full check 0/0/0 all pass via the gate run above.
+
+**Independent review** (three fresh-context lenses, full fan-out, user-facing tier). Every finding is logged. Triage is the maintainer's at the re-review gate. Blame-history lens [S]: no wording contradicts a D-entry. One pre-existing gap noted: `secondary_scope` from D-033 is not in `R/autoplot.R` on master (M84 is blocked), outside this diff. Prior-review lens [S]: no prior-review evidence regressed (M63 citation and `n_obs` wording, M76-M78 chase semantics all preserved), and zero GitHub inline comments exist repo-wide. Diff-bug lens [O], ranked:
+
+1. Unbalanced backtick mutes every later report in the file (`strip_code_spans` joins the whole file). Latent, domain clean today.
+2. Unbalanced roxygen fence drops the rest of the block. Latent.
+3. Multi-word banned phrases wrapped across a line never match (`\s+` escape is dead, matching is per line).
+4. Banned list morphology: robustly, robustness, crucially, comprehensively, leverages, leveraging all pass.
+5. Unterminated YAML opener drops the whole file silently.
+6. Gate prose step appends to `failures` rather than exiting; "fail-fast" is the wrong word (matches the three prior guards).
+7. `.prose_tools_dir()` cannot find `tools/` when sourced from outside the repo root; callers pass the lists explicitly.
+8. `.lintr` change out of the milestone's scope (reviewer's own classification).
+9. `check_code_unchanged()` drops the line association of README inline `r` spans.
+10. AC2 fixture never asserts a multi-word banned phrase.
+11. Long sentences in table cells and headings are never reported (AC1 letter).
+12. Semicolons or dashes in bare URLs are false positives (none in the domain).
+13. `R/boot_edges.R:49` ESEM unglossed at first use (an AC5 miss, counted above).
+14. `README.Rmd:45-46` says every engine rotates, which is vacuous at k = 1 (known, unapplied).
+15. `R/comparability.R` `n_splits` rationale reads circular after removing "robust".
+16. `R/layout.R` states the crossing rule twice in incompatible words.
+17. NEWS "dashes and semicolons are gone" is true of README/DESCRIPTION/roxygen only. The no-argument checker run reports 562 on the vignettes.
+18. `check_code_unchanged()` not wired into the gate (AC4 asks only for a clean run).
+19. README rebuild fixed a stale `citation()` version block; pre-existing.
+
+**Disposition.** Defect return on AC5 (return 1 of M85). Recommended for the same return: fix the five AC5 sites, and findings 1-4 and 10 (the checker's silent paths, which M86/M87 inherit). The rest go to triage at the re-review gate. Two criteria fail by their wording, not the work. They go to the gated amendment protocol at `/milestone-implement` step 6 before re-review:
+
+- AC1 amended clause proposal: "where a sentence is the text between terminators (`.`, `?`, `!`, optionally followed by a closing quote, bracket, or emphasis mark, then whitespace and an optional opening quote or bracket before an uppercase letter, or a line end)" and "outside roxygen fenced code and Rd `\preformatted{}` blocks".
+- AC7 amended clause proposal: "`devtools::document()` produces no diff and `devtools::build_readme()` produces no diff outside knitted output blocks on the branch head" (the `suggest_k` chunk is unseeded and AC4 forbids a seed).
