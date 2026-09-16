@@ -1,6 +1,6 @@
 # M88: Prose-checker hardening (`tools/check-prose.R`)
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** high
 - **Depends on:** —
 - **Driving RR:** —
@@ -95,7 +95,7 @@ change). Banned-phrase or sentence-cap policy changes (none requested).
       reading `DOD_CODE_UNCHANGED`, with the note and failure form of AC4. Update the header
       comment. Verify by hand once with the variable set on a planted `R/` edit in a scratch
       commit (reverted), and once unset. Record both outcomes in the work log.
-- [ ] T6: Run the new tests against `git show master:tools/check-prose.R` (M82 lesson) and
+- [x] T6: Run the new tests against `git show master:tools/check-prose.R` (M82 lesson) and
       record the failure count in the work log. Then run `styler`, `lintr`, and
       `Rscript tools/dod-gate.R`.
 
@@ -112,6 +112,9 @@ change). Banned-phrase or sentence-cap policy changes (none requested).
 - 2026-09-16: T3 done, with a minor amendment. `.blank_urls()` runs in `check_prose()` right after span stripping, so every report sees URL-free text. A space filler split `[text](target),` into three tokens and surfaced a 31-word artefact in the engines vignette, so the filler is a same-length run of `x` (a URL stays one token, as before); trailing sentence punctuation on a bare URL is kept. Test file 102 pass, 0 fail; the AC2 sweep command exits 0.
 - 2026-09-16: T4 done. `.code_lines_rmd()` returns a data.frame(line, text) in document order; a report names the item and the working-tree line (`item N differs from the merge base (line L: text)`). The `.Rmd.orig` loop reports a one-sided file in the R-loop form. Five existing item-number expectations moved to document order. Fixture gains the moved-span plant (item 1, line 5) and the rename plant (two problems). Test file 107 pass, 0 fail; `--code-unchanged master` on the branch exits 0.
 - 2026-09-16: T5 done. Opt-in step after the prose step in `tools/dod-gate.R`; header comment updated. Hand run with `DOD_CODE_UNCHANGED=1` on a planted comment line appended to `R/ackwards.R` (working-tree edit, reverted with `git checkout --`): one `code-unchanged:` note naming line 779, gate failed before check() with `code-unchanged guard: 1 problem(s)`, exit 1. The unset run is the T6 full gate.
+- 2026-09-16: T6 done. Test file run against `git show master:tools/check-prose.R`: 16 failures, 90 pass (every new assertion fails on the old checker); on the branch 107 pass, 0 fail. Two test lines wrapped for `line_length_linter`. `Rscript tools/dod-gate.R` with the variable unset: skip note printed, check 0/0/0, coverage 100.00%, styler and lintr clean, pkgdown index complete, exit 0.
+- 2026-09-16: claim audit: not owed — internal tier.
+- 2026-09-16: all tasks checked; status set to review.
 
 ## Decisions
 
