@@ -81,7 +81,7 @@ change). Banned-phrase or sentence-cap policy changes (none requested).
       time. Walk the call frames for `source()`'s `ofile` and `sys.source()`'s `file`, then
       fall back to `--file=`. On no hit, stop with a message rather than return `tools`
       (M82 lesson: fail closed). Test the two AC1 routes from a temp working directory.
-- [ ] T2: `.sentence_reports()` (`:340`): instead of dropping `|` rows and headings, split a
+- [x] T2: `.sentence_reports()` (`:340`): instead of dropping `|` rows and headings, split a
       table row into cells and strip heading marks. Feed each as its own flushed sentence. Keep the separator-only row (`|---|`) dropped. Write the AC2 tests and run
       the AC2 command line.
 - [ ] T3: `.char_reports()` (`:291`): before the dash and semicolon flags, blank the three
@@ -108,6 +108,7 @@ change). Banned-phrase or sentence-cap policy changes (none requested).
 - 2026-09-16: plan chose blanking URLs before all reports over skipping only the dash and semicolon flags because a URL's words otherwise inflate a sentence count. Falsified by a URL whose blanking hides a genuine prose defect on the same line.
 - 2026-09-16: /milestone-implement started; branch `m088-prose-checker-hardening` cut from pushed master. Question gate skipped: the plan leaves no implementation choice open.
 - 2026-09-16: T1 done. The script path is resolved once at load time by walking the frames for `source()`'s `ofile` and `sys.source()`'s `file`, then `--file=`; no hit makes `.prose_tools_dir()` stop. New test loads the checker both ways from a temp working directory; prose test file 9/9 clean, Rscript route from `/tmp` exits 0.
+- 2026-09-16: T2 done. `.sentence_units()` expands a heading into one standalone unit and a table row into one unit per cell (separator rows dropped); each flushes as its own sentence. New test: 31-word heading and cell reported at lines 1 and 7, 29-word ones silent. Test file 97 pass, 0 fail. The AC2 sweep command exits 0.
 
 ## Decisions
 

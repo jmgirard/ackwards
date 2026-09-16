@@ -364,18 +364,21 @@ strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
 
 # Sentences. A sentence is the text between terminators: `.`, `?`, or `!`
 # (optionally followed by a closing quote, bracket, or emphasis mark) followed
-# by whitespace and an uppercase letter, or standing at a line end. Headings,
-# bullet markers, table rows, roxygen tags, and the listed abbreviations are
-# removed first. A paragraph break (empty prose line, new bullet, new roxygen
-# tag, or block end) also ends a sentence.
+# by whitespace and an uppercase letter, or standing at a line end. Bullet
+# markers, roxygen tags, and the listed abbreviations are removed first. A
+# paragraph break (empty prose line, new bullet, new roxygen tag, or block end)
+# also ends a sentence. A markdown heading (its text after the `#` marks) and
+# each cell of a table row (the text between `|` separators) are each counted
+# as one sentence of their own; a separator-only row (`|---|`) carries none.
 .sentence_reports <- function(file, prose, abbrev, max_words) {
-  text <- prose$text
-  line <- prose$line
-  # Headings and table rows carry no sentence.
-  drop <- grepl("^\\s*#{1,6}\\s", text) | grepl("^\\s*\\|", text) | grepl("^@section\\b", text)
-  starts <- grepl("^\\s*([-*+]|\\d+[.)])\\s", text) | grepl("^@[A-Za-z]", text)
+  units <- .sentence_units(prose$text, prose$line)
+  text <- units$text
+  line <- units$line
+  starts <- units$starts
+  standalone <- units$standalone
   # Roxygen `@section Title:` is a heading; other tags are markers whose tag
   # word (and, for @param, the argument name) is not prose.
+  drop <- grepl("^@section\\b", text)
   text <- sub("^@param\\s+\\S+\\s*", "", text)
   text <- sub("^@[A-Za-z]+\\s*", "", text)
   text <- sub("^\\s*([-*+]|\\d+[.)])\\s+", "", text)
@@ -409,7 +412,7 @@ strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
   }
   for (i in seq_along(text)) {
     t <- trimws(text[[i]])
-    if (!nzchar(t) || starts[[i]]) flush()
+    if (!nzchar(t) || starts[[i]] || standalone[[i]]) flush()
     if (!nzchar(t)) next
     marked <- gsub(mark_re, paste0("\\1", sentinel), t, perl = TRUE)
     pieces <- strsplit(marked, sentinel, fixed = TRUE)[[1L]]
@@ -423,12 +426,51 @@ strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
       ends <- j < length(pieces) || grepl(paste0(term, "$"), p, perl = TRUE)
       if (ends) flush()
     }
+    if (standalone[[i]]) flush()
   }
   flush()
   if (length(reports) == 0L) {
     return(.empty_report())
   }
   do.call(rbind, reports)
+}
+
+# Expand prose lines into sentence units. A heading becomes one standalone
+# unit (its text after the `#` marks); a table row becomes one standalone
+# unit per cell, all at the row's line; a separator-only row is dropped; every
+# other line is one unit. `starts` marks a bullet or roxygen tag (a paragraph
+# break before it), `standalone` a unit that is a sentence on its own.
+.sentence_units <- function(text, line) {
+  out_text <- character(0L)
+  out_line <- integer(0L)
+  out_start <- logical(0L)
+  out_alone <- logical(0L)
+  add <- function(t, l, s, a) {
+    out_text <<- c(out_text, t)
+    out_line <<- c(out_line, rep(l, length(t)))
+    out_start <<- c(out_start, rep(s, length(t)))
+    out_alone <<- c(out_alone, rep(a, length(t)))
+  }
+  for (i in seq_along(text)) {
+    t <- text[[i]]
+    if (grepl("^\\s*#{1,6}\\s", t)) {
+      add(sub("^\\s*#{1,6}\\s+", "", t), line[[i]], TRUE, TRUE)
+    } else if (grepl("^\\s*\\|", t)) {
+      if (grepl("^\\s*\\|[\\s:|-]*\\|?\\s*$", t, perl = TRUE)) next
+      cells <- strsplit(sub("\\|\\s*$", "", sub("^\\s*\\|", "", t)), "|", fixed = TRUE)[[1L]]
+      cells <- trimws(cells)
+      cells <- cells[nzchar(cells)]
+      if (length(cells) == 0L) next
+      add(cells, line[[i]], TRUE, TRUE)
+    } else {
+      add(
+        t, line[[i]],
+        grepl("^\\s*([-*+]|\\d+[.)])\\s", t) || grepl("^@[A-Za-z]", t),
+        FALSE
+      )
+    }
+  }
+  list(text = out_text, line = out_line, starts = out_start, standalone = out_alone)
 }
 
 # ---- public: check_prose -----------------------------------------------------

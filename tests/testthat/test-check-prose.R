@@ -266,6 +266,28 @@ test_that("a paragraph never spans a code line, a one-line preformatted block, o
   expect_equal(res$line[res$class == "semicolon"], 4L)
 })
 
+test_that("a table cell and a heading each count as one sentence under max_words", {
+  env <- .prose_env()
+  words <- function(n) paste(rep("word", n), collapse = " ")
+  md <- .write_fixture(c(
+    paste("#", words(31)),
+    "",
+    paste("##", words(29)),
+    "",
+    "| a | b |",
+    "|---|---|",
+    paste0("| ", words(31), " | short |"),
+    paste0("| ", words(29), " | ", words(29), " |"),
+    "",
+    "Prose after the table."
+  ), ".Rmd")
+  res <- .run(env, md)
+  over <- res[grepl("^sentence over 30 words", res$class), , drop = FALSE]
+  expect_setequal(over$line, c(1L, 7L))
+  expect_true(all(grepl("\\(31\\)$", over$class)))
+  expect_equal(nrow(res), 2L, info = paste(res$class, res$line, collapse = "; "))
+})
+
 test_that("a sentence is counted between terminators, not per line", {
   env <- .prose_env()
   md <- .write_fixture(c(
