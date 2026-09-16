@@ -11,24 +11,28 @@ set_factor_labels(x, labels)
 
 \item{labels}{A named character vector mapping factor IDs (\code{"m{k}f{j}"}) to
 label strings, or \code{NULL} to clear all stored labels. Every name must match
-a factor ID in \code{x} (an unknown ID is an error, not a warning -- the object's
-IDs are knowable up front; see \code{\link[=factor_labels]{factor_labels()}} to read the current set).}
+a factor ID in \code{x}. An unknown ID is an error, not a warning, because the
+object's IDs are knowable up front. See \code{\link[=factor_labels]{factor_labels()}} to read the
+current set.}
 }
 \value{
 The \code{ackwards} object, with \code{meta$factor_labels} updated. Pipeable.
 }
 \description{
-Store substantive names for factors (e.g. \code{"Neuroticism"} for \code{"m5f1"}) on
-the object itself, so that \link[=print.ackwards]{print()}, \link[=summary.ackwards]{summary()},
+A factor is a summary variable standing in for a group of items that move
+together. Store substantive names for factors (e.g. \code{"Neuroticism"} for
+\code{"m5f1"}) on the object itself, so that \link[=print.ackwards]{print()},
+\link[=summary.ackwards]{summary()},
 \link[=tidy.ackwards]{tidy()}, \link[=autoplot.ackwards]{autoplot()}, and
 \code{\link[=top_items]{top_items()}} display them without re-supplying the labels each time. This is
-the \emph{factor}-label counterpart to item / variable labels (see
-\code{\link[=top_items]{top_items()}} and \code{?ackwards}); the two are distinct and never interchanged.
+the \emph{factor}-label counterpart to item or variable labels (see
+\code{\link[=top_items]{top_items()}} and \code{?ackwards}). The two are distinct and never interchanged.
 }
 \details{
-Labels are display only -- they never change a factor's stable ID
-(\verb{m\{k\}f\{j\}}), and every lineage / edge / score column continues to key on the
-ID. A factor with no label falls back to its ID everywhere. The stored labels
+Labels are display only. They never change a factor's stable ID
+(\verb{m\{k\}f\{j\}}), and every lineage, edge, and score column continues to key on
+the ID. A factor with no label falls back to its ID everywhere. The stored
+labels
 ride along through \code{\link[=prune]{prune()}}, \code{\link[=boot_edges]{boot_edges()}}, \link[=augment.ackwards]{augment()},
 and \link[=predict.ackwards]{predict()} unchanged.
 }
@@ -37,8 +41,8 @@ and \link[=predict.ackwards]{predict()} unchanged.
 \code{set_factor_labels()} \strong{merges} into any labels already stored, so you can
 build them up incrementally. Within a single call:
 \itemize{
-\item a normal string sets (or overwrites) that factor's label;
-\item an \code{NA} or \code{""} value \strong{removes} just that factor's label;
+\item a normal string sets (or overwrites) that factor's label,
+\item an \code{NA} or \code{""} value \strong{removes} just that factor's label,
 \item passing \code{labels = NULL} clears \strong{all} labels at once.
 }
 

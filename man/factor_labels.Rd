@@ -14,7 +14,9 @@ The named character vector of factor labels (names are factor IDs), or
 \code{NULL} if none have been set. See \code{\link[=set_factor_labels]{set_factor_labels()}} to attach them.
 }
 \description{
-Read the factor labels stored on an ackwards object
+A factor is a summary variable standing in for a group of items that move
+together. This function returns the labels that \code{\link[=set_factor_labels]{set_factor_labels()}}
+stored on the object.
 }
 \examples{
 x <- ackwards(sim16, k_max = 4, engine = "pca")

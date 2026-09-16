@@ -24,54 +24,62 @@
 #' Attaches nonparametric bootstrap standard errors and percentile confidence
 #' intervals to every between-level correlation (edge) of a fitted
 #' bass-ackwards hierarchy. Every edge [ackwards()] reports is a point
-#' estimate; `boot_edges()` quantifies its sampling uncertainty, which matters
-#' most where a hard threshold consumes the estimate -- [prune()]'s
-#' `|r| >= redundancy_r` redundancy rule, and the Forbes (2023) practice of
-#' interpreting the strongest all-pairs edge.
+#' estimate. This function quantifies the sampling uncertainty of that
+#' estimate. That matters most where a hard threshold consumes the estimate.
+#' Two such places are [prune()]'s `|r| >= redundancy_r` redundancy rule and
+#' the Forbes (2023) practice of interpreting the strongest all-pairs edge. A
+#' factor is a summary variable standing in for a group of items that move
+#' together, and a redundant factor is one that persists across levels without
+#' changing.
 #'
-#' For each of `n_boot` replicates, `n` rows are resampled with replacement,
-#' the correlation matrix is recomputed with the same basis and missing-data
+#' For each of `n_boot` replicates, `n` rows are resampled with replacement.
+#' The correlation matrix is recomputed with the same basis and missing-data
 #' routine used at fit time, and the full hierarchy is refit. Each replicate
-#' level is then **anchored to the full-sample solution** -- its factors
-#' matched (greedy max-|r| with removal) and sign-oriented against the
-#' full-sample factors on the full-sample correlation matrix -- before its
-#' edges are computed. Without anchoring, factor label switching and sign
-#' flipping across replicates would corrupt the pooled edge distributions;
-#' this is the same matching machinery [comparability()] uses.
+#' level is then **anchored to the full-sample solution** before its edges are
+#' computed. That is, its factors are matched (greedy max-|r| with removal)
+#' and sign-oriented against the full-sample factors, on the full-sample
+#' correlation matrix. Without anchoring, factor label switching and sign
+#' flipping across replicates would corrupt the pooled edge distributions.
+#' This is the same matching machinery [comparability()] uses.
 #'
 #' All resample indices are drawn upfront from `seed`, so results are
 #' reproducible and identical whether replicates run serially or in parallel.
 #' Replicate fits are dispatched through \pkg{future.apply} when it is
-#' installed and the user has set a [future::plan()] (serial otherwise, as in
-#' [ackwards()]'s ESEM engine).
+#' installed and the user has set a [future::plan()]. Otherwise they run
+#' serially, as in the ESEM (exploratory structural equation modeling) engine
+#' of [ackwards()].
 #'
 #' @section What the intervals do and do not fix:
 #' Per-edge intervals make sampling uncertainty **visible**: an edge whose
 #' interval straddles [prune()]'s `redundancy_r` threshold should not be
 #' treated as decisively above or below it. They do **not** correct the
-#' selection bias of scanning many edges for the strongest one -- the maximum
+#' selection bias of scanning many edges for the strongest one. The maximum
 #' of hundreds of correlations capitalizes on chance even when every
 #' individual interval is honest. Treat the intervals as per-edge error bars,
 #' not a familywise inference.
 #'
 #' @section Failed replicates:
 #' A replicate whose hierarchy fails to converge (in full or at some levels)
-#' contributes `NA` to the affected edges and is dropped from their
-#' distributions -- convergence is data, not an error. The usable replicate
-#' count is reported per edge in `n_boot_ok`, and a message summarises any
+#' contributes `NA` to the affected edges. It is dropped from their
+#' distributions, because convergence is data, not an error. The usable
+#' replicate count is reported per edge in `n_boot_ok`, and a message
+#' summarises any
 #' shortfall.
 #'
 #' @param x An `ackwards` object fit with `engine = "pca"` or `"efa"` on a
-#'   `"pearson"` or `"spearman"` basis. ESEM objects are not supported
-#'   (refitting `n_boot` lavaan hierarchies needs its own performance
-#'   treatment), nor are polychoric-basis objects (estimating a polychoric
-#'   matrix in every resample is slow and unstable) or objects fit from a
-#'   correlation matrix (resampling needs rows).
-#' @param data The raw item data the model was fit on. Required -- the
+#'   `"pearson"` or `"spearman"` basis. ESEM objects (exploratory structural
+#'   equation modeling) are not supported, because refitting `n_boot` lavaan
+#'   hierarchies needs its own performance treatment. Polychoric-basis objects
+#'   are not supported either, because estimating a polychoric matrix in every
+#'   resample is slow and unstable. Polychoric correlations estimate the
+#'   correlation between the continuous traits assumed to underlie ordered
+#'   responses. Objects fit from a correlation matrix are also unsupported,
+#'   because resampling needs rows.
+#' @param data The raw item data the model was fit on. Required, because the
 #'   `ackwards` object deliberately does not store raw data (light core), so
 #'   it must be re-supplied here. Columns are matched by name against the
-#'   fit; a warning is issued if the data do not look like the fit data.
-#' @param n_boot Number of bootstrap replicates. Default `1000L`; larger
+#'   fit, and a warning is issued if the data do not look like the fit data.
+#' @param n_boot Number of bootstrap replicates. Default `1000L`. Larger
 #'   values (2000+) are advisable for published interval endpoints (Efron &
 #'   Tibshirani, 1993). Each replicate refits the full hierarchy, so cost
 #'   scales linearly.
@@ -81,19 +89,22 @@
 #' @param ... Reserved for future arguments.
 #'
 #' @return `x`, invisibly modified: the `$boot` element is populated with
-#'   \item{edges}{Data frame with one row per edge (aligned with
-#'     `tidy(x, what = "edges")`): `from`, `to`, `level_from`, `level_to`,
-#'     `r` (the full-sample point estimate), `se` (bootstrap standard error),
-#'     `lo`, `hi` (percentile interval endpoints), and `n_boot_ok` (usable
-#'     replicates for that edge).}
+#'   \item{edges}{Data frame with one row per edge, aligned with
+#'     `tidy(x, what = "edges")`. The identifier columns are `from`, `to`,
+#'     `level_from`, and `level_to`. The estimate columns are `r` (the
+#'     full-sample point estimate), `se` (bootstrap standard error), and `lo`
+#'     and `hi` (percentile interval endpoints). The column `n_boot_ok`
+#'     counts the usable replicates for that edge.}
 #'   \item{n_boot, conf, seed}{The request.}
-#'   After calling `boot_edges()`, `tidy(x, what = "edges")` gains `se`,
-#'   `lo`, and `hi` columns, and `print(x)`/`summary(x)` note the interval
-#'   coverage.
+#'   After calling `boot_edges()`, the table `tidy(x, what = "edges")` gains
+#'   `se`, `lo`, and `hi` columns. Also, `print(x)` and `summary(x)` note the
+#'   interval coverage.
 #'
-#' @seealso [prune()] for the thresholded rules the intervals contextualise,
-#'   [comparability()] for split-half replicability of the factors
-#'   themselves, [tidy.ackwards()] for the augmented edge table.
+#' @seealso Use [prune()] for the thresholded rules the intervals
+#'   contextualise. See [comparability()] for split-half replicability of the
+#'   factors themselves, where the sample is split into two random halves and
+#'   each half is analysed separately. See [tidy.ackwards()] for the augmented
+#'   edge table.
 #'
 #' @references
 #' Efron, B., & Tibshirani, R. J. (1993). *An introduction to the bootstrap*.

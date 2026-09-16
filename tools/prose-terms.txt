@@ -1,0 +1,21 @@
+# Statistical terms of art the plain-English rewrite meets. Each is glossed
+# in plain words at its first use in README.Rmd and at its first use in every
+# exported roxygen topic where it appears. The review reads the gloss sites
+# from `grep -n` of each term over the domain. A term that appears only inside
+# a code span or a link title counts as not appearing.
+factor
+component
+loading
+rotation
+varimax
+factor score
+polychoric
+ordinal
+FIML
+ESEM
+EFA
+PCA
+congruence
+redundancy
+parallel analysis
+split-half

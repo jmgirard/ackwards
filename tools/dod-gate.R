@@ -2,13 +2,18 @@
 # Definition-of-done gate (M48). Runs the full CLAUDE.md gate sequence once,
 # serially, in one process:
 #   vignette freshness (M65; fail-fast, base R) ->
+#   ledger anchors (M72) -> CI path filters (M82) -> prose check (M85) ->
 #   devtools::check() (must be 0/0/0, vignettes included)
 #   -> covr::package_coverage() (target 100%)
 #   -> styler::style_pkg() -> lintr::lint_package()
 #   -> pkgdown::check_pkgdown() (mirrors the pkgdown GHA; catches exported
 #      topics missing from _pkgdown.yml, which R CMD check does not)
 # Usage, from the package root:  Rscript tools/dod-gate.R
-# Exits non-zero if any step fails, printing every failure it found.
+# Runs in two phases. The four base-R guards (vignette freshness, ledger
+# anchors, CI path filters, prose) cost seconds; if any fails, the gate prints
+# those failures and exits before check(). Otherwise the remaining steps all
+# run and every failure among them is printed at the end. Non-zero exit on any
+# failure.
 
 # Parallel testthat (DESCRIPTION Config) defaults to 2 workers; use the
 # machine. Applies to the check()'s test phase and the coverage run alike.
@@ -58,6 +63,48 @@ if (length(ci_problems) > 0) {
   failures <- c(failures, "CI paths-ignore filters (see tools/check-ci-path-filters.R)")
 } else {
   note("ci-path-filters: clean")
+}
+
+# Plain-English prose check (M85), fail-fast like the three above. Sweeps the
+# README, DESCRIPTION, the NEWS development section, and every roxygen line
+# for dashes, semicolons, banned phrases, and sentences over 30 words. The
+# vignette sources join this domain when their own rewrite lands. Base R
+# only; sys.source blocks the script's own body.
+prose_env <- new.env()
+sys.source("tools/check-prose.R", envir = prose_env)
+# The checker errors on an unclosed span, fence, or YAML header; that error is
+# a prose failure like any report, not a raw R abort.
+prose_reports <- tryCatch(
+  prose_env$check_prose(
+    c("README.Rmd", "DESCRIPTION", "NEWS.md", "R"),
+    banned = prose_env$read_prose_list("prose-banned.txt", "tools"),
+    abbrev = prose_env$read_prose_list("prose-abbrev.txt", "tools")
+  ),
+  error = function(e) {
+    data.frame(
+      file = "", line = NA_integer_, class = "checker error",
+      text = conditionMessage(e), stringsAsFactors = FALSE
+    )
+  }
+)
+if (nrow(prose_reports) > 0) {
+  for (i in seq_len(nrow(prose_reports))) {
+    note(
+      "prose: %s:%d [%s] %s", prose_reports$file[i], prose_reports$line[i],
+      prose_reports$class[i], prose_reports$text[i]
+    )
+  }
+  failures <- c(failures, sprintf("prose check: %d report(s) (see tools/check-prose.R)", nrow(prose_reports)))
+} else {
+  note("prose: clean")
+}
+
+# Fail fast: the four base-R guards above cost seconds, so a failure among them
+# stops the gate here rather than after the minutes-long check().
+if (length(failures) > 0) {
+  cat("\n")
+  note("GATE FAILED before check():\n- %s", paste(failures, collapse = "\n- "))
+  quit(status = 1L)
 }
 
 t0 <- Sys.time()
@@ -120,4 +167,4 @@ if (length(failures) > 0) {
   note("GATE FAILED:\n- %s", paste(failures, collapse = "\n- "))
   quit(status = 1L)
 }
-note("GATE PASSED (check 0/0/0, coverage 100%%, style/lint clean, pkgdown index complete)")
+note("GATE PASSED (prose clean, check 0/0/0, coverage 100%%, style/lint clean, pkgdown index complete)")

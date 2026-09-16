@@ -19,22 +19,38 @@ MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.or
 modern extensions for mapping the hierarchical structure of multivariate
 data.
 
-The core insight is simple: instead of asking *how many* factors best
-describe your data, ask *how the solutions at different levels of
-resolution are related to one another*. A 1-factor solution captures the
-broadest shared variance; a 5-factor solution captures narrower, more
-specific dimensions. Bass-ackwards analysis traces how broad factors
-split into narrow ones — and which narrow factors are redundant
-re-combinations of broader ones.
+The core idea is this. Instead of asking *how many* factors best
+describe your data, ask *how the solutions at different levels of detail
+relate to one another*. A factor is a summary variable that stands in
+for a group of items that tend to move together. A 1-factor solution
+captures the broadest shared variance. A 5-factor solution captures
+narrower, more specific dimensions. Bass-ackwards analysis traces how
+broad factors split into narrow ones. It also shows which narrow factors
+are only re-combinations of broader ones.
 
-The package supports three extraction engines (PCA, EFA, ESEM) and
-polychoric correlations for ordinal data. Beyond fitting, it is a full
-analysis toolkit: `suggest_k()` brackets the plausible depth,
-`comparability()` gates that depth on split-half replicability, Forbes’s
-(2023) `prune()` flags redundant or artifactual factors from the
-skip-level connections, `boot_edges()` puts bootstrap confidence
-intervals on every edge, and `predict()` scores new observations out of
-sample.
+The package supports three extraction engines. PCA (principal component
+analysis) summarizes the items with weighted sums called components. EFA
+(exploratory factor analysis) instead models the items as caused by
+latent factors plus item-specific noise. ESEM (exploratory structural
+equation modeling) fits the same kind of factor model inside a
+structural equation framework, which adds fit indices and standard
+errors. After extraction each engine applies a rotation, which
+re-orients the factors without changing how well they fit. The package
+uses varimax, which pushes each item toward one factor and keeps the
+factors uncorrelated. Ordinal data are items with a few ordered
+categories, such as a 1 to 5 rating. For such data the package can use
+polychoric correlations, which estimate the correlation between the
+continuous traits assumed to underlie the ordered responses.
+
+Beyond fitting, the package is a full analysis toolkit. `suggest_k()`
+brackets the plausible depth of the hierarchy. `comparability()` gates
+that depth on split-half replicability. That is, it checks whether each
+factor re-emerges when the sample is split into two random halves.
+Forbes’s (2023) `prune()` flags redundant factors (factors that persist
+across levels without changing) and artifactual factors from the
+connections between non-adjacent levels. `boot_edges()` puts bootstrap
+confidence intervals on every edge. `predict()` scores new observations
+out of sample.
 
 ## Installation
 
@@ -54,16 +70,18 @@ pak::pak("jmgirard/ackwards")
 ## Quick start
 
 We use `bfi25`, the built-in 25-item Big Five example dataset (see
-`?bfi25` for provenance). Because its items are recorded on a 6-point
-ordinal scale, we set `cor = "polychoric"`, and we fit the dataset
-directly (rather than `na.omit()`-ing it first) so its built-in IPIP
-item labels flow through to `top_items()`.
+`?bfi25` for provenance). Its items are recorded on a 6-point ordinal
+scale, so we set `cor = "polychoric"`. We also fit the dataset directly
+rather than removing incomplete rows first, so its built-in IPIP item
+labels flow through to `top_items()`.
 
-### Step 1 — Suggest a range of k
+### Step 1: Suggest a range of k
 
-`suggest_k()` runs five complementary criteria — two forms of parallel
-analysis (PC and FA basis), MAP, VSS, and optionally Comparison Data —
-to help you choose an upper bound for the hierarchy depth.
+`suggest_k()` runs five complementary criteria to help you choose an
+upper bound for the hierarchy depth. Two of them are forms of parallel
+analysis, which compares the eigenvalues of your data against those of
+random data with the same shape. The others are MAP, VSS, and optionally
+Comparison Data.
 
 ``` r
 library(ackwards)
@@ -112,11 +130,15 @@ sk
 The criteria converge on a consensus range that covers k = 5, consistent
 with the known Big Five structure of this instrument.
 
-### Step 2 — Fit the hierarchy
+### Step 2: Fit the hierarchy
 
-`ackwards()` fits factor models at every level from 1 to `k_max` and
-computes the between-level factor-score correlations that define the
-hierarchy.
+`ackwards()` fits factor models at every level from 1 to `k_max`. It
+then computes the correlations between the factor scores of different
+levels, and those correlations define the hierarchy. By default it
+correlates neighbouring levels only. A factor score is each person’s
+estimated standing on a factor, computed from their item responses. The
+result is a set of linked solutions whose edges are score correlations,
+never a fitted hierarchical model.
 
 ``` r
 x <- ackwards(bfi25, k_max = 5, cor = "polychoric", missing = "listwise")
@@ -147,12 +169,13 @@ x
 #> they do not validate the edges or the hierarchy itself.
 ```
 
-### Step 3 — Visualize
+### Step 3: Visualize
 
-`autoplot()` draws the hierarchical diagram. Each row is a level (k = 1
-at top, k = 5 at bottom); arrows connect each narrow factor to the broad
-factor it inherits from, with thickness encoding \|r\| and colour
-encoding sign (both legended). The [visualization
+`autoplot()` draws the hierarchical diagram. Each row is a level, with k
+= 1 at the top and k = 5 at the bottom. Arrows connect each narrow
+factor to the broad factor it inherits from. Arrow thickness encodes the
+size of the correlation and colour encodes its sign, and both are
+legended. The [visualization
 vignette](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html)
 covers the encodings, `direction = "horizontal"`, and the rest of the
 styling.
@@ -168,11 +191,13 @@ factor at k = 1 (roughly *general positive character*) differentiates
 first into positive vs. negative affect (k = 2), then into successively
 narrower traits.
 
-### Step 4 — Interpret and score
+### Step 4: Interpret and score
 
-`top_items()` lists each factor’s salient items — printed with `bfi25`’s
-built-in IPIP labels — so you can read what a factor means; `augment()`
-turns the hierarchy into factor scores for downstream analysis.
+`top_items()` lists each factor’s salient items, printed with the
+built-in IPIP labels of `bfi25`, so you can read what a factor means. An
+item is salient when its loading, the correlation between the item and
+the factor, is large. `augment()` turns the hierarchy into factor scores
+for downstream analysis.
 
 ``` r
 # What does each of the five factors mean? (salient items, |loading| >= 0.5)
@@ -239,15 +264,16 @@ hierarchy from a picture into a defensible result, and one scores new
 data:
 
 - **`comparability(bfi25, k_max = 6)`** gates hierarchy *depth* on
-  split-half replicability — the deepest level at which every factor
-  re-emerges in random halves of the sample (Everett 1983; Saucier et
-  al. 2005).
+  split-half replicability. It finds the deepest level at which every
+  factor re-emerges in random halves of the sample (Everett 1983,
+  Saucier et al. 2005).
 - **`prune(x, "redundant")`** flags factors that persist across levels
-  without differentiating — Forbes’s (2023) redundancy question.
+  without differentiating, which is the redundancy question of Forbes
+  (2023).
 - **`boot_edges(x, bfi25)`** attaches bootstrap confidence intervals to
   every between-level edge.
 - **`predict(x, newdata)`** scores observations the model never saw, in
-  the training metric — the standard cross-validation pattern.
+  the training metric, which is the standard cross-validation pattern.
 
 The [recommended-workflow
 vignette](https://jmgirard.github.io/ackwards/articles/ackwards-girard.html)
@@ -257,14 +283,14 @@ strings these into a six-step analysis.
 
 | Vignette | Topic |
 |----|----|
-| [Introduction](https://jmgirard.github.io/ackwards/articles/ackwards-intro.html) | The basics end-to-end: `suggest_k` → `ackwards` → summarize → plot → interpret → score |
+| [Introduction](https://jmgirard.github.io/ackwards/articles/ackwards-intro.html) | The basics end-to-end: `suggest_k` to `ackwards` to summarize, plot, interpret, and score |
 | [Recommended workflow](https://jmgirard.github.io/ackwards/articles/ackwards-girard.html) | Replicability-gated hierarchies: gate depth on split-half `comparability()` |
-| [Choosing k](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.html) | Five criteria explained: pros/cons, bias direction, engine pairing |
+| [Choosing k](https://jmgirard.github.io/ackwards/articles/ackwards-suggest-k.html) | Five criteria explained: pros and cons, bias direction, engine pairing |
 | [Forbes extension](https://jmgirard.github.io/ackwards/articles/ackwards-forbes.html) | Skip-level edges, redundancy pruning, `pairs = "all"` |
-| [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA; convergence and loading comparison |
+| [Engines & rotation](https://jmgirard.github.io/ackwards/articles/ackwards-engines.html) | When to choose EFA or ESEM over PCA, with convergence and loading comparison |
 | [Ordinal data](https://jmgirard.github.io/ackwards/articles/ackwards-ordinal.html) | Polychoric correlations, attenuation bias, and WLSMV estimation |
 | [Interpreting & labeling](https://jmgirard.github.io/ackwards/articles/ackwards-interpret.html) | `top_items()`, hierarchy-aware naming, `label_template()` round-trip |
-| [Visualization](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html) | Styling `autoplot()`: sign/magnitude encoding, layout orientation, labels, publication figures |
+| [Visualization](https://jmgirard.github.io/ackwards/articles/ackwards-visualization.html) | Styling `autoplot()`: sign and magnitude encoding, layout orientation, labels, publication figures |
 
 ## Citation
 
@@ -275,7 +301,7 @@ citation("ackwards")
 #> To cite package 'ackwards' in publications use:
 #> 
 #>   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural
-#>   Analysis_. R package version 0.1.1,
+#>   Analysis_. R package version 0.2.0.9000,
 #>   <https://github.com/jmgirard/ackwards>.
 #> 
 #> A BibTeX entry for LaTeX users is
@@ -284,12 +310,13 @@ citation("ackwards")
 #>     title = {ackwards: Bass-Ackwards Hierarchical Structural Analysis},
 #>     author = {Jeffrey M. Girard},
 #>     year = {2026},
-#>     note = {R package version 0.1.1},
+#>     note = {R package version 0.2.0.9000},
 #>     url = {https://github.com/jmgirard/ackwards},
 #>   }
 ```
 
-Please also cite the relevant method paper(s): Goldberg (2006)
+Please also cite the relevant method paper(s). Cite Goldberg (2006)
 <https://doi.org/10.1016/j.jrp.2006.01.001> for the bass-ackwards method
-itself, and Forbes (2023) <https://doi.org/10.1037/met0000546> if you
-use the extended method (`pairs = "all"`, redundancy/artifact pruning).
+itself. Cite Forbes (2023) <https://doi.org/10.1037/met0000546> if you
+use the extended method (`pairs = "all"`, redundancy or artifact
+pruning).

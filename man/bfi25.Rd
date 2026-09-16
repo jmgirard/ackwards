@@ -3,17 +3,17 @@
 \docType{data}
 \name{bfi25}
 \alias{bfi25}
-\title{Big Five Inventory -- 25-item IPIP example dataset}
+\title{Big Five Inventory: 25-item IPIP example dataset}
 \format{
 A data frame with 1 000 rows and 25 integer columns (Likert responses
-scored 1--6, with some \code{NA}s reflecting genuine missing values in the
+scored 1 to 6, with some \code{NA}s reflecting genuine missing values in the
 original survey). The 25 items span the Big Five personality domains:\tabular{ll}{
    Columns \tab Domain \cr
-   \code{A1}--\code{A5} \tab Agreeableness \cr
-   \code{C1}--\code{C5} \tab Conscientiousness \cr
-   \code{E1}--\code{E5} \tab Extraversion \cr
-   \code{N1}--\code{N5} \tab Neuroticism \cr
-   \code{O1}--\code{O5} \tab Openness \cr
+   \code{A1} to \code{A5} \tab Agreeableness \cr
+   \code{C1} to \code{C5} \tab Conscientiousness \cr
+   \code{E1} to \code{E5} \tab Extraversion \cr
+   \code{N1} to \code{N5} \tab Neuroticism \cr
+   \code{O1} to \code{O5} \tab Openness \cr
 }
 }
 \source{
@@ -47,10 +47,11 @@ collected via the SAPA project.
 Each item column carries its public-domain IPIP stem (Goldberg, 1999) as a
 \code{label} attribute, so \code{ackwards()} captures it at fit time and \code{top_items()}
 prints the wording as \code{code: label} (e.g. \verb{E4: Make friends easily}) with
-no setup. These are plain attributes: base row-subsetting (e.g.
-\code{na.omit(bfi25)}, \code{bfi25[rows, ]}) drops them, as base R does for any
-non-\code{labelled}-class vector, so fit on \code{bfi25} \strong{directly} -- its \code{NA}s are
-handled by the \code{missing} argument of \code{ackwards()} -- to keep the labels.
+no setup. These are plain attributes, so base row-subsetting (e.g.
+\code{na.omit(bfi25)}, \code{bfi25[rows, ]}) drops them. Base R does that for any
+vector that is not of class \code{labelled}. To keep the labels, fit on \code{bfi25}
+\strong{directly}. Its \code{NA}s are handled by the \code{missing} argument of
+\code{ackwards()}.
 
 To regenerate this dataset, run \code{source("data-raw/bfi25.R")} from the
 package root.

@@ -2,8 +2,8 @@
 #'
 #' Returns a structured `summary_ackwards` object that, when printed, shows
 #' per-level variance and fit indices, a readable lineage list, and (when
-#' present) pruning annotations. More verbose than [print.ackwards()]; designed
-#' for inspection and reporting.
+#' present) pruning annotations. It says more than [print.ackwards()] and is
+#' designed for inspection and reporting.
 #'
 #' @param object An `ackwards` object.
 #' @param ... Ignored.

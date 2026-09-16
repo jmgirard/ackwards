@@ -18,8 +18,8 @@ An object of class \code{"summary_ackwards"}, printed via
 \description{
 Returns a structured \code{summary_ackwards} object that, when printed, shows
 per-level variance and fit indices, a readable lineage list, and (when
-present) pruning annotations. More verbose than \code{\link[=print.ackwards]{print.ackwards()}}; designed
-for inspection and reporting.
+present) pruning annotations. It says more than \code{\link[=print.ackwards]{print.ackwards()}} and is
+designed for inspection and reporting.
 }
 \examples{
 x <- ackwards(sim16, k_max = 5)

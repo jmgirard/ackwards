@@ -15,16 +15,18 @@
 A one-row \code{data.frame}.
 }
 \description{
-Returns a one-row data frame of top-level model metadata. For EFA and ESEM
-objects, fit indices at the deepest converged level are included. The same
-five columns (\code{CFI}, \code{TLI}, \code{RMSEA}, \code{SRMR}, \code{BIC}) are present across all
-engines; columns unavailable for a given engine or estimator are \code{NA}
-(e.g., \code{CFI} and \code{SRMR} are \code{NA} for EFA; all five are \code{NA} for PCA; for
-ESEM, \code{BIC} is \code{NA} under \code{estimator = "WLSMV"}/\code{"ULSMV"} -- these
-limited-information estimators have no proper log-likelihood -- and
-populated under \code{"ML"}/\code{"MLR"}). Under a scaled-test estimator
-(\code{"WLSMV"}/\code{"ULSMV"}/\code{"MLR"}) the \code{CFI}/\code{TLI}/\code{RMSEA} reported here are the
-scaled variants (see \code{\link[=tidy.ackwards]{tidy.ackwards()}} for the rationale).
+Returns a one-row data frame of top-level model metadata. For EFA
+(exploratory factor analysis) and ESEM (exploratory structural equation
+modeling) objects, fit indices at the deepest converged level are included.
+The same five columns (\code{CFI}, \code{TLI}, \code{RMSEA}, \code{SRMR}, \code{BIC}) are present
+across all engines. Columns unavailable for a given engine or estimator are
+\code{NA}. For example, \code{CFI} and \code{SRMR} are \code{NA} for EFA, and all five are \code{NA}
+for PCA (principal component analysis). For ESEM, \code{BIC} is \code{NA} under
+\code{estimator = "WLSMV"} or \code{"ULSMV"}, because these limited-information
+estimators have no proper log-likelihood, and it is populated under \code{"ML"}
+or \code{"MLR"}. Under a scaled-test estimator
+(\code{"WLSMV"}, \code{"ULSMV"}, or \code{"MLR"}) the \code{CFI}, \code{TLI}, and \code{RMSEA} reported
+here are the scaled variants (see \code{\link[=tidy.ackwards]{tidy.ackwards()}} for the rationale).
 }
 \examples{
 x <- ackwards(sim16, k_max = 5)

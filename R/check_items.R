@@ -1,38 +1,43 @@
 #' Screen items for problems before factor analysis
 #'
 #' @description
-#' Real-world item sets often contain columns that break or *silently* degrade a
-#' factor analysis: an item everyone answered the same way (no variance), an
-#' item dominated by one response with a couple of stray answers, or an item
-#' with heavy missingness. On the polychoric basis these are especially costly
-#' -- a near-empty response category can make [psych::polychoric()] fail
-#' outright (see the `correct` argument of [ackwards()]), and a near-constant
-#' item can produce a plausible-looking but meaningless factor with no warning.
+#' Real-world item sets often contain columns that break or *silently* degrade
+#' a factor analysis. A factor is a summary variable standing in for a group of
+#' items that move together. Three columns cause most of the trouble. One is an
+#' item everyone answered the same way (no variance). Another is an item
+#' dominated by one response with a couple of stray answers. The third is an
+#' item with heavy missingness. These are especially costly on the polychoric
+#' basis, which estimates the correlation between the continuous traits
+#' assumed to underlie ordered responses. A near-empty response category can
+#' make
+#' [psych::polychoric()] fail outright (see the `correct` argument of
+#' [ackwards()]). A near-constant item can produce a plausible-looking but
+#' meaningless factor with no warning.
 #'
 #' `check_items()` reports these problems *before* you fit, one row per item, so
 #' you can collapse rare categories, drop degenerate items, or set
-#' `cor`/`correct` deliberately rather than debugging a cryptic error. It only
-#' reports; it never changes your data. [ackwards()] runs the same screen
-#' internally: it **errors** on a constant item and **warns** on a
+#' `cor` and `correct` deliberately rather than debugging a cryptic error. It
+#' only reports, and never changes your data. [ackwards()] runs the same screen
+#' internally. It **errors** on a constant item and **warns** on a
 #' near-degenerate one, naming the offenders.
 #'
 #' @param data A data frame or numeric matrix (items in columns).
 #' @param cor The correlation basis you plan to use: `"polychoric"` (default),
-#'   `"pearson"`, or `"spearman"`. Only affects which problems are flagged --
-#'   sparse response categories destabilise the polychoric basis but not the
-#'   others.
+#'   `"pearson"`, or `"spearman"`. This only affects which problems are
+#'   flagged, because sparse response categories destabilise the polychoric
+#'   basis but not the others.
 #'
 #' @return A data frame (class `check_items`) with one row per item and columns
 #'   `item`, `n_valid`, `pct_missing`, `n_distinct`, `min_count` (smallest
 #'   observed category count), `top_prop` (proportion of valid responses in the
-#'   most common value), and `flag` -- one of `"ok"`, `"constant"`,
-#'   `"near-constant"`, `"sparse category"`, or `"high missing"`. Print it for a
-#'   grouped summary with guidance; treat it as a plain data frame for the full
-#'   per-item table.
+#'   most common value). The last column, `flag`, is one of `"ok"`,
+#'   `"constant"`, `"near-constant"`, `"sparse category"`, or `"high missing"`.
+#'   Print it for a grouped summary with guidance. Treat it as a plain data
+#'   frame for the full per-item table.
 #'
-#' @seealso [ackwards()] and its `correct` argument (the polychoric failure this
-#'   screens for); [factorability()], [suggest_k()], and [comparability()], the
-#'   other pre-analysis diagnostics.
+#' @seealso [ackwards()] and its `correct` argument (the polychoric failure
+#'   this screens for). Also [factorability()], [suggest_k()], and
+#'   [comparability()], the other pre-analysis diagnostics.
 #'
 #' @examples
 #' # sim16 is clean continuous data -> nothing flagged

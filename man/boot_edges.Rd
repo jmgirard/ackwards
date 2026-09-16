@@ -11,20 +11,23 @@ boot_edges(x, ...)
 }
 \arguments{
 \item{x}{An \code{ackwards} object fit with \code{engine = "pca"} or \code{"efa"} on a
-\code{"pearson"} or \code{"spearman"} basis. ESEM objects are not supported
-(refitting \code{n_boot} lavaan hierarchies needs its own performance
-treatment), nor are polychoric-basis objects (estimating a polychoric
-matrix in every resample is slow and unstable) or objects fit from a
-correlation matrix (resampling needs rows).}
+\code{"pearson"} or \code{"spearman"} basis. ESEM objects (exploratory structural
+equation modeling) are not supported, because refitting \code{n_boot} lavaan
+hierarchies needs its own performance treatment. Polychoric-basis objects
+are not supported either, because estimating a polychoric matrix in every
+resample is slow and unstable. Polychoric correlations estimate the
+correlation between the continuous traits assumed to underlie ordered
+responses. Objects fit from a correlation matrix are also unsupported,
+because resampling needs rows.}
 
 \item{...}{Reserved for future arguments.}
 
-\item{data}{The raw item data the model was fit on. Required -- the
+\item{data}{The raw item data the model was fit on. Required, because the
 \code{ackwards} object deliberately does not store raw data (light core), so
 it must be re-supplied here. Columns are matched by name against the
-fit; a warning is issued if the data do not look like the fit data.}
+fit, and a warning is issued if the data do not look like the fit data.}
 
-\item{n_boot}{Number of bootstrap replicates. Default \code{1000L}; larger
+\item{n_boot}{Number of bootstrap replicates. Default \code{1000L}. Larger
 values (2000+) are advisable for published interval endpoints (Efron &
 Tibshirani, 1993). Each replicate refits the full hierarchy, so cost
 scales linearly.}
@@ -36,48 +39,53 @@ uses the current RNG state.}
 }
 \value{
 \code{x}, invisibly modified: the \verb{$boot} element is populated with
-\item{edges}{Data frame with one row per edge (aligned with
-\code{tidy(x, what = "edges")}): \code{from}, \code{to}, \code{level_from}, \code{level_to},
-\code{r} (the full-sample point estimate), \code{se} (bootstrap standard error),
-\code{lo}, \code{hi} (percentile interval endpoints), and \code{n_boot_ok} (usable
-replicates for that edge).}
+\item{edges}{Data frame with one row per edge, aligned with
+\code{tidy(x, what = "edges")}. The identifier columns are \code{from}, \code{to},
+\code{level_from}, and \code{level_to}. The estimate columns are \code{r} (the
+full-sample point estimate), \code{se} (bootstrap standard error), and \code{lo}
+and \code{hi} (percentile interval endpoints). The column \code{n_boot_ok}
+counts the usable replicates for that edge.}
 \item{n_boot, conf, seed}{The request.}
-After calling \code{boot_edges()}, \code{tidy(x, what = "edges")} gains \code{se},
-\code{lo}, and \code{hi} columns, and \code{print(x)}/\code{summary(x)} note the interval
-coverage.
+After calling \code{boot_edges()}, the table \code{tidy(x, what = "edges")} gains
+\code{se}, \code{lo}, and \code{hi} columns. Also, \code{print(x)} and \code{summary(x)} note the
+interval coverage.
 }
 \description{
 Attaches nonparametric bootstrap standard errors and percentile confidence
 intervals to every between-level correlation (edge) of a fitted
 bass-ackwards hierarchy. Every edge \code{\link[=ackwards]{ackwards()}} reports is a point
-estimate; \code{boot_edges()} quantifies its sampling uncertainty, which matters
-most where a hard threshold consumes the estimate -- \code{\link[=prune]{prune()}}'s
-\verb{|r| >= redundancy_r} redundancy rule, and the Forbes (2023) practice of
-interpreting the strongest all-pairs edge.
+estimate. This function quantifies the sampling uncertainty of that
+estimate. That matters most where a hard threshold consumes the estimate.
+Two such places are \code{\link[=prune]{prune()}}'s \verb{|r| >= redundancy_r} redundancy rule and
+the Forbes (2023) practice of interpreting the strongest all-pairs edge. A
+factor is a summary variable standing in for a group of items that move
+together, and a redundant factor is one that persists across levels without
+changing.
 }
 \details{
-For each of \code{n_boot} replicates, \code{n} rows are resampled with replacement,
-the correlation matrix is recomputed with the same basis and missing-data
+For each of \code{n_boot} replicates, \code{n} rows are resampled with replacement.
+The correlation matrix is recomputed with the same basis and missing-data
 routine used at fit time, and the full hierarchy is refit. Each replicate
-level is then \strong{anchored to the full-sample solution} -- its factors
-matched (greedy max-|r| with removal) and sign-oriented against the
-full-sample factors on the full-sample correlation matrix -- before its
-edges are computed. Without anchoring, factor label switching and sign
-flipping across replicates would corrupt the pooled edge distributions;
-this is the same matching machinery \code{\link[=comparability]{comparability()}} uses.
+level is then \strong{anchored to the full-sample solution} before its edges are
+computed. That is, its factors are matched (greedy max-|r| with removal)
+and sign-oriented against the full-sample factors, on the full-sample
+correlation matrix. Without anchoring, factor label switching and sign
+flipping across replicates would corrupt the pooled edge distributions.
+This is the same matching machinery \code{\link[=comparability]{comparability()}} uses.
 
 All resample indices are drawn upfront from \code{seed}, so results are
 reproducible and identical whether replicates run serially or in parallel.
 Replicate fits are dispatched through \pkg{future.apply} when it is
-installed and the user has set a \code{\link[future:plan]{future::plan()}} (serial otherwise, as in
-\code{\link[=ackwards]{ackwards()}}'s ESEM engine).
+installed and the user has set a \code{\link[future:plan]{future::plan()}}. Otherwise they run
+serially, as in the ESEM (exploratory structural equation modeling) engine
+of \code{\link[=ackwards]{ackwards()}}.
 }
 \section{What the intervals do and do not fix}{
 
 Per-edge intervals make sampling uncertainty \strong{visible}: an edge whose
 interval straddles \code{\link[=prune]{prune()}}'s \code{redundancy_r} threshold should not be
 treated as decisively above or below it. They do \strong{not} correct the
-selection bias of scanning many edges for the strongest one -- the maximum
+selection bias of scanning many edges for the strongest one. The maximum
 of hundreds of correlations capitalizes on chance even when every
 individual interval is honest. Treat the intervals as per-edge error bars,
 not a familywise inference.
@@ -86,9 +94,10 @@ not a familywise inference.
 \section{Failed replicates}{
 
 A replicate whose hierarchy fails to converge (in full or at some levels)
-contributes \code{NA} to the affected edges and is dropped from their
-distributions -- convergence is data, not an error. The usable replicate
-count is reported per edge in \code{n_boot_ok}, and a message summarises any
+contributes \code{NA} to the affected edges. It is dropped from their
+distributions, because convergence is data, not an error. The usable
+replicate count is reported per edge in \code{n_boot_ok}, and a message
+summarises any
 shortfall.
 }
 
@@ -110,7 +119,9 @@ differences: An extension of Goldberg's bass-ackward method.
 \emph{Psychological Methods}. \doi{10.1037/met0000546}
 }
 \seealso{
-\code{\link[=prune]{prune()}} for the thresholded rules the intervals contextualise,
-\code{\link[=comparability]{comparability()}} for split-half replicability of the factors
-themselves, \code{\link[=tidy.ackwards]{tidy.ackwards()}} for the augmented edge table.
+Use \code{\link[=prune]{prune()}} for the thresholded rules the intervals
+contextualise. See \code{\link[=comparability]{comparability()}} for split-half replicability of the
+factors themselves, where the sample is split into two random halves and
+each half is analysed separately. See \code{\link[=tidy.ackwards]{tidy.ackwards()}} for the augmented
+edge table.
 }

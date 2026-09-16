@@ -15,11 +15,15 @@
 A \code{ggplot} object.
 }
 \description{
-Renders a two-panel ggplot2 diagnostic for a \code{\link[=comparability]{comparability()}} object:
-score comparability (r) and loading congruence (Tucker's phi) for every
-factor at every level. Grey points are individual splits; black points are
-the per-factor medians. Dashed and dotted reference lines mark the
-conventional .90 / .95 benchmarks -- visual guides, not tests.
+Renders a two-panel ggplot2 diagnostic for a \code{\link[=comparability]{comparability()}} object. The
+panels show score comparability (r) and loading congruence (Tucker's phi)
+for every factor at every level. A factor is a summary variable standing in
+for a group of items that move together. A loading is the correlation
+between an item and a factor, and congruence is a 0 to 1 index of how
+similar two loading patterns are. Grey points are individual splits, and
+black points are the per-factor medians. Dashed and dotted reference lines
+mark the
+conventional .90 and .95 benchmarks, which are visual guides, not tests.
 }
 \details{
 Requires the \pkg{ggplot2} package.

@@ -26,30 +26,35 @@ prune(x, ...)
 \item{...}{Reserved for future methods/arguments.}
 
 \item{rules}{Character vector controlling which auto-rules run. Default
-\code{"none"} (no auto rule; combine with \code{manual} for pure manual pruning, or
-call \code{prune(x)} with no arguments to clear any existing pruning). Options:
+\code{"none"}, which runs no auto rule. Combine it with \code{manual} for pure
+manual pruning, or call \code{prune(x)} with no arguments to clear any existing
+pruning. Options:
 \itemize{
-\item \code{"redundant"} -- identify chains of factors connected by score
+\item \code{"redundant"}: identify chains of factors connected by factor-score
 correlations \verb{|r| >= redundancy_r} (and optionally \code{phi > redundancy_phi}),
 using \code{redundancy_criterion} (default \code{"direct"}, faithful to Forbes).
+A factor score is each person's estimated standing on a factor.
 Applies Forbes's (2023) retention rule: keep the bottom node when the
-chain reaches level \code{k_max} (most specific); keep the top node otherwise.
+chain reaches level \code{k_max} (most specific), and keep the top node
+otherwise.
 Flagged nodes get \code{pruned = TRUE} and \code{prune_reason = "redundant"} in
 \code{x$prune$nodes}.
-\item \code{"artifact"} (or the alias \code{"artefact"}, normalized to \code{"artifact"}) --
+\item \code{"artifact"} (or the alias \code{"artefact"}, normalized to \code{"artifact"}):
 compute Tucker's congruence coefficient (phi) for all cross-level factor
-pairs and store in \code{x$prune$phi}, structural signals
-(\code{few_items}/\code{orphan}/\code{split_merge}) in \code{x$prune$structural}, and the
-\strong{near-redundant band} (\code{near_margin}, see Details) in
-\code{x$prune$near_redundant}. No factors are auto-flagged; artifact
-identification requires judgment (Forbes, 2023; Wicherts et al., 2016).
+pairs and store it in \code{x$prune$phi}. Congruence is a 0 to 1 index of how
+similar two loading patterns are, where a loading is the correlation
+between an item and a factor. This mode also stores structural signals
+(\code{few_items}, \code{orphan}, and \code{split_merge}) in \code{x$prune$structural}, and
+the \strong{near-redundant band} (\code{near_margin}, see Details) in
+\code{x$prune$near_redundant}. No factors are auto-flagged, because artifact
+identification requires judgment (Forbes, 2023, Wicherts et al., 2016).
 }}
 
 \item{manual}{Character vector of factor labels (e.g. \code{c("m4f3", "m4f4")})
 to flag directly, in addition to or instead of an auto rule. Standalone
 manual pruning is supported: \code{prune(x, manual = c("m4f3"))}. Unknown
 labels error. A node already flagged by an auto rule keeps that
-\code{prune_reason}; only otherwise-unflagged manual nodes get
+\code{prune_reason}, and only otherwise-unflagged manual nodes get
 \code{prune_reason = "manual"}.}
 
 \item{redundancy_r}{Scalar in \verb{(0, 1]}. Score-correlation \verb{|r|} threshold for
@@ -58,48 +63,53 @@ redundancy chains. Default \code{0.9} (Forbes, 2023).}
 \item{redundancy_phi}{Scalar in \verb{(0, 1]}, \code{NULL} (default, auto), or \code{NA}
 (explicit opt-out). When \code{NULL}:
 \itemize{
-\item \code{x$engine == "pca"} -- no phi filter. Component scores are
-\emph{determinate} (exact linear functions of the data, with no
-factor-score indeterminacy), so the score correlation \verb{|r|} is the
-true correlation between the components themselves; phi adds nothing
-that \verb{|r|} does not already capture.
-\item \code{x$engine} is \code{"efa"} or \code{"esem"} -- automatically set to \code{0.95}
-(Lorenzo-Seva & ten Berge, 2006). Factor-score indeterminacy off-PCA
-means \verb{|r|}-alone is liberal; the conjunctive phi criterion is the
-conservative default. A cli message announces the resolved value.
+\item \code{x$engine == "pca"}: no phi filter. PCA is principal component
+analysis, and a component is a weighted sum of the items. Component
+scores are \emph{determinate}, that is, exact linear functions of the data,
+with no factor-score indeterminacy. So the score correlation \verb{|r|} is
+the true correlation between the components themselves, and phi adds
+nothing that \verb{|r|} does not already capture.
+\item \code{x$engine} is \code{"efa"} or \code{"esem"}: automatically set to \code{0.95}
+(Lorenzo-Seva & ten Berge, 2006). EFA is exploratory factor analysis
+and ESEM is exploratory structural equation modeling. Factor-score
+indeterminacy off-PCA means \verb{|r|} alone is liberal, so the conjunctive
+phi criterion is the conservative default. A cli message announces the
+resolved value.
 Pass \code{NA} to disable phi filtering regardless of engine. Pass a numeric
 value to override on any engine.
 }}
 
 \item{redundancy_criterion}{How redundancy chains are traced. One of:
 \itemize{
-\item \code{"direct"} (default) -- chase upward via the \strong{direct (skip-level)}
+\item \code{"direct"} (default): chase upward via the \strong{direct (skip-level)}
 correlation between a factor and each ancestor level, continuing while
 \verb{|r| >= redundancy_r} contiguously. This is Forbes's (2023) published
-\code{ChaseCorrPaths} rule and the honest operationalization of "the same
-construct" (two factor scores share \verb{>= redundancy_r^2} variance
-\emph{directly}). It reproduces her AMH applied example exactly.
-\item \code{"adjacent"} -- trace \strong{adjacent primary-parent} links only (each
-consecutive level \verb{|r| >= redundancy_r}). This was the pre-M53 default;
-because correlation is non-transitive it can both over- and under-flag
-versus \code{"direct"} in deep (many-level) hierarchies, so it is retained only
-as an opt-in. On shallow/transitive hierarchies the two agree.
+\code{ChaseCorrPaths} rule and the honest way to operationalize "the same
+construct", because two factor scores share \verb{>= redundancy_r^2} variance
+\emph{directly}. It reproduces her AMH applied example exactly.
+\item \code{"adjacent"}: trace \strong{adjacent primary-parent} links only, so each
+consecutive level must meet \verb{|r| >= redundancy_r}. This was the pre-M53
+default. Because correlation is non-transitive it can both over- and
+under-flag versus \code{"direct"} in deep (many-level) hierarchies, so it is
+retained only as an opt-in. On shallow or transitive hierarchies the two
+agree.
 }}
 
 \item{min_items}{Minimum number of items for which a factor must be the
 primary loader (highest \verb{|loading|}). Factors with fewer than \code{min_items}
 primary items are flagged \code{few_items = TRUE} in \code{x$prune$structural}. Only
-used when \code{rules} includes \code{"artifact"}. Default \code{3L} -- a factor defined
-by one or two items is under-identified and frequently an extraction
-artifact rather than a replicable construct (the classic "three-indicator
-rule"; Forbes, 2023, Fig. 2).}
+used when \code{rules} includes \code{"artifact"}. Default \code{3L}, because a factor
+defined by one or two items is under-identified and frequently an
+extraction artifact rather than a replicable construct (the classic
+"three-indicator rule", Forbes, 2023, Fig. 2).}
 
 \item{orphan_r}{Threshold for the \code{orphan} structural signal. A factor whose
 maximum \strong{adjacent-level} \verb{|r|} (to the immediately shallower and deeper
 levels) falls below \code{orphan_r} is flagged \code{orphan = TRUE} in
-\code{x$prune$structural} -- it does not connect to the neighbouring solutions
-and so does not replicate across the hierarchy. Only used when \code{rules}
-includes \code{"artifact"}. Default \code{0.5} -- a moderate correlation; a factor
+\code{x$prune$structural}. Such a factor does not connect to the neighbouring
+solutions and so does not replicate across the hierarchy. Only used when
+\code{rules} includes \code{"artifact"}. Default \code{0.5}, a moderate correlation,
+because a factor
 that shares less than a quarter of its variance with every neighbour is a
 structural outlier worth inspecting.}
 
@@ -107,25 +117,30 @@ structural outlier worth inspecting.}
 reported by \code{"artifact"} mode (see Details). A cross-level pair is flagged
 near-redundant when its direct \verb{|r|} sits in
 \verb{[redundancy_r - near_margin, redundancy_r)} \strong{or} its Tucker \code{phi} sits in
-\verb{[redundancy_phi - near_margin, redundancy_phi)} -- i.e. within \code{near_margin}
-\emph{below} a redundancy threshold -- while the pair is not itself fully
-redundant. Only used when \code{rules} includes \code{"artifact"}. Default \code{0.1}.}
+\verb{[redundancy_phi - near_margin, redundancy_phi)}. That is, it sits within
+\code{near_margin} \emph{below} a redundancy threshold, while the pair is not itself
+fully redundant. Only used when \code{rules} includes \code{"artifact"}. Default
+\code{0.1}.}
 }
 \value{
 \code{x}, with \verb{$prune} populated (replacing any prior pruning).
 }
 \description{
-\code{prune()} never removes anything from an \code{ackwards} object -- it only
-annotates factors with \code{pruned}/\code{prune_reason} flags in \code{x$prune$nodes}
-(flag-only, never removes; the object keeps every level). Because it is a
+\code{prune()} never removes anything from an \code{ackwards} object. It only
+annotates factors with \code{pruned} and \code{prune_reason} flags in \code{x$prune$nodes}.
+A factor is a summary variable standing in for a group of items that move
+together. A redundant factor is one that persists across levels without
+changing. Pruning is flag-only and never removes, so the object keeps every
+level. Because it is a
 separate, cheap step from extraction, you can re-prune with new thresholds
-without re-running \code{\link[=ackwards]{ackwards()}}:
+without re-running \code{\link[=ackwards]{ackwards()}}.
 \preformatted{
   x <- ackwards(bfi25, k_max = 6, engine = "esem")  # expensive
   x |> prune("redundant")                            # cheap, repeatable
   x |> prune("redundant", redundancy_r = 0.95)        # no re-extraction
 }
-\code{prune()} is an S3 generic (rather than a plain function) so it coexists
+The function \code{prune()} is an S3 generic (rather than a plain function) so
+it coexists
 with the \code{prune} generics already defined by recursive-partitioning
 packages (e.g. \code{rpart::prune}) regardless of package load order.
 }
@@ -134,41 +149,48 @@ packages (e.g. \code{rpart::prune}) regardless of package load order.
 Take a three-level chain candidate with deepest leaf \code{m3f1} and shallower
 factors \code{m2f1} (level 2) and \code{m1f1} (level 1). Under the default \code{"direct"}
 criterion the chain \code{m1f1 -> m2f1 -> m3f1} forms when \strong{both} direct-to-leaf
-correlations \verb{|r(m1f1, m3f1)|} and \verb{|r(m2f1, m3f1)|} meet \code{redundancy_r} --
-every member is judged by its own direct correlation to the \emph{same} deepest
-factor (a star centred on the leaf). It does \strong{not} require the adjacent hop
-\verb{|r(m1f1, m2f1)|} to meet the threshold (that is the \code{"adjacent"} criterion),
-and it does \strong{not} screen every ancestor pair against every other (there is
-no all-pairs test). So an ancestor can join on a strong direct link to the
-leaf even where its adjacent hop to the next chain member is weak -- which is
+correlations \verb{|r(m1f1, m3f1)|} and \verb{|r(m2f1, m3f1)|} meet \code{redundancy_r}.
+Every member is judged by its own direct correlation to the \emph{same} deepest
+factor, a star centred on the leaf. It does \strong{not} require the adjacent hop
+\verb{|r(m1f1, m2f1)|} to meet the threshold (that is the \code{"adjacent"}
+criterion). It also does \strong{not} screen every ancestor pair against every
+other, so there is no all-pairs test. An ancestor can join on a strong
+direct link to the
+leaf even where its adjacent hop to the next chain member is weak. That is
 exactly why \code{r_to_prev} (below) can sit under \code{redundancy_r}.
 
 \strong{Reading \code{x$prune$chains} under \code{redundancy_criterion = "direct"}.} The
 \code{r_to_prev} and \code{phi_to_prev} columns report the \strong{adjacent-level}
-correlation and congruence between consecutive chain members (for continuity
-of display), but chain \emph{membership} is decided by the \strong{direct (skip-level)}
+correlation and congruence between consecutive chain members, for continuity
+of display. But chain \emph{membership} is decided by the \strong{direct (skip-level)}
 correlation to the chain's deepest factor. A direct chain can therefore
-legitimately contain a link whose \code{r_to_prev} is \emph{below} \code{redundancy_r} -- the
-stronger direct link is what justified it. The \code{endpoint_r} column gives the
+legitimately contain a link whose \code{r_to_prev} is \emph{below} \code{redundancy_r},
+because the stronger direct link is what justified it. The \code{endpoint_r}
+column gives the
 direct root-to-leaf correlation as an at-a-glance cross-check. Under
 \code{redundancy_criterion = "adjacent"}, \code{r_to_prev} \emph{is} the criterion and always
 meets \code{redundancy_r}.
 
 \strong{The near-redundant band (\code{"artifact"} mode).} \code{prune("redundant")} drops
-\emph{full} redundancy -- pairs at or above the thresholds. Forbes (2023) uses the
-artifact flags mainly for the messier band \emph{just below} them: a pair that
-correlates, say, \verb{|r| = 0.89} and shares a loading pattern \code{phi = 0.93} is not
-quite redundant but is a candidate re-rotation worth a second look. Artifact
-mode surfaces this as \code{x$prune$near_redundant} -- a data frame of every
-cross-level pair that is \strong{not} itself fully redundant yet has its direct
-(skip-level) \verb{|r|} \strong{or} its Tucker \code{phi} within \code{near_margin} \emph{below} the
-corresponding threshold (\code{redundancy_r} / \code{redundancy_phi}). Columns:
-\code{from}, \code{to}, \code{level_from}, \code{level_to}, \code{r} (direct score correlation), \code{phi}
-(loading congruence), and the logical band flags \code{near_r} / \code{near_phi}. Under
+\emph{full} redundancy, meaning pairs at or above the thresholds. Forbes (2023)
+uses the artifact flags mainly for the messier band \emph{just below} them. Say a
+pair correlates at \verb{|r| = 0.89} and shares a loading pattern at
+\code{phi = 0.93}. It is not quite redundant, but it may be the same factor
+re-rotated (re-oriented without changing fit), so it is worth a second
+look. Artifact
+mode surfaces this as \code{x$prune$near_redundant}. That data frame holds every
+cross-level pair that is \strong{not} itself fully redundant. Such a pair has its
+direct (skip-level) \verb{|r|} \strong{or} its Tucker \code{phi} within \code{near_margin}
+\emph{below} the corresponding threshold (\code{redundancy_r} or \code{redundancy_phi}).
+Its columns
+are \code{from}, \code{to}, \code{level_from}, \code{level_to}, \code{r} (direct score correlation),
+\code{phi} (loading congruence), and the logical band flags \code{near_r} and
+\code{near_phi}. Under
 the PCA engine \code{redundancy_phi} is \code{NULL} (component scores are determinate),
-so only the \verb{|r|} band applies; under EFA/ESEM \code{redundancy_phi} auto-resolves
+so only the \verb{|r|} band applies. Under EFA and ESEM \code{redundancy_phi}
+auto-resolves
 to \code{0.95} (announced via cli) and the \code{phi} band is active too. Like phi and
-the structural signals, the band is \strong{report-only} -- it never drops or
+the structural signals, the band is \strong{report-only}. It never drops or
 mutates the kept node set.
 }
 \examples{

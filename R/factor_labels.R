@@ -20,24 +20,27 @@
 
 #' Attach persistent factor labels to an ackwards object
 #'
-#' Store substantive names for factors (e.g. `"Neuroticism"` for `"m5f1"`) on
-#' the object itself, so that [print()][print.ackwards], [summary()][summary.ackwards],
+#' A factor is a summary variable standing in for a group of items that move
+#' together. Store substantive names for factors (e.g. `"Neuroticism"` for
+#' `"m5f1"`) on the object itself, so that [print()][print.ackwards],
+#' [summary()][summary.ackwards],
 #' [tidy()][tidy.ackwards], [autoplot()][autoplot.ackwards], and
 #' [top_items()] display them without re-supplying the labels each time. This is
-#' the *factor*-label counterpart to item / variable labels (see
-#' [top_items()] and `?ackwards`); the two are distinct and never interchanged.
+#' the *factor*-label counterpart to item or variable labels (see
+#' [top_items()] and `?ackwards`). The two are distinct and never interchanged.
 #'
-#' Labels are display only -- they never change a factor's stable ID
-#' (`m{k}f{j}`), and every lineage / edge / score column continues to key on the
-#' ID. A factor with no label falls back to its ID everywhere. The stored labels
+#' Labels are display only. They never change a factor's stable ID
+#' (`m{k}f{j}`), and every lineage, edge, and score column continues to key on
+#' the ID. A factor with no label falls back to its ID everywhere. The stored
+#' labels
 #' ride along through [prune()], [boot_edges()], [augment()][augment.ackwards],
 #' and [predict()][predict.ackwards] unchanged.
 #'
 #' @section Updating and clearing:
 #' `set_factor_labels()` **merges** into any labels already stored, so you can
 #' build them up incrementally. Within a single call:
-#' * a normal string sets (or overwrites) that factor's label;
-#' * an `NA` or `""` value **removes** just that factor's label;
+#' * a normal string sets (or overwrites) that factor's label,
+#' * an `NA` or `""` value **removes** just that factor's label,
 #' * passing `labels = NULL` clears **all** labels at once.
 #'
 #' The scaffold printed by [label_template()] is a convenient starting point:
@@ -46,8 +49,9 @@
 #' @param x An `ackwards` object.
 #' @param labels A named character vector mapping factor IDs (`"m{k}f{j}"`) to
 #'   label strings, or `NULL` to clear all stored labels. Every name must match
-#'   a factor ID in `x` (an unknown ID is an error, not a warning -- the object's
-#'   IDs are knowable up front; see [factor_labels()] to read the current set).
+#'   a factor ID in `x`. An unknown ID is an error, not a warning, because the
+#'   object's IDs are knowable up front. See [factor_labels()] to read the
+#'   current set.
 #'
 #' @return The `ackwards` object, with `meta$factor_labels` updated. Pipeable.
 #'
@@ -114,6 +118,10 @@ set_factor_labels <- function(x, labels) {
 }
 
 #' Read the factor labels stored on an ackwards object
+#'
+#' A factor is a summary variable standing in for a group of items that move
+#' together. This function returns the labels that [set_factor_labels()]
+#' stored on the object.
 #'
 #' @param x An `ackwards` object.
 #'

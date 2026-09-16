@@ -10,7 +10,7 @@
 \item{object}{An \code{ackwards} object.}
 
 \item{newdata}{A data frame or numeric matrix with the same variables
-(columns) used to fit \code{object}. Required — to retrieve scores stored at
+(columns) used to fit \code{object}. Required. To retrieve scores stored at
 fit time, use \code{augment(object)} instead.}
 
 \item{scaling}{Which item means/SDs standardize \code{newdata}: \code{"fit"}
@@ -24,10 +24,12 @@ A data frame of factor scores (columns \verb{.m\{k\}f\{j\}}, one per factor
 per level), with one row per row of \code{newdata} in the original order.
 }
 \description{
-Applies a fitted bass-ackwards model to new data — for example the held-out
-test split of a cross-validation design — producing factor scores for every
-level \strong{without retraining}. This is the idiomatic \code{predict()} front door
-to the same machinery as \code{\link[=augment.ackwards]{augment.ackwards()}}: the call
+Applies a fitted bass-ackwards model to new data, for example the held-out
+test split of a cross-validation design. A factor is a summary variable
+standing in for a group of items that move together, and a factor score is
+each person's estimated standing on one. This function gives factor scores
+at every level \strong{without retraining}. It is the idiomatic \code{predict()}
+front door to the same machinery as \code{\link[=augment.ackwards]{augment.ackwards()}}. The call
 \code{predict(object, newdata)} returns exactly
 \code{augment(object, data = newdata, append = FALSE)}, a data frame holding
 only the \verb{.m\{k\}f\{j\}} score columns, one row per row of \code{newdata}.
@@ -35,17 +37,17 @@ only the \verb{.m\{k\}f\{j\}} score columns, one row per row of \code{newdata}.
 \details{
 Under the default \code{scaling = "fit"}, \code{newdata} is standardized by the
 \strong{fit-time} item means/SDs stored in the object before the stored weight
-matrices are applied, so the new scores land on the same metric as the
-training solution: an observation's score does not depend on which other
+matrices are applied. The new scores then land on the same metric as the
+training solution. An observation's score does not depend on which other
 observations share its split, and train and test scores are directly
 comparable. See \code{\link[=augment.ackwards]{augment.ackwards()}} (section \emph{Scoring new observations})
 for the full semantics, the \code{scaling = "sample"} alternative, and the
 non-Pearson-basis caveat.
 
-\code{newdata} must contain the variables the model was fit on (matched by
-column name, with extra columns ignored; a bare unnamed matrix is matched
-positionally). Rows with missing items produce \code{NA} scores (scoring does
-not impute).
+\code{newdata} must contain the variables the model was fit on. They are matched
+by column name, and extra columns are ignored. A bare unnamed matrix is
+matched positionally. Rows with missing items produce \code{NA} scores (scoring
+does not impute).
 }
 \examples{
 # Cross-validation: fit on a training split, score the test split

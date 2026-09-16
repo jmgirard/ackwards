@@ -1,0 +1,33 @@
+# Phrases the prose checker (tools/check-prose.R) reports, one per line,
+# matched case-insensitively at word boundaries. Lines starting with # are
+# ignored.
+robust
+robustly
+robustness
+crucial
+crucially
+simply
+essentially
+importantly
+not just
+note that
+nuance
+nuanced
+nuances
+seamless
+seamlessly
+comprehensive
+comprehensively
+leverage
+leverages
+leveraged
+leveraging
+delve
+delves
+delved
+delving
+worth noting
+noting that
+in order to
+it is worth noting
+in conclusion

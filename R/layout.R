@@ -4,23 +4,27 @@
 #' bass-ackwards diagram. The layout is a layered (Sugiyama-style) barycenter
 #' algorithm in two stages:
 #'
-#' 1. **Ordering** -- determines the left-to-right *order* of factors at each
-#'    level. Two candidate orderings are scored and the crossing-minimising one
-#'    kept: a single top-down |r|-weighted barycenter sweep (the historical
-#'    order), and a **primary-forest traversal** -- each factor has exactly one
-#'    primary parent, so the primary edges form a forest, and a depth-first,
-#'    subtree-contiguous leaf order lays every subtree out as an unbroken run.
-#'    In deep hierarchies (`k >= 10`) the traversal drives primary-tree crossings
-#'    to zero (the "bent levels" a single pass leaves behind); keep-best scoring
-#'    (lexicographic: primary crossings, then all crossings) means shallow
-#'    layouts are never made worse.
+#' 1. **Ordering** determines the left-to-right *order* of factors at each
+#'    level. A factor is a summary variable standing in for a group of items
+#'    that move together. Two candidate orderings are scored and the better one
+#'    is kept. The first is a single top-down |r|-weighted
+#'    barycenter sweep (the historical order). The second is a
+#'    **primary-forest traversal**. Each factor has exactly one primary parent,
+#'    so the primary edges form a forest. A depth-first, subtree-contiguous
+#'    leaf order then lays every subtree out as an unbroken run.
+#'    In deep hierarchies (`k >= 10`) the traversal drives primary-tree
+#'    crossings to zero, removing the "bent levels" a single pass leaves
+#'    behind. The better ordering is the one with fewer primary crossings, and
+#'    on a tie the one with fewer crossings overall, so shallow layouts are
+#'    never made worse.
 #'
-#' 2. **X-assignment** -- assigns actual x coordinates bottom-up. The deepest
-#'    level is spread evenly; every upper-level factor is placed at the simple
-#'    mean x of its **primary** children: a factor with one primary child lands
-#'    directly above it; a factor with two primary children lands exactly halfway
-#'    between them. Falls back to |r|-weighted mean of all children for factors
-#'    with no primary children. Spreading resolves any remaining overlaps.
+#' 2. **X-assignment** assigns actual x coordinates bottom-up. The deepest
+#'    level is spread evenly. Every upper-level factor is placed at the simple
+#'    mean x of its **primary** children. A factor with one primary child lands
+#'    directly above it. A factor with two primary children lands exactly
+#'    halfway between them. Falls back to the |r|-weighted mean of all children
+#'    for factors with no primary children. Spreading resolves any remaining
+#'    overlaps.
 #'
 #' After both stages the layout is shifted so that the single level-1 node is
 #' always at x = 0. The result is fully deterministic.
@@ -29,10 +33,11 @@
 #' @param min_sep Minimum horizontal separation between adjacent nodes at the
 #'   same level. Default `1.0`. Increase for wider diagrams.
 #' @param order Optional manual left-to-right ordering of the **deepest**
-#'   (`k_max`) level, overriding Stage 1. Supply either a character vector of the
-#'   deepest level's factor IDs in the desired order, or a named list with an
-#'   entry for the deepest level (keyed by the level number as a string, e.g.
-#'   `list("5" = c("m5f2", "m5f1", ...))`). Fixing the leaf order propagates
+#'   (`k_max`) level, overriding Stage 1. Supply a character vector of the
+#'   deepest level's factor IDs in the desired order. You may instead supply a
+#'   named list with an entry for the deepest level, keyed by the level number
+#'   as a string, e.g. `list("5" = c("m5f2", "m5f1", ...))`.
+#'   Fixing the leaf order propagates
 #'   upward: every upper factor stays at the mean-x of its primary children, so
 #'   any arrangement of the primary forest is reachable from the leaf order.
 #'   Entries for non-deepest levels are ignored with a warning (an upper factor's
