@@ -45,6 +45,7 @@ planned in its milestone, never here.
 | **O10** | invariant | `comparability()` pooled-R algebra vs correlating actual scores | `test-comparability.R:92, 109` | none — internal cross-route agreement | two ackwards routes |
 | **O11** | closed-form | `boot_edges()` fixed-weights CI = Fisher-z analytic; full-pipeline SE ≥ fixed-weights | `test-boot_edges.R:141` | Fisher-z transform (closed form) | recomputed in-test |
 | **O12** | closed-form | `suggest_k()` definitional identities (VSS optima = `which.max`; PA-PC = parallel boundary) | `test-suggest_k.R:117, 138` | definitional | recomputed in-test |
+| **O13** | frozen | Default-output baseline: loadings, weights, variance, factor_cor, every edge matrix for five default fits (pca/efa/esem on sim16 k=4; pca/efa polychoric on bfi25 k=3), 1e-12 | `test-baseline-m89.R` | ackwards itself on master before the factor-cor carry (commit `ee71316`, code tree equal to `a645e32`) | `data-raw/baseline-m89.R` → `fixtures/baseline-m89.rds`; ESEM fit seeded (`seed = 1`) because lavaan's rotation draws random starts |
 
 ## Policy notes
 
