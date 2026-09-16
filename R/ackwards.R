@@ -958,6 +958,16 @@ ackwards <- function(
           levels_list[[as.character(ki)]]$scoring$weights,
           aligned$signs[[ki]]
         )
+      # Flip the within-level factor correlation by the same signs: negating
+      # factor j negates its row and column of Phi. Column order is already
+      # the stored order, so the carry order is the identity. A no-op while
+      # Phi is the identity (varimax), load-bearing under oblique rotation.
+      levels_list[[as.character(ki)]]$factor_cor <-
+        .carry_factor_cor(
+          levels_list[[as.character(ki)]]$factor_cor,
+          seq_len(ki),
+          aligned$signs[[ki]]
+        )
     }
   }
 
