@@ -71,7 +71,7 @@ appended to `tools/prose-terms.txt` with a work-log line.
 - [x] T2: Rewrite `ackwards-forbes.Rmd.orig` (94 sentences, 43 em dashes); check.
 - [x] T3: Rewrite `ackwards-forbes2023.Rmd.orig` (43 sentences, 15 em dashes); check.
 - [x] T4: Rewrite `ackwards-ordinal.Rmd.orig` (65 sentences, 20 em dashes); check.
-- [ ] T5: Rewrite the live `ackwards-interpret.Rmd` (66 sentences, 27 em dashes); it is not
+- [x] T5: Rewrite the live `ackwards-interpret.Rmd` (66 sentences, 27 em dashes); it is not
       precomputed, so knit it once locally to confirm it still renders; check.
 - [ ] T6: Run `check_code_unchanged()` against the merge base; re-read the AC4 sites against
       `git show master:<file>`; fix drift.
@@ -88,6 +88,7 @@ appended to `tools/prose-terms.txt` with a work-log line.
 - 2026-09-16: T2 forbes rewritten; checker 0 reports, code guard OK. Glossed: factor, factor score, redundant, artifactual, loading, congruence, rotation, PCA/component, EFA, ESEM, split-half. `polychoric` appears only inside chunks. The em dash before the conditional `r if (top_clean)` span became a space (the span's own text supplies the connective). The direct-criterion paragraph and its "the rule Forbes's own code uses" claim kept (AC4).
 - 2026-09-16: T3 forbes2023 rewritten; checker 0 reports, code guard OK. Glossed: factor, redundant, PCA/component, loading. The `k_max = 10` / `n_obs = 3175` fit, the `redundancy_criterion = "direct"` default, and the "reproduces Forbes's published chase exactly, all 54 components" statement kept (AC4).
 - 2026-09-16: T4 ordinal rewritten; checker 0 reports, code guard OK. Glossed: ordinal, loading, factor, parallel analysis, polychoric, rotation, ESEM, factor score, EFA. The "Automatic detection" section (Pearson default, warning, `cor = "polychoric"` opt-in) kept (AC4). Recommendation-table cells changed `—` to parentheses. Blockquote `>` markers count as words in the checker, so the score-computation note was split finer.
+- 2026-09-16: T5 interpret rewritten; checker 0 reports; knitted once to the scratchpad with `rmarkdown::render()` (renders). `check_code_unchanged()` reads only `*.Rmd.orig`, so the live file's 79 chunk lines and spans were compared to `master:` with `.code_lines_rmd()` directly: identical. Glossed: factor, loading. The `E4: Make friends easily` label quote kept verbatim (AC4). A sentence that opens with a code span never splits in the checker (the span becomes a space, so no capital follows the period): three such sentences were re-opened with a word.
 
 ## Decisions
 

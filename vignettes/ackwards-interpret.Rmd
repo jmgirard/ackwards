@@ -24,40 +24,42 @@ x <- ackwards(bfi25, k_max = 5, cor = "polychoric", missing = "listwise")
 ```
 
 Fitting an `ackwards` model gives you a hierarchy of factors with stable but
-opaque IDs — `m1f1`, `m2f1`, `m2f2`, and so on. Turning those IDs into something
-you can reason about is *interpretive* work: you read each factor's loadings,
-decide what construct it represents, and give it a name. This is the part of the
-analysis that requires judgment, and it is harder in a bass-ackwards hierarchy
+opaque IDs: `m1f1`, `m2f1`, `m2f2`, and so on. A factor is an unobserved
+dimension that explains why a set of items correlate. Turning those IDs into
+something you can reason about is *interpretive* work. You read each factor's
+loadings (a loading is the correlation between an item and a factor), decide
+what construct it represents, and give it a name. This is the part of the
+analysis that requires judgment. It is harder in a bass-ackwards hierarchy
 than in a single flat factor solution, because the same construct can appear,
 split, and merge across levels.
 
 This article covers the full workflow:
 
 1. **Read** each factor with `top_items()`.
-2. **Understand** the sign convention so you don't misread a factor.
+2. **Understand** the sign convention so you do not misread a factor.
 3. **Name** factors in a way that respects the hierarchy.
-4. **Apply** your names — to a single diagram with `label_template()` and
-   `autoplot(node_labels = ...)`, or persistently to the whole object with
+4. **Apply** your names, either to a single diagram with `label_template()`
+   and `autoplot(node_labels = ...)`, or persistently to the whole object with
    `set_factor_labels()`.
 
 ## Reading a factor with `top_items()`
 
 A factor is defined by the items that load strongly on it. `top_items()` lists,
-for each factor, the items whose absolute loading meets a threshold, sorted from
-strongest to weakest. This is far easier to read than a full item-by-factor
-matrix, especially at deeper levels.
+for each factor, the items whose absolute loading meets a threshold, sorted
+from strongest to weakest. This is far easier to read than a full
+item-by-factor matrix, especially at deeper levels.
 
 ```{r top-items-5}
 top_items(x, level = 5, cut = 0.5)
 ```
 
 The `cut` threshold controls how inclusive the listing is. Here we raise it to
-`0.5` to keep each factor to its defining items; the default is `0.3`. Raise it
-further to isolate only the strongest markers, or lower it to surface weaker
-cross-loadings (see below). When a factor has many salient items, `n` caps the
-list at the strongest few, and `sort = FALSE` keeps items in their original order
-instead of sorting by `|loading|` — useful when your items follow a meaningful
-sequence.
+`0.5` to keep each factor to its defining items. The default is `0.3`. Raise
+it further to isolate only the strongest markers, or lower it to surface
+weaker cross-loadings (see below). When a factor has many salient items, `n`
+caps the list at the strongest few. Setting `sort = FALSE` keeps items in
+their original order instead of sorting by `|loading|`, which is useful when
+your items follow a meaningful sequence.
 
 ```{r top-items-n}
 top_items(x, level = 5, cut = 0.3, n = 4)
@@ -65,34 +67,34 @@ top_items(x, level = 5, cut = 0.3, n = 4)
 
 ### Cross-loadings are signal
 
-Items that load on more than one factor are not noise to be suppressed — they
+Items that load on more than one factor are not noise to be suppressed. They
 often tell you how two factors relate. The `by = "item"` mode inverts the
 grouping: instead of listing the items under each factor, it lists, for each
-item, the factors it loads on. Lowering the cut then makes cross-loadings easy to
-read item by item:
+item, the factors it loads on. Lowering the cut then makes cross-loadings easy
+to read item by item:
 
 ```{r top-items-cross}
 top_items(x, level = 3, cut = 0.25, by = "item")
 ```
 
-An item that appears under two factors at the same level marks a point where the
-constructs overlap. Whether that overlap is substantively meaningful or a sign of
-overextraction is a judgment call — see `vignette("ackwards-suggest-k")` for the
-overextraction discussion.
+An item that appears under two factors at the same level marks a point where
+the constructs overlap. Whether that overlap is substantively meaningful or a
+sign of overextraction is a judgment call. See `vignette("ackwards-suggest-k")`
+for the overextraction discussion.
 
 ### Showing item wording instead of codes
 
 Item codes like `A1` or `N3` are compact but opaque. The wording you have been
-seeing above — `E4: Make friends easily` — comes for free: `bfi25` ships each
-item's IPIP stem as a **variable label** (a `"label"` column attribute),
-`ackwards()` captures those labels at fit time, and `top_items()` prints them as
-`code: label`.
+seeing above, `E4: Make friends easily`, comes for free. The `bfi25` dataset
+ships each item's IPIP stem as a **variable label** (a `"label"` column
+attribute). The `ackwards()` call captures those labels at fit time, and
+`top_items()` prints them as `code: label`.
 
 Your own data often carries the same attribute (packages like **labelled** and
 **haven** set it, and survey exports frequently include it). If it does *not*,
-attach the wording yourself — with `labelled::var_label()` or base `attr()` — on
-the data you actually fit (base row-subsetting such as `na.omit()` drops plain
-attributes, which is why we fit the raw `bfi25` above):
+attach the wording yourself, with `labelled::var_label()` or base `attr()`, on
+the data you actually fit. Base row-subsetting such as `na.omit()` drops plain
+attributes, which is why we fit the raw `bfi25` above:
 
 ```{r own-labels, eval = FALSE}
 # tidyverse idiom:
@@ -102,28 +104,28 @@ labelled::var_label(my_data$item1) <- "Full wording of item 1"
 attr(my_data$item1, "label") <- "Full wording of item 1"
 ```
 
-Labelled items show their wording; unlabelled ones fall back to the bare code, so
-a partially labelled data set still prints cleanly. Pass `show_labels = FALSE` to
-force the bare codes even when labels are present.
+Labelled items show their wording, and unlabelled ones fall back to the bare
+code, so a partially labelled data set still prints cleanly. Pass
+`show_labels = FALSE` to force the bare codes even when labels are present.
 
 These *variable* labels (item wording) are distinct from the *factor* labels
-(the names you give `m1f1`, `m2f1`, … below): one describes your measured items,
-the other names the latent factors the hierarchy discovers. Keep the two ideas —
-and the word "label" — separate.
+(the names you give `m1f1`, `m2f1`, and so on below). One describes your
+measured items, the other names the latent factors the hierarchy discovers.
+Keep the two ideas, and the word "label", separate.
 
 ## The sign convention: negative does not mean "low"
 
-Before naming anything, understand how `ackwards` orients factors. Loadings are
-**sign-aligned to the primary parent** (see `?ackwards`): the level-1 factor is
-anchored so its loadings sum positive, and every deeper factor is flipped so its
-correlation with its primary parent is positive. This makes the diagram readable,
-but it has a consequence for interpretation.
+Before naming anything, understand how `ackwards` orients factors. Loadings
+are **sign-aligned to the primary parent** (see `?ackwards`). The level-1
+factor is anchored so its loadings sum positive, and every deeper factor is
+flipped so its correlation with its primary parent is positive. This makes
+the diagram readable, but it has a consequence for interpretation.
 
-A factor's *sign* is arbitrary in the sense that flipping every loading and the
-factor's orientation describes the same dimension. So a column of negative
-loadings does **not** mean "low" on that construct — it means the construct's
-positive pole was oriented the other way by the alignment step. Read the
-*pattern* of items, not the bare sign:
+A factor's *sign* is arbitrary in the sense that flipping every loading and
+the factor's orientation describes the same dimension. So a column of
+negative loadings does **not** mean "low" on that construct. It means the
+construct's positive pole was oriented the other way by the alignment step.
+Read the *pattern* of items, not the bare sign:
 
 ```{r sign-example}
 top_items(x, level = 2)
@@ -132,15 +134,15 @@ top_items(x, level = 2)
 If a Neuroticism factor shows up with negative loadings on the anxiety items,
 that is an orientation artifact of the alignment, not a "low anxiety" factor.
 Name it for the construct (Neuroticism), and if the sign matters for your
-downstream use, flip the scores yourself. The values shown by `top_items()` and
-`tidy(what = "loadings")` are the aligned values, so they are consistent with the
-diagram and the edge table.
+downstream use, flip the scores yourself. The values shown by `top_items()`
+and `tidy(what = "loadings")` are the aligned values, so they are consistent
+with the diagram and the edge table.
 
 ## Naming in a hierarchy
 
-In a flat factor solution you name each factor once. In a bass-ackwards hierarchy
-you are naming factors at *every* level, and the levels are related — so the
-names should be related too. The lineage tells you how.
+In a flat factor solution you name each factor once. In a bass-ackwards
+hierarchy you are naming factors at *every* level, and the levels are related,
+so the names should be related too. The lineage tells you how.
 
 ```{r lineage}
 summary(x)
@@ -152,75 +154,77 @@ children. Use it to name **top-down**:
 - **Upper-level factors are broader.** A level-2 factor that is the primary
   parent of two level-3 factors is the construct they share. Name it for the
   blend, not for one child. In the `bfi25` data above, the level-1 factor is a
-  single broad dimension; at level 2 it separates into a Neuroticism factor
-  (`m2f2`, defined by the N items) and a broad factor blending the remaining four
-  trait families (`m2f1`). The Big Five themselves do not appear cleanly until
-  level 5 — so a substantive name for `m2f1` ("broad well-adjustment", say) is
-  necessarily coarser than the names you give its descendants.
+  single broad dimension. At level 2 it separates into a Neuroticism factor
+  (`m2f2`, defined by the N items) and a broad factor blending the remaining
+  four trait families (`m2f1`). The Big Five themselves do not appear cleanly
+  until level 5. So a substantive name for `m2f1` ("broad well-adjustment",
+  say) is necessarily coarser than the names you give its descendants.
 
 - **A split is a refinement, not a contradiction.** When a parent factor splits
   into two children, the children carve up the parent's content. Their names
   should read as specializations of the parent's name, so that reading down a
   branch tells a coherent story.
 
-- **Watch for factors that reorganize.** A child whose strongest parent is at the
-  *other* side of the level above (a crossing edge), or a factor whose primary
-  edge is weak (`|r|` well below the near-1.0 values of stable dimensions), is a
-  place where the structure is genuinely rearranging. The edge table makes these
-  visible:
+- **Watch for factors that reorganize.** A child whose strongest parent is at
+  the *other* side of the level above (a crossing edge) is a place where the
+  structure is genuinely rearranging. So is a factor whose primary edge is
+  weak (`|r|` well below the near-1.0 values of stable dimensions). The edge
+  table makes these visible:
 
 ```{r edges-weak}
 # Primary-parent edges, weakest last: the bottom rows are where structure shifts
 tidy(x, what = "edges", primary_only = TRUE, sort = "strength") |> tail()
 ```
 
-Edges with `|r|` near 1.0 are factors that pass through nearly unchanged — name
+Edges with `|r|` near 1.0 are factors that pass through nearly unchanged. Name
 the child the same as the parent. The smaller `|r|` values at the bottom flag
 where a new, distinct construct is emerging and deserves its own name.
 
 ### Borrowing names for the upper levels
 
 The hardest factors to name are usually the broad ones near the top, precisely
-because they blend several familiar constructs. Rather than inventing an ad-hoc
-label, it often helps to borrow a name from a theory that has already charted the
-level *above* your usual constructs. Two are especially handy for personality and
-psychopathology data:
+because they blend several familiar constructs. Rather than inventing an
+ad-hoc label, it often helps to borrow a name from a theory that has already
+charted the level *above* your usual constructs. Two are especially handy for
+personality and psychopathology data:
 
 - **Big Five metatraits.** Above the five factors sit two higher-order
-  dimensions — **Stability** (the shared variance of Agreeableness,
-  Conscientiousness, and low Neuroticism) and **Plasticity** (Extraversion and
-  Openness) — from DeYoung's work on the metatraits. In a `bfi25` hierarchy these
-  are frequently what a two- or three-factor level *is*, so "Stability" /
-  "Plasticity" are ready-made names for factors that would otherwise be an
-  awkward "broad well-adjustment".
+  dimensions from DeYoung's work on the metatraits. **Stability** is the
+  shared variance of Agreeableness, Conscientiousness, and low Neuroticism,
+  and **Plasticity** is the shared variance of Extraversion and Openness. In
+  a `bfi25` hierarchy these are frequently what a two- or three-factor level
+  *is*. So "Stability" and "Plasticity" are ready-made names for factors that
+  would otherwise be an awkward "broad well-adjustment".
 - **HiTOP spectra.** In clinical data, the Hierarchical Taxonomy of
-  Psychopathology names the broad bands directly — *internalizing*,
-  *externalizing (disinhibited and antagonistic)*, *thought disorder*, *detachment*,
-  and *somatoform* — with a general **p-factor** at the apex. A level whose items
-  span several disorders is usually one of these spectra, and naming it as such
-  keeps your hierarchy legible to readers who already think in HiTOP terms.
+  Psychopathology names the broad bands directly: *internalizing*,
+  *externalizing (disinhibited and antagonistic)*, *thought disorder*,
+  *detachment*, and *somatoform*, with a general **p-factor** at the apex. A
+  level whose items span several disorders is usually one of these spectra.
+  Naming it as such keeps your hierarchy legible to readers who already think
+  in HiTOP terms.
 
-The point is not to force your data onto either scheme, but to recognise that an
-upper-level factor is often a *known* superordinate construct — and that reusing
-its established name communicates far more than a bespoke one.
+The point is not to force your data onto either scheme. It is to recognise
+that an upper-level factor is often a *known* superordinate construct, and
+that reusing its established name communicates far more than a bespoke one.
 
 ## Applying your names
 
-Once you have decided on names, attach them to the diagram. `autoplot()` takes a
-`node_labels` argument: a named character vector mapping factor IDs to display
-strings.
+Once you have decided on names, attach them to the diagram. `autoplot()` takes
+a `node_labels` argument: a named character vector mapping factor IDs to
+display strings.
 
-Typing that vector out by hand is tedious and error-prone, so `label_template()`
-generates it for you, in the same order the diagram uses, and prints an editable
-`c(...)` literal you can paste straight into your script:
+Typing that vector out by hand is tedious and error-prone, so
+`label_template()` generates it for you, in the same order the diagram uses.
+It prints an editable `c(...)` literal you can paste straight into your
+script:
 
 ```{r label-template}
 label_template(x)
 ```
 
-Copy that literal, fill in your names, and pass it to `autoplot()`. Unspecified
-IDs keep their default `m{k}f{j}` label, so you can label just the level you care
-about:
+Copy that literal, fill in your names, and pass it to `autoplot()`.
+Unspecified IDs keep their default `m{k}f{j}` label, so you can label just the
+level you care about:
 
 ```{r node-labels}
 autoplot(x, node_labels = c(
@@ -235,9 +239,10 @@ autoplot(x, node_labels = c(
 ### Making the names stick with `set_factor_labels()`
 
 `node_labels` styles a single plot. When you want the same names to follow the
-object everywhere — in `print()`, `summary()`, `tidy()`, and `top_items()`, not
-just one diagram — attach them once with `set_factor_labels()`. It takes the same
-named vector `label_template()` scaffolds, and returns the object so it pipes:
+object everywhere (in `print()`, `summary()`, `tidy()`, and `top_items()`,
+not only one diagram), attach them once with `set_factor_labels()`. It takes
+the same named vector `label_template()` scaffolds, and it returns the object
+so it pipes:
 
 ```{r set-factor-labels}
 x <- set_factor_labels(x, c(
@@ -250,46 +255,48 @@ x <- set_factor_labels(x, c(
 ```
 
 Now the labels appear wherever factors are listed. `summary()` shows them as
-`label (id)`, keeping the stable ID visible so you can still cross-reference the
-edge and loading tables:
+`label (id)`, keeping the stable ID visible so you can still cross-reference
+the edge and loading tables:
 
 ```{r labelled-summary}
 summary(x)
 ```
 
 `top_items(by = "factor")` uses them on its group headers, and `tidy()` adds a
-`factor_label` column (and `from_label`/`to_label` for edges) — but *only* when
-labels are set, so unlabelled objects keep their exact previous output:
+`factor_label` column (and `from_label` and `to_label` for edges). It does so
+*only* when labels are set, so unlabelled objects keep their exact previous
+output:
 
 ```{r labelled-tidy}
 head(tidy(x, what = "loadings"))
 ```
 
-`autoplot()` uses stored labels as the node text automatically, so you no longer
-need to pass `node_labels` for a labelled object; a call-time `node_labels` entry
-still overrides a stored label for that one node. Labels are display only — factor
-IDs never change — and they ride along through `prune()`, `boot_edges()`,
-`augment()`, and `predict()`. Read them back with `factor_labels(x)`; clear one by
-setting it to `NA`, or all of them by passing `NULL`.
+`autoplot()` uses stored labels as the node text automatically, so you no
+longer need to pass `node_labels` for a labelled object. A call-time
+`node_labels` entry still overrides a stored label for that one node. Labels
+are display only, and factor IDs never change. They ride along through
+`prune()`, `boot_edges()`, `augment()`, and `predict()`. Read them back with
+`factor_labels(x)`. Clear one by setting it to `NA`, or all of them by passing
+`NULL`.
 
 ### The Forbes letter convention
 
-Forbes (2023) labels nodes by level-letter and within-level index — `A1` for the
-single level-1 factor, `B1`/`B2` at level 2, and so on. `label_template()`
-produces this convention directly with `style = "forbes"`:
+Forbes (2023) labels nodes by level-letter and within-level index: `A1` for
+the single level-1 factor, `B1` and `B2` at level 2, and so on.
+`label_template()` produces this convention directly with `style = "forbes"`:
 
 ```{r label-forbes}
 autoplot(x, node_labels = label_template(x, style = "forbes"))
 ```
 
 This is useful when you want to refer to nodes by position rather than by
-substantive name — for example, in a methods section that walks through the
-hierarchy before interpreting it.
+substantive name. A methods section that walks through the hierarchy before
+interpreting it is one example.
 
 ### Starting from a blank slate
 
-If you would rather supply every label yourself with no defaults showing through,
-`style = "blank"` gives you an all-empty scaffold to fill in:
+If you would rather supply every label yourself with no defaults showing
+through, `style = "blank"` gives you an all-empty scaffold to fill in:
 
 ```{r label-blank}
 labs <- label_template(x, style = "blank")
@@ -303,21 +310,21 @@ autoplot(x, node_labels = labs)
 
 This article is about *what* to put on the diagram.
 
-> **Note:** For *how* the diagram looks — colours, edge thresholds, monochrome
-> and publication styling, level labels, and the Forbes pruned-diagram mode — see
-> `vignette("ackwards-visualization")`.
+> **Note:** For *how* the diagram looks (colours, edge thresholds, monochrome
+> and publication styling, level labels, and the Forbes pruned-diagram mode)
+> see `vignette("ackwards-visualization")`.
 
 ## References
 
-DeYoung, C. G. (2006). Higher-order factors of the Big Five in a multi-informant
-sample. *Journal of Personality and Social Psychology, 91*(6), 1138–1151.
-https://doi.org/10.1037/0022-3514.91.6.1138
+DeYoung, C. G. (2006). Higher-order factors of the Big Five in a
+multi-informant sample. *Journal of Personality and Social Psychology,
+91*(6), 1138--1151. https://doi.org/10.1037/0022-3514.91.6.1138
 
 Forbes, M. K. (2023). Improving hierarchical models of individual differences:
 An extension of Goldberg's bass-ackward method. *Psychological Methods*.
 https://doi.org/10.1037/met0000546
 
-Kotov, R., Krueger, R. F., Watson, D., et al. (2017). The Hierarchical Taxonomy
-of Psychopathology (HiTOP): A dimensional alternative to traditional nosologies.
-*Journal of Abnormal Psychology, 126*(4), 454–477.
+Kotov, R., Krueger, R. F., Watson, D., et al. (2017). The Hierarchical
+Taxonomy of Psychopathology (HiTOP): A dimensional alternative to traditional
+nosologies. *Journal of Abnormal Psychology, 126*(4), 454--477.
 https://doi.org/10.1037/abn0000258
