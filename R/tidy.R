@@ -114,7 +114,7 @@ generics::glance
 #' @export
 tidy.ackwards <- function(
   x,
-  what = c("edges", "loadings", "variance", "fit", "nodes", "scores"),
+  what = c("edges", "loadings", "variance", "fit", "nodes", "scores", "factor_cor"),
   primary_only = FALSE,
   sort = c("none", "strength"),
   format = c("long", "wide"),
@@ -154,7 +154,8 @@ tidy.ackwards <- function(
     variance = .tidy_variance(x),
     fit      = .tidy_fit(x),
     nodes    = .tidy_nodes(x),
-    scores   = .tidy_scores(x)
+    scores   = .tidy_scores(x),
+    factor_cor = .tidy_factor_cor(x)
   )
   # Factor labels (M51): display-only columns, present only when labels have
   # been set (unlabeled objects keep their exact pre-M51 schema; Invariant 5 --
@@ -166,6 +167,9 @@ tidy.ackwards <- function(
     } else if (what == "edges") {
       out$from_label <- unname(labels[out$from])
       out$to_label <- unname(labels[out$to])
+    } else if (what == "factor_cor") {
+      out$factor_a_label <- unname(labels[out$factor_a])
+      out$factor_b_label <- unname(labels[out$factor_b])
     }
   }
   if (what == "edges") {
@@ -198,6 +202,45 @@ tidy.ackwards <- function(
     out$hi <- be$hi[m]
     out$n_boot_ok <- be$n_boot_ok[m]
   }
+  out
+}
+
+# One row per unordered factor pair within each level, read from the stored
+# `factor_cor` (already permuted and sign-aligned to the stored loadings).
+# Pairs are listed in upper-triangle order: (1,2), (1,3), (2,3), ... A level
+# with one factor has no pair and contributes no row, so an object whose only
+# level is k = 1 returns zero rows with the same four columns.
+.tidy_factor_cor <- function(x) {
+  empty <- data.frame(
+    level = integer(0L),
+    factor_a = character(0L),
+    factor_b = character(0L),
+    cor = numeric(0L),
+    stringsAsFactors = FALSE
+  )
+  rows <- lapply(names(x$levels), function(ki) {
+    lev <- x$levels[[ki]]
+    k <- as.integer(ki)
+    if (k < 2L) {
+      return(NULL)
+    }
+    Phi <- lev$factor_cor
+    idx <- which(upper.tri(Phi), arr.ind = TRUE)
+    idx <- idx[order(idx[, 1L], idx[, 2L]), , drop = FALSE]
+    data.frame(
+      level = k,
+      factor_a = lev$labels[idx[, 1L]],
+      factor_b = lev$labels[idx[, 2L]],
+      cor = Phi[idx],
+      stringsAsFactors = FALSE
+    )
+  })
+  rows <- Filter(Negate(is.null), rows)
+  if (length(rows) == 0L) {
+    return(empty)
+  }
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
   out
 }
 
