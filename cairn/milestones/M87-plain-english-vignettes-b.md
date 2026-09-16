@@ -2,7 +2,7 @@
 
 - **Status:** planned
 - **Priority:** normal
-- **Depends on:** M85
+- **Depends on:** M85, M88
 - **Driving RR:** —
 - **Principles touched:** GP3, IP6, IP9
 - **Resolves:** —
@@ -27,7 +27,7 @@ prose step switched to `check_prose()` with no path argument.
 **Out:** the four batch-A vignettes → M86 (either batch may land first; both depend only on
 M85); any edit to fenced chunks, chunk options, or inline `` `r ` `` spans (guarded by AC2);
 changes to `tools/check-prose.R` beyond adding an abbreviation or banned phrase the corpus
-shows is missing (each a work-log line, M85's tests kept green); term-list additions →
+shows is missing (checker hardening → M88) (each a work-log line, M85's tests kept green); term-list additions →
 appended to `tools/prose-terms.txt` with a work-log line.
 
 ## Acceptance criteria
@@ -82,6 +82,7 @@ appended to `tools/prose-terms.txt` with a work-log line.
 
 - 2026-09-16: created by /milestone-plan as the second vignette batch of the plain-English sweep; depends on M85 for the checker and term list.
 - 2026-09-16: criteria audit ([O], fresh context, full mode) ran on the shared vignette-batch wording; its generated-`.Rmd` diff clause was dropped as unenforceable (stamp, PNG, and gt-id churn), and an inline-span guard was added.
+- 2026-09-16: /milestone-plan (M88 gate) added `Depends on: M88` so the vignette batch runs against the hardened checker and the opt-in `DOD_CODE_UNCHANGED=1` gate step.
 
 ## Decisions
 
