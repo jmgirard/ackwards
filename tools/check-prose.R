@@ -11,9 +11,10 @@
 # `check_code_unchanged(ref)` is the companion guard: it proves a prose
 # rewrite left the code alone by comparing, against the merge base with `ref`,
 # the non-roxygen lines of R/*.R, the `#'` lines inside `@examples`, the
-# fenced chunks and inline `r` spans of README.Rmd and of every
-# vignettes/*.Rmd.orig present on both sides of the merge base, and every
-# DESCRIPTION field other than `Description:`.
+# fenced chunks and inline `r` spans (in document order) of README.Rmd and of
+# every vignettes/*.Rmd.orig, and every DESCRIPTION field other than
+# `Description:`. An R file or vignette source present on one side of the
+# merge base only is itself a problem.
 #
 # Base R only, so it runs before any dependency install.
 #
@@ -598,21 +599,28 @@ check_prose <- function(paths = NULL, banned = read_prose_list("prose-banned.txt
   lines[keep]
 }
 
-# The code of an R Markdown source (README.Rmd, vignettes/*.Rmd.orig): fenced
-# chunk lines (fences included) and inline `r` spans, in order.
+# The code of an R Markdown source (README.Rmd, vignettes/*.Rmd.orig): a
+# data.frame(line, text) of fenced chunk lines (fences included) and inline
+# `r` spans, in document order, so a span moved past a chunk is a change.
 .code_lines_rmd <- function(lines) {
   in_fence <- FALSE
-  keep <- rep(FALSE, length(lines))
+  out_line <- integer(0L)
+  out_text <- character(0L)
   for (i in seq_along(lines)) {
     if (.is_fence(lines[[i]])) {
       in_fence <- !in_fence
-      keep[[i]] <- TRUE
+      out_line <- c(out_line, i)
+      out_text <- c(out_text, lines[[i]])
     } else if (in_fence) {
-      keep[[i]] <- TRUE
+      out_line <- c(out_line, i)
+      out_text <- c(out_text, lines[[i]])
+    } else {
+      spans <- regmatches(lines[[i]], gregexpr("`r [^`]*`", lines[[i]]))[[1L]]
+      out_line <- c(out_line, rep(i, length(spans)))
+      out_text <- c(out_text, spans)
     }
   }
-  inline <- regmatches(lines[!keep], gregexpr("`r [^`]*`", lines[!keep]))
-  c(lines[keep], unlist(inline))
+  data.frame(line = out_line, text = out_text, stringsAsFactors = FALSE)
 }
 
 .fields_description <- function(lines) {
@@ -671,14 +679,22 @@ check_code_unchanged <- function(ref = "master", root = ".") {
   )))
   for (f in rmd_files) {
     before <- .git_show(base, f)
-    if (is.null(before) || !file.exists(f)) next
+    after <- if (file.exists(f)) readLines(f, warn = FALSE) else NULL
+    if (is.null(before) || is.null(after)) {
+      problems <- c(problems, sprintf("%s exists on only one side of %s.", f, substr(base, 1, 7)))
+      next
+    }
     a <- .code_lines_rmd(before)
-    b <- .code_lines_rmd(readLines(f, warn = FALSE))
-    d <- .first_diff(a, b)
+    b <- .code_lines_rmd(after)
+    d <- .first_diff(a$text, b$text)
     if (!is.na(d)) {
       problems <- c(problems, sprintf(
         "%s: chunk or inline-code item %d differs from the merge base (%s).", f, d,
-        if (is.na(b[d])) "item removed" else b[d]
+        if (d > nrow(b)) {
+          sprintf("item removed after line %d", if (nrow(b) > 0L) b$line[[nrow(b)]] else 0L)
+        } else {
+          sprintf("line %d: %s", b$line[[d]], b$text[[d]])
+        }
       ))
     }
   }

@@ -431,7 +431,7 @@ test_that("check_code_unchanged sees only code and reports a changed code line",
     "New prose `r 1 + 2` here.",
     "```{r}", "x <- 1", "```"
   ), "README.Rmd")
-  expect_match(env$check_code_unchanged("master", root), "README.Rmd: chunk or inline-code item 4")
+  expect_match(env$check_code_unchanged("master", root), "README.Rmd: chunk or inline-code item 1 differs from the merge base (line 4: ", fixed = TRUE)
   git("checkout", "-q", "--", "README.Rmd")
 
   writeLines(c(
@@ -439,30 +439,53 @@ test_that("check_code_unchanged sees only code and reports a changed code line",
     "New prose `r 1 + 1` here.",
     "```{r}", "x <- 2", "```"
   ), "README.Rmd")
-  expect_match(env$check_code_unchanged("master", root), "README.Rmd: chunk or inline-code item 2")
+  expect_match(env$check_code_unchanged("master", root), "README.Rmd: chunk or inline-code item 3 differs from the merge base (line 6: ", fixed = TRUE)
   git("checkout", "-q", "--", "README.Rmd")
 
   # A vignette source is guarded the same way: a chunk option, a chunk body
-  # line, and an inline span each report by file and item.
+  # line, and an inline span each report by file, item, and working-tree line.
   v2 <- vig
   v2[5] <- "```{r chunk, eval = TRUE}"
   writeLines(v2, "vignettes/v.Rmd.orig")
   expect_match(
     env$check_code_unchanged("master", root),
-    "vignettes/v.Rmd.orig: chunk or inline-code item 1"
+    "vignettes/v.Rmd.orig: chunk or inline-code item 2 differs from the merge base (line 5: ",
+    fixed = TRUE
   )
   v2 <- vig
   v2[6] <- "y <- 2"
   writeLines(v2, "vignettes/v.Rmd.orig")
   expect_match(
     env$check_code_unchanged("master", root),
-    "vignettes/v.Rmd.orig: chunk or inline-code item 2"
+    "vignettes/v.Rmd.orig: chunk or inline-code item 3 differs from the merge base (line 6: ",
+    fixed = TRUE
   )
   v2 <- vig
   v2[4] <- "New vignette prose `r 2 + 3` here."
   writeLines(v2, "vignettes/v.Rmd.orig")
   expect_match(
     env$check_code_unchanged("master", root),
-    "vignettes/v.Rmd.orig: chunk or inline-code item 4"
+    "vignettes/v.Rmd.orig: chunk or inline-code item 1 differs from the merge base (line 4: ",
+    fixed = TRUE
   )
+
+  # A span moved, byte-identical, from before the chunk to after it changes
+  # the document order of the items: the first item is now the fence.
+  v2 <- c(vig[1:3], "New vignette prose here.", vig[5:7], "Moved `r 2 + 2` span.")
+  writeLines(v2, "vignettes/v.Rmd.orig")
+  expect_match(
+    env$check_code_unchanged("master", root),
+    "vignettes/v.Rmd.orig: chunk or inline-code item 1 differs from the merge base (line 5: ",
+    fixed = TRUE
+  )
+
+  # A renamed vignette source is two problems, one per path, in the R-file form.
+  writeLines(vig, "vignettes/v.Rmd.orig")
+  git("mv", "vignettes/v.Rmd.orig", "vignettes/w.Rmd.orig")
+  problems <- env$check_code_unchanged("master", root)
+  expect_length(problems, 2L)
+  expect_true(any(grepl("^vignettes/v.Rmd.orig exists on only one side of ", problems)))
+  expect_true(any(grepl("^vignettes/w.Rmd.orig exists on only one side of ", problems)))
+  git("mv", "vignettes/w.Rmd.orig", "vignettes/v.Rmd.orig")
+  expect_equal(env$check_code_unchanged("master", root), character(0L))
 })
