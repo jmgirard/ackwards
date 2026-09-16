@@ -91,7 +91,7 @@ change). Banned-phrase or sentence-cap policy changes (none requested).
 - [x] T4: `.code_lines_rmd()` (`:502`): return a data.frame(line, text) of chunk lines and
       inline spans in document order. Make the `.Rmd.orig` loop (`:571`) report a file
       present on one side only, as the R loop does at `:549`. Report the working-tree line. Extend the git fixture with the moved-span and rename plants.
-- [ ] T5: `tools/dod-gate.R` (`:68-110`): add the opt-in guard step after the prose step,
+- [x] T5: `tools/dod-gate.R` (`:68-110`): add the opt-in guard step after the prose step,
       reading `DOD_CODE_UNCHANGED`, with the note and failure form of AC4. Update the header
       comment. Verify by hand once with the variable set on a planted `R/` edit in a scratch
       commit (reverted), and once unset. Record both outcomes in the work log.
@@ -111,6 +111,7 @@ change). Banned-phrase or sentence-cap policy changes (none requested).
 - 2026-09-16: T2 done. `.sentence_units()` expands a heading into one standalone unit and a table row into one unit per cell (separator rows dropped); each flushes as its own sentence. New test: 31-word heading and cell reported at lines 1 and 7, 29-word ones silent. Test file 97 pass, 0 fail. The AC2 sweep command exits 0.
 - 2026-09-16: T3 done, with a minor amendment. `.blank_urls()` runs in `check_prose()` right after span stripping, so every report sees URL-free text. A space filler split `[text](target),` into three tokens and surfaced a 31-word artefact in the engines vignette, so the filler is a same-length run of `x` (a URL stays one token, as before); trailing sentence punctuation on a bare URL is kept. Test file 102 pass, 0 fail; the AC2 sweep command exits 0.
 - 2026-09-16: T4 done. `.code_lines_rmd()` returns a data.frame(line, text) in document order; a report names the item and the working-tree line (`item N differs from the merge base (line L: text)`). The `.Rmd.orig` loop reports a one-sided file in the R-loop form. Five existing item-number expectations moved to document order. Fixture gains the moved-span plant (item 1, line 5) and the rename plant (two problems). Test file 107 pass, 0 fail; `--code-unchanged master` on the branch exits 0.
+- 2026-09-16: T5 done. Opt-in step after the prose step in `tools/dod-gate.R`; header comment updated. Hand run with `DOD_CODE_UNCHANGED=1` on a planted comment line appended to `R/ackwards.R` (working-tree edit, reverted with `git checkout --`): one `code-unchanged:` note naming line 779, gate failed before check() with `code-unchanged guard: 1 problem(s)`, exit 1. The unset run is the T6 full gate.
 
 ## Decisions
 

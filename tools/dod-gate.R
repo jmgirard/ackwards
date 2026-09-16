@@ -3,14 +3,15 @@
 # serially, in one process:
 #   vignette freshness (M65; fail-fast, base R) ->
 #   ledger anchors (M72) -> CI path filters (M82) -> prose check (M85) ->
+#   code-unchanged guard (M88; only when DOD_CODE_UNCHANGED=1) ->
 #   devtools::check() (must be 0/0/0, vignettes included)
 #   -> covr::package_coverage() (target 100%)
 #   -> styler::style_pkg() -> lintr::lint_package()
 #   -> pkgdown::check_pkgdown() (mirrors the pkgdown GHA; catches exported
 #      topics missing from _pkgdown.yml, which R CMD check does not)
 # Usage, from the package root:  Rscript tools/dod-gate.R
-# Runs in two phases. The four base-R guards (vignette freshness, ledger
-# anchors, CI path filters, prose) cost seconds; if any fails, the gate prints
+# Runs in two phases. The base-R guards (vignette freshness, ledger anchors,
+# CI path filters, prose, opt-in code-unchanged) cost seconds; if any fails, the gate prints
 # those failures and exits before check(). Otherwise the remaining steps all
 # run and every failure among them is printed at the end. Non-zero exit on any
 # failure.
@@ -106,7 +107,30 @@ if (nrow(prose_reports) > 0) {
   note("prose: clean")
 }
 
-# Fail fast: the four base-R guards above cost seconds, so a failure among them
+# Code-unchanged guard (M88), opt-in. A prose-only milestone sets
+# DOD_CODE_UNCHANGED=1 to prove its branch left the code alone (see
+# check_code_unchanged() in tools/check-prose.R); every code milestone leaves
+# it unset, because the guard fails on any code edit by design. Each returned
+# problem is printed as a note and the step adds one gate failure naming the
+# problem count. Unset: a one-line skip note and no guard.
+if (identical(Sys.getenv("DOD_CODE_UNCHANGED"), "1")) {
+  code_problems <- tryCatch(
+    prose_env$check_code_unchanged("master"),
+    error = function(e) paste("checker error:", conditionMessage(e))
+  )
+  if (length(code_problems) > 0) {
+    for (p in code_problems) note("code-unchanged: %s", p)
+    failures <- c(failures, sprintf(
+      "code-unchanged guard: %d problem(s) (see tools/check-prose.R)", length(code_problems)
+    ))
+  } else {
+    note("code-unchanged: clean (no code line differs from the merge base with master)")
+  }
+} else {
+  note("code-unchanged: skipped (set DOD_CODE_UNCHANGED=1 to run the guard)")
+}
+
+# Fail fast: the base-R guards above cost seconds, so a failure among them
 # stops the gate here rather than after the minutes-long check().
 if (length(failures) > 0) {
   cat("\n")
