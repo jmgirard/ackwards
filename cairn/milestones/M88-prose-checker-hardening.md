@@ -1,13 +1,13 @@
 # M88: Prose-checker hardening (`tools/check-prose.R`)
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** high
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** —
 - **Resolves:** —
 - **Surface tier:** internal — `tools/check-prose.R` is dev tooling over in-repo documentation sources, and no package user runs it
-- **Branch/PR:** —
+- **Branch/PR:** `m088-prose-checker-hardening`
 
 ## Goal
 
@@ -77,7 +77,7 @@ change). Banned-phrase or sentence-cap policy changes (none requested).
 
 ## Tasks
 
-- [ ] T1: `.prose_tools_dir()` (`tools/check-prose.R:34`): resolve the script path at source
+- [x] T1: `.prose_tools_dir()` (`tools/check-prose.R:34`): resolve the script path at source
       time. Walk the call frames for `source()`'s `ofile` and `sys.source()`'s `file`, then
       fall back to `--file=`. On no hit, stop with a message rather than return `tools`
       (M82 lesson: fail closed). Test the two AC1 routes from a temp working directory.
@@ -106,6 +106,8 @@ change). Banned-phrase or sentence-cap policy changes (none requested).
 - 2026-09-16: plan gate chose an opt-in `DOD_CODE_UNCHANGED=1` gate step over always-on wiring because every code milestone fails an always-on gate, and over not wiring it because M87 needs a repeatable run. Falsified by a prose-only milestone that ships a code edit with the variable unset, an edit the guard catches when set.
 - 2026-09-16: plan gate chose one 30-word cap for cells and headings over a separate shorter cap because a second number adds policy without a corpus case demanding it. Falsified by cells that pass 30 words yet read as too long in review.
 - 2026-09-16: plan chose blanking URLs before all reports over skipping only the dash and semicolon flags because a URL's words otherwise inflate a sentence count. Falsified by a URL whose blanking hides a genuine prose defect on the same line.
+- 2026-09-16: /milestone-implement started; branch `m088-prose-checker-hardening` cut from pushed master. Question gate skipped: the plan leaves no implementation choice open.
+- 2026-09-16: T1 done. The script path is resolved once at load time by walking the frames for `source()`'s `ofile` and `sys.source()`'s `file`, then `--file=`; no hit makes `.prose_tools_dir()` stop. New test loads the checker both ways from a temp working directory; prose test file 9/9 clean, Rscript route from `/tmp` exits 0.
 
 ## Decisions
 

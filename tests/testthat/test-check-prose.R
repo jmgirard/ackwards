@@ -29,6 +29,29 @@
 
 long_sentence <- paste(c("Word", rep("word", 30)), collapse = " ")
 
+test_that("the list defaults resolve to the checker's own directory from any working directory", {
+  root <- normalizePath(test_path("..", ".."), mustWork = FALSE)
+  checker <- file.path(root, "tools", "check-prose.R")
+  skip_if_not(file.exists(checker), "tools/check-prose.R absent (built package)")
+  expected <- readLines(file.path(root, "tools", "prose-banned.txt"), encoding = "UTF-8")
+  expected <- trimws(expected)
+  expected <- expected[nzchar(expected) & !startsWith(expected, "#")]
+
+  wd <- tempfile("prose-wd-")
+  dir.create(wd)
+  old <- setwd(wd)
+  on.exit(setwd(old), add = TRUE)
+  expect_false(file.exists(file.path("tools", "prose-banned.txt")))
+
+  e1 <- new.env()
+  source(checker, local = e1)
+  expect_identical(e1$read_prose_list("prose-banned.txt"), expected)
+
+  e2 <- new.env()
+  sys.source(checker, envir = e2)
+  expect_identical(e2$read_prose_list("prose-banned.txt"), expected)
+})
+
 test_that("each report class fires at each location, for each dash form", {
   env <- .prose_env()
   dashes <- c("—", "–", " -- ")

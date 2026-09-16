@@ -31,17 +31,48 @@
 
 # ---- lists -------------------------------------------------------------------
 
+# The directory this script lives in, resolved once while the file is being
+# read (the loading call's frame is gone by the time a list default is
+# evaluated). `source()` keeps the path in `ofile`; `sys.source()` keeps it in
+# `file`; `Rscript` passes it as `--file=`. No hit yields NULL, and
+# `.prose_tools_dir()` then stops rather than guess `tools` (M82 lesson: a
+# guard fails closed).
+.resolve_prose_script <- function() {
+  for (i in rev(seq_len(sys.nframe()))) {
+    fr <- sys.frame(i)
+    if (exists("ofile", envir = fr, inherits = FALSE)) {
+      f <- get("ofile", envir = fr)
+      if (is.character(f) && length(f) == 1L && nzchar(f)) {
+        return(f)
+      }
+    }
+    call <- sys.call(i)
+    if (is.call(call) && identical(call[[1L]], as.name("sys.source")) &&
+      exists("file", envir = fr, inherits = FALSE)) {
+      f <- get("file", envir = fr)
+      if (is.character(f) && length(f) == 1L && nzchar(f)) {
+        return(f)
+      }
+    }
+  }
+  arg <- grep("^--file=", commandArgs(FALSE), value = TRUE)
+  if (length(arg) > 0L) {
+    return(sub("^--file=", "", arg[[1L]]))
+  }
+  NULL
+}
+
+.prose_script_path <- .resolve_prose_script()
+
 .prose_tools_dir <- function() {
-  # When sourced, sys.frame carries the file; when run, commandArgs does.
-  f <- tryCatch(sys.frame(1L)$ofile, error = function(e) NULL)
-  if (is.null(f)) {
-    arg <- grep("^--file=", commandArgs(FALSE), value = TRUE)
-    if (length(arg) > 0L) f <- sub("^--file=", "", arg[[1L]])
+  if (is.null(.prose_script_path)) {
+    stop(
+      "check-prose.R cannot locate its own directory: load it with source(), ",
+      "sys.source(), or Rscript, or pass `dir` explicitly.",
+      call. = FALSE
+    )
   }
-  if (is.null(f) || !nzchar(f)) {
-    return("tools")
-  }
-  dirname(normalizePath(f, mustWork = FALSE))
+  dirname(normalizePath(.prose_script_path, mustWork = FALSE))
 }
 
 read_prose_list <- function(name, dir = .prose_tools_dir()) {
