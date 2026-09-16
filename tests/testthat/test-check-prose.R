@@ -50,6 +50,19 @@ test_that("the list defaults resolve to the checker's own directory from any wor
   e2 <- new.env()
   sys.source(checker, envir = e2)
   expect_identical(e2$read_prose_list("prose-banned.txt"), expected)
+
+  # The namespace-qualified loader is the same route.
+  e3 <- new.env()
+  base::sys.source(checker, envir = e3)
+  expect_identical(e3$read_prose_list("prose-banned.txt"), expected)
+
+  # A relative load path is made absolute at load time, so a later working
+  # directory change does not move the tools directory.
+  setwd(root)
+  e4 <- new.env()
+  sys.source(file.path("tools", "check-prose.R"), envir = e4)
+  setwd(wd)
+  expect_identical(e4$read_prose_list("prose-banned.txt"), expected)
 })
 
 test_that("each report class fires at each location, for each dash form", {
@@ -286,6 +299,19 @@ test_that("a table cell and a heading each count as one sentence under max_words
   expect_setequal(over$line, c(1L, 7L))
   expect_true(all(grepl("\\(31\\)$", over$class)))
   expect_equal(nrow(res), 2L, info = paste(res$class, res$line, collapse = "; "))
+
+  # A heading or cell is one sentence whatever terminators it holds, and an
+  # escaped pipe does not split a cell.
+  md2 <- .write_fixture(c(
+    paste("# Foo bar. Baz", words(28)),
+    "",
+    "| a |",
+    "|---|",
+    paste0("| ", words(20), " \\| ", words(20), " |")
+  ), ".Rmd")
+  res2 <- .run(env, md2)
+  expect_equal(res2$line, c(1L, 5L))
+  expect_equal(res2$class, c("sentence over 30 words (31)", "sentence over 30 words (41)"))
 })
 
 test_that("a dash or semicolon inside a URL is never reported, and in link text it is", {
@@ -305,6 +331,17 @@ test_that("a dash or semicolon inside a URL is never reported, and in link text 
   }
   expect_false(any(grepl("^sentence over", res$class)), info = paste(res$class, collapse = "; "))
   expect_equal(nrow(res), 3L)
+
+  # A link target with one level of parentheses or a quoted title is blanked
+  # whole, and a bare URL ends at a brace, so the prose after it is still seen.
+  md2 <- .write_fixture(c(
+    paste0("See [wiki](https://en.wikipedia.org/wiki/A_(", marks, ")) now."),
+    paste0("See [t](https://example.org/x \"A", marks, " title\") now."),
+    "\\href{https://example.org/a}{Best; guide} here."
+  ), ".Rmd")
+  res2 <- .run(env, md2)
+  expect_equal(res2$line, 3L)
+  expect_equal(res2$class, "semicolon")
 })
 
 test_that("a sentence is counted between terminators, not per line", {
@@ -495,5 +532,16 @@ test_that("check_code_unchanged sees only code and reports a changed code line",
   expect_true(any(grepl("^vignettes/v.Rmd.orig exists on only one side of ", problems)))
   expect_true(any(grepl("^vignettes/w.Rmd.orig exists on only one side of ", problems)))
   git("mv", "vignettes/w.Rmd.orig", "vignettes/v.Rmd.orig")
+  expect_equal(env$check_code_unchanged("master", root), character(0L))
+
+  # README.Rmd is listed by name; absent on both sides of the merge base it is
+  # no problem. Both branches drop it, so the merge that moves the base is clean.
+  git("rm", "-q", "README.Rmd")
+  git("commit", "-q", "-m", "noreadme-work")
+  git("checkout", "-q", "master")
+  git("rm", "-q", "README.Rmd")
+  git("commit", "-q", "-m", "noreadme")
+  git("checkout", "-q", "work")
+  expect_length(git("merge", "-q", "-m", "merge", "master"), 0L)
   expect_equal(env$check_code_unchanged("master", root), character(0L))
 })

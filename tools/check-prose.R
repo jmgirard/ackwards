@@ -39,26 +39,35 @@
 # `.prose_tools_dir()` then stops rather than guess `tools` (M82 lesson: a
 # guard fails closed).
 .resolve_prose_script <- function() {
+  # The loader's frame is recognised by its call (`source`, `sys.source`, or
+  # the `base::` form), never by a variable name alone, and the path is made
+  # absolute here, before any later working-directory change.
+  path_in <- function(fr, var, call, fun) {
+    if (!is.call(call)) {
+      return(NULL)
+    }
+    name <- paste(deparse(call[[1L]]), collapse = "")
+    if (!name %in% c(fun, paste0("base::", fun))) {
+      return(NULL)
+    }
+    if (!exists(var, envir = fr, inherits = FALSE)) {
+      return(NULL)
+    }
+    f <- get(var, envir = fr)
+    if (is.character(f) && length(f) == 1L && nzchar(f)) f else NULL
+  }
   for (i in rev(seq_len(sys.nframe()))) {
     fr <- sys.frame(i)
-    if (exists("ofile", envir = fr, inherits = FALSE)) {
-      f <- get("ofile", envir = fr)
-      if (is.character(f) && length(f) == 1L && nzchar(f)) {
-        return(f)
-      }
-    }
     call <- sys.call(i)
-    if (is.call(call) && identical(call[[1L]], as.name("sys.source")) &&
-      exists("file", envir = fr, inherits = FALSE)) {
-      f <- get("file", envir = fr)
-      if (is.character(f) && length(f) == 1L && nzchar(f)) {
-        return(f)
-      }
+    f <- path_in(fr, "ofile", call, "source")
+    if (is.null(f)) f <- path_in(fr, "file", call, "sys.source")
+    if (!is.null(f)) {
+      return(normalizePath(f, mustWork = FALSE))
     }
   }
   arg <- grep("^--file=", commandArgs(FALSE), value = TRUE)
   if (length(arg) > 0L) {
-    return(sub("^--file=", "", arg[[1L]]))
+    return(normalizePath(sub("^--file=", "", arg[[1L]]), mustWork = FALSE))
   }
   NULL
 }
@@ -73,7 +82,7 @@
       call. = FALSE
     )
   }
-  dirname(normalizePath(.prose_script_path, mustWork = FALSE))
+  dirname(.prose_script_path)
 }
 
 read_prose_list <- function(name, dir = .prose_tools_dir()) {
@@ -328,12 +337,16 @@ strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
 # hold, and a link `[text](target)` keeps its word count. Three forms: a
 # markdown link target `](...)` (the text inside the parentheses), an autolink
 # `<http(s)://...>` (the text inside the angle brackets), and a bare
-# `http(s)://` run up to the next space or bracket. A bare URL's trailing
-# sentence punctuation is kept, so a sentence ending in a URL still ends.
+# `http(s)://` run up to the next space, bracket, or brace. A link target may
+# hold one level of parentheses (a Wikipedia-style path) and a quoted title.
+# A bare URL's trailing sentence punctuation is kept, so a sentence ending in
+# a URL still ends.
 .blank_urls <- function(text) {
-  text <- .blank_match(text, "(?<=\\]\\()[^()\\s]*(?=\\))")
+  text <- .blank_match(
+    text, "(?<=\\]\\()(?:[^()\\s\"]|\\([^()\\s]*\\))*(?:\\s+\"[^\"]*\")?(?=\\))"
+  )
   text <- .blank_match(text, "(?<=<)https?://[^>\\s]*(?=>)")
-  .blank_match(text, "https?://[^\\s<>()\\[\\]]+", keep_trailing = TRUE)
+  .blank_match(text, "https?://[^\\s<>()\\[\\]{}]+", keep_trailing = TRUE)
 }
 
 # ---- reports -----------------------------------------------------------------
@@ -442,8 +455,14 @@ strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
     t <- trimws(text[[i]])
     if (!nzchar(t) || starts[[i]] || standalone[[i]]) flush()
     if (!nzchar(t)) next
-    marked <- gsub(mark_re, paste0("\\1", sentinel), t, perl = TRUE)
-    pieces <- strsplit(marked, sentinel, fixed = TRUE)[[1L]]
+    # A standalone unit (heading, table cell) is one sentence whatever
+    # terminators it holds; other text splits at sentence ends.
+    pieces <- if (standalone[[i]]) {
+      t
+    } else {
+      marked <- gsub(mark_re, paste0("\\1", sentinel), t, perl = TRUE)
+      strsplit(marked, sentinel, fixed = TRUE)[[1L]]
+    }
     for (j in seq_along(pieces)) {
       p <- trimws(pieces[[j]])
       if (!nzchar(p)) next
@@ -485,7 +504,9 @@ strip_code_spans <- function(text, file = "<text>", line = seq_along(text)) {
       add(sub("^\\s*#{1,6}\\s+", "", t), line[[i]], TRUE, TRUE)
     } else if (grepl("^\\s*\\|", t)) {
       if (grepl("^\\s*\\|[\\s:|-]*\\|?\\s*$", t, perl = TRUE)) next
-      cells <- strsplit(sub("\\|\\s*$", "", sub("^\\s*\\|", "", t)), "|", fixed = TRUE)[[1L]]
+      # Split on unescaped pipes only: `\|` is a literal pipe inside a cell.
+      row <- sub("\\|\\s*$", "", sub("^\\s*\\|", "", t))
+      cells <- strsplit(row, "(?<!\\\\)\\|", perl = TRUE)[[1L]]
       cells <- trimws(cells)
       cells <- cells[nzchar(cells)]
       if (length(cells) == 0L) next
@@ -680,6 +701,8 @@ check_code_unchanged <- function(ref = "master", root = ".") {
   for (f in rmd_files) {
     before <- .git_show(base, f)
     after <- if (file.exists(f)) readLines(f, warn = FALSE) else NULL
+    # README.Rmd is listed unconditionally; absent on both sides it is no problem.
+    if (is.null(before) && is.null(after)) next
     if (is.null(before) || is.null(after)) {
       problems <- c(problems, sprintf("%s exists on only one side of %s.", f, substr(base, 1, 7)))
       next
