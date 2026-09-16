@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-09-16 (M87 done and archived, closing the plain-English sweep; M85's terminal row pruned under the three-row retention; one LESSONS line added; ROADMAP 7.5 kB and LESSONS 15.5 kB against their budgets)_
+_Last hygiene check: 2026-09-16 (M89 done and archived; its absorbed candidate row removed and one new low row added; M86's terminal row pruned under the three-row retention; two LESSONS lines added; ROADMAP 7.7 kB and LESSONS 16.3 kB against their budgets)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -11,10 +11,9 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
-| M86 | Plain-English pass — vignettes A (intro, suggest-k, engines, visualization) | done | M85 | normal | milestones/archive/M86-plain-english-vignettes-a.md |
 | M87 | Plain-English pass — vignettes B (girard, forbes, forbes2023, ordinal, interpret) | done | M85, M88 | normal | milestones/archive/M87-plain-english-vignettes-b.md |
 | M88 | Prose-checker hardening (`tools/check-prose.R`) | done | — | high | milestones/archive/M88-prose-checker-hardening.md |
-| M89 | Real within-level factor correlations and Φ-partialled edge reporting | review | — | normal | milestones/M89-factor-cor-partialled-edges.md |
+| M89 | Real within-level factor correlations and Φ-partialled edge reporting | done | — | normal | milestones/archive/M89-factor-cor-partialled-edges.md |
 | M90 | Oblique rotation as a documented non-default option | blocked | M89 | normal | milestones/M90-oblique-rotation-option.md |
 <!-- M01–M80 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 3 most recent terminal rows. -->
 
@@ -38,6 +37,5 @@ Batch from her reply to the M76–M81 write-up. The cross-branch secondary-edge 
 
 - [high] **D-032's premise contradicted by its source.** D-032 (2026-07-24) rejected gap-tolerant redundancy chains partly on the inference that Forbes's contiguous `ChaseCorrPaths` was deliberate. She confirms the empirical finding and denies the inference — the contiguity is a coding limitation, and she handles a dead intervening level by hand at the artefact stage, still on the redundancy criterion. M53's 54/54 reproduction and M78's `g2` regression test stand; only the reading of intent falls. **Gated:** a supersede takes the call. — added 2026-07-30
 - **Oblique rotation support (D-034; implementation gated).** D-002 superseded 2026-07-30 after RB02/RR02: varimax stays the sole default and no current output changes, but oblique is no longer out of scope — it becomes a documented non-default option. **Gated:** implementation waits on the Forbes design session settling the marginal-vs-partialled lineage semantics — which quantity drives primary-parent matching, sign anchoring, and the diagram (RR02 Q5 item 7, Q6). **RR02's BC1–BC8 bind the future milestone** and are ingested verbatim into its acceptance criteria when planned, after the fresh-context [O] criteria audit the ingest protocol requires (deferred with them — no milestone existed at ingest time). RR02 rules out plumbing-only enablement: `factor_cor`, oblique tenBerge scoring, `.variance_explained()`, and the varimax-calibrated `|r| >= .9` chase would go silently wrong rather than error. — added 2026-07-30; planned as M90 (blocked on the design-session D-entry) 2026-09-16
-- **Φ-partialled edge decomposition as reporting (RR02 rec 4, consider).** Ship `B = Φ_s^-1 E` and per-node `R² = E' Φ_s^-1 E` as output even without oblique rotation: under varimax it is an identity check (`B ≡ E`), and shipping it first makes the eventual oblique semantics legible rather than novel. Closed-form from `W`, `R`, and `factor_cor` — all already stored, so no new object state (RR02 Q2). Related finding: `factor_cor` is currently produced by every engine and consumed by nothing (RR02 Beyond-the-brief 4). — added 2026-07-30; planned as M89 2026-09-16
 - **Promote Tucker's φ to the documented rotation-consistency diagnostic (RR02 rec 5, consider).** RR02 Q3 finds Forbes's "between-level correlations tell us whether the rotations are consistent/robust" reading is in role-conflict with reading the same edges as structure, and that the clean resolution is giving the robustness duty to Tucker's φ — which `prune()` already computes and reports. Docs-only if adopted. **Gated:** design-session agenda item. — added 2026-07-30
 - **D-017's retention rule vs her published Figure 6B.** For the AMH chain `E1-F1-G1-H1-I1-J1`, D-017's retention (keep the bottom when the chain reaches `k_max`, else the topmost) retains only `J1`; Figure 6B retains `E1` **and** `J1`. Measured at M84 against her own data with her node set supplied by hand; her 6A green/grey colouring does not map 1:1 onto 6B's node set either. The chase itself still reproduces 54/54 (M53) — the divergence is in the *retention* step, which is the package's construction on top of her chase and not something her code specifies. **Gated:** what her retention rule actually is, is a question for her — take it to the design session. — added 2026-07-30
