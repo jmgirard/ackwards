@@ -31,11 +31,11 @@ change). Banned-phrase or sentence-cap policy changes (none requested).
 
 ## Acceptance criteria
 
-- [ ] AC1: With the working directory set to a temporary directory outside the repo,
+- [x] AC1: With the working directory set to a temporary directory outside the repo,
       `read_prose_list("prose-banned.txt")` with no `dir` argument reads
       `tools/prose-banned.txt` from the checker's own directory. If the checker is loaded by
       `source(<path>)` or by `sys.source(<path>, envir)`, this holds.
-- [ ] AC2: In the markdown fixture of `tests/testthat/test-check-prose.R`, a table cell
+- [x] AC2: In the markdown fixture of `tests/testthat/test-check-prose.R`, a table cell
       holding 31 words and a heading holding 31 words are each reported as
       `sentence over 30 words` at their own line. A table row whose every cell holds under
       30 words and a heading under 30 words produce no report. Each cell (text between `|`
@@ -44,25 +44,25 @@ change). Banned-phrase or sentence-cap policy changes (none requested).
       vignettes/ackwards-intro.Rmd.orig vignettes/ackwards-suggest-k.Rmd.orig
       vignettes/ackwards-engines.Rmd.orig vignettes/ackwards-visualization.Rmd.orig` still
       exits 0 on the branch head.
-- [ ] AC3: In the same fixture, an em dash, an en dash, and a semicolon placed inside a bare
+- [x] AC3: In the same fixture, an em dash, an en dash, and a semicolon placed inside a bare
       `http(s)://` URL, inside an autolink `<http(s)://…>`, and inside a markdown link target
       `](…)` produce no `em dash`, `en dash`, or `semicolon` report. The same three marks in
       the link text `[…]` of that link are each reported.
-- [ ] AC4: `tools/dod-gate.R` runs `check_code_unchanged("master")` when the environment
+- [x] AC4: `tools/dod-gate.R` runs `check_code_unchanged("master")` when the environment
       variable `DOD_CODE_UNCHANGED` equals `1`. It prints each returned problem as a note and
       adds one gate failure naming the problem count. If the variable is unset, it prints a
       one-line skip note and runs no guard.
-- [ ] AC5: In the git fixture of `tests/testthat/test-check-prose.R`, an inline `` `r` ``
+- [x] AC5: In the git fixture of `tests/testthat/test-check-prose.R`, an inline `` `r` ``
       span moved, byte-identical, from before a fenced chunk to after it is reported by
       `check_code_unchanged()`. The reports on the fixture's four planted `.Rmd.orig` edits
       (chunk option, chunk body, inline span text, moved span) each name the working-tree
       line of the first differing item. The items are the fenced-chunk lines and inline `r`
       spans in document order.
-- [ ] AC6: In the same git fixture, renaming `vignettes/v.Rmd.orig` on the work branch
+- [x] AC6: In the same git fixture, renaming `vignettes/v.Rmd.orig` on the work branch
       yields two `check_code_unchanged()` problems, one naming the old path and one the new.
       Each uses the form of the R-file loop (`<file> exists on only one side of <base>.`).
       The rule covers `vignettes/*.Rmd.orig`, and `README.Rmd` stays hard-coded.
-- [ ] AC7: `Rscript tools/dod-gate.R` exits 0 on the branch head with `DOD_CODE_UNCHANGED`
+- [x] AC7: `Rscript tools/dod-gate.R` exits 0 on the branch head with `DOD_CODE_UNCHANGED`
       unset.
 
 ## Coverage
@@ -119,3 +119,14 @@ change). Banned-phrase or sentence-cap policy changes (none requested).
 ## Decisions
 
 ## Review
+
+- 2026-09-16 AC1: verified. A scratch script with the working directory set to a temp directory outside the repo (`tools/prose-banned.txt` absent there) loaded `tools/check-prose.R` by `source()` and by `sys.source()`. Both resolved the tools directory to `/Users/jmgirard/github/ackwards/tools`, and `read_prose_list("prose-banned.txt")` returned the trimmed, comment-free list identical to the file. `test-check-prose.R` on the branch head: 107 pass, 0 fail.
+- 2026-09-16 AC2: verified. A scratch fixture held a 31-word heading (line 1), a 29-word heading, a 31-word cell (line 7), and a row of two 29-word cells. It produced exactly two reports, `sentence over 30 words (31)` at lines 1 and 7. The eight-path sweep command from the criterion exited 0 with `Prose OK`.
+- 2026-09-16 AC3: verified. A scratch fixture placed an em dash, an en dash, and a semicolon inside a bare URL, an autolink, and a link target. Those lines produced no report. The same marks in the link text of line 4 produced exactly three reports at line 4: `em dash`, `en dash`, and `semicolon`.
+- 2026-09-16 AC5: verified by the branch-head run of `test-check-prose.R` (107 pass, 0 fail). Its git fixture asserts the moved-span plant is reported as item 1 at line 5. The four planted edits report items 1, 3, 2, and 3 with working-tree lines 4, 6, 5, and 6. Items are chunk lines and inline spans in document order per `.code_lines_rmd()`.
+- 2026-09-16 AC6: verified by the same run. The fixture's `git mv` of `vignettes/v.Rmd.orig` to `w.Rmd.orig` yields exactly two problems in the form `<file> exists on only one side of`, one per path. The reverse rename yields none. `README.Rmd` stays hard-coded in `check_code_unchanged()`.
+- 2026-09-16 AC4 (set case): verified. A comment line was appended to `R/ackwards.R` in the working tree. `DOD_CODE_UNCHANGED=1 Rscript tools/dod-gate.R` then printed one `code-unchanged:` note naming line 779 and failed before check() with `code-unchanged guard: 1 problem(s)`, exit 1. The plant was reverted. The unset case is recorded with AC7.
+- 2026-09-16 AC4 (unset case) and AC7: verified. `Rscript tools/dod-gate.R` on the branch head with the variable unset printed `code-unchanged: skipped (set DOD_CODE_UNCHANGED=1 to run the guard)` and ran no guard. It ended `GATE PASSED` (check 0/0/0, coverage 100.00%, style and lint clean, pkgdown index complete), exit 0. The tree was clean afterwards, so `document()` and `styler` produced no diff.
+- 2026-09-16 consistency gate: `cairn_validate.py` exit 0, all checks pass (16 pre-existing work-log format advisories, all in M84). No principle changed, so `cairn_impact` was skipped. NAMESPACE, man/, README, DESCRIPTION, and `.Rbuildignore` are untouched by the branch. No NEWS entry, per the scope (internal tooling).
+- 2026-09-16 review lens [S] blame-history: no findings. The removed heading/table drop and the removed `"tools"` fallback both came from M85 with no recorded rationale. The only sourcing caller (`tools/dod-gate.R`, `sys.source`) is on a supported route. No other consumer parses the old report text. No D-entry concerns the checker or the gate.
+- 2026-09-16 review lens [S] prior-review record: no findings. Each deferred M85/M86 item is addressed as claimed. The GitHub inline-comment probe returned an empty list, so the PR-thread walk was skipped. Noted: the archives list seven deferred items with two overlaps, against the Goal's "six".
