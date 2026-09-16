@@ -153,6 +153,9 @@ the Plain register, so `may`/`might`/`should` stay allowed).
 
 - 2026-09-16: user chose the two clear wording fixes (AC1 NEWS boundary, AC7 chunk name `suggest-print`) and held the rest, declining the error-path widening. Return work complete, gate green, status set to review for pass 2.
 
+- 2026-09-16: review pass 2 gate: user applied the proposed triage (14 fixed, 4 to a candidate row, 9 rejected), then approved the merge.
+- 2026-09-16: step-7 approval: m085-plain-english-checker-readme-roxygen approved for merge
+
 ## Decisions
 
 ## Review
