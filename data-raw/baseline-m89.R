@@ -8,7 +8,9 @@
 # matrix. The fixture was generated on master before any code change of the
 # milestone that adds those features, so the test that reads it
 # (tests/testthat/test-baseline-m89.R) compares the current code against the
-# pre-change numbers. The comparison tolerance is 1e-12.
+# pre-change numbers. The comparison tolerance is 1e-8 for pca/efa and 1e-5
+# for esem (the fixture was generated on macOS; other BLAS builds drift by
+# about 1e-12 and 1e-6 respectively, see the test file's header).
 #
 # The five fits (all default arguments except the ones named):
 #   pca  on sim16, k_max = 4
@@ -19,7 +21,7 @@
 #
 # The ESEM fit carries `seed = 1` because lavaan's rotation uses random
 # starts: an unseeded ESEM fit differs run to run at about 1e-6 (observed
-# 2026-09-16), so it cannot serve a 1e-12 oracle. A seeded fit reproduces to
+# 2026-09-16), so it cannot serve a tight oracle. A seeded fit reproduces to
 # 0 across runs. The seed fixes the random starts only. It changes no method
 # argument, so the fit is still the default ESEM hierarchy.
 #
@@ -68,7 +70,7 @@ attr(baseline, "provenance") <- list(
   commit = commit,
   generated = as.character(Sys.Date()),
   pkg_version = as.character(utils::packageVersion("ackwards")),
-  tolerance = 1e-12
+  tolerance = c(pca = 1e-8, efa = 1e-8, esem = 1e-5)
 )
 
 saveRDS(baseline, "tests/testthat/fixtures/baseline-m89.rds", version = 2)
