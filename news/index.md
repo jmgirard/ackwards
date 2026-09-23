@@ -2,6 +2,11 @@
 
 ## ackwards (development version)
 
+- The default-output baseline test now uses a platform tolerance (1e-8
+  for PCA and EFA, 1e-5 for ESEM). The frozen fixture was generated on
+  macOS, and the test failed on Linux and Windows at its old 1e-12
+  tolerance because of BLAS differences. No package output changed.
+
 - **Within-level factor correlations are carried and shown.** Every
   engine now stores the factor correlation it reports for each level.
   That matrix is permuted and sign-flipped in step with the loadings, in
