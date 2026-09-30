@@ -1,13 +1,13 @@
 # M90: Oblique rotation as a documented non-default option
 
-- **Status:** blocked
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** M89
 - **Driving RR:** RR02
 - **Principles touched:** IP1, IP2, IP4, IP6, IP8, IP9, GP1, GP4, GP5
 - **Resolves:** —
 - **Surface tier:** user-facing, because it adds a `rotation` argument on `ackwards()` and changes its outputs
-- **Branch/PR:** —
+- **Branch/PR:** m090-oblique-rotation-option
 
 ## Goal
 
@@ -64,8 +64,8 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 
 ## Tasks
 
-- [ ] T1: The pre-implementation gate reads the design-session D-entry (BC5 quantity, BC6 stance) and records both in this file's Decisions. Unblock only then. Re-run M89's baseline test before any change.
-- [ ] T2: Add the `rotation` argument on `ackwards()` (`R/ackwards.R:311`), the per-engine validation table, and the object stamp (`R/ackwards.R:1054`). Add GPArotation to Suggests with `rlang::check_installed()` on the psych oblique paths. Write the cross-product test.
+- [x] T1: The pre-implementation gate reads the design-session D-entry (BC5 quantity, BC6 stance) and records both in this file's Decisions. Unblock only then. Re-run M89's baseline test before any change.
+- [ ] T2: Add the `rotation` argument on `ackwards()` (`R/ackwards.R:311`), the per-engine validation table, and the object stamp (`R/ackwards.R:1054`). Add GPArotation to Suggests with `rlang::check_installed()` on the psych oblique paths. Write the cross-product test. Pass the object's rotation through `.fit_levels_muffled()` so that `boot_edges()` refits with it.
 - [ ] T3: PCA and EFA oblique. Pass `rotate` through (`R/engine_pca.R:28`, `R/engine_efa.R:16`). Write `.tenBerge_weights(R, L, Phi)` as `A = Σ^{-1/2} C Φ^{1/2}`, `C = Σ^{-1/2} L (L'Σ^{-1}L)^{-1/2}`, `L = ΛΦ^{1/2}` (tenberge1999 Eq. 9, Thm 1), with the `R^{-1}ΛΦ` fallback. Live oracle against `psych::factor.scores(method = "tenBerge")`. IP2 algebra-vs-scores oblique case.
 - [ ] T4: ESEM oblique. Pass lavaan `rotation` through (`R/engine_esem.R:74-79`). Weights through T3's helper with `cor.lv`. Regression fallback with Φ (`R/engine_esem.R:219-226`).
 - [ ] T5: `.variance_explained(L, p, labels, Phi)` per AC10. ESEM sort key (`R/engine_esem.R:200`). psych `Vaccounted` oracle test.
@@ -82,7 +82,15 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - 2026-09-16: cairn_validate's sizing tripwire fires (13 criteria). It stands: eight are RR02's binding criteria, which one milestone must carry verbatim, and the other five pin what the audit found unverifiable in them. The oblique semantics were split off instead: M89 carries the Φ plumbing and partialled reporting.
 - 2026-09-16: plan gate chose GPArotation as a guarded Suggests over an ESEM-only oblique option because Forbes's reference implementation is oblique PCA and EFA, the oracle's own engine. Falsified by GPArotation leaving CRAN or breaking psych's oblique paths.
 - 2026-09-16: carried from the M89 review (four [O] findings routed here because they only bite once a real non-identity Phi exists): (1) the PCA/EFA carry assumes psych sorts `$Phi` with the loadings and no M89 test can reach a non-identity psych `$Phi`; M90's oblique fixtures must assert `factor_cor` matches the stored loadings' order and signs on all three engines. (2) The routing test cannot detect a wrong `ord`; the same fixtures cover it. (3) Docs do not distinguish the rotation correlation (`factor_cor`, shown by `tidy(what = "factor_cor")`) from the score correlation Phi_s behind `beta` and `r2`; name both once oblique makes them differ. (4) PCA/EFA store `factor_cor` unnamed while ESEM labels it; label all three here, where O13's attribute-for-attribute baseline is superseded by the oblique fixtures.
+- 2026-09-30: /milestone-implement started. Owner override: the owner settled BC5 and BC6 without the Forbes design session that D-034 gated on, recorded as D-036 (`r` drives lineage, `prune()` warns). Status blocked to in-progress. Branch m090-oblique-rotation-option cut from master e0d227c.
+- 2026-09-30: implement gate. The owner allowed the md5-pinned download of Forbes's OSF `7jfkw` script for T8. The GPArotation question rested on a wrong premise (that promax runs without it). The owner picked "oblimin only", then a check showed `psych::kaiser()` stops without GPArotation, so both rotations are guarded per D-035 as written.
+- 2026-09-30: T1 done. D-036 recorded, both stances copied to Decisions, M89 baseline test re-run before any code change (5 fits, 95 expectations, 0 failures).
+- 2026-09-30: minor amendment. T2 gains the `boot_edges()` pass-through, which Scope's "inheriting the fixed engines" needs. Without it, the bootstrap of an oblique object refits varimax.
 
 ## Decisions
+
+- 2026-09-30 (T1): BC5 and BC6 read from D-036. The marginal `r` drives `match_parents()`, `.align_signs()`, and the diagram under every rotation. `prune()` keeps its chase on `r` and warns on an oblique object.
+- 2026-09-30: `rlang::check_installed("GPArotation")` guards both psych oblique rotations, `oblimin` and `promax`. psych's promax runs through `psych::kaiser()`, which stops without GPArotation. This follows D-035 as written.
+- 2026-09-30: PCA and EFA keep the column order that psych returns. Under oblique, `psych::fa()` sorts by `diag(ΦΛ'Λ)`, the AC10 key, and `psych::principal()` sorts by `diag(Λ'Λ)`. A re-sort breaks column correspondence with psych and with Forbes's reference output. So a PCA level's `variance` vector can fall out of descending order in rare cases. ESEM sorts by the AC10 key.
 
 ## Review
