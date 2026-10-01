@@ -215,6 +215,10 @@ correlation between an item and a factor, and congruence is a 0 to 1 index
 of how similar two loading patterns are. So comparability asks whether the
 two halves' <em>scores</em> agree, and phi asks whether their <em>loading patterns</em>
 agree.</p>
+<p><code>comparability()</code> always uses the varimax rotation, the <code><a href="ackwards.html">ackwards()</a></code>
+default, for the full sample and for every half. It has no <code>rotation</code>
+argument, so its coefficients describe the varimax hierarchy even when you
+fit <code><a href="ackwards.html">ackwards()</a></code> with an oblique rotation.</p>
     </div>
     <div class="section level2">
     <h2 id="interpreting-the-output">Interpreting the output<a class="anchor" aria-label="anchor" href="#interpreting-the-output"></a></h2>
@@ -269,7 +273,7 @@ factors that perpetuate without differentiating (redundancy), and
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="fu">comparability</span><span class="op">(</span><span class="va">sim16</span>, k_max <span class="op">=</span> <span class="fl">5</span>, n_splits <span class="op">=</span> <span class="fl">5</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fitting 5 split-half replicates (pca, k = 1-5)...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting 5 split-half replicates (pca, k = 1-5)... <span style="color: #B2B2B2;">[244ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting 5 split-half replicates (pca, k = 1-5)... <span style="color: #B2B2B2;">[270ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">cmp</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>

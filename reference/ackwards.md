@@ -27,6 +27,7 @@ ackwards(
   pairs = "adjacent",
   cut_show = 0.3,
   correct = 0.5,
+  rotation = "varimax",
   ...
 )
 ```
@@ -163,12 +164,12 @@ ackwards(
     every row that contributes to the FIML likelihood, which matches the
     FIML convention (Enders, 2010). `"complete"` is the complete-case N,
     a conservative lower bound. Point estimates do not depend on this
-    choice. Those are the loadings (the correlation between each item
-    and a factor) and the edges. Only the fit indices of EFA
-    (exploratory factor analysis) do. Those indices are *approximate*
-    whatever N you pick, because of this two-step route: a FIML matrix
-    fed into normal-theory EFA (Zhang & Savalei, 2020). A string `n_obs`
-    is accepted only on this path.
+    choice. Those are the loadings (how strongly each item reflects a
+    factor) and the edges. Only the fit indices of EFA (exploratory
+    factor analysis) do. Those indices are *approximate* whatever N you
+    pick, because of this two-step route: a FIML matrix fed into
+    normal-theory EFA (Zhang & Savalei, 2020). A string `n_obs` is
+    accepted only on this path.
 
 - align_signs:
 
@@ -192,8 +193,12 @@ ackwards(
 
 - seed:
 
-  Integer seed for stochastic engines (not used by PCA but captured for
-  reproducibility metadata). Default `NULL`.
+  Integer seed for steps that start at random: every lavaan rotation
+  (ESEM) and psych's oblimin rotation for EFA. Both rotate from several
+  random starts and keep the best one. Without a seed, two oblimin EFA
+  fits of the same data can reach a different solution at a deep level.
+  It is not used by PCA but is captured for reproducibility metadata.
+  Default `NULL`.
 
 - pairs:
 
@@ -227,6 +232,46 @@ ackwards(
   correlations inside lavaan, and the Pearson/Spearman bases do not use
   it.
 
+- rotation:
+
+  The rotation used at every level with two or more factors. The
+  default, `"varimax"`, keeps the factors within a level uncorrelated.
+  The other values are oblique rotations, which let them correlate. With
+  `engine = "pca"` or `"efa"`, they are `"oblimin"` and `"promax"`. With
+  these engines `"oblimin"` needs the GPArotation package, and so does
+  `"promax"` with `engine = "efa"`. With `engine = "esem"`, they are
+  `"oblimin"` and `"geomin"` (lavaan's oblique geomin). With PCA,
+  `"promax"` is
+  [`stats::promax()`](https://rdrr.io/r/stats/varimax.html). With EFA it
+  is psych's `Promax()` through
+  [`psych::kaiser()`](https://rdrr.io/pkg/psych/man/kaiser.html). The
+  two can give slightly different loadings for the same solution.
+
+  Under an oblique rotation, each edge `r` is a total correlation.
+  Primary parents and signs still use `r`, and
+  [`tidy.ackwards()`](https://jmgirard.github.io/ackwards/reference/tidy.ackwards.md)
+  reports the partialled `beta` beside it. Each level's `factor_cor`
+  holds the engine's factor correlation. EFA and ESEM scores use the
+  oblique form of the ten Berge weights, and PCA scores are the oblique
+  components, so the scores correlate as the factors do. The `variance`
+  values follow psych's convention for correlated factors. The fit
+  announces what its edges mean, and
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+  warns that its thresholds were set for varimax. Two kinds of rotation
+  start at random: psych's oblimin for `engine = "efa"` and every lavaan
+  rotation. Set `seed` to reproduce such a fit exactly (see `seed`).
+
+  An oblique rotation that fails is handled by how many starts it uses.
+  PCA rotates once, so a level whose rotation fails to converge, or that
+  psych replaces with promax, ends the hierarchy at the level before it
+  with a warning. So does a PCA level whose oblique fit raises an error.
+  EFA (psych's `fa()` defaults to several starts) and ESEM rotate from
+  several random starts and keep the best one, so a non-convergence
+  warning there can come from a discarded start. It is shown, and the
+  level is kept. An EFA level whose final rotation step failed still
+  ends the hierarchy, and so does any EFA rotation warning when the
+  installed psych's `fa()` rotates from one start.
+
 - ...:
 
   Reserved for future arguments.
@@ -246,18 +291,20 @@ for output methods.
 - **`engine = "pca"`** is the original Goldberg (2006) method. PCA
   (principal component analysis) is the fastest engine and never fails
   to converge, and the Waller (2007) algebra is exact for components.
+  (An oblique `rotation` can still fail, see `rotation`.)
 
 - **`rotation = "varimax"`** keeps the within-level factors mutually
   uncorrelated (orthogonal). A rotation re-orients the factors without
   changing how well they fit, and varimax pushes each item toward one
-  factor. So each between-level edge reflects only the cross-level
-  relationship. An oblique rotation's correlated within-level factors
-  would leak into the between-level edges and confound the between-level
-  signal that is the method's core output. The closed-form `W'RW` edge
+  factor. With uncorrelated factors, each between-level edge equals that
+  ancestor's unique contribution to the descendant. That is what lets
+  the edges be read as a lineage diagram. The closed-form `W'RW` edge
   algebra is itself exact for any fixed linear scoring, orthogonal or
   not, so the choice is interpretive, not a numerical necessity. It
   matches Goldberg (2006), Kim & Eaton (2015), and Forbush et al.
-  (2024). Varimax is the only supported rotation.
+  (2024). An oblique rotation is available as a non-default option (see
+  `rotation`). Its edges are total correlations, which also carry
+  overlap through correlated factors at the same level.
 
 - **`cor = "pearson"`** means no silent basis switching. If your items
   look ordinal (\<= 7 distinct integer values), a cli warning will

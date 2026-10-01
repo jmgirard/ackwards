@@ -2,12 +2,14 @@
 
 **ackwards** supports three factor extraction engines. A factor is an
 unobserved dimension that explains why a set of items correlate. The
-engines share the same downstream machinery: the same rotation, the same
-tenBerge scoring weights, and the same between-level correlation
-algebra. A rotation re-orients the factors within a level without
-changing how well they fit. The engines differ in their statistical
-model and in what they report. This vignette explains when each one is
-appropriate and what the differences look like in practice.
+engines share the same downstream machinery: the same default rotation,
+correlation-preserving scoring weights, and the same between-level
+correlation algebra. The weights are ten Berge weights for EFA and ESEM
+and the exact components for PCA. A rotation re-orients the factors
+within a level without changing how well they fit. The engines differ in
+their statistical model and in what they report. This vignette explains
+when each one is appropriate and what the differences look like in
+practice.
 
 ## The three engines at a glance
 
@@ -21,7 +23,8 @@ between two ordinal items, items recorded on an ordered scale with few
 categories, as if each were a continuous variable cut into categories.
 FIML (full-information maximum likelihood) uses every partially observed
 row of the data instead of dropping it. A loading is the correlation
-between an item and a factor.
+between an item and a factor under the default varimax rotation. Under
+an oblique rotation it is the item’s regression weight on the factor.
 
 |  | `"pca"` | `"efa"` | `"esem"` |
 |----|----|----|----|
@@ -467,6 +470,72 @@ need one of the three things it adds (loading SEs, WLSMV, or FIML). It
 is not a required “publication” upgrade. If PCA and EFA/ESEM edges
 agree, you have strong evidence for the hierarchy. If they disagree,
 investigate why.
+
+## Orthogonal or oblique rotation
+
+The edges are correlations between factor scores at different levels,
+and the rotation you choose decides what a single edge means. Under
+varimax, the factors within each level are uncorrelated. So an edge from
+an ancestor to a descendant carries only their direct relationship. The
+correlation is the ancestor’s unique contribution, which is what lets
+the edges be drawn as a lineage diagram and summed, squared, into
+variance accounted for.
+
+Under an oblique rotation, each level’s factors are allowed to
+correlate. That is often a more realistic model for one level taken on
+its own. But a between-level edge then becomes a *total* correlation. It
+mixes the direct ancestor and descendant relationship with overlap
+routed through the ancestor’s correlated neighbors at the same level.
+That quantity is meaningful, because it answers how strongly two
+constructs correlate. But it is no longer, by itself, a lineage
+statement. Thresholds tuned to varimax edges, such as the redundancy
+chase and the display cutoff, also read differently against it.
+
+**ackwards** fits varimax by default. An oblique rotation is available
+with `rotation = "oblimin"`, or `"promax"` for PCA and EFA, or
+`"geomin"` for ESEM. With an oblique fit, the package reports the
+within-level factor correlations beside the edges. It also labels the
+total correlation `r` and the partialled coefficient `beta` separately.
+
+How to decide: if your question is the hierarchy, meaning what splits
+into what and how strongly, keep varimax. If your question is the
+structure of a single level on its own terms, an oblique fit answers it.
+Read its edges as total correlations, and use `beta` for claims about a
+factor’s unique lineage. The primary parents, the sign alignment, and
+the diagram still use `r` under every rotation.
+
+``` r
+
+x_obl <- ackwards(sim16, k_max = 3, rotation = "oblimin")
+#> ℹ Oblique rotation ("oblimin"): the factors within a level can correlate.
+#> ℹ Each edge `r` is a total correlation, which includes overlap through
+#>   correlated factors at the same level. Primary parents and signs use `r`, and
+#>   `tidy(x)` reports the partialled `beta` beside it.
+#> ! A factor's primary parent can then be a factor that only correlates with its
+#>   real parent. Compare `r` with `beta` before reading a split as lineage.
+#> ! The `cut_show` (0.3) and `prune()` `redundancy_r` conventions were calibrated
+#>   under varimax.
+tidy(x_obl, what = "factor_cor")
+#>   level factor_a factor_b       cor
+#> 1     2     m2f1     m2f2 0.2022166
+#> 2     3     m3f1     m3f2 0.1619859
+#> 3     3     m3f1     m3f3 0.1096255
+#> 4     3     m3f2     m3f3 0.2781401
+tidy(x_obl)[, c("from", "to", "r", "beta", "is_primary")]
+#>   from   to          r        beta is_primary
+#> 1 m1f1 m2f1 0.77795504  0.77795504       TRUE
+#> 2 m1f1 m2f2 0.77265477  0.77265477       TRUE
+#> 3 m2f1 m3f1 0.99553571  1.00166881       TRUE
+#> 4 m2f1 m3f2 0.23931033  0.08126852      FALSE
+#> 5 m2f1 m3f3 0.08064518 -0.08476541      FALSE
+#> 6 m2f2 m3f1 0.17222464 -0.03032938      FALSE
+#> 7 m2f2 m3f2 0.79798120  0.78154737       TRUE
+#> 8 m2f2 m3f3 0.80084645  0.81798742       TRUE
+```
+
+The fit’s message says what the edges mean. The `factor_cor` table shows
+how strongly the factors within each level correlate, and the edge table
+shows where `beta` departs from `r`.
 
 ## Missing data
 

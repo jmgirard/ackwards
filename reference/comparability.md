@@ -145,6 +145,14 @@ to 1 index of how similar two loading patterns are. So comparability
 asks whether the two halves' *scores* agree, and phi asks whether their
 *loading patterns* agree.
 
+`comparability()` always uses the varimax rotation, the
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+default, for the full sample and for every half. It has no `rotation`
+argument, so its coefficients describe the varimax hierarchy even when
+you fit
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+with an oblique rotation.
+
 ## Interpreting the output
 
 Coefficients near 1 mean the factor re-emerges in independent
@@ -213,7 +221,7 @@ for the extraction itself.
 # \donttest{
 cmp <- comparability(sim16, k_max = 5, n_splits = 5, seed = 1)
 #> ℹ Fitting 5 split-half replicates (pca, k = 1-5)...
-#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [244ms]
+#> ✔ Fitting 5 split-half replicates (pca, k = 1-5)... [270ms]
 #> 
 cmp
 #> 

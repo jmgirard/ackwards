@@ -100,14 +100,25 @@ machinery
 [`comparability()`](https://jmgirard.github.io/ackwards/reference/comparability.md)
 uses.
 
+Each replicate is refit with the object's `rotation`. Only the edge `r`
+is bootstrapped, so the partialled `beta` and `r2` columns of
+[`tidy.ackwards()`](https://jmgirard.github.io/ackwards/reference/tidy.ackwards.md)
+get no intervals. Under an oblique rotation the interval therefore
+describes the total correlation.
+
 All resample indices are drawn upfront from `seed`, so results are
-reproducible and identical whether replicates run serially or in
-parallel. Replicate fits are dispatched through future.apply when it is
-installed and the user has set a
-[`future::plan()`](https://future.futureverse.org/reference/plan.html).
-Otherwise they run serially, as in the ESEM (exploratory structural
+reproducible. Replicate fits are dispatched through future.apply when it
+is installed, under the user's
+[`future::plan()`](https://future.futureverse.org/reference/plan.html),
+and otherwise run serially, as in the ESEM (exploratory structural
 equation modeling) engine of
 [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md).
+Most replicates are then fully determined by their resample indices, so
+serial and parallel runs agree exactly. The exception is an EFA object
+with `rotation = "oblimin"`: each refit also draws psych's random
+rotation starts. Its results are reproducible under `seed`. They can
+differ between a run with future.apply installed and one without it,
+because the two draw the starts from different random streams.
 
 ## What the intervals do and do not fix
 
@@ -156,7 +167,7 @@ for the augmented edge table.
 x <- ackwards(sim16, k_max = 3)
 x <- boot_edges(x, sim16, n_boot = 100, seed = 1)
 #> ℹ Fitting 100 bootstrap replicates (pca, k = 1-3)...
-#> ✔ Fitting 100 bootstrap replicates (pca, k = 1-3)... [1.8s]
+#> ✔ Fitting 100 bootstrap replicates (pca, k = 1-3)... [1.7s]
 #> 
 x$boot$edges
 #>   from   to level_from level_to           r         se          lo          hi

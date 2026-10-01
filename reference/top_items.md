@@ -1,12 +1,15 @@
 # Display the salient items for each factor
 
 A factor is a summary variable standing in for a group of items that
-move together. A loading is the correlation between an item and a
-factor. Returns, per level and factor, the items whose absolute loading
-meets or exceeds `cut`, sorted by descending absolute loading. This
-gives a concise reading of "what each factor is about" without printing
-a full item-by-factor matrix, which does not scale well to large `k` or
-many items.
+move together. A loading measures how strongly an item reflects a
+factor. Under the default varimax rotation it is the correlation between
+the item and the factor. Under an oblique rotation it is a pattern
+coefficient, the item's regression weight on the factor. Returns, per
+level and factor, the items whose absolute loading meets or exceeds
+`cut`, sorted by descending absolute loading. This gives a concise
+reading of "what each factor is about" without printing a full
+item-by-factor matrix, which does not scale well to large `k` or many
+items.
 
 ## Usage
 

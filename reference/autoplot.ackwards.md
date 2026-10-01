@@ -151,9 +151,9 @@ plot(x, ...)
   When `TRUE`, lists the salient observed items beneath each
   **deepest-level** (`k_max`) factor box, so a publication figure shows
   what each most-granular factor is made of. Items are the top `n_items`
-  by loading (the correlation between an item and a factor), taken in
-  absolute value at or above `item_cut`. The extraction is the same as
-  in
+  by loading (the item-factor correlation under varimax, or the pattern
+  coefficient under an oblique rotation), taken in absolute value at or
+  above `item_cut`. The extraction is the same as in
   [`top_items()`](https://jmgirard.github.io/ackwards/reference/top_items.md).
   Variable labels are shown when the fit carried them, else the item
   IDs. Listed below the boxes in a vertical layout, and to their right

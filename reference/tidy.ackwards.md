@@ -3,8 +3,10 @@
 Returns structured data from an `ackwards` object in tidy format. The
 default (`what = "edges"`) returns the graph edge list that drives
 diagrams. A factor is a summary variable standing in for a group of
-items that move together, and a loading is the correlation between an
-item and a factor.
+items that move together, and a loading measures how strongly an item
+reflects a factor. Under the default varimax rotation a loading is the
+correlation between the item and the factor. Under an oblique rotation
+it is a pattern coefficient, the item's regression weight on the factor.
 
 ## Usage
 
@@ -34,21 +36,27 @@ tidy(
   - `"edges"` *(default)*: one row per directed between-level edge, with
     columns `from`, `to`, `level_from`, `level_to`, `r`, `beta`,
     `is_primary`, `above_cut`. The column `r` is the correlation between
-    the two factors' scores. The column `beta` is the partialled
-    coefficient. It is the standardized regression weight of the `to`
-    factor on all factors of the `from` level together. It removes the
-    part of `r` that the other factors at the `from` level share. Under
-    the default varimax rotation the factors within a level are
-    uncorrelated, so `beta` equals `r`. The two come apart only when the
-    factors within a level are correlated. When the within-level score
-    correlation of the `from` level cannot be inverted, `beta` is `NA`
-    for that level's edges and a warning names the level. That
-    within-level score correlation always comes from the stored score
-    weights and the fit's correlation matrix. This holds even when `r`
-    came from materialised scores (`edge_method = "scores"`, or the
-    scores path under missing data). On those paths the two bases can
-    differ slightly, so `beta` is then an approximation of the
-    regression weight. If
+    the two factors' scores, a total correlation. Under an oblique
+    rotation it includes overlap through correlated factors at the
+    `from` level, and `is_primary` still marks each factor's largest
+    `|r|`. The column `beta` is the partialled coefficient. It is the
+    standardized regression weight of the `to` factor on all factors of
+    the `from` level together. It removes the part of `r` that the other
+    factors at the `from` level share. Under the default varimax
+    rotation the factors within a level are uncorrelated, so `beta`
+    equals `r`. The two come apart only when the factors within a level
+    are correlated. When the within-level score correlation of the
+    `from` level cannot be inverted, `beta` is `NA` for that level's
+    edges and a warning names the level. That within-level score
+    correlation always comes from the stored score weights and the fit's
+    correlation matrix. This holds even when `r` came from materialised
+    scores (`edge_method = "scores"`, or the scores path under missing
+    data). On those paths the two bases can differ slightly, so `beta`
+    is then an approximation of the regression weight. With the default
+    ten Berge or component scores, the within-level score correlation
+    equals the level's factor correlation (`what = "factor_cor"`). With
+    regression scores, the fallback when ten Berge weights fail, the two
+    can differ. If
     [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
     has been run on the object, four bootstrap columns are appended:
     `se`, `lo`, `hi` (bootstrap standard error and percentile
@@ -66,11 +74,16 @@ tidy(
   - `"variance"`: one row per factor x level, with columns `level`,
     `factor`, `proportion`, `cumulative`, `r2`. The first two are
     proportions of total item variance on a 0-1 scale (multiply by 100
-    for a percentage). The column `r2` is the share of the factor's
-    score variance that all factors of the level just above account for
-    together. It is also a proportion on a 0-1 scale, but of that
-    factor's own score variance, not of total item variance, so it is
-    not comparable with `proportion` or `cumulative`. It is `NA` at
+    for a percentage). Under an oblique rotation `proportion` follows
+    psych's convention for correlated factors (`diag(Phi L'L) / p`). The
+    shares still sum to the level's total common variance, so each
+    level's last `cumulative` value equals its varimax value. The
+    running values before it can differ. A factor's share is then not
+    its unique contribution. The column `r2` is the share of the
+    factor's score variance that all factors of the level just above
+    account for together. It is also a proportion on a 0-1 scale, but of
+    that factor's own score variance, not of total item variance, so it
+    is not comparable with `proportion` or `cumulative`. It is `NA` at
     level 1, which has no level above. Under the default varimax
     rotation `r2` equals the sum of the squared `r` values of that
     factor's edges from the level above. It is `NA`, with a warning,
@@ -82,7 +95,8 @@ tidy(
     the correlation between the two factors as the engine reports it, in
     the stored column order and sign. Level 1 has one factor and
     contributes no row. Under the default varimax rotation every `cor`
-    is 0.
+    is 0. Under an oblique rotation it is psych's `Phi` or lavaan's
+    latent correlation.
 
   - `"fit"`: one row per fit statistic x level, with columns `level`,
     `statistic`, `value`. For PCA objects the statistics are

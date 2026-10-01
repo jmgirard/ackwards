@@ -32,12 +32,14 @@ latent factors plus item-specific noise. ESEM (exploratory structural
 equation modeling) fits the same kind of factor model inside a
 structural equation framework, which adds fit indices and standard
 errors. After extraction each engine applies a rotation, which
-re-orients the factors without changing how well they fit. The package
-uses varimax, which pushes each item toward one factor and keeps the
-factors uncorrelated. Ordinal data are items with a few ordered
-categories, such as a 1 to 5 rating. For such data the package can use
-polychoric correlations, which estimate the correlation between the
-continuous traits assumed to underlie the ordered responses.
+re-orients the factors without changing how well they fit. By default
+the package uses varimax, which pushes each item toward one factor and
+keeps the factors uncorrelated. An oblique rotation, which lets the
+factors within a level correlate, is an option. Ordinal data are items
+with a few ordered categories, such as a 1 to 5 rating. For such data
+the package can use polychoric correlations, which estimate the
+correlation between the continuous traits assumed to underlie the
+ordered responses.
 
 Beyond fitting, the package is a full analysis toolkit.
 [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)

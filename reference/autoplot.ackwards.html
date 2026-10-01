@@ -227,8 +227,9 @@ untangle a figure by hand. <code>NULL</code> (default) uses the automatic orderi
 <dd><p>When <code>TRUE</code>, lists the salient observed items beneath each
 <strong>deepest-level</strong> (<code>k_max</code>) factor box, so a publication figure shows what
 each most-granular factor is made of. Items are the top <code>n_items</code> by
-loading (the correlation between an item and a factor), taken in absolute
-value at or above <code>item_cut</code>. The extraction is the same as in
+loading (the item-factor correlation under varimax, or the pattern
+coefficient under an oblique rotation), taken in absolute value at or
+above <code>item_cut</code>. The extraction is the same as in
 <code><a href="top_items.html">top_items()</a></code>. Variable labels are shown when the fit carried them, else
 the item IDs. Listed below the boxes in a vertical layout, and to their
 right in a horizontal one. Default <code>FALSE</code>.</p></dd>

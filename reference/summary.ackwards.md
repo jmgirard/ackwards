@@ -35,7 +35,9 @@ correlation between every pair of factors at that level (the same values
 as `tidy(x, what = "factor_cor")`). The block appears only when some
 pair is correlated, that is when at least one within-level correlation
 exceeds 1e-8 in size. Under the default varimax rotation the factors
-within a level are uncorrelated, so the block is absent.
+within a level are uncorrelated, so the block is absent. Under an
+oblique rotation the block lists the engine's factor correlations, and a
+note under the lineage says that the edges are total correlations.
 
 ## See also
 

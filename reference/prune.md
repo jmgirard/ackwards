@@ -69,13 +69,14 @@ prune(
   - `"artifact"` (or the alias `"artefact"`, normalized to
     `"artifact"`): compute Tucker's congruence coefficient (phi) for all
     cross-level factor pairs and store it in `x$prune$phi`. Congruence
-    is a 0 to 1 index of how similar two loading patterns are, where a
-    loading is the correlation between an item and a factor. This mode
-    also stores structural signals (`few_items`, `orphan`, and
-    `split_merge`) in `x$prune$structural`, and the **near-redundant
-    band** (`near_margin`, see Details) in `x$prune$near_redundant`. No
-    factors are auto-flagged, because artifact identification requires
-    judgment (Forbes, 2023, Wicherts et al., 2016).
+    is a 0 to 1 index of how similar two loading patterns are. A loading
+    is the correlation between an item and a factor under varimax, and
+    the pattern coefficient under an oblique rotation. This mode also
+    stores structural signals (`few_items`, `orphan`, and `split_merge`)
+    in `x$prune$structural`, and the **near-redundant band**
+    (`near_margin`, see Details) in `x$prune$near_redundant`. No factors
+    are auto-flagged, because artifact identification requires judgment
+    (Forbes, 2023, Wicherts et al., 2016).
 
 - manual:
 
@@ -169,6 +170,17 @@ prune(
 `x`, with `$prune` populated (replacing any prior pruning).
 
 ## Details
+
+**Oblique objects.** When
+[`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+was fit with an oblique `rotation`, each edge `r` is a total
+correlation, which includes overlap through correlated factors at the
+same level. Every rule still runs unchanged: the edge criteria on `r`,
+and the congruence (phi) checks and item-assignment signals on the
+loadings, which are then pattern coefficients. A warning names the rules
+that run and says that they assume orthogonal levels. Their default
+thresholds, such as `redundancy_r = 0.9`, were calibrated on varimax
+edges.
 
 **The `"direct"` criterion is a star anchored on the leaf, not a walk.**
 Take a three-level chain candidate with deepest leaf `m3f1` and

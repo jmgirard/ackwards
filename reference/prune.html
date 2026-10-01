@@ -148,8 +148,9 @@ Flagged nodes get <code>pruned = TRUE</code> and <code>prune_reason = "redundant
 <li><p><code>"artifact"</code> (or the alias <code>"artefact"</code>, normalized to <code>"artifact"</code>):
 compute Tucker's congruence coefficient (phi) for all cross-level factor
 pairs and store it in <code>x$prune$phi</code>. Congruence is a 0 to 1 index of how
-similar two loading patterns are, where a loading is the correlation
-between an item and a factor. This mode also stores structural signals
+similar two loading patterns are. A loading is the correlation between
+an item and a factor under varimax, and the pattern coefficient under
+an oblique rotation. This mode also stores structural signals
 (<code>few_items</code>, <code>orphan</code>, and <code>split_merge</code>) in <code>x$prune$structural</code>, and
 the <strong>near-redundant band</strong> (<code>near_margin</code>, see Details) in
 <code>x$prune$near_redundant</code>. No factors are auto-flagged, because artifact
@@ -245,7 +246,14 @@ fully redundant. Only used when <code>rules</code> includes <code>"artifact"</co
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><strong>The <code>"direct"</code> criterion is a star anchored on the leaf, not a walk.</strong>
+    <p><strong>Oblique objects.</strong> When <code><a href="ackwards.html">ackwards()</a></code> was fit with an oblique <code>rotation</code>,
+each edge <code>r</code> is a total correlation, which includes overlap through
+correlated factors at the same level. Every rule still runs unchanged: the
+edge criteria on <code>r</code>, and the congruence (phi) checks and item-assignment
+signals on the loadings, which are then pattern coefficients. A warning names the rules that run and
+says that they assume orthogonal levels. Their default thresholds, such as
+<code>redundancy_r = 0.9</code>, were calibrated on varimax edges.</p>
+<p><strong>The <code>"direct"</code> criterion is a star anchored on the leaf, not a walk.</strong>
 Take a three-level chain candidate with deepest leaf <code>m3f1</code> and shallower
 factors <code>m2f1</code> (level 2) and <code>m1f1</code> (level 1). Under the default <code>"direct"</code>
 criterion the chain <code>m1f1 -&gt; m2f1 -&gt; m3f1</code> forms when <strong>both</strong> direct-to-leaf

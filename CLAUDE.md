@@ -208,12 +208,12 @@ not `main`** — read every “main” in cairn’s rules and CLAUDE section as
 
 ## Out of scope
 
-EAP scoring (declined M28), oblique rotation, and higher-order SEM /
-Schmid-Leiman are out of scope — rationale in `cairn/DESIGN.md` §2 +
-`cairn/DECISIONS.md` (D-002, D-007). (Bootstrap skip-level edge CIs
-shipped M47 as
+EAP scoring (declined M28) and higher-order SEM / Schmid-Leiman are out
+of scope — rationale in `cairn/DESIGN.md` §2 + `cairn/DECISIONS.md`
+(D-007). (Bootstrap skip-level edge CIs shipped M47 as
 [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md);
-no longer deferred.)
+no longer deferred. Oblique rotation shipped M90 as a non-default
+`rotation` option, per D-034 and D-036.)
 
 ## Project tracking (cairn)
 
