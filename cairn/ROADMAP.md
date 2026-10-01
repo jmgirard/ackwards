@@ -10,6 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
+| M93 | Reconcile DESIGN's edge_method text with the code | planned | — | normal | milestones/M93-design-edge-method-reconcile.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 | M92 | Manuscript wording for the oblique rotation option | done | — | normal | milestones/archive/M92-manuscript-oblique-wording.md |
 | M91 | Near-singular guard for the within-level score correlation | done | — | normal | milestones/archive/M91-near-singular-score-cor-guard.md |
@@ -29,6 +30,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 - [low] ESEM varimax hides lavaan's rotation non-convergence, because lavaan's `rotation.args$warn` is off by default. This predates M90 (M90 review). Promote on a report of a silently non-converged varimax ESEM level. — added 2026-09-30, split 2026-10-01
 - [low] `.esem_rotation_args()` detects lavaan's list form through the deprecated `rotation_args` formal, and its pre-0.7 branch is only unit-tested (M90 review). Promote when lavaan drops `rotation_args`. — added 2026-09-30, split 2026-10-01
 - [low] Indefinite R and the near-singular warning (M91 review, F4). With pairwise missing data or a non-PD user matrix, and EFA or ESEM falling back to regression weights, Φ_s can have a negative eigenvalue. `tidy()` then calls it "nearly singular" with a negative value, and `r2` can leave [0, 1] with no warning. Promote on a real fit that shows either. — added 2026-09-30
+- [low] User-facing sample-realized edges: an option to build edges from materialized scores, so that under missing data an edge shows the sample-realized correlation, not the model-implied one. DESIGN §5.3 described it, but no exported function offers it. Demand-gated: promote when a user asks for sample-realized edges. — added 2026-10-01 — M93 plan
 
 ### Forbes website-review feedback (2026-07-23)
 
