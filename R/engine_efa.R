@@ -115,12 +115,12 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
       } # nocov end
     )
 
-    # Score variances: diag(W' R W); exact 1 for tenBerge (orthogonal), but
-    # always compute rather than assume -- Invariant 1.
+    # Score variances: diag(W' R W); exact 1 for tenBerge, but always compute
+    # rather than assume -- Invariant 1.
     score_var <- .score_var(W, R)
 
-    # Variance explained (sum of squared loadings / p)
-    variance <- .variance_explained(L_rot, p, labels_k)
+    # Variance explained, diag(Phi L'L) / p (colSums(L^2) / p under varimax)
+    variance <- .variance_explained(L_rot, p, labels_k, Phi_k)
 
     # Fit indices -- available only when n.obs was supplied; NA otherwise.
     # fit$STATISTIC/dof/PVAL/TLI/BIC are plain scalars; fit$RMSEA is a named
@@ -195,7 +195,7 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
   dn <- dimnames(L)
   Phi <- as.matrix(Phi)
   stopifnot(nrow(Phi) == k, ncol(Phi) == k)
-  oblique <- max(abs(Phi - diag(k))) > 1e-12
+  oblique <- !.near_identity(Phi)
   if (oblique) {
     eig_phi <- eigen(Phi, symmetric = TRUE)
     if (min(eig_phi$values) <= 0) {

@@ -91,11 +91,31 @@ make_labels <- function(k) {
   paste0("m", k, "f", seq_len(k))
 }
 
-# Variance explained per factor (colSums(L^2) / p) + cumulative total, in the
-# c(<labels>, cumulative = <sum>) shape of every level's $variance (s.4). The
-# single computation site for all three engines (M60).
-.variance_explained <- function(L, p, labels) {
-  var_per_factor <- unname(colSums(L^2) / p)
+# TRUE when a factor correlation is the identity up to rounding (|Phi - I|
+# <= 1e-12 everywhere): the orthogonal case. Varimax gives the identity
+# exactly on psych's path and with rounding-level off-diagonals in lavaan's
+# cor.lv. The weight and variance formulas take their orthogonal form here,
+# so the default path keeps its pre-oblique floating-point result.
+.near_identity <- function(Phi, tol = 1e-12) {
+  Phi <- as.matrix(Phi)
+  max(abs(Phi - diag(nrow(Phi)))) <= tol
+}
+
+# Per-factor variance key: diag(Phi L'L), the sum of squares a factor accounts
+# for under psych's Vaccounted convention for oblique solutions. It reduces to
+# colSums(L^2) at Phi = I, which the near-identity case computes directly.
+# The ESEM engine sorts its columns by this same key.
+.variance_key <- function(L, Phi) {
+  if (.near_identity(Phi)) colSums(L^2) else diag(Phi %*% crossprod(L))
+}
+
+# Variance explained per factor (.variance_key() / p) + cumulative total, in
+# the c(<labels>, cumulative = <sum>) shape of every level's $variance (s.4).
+# The single computation site for all three engines (M60). Under an oblique
+# rotation the per-factor values overlap, so the cumulative sum is psych's
+# "Cumulative Var", not a partition of the common variance.
+.variance_explained <- function(L, p, labels, Phi) {
+  var_per_factor <- unname(.variance_key(L, Phi) / p)
   c(stats::setNames(var_per_factor, labels), cumulative = sum(var_per_factor))
 }
 

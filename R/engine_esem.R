@@ -222,10 +222,11 @@
   # Sort factors by descending variance explained (consistent with PCA/EFA convention).
   # `ord` is applied to the loadings here and to lavaan's factor correlation
   # (.carry_factor_cor), so Phi and factor_cor always match the column order
-  # of L. colSums(L^2) is an order-equivalent key for variance explained
-  # (constant divisor p); the variance vector itself is computed once,
-  # post-sort (M60).
-  ord <- order(colSums(L^2), decreasing = TRUE)
+  # of L. .variance_key() is the variance explained times the constant p, in
+  # lavaan's factor order: diag(Phi L'L) under an oblique rotation,
+  # colSums(L^2) under varimax. The variance vector itself is computed once,
+  # post-sort, from the same key (M60).
+  ord <- order(.variance_key(L, Phi_lav), decreasing = TRUE)
   L <- L[, ord, drop = FALSE]
   L_se <- L_se[, ord, drop = FALSE]
   colnames(L) <- labels_k
@@ -271,8 +272,8 @@
 
   score_var <- .score_var(W, r_lv)
 
-  # Variance explained (sum of squared standardized loadings / p)
-  variance <- .variance_explained(L, p, labels_k)
+  # Variance explained, diag(Phi L'L) / p (colSums(L^2) / p under varimax)
+  variance <- .variance_explained(L, p, labels_k, Phi)
 
   # Fit indices: chi, dof, p_value, CFI, TLI, RMSEA, SRMR, BIC.
   # lavaan silently *omits* requested names that don't apply to the fitted

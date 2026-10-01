@@ -45,8 +45,13 @@ pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE,
     # Score variances: diag(W' R W) -- NOT assumed to be 1
     score_var <- .score_var(W, R)
 
-    # Variance explained per factor and cumulative
-    variance <- .variance_explained(L_rot, p, make_labels(k))
+    # Within-level component correlation: psych's $Phi under an oblique
+    # rotation, the identity under varimax (.engine_phi()).
+    Phi_k <- .engine_phi(fit, k)
+
+    # Variance explained per component and cumulative: diag(Phi L'L) / p,
+    # colSums(L^2) / p under varimax
+    variance <- .variance_explained(L_rot, p, make_labels(k), Phi_k)
 
     # Eigenvalues as the "fit" summary for PCA levels
     eig <- fit$values[seq_len(k)]
@@ -64,7 +69,7 @@ pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE,
       # already applied to both loadings and Phi, so the carry order is the
       # identity and the signs are unit (ackwards() applies align_signs).
       factor_cor = .label_phi(
-        .carry_factor_cor(.engine_phi(fit, k), seq_len(k), rep(1, k)),
+        .carry_factor_cor(Phi_k, seq_len(k), rep(1, k)),
         make_labels(k)
       ),
       labels = make_labels(k),

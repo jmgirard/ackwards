@@ -189,6 +189,63 @@ test_that("esem: oblique algebra and scores paths agree (IP2)", {
   }
 })
 
+# ── Variance explained under an oblique rotation ─────────────────────────────
+
+test_that(".variance_explained() is colSums(L^2) / p at Phi = I", {
+  L <- matrix(c(0.8, 0.7, 0.1, 0.2, 0.1, 0.2, 0.6, 0.7), ncol = 2L)
+  v <- .variance_explained(L, 4L, c("a", "b"), diag(2L))
+  expect_identical(names(v), c("a", "b", "cumulative"))
+  expect_equal(unname(v[c("a", "b")]), colSums(L^2) / 4, tolerance = 1e-15)
+  expect_equal(unname(v[["cumulative"]]), sum(L^2) / 4, tolerance = 1e-15)
+})
+
+for (engine in c("pca", "efa")) {
+  test_that(paste0(engine, ": oblique variance equals psych's Vaccounted proportions"), {
+    skip_if_not_installed("GPArotation")
+    x <- cached(ackwards(sim16,
+      k_max = 4, engine = engine, rotation = "oblimin",
+      keep_fits = TRUE
+    ))
+    p <- ncol(sim16)
+    for (ki in 2:4) {
+      lev <- x$levels[[as.character(ki)]]
+      fit <- x$fits[[as.character(ki)]]
+      expect_equal(unname(lev$variance[lev$labels]),
+        unname(fit$Vaccounted["Proportion Var", ]),
+        tolerance = 1e-8
+      )
+      # Not vacuous: the squared-loading formula misses the oracle by far
+      # more than its 1e-8 tolerance.
+      expect_gt(max(abs(lev$variance[lev$labels] - colSums(lev$loadings^2) / p)), 1e-5)
+    }
+  })
+}
+
+test_that("esem: columns sort by the oblique variance key where it disagrees with squared loadings", {
+  skip_if_not_installed("lavaan")
+  x <- cached(ackwards(bfi25,
+    k_max = 5, engine = "esem", rotation = "geomin",
+    keep_fits = TRUE, seed = 1
+  ))
+  lev <- x$levels[["5"]]
+  lav <- .lavaan_pattern(x$fits[["5"]], colnames(bfi25))
+  key_oblique <- diag(lav$Phi %*% crossprod(lav$L))
+  key_squares <- colSums(lav$L^2)
+  ord <- order(key_oblique, decreasing = TRUE)
+  # Precondition: on this level the two keys order the factors differently.
+  expect_false(identical(ord, order(key_squares, decreasing = TRUE)))
+  # The stored columns follow the oblique key ...
+  s <- .applied_signs(lev$loadings, lav$L[, ord])
+  expect_equal(unname(lev$loadings), unname(sweep(lav$L[, ord], 2, s, "*")),
+    tolerance = 1e-10
+  )
+  # ... and the variance is that key over p, in descending order.
+  expect_equal(unname(lev$variance[lev$labels]), unname(key_oblique[ord]) / ncol(bfi25),
+    tolerance = 1e-10
+  )
+  expect_false(is.unsorted(rev(lev$variance[lev$labels])))
+})
+
 test_that("EFA's oblique weights are labeled tenBerge and are not the orthogonal formula", {
   skip_if_not_installed("GPArotation")
   x <- cached(ackwards(sim16, k_max = 3, engine = "efa", rotation = "oblimin"))
