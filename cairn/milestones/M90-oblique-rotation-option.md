@@ -120,6 +120,8 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - 2026-09-30: T10 findings, docs. F2 intro vignette and README, F3 variance, F5 loading definitions (tidy, top_items, autoplot, prune). F6 comparability note and candidate row, F14 prune warning names its rules, F15 boot_edges, F16 and F21 comments, F19 advisory, F20 seed.
 - 2026-09-30: T10 findings, tests and records. F7 invariance test (LΦL' equals varimax LL' on six engine and rotation pairs), F11 reorder assertion, F22 labels test. F8 ledger row E6 (`depart-gap`). F9: the engines vignette keeps master's gt ids. F5 keeps comparability's definition, which is always varimax.
 - 2026-09-30: T10 checks. Full suite 3509 expectations, 0 failures before the vignette rebuild. Three planted defects turned the intended tests red (ESEM fallback without Φ, rotation warnings ignored, psych Φ reversed). README.md keeps its committed CD row, because the README's `suggest_k()` chunk is unseeded.
+- 2026-09-30: T10 DoD gate, first run: coverage 99.98%, from the EFA fallback's `if (flip) w_fall <- -w_fall`. `flip` fires only at k = 1, which is never rotated, and its first site is already `# nocov` for that reason. The line now carries the same marker. Against master the branch removes five `# nocov` sites and adds this one.
+- 2026-09-30: T10 DoD gate, second run passed: check 0/0/0, coverage 100%, prose, freshness, ledger anchors, styler, lintr, and pkgdown clean.
 
 ## Decisions
 

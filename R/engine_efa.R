@@ -146,7 +146,9 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
         # psych's regression weights are R^{-1} L Phi, the oblique regression
         # rule (R^{-1} L under varimax).
         w_fall <- unclass(fit$weights)
-        if (flip) w_fall <- -w_fall
+        # nocov: the k = 1 positive-manifold flip (see `flip` above), never
+        # an oblique branch, because k = 1 is not rotated.
+        if (flip) w_fall <- -w_fall # nocov
         colnames(w_fall) <- labels_k
         rownames(w_fall) <- rownames(R)
         w_fall
