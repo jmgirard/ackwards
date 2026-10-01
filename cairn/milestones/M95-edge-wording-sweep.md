@@ -1,6 +1,6 @@
 # M95: Edge wording sweep across shipped docs and DESIGN §5
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -48,10 +48,10 @@ perl -00 -ne 'print "$ARGV\n$_\n" if /score[\s#'"'"']+correlation|correlations?[
 - AC1 → T1, T2
 - AC2 → T1, T2, T3, T4, T5
 - AC3 → T1, T2, T3, T4, T5
-- AC4 → T3
+- AC4 → T3, T8
 - AC5 → T2
 - AC6 → T5
-- AC7 → T2, T3, T4, T7
+- AC7 → T2, T3, T4, T7, T8
 
 ## Tasks
 
@@ -62,6 +62,7 @@ perl -00 -ne 'print "$ARGV\n$_\n" if /score[\s#'"'"']+correlation|correlations?[
 - [x] T5: Edit DESIGN §5: the §5.1 Waller and scoring text (line 237-240), the §5.2 comments (253-254), and the §5.3 pseudocode signature and body (260-283).
 - [x] T6: Re-read each rewritten claim against `cairn/references/waller2007.md` and the R source (M64, M67, M86). Run `Rscript tools/check-prose.R` on every edited doc file (M85). Add a NEWS entry in the development section.
 - [x] T7: Run `Rscript tools/dod-gate.R` (it includes the vignette-freshness check).
+- [x] T8: Review return fix. Write `W′RW` at the two engines prose mentions of the algebra that lack it (`.Rmd.orig` lines 25-26 and 521). Re-run `precompute.R`, revert run noise, diff the `.Rmd` against master with the stamp removed, and re-run `tools/dod-gate.R`.
 
 ## Work log
 
@@ -81,6 +82,8 @@ perl -00 -ne 'print "$ARGV\n$_\n" if /score[\s#'"'"']+correlation|correlations?[
 - 2026-10-01: the audit's three fixes: the scores branch is reached by the agreement tests and one error-path test (read in tests/testthat), DESCRIPTION credits Waller in the wording `ackwards()` uses, and the README pronoun names the edges. The README.md change keeps the committed `suggest_k()` output, because `build_readme()` re-ran CD to a different k (run noise). Not changed: under `engine = "esem", cor = "spearman"` the weights and edges use the Spearman matrix while lavaan fits Pearson ML. "The correlation matrix the fit uses" then means the Spearman matrix, and `ackwards()` already warns about the mismatch. The `[low]` cross-check-paths candidate row covers that path.
 - 2026-10-01: T7 done. `tools/dod-gate.R` with `DOD_CODE_UNCHANGED=1` passed after the audit fixes: vignette freshness, prose, and the code-unchanged guard clean, check 0/0/0, coverage 100%, style and lint clean, pkgdown index complete. The manuscript re-rendered with exit 0 after its last edit. Status set to review.
 - 2026-10-01: review return 1 (defect, step 3): AC4 fails as written. Two prose mentions of the algebra in `vignettes/ackwards-engines.Rmd.orig` do not write `W′RW`: line 25-26 ("the same between-level correlation algebra") and line 521 ("the usual between-level algebra"). AC1, AC2, AC3, AC5, and AC6 passed with evidence in Review. AC7, the consistency gate, and the independent review did not run, because the fix regenerates the engines vignette. Status set to in-progress.
+- 2026-10-01: minor amendment: added T8 for the AC4 return fix, and mapped AC4 and AC7 to it in Coverage. The fix holds the criteria as written, so no criterion changed.
+- 2026-10-01: T8 done. The engines opening paragraph and FIML bullet now say "`W′RW` between-level" algebra. Re-ran precompute.R. Reverted the four unedited vignettes, three PNGs, and the two engines gt table ids (run noise). The engines `.Rmd` differs from the last commit only in those two lines and the stamp. Freshness check and check-prose pass. `tools/dod-gate.R` with `DOD_CODE_UNCHANGED=1` passed: check 0/0/0, coverage 100%, style, lint, and pkgdown clean. The claim audit was not re-run: the two lines only name the formula that the same article already states. Status set to review.
 
 ## Decisions
 

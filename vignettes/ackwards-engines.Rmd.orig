@@ -22,8 +22,8 @@ has_gpa <- requireNamespace("GPArotation", quietly = TRUE)
 **ackwards** supports three factor extraction engines. A factor is an
 unobserved dimension that explains why a set of items correlate. The engines
 share the same downstream machinery: the same default rotation,
-correlation-preserving scoring weights, and the same between-level correlation
-algebra. The weights are ten Berge weights for EFA and ESEM and the
+correlation-preserving scoring weights, and the same `W′RW` between-level
+correlation algebra. The weights are ten Berge weights for EFA and ESEM and the
 components themselves for PCA. A rotation
 re-orients the factors within a level without changing how well they fit. The
 engines differ in their statistical model and in what they report. This
@@ -518,7 +518,7 @@ documented in `?ackwards`. In brief:
   edges derive from its FIML saturated model. For **`engine = "pca"` or
   `"efa"`** on the Pearson basis, the correlation matrix is estimated by
   `psych::corFiml()` (full-information ML under multivariate normality,
-  MAR-valid) and fed to the usual between-level algebra. The route announces
+  MAR-valid) and fed to the usual `W′RW` between-level algebra. The route announces
   itself with a message. `missing = "fiml"` errors for WLSMV/ULSMV (limited-information
   estimators have no FIML extension) and for a non-Pearson PCA/EFA basis
   (`corFiml()` estimates a multivariate-normal matrix). FIML improves
