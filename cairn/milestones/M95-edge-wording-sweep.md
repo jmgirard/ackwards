@@ -1,6 +1,6 @@
 # M95: Edge wording sweep across shipped docs and DESIGN §5
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -61,7 +61,7 @@ perl -00 -ne 'print "$ARGV\n$_\n" if /score[\s#'"'"']+correlation|correlations?[
 - [x] T4: Edit the manuscript sites (146-148, 304, 407, and T1's other hits). Render the manuscript.
 - [x] T5: Edit DESIGN §5: the §5.1 Waller and scoring text (line 237-240), the §5.2 comments (253-254), and the §5.3 pseudocode signature and body (260-283).
 - [x] T6: Re-read each rewritten claim against `cairn/references/waller2007.md` and the R source (M64, M67, M86). Run `Rscript tools/check-prose.R` on every edited doc file (M85). Add a NEWS entry in the development section.
-- [ ] T7: Run `Rscript tools/dod-gate.R` (it includes the vignette-freshness check).
+- [x] T7: Run `Rscript tools/dod-gate.R` (it includes the vignette-freshness check).
 
 ## Work log
 
@@ -79,6 +79,7 @@ perl -00 -ne 'print "$ARGV\n$_\n" if /score[\s#'"'"']+correlation|correlations?[
 - 2026-10-01: T6 done. Re-read each rewritten Waller claim against `references/waller2007.md` (Eq. 14, §3, the W-to-T correspondence) and each scores-branch and scoring claim against `R/compute_edges.R`, the engines' `scoring` lists, and the `compute_edges()` callers. No claim changed. Re-ran the searches: Q 90 paragraphs, AC1 and AC2 hits all compliant. check-prose passes on every edited package file. In the manuscript the edited lines add no hit, and one split sentence removes one. NEWS gained a dev-section entry.
 - 2026-10-01: claim audit: 46 claims read, 3 corrected — R/compute_edges.R, DESCRIPTION, README.Rmd (plus man/compute_edges.Rd, README.md)
 - 2026-10-01: the audit's three fixes: the scores branch is reached by the agreement tests and one error-path test (read in tests/testthat), DESCRIPTION credits Waller in the wording `ackwards()` uses, and the README pronoun names the edges. The README.md change keeps the committed `suggest_k()` output, because `build_readme()` re-ran CD to a different k (run noise). Not changed: under `engine = "esem", cor = "spearman"` the weights and edges use the Spearman matrix while lavaan fits Pearson ML. "The correlation matrix the fit uses" then means the Spearman matrix, and `ackwards()` already warns about the mismatch. The `[low]` cross-check-paths candidate row covers that path.
+- 2026-10-01: T7 done. `tools/dod-gate.R` with `DOD_CODE_UNCHANGED=1` passed after the audit fixes: vignette freshness, prose, and the code-unchanged guard clean, check 0/0/0, coverage 100%, style and lint clean, pkgdown index complete. The manuscript re-rendered with exit 0 after its last edit. Status set to review.
 
 ## Decisions
 
