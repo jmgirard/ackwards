@@ -669,8 +669,9 @@
 #'   * `"artifact"` (or the alias `"artefact"`, normalized to `"artifact"`):
 #'     compute Tucker's congruence coefficient (phi) for all cross-level factor
 #'     pairs and store it in `x$prune$phi`. Congruence is a 0 to 1 index of how
-#'     similar two loading patterns are, where a loading is the correlation
-#'     between an item and a factor. This mode also stores structural signals
+#'     similar two loading patterns are. A loading is the correlation between
+#'     an item and a factor under varimax, and the pattern coefficient under
+#'     an oblique rotation. This mode also stores structural signals
 #'     (`few_items`, `orphan`, and `split_merge`) in `x$prune$structural`, and
 #'     the **near-redundant band** (`near_margin`, see Details) in
 #'     `x$prune$near_redundant`. No factors are auto-flagged, because artifact
@@ -739,6 +740,13 @@
 #' @param ... Reserved for future methods/arguments.
 #'
 #' @details
+#' **Oblique objects.** When [ackwards()] was fit with an oblique `rotation`,
+#' each edge `r` is a total correlation, which includes overlap through
+#' correlated factors at the same level. Every rule still runs unchanged on
+#' `r`, and `prune()` warns, naming the rules that run, that they assume
+#' orthogonal levels. Their default thresholds, such as `redundancy_r = 0.9`,
+#' were calibrated on varimax edges.
+#'
 #' **The `"direct"` criterion is a star anchored on the leaf, not a walk.**
 #' Take a three-level chain candidate with deepest leaf `m3f1` and shallower
 #' factors `m2f1` (level 2) and `m1f1` (level 1). Under the default `"direct"`
@@ -889,16 +897,16 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
   }
 
   # Oblique objects (D-036): the criteria run unchanged on the marginal r,
-  # whose thresholds were calibrated on varimax edges; say so (Invariant 6).
+  # whose default thresholds were calibrated on varimax edges; say so, naming
+  # the rules that run (Invariant 6).
   if (length(auto_rules) > 0L && .is_oblique(x)) {
     cli::cli_warn(c(
-      "!" = "The default redundancy criterion assumes orthogonal levels, and \\
-             {.arg x} uses the oblique {.val {x$rotation}} rotation.",
+      "!" = "The {.val {auto_rules}} rule{?s} assume{?s/} orthogonal levels, \\
+             and {.arg x} uses the oblique {.val {x$rotation}} rotation.",
       "i" = "Each {.code r} is a total correlation, which includes overlap \\
              through correlated factors at the same level. The rules run \\
-             unchanged on {.code r}, with {.arg redundancy_r} = \\
-             {.val {redundancy_r}} and {.arg orphan_r} = {.val {orphan_r}} \\
-             set for varimax edges."
+             unchanged on {.code r}. Their default thresholds were calibrated \\
+             on varimax edges."
     ))
   }
 

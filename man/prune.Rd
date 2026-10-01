@@ -42,8 +42,9 @@ Flagged nodes get \code{pruned = TRUE} and \code{prune_reason = "redundant"} in
 \item \code{"artifact"} (or the alias \code{"artefact"}, normalized to \code{"artifact"}):
 compute Tucker's congruence coefficient (phi) for all cross-level factor
 pairs and store it in \code{x$prune$phi}. Congruence is a 0 to 1 index of how
-similar two loading patterns are, where a loading is the correlation
-between an item and a factor. This mode also stores structural signals
+similar two loading patterns are. A loading is the correlation between
+an item and a factor under varimax, and the pattern coefficient under
+an oblique rotation. This mode also stores structural signals
 (\code{few_items}, \code{orphan}, and \code{split_merge}) in \code{x$prune$structural}, and
 the \strong{near-redundant band} (\code{near_margin}, see Details) in
 \code{x$prune$near_redundant}. No factors are auto-flagged, because artifact
@@ -145,6 +146,13 @@ with the \code{prune} generics already defined by recursive-partitioning
 packages (e.g. \code{rpart::prune}) regardless of package load order.
 }
 \details{
+\strong{Oblique objects.} When \code{\link[=ackwards]{ackwards()}} was fit with an oblique \code{rotation},
+each edge \code{r} is a total correlation, which includes overlap through
+correlated factors at the same level. Every rule still runs unchanged on
+\code{r}, and \code{prune()} warns, naming the rules that run, that they assume
+orthogonal levels. Their default thresholds, such as \code{redundancy_r = 0.9},
+were calibrated on varimax edges.
+
 \strong{The \code{"direct"} criterion is a star anchored on the leaf, not a walk.}
 Take a three-level chain candidate with deepest leaf \code{m3f1} and shallower
 factors \code{m2f1} (level 2) and \code{m1f1} (level 1). Under the default \code{"direct"}

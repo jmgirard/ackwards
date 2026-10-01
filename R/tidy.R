@@ -11,7 +11,10 @@ generics::glance
 #' Returns structured data from an `ackwards` object in tidy format. The
 #' default (`what = "edges"`) returns the graph edge list that drives diagrams.
 #' A factor is a summary variable standing in for a group of items that move
-#' together, and a loading is the correlation between an item and a factor.
+#' together, and a loading measures how strongly an item reflects a factor.
+#' Under the default varimax rotation a loading is the correlation between the
+#' item and the factor. Under an oblique rotation it is a pattern coefficient,
+#' the item's regression weight on the factor.
 #'
 #' @param x An `ackwards` object.
 #' @param what What to extract:
@@ -53,8 +56,9 @@ generics::glance
 #'     proportions of total item variance on a 0-1 scale (multiply by 100
 #'     for a percentage). Under an oblique rotation `proportion` follows
 #'     psych's convention for correlated factors (`diag(Phi L'L) / p`). The
-#'     factors' shares then overlap, so `cumulative` is their sum, not a
-#'     split of the common variance. The column `r2` is the share of the factor's score
+#'     shares still sum to the level's total common variance, so `cumulative`
+#'     equals its varimax value. A factor's share is then not its unique
+#'     contribution. The column `r2` is the share of the factor's score
 #'     variance that all factors of the level just above account for
 #'     together. It is also a proportion on a 0-1 scale, but of that
 #'     factor's own score variance, not of total item variance, so it is not

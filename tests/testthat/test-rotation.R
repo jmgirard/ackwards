@@ -125,3 +125,22 @@ test_that("boot_edges() refits each replicate with the object's rotation", {
   ))
   expect_identical(seen, c("varimax", "varimax"))
 })
+
+test_that("boot_edges() checks for GPArotation before refitting a rotation that loads it", {
+  skip_if_not_installed("GPArotation")
+  x_obl <- cached(ackwards(sim16, k_max = 3, rotation = "oblimin"))
+  x_pro <- cached(ackwards(sim16, k_max = 3, rotation = "promax"))
+  local_mocked_bindings(
+    check_installed = function(pkg, ...) stop("planted: ", pkg, " is missing"),
+    .package = "rlang"
+  )
+  expect_error(
+    boot_edges(x_obl, sim16, n_boot = 2, seed = 1),
+    "planted: GPArotation is missing",
+    fixed = TRUE
+  )
+  # Control: PCA promax runs without GPArotation, so nothing asks for it.
+  expect_no_error(suppressMessages(suppressWarnings(
+    boot_edges(x_pro, sim16, n_boot = 2, seed = 1)
+  )))
+})

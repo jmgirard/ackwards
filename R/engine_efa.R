@@ -60,6 +60,34 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
       break
     } # nocov end
 
+    # An oblique rotation's failure (M90 Decisions, finding F1). psych::fa()
+    # rotates from 20 random starts (n.rotations) and keeps the best, so a
+    # GPArotation warning can come from a discarded start: re-raise it and
+    # keep the level. A failed final step leaves no rotation matrix, and that
+    # level is not the requested rotation, so it truncates (Invariant 7).
+    if (k > 1L && .is_oblique(rotation)) {
+      rot_msgs <- .psych_rotation_warnings(warn_msgs)
+      if (is.null(fit$rot.mat)) {
+        detail <- if (length(rot_msgs) > 0L) {
+          rot_msgs[[1L]]
+        } else {
+          "psych returned no rotation matrix."
+        }
+        cli::cli_warn(c(
+          "!" = "The {rotation} rotation failed at k = {k}: {detail}",
+          "i" = "Truncating hierarchy at level {k - 1L}."
+        ))
+        break
+      }
+      if (length(rot_msgs) > 0L) {
+        cli::cli_warn(c(
+          "!" = "psych reported a rotation problem at k = {k}: {rot_msgs[[1L]]}",
+          "i" = "psych rotates from 20 random starts and keeps the best one, \\
+                 so the warning can come from a discarded start. The level is kept."
+        ))
+      }
+    }
+
     # Heywood case: warn but do NOT truncate (convergence is data, not an error)
     heywood <- any(fit$uniquenesses < 0, na.rm = TRUE) ||
       any(fit$communalities > 1, na.rm = TRUE)
@@ -88,8 +116,18 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
     # Within-level factor correlation. psych sets $Phi only under an oblique
     # rotation and sorts and sign-flips it with the loadings; varimax leaves it
     # absent and .engine_phi() returns the identity. The weights, the variance,
-    # and factor_cor all read this one matrix.
-    Phi_k <- .engine_phi(fit, k)
+    # and factor_cor all read this one matrix. A non-finite Phi truncates.
+    Phi_k <- tryCatch(
+      .engine_phi(fit, k),
+      error = function(e) {
+        cli::cli_warn(c(
+          "!" = "EFA failed at k = {k}: {conditionMessage(e)}",
+          "i" = "Truncating hierarchy at level {k - 1L}."
+        ))
+        NULL
+      }
+    )
+    if (is.null(Phi_k)) break
 
     # tenBerge weights carry Phi, so the scores reproduce the factor
     # correlation (identity under varimax: uncorrelated, unit variance). The
@@ -97,7 +135,7 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
     weight_method <- "tenBerge"
     W <- tryCatch(
       .tenBerge_weights(R, L_rot, Phi_k),
-      error = function(e) { # nocov start
+      error = function(e) {
         weight_method <<- "regression" # honest label on fallback (Invariant 6)
         cli::cli_warn(
           c(
@@ -112,7 +150,7 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
         colnames(w_fall) <- labels_k
         rownames(w_fall) <- rownames(R)
         w_fall
-      } # nocov end
+      }
     )
 
     # Score variances: diag(W' R W); exact 1 for tenBerge, but always compute
@@ -222,7 +260,8 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
       c(
         "!" = "A factor level is near rank-deficient: {n_clamp} eigenvalue{?s} \\
                of {.code L' R^-1 L} {?is/are} numerically zero.",
-        "i" = "ten Berge scores for this level are not unit-variance; \\
+        "i" = "ten Berge scores for this level neither have unit variance nor \\
+               reproduce the factor correlations; \\
                {.fn compute_edges} still standardizes by the actual score SDs \\
                (edges stay valid), but the factors are poorly separated."
       ),

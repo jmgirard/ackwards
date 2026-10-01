@@ -138,6 +138,7 @@ for (rotation in c("oblimin", "geomin")) {
       k_max = 4, engine = "esem", rotation = rotation,
       keep_fits = TRUE, seed = 1
     ))
+    reordered <- FALSE
     for (ki in 2:4) {
       lev <- x$levels[[as.character(ki)]]
       lav <- .lavaan_pattern(x$fits[[as.character(ki)]], colnames(sim16))
@@ -151,6 +152,7 @@ for (rotation in c("oblimin", "geomin")) {
         s[j] <- if (gap_pos[ord[j]] <= gap_neg[ord[j]]) 1 else -1
       }
       expect_setequal(ord, seq_len(ki))
+      reordered <- reordered || !identical(ord, seq_len(ki))
       expect_equal(unname(lev$loadings),
         unname(sweep(lav$L[, ord, drop = FALSE], 2, s, "*")),
         tolerance = 1e-10
@@ -169,8 +171,42 @@ for (rotation in c("oblimin", "geomin")) {
         tolerance = 1e-8
       )
     }
+    # Some level's stored order differs from lavaan's, so the checks above
+    # saw the permutation carried and not only the identity.
+    expect_true(reordered)
   })
 }
+
+test_that("oblique pattern and factor correlation reproduce the varimax common part", {
+  skip_if_not_installed("GPArotation")
+  skip_if_not_installed("lavaan")
+  # A rotation leaves L Phi L' unchanged, so each oblique level's stored
+  # loadings and factor_cor must give the varimax fit's L L'. This holds only
+  # if factor_cor is in the loadings' column order and signs, and is checked
+  # here without reading the engine's own Phi.
+  specs <- list(
+    c("pca", "oblimin"), c("pca", "promax"), c("efa", "oblimin"),
+    c("efa", "promax"), c("esem", "oblimin"), c("esem", "geomin")
+  )
+  for (s in specs) {
+    x1 <- cached(ackwards(sim16, k_max = 4, engine = s[[1]], rotation = s[[2]], seed = 1))
+    x0 <- cached(ackwards(sim16, k_max = 4, engine = s[[1]], seed = 1))
+    for (ki in c("2", "3", "4")) {
+      l1 <- x1$levels[[ki]]
+      l0 <- x0$levels[[ki]]
+      expect_gt(max(abs(l1$factor_cor[upper.tri(l1$factor_cor)])), 0.05)
+      expect_equal(
+        unname(l1$loadings %*% l1$factor_cor %*% t(l1$loadings)),
+        unname(tcrossprod(l0$loadings)),
+        tolerance = 1e-6, label = paste(s[[1]], s[[2]], "level", ki)
+      )
+      # So the variance values sum to the varimax total.
+      expect_equal(l1$variance[["cumulative"]], l0$variance[["cumulative"]],
+        tolerance = 1e-6, label = paste(s[[1]], s[[2]], "level", ki)
+      )
+    }
+  }
+})
 
 test_that("esem: oblique algebra and scores paths agree (IP2)", {
   skip_if_not_installed("lavaan")
@@ -298,6 +334,11 @@ test_that("an oblique fit announces what its edges mean; a varimax fit does not"
   expect_match(msgs, "Oblique rotation (\"oblimin\")", fixed = TRUE)
   expect_match(msgs, "is a total correlation", fixed = TRUE)
   expect_match(msgs, "conventions were calibrated under varimax", fixed = TRUE)
+  # The cost of reading lineage from r (the D-036 advisory).
+  expect_match(gsub("\\s+", " ", msgs),
+    "primary parent can then be a factor that only correlates with its real parent",
+    fixed = TRUE
+  )
 
   msgs0 <- cli::ansi_strip(paste(
     testthat::capture_messages(suppressWarnings(ackwards(sim16, k_max = 3))),
@@ -310,11 +351,17 @@ test_that("prune() warns on an oblique object that its criterion assumes orthogo
   skip_if_not_installed("GPArotation")
   x <- cached(ackwards(sim16, k_max = 4, rotation = "oblimin"))
   for (rules in list("redundant", "artifact", c("redundant", "artifact"))) {
-    expect_warning(
+    cnd <- expect_warning(
       xp <- prune(x, rules),
-      "assumes orthogonal levels",
+      "assumes? orthogonal levels",
       class = "rlang_warning"
     )
+    # The warning names the rules that ran, and only those.
+    msg <- gsub("\\s+", " ", cli::ansi_strip(conditionMessage(cnd)))
+    for (r in c("redundant", "artifact")) {
+      named <- grepl(paste0("\"", r, "\""), msg, fixed = TRUE)
+      expect_identical(named, r %in% rules, label = paste(r, "named for", toString(rules)))
+    }
     # The rules still ran, on r.
     expect_false(is.null(xp$prune))
   }

@@ -42,12 +42,21 @@
 #' flipping across replicates would corrupt the pooled edge distributions.
 #' This is the same matching machinery [comparability()] uses.
 #'
+#' Each replicate is refit with the object's `rotation`. Only the edge `r` is
+#' bootstrapped, so the partialled `beta` and `r2` columns of
+#' [tidy.ackwards()] get no intervals. Under an oblique rotation the interval
+#' therefore describes the total correlation.
+#'
 #' All resample indices are drawn upfront from `seed`, so results are
-#' reproducible and identical whether replicates run serially or in parallel.
-#' Replicate fits are dispatched through \pkg{future.apply} when it is
-#' installed and the user has set a [future::plan()]. Otherwise they run
+#' reproducible. Replicate fits are dispatched through \pkg{future.apply} when
+#' it is installed, under the user's [future::plan()], and otherwise run
 #' serially, as in the ESEM (exploratory structural equation modeling) engine
-#' of [ackwards()].
+#' of [ackwards()]. Most replicates are then fully determined by their
+#' resample indices, so serial and parallel runs agree exactly. The exception
+#' is an EFA object with `rotation = "oblimin"`: each refit also draws psych's
+#' random rotation starts. With \pkg{future.apply} installed those draws come
+#' from per-replicate random streams, so results still agree across plans.
+#' Without it they come from the global stream that `seed` sets.
 #'
 #' @section What the intervals do and do not fix:
 #' Per-edge intervals make sampling uncertainty **visible**: an edge whose
@@ -159,6 +168,11 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
              instead."
     ))
   }
+
+  # Every refit uses the object's rotation, so a psych rotation that loads
+  # GPArotation needs it here as at fit time. Without it every oblimin refit
+  # fails its rotation and truncates, and the muffled refits would not say why.
+  .check_rotation(x$rotation %||% "varimax", x$engine)
 
   n_boot <- .check_count(n_boot, "n_boot", min = 2L)
   if (!is.numeric(conf) || length(conf) != 1L || is.na(conf) ||

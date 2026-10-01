@@ -346,6 +346,29 @@
            4     m4f2     m4f4 0.104
            4     m4f3     m4f4 0.378
 
+# autoplot snapshot: oblique PCA edge labels and caption
+
+    Code
+      cat(p$labels$caption, "\n")
+    Output
+      Edges are total correlations (r) under the oblique oblimin rotation. The partialled coefficient is beta in tidy(). 
+    Code
+      print(lab, row.names = FALSE)
+    Output
+       from   to   rl
+       m1f1 m2f1  .78
+       m1f1 m2f2  .77
+       m2f1 m3f1 1.00
+       m2f2 m3f2  .80
+       m2f2 m3f3  .80
+       m3f1 m4f3  .80
+       m3f1 m4f4  .86
+       m3f2 m4f1  .96
+       m3f2 m4f2  .34
+       m3f2 m4f3  .36
+       m3f3 m4f1  .35
+       m3f3 m4f2  .98
+
 # print/summary snapshot: EFA fit-index glyph line
 
     Code

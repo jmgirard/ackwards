@@ -142,8 +142,11 @@
 #'   When `TRUE`, the per-level fit objects (psych or lavaan) are stored in
 #'   `x$fits` as a named list indexed by level.
 #' @param seed Integer seed for steps that start at random: every lavaan
-#'   rotation (ESEM) and psych's oblimin rotation for EFA. It is not used by
-#'   PCA but is captured for reproducibility metadata. Default `NULL`.
+#'   rotation (ESEM) and psych's oblimin rotation for EFA. Both rotate from
+#'   several random starts and keep the best one. Without a seed, two oblimin
+#'   EFA fits of the same data can reach a different solution at a deep level.
+#'   It is not used by PCA but is captured for reproducibility metadata.
+#'   Default `NULL`.
 #' @param pairs Which level pairs to compute edges for. `"adjacent"` is the
 #'   default and is the classic Goldberg choice of consecutive levels only.
 #'   `"all"` is the Forbes extension, which takes
@@ -180,7 +183,15 @@
 #'   announces what its edges mean, and [prune()] warns that its thresholds
 #'   were set for varimax. Two kinds of rotation start at random: psych's
 #'   oblimin for `engine = "efa"` and every lavaan rotation. Set `seed` to
-#'   reproduce such a fit exactly.
+#'   reproduce such a fit exactly (see `seed`).
+#'
+#'   A rotation that fails is handled by how many starts it uses. PCA rotates
+#'   once, so a level whose rotation fails to converge, or that psych replaces
+#'   with promax, ends the hierarchy at the level before it with a warning.
+#'   EFA and ESEM rotate from several random starts and keep the best one, so
+#'   a non-convergence warning there can come from a discarded start. It is
+#'   shown, and the level is kept. An EFA level whose final rotation step
+#'   failed still ends the hierarchy.
 #' @param ... Reserved for future arguments.
 #'
 #' @return An object of class `"ackwards"`. See [print.ackwards()],
@@ -1054,6 +1065,9 @@ ackwards <- function(
              overlap through correlated factors at the same level. Primary \\
              parents and signs use {.code r}, and {.code tidy(x)} reports the \\
              partialled {.code beta} beside it.",
+      "!" = "A factor's primary parent can then be a factor that only \\
+             correlates with its real parent. Compare {.code r} with \\
+             {.code beta} before reading a split as lineage.",
       "!" = "The {.arg cut_show} ({.val {cut_show}}) and {.fn prune} \\
              {.arg redundancy_r} conventions were calibrated under varimax."
     ))

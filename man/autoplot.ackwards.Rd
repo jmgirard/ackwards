@@ -112,8 +112,9 @@ untangle a figure by hand. \code{NULL} (default) uses the automatic ordering.}
 \item{show_items}{When \code{TRUE}, lists the salient observed items beneath each
 \strong{deepest-level} (\code{k_max}) factor box, so a publication figure shows what
 each most-granular factor is made of. Items are the top \code{n_items} by
-loading (the correlation between an item and a factor), taken in absolute
-value at or above \code{item_cut}. The extraction is the same as in
+loading (the item-factor correlation under varimax, or the pattern
+coefficient under an oblique rotation), taken in absolute value at or
+above \code{item_cut}. The extraction is the same as in
 \code{\link[=top_items]{top_items()}}. Variable labels are shown when the fit carried them, else
 the item IDs. Listed below the boxes in a vertical layout, and to their
 right in a horizontal one. Default \code{FALSE}.}

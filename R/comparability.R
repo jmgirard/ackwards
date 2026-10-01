@@ -47,6 +47,11 @@
 #' two halves' *scores* agree, and phi asks whether their *loading patterns*
 #' agree.
 #'
+#' `comparability()` always uses the varimax rotation, the [ackwards()]
+#' default, for the full sample and for every half. It has no `rotation`
+#' argument, so its coefficients describe the varimax hierarchy even when you
+#' fit [ackwards()] with an oblique rotation.
+#'
 #' @section Interpreting the output:
 #' Coefficients near 1 mean the factor re-emerges in independent half-samples.
 #' A factor whose comparability is low is sample-idiosyncratic and should not

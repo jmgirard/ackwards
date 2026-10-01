@@ -52,7 +52,7 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - AC2 → T2, T3, T4
 - AC3 → T3, T4
 - AC4 → T5
-- AC5 → T6
+- AC5 → T6, T10
 - AC6 → T7
 - AC7 → T8
 - AC8 → T2
@@ -60,7 +60,7 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - AC10 → T5
 - AC11 → T8
 - AC12 → T9
-- AC13 → T9
+- AC13 → T9, T10
 
 ## Tasks
 
@@ -73,6 +73,7 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - [x] T7: Fit-time cli advisory (IP6) and the `prune()` stance per the D-entry. Tests assert the message text and the warn-or-implement branch.
 - [x] T8: `data-raw/forbes2023-oblique.R` (md5-pinned OSF `7jfkw` functions, oblique branch). Reconcile her unstandardized `comp.corr` with standardized edges through `D`. Fixture plus provenance, `test-forbes-fidelity.R` oblique block, ORACLES rows.
 - [x] T9: Docs per AC12 (roxygen, `ackwards-engines.Rmd.orig` plus precompute, NEWS, DESIGN §9 row). Run `devtools::document()` and `Rscript tools/dod-gate.R`.
+- [ ] T10: Review pass 1 rework. Snapshot the oblique `autoplot()` edge labels and caption as text (AC5). Remove `# nocov` from the oblique branches and cover each with a test (AC13). Make the fix-now parts of findings F1 to F22 in Review. Re-run `Rscript tools/dod-gate.R`.
 
 ## Work log
 
@@ -110,6 +111,15 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - 2026-09-30: T9 done, all nine tasks checked. Status set to review.
 - 2026-09-30: review pass 1 checkpoint, partial: AC1 to AC13 evidence recorded except AC12 (vignette rebuild running). AC5 and AC13 fail as written. Reviewer findings pending.
 - 2026-09-30: review pass 1 returned the milestone to in-progress (defect return 1). AC5 failed: no test snapshots the `autoplot()` edge labels on an oblique fit. AC13 failed: oblique branches sit under `# nocov` at `R/engine_esem.R:212-221`, `R/engine_efa.R:100-115`, and `R/engine_esem.R:250-263`. The 24 reviewer findings F1 to F24 are in Review with proposed dispositions.
+- 2026-09-30: resumed after defect return 1. At the implement gate, the owner chose to make every fix-now part of the review's proposals in this pass. The review gate decides the follow-ups and rejections. The owner also chose the per-engine rotation-failure rule (Decisions) and a text snapshot for AC5, so no new dependency.
+- 2026-09-30: minor amendment. T10 added for the pass-1 rework, and Coverage maps AC5 and AC13 to it as well.
+- 2026-09-30: correction of a gate premise. The gate said psych rotates once, but only `psych::pca()` does (`n.rotations = 1`). `psych::fa()` uses `n.rotations = 20`. The owner then chose the start-count rule now in Decisions.
+- 2026-09-30: T10 AC5. `test-print-snapshot.R` snapshots the oblique PCA plot's edge-label layer (from, to, printed r) and its caption, drawn with `show_r = TRUE`.
+- 2026-09-30: T10 AC13. The three oblique `# nocov` blocks are gone, along with the ESEM blocks they fed (no-weights truncation, fallback warning). `test-oblique-branches.R` reaches each by planting the failing step. The EFA and ESEM fallbacks equal R⁻¹LΦ at 1e-8.
+- 2026-09-30: T10 findings. F1 per Decisions. F17: a non-finite Φ truncates on all three engines, and PCA now builds its level list as EFA does. F18: `.esem_read_phi()` matches cor.lv by name or errors. F4: `boot_edges()` runs `.check_rotation()`.
+- 2026-09-30: T10 findings, docs. F2 intro vignette and README, F3 variance, F5 loading definitions (tidy, top_items, autoplot, prune). F6 comparability note and candidate row, F14 prune warning names its rules, F15 boot_edges, F16 and F21 comments, F19 advisory, F20 seed.
+- 2026-09-30: T10 findings, tests and records. F7 invariance test (LΦL' equals varimax LL' on six engine and rotation pairs), F11 reorder assertion, F22 labels test. F8 ledger row E6 (`depart-gap`). F9: the engines vignette keeps master's gt ids. F5 keeps comparability's definition, which is always varimax.
+- 2026-09-30: T10 checks. Full suite 3509 expectations, 0 failures before the vignette rebuild. Three planted defects turned the intended tests red (ESEM fallback without Φ, rotation warnings ignored, psych Φ reversed). README.md keeps its committed CD row, because the README's `suggest_k()` chunk is unseeded.
 
 ## Decisions
 
@@ -120,6 +130,7 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - 2026-09-30 (T8): The minres + oblimin runs use an absolute 1e-4, and every other run uses 1e-10. psych's `fa()` draws 20 random rotation starts, and her function fits each level twice, so those runs differ by up to 1.0e-5. A method error moves edges by 1e-2 or more.
 - 2026-09-30 (T8): The chase check runs her own chase on the D-standardized `comp.corr` and compares it with our direct chase. For a level-3+ component whose chase is unbroken to level a, her code returns "null" through a `which.min()` quirk. The test expects a1 there and asserts her "null".
 - 2026-09-30 (supersedes the GPArotation entry above): the guard covers `oblimin` on PCA and EFA and `promax` on EFA only, per D-037. The earlier entry generalized psych's EFA promax path to both engines, but psych's PCA promax uses `stats::promax()`.
+- 2026-09-30 (T10, finding F1): a failed oblique rotation is handled by the number of starts the engine rotates from. psych's `pca()` rotates once. So GPArotation's "Convergence not obtained" warning, or psych's note that it used Promax instead, describes the stored solution. That PCA level warns and the hierarchy ends at the level before it (IP7), as for an estimation failure. psych's `fa()` rotates from 20 random starts and lavaan from 30, and each keeps the best. Their warnings can come from a discarded start. The package re-raises them as a cli warning that names the level, and keeps the level. An EFA level whose final rotation step failed has no rotation matrix (`rot.mat`). It is not the requested rotation, so it ends the hierarchy too. ESEM surfaces the lavaan warning only under an oblique rotation, so the default path does not change.
 
 ## Review
 

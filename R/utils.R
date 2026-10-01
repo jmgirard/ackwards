@@ -98,7 +98,8 @@ make_labels <- function(k) {
 # so the default path keeps its pre-oblique floating-point result.
 .near_identity <- function(Phi, tol = 1e-12) {
   Phi <- as.matrix(Phi)
-  max(abs(Phi - diag(nrow(Phi)))) <= tol
+  # isTRUE(): a non-finite Phi is not the identity (NA would abort an if()).
+  isTRUE(max(abs(Phi - diag(nrow(Phi)))) <= tol)
 }
 
 # Per-factor variance key: diag(Phi L'L), the sum of squares a factor accounts
@@ -112,8 +113,9 @@ make_labels <- function(k) {
 # Variance explained per factor (.variance_key() / p) + cumulative total, in
 # the c(<labels>, cumulative = <sum>) shape of every level's $variance (s.4).
 # The single computation site for all three engines (M60). Under an oblique
-# rotation the per-factor values overlap, so the cumulative sum is psych's
-# "Cumulative Var", not a partition of the common variance.
+# rotation the per-factor values still sum to tr(L Phi L') / p, the total
+# common variance, which is the varimax total. A factor's value is then not
+# its unique share: it sums pattern loadings times structure correlations.
 .variance_explained <- function(L, p, labels, Phi) {
   var_per_factor <- unname(.variance_key(L, Phi) / p)
   c(stats::setNames(var_per_factor, labels), cumulative = sum(var_per_factor))
@@ -150,13 +152,34 @@ make_labels <- function(k) {
 # default) the factors are orthogonal and `$Phi` is absent, so the identity
 # is the correct correlation. k = 1 has no rotation and returns the 1 x 1
 # identity. A stored `$Phi` is returned as a plain unnamed matrix so the
-# caller applies its own labels.
+# caller applies its own labels. A non-finite `$Phi` is an error, which the
+# engines turn into a truncation warning (Invariant 7).
 .engine_phi <- function(fit, k) {
   Phi <- fit$Phi
   if (is.null(Phi) || k == 1L) {
     return(diag(k))
   }
-  unname(as.matrix(Phi))
+  Phi <- unname(as.matrix(Phi))
+  if (!all(is.finite(Phi))) stop("the factor correlations are not finite.")
+  Phi
+}
+
+# The warnings psych gives when an oblique rotation fails: GPArotation's
+# non-convergence, psych's note that it used Promax in place of the requested
+# rotation, and its notice that GPArotation is missing. Returns the matching
+# messages (character(0) when none).
+.psych_rotation_warnings <- function(msgs) {
+  grep(
+    "Convergence not obtained|Promax was used instead|requires the GPArotation package",
+    msgs,
+    value = TRUE
+  )
+}
+
+# Oblique regression (Thurstone) weights R^{-1} L Phi, which are R^{-1} L
+# under varimax. The ESEM engine's fallback when tenBerge weights fail.
+.regression_weights <- function(R, L, Phi) {
+  solve(R) %*% L %*% Phi
 }
 
 # Actual score variances diag(W' R W) -- never assumed 1 (Invariant 1). Shared

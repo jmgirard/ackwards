@@ -1,19 +1,19 @@
 # PCA engine -- internal, not exported
 #' @importFrom stats setNames
 #
-# Uses psych::pca() (varimax rotation), which is the same function
-# psych::bassAckward() uses internally -- ensures our PCA path matches
-# psych's reference implementation within floating-point tolerance.
+# Uses psych::pca() (varimax by default, or the oblique `rotation`), which is
+# the same function psych::bassAckward() uses internally -- ensures our PCA
+# path matches psych's reference implementation within floating-point
+# tolerance. A failed oblique rotation or a non-finite component correlation
+# truncates the hierarchy at the level before it (Invariant 7).
 #
 # Returns list(levels = <named list per s.4 contract>, fits = <named list | NULL>)
 
 pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE,
                        rotation = "varimax") {
   p <- nrow(R)
-  result <- vector("list", k_max)
-  names(result) <- as.character(seq_len(k_max))
-  fits_list <- if (keep_fits) vector("list", k_max) else NULL
-  if (keep_fits) names(fits_list) <- as.character(seq_len(k_max))
+  result <- list()
+  fits_list <- if (keep_fits) list() else NULL
 
   for (k in seq_len(k_max)) {
     if (k == 1L) {
@@ -26,7 +26,27 @@ pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE,
         fit$weights <- -fit$weights
       } # nocov end
     } else {
-      fit <- psych::pca(R, nfactors = k, rotate = rotation)
+      # psych::pca() rotates from one start (n.rotations = 1), so a rotation
+      # warning describes the stored solution: GPArotation did not converge,
+      # or psych used Promax in place of the requested rotation. That level
+      # truncates (M90 Decisions, finding F1). Other warnings pass through.
+      rot_msgs <- character(0)
+      fit <- withCallingHandlers(
+        psych::pca(R, nfactors = k, rotate = rotation),
+        warning = function(w) {
+          if (length(.psych_rotation_warnings(conditionMessage(w))) > 0L) {
+            rot_msgs <<- c(rot_msgs, conditionMessage(w))
+            invokeRestart("muffleWarning")
+          }
+        }
+      )
+      if (length(rot_msgs) > 0L) {
+        cli::cli_warn(c(
+          "!" = "The {rotation} rotation failed at k = {k}: {rot_msgs[[1L]]}",
+          "i" = "Truncating hierarchy at level {k - 1L}."
+        ))
+        break
+      }
       L_rot <- unclass(fit$loadings)
     }
 
@@ -50,8 +70,19 @@ pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE,
     score_var <- .score_var(W, R)
 
     # Within-level component correlation: psych's $Phi under an oblique
-    # rotation, the identity under varimax (.engine_phi()).
-    Phi_k <- .engine_phi(fit, k)
+    # rotation, the identity under varimax (.engine_phi()). A non-finite Phi
+    # truncates.
+    Phi_k <- tryCatch(
+      .engine_phi(fit, k),
+      error = function(e) {
+        cli::cli_warn(c(
+          "!" = "PCA failed at k = {k}: {conditionMessage(e)}",
+          "i" = "Truncating hierarchy at level {k - 1L}."
+        ))
+        NULL
+      }
+    )
+    if (is.null(Phi_k)) break
 
     # Variance explained per component and cumulative: diag(Phi L'L) / p,
     # colSums(L^2) / p under varimax

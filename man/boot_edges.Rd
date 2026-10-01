@@ -73,12 +73,21 @@ correlation matrix. Without anchoring, factor label switching and sign
 flipping across replicates would corrupt the pooled edge distributions.
 This is the same matching machinery \code{\link[=comparability]{comparability()}} uses.
 
+Each replicate is refit with the object's \code{rotation}. Only the edge \code{r} is
+bootstrapped, so the partialled \code{beta} and \code{r2} columns of
+\code{\link[=tidy.ackwards]{tidy.ackwards()}} get no intervals. Under an oblique rotation the interval
+therefore describes the total correlation.
+
 All resample indices are drawn upfront from \code{seed}, so results are
-reproducible and identical whether replicates run serially or in parallel.
-Replicate fits are dispatched through \pkg{future.apply} when it is
-installed and the user has set a \code{\link[future:plan]{future::plan()}}. Otherwise they run
+reproducible. Replicate fits are dispatched through \pkg{future.apply} when
+it is installed, under the user's \code{\link[future:plan]{future::plan()}}, and otherwise run
 serially, as in the ESEM (exploratory structural equation modeling) engine
-of \code{\link[=ackwards]{ackwards()}}.
+of \code{\link[=ackwards]{ackwards()}}. Most replicates are then fully determined by their
+resample indices, so serial and parallel runs agree exactly. The exception
+is an EFA object with \code{rotation = "oblimin"}: each refit also draws psych's
+random rotation starts. With \pkg{future.apply} installed those draws come
+from per-replicate random streams, so results still agree across plans.
+Without it they come from the global stream that \code{seed} sets.
 }
 \section{What the intervals do and do not fix}{
 

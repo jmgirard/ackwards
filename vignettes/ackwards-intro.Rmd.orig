@@ -145,8 +145,10 @@ raised. Setting `cor = "polychoric"` is exactly how you heed it. It tells
 > relationship. Under an oblique rotation the within-level factors are
 > themselves correlated (Φ ≠ I), and that within-level correlation leaks into
 > the between-level edges. It confounds the within-versus-between question the
-> method exists to answer. That confound is why the package does not offer
-> oblique rotations. Varimax is the orthogonal rotation Goldberg (2006) used.
+> method exists to answer. That confound is why varimax is the default. An
+> oblique rotation is available through the `rotation` argument, and
+> `vignette("ackwards-engines")` explains how to read its edges. Varimax is
+> the orthogonal rotation Goldberg (2006) used.
 > It is also the same rotation as the "CF-VARIMAX" reported by Mplus-based
 > papers such as Kim & Eaton (2015), because `CF(κ = 1/p)` is varimax. The two
 > labels are not competing choices.*

@@ -67,7 +67,7 @@
 #               "oblimin" / "geomin"); validated upstream by .check_rotation().
 #
 # Returns one of:
-#   list(status = "ok", k, level, bad_resid, ss, r_lv, fit_raw)
+#   list(status = "ok", k, level, bad_resid, ss, r_lv, fit_raw, rotation_msg)
 #   list(status = "error",        k, error_msg)
 #   list(status = "nonconverged", k)
 .esem_fit_one <- function(k, data_df, estimator, cor, ordered_cols, lav_missing,
@@ -90,9 +90,18 @@
   if (!is.null(ss_in)) efa_args[[.esem_ss_argname()]] <- ss_in
 
   # lavaan emits fit-time warnings (e.g. non-PD vcov) that are not actionable
-  # here; suppress them around the fit only (matches pre-M26 muffling behaviour).
+  # here; muffle them around the fit only (matches pre-M26 muffling behaviour).
+  # They are recorded so that an oblique rotation's non-convergence can be
+  # reported by the caller (M90 Decisions, finding F1).
+  fit_warnings <- character(0)
   fit_raw <- tryCatch(
-    suppressWarnings(do.call(lavaan::efa, efa_args)),
+    withCallingHandlers(
+      do.call(lavaan::efa, efa_args),
+      warning = function(w) {
+        fit_warnings <<- c(fit_warnings, conditionMessage(w))
+        invokeRestart("muffleWarning")
+      }
+    ),
     error = function(e) {
       structure(list(msg = conditionMessage(e)), class = "esem_fit_error")
     }
@@ -193,23 +202,12 @@
 
   labels_k <- make_labels(k)
 
-  # Within-level factor correlations: lavaan's cor.lv, indexed by lavaan's
-  # factor names so its rows match the loading columns (factors_lav). It is
-  # the identity under orthogonal rotation, up to rounding. An oblique fit
-  # whose correlation cannot be read is an error (the level truncates with a
-  # warning), never a silent identity.
-  Phi_lav <- tryCatch(
-    {
-      Phi <- lavaan::lavInspect(fit, "cor.lv")
-      if (!is.null(rownames(Phi)) && all(factors_lav %in% rownames(Phi))) {
-        Phi <- Phi[factors_lav, factors_lav, drop = FALSE]
-      }
-      stopifnot(is.matrix(Phi), nrow(Phi) == k) # else the handler's NULL
-      unname(Phi)
-    },
-    error = function(e) NULL
-  )
-  if (is.null(Phi_lav)) { # nocov start
+  # Within-level factor correlations (.esem_read_phi()). It is the identity
+  # under orthogonal rotation, up to rounding, so a failed read takes the
+  # identity there. An oblique fit whose correlation cannot be read is an
+  # error (the level truncates with a warning), never a silent identity.
+  Phi_lav <- tryCatch(.esem_read_phi(fit, factors_lav), error = function(e) NULL)
+  if (is.null(Phi_lav)) {
     if (rotate_k %in% c("none", "varimax")) {
       Phi_lav <- diag(k)
     } else {
@@ -218,9 +216,11 @@
         error_msg = "could not extract the factor correlations"
       ))
     }
-  } # nocov end
+  }
 
-  # Sort factors by descending variance explained (consistent with PCA/EFA convention).
+  # Sort factors by descending variance explained. This is the EFA engine's
+  # order (psych::fa() sorts by the same key); PCA keeps psych::pca()'s order,
+  # which matches it under varimax only (engine_pca.R).
   # `ord` is applied to the loadings here and to lavaan's factor correlation
   # (.carry_factor_cor), so Phi and factor_cor always match the column order
   # of L. .variance_key() is the variance explained times the constant p, in
@@ -247,27 +247,18 @@
   weight_method <- "tenBerge"
   W <- tryCatch(
     .tenBerge_weights(r_lv, L, Phi),
-    error = function(e) { # nocov start
+    error = function(e) {
       weight_method <<- "regression"
-      tryCatch(
-        {
-          # Oblique regression rule R^{-1} L Phi (R^{-1} L when Phi = I).
-          Ri <- solve(r_lv)
-          W_reg <- Ri %*% L %*% Phi
-          colnames(W_reg) <- labels_k
-          rownames(W_reg) <- item_names
-          W_reg
-        },
-        error = function(e2) NULL
-      )
-    } # nocov end
+      # Oblique regression rule R^{-1} L Phi (R^{-1} L when Phi = I).
+      tryCatch(.regression_weights(r_lv, L, Phi), error = function(e2) NULL)
+    }
   )
-  if (is.null(W)) { # nocov start
+  if (is.null(W)) {
     return(list(
       status = "error", k = k,
       error_msg = "could not compute scoring weights"
     ))
-  } # nocov end
+  }
   colnames(W) <- labels_k
   rownames(W) <- item_names
 
@@ -345,15 +336,40 @@
     )
   )
 
+  # lavaan rotates from 30 random starts (rotation.args$rstarts) and keeps the
+  # best one, so its non-convergence warning can come from a discarded start:
+  # the caller reports it and keeps the level. Oblique rotations only, so the
+  # default varimax path is unchanged.
+  rot_warnings <- if (rotate_k %in% c("none", "varimax")) {
+    character(0)
+  } else {
+    grep("rotation algorithm did not converge", fit_warnings, value = TRUE, fixed = TRUE)
+  }
+
   list(
-    status    = "ok",
-    k         = k,
-    level     = level,
-    bad_resid = bad_resid,
-    ss        = harvested_ss,
-    r_lv      = r_lv,
-    fit_raw   = if (keep_fit) fit else NULL
+    status       = "ok",
+    k            = k,
+    level        = level,
+    bad_resid    = bad_resid,
+    ss           = harvested_ss,
+    r_lv         = r_lv,
+    fit_raw      = if (keep_fit) fit else NULL,
+    rotation_msg = if (length(rot_warnings) > 0L) rot_warnings[[1L]] else NULL
   )
+}
+
+# lavaan's within-level factor correlation (cor.lv) for one fit, with rows and
+# columns in lavaan's loading-column order `factors_lav`. The rows are matched
+# by lavaan's factor names, never by position, so a cor.lv without matching
+# names is an error, as is a non-finite one. Returned unnamed.
+.esem_read_phi <- function(fit, factors_lav) {
+  Phi <- lavaan::lavInspect(fit, "cor.lv")
+  if (is.null(rownames(Phi)) || !all(factors_lav %in% rownames(Phi))) {
+    stop("lavaan's cor.lv does not carry the loading columns' factor names.")
+  }
+  Phi <- as.matrix(Phi[factors_lav, factors_lav, drop = FALSE])
+  if (!all(is.finite(Phi))) stop("lavaan's cor.lv is not finite.")
+  unname(Phi)
 }
 
 # --- Driver: fit all levels 1..k_max -----------------------------------------
@@ -473,12 +489,19 @@ esem_levels <- function(data, k_max, estimator, cor,
         )
       )
     }
-    if (identical(res$level$scoring$method, "regression")) { # nocov start
+    if (!is.null(res$rotation_msg)) {
+      cli::cli_warn(c(
+        "!" = "lavaan reported a rotation problem at k = {k}: {res$rotation_msg}",
+        "i" = "lavaan rotates from 30 random starts and keeps the best one, \\
+               so the warning can come from a discarded start. The level is kept."
+      ))
+    }
+    if (identical(res$level$scoring$method, "regression")) {
       cli::cli_warn(c(
         "!" = "tenBerge weights failed at k = {k}; \\
                used regression (Thurstone) weights instead."
       ))
-    } # nocov end
+    }
     result[[as.character(k)]] <- res$level
     if (keep_fits) fits_list[[as.character(k)]] <- res$fit_raw
   }

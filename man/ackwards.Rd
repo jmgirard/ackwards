@@ -144,8 +144,11 @@ When \code{TRUE}, the per-level fit objects (psych or lavaan) are stored in
 \code{x$fits} as a named list indexed by level.}
 
 \item{seed}{Integer seed for steps that start at random: every lavaan
-rotation (ESEM) and psych's oblimin rotation for EFA. It is not used by
-PCA but is captured for reproducibility metadata. Default \code{NULL}.}
+rotation (ESEM) and psych's oblimin rotation for EFA. Both rotate from
+several random starts and keep the best one. Without a seed, two oblimin
+EFA fits of the same data can reach a different solution at a deep level.
+It is not used by PCA but is captured for reproducibility metadata.
+Default \code{NULL}.}
 
 \item{pairs}{Which level pairs to compute edges for. \code{"adjacent"} is the
 default and is the classic Goldberg choice of consecutive levels only.
@@ -186,7 +189,15 @@ values follow psych's convention for correlated factors. The fit
 announces what its edges mean, and \code{\link[=prune]{prune()}} warns that its thresholds
 were set for varimax. Two kinds of rotation start at random: psych's
 oblimin for \code{engine = "efa"} and every lavaan rotation. Set \code{seed} to
-reproduce such a fit exactly.}
+reproduce such a fit exactly (see \code{seed}).
+
+A rotation that fails is handled by how many starts it uses. PCA rotates
+once, so a level whose rotation fails to converge, or that psych replaces
+with promax, ends the hierarchy at the level before it with a warning.
+EFA and ESEM rotate from several random starts and keep the best one, so
+a non-convergence warning there can come from a discarded start. It is
+shown, and the level is kept. An EFA level whose final rotation step
+failed still ends the hierarchy.}
 
 \item{...}{Reserved for future arguments.}
 }
