@@ -1,13 +1,13 @@
 # M91: Near-singular guard for the within-level score correlation
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** IP6, GP1, GP2
 - **Resolves:** —
 - **Surface tier:** user-facing, because it adds a warning to `tidy()` output and changes the user docs
-- **Branch/PR:** —
+- **Branch/PR:** m091-near-singular-score-cor-guard
 
 ## Goal
 
@@ -49,7 +49,9 @@ GP1 trade: 1e-2 is a numerical guard that the package chose, not a published cut
 - 2026-09-30: criteria audit ran in full mode twice (fresh-context Opus readers). The first pass returned 12 findings on an earlier draft and the second returned 7 on this one. All were fixed at the plan gate, and no criterion carries an open finding. AC1 now excludes the deepest level, asserts the warning count, and uses a relative tolerance. The plants rebuild their edge matrices, a level-3 plant joins, and the scores-path plant is gone (no `ackwards()` object takes that path). Plants and controls sit at the cutoff's edge. Test wording moved from the criteria to T1. AC5 narrowed from the gate script to `devtools::check()`, and the GP1 trade is stated.
 - 2026-09-30: plan gate chose a 1e-2 cutoff over the 1e-4 item-matrix cutoff. At 4.5e-4, a planted level reached a `beta` of about 33 with no warning. It also rejected a variance-inflation cutoff of 10, which needs an outside source and is disputed. Falsified by a real fit that warns at 1e-2 while its `beta` stays stable across resamples.
 - 2026-09-30: plan gate chose to warn from the edge table only, not also from the variance table and `summary()`. On consistent plants, `r2` stayed between 0.49 and 0.99 down to an eigenvalue of 5e-9. Falsified by a fit where `r2` from a near-singular level departs from the `lm()` R-squared oracle.
-- 2026-09-30: plan chose to warn and keep the values over returning `NA`. The package reports values beside its cautions, and `r2` stays valid. Falsified by a near-singular level whose returned `beta` departs from an independent regression fit beyond tolerance.
+- 2026-09-30: plan chose to warn and keep the values over returning `NA`. The package reports values beside its cautions, and `r2` stays valid.
+- 2026-09-30: implement started on branch `m091-near-singular-score-cor-guard`. The question gate was skipped, because the plan gate fixed the cutoff, the warning site, and the keep-values behavior.
+- 2026-09-30: T1 tests written in `test-partialled-edges.R`. Before the code change, 4 of 11 tests fail as intended: the level-2, level-3, and `pairs = "all"` plants, and the helper's new `status` field. The silence and precedence tests pass on the old code. Plants sit at a smallest eigenvalue of 0.0083 (level 2), 2.5e-7 (level 3), and 0.0111 (control). Falsified by a near-singular level whose returned `beta` departs from an independent regression fit beyond tolerance.
 
 ## Decisions
 
