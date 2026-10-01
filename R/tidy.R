@@ -236,16 +236,16 @@ tidy.ackwards <- function(
   # Phi-partialled coefficient beside the marginal r: for every stored pair
   # (adjacent, and skip-level under pairs = "all"), B = Phi_s^-1 E from the
   # shallower level's stored weights (.partialled_edges). Equal to r under
-  # varimax. Joined on the directed (from, to) key. A singular shallower
-  # level warns once, however many stored pairs start from it (skip-level
-  # pairs under pairs = "all" share the level's Phi_s).
+  # varimax. Joined on the directed (from, to) key. A singular or nearly
+  # singular shallower level warns once, however many stored pairs start
+  # from it (skip-level pairs under pairs = "all" share the level's Phi_s).
   out$beta <- NA_real_
   warned <- character(0L)
   for (key in names(x$edges$matrices)) {
     ka <- strsplit(key, ":", fixed = TRUE)[[1L]][1L]
     res <- .partialled_pair(x, key, warn = !(ka %in% warned))
     B <- res$beta
-    if (anyNA(B)) warned <- union(warned, ka)
+    if (res$status != "ok") warned <- union(warned, ka)
     cells <- expand.grid(i = seq_len(nrow(B)), j = seq_len(ncol(B)))
     m <- match(
       paste(rownames(B)[cells$i], colnames(B)[cells$j], sep = "\r"),
@@ -438,9 +438,11 @@ tidy.ackwards <- function(
     var_vals <- lev$variance[fac_labels]
     # r2: how much of each factor's score the adjacent level above accounts
     # for together (E_j' Phi_s^-1 E_j, .partialled_edges); NA at the anchor.
+    # A nearly singular level above makes beta unstable, not r2, so only the
+    # edge table raises that warning (M91); a singular one still warns here.
     key <- paste0(k - 1L, ":", k)
     r2 <- if (k >= 2L && !is.null(x$edges$matrices[[key]])) {
-      unname(.partialled_pair(x, key)$r2[fac_labels])
+      unname(.partialled_pair(x, key, warn_near = FALSE)$r2[fac_labels])
     } else {
       rep(NA_real_, length(fac_labels))
     }

@@ -211,9 +211,14 @@ make_labels <- function(k) {
 # Phi_s = I, so B = E and r2 = colSums(E^2); under an oblique rotation the
 # two come apart. When Phi_s cannot be inverted both are NA and one cli
 # warning names the level (`warn = FALSE` keeps a caller that already
-# warned for this level quiet). Returns list(beta = <k_a x k_b>,
-# r2 = <named k_b>).
-.partialled_edges <- function(W_a, R, E, level = NA_integer_, warn = TRUE) {
+# warned for this level quiet). When Phi_s inverts but its smallest
+# eigenvalue is below .phi_s_near_singular, B is kept and a second kind of
+# warning says that `beta` is unstable (`warn_near = FALSE` turns that one
+# off for a caller that reports only r2).
+# Returns list(beta = <k_a x k_b>, r2 = <named k_b>, status = "ok" |
+# "near_singular" | "singular").
+.partialled_edges <- function(W_a, R, E, level = NA_integer_, warn = TRUE,
+                              warn_near = warn) {
   C <- crossprod(W_a, R %*% W_a)
   d <- sqrt(diag(C))
   Phi_s <- C / tcrossprod(d)
@@ -230,20 +235,41 @@ make_labels <- function(k) {
     }
     B <- matrix(NA_real_, nrow(E), ncol(E), dimnames = dimnames(E))
     r2 <- stats::setNames(rep(NA_real_, ncol(E)), colnames(E))
-    return(list(beta = B, r2 = r2))
+    return(list(beta = B, r2 = r2, status = "singular"))
   }
   dimnames(B) <- dimnames(E)
   r2 <- stats::setNames(colSums(E * B), colnames(E))
-  list(beta = B, r2 = r2)
+  min_eig <- min(eigen(Phi_s, symmetric = TRUE, only.values = TRUE)$values)
+  status <- if (min_eig < .phi_s_near_singular) "near_singular" else "ok"
+  if (status == "near_singular" && warn_near) {
+    cutoff <- .phi_s_near_singular
+    cli::cli_warn(c(
+      "!" = "The within-level score correlation at k = {level} is nearly \\
+             singular (smallest eigenvalue {signif(min_eig, 2)}, below \\
+             {cutoff}).",
+      "i" = "Factors at that level are close to collinear, so {.code beta} \\
+             for edges from that level is unstable. It is still reported."
+    ))
+  }
+  list(beta = B, r2 = r2, status = status)
 }
+
+# The smallest-eigenvalue cutoff below which .partialled_edges() calls a
+# level's within-level score correlation nearly singular. A numerical guard
+# the package chose, not a published rule. A 2 x 2 correlation matrix has
+# eigenvalues 1 - |rho| and 1 + |rho|, so there the cutoff is |rho| = .99.
+.phi_s_near_singular <- 1e-2
 
 # Run .partialled_edges() for one stored pair key "a:b" of an ackwards
 # object, reading the shallower level's weights and the fit's R.
-.partialled_pair <- function(x, key, warn = TRUE) {
+.partialled_pair <- function(x, key, warn = TRUE, warn_near = warn) {
   ka <- strsplit(key, ":", fixed = TRUE)[[1L]][1L]
   W_a <- x$levels[[ka]]$scoring$weights
   E <- x$edges$matrices[[key]]
-  .partialled_edges(W_a, x$r, E, level = as.integer(ka), warn = warn)
+  .partialled_edges(
+    W_a, x$r, E,
+    level = as.integer(ka), warn = warn, warn_near = warn_near
+  )
 }
 
 # Tucker's congruence coefficient between two loading vectors (Lorenzo-Seva &
