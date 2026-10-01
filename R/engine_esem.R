@@ -28,7 +28,8 @@
 # fits run under the user's future::plan() (sequential by default -- no behaviour
 # change unless the user opts in to a parallel plan). When absent, fall back to
 # serial lapply(). future.seed = TRUE sets up reproducible per-task RNG streams
-# (lavaan::efa() is deterministic, but this silences future's RNG advisory).
+# (lavaan::efa() draws random rotation starts, so each level gets its own
+# stream, and this also silences future's RNG advisory).
 .esem_lapply <- function(X, FUN) {
   if (rlang::is_installed("future.apply")) {
     future.apply::future_lapply(X, FUN, future.seed = TRUE)
@@ -45,6 +46,22 @@
 # keep working.
 # lav_formals is a parameter (defaulting to the real thing) so both branches
 # are testable regardless of which lavaan version is installed.
+# lavaan's rotation argument(s) for one level. Varimax and the unrotated k = 1
+# level pass the method name alone, as before. An oblique rotation also turns
+# on lavaan's rotation warnings (rotation.args$warn, FALSE by default). lavaan
+# >= 0.7 takes rotation options inside `rotation`, a list whose first element
+# is the method (its `rotation_args` is deprecated); earlier versions take
+# `rotation.args`.
+.esem_rotation_args <- function(rotation, efa_formals = names(formals(lavaan::efa))) {
+  if (rotation %in% c("none", "varimax")) {
+    list(rotation = rotation)
+  } else if ("rotation_args" %in% efa_formals) {
+    list(rotation = list(rotation, warn = TRUE))
+  } else {
+    list(rotation = rotation, rotation.args = list(warn = TRUE))
+  }
+}
+
 .esem_ss_argname <- function(lav_formals = names(formals(lavaan::lavaan))) {
   if ("slot_sample_stats" %in% lav_formals) {
     "slot_sample_stats"
@@ -88,11 +105,16 @@
   # and skips recomputing thresholds / polychorics / NACOV. The argument name is
   # lavaan-version-dependent (renamed in 0.7); see .esem_ss_argname().
   if (!is.null(ss_in)) efa_args[[.esem_ss_argname()]] <- ss_in
+  # lavaan's rotation warnings are off by default (rotation.args$warn =
+  # FALSE). An oblique rotation turns them on, so that its non-convergence
+  # reaches the caller (M90 Decisions, finding F1).
+  rot_args <- .esem_rotation_args(rotate_k)
+  efa_args[names(rot_args)] <- rot_args
 
   # lavaan emits fit-time warnings (e.g. non-PD vcov) that are not actionable
   # here; muffle them around the fit only (matches pre-M26 muffling behaviour).
   # They are recorded so that an oblique rotation's non-convergence can be
-  # reported by the caller (M90 Decisions, finding F1).
+  # reported by the caller.
   fit_warnings <- character(0)
   fit_raw <- tryCatch(
     withCallingHandlers(
@@ -337,9 +359,9 @@
   )
 
   # lavaan rotates from 30 random starts (rotation.args$rstarts) and keeps the
-  # best one, so its non-convergence warning can come from a discarded start:
-  # the caller reports it and keeps the level. Oblique rotations only, so the
-  # default varimax path is unchanged.
+  # best one, so its non-convergence warning (turned on above) can come from a
+  # discarded start: the caller reports it and keeps the level. Oblique
+  # rotations only, so the default varimax path is unchanged.
   rot_warnings <- if (rotate_k %in% c("none", "varimax")) {
     character(0)
   } else {

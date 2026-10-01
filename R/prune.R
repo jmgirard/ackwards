@@ -742,10 +742,11 @@
 #' @details
 #' **Oblique objects.** When [ackwards()] was fit with an oblique `rotation`,
 #' each edge `r` is a total correlation, which includes overlap through
-#' correlated factors at the same level. Every rule still runs unchanged on
-#' `r`, and `prune()` warns, naming the rules that run, that they assume
-#' orthogonal levels. Their default thresholds, such as `redundancy_r = 0.9`,
-#' were calibrated on varimax edges.
+#' correlated factors at the same level. Every rule still runs unchanged: the
+#' edge criteria on `r`, and the congruence (phi) checks on the loadings,
+#' which are then pattern coefficients. A warning names the rules that run and
+#' says that they assume orthogonal levels. Their default thresholds, such as
+#' `redundancy_r = 0.9`, were calibrated on varimax edges.
 #'
 #' **The `"direct"` criterion is a star anchored on the leaf, not a walk.**
 #' Take a three-level chain candidate with deepest leaf `m3f1` and shallower
@@ -896,17 +897,18 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
     return(x)
   }
 
-  # Oblique objects (D-036): the criteria run unchanged on the marginal r,
-  # whose default thresholds were calibrated on varimax edges; say so, naming
-  # the rules that run (Invariant 6).
+  # Oblique objects (D-036): the criteria run unchanged, the edge criteria on
+  # the marginal r and the congruence checks on the pattern loadings, with
+  # thresholds calibrated on varimax; say so, naming the rules that run
+  # (Invariant 6).
   if (length(auto_rules) > 0L && .is_oblique(x)) {
     cli::cli_warn(c(
       "!" = "The {.val {auto_rules}} rule{?s} assume{?s/} orthogonal levels, \\
              and {.arg x} uses the oblique {.val {x$rotation}} rotation.",
       "i" = "Each {.code r} is a total correlation, which includes overlap \\
              through correlated factors at the same level. The rules run \\
-             unchanged on {.code r}. Their default thresholds were calibrated \\
-             on varimax edges."
+             unchanged, on {.code r} and on the pattern loadings. Their \\
+             default thresholds were calibrated on varimax."
     ))
   }
 

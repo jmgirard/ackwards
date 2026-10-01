@@ -148,10 +148,11 @@ packages (e.g. \code{rpart::prune}) regardless of package load order.
 \details{
 \strong{Oblique objects.} When \code{\link[=ackwards]{ackwards()}} was fit with an oblique \code{rotation},
 each edge \code{r} is a total correlation, which includes overlap through
-correlated factors at the same level. Every rule still runs unchanged on
-\code{r}, and \code{prune()} warns, naming the rules that run, that they assume
-orthogonal levels. Their default thresholds, such as \code{redundancy_r = 0.9},
-were calibrated on varimax edges.
+correlated factors at the same level. Every rule still runs unchanged: the
+edge criteria on \code{r}, and the congruence (phi) checks on the loadings,
+which are then pattern coefficients. A warning names the rules that run and
+says that they assume orthogonal levels. Their default thresholds, such as
+\code{redundancy_r = 0.9}, were calibrated on varimax edges.
 
 \strong{The \code{"direct"} criterion is a star anchored on the leaf, not a walk.}
 Take a three-level chain candidate with deepest leaf \code{m3f1} and shallower

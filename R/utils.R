@@ -347,8 +347,9 @@ make_labels <- function(k) {
 # as an arg_match error; a known name the engine lacks fails naming both. A
 # psych rotation that loads GPArotation checks for it here, before any
 # fitting, so the user gets rlang's install prompt. Without GPArotation,
-# psych's oblimin only warns and returns unrotated loadings (a warning
-# efa_levels() muffles), and psych::fa()'s promax stops inside kaiser().
+# psych's oblimin fails its rotation, so the engines would truncate at level 1
+# (PCA on psych's warning, EFA on the missing rotation matrix), and
+# psych::fa()'s promax stops inside kaiser().
 .check_rotation <- function(rotation, engine) {
   all_rotations <- unique(unlist(.supported_rotations, use.names = FALSE))
   rotation <- rlang::arg_match0(rotation, all_rotations, arg_nm = "rotation")

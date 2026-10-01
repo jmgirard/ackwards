@@ -56,8 +56,9 @@ generics::glance
 #'     proportions of total item variance on a 0-1 scale (multiply by 100
 #'     for a percentage). Under an oblique rotation `proportion` follows
 #'     psych's convention for correlated factors (`diag(Phi L'L) / p`). The
-#'     shares still sum to the level's total common variance, so `cumulative`
-#'     equals its varimax value. A factor's share is then not its unique
+#'     shares still sum to the level's total common variance, so each level's
+#'     last `cumulative` value equals its varimax value. The running values
+#'     before it can differ. A factor's share is then not its unique
 #'     contribution. The column `r2` is the share of the factor's score
 #'     variance that all factors of the level just above account for
 #'     together. It is also a proportion on a 0-1 scale, but of that

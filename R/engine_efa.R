@@ -61,10 +61,11 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
     } # nocov end
 
     # An oblique rotation's failure (M90 Decisions, finding F1). psych::fa()
-    # rotates from 20 random starts (n.rotations) and keeps the best, so a
-    # GPArotation warning can come from a discarded start: re-raise it and
-    # keep the level. A failed final step leaves no rotation matrix, and that
-    # level is not the requested rotation, so it truncates (Invariant 7).
+    # rotates from 20 starts (n.rotations: the unrotated one and 19 random)
+    # and keeps the best, so a GPArotation warning can come from a discarded
+    # start: re-raise it and keep the level. A failed final step leaves no
+    # rotation matrix, and that level is not the requested rotation, so it
+    # truncates (Invariant 7).
     if (k > 1L && .is_oblique(rotation)) {
       rot_msgs <- .psych_rotation_warnings(warn_msgs)
       if (is.null(fit$rot.mat)) {
@@ -82,7 +83,7 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
       if (length(rot_msgs) > 0L) {
         cli::cli_warn(c(
           "!" = "psych reported a rotation problem at k = {k}: {rot_msgs[[1L]]}",
-          "i" = "psych rotates from 20 random starts and keeps the best one, \\
+          "i" = "psych rotates from 20 starts (19 of them random) and keeps the best one, \\
                  so the warning can come from a discarded start. The level is kept."
         ))
       }

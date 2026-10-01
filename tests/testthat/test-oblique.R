@@ -183,7 +183,7 @@ test_that("oblique pattern and factor correlation reproduce the varimax common p
   # A rotation leaves L Phi L' unchanged, so each oblique level's stored
   # loadings and factor_cor must give the varimax fit's L L'. This holds only
   # if factor_cor is in the loadings' column order and signs, and is checked
-  # here without reading the engine's own Phi.
+  # here against the varimax fit, not against psych's or lavaan's own Phi.
   specs <- list(
     c("pca", "oblimin"), c("pca", "promax"), c("efa", "oblimin"),
     c("efa", "promax"), c("esem", "oblimin"), c("esem", "geomin")
