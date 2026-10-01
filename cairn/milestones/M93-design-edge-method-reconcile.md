@@ -1,13 +1,13 @@
 # M93: Reconcile DESIGN's edge_method text with the code
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** IP1, IP2
 - **Resolves:** —
 - **Surface tier:** internal — DESIGN.md and DECISIONS.md are in-repo design records, and no exported behavior or user doc changes
-- **Branch/PR:** —
+- **Branch/PR:** m93-design-edge-method-reconcile
 
 ## Goal
 
@@ -63,6 +63,8 @@
 - 2026-10-01: plan gate chose fixing the DESIGN text over exposing a user scores route on `ackwards()` because the route is new public API that no user asked for; falsified by a user request for sample-realized edges.
 - 2026-10-01: plan gate chose keeping the §9 `edge_method` row marked internal over removing it because D-004's `_Source` cites that row; falsified by a reader taking the marked row as a user default.
 - 2026-10-01: plan gate chose a `[low]` candidate row for sample-realized edges over a rejection in the D-entry, which keeps deferral a ROADMAP fact; falsified by a principled reason the package never offers it.
+- 2026-10-01: implement started on branch m93-design-edge-method-reconcile. Code read: the six `compute_edges()` calls in `R/` pass "auto" or "algebra" with no data, and the PCA, EFA, and ESEM engines all set `linear = TRUE`.
+- 2026-10-01: implement gate approved the IP1, IP2, and D-038 wording as shown, with no escalation. It left the two promoted candidate rows (M93, M94) for post-merge hygiene.
 
 ## Decisions
 
