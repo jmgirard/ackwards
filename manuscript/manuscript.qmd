@@ -406,7 +406,8 @@ Several of the package's design choices are deliberately conservative, encoding
 interpretive cautions rather than leaving them to the analyst's discipline. The
 hierarchy **ackwards** produces is descriptive, not confirmatory: its
 between-level edges are correlations among factor scores implied by the
-correlation matrix the fit uses, not parameters of a fitted model, and the package says as much in its own printed output. Fit indices
+correlation matrix the fit uses, not parameters of a fitted model. The package
+says as much in its own printed output. Fit indices
 are reported as values, never as a computed pass/fail verdict against contested
 cutoffs [@hu1999], because a returned "acceptable/unacceptable" column would
 invite exactly the mechanical reading those cutoffs were cautioned against. The
