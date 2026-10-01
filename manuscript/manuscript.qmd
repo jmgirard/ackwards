@@ -159,11 +159,17 @@ cross-level score covariance is $W_a' R W_b$. Standardizing by the score standar
 deviations $\sqrt{\operatorname{diag}(W'RW)}$ yields the correlations. **ackwards**
 uses this algebra by default and falls back to materialized scores only for
 nonlinear scoring, cross-checking the two routes against one another for linear
-engines. Orthogonal (varimax) rotation [@kaiser1958] within each level is what makes the
-algebra exact: an orthonormal rotation satisfies $T' = T^{-1}$, so the closed
-form holds rather than approximates. Oblique rotation is deliberately not
-offered, because correlated factors would confound the very cross-level signal
-the method exists to measure.
+engines. The closed form is exact for any fixed linear scoring weights, oblique
+rotations included. Nothing in it uses the orthogonality of a rotation, and
+@waller2007 gives the oblique form for rotated components. What the rotation
+changes is the meaning of an edge. By default, **ackwards** applies varimax
+rotation [@kaiser1958] at every level with two or more factors, which keeps the
+factors within a level uncorrelated. With the default scores, each edge then
+equals the ancestor's unique contribution to the descendant, which is what lets
+the edges be read as a lineage diagram, and varimax matches the published
+bass-ackwards analyses [@goldberg2006; @forbes2023]. Oblique rotations, which
+let the factors within a level correlate, are available as an option, with the
+interpretive cost set out in the Discussion.
 
 ## The Forbes extension
 
@@ -359,7 +365,7 @@ example a reader renders here is thus numerically identical, to machine precisio
 to the analysis reported by @forbes2023.
 
 <!-- ======================================================================= -->
-<!-- DISCUSSION — author-owned stub. Draft the closing argument here.         -->
+<!-- DISCUSSION                                                              -->
 <!-- ======================================================================= -->
 
 # Discussion
@@ -409,11 +415,18 @@ is why the package pairs its ordinal path with polychoric correlations and a
 WLSMV estimator and stays explicit about what a factor-score hierarchy does and
 does not support.
 
-The package's scope is bounded by the method it implements. Rotation within each
-level is orthogonal (varimax) only: correlated factors would confound the very
-cross-level signal the method exists to measure, and the closed-form algebra
-depends on the orthonormality that oblique rotation gives up. The resulting
-hierarchy is, as Goldberg himself acknowledged, sequential rather than truly
+The package's scope is bounded by the method it implements, whichever rotation
+the analyst chooses. Varimax is the default rotation within each level, and
+oblique rotations are an option. Each edge `r` is a total correlation under
+either rotation. `tidy()` reports beside it the partialled coefficient `beta`,
+the standardized weight of the parent factor when the child is regressed on all
+factors of the parent level together. Under varimax, with the default scores,
+the two are equal. Under an oblique rotation they can differ, because `r` also
+includes overlap through correlated factors at the parent level, and primary
+parents still follow `r`. A factor's primary parent can then be a factor that
+only correlates with its real parent, and the conventional thresholds of
+`cut_show` and `prune()` were calibrated under varimax. Under either rotation,
+the hierarchy is, as Goldberg himself acknowledged, sequential rather than truly
 hierarchical in the sense of Yung, Thissen, and McLeod [-@yung1999], and its between-level
 "path coefficients" are more nearly part-whole correlations than the structural
 parameters of a bottom-up model. **ackwards** is therefore not a substitute for a
