@@ -13,7 +13,7 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
   fits_list <- if (keep_fits) list() else NULL
 
   for (k in seq_len(k_max)) {
-    rotate_k <- if (k == 1L) "none" else "varimax"
+    rotate_k <- if (k == 1L) "none" else rotation
 
     # Run psych::fa(), intercepting convergence warnings so we can act on them.
     # suppressMessages() muffles psych's message-stream chatter (e.g. the
@@ -85,12 +85,18 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
     colnames(L_rot) <- labels_k
     rownames(L_rot) <- rownames(R)
 
-    # tenBerge weights: W = R^{-1} L (L' R^{-1} L)^{-1/2}
-    # These make scores exactly uncorrelated with unit variance for orthogonal
-    # factors, keeping the algebra path in compute_edges() valid.
+    # Within-level factor correlation. psych sets $Phi only under an oblique
+    # rotation and sorts and sign-flips it with the loadings; varimax leaves it
+    # absent and .engine_phi() returns the identity. The weights, the variance,
+    # and factor_cor all read this one matrix.
+    Phi_k <- .engine_phi(fit, k)
+
+    # tenBerge weights carry Phi, so the scores reproduce the factor
+    # correlation (identity under varimax: uncorrelated, unit variance). The
+    # algebra path in compute_edges() stays valid either way.
     weight_method <- "tenBerge"
     W <- tryCatch(
-      .tenBerge_weights(R, L_rot),
+      .tenBerge_weights(R, L_rot, Phi_k),
       error = function(e) { # nocov start
         weight_method <<- "regression" # honest label on fallback (Invariant 6)
         cli::cli_warn(
@@ -99,6 +105,8 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
             "i" = "Falling back to regression (Thurstone) weights."
           )
         )
+        # psych's regression weights are R^{-1} L Phi, the oblique regression
+        # rule (R^{-1} L under varimax).
         w_fall <- unclass(fit$weights)
         if (flip) w_fall <- -w_fall
         colnames(w_fall) <- labels_k
@@ -140,9 +148,12 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
       variance = variance,
       fit = fit_info,
       converged = TRUE,
-      # psych sets $Phi only under an oblique rotation; varimax leaves it
-      # absent and .engine_phi() returns the identity (see engine_pca.R).
-      factor_cor = .carry_factor_cor(.engine_phi(fit, k), seq_len(k), rep(1, k)),
+      # psych's order is already the stored order, so the carry order is the
+      # identity and the signs are unit (ackwards() applies align_signs).
+      factor_cor = .label_phi(
+        .carry_factor_cor(Phi_k, seq_len(k), rep(1, k)),
+        labels_k
+      ),
       labels = labels_k,
       scoring = list(
         linear    = TRUE,
@@ -158,22 +169,47 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
   list(levels = result, fits = fits_list)
 }
 
-# Compute tenBerge factor-score weights from a correlation matrix R and a
-# (rotated, sign-aligned) loading matrix L.
+# Compute tenBerge factor-score weights from a correlation matrix R, a
+# (rotated) pattern matrix L, and the factor correlation Phi of L's columns.
 #
-# Formula (orthogonal factors):  W = R^{-1} L (L' R^{-1} L)^{-1/2}
-#
-# For a full-rank L the resulting W satisfies W'RW = I, so tenBerge scores have
-# unit variance -- the D standardization in compute_edges() then divides by 1
-# but is still applied for numerical safety and to satisfy Invariant 1. If L is
+# Formula (ten Berge, Krijnen, Wansbeek & Shapiro 1999, Eq. 3 with Eq. 9's
+# C, Thm 1), with L* = L Phi^{1/2}:
+#   W = R^{-1/2} C Phi^{1/2},  C = R^{-1/2} L* (L*' R^{-1} L*)^{-1/2}
+#     = R^{-1} L* (L*' R^{-1} L*)^{-1/2} Phi^{1/2}
+# For a full-rank L the scores reproduce Phi: W'RW = Phi, so they have unit
+# variance and correlate as the factors do. At Phi = I this is the orthogonal
+# formula W = R^{-1} L (L' R^{-1} L)^{-1/2} (all correlation-preserving
+# methods coincide there, the paper's Thm 3). A Phi within 1e-12 of the
+# identity takes that formula unchanged: varimax, including lavaan's orthogonal
+# cor.lv with its rounding-level off-diagonals, keeps its pre-oblique
+# floating-point path. The D standardization in compute_edges() is still
+# applied for numerical safety and to satisfy Invariant 1. If L is
 # rank-deficient (two factors collinear in the R^{-1} metric -- degenerate; no
-# shipped engine emits this) B = L'R^{-1}L is singular, W'RW is no longer the
-# identity, and we warn: compute_edges() still standardizes by the *actual*
-# score SDs so edges stay valid, but the factors are poorly separated.
-.tenBerge_weights <- function(R, L) {
+# shipped engine emits this) B = L*'R^{-1}L* is singular, W'RW is no longer
+# Phi, and we warn: compute_edges() still standardizes by the *actual* score
+# SDs so edges stay valid, but the factors are poorly separated. A Phi that is
+# not positive definite errors, and the engines fall back to regression
+# weights with a warning.
+.tenBerge_weights <- function(R, L, Phi) {
+  k <- ncol(L)
+  dn <- dimnames(L)
+  Phi <- as.matrix(Phi)
+  stopifnot(nrow(Phi) == k, ncol(Phi) == k)
+  oblique <- max(abs(Phi - diag(k))) > 1e-12
+  if (oblique) {
+    eig_phi <- eigen(Phi, symmetric = TRUE)
+    if (min(eig_phi$values) <= 0) {
+      stop("the factor correlation matrix is not positive definite.")
+    }
+    Phi_half <- eig_phi$vectors %*%
+      diag(sqrt(eig_phi$values), nrow = k) %*%
+      t(eig_phi$vectors)
+    L <- L %*% Phi_half # L* = L Phi^{1/2}
+  }
+
   Ri <- solve(R) # p x p
-  A <- Ri %*% L # p x k: R^{-1} L
-  B <- crossprod(L, A) # k x k: L' R^{-1} L  (symmetric PD for full-rank L)
+  A <- Ri %*% L # p x k: R^{-1} L*
+  B <- crossprod(L, A) # k x k: L*' R^{-1} L*  (symmetric PD for full-rank L)
 
   # Matrix inverse square root of B via spectral decomposition. Clamp
   # eigenvalues below a *relative* tolerance (fp noise scales with |B|, so an
@@ -200,7 +236,7 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
     t(eig$vectors)
 
   W <- A %*% Binvsqrt
-  rownames(W) <- rownames(L)
-  colnames(W) <- colnames(L)
+  if (oblique) W <- W %*% Phi_half
+  dimnames(W) <- dn
   W
 }

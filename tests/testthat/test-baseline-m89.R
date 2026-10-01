@@ -39,7 +39,9 @@ for (name in names(baseline)) {
       expect_equal(lev$loadings, ref$loadings, tolerance = tol, label = paste(name, ki, "loadings"))
       expect_equal(lev$scoring$weights, ref$weights, tolerance = tol, label = paste(name, ki, "weights"))
       expect_equal(lev$variance, ref$variance, tolerance = tol, label = paste(name, ki, "variance"))
-      expect_equal(lev$factor_cor, ref$factor_cor, tolerance = tol, label = paste(name, ki, "factor_cor"))
+      # Values only: PCA and EFA factor_cor gained the level's labels after the
+      # fixture was generated (ESEM's already carried them).
+      expect_equal(unname(lev$factor_cor), unname(ref$factor_cor), tolerance = tol, label = paste(name, ki, "factor_cor"))
     }
 
     expect_identical(names(x$edges$matrices), names(entry$edges))

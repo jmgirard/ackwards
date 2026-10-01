@@ -26,10 +26,13 @@ pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE,
         fit$weights <- -fit$weights
       } # nocov end
     } else {
-      fit <- psych::pca(R, nfactors = k, rotate = "varimax")
+      fit <- psych::pca(R, nfactors = k, rotate = rotation)
       L_rot <- unclass(fit$loadings)
     }
 
+    # Component weights. Under an oblique rotation psych returns
+    # R^{-1} L Phi (its oblique.scores default), the exact components, whose
+    # correlation is Phi; under varimax that is R^{-1} L.
     W <- unclass(fit$weights)
 
     # psych::pca() already sorts by descending variance explained.
@@ -60,8 +63,10 @@ pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE,
       # absent and .engine_phi() returns the identity. psych's column sort is
       # already applied to both loadings and Phi, so the carry order is the
       # identity and the signs are unit (ackwards() applies align_signs).
-      # Unnamed, as before: tidy() reads the level's labels.
-      factor_cor = .carry_factor_cor(.engine_phi(fit, k), seq_len(k), rep(1, k)),
+      factor_cor = .label_phi(
+        .carry_factor_cor(.engine_phi(fit, k), seq_len(k), rep(1, k)),
+        make_labels(k)
+      ),
       labels = make_labels(k),
       scoring = list(
         linear    = TRUE,

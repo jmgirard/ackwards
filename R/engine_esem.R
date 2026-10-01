@@ -211,7 +211,7 @@
   # Keeps compute_edges() on the algebra path (DESIGN.md s.14 item 12).
   weight_method <- "tenBerge"
   W <- tryCatch(
-    .tenBerge_weights(r_lv, L),
+    .tenBerge_weights(r_lv, L, diag(k)),
     error = function(e) { # nocov start
       weight_method <<- "regression"
       tryCatch(
