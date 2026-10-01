@@ -56,12 +56,22 @@ is a \strong{linear} map \verb{S = Z W}, the cross-level correlation matrix is:
 \if{html}{\out{<div class="sourceCode">}}\preformatted{E(a,b) = D_a^\{-1/2\} (W_a' R W_b) D_b^\{-1/2\}
 }\if{html}{\out{</div>}}
 
-where \code{R} is the input correlation matrix and \verb{D_x = diag(W_x' R W_x)} are
-the \strong{actual} score variances (not assumed to be 1). This avoids
-materialising scores while remaining exact for PCA and EFA (regression,
-Bartlett, or tenBerge). All of those produce linear score maps.
+where \code{R} is the correlation matrix passed in and
+\verb{D_x = diag(W_x' R W_x)} are the \strong{actual} score variances (not assumed to
+be 1). The algebra needs no scores. It is exact for that \code{R} under the
+linear scoring of every engine: component score weights for PCA, and ten
+Berge weights (regression weights as the fallback) for EFA and ESEM. For
+the edges a fit reports, \code{R} is the correlation matrix the fit uses, so
+those edges are exact for the fit's \code{R}. The split-half comparability check
+passes a pooled \code{R} instead.
 
-When the algebra cannot be used (nonlinear scoring, missing \code{R}, or the user
-forces \code{edge_method = "scores"}), scores are materialised from \code{data} instead.
+A pair goes to the scores branch when \code{edge_method = "scores"}, or when
+\code{edge_method = "auto"} and either level's \code{scoring$linear} is not \code{TRUE} or
+\code{R} is \code{NULL}. That branch correlates scores computed from \code{data}, and it
+errors when \code{data} is \code{NULL}. Under \code{edge_method = "algebra"} the same
+conditions raise an error instead. No shipped caller reaches the scores
+branch. Each one passes \code{"auto"} or \code{"algebra"} with an \code{R}, and every
+engine's scoring is linear. Only tests use it: the algebra-vs-scores
+agreement tests and one error-path test.
 }
 \keyword{internal}

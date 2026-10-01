@@ -218,26 +218,32 @@ hierarchy is built up to the deepest converged level.
 ## 5. Scoring descriptor + `compute_edges()` (the centerpiece)
 
 The between-level edges are computed through **one shared code path**, the internal
-`compute_edges()`. Every shipped edge comes from exact `W'RW` algebra (IP1), so an edge means the
-same thing for every engine and no scores are materialized. The function also keeps a scores
+`compute_edges()`. Every shipped edge comes from the `W'RW` algebra (IP1), which is exact for the
+correlation matrix `R` the fit uses, so an edge means the same thing for every engine and no scores
+are materialized. *(Corrected M95: this read "exact `W'RW` algebra" with no matrix named.)* The function also keeps a scores
 route that materializes linear scores from raw data. Only the algebra-vs-scores agreement tests
 use that route (§5.4, IP2).
 
 ### 5.1 Why the algebra generalizes
 
 For any scoring scheme where scores are a **linear** map of the standardized observed variables,
-`S = Z W`, the between-level score correlations are exactly:
+`S = Z W`, the between-level score correlations implied by `R` are exactly:
 
 ```
 cor(S_a, S_b) = D_a^{-1/2} (W_a' R W_b) D_b^{-1/2}
-           where  R   = input correlation matrix (pearson or polychoric)
+           where  R   = the correlation matrix the fit uses (pearson, spearman, or polychoric,
+                        and user-supplied, pairwise, or FIML-estimated)
                   D_x = diag(W_x' R W_x)   # score variances; NOT assumed 1
 ```
 
-No scores need to be materialized — only `R` and the weight matrices. Waller (2007) derived this
-for orthogonal components, but the identity holds for **any linear `W`**, which includes regression
-(Thurstone, `W = R^{-1} Λ`), Bartlett, and tenBerge scores. So the standard PCA *and* EFA/ESEM
-(regression-scored) paths are all algebra-eligible.
+No scores need to be materialized — only `R` and the weight matrices. Waller (2007) gave the
+principal-components result in transformation-matrix form (`T_i' S T_j`, his Eq. 14, p. 749) and
+its oblique form (§3, p. 749). The `W'RW` form is the covariance of linear composites of the
+standardized items, and it holds for **any linear `W`**, which includes regression (Thurstone,
+`W = R^{-1} Λ`), Bartlett, and ten Berge scores. The engines score PCA with the components and EFA
+and ESEM with ten Berge weights, with regression weights as the fallback, so every engine path is
+algebra-eligible. *(Corrected M95: this credited Waller with the general-`W` identity and called the
+EFA/ESEM paths regression-scored.)*
 
 **Standardization is the trap.** Component/factor scores are not unit-variance in general (Bartlett
 and oblique scores especially). Always divide by the real score SDs from `sqrt(diag(W'RW))`.
@@ -250,45 +256,60 @@ scoring <- list(
   linear    = TRUE,                # are scores a fixed linear map S = Z W? TRUE for every engine
   method    = "tenBerge",          # "components" (PCA) | "tenBerge" | "regression" (fallback)
   basis     = "pearson",           # "pearson" | "polychoric" | "spearman"
-  weights   = W,                   # p x k score-coefficient matrix; NULL if !linear
-  score_var = v                    # length-k vector = diag(W'RW); NULL if !linear
+  weights   = W,                   # p x k score-coefficient matrix
+  score_var = v                    # length-k vector = diag(W'RW)
 )
 ```
+
+*(Corrected M95: the `weights` and `score_var` comments said "NULL if !linear". No engine is
+nonlinear, so no engine returns NULL there.)*
 
 ### 5.3 `compute_edges()` contract
 
 ```r
 compute_edges(levels, R,
               edge_method = c("auto", "algebra", "scores"),
-              pairs  = c("adjacent", "all"),   # "all" for Forbes extension
-              data   = NULL,
-              align  = TRUE,
-              use    = "pairwise") {
+              pairs       = c("adjacent", "all"),   # "all" for Forbes extension
+              data        = NULL,
+              use         = "pairwise.complete.obs",
+              cut_show    = 0.3,
+              build_tidy  = TRUE) {
 
   for (each pair (a, b) in chosen pairs) {
 
-    algebra_ok <- levels[[a]]$scoring$linear &&
-                  levels[[b]]$scoring$linear && !is.null(R)
+    algebra_ok <- isTRUE(levels[[a]]$scoring$linear) &&
+                  isTRUE(levels[[b]]$scoring$linear) && !is.null(R)
 
-    if (edge_method == "algebra" || (edge_method == "auto" && algebra_ok)) {
-      Wa <- levels[[a]]$scoring$weights
-      Wb <- levels[[b]]$scoring$weights
+    use_algebra <- switch(edge_method,
+      auto    = algebra_ok,
+      algebra = { if (!algebra_ok) cli_abort("conditions not met for pair a:b"); TRUE },
+      scores  = FALSE)
+
+    Wa <- levels[[a]]$scoring$weights
+    Wb <- levels[[b]]$scoring$weights
+    if (use_algebra) {
       C  <- crossprod(Wa, R %*% Wb)                       # W_a' R W_b
       sa <- sqrt(diag(crossprod(Wa, R %*% Wa)))           # score SDs
       sb <- sqrt(diag(crossprod(Wb, R %*% Wb)))
       E  <- sweep(sweep(C, 1, sa, "/"), 2, sb, "/")       # standardize
-    } else {
-      stopifnot(!is.null(data))                           # edge_method="scores": agreement tests only
-      Sa <- score(levels[[a]], data); Sb <- score(levels[[b]], data)
-      E  <- cor(Sa, Sb, use = use)
+    } else {                                              # tests only (IP2)
+      if (is.null(data)) cli_abort("scores path requires data")
+      Z  <- standardize(data)
+      E  <- cor(Z %*% Wa, Z %*% Wb, use = use)
     }
-
-    if (align) E <- align_signs(E, lineage)               # see §7
-    edges[[pair]] <- E
+    matrices[["a:b"]] <- E
   }
-  # return: list of (k_a x k_b) matrices  +  tidy edge tibble (from, to, r, is_primary, above_cut)
+  # return: list(matrices = (k_a x k_b) matrices keyed "a:b",
+  #              tidy = edge data frame (from, to, level_from, level_to, r, is_primary = NA,
+  #                     above_cut), or NULL when build_tidy = FALSE)
+  # No sign alignment here. ackwards() aligns signs by flipping the weights and
+  # calling compute_edges() again (§7), then fills is_primary with fill_primary().
 }
 ```
+
+*(Corrected M95: the signature listed `align = TRUE` and `use = "pairwise"`, omitted `cut_show`
+and `build_tidy`, forced the algebra under `"algebra"` without the abort, and aligned signs inside
+the loop. It now follows `R/compute_edges.R`.)*
 
 **Where the `scores` route runs.** Only the algebra-vs-scores agreement tests call it (§5.4).
 Every shipped caller passes `edge_method = "auto"` or `"algebra"` with no data, and every engine's
@@ -429,7 +450,7 @@ announced via cli and documented in roxygen with its rationale.
 | Decision | Default | Rationale |
 |---|---|---|
 | `engine` | `"pca"` | original method; fastest; never fails to converge; algebra-exact. Docs steer to `efa`/`esem` when a measurement-model rationale exists. *(Corrected M90: a failed or erroring oblique rotation truncates a PCA level.)* |
-| `rotation` | **`"varimax"`** (default). Oblique `"oblimin"` and `"promax"` (PCA, EFA) and `"oblimin"` and `"geomin"` (ESEM) are non-default options (M90). *(Corrected M90: this cell previously read "not currently a user argument".)* | **Why varimax is the default.** Varimax keeps the within-level factors uncorrelated (Φ = I), so each between-level edge equals the unique contribution of that ancestor to that descendant — the marginal correlation and the Φ-partialled regression coefficient coincide (`E = Φ_s B`), which is what licenses reading the edges as a lineage diagram (Goldberg 2006 reads them as path coefficients, with a part-whole caveat, p. 350). Under an oblique rotation the two quantities come apart: an edge is then a *total* correlation that also carries within-level factor overlap, and the lineage overlays (primary parent, split narrative, additive variance partitioning) no longer read off the raw edges. Varimax also matches the published analyses this package reproduces (Goldberg 2006; Kim & Eaton 2015; Forbes 2023's examples; Forbush et al. 2024). The varimax criterion itself originates with Kaiser (1958); CF(κ = 1/p) ≡ varimax (Crawford & Ferguson 1970; Browne 2001) — no reference paper varies κ. **Attribution (corrected M84 per RR02, page-image verified).** Kim & Eaton (2015, p. 1067) state the stronger claim that *only* orthogonal rotations produce interpretable between-level correlations, attributing it to Goldberg (2006); they state it bare, and Goldberg in fact offered orthogonality as a **preference** on other grounds — regression parsimony and marker separation (p. 356) — while Forbes (2023, p. 2 + fn. 1) frames the method as supporting orthogonal *or* oblique rotation. The earlier wording here asserted that claim as this package's rationale; it is superseded by the Φ = I argument above. Oblique is **no longer out of scope** (D-034, D-002 superseded). M90 implemented it as a documented non-default option, with its semantics fixed by D-036. Under an oblique rotation the marginal `r` still drives primary-parent matching, sign anchoring, and the diagram, and `beta` is reported beside it. Scores keep the factor correlation (oblique ten Berge weights for EFA and ESEM, oblique components for PCA). `variance` uses psych's `diag(ΦΛ'Λ)/p`. The fit announces what an edge means, and `prune()` warns that its thresholds were set for varimax. *(Rationale also corrected M76 per RR01: the earlier "T'T = I … enabling closed-form W'RW algebra" phrasing conflated the interpretive Φ = I reason with algebra-exactness — the W'RW identity is exact for **any fixed linear scoring**, oblique included, and Waller 2007 §3 gives the oblique closed form. Orthogonality is the interpretive choice, not a numerical prerequisite. See §5.1.)* |
+| `rotation` | **`"varimax"`** (default). Oblique `"oblimin"` and `"promax"` (PCA, EFA) and `"oblimin"` and `"geomin"` (ESEM) are non-default options (M90). *(Corrected M90: this cell previously read "not currently a user argument".)* | **Why varimax is the default.** Varimax keeps the within-level factors uncorrelated (Φ = I), so each between-level edge equals the unique contribution of that ancestor to that descendant — the marginal correlation and the Φ-partialled regression coefficient coincide (`E = Φ_s B`), which is what licenses reading the edges as a lineage diagram (Goldberg 2006 reads them as path coefficients, with a part-whole caveat, p. 350). Under an oblique rotation the two quantities come apart: an edge is then a *total* correlation that also carries within-level factor overlap, and the lineage overlays (primary parent, split narrative, additive variance partitioning) no longer read off the raw edges. Varimax also matches the published analyses this package reproduces (Goldberg 2006; Kim & Eaton 2015; Forbes 2023's examples; Forbush et al. 2024). The varimax criterion itself originates with Kaiser (1958); CF(κ = 1/p) ≡ varimax (Crawford & Ferguson 1970; Browne 2001) — no reference paper varies κ. **Attribution (corrected M84 per RR02, page-image verified).** Kim & Eaton (2015, p. 1067) state the stronger claim that *only* orthogonal rotations produce interpretable between-level correlations, attributing it to Goldberg (2006); they state it bare, and Goldberg in fact offered orthogonality as a **preference** on other grounds — regression parsimony and marker separation (p. 356) — while Forbes (2023, p. 2 + fn. 1) frames the method as supporting orthogonal *or* oblique rotation. The earlier wording here asserted that claim as this package's rationale; it is superseded by the Φ = I argument above. Oblique is **no longer out of scope** (D-034, D-002 superseded). M90 implemented it as a documented non-default option, with its semantics fixed by D-036. Under an oblique rotation the marginal `r` still drives primary-parent matching, sign anchoring, and the diagram, and `beta` is reported beside it. Scores keep the factor correlation (oblique ten Berge weights for EFA and ESEM, oblique components for PCA). `variance` uses psych's `diag(ΦΛ'Λ)/p`. The fit announces what an edge means, and `prune()` warns that its thresholds were set for varimax. *(Rationale also corrected M76 per RR01: the earlier "T'T = I … enabling closed-form W'RW algebra" phrasing conflated the interpretive Φ = I reason with algebra-exactness — the W'RW identity is exact for **any fixed linear scoring**, oblique included, and Waller 2007 §3 gives the oblique closed form for principal components (corrected M95: "for principal components" added). Orthogonality is the interpretive choice, not a numerical prerequisite. See §5.1.)* |
 | `estimator` (ESEM only) | **`"WLSMV"`** for `cor = "polychoric"`; `"ML"` otherwise | WLSMV (mean-and-variance-adjusted WLS) is the standard limited-information ordinal estimator (matches Kim & Eaton 2015; Forbush et al. 2024 use the ULSMV variant); gives correct fit indices for categorical indicators without full-information ML cost. |
 | `cor` (basis) | **`"pearson"`** (matches `psych`/`lavaan`); ordinal opt-in via `cor = "polychoric"` | No silent basis-switching (it can change the structure and break comparison to published work). Instead, **detect likely-ordinal columns and emit a suppressible cli warning** pointing to the polychoric option — loud *advice*, not silent action. |
 | scores (method) | **`"tenBerge"`** on the active basis (pearson or polychoric) for factor engines; `"components"` for PCA; EAP out of scope (D-007) | Under an oblique rotation (M90) the factor engines use the oblique ten Berge form `W = R^{-1} L* (L*' R^{-1} L*)^{-1/2} Φ^{1/2}`, `L* = ΛΦ^{1/2}` (tenberge1999 Eq. 3, 9, Thm 1), and the fallback is the oblique regression rule `R^{-1}ΛΦ`. tenBerge preserves factor correlations (the property bass-ackwards cares about) and stays linear → algebra-eligible; the correlation-preservation-vs-determinacy trade-off this choice accepts is formalized by Grice (2001) and Beauducel, Hilger, & Kuhl (2024), and the factor-score hierarchy's criterion validity — with a categorical-indicator caveat — by Williams et al. (2025). For ordinal ESEM, tenBerge-on-polychoric gives the clean model-implied edge. EAP is out of scope, not an option (D-007, declined M28), because its shrinkage attenuates cross-level correlations. |

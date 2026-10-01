@@ -143,8 +143,9 @@ a visual and numerical account of how the factor structure builds from broad to
 narrow. This is a descriptive, data-driven hierarchy, not a confirmatory model
 such as Schmid–Leiman [@schmid1957] or higher-order structural equation modeling
 [@yung1999]. The
-between-level correlations are score correlations (or their algebraic
-equivalents), not model parameters.
+between-level correlations are the score correlations implied by the
+correlation matrix the fit uses, as the next section explains, not model
+parameters.
 
 ## Computing between-level correlations
 
@@ -307,7 +308,7 @@ primary-parent edge for every factor, strongest first, is one line:
 
 ```{r}
 #| label: tbl-edges
-#| tbl-cap: "Primary-parent between-level edges for the Big Five hierarchy, sorted by absolute correlation. Each row gives a factor, its primary parent one level up, and their factor-score correlation."
+#| tbl-cap: "Primary-parent between-level edges for the Big Five hierarchy, sorted by absolute correlation. Each row gives a factor, its primary parent one level up, and their factor-score correlation implied by the polychoric correlation matrix."
 edges <- tidy(x, what = "edges", primary_only = TRUE, sort = "strength")
 knitr::kable(edges[, c("from", "to", "r")], digits = 2)
 ```
@@ -404,8 +405,9 @@ than reconstruct it.
 Several of the package's design choices are deliberately conservative, encoding
 interpretive cautions rather than leaving them to the analyst's discipline. The
 hierarchy **ackwards** produces is descriptive, not confirmatory: its
-between-level edges are correlations among factor scores, not parameters of a
-fitted model, and the package says as much in its own printed output. Fit indices
+between-level edges are correlations among factor scores implied by the
+correlation matrix the fit uses, not parameters of a fitted model. The package's
+printed output calls the edges descriptive score correlations. Fit indices
 are reported as values, never as a computed pass/fail verdict against contested
 cutoffs [@hu1999], because a returned "acceptable/unacceptable" column would
 invite exactly the mechanical reading those cutoffs were cautioned against. The

@@ -1,5 +1,19 @@
 # ackwards (development version)
 
+* **Edge wording across the documentation.** More of the documentation now
+  says that each between-level edge is implied by the correlation matrix the
+  fit uses. That covers the package description, the README, the help pages
+  for `ackwards()`, `tidy()`, and `prune()`, and five articles: the
+  introduction, engines, ordinal, recommended-workflow, and Forbes articles.
+  Where they call an edge exact, they say it is exact for that
+  matrix. The package description no longer says that edges can come from
+  materialized scores, because no exported function computes them that way.
+  It credits Waller (2007) with the result for principal components only.
+  The engines article states that result in Waller's own terms, through the
+  transformation matrices that rotate each level's components. This extends
+  the next entry, which made the first of these edits in the introduction
+  and engines articles. No code or result changed.
+
 * **Edge wording in the introduction and engines articles.** The two articles
   called the between-level edges exact without saying exact for what. They
   now say that each edge is exact for the correlation matrix the fit uses.

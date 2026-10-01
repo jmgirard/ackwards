@@ -22,7 +22,8 @@
 \item \code{"edges"} \emph{(default)}: one row per directed between-level edge, with
 columns \code{from}, \code{to}, \code{level_from}, \code{level_to}, \code{r}, \code{beta},
 \code{is_primary}, \code{above_cut}. The column \code{r} is the correlation between
-the two factors' scores, a total correlation. Under an oblique
+the two factors' scores implied by the fit's correlation matrix, a
+total correlation. Under an oblique
 rotation it includes overlap through correlated factors at the \code{from}
 level, and \code{is_primary} still marks each factor's largest \verb{|r|}. The
 column \code{beta} is the partialled coefficient. It is the standardized regression weight of the \code{to}
