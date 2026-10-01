@@ -217,9 +217,11 @@ hierarchy is built up to the deepest converged level.
 
 ## 5. Scoring descriptor + `compute_edges()` (the centerpiece)
 
-The between-level edges are computed through **one shared code path** that uses exact algebra when
-it can and falls back to materialized scores when it must. This unifies result semantics across
-engines without forcing the expensive computation everywhere.
+The between-level edges are computed through **one shared code path**, the internal
+`compute_edges()`. Every shipped edge comes from exact `W'RW` algebra (IP1), so an edge means the
+same thing for every engine and no scores are materialized. The function also keeps a scores
+route that materializes linear scores from raw data. Only the algebra-vs-scores agreement tests
+use that route (§5.4, IP2).
 
 ### 5.1 Why the algebra generalizes
 
@@ -245,8 +247,8 @@ Assuming unit variance silently corrupts the correlations.
 
 ```r
 scoring <- list(
-  linear    = TRUE,                # are scores a fixed linear map S = Z W?
-  method    = "tenBerge",          # "components" | "regression" | "bartlett" | "tenBerge" | "EAP" | ...
+  linear    = TRUE,                # are scores a fixed linear map S = Z W? TRUE for every engine
+  method    = "tenBerge",          # "components" (PCA) | "tenBerge" | "regression" (fallback)
   basis     = "pearson",           # "pearson" | "polychoric" | "spearman"
   weights   = W,                   # p x k score-coefficient matrix; NULL if !linear
   score_var = v                    # length-k vector = diag(W'RW); NULL if !linear
@@ -276,7 +278,7 @@ compute_edges(levels, R,
       sb <- sqrt(diag(crossprod(Wb, R %*% Wb)))
       E  <- sweep(sweep(C, 1, sa, "/"), 2, sb, "/")       # standardize
     } else {
-      stopifnot(!is.null(data))                           # nonlinear/EAP or edge_method="scores"
+      stopifnot(!is.null(data))                           # edge_method="scores": agreement tests only
       Sa <- score(levels[[a]], data); Sb <- score(levels[[b]], data)
       E  <- cor(Sa, Sb, use = use)
     }
@@ -288,20 +290,22 @@ compute_edges(levels, R,
 }
 ```
 
-**Two situations force the `scores` route:**
-1. **Nonlinear scoring** — EAP/MAP/ML scores from a *categorical/ordinal* ESEM. (If the ordinal
-   ESEM instead uses regression scores off polychoric loadings, it stays linear → algebra on the
-   polychoric `R`.)
-2. **User wants empirical, sample-realized correlations** (including FIML/missing-data realities)
-   rather than the model-implied quantity. Under missingness these differ; document which one
-   "the edge" represents (default: model-consistent / algebra where eligible).
+**Where the `scores` route runs.** Only the algebra-vs-scores agreement tests call it (§5.4).
+Every shipped caller passes `edge_method = "auto"` or `"algebra"` with no data, and every engine's
+scoring is linear, so `"auto"` always takes the algebra branch (IP1, D-038). The ordinal ESEM
+path also stays linear: it uses ten Berge or regression weights on the polychoric `R`. EAP
+scoring is out of scope (D-007). An edge is therefore always the model-consistent quantity on the
+fit's `R`, never a sample-realized score correlation. Under missing data the two differ. A
+user-facing option for sample-realized edges is a `[low]` ROADMAP candidate.
 
 ### 5.4 Built-in cross-check (correctness oracle)
 
-For a linear engine, algebra and materialized-scores must agree within sampling error. Keep the
-`scores` route available even where `algebra` is the default, and add a test asserting
-`max(abs(E_algebra - E_scores)) < tol` on a known dataset. This catches weight-convention,
-standardization, sign, and column-ordering bugs cheaply.
+For a linear engine, algebra and materialized scores must agree within tolerance. The `scores`
+route stays inside the internal `compute_edges()` for this purpose, and no exported function
+offers it (IP2). A standing test for every linear engine asserts
+`max(abs(E_algebra - E_scores)) < tol` on a known complete-data dataset. This catches
+weight-convention, standardization, sign, and column-ordering bugs. The polychoric and
+`missing = "fiml"` PCA/EFA paths are outside this check (see "Known limitations").
 
 ## 6. Result object (S3) & storage rule
 

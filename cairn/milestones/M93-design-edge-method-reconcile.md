@@ -51,7 +51,7 @@
 
 - [x] T1: Append D-038 to `cairn/DECISIONS.md`, with a heading that names D-004 as narrowed. Its subject: the scores route is an internal cross-check seam, not a user option. Context: no exported function offers the route, and EAP is out of scope (D-007). Decision: the IP1 and IP2 rewording, with the §9 row kept and marked internal. Consequences: D-004's `_Source` pointer to the §9 row still resolves, and the IP change follows D-031's procedure. A user need for sample-realized edges (the new candidate row) reverses it. (RB tripwire: ip-touching)
 - [x] T2: Reword IP1 and IP2 (`cairn/DESIGN.md:116-123`). Check IP1's caller claim against `git grep -n "compute_edges(" -- R` before you write it. (RB tripwire: ip-touching)
-- [ ] T3: Rewrite the §5 scores-route text: the intro (`:219`), the §5.2 descriptor's `"EAP"` method value (`:247`), the §5.3 pseudocode comment (`:277`) and "Two situations" list (`:289-295`), and §5.4 (`:299-302`). Keep the algebra derivation unchanged.
+- [x] T3: Rewrite the §5 scores-route text: the intro (`:219`), the §5.2 descriptor's `"EAP"` method value (`:247`), the §5.3 pseudocode comment (`:277`) and "Two situations" list (`:289-295`), and §5.4 (`:299-302`). Keep the algebra derivation unchanged.
 - [ ] T4: Rewrite the §9 `edge_method` row (`:429`) as internal, the scores-method row's EAP clause (`:428`) to match D-007, and the Documentation standard line (`:449-450`).
 - [ ] T5: Shorten the first Known limitations entry (`:588-599`) to the limitation and a pointer to IP2. Keep the "Corrected M91" mark.
 - [ ] T6: Read the four AC3 sections in full and run AC3's two searches on the branch head. Fix any straggler, run `cairn_validate`, and record the sweep result in one work-log line.
@@ -67,6 +67,7 @@
 - 2026-10-01: implement gate approved the IP1, IP2, and D-038 wording as shown, with no escalation. It left the two promoted candidate rows (M93, M94) for post-merge hygiene.
 - 2026-10-01: T1 done. D-038 appended to `cairn/DECISIONS.md` as approved at the gate. Its heading names D-004 as narrowed, and its body cites D-007 and D-031.
 - 2026-10-01: T2 done. IP1 and IP2 reworded in `cairn/DESIGN.md` to the gate-approved text. IP1's caller claim matches `git grep -n "compute_edges(" -- R` on the branch.
+- 2026-10-01: T3 done. §5 intro, §5.2 method values (read from the engines: components, tenBerge, regression), §5.3 comment, the "Two situations" list (now "Where the `scores` route runs"), and §5.4 rewritten. The ESEM polychoric-weights claim was checked against `R/engine_esem.R`. The algebra derivation is unchanged.
 
 ## Decisions
 
