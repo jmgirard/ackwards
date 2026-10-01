@@ -297,8 +297,9 @@
 #'   `"(user-supplied matrix)"`.
 #'
 #' @section When to trust the result:
-#' `ackwards()` raises diagnostics as it fits. They fall into three tiers by
-#' what they mean for whether you should trust and report the solution:
+#' `ackwards()` raises most diagnostics as it fits, and `tidy()` raises one
+#' more. They fall into three tiers by what they mean for whether you should
+#' trust and report the solution:
 #'
 #' **Fatal, so fix before trusting.** The result is undefined or rests on a
 #' broken correlation matrix:
@@ -326,6 +327,12 @@
 #' * **Ordinal data on a Pearson basis** attenuates correlations. That is fine
 #'   for a quick look or `suggest_k()` screening, but report the final model on
 #'   `cor = "polychoric"`.
+#' * A **nearly singular within-level score correlation** (smallest eigenvalue
+#'   `< 1e-2`) means the factors at that level are close to collinear, so the
+#'   partialled `beta` for edges from that level is unstable. The `tidy()`
+#'   method still reports `beta` and raises a warning that names the level.
+#'   Fitting with `ackwards()` does not raise it. The package chose this cutoff
+#'   as a numerical guard. It is not a published rule.
 #'
 #' **Informational, and usually fine.** Proceed, just be aware of the
 #' pairwise-missing note, a merely *sparse* (rare-but-present) response
