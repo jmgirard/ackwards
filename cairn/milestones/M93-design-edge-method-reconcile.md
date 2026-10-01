@@ -98,7 +98,7 @@ Consistency gate:
 
 Independent review: internal tier with a diff under `cairn/` only, so one fresh-context Opus diff reviewer ran. It found no false claim about the code and no text that presents the scores route, `edge_method`, or EAP as a user setting. It reported 11 findings, ranked. The disposition after each one is the proposal put to the maintainer at the merge gate.
 
-- F1: the rewrite dropped a true fact from `DESIGN.md:594-601`. The old entry said that `beta` and `r2` build Φ_s from the stored weights and the fit's R, so they do not share the algebra-vs-scores split. Proposed: fix now, one sentence restored.
+- F1: the rewrite dropped a true fact from `DESIGN.md:594-601`. The old entry said that `beta` and `r2` build Φ_s from the stored weights and the fit's R. So they do not share the algebra-vs-scores split. Proposed: fix now, one sentence restored.
 - F2: the "Corrected M91" note corrects a claim about `beta` that the entry no longer mentions. Proposed: fix now, together with F1.
 - F3: the uncovered-path list omits `cor = "spearman"`, ESEM FIML, and pairwise-missing Pearson data. The scores branch at `R/compute_edges.R` correlates standardized raw data with Pearson `cor()`, so a Spearman R differs in basis (read on the branch). The gap predates M93. Proposed: follow-up candidate row.
 - F4: §5.3 says "Under missing data the two differ", but they also differ on complete data under a polychoric or Spearman R (`DESIGN.md:297-298`). M93 wrote this sentence. Proposed: fix now.
