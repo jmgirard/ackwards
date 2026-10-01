@@ -51,7 +51,7 @@ The manuscript and two vignettes describe the edge algebra, Waller's (2007) cont
 
 - [x] T1: Rewrite the manuscript methods passage (`manuscript/manuscript.qmd` ~150-170). Limit the Waller credit (~154-156) to components and present `W'RW` as the covariance of linear composites. Replace the fallback sentence (~160-161) and qualify "exact" (~162).
 - [x] T2: Fix the Waller credit, exactness, and cross-check scope in the abstract (~37), the introduction (~103), the results text (~295), and the conclusion (~382-384).
-- [ ] T3: Rewrite the front-matter disclosure (~19) and the "Use of generative AI" section (~465) to give AI-assisted development from June 2026 to submission and to name Opus, Sonnet, and Fable.
+- [x] T3: Rewrite the front-matter disclosure (~19) and the "Use of generative AI" section (~465) to give AI-assisted development from June 2026 to submission and to name Opus, Sonnet, and Fable.
 - [ ] T4: Fix the intro vignette (`vignettes/ackwards-intro.Rmd.orig` ~276-278) and the engines vignette (`vignettes/ackwards-engines.Rmd.orig` ~84-86). Re-run `Rscript vignettes/precompute.R`, then revert noise in untouched vignettes and noise lines in the two edited ones (LESSONS M61, M75, M87).
 - [ ] T5: Read each rewritten paragraph in full in its final position (LESSONS M92). Check every new claim against the waller2007 page images and the R source (LESSONS M67, M86). Run the AC1-AC3 searches on the branch head.
 - [ ] T6: Run `quarto render manuscript.qmd` in `manuscript/`, count em dashes against `master`, and run `DOD_CODE_UNCHANGED=1 Rscript tools/dod-gate.R`.
@@ -68,6 +68,7 @@ The manuscript and two vignettes describe the edge algebra, Waller's (2007) cont
 - 2026-10-01: implement started on branch m094-manuscript-accuracy-pass. The question gate was skipped because the plan gate settled every open choice.
 - 2026-10-01: T1 done. The methods passage credits Waller with the components result only. It derives `W'RW` from the covariance of linear composites and says every edge comes from the algebra. It limits the scores check to complete Pearson data on the linear engines and qualifies "exact". The Waller wording was read against the PDF text (abstract, pp. 748-749).
 - 2026-10-01: T2 done. The abstract and results text no longer cite Waller or call the algebra exact. The introduction limits his credit to principal components. The conclusion says every edge comes from the closed form and limits the scores check as T1 does.
+- 2026-10-01: T3 done. Both disclosure passages give June 2026 to submission and name Opus, Sonnet, and Fable.
 
 ## Decisions
 
