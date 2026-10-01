@@ -54,6 +54,7 @@ The manuscript describes the shipped `rotation` option: varimax by default, obli
 - 2026-09-30: correction to the T3 search line. The hits fall in 7 sentences, not 5, as the line's own list of 7 shows.
 - 2026-09-30: claim audit: 11 claims read, 2 corrected — manuscript/manuscript.qmd. Varimax applies "at every level with two or more factors" (level 1 is not rotated), and Waller gives "the oblique form for rotated components". The same reader re-read both, and both hold.
 - 2026-09-30: after the audit fixes, the AC3 search still hits only the two rewritten passages, the methods passage has no `—` or `---`, and `quarto render` exited 0 again with both outputs written. No R code or roxygen changed, so the profile's `devtools::test()` step does not apply. Status set to review.
+- 2026-09-30: review gate triage by the owner. Eight wording findings and the stale Discussion comment fixed on the branch, four older claims sent to a candidate row, two rejected. Checks re-run green. Merge approval to be re-requested, because the fix was nontrivial.
 
 ## Decisions
 
@@ -91,3 +92,12 @@ Independent review, 2026-09-30, full three-lens fan-out (user-facing tier). The 
 - B1: the Discussion source comment still says "author-owned stub", which is stale since M74.
 - B3: `beta` can be `NA` for a level whose score correlation cannot be inverted, so "beside each edge" is broad.
 - B6: "keeps the factors within a level uncorrelated" holds for factors, not always for regression scores. The "X, not Y" contrast in line 165 is a form an earlier style pass removed.
+
+Gate triage, 2026-09-30, by the owner:
+
+- Fix now: D1 to D7 and B6. The methods passage now explains the varimax default. With the default scores an edge equals the ancestor's unique contribution, and varimax matches @goldberg2006 and @forbes2023, both checked in `references/`. It drops the "X, not Y" sentence. The scope paragraph now defines `beta`, says `r` is a total correlation under either rotation, and names the parent level. It also states the primary-parent cost and the varimax-calibrated thresholds. Its opening now carries the rotation clause, and "The resulting hierarchy" became "Under either rotation, the hierarchy".
+- Fix now: B1. The Discussion banner comment now reads only "DISCUSSION".
+- Follow-up: D8, D9, D10, D12, as one ROADMAP candidate row for a manuscript accuracy pass.
+- Reject: D11 and B3. Both are package-help detail that the function documentation already carries.
+
+Re-run evidence after the fixes: the AC3 search hits only lines 162-170 and 418-428, all in the rewritten passages, and none states a forbidden claim. Neither passage has `—` or `---`. Keys `goldberg2006`, `forbes2023`, `kaiser1958`, `waller2007` each match once in `references.bib`. `quarto render` exited 0 and wrote `manuscript.pdf` (97,158 bytes) and `manuscript.docx` (309,186 bytes), with the same ORCID icon warning.
