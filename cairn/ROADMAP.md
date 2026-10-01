@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-10-01 (triage. Compressed the macOS-coverage and testthat-parallelism rows. Dropped the upstream Windows-crash report row, refuted premise per the M83 archive. Split the ESEM-extensions, oblique boot_edges/comparability, and lavaan rotation-warnings rows in two each. Promoted the DESIGN edge_method and manuscript accuracy rows. No decision entry. Validate green.)_
+_Last hygiene check: 2026-10-01 (M93 done and archived. Removed the two rows promoted to M93 and M94, added two `[low]` rows from the M93 review, pruned the M90 row. Validate green.)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,20 +10,17 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M93 | Reconcile DESIGN's edge_method text with the code | review | — | normal | milestones/M93-design-edge-method-reconcile.md |
 | M94 | Manuscript accuracy pass for four older claims | planned | M93 | normal | milestones/M94-manuscript-accuracy-pass.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
+| M93 | Reconcile DESIGN's edge_method text with the code | done | — | normal | milestones/archive/M93-design-edge-method-reconcile.md |
 | M92 | Manuscript wording for the oblique rotation option | done | — | normal | milestones/archive/M92-manuscript-oblique-wording.md |
 | M91 | Near-singular guard for the within-level score correlation | done | — | normal | milestones/archive/M91-near-singular-score-cor-guard.md |
-| M90 | Oblique rotation as a documented non-default option | done | M89 | normal | milestones/archive/M90-oblique-rotation-option.md |
 <!-- M01–M80 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 3 most recent terminal rows. -->
 
 ## Candidates
 
 - Further CRAN macOS coverage beyond M82: a standing R-hub macOS run in `PROFILE.md`'s release-walk (M82 declined it as subsumed by its push-to-master job) and a macOS x86_64 CI row. The 0.1.1 failure was arm64-only. Promote either on a CRAN macOS failure M82's job could not have caught. — added 2026-07-27, trimmed 2026-09-07, compressed 2026-10-01
 - Untested axis from M83: disabling testthat parallelism outright (`Config/testthat/parallel: false` / `TESTTHAT_PARALLEL=false`), not only lowering the worker count. At `TESTTHAT_CPUS=1` the crashes still read `testthat subprocess exited`, so no sweep removed the subprocess. Costs M48's speedup and changes DESCRIPTION, so it needs release re-verification. Promote if a CRAN Windows flavour fails with the -1073741819 signature. — added 2026-07-27
-- DESIGN still describes `edge_method = "scores"` as a user choice (IP2 text, the §9 `edge_method` row, and the line near 121), but `ackwards()` has no such argument and always builds `r` by algebra. The Known-limitations entry corrected at M91 now contradicts them. Reconcile, with a D-entry if IP2's wording changes. Found by the M91 review (F5). — added 2026-09-30
-- Manuscript accuracy pass, four older claims from the M92 review. "Exact" needs a qualifier for a polychoric R, where no observed scores reproduce the edges. The methods sentence on a fallback to scores for nonlinear scoring describes a path no shipped engine takes (see the `edge_method` row above). Line 154 credits Waller with the general weight-matrix form, which `references/waller2007.md` calls ours. The AI-use disclosure (front matter and closing section) says June to July 2026. — added 2026-09-30
 - [low] ESEM `comparability()`: split-half per level per factor is feasible but runs 2·n_splits lavaan hierarchies per call and needs per-half convergence handling (D-022 / M46). Demand-gated: promote when a user asks. — added 2026-07-11, merged 2026-07-16, split 2026-10-01
 - [low] WLSMV/polychoric `boot_edges()`: costs n_boot × (k_max−1) fits, and a resample can drop a response category (D-023 / M47). Demand-gated: promote when a user asks. — added 2026-07-11, merged 2026-07-16, split 2026-10-01
 - [low] Oblique `boot_edges()` (RR02 Q5 item 12, held out of M90's Scope): it refits with the object's rotation but bootstraps only `r`, so `beta` and `r2` get no intervals. Promote when a user needs intervals on the partialled coefficients. — added 2026-09-30, split 2026-10-01
@@ -32,6 +29,8 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 - [low] `.esem_rotation_args()` detects lavaan's list form through the deprecated `rotation_args` formal, and its pre-0.7 branch is only unit-tested (M90 review). Promote when lavaan drops `rotation_args`. — added 2026-09-30, split 2026-10-01
 - [low] Indefinite R and the near-singular warning (M91 review, F4). With pairwise missing data or a non-PD user matrix, and EFA or ESEM falling back to regression weights, Φ_s can have a negative eigenvalue. `tidy()` then calls it "nearly singular" with a negative value, and `r2` can leave [0, 1] with no warning. Promote on a real fit that shows either. — added 2026-09-30
 - [low] User-facing sample-realized edges: an option to build edges from materialized scores, so that under missing data an edge shows the sample-realized correlation, not the model-implied one. DESIGN §5.3 described it, but no exported function offers it. Demand-gated: promote when a user asks for sample-realized edges. — added 2026-10-01 — M93 plan
+- [low] The algebra-vs-scores cross-check misses more paths than DESIGN's first Known limitations entry names (M93 review, F3). Under `cor = "spearman"` the algebra uses Spearman R, but the scores branch of `compute_edges()` takes a Pearson `cor()` of standardized raw data. ESEM FIML and pairwise-missing Pearson data also differ in basis. Add them to the entry, or test them. Promote on a wrong edge from one of those paths. — added 2026-10-01 — M93 review
+- [low] Stale details in DESIGN §5 that predate M93 (M93 review, F5, F8, F9). The §5.3 pseudocode signature shows `align` and `use = "pairwise"` and omits `cut_show` and `build_tidy`. Its body aligns signs inside the function and does not show the `"algebra"` abort. §5.1 calls EFA and ESEM "regression-scored", but both use ten Berge weights. The §5.2 "NULL if !linear" comments describe a case no engine produces. Docs-only. Promote with the next DESIGN §5 edit. — added 2026-10-01 — M93 review
 
 ### Forbes website-review feedback (2026-07-23)
 

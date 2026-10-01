@@ -1,0 +1,11 @@
+# M93: Reconcile DESIGN's edge_method text with the code
+
+**Status:** done (2026-10-01, PR #102 https://github.com/jmgirard/ackwards/pull/102)
+
+**Goal:** `cairn/DESIGN.md` describes the edge scores route as it is: an internal seam of `compute_edges()` that the algebra-vs-scores tests use, not a route a user can choose.
+
+**Outcome:** IP1 now states that every `compute_edges()` call in `R/` passes `"auto"` or `"algebra"` with no data. So every shipped edge comes from the `W'RW` algebra. IP2 now keeps the scores route inside the internal `compute_edges()` as the second route of the agreement tests, and its standing agreement test is unchanged. §5 was rewritten: the intro, the §5.2 method values, the §5.3 pseudocode comment and a new "Where the `scores` route runs" paragraph, and §5.4. The §9 `edge_method` row is marked internal, and the scores-method row states EAP as out of scope. The Documentation standard no longer names `edge_method = "scores"`. The first Known limitations entry now names only the uncovered polychoric and FIML paths. It points to IP1 and IP2 and says how `beta` and `r2` are built. No R code, man page, vignette, or NEWS change.
+
+**Decisions:** D-038 (narrows D-004). The scores route is an internal cross-check seam, not a user option.
+
+**Review:** all six criteria passed on fresh evidence. `cairn_validate` passed, `document()` gave no diff, `check_pkgdown()` was clean, and `devtools::check()` gave 0 errors, 0 warnings, and 0 notes. One Opus diff reviewer ran, because the tier is internal and the diff is under `cairn/` only. It found no false claim about the code and reported 11 findings. Four were fixed before merge. These were the dropped `beta`/`r2` sentence and the "Corrected M91" note it explains. The other two were the basis difference under a polychoric or Spearman R and D-038's second reason for the route. Four went to two candidate rows: the cross-check's missing paths, and the older stale §5 pseudocode and comments. Three were rejected. AC1 requires IP1's caller-census wording, this pass removes the flagged ROADMAP rows, and the plan put the internal `compute_edges()` roxygen out of scope. Merged on local green under the repo's standing non-release rule, with Windows CI still pending and the other eight checks green.
