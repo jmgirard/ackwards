@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-09-30 (M91 done and archived; two candidate rows added from its review; M88's terminal row pruned; two LESSONS lines added)_
+_Last hygiene check: 2026-09-30 (M92 done and archived; manuscript accuracy row added from its review; M89's terminal row pruned; one LESSONS line added)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,10 +10,9 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M92 | Manuscript wording for the oblique rotation option | review | — | normal | milestones/M92-manuscript-oblique-wording.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
+| M92 | Manuscript wording for the oblique rotation option | done | — | normal | milestones/archive/M92-manuscript-oblique-wording.md |
 | M91 | Near-singular guard for the within-level score correlation | done | — | normal | milestones/archive/M91-near-singular-score-cor-guard.md |
-| M89 | Real within-level factor correlations and Φ-partialled edge reporting | done | — | normal | milestones/archive/M89-factor-cor-partialled-edges.md |
 | M90 | Oblique rotation as a documented non-default option | done | M89 | normal | milestones/archive/M90-oblique-rotation-option.md |
 <!-- M01–M80 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 3 most recent terminal rows. -->
 
