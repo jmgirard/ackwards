@@ -73,3 +73,21 @@ Consistency gate, 2026-09-30:
 - No principle text changed, so `cairn_impact.py` does not apply.
 - `devtools::document()` left no diff. `devtools::check()` gave 0 errors, 0 warnings, 0 notes. `pkgdown::check_pkgdown()` found no problems.
 - No NEWS entry is needed, because `manuscript/` is in `.Rbuildignore` and is not part of the package. No README or new top-level file changed.
+
+Independent review, 2026-09-30, full three-lens fan-out (user-facing tier). The prior-review lens found one applicable lesson (no em dashes, M74), not regressed, and zero findings. No finding shows a criterion failing, so none triggers a return. The diff lens (D) and the blame lens (B) ranked these findings. Dispositions wait for the gate.
+
+- D1: the scope paragraph omits the cost that D-036 accepted. Under oblique rotation a primary parent can be a factor that only correlates with the real parent. The `prune()` thresholds were calibrated under varimax. The fit-time message says both (R/ackwards.R:1088-1092).
+- D2: the manuscript never says why varimax is the default or that `r` equals `beta` under varimax.
+- D3: "partialled coefficient `beta`" is not defined.
+- D4 (same as B2): the scope paragraph's flow broke. "Scope is bounded" now leads into a widening, and "The resulting hierarchy" follows the `beta` sentence.
+- D5: "therefore changes what an edge means" does not follow from the sentences before it.
+- D6: "Under an oblique rotation, each edge is a total correlation" implies varimax edges are something else.
+- D7: "correlated factors at the same level" does not say it is the parent level.
+- D8: "exact" needs a qualifier for a polychoric R, where no observed scores reproduce the edges.
+- D9 (pre-existing): manuscript.qmd:160-162 says the package falls back to scores for nonlinear scoring and cross-checks the routes. No shipped engine is nonlinear, and the cross-check runs only in tests.
+- D10 (same as B4, pre-existing): manuscript.qmd:154 credits Waller with the general weight-matrix form, which `references/waller2007.md` calls ours.
+- D11: "available as an option" omits that some oblique rotations need the suggested package GPArotation.
+- D12 (same as B5, pre-existing): the AI-use disclosure (manuscript.qmd:20 and 456) says June to July 2026.
+- B1: the Discussion source comment still says "author-owned stub", which is stale since M74.
+- B3: `beta` can be `NA` for a level whose score correlation cannot be inverted, so "beside each edge" is broad.
+- B6: "keeps the factors within a level uncorrelated" holds for factors, not always for regression scores. The "X, not Y" contrast in line 165 is a form an earlier style pass removed.
