@@ -11,6 +11,7 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
   p <- nrow(R)
   result <- list()
   fits_list <- if (keep_fits) list() else NULL
+  fa_starts <- .psych_fa_starts()
 
   for (k in seq_len(k_max)) {
     rotate_k <- if (k == 1L) "none" else rotation
@@ -61,14 +62,15 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
     } # nocov end
 
     # An oblique rotation's failure (M90 Decisions, finding F1). psych::fa()
-    # rotates from 20 starts (n.rotations: the unrotated one and 19 random)
-    # and keeps the best, so a GPArotation warning can come from a discarded
-    # start: re-raise it and keep the level. A failed final step leaves no
-    # rotation matrix, and that level is not the requested rotation, so it
-    # truncates (Invariant 7).
+    # rotates from `fa_starts` starts (n.rotations: the unrotated one and the
+    # rest random) and keeps the best. With several starts a GPArotation
+    # warning can come from a discarded start: re-raise it and keep the
+    # level. With one start it describes the stored solution, and a failed
+    # final step leaves no rotation matrix. Either way that level is not the
+    # requested rotation, so it truncates (Invariant 7).
     if (k > 1L && .is_oblique(rotation)) {
       rot_msgs <- .psych_rotation_warnings(warn_msgs)
-      if (is.null(fit$rot.mat)) {
+      if (is.null(fit$rot.mat) || (fa_starts == 1L && length(rot_msgs) > 0L)) {
         detail <- if (length(rot_msgs) > 0L) {
           rot_msgs[[1L]]
         } else {
@@ -83,8 +85,9 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
       if (length(rot_msgs) > 0L) {
         cli::cli_warn(c(
           "!" = "psych reported a rotation problem at k = {k}: {rot_msgs[[1L]]}",
-          "i" = "psych rotates from 20 starts (19 of them random) and keeps the best one, \\
-                 so the warning can come from a discarded start. The level is kept."
+          "i" = "psych rotates from {fa_starts} starts ({fa_starts - 1L} of them random) \\
+                 and keeps the best one, so the warning can come from a discarded \\
+                 start. The level is kept."
         ))
       }
     }
@@ -104,12 +107,11 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
     L_rot <- unclass(fit$loadings)
     labels_k <- make_labels(k)
 
-    # Positive manifold anchor for k = 1 (matches PCA engine behaviour).
-    # nocov: only fires when a single-factor solution loads net-negative, which
-    # does not occur for positive-manifold data; the PCA analogue is excluded
-    # the same way (engine_pca.R).
+    # Positive manifold anchor for k = 1 (matches PCA engine behaviour). It
+    # fires only when a single-factor solution loads net-negative, which does
+    # not occur for positive-manifold data; a test plants one.
     flip <- (k == 1L) && (sum(L_rot) < 0)
-    if (flip) L_rot <- -L_rot # nocov
+    if (flip) L_rot <- -L_rot
 
     colnames(L_rot) <- labels_k
     rownames(L_rot) <- rownames(R)
@@ -147,9 +149,7 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
         # psych's regression weights are R^{-1} L Phi, the oblique regression
         # rule (R^{-1} L under varimax).
         w_fall <- unclass(fit$weights)
-        # nocov: the k = 1 positive-manifold flip (see `flip` above), never
-        # an oblique branch, because k = 1 is not rotated.
-        if (flip) w_fall <- -w_fall # nocov
+        if (flip) w_fall <- -w_fall # the k = 1 anchor above
         colnames(w_fall) <- labels_k
         rownames(w_fall) <- rownames(R)
         w_fall
@@ -262,9 +262,10 @@ efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
     cli::cli_warn(
       c(
         "!" = "A factor level is near rank-deficient: {n_clamp} eigenvalue{?s} \\
-               of {.code L' R^-1 L} {?is/are} numerically zero.",
-        "i" = "ten Berge scores for this level neither have unit variance nor \\
-               reproduce the factor correlations; \\
+               of {.code L' R^-1 L} {?is/are} numerically zero (L scaled by \\
+               {.code Phi^1/2} under an oblique rotation).",
+        "i" = "ten Berge scores for this level do not reproduce the factor \\
+               correlation matrix, so their variances are not 1; \\
                {.fn compute_edges} still standardizes by the actual score SDs \\
                (edges stay valid), but the factors are poorly separated."
       ),

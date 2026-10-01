@@ -188,7 +188,7 @@ previously called oblique out of scope per D-002, superseded by D-034.)*
 
 | Engine | Extraction | Typical use | Notes |
 |---|---|---|---|
-| `"pca"` | principal components | original Goldberg; Forbes extension | fastest, no Heywood, never fails to converge; Waller algebra exact |
+| `"pca"` | principal components | original Goldberg; Forbes extension | fastest, no Heywood, never fails to converge; Waller algebra exact. *(Corrected M90: a failed or erroring oblique rotation truncates a PCA level.)* |
 | `"efa"` | exploratory factor analysis | factor-model rationale, continuous data | `psych::fa` / `stats::factanal` style |
 | `"esem"` | EFA estimated in SEM framework (lavaan) | clinical/HiTOP workflow, ordinal data, downstream SEM linking | per-level fit + SEs; can fail to converge at deeper levels |
 
@@ -349,6 +349,9 @@ question: neither — a structured light core, with the heavy bits nullable and 
   factors within a level by (primary parent's position in the level above, then descending variance).
   The single top factor and any ties fall back to variance. This places each child under its parent
   so splits read cleanly; the `f{j}` ID order follows this layout order so tables and plots agree.
+  *(Corrected M90: the variance tiebreak reads the stored `variance`. Under an oblique PCA rotation
+  the engine keeps `psych::pca()`'s column order, by `colSums(L^2)`, so that vector can fall out of
+  descending order. See the M90 Decisions.)*
   Limitation: ordering reduces but can't eliminate crossings (a child with a strong *secondary*
   parent elsewhere still throws a crossing edge); the layout's barycenter step (§11) refines
   x-position continuously beyond the discrete order.
@@ -418,7 +421,7 @@ announced via cli and documented in roxygen with its rationale.
 
 | Decision | Default | Rationale |
 |---|---|---|
-| `engine` | `"pca"` | original method; fastest; never fails to converge; algebra-exact. Docs steer to `efa`/`esem` when a measurement-model rationale exists. |
+| `engine` | `"pca"` | original method; fastest; never fails to converge; algebra-exact. Docs steer to `efa`/`esem` when a measurement-model rationale exists. *(Corrected M90: a failed or erroring oblique rotation truncates a PCA level.)* |
 | `rotation` | **`"varimax"`** (default). Oblique `"oblimin"` and `"promax"` (PCA, EFA) and `"oblimin"` and `"geomin"` (ESEM) are non-default options (M90). *(Corrected M90: this cell previously read "not currently a user argument".)* | **Why varimax is the default.** Varimax keeps the within-level factors uncorrelated (Φ = I), so each between-level edge equals the unique contribution of that ancestor to that descendant — the marginal correlation and the Φ-partialled regression coefficient coincide (`E = Φ_s B`), which is what licenses reading the edges as a lineage diagram (Goldberg 2006 reads them as path coefficients, with a part-whole caveat, p. 350). Under an oblique rotation the two quantities come apart: an edge is then a *total* correlation that also carries within-level factor overlap, and the lineage overlays (primary parent, split narrative, additive variance partitioning) no longer read off the raw edges. Varimax also matches the published analyses this package reproduces (Goldberg 2006; Kim & Eaton 2015; Forbes 2023's examples; Forbush et al. 2024). The varimax criterion itself originates with Kaiser (1958); CF(κ = 1/p) ≡ varimax (Crawford & Ferguson 1970; Browne 2001) — no reference paper varies κ. **Attribution (corrected M84 per RR02, page-image verified).** Kim & Eaton (2015, p. 1067) state the stronger claim that *only* orthogonal rotations produce interpretable between-level correlations, attributing it to Goldberg (2006); they state it bare, and Goldberg in fact offered orthogonality as a **preference** on other grounds — regression parsimony and marker separation (p. 356) — while Forbes (2023, p. 2 + fn. 1) frames the method as supporting orthogonal *or* oblique rotation. The earlier wording here asserted that claim as this package's rationale; it is superseded by the Φ = I argument above. Oblique is **no longer out of scope** (D-034, D-002 superseded). M90 implemented it as a documented non-default option, with its semantics fixed by D-036. Under an oblique rotation the marginal `r` still drives primary-parent matching, sign anchoring, and the diagram, and `beta` is reported beside it. Scores keep the factor correlation (oblique ten Berge weights for EFA and ESEM, oblique components for PCA). `variance` uses psych's `diag(ΦΛ'Λ)/p`. The fit announces what an edge means, and `prune()` warns that its thresholds were set for varimax. *(Rationale also corrected M76 per RR01: the earlier "T'T = I … enabling closed-form W'RW algebra" phrasing conflated the interpretive Φ = I reason with algebra-exactness — the W'RW identity is exact for **any fixed linear scoring**, oblique included, and Waller 2007 §3 gives the oblique closed form. Orthogonality is the interpretive choice, not a numerical prerequisite. See §5.1.)* |
 | `estimator` (ESEM only) | **`"WLSMV"`** for `cor = "polychoric"`; `"ML"` otherwise | WLSMV (mean-and-variance-adjusted WLS) is the standard limited-information ordinal estimator (matches Kim & Eaton 2015; Forbush et al. 2024 use the ULSMV variant); gives correct fit indices for categorical indicators without full-information ML cost. |
 | `cor` (basis) | **`"pearson"`** (matches `psych`/`lavaan`); ordinal opt-in via `cor = "polychoric"` | No silent basis-switching (it can change the structure and break comparison to published work). Instead, **detect likely-ordinal columns and emit a suppressible cli warning** pointing to the polychoric option — loud *advice*, not silent action. |
@@ -611,8 +614,10 @@ historical `§14.x` citation resolves. Live known limitations moved to the next 
   say that `r` is a total correlation, and `beta` beside it is the partialled coefficient. The
   redundancy and display thresholds keep their varimax calibration, and `prune()` warns.
 - **Oblique EFA with `oblimin` starts at random.** psych's `fa()` tries several random starting
-  rotations, so two unseeded fits differ near the rotation's convergence tolerance. The ESEM engine
-  has the same property under every lavaan rotation. Set `seed` to reproduce such a fit exactly.
+  rotations, so two unseeded fits can reach a different solution at a deep level, not only differ
+  near the rotation's convergence tolerance (corrected M90: sim16, `k_max = 6`, seeds 1 and 8 differ at
+  level 6). The ESEM engine has the same property under every lavaan rotation. Set `seed` to
+  reproduce such a fit exactly.
 
 ## 15. Milestones
 

@@ -166,14 +166,26 @@ make_labels <- function(k) {
 
 # The warnings psych gives when an oblique rotation fails: GPArotation's
 # non-convergence, psych's note that it used Promax in place of the requested
-# rotation, and its notice that GPArotation is missing. Returns the matching
-# messages (character(0) when none).
+# rotation, and its notice that GPArotation is missing. Case is ignored:
+# GPArotation's legacy algorithm (its default before 2026.6-1) writes
+# "convergence not obtained". Returns the matching messages (character(0)
+# when none).
 .psych_rotation_warnings <- function(msgs) {
   grep(
-    "Convergence not obtained|Promax was used instead|requires the GPArotation package",
+    "convergence not obtained|Promax was used instead|requires the GPArotation package",
     msgs,
-    value = TRUE
+    value = TRUE,
+    ignore.case = TRUE
   )
+}
+
+# How many starts psych::fa() rotates from: its `n.rotations` default (20 in
+# psych 2.6.5, 1 in versions without the argument). With more than one start
+# a rotation warning can come from a discarded start; with one it describes
+# the stored solution (M90 Decisions, finding F1).
+.psych_fa_starts <- function(fa_formals = formals(psych::fa)) {
+  n <- fa_formals$n.rotations
+  if (is.numeric(n) && length(n) == 1L && n > 1) as.integer(n) else 1L
 }
 
 # Oblique regression (Thurstone) weights R^{-1} L Phi, which are R^{-1} L

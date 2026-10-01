@@ -290,7 +290,11 @@ test_that("prune('redundant') on AMH: direct default vs adjacent opt-in", {
 #     its default), with n_obs = 5000, which feeds the fit indices only.
 
 test_that("oblique output reproduces Forbes's oblique branch on her simulations", {
-  skip_if_not_installed("GPArotation")
+  # The fixture was generated with GPArotation's "bb" algorithm, its default
+  # since 2026.6-1. The earlier default ("legacy") moves PCA oblimin loadings
+  # by 1.3e-6 to 2.8e-6 (sim1, k = 2 to 4, measured 2026-09-30), far above
+  # this test's 1e-10.
+  skip_if_not_installed("GPArotation", minimum_version = "2026.6-1")
   runs <- readRDS(test_path("fixtures", "forbes2023_oblique.rds"))
   sims <- .forbes_fixture()
   expect_length(runs, 12L)

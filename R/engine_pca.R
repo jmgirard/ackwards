@@ -30,16 +30,29 @@ pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE,
       # warning describes the stored solution: GPArotation did not converge,
       # or psych used Promax in place of the requested rotation. That level
       # truncates (M90 Decisions, finding F1). Other warnings pass through.
+      # An error inside an oblique fit (a singular rotation, say) truncates
+      # too (Invariant 7). Under varimax it propagates, as before.
       rot_msgs <- character(0)
-      fit <- withCallingHandlers(
-        psych::pca(R, nfactors = k, rotate = rotation),
-        warning = function(w) {
-          if (length(.psych_rotation_warnings(conditionMessage(w))) > 0L) {
-            rot_msgs <<- c(rot_msgs, conditionMessage(w))
-            invokeRestart("muffleWarning")
+      fit <- tryCatch(
+        withCallingHandlers(
+          psych::pca(R, nfactors = k, rotate = rotation),
+          warning = function(w) {
+            if (length(.psych_rotation_warnings(conditionMessage(w))) > 0L) {
+              rot_msgs <<- c(rot_msgs, conditionMessage(w))
+              invokeRestart("muffleWarning")
+            }
           }
+        ),
+        error = function(e) {
+          if (!.is_oblique(rotation)) stop(e)
+          cli::cli_warn(c(
+            "!" = "PCA failed at k = {k}: {conditionMessage(e)}",
+            "i" = "Truncating hierarchy at level {k - 1L}."
+          ))
+          NULL
         }
       )
+      if (is.null(fit)) break
       if (length(rot_msgs) > 0L) {
         cli::cli_warn(c(
           "!" = "The {rotation} rotation failed at k = {k}: {rot_msgs[[1L]]}",

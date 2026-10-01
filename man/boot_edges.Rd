@@ -85,9 +85,9 @@ serially, as in the ESEM (exploratory structural equation modeling) engine
 of \code{\link[=ackwards]{ackwards()}}. Most replicates are then fully determined by their
 resample indices, so serial and parallel runs agree exactly. The exception
 is an EFA object with \code{rotation = "oblimin"}: each refit also draws psych's
-random rotation starts. With \pkg{future.apply} installed those draws come
-from per-replicate random streams, so results still agree across plans.
-Without it they come from the global stream that \code{seed} sets.
+random rotation starts. Its results are reproducible under \code{seed}. They
+can differ between a run with \pkg{future.apply} installed and one
+without it, because the two draw the starts from different random streams.
 }
 \section{What the intervals do and do not fix}{
 

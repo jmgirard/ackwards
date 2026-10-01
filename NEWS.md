@@ -17,10 +17,12 @@
   label it. `prune()` warns that its thresholds were set for varimax.
   `boot_edges()` refits each replicate with the object's rotation, and checks
   first for GPArotation when that rotation needs it. A PCA level whose
-  oblique rotation fails ends the hierarchy at the level before it, because
-  PCA rotates once. EFA and ESEM rotate from several random starts, so their
-  non-convergence warnings are shown and the level is kept. An EFA level
-  whose final rotation step failed still ends the hierarchy. Set
+  oblique rotation fails, or raises an error, ends the hierarchy at the level
+  before it, because PCA rotates once. EFA and ESEM rotate from several
+  random starts, so their non-convergence warnings are shown and the level is
+  kept. An EFA level whose final rotation step failed still ends the
+  hierarchy. If the installed psych rotates from one start, any EFA rotation
+  warning ends it too. Set
   `seed` to reproduce an oblique EFA fit or any ESEM fit exactly. A new test
   checks the oblique results against Forbes's reference implementation on
   her three simulation studies.

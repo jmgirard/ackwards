@@ -10,7 +10,8 @@
 #' @section Defaults and why:
 #' * **`engine = "pca"`** is the original Goldberg (2006) method. PCA
 #'   (principal component analysis) is the fastest engine and never fails to
-#'   converge, and the Waller (2007) algebra is exact for components.
+#'   converge, and the Waller (2007) algebra is exact for components. (An
+#'   oblique `rotation` can still fail, see `rotation`.)
 #' * **`rotation = "varimax"`** keeps the within-level factors mutually
 #'   uncorrelated (orthogonal). A rotation re-orients the factors without
 #'   changing how well they fit, and varimax pushes each item toward one
@@ -69,7 +70,7 @@
 #'     contributes to the FIML likelihood, which matches the FIML convention
 #'     (Enders, 2010). `"complete"` is the complete-case N, a conservative
 #'     lower bound. Point estimates do not depend on this choice. Those are
-#'     the loadings (the correlation between each item and a factor) and the
+#'     the loadings (how strongly each item reflects a factor) and the
 #'     edges. Only the fit indices of EFA (exploratory factor analysis) do.
 #'     Those indices are *approximate* whatever N you pick, because of this
 #'     two-step route: a FIML matrix fed into normal-theory EFA
@@ -171,7 +172,10 @@
 #'   `engine = "pca"` or `"efa"`, they are `"oblimin"` and `"promax"`.
 #'   With these engines `"oblimin"` needs the GPArotation package, and so
 #'   does `"promax"` with `engine = "efa"`. With `engine = "esem"`, they are
-#'   `"oblimin"` and `"geomin"` (lavaan's oblique geomin).
+#'   `"oblimin"` and `"geomin"` (lavaan's oblique geomin). With PCA,
+#'   `"promax"` is `stats::promax()`. With EFA it is psych's `Promax()`
+#'   through `psych::kaiser()`. The two can give slightly different loadings
+#'   for the same solution.
 #'
 #'   Under an oblique rotation, each edge `r` is a total correlation. Primary
 #'   parents and signs still use `r`, and [tidy.ackwards()] reports the
@@ -185,13 +189,16 @@
 #'   oblimin for `engine = "efa"` and every lavaan rotation. Set `seed` to
 #'   reproduce such a fit exactly (see `seed`).
 #'
-#'   An oblique rotation that fails is handled by how many starts it uses. PCA rotates
-#'   once, so a level whose rotation fails to converge, or that psych replaces
-#'   with promax, ends the hierarchy at the level before it with a warning.
-#'   EFA and ESEM rotate from several random starts and keep the best one, so
-#'   a non-convergence warning there can come from a discarded start. It is
-#'   shown, and the level is kept. An EFA level whose final rotation step
-#'   failed still ends the hierarchy.
+#'   An oblique rotation that fails is handled by how many starts it uses.
+#'   PCA rotates once, so a level whose rotation fails to converge, or that
+#'   psych replaces with promax, ends the hierarchy at the level before it
+#'   with a warning. So does a PCA level whose oblique fit raises an error.
+#'   EFA (psych's `fa()` defaults to several starts) and ESEM rotate from
+#'   several random starts and keep the best one, so a non-convergence
+#'   warning there can come from a discarded start. It is shown, and the
+#'   level is kept. An EFA level whose final rotation step failed still ends
+#'   the hierarchy, and so does any EFA rotation warning when the installed
+#'   psych's `fa()` rotates from one start.
 #' @param ... Reserved for future arguments.
 #'
 #' @return An object of class `"ackwards"`. See [print.ackwards()],
@@ -900,7 +907,8 @@ ackwards <- function(
   # N-based checks accordingly. Run factorability() for the full report.
   .factorability_screen(R, n_obs = n_obs_eff, p = p, k_max = k_max, engine = engine)
 
-  # --- Handle convergence truncation (PCA never truncates; EFA/ESEM may) -----
+  # --- Handle truncation (EFA/ESEM on non-convergence; any engine on a failed
+  # oblique rotation or an unusable factor correlation) ------------------------
   k_eff <- length(levels_list)
   if (k_eff < 2L) {
     cli::cli_abort(
@@ -915,8 +923,9 @@ ackwards <- function(
   if (k_eff < k_max) {
     cli::cli_warn(
       c(
-        "!" = "Hierarchy truncated: {k_max - k_eff} level{?s} did not converge \\
-               (requested k_max = {k_max}, built k = {k_eff}).",
+        "!" = "Hierarchy truncated: {k_max - k_eff} level{?s} could not be \\
+               built (requested k_max = {k_max}, built k = {k_eff}). The \\
+               warning above names the cause.",
         "i" = "Set {.arg k_max = {k_eff}} to suppress this message."
       )
     )

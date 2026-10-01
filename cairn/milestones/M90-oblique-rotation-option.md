@@ -126,6 +126,7 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - 2026-09-30: the claim audit covered the lines added since d49b217. Its main finding: lavaan never sent its rotation warning, so the ESEM half of F1 did nothing on a real fit. Fixed per Decisions. The ESEM test now drives real lavaan non-convergence, and planting "warnings off" turned it red. Of the 17 corrections, claim 2 (seed) was kept with evidence, which leaves 16 edits.
 - 2026-09-30: claim-audit re-read by the same reader: 25 items re-read, 21 true, and the reader reproduced the claim 2 case. Four fixed after it: the `.esem_rotation_args()` helper moved out of `.esem_ss_argname()`'s comment block, the `rotation` doc now covers oblique rotations only, and the `prune()` doc and comment name the item-assignment signals.
 - 2026-09-30: T10 done. Third DoD gate run passed: check 0/0/0, coverage 100%, prose, freshness, ledger anchors, styler, lintr, and pkgdown clean. Suite 3516 expectations, 0 failures, 2 Mac-only skips. Status set to review.
+- 2026-09-30: review pass 2 found all 13 criteria passing and logged findings G1 to G27. At the gate the owner accepted the proposed dispositions and chose to fix first and be asked again. The fix-now work is recorded in Review.
 
 ## Decisions
 
@@ -239,4 +240,16 @@ Independent review, pass 2. Three fresh-context lenses ran: diff-bug (Opus), bla
 - G27 (diff-bug 11): psych's `try()` prints "Error in ..." to stderr. Proposed: reject, as upstream and cosmetic.
 
 Pass-1 findings, final dispositions proposed for this gate. Fixed in T10: F1, F3, F4, F5, F6, F7, F8, F9, F11, F14 to F22, and F2 for the vignette and README. Gaps found in pass 2 are G2, G3, G6, G7, and G10. Follow-up: F2's manuscript part, F10 (re-rate the near-singular row at hygiene), F13 (CI matrix), and F23 (a LESSONS line at hygiene). Reject: F12, F24, and the two latent parts of F21, for the reasons recorded in pass 1.
+
+Pass-2 gate, 2026-09-30: the owner accepted every proposed disposition above, for G1 to G27 and for the pass-1 findings. G1 to G18 are fixed on the branch before the merge question is asked again. G19 and G20 become candidate rows, and G21 to G27 are rejected for the reasons given.
+
+Fix-now work after the pass-2 gate, on the branch:
+- G1: an oblique PCA fit that errors now warns "PCA failed at k = …" and truncates. A varimax error still propagates. The singular promax case at k = 9 is now a test that keeps 8 levels.
+- G2: `.psych_rotation_warnings()` ignores case. The PCA test plants GPArotation's lowercase legacy text, and a case-sensitive pattern turned that test red.
+- G3: `.psych_fa_starts()` reads `n.rotations` from `formals(psych::fa)`. With one start, any EFA rotation warning truncates, which a new test checks. The messages state the count read, and lavaan's message gives no count.
+- G4: the oblique Forbes block needs GPArotation 2026.6-1 or later, whose NEWS makes "bb" the default. The snapshot comment no longer claims cross-platform stability.
+- G5 to G14, G16, G17: the docs, comments, messages, the DESIGN and reference pages, and the helper note were corrected as proposed. The ESEM Φ failure now carries its reason, and a test checks it.
+- G15: a test plants a net-negative one-factor EFA solution with the tenBerge step failing. Both flip lines are now covered, and their `# nocov` markers are gone.
+- G18: serial timing put `test-oblique.R` at 9.6 s, above `esem` (6.1 s), so it joins `start-first`. `test-oblique-branches.R` (3.8 s) does not.
+- G19 and G20: one grouped `[low]` candidate row in ROADMAP.
 

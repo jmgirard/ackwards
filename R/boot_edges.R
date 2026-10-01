@@ -54,9 +54,9 @@
 #' of [ackwards()]. Most replicates are then fully determined by their
 #' resample indices, so serial and parallel runs agree exactly. The exception
 #' is an EFA object with `rotation = "oblimin"`: each refit also draws psych's
-#' random rotation starts. With \pkg{future.apply} installed those draws come
-#' from per-replicate random streams, so results still agree across plans.
-#' Without it they come from the global stream that `seed` sets.
+#' random rotation starts. Its results are reproducible under `seed`. They
+#' can differ between a run with \pkg{future.apply} installed and one
+#' without it, because the two draw the starts from different random streams.
 #'
 #' @section What the intervals do and do not fix:
 #' Per-edge intervals make sampling uncertainty **visible**: an edge whose
@@ -236,9 +236,8 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
   # --- Upfront resample indices --------------------------------------------
   # The resampling randomness happens here. Each replicate is then
   # deterministic given its index vector, except that an EFA oblimin refit
-  # also draws psych's random rotation starts; with future.apply, future.seed
-  # gives those the same streams under every plan, so serial and parallel
-  # dispatch still agree exactly.
+  # also draws psych's random rotation starts, which are reproducible under
+  # `seed` (see .boot_lapply()).
   if (!is.null(seed)) set.seed(seed)
   idx_list <- lapply(seq_len(n_boot), function(b) {
     sample.int(n, n, replace = TRUE)

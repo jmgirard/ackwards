@@ -45,8 +45,10 @@ test_that("print/summary snapshot: factor-correlation block prints at max |cor| 
 })
 
 # Oblique surfaces (D-036): r is labelled a total correlation and beta the
-# partialled coefficient. PCA oblimin is deterministic (GPArotation starts
-# from the identity), so the rounded tables are stable across platforms.
+# partialled coefficient. PCA oblimin is deterministic (psych::pca() rotates
+# once, from the identity), and the tables are rounded to 3 digits, which
+# absorbs the small numerical drift between platforms and GPArotation
+# algorithms.
 test_that("print/summary snapshot: oblique PCA notes what an edge means", {
   skip_if_not_installed("GPArotation")
   x <- cached(ackwards(sim16, k_max = 4, rotation = "oblimin"))

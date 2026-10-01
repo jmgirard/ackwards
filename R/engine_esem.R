@@ -229,14 +229,18 @@
   # under orthogonal rotation, up to rounding, so a failed read takes the
   # identity there. An oblique fit whose correlation cannot be read is an
   # error (the level truncates with a warning), never a silent identity.
-  Phi_lav <- tryCatch(.esem_read_phi(fit, factors_lav), error = function(e) NULL)
+  phi_err <- NULL
+  Phi_lav <- tryCatch(.esem_read_phi(fit, factors_lav), error = function(e) {
+    phi_err <<- conditionMessage(e)
+    NULL
+  })
   if (is.null(Phi_lav)) {
     if (rotate_k %in% c("none", "varimax")) {
       Phi_lav <- diag(k)
     } else {
       return(list(
         status = "error", k = k,
-        error_msg = "could not extract the factor correlations"
+        error_msg = paste0("could not extract the factor correlations: ", phi_err)
       ))
     }
   }
@@ -515,8 +519,9 @@ esem_levels <- function(data, k_max, estimator, cor,
     if (!is.null(res$rotation_msg)) {
       cli::cli_warn(c(
         "!" = "lavaan reported a rotation problem at k = {k}: {res$rotation_msg}",
-        "i" = "lavaan rotates from 30 random starts and keeps the best one, \\
-               so the warning can come from a discarded start. The level is kept."
+        "i" = "lavaan rotates from several random starts and keeps the best \\
+               one, so the warning can come from a discarded start. The level \\
+               is kept."
       ))
     }
     if (identical(res$level$scoring$method, "regression")) {

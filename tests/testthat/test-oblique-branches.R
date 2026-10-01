@@ -91,7 +91,7 @@ test_that("esem: an unreadable factor correlation truncates an oblique fit only"
   w <- .warnings_of(
     x <- suppressMessages(ackwards(sim16, k_max = 3, engine = "esem", rotation = "oblimin", seed = 1))
   )
-  expect_match(w, "ESEM failed at k = 3: could not extract the factor correlations",
+  expect_match(w, "ESEM failed at k = 3: could not extract the factor correlations: planted failure",
     fixed = TRUE, all = FALSE
   )
   expect_identical(names(x$levels), c("1", "2"))
@@ -179,6 +179,8 @@ test_that("pca: a failed oblique rotation truncates; other warnings pass through
   }
   msgs <- c(
     "Convergence not obtained in GPFoblq. 2000 iterations used.",
+    # GPArotation's legacy algorithm writes the same warning in lowercase.
+    "convergence not obtained in GPFoblq. 1000 iterations used.",
     "The requested transformaton failed, Promax was used instead as an oblique transformation"
   )
   for (msg in msgs) {
@@ -197,9 +199,38 @@ test_that("pca: a failed oblique rotation truncates; other warnings pass through
   expect_identical(names(x$levels), c("1", "2", "3", "4"))
 })
 
+test_that("pca: an error inside an oblique fit truncates; under varimax it propagates", {
+  skip_if_not_installed("GPArotation")
+  # A real singular level: two redundant columns make the promax fit at
+  # k = 9 fail inside psych::pca().
+  d <- as.data.frame(sim16[, 1:8])
+  d$dup1 <- d[[1]]
+  d$dup2 <- d[[2]] + d[[3]]
+  w <- .warnings_of(x <- suppressMessages(ackwards(d, k_max = 9, rotation = "promax")))
+  expect_match(w, "PCA failed at k = 9:", fixed = TRUE, all = FALSE)
+  expect_match(w, "Truncating hierarchy at level 8.", fixed = TRUE, all = FALSE)
+  expect_identical(names(x$levels), as.character(1:8))
+
+  # Varimax keeps its old behavior: an error inside psych::pca() propagates.
+  real_pca <- psych::pca
+  local_mocked_bindings(
+    pca = function(r, nfactors = 1, ...) {
+      if (nfactors == 3L) stop("planted psych error")
+      real_pca(r, nfactors = nfactors, ...)
+    },
+    .package = "psych"
+  )
+  expect_error(suppressWarnings(ackwards(sim16, k_max = 4)), "planted psych error", fixed = TRUE)
+})
+
 test_that("efa: a rotation warning is shown and the level kept; a failed final step truncates", {
   skip_if_not_installed("GPArotation")
   real_fa <- psych::fa
+  # The start count reads psych::fa's formals, so keep it on the real ones
+  # while fa itself is replaced below (psych 2.6.5 rotates from 20 starts).
+  real_starts <- .psych_fa_starts()
+  skip_if(real_starts == 1L, "the installed psych::fa() rotates from one start")
+  local_mocked_bindings(.psych_fa_starts = function(fa_formals = NULL) real_starts)
   plant <- function(msg = NULL, drop_rot_mat = FALSE) {
     local_mocked_bindings(
       fa = function(r, nfactors = 1, ...) {
@@ -239,6 +270,58 @@ test_that("efa: a rotation warning is shown and the level kept; a failed final s
     fixed = TRUE, all = FALSE
   )
   expect_identical(names(x$levels), c("1", "2"))
+})
+
+test_that(".psych_fa_starts() reads psych::fa()'s n.rotations default", {
+  expect_identical(.psych_fa_starts(list(n.rotations = 20)), 20L)
+  expect_identical(.psych_fa_starts(list(n.rotations = 1)), 1L)
+  # A psych without the argument rotates once.
+  expect_identical(.psych_fa_starts(list(r = NULL)), 1L)
+  expect_identical(.psych_fa_starts(), as.integer(formals(psych::fa)$n.rotations))
+})
+
+test_that("efa: with a one-start psych, a rotation warning truncates as it does for PCA", {
+  skip_if_not_installed("GPArotation")
+  local_mocked_bindings(.psych_fa_starts = function(fa_formals = NULL) 1L)
+  real_fa <- psych::fa
+  promax_note <- "The requested transformaton failed, Promax was used instead as an oblique transformation"
+  local_mocked_bindings(
+    fa = function(r, nfactors = 1, ...) {
+      if (nfactors == 3L) warning(promax_note)
+      real_fa(r, nfactors = nfactors, ...)
+    },
+    .package = "psych"
+  )
+  w <- .warnings_of(x <- suppressMessages(ackwards(sim16, k_max = 4, engine = "efa", rotation = "oblimin")))
+  # The rotation matrix is present, so only the start count sends it here.
+  expect_match(w, paste0("The oblimin rotation failed at k = 3: ", promax_note), fixed = TRUE, all = FALSE)
+  expect_false(any(grepl("rotation problem", w, fixed = TRUE)))
+  expect_identical(names(x$levels), c("1", "2"))
+})
+
+test_that("efa: a net-negative one-factor solution is flipped in the loadings and the fallback weights", {
+  skip_if_not_installed("GPArotation")
+  real_fa <- psych::fa
+  local_mocked_bindings(
+    fa = function(r, nfactors = 1, ...) {
+      f <- real_fa(r, nfactors = nfactors, ...)
+      if (nfactors == 1L) {
+        f$loadings <- -f$loadings
+        f$weights <- -f$weights
+      }
+      f
+    },
+    .package = "psych"
+  )
+  local_mocked_bindings(.tenBerge_weights = function(R, L, Phi) stop("planted failure"))
+  x <- suppressWarnings(suppressMessages(
+    ackwards(sim16, k_max = 2, engine = "efa", rotation = "oblimin")
+  ))
+  lev <- x$levels[["1"]]
+  expect_gt(sum(lev$loadings), 0)
+  expect_identical(lev$scoring$method, "regression")
+  # The regression weights were flipped with the loadings: R^-1 L at k = 1.
+  expect_equal(unname(lev$scoring$weights), unname(solve(x$r) %*% lev$loadings), tolerance = 1e-8)
 })
 
 test_that(".esem_rotation_args() turns lavaan's rotation warnings on for oblique rotations only", {
