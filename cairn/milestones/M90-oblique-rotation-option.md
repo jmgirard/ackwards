@@ -208,3 +208,35 @@ Pass 2, 2026-09-30, on branch head 952007a. origin/master is still e0d227c, and 
 
 Consistency gate, pass 2: `cairn_validate.py` passed. Its 17 advisories are the accepted 13-criteria sizing tripwire and 16 old M84 work-log lines. No DESIGN principle changed, so `cairn_impact.py` was skipped. `devtools::document()` left no diff, and `pkgdown::check_pkgdown()` passed in the gate. README.md carries the same prose change as README.Rmd. A re-knit also changes the unseeded `suggest_k()` CD row, so that row was kept as committed. NEWS.md has the entry, no new top-level path was added, and check() reported 0/0/0.
 
+Independent review, pass 2. Three fresh-context lenses ran: diff-bug (Opus), blame-history (Sonnet), and prior-review (Sonnet). The GitHub thread probe returned no comments. Findings are merged across lenses as G1 to G27, most severe first, each with a proposed disposition. "Checked" means it was reproduced or read against the code in this session.
+
+- G1 (diff-bug 1), checked: an error inside `psych::pca()` under an oblique rotation aborts the whole run, against IP7. A singular promax fit at k = 9 aborts, where varimax builds 9 levels. Proposed: fix now, as a warning that truncates.
+- G2 (diff-bug 2, history 1), checked: the rotation-warning pattern is case-sensitive. GPArotation's legacy functions write "convergence not obtained" in lowercase, so older GPArotation brings the silent failure of F1 back. Proposed: fix now (`ignore.case = TRUE`).
+- G3 (diff-bug 3): the EFA rule assumes `psych::fa()` uses 20 starts (`n.rotations = 20` in the installed 2.6.5). With one start, a Promax substitute is kept and stamped with the requested rotation. Proposed: fix now by reading the start count from `formals(psych::fa)`, with no dependency change.
+- G4 (diff-bug 4, history 4, prior 3, pass-1 F13): the oblique Forbes fixture (1e-10) assumes GPArotation's "bb" algorithm, the default since 2026.6-1. The legacy algorithm moves PCA loadings by 1.3e-6 to 2.8e-6. Proposed: fix now with a GPArotation version skip on that block and a reworded snapshot comment. Platform drift stays F13's follow-up.
+- G5 (history 2, diff-bug 7), checked: `R/ackwards.R:903` and DESIGN §4 and §9 still say PCA never truncates or never fails. The truncation message says "did not converge" for a failed rotation too. Proposed: fix now.
+- G6 (prior 1, diff-bug 9), checked: the intro vignette's "Why varimax?" aside keeps the "confounds" framing that RR02 and D-034 rejected. Proposed: fix now.
+- G7 (prior 2, history 8, diff-bug 9): the loading defined as an item-factor correlation remains in `?ackwards`, the engines vignette, the intro vignette's `top_items()` passage, and varimax-only contexts. Proposed: fix now in those three, and reject the varimax-only sites.
+- G8 (prior 4), checked: in the engines vignette, "It reports the within-level factor correlations" now reads as if ESEM were the subject. Proposed: fix now.
+- G9 (history 3): the `boot_edges()` docs say EFA oblimin replicates agree across plans, and no test checks it. Proposed: fix now by narrowing the claim to reproducibility under `seed`.
+- G10 (diff-bug 8): DESIGN Known limitations still says unseeded oblimin EFA fits differ near the convergence tolerance. Proposed: fix now.
+- G11 (history 6): the ESEM factor-correlation failure drops its reason from the warning. Proposed: fix now.
+- G12 (history 7): the rank-deficiency message names `L' R^-1 L`, but the oblique matrix is `L*' R^-1 L*`. Proposed: fix now.
+- G13 (diff-bug 10): `"promax"` is `stats::promax()` on PCA but psych's Kaiser-normalized Promax on EFA, and the docs do not say so. Proposed: fix now with one doc sentence.
+- G14 (prior 6): `references/tenberge1999.md` still describes the two-argument, ESEM-only helper. Proposed: fix now.
+- G15 (prior 7): the added `# nocov` on the k = 1 flip. Proposed: fix now by covering both flip lines with a test and removing both markers.
+- G16 (prior 9): DESIGN §4 and §7 say a level's columns are in descending variance, which oblique PCA can break (M90 Decisions). Proposed: fix now.
+- G17 (history 10): `helper-data.R` says `ackwards()` fits are deterministic, which unseeded oblimin EFA is not. Proposed: fix now.
+- G18 (prior 12, history 9): `Config/testthat/start-first` omits the oblique test files. Proposed: fix now if their timing places them among the slowest.
+- G19 (diff-bug 5): ESEM varimax still hides lavaan's rotation non-convergence. It predates the branch, and the default path was kept unchanged on purpose. Proposed: follow-up candidate row.
+- G20 (diff-bug 6): the lavaan list form is detected through the deprecated `rotation_args` formal, and the pre-0.7 branch is only unit-tested. Proposed: follow-up candidate row.
+- G21 (history 5): EFA keeps the level on a "Promax was used instead" warning. Proposed: reject. In `faRotations` a per-start substitute only changes that start's candidate, and a failed final step leaves `rot.mat` NULL, which truncates. G3 covers the one-start case.
+- G22 (history 11): ESEM oblique variance has no independent oracle. Proposed: reject. The formula is shared with PCA and EFA, where psych's `Vaccounted` verifies it. The invariance test checks the ESEM total against varimax.
+- G23 (prior 8): duplicated logic (the Φ read in PCA and EFA, three `c("none", "varimax")` checks, copied wording). Proposed: reject as style, because no behavior diverges.
+- G24 (prior 5, history 12): row E6 has no D-entry. Proposed: reject, per F8's disposition (gated candidate row).
+- G25 (prior 10): "0/0/0" shorthand in this file. Proposed: reject, because `cairn_validate` passes.
+- G26 (prior 11): AC11 does not name the seed. Proposed: reject, because the provenance records it.
+- G27 (diff-bug 11): psych's `try()` prints "Error in ..." to stderr. Proposed: reject, as upstream and cosmetic.
+
+Pass-1 findings, final dispositions proposed for this gate. Fixed in T10: F1, F3, F4, F5, F6, F7, F8, F9, F11, F14 to F22, and F2 for the vignette and README. Gaps found in pass 2 are G2, G3, G6, G7, and G10. Follow-up: F2's manuscript part, F10 (re-rate the near-singular row at hygiene), F13 (CI matrix), and F23 (a LESSONS line at hygiene). Reject: F12, F24, and the two latent parts of F21, for the reasons recorded in pass 1.
+
