@@ -127,6 +127,7 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - 2026-09-30: claim-audit re-read by the same reader: 25 items re-read, 21 true, and the reader reproduced the claim 2 case. Four fixed after it: the `.esem_rotation_args()` helper moved out of `.esem_ss_argname()`'s comment block, the `rotation` doc now covers oblique rotations only, and the `prune()` doc and comment name the item-assignment signals.
 - 2026-09-30: T10 done. Third DoD gate run passed: check 0/0/0, coverage 100%, prose, freshness, ledger anchors, styler, lintr, and pkgdown clean. Suite 3516 expectations, 0 failures, 2 Mac-only skips. Status set to review.
 - 2026-09-30: review pass 2 found all 13 criteria passing and logged findings G1 to G27. At the gate the owner accepted the proposed dispositions and chose to fix first and be asked again. The fix-now work is recorded in Review.
+- step-7 approval: m090-oblique-rotation-option approved for merge
 
 ## Decisions
 
