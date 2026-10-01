@@ -183,6 +183,169 @@
     Output
       
 
+# print/summary snapshot: oblique PCA notes what an edge means
+
+    Code
+      snap_print(x)
+    Message
+      
+      -- Bass-Ackwards Analysis (ackwards) -------------------------------------------
+      Engine: pca
+      Rotation: oblimin
+      Basis: pearson
+      n: 1,000
+      k (max): 4
+      
+      -- Levels --
+      
+      v k = 1: 1 factor, 28.2% variance
+      v k = 2: 2 factors, 46.5% variance
+      v k = 3: 3 factors, 57.5% variance
+      v k = 4: 4 factors, 67.7% variance
+      
+      -- Edges --
+      
+      12 of 20 edges have |r| >= 0.3
+      Oblique rotation (oblimin): r is a total correlation, which includes overlap
+      through correlated factors at the same level. Primary parents use r. The
+      partialled coefficient is beta in `tidy(x)`.
+      --------------------------------------------------------------------------------
+      Note: This is a series of linked solutions, not a fitted hierarchical model.
+      Cross-level edges are descriptive score correlations. Per-level fit indices
+      (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+      they do not validate the edges or the hierarchy itself.
+    Output
+      
+
+---
+
+    Code
+      snap_print(summary(x))
+    Message
+      
+      -- Summary: Bass-Ackwards Analysis (ackwards) ----------------------------------
+      Engine: pca
+      Rotation: oblimin
+      Basis: pearson
+      n: 1,000
+      k (max): 4
+      
+      -- Levels --
+      
+      k = 1: 1 factor (28.2% cumulative variance)
+      m1f1 28.2% eigenvalue 4.51
+      
+      k = 2: 2 factors (46.5% cumulative variance)
+      m2f1 23.3% eigenvalue 4.51
+      m2f2 23.2% eigenvalue 2.93
+      
+      k = 3: 3 factors (57.5% cumulative variance)
+      m3f1 23.0% eigenvalue 4.51
+      m3f2 17.6% eigenvalue 2.93
+      m3f3 16.8% eigenvalue 1.76
+      
+      k = 4: 4 factors (67.7% cumulative variance)
+      m4f1 17.2% eigenvalue 4.51
+      m4f2 16.9% eigenvalue 2.93
+      m4f3 16.9% eigenvalue 1.76
+      m4f4 16.7% eigenvalue 1.63
+      
+      -- Lineage (primary parents) --
+      
+      m1f1 > m2f1, m2f2
+      m2f1 > m3f1
+      m2f2 > m3f2, m3f3
+      m3f1 > m4f3, m4f4
+      m3f2 > m4f1
+      m3f3 > m4f2
+      Oblique rotation (oblimin): r is a total correlation, which includes overlap
+      through correlated factors at the same level. Primary parents use r. The
+      partialled coefficient is beta in `tidy(x)`.
+      
+      -- Within-level factor correlations --
+      
+      k = 2
+          m2f1 ~ m2f2  .20
+      k = 3
+          m3f1 ~ m3f2  .16
+          m3f1 ~ m3f3  .11
+          m3f2 ~ m3f3  .28
+      k = 4
+          m4f1 ~ m4f2  .35
+          m4f1 ~ m4f3  .20
+          m4f1 ~ m4f4  .14
+          m4f2 ~ m4f3  .13
+          m4f2 ~ m4f4  .10
+          m4f3 ~ m4f4  .38
+      --------------------------------------------------------------------------------
+      Note: This is a series of linked solutions, not a fitted hierarchical model.
+      Cross-level edges are descriptive score correlations. Per-level fit indices
+      (EFA/ESEM) describe how well a k-factor model fits the items at that level --
+      they do not validate the edges or the hierarchy itself.
+    Output
+      
+
+# tidy snapshot: oblique PCA edges, variance, and factor_cor
+
+    Code
+      show(tidy(x, what = "edges"))
+    Output
+       from   to level_from level_to      r   beta is_primary above_cut
+       m1f1 m2f1          1        2  0.778  0.778       TRUE      TRUE
+       m1f1 m2f2          1        2  0.773  0.773       TRUE      TRUE
+       m2f1 m3f1          2        3  0.996  1.002       TRUE      TRUE
+       m2f1 m3f2          2        3  0.239  0.081      FALSE     FALSE
+       m2f1 m3f3          2        3  0.081 -0.085      FALSE     FALSE
+       m2f2 m3f1          2        3  0.172 -0.030      FALSE     FALSE
+       m2f2 m3f2          2        3  0.798  0.782       TRUE      TRUE
+       m2f2 m3f3          2        3  0.801  0.818       TRUE      TRUE
+       m3f1 m4f1          3        4  0.156 -0.005      FALSE     FALSE
+       m3f1 m4f2          3        4  0.130  0.014      FALSE     FALSE
+       m3f1 m4f3          3        4  0.799  0.772       TRUE      TRUE
+       m3f1 m4f4          3        4  0.857  0.870       TRUE      TRUE
+       m3f2 m4f1          3        4  0.962  0.939       TRUE      TRUE
+       m3f2 m4f2          3        4  0.337  0.068      FALSE      TRUE
+       m3f2 m4f3          3        4  0.360  0.281      FALSE      TRUE
+       m3f2 m4f4          3        4  0.000 -0.180      FALSE     FALSE
+       m3f3 m4f1          3        4  0.345  0.084      FALSE      TRUE
+       m3f3 m4f2          3        4  0.980  0.960       TRUE      TRUE
+       m3f3 m4f3          3        4 -0.003 -0.166      FALSE     FALSE
+       m3f3 m4f4          3        4  0.188  0.142      FALSE     FALSE
+
+---
+
+    Code
+      show(tidy(x, what = "variance"))
+    Output
+       level factor proportion cumulative    r2
+           1   m1f1      0.282      0.282    NA
+           2   m2f1      0.233      0.233 0.605
+           2   m2f2      0.232      0.465 0.597
+           3   m3f1      0.230      0.230 0.992
+           3   m3f2      0.176      0.406 0.643
+           3   m3f3      0.168      0.575 0.648
+           4   m4f1      0.172      0.172 0.932
+           4   m4f2      0.169      0.340 0.966
+           4   m4f3      0.169      0.509 0.719
+           4   m4f4      0.167      0.677 0.772
+
+---
+
+    Code
+      show(tidy(x, what = "factor_cor"))
+    Output
+       level factor_a factor_b   cor
+           2     m2f1     m2f2 0.202
+           3     m3f1     m3f2 0.162
+           3     m3f1     m3f3 0.110
+           3     m3f2     m3f3 0.278
+           4     m4f1     m4f2 0.350
+           4     m4f1     m4f3 0.196
+           4     m4f1     m4f4 0.136
+           4     m4f2     m4f3 0.131
+           4     m4f2     m4f4 0.104
+           4     m4f3     m4f4 0.378
+
 # print/summary snapshot: EFA fit-index glyph line
 
     Code

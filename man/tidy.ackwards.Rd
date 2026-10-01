@@ -22,8 +22,10 @@
 \item \code{"edges"} \emph{(default)}: one row per directed between-level edge, with
 columns \code{from}, \code{to}, \code{level_from}, \code{level_to}, \code{r}, \code{beta},
 \code{is_primary}, \code{above_cut}. The column \code{r} is the correlation between
-the two factors' scores. The column \code{beta} is the partialled
-coefficient. It is the standardized regression weight of the \code{to}
+the two factors' scores, a total correlation. Under an oblique
+rotation it includes overlap through correlated factors at the \code{from}
+level, and \code{is_primary} still marks each factor's largest \verb{|r|}. The
+column \code{beta} is the partialled coefficient. It is the standardized regression weight of the \code{to}
 factor on all factors of the \code{from} level together. It removes the
 part of \code{r} that the other factors at the \code{from} level share. Under the
 default varimax rotation the factors within a level are uncorrelated,
@@ -32,7 +34,9 @@ a level are correlated. When the within-level score correlation of the
 \code{from} level cannot be inverted, \code{beta} is \code{NA} for that level's edges
 and a warning names the level. That within-level score correlation
 always comes from the stored score weights and the fit's correlation
-matrix. This holds even when \code{r} came from materialised scores
+matrix. With the default ten Berge or component scores it equals the
+level's factor correlation (\code{what = "factor_cor"}). With regression
+scores, the fallback when ten Berge weights fail, the two can differ. This holds even when \code{r} came from materialised scores
 (\code{edge_method = "scores"}, or the scores path under missing data). On
 those paths the two bases can differ slightly, so \code{beta} is then an
 approximation of the regression weight.
@@ -50,7 +54,10 @@ is controlled by \code{conf_level}.
 \item \code{"variance"}: one row per factor x level, with columns
 \code{level}, \code{factor}, \code{proportion}, \code{cumulative}, \code{r2}. The first two are
 proportions of total item variance on a 0-1 scale (multiply by 100
-for a percentage). The column \code{r2} is the share of the factor's score
+for a percentage). Under an oblique rotation \code{proportion} follows
+psych's convention for correlated factors (\verb{diag(Phi L'L) / p}). The
+factors' shares then overlap, so \code{cumulative} is their sum, not a
+split of the common variance. The column \code{r2} is the share of the factor's score
 variance that all factors of the level just above account for
 together. It is also a proportion on a 0-1 scale, but of that
 factor's own score variance, not of total item variance, so it is not
@@ -63,7 +70,8 @@ correlation cannot be inverted.
 columns \code{level}, \code{factor_a}, \code{factor_b}, \code{cor}. The column \code{cor} is
 the correlation between the two factors as the engine reports it, in
 the stored column order and sign. Level 1 has one factor and contributes
-no row. Under the default varimax rotation every \code{cor} is 0.
+no row. Under the default varimax rotation every \code{cor} is 0. Under an
+oblique rotation it is psych's \code{Phi} or lavaan's latent correlation.
 \item \code{"fit"}: one row per fit statistic x level, with columns \code{level},
 \code{statistic}, \code{value}. For PCA objects the statistics are eigenvalues.
 For EFA objects they are \code{chi}, \code{dof}, \code{p_value}, \code{RMSEA}, \code{TLI}, and

@@ -721,6 +721,16 @@ autoplot.ackwards <- function(
     )
   }
 
+  # (e) Under an oblique rotation the edges stay total correlations (D-036);
+  # the caption says so, because the diagram's lineage reading assumes
+  # uncorrelated factors within a level.
+  if (.is_oblique(object)) {
+    p <- p + ggplot2::labs(caption = paste0(
+      "Edges are total correlations (r) under the oblique ", object$rotation,
+      " rotation. The partialled coefficient is beta in tidy()."
+    ))
+  }
+
   .ba_finish_theme(p, legend, show_level_labels, direction, show_items = show_items)
 }
 

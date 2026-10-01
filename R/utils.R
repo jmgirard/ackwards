@@ -312,6 +312,13 @@ make_labels <- function(k) {
   esem = c("varimax", "oblimin", "geomin")
 )
 
+# TRUE for an object (or rotation string) fit with an oblique rotation. Old
+# objects without a rotation field were all varimax.
+.is_oblique <- function(x) {
+  rotation <- if (is.character(x)) x else x$rotation
+  !is.null(rotation) && !identical(rotation, "varimax")
+}
+
 # Validate `rotation` against the engine and return it. An unknown name fails
 # as an arg_match error; a known name the engine lacks fails naming both. A
 # psych oblique rotation checks for GPArotation here, before any fitting, so
@@ -355,7 +362,9 @@ detect_ordinal <- function(data, max_levels = 7L) {
 }
 
 # Primary-parent assignment: for each factor in level b, find the factor in level a
-# with the highest |r|. Returns an integer vector of length ncol(E).
+# with the highest |r|. Returns an integer vector of length ncol(E). `E` holds
+# the marginal edges r under every rotation (D-036): under an oblique rotation
+# r is a total correlation and the partialled beta is reported, not matched on.
 # Each child picks its argmax parent independently; multiple children can (and do)
 # share a parent -- that is normal and expected in the bass-ackwards hierarchy.
 # LSAP (bijection) is wrong here: adjacent levels always have n_b = n_a + 1, so
@@ -403,6 +412,7 @@ match_parents <- function(E) {
 #      parent's own flip is applied* -- i.e. sign propagates top-down. Using
 #      the raw (unflipped-parent) edge here would leave a flipped parent's
 #      primary edge displaying negative (DESIGN s.7: "propagating top-down").
+#   The anchor edge is the marginal r under every rotation (D-036).
 #
 # Arguments:
 #   loadings_list  -- list indexed by k (1..K) of pxk loading matrices

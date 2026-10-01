@@ -27,6 +27,17 @@
   ))
 }
 
+# What an edge means under an oblique rotation (D-036): `r` stays a total
+# correlation and still drives the lineage, and `beta` is the partialled
+# coefficient. One wording for print() and summary().
+.oblique_edge_note <- function(rotation) {
+  paste0(
+    "  Oblique rotation (", rotation, "): r is a total correlation, which ",
+    "includes overlap through correlated factors at the same level. Primary ",
+    "parents use r. The partialled coefficient is beta in {.code tidy(x)}."
+  )
+}
+
 # Closing footer: one rule, an optional surface-supplied prune note, then the
 # load-bearing "linked solutions, not a fitted hierarchy" honesty caveat (D-001).
 # The caveat is one verbatim source of truth; the prune note wording differs
@@ -145,6 +156,9 @@ print.ackwards <- function(x, ...) {
   cli::cli_text(
     "{n_above} of {n_edges_total} edges have |r| {cli::symbol$geq} {cut_show}"
   )
+  if (.is_oblique(x)) {
+    cli::cli_text(cli::col_grey(.oblique_edge_note(x$rotation)))
+  }
   # --- Bootstrap edge CIs (M47) -----------------------------------------------
   if (!is.null(x$boot)) {
     pct <- round(100 * x$boot$conf)

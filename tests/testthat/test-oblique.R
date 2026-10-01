@@ -246,6 +246,45 @@ test_that("esem: columns sort by the oblique variance key where it disagrees wit
   expect_false(is.unsorted(rev(lev$variance[lev$labels])))
 })
 
+# ── Output surfaces under an oblique rotation (D-036) ────────────────────────
+
+test_that("primary parents and signs use r under an oblique rotation", {
+  skip_if_not_installed("GPArotation")
+  x <- cached(ackwards(sim16, k_max = 4, rotation = "oblimin"))
+  ed <- tidy(x, what = "edges")
+  ed <- ed[ed$level_to == ed$level_from + 1L, , drop = FALSE]
+  # beta is a separate quantity here: it differs from r on some edge.
+  expect_gt(max(abs(ed$beta - ed$r)), 0.01)
+  for (child in unique(ed$to)) {
+    rows <- ed[ed$to == child, , drop = FALSE]
+    primary <- rows[rows$is_primary, , drop = FALSE]
+    expect_identical(nrow(primary), 1L)
+    expect_identical(primary$from, rows$from[which.max(abs(rows$r))])
+    expect_gt(primary$r, 0) # signs aligned on r
+  }
+})
+
+test_that("print(), summary(), and autoplot() say that oblique edges are total correlations", {
+  skip_if_not_installed("GPArotation")
+  skip_if_not_installed("ggplot2")
+  text_of <- function(obj) {
+    cli::ansi_strip(paste(capture.output(print(obj), type = "message"), collapse = " "))
+  }
+  x <- cached(ackwards(sim16, k_max = 4, rotation = "oblimin"))
+  for (txt in list(text_of(x), text_of(summary(x)))) {
+    expect_match(txt, "Oblique rotation (oblimin): r is a total correlation", fixed = TRUE)
+    expect_match(txt, "partialled coefficient is beta", fixed = TRUE)
+  }
+  p <- autoplot(x)
+  expect_match(p$labels$caption, "total correlations (r) under the oblique oblimin", fixed = TRUE)
+
+  # Control: a varimax fit carries none of these notes.
+  x0 <- cached(ackwards(sim16, k_max = 4))
+  expect_no_match(text_of(x0), "total correlation", fixed = TRUE)
+  expect_no_match(text_of(summary(x0)), "total correlation", fixed = TRUE)
+  expect_null(autoplot(x0)$labels$caption)
+})
+
 test_that("EFA's oblique weights are labeled tenBerge and are not the orthogonal formula", {
   skip_if_not_installed("GPArotation")
   x <- cached(ackwards(sim16, k_max = 3, engine = "efa", rotation = "oblimin"))

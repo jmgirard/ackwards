@@ -44,6 +44,28 @@ test_that("print/summary snapshot: factor-correlation block prints at max |cor| 
   expect_snapshot(snap_print(summary(y)))
 })
 
+# Oblique surfaces (D-036): r is labelled a total correlation and beta the
+# partialled coefficient. PCA oblimin is deterministic (GPArotation starts
+# from the identity), so the rounded tables are stable across platforms.
+test_that("print/summary snapshot: oblique PCA notes what an edge means", {
+  skip_if_not_installed("GPArotation")
+  x <- cached(ackwards(sim16, k_max = 4, rotation = "oblimin"))
+  expect_snapshot(snap_print(x))
+  expect_snapshot(snap_print(summary(x)))
+})
+
+test_that("tidy snapshot: oblique PCA edges, variance, and factor_cor", {
+  skip_if_not_installed("GPArotation")
+  x <- cached(ackwards(sim16, k_max = 4, rotation = "oblimin"))
+  show <- function(df) {
+    df[] <- lapply(df, function(col) if (is.numeric(col)) round(col, 3) else col)
+    print(as.data.frame(df), row.names = FALSE)
+  }
+  expect_snapshot(show(tidy(x, what = "edges")))
+  expect_snapshot(show(tidy(x, what = "variance")))
+  expect_snapshot(show(tidy(x, what = "factor_cor")))
+})
+
 test_that("print/summary snapshot: EFA fit-index glyph line", {
   skip_if_not_installed("psych")
   x <- cached(ackwards(bfi25[, 1:10], k_max = 3, engine = "efa"))
