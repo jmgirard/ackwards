@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M95 | Edge wording sweep across shipped docs and DESIGN §5 | planned | — | normal | milestones/M95-edge-wording-sweep.md |
+| M95 | Edge wording sweep across shipped docs and DESIGN §5 | in-progress | — | normal | milestones/M95-edge-wording-sweep.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 | M94 | Manuscript accuracy pass for four older claims | done | M93 | normal | milestones/archive/M94-manuscript-accuracy-pass.md |
 | M93 | Reconcile DESIGN's edge_method text with the code | done | — | normal | milestones/archive/M93-design-edge-method-reconcile.md |

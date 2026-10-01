@@ -1,13 +1,13 @@
 # M95: Edge wording sweep across shipped docs and DESIGN §5
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** IP1, IP2, GP3
 - **Resolves:** —
 - **Surface tier:** user-facing — DESCRIPTION, help pages, vignettes, README, and NEWS ship in the package
-- **Branch/PR:** —
+- **Branch/PR:** m095-edge-wording-sweep
 
 ## Goal
 
@@ -55,7 +55,7 @@ perl -00 -ne 'print "$ARGV\n$_\n" if /score[\s#'"'"']+correlation|correlations?[
 
 ## Tasks
 
-- [ ] T1: Run the AC1 and AC2 greps and search Q over D and DESIGN §5. Record each hit as an edge description or another use, with a count per file, in one work-log line.
+- [x] T1: Run the AC1 and AC2 greps and search Q over D and DESIGN §5. Record each hit as an edge description or another use, with a count per file, in one work-log line.
 - [ ] T2: Edit `DESCRIPTION` (Description field, lines 14-17), `README.Rmd` (near lines 108-112), and the roxygen hits: `R/ackwards.R` lines 6-8, 13, and 21, the `R/compute_edges.R` header (lines 1-16), and any other edge description T1 found. Run `devtools::document()` and `devtools::build_readme()`.
 - [ ] T3: Edit the vignette sources. Known sites are intro 55 and 140-142, engines 83-87 and 460 and 540, ordinal 384, and girard 273, plus T1's other hits. Run `Rscript vignettes/precompute.R`, revert run noise line by line (M75, M87), and diff each `.Rmd` against master with the stamp line removed (M94).
 - [ ] T4: Edit the manuscript sites (146-148, 304, 407, and T1's other hits). Render the manuscript.
@@ -71,7 +71,10 @@ perl -00 -ne 'print "$ARGV\n$_\n" if /score[\s#'"'"']+correlation|correlations?[
 - 2026-10-01: plan gate chose to leave the print note unchanged over adding a qualifier. GP3 asks print() to keep "score correlations", and the change adds code and snapshot churn to a docs-only milestone. Falsified by a user who reads the print note as a sample-realized correlation.
 - 2026-10-01: plan gate kept the cross-check-paths row separate over folding in its docs half. That row poses a document-or-test choice of its own. Falsified by a T5 read of §5.4 that shows the omission makes a §5 sentence false.
 - 2026-10-01: plan chose a paragraph-mode `perl -00` search over the per-line grep. The audit found five edge descriptions split across line breaks that the grep missed. Falsified by a missed site whose phrase is in the pattern but spans a paragraph break.
+- 2026-10-01: T1 done. Search Q found 90 paragraphs over D and DESIGN §5, 29 of them edge descriptions (E). Per file, hits/E: DESCRIPTION 1/1, README.Rmd 1/1, manuscript 14/7, NEWS dev 4/1, DESIGN §5 3/3, vignettes engines 6/4, forbes 10/1, forbes2023 4/0, girard 3/1, interpret 1/0, intro 7/3, ordinal 1/1, suggest-k 2/0, visualization 4/0. Roxygen: ackwards 6/2, compute_edges 2/2, prune 3/1, tidy 1/1, and 0 E among augment 3, autoplot 2, boot_edges 2, comparability 1, data 4, label_template 1, layout 2, predict 1, suggest_k 1. AC1 found 16 lines in D, one a shipped-edge route (DESCRIPTION). AC2 found 14 Waller lines, 4 of them reference entries. The ledger is under Decisions.
 
 ## Decisions
+
+- T1 ledger for search Q, by master line number. A hit not listed here is another use. The E paragraphs to fix are DESCRIPTION 16-19 and README.Rmd 107. In the vignettes they are engines 82, 277, 460, and 539 (prime only), girard 267, intro 53 and 137, ordinal 372, and forbes 531 (it equates the PCA `|r|` with the components' correlation). In the manuscript they are 135, 308, and 404. In DESIGN §5 they are the lead paragraph and §5.1. In roxygen they are ackwards.R 3 and 10, compute_edges.R 1-16, the prune.R `redundancy_phi` entry, and the tidy.R `what = "edges"` entry. The E paragraphs already compliant are intro 276, the manuscript abstract, manuscript 151, 304, and 382, NEWS dev 3, and the DESIGN §5.3 note. The other uses are the redundancy and artifact prose, captions that only encode `|r|`, fidelity claims, the forbes 20 and forbes2023 20 accounts of Goldberg's and Forbes's methods, and each "exactly" that means "precisely".
 
 ## Review
