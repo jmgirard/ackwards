@@ -63,15 +63,18 @@
 #               reuse via slotSampleStats= (skip the polychoric/NACOV recompute).
 #   r_lv_in  -- pre-computed correlation matrix for tenBerge weights (continuous
 #               paths); NULL means extract from the fit (polychoric / FIML).
+#   rotation -- lavaan rotation for k >= 2 ("varimax", or the oblique
+#               "oblimin" / "geomin"); validated upstream by .check_rotation().
 #
 # Returns one of:
 #   list(status = "ok", k, level, bad_resid, ss, r_lv, fit_raw)
 #   list(status = "error",        k, error_msg)
 #   list(status = "nonconverged", k)
 .esem_fit_one <- function(k, data_df, estimator, cor, ordered_cols, lav_missing,
-                          ss_in, r_lv_in, item_names, p, keep_fit) {
+                          ss_in, r_lv_in, item_names, p, keep_fit,
+                          rotation = "varimax") {
   # No rotation needed for a single factor.
-  rotate_k <- if (k == 1L) "none" else "varimax"
+  rotate_k <- if (k == 1L) "none" else rotation
 
   efa_args <- list(
     data      = data_df,
@@ -190,16 +193,45 @@
 
   labels_k <- make_labels(k)
 
+  # Within-level factor correlations: lavaan's cor.lv, indexed by lavaan's
+  # factor names so its rows match the loading columns (factors_lav). It is
+  # the identity under orthogonal rotation, up to rounding. An oblique fit
+  # whose correlation cannot be read is an error (the level truncates with a
+  # warning), never a silent identity.
+  Phi_lav <- tryCatch(
+    {
+      Phi <- lavaan::lavInspect(fit, "cor.lv")
+      if (!is.null(rownames(Phi)) && all(factors_lav %in% rownames(Phi))) {
+        Phi <- Phi[factors_lav, factors_lav, drop = FALSE]
+      }
+      if (is.matrix(Phi) && nrow(Phi) == k) unname(Phi) else NULL
+    },
+    error = function(e) NULL
+  )
+  if (is.null(Phi_lav)) { # nocov start
+    if (rotate_k %in% c("none", "varimax")) {
+      Phi_lav <- diag(k)
+    } else {
+      return(list(
+        status = "error", k = k,
+        error_msg = "could not extract the factor correlations"
+      ))
+    }
+  } # nocov end
+
   # Sort factors by descending variance explained (consistent with PCA/EFA convention).
   # `ord` is applied to the loadings here and to lavaan's factor correlation
-  # below (.carry_factor_cor), so factor_cor always matches the column order of L.
-  # colSums(L^2) is an order-equivalent key for variance explained (constant
-  # divisor p); the variance vector itself is computed once, post-sort (M60).
+  # (.carry_factor_cor), so Phi and factor_cor always match the column order
+  # of L. colSums(L^2) is an order-equivalent key for variance explained
+  # (constant divisor p); the variance vector itself is computed once,
+  # post-sort (M60).
   ord <- order(colSums(L^2), decreasing = TRUE)
   L <- L[, ord, drop = FALSE]
   L_se <- L_se[, ord, drop = FALSE]
   colnames(L) <- labels_k
   colnames(L_se) <- labels_k
+  # Unit signs here; ackwards() applies the align_signs flips.
+  Phi <- .carry_factor_cor(Phi_lav, ord, rep(1, k))
 
   # Positive manifold anchor for k = 1 (matches PCA/EFA engine behaviour)
   if (k == 1L && sum(L) < 0) {
@@ -207,17 +239,19 @@
     # L_se contains SEs (always non-negative); leave unchanged
   }
 
-  # tenBerge weights from lavaan's loadings + lavaan's correlation matrix.
-  # Keeps compute_edges() on the algebra path (DESIGN.md s.14 item 12).
+  # tenBerge weights from lavaan's loadings, factor correlation, and
+  # correlation matrix. Keeps compute_edges() on the algebra path (DESIGN.md
+  # s.14 item 12).
   weight_method <- "tenBerge"
   W <- tryCatch(
-    .tenBerge_weights(r_lv, L, diag(k)),
+    .tenBerge_weights(r_lv, L, Phi),
     error = function(e) { # nocov start
       weight_method <<- "regression"
       tryCatch(
         {
+          # Oblique regression rule R^{-1} L Phi (R^{-1} L when Phi = I).
           Ri <- solve(r_lv)
-          W_reg <- Ri %*% L
+          W_reg <- Ri %*% L %*% Phi
           colnames(W_reg) <- labels_k
           rownames(W_reg) <- item_names
           W_reg
@@ -289,18 +323,7 @@
     BIC = .fm("bic")
   )
 
-  # Within-level factor correlations: lavaan's cor.lv in lavaan's factor
-  # order, permuted by the same `ord` that sorted the loadings above (unit
-  # signs here; ackwards() applies the align_signs flips). Identity under
-  # orthogonal rotation.
-  Phi_lav <- tryCatch(
-    {
-      Phi <- lavaan::lavInspect(fit, "cor.lv")
-      if (is.matrix(Phi) && nrow(Phi) == k) unname(Phi) else diag(k) # nocov
-    },
-    error = function(e) diag(k)
-  )
-  factor_cor <- .label_phi(.carry_factor_cor(Phi_lav, ord, rep(1, k)), labels_k)
+  factor_cor <- .label_phi(Phi, labels_k)
 
   level <- list(
     k = k,
@@ -375,7 +398,8 @@ esem_levels <- function(data, k_max, estimator, cor,
   anchor <- .esem_fit_one(
     1L, data_df, estimator, cor, ordered_cols, lav_missing,
     ss_in = NULL, r_lv_in = R_external,
-    item_names = item_names, p = p, keep_fit = keep_fits
+    item_names = item_names, p = p, keep_fit = keep_fits,
+    rotation = rotation
   )
   if (anchor$status != "ok") { # nocov start
     # Anchor failed: nothing to build on. Warn and return empty; ackwards()
@@ -403,7 +427,8 @@ esem_levels <- function(data, k_max, estimator, cor,
       .esem_fit_one(
         k, data_df, estimator, cor, ordered_cols, lav_missing,
         ss_in = ss, r_lv_in = r_lv,
-        item_names = item_names, p = p, keep_fit = keep_fits
+        item_names = item_names, p = p, keep_fit = keep_fits,
+        rotation = rotation
       )
     })
   } else {

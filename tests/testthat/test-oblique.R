@@ -116,6 +116,79 @@ for (engine in c("pca", "efa")) {
   })
 }
 
+# ── ESEM: the stored factor_cor is lavaan's cor.lv, permuted and flipped ─────
+
+# lavaan's standardized pattern loadings, columns in cor.lv's factor order.
+.lavaan_pattern <- function(fit, items) {
+  Phi <- lavaan::lavInspect(fit, "cor.lv")
+  std <- lavaan::standardizedSolution(fit, type = "std.all")
+  std <- std[std$op == "=~", , drop = FALSE]
+  L <- matrix(0, length(items), nrow(Phi), dimnames = list(items, rownames(Phi)))
+  for (f in rownames(Phi)) {
+    rows <- std[std$lhs == f, , drop = FALSE]
+    L[rows$rhs, f] <- rows$est.std
+  }
+  list(L = L, Phi = unname(Phi))
+}
+
+for (rotation in c("oblimin", "geomin")) {
+  test_that(paste0("esem/", rotation, ": factor_cor is lavaan's cor.lv, ordered and flipped with the loadings"), {
+    skip_if_not_installed("lavaan")
+    x <- cached(ackwards(sim16,
+      k_max = 4, engine = "esem", rotation = rotation,
+      keep_fits = TRUE, seed = 1
+    ))
+    for (ki in 2:4) {
+      lev <- x$levels[[as.character(ki)]]
+      lav <- .lavaan_pattern(x$fits[[as.character(ki)]], colnames(sim16))
+      # Map each stored column to its lavaan column and sign.
+      ord <- integer(ki)
+      s <- numeric(ki)
+      for (j in seq_len(ki)) {
+        gap_pos <- colSums(abs(lev$loadings[, j] - lav$L))
+        gap_neg <- colSums(abs(lev$loadings[, j] + lav$L))
+        ord[j] <- which.min(pmin(gap_pos, gap_neg))
+        s[j] <- if (gap_pos[ord[j]] <= gap_neg[ord[j]]) 1 else -1
+      }
+      expect_setequal(ord, seq_len(ki))
+      expect_equal(unname(lev$loadings),
+        unname(sweep(lav$L[, ord, drop = FALSE], 2, s, "*")),
+        tolerance = 1e-10
+      )
+      expect_equal(unname(lev$factor_cor),
+        lav$Phi[ord, ord] * tcrossprod(s),
+        tolerance = 1e-10
+      )
+      off <- lev$factor_cor[upper.tri(lev$factor_cor)]
+      expect_gt(max(abs(off)), 0.05) # not the identity
+      # Correlation preserving: the stored weights' scores reproduce it.
+      W <- lev$scoring$weights
+      expect_identical(lev$scoring$method, "tenBerge")
+      expect_equal(unname(stats::cov2cor(crossprod(W, x$r %*% W))),
+        unname(lev$factor_cor),
+        tolerance = 1e-8
+      )
+    }
+  })
+}
+
+test_that("esem: oblique algebra and scores paths agree (IP2)", {
+  skip_if_not_installed("lavaan")
+  x <- cached(ackwards(sim16,
+    k_max = 4, engine = "esem", rotation = "oblimin",
+    pairs = "all", seed = 1
+  ))
+  E_scores <- compute_edges(
+    levels = x$levels, R = x$r, edge_method = "scores",
+    pairs = "all", data = sim16
+  )$matrices
+  for (key in names(x$edges$matrices)) {
+    expect_equal(x$edges$matrices[[key]], E_scores[[key]],
+      tolerance = 1e-8, label = paste("esem algebra vs scores", key)
+    )
+  }
+})
+
 test_that("EFA's oblique weights are labeled tenBerge and are not the orthogonal formula", {
   skip_if_not_installed("GPArotation")
   x <- cached(ackwards(sim16, k_max = 3, engine = "efa", rotation = "oblimin"))
