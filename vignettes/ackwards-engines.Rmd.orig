@@ -16,12 +16,13 @@ knitr::opts_chunk$set(
 )
 has_lavaan <- requireNamespace("lavaan", quietly = TRUE)
 has_gt <- requireNamespace("gt", quietly = TRUE)
+has_gpa <- requireNamespace("GPArotation", quietly = TRUE)
 ```
 
 **ackwards** supports three factor extraction engines. A factor is an
 unobserved dimension that explains why a set of items correlate. The engines
-share the same downstream machinery: the same rotation, the same tenBerge
-scoring weights, and the same between-level correlation algebra. A rotation
+share the same downstream machinery: the same default rotation, the same
+tenBerge scoring weights, and the same between-level correlation algebra. A rotation
 re-orients the factors within a level without changing how well they fit. The
 engines differ in their statistical model and in what they report. This
 vignette explains when each one is appropriate and what the differences look
@@ -446,6 +447,48 @@ and per-level RMSEA/TLI. Reach for ESEM only when you need one of the three
 things it adds (loading SEs, WLSMV, or FIML). It is not a required
 "publication" upgrade. If PCA and EFA/ESEM edges agree, you have strong
 evidence for the hierarchy. If they disagree, investigate why.
+
+## Orthogonal or oblique rotation
+
+The edges are correlations between factor scores at different levels, and the
+rotation you choose decides what a single edge means. Under varimax, the
+factors within each level are uncorrelated. So an edge from an ancestor to a
+descendant carries only their direct relationship. The correlation is the
+ancestor's unique contribution, which is what lets the edges be drawn as a
+lineage diagram and summed, squared, into variance accounted for.
+
+Under an oblique rotation, each level's factors are allowed to correlate. That
+is often a more realistic model for one level taken on its own. But a
+between-level edge then becomes a *total* correlation. It mixes the direct
+ancestor and descendant relationship with overlap routed through the
+ancestor's correlated neighbors at the same level. That quantity is
+meaningful, because it answers how strongly two constructs correlate. But it
+is no longer, by itself, a lineage statement. Thresholds tuned to varimax
+edges, such as the redundancy chase and the display cutoff, also read
+differently against it.
+
+**ackwards** fits varimax by default. An oblique rotation is available with
+`rotation = "oblimin"`, or `"promax"` for PCA and EFA, or `"geomin"` for
+ESEM. It reports the within-level factor correlations beside the edges. It
+also labels the total correlation `r` and the partialled coefficient `beta`
+separately.
+
+How to decide: if your question is the hierarchy, meaning what splits into
+what and how strongly, keep varimax. If your question is the structure of a
+single level on its own terms, an oblique fit answers it. Read its edges as
+total correlations, and use `beta` for claims about a factor's unique lineage.
+The primary parents, the sign alignment, and the diagram still use `r` under
+every rotation.
+
+```{r oblique, eval = has_gpa}
+x_obl <- ackwards(sim16, k_max = 3, rotation = "oblimin")
+tidy(x_obl, what = "factor_cor")
+tidy(x_obl)[, c("from", "to", "r", "beta", "is_primary")]
+```
+
+The fit's message says what the edges mean. The `factor_cor` table shows how
+strongly the factors within each level correlate, and the edge table shows
+where `beta` departs from `r`.
 
 ## Missing data
 

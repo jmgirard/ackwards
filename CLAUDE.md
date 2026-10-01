@@ -155,9 +155,10 @@ Repo-specific facts cairn does not know:
 
 ## Out of scope
 
-EAP scoring (declined M28), oblique rotation, and higher-order SEM / Schmid-Leiman are out of
-scope — rationale in `cairn/DESIGN.md` §2 + `cairn/DECISIONS.md` (D-002, D-007). (Bootstrap skip-level edge CIs shipped M47 as
-`boot_edges()`; no longer deferred.)
+EAP scoring (declined M28) and higher-order SEM / Schmid-Leiman are out of
+scope — rationale in `cairn/DESIGN.md` §2 + `cairn/DECISIONS.md` (D-007). (Bootstrap skip-level edge CIs shipped M47 as
+`boot_edges()`; no longer deferred. Oblique rotation shipped M90 as a non-default `rotation`
+option, per D-034 and D-036.)
 
 <!-- Appended by /cairn-init. Keep the section body under ~25 lines.
      NOTE: cairn's template says "main"; adapted to "master" for this repo. -->

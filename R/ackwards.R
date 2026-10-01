@@ -14,14 +14,15 @@
 #' * **`rotation = "varimax"`** keeps the within-level factors mutually
 #'   uncorrelated (orthogonal). A rotation re-orients the factors without
 #'   changing how well they fit, and varimax pushes each item toward one
-#'   factor. So each between-level edge reflects only the cross-level
-#'   relationship. An oblique rotation's correlated within-level factors would
-#'   leak into the between-level edges and confound the between-level signal
-#'   that is the method's core output. The closed-form
+#'   factor. With uncorrelated factors, each between-level edge equals that
+#'   ancestor's unique contribution to the descendant. That is what lets the
+#'   edges be read as a lineage diagram. The closed-form
 #'   `W'RW` edge algebra is itself exact for any fixed linear scoring, orthogonal
 #'   or not, so the choice is interpretive, not a numerical necessity. It
 #'   matches Goldberg (2006), Kim & Eaton (2015), and Forbush et al. (2024).
-#'   Varimax is the only supported rotation.
+#'   An oblique rotation is available as a non-default option (see
+#'   `rotation`). Its edges are total correlations, which also carry overlap
+#'   through correlated factors at the same level.
 #' * **`cor = "pearson"`** means no silent basis switching. If your items look
 #'   ordinal (<= 7 distinct integer values), a cli warning will suggest
 #'   `cor = "polychoric"`, which is available for all three engines. Ordinal
@@ -140,8 +141,9 @@
 #' @param keep_fits Logical. Store raw engine fit objects? Default `FALSE`.
 #'   When `TRUE`, the per-level fit objects (psych or lavaan) are stored in
 #'   `x$fits` as a named list indexed by level.
-#' @param seed Integer seed for stochastic engines (not used by PCA but
-#'   captured for reproducibility metadata). Default `NULL`.
+#' @param seed Integer seed for steps that start at random: every lavaan
+#'   rotation (ESEM) and psych's oblimin rotation for EFA. It is not used by
+#'   PCA but is captured for reproducibility metadata. Default `NULL`.
 #' @param pairs Which level pairs to compute edges for. `"adjacent"` is the
 #'   default and is the classic Goldberg choice of consecutive levels only.
 #'   `"all"` is the Forbes extension, which takes
@@ -160,11 +162,24 @@
 #'   sparse cross-cell. It is ignored
 #'   on other paths: ESEM computes its own polychoric correlations inside lavaan,
 #'   and the Pearson/Spearman bases do not use it.
-#' @param rotation The rotation applied at every level with two or more
-#'   factors. `"varimax"` (the default) keeps the factors within a level
-#'   uncorrelated. `engine = "pca"` and `"efa"` also accept the oblique
-#'   `"oblimin"` and `"promax"`, which need the GPArotation package.
-#'   `engine = "esem"` also accepts the oblique `"oblimin"` and `"geomin"`.
+#' @param rotation The rotation used at every level with two or more factors.
+#'   The default, `"varimax"`, keeps the factors within a level uncorrelated.
+#'   The other values are oblique rotations, which let them correlate. With
+#'   `engine = "pca"` or `"efa"`, they are `"oblimin"` and `"promax"`, and
+#'   both need the GPArotation package. With `engine = "esem"`, they are
+#'   `"oblimin"` and `"geomin"` (lavaan's oblique geomin).
+#'
+#'   Under an oblique rotation, each edge `r` is a total correlation. Primary
+#'   parents and signs still use `r`, and [tidy.ackwards()] reports the
+#'   partialled `beta` beside it. Each level's `factor_cor` holds the
+#'   engine's factor correlation. EFA and ESEM scores use the oblique form
+#'   of the ten Berge weights, and PCA scores are the oblique components, so
+#'   the scores correlate as the factors do. The `variance`
+#'   values follow psych's convention for correlated factors. The fit
+#'   announces what its edges mean, and [prune()] warns that its thresholds
+#'   were set for varimax. Two kinds of rotation start at random: psych's
+#'   oblimin for `engine = "efa"` and every lavaan rotation. Set `seed` to
+#'   reproduce such a fit exactly.
 #' @param ... Reserved for future arguments.
 #'
 #' @return An object of class `"ackwards"`. See [print.ackwards()],

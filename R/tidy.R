@@ -30,12 +30,13 @@ generics::glance
 #'     `from` level cannot be inverted, `beta` is `NA` for that level's edges
 #'     and a warning names the level. That within-level score correlation
 #'     always comes from the stored score weights and the fit's correlation
-#'     matrix. With the default ten Berge or component scores it equals the
-#'     level's factor correlation (`what = "factor_cor"`). With regression
-#'     scores, the fallback when ten Berge weights fail, the two can differ. This holds even when `r` came from materialised scores
+#'     matrix. This holds even when `r` came from materialised scores
 #'     (`edge_method = "scores"`, or the scores path under missing data). On
 #'     those paths the two bases can differ slightly, so `beta` is then an
-#'     approximation of the regression weight.
+#'     approximation of the regression weight. With the default ten Berge or
+#'     component scores, the within-level score correlation equals the
+#'     level's factor correlation (`what = "factor_cor"`). With regression
+#'     scores, the fallback when ten Berge weights fail, the two can differ.
 #'     If [boot_edges()] has been run on the object, four bootstrap columns are
 #'     appended: `se`, `lo`, `hi` (bootstrap standard error and percentile
 #'     confidence-interval endpoints), and `n_boot_ok` (usable replicates).

@@ -41,7 +41,9 @@ for (name in names(baseline)) {
       expect_equal(lev$variance, ref$variance, tolerance = tol, label = paste(name, ki, "variance"))
       # Values only: PCA and EFA factor_cor gained the level's labels after the
       # fixture was generated (ESEM's already carried them).
-      expect_equal(unname(lev$factor_cor), unname(ref$factor_cor), tolerance = tol, label = paste(name, ki, "factor_cor"))
+      expect_equal(unname(lev$factor_cor), unname(ref$factor_cor),
+        tolerance = tol, label = paste(name, ki, "factor_cor")
+      )
     }
 
     expect_identical(names(x$edges$matrices), names(entry$edges))

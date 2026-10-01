@@ -34,12 +34,13 @@ a level are correlated. When the within-level score correlation of the
 \code{from} level cannot be inverted, \code{beta} is \code{NA} for that level's edges
 and a warning names the level. That within-level score correlation
 always comes from the stored score weights and the fit's correlation
-matrix. With the default ten Berge or component scores it equals the
-level's factor correlation (\code{what = "factor_cor"}). With regression
-scores, the fallback when ten Berge weights fail, the two can differ. This holds even when \code{r} came from materialised scores
+matrix. This holds even when \code{r} came from materialised scores
 (\code{edge_method = "scores"}, or the scores path under missing data). On
 those paths the two bases can differ slightly, so \code{beta} is then an
-approximation of the regression weight.
+approximation of the regression weight. With the default ten Berge or
+component scores, the within-level score correlation equals the
+level's factor correlation (\code{what = "factor_cor"}). With regression
+scores, the fallback when ten Berge weights fail, the two can differ.
 If \code{\link[=boot_edges]{boot_edges()}} has been run on the object, four bootstrap columns are
 appended: \code{se}, \code{lo}, \code{hi} (bootstrap standard error and percentile
 confidence-interval endpoints), and \code{n_boot_ok} (usable replicates).
