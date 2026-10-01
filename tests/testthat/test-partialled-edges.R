@@ -226,10 +226,13 @@ test_that("a near-singular level-2 Phi_s keeps beta and raises one warning namin
 
   ws <- warnings_raised(e <- tidy(y, what = "edges"))
   expect_length(ws, 1L)
+  expect_s3_class(ws[[1L]], "rlang_warning")
   msg <- conditionMessage(ws[[1L]])
   expect_match(msg, "nearly singular", fixed = TRUE)
   expect_match(msg, "k = 2", fixed = TRUE)
-  expect_match(msg, format(signif(lam, 2)), fixed = TRUE)
+  # lam is 0.00834: the message truncates it to two significant digits and
+  # prints the cutoff as the help pages write it.
+  expect_match(msg, "smallest eigenvalue 0.0083, below 1e-2", fixed = TRUE)
   expect_match(msg, "beta", fixed = TRUE)
 
   got <- e[e$level_from == 2L, ]
@@ -251,7 +254,10 @@ test_that("a near-singular level-2 Phi_s keeps beta and raises one warning namin
 test_that("a near-singular level-3 Phi_s (3 by 3) keeps beta and raises one warning naming k = 3", {
   x <- cached(ackwards(sim16, k_max = 4))
   W3 <- x$levels[["3"]]$scoring$weights
-  W3[, 3L] <- W3[, 1L] + W3[, 2L] + 0.001 * W3[, 3L]
+  # 0.01, not smaller: the smallest eigenvalue is then 2.5e-5, and the
+  # condition number stays low enough that the 1e-8 tolerance below holds
+  # with a wide margin on other BLAS libraries.
+  W3[, 3L] <- W3[, 1L] + W3[, 2L] + 0.01 * W3[, 3L]
   lam <- min_eig_of(W3, x$r)
   expect_gt(lam, 1e-8)
   expect_lt(lam, 1e-2)
@@ -259,10 +265,12 @@ test_that("a near-singular level-3 Phi_s (3 by 3) keeps beta and raises one warn
 
   ws <- warnings_raised(e <- tidy(y, what = "edges"))
   expect_length(ws, 1L)
+  expect_s3_class(ws[[1L]], "rlang_warning")
   msg <- conditionMessage(ws[[1L]])
   expect_match(msg, "nearly singular", fixed = TRUE)
   expect_match(msg, "k = 3", fixed = TRUE)
-  expect_match(msg, format(signif(lam, 2)), fixed = TRUE)
+  # lam is 2.49991e-5, truncated (not rounded) to 2.4e-05.
+  expect_match(msg, "smallest eigenvalue 2.4e-05, below 1e-2", fixed = TRUE)
   expect_match(msg, "beta", fixed = TRUE)
 
   got <- e[e$level_from == 3L, ]
@@ -345,6 +353,7 @@ test_that("under pairs = 'all' a near-singular level warns once per call, not on
   for (call in 1:2) {
     ws <- warnings_raised(e <- tidy(y, what = "edges"))
     expect_length(ws, 1L)
+    expect_s3_class(ws[[1L]], "rlang_warning")
     expect_match(conditionMessage(ws[[1L]]), "nearly singular", fixed = TRUE)
     expect_match(conditionMessage(ws[[1L]]), "k = 2", fixed = TRUE)
   }

@@ -30,16 +30,17 @@ generics::glance
 #'     default varimax rotation the factors within a level are uncorrelated,
 #'     so `beta` equals `r`. The two come apart only when the factors within
 #'     a level are correlated. The column `beta` uses the within-level score
-#'     correlation of the `from` level. It comes from the stored score weights
-#'     and the fit's correlation matrix, the same matrix that `r` comes from.
-#'     When that correlation cannot be inverted, `beta` is `NA` for that
-#'     level's edges and a warning names the level. When it is nearly singular
-#'     (smallest eigenvalue below `1e-2`), the factors at that level are close
-#'     to collinear and `beta` is unstable. The `tidy()` method still reports
-#'     `beta` and raises a warning that names the level. Fitting with
-#'     `ackwards()` does not raise it. The package chose this cutoff as a
-#'     numerical guard. It is not a published rule. With the default ten Berge or component scores, the
-#'     within-level score correlation equals the level's factor correlation
+#'     correlation of the `from` level. That correlation comes from the stored
+#'     score weights and the fit's correlation matrix, the same matrix that
+#'     `r` comes from. When that correlation cannot be inverted, `beta` is
+#'     `NA` for that level's edges and a warning names the level. When that
+#'     correlation is nearly singular (smallest eigenvalue below `1e-2`), the
+#'     factors at that level are close to collinear and `beta` is unstable.
+#'     The `tidy()` method still reports `beta` and raises a warning that
+#'     names the level. Fitting with `ackwards()` does not raise it. The
+#'     package chose this cutoff as a numerical guard. It is not a published
+#'     rule. With the default ten Berge or component scores, the within-level
+#'     score correlation equals the level's factor correlation
 #'     (`what = "factor_cor"`). With regression scores, the fallback when ten
 #'     Berge weights fail, the two can differ.
 #'     If [boot_edges()] has been run on the object, four bootstrap columns are
@@ -69,7 +70,9 @@ generics::glance
 #'     level above. Under the default varimax rotation `r2` equals the sum of
 #'     the squared `r` values of that factor's edges from the level above.
 #'     It is `NA`, with a warning, when the level above's within-level score
-#'     correlation cannot be inverted.
+#'     correlation cannot be inverted. A nearly singular one raises no warning
+#'     here. That warning comes from `what = "edges"`, because it concerns
+#'     `beta`.
 #'   * `"factor_cor"`: one row per pair of factors within a level, with
 #'     columns `level`, `factor_a`, `factor_b`, `cor`. The column `cor` is
 #'     the correlation between the two factors as the engine reports it, in

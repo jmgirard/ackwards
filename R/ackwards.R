@@ -297,9 +297,10 @@
 #'   `"(user-supplied matrix)"`.
 #'
 #' @section When to trust the result:
-#' `ackwards()` raises most diagnostics as it fits, and `tidy()` raises the
-#' warnings about a level's within-level score correlation. They fall into
-#' three tiers by what they mean for whether you should trust and report the
+#' `ackwards()` raises most diagnostics as it fits, while `tidy()` and
+#' `summary()` raise the warnings about a level's within-level score
+#' correlation (the item below says which raises which). They fall into three
+#' tiers by what they mean for whether you should trust and report the
 #' solution:
 #'
 #' **Fatal, so fix before trusting.** The result is undefined or rests on a
@@ -335,7 +336,7 @@
 #'   Fitting with `ackwards()` does not raise it. The package chose this cutoff
 #'   as a numerical guard. It is not a published rule. If the correlation
 #'   cannot be inverted at all, `beta` and `r2` are `NA` and a different
-#'   warning names the level.
+#'   warning names the level. Both `tidy()` and `summary()` raise that one.
 #'
 #' **Informational, and usually fine.** Proceed, just be aware of the
 #' pairwise-missing note, a merely *sparse* (rare-but-present) response

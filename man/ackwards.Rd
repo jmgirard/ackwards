@@ -312,9 +312,10 @@ require row-level item responses.
 
 \section{When to trust the result}{
 
-\code{ackwards()} raises most diagnostics as it fits, and \code{tidy()} raises the
-warnings about a level's within-level score correlation. They fall into
-three tiers by what they mean for whether you should trust and report the
+\code{ackwards()} raises most diagnostics as it fits, while \code{tidy()} and
+\code{summary()} raise the warnings about a level's within-level score
+correlation (the item below says which raises which). They fall into three
+tiers by what they mean for whether you should trust and report the
 solution:
 
 \strong{Fatal, so fix before trusting.} The result is undefined or rests on a
@@ -353,7 +354,7 @@ method still reports \code{beta} and raises a warning that names the level.
 Fitting with \code{ackwards()} does not raise it. The package chose this cutoff
 as a numerical guard. It is not a published rule. If the correlation
 cannot be inverted at all, \code{beta} and \code{r2} are \code{NA} and a different
-warning names the level.
+warning names the level. Both \code{tidy()} and \code{summary()} raise that one.
 }
 
 \strong{Informational, and usually fine.} Proceed, just be aware of the

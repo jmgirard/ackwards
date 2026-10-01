@@ -56,6 +56,7 @@ GP1 trade: 1e-2 is a numerical guard that the package chose, not a published cut
 - 2026-09-30: T3 done. The `beta` entry of `?tidy.ackwards` and the trust section of `?ackwards` (opening sentence and a new Caution item) state the cutoff, that the package chose it, that `beta` is still reported, that the warning names the level, and that `tidy()` raises it. The scores-path sentence is gone from `?tidy.ackwards`, after a read of R/ackwards.R:937 and :1020 and R/compute_edges.R:78. DESIGN's Known-limitations entry is corrected in place. NEWS entry added. With `warn_near = FALSE` removed from `.tidy_variance()`, the silence test failed twice (variance table and `summary()`), so the NEWS claim is test-backed. `tools/check-prose.R` is clean on the edited files. `Rscript tools/dod-gate.R` on commit `247a948`: GATE PASSED (check 0 err/0 warn/0 note, coverage 100%, styler, lintr, prose, pkgdown clean).
 - 2026-09-30: claim audit: 50 claims read, 4 corrected — NEWS.md, R/ackwards.R, R/tidy.R, R/utils.R, man/ackwards.Rd, man/tidy.ackwards.Rd, tests/testthat/test-partialled-edges.R. The corrections: two test comments (the rcond reasoning, and "untouched levels"), the `plant_weights()` header, and the trust section's opening, which now also covers the singular warning that `tidy()` raises. The same reader re-read the four once and refined two wordings, which were applied. Only roxygen and comments changed after the gate. Full suite afterwards: 805 tests, 0 failed. Status set to review. Falsified by a near-singular level whose returned `beta` departs from an independent regression fit beyond tolerance.
 - 2026-09-30: review started (checkpoint, half-done). AC1 to AC4 have evidence and ticks. The gate script for AC5 and the three reviewers are still running.
+- 2026-09-30: step-7 approval: m091-near-singular-score-cor-guard approved for merge, with the six fix-now findings (F1, F2, F3, F6, F7, F8) applied first. The gate passed again after the fixes.
 
 ## Decisions
 
@@ -90,3 +91,15 @@ Three fresh-context reviewers ran: Opus diff-bug, Sonnet blame-history, and Sonn
 - F14 (prior-review 2, reject). The silence tests cover no oblimin or geomin fit. AC2 names its fits, and the real oblique fits probed at plan time stayed above 0.14.
 - F15 (history 4 and 5, reject). The DESIGN text assumes linear scoring, which D-007 keeps true. The singular case sits in the Caution tier because only `beta` and `r2` become `NA`.
 - F16 (history 6, reject). No oracle-registry entry. The sibling item-level check has none either, and the tests recompute the eigenvalue independently.
+
+### Gate outcome
+
+The maintainer chose "Fix 6, then merge" at the step-7 chip. The fixes landed on the branch before the push.
+
+- F1: the message truncates the eigenvalue to two significant digits and prints the cutoff as `1e-2`. The level-2 test now matches "smallest eigenvalue 0.0083, below 1e-2". The level-3 test matches "2.4e-05", which the old rounding would print as "2.5e-05".
+- F2: the trust section's opening sentence names `tidy()` and `summary()`. The Caution item adds that both raise the singular warning.
+- F3: the level-3 plant uses 0.01. Its eigenvalue is 2.5e-5, inside AC1's window.
+- F6 and F7: the `beta` entry names "that correlation" in both sentences and is rewrapped. The `r2` entry says a nearly singular level raises no warning there.
+- F8: the three near-singular tests assert the `rlang_warning` class.
+- Evidence after the fixes: `devtools::test(filter = "partialled-edges")` passes 11 tests and 132 expectations. `tools/check-prose.R` is clean on R/tidy.R, R/ackwards.R, R/utils.R, and NEWS.md. `Rscript tools/dod-gate.R` printed "GATE PASSED", with check 0/0/0 and coverage 100%.
+- F4 and F5 become candidate rows at the hygiene pass. A search of the candidates, the archive, and DECISIONS found no overlap.

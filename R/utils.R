@@ -242,11 +242,15 @@ make_labels <- function(k) {
   min_eig <- min(eigen(Phi_s, symmetric = TRUE, only.values = TRUE)$values)
   status <- if (min_eig < .phi_s_near_singular) "near_singular" else "ok"
   if (status == "near_singular" && warn_near) {
-    cutoff <- .phi_s_near_singular
+    # Truncate, not round, to two significant digits, so the value shown
+    # never reaches the cutoff (signif(0.00996, 2) would print 0.01). The
+    # cutoff prints as "1e-2", as the help pages write it.
+    p <- 10^(1 - floor(log10(abs(min_eig))))
+    shown <- if (min_eig == 0) 0 else trunc(min_eig * p) / p
+    cutoff <- sub("e([+-])0", "e\\1", sprintf("%.0e", .phi_s_near_singular))
     cli::cli_warn(c(
       "!" = "The within-level score correlation at k = {level} is nearly \\
-             singular (smallest eigenvalue {signif(min_eig, 2)}, below \\
-             {cutoff}).",
+             singular (smallest eigenvalue {shown}, below {cutoff}).",
       "i" = "Factors at that level are close to collinear, so {.code beta} \\
              for edges from that level is unstable. It is still reported."
     ))
