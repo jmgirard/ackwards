@@ -164,8 +164,8 @@ Standardizing by the score standard deviations
 $\sqrt{\operatorname{diag}(W'RW)}$ yields the correlations. Every engine in
 **ackwards** scores linearly, and every edge the package reports comes from this
 closed-form algebra. The test suite also computes the edges from materialized
-scores and checks that the two routes agree. That check runs only on the linear
-engines with complete data and Pearson correlations. It does not cover the
+scores and checks that the two routes agree. That check runs on all three
+engines, but only with complete data and Pearson correlations. It does not cover the
 polychoric path or the path that estimates $R$ from incomplete data by full
 information maximum likelihood (FIML). The algebra is exact for the correlation
 matrix it is given, for any fixed linear scoring weights, oblique rotations
@@ -393,9 +393,9 @@ errors, and ordinal support without leaving the package or rewriting the
 pipeline. All three engines score linearly, and every between-level correlation
 the package reports comes from one closed-form computation on the scoring
 weights and the correlation matrix. The test suite checks that computation
-against correlations of materialized factor scores for the linear engines with
-complete data and Pearson correlations. The check does not cover the polychoric
-and FIML paths. The applied example reproduces Forbes's (2023)
+against correlations of materialized factor scores for all three engines, but
+only with complete data and Pearson correlations. The check does not cover the
+polychoric and FIML paths. The applied example reproduces Forbes's (2023)
 155-variable analysis to machine precision, and that agreement is exercised by
 the test suite rather than merely asserted. Researchers who adopt the package
 inherit a computation that has already been checked, and readers who want to

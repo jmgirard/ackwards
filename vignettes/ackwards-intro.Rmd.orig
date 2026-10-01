@@ -276,7 +276,7 @@ loadings. See `vignette("ackwards-engines")`.
 Each edge is the between-level factor-score correlation, computed in closed form
 with no score materialization. Waller (2007) gave such a closed form for
 principal components. With any linear scoring weights, the scores are linear
-composites of the items. So the covariance of two levels' scores is W′RW, which
+composites of the items. So the covariance of two levels' scores is `W_a' R W_b`, which
 needs only the two weight matrices and the input correlation matrix R. Dividing
 by the score standard deviations gives the correlation. The result is exact for
 the R supplied. When R is polychoric (as here) or Spearman, scores computed from
