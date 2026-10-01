@@ -487,10 +487,20 @@ confidence intervals to the loadings. See
 
 ### Between-level edges
 
-Each edge is the between-level factor-score correlation computed with
-Waller’s (2007) closed-form W′RW algebra. That is an exact result that
-requires no score materialization, just the weight matrices and the
-input correlation matrix.
+Each edge is the between-level factor-score correlation, computed in
+closed form with no score materialization. Waller (2007) gave such a
+closed form for principal components. With any linear scoring weights,
+the scores are linear composites of the standardized items. So the
+covariance of two levels’ scores is `W_a′RW_b`, which needs only the two
+weight matrices and the input correlation matrix R. Dividing by the
+score standard deviations gives the correlation. The result is exact for
+the R the fit uses. When R is polychoric (as here) or Spearman, scores
+computed from the observed items do not in general reproduce the edges
+exactly. Each edge is then the correlation the scores would have if the
+items correlated exactly as R says. The same is true when R is estimated
+from incomplete data by pairwise deletion or by full-information maximum
+likelihood (FIML). Pairwise deletion computes each correlation from only
+the rows where both items are observed.
 
 ``` r
 

@@ -68,8 +68,13 @@ variable model. It is a data reduction method.
 In the bass-ackwards context, PCA is the natural default. It is fast,
 always converges, and produces eigenvalues that can guide the choice of
 k. Waller (2007) showed that the between-level algebra (`W'RW`) holds
-exactly for components. The edges are therefore algebraically exact
-rather than approximated from materialized scores.
+exactly for components. The edges are exact for the correlation matrix
+the fit uses, with no scores materialized. That matrix is polychoric
+here, so scores computed from the observed items do not in general
+reproduce the edges exactly. The same is true when the matrix is
+Spearman, or when it is estimated from incomplete data by pairwise
+deletion or by FIML. Pairwise deletion computes each correlation from
+only the rows where both items are observed.
 
 ``` r
 
