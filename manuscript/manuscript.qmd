@@ -161,17 +161,17 @@ levels and item correlation matrix $R$, the covariance of the two sets of
 composites is $W_a' R W_b$. Standardizing by the score standard deviations
 $\sqrt{\operatorname{diag}(W'RW)}$ yields the correlations. Every engine in
 **ackwards** scores linearly, and every edge the package reports comes from this
-closed-form algebra. The algebra is exact for the correlation matrix it is
-given. When that matrix is polychoric or Spearman, or is estimated from
+closed-form algebra. The algebra is exact for the correlation matrix the fit
+uses. When that matrix is polychoric or Spearman, or is estimated from
 incomplete data by pairwise deletion or by full-information maximum likelihood
 (FIML), scores computed from the observed items do not in general reproduce the
-edges. The test suite also computes the edges from materialized scores and
-checks that the two routes agree. That check runs on all three engines, but only
-with complete data and Pearson correlations, so it does not cover the
-polychoric, Spearman, pairwise, or FIML cases. The algebra holds for any fixed
-linear scoring weights, oblique rotations included, and nothing in it uses the
-orthogonality of a rotation. What the rotation changes is the meaning of an
-edge. By default, **ackwards** applies varimax
+edges. Each edge is then the correlation the scores would have if the items
+correlated exactly as that matrix says. The test suite also computes the edges
+from materialized scores and checks that the two routes agree. That check runs
+on all three engines, but only with complete data and Pearson correlations, so
+it does not cover the polychoric, Spearman, pairwise, or FIML cases. Nothing in
+the algebra uses the orthogonality of a rotation, so it holds for oblique
+rotations too. What the rotation changes is the meaning of an edge. By default, **ackwards** applies varimax
 rotation [@kaiser1958] at every level with two or more factors, which keeps the
 factors within a level uncorrelated. With the default scores, each edge then
 equals the ancestor's unique contribution to the descendant, which is what lets
