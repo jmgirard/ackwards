@@ -159,11 +159,13 @@ cross-level score covariance is $W_a' R W_b$. Standardizing by the score standar
 deviations $\sqrt{\operatorname{diag}(W'RW)}$ yields the correlations. **ackwards**
 uses this algebra by default and falls back to materialized scores only for
 nonlinear scoring, cross-checking the two routes against one another for linear
-engines. Orthogonal (varimax) rotation [@kaiser1958] within each level is what makes the
-algebra exact: an orthonormal rotation satisfies $T' = T^{-1}$, so the closed
-form holds rather than approximates. Oblique rotation is deliberately not
-offered, because correlated factors would confound the very cross-level signal
-the method exists to measure.
+engines. The closed form is exact for any fixed linear scoring weights, oblique
+rotations included. Nothing in it uses the orthogonality of a rotation, and
+@waller2007 gives its oblique form as well. The choice of rotation therefore
+changes what an edge means, not whether the algebra holds. By default,
+**ackwards** applies varimax rotation [@kaiser1958] at every level, which keeps
+the factors within a level uncorrelated. Oblique rotations, which let those
+factors correlate, are available as an option.
 
 ## The Forbes extension
 

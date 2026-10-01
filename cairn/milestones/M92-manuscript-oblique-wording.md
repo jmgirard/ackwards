@@ -1,13 +1,13 @@
 # M92: Manuscript wording for the oblique rotation option
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** GP3
 - **Resolves:** —
 - **Surface tier:** user-facing, because journal reviewers and readers outside the repo read the manuscript
-- **Branch/PR:** —
+- **Branch/PR:** m092-manuscript-oblique-wording
 
 ## Goal
 
@@ -37,7 +37,7 @@ The manuscript describes the shipped `rotation` option: varimax by default, obli
 
 ## Tasks
 
-- [ ] T1: Read the RR01 verdict (`cairn/reviews/archive/RR01-oblique-algebra-claim.md`), D-034, D-036, and the `rotation` entry of `?ackwards` (R/ackwards.R:169). Then rewrite the methods passage (manuscript.qmd:162). Keep the `@waller2007` and `@kaiser1958` citations.
+- [x] T1: Read the RR01 verdict (`cairn/reviews/archive/RR01-oblique-algebra-claim.md`), D-034, D-036, and the `rotation` entry of `?ackwards` (R/ackwards.R:169). Then rewrite the methods passage (manuscript.qmd:162). Keep the `@waller2007` and `@kaiser1958` citations.
 - [ ] T2: Rewrite the scope paragraph (manuscript.qmd:412). Keep its sentences on the sequential hierarchy and on Schmid-Leiman unchanged.
 - [ ] T3: Run the AC3 search and record each matching sentence with its disposition in the work log. Look for em dashes and unresolved citation keys in the rewritten passages. Render to PDF and docx.
 
@@ -46,6 +46,8 @@ The manuscript describes the shipped `rotation` option: varimax by default, obli
 - 2026-09-30: created by /milestone-plan, from the candidate row added at the M90 review (finding F2).
 - 2026-09-30: criteria audit ran in full mode (fresh-context Opus reader) and returned 7 findings, all fixed at the plan gate. The scope now cites D-034 for the withdrawn confound rationale, because RR01 had kept that sentence. AC3 separates the forbidden claim from the allowed overlap statement, and its search gained `correlated|confound`. AC1 says "fixed linear". AC2 adds that primary parents still follow `r`. AC4 counts `---`, and AC5 states its toolchain.
 - 2026-09-30: plan gate chose a planned milestone over a later direct docs commit, at the owner's selection. The rewrite then gets a criteria audit and a review. Falsified by a review that finds no defect at all, which shows that a direct commit was enough.
+- 2026-09-30: implement started on branch m092-manuscript-oblique-wording. No question gate, because the plan left no choice open.
+- 2026-09-30: T1 done. The methods passage now says the closed form is exact for any fixed linear scoring weights and cites Waller's oblique form (section 3, per `references/waller2007.md`). It names varimax as the default and oblique rotations as an option.
 
 ## Decisions
 
