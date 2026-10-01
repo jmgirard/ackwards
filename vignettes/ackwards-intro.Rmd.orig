@@ -273,9 +273,16 @@ loadings. See `vignette("ackwards-engines")`.
 
 ### Between-level edges
 
-Each edge is the between-level factor-score correlation computed with Waller's
-(2007) closed-form W′RW algebra. That is an exact result that requires no score
-materialization, just the weight matrices and the input correlation matrix.
+Each edge is the between-level factor-score correlation, computed in closed form
+with no score materialization. Waller (2007) gave such a closed form for
+principal components. With any linear scoring weights, the scores are linear
+composites of the items. So the covariance of two levels' scores is W′RW, which
+needs only the two weight matrices and the input correlation matrix R. Dividing
+by the score standard deviations gives the correlation. The result is exact for
+the R supplied. Scores computed from the observed items do not in general
+reproduce the edges exactly when R is polychoric (as here) or Spearman, or when
+it is estimated from incomplete data by pairwise deletion or by full-information
+maximum likelihood (FIML).
 
 ```{r tidy-edges}
 # Each factor's primary-parent edge, strongest first
