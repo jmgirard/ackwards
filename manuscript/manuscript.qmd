@@ -151,17 +151,28 @@ equivalents), not model parameters.
 
 The between-level correlations are the heart of the method, and there are two
 routes to them. The direct route materializes factor scores at each level and
-correlates them [@grice2001]. @waller2007 showed that, when scoring is a linear function of
-the items, the same correlations follow in closed form from the factor weight
-matrices and the item correlation matrix, without ever computing scores. For
-factor weights $W_a$ and $W_b$ at two levels and item correlation matrix $R$, the
-cross-level score covariance is $W_a' R W_b$. Standardizing by the score standard
-deviations $\sqrt{\operatorname{diag}(W'RW)}$ yields the correlations. **ackwards**
-uses this algebra by default and falls back to materialized scores only for
-nonlinear scoring, cross-checking the two routes against one another for linear
-engines. The closed form is exact for any fixed linear scoring weights, oblique
-rotations included. Nothing in it uses the orthogonality of a rotation, and
-@waller2007 gives the oblique form for rotated components. What the rotation
+correlates them [@grice2001]. For principal components, @waller2007 showed that
+the same correlations follow in closed form from the component transformation
+matrices of the levels, without ever computing scores, and he gave the oblique
+form for rotated components. A closed form also exists for any linear scoring
+weights. Scores computed with such weights are linear composites of the items,
+and the covariance of linear composites follows from their weights and the item
+correlation matrix. For weights $W_a$ and $W_b$ at two levels and item
+correlation matrix $R$, the covariance of the two sets of composites is
+$W_a' R W_b$.
+Standardizing by the score standard deviations
+$\sqrt{\operatorname{diag}(W'RW)}$ yields the correlations. Every engine in
+**ackwards** scores linearly, and every edge the package reports comes from this
+closed-form algebra. The test suite also computes the edges from materialized
+scores and checks that the two routes agree. That check runs only on the linear
+engines with complete data and Pearson correlations. It does not cover the
+polychoric path or the path that estimates $R$ from incomplete data by full
+information maximum likelihood (FIML). The algebra is exact for the correlation
+matrix it is given, for any fixed linear scoring weights, oblique rotations
+included. Nothing in it uses the orthogonality of a rotation. When that matrix is
+polychoric or Spearman, or is estimated from incomplete data by pairwise deletion
+or FIML, scores computed from the observed items do not in general reproduce the
+edges. What the rotation
 changes is the meaning of an edge. By default, **ackwards** applies varimax
 rotation [@kaiser1958] at every level with two or more factors, which keeps the
 factors within a level uncorrelated. With the default scores, each edge then
