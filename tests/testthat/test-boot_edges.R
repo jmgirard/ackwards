@@ -218,10 +218,14 @@ test_that("a failing replicate is dropped and counted; the run completes", {
   # an abort (Invariant 7). Deterministic given the counter.
   real_pca <- ackwards:::pca_levels
   call_i <- 0L
-  fail_pca <- function(R, k_max, cor = "pearson", keep_fits = FALSE) {
+  fail_pca <- function(R, k_max, cor = "pearson", keep_fits = FALSE,
+                       rotation = "varimax") {
     call_i <<- call_i + 1L
     if (call_i %% 4L == 0L) stop("rigged replicate failure")
-    real_pca(R, k_max = k_max, cor = cor, keep_fits = keep_fits)
+    real_pca(R,
+      k_max = k_max, cor = cor, keep_fits = keep_fits,
+      rotation = rotation
+    )
   }
 
   testthat::local_mocked_bindings(pca_levels = fail_pca)

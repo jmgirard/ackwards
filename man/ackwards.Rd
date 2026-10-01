@@ -20,6 +20,7 @@ ackwards(
   pairs = "adjacent",
   cut_show = 0.3,
   correct = 0.5,
+  rotation = "varimax",
   ...
 )
 }
@@ -165,6 +166,12 @@ response category, or when items with unequal category counts produce a
 sparse cross-cell. It is ignored
 on other paths: ESEM computes its own polychoric correlations inside lavaan,
 and the Pearson/Spearman bases do not use it.}
+
+\item{rotation}{The rotation applied at every level with two or more
+factors. \code{"varimax"} (the default) keeps the factors within a level
+uncorrelated. \code{engine = "pca"} and \code{"efa"} also accept the oblique
+\code{"oblimin"} and \code{"promax"}, which need the GPArotation package.
+\code{engine = "esem"} also accepts the oblique \code{"oblimin"} and \code{"geomin"}.}
 
 \item{...}{Reserved for future arguments.}
 }

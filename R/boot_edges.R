@@ -250,7 +250,7 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
       x_levels = x$levels, R_full = x$r, keys = keys, dims = dims,
       engine = x$engine, cor = x$cor, fm = x$meta$fm %||% "minres",
       missing_eff = missing_eff, k_max = x$k_max,
-      pairs = x$meta$pairs
+      pairs = x$meta$pairs, rotation = x$rotation %||% "varimax"
     )
   })
   cli::cli_progress_done()
@@ -319,7 +319,8 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
 # aligned with the object's tidy edge rows (row-major within each matrices
 # key); edges touching an unusable level are NA.
 .boot_replicate <- function(idx, data_mat, x_levels, R_full, keys, dims,
-                            engine, cor, fm, missing_eff, k_max, pairs) {
+                            engine, cor, fm, missing_eff, k_max, pairs,
+                            rotation = "varimax") {
   na_out <- rep(NA_real_, sum(vapply(dims, prod, numeric(1L))))
 
   levels_rep <- tryCatch(
@@ -333,7 +334,8 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
         )
       }
       out <- .fit_levels_muffled(R_b, engine,
-        k_max = k_max, cor = cor, fm = fm, n_obs = nrow(d_b)
+        k_max = k_max, cor = cor, fm = fm, n_obs = nrow(d_b),
+        rotation = rotation
       )
       list(levels = out$levels, R_b = R_b)
     },

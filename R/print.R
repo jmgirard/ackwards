@@ -97,7 +97,7 @@
 #'
 #' @seealso [tidy.ackwards()], [glance.ackwards()]
 #'
-#' @importFrom rlang `%||%`
+#' @importFrom rlang "%||%"
 #' @export
 print.ackwards <- function(x, ...) {
   cut_show <- x$meta$cut_show %||% 0.3

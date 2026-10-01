@@ -334,7 +334,7 @@
 # --- Driver: fit all levels 1..k_max -----------------------------------------
 esem_levels <- function(data, k_max, estimator, cor,
                         R_external = NULL, keep_fits = FALSE,
-                        missing = "pairwise") {
+                        missing = "pairwise", rotation = "varimax") {
   rlang::check_installed("lavaan", reason = "for the ESEM engine")
   if (!exists("efa", envir = asNamespace("lavaan"), inherits = FALSE)) { # nocov start
     cli::cli_abort(

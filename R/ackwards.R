@@ -160,6 +160,11 @@
 #'   sparse cross-cell. It is ignored
 #'   on other paths: ESEM computes its own polychoric correlations inside lavaan,
 #'   and the Pearson/Spearman bases do not use it.
+#' @param rotation The rotation applied at every level with two or more
+#'   factors. `"varimax"` (the default) keeps the factors within a level
+#'   uncorrelated. `engine = "pca"` and `"efa"` also accept the oblique
+#'   `"oblimin"` and `"promax"`, which need the GPArotation package.
+#'   `engine = "esem"` also accepts the oblique `"oblimin"` and `"geomin"`.
 #' @param ... Reserved for future arguments.
 #'
 #' @return An object of class `"ackwards"`. See [print.ackwards()],
@@ -324,6 +329,7 @@ ackwards <- function(
   pairs = "adjacent",
   cut_show = 0.3,
   correct = 0.5,
+  rotation = "varimax",
   ...
 ) {
   cl <- match.call()
@@ -369,6 +375,7 @@ ackwards <- function(
 
   # --- Shared argument validation ---------------------------------------------
   engine <- rlang::arg_match(engine, c("pca", "efa", "esem"))
+  rotation <- .check_rotation(rotation, engine)
   fm <- rlang::arg_match(fm, c("minres", "ml", "pa"))
   pairs <- rlang::arg_match(pairs, c("adjacent", "all"))
 
@@ -500,11 +507,11 @@ ackwards <- function(
     engine_out <- switch(engine,
       pca = pca_levels(R,
         k_max = k_max, cor = "pearson",
-        keep_fits = keep_fits
+        keep_fits = keep_fits, rotation = rotation
       ),
       efa = efa_levels(R,
         k_max = k_max, fm = fm, n_obs = n_obs_eff,
-        cor = "pearson", keep_fits = keep_fits
+        cor = "pearson", keep_fits = keep_fits, rotation = rotation
       )
     )
     levels_list <- engine_out$levels
@@ -748,7 +755,7 @@ ackwards <- function(
       esem_out <- esem_levels(data_mat,
         k_max = k_max, estimator = estimator_eff, cor = cor,
         R_external = R_ext, keep_fits = keep_fits,
-        missing = missing
+        missing = missing, rotation = rotation
       )
       levels_list <- esem_out$levels
       fits_stored <- esem_out$fits
@@ -845,11 +852,11 @@ ackwards <- function(
       engine_out <- switch(engine,
         pca = pca_levels(R,
           k_max = k_max, cor = cor,
-          keep_fits = keep_fits
+          keep_fits = keep_fits, rotation = rotation
         ),
         efa = efa_levels(R,
           k_max = k_max, fm = fm, n_obs = n_obs_eff,
-          cor = cor, keep_fits = keep_fits
+          cor = cor, keep_fits = keep_fits, rotation = rotation
         )
       )
       levels_list <- engine_out$levels
@@ -1024,6 +1031,7 @@ ackwards <- function(
   x <- new_ackwards(
     call        = cl,
     engine      = engine,
+    rotation    = rotation,
     cor         = cor_eff,
     n_obs       = n_obs_eff,
     k_max       = k_eff, # effective depth (may be < k_max if truncated)
@@ -1054,14 +1062,14 @@ ackwards <- function(
 
 # S3 constructor -- validates structure and attaches class
 new_ackwards <- function(
-  call, engine, cor, n_obs, k_max, seed, pkg_version,
+  call, engine, rotation, cor, n_obs, k_max, seed, pkg_version,
   levels, edges, lineage, scores, fits, r, data, meta
 ) {
   structure(
     list(
       call        = call,
       engine      = engine,
-      rotation    = "varimax",
+      rotation    = rotation,
       cor         = cor,
       n_obs       = n_obs,
       k_max       = k_max,

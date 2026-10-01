@@ -282,6 +282,40 @@ make_labels <- function(k) {
   as.integer(x)
 }
 
+# Rotations each engine supports. Varimax is the default for every engine
+# (D-034). psych rotates the PCA and EFA levels, where oblimin and promax both
+# load GPArotation (promax through psych::kaiser()); lavaan rotates the ESEM
+# levels natively, where geomin is its oblique geomin.
+.supported_rotations <- list(
+  pca  = c("varimax", "oblimin", "promax"),
+  efa  = c("varimax", "oblimin", "promax"),
+  esem = c("varimax", "oblimin", "geomin")
+)
+
+# Validate `rotation` against the engine and return it. An unknown name fails
+# as an arg_match error; a known name the engine lacks fails naming both. A
+# psych oblique rotation checks for GPArotation here, before any fitting, so
+# the user gets rlang's install prompt instead of psych's stop() mid-fit.
+.check_rotation <- function(rotation, engine) {
+  all_rotations <- unique(unlist(.supported_rotations, use.names = FALSE))
+  rotation <- rlang::arg_match0(rotation, all_rotations, arg_nm = "rotation")
+  supported <- .supported_rotations[[engine]]
+  if (!rotation %in% supported) {
+    cli::cli_abort(c(
+      "!" = "{.code rotation = \"{rotation}\"} is not available with \\
+             {.code engine = \"{engine}\"}.",
+      "i" = "Rotations for {.code engine = \"{engine}\"}: {.val {supported}}."
+    ))
+  }
+  if (engine %in% c("pca", "efa") && rotation != "varimax") {
+    rlang::check_installed(
+      "GPArotation",
+      reason = "for oblique rotation with the PCA and EFA engines."
+    )
+  }
+  rotation
+}
+
 # Detect which columns of a data frame look ordinal (Likert-scale).
 # Heuristic: a column is flagged if it is integer-like and has <= max_levels
 # distinct values. Returns the flagged column names (character(0) when none),
@@ -530,11 +564,18 @@ flip_weights <- function(W, sign_vec) {
 # unusably; its aggregate signal is what the callers' coefficients / NA counts
 # report. Callers keep their own R construction, resample/split step, and
 # error/sentinel handling. PCA/EFA only (both callers are; s.14.35/.36).
-.fit_levels_muffled <- function(R, engine, k_max, cor, fm, n_obs) {
+# `rotation` is the fitted object's rotation for boot_edges(), so a replicate
+# refits the same rotation as the full-sample hierarchy it is anchored to;
+# comparability() takes no rotation and keeps the varimax default.
+.fit_levels_muffled <- function(R, engine, k_max, cor, fm, n_obs,
+                                rotation = "varimax") {
   suppressMessages(suppressWarnings(
     switch(engine,
-      pca = pca_levels(R, k_max = k_max, cor = cor),
-      efa = efa_levels(R, k_max = k_max, fm = fm, n_obs = n_obs, cor = cor)
+      pca = pca_levels(R, k_max = k_max, cor = cor, rotation = rotation),
+      efa = efa_levels(R,
+        k_max = k_max, fm = fm, n_obs = n_obs, cor = cor,
+        rotation = rotation
+      )
     )
   ))
 }

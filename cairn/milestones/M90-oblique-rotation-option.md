@@ -65,7 +65,7 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 ## Tasks
 
 - [x] T1: The pre-implementation gate reads the design-session D-entry (BC5 quantity, BC6 stance) and records both in this file's Decisions. Unblock only then. Re-run M89's baseline test before any change.
-- [ ] T2: Add the `rotation` argument on `ackwards()` (`R/ackwards.R:311`), the per-engine validation table, and the object stamp (`R/ackwards.R:1054`). Add GPArotation to Suggests with `rlang::check_installed()` on the psych oblique paths. Write the cross-product test. Pass the object's rotation through `.fit_levels_muffled()` so that `boot_edges()` refits with it.
+- [x] T2: Add the `rotation` argument on `ackwards()` (`R/ackwards.R:311`), the per-engine validation table, and the object stamp (`R/ackwards.R:1054`). Add GPArotation to Suggests with `rlang::check_installed()` on the psych oblique paths. Write the cross-product test. Pass the object's rotation through `.fit_levels_muffled()` so that `boot_edges()` refits with it.
 - [ ] T3: PCA and EFA oblique. Pass `rotate` through (`R/engine_pca.R:28`, `R/engine_efa.R:16`). Write `.tenBerge_weights(R, L, Phi)` as `A = Σ^{-1/2} C Φ^{1/2}`, `C = Σ^{-1/2} L (L'Σ^{-1}L)^{-1/2}`, `L = ΛΦ^{1/2}` (tenberge1999 Eq. 9, Thm 1), with the `R^{-1}ΛΦ` fallback. Live oracle against `psych::factor.scores(method = "tenBerge")`. IP2 algebra-vs-scores oblique case.
 - [ ] T4: ESEM oblique. Pass lavaan `rotation` through (`R/engine_esem.R:74-79`). Weights through T3's helper with `cor.lv`. Regression fallback with Φ (`R/engine_esem.R:219-226`).
 - [ ] T5: `.variance_explained(L, p, labels, Phi)` per AC10. ESEM sort key (`R/engine_esem.R:200`). psych `Vaccounted` oracle test.
@@ -86,6 +86,8 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - 2026-09-30: implement gate. The owner allowed the md5-pinned download of Forbes's OSF `7jfkw` script for T8. The GPArotation question rested on a wrong premise (that promax runs without it). The owner picked "oblimin only", then a check showed `psych::kaiser()` stops without GPArotation, so both rotations are guarded per D-035 as written.
 - 2026-09-30: T1 done. D-036 recorded, both stances copied to Decisions, M89 baseline test re-run before any code change (5 fits, 95 expectations, 0 failures).
 - 2026-09-30: minor amendment. T2 gains the `boot_edges()` pass-through, which Scope's "inheriting the fixed engines" needs. Without it, the bootstrap of an oblique object refits varimax.
+- 2026-09-30: T2 done. `rotation` is the last named argument of `ackwards()`, after `correct`, so no positional call shifts. Added `.check_rotation()` and `.supported_rotations` (`R/utils.R`), the object stamp, GPArotation in Suggests, and the `boot_edges()` pass-through. `test-rotation.R` covers the cross-product (9 fits, 3 aborts) and the arg_match errors. It also covers the GPArotation routing, the print and summary header, and the boot routing, each routing test with a control. Suite: 2915 expectations, the 3 failures were one boot test whose `pca_levels` mock lacked `rotation`, fixed.
+- 2026-09-30: discovered sub-task. The installed roxygen 8.1.0 writes grouped `importFrom()` blocks. Base R's `parseNamespaceFile()` then reads the backticked `%||%` with literal backticks, so the import is lost. The three `@importFrom rlang` tags now quote it. `Config/roxygen2/version` moved to 8.1.0.
 
 ## Decisions
 

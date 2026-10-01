@@ -7,7 +7,7 @@
 # hierarchy at the last successful level; Heywood cases warn but continue.
 
 efa_levels <- function(R, k_max, fm, n_obs, cor = "pearson",
-                       keep_fits = FALSE) {
+                       keep_fits = FALSE, rotation = "varimax") {
   p <- nrow(R)
   result <- list()
   fits_list <- if (keep_fits) list() else NULL

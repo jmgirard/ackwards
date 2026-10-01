@@ -271,7 +271,7 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' }
 #' }
 #'
-#' @importFrom rlang .data `%||%`
+#' @importFrom rlang .data "%||%"
 #' @export
 autoplot.ackwards <- function(
   object,

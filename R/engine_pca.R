@@ -7,7 +7,8 @@
 #
 # Returns list(levels = <named list per s.4 contract>, fits = <named list | NULL>)
 
-pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE) {
+pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE,
+                       rotation = "varimax") {
   p <- nrow(R)
   result <- vector("list", k_max)
   names(result) <- as.character(seq_len(k_max))

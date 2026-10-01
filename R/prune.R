@@ -822,7 +822,7 @@ prune <- function(x, ...) {
 }
 
 #' @rdname prune
-#' @importFrom rlang `%||%`
+#' @importFrom rlang "%||%"
 #' @export
 prune.ackwards <- function(x, rules = "none", manual = NULL,
                            redundancy_r = 0.9, redundancy_phi = NULL,
