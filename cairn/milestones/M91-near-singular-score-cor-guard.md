@@ -1,0 +1,56 @@
+# M91: Near-singular guard for the within-level score correlation
+
+- **Status:** planned
+- **Priority:** normal
+- **Depends on:** —
+- **Driving RR:** —
+- **Principles touched:** IP6, GP1, GP2
+- **Resolves:** —
+- **Surface tier:** user-facing, because it adds a warning to `tidy()` output and changes the user docs
+- **Branch/PR:** —
+
+## Goal
+
+If a level's within-level score correlation is nearly singular, the partialled `beta` values that level feeds always come with a warning.
+
+## Scope
+
+**In:** a smallest-eigenvalue check on Φ_s inside `.partialled_edges()` (R/utils.R:216), at 1e-2. The check warns and keeps the values. Only `tidy(what = "edges")` raises it, because `beta` is the value that collinearity makes unstable. `.tidy_edges()` dedups both the new warning and the existing singular warning per level. Roxygen, NEWS, and a correction to the `beta` entry's scores-path sentence (R/tidy.R:35).
+
+GP1 trade: 1e-2 is a numerical guard that the package chose, not a published cutoff. At 1e-2, two scores at one level correlate about .99. Every real oblique fit probed at plan time stayed above 0.14.
+
+**Out:** a stored `meta` flag for Φ_s is not queued, because `tidy()` recomputes Φ_s on every call and the warning recurs. The manuscript's oblique wording is M92. Intervals on `beta` and `r2` from `boot_edges()` stay in the existing `[low]` candidate row. The R-level check `.near_singular_check()` and its 1e-4 threshold keep their behavior.
+
+## Acceptance criteria
+
+- [ ] AC1: Take a level above the deepest level, so that it starts at least one stored pair. Its within-level score correlation Φ_s has a smallest eigenvalue below 1e-2, and `solve()` still inverts Φ_s. Then `tidy(what = "edges")` keeps `beta` finite on that level's edges. It emits exactly one cli warning for that level, and the message names `k = <level>`, the smallest eigenvalue, and `beta`. This holds for a level-2 plant (a 2 by 2 Φ_s) and a level-3 plant (a 3 by 3 Φ_s) of `ackwards(sim16, k_max = 4)`. Each plant rebuilds every stored edge matrix that involves the planted level from the planted weights. The level-2 plant's smallest eigenvalue lies between 5e-3 and 1e-2. The level-3 plant's lies between 1e-8 and 1e-2. On both, `beta` equals `solve(Phi_s, E)` within a relative tolerance of 1e-8.
+- [ ] AC2: The near-singular warning stays silent in these cases. A planted level-2 control whose smallest eigenvalue lies between 1e-2 and 1.5e-2 raises no warning from `tidy(what = "edges")`. On the AC1 level-2 plant, `tidy(what = "variance")` and `summary()` raise no warning and keep `r2` finite. The healthy fits are `ackwards(sim16, k_max = 4)` and `ackwards(bfi25, k_max = 8, rotation = "promax")` with `engine = "pca"` and `"efa"`. On each, `tidy(what = "edges")`, `tidy(what = "variance")`, and `summary()` raise no warning.
+- [ ] AC3: The existing singular path takes precedence, and each path warns once per level per call. If `solve()` rejects Φ_s, `beta` and `r2` stay `NA` with the existing "cannot be inverted" warning and no near-singular warning. Under `pairs = "all"`, a near-singular level that starts two or more stored pairs raises exactly one near-singular warning per `tidy(what = "edges")` call.
+- [ ] AC4: Two help sections each state five facts. They are the `beta` entry of `?tidy.ackwards` and the Caution tier of "When to trust the result" in `?ackwards`. The facts are the 1e-2 smallest-eigenvalue cutoff, that the package chose it rather than a published rule, and that `beta` is still reported. The other two are that a warning names the level, and that `tidy()` raises it, not `ackwards()`. The opening sentence of that section names `tidy()` as well as `ackwards()`. The `beta` entry no longer says that the `r` of an `ackwards()` object can come from materialised scores. `NEWS.md` carries an entry under the development version.
+- [ ] AC5: On the committed tree, `devtools::check()` reports 0 errors, 0 warnings, and 0 notes.
+
+## Coverage
+
+- AC1 → T1, T2
+- AC2 → T1, T2
+- AC3 → T1, T2
+- AC4 → T3
+- AC5 → T3
+
+## Tasks
+
+- [ ] T1: Write the tests first in `tests/testthat/test-partialled-edges.R`, beside the singular block (line 106). Rebuild each plant's `score_var` and edge matrices from the planted weights, as the `lm()` oracle test does (lines 60 to 72). Add the level-2 and level-3 plants and the level-2 control. Add the three healthy fits, with `skip_if_not_installed("GPArotation")` on the EFA promax fit. Add the precedence case and the `pairs = "all"` case. In every case, assert the measured eigenvalue, the warning count, and which message. Update the direct helper test (line 146) to the new return value.
+- [ ] T2: In `.partialled_edges()` (R/utils.R:216), compute the smallest eigenvalue of Φ_s after a successful `solve()`. Below the 1e-2 cutoff, warn, unless the caller turns the warning off. `.tidy_variance()` (R/tidy.R:443) turns it off. Return a flag, so that `.tidy_edges()` dedups both warnings per level. Its dedup keys on `anyNA(B)` today (R/tidy.R:248). Define the cutoff once, as an internal constant beside the helper.
+- [ ] T3: Update the roxygen in R/tidy.R (`beta`) and R/ackwards.R (trust section opening at line 300, Caution tier). Before you correct the scores-path sentence (R/tidy.R:35), check that `ackwards()` always passes `edge_method = "auto"` with no data (R/ackwards.R:940 and 1023). Correct the matching sentence in DESIGN's Known limitations, marked `corrected M91`. Run `devtools::document()` and add the NEWS entry. Run `Rscript tools/check-prose.R` on each edited doc file, then `Rscript tools/dod-gate.R`.
+
+## Work log
+
+- 2026-09-30: created by /milestone-plan, from the candidate row added at the M89 review (finding 14) and re-rated at the M90 review (finding F10).
+- 2026-09-30: criteria audit ran in full mode twice (fresh-context Opus readers). The first pass returned 12 findings on an earlier draft and the second returned 7 on this one. All were fixed at the plan gate, and no criterion carries an open finding. AC1 now excludes the deepest level, asserts the warning count, and uses a relative tolerance. The plants rebuild their edge matrices, a level-3 plant joins, and the scores-path plant is gone (no `ackwards()` object takes that path). Plants and controls sit at the cutoff's edge. Test wording moved from the criteria to T1. AC5 narrowed from the gate script to `devtools::check()`, and the GP1 trade is stated.
+- 2026-09-30: plan gate chose a 1e-2 cutoff over the 1e-4 item-matrix cutoff. At 4.5e-4, a planted level reached a `beta` of about 33 with no warning. It also rejected a variance-inflation cutoff of 10, which needs an outside source and is disputed. Falsified by a real fit that warns at 1e-2 while its `beta` stays stable across resamples.
+- 2026-09-30: plan gate chose to warn from the edge table only, not also from the variance table and `summary()`. On consistent plants, `r2` stayed between 0.49 and 0.99 down to an eigenvalue of 5e-9. Falsified by a fit where `r2` from a near-singular level departs from the `lm()` R-squared oracle.
+- 2026-09-30: plan chose to warn and keep the values over returning `NA`. The package reports values beside its cautions, and `r2` stays valid. Falsified by a near-singular level whose returned `beta` departs from an independent regression fit beyond tolerance.
+
+## Decisions
+
+## Review
