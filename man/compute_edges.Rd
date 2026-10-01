@@ -68,7 +68,7 @@ A pair goes to the scores branch when \code{edge_method = "scores"}, or when
 errors when \code{data} is \code{NULL}. Under \code{edge_method = "algebra"} the same
 conditions raise an error instead. No shipped caller reaches the scores
 branch. Each one passes \code{"auto"} or \code{"algebra"} with an \code{R}, and every
-engine's scoring is linear. Only the algebra-vs-scores agreement tests use
-it.
+engine's scoring is linear. Only tests use it: the algebra-vs-scores
+agreement tests and one error-path test.
 }
 \keyword{internal}

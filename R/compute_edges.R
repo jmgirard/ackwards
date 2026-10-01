@@ -19,8 +19,8 @@
 #' errors when `data` is `NULL`. Under `edge_method = "algebra"` the same
 #' conditions raise an error instead. No shipped caller reaches the scores
 #' branch. Each one passes `"auto"` or `"algebra"` with an `R`, and every
-#' engine's scoring is linear. Only the algebra-vs-scores agreement tests use
-#' it.
+#' engine's scoring is linear. Only tests use it: the algebra-vs-scores
+#' agreement tests and one error-path test.
 #'
 #' @param levels Named list (indexed by k) of per-level objects produced by an
 #'   engine. Each must contain a `scoring` sub-list with fields `linear`,
