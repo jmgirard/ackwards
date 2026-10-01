@@ -304,8 +304,10 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
 
 # Parallel dispatch: future.apply when installed (runs under the user's
 # future::plan(); sequential by default), serial lapply otherwise -- the M26
-# pattern. future.seed = TRUE silences future's RNG advisory; the replicates
-# themselves are deterministic given the precomputed indices.
+# pattern. future.seed = TRUE silences future's RNG advisory. Given the
+# precomputed indices the replicates are deterministic, except that an EFA
+# oblimin object's refits draw psych's random rotation starts; those are
+# reproducible under `seed` through future.seed's per-task streams.
 .boot_lapply <- function(X, FUN) {
   if (rlang::is_installed("future.apply")) {
     future.apply::future_lapply(X, FUN, future.seed = TRUE)

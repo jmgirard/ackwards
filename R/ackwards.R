@@ -165,8 +165,9 @@
 #' @param rotation The rotation used at every level with two or more factors.
 #'   The default, `"varimax"`, keeps the factors within a level uncorrelated.
 #'   The other values are oblique rotations, which let them correlate. With
-#'   `engine = "pca"` or `"efa"`, they are `"oblimin"` and `"promax"`, and
-#'   both need the GPArotation package. With `engine = "esem"`, they are
+#'   `engine = "pca"` or `"efa"`, they are `"oblimin"` and `"promax"`.
+#'   `"oblimin"` needs the GPArotation package, and so does `"promax"` with
+#'   `engine = "efa"`. With `engine = "esem"`, they are
 #'   `"oblimin"` and `"geomin"` (lavaan's oblique geomin).
 #'
 #'   Under an oblique rotation, each edge `r` is a total correlation. Primary

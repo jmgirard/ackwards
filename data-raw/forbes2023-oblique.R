@@ -48,7 +48,8 @@
 # Re-run after any change to the inputs or the recorded quantities:
 #   Rscript data-raw/forbes2023-oblique.R
 # Requires network access to osf.io, psych, and GPArotation (psych's oblimin
-# and promax both load it).
+# loads it on both paths, and psych::fa()'s promax loads it through
+# psych::kaiser(); psych::pca()'s promax uses stats::promax()).
 
 # Forbes's functions call fa.sort()/pca() unqualified, so psych must be attached.
 suppressPackageStartupMessages(library(psych))
@@ -69,9 +70,11 @@ sims <- readRDS(sims_path)
 
 K <- 4L
 one_run <- function(R, fm, rotate) {
-  # psych::fa() draws 20 random starts for an oblimin rotation (n.rotations),
-  # so the minres + oblimin values depend on the RNG state. A fixed seed per
-  # run makes the fixture bit-reproducible; PCA and promax use no RNG.
+  # psych::fa() tries 20 starts for an oblimin rotation (n.rotations: the
+  # identity plus 19 random), so the minres + oblimin values depend on the RNG
+  # state. A fixed seed per run makes the fixture bit-reproducible. PCA and
+  # promax results do not depend on the RNG (psych::fa() still draws random
+  # starts under promax, but kaiser() ignores them).
   set.seed(2023)
   fb <- suppressWarnings(suppressMessages(
     ExtendedBassAckwards(R, num.comp = K, fm = fm, rotate = rotate)
@@ -144,8 +147,9 @@ attr(runs, "provenance") <- list(
     "data-raw/oracle-forbes-sims.R)"
   ),
   recipe = paste0(
-    "Per simulation, fm in {pca, minres}, rotate in {oblimin, promax}: Forbes's ",
-    "set.seed(2023); ExtendedBassAckwards(R, num.comp = 4, fm, rotate) with her default ",
+    "Per simulation, fm in {pca, minres}, rotate in {oblimin, promax}: ",
+    "set.seed(2023) (this script's seed), then Forbes's ",
+    "ExtendedBassAckwards(R, num.comp = 4, fm, rotate) with her default ",
     "scores = 'tenBerge'; comp_corr, per-level D = diag(W'RW), loadings, Phi, ",
     "and FindRedundantComp(..., 'd4')$corr.chase on the raw and on the ",
     "D-standardized comp.corr recorded."

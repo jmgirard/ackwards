@@ -171,8 +171,9 @@ and the Pearson/Spearman bases do not use it.}
 \item{rotation}{The rotation used at every level with two or more factors.
 The default, \code{"varimax"}, keeps the factors within a level uncorrelated.
 The other values are oblique rotations, which let them correlate. With
-\code{engine = "pca"} or \code{"efa"}, they are \code{"oblimin"} and \code{"promax"}, and
-both need the GPArotation package. With \code{engine = "esem"}, they are
+\code{engine = "pca"} or \code{"efa"}, they are \code{"oblimin"} and \code{"promax"}.
+\code{"oblimin"} needs the GPArotation package, and so does \code{"promax"} with
+\code{engine = "efa"}. With \code{engine = "esem"}, they are
 \code{"oblimin"} and \code{"geomin"} (lavaan's oblique geomin).
 
 Under an oblique rotation, each edge \code{r} is a total correlation. Primary

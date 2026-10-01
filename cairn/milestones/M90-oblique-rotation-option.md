@@ -100,6 +100,11 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - 2026-09-30: T7 tests assert the advisory text and its absence on a varimax fit. They also assert the prune warning for each rule set, silence for `"none"` and manual-only calls, and silence on a varimax object. Full suite: 3086 expectations, 0 failures.
 - 2026-09-30: T8 done. `data-raw/forbes2023-oblique.R` downloads her md5-pinned `7jfkw` file and runs her oblique branch on the three simulation matrices. It covers PCA and minres EFA under oblimin and promax, 12 runs, seeded and bit-reproducible across two generations. `forbes2023_oblique.rds` carries a provenance attribute. The new test block in `test-forbes-fidelity.R` passes (513 expectations in the two files). Planting Φ-blind weights failed it 56 times.
 - 2026-09-30: T8 records. ORACLES gains O16 (frozen), O17 and O18 (live), and O19 (invariant). `references/forbes2023.md` records how her code behaves under oblique and EFA, and `references/source-departures.md` row M2 notes the unbroken-chase edge case. A gated candidate row takes that case to the Forbes session.
+- 2026-09-30: T9 docs committed: `?ackwards` (defaults bullet, `rotation`, `seed`), `?tidy.ackwards`, the engines vignette's "Orthogonal or oblique rotation" section with the RR02 Q7 option-form passage, NEWS, DESIGN §4, §9, §12 and Known limitations, and the CLAUDE.md out-of-scope line. `precompute.R` and the freshness check pass. Timing-only churn in four other vignettes was reverted.
+- 2026-09-30: first DoD gate run: check 0/0/0, style, lint, prose, and pkgdown clean, but coverage 99.98%. The uncovered line was the unreachable `else NULL` in the ESEM `cor.lv` read, now a `stopifnot()` that the existing handler catches.
+- claim audit: 107 claims read, 11 corrected — NEWS.md, R/engine_pca.R, R/utils.R, data-raw/forbes2023-oblique.R, tests/testthat/test-forbes-fidelity.R, tests/testthat/test-rotation.R, vignettes/ackwards-engines.Rmd.orig
+- 2026-09-30: the audit also found two stale comments outside the added lines (`R/engine_pca.R` sort order, `R/boot_edges.R` replicate determinism), both fixed. A seeded `boot_edges()` on an oblique EFA object was checked to repeat exactly.
+- 2026-09-30: correction of the gate-time premise. psych's PCA promax runs through `stats::promax()` and never loads GPArotation, and only EFA promax goes through `kaiser()`. Following the owner's "oblimin only" choice with those facts, the guard covers oblimin on PCA and EFA and promax on EFA, recorded as D-037.
 
 ## Decisions
 
@@ -109,5 +114,6 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - 2026-09-30 (T8): AC7's standardization is real here. Her level-1 EFA weights give D = diag(W'RW) 0.12 to 0.14 below 1, and every other level gives D = I to rounding. The test compares our edges with her D-standardized `comp.corr`, using the D the fixture stores.
 - 2026-09-30 (T8): The minres + oblimin runs use an absolute 1e-4, and every other run uses 1e-10. psych's `fa()` draws 20 random rotation starts, and her function fits each level twice, so those runs differ by up to 1.0e-5. A method error moves edges by 1e-2 or more.
 - 2026-09-30 (T8): The chase check runs her own chase on the D-standardized `comp.corr` and compares it with our direct chase. For a level-3+ component whose chase is unbroken to level a, her code returns "null" through a `which.min()` quirk. The test expects a1 there and asserts her "null".
+- 2026-09-30 (supersedes the GPArotation entry above): the guard covers `oblimin` on PCA and EFA and `promax` on EFA only, per D-037. The earlier entry generalized psych's EFA promax path to both engines, but psych's PCA promax uses `stats::promax()`.
 
 ## Review

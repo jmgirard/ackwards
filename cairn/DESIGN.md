@@ -540,7 +540,7 @@ footprint sane and lets users plot the layout however they like.
 | Suggests — ESEM | `lavaan (>= 0.6-13)` | ESEM engine |
 | Suggests — suggest_k | `EFAtools` (optional) | `EFAtools::CD()` for Comparison Data (skipped gracefully when absent); no `EGAnet`/`paran` dep |
 | ~~Suggests — matching~~ | ~~`clue`~~ | ~~Hungarian assignment~~ — removed M5; greedy argmax (§7) requires no dep |
-| Suggests — rotations | `GPArotation` | psych's oblique `oblimin` and `promax` for the PCA and EFA engines, guarded by `rlang::check_installed()` (D-035, returned M90). It was removed in M21, when varimax through `stats::varimax` was the only path. The default path never loads it. |
+| Suggests — rotations | `GPArotation` | psych's `oblimin` (PCA and EFA) and psych's EFA `promax` (through `psych::kaiser()`), guarded by `rlang::check_installed()` on exactly those paths (D-035, D-037, returned M90). PCA `promax` runs through `stats::promax()` and does not need it. It was removed in M21, when varimax through `stats::varimax` was the only path. The default path never loads it. |
 | Suggests — viz | `ggplot2`, `gt` | diagrams (uses `ggplot2` directly, not `ggraph`/`igraph`/`tidygraph`); `gt` for wide comparison tables in vignettes (M24) |
 | Suggests — ESEM parallelism | `future.apply`, `future` (optional) | parallel backend for ESEM per-level fits (M26); gated by `rlang::is_installed()` with a serial `lapply` fallback; users opt in via `future::plan()` (`future` declared because the parallel test calls `plan()` directly) |
 | Suggests — infra | `testthat (>= 3.0.0)`, `knitr`, `rmarkdown`, `covr` | testing, vignettes, coverage |

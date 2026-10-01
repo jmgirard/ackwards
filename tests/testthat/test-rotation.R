@@ -2,7 +2,8 @@
 # pass-through to boot_edges() refits.
 
 # Stated here, independently of R/utils.R's .supported_rotations, so the test
-# fails if the package table drifts from the documented option set.
+# fails if the package table drops one of these four rotations or moves one to
+# another engine.
 rotation_support <- list(
   pca  = c("varimax", "oblimin", "promax"),
   efa  = c("varimax", "oblimin", "promax"),
@@ -56,9 +57,11 @@ test_that("an unknown rotation name fails as an arg_match error", {
   expect_match(conditionMessage(err), "must be a string", fixed = TRUE)
 })
 
-test_that("a psych oblique rotation checks for GPArotation before fitting", {
+test_that("a psych rotation that loads GPArotation checks for it before fitting", {
   # Record each rlang::check_installed() call: the guard is the routing under
-  # test, and the install prompt itself is rlang's behavior.
+  # test, and the install prompt itself is rlang's behavior. psych loads
+  # GPArotation for oblimin on both engines and for promax on EFA only
+  # (psych::pca() uses stats::promax()).
   asked <- character()
   local_mocked_bindings(
     check_installed = function(pkg, ...) {
@@ -67,15 +70,15 @@ test_that("a psych oblique rotation checks for GPArotation before fitting", {
     },
     .package = "rlang"
   )
-  for (engine in c("pca", "efa")) {
-    for (rotation in c("oblimin", "promax")) {
-      expect_identical(.check_rotation(rotation, engine), rotation)
-    }
+  pairs <- list(c("oblimin", "pca"), c("oblimin", "efa"), c("promax", "efa"))
+  for (pr in pairs) {
+    expect_identical(.check_rotation(pr[[1]], pr[[2]]), pr[[1]])
   }
-  expect_identical(asked, rep("GPArotation", 4L))
+  expect_identical(asked, rep("GPArotation", 3L))
 
-  # Control: varimax and every ESEM rotation never ask for GPArotation.
+  # Control: PCA promax, varimax, and every ESEM rotation never ask for it.
   asked <- character()
+  expect_identical(.check_rotation("promax", "pca"), "promax")
   expect_identical(.check_rotation("varimax", "pca"), "varimax")
   expect_identical(.check_rotation("varimax", "efa"), "varimax")
   expect_identical(.check_rotation("geomin", "esem"), "geomin")

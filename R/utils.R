@@ -303,9 +303,10 @@ make_labels <- function(k) {
 }
 
 # Rotations each engine supports. Varimax is the default for every engine
-# (D-034). psych rotates the PCA and EFA levels, where oblimin and promax both
-# load GPArotation (promax through psych::kaiser()); lavaan rotates the ESEM
-# levels natively, where geomin is its oblique geomin.
+# (D-034). psych rotates the PCA and EFA levels. oblimin loads GPArotation on
+# both; promax loads it only on the EFA path (psych::fa() routes it through
+# psych::kaiser()), while psych::pca() uses stats::promax(). lavaan rotates
+# the ESEM levels natively, where geomin is its oblique geomin.
 .supported_rotations <- list(
   pca  = c("varimax", "oblimin", "promax"),
   efa  = c("varimax", "oblimin", "promax"),
@@ -321,8 +322,10 @@ make_labels <- function(k) {
 
 # Validate `rotation` against the engine and return it. An unknown name fails
 # as an arg_match error; a known name the engine lacks fails naming both. A
-# psych oblique rotation checks for GPArotation here, before any fitting, so
-# the user gets rlang's install prompt instead of psych's stop() mid-fit.
+# psych rotation that loads GPArotation checks for it here, before any
+# fitting, so the user gets rlang's install prompt. Without GPArotation,
+# psych's oblimin only warns and returns unrotated loadings (a warning
+# efa_levels() muffles), and psych::fa()'s promax stops inside kaiser().
 .check_rotation <- function(rotation, engine) {
   all_rotations <- unique(unlist(.supported_rotations, use.names = FALSE))
   rotation <- rlang::arg_match0(rotation, all_rotations, arg_nm = "rotation")
@@ -334,10 +337,12 @@ make_labels <- function(k) {
       "i" = "Rotations for {.code engine = \"{engine}\"}: {.val {supported}}."
     ))
   }
-  if (engine %in% c("pca", "efa") && rotation != "varimax") {
+  loads_gpa <- (rotation == "oblimin" && engine %in% c("pca", "efa")) ||
+    (rotation == "promax" && engine == "efa")
+  if (loads_gpa) {
     rlang::check_installed(
       "GPArotation",
-      reason = "for oblique rotation with the PCA and EFA engines."
+      reason = paste0("for `rotation = \"", rotation, "\"` with `engine = \"", engine, "\"`.")
     )
   }
   rotation

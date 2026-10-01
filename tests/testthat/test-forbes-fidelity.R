@@ -295,11 +295,12 @@ test_that("oblique output reproduces Forbes's oblique branch on her simulations"
   sims <- .forbes_fixture()
   expect_length(runs, 12L)
 
-  # psych::fa() fits an oblimin (GPArotation) rotation from 20 random starts
-  # (its n.rotations default), so two unseeded fits agree only to the
-  # rotation's convergence tolerance, and her function fits each level twice.
-  # Measured 2026-09-30: up to 1.0e-5 on the minres + oblimin edges, and at
-  # most 2e-15 on every other run (PCA and promax are deterministic). Those
+  # psych::fa() fits an oblimin (GPArotation) rotation from 20 starts, the
+  # identity plus 19 random (its n.rotations default), so two unseeded fits
+  # agree only to the rotation's convergence tolerance, and her function fits
+  # each level twice. Measured 2026-09-30: up to 1.0e-5 on the minres +
+  # oblimin edges, and at most 2e-15 on every other run (PCA and promax
+  # results do not depend on the RNG). Those
   # runs get an absolute 1e-4; a method error moves edges by 1e-2 or more.
   # Our fits are seeded so the test's outcome repeats.
   for (nm in names(runs)) {

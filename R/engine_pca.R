@@ -30,12 +30,16 @@ pca_levels <- function(R, k_max, cor = "pearson", keep_fits = FALSE,
       L_rot <- unclass(fit$loadings)
     }
 
-    # Component weights. Under an oblique rotation psych returns
-    # R^{-1} L Phi (its oblique.scores default), the exact components, whose
-    # correlation is Phi; under varimax that is R^{-1} L.
+    # Component weights. Under an oblique rotation psych returns R^{-1} L Phi
+    # (fa.stats() multiplies the pattern by Phi; oblique.scores matters only
+    # for raw-data input), the exact components, whose correlation is Phi;
+    # under varimax that is R^{-1} L.
     W <- unclass(fit$weights)
 
-    # psych::pca() already sorts by descending variance explained.
+    # psych::pca() already sorts the columns, by colSums(L^2). Under varimax
+    # that is the variance order. Under an oblique rotation the stored
+    # variance is diag(Phi L'L) / p, which can fall out of descending order;
+    # psych's order is kept so columns match psych and Forbes's output.
     # Label columns with our stable m{k}f{j} scheme.
     colnames(L_rot) <- make_labels(k)
     rownames(L_rot) <- rownames(R)

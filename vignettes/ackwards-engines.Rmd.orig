@@ -21,8 +21,10 @@ has_gpa <- requireNamespace("GPArotation", quietly = TRUE)
 
 **ackwards** supports three factor extraction engines. A factor is an
 unobserved dimension that explains why a set of items correlate. The engines
-share the same downstream machinery: the same default rotation, the same
-tenBerge scoring weights, and the same between-level correlation algebra. A rotation
+share the same downstream machinery: the same default rotation,
+correlation-preserving scoring weights, and the same between-level correlation
+algebra. The weights are ten Berge weights for EFA and ESEM and the exact
+components for PCA. A rotation
 re-orients the factors within a level without changing how well they fit. The
 engines differ in their statistical model and in what they report. This
 vignette explains when each one is appropriate and what the differences look

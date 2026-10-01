@@ -204,7 +204,8 @@
       if (!is.null(rownames(Phi)) && all(factors_lav %in% rownames(Phi))) {
         Phi <- Phi[factors_lav, factors_lav, drop = FALSE]
       }
-      if (is.matrix(Phi) && nrow(Phi) == k) unname(Phi) else NULL
+      stopifnot(is.matrix(Phi), nrow(Phi) == k) # else the handler's NULL
+      unname(Phi)
     },
     error = function(e) NULL
   )
