@@ -7,11 +7,14 @@
 #' E(a,b) = D_a^{-1/2} (W_a' R W_b) D_b^{-1/2}
 #' ```
 #'
-#' where `R` is the correlation matrix the fit uses and
+#' where `R` is the correlation matrix passed in and
 #' `D_x = diag(W_x' R W_x)` are the **actual** score variances (not assumed to
 #' be 1). The algebra needs no scores. It is exact for that `R` under the
-#' linear scoring of every engine: the components for PCA, and ten Berge
-#' weights (regression weights as the fallback) for EFA and ESEM.
+#' linear scoring of every engine: component score weights for PCA, and ten
+#' Berge weights (regression weights as the fallback) for EFA and ESEM. For
+#' the edges a fit reports, `R` is the correlation matrix the fit uses, so
+#' those edges are exact for the fit's `R`. The split-half comparability check
+#' passes a pooled `R` instead.
 #'
 #' A pair goes to the scores branch when `edge_method = "scores"`, or when
 #' `edge_method = "auto"` and either level's `scoring$linear` is not `TRUE` or

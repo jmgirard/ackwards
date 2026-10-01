@@ -231,7 +231,8 @@ For any scoring scheme where scores are a **linear** map of the standardized obs
 
 ```
 cor(S_a, S_b) = D_a^{-1/2} (W_a' R W_b) D_b^{-1/2}
-           where  R   = the correlation matrix the fit uses (pearson, spearman, or polychoric)
+           where  R   = the correlation matrix the fit uses (pearson, spearman, or polychoric,
+                        and user-supplied, pairwise, or FIML-estimated)
                   D_x = diag(W_x' R W_x)   # score variances; NOT assumed 1
 ```
 
@@ -291,7 +292,7 @@ compute_edges(levels, R,
       sa <- sqrt(diag(crossprod(Wa, R %*% Wa)))           # score SDs
       sb <- sqrt(diag(crossprod(Wb, R %*% Wb)))
       E  <- sweep(sweep(C, 1, sa, "/"), 2, sb, "/")       # standardize
-    } else {                                              # agreement tests only (IP2)
+    } else {                                              # tests only (IP2)
       if (is.null(data)) cli_abort("scores path requires data")
       Z  <- standardize(data)
       E  <- cor(Z %*% Wa, Z %*% Wb, use = use)
@@ -301,7 +302,8 @@ compute_edges(levels, R,
   # return: list(matrices = (k_a x k_b) matrices keyed "a:b",
   #              tidy = edge data frame (from, to, level_from, level_to, r, is_primary = NA,
   #                     above_cut), or NULL when build_tidy = FALSE)
-  # Sign alignment and is_primary are filled later by ackwards() (§7), not here.
+  # No sign alignment here. ackwards() aligns signs by flipping the weights and
+  # calling compute_edges() again (§7), then fills is_primary with fill_primary().
 }
 ```
 

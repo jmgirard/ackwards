@@ -10,8 +10,9 @@
   materialized scores, because no exported function computes them that way.
   It credits Waller (2007) with the result for principal components only.
   The engines article states that result in Waller's own terms, through the
-  transformation matrices that rotate each level's components. No code or
-  result changed.
+  transformation matrices that rotate each level's components. This extends
+  the next entry, which made the first of these edits in the introduction
+  and engines articles. No code or result changed.
 
 * **Edge wording in the introduction and engines articles.** The two articles
   called the between-level edges exact without saying exact for what. They

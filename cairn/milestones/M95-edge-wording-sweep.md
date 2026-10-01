@@ -84,6 +84,8 @@ perl -00 -ne 'print "$ARGV\n$_\n" if /score[\s#'"'"']+correlation|correlations?[
 - 2026-10-01: review return 1 (defect, step 3): AC4 fails as written. Two prose mentions of the algebra in `vignettes/ackwards-engines.Rmd.orig` do not write `W′RW`: line 25-26 ("the same between-level correlation algebra") and line 521 ("the usual between-level algebra"). AC1, AC2, AC3, AC5, and AC6 passed with evidence in Review. AC7, the consistency gate, and the independent review did not run, because the fix regenerates the engines vignette. Status set to in-progress.
 - 2026-10-01: minor amendment: added T8 for the AC4 return fix, and mapped AC4 and AC7 to it in Coverage. The fix holds the criteria as written, so no criterion changed.
 - 2026-10-01: T8 done. The engines opening paragraph and FIML bullet now say "`W′RW` between-level" algebra. Re-ran precompute.R. Reverted the four unedited vignettes, three PNGs, and the two engines gt table ids (run noise). The engines `.Rmd` differs from the last commit only in those two lines and the stamp. Freshness check and check-prose pass. `tools/dod-gate.R` with `DOD_CODE_UNCHANGED=1` passed: check 0/0/0, coverage 100%, style, lint, and pkgdown clean. The claim audit was not re-run: the two lines only name the formula that the same article already states. Status set to review.
+- 2026-10-01: re-review passed AC1-AC7 and the consistency gate at d9bf279. The three review lenses gave 18 findings. The gate fixed nine wording slips on the branch and re-ran the DoD gate green (Review).
+- step-7 approval: m095-edge-wording-sweep approved for merge
 
 ## Decisions
 
@@ -124,3 +126,5 @@ Independent review at d9bf279: three fresh-context lenses. The diff-bug lens (Op
 - R16 (prior 5): the engines PCA paragraph dropped "exactly" from "do not in general reproduce the edges". Proposed: reject. The hedge "in general" stays.
 - R17 (blame 6): §5.2 no longer documents a descriptor for a non-linear engine. Proposed: reject. AC6 asked for the removal, and a correction note marks it.
 - R18 (diff 12): DESCRIPTION line 19 is 95 characters. Proposed: reject. Check passes, and other lines already pass 80.
+- Gate triage (2026-10-01): the maintainer accepted every proposed disposition. Fixed now: R2, R3, R4, R5, R6, R7, R10, R11, R12. Follow-up: R1 and R9, as candidate rows in the hygiene pass. Rejected: R8 and R13-R18, for the reasons above.
+- Fix-now evidence: `document()` changed only the `compute_edges.Rd` details. `precompute.R` was re-run. The unedited vignettes, three PNGs, and the two engines gt table ids were reverted as run noise. The engines and ordinal `.Rmd` diffs equal their `.Rmd.orig` diffs, stamp aside, and the freshness check passes. The `compute_edges.Rd` page still says the reported edges are exact for the fit's `R` (AC5). `quarto render` exited 0 with the one ORCID warning. `DOD_CODE_UNCHANGED=1 Rscript tools/dod-gate.R` passed: check 0/0/0, coverage 100%, prose, style, lint, and pkgdown clean.
