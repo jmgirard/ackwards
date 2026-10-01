@@ -37,8 +37,9 @@ the factor structure of your data builds from broad to narrow.
 
 > *Note: This is a descriptive, data-driven hierarchy, not a
 > confirmatory hierarchical model like Schmid-Leiman or higher-order
-> SEM. The between-level correlations are score correlations (or their
-> algebraic equivalents), not model parameters.*
+> SEM. The between-level correlations are the score correlations implied
+> by the correlation matrix the fit uses (see [Between-level
+> edges](#between-level-edges)), not model parameters.*
 
 ## Data
 
@@ -198,17 +199,17 @@ that you have accounted for the ordinal measurement scale.
 > which pushes each item toward one factor and keeps the factors
 > uncorrelated. This is not merely a cosmetic default. The reason is not
 > numerical: the `W′RW` between-level correlation identity is exact for
-> **any** fixed linear scoring, oblique included. The reason is
-> interpretive. Varimax leaves the factors **within** a level
-> uncorrelated (Φ = I), so each between-level edge equals that
-> ancestor’s unique contribution to the descendant. That is what lets
-> the edges be read as a lineage diagram. Under an oblique rotation the
-> within-level factors correlate (Φ ≠ I). An edge is then a total
-> correlation, which also carries overlap through correlated neighbors.
-> It still measures how strongly two factors correlate, but it is no
-> longer a lineage statement by itself. That is why varimax is the
-> default. An oblique rotation is available through the `rotation`
-> argument, and
+> the correlation matrix the fit uses under **any** fixed linear
+> scoring, oblique included. The reason is interpretive. Varimax leaves
+> the factors **within** a level uncorrelated (Φ = I), so each
+> between-level edge equals that ancestor’s unique contribution to the
+> descendant. That is what lets the edges be read as a lineage diagram.
+> Under an oblique rotation the within-level factors correlate (Φ ≠ I).
+> An edge is then a total correlation, which also carries overlap
+> through correlated neighbors. It still measures how strongly two
+> factors correlate, but it is no longer a lineage statement by itself.
+> That is why varimax is the default. An oblique rotation is available
+> through the `rotation` argument, and
 > [`vignette("ackwards-engines")`](https://jmgirard.github.io/ackwards/articles/ackwards-engines.md)
 > explains how to read its edges. Varimax is the orthogonal rotation
 > Goldberg (2006) used. It is also the same rotation as the “CF-VARIMAX”

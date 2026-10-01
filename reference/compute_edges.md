@@ -81,11 +81,20 @@ A list with:
 
     E(a,b) = D_a^{-1/2} (W_a' R W_b) D_b^{-1/2}
 
-where `R` is the input correlation matrix and `D_x = diag(W_x' R W_x)`
-are the **actual** score variances (not assumed to be 1). This avoids
-materialising scores while remaining exact for PCA and EFA (regression,
-Bartlett, or tenBerge). All of those produce linear score maps.
+where `R` is the correlation matrix passed in and
+`D_x = diag(W_x' R W_x)` are the **actual** score variances (not assumed
+to be 1). The algebra needs no scores. It is exact for that `R` under
+the linear scoring of every engine: component score weights for PCA, and
+ten Berge weights (regression weights as the fallback) for EFA and ESEM.
+For the edges a fit reports, `R` is the correlation matrix the fit uses,
+so those edges are exact for the fit's `R`. The split-half comparability
+check passes a pooled `R` instead.
 
-When the algebra cannot be used (nonlinear scoring, missing `R`, or the
-user forces `edge_method = "scores"`), scores are materialised from
-`data` instead.
+A pair goes to the scores branch when `edge_method = "scores"`, or when
+`edge_method = "auto"` and either level's `scoring$linear` is not `TRUE`
+or `R` is `NULL`. That branch correlates scores computed from `data`,
+and it errors when `data` is `NULL`. Under `edge_method = "algebra"` the
+same conditions raise an error instead. No shipped caller reaches the
+scores branch. Each one passes `"auto"` or `"algebra"` with an `R`, and
+every engine's scoring is linear. Only tests use it: the
+algebra-vs-scores agreement tests and one error-path test.

@@ -452,9 +452,10 @@ above a threshold), not only a high score correlation. The
 *auto-resolves based on the engine*:
 
 - **PCA**: no φ filter. Component scores are **determinate**. Unlike
-  factor scores they are exact linear functions of the observed data, so
+  factor scores they are exact linear functions of the observed data. So
   the score correlation `|r|` *is* the correlation between the
-  components themselves and suffices as the redundancy signal.
+  components themselves, under the correlation matrix the fit uses, and
+  it suffices as the redundancy signal.
 - **EFA / ESEM**: φ is required to exceed `0.95` (Lorenzo-Seva & ten
   Berge, 2006). Factor scores are **indeterminate**: any factor admits
   infinitely many score series consistent with the model. That makes an

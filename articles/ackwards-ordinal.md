@@ -271,7 +271,8 @@ item-specific noise.
 > when `cor != "pearson"`. The warning does not mean the scores are
 > biased or unusable. The between-level edges from
 > `tidy(what = "edges")` are unaffected either way, because they come
-> from the exact algebra, not from materialized scores.
+> from the `W′RW` algebra on the polychoric `R`, not from materialized
+> scores. The edges are exact for that `R`.
 
 ## References
 

@@ -104,7 +104,8 @@ the item's regression weight on the factor.</p>
 <dd><p>What to extract:</p><ul><li><p><code>"edges"</code> <em>(default)</em>: one row per directed between-level edge, with
 columns <code>from</code>, <code>to</code>, <code>level_from</code>, <code>level_to</code>, <code>r</code>, <code>beta</code>,
 <code>is_primary</code>, <code>above_cut</code>. The column <code>r</code> is the correlation between
-the two factors' scores, a total correlation. Under an oblique
+the two factors' scores implied by the fit's correlation matrix, a
+total correlation. Under an oblique
 rotation it includes overlap through correlated factors at the <code>from</code>
 level, and <code>is_primary</code> still marks each factor's largest <code>|r|</code>. The
 column <code>beta</code> is the partialled coefficient. It is the standardized regression weight of the <code>to</code>

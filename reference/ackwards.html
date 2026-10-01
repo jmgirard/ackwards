@@ -3,13 +3,17 @@
 (or component) is a summary variable that stands in for a group of items
 that move together. It then characterises the hierarchy by computing the
 correlations between the factor scores of different levels. A factor score
-is each person's estimated standing on a factor. The &quot;hierarchy&quot; is
-descriptive: edges are score correlations, not a fitted higher-order SEM."><meta property="og:description" content="Extracts factor or component solutions at levels 1 through k. A factor
+is each person's estimated standing on a factor. Each edge is computed from
+the scoring weights and the correlation matrix the fit uses, and it is exact
+for that matrix. The &quot;hierarchy&quot; is descriptive: edges are score
+correlations, not a fitted higher-order SEM."><meta property="og:description" content="Extracts factor or component solutions at levels 1 through k. A factor
 (or component) is a summary variable that stands in for a group of items
 that move together. It then characterises the hierarchy by computing the
 correlations between the factor scores of different levels. A factor score
-is each person's estimated standing on a factor. The &quot;hierarchy&quot; is
-descriptive: edges are score correlations, not a fitted higher-order SEM."><meta property="og:image" content="https://jmgirard.github.io/ackwards/logo.png"></head><body>
+is each person's estimated standing on a factor. Each edge is computed from
+the scoring weights and the correlation matrix the fit uses, and it is exact
+for that matrix. The &quot;hierarchy&quot; is descriptive: edges are score
+correlations, not a fitted higher-order SEM."><meta property="og:image" content="https://jmgirard.github.io/ackwards/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -71,8 +75,10 @@ descriptive: edges are score correlations, not a fitted higher-order SEM."><meta
 (or component) is a summary variable that stands in for a group of items
 that move together. It then characterises the hierarchy by computing the
 correlations between the factor scores of different levels. A factor score
-is each person's estimated standing on a factor. The "hierarchy" is
-descriptive: edges are score correlations, not a fitted higher-order SEM.</p>
+is each person's estimated standing on a factor. Each edge is computed from
+the scoring weights and the correlation matrix the fit uses, and it is exact
+for that matrix. The "hierarchy" is descriptive: edges are score
+correlations, not a fitted higher-order SEM.</p>
     </div>
 
     <div class="section level2">
@@ -324,16 +330,18 @@ output methods.</p>
 
 <ul><li><p><strong><code>engine = "pca"</code></strong> is the original Goldberg (2006) method. PCA
 (principal component analysis) is the fastest engine and never fails to
-converge, and the Waller (2007) algebra is exact for components. (An
-oblique <code>rotation</code> can still fail, see <code>rotation</code>.)</p></li>
+converge. Waller (2007) showed that the correlations between the
+component scores of different levels follow from the correlation matrix
+alone. (An oblique <code>rotation</code> can still fail, see <code>rotation</code>.)</p></li>
 <li><p><strong><code>rotation = "varimax"</code></strong> keeps the within-level factors mutually
 uncorrelated (orthogonal). A rotation re-orients the factors without
 changing how well they fit, and varimax pushes each item toward one
 factor. With uncorrelated factors, each between-level edge equals that
 ancestor's unique contribution to the descendant. That is what lets the
 edges be read as a lineage diagram. The closed-form
-<code>W'RW</code> edge algebra is itself exact for any fixed linear scoring, orthogonal
-or not, so the choice is interpretive, not a numerical necessity. It
+<code>W'RW</code> edge algebra is itself exact for the correlation matrix the fit
+uses under any fixed linear scoring, orthogonal or not. So the choice is
+interpretive, not a numerical necessity. It
 matches Goldberg (2006), Kim &amp; Eaton (2015), and Forbush et al. (2024).
 An oblique rotation is available as a non-default option (see
 <code>rotation</code>). Its edges are total correlations, which also carry overlap

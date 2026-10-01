@@ -178,8 +178,9 @@ redundancy chains. Default <code>0.9</code> (Forbes, 2023).</p></dd>
 analysis, and a component is a weighted sum of the items. Component
 scores are <em>determinate</em>, that is, exact linear functions of the data,
 with no factor-score indeterminacy. So the score correlation <code>|r|</code> is
-the true correlation between the components themselves, and phi adds
-nothing that <code>|r|</code> does not already capture.</p></li>
+the correlation between the components themselves under the
+correlation matrix the fit uses, and phi adds nothing that <code>|r|</code> does
+not already capture.</p></li>
 <li><p><code>x$engine</code> is <code>"efa"</code> or <code>"esem"</code>: automatically set to <code>0.95</code>
 (Lorenzo-Seva &amp; ten Berge, 2006). EFA is exploratory factor analysis
 and ESEM is exploratory structural equation modeling. Factor-score

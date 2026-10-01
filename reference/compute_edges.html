@@ -137,12 +137,22 @@ tidy tibble.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">E</span>(a,b) <span class="ot">=</span> D_a<span class="sc">^</span>{<span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>} (W_a<span class="st">' R W_b) D_b^{-1/2}</span></span></code></pre><p></p></div>
-<p>where <code>R</code> is the input correlation matrix and <code>D_x = diag(W_x' R W_x)</code> are
-the <strong>actual</strong> score variances (not assumed to be 1). This avoids
-materialising scores while remaining exact for PCA and EFA (regression,
-Bartlett, or tenBerge). All of those produce linear score maps.</p>
-<p>When the algebra cannot be used (nonlinear scoring, missing <code>R</code>, or the user
-forces <code>edge_method = "scores"</code>), scores are materialised from <code>data</code> instead.</p>
+<p>where <code>R</code> is the correlation matrix passed in and
+<code>D_x = diag(W_x' R W_x)</code> are the <strong>actual</strong> score variances (not assumed to
+be 1). The algebra needs no scores. It is exact for that <code>R</code> under the
+linear scoring of every engine: component score weights for PCA, and ten
+Berge weights (regression weights as the fallback) for EFA and ESEM. For
+the edges a fit reports, <code>R</code> is the correlation matrix the fit uses, so
+those edges are exact for the fit's <code>R</code>. The split-half comparability check
+passes a pooled <code>R</code> instead.</p>
+<p>A pair goes to the scores branch when <code>edge_method = "scores"</code>, or when
+<code>edge_method = "auto"</code> and either level's <code>scoring$linear</code> is not <code>TRUE</code> or
+<code>R</code> is <code>NULL</code>. That branch correlates scores computed from <code>data</code>, and it
+errors when <code>data</code> is <code>NULL</code>. Under <code>edge_method = "algebra"</code> the same
+conditions raise an error instead. No shipped caller reaches the scores
+branch. Each one passes <code>"auto"</code> or <code>"algebra"</code> with an <code>R</code>, and every
+engine's scoring is linear. Only tests use it: the algebra-vs-scores
+agreement tests and one error-path test.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

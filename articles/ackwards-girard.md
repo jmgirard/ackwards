@@ -453,9 +453,10 @@ depth in
 - **Name factors within levels, and borrow names down the lineage**
   rather than treating each level as a fresh exploratory result.
 - **Say what the hierarchy is.** A bass-ackwards result is a series of
-  linked solutions whose edges are score correlations. It is
-  descriptive, not a fitted hierarchical model (no Schmid-Leiman, no
-  higher-order SEM), and it should be reported as such.
+  linked solutions whose edges are the score correlations implied by the
+  correlation matrix the fit uses. It is descriptive, not a fitted
+  hierarchical model (no Schmid-Leiman, no higher-order SEM), and it
+  should be reported as such.
 
 ## Step 6: Validate downstream, out of sample
 

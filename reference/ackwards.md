@@ -4,9 +4,10 @@ Extracts factor or component solutions at levels 1 through `k`. A factor
 (or component) is a summary variable that stands in for a group of items
 that move together. It then characterises the hierarchy by computing the
 correlations between the factor scores of different levels. A factor
-score is each person's estimated standing on a factor. The "hierarchy"
-is descriptive: edges are score correlations, not a fitted higher-order
-SEM.
+score is each person's estimated standing on a factor. Each edge is
+computed from the scoring weights and the correlation matrix the fit
+uses, and it is exact for that matrix. The "hierarchy" is descriptive:
+edges are score correlations, not a fitted higher-order SEM.
 
 ## Usage
 
@@ -290,8 +291,9 @@ for output methods.
 
 - **`engine = "pca"`** is the original Goldberg (2006) method. PCA
   (principal component analysis) is the fastest engine and never fails
-  to converge, and the Waller (2007) algebra is exact for components.
-  (An oblique `rotation` can still fail, see `rotation`.)
+  to converge. Waller (2007) showed that the correlations between the
+  component scores of different levels follow from the correlation
+  matrix alone. (An oblique `rotation` can still fail, see `rotation`.)
 
 - **`rotation = "varimax"`** keeps the within-level factors mutually
   uncorrelated (orthogonal). A rotation re-orients the factors without
@@ -299,12 +301,13 @@ for output methods.
   factor. With uncorrelated factors, each between-level edge equals that
   ancestor's unique contribution to the descendant. That is what lets
   the edges be read as a lineage diagram. The closed-form `W'RW` edge
-  algebra is itself exact for any fixed linear scoring, orthogonal or
-  not, so the choice is interpretive, not a numerical necessity. It
-  matches Goldberg (2006), Kim & Eaton (2015), and Forbush et al.
-  (2024). An oblique rotation is available as a non-default option (see
-  `rotation`). Its edges are total correlations, which also carry
-  overlap through correlated factors at the same level.
+  algebra is itself exact for the correlation matrix the fit uses under
+  any fixed linear scoring, orthogonal or not. So the choice is
+  interpretive, not a numerical necessity. It matches Goldberg (2006),
+  Kim & Eaton (2015), and Forbush et al. (2024). An oblique rotation is
+  available as a non-default option (see `rotation`). Its edges are
+  total correlations, which also carry overlap through correlated
+  factors at the same level.
 
 - **`cor = "pearson"`** means no silent basis switching. If your items
   look ordinal (\<= 7 distinct integer values), a cli warning will

@@ -3,13 +3,13 @@
 **ackwards** supports three factor extraction engines. A factor is an
 unobserved dimension that explains why a set of items correlate. The
 engines share the same downstream machinery: the same default rotation,
-correlation-preserving scoring weights, and the same between-level
-correlation algebra. The weights are ten Berge weights for EFA and ESEM
-and the exact components for PCA. A rotation re-orients the factors
-within a level without changing how well they fit. The engines differ in
-their statistical model and in what they report. This vignette explains
-when each one is appropriate and what the differences look like in
-practice.
+correlation-preserving scoring weights, and the same `W′RW`
+between-level correlation algebra. The weights are ten Berge weights for
+EFA and ESEM and component score weights for PCA. A rotation re-orients
+the factors within a level without changing how well they fit. The
+engines differ in their statistical model and in what they report. This
+vignette explains when each one is appropriate and what the differences
+look like in practice.
 
 ## The three engines at a glance
 
@@ -67,11 +67,13 @@ variable model. It is a data reduction method.
 
 In the bass-ackwards context, PCA is the natural default. It is fast,
 always converges, and produces eigenvalues that can guide the choice of
-k. Waller (2007) showed that the between-level algebra (`W'RW`) holds
-exactly for components. The edges are exact for the correlation matrix
-the fit uses, with no scores materialized. That matrix is polychoric
-here, so scores computed from the observed items do not in general
-reproduce the edges exactly. The same is true when the matrix is
+k. Waller (2007) showed that, for components, the correlations between
+the scores of two levels follow from the transformation matrices that
+rotate each level’s components, with no scores computed. The `W′RW`
+algebra gives the same correlations from the component weights. The
+edges are exact for the correlation matrix the fit uses. That matrix is
+polychoric here, so scores computed from the observed items do not in
+general reproduce the edges. The same is true when the matrix is
 Spearman, or when it is estimated from incomplete data by pairwise
 deletion or by FIML. Pairwise deletion computes each correlation from
 only the rows where both items are observed.
@@ -306,7 +308,8 @@ but `NA`, because those engines carry no loading SEs.
 Bass-ackwards produces a **series of independent factor solutions**, not
 a fitted hierarchical model. The between-level edges are descriptive
 correlations between factor scores, each person’s estimated position on
-a factor. They have no sampling distribution of their own. Per-level fit
+a factor. Each edge is implied by the correlation matrix the fit uses.
+The edges have no sampling distribution of their own. Per-level fit
 indices therefore describe something narrower: **does a k-factor model
 adequately reproduce the items at this level?**
 
@@ -478,13 +481,13 @@ investigate why.
 
 ## Orthogonal or oblique rotation
 
-The edges are correlations between factor scores at different levels,
-and the rotation you choose decides what a single edge means. Under
-varimax, the factors within each level are uncorrelated. So an edge from
-an ancestor to a descendant carries only their direct relationship. The
-correlation is the ancestor’s unique contribution, which is what lets
-the edges be drawn as a lineage diagram and summed, squared, into
-variance accounted for.
+The edges are correlations between factor scores at different levels, as
+implied by the correlation matrix the fit uses. The rotation you choose
+decides what a single edge means. Under varimax, the factors within each
+level are uncorrelated. So an edge from an ancestor to a descendant
+carries only their direct relationship. The correlation is the
+ancestor’s unique contribution, which is what lets the edges be drawn as
+a lineage diagram and summed, squared, into variance accounted for.
 
 Under an oblique rotation, each level’s factors are allowed to
 correlate. That is often a more realistic model for one level taken on
@@ -565,8 +568,8 @@ In brief:
   correlation matrix is estimated by
   [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html)
   (full-information ML under multivariate normality, MAR-valid) and fed
-  to the usual between-level algebra. The route announces itself with a
-  message. `missing = "fiml"` errors for WLSMV/ULSMV
+  to the usual `W′RW` between-level algebra. The route announces itself
+  with a message. `missing = "fiml"` errors for WLSMV/ULSMV
   (limited-information estimators have no FIML extension) and for a
   non-Pearson PCA/EFA basis (`corFiml()` estimates a multivariate-normal
   matrix). FIML improves estimation but does not impute items, so
@@ -620,7 +623,7 @@ x_fiml
 
 Under the hood this estimates the correlation matrix with
 [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html) and
-runs the normal `W'RW` algebra on it. So the loadings and edges are
+runs the normal `W′RW` algebra on it. So the loadings and edges are
 exactly what the manual `ackwards(psych::corFiml(sim_na), …)`
 correlation-matrix call would give. That
 [seam](#correlation-matrix-input) remains available for non-standard

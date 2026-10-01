@@ -148,9 +148,12 @@ fits factor models at every level from 1 to `k_max`. It then computes
 the correlations between the factor scores of different levels, and
 those correlations define the hierarchy. By default it correlates
 neighbouring levels only. A factor score is each person’s estimated
-standing on a factor, computed from their item responses. The result is
-a set of linked solutions whose edges are score correlations, never a
-fitted hierarchical model.
+standing on a factor, computed from their item responses. Each
+correlation comes from the scoring weights and the correlation matrix
+the fit uses, and it is exact for that matrix. With a polychoric matrix,
+as here, scores computed from the items do not in general reproduce the
+edges exactly. The result is a set of linked solutions whose edges are
+score correlations, never a fitted hierarchical model.
 
 ``` r
 

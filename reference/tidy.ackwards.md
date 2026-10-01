@@ -36,23 +36,23 @@ tidy(
   - `"edges"` *(default)*: one row per directed between-level edge, with
     columns `from`, `to`, `level_from`, `level_to`, `r`, `beta`,
     `is_primary`, `above_cut`. The column `r` is the correlation between
-    the two factors' scores, a total correlation. Under an oblique
-    rotation it includes overlap through correlated factors at the
-    `from` level, and `is_primary` still marks each factor's largest
-    `|r|`. The column `beta` is the partialled coefficient. It is the
-    standardized regression weight of the `to` factor on all factors of
-    the `from` level together. It removes the part of `r` that the other
-    factors at the `from` level share. Under the default varimax
-    rotation the factors within a level are uncorrelated, so `beta`
-    equals `r`. The two come apart only when the factors within a level
-    are correlated. The column `beta` uses the within-level score
-    correlation of the `from` level. That correlation comes from the
-    stored score weights and the fit's correlation matrix, the same
-    matrix that `r` comes from. When that correlation cannot be
-    inverted, `beta` is `NA` for that level's edges and a warning names
-    the level. When that correlation is nearly singular (smallest
-    eigenvalue below `1e-2`), the factors at that level are close to
-    collinear and `beta` is unstable. The
+    the two factors' scores implied by the fit's correlation matrix, a
+    total correlation. Under an oblique rotation it includes overlap
+    through correlated factors at the `from` level, and `is_primary`
+    still marks each factor's largest `|r|`. The column `beta` is the
+    partialled coefficient. It is the standardized regression weight of
+    the `to` factor on all factors of the `from` level together. It
+    removes the part of `r` that the other factors at the `from` level
+    share. Under the default varimax rotation the factors within a level
+    are uncorrelated, so `beta` equals `r`. The two come apart only when
+    the factors within a level are correlated. The column `beta` uses
+    the within-level score correlation of the `from` level. That
+    correlation comes from the stored score weights and the fit's
+    correlation matrix, the same matrix that `r` comes from. When that
+    correlation cannot be inverted, `beta` is `NA` for that level's
+    edges and a warning names the level. When that correlation is nearly
+    singular (smallest eigenvalue below `1e-2`), the factors at that
+    level are close to collinear and `beta` is unstable. The
     [`tidy()`](https://generics.r-lib.org/reference/tidy.html) method
     still reports `beta` and raises a warning that names the level.
     Fitting with
