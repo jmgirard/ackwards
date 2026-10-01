@@ -1,6 +1,6 @@
 # M90: Oblique rotation as a documented non-default option
 
-- **Status:** review
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** M89
 - **Driving RR:** RR02
@@ -109,6 +109,7 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - 2026-09-30: claim-audit re-read by the same reader: 14 of 15 corrected claims true. The `boot_edges()` determinism comment covered only the future.apply branch, and an older comment beside it was made false by oblique refits. Both fixed after the gate, as comment and doc edits only, with prose, style, and lint re-run clean.
 - 2026-09-30: T9 done, all nine tasks checked. Status set to review.
 - 2026-09-30: review pass 1 checkpoint, partial: AC1 to AC13 evidence recorded except AC12 (vignette rebuild running). AC5 and AC13 fail as written. Reviewer findings pending.
+- 2026-09-30: review pass 1 returned the milestone to in-progress (defect return 1). AC5 failed: no test snapshots the `autoplot()` edge labels on an oblique fit. AC13 failed: oblique branches sit under `# nocov` at `R/engine_esem.R:212-221`, `R/engine_efa.R:100-115`, and `R/engine_esem.R:250-263`. The 24 reviewer findings F1 to F24 are in Review with proposed dispositions.
 
 ## Decisions
 
@@ -141,4 +142,33 @@ Pass 1, 2026-09-30, on branch head e3abce2. The branch already contained origin/
 Driving RR: RR02's binding criteria carry no numeric projections, so there is no projection to set beside an outcome.
 
 Consistency gate: `cairn_validate.py` passed (exit 0). Its 17 advisories are the known 13-criteria sizing tripwire, accepted at plan time, and 16 M84 work-log lines. `cairn_impact.py --changed` found no changed principle. Toolchain slot: `devtools::document()` left no diff, README is untouched on the branch, and `pkgdown::check_pkgdown()` passed in the gate. NEWS.md has the entry. The only new top-level path is under the ignored `data-raw/`, and check() reported 0/0/0.
+
+Independent review, pass 1. Three fresh-context lenses ran: diff-bug (Opus), blame-history (Sonnet), and prior-review (Sonnet). The GitHub thread probe found no comments. Findings are merged across lenses, most severe first. Each has a proposed disposition for the maintainer to triage at the next review gate. Items marked "checked in code" were read against the code in this session.
+
+- F1 (diff-bug 1, history 2), checked in code: the EFA engine muffles GPArotation's `convergence not obtained in GPFoblq` warning, which the regex at `R/engine_efa.R:48` misses. It also muffles psych's warning that Promax replaced a failed rotation. Such a level is kept and stamped with the requested rotation. ESEM suppresses lavaan's rotation warning at `R/engine_esem.R:95`, and boot replicates do the same. Proposed: fix now.
+- F2 (diff-bug 4, history 1, prior-review 1), checked in code: `vignettes/ackwards-intro.Rmd.orig:148` says the package does not offer oblique rotations. `README.Rmd:46` and `manuscript/manuscript.qmd:164,415` say the same in weaker forms. Proposed: fix now for the vignette and README, follow-up for the manuscript.
+- F3 (diff-bug 3), checked in code: the oblique `variance` docs at `R/tidy.R:54-57` and `R/utils.R:114-116` are wrong. The per-factor values sum to tr(ΛΦΛ'), the total common variance, which equals the varimax total. The snapshots show the same cumulative values under both rotations. Proposed: fix now.
+- F4 (diff-bug 2), checked in code: `boot_edges()` refits oblique rotations with no GPArotation guard. Without the package, oblimin replicates come back unrotated with no message. Proposed: fix now.
+- F5 (diff-bug 4): four docs define a loading as an item-factor correlation (`R/tidy.R:14`, `R/interpret.R:4`, `R/autoplot.R:143`, `R/comparability.R:483`). Under oblique they are pattern coefficients. Proposed: fix now.
+- F6 (diff-bug 7, history 4, prior-review 7): `comparability()` stays varimax with no doc note. The Scope promised a candidate row for oblique `boot_edges()` and `comparability()` semantics, and none was filed. Proposed: fix now for the doc note, file the row.
+- F7 (diff-bug 5): the EFA `factor_cor` checks all reuse psych's own Φ, so they cannot see psych sorting Φ out of step with the loadings. A rotation-invariance oracle (ΛΦΛ' equal to the varimax ΛΛ') closes it. Proposed: fix now.
+- F8 (history 3, prior-review 4, diff-bug 15): `references/source-departures.md` row M2 now describes a departure but keeps the `match` tag. The ledger's rule says the row and its D-entry travel together. Proposed: fix now by tagging the row as a pending departure that points to the gated candidate row.
+- F9 (prior-review 2, history 9): the committed `vignettes/ackwards-engines.Rmd` carries random gt-id churn, about 216 of 293 changed lines. Proposed: fix now.
+- F10 (prior-review 5, history 8): the `[low]` near-singular Φ_s candidate row is now reachable under oblique. Proposed: follow-up, re-rate the row at hygiene.
+- F11 (prior-review 6): the ESEM Φ-carry test does not assert that `ord` differs from the identity on some level. Proposed: fix now.
+- F12 (diff-bug 8, history 5): the standing baseline test uses 1e-8 and 1e-5, looser than the 1e-12 reading. Proposed: reject, because those tolerances came from the 2026-09-23 master hotfix. This pass measured the 1e-12 reading directly.
+- F13 (diff-bug 9): two oblique tests can break on other platforms: the seeded ESEM sort precondition and the Forbes oblique fixture at 1e-10. Proposed: follow-up, decided by the CI matrix on the PR.
+- F14 (diff-bug 10, prior-review 7): the `prune()` warning names the default redundancy criterion even for an artifact-only call or a custom `redundancy_r`. `?prune` and `?boot_edges` do not mention the oblique behavior. Proposed: fix now.
+- F15 (diff-bug 11): the `boot_edges()` determinism docs are stale for EFA oblimin. Its docs also do not say that the refit uses the object's rotation or that only `r` is bootstrapped. Proposed: fix now.
+- F16 (diff-bug 12, history 10): the comment at `R/engine_esem.R:223` says the sort matches PCA, but PCA keeps psych's order under oblique. Proposed: fix now.
+- F17 (diff-bug 13): `.near_identity()` returns NA for a Φ with NaN, and `.variance_explained()` then aborts the fit instead of truncating the level. Proposed: fix now.
+- F18 (diff-bug 14): without lavaan factor names on `cor.lv`, the code keeps positional order with no error. Proposed: fix now.
+- F19 (diff-bug 15): D-036 says the fit-time advisory states the parent-misassignment cost, but the advisory does not. The ROADMAP oblique candidate row is stale. Proposed: fix now for the advisory. The row leaves at hygiene.
+- F20 (diff-bug 16): the `seed` docs say unseeded oblique EFA fits differ near the convergence tolerance. psych's 20 random starts can land on different optima. Proposed: fix now.
+- F21 (diff-bug 17, history 11): stale comments at `R/engine_pca.R:4` and in the rank-deficiency message at `R/engine_efa.R:221`. `.anchor_levels()` leaves replicate `factor_cor` unpermuted but never reads it. `.is_oblique()` treats any non-varimax name as oblique. Proposed: fix now for the two comments, reject the latent two.
+- F22 (history 6): `unname()` in the baseline test also drops ESEM's label check, and no test asserts dimnames on a default PCA or EFA `factor_cor`. Proposed: fix now.
+- F23 (history 7): roxygen 8.1.0 drops a backticked `%||%` import, and only R older than 4.4 then fails. Nothing guards this. Proposed: follow-up, a LESSONS line at hygiene.
+- F24 (history 11): D-016 still names the two-argument helper, and `LICENSE.note` does not list `forbes2023_oblique.rds`. Proposed: reject, because D-entries are append-only and `forbes2023_sims.rds` sets the unlisted precedent.
+
+Outcome of pass 1: AC5 and AC13 fail as written, so the milestone returns to in-progress. This is defect return 1, and no earlier return is on record.
 
