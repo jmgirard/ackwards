@@ -220,8 +220,11 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
   }
 
   # --- Upfront resample indices --------------------------------------------
-  # All randomness happens here: each replicate is then deterministic given
-  # its index vector, so serial and parallel dispatch agree exactly.
+  # The resampling randomness happens here. Each replicate is then
+  # deterministic given its index vector, except that an EFA oblimin refit
+  # also draws psych's random rotation starts; with future.apply, future.seed
+  # gives those the same streams under every plan, so serial and parallel
+  # dispatch still agree exactly.
   if (!is.null(seed)) set.seed(seed)
   idx_list <- lapply(seq_len(n_boot), function(b) {
     sample.int(n, n, replace = TRUE)
@@ -306,8 +309,10 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
 # future::plan(); sequential by default), serial lapply otherwise -- the M26
 # pattern. future.seed = TRUE silences future's RNG advisory. Given the
 # precomputed indices the replicates are deterministic, except that an EFA
-# oblimin object's refits draw psych's random rotation starts; those are
-# reproducible under `seed` through future.seed's per-task streams.
+# oblimin object's refits draw psych's random rotation starts. They are
+# reproducible under `seed`: through future.seed's per-task streams when
+# future.apply is installed, and through the global stream that `seed` sets
+# in the serial fallback.
 .boot_lapply <- function(X, FUN) {
   if (rlang::is_installed("future.apply")) {
     future.apply::future_lapply(X, FUN, future.seed = TRUE)

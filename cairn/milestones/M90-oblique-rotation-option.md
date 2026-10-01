@@ -1,6 +1,6 @@
 # M90: Oblique rotation as a documented non-default option
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** M89
 - **Driving RR:** RR02
@@ -72,7 +72,7 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - [x] T6: Apply the D-entry to `match_parents()` (`R/utils.R:230`), `.align_signs()` (`R/utils.R:275`), and `ba_layout()` and `autoplot()` labels. Snapshot the enumerated surfaces on an oblique fit.
 - [x] T7: Fit-time cli advisory (IP6) and the `prune()` stance per the D-entry. Tests assert the message text and the warn-or-implement branch.
 - [x] T8: `data-raw/forbes2023-oblique.R` (md5-pinned OSF `7jfkw` functions, oblique branch). Reconcile her unstandardized `comp.corr` with standardized edges through `D`. Fixture plus provenance, `test-forbes-fidelity.R` oblique block, ORACLES rows.
-- [ ] T9: Docs per AC12 (roxygen, `ackwards-engines.Rmd.orig` plus precompute, NEWS, DESIGN §9 row). Run `devtools::document()` and `Rscript tools/dod-gate.R`.
+- [x] T9: Docs per AC12 (roxygen, `ackwards-engines.Rmd.orig` plus precompute, NEWS, DESIGN §9 row). Run `devtools::document()` and `Rscript tools/dod-gate.R`.
 
 ## Work log
 
@@ -100,11 +100,14 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - 2026-09-30: T7 tests assert the advisory text and its absence on a varimax fit. They also assert the prune warning for each rule set, silence for `"none"` and manual-only calls, and silence on a varimax object. Full suite: 3086 expectations, 0 failures.
 - 2026-09-30: T8 done. `data-raw/forbes2023-oblique.R` downloads her md5-pinned `7jfkw` file and runs her oblique branch on the three simulation matrices. It covers PCA and minres EFA under oblimin and promax, 12 runs, seeded and bit-reproducible across two generations. `forbes2023_oblique.rds` carries a provenance attribute. The new test block in `test-forbes-fidelity.R` passes (513 expectations in the two files). Planting Φ-blind weights failed it 56 times.
 - 2026-09-30: T8 records. ORACLES gains O16 (frozen), O17 and O18 (live), and O19 (invariant). `references/forbes2023.md` records how her code behaves under oblique and EFA, and `references/source-departures.md` row M2 notes the unbroken-chase edge case. A gated candidate row takes that case to the Forbes session.
-- 2026-09-30: T9 docs committed: `?ackwards` (defaults bullet, `rotation`, `seed`), `?tidy.ackwards`, the engines vignette's "Orthogonal or oblique rotation" section with the RR02 Q7 option-form passage, NEWS, DESIGN §4, §9, §12 and Known limitations, and the CLAUDE.md out-of-scope line. `precompute.R` and the freshness check pass. Timing-only churn in four other vignettes was reverted.
+- 2026-09-30: T9 docs committed. They cover `?ackwards` (defaults bullet, `rotation`, `seed`), `?tidy.ackwards`, and the engines vignette's new rotation section with the RR02 Q7 option-form passage. They also cover NEWS, DESIGN §4, §9, §12 and Known limitations, and the CLAUDE.md out-of-scope line. `precompute.R` and the freshness check pass. Timing-only churn in four other vignettes was reverted.
 - 2026-09-30: first DoD gate run: check 0/0/0, style, lint, prose, and pkgdown clean, but coverage 99.98%. The uncovered line was the unreachable `else NULL` in the ESEM `cor.lv` read, now a `stopifnot()` that the existing handler catches.
 - claim audit: 107 claims read, 11 corrected — NEWS.md, R/engine_pca.R, R/utils.R, data-raw/forbes2023-oblique.R, tests/testthat/test-forbes-fidelity.R, tests/testthat/test-rotation.R, vignettes/ackwards-engines.Rmd.orig
 - 2026-09-30: the audit also found two stale comments outside the added lines (`R/engine_pca.R` sort order, `R/boot_edges.R` replicate determinism), both fixed. A seeded `boot_edges()` on an oblique EFA object was checked to repeat exactly.
 - 2026-09-30: correction of the gate-time premise. psych's PCA promax runs through `stats::promax()` and never loads GPArotation, and only EFA promax goes through `kaiser()`. Following the owner's "oblimin only" choice with those facts, the guard covers oblimin on PCA and EFA and promax on EFA, recorded as D-037.
+- 2026-09-30: second DoD gate run passed: check 0/0/0, coverage 100%, style, lint, prose, freshness, ledger anchors, and pkgdown clean.
+- 2026-09-30: claim-audit re-read by the same reader: 14 of 15 corrected claims true. The `boot_edges()` determinism comment covered only the future.apply branch, and an older comment beside it was made false by oblique refits. Both fixed after the gate, as comment and doc edits only, with prose, style, and lint re-run clean.
+- 2026-09-30: T9 done, all nine tasks checked. Status set to review.
 
 ## Decisions
 

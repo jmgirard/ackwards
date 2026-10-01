@@ -5,7 +5,7 @@
   not change (PCA and EFA `factor_cor` gain row and column names, see
   below). With `engine = "pca"` or `"efa"`, it also accepts `"oblimin"` and
   `"promax"`. The GPArotation package (now in Suggests) is needed for
-  `"oblimin"`, and for `"promax"` with `engine = "efa"`. With
+  `"oblimin"` with these engines, and for `"promax"` with `engine = "efa"`. With
   `engine = "esem"`, it also accepts `"oblimin"` and `"geomin"`. Under an
   oblique rotation, each level stores the engine's factor correlation. The
   scores keep that correlation: EFA and ESEM use the oblique form of the ten
