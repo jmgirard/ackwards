@@ -39,7 +39,7 @@ The manuscript describes the shipped `rotation` option: varimax by default, obli
 
 - [x] T1: Read the RR01 verdict (`cairn/reviews/archive/RR01-oblique-algebra-claim.md`), D-034, D-036, and the `rotation` entry of `?ackwards` (R/ackwards.R:169). Then rewrite the methods passage (manuscript.qmd:162). Keep the `@waller2007` and `@kaiser1958` citations.
 - [x] T2: Rewrite the scope paragraph (manuscript.qmd:412). Keep its sentences on the sequential hierarchy and on Schmid-Leiman unchanged.
-- [ ] T3: Run the AC3 search and record each matching sentence with its disposition in the work log. Look for em dashes and unresolved citation keys in the rewritten passages. Render to PDF and docx.
+- [x] T3: Run the AC3 search and record each matching sentence with its disposition in the work log. Look for em dashes and unresolved citation keys in the rewritten passages. Render to PDF and docx.
 
 ## Work log
 
@@ -49,6 +49,8 @@ The manuscript describes the shipped `rotation` option: varimax by default, obli
 - 2026-09-30: implement started on branch m092-manuscript-oblique-wording. No question gate, because the plan left no choice open.
 - 2026-09-30: T1 done. The methods passage now says the closed form is exact for any fixed linear scoring weights and cites Waller's oblique form (section 3, per `references/waller2007.md`). It names varimax as the default and oblique rotations as an option.
 - 2026-09-30: T2 done. The scope paragraph now names varimax as the default, calls an oblique edge a total correlation, and points to `beta` in `tidy()` and to primary parents following `r` (read against `R/tidy.R` and the fit-time advisory in `R/ackwards.R`). The sequential-hierarchy and Schmid-Leiman sentences are unchanged.
+- 2026-09-30: T3 AC3 search hit 9 lines in 5 sentences, all in the rewritten passages. Methods: "exact for any fixed linear scoring weights, oblique rotations included" (allowed, states the algebra holds), "Nothing in it uses the orthogonality" (allowed), "choice of rotation therefore changes" (allowed), "varimax rotation at every level" (allowed, default), "Oblique rotations ... available as an option" (allowed). Scope: "Varimax is the default ... oblique rotations are an option" (allowed), "each edge is a total correlation, which includes overlap through correlated factors" (allowed overlap statement). No match elsewhere in the file.
+- 2026-09-30: T3 checks. No `—` or `---` in either rewritten passage. Keys `waller2007`, `kaiser1958`, `grice2001` each occur once in `references.bib`. `quarto render manuscript/manuscript.qmd` exited 0 after `devtools::install()` of the branch (the package was not installed), and wrote `manuscript.pdf` and `manuscript.docx`. One render warning: no `rsvg-convert` for the docx ORCID icon, unrelated to this change.
 
 ## Decisions
 
