@@ -405,8 +405,11 @@ require row-level item responses.</p></li>
     <h2 id="when-to-trust-the-result">When to trust the result<a class="anchor" aria-label="anchor" href="#when-to-trust-the-result"></a></h2>
 
 
-<p><code>ackwards()</code> raises diagnostics as it fits. They fall into three tiers by
-what they mean for whether you should trust and report the solution:</p>
+<p><code>ackwards()</code> raises most diagnostics as it fits, while <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> and
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> raise the warnings about a level's within-level score
+correlation (the item below says which raises which). They fall into three
+tiers by what they mean for whether you should trust and report the
+solution:</p>
 <p><strong>Fatal, so fix before trusting.</strong> The result is undefined or rests on a
 broken correlation matrix:</p><ul><li><p>A <strong>constant item</strong> (no variance) errors. Drop it (see <code><a href="check_items.html">check_items()</a></code>).</p></li>
 <li><p><strong><code><a href="https://rdrr.io/pkg/psych/man/tetrachor.html" class="external-link">psych::polychoric()</a></code> fails</strong>, usually because of a near-empty response
@@ -430,6 +433,14 @@ meaningless factor. Inspect it with <code><a href="check_items.html">check_items
 <li><p><strong>Ordinal data on a Pearson basis</strong> attenuates correlations. That is fine
 for a quick look or <code><a href="suggest_k.html">suggest_k()</a></code> screening, but report the final model on
 <code>cor = "polychoric"</code>.</p></li>
+<li><p>A <strong>nearly singular within-level score correlation</strong> (smallest eigenvalue
+<code>&lt; 1e-2</code>) means the factors at that level are close to collinear, so the
+partialled <code>beta</code> for edges from that level is unstable. The <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code>
+method still reports <code>beta</code> and raises a warning that names the level.
+Fitting with <code>ackwards()</code> does not raise it. The package chose this cutoff
+as a numerical guard. It is not a published rule. If the correlation
+cannot be inverted at all, <code>beta</code> and <code>r2</code> are <code>NA</code> and a different
+warning names the level. Both <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> raise that one.</p></li>
 </ul><p><strong>Informational, and usually fine.</strong> Proceed, just be aware of the
 pairwise-missing note, a merely <em>sparse</em> (rare-but-present) response
 category, and the ordinal-detection warning when you did intend Pearson.</p>

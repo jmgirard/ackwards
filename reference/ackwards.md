@@ -387,8 +387,12 @@ Constraints and behaviour when a correlation matrix is supplied:
 
 ## When to trust the result
 
-`ackwards()` raises diagnostics as it fits. They fall into three tiers
-by what they mean for whether you should trust and report the solution:
+`ackwards()` raises most diagnostics as it fits, while
+[`tidy()`](https://generics.r-lib.org/reference/tidy.html) and
+[`summary()`](https://rdrr.io/r/base/summary.html) raise the warnings
+about a level's within-level score correlation (the item below says
+which raises which). They fall into three tiers by what they mean for
+whether you should trust and report the solution:
 
 **Fatal, so fix before trusting.** The result is undefined or rests on a
 broken correlation matrix:
@@ -430,6 +434,19 @@ unstable:
   fine for a quick look or
   [`suggest_k()`](https://jmgirard.github.io/ackwards/reference/suggest_k.md)
   screening, but report the final model on `cor = "polychoric"`.
+
+- A **nearly singular within-level score correlation** (smallest
+  eigenvalue `< 1e-2`) means the factors at that level are close to
+  collinear, so the partialled `beta` for edges from that level is
+  unstable. The
+  [`tidy()`](https://generics.r-lib.org/reference/tidy.html) method
+  still reports `beta` and raises a warning that names the level.
+  Fitting with `ackwards()` does not raise it. The package chose this
+  cutoff as a numerical guard. It is not a published rule. If the
+  correlation cannot be inverted at all, `beta` and `r2` are `NA` and a
+  different warning names the level. Both
+  [`tidy()`](https://generics.r-lib.org/reference/tidy.html) and
+  [`summary()`](https://rdrr.io/r/base/summary.html) raise that one.
 
 **Informational, and usually fine.** Proceed, just be aware of the
 pairwise-missing note, a merely *sparse* (rare-but-present) response

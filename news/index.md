@@ -38,6 +38,16 @@
   against Forbes’s reference implementation on her three simulation
   studies.
 
+- `tidy(what = "edges")` now warns when the within-level score
+  correlation of a level is nearly singular, meaning its smallest
+  eigenvalue is below `1e-2`. The factors at that level are then close
+  to collinear, so the partialled `beta` for edges from that level is
+  unstable. `beta` is still reported, and the warning names the level.
+  The package chose this cutoff as a numerical guard. It is not a
+  published rule. `tidy(what = "variance")` and
+  [`summary()`](https://rdrr.io/r/base/summary.html) do not raise this
+  warning.
+
 - PCA and EFA `factor_cor` matrices now carry the level’s factor labels
   as row and column names, as the ESEM ones already did.
 
