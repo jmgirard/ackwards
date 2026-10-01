@@ -95,3 +95,17 @@ Consistency gate:
 - `devtools::document()` produced no diff. `pkgdown::check_pkgdown()` found no problems.
 - The diff touches no NEWS.md, README, `.Rbuildignore`, `R/`, `man/`, NAMESPACE, or vignette file, so no NEWS entry is owed.
 - `devtools::check()` with `TESTTHAT_CPUS=8`: Status OK, with 0 errors, 0 warnings, and 0 notes.
+
+Independent review: internal tier with a diff under `cairn/` only, so one fresh-context Opus diff reviewer ran. It found no false claim about the code and no text that presents the scores route, `edge_method`, or EAP as a user setting. It reported 11 findings, ranked. The disposition after each one is the proposal put to the maintainer at the merge gate.
+
+- F1: the rewrite dropped a true fact from `DESIGN.md:594-601`. The old entry said that `beta` and `r2` build Φ_s from the stored weights and the fit's R, so they do not share the algebra-vs-scores split. Proposed: fix now, one sentence restored.
+- F2: the "Corrected M91" note corrects a claim about `beta` that the entry no longer mentions. Proposed: fix now, together with F1.
+- F3: the uncovered-path list omits `cor = "spearman"`, ESEM FIML, and pairwise-missing Pearson data. The scores branch at `R/compute_edges.R` correlates standardized raw data with Pearson `cor()`, so a Spearman R differs in basis (read on the branch). The gap predates M93. Proposed: follow-up candidate row.
+- F4: §5.3 says "Under missing data the two differ", but they also differ on complete data under a polychoric or Spearman R (`DESIGN.md:297-298`). M93 wrote this sentence. Proposed: fix now.
+- F5: the §5.3 pseudocode signature is stale. It shows `align` and `use = "pairwise"`, omits `cut_show` and `build_tidy`, aligns signs inside the function, and does not show the `"algebra"` abort. This predates M93. Proposed: follow-up candidate row, grouped with F8 and F9.
+- F6: IP1 is written as a census of current callers rather than as a rule. Proposed: reject, because AC1 requires that form and the implement gate approved the wording.
+- F7: D-038's Context names EAP as the reason the scores route was kept, but the old §5.3 also kept it for a user-requested route. Proposed: fix now, one clause added.
+- F8: §5.1 calls the EFA and ESEM paths "regression-scored", but both are tenBerge-scored with regression as the fallback. This predates M93. Proposed: follow-up, grouped with F5.
+- F9: the §5.2 comments "NULL if !linear" describe a case that no engine produces. Proposed: follow-up, grouped with F5.
+- F10: the ROADMAP hygiene stamp calls the two rows "promoted" while they stay as candidates, and row 26 points to row 25. Proposed: reject, because the post-merge hygiene pass removes both promoted rows and replaces the stamp. The M94 file does not cite row 25.
+- F11: the internal `compute_edges()` roxygen still describes the scores triggers. Proposed: reject, because the plan put `R/` and `man/` out of scope and the roxygen describes what the function itself accepts.
