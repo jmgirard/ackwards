@@ -1,6 +1,6 @@
 # M92: Manuscript wording for the oblique rotation option
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -51,6 +51,9 @@ The manuscript describes the shipped `rotation` option: varimax by default, obli
 - 2026-09-30: T2 done. The scope paragraph now names varimax as the default, calls an oblique edge a total correlation, and points to `beta` in `tidy()` and to primary parents following `r` (read against `R/tidy.R` and the fit-time advisory in `R/ackwards.R`). The sequential-hierarchy and Schmid-Leiman sentences are unchanged.
 - 2026-09-30: T3 AC3 search hit 9 lines in 5 sentences, all in the rewritten passages. Methods: "exact for any fixed linear scoring weights, oblique rotations included" (allowed, states the algebra holds), "Nothing in it uses the orthogonality" (allowed), "choice of rotation therefore changes" (allowed), "varimax rotation at every level" (allowed, default), "Oblique rotations ... available as an option" (allowed). Scope: "Varimax is the default ... oblique rotations are an option" (allowed), "each edge is a total correlation, which includes overlap through correlated factors" (allowed overlap statement). No match elsewhere in the file.
 - 2026-09-30: T3 checks. No `—` or `---` in either rewritten passage. Keys `waller2007`, `kaiser1958`, `grice2001` each occur once in `references.bib`. `quarto render manuscript/manuscript.qmd` exited 0 after `devtools::install()` of the branch (the package was not installed), and wrote `manuscript.pdf` and `manuscript.docx`. One render warning: no `rsvg-convert` for the docx ORCID icon, unrelated to this change.
+- 2026-09-30: correction to the T3 search line. The hits fall in 7 sentences, not 5, as the line's own list of 7 shows.
+- 2026-09-30: claim audit: 11 claims read, 2 corrected — manuscript/manuscript.qmd. Varimax applies "at every level with two or more factors" (level 1 is not rotated), and Waller gives "the oblique form for rotated components". The same reader re-read both, and both hold.
+- 2026-09-30: after the audit fixes, the AC3 search still hits only the two rewritten passages, the methods passage has no `—` or `---`, and `quarto render` exited 0 again with both outputs written. No R code or roxygen changed, so the profile's `devtools::test()` step does not apply. Status set to review.
 
 ## Decisions
 
