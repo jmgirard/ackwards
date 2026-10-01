@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M93 | Reconcile DESIGN's edge_method text with the code | in-progress | — | normal | milestones/M93-design-edge-method-reconcile.md |
+| M93 | Reconcile DESIGN's edge_method text with the code | review | — | normal | milestones/M93-design-edge-method-reconcile.md |
 | M94 | Manuscript accuracy pass for four older claims | planned | M93 | normal | milestones/M94-manuscript-accuracy-pass.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 | M92 | Manuscript wording for the oblique rotation option | done | — | normal | milestones/archive/M92-manuscript-oblique-wording.md |

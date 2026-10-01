@@ -1,6 +1,6 @@
 # M93: Reconcile DESIGN's edge_method text with the code
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -54,7 +54,7 @@
 - [x] T3: Rewrite the §5 scores-route text: the intro (`:219`), the §5.2 descriptor's `"EAP"` method value (`:247`), the §5.3 pseudocode comment (`:277`) and "Two situations" list (`:289-295`), and §5.4 (`:299-302`). Keep the algebra derivation unchanged.
 - [x] T4: Rewrite the §9 `edge_method` row (`:429`) as internal, the scores-method row's EAP clause (`:428`) to match D-007, and the Documentation standard line (`:449-450`).
 - [x] T5: Shorten the first Known limitations entry (`:588-599`) to the limitation and a pointer to IP2. Keep the "Corrected M91" mark.
-- [ ] T6: Read the four AC3 sections in full and run AC3's two searches on the branch head. Fix any straggler, run `cairn_validate`, and record the sweep result in one work-log line.
+- [x] T6: Read the four AC3 sections in full and run AC3's two searches on the branch head. Fix any straggler, run `cairn_validate`, and record the sweep result in one work-log line.
 
 ## Work log
 
@@ -70,6 +70,9 @@
 - 2026-10-01: T3 done. §5 intro, §5.2 method values (read from the engines: components, tenBerge, regression), §5.3 comment, the "Two situations" list (now "Where the `scores` route runs"), and §5.4 rewritten. The ESEM polychoric-weights claim was checked against `R/engine_esem.R`. The algebra derivation is unchanged.
 - 2026-10-01: T4 done. The §9 `edge_method` row is marked internal and says it is not an argument of any exported function. The scores-method row states EAP as out of scope (D-007). The Documentation standard line no longer names `edge_method = "scores"`.
 - 2026-10-01: T5 done. The first Known limitations entry states the uncovered polychoric and FIML paths and why. It points to IP1 and IP2 and keeps the "Corrected M91" mark. It went from 1102 to 686 bytes. Both figures are `wc -c` of the extracted entry, on `master` and on the branch.
+- 2026-10-01: T6 done. The principles section, §5, §9, and Known limitations were read in full. Every hit of AC3's two searches falls inside those four sections, and no straggler needed a fix. `cairn_validate` passes, with 16 advisory warnings, all in M84's work log. The diff against `master` touches `cairn/` only.
+- 2026-10-01: claim audit: not owed — internal tier
+- 2026-10-01: all tasks done. Status set to review.
 
 ## Decisions
 
