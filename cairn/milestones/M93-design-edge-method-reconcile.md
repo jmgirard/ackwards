@@ -94,3 +94,4 @@ Consistency gate:
 - `cairn_impact.py --changed` lists 28 IP1 and 26 IP2 references. The DESIGN.md and D-038 references are M93's own text. The other references are the D-031 entry, the M79 and M72 archives, and the M84 and M94 files. They agree with the new wording, because IP1's single edge path through `compute_edges()` is unchanged. `ROADMAP.md:25` is the candidate row that M93 was promoted from, which the post-merge hygiene pass removes.
 - `devtools::document()` produced no diff. `pkgdown::check_pkgdown()` found no problems.
 - The diff touches no NEWS.md, README, `.Rbuildignore`, `R/`, `man/`, NAMESPACE, or vignette file, so no NEWS entry is owed.
+- `devtools::check()` with `TESTTHAT_CPUS=8`: Status OK, with 0 errors, 0 warnings, and 0 notes.
