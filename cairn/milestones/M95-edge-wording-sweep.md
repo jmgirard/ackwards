@@ -59,7 +59,7 @@ perl -00 -ne 'print "$ARGV\n$_\n" if /score[\s#'"'"']+correlation|correlations?[
 - [x] T2: Edit `DESCRIPTION` (Description field, lines 14-17), `README.Rmd` (near lines 108-112), and the roxygen hits: `R/ackwards.R` lines 6-8, 13, and 21, the `R/compute_edges.R` header (lines 1-16), and any other edge description T1 found. Run `devtools::document()` and `devtools::build_readme()`.
 - [x] T3: Edit the vignette sources. Known sites are intro 55 and 140-142, engines 83-87 and 460 and 540, ordinal 384, and girard 273, plus T1's other hits. Run `Rscript vignettes/precompute.R`, revert run noise line by line (M75, M87), and diff each `.Rmd` against master with the stamp line removed (M94).
 - [x] T4: Edit the manuscript sites (146-148, 304, 407, and T1's other hits). Render the manuscript.
-- [ ] T5: Edit DESIGN §5: the §5.1 Waller and scoring text (line 237-240), the §5.2 comments (253-254), and the §5.3 pseudocode signature and body (260-283).
+- [x] T5: Edit DESIGN §5: the §5.1 Waller and scoring text (line 237-240), the §5.2 comments (253-254), and the §5.3 pseudocode signature and body (260-283).
 - [ ] T6: Re-read each rewritten claim against `cairn/references/waller2007.md` and the R source (M64, M67, M86). Run `Rscript tools/check-prose.R` on every edited doc file (M85). Add a NEWS entry in the development section.
 - [ ] T7: Run `Rscript tools/dod-gate.R` (it includes the vignette-freshness check).
 
@@ -75,6 +75,7 @@ perl -00 -ne 'print "$ARGV\n$_\n" if /score[\s#'"'"']+correlation|correlations?[
 - 2026-10-01: T2 done. DESCRIPTION drops the materialized-scores route and credits Waller with the components result only. README.Rmd, `ackwards()`, `prune()`, and `tidy()` roxygen name the fit's correlation matrix. The `compute_edges()` header states the scores-branch conditions from the code and says no shipped caller reaches it. `document()` and `build_readme()` changed only those paragraphs. check-prose and its code-unchanged guard pass.
 - 2026-10-01: T3 done. Edited engines, intro, ordinal, girard, and forbes `.Rmd.orig`. The engines PCA paragraph credits Waller with the transformation-matrix result, and its prose writes `W′RW`. Re-ran precompute.R. Reverted suggest-k, visualization, three PNGs, 8 timing lines, and two gt table ids (run noise, M75, M87). Each edited `.Rmd` differs from master, stamp line removed, only in the edited prose. Freshness check and code-unchanged guard pass.
 - 2026-10-01: T4 done. The manuscript's method summary, edge-table caption, and Discussion edge sentence name the fit's correlation matrix. Its Waller lines (102, 153) already credit him with the components result only. `quarto render` exited 0. Its one warning is a missing `rsvg-convert` for the ORCID icon.
+- 2026-10-01: T5 done. DESIGN §5 lead and §5.1 name the fit's `R`. §5.1 credits Waller with Eq. 14 and the §3 oblique form only, and names ten Berge with the regression fallback. The §5.2 `NULL if !linear` comments are removed. The §5.3 signature matches `formals(compute_edges)`, the body has the `"algebra"` abort and no sign-alignment step. The §9 rotation cell's Waller credit gains "for principal components". A §5.4 read found no sentence the cross-check-paths omission makes false.
 
 ## Decisions
 
