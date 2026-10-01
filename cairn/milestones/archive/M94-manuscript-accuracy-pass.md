@@ -1,0 +1,11 @@
+# M94: Manuscript accuracy pass for four older claims
+
+**Status:** done (2026-10-01, PR #103 https://github.com/jmgirard/ackwards/pull/103)
+
+**Goal:** The manuscript and two vignettes describe the edge algebra, Waller's (2007) contribution, and the AI-use disclosure accurately.
+
+**Outcome:** Four passages were rewritten. Two are the manuscript's methods passage and conclusion. The others are the intro vignette's "Between-level edges" paragraph and the engines vignette's PCA paragraph. They now say that each edge is exact for the correlation matrix the fit uses. They add that observed-item scores do not in general reproduce the edges under polychoric, Spearman, pairwise, or FIML matrices. The manuscript and intro vignette also say what each edge then is. The manuscript says every edge comes from the closed-form algebra, and it limits the scores cross-check to complete Pearson data on all three engines. Waller (2007) is credited with the principal-components result and its oblique form only. The general `W_a′RW_b` form is derived from the covariance of linear composites of standardized items, with no citation and no novelty claim. Both disclosure passages give June 2026 to submission and name Opus, Sonnet, and Fable. NEWS gained a first-place entry for the vignette wording. No R code changed.
+
+**Decisions:** none cross-cutting. The plan gate chose plain wording with no citation for the general form, and "June 2026 to submission" for the disclosure period.
+
+**Review:** two passes. Pass 1 failed the consistency gate because NEWS had no entry for the shipped vignette changes (defect return 1). Its 16 findings were triaged at the implement question gate. Seven were fixed, and R9 was absorbed into the DESIGN §5 candidate row. R5, R6, and R7 became the edge-wording sweep candidate row. Four were rejected. Pass 2 re-ran all six criteria on fresh evidence, and all passed. Three lenses reported P1-P11, and none showed a criterion failing. P1-P5 were fixed before merge: what a polychoric edge is, NEWS order and pointer, a repeated claim, one wording for the matrix, and a pairwise-deletion gloss. P6 and P7 joined the sweep row, and P8-P11 were rejected. Merged on local green under the repo's standing non-release rule.
