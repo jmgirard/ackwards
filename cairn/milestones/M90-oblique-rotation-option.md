@@ -253,3 +253,5 @@ Fix-now work after the pass-2 gate, on the branch:
 - G18: serial timing put `test-oblique.R` at 9.6 s, above `esem` (6.1 s), so it joins `start-first`. `test-oblique-branches.R` (3.8 s) does not.
 - G19 and G20: one grouped `[low]` candidate row in ROADMAP.
 
+After the fixes, at 4354853: `Rscript tools/dod-gate.R` passed (check 0/0/0, coverage 100.00%, prose, freshness, ledger anchors, styler, lintr, and pkgdown clean). The suite ran 3532 expectations with 0 failures and the same 2 Mac-only skips. `cairn_validate.py` passed. The vignette rebuild kept only the substantive intro and engines edits.
+
