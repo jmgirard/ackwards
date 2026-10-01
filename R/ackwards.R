@@ -1027,6 +1027,22 @@ ackwards <- function(
     near_singular     = isTRUE(min_eigenvalue < 1e-4)
   )
 
+  # --- Oblique advisory (Invariant 6, D-036) ----------------------------------
+  # An oblique fit is the user's explicit choice, but what its edges mean is
+  # not, so every such fit says it once here, after the hierarchy is built.
+  if (.is_oblique(rotation)) {
+    cli::cli_inform(c(
+      "i" = "Oblique rotation ({.val {rotation}}): the factors within a level \\
+             can correlate.",
+      "i" = "Each edge {.code r} is a total correlation, which includes \\
+             overlap through correlated factors at the same level. Primary \\
+             parents and signs use {.code r}, and {.code tidy(x)} reports the \\
+             partialled {.code beta} beside it.",
+      "!" = "The {.arg cut_show} ({.val {cut_show}}) and {.fn prune} \\
+             {.arg redundancy_r} conventions were calibrated under varimax."
+    ))
+  }
+
   # --- Assemble result --------------------------------------------------------
   x <- new_ackwards(
     call        = cl,

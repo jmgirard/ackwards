@@ -888,6 +888,20 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
     return(x)
   }
 
+  # Oblique objects (D-036): the criteria run unchanged on the marginal r,
+  # whose thresholds were calibrated on varimax edges; say so (Invariant 6).
+  if (length(auto_rules) > 0L && .is_oblique(x)) {
+    cli::cli_warn(c(
+      "!" = "The default redundancy criterion assumes orthogonal levels, and \\
+             {.arg x} uses the oblique {.val {x$rotation}} rotation.",
+      "i" = "Each {.code r} is a total correlation, which includes overlap \\
+             through correlated factors at the same level. The rules run \\
+             unchanged on {.code r}, with {.arg redundancy_r} = \\
+             {.val {redundancy_r}} and {.arg orphan_r} = {.val {orphan_r}} \\
+             set for varimax edges."
+    ))
+  }
+
   # Auto-resolve redundancy_phi = NULL (Invariant 6: announce loud). Both rules
   # consume the threshold: "redundant" as the conjunctive chain filter, and
   # "artifact" as the upper edge of the near-redundant phi band (M77).

@@ -285,6 +285,48 @@ test_that("print(), summary(), and autoplot() say that oblique edges are total c
   expect_null(autoplot(x0)$labels$caption)
 })
 
+# ── Fit-time advisory and the prune() stance (D-036) ─────────────────────────
+
+test_that("an oblique fit announces what its edges mean; a varimax fit does not", {
+  skip_if_not_installed("GPArotation")
+  msgs <- cli::ansi_strip(paste(
+    testthat::capture_messages(
+      suppressWarnings(ackwards(sim16, k_max = 3, rotation = "oblimin"))
+    ),
+    collapse = " "
+  ))
+  expect_match(msgs, "Oblique rotation (\"oblimin\")", fixed = TRUE)
+  expect_match(msgs, "is a total correlation", fixed = TRUE)
+  expect_match(msgs, "conventions were calibrated under varimax", fixed = TRUE)
+
+  msgs0 <- cli::ansi_strip(paste(
+    testthat::capture_messages(suppressWarnings(ackwards(sim16, k_max = 3))),
+    collapse = " "
+  ))
+  expect_no_match(msgs0, "total correlation", fixed = TRUE)
+})
+
+test_that("prune() warns on an oblique object that its criterion assumes orthogonal levels", {
+  skip_if_not_installed("GPArotation")
+  x <- cached(ackwards(sim16, k_max = 4, rotation = "oblimin"))
+  for (rules in list("redundant", "artifact", c("redundant", "artifact"))) {
+    expect_warning(
+      xp <- prune(x, rules),
+      "assumes orthogonal levels",
+      class = "rlang_warning"
+    )
+    # The rules still ran, on r.
+    expect_false(is.null(xp$prune))
+  }
+  # No rule runs, no warning: rules = "none" and manual-only flags.
+  expect_no_warning(prune(x, "none"))
+  expect_no_warning(prune(x, manual = "m4f1"))
+
+  # Control: the same call on a varimax object stays silent on this point.
+  x0 <- cached(ackwards(sim16, k_max = 4))
+  expect_no_warning(prune(x0, "redundant"), message = "orthogonal levels")
+})
+
 test_that("EFA's oblique weights are labeled tenBerge and are not the orthogonal formula", {
   skip_if_not_installed("GPArotation")
   x <- cached(ackwards(sim16, k_max = 3, engine = "efa", rotation = "oblimin"))

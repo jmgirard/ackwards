@@ -70,7 +70,7 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - [x] T4: ESEM oblique. Pass lavaan `rotation` through (`R/engine_esem.R:74-79`). Weights through T3's helper with `cor.lv`. Regression fallback with Φ (`R/engine_esem.R:219-226`).
 - [x] T5: `.variance_explained(L, p, labels, Phi)` per AC10. ESEM sort key (`R/engine_esem.R:200`). psych `Vaccounted` oracle test.
 - [x] T6: Apply the D-entry to `match_parents()` (`R/utils.R:230`), `.align_signs()` (`R/utils.R:275`), and `ba_layout()` and `autoplot()` labels. Snapshot the enumerated surfaces on an oblique fit.
-- [ ] T7: Fit-time cli advisory (IP6) and the `prune()` stance per the D-entry. Tests assert the message text and the warn-or-implement branch.
+- [x] T7: Fit-time cli advisory (IP6) and the `prune()` stance per the D-entry. Tests assert the message text and the warn-or-implement branch.
 - [ ] T8: `data-raw/forbes2023-oblique.R` (md5-pinned OSF `7jfkw` functions, oblique branch). Reconcile her unstandardized `comp.corr` with standardized edges through `D`. Fixture plus provenance, `test-forbes-fidelity.R` oblique block, ORACLES rows.
 - [ ] T9: Docs per AC12 (roxygen, `ackwards-engines.Rmd.orig` plus precompute, NEWS, DESIGN §9 row). Run `devtools::document()` and `Rscript tools/dod-gate.R`.
 
@@ -96,6 +96,8 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - 2026-09-30: T5 tests: PCA and EFA variance against psych's `Vaccounted` proportion row (1e-8, with a guard that the old formula misses by more than 1e-5). The ESEM sort test uses bfi25 with geomin at k = 5 and seed 1. There the oblique key orders the factors 2 4 1 5 3 and the squared loadings order them 2 4 1 3 5. Planting the old key turned all three red. Full suite: 3032 expectations, 0 failures.
 - 2026-09-30: T6 done. Per D-036, `match_parents()` and `.align_signs()` keep r, with comments that cite D-036. Under oblique, print() and summary() add a note that r is a total correlation and beta the partialled coefficient, and autoplot() adds a caption. `?tidy.ackwards` and `?summary.ackwards` describe the oblique case and name `factor_cor` against the score correlation behind beta (M89 carried finding 3). `ba_layout()` is unchanged.
 - 2026-09-30: T6 tests: snapshots of print, summary, and the three tidy tables on a PCA oblimin fit. Assertions check that `is_primary` marks the largest |r| with r > 0, that beta differs from r, and that the notes and caption appear. A varimax control shows none of them.
+- 2026-09-30: T7 done. Every oblique `ackwards()` fit ends with a `cli_inform()` advisory: edges are total correlations, lineage uses r, and `cut_show` and `redundancy_r` were calibrated under varimax. `prune()` takes the warn branch of AC6 per D-036. When any automatic rule runs on an oblique object, it warns that the default criterion assumes orthogonal levels and then runs the rules unchanged on r.
+- 2026-09-30: T7 tests assert the advisory text and its absence on a varimax fit. They also assert the prune warning for each rule set, silence for `"none"` and manual-only calls, and silence on a varimax object. Full suite: 3086 expectations, 0 failures.
 
 ## Decisions
 
