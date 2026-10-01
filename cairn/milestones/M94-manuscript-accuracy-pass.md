@@ -55,6 +55,8 @@ The manuscript and two vignettes describe the edge algebra, Waller's (2007) cont
 - [x] T4: Fix the intro vignette (`vignettes/ackwards-intro.Rmd.orig` ~276-278) and the engines vignette (`vignettes/ackwards-engines.Rmd.orig` ~84-86). Re-run `Rscript vignettes/precompute.R`, then revert noise in untouched vignettes and noise lines in the two edited ones (LESSONS M61, M75, M87).
 - [x] T5: Read each rewritten paragraph in full in its final position (LESSONS M92). Check every new claim against the waller2007 page images and the R source (LESSONS M67, M86). Run the AC1-AC3 searches on the branch head.
 - [x] T6: Run `quarto render manuscript.qmd` in `manuscript/`, count em dashes against `master`, and run `DOD_CODE_UNCHANGED=1 Rscript tools/dod-gate.R`.
+- [ ] T7: Add a NEWS.md entry for the intro and engines vignette corrections (review gate return 1).
+- [x] T8: Fix review findings R1-R4, R8, R10, R11 in the manuscript and intro vignette, then re-run the T6 render, count, and gate.
 
 ## Work log
 
@@ -76,6 +78,8 @@ The manuscript and two vignettes describe the edge algebra, Waller's (2007) cont
 - 2026-10-01: claim-audit fixes. "The linear engines" became "all three engines" in the methods and conclusion. The intro covariance became `W_a' R W_b`. The engines vignette dropped "therefore" before its exactness claim. The same reader re-read all three, and they hold. The kept engines sentence that credits Waller with `W'RW` is out of scope by plan, and the reader marks it unclear (Waller uses transformation matrices). It is raised for review.
 - 2026-10-01: after the fixes, `quarto render` exited 0 and rewrote both outputs. The em-dash count is 5 on the branch and on master. `DOD_CODE_UNCHANGED=1 Rscript tools/dod-gate.R` passed (check 0/0/0, coverage 100%). Status set to review.
 - 2026-10-01: review consistency gate failed. NEWS.md has no entry for the user-visible vignette corrections (profile consistency-gate, NEWS line). Defect return 1. Status set back to in-progress. AC1-AC6 evidence and 16 ranked reviewer findings (R1-R16) are recorded in the Review section for triage at the next gate.
+- 2026-10-01: implement resumed on the return. At the question gate the user chose to add the NEWS entry and fix R1-R4, R8, R10, and R11 now. R5 (the engines Waller line) stays out of scope, with a candidate row to be added at review. Minor amendment: added T7 (NEWS) and T8 (fixes).
+- 2026-10-01: T8 done. R1: the Discussion now says "the PCA and EFA engines" (boot_edges and comparability both exclude ESEM). R2: the matrix caveat moved before the test-suite and rotation sentences, so "What the rotation changes" follows the orthogonality sentence again. R3: "standardized items" in the manuscript and intro vignette. R4: the conclusion names what was checked. R8: both passages list polychoric, Spearman, pairwise, and FIML as uncovered. R10: the front matter restores "During the preparation of this work", drops the repeated "models", and reads "No AI system is an author". R11: `W_a′RW_b` with the prime character, reflowed, and "full-information" hyphenated. The intro stamp was updated, and the freshness and prose checks are clean. The em-dash count is 5.
 
 ## Decisions
 
