@@ -85,6 +85,9 @@ The manuscript and two vignettes describe the edge algebra, Waller's (2007) cont
 - claim audit: 25 claims read, 0 corrected — manuscript/manuscript.qmd, vignettes/ackwards-intro.Rmd(.orig), NEWS.md
 - 2026-10-01: the return-pass audit read the lines added since 58a340f, and all 25 claims hold. Its notes were the engines Waller line (R5, already routed to a candidate row) and "FIML" unexplained in NEWS. The NEWS entry now glosses FIML with the engines vignette's wording, and the prose check is clean. Status set to review.
 
+- 2026-10-01: review pass 2 at d61b2ec. AC1-AC6 and the consistency gate pass. Three lenses reported P1-P11, and none shows a criterion failing. The user accepted fixing P1-P5 now, following up P6-P7, and rejecting P8-P11. The fixes landed in 0d9d04a, and the render and the gate passed again.
+- step-7 approval: m094-manuscript-accuracy-pass approved for merge
+
 ## Decisions
 
 ## Review
@@ -143,3 +146,8 @@ Evidence gathered 2026-10-01 at head 7c9d79a. Master has not moved since the bra
 - P9 (diff-bug 5): the manuscript says the two routes "agree", but the tests compare absolute values at 1e-6 (1e-4 for ESEM). Signs are aligned afterward. Proposed: reject (pre-existing test design, prose not wrong).
 - P10 (blame 2): ms:305 calls each edge "the factor-score correlation implied by the scoring weights and the polychoric correlation matrix". Proposed: reject, because "implied by" is accurate for a model-implied value.
 - P11 (diff-bug 7, prior-review 3 and 4): ragged source lines (ms:37, 104, 174, intro.orig:281). The rendered text is unchanged. Proposed: reject (formatting only).
+
+**Gate triage, pass 2 (2026-10-01).** The user accepted the proposal. P1-P5: fixed now in 0d9d04a. P6: follow-up, absorbed into the R5 candidate row. P7: follow-up, absorbed into the R7 sweep row. P8-P11: rejected for the reasons above.
+
+- Fix-now evidence: the methods paragraph (ms:156-174) and the intro paragraph now say each edge is the correlation the scores would have if the items correlated exactly as the matrix says (P1). The repeat claim became "Nothing in the algebra uses the orthogonality of a rotation, so it holds for oblique rotations too" (P3). All four sites say "the correlation matrix the fit uses" (P4). Both vignettes gloss pairwise deletion (P5). The NEWS entry is first in the development section, and the plain-English pointer names its two entries (P2).
+- Re-checks at 0d9d04a: `quarto render manuscript.qmd` exited 0 and wrote both outputs (10:06:34, 10:06:39). The em-dash count is 5 on the branch and on master. The generated `.Rmd` files differ from the branch only in prose and stamp. `DOD_CODE_UNCHANGED=1 Rscript tools/dod-gate.R` exited 0 (10:06:47 to 10:09:40): freshness, prose, and code-unchanged clean, check 0/0/0, coverage 100%.
