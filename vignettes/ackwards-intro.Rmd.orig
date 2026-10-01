@@ -279,10 +279,10 @@ principal components. With any linear scoring weights, the scores are linear
 composites of the items. So the covariance of two levels' scores is W′RW, which
 needs only the two weight matrices and the input correlation matrix R. Dividing
 by the score standard deviations gives the correlation. The result is exact for
-the R supplied. Scores computed from the observed items do not in general
-reproduce the edges exactly when R is polychoric (as here) or Spearman, or when
-it is estimated from incomplete data by pairwise deletion or by full-information
-maximum likelihood (FIML).
+the R supplied. When R is polychoric (as here) or Spearman, scores computed from
+the observed items do not in general reproduce the edges exactly. The same is
+true when R is estimated from incomplete data by pairwise deletion or by
+full-information maximum likelihood (FIML).
 
 ```{r tidy-edges}
 # Each factor's primary-parent edge, strongest first
