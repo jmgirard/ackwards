@@ -669,8 +669,9 @@
 #'   * `"artifact"` (or the alias `"artefact"`, normalized to `"artifact"`):
 #'     compute Tucker's congruence coefficient (phi) for all cross-level factor
 #'     pairs and store it in `x$prune$phi`. Congruence is a 0 to 1 index of how
-#'     similar two loading patterns are, where a loading is the correlation
-#'     between an item and a factor. This mode also stores structural signals
+#'     similar two loading patterns are. A loading is the correlation between
+#'     an item and a factor under varimax, and the pattern coefficient under
+#'     an oblique rotation. This mode also stores structural signals
 #'     (`few_items`, `orphan`, and `split_merge`) in `x$prune$structural`, and
 #'     the **near-redundant band** (`near_margin`, see Details) in
 #'     `x$prune$near_redundant`. No factors are auto-flagged, because artifact
@@ -739,6 +740,14 @@
 #' @param ... Reserved for future methods/arguments.
 #'
 #' @details
+#' **Oblique objects.** When [ackwards()] was fit with an oblique `rotation`,
+#' each edge `r` is a total correlation, which includes overlap through
+#' correlated factors at the same level. Every rule still runs unchanged: the
+#' edge criteria on `r`, and the congruence (phi) checks and item-assignment
+#' signals on the loadings, which are then pattern coefficients. A warning names the rules that run and
+#' says that they assume orthogonal levels. Their default thresholds, such as
+#' `redundancy_r = 0.9`, were calibrated on varimax edges.
+#'
 #' **The `"direct"` criterion is a star anchored on the leaf, not a walk.**
 #' Take a three-level chain candidate with deepest leaf `m3f1` and shallower
 #' factors `m2f1` (level 2) and `m1f1` (level 1). Under the default `"direct"`
@@ -822,7 +831,7 @@ prune <- function(x, ...) {
 }
 
 #' @rdname prune
-#' @importFrom rlang `%||%`
+#' @importFrom rlang "%||%"
 #' @export
 prune.ackwards <- function(x, rules = "none", manual = NULL,
                            redundancy_r = 0.9, redundancy_phi = NULL,
@@ -886,6 +895,22 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
   if (length(auto_rules) == 0L && is.null(manual)) {
     x$prune <- NULL
     return(x)
+  }
+
+  # Oblique objects (D-036): the criteria run unchanged, the edge criteria on
+  # the marginal r and the congruence checks and item-assignment signals
+  # (few_items, split_merge) on the pattern loadings, with
+  # thresholds calibrated on varimax; say so, naming the rules that run
+  # (Invariant 6).
+  if (length(auto_rules) > 0L && .is_oblique(x)) {
+    cli::cli_warn(c(
+      "!" = "The {.val {auto_rules}} rule{?s} assume{?s/} orthogonal levels, \\
+             and {.arg x} uses the oblique {.val {x$rotation}} rotation.",
+      "i" = "Each {.code r} is a total correlation, which includes overlap \\
+             through correlated factors at the same level. The rules run \\
+             unchanged, on {.code r} and on the pattern loadings. Their \\
+             default thresholds were calibrated on varimax."
+    ))
   }
 
   # Auto-resolve redundancy_phi = NULL (Invariant 6: announce loud). Both rules

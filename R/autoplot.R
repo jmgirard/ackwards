@@ -140,8 +140,9 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' @param show_items When `TRUE`, lists the salient observed items beneath each
 #'   **deepest-level** (`k_max`) factor box, so a publication figure shows what
 #'   each most-granular factor is made of. Items are the top `n_items` by
-#'   loading (the correlation between an item and a factor), taken in absolute
-#'   value at or above `item_cut`. The extraction is the same as in
+#'   loading (the item-factor correlation under varimax, or the pattern
+#'   coefficient under an oblique rotation), taken in absolute value at or
+#'   above `item_cut`. The extraction is the same as in
 #'   [top_items()]. Variable labels are shown when the fit carried them, else
 #'   the item IDs. Listed below the boxes in a vertical layout, and to their
 #'   right in a horizontal one. Default `FALSE`.
@@ -271,7 +272,7 @@ autoplot <- function(object, ...) UseMethod("autoplot")
 #' }
 #' }
 #'
-#' @importFrom rlang .data `%||%`
+#' @importFrom rlang .data "%||%"
 #' @export
 autoplot.ackwards <- function(
   object,
@@ -719,6 +720,16 @@ autoplot.ackwards <- function(
       direction = direction, node_height = nh_max,
       pruned_levels = if (drop_pruned) integer(0) else .fully_pruned_levels(object)
     )
+  }
+
+  # (e) Under an oblique rotation the edges stay total correlations (D-036);
+  # the caption says so, because the diagram's lineage reading assumes
+  # uncorrelated factors within a level.
+  if (.is_oblique(object)) {
+    p <- p + ggplot2::labs(caption = paste0(
+      "Edges are total correlations (r) under the oblique ", object$rotation,
+      " rotation. The partialled coefficient is beta in tidy()."
+    ))
   }
 
   .ba_finish_theme(p, legend, show_level_labels, direction, show_items = show_items)

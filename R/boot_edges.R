@@ -42,12 +42,21 @@
 #' flipping across replicates would corrupt the pooled edge distributions.
 #' This is the same matching machinery [comparability()] uses.
 #'
+#' Each replicate is refit with the object's `rotation`. Only the edge `r` is
+#' bootstrapped, so the partialled `beta` and `r2` columns of
+#' [tidy.ackwards()] get no intervals. Under an oblique rotation the interval
+#' therefore describes the total correlation.
+#'
 #' All resample indices are drawn upfront from `seed`, so results are
-#' reproducible and identical whether replicates run serially or in parallel.
-#' Replicate fits are dispatched through \pkg{future.apply} when it is
-#' installed and the user has set a [future::plan()]. Otherwise they run
+#' reproducible. Replicate fits are dispatched through \pkg{future.apply} when
+#' it is installed, under the user's [future::plan()], and otherwise run
 #' serially, as in the ESEM (exploratory structural equation modeling) engine
-#' of [ackwards()].
+#' of [ackwards()]. Most replicates are then fully determined by their
+#' resample indices, so serial and parallel runs agree exactly. The exception
+#' is an EFA object with `rotation = "oblimin"`: each refit also draws psych's
+#' random rotation starts. Its results are reproducible under `seed`. They
+#' can differ between a run with \pkg{future.apply} installed and one
+#' without it, because the two draw the starts from different random streams.
 #'
 #' @section What the intervals do and do not fix:
 #' Per-edge intervals make sampling uncertainty **visible**: an edge whose
@@ -160,6 +169,11 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
     ))
   }
 
+  # Every refit uses the object's rotation, so a psych rotation that loads
+  # GPArotation needs it here as at fit time. Without it every oblimin refit
+  # fails its rotation and truncates, and the muffled refits would not say why.
+  .check_rotation(x$rotation %||% "varimax", x$engine)
+
   n_boot <- .check_count(n_boot, "n_boot", min = 2L)
   if (!is.numeric(conf) || length(conf) != 1L || is.na(conf) ||
     conf <= 0 || conf >= 1) {
@@ -220,8 +234,10 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
   }
 
   # --- Upfront resample indices --------------------------------------------
-  # All randomness happens here: each replicate is then deterministic given
-  # its index vector, so serial and parallel dispatch agree exactly.
+  # The resampling randomness happens here. Each replicate is then
+  # deterministic given its index vector, except that an EFA oblimin refit
+  # also draws psych's random rotation starts, which are reproducible under
+  # `seed` (see .boot_lapply()).
   if (!is.null(seed)) set.seed(seed)
   idx_list <- lapply(seq_len(n_boot), function(b) {
     sample.int(n, n, replace = TRUE)
@@ -250,7 +266,7 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
       x_levels = x$levels, R_full = x$r, keys = keys, dims = dims,
       engine = x$engine, cor = x$cor, fm = x$meta$fm %||% "minres",
       missing_eff = missing_eff, k_max = x$k_max,
-      pairs = x$meta$pairs
+      pairs = x$meta$pairs, rotation = x$rotation %||% "varimax"
     )
   })
   cli::cli_progress_done()
@@ -304,8 +320,12 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
 
 # Parallel dispatch: future.apply when installed (runs under the user's
 # future::plan(); sequential by default), serial lapply otherwise -- the M26
-# pattern. future.seed = TRUE silences future's RNG advisory; the replicates
-# themselves are deterministic given the precomputed indices.
+# pattern. future.seed = TRUE silences future's RNG advisory. Given the
+# precomputed indices the replicates are deterministic, except that an EFA
+# oblimin object's refits draw psych's random rotation starts. They are
+# reproducible under `seed`: through future.seed's per-task streams when
+# future.apply is installed, and through the global stream that `seed` sets
+# in the serial fallback.
 .boot_lapply <- function(X, FUN) {
   if (rlang::is_installed("future.apply")) {
     future.apply::future_lapply(X, FUN, future.seed = TRUE)
@@ -319,7 +339,8 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
 # aligned with the object's tidy edge rows (row-major within each matrices
 # key); edges touching an unusable level are NA.
 .boot_replicate <- function(idx, data_mat, x_levels, R_full, keys, dims,
-                            engine, cor, fm, missing_eff, k_max, pairs) {
+                            engine, cor, fm, missing_eff, k_max, pairs,
+                            rotation = "varimax") {
   na_out <- rep(NA_real_, sum(vapply(dims, prod, numeric(1L))))
 
   levels_rep <- tryCatch(
@@ -333,7 +354,8 @@ boot_edges.ackwards <- function(x, data, n_boot = 1000L, conf = 0.95,
         )
       }
       out <- .fit_levels_muffled(R_b, engine,
-        k_max = k_max, cor = cor, fm = fm, n_obs = nrow(d_b)
+        k_max = k_max, cor = cor, fm = fm, n_obs = nrow(d_b),
+        rotation = rotation
       )
       list(levels = out$levels, R_b = R_b)
     },

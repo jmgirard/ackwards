@@ -108,3 +108,18 @@ test_that("tidy(what = 'factor_cor') returns a planted non-identity level-3 corr
   expect_identical(names(fcl), c("level", "factor_a", "factor_b", "cor", "factor_a_label", "factor_b_label"))
   expect_identical(fcl$factor_a_label[fcl$level == 3L], c("Alpha", "Alpha", NA))
 })
+
+# ── Labels ───────────────────────────────────────────────────────────────────
+
+test_that("every engine labels factor_cor with the level's factor labels", {
+  skip_if_not_installed("lavaan")
+  for (engine in c("pca", "efa", "esem")) {
+    x <- cached(ackwards(sim16, k_max = 3, engine = engine, seed = 1))
+    for (ki in names(x$levels)) {
+      lev <- x$levels[[ki]]
+      expect_identical(dimnames(lev$factor_cor), list(lev$labels, lev$labels),
+        label = paste(engine, "level", ki)
+      )
+    }
+  }
+})

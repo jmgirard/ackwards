@@ -44,6 +44,46 @@ test_that("print/summary snapshot: factor-correlation block prints at max |cor| 
   expect_snapshot(snap_print(summary(y)))
 })
 
+# Oblique surfaces (D-036): r is labelled a total correlation and beta the
+# partialled coefficient. PCA oblimin is deterministic (psych::pca() rotates
+# once, from the identity), and the tables are rounded to 3 digits, which
+# absorbs the small numerical drift between platforms and GPArotation
+# algorithms.
+test_that("print/summary snapshot: oblique PCA notes what an edge means", {
+  skip_if_not_installed("GPArotation")
+  x <- cached(ackwards(sim16, k_max = 4, rotation = "oblimin"))
+  expect_snapshot(snap_print(x))
+  expect_snapshot(snap_print(summary(x)))
+})
+
+test_that("tidy snapshot: oblique PCA edges, variance, and factor_cor", {
+  skip_if_not_installed("GPArotation")
+  x <- cached(ackwards(sim16, k_max = 4, rotation = "oblimin"))
+  show <- function(df) {
+    df[] <- lapply(df, function(col) if (is.numeric(col)) round(col, 3) else col)
+    print(as.data.frame(df), row.names = FALSE)
+  }
+  expect_snapshot(show(tidy(x, what = "edges")))
+  expect_snapshot(show(tidy(x, what = "variance")))
+  expect_snapshot(show(tidy(x, what = "factor_cor")))
+})
+
+test_that("autoplot snapshot: oblique PCA edge labels and caption", {
+  skip_if_not_installed("GPArotation")
+  skip_if_not_installed("ggplot2")
+  x <- cached(ackwards(sim16, k_max = 4, rotation = "oblimin"))
+  p <- autoplot(x, show_r = TRUE)
+  is_label <- vapply(p$layers, function(l) inherits(l$geom, "GeomLabel"), logical(1L))
+  expect_identical(sum(is_label), 1L)
+  lab <- p$layers[[which(is_label)]]$data
+  lab <- lab[order(lab$from, lab$to), c("from", "to", "rl")]
+  # The edge labels print r, and the caption names it a total correlation.
+  expect_snapshot({
+    cat(p$labels$caption, "\n")
+    print(lab, row.names = FALSE)
+  })
+})
+
 test_that("print/summary snapshot: EFA fit-index glyph line", {
   skip_if_not_installed("psych")
   x <- cached(ackwards(bfi25[, 1:10], k_max = 3, engine = "efa"))

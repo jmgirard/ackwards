@@ -50,13 +50,13 @@ test_that(".tenBerge_weights warns (once) on a rank-deficient loading matrix", {
   L_dup <- cbind(L_full[, 1L], L_full[, 1L])
 
   # Full-rank L: no warning, and W'RW = I (unit-variance scores).
-  expect_no_warning(W_full <- .tenBerge_weights(R, L_full))
+  expect_no_warning(W_full <- .tenBerge_weights(R, L_full, diag(2L)))
   expect_equal(diag(crossprod(W_full, R %*% W_full)), c(1, 1), tolerance = 1e-8)
 
   # Rank-deficient L: warns, returns finite weights, and W'RW departs from I --
   # exactly the case the comment now documents (edges stay valid downstream
   # because compute_edges() standardizes by the actual score SDs).
-  expect_warning(W_dup <- .tenBerge_weights(R, L_dup), "rank-deficient")
+  expect_warning(W_dup <- .tenBerge_weights(R, L_dup, diag(2L)), "rank-deficient")
   expect_true(all(is.finite(W_dup)))
   expect_false(isTRUE(all.equal(
     diag(crossprod(W_dup, R %*% W_dup)), c(1, 1)
@@ -105,7 +105,7 @@ test_that("EFA factor_cor is identity (orthogonal rotation)", {
   x <- cached(ackwards(psych::bfi[, 1:25], k_max = 3, engine = "efa"))
 
   for (ki in seq_len(x$k_max)) {
-    Phi <- x$levels[[as.character(ki)]]$factor_cor
+    Phi <- unname(x$levels[[as.character(ki)]]$factor_cor)
     expect_equal(Phi, diag(ki),
       info = paste("factor_cor is I at level", ki)
     )

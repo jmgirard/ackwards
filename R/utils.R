@@ -91,11 +91,33 @@ make_labels <- function(k) {
   paste0("m", k, "f", seq_len(k))
 }
 
-# Variance explained per factor (colSums(L^2) / p) + cumulative total, in the
-# c(<labels>, cumulative = <sum>) shape of every level's $variance (s.4). The
-# single computation site for all three engines (M60).
-.variance_explained <- function(L, p, labels) {
-  var_per_factor <- unname(colSums(L^2) / p)
+# TRUE when a factor correlation is the identity up to rounding (|Phi - I|
+# <= 1e-12 everywhere): the orthogonal case. Varimax gives the identity
+# exactly on psych's path and with rounding-level off-diagonals in lavaan's
+# cor.lv. The weight and variance formulas take their orthogonal form here,
+# so the default path keeps its pre-oblique floating-point result.
+.near_identity <- function(Phi, tol = 1e-12) {
+  Phi <- as.matrix(Phi)
+  # isTRUE(): a non-finite Phi is not the identity (NA would abort an if()).
+  isTRUE(max(abs(Phi - diag(nrow(Phi)))) <= tol)
+}
+
+# Per-factor variance key: diag(Phi L'L), the sum of squares a factor accounts
+# for under psych's Vaccounted convention for oblique solutions. It reduces to
+# colSums(L^2) at Phi = I, which the near-identity case computes directly.
+# The ESEM engine sorts its columns by this same key.
+.variance_key <- function(L, Phi) {
+  if (.near_identity(Phi)) colSums(L^2) else diag(Phi %*% crossprod(L))
+}
+
+# Variance explained per factor (.variance_key() / p) + cumulative total, in
+# the c(<labels>, cumulative = <sum>) shape of every level's $variance (s.4).
+# The single computation site for all three engines (M60). Under an oblique
+# rotation the per-factor values still sum to tr(L Phi L') / p, the total
+# common variance, which is the varimax total. A factor's value is then not
+# its unique share: it sums pattern loadings times structure correlations.
+.variance_explained <- function(L, p, labels, Phi) {
+  var_per_factor <- unname(.variance_key(L, Phi) / p)
   c(stats::setNames(var_per_factor, labels), cumulative = sum(var_per_factor))
 }
 
@@ -130,13 +152,46 @@ make_labels <- function(k) {
 # default) the factors are orthogonal and `$Phi` is absent, so the identity
 # is the correct correlation. k = 1 has no rotation and returns the 1 x 1
 # identity. A stored `$Phi` is returned as a plain unnamed matrix so the
-# caller applies its own labels.
+# caller applies its own labels. A non-finite `$Phi` is an error, which the
+# engines turn into a truncation warning (Invariant 7).
 .engine_phi <- function(fit, k) {
   Phi <- fit$Phi
   if (is.null(Phi) || k == 1L) {
     return(diag(k))
   }
-  unname(as.matrix(Phi))
+  Phi <- unname(as.matrix(Phi))
+  if (!all(is.finite(Phi))) stop("the factor correlations are not finite.")
+  Phi
+}
+
+# The warnings psych gives when an oblique rotation fails: GPArotation's
+# non-convergence, psych's note that it used Promax in place of the requested
+# rotation, and its notice that GPArotation is missing. Case is ignored:
+# GPArotation's legacy algorithm (its default before 2026.6-1) writes
+# "convergence not obtained". Returns the matching messages (character(0)
+# when none).
+.psych_rotation_warnings <- function(msgs) {
+  grep(
+    "convergence not obtained|Promax was used instead|requires the GPArotation package",
+    msgs,
+    value = TRUE,
+    ignore.case = TRUE
+  )
+}
+
+# How many starts psych::fa() rotates from: its `n.rotations` default (20 in
+# psych 2.6.5, 1 in versions without the argument). With more than one start
+# a rotation warning can come from a discarded start; with one it describes
+# the stored solution (M90 Decisions, finding F1).
+.psych_fa_starts <- function(fa_formals = formals(psych::fa)) {
+  n <- fa_formals$n.rotations
+  if (is.numeric(n) && length(n) == 1L && n > 1) as.integer(n) else 1L
+}
+
+# Oblique regression (Thurstone) weights R^{-1} L Phi, which are R^{-1} L
+# under varimax. The ESEM engine's fallback when tenBerge weights fail.
+.regression_weights <- function(R, L, Phi) {
+  solve(R) %*% L %*% Phi
 }
 
 # Actual score variances diag(W' R W) -- never assumed 1 (Invariant 1). Shared
@@ -282,6 +337,53 @@ make_labels <- function(k) {
   as.integer(x)
 }
 
+# Rotations each engine supports. Varimax is the default for every engine
+# (D-034). psych rotates the PCA and EFA levels. oblimin loads GPArotation on
+# both; promax loads it only on the EFA path (psych::fa() routes it through
+# psych::kaiser()), while psych::pca() uses stats::promax(). lavaan rotates
+# the ESEM levels natively, where geomin is its oblique geomin.
+.supported_rotations <- list(
+  pca  = c("varimax", "oblimin", "promax"),
+  efa  = c("varimax", "oblimin", "promax"),
+  esem = c("varimax", "oblimin", "geomin")
+)
+
+# TRUE for an object (or rotation string) fit with an oblique rotation. Old
+# objects without a rotation field were all varimax.
+.is_oblique <- function(x) {
+  rotation <- if (is.character(x)) x else x$rotation
+  !is.null(rotation) && !identical(rotation, "varimax")
+}
+
+# Validate `rotation` against the engine and return it. An unknown name fails
+# as an arg_match error; a known name the engine lacks fails naming both. A
+# psych rotation that loads GPArotation checks for it here, before any
+# fitting, so the user gets rlang's install prompt. Without GPArotation,
+# psych's oblimin fails its rotation, so the engines would truncate at level 1
+# (PCA on psych's warning, EFA on the missing rotation matrix), and
+# psych::fa()'s promax stops inside kaiser().
+.check_rotation <- function(rotation, engine) {
+  all_rotations <- unique(unlist(.supported_rotations, use.names = FALSE))
+  rotation <- rlang::arg_match0(rotation, all_rotations, arg_nm = "rotation")
+  supported <- .supported_rotations[[engine]]
+  if (!rotation %in% supported) {
+    cli::cli_abort(c(
+      "!" = "{.code rotation = \"{rotation}\"} is not available with \\
+             {.code engine = \"{engine}\"}.",
+      "i" = "Rotations for {.code engine = \"{engine}\"}: {.val {supported}}."
+    ))
+  }
+  loads_gpa <- (rotation == "oblimin" && engine %in% c("pca", "efa")) ||
+    (rotation == "promax" && engine == "efa")
+  if (loads_gpa) {
+    rlang::check_installed(
+      "GPArotation",
+      reason = paste0("for `rotation = \"", rotation, "\"` with `engine = \"", engine, "\"`.")
+    )
+  }
+  rotation
+}
+
 # Detect which columns of a data frame look ordinal (Likert-scale).
 # Heuristic: a column is flagged if it is integer-like and has <= max_levels
 # distinct values. Returns the flagged column names (character(0) when none),
@@ -301,7 +403,9 @@ detect_ordinal <- function(data, max_levels = 7L) {
 }
 
 # Primary-parent assignment: for each factor in level b, find the factor in level a
-# with the highest |r|. Returns an integer vector of length ncol(E).
+# with the highest |r|. Returns an integer vector of length ncol(E). `E` holds
+# the marginal edges r under every rotation (D-036): under an oblique rotation
+# r is a total correlation and the partialled beta is reported, not matched on.
 # Each child picks its argmax parent independently; multiple children can (and do)
 # share a parent -- that is normal and expected in the bass-ackwards hierarchy.
 # LSAP (bijection) is wrong here: adjacent levels always have n_b = n_a + 1, so
@@ -349,6 +453,7 @@ match_parents <- function(E) {
 #      parent's own flip is applied* -- i.e. sign propagates top-down. Using
 #      the raw (unflipped-parent) edge here would leave a flipped parent's
 #      primary edge displaying negative (DESIGN s.7: "propagating top-down").
+#   The anchor edge is the marginal r under every rotation (D-036).
 #
 # Arguments:
 #   loadings_list  -- list indexed by k (1..K) of pxk loading matrices
@@ -530,11 +635,18 @@ flip_weights <- function(W, sign_vec) {
 # unusably; its aggregate signal is what the callers' coefficients / NA counts
 # report. Callers keep their own R construction, resample/split step, and
 # error/sentinel handling. PCA/EFA only (both callers are; s.14.35/.36).
-.fit_levels_muffled <- function(R, engine, k_max, cor, fm, n_obs) {
+# `rotation` is the fitted object's rotation for boot_edges(), so a replicate
+# refits the same rotation as the full-sample hierarchy it is anchored to;
+# comparability() takes no rotation and keeps the varimax default.
+.fit_levels_muffled <- function(R, engine, k_max, cor, fm, n_obs,
+                                rotation = "varimax") {
   suppressMessages(suppressWarnings(
     switch(engine,
-      pca = pca_levels(R, k_max = k_max, cor = cor),
-      efa = efa_levels(R, k_max = k_max, fm = fm, n_obs = n_obs, cor = cor)
+      pca = pca_levels(R, k_max = k_max, cor = cor, rotation = rotation),
+      efa = efa_levels(R,
+        k_max = k_max, fm = fm, n_obs = n_obs, cor = cor,
+        rotation = rotation
+      )
     )
   ))
 }

@@ -10,18 +10,20 @@
 #' @section Defaults and why:
 #' * **`engine = "pca"`** is the original Goldberg (2006) method. PCA
 #'   (principal component analysis) is the fastest engine and never fails to
-#'   converge, and the Waller (2007) algebra is exact for components.
+#'   converge, and the Waller (2007) algebra is exact for components. (An
+#'   oblique `rotation` can still fail, see `rotation`.)
 #' * **`rotation = "varimax"`** keeps the within-level factors mutually
 #'   uncorrelated (orthogonal). A rotation re-orients the factors without
 #'   changing how well they fit, and varimax pushes each item toward one
-#'   factor. So each between-level edge reflects only the cross-level
-#'   relationship. An oblique rotation's correlated within-level factors would
-#'   leak into the between-level edges and confound the between-level signal
-#'   that is the method's core output. The closed-form
+#'   factor. With uncorrelated factors, each between-level edge equals that
+#'   ancestor's unique contribution to the descendant. That is what lets the
+#'   edges be read as a lineage diagram. The closed-form
 #'   `W'RW` edge algebra is itself exact for any fixed linear scoring, orthogonal
 #'   or not, so the choice is interpretive, not a numerical necessity. It
 #'   matches Goldberg (2006), Kim & Eaton (2015), and Forbush et al. (2024).
-#'   Varimax is the only supported rotation.
+#'   An oblique rotation is available as a non-default option (see
+#'   `rotation`). Its edges are total correlations, which also carry overlap
+#'   through correlated factors at the same level.
 #' * **`cor = "pearson"`** means no silent basis switching. If your items look
 #'   ordinal (<= 7 distinct integer values), a cli warning will suggest
 #'   `cor = "polychoric"`, which is available for all three engines. Ordinal
@@ -68,7 +70,7 @@
 #'     contributes to the FIML likelihood, which matches the FIML convention
 #'     (Enders, 2010). `"complete"` is the complete-case N, a conservative
 #'     lower bound. Point estimates do not depend on this choice. Those are
-#'     the loadings (the correlation between each item and a factor) and the
+#'     the loadings (how strongly each item reflects a factor) and the
 #'     edges. Only the fit indices of EFA (exploratory factor analysis) do.
 #'     Those indices are *approximate* whatever N you pick, because of this
 #'     two-step route: a FIML matrix fed into normal-theory EFA
@@ -140,8 +142,12 @@
 #' @param keep_fits Logical. Store raw engine fit objects? Default `FALSE`.
 #'   When `TRUE`, the per-level fit objects (psych or lavaan) are stored in
 #'   `x$fits` as a named list indexed by level.
-#' @param seed Integer seed for stochastic engines (not used by PCA but
-#'   captured for reproducibility metadata). Default `NULL`.
+#' @param seed Integer seed for steps that start at random: every lavaan
+#'   rotation (ESEM) and psych's oblimin rotation for EFA. Both rotate from
+#'   several random starts and keep the best one. Without a seed, two oblimin
+#'   EFA fits of the same data can reach a different solution at a deep level.
+#'   It is not used by PCA but is captured for reproducibility metadata.
+#'   Default `NULL`.
 #' @param pairs Which level pairs to compute edges for. `"adjacent"` is the
 #'   default and is the classic Goldberg choice of consecutive levels only.
 #'   `"all"` is the Forbes extension, which takes
@@ -160,6 +166,39 @@
 #'   sparse cross-cell. It is ignored
 #'   on other paths: ESEM computes its own polychoric correlations inside lavaan,
 #'   and the Pearson/Spearman bases do not use it.
+#' @param rotation The rotation used at every level with two or more factors.
+#'   The default, `"varimax"`, keeps the factors within a level uncorrelated.
+#'   The other values are oblique rotations, which let them correlate. With
+#'   `engine = "pca"` or `"efa"`, they are `"oblimin"` and `"promax"`.
+#'   With these engines `"oblimin"` needs the GPArotation package, and so
+#'   does `"promax"` with `engine = "efa"`. With `engine = "esem"`, they are
+#'   `"oblimin"` and `"geomin"` (lavaan's oblique geomin). With PCA,
+#'   `"promax"` is `stats::promax()`. With EFA it is psych's `Promax()`
+#'   through `psych::kaiser()`. The two can give slightly different loadings
+#'   for the same solution.
+#'
+#'   Under an oblique rotation, each edge `r` is a total correlation. Primary
+#'   parents and signs still use `r`, and [tidy.ackwards()] reports the
+#'   partialled `beta` beside it. Each level's `factor_cor` holds the
+#'   engine's factor correlation. EFA and ESEM scores use the oblique form
+#'   of the ten Berge weights, and PCA scores are the oblique components, so
+#'   the scores correlate as the factors do. The `variance`
+#'   values follow psych's convention for correlated factors. The fit
+#'   announces what its edges mean, and [prune()] warns that its thresholds
+#'   were set for varimax. Two kinds of rotation start at random: psych's
+#'   oblimin for `engine = "efa"` and every lavaan rotation. Set `seed` to
+#'   reproduce such a fit exactly (see `seed`).
+#'
+#'   An oblique rotation that fails is handled by how many starts it uses.
+#'   PCA rotates once, so a level whose rotation fails to converge, or that
+#'   psych replaces with promax, ends the hierarchy at the level before it
+#'   with a warning. So does a PCA level whose oblique fit raises an error.
+#'   EFA (psych's `fa()` defaults to several starts) and ESEM rotate from
+#'   several random starts and keep the best one, so a non-convergence
+#'   warning there can come from a discarded start. It is shown, and the
+#'   level is kept. An EFA level whose final rotation step failed still ends
+#'   the hierarchy, and so does any EFA rotation warning when the installed
+#'   psych's `fa()` rotates from one start.
 #' @param ... Reserved for future arguments.
 #'
 #' @return An object of class `"ackwards"`. See [print.ackwards()],
@@ -324,6 +363,7 @@ ackwards <- function(
   pairs = "adjacent",
   cut_show = 0.3,
   correct = 0.5,
+  rotation = "varimax",
   ...
 ) {
   cl <- match.call()
@@ -369,6 +409,7 @@ ackwards <- function(
 
   # --- Shared argument validation ---------------------------------------------
   engine <- rlang::arg_match(engine, c("pca", "efa", "esem"))
+  rotation <- .check_rotation(rotation, engine)
   fm <- rlang::arg_match(fm, c("minres", "ml", "pa"))
   pairs <- rlang::arg_match(pairs, c("adjacent", "all"))
 
@@ -500,11 +541,11 @@ ackwards <- function(
     engine_out <- switch(engine,
       pca = pca_levels(R,
         k_max = k_max, cor = "pearson",
-        keep_fits = keep_fits
+        keep_fits = keep_fits, rotation = rotation
       ),
       efa = efa_levels(R,
         k_max = k_max, fm = fm, n_obs = n_obs_eff,
-        cor = "pearson", keep_fits = keep_fits
+        cor = "pearson", keep_fits = keep_fits, rotation = rotation
       )
     )
     levels_list <- engine_out$levels
@@ -748,7 +789,7 @@ ackwards <- function(
       esem_out <- esem_levels(data_mat,
         k_max = k_max, estimator = estimator_eff, cor = cor,
         R_external = R_ext, keep_fits = keep_fits,
-        missing = missing
+        missing = missing, rotation = rotation
       )
       levels_list <- esem_out$levels
       fits_stored <- esem_out$fits
@@ -845,11 +886,11 @@ ackwards <- function(
       engine_out <- switch(engine,
         pca = pca_levels(R,
           k_max = k_max, cor = cor,
-          keep_fits = keep_fits
+          keep_fits = keep_fits, rotation = rotation
         ),
         efa = efa_levels(R,
           k_max = k_max, fm = fm, n_obs = n_obs_eff,
-          cor = cor, keep_fits = keep_fits
+          cor = cor, keep_fits = keep_fits, rotation = rotation
         )
       )
       levels_list <- engine_out$levels
@@ -866,7 +907,8 @@ ackwards <- function(
   # N-based checks accordingly. Run factorability() for the full report.
   .factorability_screen(R, n_obs = n_obs_eff, p = p, k_max = k_max, engine = engine)
 
-  # --- Handle convergence truncation (PCA never truncates; EFA/ESEM may) -----
+  # --- Handle truncation (EFA/ESEM on non-convergence; any engine on a failed
+  # oblique rotation or an unusable factor correlation) ------------------------
   k_eff <- length(levels_list)
   if (k_eff < 2L) {
     cli::cli_abort(
@@ -881,8 +923,9 @@ ackwards <- function(
   if (k_eff < k_max) {
     cli::cli_warn(
       c(
-        "!" = "Hierarchy truncated: {k_max - k_eff} level{?s} did not converge \\
-               (requested k_max = {k_max}, built k = {k_eff}).",
+        "!" = "Hierarchy truncated: {k_max - k_eff} level{?s} could not be \\
+               built (requested k_max = {k_max}, built k = {k_eff}). The \\
+               warning above names the cause.",
         "i" = "Set {.arg k_max = {k_eff}} to suppress this message."
       )
     )
@@ -1020,10 +1063,30 @@ ackwards <- function(
     near_singular     = isTRUE(min_eigenvalue < 1e-4)
   )
 
+  # --- Oblique advisory (Invariant 6, D-036) ----------------------------------
+  # An oblique fit is the user's explicit choice, but what its edges mean is
+  # not, so every such fit says it once here, after the hierarchy is built.
+  if (.is_oblique(rotation)) {
+    cli::cli_inform(c(
+      "i" = "Oblique rotation ({.val {rotation}}): the factors within a level \\
+             can correlate.",
+      "i" = "Each edge {.code r} is a total correlation, which includes \\
+             overlap through correlated factors at the same level. Primary \\
+             parents and signs use {.code r}, and {.code tidy(x)} reports the \\
+             partialled {.code beta} beside it.",
+      "!" = "A factor's primary parent can then be a factor that only \\
+             correlates with its real parent. Compare {.code r} with \\
+             {.code beta} before reading a split as lineage.",
+      "!" = "The {.arg cut_show} ({.val {cut_show}}) and {.fn prune} \\
+             {.arg redundancy_r} conventions were calibrated under varimax."
+    ))
+  }
+
   # --- Assemble result --------------------------------------------------------
   x <- new_ackwards(
     call        = cl,
     engine      = engine,
+    rotation    = rotation,
     cor         = cor_eff,
     n_obs       = n_obs_eff,
     k_max       = k_eff, # effective depth (may be < k_max if truncated)
@@ -1054,14 +1117,14 @@ ackwards <- function(
 
 # S3 constructor -- validates structure and attaches class
 new_ackwards <- function(
-  call, engine, cor, n_obs, k_max, seed, pkg_version,
+  call, engine, rotation, cor, n_obs, k_max, seed, pkg_version,
   levels, edges, lineage, scores, fits, r, data, meta
 ) {
   structure(
     list(
       call        = call,
       engine      = engine,
-      rotation    = "varimax",
+      rotation    = rotation,
       cor         = cor,
       n_obs       = n_obs,
       k_max       = k_max,

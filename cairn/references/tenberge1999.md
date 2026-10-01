@@ -16,7 +16,7 @@ The paper behind ackwards' **default scoring method** (`method = "tenBerge"`,
 DESIGN §9): it defines the class of **linear correlation-preserving (LCP)**
 factor-score predictors and gives the closed-form solution that
 `psych::factor.scores(method = "tenBerge")` (and our own
-`.tenBerge_weights(R, Λ)` for the ESEM engine) implements.
+`.tenBerge_weights(R, Λ, Φ)` for the EFA and ESEM engines, corrected M90) implements.
 
 ## The result
 
@@ -45,11 +45,13 @@ one "tenBerge" score.
   exactly instead of shrinking it (regression scores) or distorting it
   (Bartlett under some `Ψ`). Linear → algebra-eligible (Invariant 1).
 - **Varimax default ⇒ orthogonal factors ⇒ the coincidence case (Thm 3)** —
-  the method's behavior is unambiguous in our default configuration.
+  the method's behavior is unambiguous in our default configuration. Under an
+  oblique `rotation` (M90) the helper takes Φ and uses Eq. 9's oblique form,
+  `L* = LΦ^{1/2}` (corrected M90).
 - Even correlation-preserving scores are still *predictions*, not the factors
   (indeterminacy) — the reason `redundancy_phi` auto-resolves to a φ guard for
   EFA/ESEM but not PCA (DESIGN §9 `redundancy_phi` row, M25/M43 wording), and a companion caveat
   to [[waller2007]] §4.
-- ESEM engine computes tenBerge weights itself from lavaan's `Λ` and latent
-  `R` (`.tenBerge_weights`), since `lavPredict()` lacks the method (DECISIONS
-  D-016).
+- ESEM engine computes tenBerge weights itself from lavaan's `Λ`, `cor.lv`,
+  and latent `R` (`.tenBerge_weights`), since `lavPredict()` lacks the method
+  (DECISIONS D-016). The EFA engine uses the same helper (corrected M90).

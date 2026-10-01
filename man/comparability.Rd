@@ -106,6 +106,11 @@ correlation between an item and a factor, and congruence is a 0 to 1 index
 of how similar two loading patterns are. So comparability asks whether the
 two halves' \emph{scores} agree, and phi asks whether their \emph{loading patterns}
 agree.
+
+\code{comparability()} always uses the varimax rotation, the \code{\link[=ackwards]{ackwards()}}
+default, for the full sample and for every half. It has no \code{rotation}
+argument, so its coefficients describe the varimax hierarchy even when you
+fit \code{\link[=ackwards]{ackwards()}} with an oblique rotation.
 }
 \section{Interpreting the output}{
 

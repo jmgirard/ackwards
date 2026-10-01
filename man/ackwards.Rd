@@ -20,6 +20,7 @@ ackwards(
   pairs = "adjacent",
   cut_show = 0.3,
   correct = 0.5,
+  rotation = "varimax",
   ...
 )
 }
@@ -121,7 +122,7 @@ or \code{"complete"}. The default is \code{"total"}, meaning every row that
 contributes to the FIML likelihood, which matches the FIML convention
 (Enders, 2010). \code{"complete"} is the complete-case N, a conservative
 lower bound. Point estimates do not depend on this choice. Those are
-the loadings (the correlation between each item and a factor) and the
+the loadings (how strongly each item reflects a factor) and the
 edges. Only the fit indices of EFA (exploratory factor analysis) do.
 Those indices are \emph{approximate} whatever N you pick, because of this
 two-step route: a FIML matrix fed into normal-theory EFA
@@ -142,8 +143,12 @@ per-observation scores are stored in \code{x$scores} as a named list of
 When \code{TRUE}, the per-level fit objects (psych or lavaan) are stored in
 \code{x$fits} as a named list indexed by level.}
 
-\item{seed}{Integer seed for stochastic engines (not used by PCA but
-captured for reproducibility metadata). Default \code{NULL}.}
+\item{seed}{Integer seed for steps that start at random: every lavaan
+rotation (ESEM) and psych's oblimin rotation for EFA. Both rotate from
+several random starts and keep the best one. Without a seed, two oblimin
+EFA fits of the same data can reach a different solution at a deep level.
+It is not used by PCA but is captured for reproducibility metadata.
+Default \code{NULL}.}
 
 \item{pairs}{Which level pairs to compute edges for. \code{"adjacent"} is the
 default and is the classic Goldberg choice of consecutive levels only.
@@ -166,6 +171,40 @@ sparse cross-cell. It is ignored
 on other paths: ESEM computes its own polychoric correlations inside lavaan,
 and the Pearson/Spearman bases do not use it.}
 
+\item{rotation}{The rotation used at every level with two or more factors.
+The default, \code{"varimax"}, keeps the factors within a level uncorrelated.
+The other values are oblique rotations, which let them correlate. With
+\code{engine = "pca"} or \code{"efa"}, they are \code{"oblimin"} and \code{"promax"}.
+With these engines \code{"oblimin"} needs the GPArotation package, and so
+does \code{"promax"} with \code{engine = "efa"}. With \code{engine = "esem"}, they are
+\code{"oblimin"} and \code{"geomin"} (lavaan's oblique geomin). With PCA,
+\code{"promax"} is \code{stats::promax()}. With EFA it is psych's \code{Promax()}
+through \code{psych::kaiser()}. The two can give slightly different loadings
+for the same solution.
+
+Under an oblique rotation, each edge \code{r} is a total correlation. Primary
+parents and signs still use \code{r}, and \code{\link[=tidy.ackwards]{tidy.ackwards()}} reports the
+partialled \code{beta} beside it. Each level's \code{factor_cor} holds the
+engine's factor correlation. EFA and ESEM scores use the oblique form
+of the ten Berge weights, and PCA scores are the oblique components, so
+the scores correlate as the factors do. The \code{variance}
+values follow psych's convention for correlated factors. The fit
+announces what its edges mean, and \code{\link[=prune]{prune()}} warns that its thresholds
+were set for varimax. Two kinds of rotation start at random: psych's
+oblimin for \code{engine = "efa"} and every lavaan rotation. Set \code{seed} to
+reproduce such a fit exactly (see \code{seed}).
+
+An oblique rotation that fails is handled by how many starts it uses.
+PCA rotates once, so a level whose rotation fails to converge, or that
+psych replaces with promax, ends the hierarchy at the level before it
+with a warning. So does a PCA level whose oblique fit raises an error.
+EFA (psych's \code{fa()} defaults to several starts) and ESEM rotate from
+several random starts and keep the best one, so a non-convergence
+warning there can come from a discarded start. It is shown, and the
+level is kept. An EFA level whose final rotation step failed still ends
+the hierarchy, and so does any EFA rotation warning when the installed
+psych's \code{fa()} rotates from one start.}
+
 \item{...}{Reserved for future arguments.}
 }
 \value{
@@ -186,18 +225,20 @@ descriptive: edges are score correlations, not a fitted higher-order SEM.
 \itemize{
 \item \strong{\code{engine = "pca"}} is the original Goldberg (2006) method. PCA
 (principal component analysis) is the fastest engine and never fails to
-converge, and the Waller (2007) algebra is exact for components.
+converge, and the Waller (2007) algebra is exact for components. (An
+oblique \code{rotation} can still fail, see \code{rotation}.)
 \item \strong{\code{rotation = "varimax"}} keeps the within-level factors mutually
 uncorrelated (orthogonal). A rotation re-orients the factors without
 changing how well they fit, and varimax pushes each item toward one
-factor. So each between-level edge reflects only the cross-level
-relationship. An oblique rotation's correlated within-level factors would
-leak into the between-level edges and confound the between-level signal
-that is the method's core output. The closed-form
+factor. With uncorrelated factors, each between-level edge equals that
+ancestor's unique contribution to the descendant. That is what lets the
+edges be read as a lineage diagram. The closed-form
 \verb{W'RW} edge algebra is itself exact for any fixed linear scoring, orthogonal
 or not, so the choice is interpretive, not a numerical necessity. It
 matches Goldberg (2006), Kim & Eaton (2015), and Forbush et al. (2024).
-Varimax is the only supported rotation.
+An oblique rotation is available as a non-default option (see
+\code{rotation}). Its edges are total correlations, which also carry overlap
+through correlated factors at the same level.
 \item \strong{\code{cor = "pearson"}} means no silent basis switching. If your items look
 ordinal (<= 7 distinct integer values), a cli warning will suggest
 \code{cor = "polychoric"}, which is available for all three engines. Ordinal

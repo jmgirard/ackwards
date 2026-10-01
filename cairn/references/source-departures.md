@@ -61,17 +61,19 @@ cite them, never renumber.
 | E3 | Goldberg: PCA component scores (his "components over factors" stance) | PCA **default** → components (**matches** Goldberg); **factor** engines (EFA/ESEM) → **tenBerge**, not components | DESIGN §9 `scores` row; D-007 | Correlation-preserving + linear (algebra-eligible); trade-off formalized by [[grice2001]] / [[beauducel2024]]; Goldberg's own "virtually identical" for PCA-vs-factor | `depart-supported` |
 | E4 | Forbes: `comp.corr = t(W_a) R W_b`, **no** sign alignment | Same algebra + **primary-parent sign alignment** (IP4) | IP4; D-010; [[forbes2023]] correspondence conventions | Fidelity suite: `|values|` identical entrywise to **1.3e-14** (M44/M53) — presentational only, numerically identical | `depart-supported` |
 | E5 | Forbes: `cong = psych::factor.congruence`, rounded to 2 dp | **Exact** Tucker's φ | [[forbes2023]] correspondence conventions | Fidelity suite: agreement within **0.005** (M44) — a precision gain, not a divergence | `depart-supported` |
+| E6 | Forbes: `ChaseCorrPaths` returns "X--null" for a level-3+ component whose chase is unbroken to level a, because `which.min()` on a vector with no `FALSE` counts zero links | `prune("redundant")` chases such a component to a1 | Pending: no D-entry yet (IP9). The ROADMAP candidate row "Unbroken chase to level a" takes her intent to the gated Forbes design session | Seen once, in the oblique fixture (sim 3, minres, promax), [[forbes2023]]. The fidelity test asserts her "null" and our a1 | `depart-gap` |
 | M1 | Goldberg: display paths ≥ **.30** in figures | `cut_show = 0.3` (default show-cut) | `R/ackwards.R:292`; [[goldberg2006]] | — (matches the source) | `match` |
-| M2 | Forbes: `ChaseCorrPaths` uses the **direct/skip-level** correlation to each ancestor | `redundancy_criterion = "direct"` (default) | D-017; [[forbes2023]]; legacy M53 | Fidelity: reproduced her redundancy chase 54/54 components (M53) | `match` |
+| M2 | Forbes: `ChaseCorrPaths` uses the **direct/skip-level** correlation to each ancestor | `redundancy_criterion = "direct"` (default) | D-017; [[forbes2023]]; legacy M53 | Fidelity: reproduced her redundancy chase 54/54 components (M53). One edge case departs, row E6 (corrected M90) | `match` |
 | M3 | Forbes: identifying an artifact requires researcher judgment (no automated drop) | `prune("artifact")` **reports** evidence (φ for every cross-level pair + structural signals), **never auto-drops** | GP2 (report-first, flag-second); [[forbes2023]] | The *drop decision* is substantive; a standardized always-computed flag *removes* investigator DoF rather than adding it — the earlier "automating would manufacture investigator DoF" vignette framing had the causality backwards (corrected M76, per Forbes's 2026-07 website review) | `match` |
 
 ## Disposition
 
 - **E1–E5** are all `depart-supported`: each has a documented rationale **and**
   empirical or mathematical support (E1 tong2025; E2 Waller proof + IP2 test; E3
-  grice2001/beauducel2024 + Goldberg; E4/E5 the fidelity suite). **No departure
-  is currently a `depart-gap`, so no candidate row is spawned** — the "ideally
-  empirical support" bar is met across the board.
+  grice2001/beauducel2024 + Goldberg; E4/E5 the fidelity suite).
+- **E6** is a `depart-gap` (corrected M90): the oblique fixture found the edge
+  case, and its candidate row holds it for the Forbes design session. No D-entry
+  records it until her intent is known.
 - **M1, M2, M3** are `match`: recorded so a future reader confirms they are deliberate
   alignments, not accidents.
 - **The governing principle** is IP9 / D-031 (exact Forbes reproduction is a

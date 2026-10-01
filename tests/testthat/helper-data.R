@@ -6,7 +6,9 @@
 # the first evaluation so cache misses and hits behave identically; only use
 # cached() where the surrounding test does not expect_warning()/expect_message()
 # on the fit itself. Do not use for calls that consume RNG the test relies on
-# afterwards (e.g. unseeded suggest_k()); ackwards() fits are deterministic.
+# afterwards (e.g. unseeded suggest_k()). ackwards() fits are deterministic
+# except where a rotation draws random starts (oblimin EFA, every ESEM fit):
+# seed those, or compare them only with their own engine's output.
 # Treat returned objects as read-only: rebinding/modifying the returned value
 # is copy-on-modify safe, but environment-bearing components (e.g. lavaan fits
 # under keep_fits = TRUE) are shared by reference across cache hits.

@@ -392,3 +392,23 @@ test_that("autoplot.comparability() handles all-NA levels from shortfalls", {
   expect_false(anyNA(p$data$value))
   expect_true(all(p$data$level <= 2L))
 })
+
+test_that("comparability() fits the full sample and every half with varimax", {
+  seen <- character()
+  real <- pca_levels
+  testthat::local_mocked_bindings(
+    pca_levels = function(..., rotation = "varimax") {
+      seen <<- c(seen, rotation)
+      real(..., rotation = rotation)
+    }
+  )
+  suppressMessages(comparability(sim16, k_max = 3, n_splits = 1, seed = 1))
+  # One full-sample fit and two halves.
+  expect_identical(seen, rep("varimax", 3L))
+  # It has no rotation argument to pass.
+  expect_error(
+    comparability(sim16, k_max = 3, rotation = "oblimin"),
+    "Unknown argument passed to `comparability()`: `rotation`",
+    fixed = TRUE
+  )
+})

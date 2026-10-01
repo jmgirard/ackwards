@@ -1,5 +1,35 @@
 # ackwards (development version)
 
+* **Oblique rotation as an option.** `ackwards()` gains a `rotation`
+  argument. The default stays `"varimax"`, and default numerical output does
+  not change (PCA and EFA `factor_cor` gain row and column names, see
+  below). With `engine = "pca"` or `"efa"`, it also accepts `"oblimin"` and
+  `"promax"`. The GPArotation package (now in Suggests) is needed for
+  `"oblimin"` with these engines, and for `"promax"` with `engine = "efa"`. With
+  `engine = "esem"`, it also accepts `"oblimin"` and `"geomin"`. Under an
+  oblique rotation, each level stores the engine's factor correlation. The
+  scores keep that correlation: EFA and ESEM use the oblique form of the ten
+  Berge weights, and PCA uses the oblique components. The `variance` values
+  follow psych's convention for correlated factors. Each edge `r` is then a
+  total correlation. Primary parents, sign alignment, and the diagram still
+  use `r`, and `beta` in `tidy()` gives the partialled coefficient. The fit
+  prints a message that says so, and `print()`, `summary()`, and `autoplot()`
+  label it. `prune()` warns that its thresholds were set for varimax.
+  `boot_edges()` refits each replicate with the object's rotation, and checks
+  first for GPArotation when that rotation needs it. A PCA level whose
+  oblique rotation fails, or raises an error, ends the hierarchy at the level
+  before it, because PCA rotates once. EFA and ESEM rotate from several
+  random starts, so their non-convergence warnings are shown and the level is
+  kept. An EFA level whose final rotation step failed still ends the
+  hierarchy. If the installed psych rotates from one start, any EFA rotation
+  warning ends it too. Set
+  `seed` to reproduce an oblique EFA fit or any ESEM fit exactly. A new test
+  checks the oblique results against Forbes's reference implementation on
+  her three simulation studies.
+
+* PCA and EFA `factor_cor` matrices now carry the level's factor labels as
+  row and column names, as the ESEM ones already did.
+
 * The default-output baseline test now uses a platform tolerance (1e-8 for
   PCA and EFA, 1e-5 for ESEM). The frozen fixture was generated on macOS, and
   the test failed on Linux and Windows at its old 1e-12 tolerance because of

@@ -10,7 +10,9 @@
 #' as `tidy(x, what = "factor_cor")`). The block appears only when some pair
 #' is correlated, that is when at least one within-level correlation exceeds
 #' 1e-8 in size. Under the default varimax rotation the factors within a
-#' level are uncorrelated, so the block is absent.
+#' level are uncorrelated, so the block is absent. Under an oblique rotation
+#' the block lists the engine's factor correlations, and a note under the
+#' lineage says that the edges are total correlations.
 #'
 #' @param object An `ackwards` object.
 #' @param ... Ignored.
@@ -165,6 +167,9 @@ print.summary_ackwards <- function(x, ...) {
     for (i in seq_len(nrow(lin))) {
       cli::cli_text("  {lin$parent[i]} {cli::symbol$arrow_right} {lin$children[i]}")
     }
+  }
+  if (.is_oblique(x$rotation)) {
+    cli::cli_text(cli::col_grey(.oblique_edge_note(x$rotation)))
   }
 
   # --- Within-level factor correlations -------------------------------------
