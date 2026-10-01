@@ -591,18 +591,14 @@ historical `§14.x` citation resolves. Live known limitations moved to the next 
 
 ## Known limitations
 
-- Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (§5.4), nor the
-  `missing = "fiml"` PCA/EFA path (D-020): there the algebra uses the `psych::corFiml()` matrix
-  while the scores route standardizes the raw, NA-bearing data (pairwise Pearson SDs), so the two
-  bases diverge under missingness by design — the same reason polychoric is excluded. The oracle
-  tests therefore run only on complete-data linear engines; no FIML/polychoric object is fed to
-  them, so there is no false-failure risk, but the cross-check does not *certify* those paths.
-  The partialled edge columns (M89) do not inherit this split. `beta` and `r2` build the
-  within-level score correlation Φ_s from the stored weights and the fit's R. `ackwards()`
-  builds `r` by the algebra route from that same R, because it passes `edge_method = "auto"`
-  with no data and every engine's scoring is linear. So no `ackwards()` object carries
-  scores-path edges. (Corrected M91: the entry said that a scores-path object's `beta`
-  approximates the regression weight, but `ackwards()` builds no such object.)
+- The algebra-vs-scores cross-check (§5.4) does not cover `cor = "polychoric"` paths, nor the
+  `missing = "fiml"` PCA/EFA path (D-020). On those paths the algebra uses the polychoric or
+  `psych::corFiml()` matrix, but the scores route standardizes the raw data, so the two bases
+  differ by design. The oracle tests run only on complete-data linear engines and get no
+  polychoric or FIML object. So they cannot fail falsely, but they do not certify those paths.
+  IP1 and IP2 state how edges are built and where the scores route runs.
+  (Corrected M91: the entry said that a scores-path object's `beta` approximates the
+  regression weight, but `ackwards()` builds no such object.)
 - `cor = "spearman"` + `engine = "esem"` is semantically inconsistent (lavaan fits Pearson ML on
   raw data while edges use Spearman R); a warning is emitted (M10).
 - **ESEM convergence at depth on real ordinal data** is flakier than the calm warn-and-skip
