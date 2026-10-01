@@ -38,7 +38,7 @@ The manuscript describes the shipped `rotation` option: varimax by default, obli
 ## Tasks
 
 - [x] T1: Read the RR01 verdict (`cairn/reviews/archive/RR01-oblique-algebra-claim.md`), D-034, D-036, and the `rotation` entry of `?ackwards` (R/ackwards.R:169). Then rewrite the methods passage (manuscript.qmd:162). Keep the `@waller2007` and `@kaiser1958` citations.
-- [ ] T2: Rewrite the scope paragraph (manuscript.qmd:412). Keep its sentences on the sequential hierarchy and on Schmid-Leiman unchanged.
+- [x] T2: Rewrite the scope paragraph (manuscript.qmd:412). Keep its sentences on the sequential hierarchy and on Schmid-Leiman unchanged.
 - [ ] T3: Run the AC3 search and record each matching sentence with its disposition in the work log. Look for em dashes and unresolved citation keys in the rewritten passages. Render to PDF and docx.
 
 ## Work log
@@ -48,6 +48,7 @@ The manuscript describes the shipped `rotation` option: varimax by default, obli
 - 2026-09-30: plan gate chose a planned milestone over a later direct docs commit, at the owner's selection. The rewrite then gets a criteria audit and a review. Falsified by a review that finds no defect at all, which shows that a direct commit was enough.
 - 2026-09-30: implement started on branch m092-manuscript-oblique-wording. No question gate, because the plan left no choice open.
 - 2026-09-30: T1 done. The methods passage now says the closed form is exact for any fixed linear scoring weights and cites Waller's oblique form (section 3, per `references/waller2007.md`). It names varimax as the default and oblique rotations as an option.
+- 2026-09-30: T2 done. The scope paragraph now names varimax as the default, calls an oblique edge a total correlation, and points to `beta` in `tidy()` and to primary parents following `r` (read against `R/tidy.R` and the fit-time advisory in `R/ackwards.R`). The sequential-hierarchy and Schmid-Leiman sentences are unchanged.
 
 ## Decisions
 

@@ -411,10 +411,12 @@ is why the package pairs its ordinal path with polychoric correlations and a
 WLSMV estimator and stays explicit about what a factor-score hierarchy does and
 does not support.
 
-The package's scope is bounded by the method it implements. Rotation within each
-level is orthogonal (varimax) only: correlated factors would confound the very
-cross-level signal the method exists to measure, and the closed-form algebra
-depends on the orthonormality that oblique rotation gives up. The resulting
+The package's scope is bounded by the method it implements. Varimax is the
+default rotation within each level, and oblique rotations are an option. Under
+an oblique rotation, each edge is a total correlation, which includes overlap
+through correlated factors at the same level. `tidy()` reports the partialled
+coefficient `beta` beside each edge, and primary parents still follow the total
+correlation `r`. The resulting
 hierarchy is, as Goldberg himself acknowledged, sequential rather than truly
 hierarchical in the sense of Yung, Thissen, and McLeod [-@yung1999], and its between-level
 "path coefficients" are more nearly part-whole correlations than the structural
