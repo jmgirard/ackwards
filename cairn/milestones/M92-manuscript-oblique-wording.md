@@ -55,6 +55,7 @@ The manuscript describes the shipped `rotation` option: varimax by default, obli
 - 2026-09-30: claim audit: 11 claims read, 2 corrected — manuscript/manuscript.qmd. Varimax applies "at every level with two or more factors" (level 1 is not rotated), and Waller gives "the oblique form for rotated components". The same reader re-read both, and both hold.
 - 2026-09-30: after the audit fixes, the AC3 search still hits only the two rewritten passages, the methods passage has no `—` or `---`, and `quarto render` exited 0 again with both outputs written. No R code or roxygen changed, so the profile's `devtools::test()` step does not apply. Status set to review.
 - 2026-09-30: review gate triage by the owner. Eight wording findings and the stale Discussion comment fixed on the branch, four older claims sent to a candidate row, two rejected. Checks re-run green. Merge approval to be re-requested, because the fix was nontrivial.
+- 2026-09-30: step-7 approval: m092-manuscript-oblique-wording approved for merge
 
 ## Decisions
 
