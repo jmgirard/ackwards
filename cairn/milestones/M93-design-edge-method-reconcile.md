@@ -74,6 +74,8 @@
 - 2026-10-01: claim audit: not owed — internal tier
 - 2026-10-01: all tasks done. Status set to review.
 - 2026-10-01: review in progress. AC1 to AC6 verified and ticked against Review evidence. The full package check and the diff reviewer are still running.
+- 2026-10-01: gate fixes F1, F2, F4, and F7 committed on the branch, as the maintainer directed at the merge gate.
+- step-7 approval: m93-design-edge-method-reconcile approved for merge
 
 ## Decisions
 
@@ -109,3 +111,5 @@ Independent review: internal tier with a diff under `cairn/` only, so one fresh-
 - F9: the §5.2 comments "NULL if !linear" describe a case that no engine produces. Proposed: follow-up, grouped with F5.
 - F10: the ROADMAP hygiene stamp calls the two rows "promoted" while they stay as candidates, and row 26 points to row 25. Proposed: reject, because the post-merge hygiene pass removes both promoted rows and replaces the stamp. The M94 file does not cite row 25.
 - F11: the internal `compute_edges()` roxygen still describes the scores triggers. Proposed: reject, because the plan put `R/` and `man/` out of scope and the roxygen describes what the function itself accepts.
+
+Gate triage, 2026-10-01: the maintainer accepted the proposed dispositions. F1, F2, F4, and F7 were fixed on the branch. The Known limitations entry gained one sentence on `beta` and `r2`, and it now measures 823 bytes, still under the 1102 bytes on `master` (AC5 holds). §5.3 now says that the two quantities also differ on complete data under a polychoric or Spearman `R`. D-038's Context now names both cases the scores route was kept for. F3, and F5 with F8 and F9, go to two candidate rows at the post-merge hygiene pass. F6, F10, and F11 are rejected for the reasons given above.

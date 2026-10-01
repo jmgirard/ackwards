@@ -295,7 +295,8 @@ Every shipped caller passes `edge_method = "auto"` or `"algebra"` with no data, 
 scoring is linear, so `"auto"` always takes the algebra branch (IP1, D-038). The ordinal ESEM
 path also stays linear: it uses ten Berge or regression weights on the polychoric `R`. EAP
 scoring is out of scope (D-007). An edge is therefore always the model-consistent quantity on the
-fit's `R`, never a sample-realized score correlation. Under missing data the two differ. A
+fit's `R`, never a sample-realized score correlation. The two differ under missing data, and
+also on complete data under a polychoric or Spearman `R`, which no observed scores reproduce. A
 user-facing option for sample-realized edges is a `[low]` ROADMAP candidate.
 
 ### 5.4 Built-in cross-check (correctness oracle)
@@ -596,8 +597,9 @@ historical `§14.x` citation resolves. Live known limitations moved to the next 
   `psych::corFiml()` matrix, but the scores route standardizes the raw data, so the two bases
   differ by design. The oracle tests run only on complete-data linear engines and get no
   polychoric or FIML object. So they cannot fail falsely, but they do not certify those paths.
-  IP1 and IP2 state how edges are built and where the scores route runs.
-  (Corrected M91: the entry said that a scores-path object's `beta` approximates the
+  IP1 and IP2 state how edges are built and where the scores route runs. The partialled
+  columns (M89) `beta` and `r2` build Φ_s from the stored weights and the fit's R, so they
+  follow the algebra route too. (Corrected M91: the entry said that a scores-path object's `beta` approximates the
   regression weight, but `ackwards()` builds no such object.)
 - `cor = "spearman"` + `engine = "esem"` is semantically inconsistent (lavaan fits Pearson ML on
   raw data while edges use Spearman R); a warning is emitted (M10).
