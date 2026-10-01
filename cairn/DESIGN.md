@@ -113,14 +113,16 @@ or renumbered.
 
 ### Inviolable principles
 
-- IP1: **One edge path.** All between-level correlations go through `compute_edges()`: exact
-  `W'RW` algebra when scoring is linear; materialized scores only when nonlinear (EAP) or when
-  the user asks. **Always** standardize by real score SDs `sqrt(diag(W'RW))` — never assume
-  unit variance. (§5; D-004.)
-- IP2: **Both routes, and they must agree.** The scores route stays available even where
-  algebra is the default (`edge_method = "scores"`), and a standing test asserts
-  algebra-vs-scores agreement within tolerance for every linear engine — the package's cheapest
-  correctness oracle. (§5.4; D-004.)
+- IP1: **One edge path.** All between-level correlations go through `compute_edges()`. Every
+  call of it in `R/` passes `edge_method = "auto"` or `"algebra"` with no data, and every
+  engine's scoring is linear, so every shipped edge comes from the exact `W'RW` algebra.
+  **Always** standardize by real score SDs `sqrt(diag(W'RW))`. Never assume unit variance.
+  (§5; D-004, D-038.)
+- IP2: **Both routes, and they must agree.** The scores route stays inside the internal
+  `compute_edges()` (`edge_method = "scores"` with raw data) as the second route of the
+  algebra-vs-scores agreement tests. No exported function offers it. A standing test asserts
+  algebra-vs-scores agreement within tolerance for every linear engine. That test is the
+  package's cheapest correctness oracle. (§5.4; D-004, D-038.)
 - IP3: **Light core, heavy opt-in.** The object always carries loadings/variance/fit/weights/
   edges/lineage/`R`/meta; `scores`, raw `fits`, raw `data` are NULL by default and recomputable.
   Small-and-shareable by default is a privacy promise, not just a memory one. (§6; D-005.)
