@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-10-01 (M94 done and archived. Added the edge-wording sweep row from its review, extended the DESIGN §5 row, pruned the M91 row. Validate green.)_
+_Last hygiene check: 2026-10-01 (M95 done and archived. Extended the cross-check-paths row, added the DESIGN outside-§5 wording row, pruned the M92 row. Validate green.)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,11 +10,10 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M95 | Edge wording sweep across shipped docs and DESIGN §5 | review | — | normal | milestones/M95-edge-wording-sweep.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
+| M95 | Edge wording sweep across shipped docs and DESIGN §5 | done | — | normal | milestones/archive/M95-edge-wording-sweep.md |
 | M94 | Manuscript accuracy pass for four older claims | done | M93 | normal | milestones/archive/M94-manuscript-accuracy-pass.md |
 | M93 | Reconcile DESIGN's edge_method text with the code | done | — | normal | milestones/archive/M93-design-edge-method-reconcile.md |
-| M92 | Manuscript wording for the oblique rotation option | done | — | normal | milestones/archive/M92-manuscript-oblique-wording.md |
 <!-- M01–M80 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 3 most recent terminal rows. -->
 
 ## Candidates
@@ -28,8 +27,9 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 - [low] ESEM varimax hides lavaan's rotation non-convergence, because lavaan's `rotation.args$warn` is off by default. This predates M90 (M90 review). Promote on a report of a silently non-converged varimax ESEM level. — added 2026-09-30, split 2026-10-01
 - [low] `.esem_rotation_args()` detects lavaan's list form through the deprecated `rotation_args` formal, and its pre-0.7 branch is only unit-tested (M90 review). Promote when lavaan drops `rotation_args`. — added 2026-09-30, split 2026-10-01
 - [low] Indefinite R and the near-singular warning (M91 review, F4). With pairwise missing data or a non-PD user matrix, and EFA or ESEM falling back to regression weights, Φ_s can have a negative eigenvalue. `tidy()` then calls it "nearly singular" with a negative value, and `r2` can leave [0, 1] with no warning. Promote on a real fit that shows either. — added 2026-09-30
+- [low] DESIGN outside §5 still calls the algebra exact without naming the matrix (M95 review, R9). The sites are IP1 (line 118), the §4 note (186), the PCA engine row (193), and the §9 `engine` and `redundancy_phi` rows (450, 458). The IP1 line is principle text, so its change needs a D-entry. Promote with the next DESIGN principle edit or design interview. — added 2026-10-01 — M95 review
 - [low] User-facing sample-realized edges: an option to build edges from materialized scores, so that under missing data an edge shows the sample-realized correlation, not the model-implied one. DESIGN §5.3 described it, but no exported function offers it. Demand-gated: promote when a user asks for sample-realized edges. — added 2026-10-01 — M93 plan
-- [low] The algebra-vs-scores cross-check misses more paths than DESIGN's first Known limitations entry names (M93 review, F3). Under `cor = "spearman"` the algebra uses Spearman R, but the scores branch of `compute_edges()` takes a Pearson `cor()` of standardized raw data. ESEM FIML and pairwise-missing Pearson data also differ in basis. Add them to the entry, or test them. Promote on a wrong edge from one of those paths. — added 2026-10-01 — M93 review
+- [low] The algebra-vs-scores cross-check misses more paths than DESIGN's first Known limitations entry names (M93 review, F3). Under `cor = "spearman"` the algebra uses Spearman R, but the scores branch of `compute_edges()` takes a Pearson `cor()` of standardized raw data. ESEM FIML and pairwise-missing Pearson data also differ in basis. Add them to the entry, or test them. The docs share the gap (M95 review, R1). For ESEM under Spearman, or ML with pairwise missing data, the edges use the engine's `R` while lavaan fits another matrix. There "the correlation matrix the fit uses" can name the wrong one. Promote on a wrong edge from one of those paths. — added 2026-10-01 — M93 review, extended M95 review
 ### Forbes website-review feedback (2026-07-23)
 
 Batch from Forbes's hands-on review of the package website/vignettes. **A, B → M76; D → M77; C → M78; E → M79; G → M80; F → M81 (all done).** H remains below.
