@@ -53,7 +53,7 @@ The manuscript and two vignettes describe the edge algebra, Waller's (2007) cont
 - [x] T2: Fix the Waller credit, exactness, and cross-check scope in the abstract (~37), the introduction (~103), the results text (~295), and the conclusion (~382-384).
 - [x] T3: Rewrite the front-matter disclosure (~19) and the "Use of generative AI" section (~465) to give AI-assisted development from June 2026 to submission and to name Opus, Sonnet, and Fable.
 - [x] T4: Fix the intro vignette (`vignettes/ackwards-intro.Rmd.orig` ~276-278) and the engines vignette (`vignettes/ackwards-engines.Rmd.orig` ~84-86). Re-run `Rscript vignettes/precompute.R`, then revert noise in untouched vignettes and noise lines in the two edited ones (LESSONS M61, M75, M87).
-- [ ] T5: Read each rewritten paragraph in full in its final position (LESSONS M92). Check every new claim against the waller2007 page images and the R source (LESSONS M67, M86). Run the AC1-AC3 searches on the branch head.
+- [x] T5: Read each rewritten paragraph in full in its final position (LESSONS M92). Check every new claim against the waller2007 page images and the R source (LESSONS M67, M86). Run the AC1-AC3 searches on the branch head.
 - [ ] T6: Run `quarto render manuscript.qmd` in `manuscript/`, count em dashes against `master`, and run `DOD_CODE_UNCHANGED=1 Rscript tools/dod-gate.R`.
 
 ## Work log
@@ -70,6 +70,7 @@ The manuscript and two vignettes describe the edge algebra, Waller's (2007) cont
 - 2026-10-01: T2 done. The abstract and results text no longer cite Waller or call the algebra exact. The introduction limits his credit to principal components. The conclusion says every edge comes from the closed form and limits the scores check as T1 does.
 - 2026-10-01: T3 done. Both disclosure passages give June 2026 to submission and name Opus, Sonnet, and Fable.
 - 2026-10-01: T4 done. Both vignette passages qualify "exact". The intro passage limits Waller to components and derives `W'RW` from linear composites. precompute.R ran clean. Untouched vignettes and assets were reverted, and the two edited `.Rmd` files were rebuilt from master plus the prose and stamp lines. Noise counts are 0, and the freshness check passes.
+- 2026-10-01: T5 done. Every rewritten paragraph was re-read in place. The waller2007 page images (pp. 748-749) confirm "component transformation matrix" and the oblique form for rotated components. The R source confirms that all three engines set `linear = TRUE` and that `cor` accepts spearman. Every scores-agreement test (PCA, EFA, ESEM, oblique) uses complete Pearson data. The AC1-AC3 searches leave no failing paragraph. Intro vignette line 142 ("identity is exact for any fixed linear scoring") stays, because it does not say edges equal observed-score correlations.
 
 ## Decisions
 
