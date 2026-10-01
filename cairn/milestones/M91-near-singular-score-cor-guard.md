@@ -96,7 +96,7 @@ Three fresh-context reviewers ran: Opus diff-bug, Sonnet blame-history, and Sonn
 
 The maintainer chose "Fix 6, then merge" at the step-7 chip. The fixes landed on the branch before the push.
 
-- F1: the message truncates the eigenvalue to two significant digits and prints the cutoff as `1e-2`. The level-2 test now matches "smallest eigenvalue 0.0083, below 1e-2". The level-3 test matches "2.4e-05", which the old rounding would print as "2.5e-05".
+- F1: the message truncates the eigenvalue to two significant digits and prints the cutoff as `1e-2`. The level-2 test now matches "smallest eigenvalue 0.0083, below 1e-2". The level-3 test matches "2.4e-05", where the old rounding printed "2.5e-05".
 - F2: the trust section's opening sentence names `tidy()` and `summary()`. The Caution item adds that both raise the singular warning.
 - F3: the level-3 plant uses 0.01. Its eigenvalue is 2.5e-5, inside AC1's window.
 - F6 and F7: the `beta` entry names "that correlation" in both sentences and is rewrapped. The `r2` entry says a nearly singular level raises no warning there.
