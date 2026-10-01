@@ -113,14 +113,16 @@ or renumbered.
 
 ### Inviolable principles
 
-- IP1: **One edge path.** All between-level correlations go through `compute_edges()`: exact
-  `W'RW` algebra when scoring is linear; materialized scores only when nonlinear (EAP) or when
-  the user asks. **Always** standardize by real score SDs `sqrt(diag(W'RW))` — never assume
-  unit variance. (§5; D-004.)
-- IP2: **Both routes, and they must agree.** The scores route stays available even where
-  algebra is the default (`edge_method = "scores"`), and a standing test asserts
-  algebra-vs-scores agreement within tolerance for every linear engine — the package's cheapest
-  correctness oracle. (§5.4; D-004.)
+- IP1: **One edge path.** All between-level correlations go through `compute_edges()`. Every
+  call of it in `R/` passes `edge_method = "auto"` or `"algebra"` with no data, and every
+  engine's scoring is linear, so every shipped edge comes from the exact `W'RW` algebra.
+  **Always** standardize by real score SDs `sqrt(diag(W'RW))`. Never assume unit variance.
+  (§5; D-004, D-038.)
+- IP2: **Both routes, and they must agree.** The scores route stays inside the internal
+  `compute_edges()` (`edge_method = "scores"` with raw data) as the second route of the
+  algebra-vs-scores agreement tests. No exported function offers it. A standing test asserts
+  algebra-vs-scores agreement within tolerance for every linear engine. That test is the
+  package's cheapest correctness oracle. (§5.4; D-004, D-038.)
 - IP3: **Light core, heavy opt-in.** The object always carries loadings/variance/fit/weights/
   edges/lineage/`R`/meta; `scores`, raw `fits`, raw `data` are NULL by default and recomputable.
   Small-and-shareable by default is a privacy promise, not just a memory one. (§6; D-005.)
@@ -215,9 +217,11 @@ hierarchy is built up to the deepest converged level.
 
 ## 5. Scoring descriptor + `compute_edges()` (the centerpiece)
 
-The between-level edges are computed through **one shared code path** that uses exact algebra when
-it can and falls back to materialized scores when it must. This unifies result semantics across
-engines without forcing the expensive computation everywhere.
+The between-level edges are computed through **one shared code path**, the internal
+`compute_edges()`. Every shipped edge comes from exact `W'RW` algebra (IP1), so an edge means the
+same thing for every engine and no scores are materialized. The function also keeps a scores
+route that materializes linear scores from raw data. Only the algebra-vs-scores agreement tests
+use that route (§5.4, IP2).
 
 ### 5.1 Why the algebra generalizes
 
@@ -243,8 +247,8 @@ Assuming unit variance silently corrupts the correlations.
 
 ```r
 scoring <- list(
-  linear    = TRUE,                # are scores a fixed linear map S = Z W?
-  method    = "tenBerge",          # "components" | "regression" | "bartlett" | "tenBerge" | "EAP" | ...
+  linear    = TRUE,                # are scores a fixed linear map S = Z W? TRUE for every engine
+  method    = "tenBerge",          # "components" (PCA) | "tenBerge" | "regression" (fallback)
   basis     = "pearson",           # "pearson" | "polychoric" | "spearman"
   weights   = W,                   # p x k score-coefficient matrix; NULL if !linear
   score_var = v                    # length-k vector = diag(W'RW); NULL if !linear
@@ -274,7 +278,7 @@ compute_edges(levels, R,
       sb <- sqrt(diag(crossprod(Wb, R %*% Wb)))
       E  <- sweep(sweep(C, 1, sa, "/"), 2, sb, "/")       # standardize
     } else {
-      stopifnot(!is.null(data))                           # nonlinear/EAP or edge_method="scores"
+      stopifnot(!is.null(data))                           # edge_method="scores": agreement tests only
       Sa <- score(levels[[a]], data); Sb <- score(levels[[b]], data)
       E  <- cor(Sa, Sb, use = use)
     }
@@ -286,20 +290,23 @@ compute_edges(levels, R,
 }
 ```
 
-**Two situations force the `scores` route:**
-1. **Nonlinear scoring** — EAP/MAP/ML scores from a *categorical/ordinal* ESEM. (If the ordinal
-   ESEM instead uses regression scores off polychoric loadings, it stays linear → algebra on the
-   polychoric `R`.)
-2. **User wants empirical, sample-realized correlations** (including FIML/missing-data realities)
-   rather than the model-implied quantity. Under missingness these differ; document which one
-   "the edge" represents (default: model-consistent / algebra where eligible).
+**Where the `scores` route runs.** Only the algebra-vs-scores agreement tests call it (§5.4).
+Every shipped caller passes `edge_method = "auto"` or `"algebra"` with no data, and every engine's
+scoring is linear, so `"auto"` always takes the algebra branch (IP1, D-038). The ordinal ESEM
+path also stays linear: it uses ten Berge or regression weights on the polychoric `R`. EAP
+scoring is out of scope (D-007). An edge is therefore always the model-consistent quantity on the
+fit's `R`, never a sample-realized score correlation. The two differ under missing data, and
+also on complete data under a polychoric or Spearman `R`, which no observed scores reproduce. A
+user-facing option for sample-realized edges is a `[low]` ROADMAP candidate.
 
 ### 5.4 Built-in cross-check (correctness oracle)
 
-For a linear engine, algebra and materialized-scores must agree within sampling error. Keep the
-`scores` route available even where `algebra` is the default, and add a test asserting
-`max(abs(E_algebra - E_scores)) < tol` on a known dataset. This catches weight-convention,
-standardization, sign, and column-ordering bugs cheaply.
+For a linear engine, algebra and materialized scores must agree within tolerance. The `scores`
+route stays inside the internal `compute_edges()` for this purpose, and no exported function
+offers it (IP2). A standing test for every linear engine asserts
+`max(abs(E_algebra - E_scores)) < tol` on a known complete-data dataset. This catches
+weight-convention, standardization, sign, and column-ordering bugs. The polychoric and
+`missing = "fiml"` PCA/EFA paths are outside this check (see "Known limitations").
 
 ## 6. Result object (S3) & storage rule
 
@@ -425,8 +432,8 @@ announced via cli and documented in roxygen with its rationale.
 | `rotation` | **`"varimax"`** (default). Oblique `"oblimin"` and `"promax"` (PCA, EFA) and `"oblimin"` and `"geomin"` (ESEM) are non-default options (M90). *(Corrected M90: this cell previously read "not currently a user argument".)* | **Why varimax is the default.** Varimax keeps the within-level factors uncorrelated (Φ = I), so each between-level edge equals the unique contribution of that ancestor to that descendant — the marginal correlation and the Φ-partialled regression coefficient coincide (`E = Φ_s B`), which is what licenses reading the edges as a lineage diagram (Goldberg 2006 reads them as path coefficients, with a part-whole caveat, p. 350). Under an oblique rotation the two quantities come apart: an edge is then a *total* correlation that also carries within-level factor overlap, and the lineage overlays (primary parent, split narrative, additive variance partitioning) no longer read off the raw edges. Varimax also matches the published analyses this package reproduces (Goldberg 2006; Kim & Eaton 2015; Forbes 2023's examples; Forbush et al. 2024). The varimax criterion itself originates with Kaiser (1958); CF(κ = 1/p) ≡ varimax (Crawford & Ferguson 1970; Browne 2001) — no reference paper varies κ. **Attribution (corrected M84 per RR02, page-image verified).** Kim & Eaton (2015, p. 1067) state the stronger claim that *only* orthogonal rotations produce interpretable between-level correlations, attributing it to Goldberg (2006); they state it bare, and Goldberg in fact offered orthogonality as a **preference** on other grounds — regression parsimony and marker separation (p. 356) — while Forbes (2023, p. 2 + fn. 1) frames the method as supporting orthogonal *or* oblique rotation. The earlier wording here asserted that claim as this package's rationale; it is superseded by the Φ = I argument above. Oblique is **no longer out of scope** (D-034, D-002 superseded). M90 implemented it as a documented non-default option, with its semantics fixed by D-036. Under an oblique rotation the marginal `r` still drives primary-parent matching, sign anchoring, and the diagram, and `beta` is reported beside it. Scores keep the factor correlation (oblique ten Berge weights for EFA and ESEM, oblique components for PCA). `variance` uses psych's `diag(ΦΛ'Λ)/p`. The fit announces what an edge means, and `prune()` warns that its thresholds were set for varimax. *(Rationale also corrected M76 per RR01: the earlier "T'T = I … enabling closed-form W'RW algebra" phrasing conflated the interpretive Φ = I reason with algebra-exactness — the W'RW identity is exact for **any fixed linear scoring**, oblique included, and Waller 2007 §3 gives the oblique closed form. Orthogonality is the interpretive choice, not a numerical prerequisite. See §5.1.)* |
 | `estimator` (ESEM only) | **`"WLSMV"`** for `cor = "polychoric"`; `"ML"` otherwise | WLSMV (mean-and-variance-adjusted WLS) is the standard limited-information ordinal estimator (matches Kim & Eaton 2015; Forbush et al. 2024 use the ULSMV variant); gives correct fit indices for categorical indicators without full-information ML cost. |
 | `cor` (basis) | **`"pearson"`** (matches `psych`/`lavaan`); ordinal opt-in via `cor = "polychoric"` | No silent basis-switching (it can change the structure and break comparison to published work). Instead, **detect likely-ordinal columns and emit a suppressible cli warning** pointing to the polychoric option — loud *advice*, not silent action. |
-| scores (method) | **`"tenBerge"`** on the active basis (pearson or polychoric) for factor engines; `"components"` for PCA; `"EAP"` opt-in only | Under an oblique rotation (M90) the factor engines use the oblique ten Berge form `W = R^{-1} L* (L*' R^{-1} L*)^{-1/2} Φ^{1/2}`, `L* = ΛΦ^{1/2}` (tenberge1999 Eq. 3, 9, Thm 1), and the fallback is the oblique regression rule `R^{-1}ΛΦ`. tenBerge preserves factor correlations (the property bass-ackwards cares about) and stays linear → algebra-eligible; the correlation-preservation-vs-determinacy trade-off this choice accepts is formalized by Grice (2001) and Beauducel, Hilger, & Kuhl (2024), and the factor-score hierarchy's criterion validity — with a categorical-indicator caveat — by Williams et al. (2025). For ordinal ESEM, tenBerge-on-polychoric gives the clean model-implied edge; EAP's shrinkage attenuates cross-level correlations, so it's an opt-in (triggers the scores route + raw-data requirement), not the default. |
-| `edge_method` | `"auto"` | algebra when linear, scores otherwise. |
+| scores (method) | **`"tenBerge"`** on the active basis (pearson or polychoric) for factor engines; `"components"` for PCA; EAP out of scope (D-007) | Under an oblique rotation (M90) the factor engines use the oblique ten Berge form `W = R^{-1} L* (L*' R^{-1} L*)^{-1/2} Φ^{1/2}`, `L* = ΛΦ^{1/2}` (tenberge1999 Eq. 3, 9, Thm 1), and the fallback is the oblique regression rule `R^{-1}ΛΦ`. tenBerge preserves factor correlations (the property bass-ackwards cares about) and stays linear → algebra-eligible; the correlation-preservation-vs-determinacy trade-off this choice accepts is formalized by Grice (2001) and Beauducel, Hilger, & Kuhl (2024), and the factor-score hierarchy's criterion validity — with a categorical-indicator caveat — by Williams et al. (2025). For ordinal ESEM, tenBerge-on-polychoric gives the clean model-implied edge. EAP is out of scope, not an option (D-007, declined M28), because its shrinkage attenuates cross-level correlations. |
+| `edge_method` (internal: `compute_edges()` only) | `"auto"` | Not an argument of any exported function. `edge_method` belongs to the internal `compute_edges()`. Every shipped caller passes `"auto"` or `"algebra"` with no data, and every engine's scoring is linear, so every edge comes from the `W'RW` algebra (IP1). `"scores"` exists only for the algebra-vs-scores agreement tests (IP2, D-038). |
 | `pairs` (`ackwards()`) | `"adjacent"` | classic Goldberg; `"all"` reveals skip-level correlations for inspection/plotting. Since M34, `prune()` recomputes its own all-pairs edges on demand regardless of this setting — pruning no longer requires (or auto-upgrades) `pairs = "all"` here. |
 | `prune()` `rules` (standalone verb, M34 — not an `ackwards()` argument) | **`"none"`** | pruning is an interpretive choice with thresholds, kept as a separate, cheap, re-runnable step piped off an already-extracted object (`ackwards(...) |> prune(...)`) so new thresholds never require re-extraction. Turning it on silently would change results — opt-in with documented thresholds (|r| ≥ .9, congruence > .95). Canonical rule name is `"artifact"` (US spelling); `"artefact"` is accepted as an alias (nod to Commonwealth spelling and to Forbes). |
 | `redundancy_phi` (`prune()` argument, M34) | **`NULL` (auto)** — PCA → no φ filter (component scores are **determinate** — exact linear functions of the data — so `|r|` is the true correlation between the components themselves and suffices alone); EFA/ESEM → `0.95` (Lorenzo-Seva & ten Berge 2006; factor-score indeterminacy (Grice 2001) makes `|r|`-only liberal; φ adds a congruence guard). Explicit number overrides on any engine. `NA` is the opt-out (no φ filter regardless of engine). Announces auto-resolve via cli (IP6). **Added M25**; moved from an `ackwards()` argument to a `prune()` argument in M34. *(Rationale wording corrected M43: the earlier "W′RW algebra is exact" phrasing conflated algebra-exactness — equally true of tenBerge EFA — with score determinacy, the actual reason.)* |
@@ -446,8 +453,8 @@ a D-entry per IP9 and a ledger row in the same change).
 ### Documentation standard (owner priority)
 
 - Every default above is documented in roxygen with **why**, not just **what**.
-- An `@details` section explains the algebra-vs-scores edge computation in plain language, and
-  when a user would prefer `edge_method = "scores"`.
+- An `@details` section explains in plain language how the edges come from the `W'RW` algebra
+  on the fit's `R`. The edge method is not a user setting (IP1, D-038).
 - Runnable `@examples` for each exported function; a vignette reproduces a published structure
   (e.g., a `psych::bfi` bass-ackwards) end to end.
 - `@seealso` cross-links engines, `suggest_k()`, and the plotting/printing methods.
@@ -585,18 +592,15 @@ historical `§14.x` citation resolves. Live known limitations moved to the next 
 
 ## Known limitations
 
-- Algebra-vs-scores cross-check does not cover `cor = "polychoric"` paths (§5.4), nor the
-  `missing = "fiml"` PCA/EFA path (D-020): there the algebra uses the `psych::corFiml()` matrix
-  while the scores route standardizes the raw, NA-bearing data (pairwise Pearson SDs), so the two
-  bases diverge under missingness by design — the same reason polychoric is excluded. The oracle
-  tests therefore run only on complete-data linear engines; no FIML/polychoric object is fed to
-  them, so there is no false-failure risk, but the cross-check does not *certify* those paths.
-  The partialled edge columns (M89) do not inherit this split. `beta` and `r2` build the
-  within-level score correlation Φ_s from the stored weights and the fit's R. `ackwards()`
-  builds `r` by the algebra route from that same R, because it passes `edge_method = "auto"`
-  with no data and every engine's scoring is linear. So no `ackwards()` object carries
-  scores-path edges. (Corrected M91: the entry said that a scores-path object's `beta`
-  approximates the regression weight, but `ackwards()` builds no such object.)
+- The algebra-vs-scores cross-check (§5.4) does not cover `cor = "polychoric"` paths, nor the
+  `missing = "fiml"` PCA/EFA path (D-020). On those paths the algebra uses the polychoric or
+  `psych::corFiml()` matrix, but the scores route standardizes the raw data, so the two bases
+  differ by design. The oracle tests run only on complete-data linear engines and get no
+  polychoric or FIML object. So they cannot fail falsely, but they do not certify those paths.
+  IP1 and IP2 state how edges are built and where the scores route runs. The partialled
+  columns (M89) `beta` and `r2` build Φ_s from the stored weights and the fit's R, so they
+  follow the algebra route too. (Corrected M91: the entry said that a scores-path object's `beta` approximates the
+  regression weight, but `ackwards()` builds no such object.)
 - `cor = "spearman"` + `engine = "esem"` is semantically inconsistent (lavaan fits Pearson ML on
   raw data while edges use Spearman R); a warning is emitted (M10).
 - **ESEM convergence at depth on real ordinal data** is flakier than the calm warn-and-skip
