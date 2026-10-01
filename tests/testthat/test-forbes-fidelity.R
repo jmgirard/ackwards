@@ -267,3 +267,118 @@ test_that("prune('redundant') on AMH: direct default vs adjacent opt-in", {
   expect_true("m3f3" %in% xa$prune$chains$id[xa$prune$chains$retain])
   expect_false("m3f3" %in% ch$id[ch$retain])
 })
+
+# ---------------------------------------------------------------------------
+# Oblique branch.
+#
+# Forbes's reference implementation passes `rotate` straight to psych, so it
+# fits oblique PCA and EFA too (her fn. 1). fixtures/forbes2023_oblique.rds
+# holds its output under rotate = "oblimin" and "promax", for fm = "pca" and
+# "minres", on the three simulation matrices above (data-raw/forbes2023-oblique.R
+# and attr(fixture, "provenance")). Only ackwards() runs here.
+#
+# Correspondence conventions:
+#   * Her comp.corr is t(W_a) %*% R %*% W_b with her weights, unstandardized.
+#     ackwards divides by the real score SDs, so the test compares against
+#     D_a^{-1/2} comp.corr D_b^{-1/2}, with D = diag(W'RW) stored per level.
+#     D is not assumed: psych::fa's one-factor weights are not unit-variance,
+#     so her level-1 EFA rows need it (see `D` in the fixture).
+#   * Her signs are psych's; ours are aligned to the primary parent. The test
+#     reads each level's flips from the loadings (ours = hers * s) and compares
+#     signed values, so a sign error cannot hide behind abs().
+#   * fm = "pca" is engine = "pca"; fm = "minres" is engine = "efa" (minres is
+#     its default), with n_obs = 5000, which feeds the fit indices only.
+
+test_that("oblique output reproduces Forbes's oblique branch on her simulations", {
+  skip_if_not_installed("GPArotation")
+  runs <- readRDS(test_path("fixtures", "forbes2023_oblique.rds"))
+  sims <- .forbes_fixture()
+  expect_length(runs, 12L)
+
+  # psych::fa() fits an oblimin (GPArotation) rotation from 20 random starts
+  # (its n.rotations default), so two unseeded fits agree only to the
+  # rotation's convergence tolerance, and her function fits each level twice.
+  # Measured 2026-09-30: up to 1.0e-5 on the minres + oblimin edges, and at
+  # most 2e-15 on every other run (PCA and promax are deterministic). Those
+  # runs get an absolute 1e-4; a method error moves edges by 1e-2 or more.
+  # Our fits are seeded so the test's outcome repeats.
+  for (nm in names(runs)) {
+    run <- runs[[nm]]
+    engine <- if (run$fm == "pca") "pca" else "efa"
+    tol <- if (run$fm == "minres" && run$rotate == "oblimin") 1e-4 else 1e-10
+    suppressWarnings(suppressMessages(
+      x <- ackwards(sims[[run$sim]]$R,
+        k_max = 4, engine = engine, rotation = run$rotate,
+        n_obs = 5000, pairs = "all", seed = 1
+      )
+    ))
+
+    # (1) Loadings and factor correlations, carried by the same flips.
+    s <- lapply(1:4, function(k) {
+      sign(colSums(unname(x$levels[[k]]$loadings) * run$loadings[[k]]))
+    })
+    for (k in 1:4) {
+      expect_lt(
+        max(abs(unname(x$levels[[k]]$loadings) - sweep(run$loadings[[k]], 2, s[[k]], "*"))),
+        tol,
+        label = paste(nm, "loadings gap, level", k)
+      )
+      expect_lt(
+        max(abs(unname(x$levels[[k]]$factor_cor) - run$Phi[[k]] * tcrossprod(s[[k]]))),
+        tol,
+        label = paste(nm, "factor_cor gap, level", k)
+      )
+    }
+
+    # (2) Every level pair: our edges equal her D-standardized comp.corr.
+    idx <- 0L
+    for (c2 in 2:4) {
+      for (i in 1:(c2 - 1L)) {
+        idx <- idx + 1L
+        E_her <- run$comp_corr[[idx]] /
+          sqrt(outer(unname(run$D[[i]]), unname(run$D[[c2]])))
+        E_ours <- unname(x$edges$matrices[[paste0(i, ":", c2)]])
+        expect_lt(
+          max(abs(E_ours - E_her * outer(s[[i]], s[[c2]]))),
+          tol,
+          label = paste0(nm, " edge gap ", i, ":", c2)
+        )
+      }
+    }
+
+    # (3) Her redundancy chase at .9 (D-036: the oblique chase stays on r),
+    # run by her own code on the D-standardized comp.corr. Her raw chase
+    # reads unstandardized products, so it can differ wherever D != I; with
+    # D = I (every PCA run) the two are the same list.
+    # Her chase is the direct (skip-level) one, which .direct_chase() above
+    # traces and prune("redundant") uses by default. One edge case departs
+    # from her code: for a level-3+ component whose chase is unbroken to
+    # level a (run$chase_unbroken), her ChaseCorrPaths() returns "null",
+    # because which.min() on a vector with no FALSE counts zero links (see
+    # the generator). There the chase does reach a1, so a1 is expected.
+    if (run$fm == "pca") expect_identical(run$corr_chase, run$corr_chase_std)
+    for (entry in run$corr_chase_std) {
+      parts <- strsplit(entry, "--", fixed = TRUE)[[1L]]
+      from <- .forbes_to_ackwards(parts[1L])
+      expected_top <- if (parts[2L] == "null") from else .forbes_to_ackwards(parts[2L])
+      if (parts[1L] %in% run$chase_unbroken) {
+        expect_identical(parts[2L], "null")
+        expected_top <- "m1f1"
+      }
+      expect_identical(
+        .direct_chase(x, from), expected_top,
+        label = paste0(nm, " chase(", parts[1L], ") (ackwards)"),
+        expected.label = paste0("Forbes '", entry, "'")
+      )
+    }
+  }
+
+  # The correspondence is load-bearing, not a formality: her level-1 EFA
+  # weights are not unit-variance, and on some runs her raw chase stops at a
+  # b-level component that the correlations chase on to a1.
+  efa <- runs[vapply(runs, function(r) r$fm == "minres", logical(1))]
+  expect_true(all(vapply(efa, function(r) abs(r$D[[1]] - 1) > 0.05, logical(1))))
+  expect_true(any(vapply(efa, function(r) !identical(r$corr_chase, r$corr_chase_std), logical(1))))
+  # The unbroken-chase edge case is exercised (sim3, minres, promax).
+  expect_gt(sum(lengths(lapply(runs, `[[`, "chase_unbroken"))), 0L)
+})

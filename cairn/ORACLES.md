@@ -48,6 +48,10 @@ planned in its milestone, never here.
 | **O13** | frozen | Default-output baseline: loadings, weights, variance, factor_cor, every edge matrix for five default fits (pca/efa/esem on sim16 k=4; pca/efa polychoric on bfi25 k=3), 1e-8 for pca/efa and 1e-5 for esem (fixture generated on macOS; other BLAS builds drift ~1e-12 / ~1e-6, hotfix 2026-09-23) | `test-baseline-m89.R` | ackwards itself on master before the factor-cor carry (commit `ee71316`, code tree equal to `a645e32`) | `data-raw/baseline-m89.R` → `fixtures/baseline-m89.rds`; ESEM fit seeded (`seed = 1`) because lavaan's rotation draws random starts |
 | **O14** | invariant | Varimax identity for the partialled edge columns: `beta == r` and `r2 == colSums(r^2)` on default fits of all three engines, 1e-10 | `test-partialled-edges.R` ("under varimax beta equals r…") | none — closed-form consequence of Phi_s = I | two ackwards quantities on one fit |
 | **O15** | live | `beta` = `lm()` standardized coefficients and `r2` = that model's R-squared on a hand-built correlated-composite case (mixed level-2 weights), 1e-8 | `test-partialled-edges.R` ("…match lm() standardized coefficients…") | `stats::lm()` on materialized scores | recomputed at test time on sim16 |
+| **O16** | frozen | Oblique branch of Forbes's reference implementation: loadings, `factor_cor`, all 6 level-pair edges against her `D`-standardized `comp.corr`, and her direct chase, for 3 simulations × {pca, minres} × {oblimin, promax}. Absolute 1e-10, or 1e-4 for minres + oblimin (psych's random rotation starts) | `test-forbes-fidelity.R` ("oblique output reproduces Forbes's oblique branch…") | Forbes (2023) `ExtendedBassAckwards` oblique branch — [`references/forbes2023.md`](references/forbes2023.md) | `data-raw/forbes2023-oblique.R` (OSF `7jfkw`, md5-pinned, inputs `fixtures/forbes2023_sims.rds`, `set.seed(2023)` per run) → `fixtures/forbes2023_oblique.rds` |
+| **O17** | live | Oblique scoring and variance: `.tenBerge_weights()` = `psych::factor.scores(method = "tenBerge")` weights on oblimin and promax EFA fits, and each level's `variance` = psych's `Vaccounted` "Proportion Var" row on oblimin PCA and EFA fits, 1e-8 | `test-oblique.R` ("…matches psych's oblique tenBerge weights", "…oblique variance equals psych's Vaccounted proportions") | `psych::factor.scores`, `psych::fa`, `psych::pca` | recomputed at test time on sim16 |
+| **O18** | live | Oblique `factor_cor` carry: each engine's stored `factor_cor` = psych's `$Phi` or lavaan's `cor.lv`, permuted and sign-flipped with the stored loadings, not the identity. The ESEM column sort follows `diag(ΦΛ'Λ)` on a level where it disagrees with `colSums(Λ²)` | `test-oblique.R` ("…oblique factor_cor is psych's Phi…", "…factor_cor is lavaan's cor.lv…", "esem: columns sort by the oblique variance key…") | `psych::pca`, `psych::fa`, `lavaan::efa` + `lavInspect`/`standardizedSolution` | recomputed at test time (sim16, and bfi25 geomin k = 5 with `seed = 1`) |
+| **O19** | invariant | Oblique algebra vs materialized-scores edges on all pairs for all three engines, 1e-8, and correlation preservation: the stored weights' scores correlate as `factor_cor` | `test-oblique.R` ("…oblique algebra and scores paths agree (IP2)", "…oblique scores correlate as factor_cor says") | none — internal cross-route agreement | two ackwards routes on one fit |
 
 ## Policy notes
 
@@ -59,7 +63,8 @@ planned in its milestone, never here.
 - **≥2 independent types per estimator (Invariant 8).** The PCA/EFA edge path is
   pinned by both a live external impl (O3/O4) and the algebra-vs-scores invariant
   (O9); ESEM by O7 + O9; the Forbes contract by O1/O2 (frozen external) + O9
-  (invariant). No estimator rests on a single oracle type.
+  (invariant). The oblique path rests on O16 (frozen external), O17 and O18
+  (live), and O19 (invariant). No estimator rests on a single oracle type.
 - **New fixtures.** Any new `tests/testthat/fixtures/*.rds` must carry a structured
   top-level `provenance` attr naming its `data-raw/` generator and `source` —
   mechanically enforced by `test-oracle-provenance.R`.

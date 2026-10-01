@@ -53,6 +53,10 @@ match matters).
 - **Oracle O2 — simulation studies** (three studies, k = 4, 6 level-pairs each).
   Fixture `tests/testthat/fixtures/forbes2023_sims.rds`; generator
   `data-raw/oracle-forbes-sims.R` (M57); asserted in the same test file.
+- **Oracle O16 — oblique branch** (the three simulation matrices, k = 4, under
+  `rotate = "oblimin"` and `"promax"` for `fm = "pca"` and `"minres"`).
+  Fixture `tests/testthat/fixtures/forbes2023_oblique.rds`; generator
+  `data-raw/forbes2023-oblique.R` (M90); asserted in the same test file.
 
 See `cairn/ORACLES.md` for the full registry and the classification of every
 oracle in the suite.
@@ -83,6 +87,33 @@ oblique rotations in her own applied work. See D-034 and `cairn/reviews/archive/
 - Her `ChaseCorrPaths` uses the **direct/skip-level** correlation to each
   ancestor (non-transitive on deep hierarchies) — adopted as
   `prune("redundant")`'s default `redundancy_criterion = "direct"` (M53).
+
+## Behavior of her code under oblique rotation and EFA (observed M90)
+
+Read from the md5-pinned `7jfkw` file and its output on the three simulation
+matrices — observed 2026-09-30.
+
+- `ExtendedBassAckwards()` passes `rotate` straight to `psych::pca()` and
+  `psych::fa()`, so its oblique branch is the same code path as varimax.
+- Her `comp.corr` equals a correlation only where her weights have unit score
+  variance (`D = diag(W'RW) = I`). Her level-1 EFA weights do not:
+  `psych::fa()` at one factor gives `D` 0.12 to 0.14 below 1 on the three
+  simulations, so her raw level-1 EFA products sit below the correlations.
+  Every other level, and every PCA level, has `D = I` to rounding. The oblique
+  fidelity test therefore compares against `D`-standardized `comp.corr`.
+- Because `ChaseCorrPaths()` reads raw `comp.corr`, a b-to-a link can fall
+  under .9 in her chase only where `D ≠ I`. The fixture records her chase on
+  both the raw and the `D`-standardized matrices.
+- `ChaseCorrPaths()` returns `"X--null"` for a level-3 or deeper component
+  whose chase is unbroken all the way to level a: its count of consecutive
+  links is `which.min()` of a vector with no `FALSE`, which returns 1, so the
+  count is 0. Level-2 components avoid this through her `b1`/`b2` special
+  case. The case appears once in the oblique fixture (sim 3, `minres`,
+  `promax`, components c1 and c2), and `prune("redundant")` chases those
+  through to a1.
+- `psych::fa()` fits an oblimin rotation from 20 random starts by default
+  (`n.rotations`), so two unseeded fits differ near the rotation's
+  convergence tolerance. The generator seeds each run.
 
 ## Open questions
 
