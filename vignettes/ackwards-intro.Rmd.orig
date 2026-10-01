@@ -52,8 +52,9 @@ factor structure of your data builds from broad to narrow.
 
 > *Note: This is a descriptive, data-driven hierarchy, not a confirmatory
 > hierarchical model like Schmid-Leiman or higher-order SEM. The between-level
-> correlations are score correlations (or their algebraic equivalents), not
-> model parameters.*
+> correlations are the score correlations implied by the correlation matrix
+> the fit uses (see [Between-level edges](#between-level-edges)), not model
+> parameters.*
 
 ## Data
 
@@ -139,7 +140,8 @@ raised. Setting `cor = "polychoric"` is exactly how you heed it. It tells
 > within each level orthogonally using varimax, which pushes each item toward
 > one factor and keeps the factors uncorrelated. This is not merely a cosmetic
 > default. The reason is not numerical: the `W′RW` between-level correlation
-> identity is exact for **any** fixed linear scoring, oblique included. The
+> identity is exact for the correlation matrix the fit uses under **any**
+> fixed linear scoring, oblique included. The
 > reason is interpretive. Varimax leaves the factors **within** a level
 > uncorrelated (Φ = I), so each between-level edge equals that ancestor's
 > unique contribution to the descendant. That is what lets the edges be read
