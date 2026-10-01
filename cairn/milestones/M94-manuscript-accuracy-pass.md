@@ -1,13 +1,13 @@
 # M94: Manuscript accuracy pass for four older claims
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** M93
 - **Driving RR:** —
 - **Principles touched:** IP1, IP2, GP3
 - **Resolves:** —
 - **Surface tier:** user-facing — the manuscript is written for journal readers, and the two vignettes ship with the package
-- **Branch/PR:** —
+- **Branch/PR:** m094-manuscript-accuracy-pass
 
 ## Goal
 
