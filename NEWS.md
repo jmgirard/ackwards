@@ -96,10 +96,11 @@
   now say that each edge is exact for the correlation matrix supplied. Scores
   computed from the observed items do not in general reproduce the edges when
   that matrix is polychoric or Spearman. The same holds when it is estimated
-  from incomplete data by pairwise deletion or FIML. The introduction also credits Waller (2007)
-  with the closed form for principal components only. It explains the
-  general weight-matrix form as the covariance of linear composites. No code
-  or result changed.
+  from incomplete data by pairwise deletion or by full-information maximum
+  likelihood (FIML), which uses every partially observed row instead of
+  dropping it. The introduction also credits Waller (2007) with the closed
+  form for principal components only. It explains the general weight-matrix
+  form as the covariance of linear composites. No code or result changed.
 
 # ackwards 0.2.0
 

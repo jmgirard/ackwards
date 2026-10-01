@@ -1,6 +1,6 @@
 # M94: Manuscript accuracy pass for four older claims
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** M93
 - **Driving RR:** —
@@ -81,6 +81,9 @@ The manuscript and two vignettes describe the edge algebra, Waller's (2007) cont
 - 2026-10-01: implement resumed on the return. At the question gate the user chose to add the NEWS entry and fix R1-R4, R8, R10, and R11 now. R5 (the engines Waller line) stays out of scope, with a candidate row to be added at review. Minor amendment: added T7 (NEWS) and T8 (fixes).
 - 2026-10-01: T8 done. R1: the Discussion now says "the PCA and EFA engines" (boot_edges and comparability both exclude ESEM). R2: the matrix caveat moved before the test-suite and rotation sentences, so "What the rotation changes" follows the orthogonality sentence again. R3: "standardized items" in the manuscript and intro vignette. R4: the conclusion names what was checked. R8: both passages list polychoric, Spearman, pairwise, and FIML as uncovered. R10: the front matter restores "During the preparation of this work", drops the repeated "models", and reads "No AI system is an author". R11: `W_a′RW_b` with the prime character, reflowed, and "full-information" hyphenated. The intro stamp was updated, and the freshness and prose checks are clean. The em-dash count is 5.
 - 2026-10-01: T7 done. NEWS.md gained a development-section entry, "Edge wording in the introduction and engines articles". The prose check flagged a 31-word sentence, which was split, and the check is now clean.
+- 2026-10-01: T8 re-checks at faffb8f. `quarto render` exited 0 and rewrote both outputs. The em-dash count is 5 on the branch and on master. `DOD_CODE_UNCHANGED=1 Rscript tools/dod-gate.R` passed (check 0/0/0, coverage 100%).
+- claim audit: 25 claims read, 0 corrected — manuscript/manuscript.qmd, vignettes/ackwards-intro.Rmd(.orig), NEWS.md
+- 2026-10-01: the return-pass audit read the lines added since 58a340f, and all 25 claims hold. Its notes were the engines Waller line (R5, already routed to a candidate row) and "FIML" unexplained in NEWS. The NEWS entry now glosses FIML with the engines vignette's wording, and the prose check is clean. Status set to review.
 
 ## Decisions
 
