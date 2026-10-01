@@ -56,7 +56,7 @@ perl -00 -ne 'print "$ARGV\n$_\n" if /score[\s#'"'"']+correlation|correlations?[
 ## Tasks
 
 - [x] T1: Run the AC1 and AC2 greps and search Q over D and DESIGN §5. Record each hit as an edge description or another use, with a count per file, in one work-log line.
-- [ ] T2: Edit `DESCRIPTION` (Description field, lines 14-17), `README.Rmd` (near lines 108-112), and the roxygen hits: `R/ackwards.R` lines 6-8, 13, and 21, the `R/compute_edges.R` header (lines 1-16), and any other edge description T1 found. Run `devtools::document()` and `devtools::build_readme()`.
+- [x] T2: Edit `DESCRIPTION` (Description field, lines 14-17), `README.Rmd` (near lines 108-112), and the roxygen hits: `R/ackwards.R` lines 6-8, 13, and 21, the `R/compute_edges.R` header (lines 1-16), and any other edge description T1 found. Run `devtools::document()` and `devtools::build_readme()`.
 - [ ] T3: Edit the vignette sources. Known sites are intro 55 and 140-142, engines 83-87 and 460 and 540, ordinal 384, and girard 273, plus T1's other hits. Run `Rscript vignettes/precompute.R`, revert run noise line by line (M75, M87), and diff each `.Rmd` against master with the stamp line removed (M94).
 - [ ] T4: Edit the manuscript sites (146-148, 304, 407, and T1's other hits). Render the manuscript.
 - [ ] T5: Edit DESIGN §5: the §5.1 Waller and scoring text (line 237-240), the §5.2 comments (253-254), and the §5.3 pseudocode signature and body (260-283).
@@ -72,6 +72,7 @@ perl -00 -ne 'print "$ARGV\n$_\n" if /score[\s#'"'"']+correlation|correlations?[
 - 2026-10-01: plan gate kept the cross-check-paths row separate over folding in its docs half. That row poses a document-or-test choice of its own. Falsified by a T5 read of §5.4 that shows the omission makes a §5 sentence false.
 - 2026-10-01: plan chose a paragraph-mode `perl -00` search over the per-line grep. The audit found five edge descriptions split across line breaks that the grep missed. Falsified by a missed site whose phrase is in the pattern but spans a paragraph break.
 - 2026-10-01: T1 done. Search Q found 90 paragraphs over D and DESIGN §5, 29 of them edge descriptions (E). Per file, hits/E: DESCRIPTION 1/1, README.Rmd 1/1, manuscript 14/7, NEWS dev 4/1, DESIGN §5 3/3, vignettes engines 6/4, forbes 10/1, forbes2023 4/0, girard 3/1, interpret 1/0, intro 7/3, ordinal 1/1, suggest-k 2/0, visualization 4/0. Roxygen: ackwards 6/2, compute_edges 2/2, prune 3/1, tidy 1/1, and 0 E among augment 3, autoplot 2, boot_edges 2, comparability 1, data 4, label_template 1, layout 2, predict 1, suggest_k 1. AC1 found 16 lines in D, one a shipped-edge route (DESCRIPTION). AC2 found 14 Waller lines, 4 of them reference entries. The ledger is under Decisions.
+- 2026-10-01: T2 done. DESCRIPTION drops the materialized-scores route and credits Waller with the components result only. README.Rmd, `ackwards()`, `prune()`, and `tidy()` roxygen name the fit's correlation matrix. The `compute_edges()` header states the scores-branch conditions from the code and says no shipped caller reaches it. `document()` and `build_readme()` changed only those paragraphs. check-prose and its code-unchanged guard pass.
 
 ## Decisions
 

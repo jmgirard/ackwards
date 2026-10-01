@@ -21,7 +21,8 @@ generics::glance
 #'   * `"edges"` *(default)*: one row per directed between-level edge, with
 #'     columns `from`, `to`, `level_from`, `level_to`, `r`, `beta`,
 #'     `is_primary`, `above_cut`. The column `r` is the correlation between
-#'     the two factors' scores, a total correlation. Under an oblique
+#'     the two factors' scores implied by the fit's correlation matrix, a
+#'     total correlation. Under an oblique
 #'     rotation it includes overlap through correlated factors at the `from`
 #'     level, and `is_primary` still marks each factor's largest `|r|`. The
 #'     column `beta` is the partialled coefficient. It is the standardized regression weight of the `to`

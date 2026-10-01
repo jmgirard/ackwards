@@ -703,8 +703,9 @@
 #'     analysis, and a component is a weighted sum of the items. Component
 #'     scores are *determinate*, that is, exact linear functions of the data,
 #'     with no factor-score indeterminacy. So the score correlation `|r|` is
-#'     the true correlation between the components themselves, and phi adds
-#'     nothing that `|r|` does not already capture.
+#'     the correlation between the components themselves under the
+#'     correlation matrix the fit uses, and phi adds nothing that `|r|` does
+#'     not already capture.
 #'   * `x$engine` is `"efa"` or `"esem"`: automatically set to `0.95`
 #'     (Lorenzo-Seva & ten Berge, 2006). EFA is exploratory factor analysis
 #'     and ESEM is exploratory structural equation modeling. Factor-score

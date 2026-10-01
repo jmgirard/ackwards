@@ -217,24 +217,28 @@ Extracts factor or component solutions at levels 1 through \code{k}. A factor
 (or component) is a summary variable that stands in for a group of items
 that move together. It then characterises the hierarchy by computing the
 correlations between the factor scores of different levels. A factor score
-is each person's estimated standing on a factor. The "hierarchy" is
-descriptive: edges are score correlations, not a fitted higher-order SEM.
+is each person's estimated standing on a factor. Each edge is computed from
+the scoring weights and the correlation matrix the fit uses, and it is exact
+for that matrix. The "hierarchy" is descriptive: edges are score
+correlations, not a fitted higher-order SEM.
 }
 \section{Defaults and why}{
 
 \itemize{
 \item \strong{\code{engine = "pca"}} is the original Goldberg (2006) method. PCA
 (principal component analysis) is the fastest engine and never fails to
-converge, and the Waller (2007) algebra is exact for components. (An
-oblique \code{rotation} can still fail, see \code{rotation}.)
+converge. Waller (2007) showed that the correlations between the
+component scores of different levels follow from the correlation matrix
+alone. (An oblique \code{rotation} can still fail, see \code{rotation}.)
 \item \strong{\code{rotation = "varimax"}} keeps the within-level factors mutually
 uncorrelated (orthogonal). A rotation re-orients the factors without
 changing how well they fit, and varimax pushes each item toward one
 factor. With uncorrelated factors, each between-level edge equals that
 ancestor's unique contribution to the descendant. That is what lets the
 edges be read as a lineage diagram. The closed-form
-\verb{W'RW} edge algebra is itself exact for any fixed linear scoring, orthogonal
-or not, so the choice is interpretive, not a numerical necessity. It
+\verb{W'RW} edge algebra is itself exact for the correlation matrix the fit
+uses under any fixed linear scoring, orthogonal or not. So the choice is
+interpretive, not a numerical necessity. It
 matches Goldberg (2006), Kim & Eaton (2015), and Forbush et al. (2024).
 An oblique rotation is available as a non-default option (see
 \code{rotation}). Its edges are total correlations, which also carry overlap
