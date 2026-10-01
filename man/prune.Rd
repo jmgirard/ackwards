@@ -149,8 +149,8 @@ packages (e.g. \code{rpart::prune}) regardless of package load order.
 \strong{Oblique objects.} When \code{\link[=ackwards]{ackwards()}} was fit with an oblique \code{rotation},
 each edge \code{r} is a total correlation, which includes overlap through
 correlated factors at the same level. Every rule still runs unchanged: the
-edge criteria on \code{r}, and the congruence (phi) checks on the loadings,
-which are then pattern coefficients. A warning names the rules that run and
+edge criteria on \code{r}, and the congruence (phi) checks and item-assignment
+signals on the loadings, which are then pattern coefficients. A warning names the rules that run and
 says that they assume orthogonal levels. Their default thresholds, such as
 \code{redundancy_r = 0.9}, were calibrated on varimax edges.
 

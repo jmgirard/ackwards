@@ -191,7 +191,7 @@ were set for varimax. Two kinds of rotation start at random: psych's
 oblimin for \code{engine = "efa"} and every lavaan rotation. Set \code{seed} to
 reproduce such a fit exactly (see \code{seed}).
 
-A rotation that fails is handled by how many starts it uses. PCA rotates
+An oblique rotation that fails is handled by how many starts it uses. PCA rotates
 once, so a level whose rotation fails to converge, or that psych replaces
 with promax, ends the hierarchy at the level before it with a warning.
 EFA and ESEM rotate from several random starts and keep the best one, so

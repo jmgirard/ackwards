@@ -743,8 +743,8 @@
 #' **Oblique objects.** When [ackwards()] was fit with an oblique `rotation`,
 #' each edge `r` is a total correlation, which includes overlap through
 #' correlated factors at the same level. Every rule still runs unchanged: the
-#' edge criteria on `r`, and the congruence (phi) checks on the loadings,
-#' which are then pattern coefficients. A warning names the rules that run and
+#' edge criteria on `r`, and the congruence (phi) checks and item-assignment
+#' signals on the loadings, which are then pattern coefficients. A warning names the rules that run and
 #' says that they assume orthogonal levels. Their default thresholds, such as
 #' `redundancy_r = 0.9`, were calibrated on varimax edges.
 #'
@@ -898,7 +898,8 @@ prune.ackwards <- function(x, rules = "none", manual = NULL,
   }
 
   # Oblique objects (D-036): the criteria run unchanged, the edge criteria on
-  # the marginal r and the congruence checks on the pattern loadings, with
+  # the marginal r and the congruence checks and item-assignment signals
+  # (few_items, split_merge) on the pattern loadings, with
   # thresholds calibrated on varimax; say so, naming the rules that run
   # (Invariant 6).
   if (length(auto_rules) > 0L && .is_oblique(x)) {

@@ -46,12 +46,21 @@
 # keep working.
 # lav_formals is a parameter (defaulting to the real thing) so both branches
 # are testable regardless of which lavaan version is installed.
+.esem_ss_argname <- function(lav_formals = names(formals(lavaan::lavaan))) {
+  if ("slot_sample_stats" %in% lav_formals) {
+    "slot_sample_stats"
+  } else {
+    "slotSampleStats"
+  }
+}
+
 # lavaan's rotation argument(s) for one level. Varimax and the unrotated k = 1
 # level pass the method name alone, as before. An oblique rotation also turns
 # on lavaan's rotation warnings (rotation.args$warn, FALSE by default). lavaan
 # >= 0.7 takes rotation options inside `rotation`, a list whose first element
 # is the method (its `rotation_args` is deprecated); earlier versions take
-# `rotation.args`.
+# `rotation.args`. Detected by capability (a `rotation_args` formal of
+# lavaan::efa()), and efa_formals is a parameter so both branches are testable.
 .esem_rotation_args <- function(rotation, efa_formals = names(formals(lavaan::efa))) {
   if (rotation %in% c("none", "varimax")) {
     list(rotation = rotation)
@@ -59,14 +68,6 @@
     list(rotation = list(rotation, warn = TRUE))
   } else {
     list(rotation = rotation, rotation.args = list(warn = TRUE))
-  }
-}
-
-.esem_ss_argname <- function(lav_formals = names(formals(lavaan::lavaan))) {
-  if ("slot_sample_stats" %in% lav_formals) {
-    "slot_sample_stats"
-  } else {
-    "slotSampleStats"
   }
 }
 

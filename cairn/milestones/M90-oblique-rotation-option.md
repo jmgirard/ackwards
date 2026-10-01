@@ -1,6 +1,6 @@
 # M90: Oblique rotation as a documented non-default option
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** M89
 - **Driving RR:** RR02
@@ -73,7 +73,7 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - [x] T7: Fit-time cli advisory (IP6) and the `prune()` stance per the D-entry. Tests assert the message text and the warn-or-implement branch.
 - [x] T8: `data-raw/forbes2023-oblique.R` (md5-pinned OSF `7jfkw` functions, oblique branch). Reconcile her unstandardized `comp.corr` with standardized edges through `D`. Fixture plus provenance, `test-forbes-fidelity.R` oblique block, ORACLES rows.
 - [x] T9: Docs per AC12 (roxygen, `ackwards-engines.Rmd.orig` plus precompute, NEWS, DESIGN §9 row). Run `devtools::document()` and `Rscript tools/dod-gate.R`.
-- [ ] T10: Review pass 1 rework. Snapshot the oblique `autoplot()` edge labels and caption as text (AC5). Remove `# nocov` from the oblique branches and cover each with a test (AC13). Make the fix-now parts of findings F1 to F22 in Review. Re-run `Rscript tools/dod-gate.R`.
+- [x] T10: Review pass 1 rework. Snapshot the oblique `autoplot()` edge labels and caption as text (AC5). Remove `# nocov` from the oblique branches and cover each with a test (AC13). Make the fix-now parts of findings F1 to F22 in Review. Re-run `Rscript tools/dod-gate.R`.
 
 ## Work log
 
@@ -124,6 +124,8 @@ Deviations from RR02 (narrowed readings, not softenings: the fresh-context crite
 - 2026-09-30: T10 DoD gate, second run passed: check 0/0/0, coverage 100%, prose, freshness, ledger anchors, styler, lintr, and pkgdown clean.
 - claim audit: 89 claims read, 17 corrected — R/ackwards.R, R/engine_efa.R, R/engine_esem.R, R/tidy.R, R/prune.R, R/utils.R, NEWS.md, tests/testthat/test-oblique-branches.R, tests/testthat/test-oblique.R
 - 2026-09-30: the claim audit covered the lines added since d49b217. Its main finding: lavaan never sent its rotation warning, so the ESEM half of F1 did nothing on a real fit. Fixed per Decisions. The ESEM test now drives real lavaan non-convergence, and planting "warnings off" turned it red. Of the 17 corrections, claim 2 (seed) was kept with evidence, which leaves 16 edits.
+- 2026-09-30: claim-audit re-read by the same reader: 25 items re-read, 21 true, and the reader reproduced the claim 2 case. Four fixed after it: the `.esem_rotation_args()` helper moved out of `.esem_ss_argname()`'s comment block, the `rotation` doc now covers oblique rotations only, and the `prune()` doc and comment name the item-assignment signals.
+- 2026-09-30: T10 done. Third DoD gate run passed: check 0/0/0, coverage 100%, prose, freshness, ledger anchors, styler, lintr, and pkgdown clean. Suite 3516 expectations, 0 failures, 2 Mac-only skips. Status set to review.
 
 ## Decisions
 
