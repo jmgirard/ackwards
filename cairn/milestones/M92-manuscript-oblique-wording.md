@@ -21,11 +21,11 @@ The manuscript describes the shipped `rotation` option: varimax by default, obli
 
 ## Acceptance criteria
 
-- [ ] AC1: The methods passage states that the `W'RW` algebra is exact for any fixed linear scoring weights, oblique rotations included. It no longer says that an orthogonal rotation is what makes the algebra exact. It states that varimax [@kaiser1958] is the default and that oblique rotations are an option.
-- [ ] AC2: The scope paragraph no longer says that rotation is varimax only or that correlated factors confound the cross-level signal. It no longer says that the closed-form algebra depends on orthonormality. It states that varimax is the default. It also states three facts about an oblique rotation. Each edge is a total correlation, `tidy()` reports the partialled coefficient `beta` beside it, and primary parents still follow `r`.
-- [ ] AC3: Search `manuscript/manuscript.qmd` case-insensitively for `oblique|orthogon|orthonormal|varimax|rotat|correlated|confound`. No sentence that contains a match says that the package offers only orthogonal rotation, or that the edge algebra needs an orthogonal rotation. No such sentence says that correlated factors confound the cross-level signal or make the edges uninterpretable. A sentence can say that an oblique edge includes overlap through correlated factors at the same level.
-- [ ] AC4: The rewritten passages contain no em dash, typed as `—` or as `---`. Every citation key that they use resolves in `manuscript/references.bib`.
-- [ ] AC5: With the package and a TeX toolchain installed, `quarto render manuscript/manuscript.qmd` exits 0. It writes both `manuscript.pdf` and `manuscript.docx`.
+- [x] AC1: The methods passage states that the `W'RW` algebra is exact for any fixed linear scoring weights, oblique rotations included. It no longer says that an orthogonal rotation is what makes the algebra exact. It states that varimax [@kaiser1958] is the default and that oblique rotations are an option.
+- [x] AC2: The scope paragraph no longer says that rotation is varimax only or that correlated factors confound the cross-level signal. It no longer says that the closed-form algebra depends on orthonormality. It states that varimax is the default. It also states three facts about an oblique rotation. Each edge is a total correlation, `tidy()` reports the partialled coefficient `beta` beside it, and primary parents still follow `r`.
+- [x] AC3: Search `manuscript/manuscript.qmd` case-insensitively for `oblique|orthogon|orthonormal|varimax|rotat|correlated|confound`. No sentence that contains a match says that the package offers only orthogonal rotation, or that the edge algebra needs an orthogonal rotation. No such sentence says that correlated factors confound the cross-level signal or make the edges uninterpretable. A sentence can say that an oblique edge includes overlap through correlated factors at the same level.
+- [x] AC4: The rewritten passages contain no em dash, typed as `—` or as `---`. Every citation key that they use resolves in `manuscript/references.bib`.
+- [x] AC5: With the package and a TeX toolchain installed, `quarto render manuscript/manuscript.qmd` exits 0. It writes both `manuscript.pdf` and `manuscript.docx`.
 
 ## Coverage
 
@@ -58,3 +58,18 @@ The manuscript describes the shipped `rotation` option: varimax by default, obli
 ## Decisions
 
 ## Review
+
+Fresh evidence, 2026-09-30, on branch head caca670. The branch contains `origin/master` 0324d51, and no PR exists yet.
+
+- AC1: read manuscript.qmd:162-169 from `git diff master...HEAD`. It says "The closed form is exact for any fixed linear scoring weights, oblique rotations included" and "Nothing in it uses the orthogonality of a rotation". The old "Orthogonal (varimax) rotation ... is what makes the algebra exact" and "$T' = T^{-1}$" sentences are gone. It names varimax [@kaiser1958] as the default and oblique rotations as an option. Pass.
+- AC2: read manuscript.qmd:415-420. The removed lines held "orthogonal (varimax) only", "would confound the very cross-level signal", and "depends on the orthonormality". The new text says varimax is the default and an oblique edge is a total correlation. It says `tidy()` reports `beta` beside each edge and primary parents follow `r`. Pass.
+- AC3: `grep -n -i -E 'oblique|orthogon|orthonormal|varimax|rotat|correlated|confound'` hits lines 162-168 and 415-418 only, all inside the rewritten passages. No hit says the package offers only orthogonal rotation, that the algebra needs it, or that correlated factors confound or make edges uninterpretable. Line 417-418 is the allowed overlap statement. Pass.
+- AC4: grep for `—|---` over lines 155-175 and 410-425 finds none. Keys used in the rewritten passages (`waller2007`, `kaiser1958`) each match once in `manuscript/references.bib`, as do the neighboring keys `forbes2023`, `goldberg2006`, `schmid1957`, `williams2025`, `yung1999`. Pass.
+- AC5: after deleting old outputs, `quarto render manuscript.qmd` exited 0 and wrote `manuscript.pdf` (96,384 bytes) and `manuscript.docx` (308,836 bytes). The PDF text contains "oblique" 3 times. One warning: no `rsvg-convert` for the docx ORCID icon, unrelated. The installed package is 0.2.0.9000, and the branch changes no package code. Pass.
+
+Consistency gate, 2026-09-30:
+
+- `cairn_validate.py` exited 0. All checks passed, with 16 work-log format warnings, all in M84.
+- No principle text changed, so `cairn_impact.py` does not apply.
+- `devtools::document()` left no diff. `devtools::check()` gave 0 errors, 0 warnings, 0 notes. `pkgdown::check_pkgdown()` found no problems.
+- No NEWS entry is needed, because `manuscript/` is in `.Rbuildignore` and is not part of the package. No README or new top-level file changed.
