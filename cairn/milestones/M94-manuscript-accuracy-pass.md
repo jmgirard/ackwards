@@ -1,6 +1,6 @@
 # M94: Manuscript accuracy pass for four older claims
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** M93
 - **Driving RR:** —
@@ -72,6 +72,9 @@ The manuscript and two vignettes describe the edge algebra, Waller's (2007) cont
 - 2026-10-01: T4 done. Both vignette passages qualify "exact". The intro passage limits Waller to components and derives `W'RW` from linear composites. precompute.R ran clean. Untouched vignettes and assets were reverted, and the two edited `.Rmd` files were rebuilt from master plus the prose and stamp lines. Noise counts are 0, and the freshness check passes.
 - 2026-10-01: T5 done. Every rewritten paragraph was re-read in place. The waller2007 page images (pp. 748-749) confirm "component transformation matrix" and the oblique form for rotated components. The R source confirms that all three engines set `linear = TRUE` and that `cor` accepts spearman. Every scores-agreement test (PCA, EFA, ESEM, oblique) uses complete Pearson data. The AC1-AC3 searches leave no failing paragraph. Intro vignette line 142 ("identity is exact for any fixed linear scoring") stays, because it does not say edges equal observed-score correlations.
 - 2026-10-01: T6 done. `quarto render manuscript.qmd` exited 0 and rewrote both outputs. The em-dash count is 5 on the branch and on master. The first gate run failed on its prose check, because a 39-word intro vignette sentence was over the 30-word limit. The sentence was split and the stamp was updated, and the second run of `DOD_CODE_UNCHANGED=1 Rscript tools/dod-gate.R` passed (check 0/0/0, coverage 100%).
+- claim audit: 17 claims read, 3 corrected — manuscript/manuscript.qmd, vignettes/ackwards-intro.Rmd(.orig), vignettes/ackwards-engines.Rmd(.orig)
+- 2026-10-01: claim-audit fixes. "The linear engines" became "all three engines" in the methods and conclusion. The intro covariance became `W_a' R W_b`. The engines vignette dropped "therefore" before its exactness claim. The same reader re-read all three, and they hold. The kept engines sentence that credits Waller with `W'RW` is out of scope by plan, and the reader marks it unclear (Waller uses transformation matrices). It is raised for review.
+- 2026-10-01: after the fixes, `quarto render` exited 0 and rewrote both outputs. The em-dash count is 5 on the branch and on master. `DOD_CODE_UNCHANGED=1 Rscript tools/dod-gate.R` passed (check 0/0/0, coverage 100%). Status set to review.
 
 ## Decisions
 
