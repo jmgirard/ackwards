@@ -1,5 +1,19 @@
 # ackwards (development version)
 
+* **Edge wording in the introduction and engines articles.** The two articles
+  called the between-level edges exact without saying exact for what. They
+  now say that each edge is exact for the correlation matrix the fit uses.
+  Scores computed from the observed items do not in general reproduce the
+  edges when that matrix is polychoric or Spearman. The same holds when it is
+  estimated from incomplete data by pairwise deletion, where each correlation
+  uses only the rows that observe both items. It also holds under
+  full-information maximum likelihood (FIML), which uses every partially
+  observed row instead of dropping it. The introduction says that each edge is
+  then the correlation the scores would have if the items correlated exactly
+  as that matrix says. It also credits Waller (2007) with the closed form for
+  principal components only. It explains the general weight-matrix form as
+  the covariance of linear composites. No code or result changed.
+
 * **Oblique rotation as an option.** `ackwards()` gains a `rotation`
   argument. The default stays `"varimax"`, and default numerical output does
   not change (PCA and EFA `factor_cor` gain row and column names, see
@@ -70,7 +84,8 @@
   the help pages were revised so that a reader outside the field can follow
   them on one read. In those files sentences are shorter, dashes and semicolons
   are gone, and each statistical term is explained in plain words where it is
-  first used. The vignettes are covered by the two entries below. No function,
+  first used. The vignettes are covered by the two "Plain-English vignettes"
+  entries below. No function,
   argument, default, or example changed. A prose check in the development
   workflow now guards these files, so later documentation keeps the same style.
 

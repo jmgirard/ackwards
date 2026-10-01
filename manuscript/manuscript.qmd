@@ -16,13 +16,12 @@ author-note:
   disclosures:
     conflict of interest: The author has no conflicts of interest to disclose.
     gratitude: |
-      During the preparation of this work (June--July 2026) the author used a
-      large language model (Anthropic's Claude, via the Claude Code interface) to
-      assist with software
-      implementation, testing, documentation, and editing; the author reviewed
-      and verified all output and takes full responsibility for the content. The
-      AI system is not an author. See the Use of Generative AI section for
-      details.
+      During the preparation of this work, from June 2026 to submission, the
+      author used Anthropic's Claude (its Opus, Sonnet, and Fable models, via
+      the Claude Code interface) to assist with software implementation,
+      testing, documentation, and editing; the author reviewed and verified all
+      output and takes full responsibility for the content. No AI system is an
+      author. See the Use of Generative AI section for details.
 abstract: |
   Factor analysis confronts every investigator with the same question: how many
   factors to retain? Yet solutions at different levels of resolution are
@@ -34,8 +33,8 @@ abstract: |
   analysis, exploratory factor analysis, and exploratory structural equation
   modeling engines, together with Forbes's (2023) all-levels and
   redundancy-pruning extensions. The package computes between-level correlations
-  through Waller's (2007) exact closed-form algebra, keeps a light and shareable
-  result object, and exposes a tidy, pipe-friendly interface for fitting,
+  in closed form from the scoring weights and the correlation matrix, keeps a
+  light and shareable result object, and exposes a tidy, pipe-friendly interface for fitting,
   scoring, visualizing, and pruning a hierarchy. We illustrate the workflow on a
   Big Five personality dataset and reproduce Forbes's 155-variable applied
   example, whose between-level correlations match her reference implementation to
@@ -100,9 +99,9 @@ descend from broad ones and where the structure reorganizes as resolution
 increases.
 
 Many of these analyses are built with Goldberg's bass-ackwards method
-[@goldberg2006], for which @waller2007 later derived a general closed-form
-algebra and @forbes2023 added all-levels and redundancy-pruning extensions. The
-available tooling has not kept pace. The core top-down loop is implemented in the
+[@goldberg2006], for which @waller2007 later derived a closed-form algebra for
+principal components and @forbes2023 added all-levels and redundancy-pruning
+extensions. The available tooling has not kept pace. The core top-down loop is implemented in the
 widely used **psych** package [@psych], but the extensions that recent studies
 rely on have been available only as bespoke, paper-specific scripts. These
 extensions include exploratory structural equation modeling with per-level fit
@@ -151,18 +150,28 @@ equivalents), not model parameters.
 
 The between-level correlations are the heart of the method, and there are two
 routes to them. The direct route materializes factor scores at each level and
-correlates them [@grice2001]. @waller2007 showed that, when scoring is a linear function of
-the items, the same correlations follow in closed form from the factor weight
-matrices and the item correlation matrix, without ever computing scores. For
-factor weights $W_a$ and $W_b$ at two levels and item correlation matrix $R$, the
-cross-level score covariance is $W_a' R W_b$. Standardizing by the score standard
-deviations $\sqrt{\operatorname{diag}(W'RW)}$ yields the correlations. **ackwards**
-uses this algebra by default and falls back to materialized scores only for
-nonlinear scoring, cross-checking the two routes against one another for linear
-engines. The closed form is exact for any fixed linear scoring weights, oblique
-rotations included. Nothing in it uses the orthogonality of a rotation, and
-@waller2007 gives the oblique form for rotated components. What the rotation
-changes is the meaning of an edge. By default, **ackwards** applies varimax
+correlates them [@grice2001]. For principal components, @waller2007 showed that
+the same correlations follow in closed form from the component transformation
+matrices of the levels, without ever computing scores, and he gave the oblique
+form for rotated components. A closed form also exists for any linear scoring
+weights. Scores computed with such weights are linear composites of the
+standardized items, and the covariance of linear composites follows from their
+weights and the item correlation matrix. For weights $W_a$ and $W_b$ at two
+levels and item correlation matrix $R$, the covariance of the two sets of
+composites is $W_a' R W_b$. Standardizing by the score standard deviations
+$\sqrt{\operatorname{diag}(W'RW)}$ yields the correlations. Every engine in
+**ackwards** scores linearly, and every edge the package reports comes from this
+closed-form algebra. The algebra is exact for the correlation matrix the fit
+uses. When that matrix is polychoric or Spearman, or is estimated from
+incomplete data by pairwise deletion or by full-information maximum likelihood
+(FIML), scores computed from the observed items do not in general reproduce the
+edges. Each edge is then the correlation the scores would have if the items
+correlated exactly as that matrix says. The test suite also computes the edges
+from materialized scores and checks that the two routes agree. That check runs
+on all three engines, but only with complete data and Pearson correlations, so
+it does not cover the polychoric, Spearman, pairwise, or FIML cases. Nothing in
+the algebra uses the orthogonality of a rotation, so it holds for oblique
+rotations too. What the rotation changes is the meaning of an edge. By default, **ackwards** applies varimax
 rotation [@kaiser1958] at every level with two or more factors, which keeps the
 factors within a level uncorrelated. With the default scores, each edge then
 equals the ancestor's unique contribution to the descendant, which is what lets
@@ -292,9 +301,9 @@ factor at *k* = 1 splits first to separate Neuroticism, then progressively
 differentiates until, at *k* = 5, the canonical five traits appear. Factors carry
 stable identifiers `m{k}f{j}` (level *k*, factor *j*) used throughout the object.
 
-Each between-level edge is the factor-score correlation computed through Waller's
-(2007) closed-form algebra. The primary-parent edge for every factor, strongest
-first, is one line:
+Each between-level edge is the factor-score correlation implied by the scoring
+weights and the polychoric correlation matrix, computed in closed form. The
+primary-parent edge for every factor, strongest first, is one line:
 
 ```{r}
 #| label: tbl-edges
@@ -379,13 +388,18 @@ factor analysis, and exploratory structural equation modeling) sit behind that
 interface, so an analyst can move from Goldberg's original component-scores
 procedure to an EFA-in-SEM formulation with per-level fit indices, standard
 errors, and ordinal support without leaving the package or rewriting the
-pipeline. All three engines route their between-level correlations through a
-single verified computation: Waller's (2007) closed-form algebra when scoring is
-linear, cross-checked against materialized factor scores. The applied example reproduces Forbes's (2023)
-155-variable analysis to machine precision, and that agreement is exercised by
-the test suite rather than merely asserted. Researchers who adopt the package
-inherit a computation that has already been checked, and readers who want to
-verify an analysis can re-run it rather than reconstruct it.
+pipeline. All three engines score linearly, and every between-level correlation
+the package reports comes from one closed-form computation on the scoring
+weights and the correlation matrix. The test suite checks that computation
+against correlations of materialized factor scores for all three engines, but
+only with complete data and Pearson correlations, so the check does not cover
+the polychoric, Spearman, pairwise, or FIML cases. The applied example
+reproduces Forbes's (2023) 155-variable analysis to machine precision, and that
+agreement is exercised by the test suite rather than merely asserted.
+Researchers who adopt the package inherit a computation checked against
+materialized scores on complete Pearson data and against Forbes's reference
+implementation, and readers who want to verify an analysis can re-run it rather
+than reconstruct it.
 
 Several of the package's design choices are deliberately conservative, encoding
 interpretive cautions rather than leaving them to the analyst's discipline. The
@@ -442,7 +456,7 @@ rather than abandoned.
 
 Two extensions already on the package's roadmap would widen the verified workflow
 further. Split-half factor comparability and bootstrap edge confidence intervals
-are currently available for the linear (PCA and EFA) engines; carrying them to
+are currently available for the PCA and EFA engines; carrying them to
 the ESEM and polychoric bases is the natural next step. Because the package is
 developed in the open, such extensions (and others the community may need) can be
 contributed, reviewed, and tested against the same fidelity guarantees. As
@@ -462,10 +476,11 @@ the render command, required toolchain, and the package version used.
 
 # Use of generative AI
 
-The **ackwards** package and this manuscript were developed between June and
-July 2026 with the assistance of a large language model (Anthropic's Claude,
-using its Opus and Sonnet models) through the Claude Code interface. Rather than a single prompt, the assistant was
-used iteratively across many sessions for software implementation, test
+AI-assisted development of the **ackwards** package and this manuscript ran
+from June 2026 to submission. The assistant was Anthropic's Claude, used
+through the Claude Code interface, with models from its Opus, Sonnet, and Fable
+families. Rather than a single prompt, the assistant was used iteratively
+across many sessions for software implementation, test
 construction, documentation, and editing of author-written prose. Because this
 mode of use produces no reproducible prompt, we disclose its scope rather than a
 transcript: every AI-assisted contribution was reviewed, verified, and edited by
