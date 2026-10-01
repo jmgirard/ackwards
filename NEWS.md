@@ -91,6 +91,16 @@
   Forbes (2023), the Pearson default with its ordinal-data warning, and the
   descriptive reading of the hierarchy are stated as before.
 
+* **Edge wording in the introduction and engines articles.** The two articles
+  called the between-level edges exact without saying exact for what. They
+  now say that each edge is exact for the correlation matrix supplied. Scores
+  computed from the observed items do not in general reproduce the edges when
+  that matrix is polychoric or Spearman. The same holds when it is estimated
+  from incomplete data by pairwise deletion or FIML. The introduction also credits Waller (2007)
+  with the closed form for principal components only. It explains the
+  general weight-matrix form as the covariance of linear composites. No code
+  or result changed.
+
 # ackwards 0.2.0
 
 New publication-figure controls for `autoplot()`, secondary correlation edges
