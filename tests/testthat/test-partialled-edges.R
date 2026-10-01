@@ -166,10 +166,11 @@ min_eig_of <- function(W, R) {
   min(eigen(phi_s_of(W, R), symmetric = TRUE, only.values = TRUE)$values)
 }
 
-# Replace level k's score weights and rebuild everything the stored edges
-# derive from them (score variances, every stored edge matrix, the tidy r
-# column), so the planted weights and the stored edges describe the same
-# composites, as a real fit's would.
+# Replace level k's score weights and rebuild the score variances, every
+# stored edge matrix (which beta and r2 read), and the tidy r column from
+# them, so the planted weights and the stored edges describe the same
+# composites.
+# above_cut, is_primary, and factor_cor are left as fitted.
 plant_weights <- function(x, k, W) {
   lev <- as.character(k)
   colnames(W) <- colnames(x$levels[[lev]]$scoring$weights)
@@ -215,8 +216,10 @@ test_that("a near-singular level-2 Phi_s keeps beta and raises one warning namin
   x <- cached(ackwards(sim16, k_max = 4))
   W2 <- near_copy_l2(x, 0.13)
   lam <- min_eig_of(W2, x$r)
-  # Just under the 1e-2 cutoff, so a stricter cutoff (or an rcond test,
-  # which is about half the eigenvalue for a 2 by 2) would stay silent.
+  # Just under the 1e-2 cutoff, so a stricter eigenvalue cutoff (below 5e-3)
+  # would stay silent. An rcond test at 1e-2 (rcond is about half the
+  # eigenvalue for a 2 by 2) would also fire, and the control further down
+  # catches it.
   expect_gte(lam, 5e-3)
   expect_lt(lam, 1e-2)
   y <- plant_weights(x, 2L, W2)
@@ -238,7 +241,7 @@ test_that("a near-singular level-2 Phi_s keeps beta and raises one warning namin
     B[cbind(match(got$from, rownames(B)), match(got$to, colnames(B)))],
     tolerance = 1e-8
   )
-  # Edges from the untouched levels are unaffected.
+  # Edges from the other levels still get a finite beta.
   expect_true(all(is.finite(e$beta[e$level_from != 2L])))
 
   # The warning recurs on the next call: nothing is cached on the object.

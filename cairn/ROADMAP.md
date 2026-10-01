@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M91 | Near-singular guard for the within-level score correlation | in-progress | — | normal | milestones/M91-near-singular-score-cor-guard.md |
+| M91 | Near-singular guard for the within-level score correlation | review | — | normal | milestones/M91-near-singular-score-cor-guard.md |
 | M92 | Manuscript wording for the oblique rotation option | planned | — | normal | milestones/M92-manuscript-oblique-wording.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 | M88 | Prose-checker hardening (`tools/check-prose.R`) | done | — | high | milestones/archive/M88-prose-checker-hardening.md |
