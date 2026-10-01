@@ -312,8 +312,11 @@ require row-level item responses.
 
 \section{When to trust the result}{
 
-\code{ackwards()} raises diagnostics as it fits. They fall into three tiers by
-what they mean for whether you should trust and report the solution:
+\code{ackwards()} raises most diagnostics as it fits, while \code{tidy()} and
+\code{summary()} raise the warnings about a level's within-level score
+correlation (the item below says which raises which). They fall into three
+tiers by what they mean for whether you should trust and report the
+solution:
 
 \strong{Fatal, so fix before trusting.} The result is undefined or rests on a
 broken correlation matrix:
@@ -344,6 +347,14 @@ meaningless factor. Inspect it with \code{\link[=check_items]{check_items()}}.
 \item \strong{Ordinal data on a Pearson basis} attenuates correlations. That is fine
 for a quick look or \code{suggest_k()} screening, but report the final model on
 \code{cor = "polychoric"}.
+\item A \strong{nearly singular within-level score correlation} (smallest eigenvalue
+\verb{< 1e-2}) means the factors at that level are close to collinear, so the
+partialled \code{beta} for edges from that level is unstable. The \code{tidy()}
+method still reports \code{beta} and raises a warning that names the level.
+Fitting with \code{ackwards()} does not raise it. The package chose this cutoff
+as a numerical guard. It is not a published rule. If the correlation
+cannot be inverted at all, \code{beta} and \code{r2} are \code{NA} and a different
+warning names the level. Both \code{tidy()} and \code{summary()} raise that one.
 }
 
 \strong{Informational, and usually fine.} Proceed, just be aware of the

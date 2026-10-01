@@ -29,17 +29,20 @@ generics::glance
 #'     part of `r` that the other factors at the `from` level share. Under the
 #'     default varimax rotation the factors within a level are uncorrelated,
 #'     so `beta` equals `r`. The two come apart only when the factors within
-#'     a level are correlated. When the within-level score correlation of the
-#'     `from` level cannot be inverted, `beta` is `NA` for that level's edges
-#'     and a warning names the level. That within-level score correlation
-#'     always comes from the stored score weights and the fit's correlation
-#'     matrix. This holds even when `r` came from materialised scores
-#'     (`edge_method = "scores"`, or the scores path under missing data). On
-#'     those paths the two bases can differ slightly, so `beta` is then an
-#'     approximation of the regression weight. With the default ten Berge or
-#'     component scores, the within-level score correlation equals the
-#'     level's factor correlation (`what = "factor_cor"`). With regression
-#'     scores, the fallback when ten Berge weights fail, the two can differ.
+#'     a level are correlated. The column `beta` uses the within-level score
+#'     correlation of the `from` level. That correlation comes from the stored
+#'     score weights and the fit's correlation matrix, the same matrix that
+#'     `r` comes from. When that correlation cannot be inverted, `beta` is
+#'     `NA` for that level's edges and a warning names the level. When that
+#'     correlation is nearly singular (smallest eigenvalue below `1e-2`), the
+#'     factors at that level are close to collinear and `beta` is unstable.
+#'     The `tidy()` method still reports `beta` and raises a warning that
+#'     names the level. Fitting with `ackwards()` does not raise it. The
+#'     package chose this cutoff as a numerical guard. It is not a published
+#'     rule. With the default ten Berge or component scores, the within-level
+#'     score correlation equals the level's factor correlation
+#'     (`what = "factor_cor"`). With regression scores, the fallback when ten
+#'     Berge weights fail, the two can differ.
 #'     If [boot_edges()] has been run on the object, four bootstrap columns are
 #'     appended: `se`, `lo`, `hi` (bootstrap standard error and percentile
 #'     confidence-interval endpoints), and `n_boot_ok` (usable replicates).
@@ -67,7 +70,9 @@ generics::glance
 #'     level above. Under the default varimax rotation `r2` equals the sum of
 #'     the squared `r` values of that factor's edges from the level above.
 #'     It is `NA`, with a warning, when the level above's within-level score
-#'     correlation cannot be inverted.
+#'     correlation cannot be inverted. A nearly singular one raises no warning
+#'     here. That warning comes from `what = "edges"`, because it concerns
+#'     `beta`.
 #'   * `"factor_cor"`: one row per pair of factors within a level, with
 #'     columns `level`, `factor_a`, `factor_b`, `cor`. The column `cor` is
 #'     the correlation between the two factors as the engine reports it, in
@@ -236,16 +241,16 @@ tidy.ackwards <- function(
   # Phi-partialled coefficient beside the marginal r: for every stored pair
   # (adjacent, and skip-level under pairs = "all"), B = Phi_s^-1 E from the
   # shallower level's stored weights (.partialled_edges). Equal to r under
-  # varimax. Joined on the directed (from, to) key. A singular shallower
-  # level warns once, however many stored pairs start from it (skip-level
-  # pairs under pairs = "all" share the level's Phi_s).
+  # varimax. Joined on the directed (from, to) key. A singular or nearly
+  # singular shallower level warns once, however many stored pairs start
+  # from it (skip-level pairs under pairs = "all" share the level's Phi_s).
   out$beta <- NA_real_
   warned <- character(0L)
   for (key in names(x$edges$matrices)) {
     ka <- strsplit(key, ":", fixed = TRUE)[[1L]][1L]
     res <- .partialled_pair(x, key, warn = !(ka %in% warned))
     B <- res$beta
-    if (anyNA(B)) warned <- union(warned, ka)
+    if (res$status != "ok") warned <- union(warned, ka)
     cells <- expand.grid(i = seq_len(nrow(B)), j = seq_len(ncol(B)))
     m <- match(
       paste(rownames(B)[cells$i], colnames(B)[cells$j], sep = "\r"),
@@ -438,9 +443,11 @@ tidy.ackwards <- function(
     var_vals <- lev$variance[fac_labels]
     # r2: how much of each factor's score the adjacent level above accounts
     # for together (E_j' Phi_s^-1 E_j, .partialled_edges); NA at the anchor.
+    # A nearly singular level above makes beta unstable, not r2, so only the
+    # edge table raises that warning (M91); a singular one still warns here.
     key <- paste0(k - 1L, ":", k)
     r2 <- if (k >= 2L && !is.null(x$edges$matrices[[key]])) {
-      unname(.partialled_pair(x, key)$r2[fac_labels])
+      unname(.partialled_pair(x, key, warn_near = FALSE)$r2[fac_labels])
     } else {
       rep(NA_real_, length(fac_labels))
     }

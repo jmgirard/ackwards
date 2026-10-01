@@ -30,17 +30,20 @@ factor on all factors of the \code{from} level together. It removes the
 part of \code{r} that the other factors at the \code{from} level share. Under the
 default varimax rotation the factors within a level are uncorrelated,
 so \code{beta} equals \code{r}. The two come apart only when the factors within
-a level are correlated. When the within-level score correlation of the
-\code{from} level cannot be inverted, \code{beta} is \code{NA} for that level's edges
-and a warning names the level. That within-level score correlation
-always comes from the stored score weights and the fit's correlation
-matrix. This holds even when \code{r} came from materialised scores
-(\code{edge_method = "scores"}, or the scores path under missing data). On
-those paths the two bases can differ slightly, so \code{beta} is then an
-approximation of the regression weight. With the default ten Berge or
-component scores, the within-level score correlation equals the
-level's factor correlation (\code{what = "factor_cor"}). With regression
-scores, the fallback when ten Berge weights fail, the two can differ.
+a level are correlated. The column \code{beta} uses the within-level score
+correlation of the \code{from} level. That correlation comes from the stored
+score weights and the fit's correlation matrix, the same matrix that
+\code{r} comes from. When that correlation cannot be inverted, \code{beta} is
+\code{NA} for that level's edges and a warning names the level. When that
+correlation is nearly singular (smallest eigenvalue below \code{1e-2}), the
+factors at that level are close to collinear and \code{beta} is unstable.
+The \code{tidy()} method still reports \code{beta} and raises a warning that
+names the level. Fitting with \code{ackwards()} does not raise it. The
+package chose this cutoff as a numerical guard. It is not a published
+rule. With the default ten Berge or component scores, the within-level
+score correlation equals the level's factor correlation
+(\code{what = "factor_cor"}). With regression scores, the fallback when ten
+Berge weights fail, the two can differ.
 If \code{\link[=boot_edges]{boot_edges()}} has been run on the object, four bootstrap columns are
 appended: \code{se}, \code{lo}, \code{hi} (bootstrap standard error and percentile
 confidence-interval endpoints), and \code{n_boot_ok} (usable replicates).
@@ -68,7 +71,9 @@ comparable with \code{proportion} or \code{cumulative}. It is \code{NA} at level
 level above. Under the default varimax rotation \code{r2} equals the sum of
 the squared \code{r} values of that factor's edges from the level above.
 It is \code{NA}, with a warning, when the level above's within-level score
-correlation cannot be inverted.
+correlation cannot be inverted. A nearly singular one raises no warning
+here. That warning comes from \code{what = "edges"}, because it concerns
+\code{beta}.
 \item \code{"factor_cor"}: one row per pair of factors within a level, with
 columns \code{level}, \code{factor_a}, \code{factor_b}, \code{cor}. The column \code{cor} is
 the correlation between the two factors as the engine reports it, in

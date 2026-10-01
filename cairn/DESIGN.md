@@ -591,10 +591,12 @@ historical `§14.x` citation resolves. Live known limitations moved to the next 
   bases diverge under missingness by design — the same reason polychoric is excluded. The oracle
   tests therefore run only on complete-data linear engines; no FIML/polychoric object is fed to
   them, so there is no false-failure risk, but the cross-check does not *certify* those paths.
-  The same basis split reaches the partialled edge columns (M89): `beta` and `r2` always build
-  the within-level score correlation Φ_s from the stored weights and the fit's R, while `r` on a
-  scores-path object comes from materialised scores, so on those paths `beta` approximates the
-  regression weight rather than reproducing it. Documented in `?tidy.ackwards`.
+  The partialled edge columns (M89) do not inherit this split. `beta` and `r2` build the
+  within-level score correlation Φ_s from the stored weights and the fit's R. `ackwards()`
+  builds `r` by the algebra route from that same R, because it passes `edge_method = "auto"`
+  with no data and every engine's scoring is linear. So no `ackwards()` object carries
+  scores-path edges. (Corrected M91: the entry said that a scores-path object's `beta`
+  approximates the regression weight, but `ackwards()` builds no such object.)
 - `cor = "spearman"` + `engine = "esem"` is semantically inconsistent (lavaan fits Pearson ML on
   raw data while edges use Spearman R); a warning is emitted (M10).
 - **ESEM convergence at depth on real ordinal data** is flakier than the calm warn-and-skip
