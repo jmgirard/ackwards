@@ -34,8 +34,8 @@ abstract: |
   analysis, exploratory factor analysis, and exploratory structural equation
   modeling engines, together with Forbes's (2023) all-levels and
   redundancy-pruning extensions. The package computes between-level correlations
-  through Waller's (2007) exact closed-form algebra, keeps a light and shareable
-  result object, and exposes a tidy, pipe-friendly interface for fitting,
+  in closed form from the scoring weights and the correlation matrix, keeps a
+  light and shareable result object, and exposes a tidy, pipe-friendly interface for fitting,
   scoring, visualizing, and pruning a hierarchy. We illustrate the workflow on a
   Big Five personality dataset and reproduce Forbes's 155-variable applied
   example, whose between-level correlations match her reference implementation to
@@ -100,9 +100,9 @@ descend from broad ones and where the structure reorganizes as resolution
 increases.
 
 Many of these analyses are built with Goldberg's bass-ackwards method
-[@goldberg2006], for which @waller2007 later derived a general closed-form
-algebra and @forbes2023 added all-levels and redundancy-pruning extensions. The
-available tooling has not kept pace. The core top-down loop is implemented in the
+[@goldberg2006], for which @waller2007 later derived a closed-form algebra for
+principal components and @forbes2023 added all-levels and redundancy-pruning
+extensions. The available tooling has not kept pace. The core top-down loop is implemented in the
 widely used **psych** package [@psych], but the extensions that recent studies
 rely on have been available only as bespoke, paper-specific scripts. These
 extensions include exploratory structural equation modeling with per-level fit
@@ -303,9 +303,9 @@ factor at *k* = 1 splits first to separate Neuroticism, then progressively
 differentiates until, at *k* = 5, the canonical five traits appear. Factors carry
 stable identifiers `m{k}f{j}` (level *k*, factor *j*) used throughout the object.
 
-Each between-level edge is the factor-score correlation computed through Waller's
-(2007) closed-form algebra. The primary-parent edge for every factor, strongest
-first, is one line:
+Each between-level edge is the factor-score correlation implied by the scoring
+weights and the polychoric correlation matrix, computed in closed form. The
+primary-parent edge for every factor, strongest first, is one line:
 
 ```{r}
 #| label: tbl-edges
@@ -390,9 +390,12 @@ factor analysis, and exploratory structural equation modeling) sit behind that
 interface, so an analyst can move from Goldberg's original component-scores
 procedure to an EFA-in-SEM formulation with per-level fit indices, standard
 errors, and ordinal support without leaving the package or rewriting the
-pipeline. All three engines route their between-level correlations through a
-single verified computation: Waller's (2007) closed-form algebra when scoring is
-linear, cross-checked against materialized factor scores. The applied example reproduces Forbes's (2023)
+pipeline. All three engines score linearly, and every between-level correlation
+the package reports comes from one closed-form computation on the scoring
+weights and the correlation matrix. The test suite checks that computation
+against correlations of materialized factor scores for the linear engines with
+complete data and Pearson correlations. The check does not cover the polychoric
+and FIML paths. The applied example reproduces Forbes's (2023)
 155-variable analysis to machine precision, and that agreement is exercised by
 the test suite rather than merely asserted. Researchers who adopt the package
 inherit a computation that has already been checked, and readers who want to
