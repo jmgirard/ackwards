@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-10-01 (M96 done and archived. Pruned the M93 row, extended the M87 lesson. Validate green.)_
+_Last hygiene check: 2026-10-01 (M097 done and archived. Pruned the M94 row, extended the ULSMV hotfix row with review R9. Validate green.)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,11 +10,10 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M097 | Cross-check coverage and the matrix behind each edge | review | — | normal | milestones/M097-cross-check-coverage.md |
+| M097 | Cross-check coverage and the matrix behind each edge | done | — | normal | milestones/archive/M097-cross-check-coverage.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 | M96 | Varimax and oblimin side by side on bfi25 in the engines vignette | done | — | normal | milestones/archive/M96-rotation-comparison.md |
 | M95 | Edge wording sweep across shipped docs and DESIGN §5 | done | — | normal | milestones/archive/M95-edge-wording-sweep.md |
-| M94 | Manuscript accuracy pass for four older claims | done | M93 | normal | milestones/archive/M94-manuscript-accuracy-pass.md |
 <!-- M01–M80 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 3 most recent terminal rows. -->
 
 ## Candidates
