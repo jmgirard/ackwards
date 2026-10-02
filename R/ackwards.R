@@ -135,14 +135,15 @@
 #'     matrix (see the description above). `n_obs` in the result reflects the
 #'     reduced N.
 #'   * `"fiml"` is full information maximum likelihood. For `engine = "esem"`
-#'     (with `estimator = "ML"`/`"MLR"`), it passes `missing = "fiml"` to
+#'     (with `estimator = "ML"`/`"MLR"` and `cor = "pearson"`), it passes
+#'     `missing = "fiml"` to
 #'     [lavaan::efa()] and derives edge correlations from lavaan's
 #'     FIML-estimated saturated model. For `engine = "pca"`/`"efa"` (M38), the
 #'     correlation matrix is estimated via [psych::corFiml()] and fed to the
-#'     usual `W'RW` algebra. That route requires `cor = "pearson"`, because
-#'     corFiml estimates a multivariate-normal matrix, and the route is
-#'     announced via a cli message. It errors for WLSMV and ULSMV, and for a
-#'     non-Pearson PCA or EFA basis. FIML improves estimation under
+#'     usual `W'RW` algebra. That route is announced via a cli message. Both
+#'     routes require `cor = "pearson"`, because corFiml and lavaan's FIML
+#'     each estimate a multivariate-normal matrix. FIML errors for WLSMV and
+#'     ULSMV, and for a non-Pearson basis on any engine. FIML improves estimation under
 #'     missingness but does not impute item responses. So score
 #'     materialisation (`keep_scores = TRUE`) still produces
 #'     `NA` rows for incomplete observations. See `n_obs` for the fit-index
@@ -669,14 +670,17 @@ ackwards <- function(
     .resolve_missing(missing, engine, estimator_eff, cor)
 
     # cor = "spearman" + engine = "esem" is semantically inconsistent: lavaan fits
-    # Pearson ML on raw data while compute_edges() uses Spearman R for scoring
-    # (DESIGN.md s.14 known limitations). Warn loudly rather than silently mixing bases.
+    # Pearson covariances of the raw data (under any estimator) while
+    # compute_edges() uses Spearman R for scoring (DESIGN.md s.14 known
+    # limitations). Warn loudly rather than silently mixing bases. FIML never
+    # reaches here: .resolve_missing() rejects it on a Spearman basis.
     if (engine == "esem" && cor == "spearman") {
       cli::cli_warn(
         c(
           "!" = "{.code cor = \"spearman\"} with {.code engine = \"esem\"} \\
-                 uses inconsistent bases: lavaan fits a Pearson-ML model on raw \\
-                 data while edges are computed from the Spearman correlation matrix.",
+                 uses inconsistent bases: lavaan fits Pearson covariances of \\
+                 the raw data while edges are computed from the Spearman \\
+                 correlation matrix.",
           "i" = "Consider {.code cor = \"polychoric\"} for ordinal data or \\
                  {.code cor = \"pearson\"} for a consistent continuous path."
         ),

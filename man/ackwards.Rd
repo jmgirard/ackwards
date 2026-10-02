@@ -92,14 +92,15 @@ the engine fit, and the edges all use the same rows. Under
 matrix (see the description above). \code{n_obs} in the result reflects the
 reduced N.
 \item \code{"fiml"} is full information maximum likelihood. For \code{engine = "esem"}
-(with \code{estimator = "ML"}/\code{"MLR"}), it passes \code{missing = "fiml"} to
+(with \code{estimator = "ML"}/\code{"MLR"} and \code{cor = "pearson"}), it passes
+\code{missing = "fiml"} to
 \code{\link[lavaan:efa]{lavaan::efa()}} and derives edge correlations from lavaan's
 FIML-estimated saturated model. For \code{engine = "pca"}/\code{"efa"} (M38), the
 correlation matrix is estimated via \code{\link[psych:corFiml]{psych::corFiml()}} and fed to the
-usual \verb{W'RW} algebra. That route requires \code{cor = "pearson"}, because
-corFiml estimates a multivariate-normal matrix, and the route is
-announced via a cli message. It errors for WLSMV and ULSMV, and for a
-non-Pearson PCA or EFA basis. FIML improves estimation under
+usual \verb{W'RW} algebra. That route is announced via a cli message. Both
+routes require \code{cor = "pearson"}, because corFiml and lavaan's FIML
+each estimate a multivariate-normal matrix. FIML errors for WLSMV and
+ULSMV, and for a non-Pearson basis on any engine. FIML improves estimation under
 missingness but does not impute item responses. So score
 materialisation (\code{keep_scores = TRUE}) still produces
 \code{NA} rows for incomplete observations. See \code{n_obs} for the fit-index
