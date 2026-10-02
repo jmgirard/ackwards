@@ -1,13 +1,13 @@
 # M96: Varimax and oblimin side by side on bfi25 in the engines vignette
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** IP5
 - **Resolves:** —
 - **Surface tier:** user-facing — a shipped vignette section
-- **Branch/PR:** —
+- **Branch/PR:** m096-rotation-comparison
 
 ## Goal
 
