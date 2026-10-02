@@ -95,3 +95,21 @@ Evidence gathered 2026-10-01 on branch head `3a9ccdd`. Master did not move after
 - AC5: `git diff --stat master -- R man manuscript` printed 0 lines, and all three directories exist.
 - AC6: `git diff master -- NEWS.md` adds one bullet under `# ackwards (development version)`, titled "Varimax and oblimin side by side in the engines article". It names the BFI-25 comparison and has no milestone number. `Rscript tools/dod-gate.R` exited 0 and printed GATE PASSED. Check had 0 errors, 0 warnings, and 0 notes. Coverage was 100%. Vignette freshness, prose, style, lint, and the pkgdown index were clean. The gate left the tree unchanged.
 - Consistency gate: `cairn_validate.py` exited 0, with 16 work-log format advisories, all in the M84 file. `devtools::document()` produced no diff. The branch touches no DESIGN principle, no README, and no top-level file, so `cairn_impact.py`, `build_readme()`, and the `.Rbuildignore` check do not apply. `pkgdown::check_pkgdown()` and `devtools::check()` passed inside the AC6 gate run.
+
+Independent review, 2026-10-01. Three fresh reviewers ran: diff-bug (Opus), blame-history (Sonnet), and prior review (Sonnet). No finding shows a criterion failing. Each finding is listed with its rank, and dispositions follow at the merge gate.
+
+- R-P (prior review): no prior-review evidence. The GitHub probe found no human review comments, and no archived lesson is broken.
+- D1 (diff, rank 1): the prose calls the .943 match "the same factor", but the package's own congruence cutoff is 0.95 (`redundancy_phi`).
+- D2 (diff, rank 2): the prose names one `beta` above 1 (m3f1 → m4f1, 1.02). m2f2 → m3f2 is 1.002 and prints as 1.00.
+- D3 (diff, rank 3): "Oblimin rotates from random starts" holds only for psych versions with `n.rotations`. DESCRIPTION has no psych floor. The `?ackwards` `seed` doc says the same thing.
+- D4 (diff, rank 4): the match shows `abs()` congruence, so a reflected factor on other data would match with no visible sign. All matched values here are positive.
+- D5 (diff, rank 5): the one-to-one `stopifnot()` stops with no next step if a reader reuses the chunk and two factors pick the same match.
+- D6 (diff, rank 6): "set by `cut_show = 0.3`" reads as if an argument was passed. 0.3 is the default.
+- D7 (diff, rank 7): the prose explains the two near-zero `beta` values but not why m4f3 → m5f4 keeps .16.
+- D8 (diff, rank 8): test 4 pins `signif(beta, 2) == 0.0015` on a true value 2.1e-5 from a rounding boundary. Seeds moved it by at most 4e-6.
+- D9 (diff, rank 9): the T1 work-log line says 19 expectations. The file has 18, as the AC3 line records.
+- B1 (history, rank 1): the removed sentence "The fit's message says what the edges mean" pointed readers at the oblique fit's advisory. The advisory still prints, but no sentence points to it.
+- B2 (history, rank 2): the section shows equal trees and then says "keep varimax" for hierarchy questions, with no example where oblique moves a parent.
+- B3 (history, rank 3): "How to decide" now sits under the `### Varimax and oblimin on the same data` heading, after the figures.
+- B4 (history, rank 4): the vignette no longer shows an oblique PCA fit or the `sim16` ground truth. The plan chose this.
+- B5 (history, rank 5): the `beta` wording is new but agrees with `R/tidy.R`.
