@@ -61,7 +61,7 @@ The implement phase re-derives these facts. The prose is written from that run, 
 
 ## Tasks
 
-- [ ] T1: Fit both models and re-derive the four AC3 findings. Write `tests/testthat/test-vignette-rotation.R` first, before the prose. Use `cached()` fits, and call `skip_if_not_installed("GPArotation")` before any fit. Assert which factor and which edge, never counts alone (follow `test-vignette-m24.R`).
+- [x] T1: Fit both models and re-derive the four AC3 findings. Write `tests/testthat/test-vignette-rotation.R` first, before the prose. Use `cached()` fits, and call `skip_if_not_installed("GPArotation")` before any fit. Assert which factor and which edge, never counts alone (follow `test-vignette-m24.R`).
 - [ ] T2: Rewrite the section in the `.Rmd.orig`. Replace the `sim16` chunk with chunks for AC2 (a) to (e). Guard the chunks on `has_gpa`, and guard the figure chunks on ggplot2 too. Write the prose from the T1 output, then reread the kept "How to decide" paragraph in its new place (LESSONS M92). Run `Rscript tools/check-prose.R` on the file (LESSONS M85).
 - [ ] T3: Run `Rscript vignettes/precompute.R`. Revert churn in the other vignettes and assets, and revert timing, check-mark, and `div id` noise in this vignette (LESSONS M61, M75, M87). Run the freshness check, then the stamp-less diff check (LESSONS M94).
 - [ ] T4: Add the NEWS entry. Run `Rscript tools/dod-gate.R`.
@@ -72,6 +72,9 @@ The implement phase re-derives these facts. The prose is written from that run, 
 - 2026-10-01: criteria audit (full mode, fresh Opus reader) returned six findings, all fixed before the gate. The correlation basis was unpinned (now polychoric). The section bounds were undefined. AC2 needed rewording. AC3's open "every sentence" domain became four named findings. A skip promise about the test setup moved to T1. AC4 gained a noise check. A redundant prose-check criterion was dropped.
 - 2026-10-01: plan gate chose to extend the engines vignette section over a new dedicated vignette. All rotation guidance then stays in one place, with no new pkgdown entry. Falsified by a section too long for one reader to follow, or by a user who cannot find the comparison.
 - 2026-10-01: plan chose EFA on the polychoric basis over PCA or the Pearson basis. The vignette uses polychoric everywhere else, and EFA shows larger within-level correlations (.34, against .27 for PCA on Pearson). Falsified by an EFA oblimin fit on bfi25 that does not converge on another platform.
+
+- 2026-10-01: implement started on branch m096-rotation-comparison. Question gate skipped, nothing open.
+- 2026-10-01: T1 done. Re-derived all plan facts; oblimin with no seed and seeds 1, 2, 42, 123, 2026 gave the same matches and above-cut edges (differences under 1e-5), so the fit uses `seed = 1` for exact reproducibility. Wrote `test-vignette-rotation.R` (4 tests, 19 expectations). A plant with varimax in place of oblimin fails all four. Suite: 3607 pass, 0 fail.
 
 ## Decisions
 
