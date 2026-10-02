@@ -50,7 +50,7 @@ The record of which correlation matrix each edge is exact for, and of which fits
 - [x] T2: Rewrite DESIGN's first Known limitations entry, the §5.4 closing sentence, and the §5.3 Spearman sentence (AC2). Name the T1 tests by title.
 - [x] T3: Edit the opening paragraph of the `ackwards()` roxygen and the `compute_edges()` roxygen (AC3). Derive each ESEM claim from `R/ackwards.R:798` and `R/engine_esem.R:434`, and measure it in R before you write it. Run `devtools::document()` and `Rscript tools/check-prose.R` on both files. Re-read every split sentence against the code (M86 lesson). Add a NEWS entry for the help change.
 - [x] T4: Run the AC4 search and record each hit with its classification as a ledger in the work log. Name the matrix at each edge claim, IP1 included. Append the D-entry for the IP1 wording, and follow D-031's procedure for an IP change.
-- [ ] T5: Run `Rscript tools/dod-gate.R` and fix what it reports.
+- [x] T5: Run `Rscript tools/dod-gate.R` and fix what it reports.
 
 ## Work log
 
@@ -67,6 +67,7 @@ The record of which correlation matrix each edge is exact for, and of which fits
 - re-audit: AC3 (full) — 3 findings on the revised wording (Spearman pairwise or listwise, Pearson pairwise on missing data, WLSMV only). F1: "as a sweep finds" rests completeness on an uncommitted session sweep, so ground it in the code paths with the sweep as confirmation. F2: D-039's Context names Spearman without the `missing` qualifier. F3 (adjacent): the fit-time Spearman warning says "Pearson-ML" though WLSMV is not ML. This is the second AC3 re-audit, so further AC3 wording goes to the user.
 - 2026-10-01: amendment, user-selected at the mini gate. AC3 drops the ULSMV clause, limits Spearman to `missing = "pairwise"` or `"listwise"`, and grounds the list in the two code sites with the sweep as confirmation (narrowing, F1 applied). D-039's Context and the DESIGN §5 correction note gained the same qualifier, D-039 edited in place on the unmerged branch at the user's choice.
 - 2026-10-01: T3 done. The `ackwards()` opening paragraph and the `compute_edges()` help name `x$r` and the two ESEM settings, each clause measured in the grid sweep. NEWS entry added. `document()` rewrote both Rd files. `check-prose.R` clean on both files and NEWS.md, and `--code-unchanged master` reports no code line changed.
+- 2026-10-01: T5 done. `Rscript tools/dod-gate.R` exit 0 on 34eae8d: prose clean, check 0/0/0, coverage 100%, style and lint clean, pkgdown index complete.
 
 ## Decisions
 
