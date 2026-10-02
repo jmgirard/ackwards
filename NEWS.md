@@ -8,9 +8,9 @@
   `cor = "pearson"` and `missing = "pairwise"` on data with missing values,
   ML and MLR fit the complete rows, and WLSMV fits the pairwise covariances.
   New tests on all three engines check that the edges equal the correlations
-  of the factor scores in two more settings. Spearman fits are scored from
-  the column ranks, and listwise fits are scored from the complete rows. No
-  code or result changed.
+  of the factor scores in two more settings. The tests score Spearman fits
+  from the column ranks and listwise fits from the complete rows. No code or
+  result changed.
 
 * **Varimax and oblimin side by side in the engines article.** The section on
   orthogonal and oblique rotation now fits EFA to the BFI-25 twice, with

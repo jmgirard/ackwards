@@ -225,8 +225,10 @@ in two settings. With \code{cor = "spearman"} and \code{missing = "pairwise"} or
 covariances of the raw data. With \code{cor = "pearson"} and
 \code{missing = "pairwise"} on data with missing values, \code{x$r} holds pairwise
 correlations. There, the ML and MLR estimators fit the complete rows, and
-WLSMV fits the pairwise covariances. The "hierarchy" is descriptive: edges
-are score correlations, not a fitted higher-order SEM.
+WLSMV fits the pairwise covariances. The correlations of those covariances
+differ slightly from \code{x$r}, because each item's variance uses all of its
+observed rows. The "hierarchy" is descriptive: edges are score
+correlations, not a fitted higher-order SEM.
 }
 \section{Defaults and why}{
 

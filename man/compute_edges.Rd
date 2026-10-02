@@ -68,7 +68,9 @@ different matrix in two settings. With \code{cor = "spearman"} and
 lavaan fits Pearson covariances of the raw data. With \code{cor = "pearson"} and
 \code{missing = "pairwise"} on data with missing values, \code{x$r} holds pairwise
 correlations. There, ML and MLR fit the complete rows, and WLSMV fits the
-pairwise covariances. The split-half comparability check passes a pooled
+pairwise covariances. The correlations of those covariances differ slightly
+from \code{x$r}, because each item's variance uses all of its observed rows. The
+split-half comparability check passes a pooled
 \code{R} instead.
 
 A pair goes to the scores branch when \code{edge_method = "scores"}, or when

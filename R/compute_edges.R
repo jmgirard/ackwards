@@ -19,7 +19,9 @@
 #' lavaan fits Pearson covariances of the raw data. With `cor = "pearson"` and
 #' `missing = "pairwise"` on data with missing values, `x$r` holds pairwise
 #' correlations. There, ML and MLR fit the complete rows, and WLSMV fits the
-#' pairwise covariances. The split-half comparability check passes a pooled
+#' pairwise covariances. The correlations of those covariances differ slightly
+#' from `x$r`, because each item's variance uses all of its observed rows. The
+#' split-half comparability check passes a pooled
 #' `R` instead.
 #'
 #' A pair goes to the scores branch when `edge_method = "scores"`, or when

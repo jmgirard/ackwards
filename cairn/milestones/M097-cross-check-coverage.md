@@ -1,6 +1,6 @@
 # M097: Cross-check coverage and the matrix behind each edge
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -68,6 +68,8 @@ The record of which correlation matrix each edge is exact for, and of which fits
 - 2026-10-01: amendment, user-selected at the mini gate. AC3 drops the ULSMV clause, limits Spearman to `missing = "pairwise"` or `"listwise"`, and grounds the list in the two code sites with the sweep as confirmation (narrowing, F1 applied). D-039's Context and the DESIGN §5 correction note gained the same qualifier, D-039 edited in place on the unmerged branch at the user's choice.
 - 2026-10-01: T3 done. The `ackwards()` opening paragraph and the `compute_edges()` help name `x$r` and the two ESEM settings, each clause measured in the grid sweep. NEWS entry added. `document()` rewrote both Rd files. `check-prose.R` clean on both files and NEWS.md, and `--code-unchanged master` reports no code line changed.
 - 2026-10-01: T5 done. `Rscript tools/dod-gate.R` exit 0 on 34eae8d: prose clean, check 0/0/0, coverage 100%, style and lint clean, pkgdown index complete.
+- claim audit: 20 claims read, 2 corrected — NEWS.md, R/ackwards.R, R/compute_edges.R, man/ackwards.Rd, man/compute_edges.Rd, tests/testthat/test-compute_edges.R
+- 2026-10-01: the two claim-audit fixes (NEWS credits the ranking to the tests, and the help says why WLSMV's pairwise covariances differ from `x$r`) re-read once by the same reader, both hold. `document()` rerun, `check-prose.R` and `--code-unchanged master` clean. Status set to review.
 
 ## Decisions
 

@@ -12,8 +12,10 @@
 #' covariances of the raw data. With `cor = "pearson"` and
 #' `missing = "pairwise"` on data with missing values, `x$r` holds pairwise
 #' correlations. There, the ML and MLR estimators fit the complete rows, and
-#' WLSMV fits the pairwise covariances. The "hierarchy" is descriptive: edges
-#' are score correlations, not a fitted higher-order SEM.
+#' WLSMV fits the pairwise covariances. The correlations of those covariances
+#' differ slightly from `x$r`, because each item's variance uses all of its
+#' observed rows. The "hierarchy" is descriptive: edges are score
+#' correlations, not a fitted higher-order SEM.
 #'
 #' @section Defaults and why:
 #' * **`engine = "pca"`** is the original Goldberg (2006) method. PCA
