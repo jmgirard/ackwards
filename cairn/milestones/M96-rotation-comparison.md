@@ -82,6 +82,7 @@ The implement phase re-derives these facts. The prose is written from that run, 
 - 2026-10-01: The audit fixes were the varimax alt text (the top factor has no parent), two test comments, and the NEWS phrase "No code or result changed". It also gave an optional "In oblimin IDs" note. Its two test gaps were closed: test 1 now pins the top-three order, and test 4 pins both small `beta` values. The same reader re-read all eight items once and cleared them.
 - 2026-10-01: After the fixes, precompute and the splice ran again. The diff kept 3 hunks and 0 noise lines. The plant still fails all 4 tests. The suite passed 3606 with 0 failures. `tools/dod-gate.R` exited 0 again. Status set to review.
 - 2026-10-01: review gate: maintainer chose to fix eight reviewer findings and reject the rest. Fixes landed in `2fb1298`, and the gate passed again.
+- step-7 approval: m096-rotation-comparison approved for merge
 
 ## Decisions
 
