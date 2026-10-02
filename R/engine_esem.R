@@ -426,14 +426,20 @@ esem_levels <- function(data, k_max, estimator, cor,
 
   # missing= mapping to lavaan's vocabulary (constant across levels):
   #   "fiml"     -> "fiml"           (ML/MLR only; validated upstream)
-  #   "pairwise" -> "available.cases" for WLSMV/ULSMV (uses all rows via
-  #                 pairwise polychoric thresholds -- MCAR-valid, honest N);
-  #                 "listwise" for ML/MLR (lavaan default; edge R is the
-  #                 separately-computed pairwise stats::cor)
+  #   "pairwise" -> "available.cases" for WLSMV, and for ULSMV on the
+  #                 polychoric basis (uses all rows via pairwise statistics --
+  #                 MCAR-valid, honest N);
+  #                 "listwise" for ML/MLR and for continuous ULSMV (lavaan
+  #                 default; edge R is the separately-computed pairwise
+  #                 stats::cor). lavaan 0.7.2 efa() errors for ULSMV on
+  #                 continuous items under "available.cases", complete data
+  #                 included.
   #   "listwise" -> "listwise"       (data already reduced upstream)
+  pairwise_cases <- estimator == "WLSMV" ||
+    (estimator == "ULSMV" && cor == "polychoric")
   lav_missing <- if (missing == "fiml") {
     "fiml"
-  } else if (missing == "pairwise" && estimator %in% c("WLSMV", "ULSMV")) {
+  } else if (missing == "pairwise" && pairwise_cases) {
     "available.cases"
   } else {
     "listwise"

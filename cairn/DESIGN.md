@@ -648,13 +648,15 @@ historical `§14.x` citation resolves. Live known limitations moved to the next 
   work (sparse cross-cells, `correct = 0.5`, `check_items()`) exists because real clinical data
   is messier than the bundled teaching sets. IP7's warn+skip is a load-bearing safety
   net, not a rarity.
-- **ESEM ML/MLR with `missing = "pairwise"`**: lavaan uses listwise deletion for the model fit
+- **ESEM ML/MLR (and continuous ULSMV) with `missing = "pairwise"`**: lavaan uses listwise deletion for the model fit
   while edges are computed from a separately-computed pairwise `stats::cor()` — a minor
   inconsistency (fit statistics at complete-case N, edges at full pairwise N). Documented in
   `$meta$missing`; a per-call advisory warning fires whenever NAs are detected. Use
   `missing = "listwise"` or `"fiml"` to resolve. WLSMV on continuous items fits pairwise
   covariances there (`available.cases`), whose correlations differ slightly from `x$r` (added
-  M097). *(Added M16; §9 `missing` row cross-references this.)*
+  M097). Continuous ULSMV takes the listwise route because lavaan 0.7.2 `efa()` errors for it
+  under `available.cases` (hotfix 2026-10-01). *(Added M16; §9 `missing` row cross-references
+  this.)*
 - **Oblique lineage reads the total correlation** (M90, D-036). Under an oblique rotation the
   primary parent is the ancestor with the largest marginal `|r|`. A child can therefore match an
   ancestor that only correlates with its real parent. The fit-time advisory and the output labels

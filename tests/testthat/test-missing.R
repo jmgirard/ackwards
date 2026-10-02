@@ -293,6 +293,42 @@ test_that("ESEM WLSMV pairwise uses full N (available.cases), not complete-case 
   expect_equal(x$meta$n_complete, nrow(d) - 20L)
 })
 
+# lavaan 0.7.2 efa() fails for ULSMV on continuous items under
+# missing = "available.cases" ("non-conformable arguments"), complete data
+# included, so the continuous ULSMV path must not map pairwise there.
+test_that("ESEM ULSMV on continuous items fits under the default pairwise", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  x <- ackwards(d,
+    k_max = 2L, engine = "esem", estimator = "ULSMV",
+    missing = "pairwise", seed = 1L
+  )
+  expect_s3_class(x, "ackwards")
+  expect_equal(length(x$levels), 2L)
+  expect_equal(x$meta$estimator, "ULSMV")
+})
+
+test_that("ESEM ULSMV continuous pairwise fits lavaan to the complete rows", {
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  d[1:15, 1] <- NA_real_
+  x_pw <- suppressWarnings(ackwards(d,
+    k_max = 2L, engine = "esem", estimator = "ULSMV",
+    missing = "pairwise", seed = 1L
+  ))
+  x_lw <- ackwards(d,
+    k_max = 2L, engine = "esem", estimator = "ULSMV",
+    missing = "listwise", seed = 1L
+  )
+  # Same loadings as a listwise fit: lavaan saw the same complete rows.
+  expect_equal(x_pw$levels[[2]]$loadings, x_lw$levels[[2]]$loadings,
+    tolerance = 1e-8
+  )
+  # The edge matrix stays pairwise, so x$r differs from the listwise R.
+  expect_false(isTRUE(all.equal(x_pw$r, x_lw$r)))
+  expect_equal(x_pw$n_obs, nrow(d))
+})
+
 test_that("ESEM WLSMV listwise uses complete-case N, pairwise uses full N", {
   skip_if_not_installed("lavaan")
   d <- .make_ordinal_data()
