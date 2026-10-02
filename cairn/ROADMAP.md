@@ -10,6 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
+| M96 | Varimax and oblimin side by side on bfi25 in the engines vignette | planned | — | normal | milestones/M96-rotation-comparison.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 | M95 | Edge wording sweep across shipped docs and DESIGN §5 | done | — | normal | milestones/archive/M95-edge-wording-sweep.md |
 | M94 | Manuscript accuracy pass for four older claims | done | M93 | normal | milestones/archive/M94-manuscript-accuracy-pass.md |
@@ -30,6 +31,8 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 - [low] DESIGN outside §5 still calls the algebra exact without naming the matrix (M95 review, R9). The sites are IP1 (line 118), the §4 note (186), the PCA engine row (193), and the §9 `engine` and `redundancy_phi` rows (450, 458). The IP1 line is principle text, so its change needs a D-entry. Promote with the next DESIGN principle edit or design interview. — added 2026-10-01 — M95 review
 - [low] User-facing sample-realized edges: an option to build edges from materialized scores, so that under missing data an edge shows the sample-realized correlation, not the model-implied one. DESIGN §5.3 described it, but no exported function offers it. Demand-gated: promote when a user asks for sample-realized edges. — added 2026-10-01 — M93 plan
 - [low] The algebra-vs-scores cross-check misses more paths than DESIGN's first Known limitations entry names (M93 review, F3). Under `cor = "spearman"` the algebra uses Spearman R, but the scores branch of `compute_edges()` takes a Pearson `cor()` of standardized raw data. ESEM FIML and pairwise-missing Pearson data also differ in basis. Add them to the entry, or test them. The docs share the gap (M95 review, R1). For ESEM under Spearman, or ML with pairwise missing data, the edges use the engine's `R` while lavaan fits another matrix. There "the correlation matrix the fit uses" can name the wrong one. Promote on a wrong edge from one of those paths. — added 2026-10-01 — M93 review, extended M95 review
+- [low] Manuscript worked example of varimax and oblimin on one dataset. The manuscript covers rotation in prose only. M96 puts the bfi25 comparison in the engines vignette. If a manuscript revision or a reviewer asks for an example, promote it. — added 2026-10-01 — M96 plan
+- [low] Exported helper that matches factors across two fits by loading congruence. Two fits can number the same factor differently (oblimin and varimax swap two level-5 IDs on bfi25), and M96's vignette matches them with `psych::factor.congruence()`. If a user asks for it, promote it. — added 2026-10-01 — M96 plan
 ### Forbes website-review feedback (2026-07-23)
 
 Batch from Forbes's hands-on review of the package website/vignettes. **A, B → M76; D → M77; C → M78; E → M79; G → M80; F → M81 (all done).** H remains below.
