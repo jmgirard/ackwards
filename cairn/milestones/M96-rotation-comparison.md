@@ -63,7 +63,7 @@ The implement phase re-derives these facts. The prose is written from that run, 
 
 - [x] T1: Fit both models and re-derive the four AC3 findings. Write `tests/testthat/test-vignette-rotation.R` first, before the prose. Use `cached()` fits, and call `skip_if_not_installed("GPArotation")` before any fit. Assert which factor and which edge, never counts alone (follow `test-vignette-m24.R`).
 - [x] T2: Rewrite the section in the `.Rmd.orig`. Replace the `sim16` chunk with chunks for AC2 (a) to (e). Guard the chunks on `has_gpa`, and guard the figure chunks on ggplot2 too. Write the prose from the T1 output, then reread the kept "How to decide" paragraph in its new place (LESSONS M92). Run `Rscript tools/check-prose.R` on the file (LESSONS M85).
-- [ ] T3: Run `Rscript vignettes/precompute.R`. Revert churn in the other vignettes and assets, and revert timing, check-mark, and `div id` noise in this vignette (LESSONS M61, M75, M87). Run the freshness check, then the stamp-less diff check (LESSONS M94).
+- [x] T3: Run `Rscript vignettes/precompute.R`. Revert churn in the other vignettes and assets, and revert timing, check-mark, and `div id` noise in this vignette (LESSONS M61, M75, M87). Run the freshness check, then the stamp-less diff check (LESSONS M94).
 - [ ] T4: Add the NEWS entry. Run `Rscript tools/dod-gate.R`.
 
 ## Work log
@@ -76,6 +76,7 @@ The implement phase re-derives these facts. The prose is written from that run, 
 - 2026-10-01: implement started on branch m096-rotation-comparison. Question gate skipped, nothing open.
 - 2026-10-01: T1 done. Re-derived all plan facts; oblimin with no seed and seeds 1, 2, 42, 123, 2026 gave the same matches and above-cut edges (differences under 1e-5), so the fit uses `seed = 1` for exact reproducibility. Wrote `test-vignette-rotation.R` (4 tests, 19 expectations). A plant with varimax in place of oblimin fails all four. Suite: 3607 pass, 0 fail.
 - 2026-10-01: T2 done. The section now has six chunks for AC2 (a) to (e) and moves "How to decide" to the end. The prose was read against the rendered output. Added a note that `beta` can pass 1 (1.02 for m3f1 to m4f1) and a note that the two diagrams order some nodes differently. Both figures have captions and alt text. `check-prose.R` is clean.
+- 2026-10-01: T3 done. Precompute ran clean. Churn in the girard, intro, suggest-k, and visualization vignettes and three assets was reverted. The engines `.Rmd` was rebuilt by a scratch script from master's file with the new stamp line and the freshly knitted section spliced in, because gt tables outside the section changed every element ID. The freshness check passes. The diff has 3 hunks (the stamp and two inside the section) and 0 timing, 0 U+FE0E, and 0 `div id=` lines.
 
 ## Decisions
 
