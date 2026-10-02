@@ -86,8 +86,10 @@ This small inconsistency is documented in \verb{$meta}. A warning is emitted
 when incomplete rows are detected.
 \item \code{"listwise"} uses only complete rows. It reduces the data to
 \code{stats::complete.cases()} before fitting, so the correlation matrix,
-the engine fit, and the edges are all consistent. \code{n_obs} in the result
-reflects the reduced N.
+the engine fit, and the edges all use the same rows. Under
+\code{engine = "esem"} with \code{cor = "spearman"}, lavaan still fits a Pearson
+matrix (see the description above). \code{n_obs} in the result reflects the
+reduced N.
 \item \code{"fiml"} is full information maximum likelihood. For \code{engine = "esem"}
 (with \code{estimator = "ML"}/\code{"MLR"}), it passes \code{missing = "fiml"} to
 \code{\link[lavaan:efa]{lavaan::efa()}} and derives edge correlations from lavaan's
@@ -244,8 +246,8 @@ changing how well they fit, and varimax pushes each item toward one
 factor. With uncorrelated factors, each between-level edge equals that
 ancestor's unique contribution to the descendant. That is what lets the
 edges be read as a lineage diagram. The closed-form
-\verb{W'RW} edge algebra is itself exact for the correlation matrix the fit
-uses under any fixed linear scoring, orthogonal or not. So the choice is
+\verb{W'RW} edge algebra is itself exact for the stored \code{x$r} under any
+fixed linear scoring, orthogonal or not. So the choice is
 interpretive, not a numerical necessity. It
 matches Goldberg (2006), Kim & Eaton (2015), and Forbush et al. (2024).
 An oblique rotation is available as a non-default option (see

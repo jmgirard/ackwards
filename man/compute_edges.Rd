@@ -70,8 +70,7 @@ lavaan fits Pearson covariances of the raw data. With \code{cor = "pearson"} and
 correlations. There, ML and MLR fit the complete rows, and WLSMV fits the
 pairwise covariances. The correlations of those covariances differ slightly
 from \code{x$r}, because each item's variance uses all of its observed rows. The
-split-half comparability check passes a pooled
-\code{R} instead.
+split-half comparability check passes a pooled \code{R} in place of \code{x$r}.
 
 A pair goes to the scores branch when \code{edge_method = "scores"}, or when
 \code{edge_method = "auto"} and either level's \code{scoring$linear} is not \code{TRUE} or

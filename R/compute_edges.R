@@ -21,8 +21,7 @@
 #' correlations. There, ML and MLR fit the complete rows, and WLSMV fits the
 #' pairwise covariances. The correlations of those covariances differ slightly
 #' from `x$r`, because each item's variance uses all of its observed rows. The
-#' split-half comparability check passes a pooled
-#' `R` instead.
+#' split-half comparability check passes a pooled `R` in place of `x$r`.
 #'
 #' A pair goes to the scores branch when `edge_method = "scores"`, or when
 #' `edge_method = "auto"` and either level's `scoring$linear` is not `TRUE` or

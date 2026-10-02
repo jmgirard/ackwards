@@ -71,6 +71,8 @@ The record of which correlation matrix each edge is exact for, and of which fits
 - claim audit: 20 claims read, 2 corrected — NEWS.md, R/ackwards.R, R/compute_edges.R, man/ackwards.Rd, man/compute_edges.Rd, tests/testthat/test-compute_edges.R
 - 2026-10-01: the two claim-audit fixes (NEWS credits the ranking to the tests, and the help says why WLSMV's pairwise covariances differ from `x$r`) re-read once by the same reader, both hold. `document()` rerun, `check-prose.R` and `--code-unchanged master` clean. Status set to review.
 - 2026-10-01: review in progress. AC1 to AC4 verified with fresh evidence and ticked. The DoD gate (AC5) and three reviewers are running.
+- 2026-10-01: review fix-now R1 to R8 applied at the gate. DoD gate rerun exit 0.
+- step-7 approval: m097-cross-check-coverage approved for merge
 
 ## Decisions
 
@@ -103,3 +105,5 @@ Independent review: three fresh reviewers (Opus diff, Sonnet blame history, Sonn
 - R14 (Opus 9). §5.3 does not mention matrix input. Proposed: reject, because matrix input has no scores, and Known limitations lists it.
 - R15 (Opus 10). AC5 unticked and the milestone file uncommitted. Reject: stale, both done by 003e432.
 - R16 (Opus 7). ULSMV pairwise fails, and ESEM Spearman with FIML stores a Pearson matrix. Noted: both are `[high]` hotfix candidate rows already.
+
+Gate dispositions (user, 2026-10-01): R1 to R8 fixed now, R9 follow-up, R10 to R15 rejected for the reasons above, and R16 noted. R9 now sits in the ULSMV hotfix candidate row. The fixes changed wording in the `ackwards()` and `compute_edges()` roxygen and in DESIGN only. After them, `document()` regenerated both Rd files, and the AC4 search still returns 16 lines. A rerun of `Rscript tools/dod-gate.R` exited 0: prose clean, check 0/0/0, coverage 100%, style and lint clean, pkgdown index complete.

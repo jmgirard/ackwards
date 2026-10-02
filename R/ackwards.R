@@ -29,8 +29,8 @@
 #'   factor. With uncorrelated factors, each between-level edge equals that
 #'   ancestor's unique contribution to the descendant. That is what lets the
 #'   edges be read as a lineage diagram. The closed-form
-#'   `W'RW` edge algebra is itself exact for the correlation matrix the fit
-#'   uses under any fixed linear scoring, orthogonal or not. So the choice is
+#'   `W'RW` edge algebra is itself exact for the stored `x$r` under any
+#'   fixed linear scoring, orthogonal or not. So the choice is
 #'   interpretive, not a numerical necessity. It
 #'   matches Goldberg (2006), Kim & Eaton (2015), and Forbush et al. (2024).
 #'   An oblique rotation is available as a non-default option (see
@@ -129,8 +129,10 @@
 #'     when incomplete rows are detected.
 #'   * `"listwise"` uses only complete rows. It reduces the data to
 #'     `stats::complete.cases()` before fitting, so the correlation matrix,
-#'     the engine fit, and the edges are all consistent. `n_obs` in the result
-#'     reflects the reduced N.
+#'     the engine fit, and the edges all use the same rows. Under
+#'     `engine = "esem"` with `cor = "spearman"`, lavaan still fits a Pearson
+#'     matrix (see the description above). `n_obs` in the result reflects the
+#'     reduced N.
 #'   * `"fiml"` is full information maximum likelihood. For `engine = "esem"`
 #'     (with `estimator = "ML"`/`"MLR"`), it passes `missing = "fiml"` to
 #'     [lavaan::efa()] and derives edge correlations from lavaan's
