@@ -484,22 +484,128 @@ ESEM. With an oblique fit, the package reports the within-level factor
 correlations beside the edges. It also labels the total correlation `r` and
 the partialled coefficient `beta` separately.
 
+### Varimax and oblimin on the same data
+
+To see what changes, we fit EFA to the BFI-25 twice: once with the default
+varimax rotation and once with oblimin. Both fits use the polychoric basis and
+five levels. Oblimin rotates from random starts, so the oblimin fit sets
+`seed` to make its result repeatable.
+
+```{r rotation-fits, eval = has_gpa}
+x_var <- ackwards(bfi, k_max = 5, engine = "efa", cor = "polychoric")
+x_obl <- ackwards(bfi,
+  k_max = 5, engine = "efa", cor = "polychoric",
+  rotation = "oblimin", seed = 1
+)
+```
+
+**Within-level correlations.** Under varimax, every factor correlation within
+a level is 0. Under oblimin, the factors correlate. The table below lists the
+oblimin correlations in order of absolute size, largest first.
+
+```{r rotation-factor-cor, eval = has_gpa}
+fc <- tidy(x_obl, what = "factor_cor")
+fc[order(-abs(fc$cor)), ]
+```
+
+The largest is .34, between m5f3 and m5f4 at level 5. The next two are .33
+between m3f1 and m3f3, and .30 between m4f1 and m4f3. We use those two below.
+
+**Matching the factors.** A factor ID such as `m5f2` numbers a factor within
+its level, so the same ID can name different factors in two fits. Before we
+compare the two hierarchies, we match each oblimin factor to the varimax
+factor with the most similar loadings. Tucker's congruence coefficient
+compares two columns of loadings. A value near 1 means the same pattern.
+
+```{r rotation-match, eval = has_gpa}
+loading_matrix <- function(x, k) {
+  d <- tidy(x, what = "loadings")
+  unclass(xtabs(loading ~ item + factor, data = d[d$level == k, ]))
+}
+matches <- do.call(rbind, lapply(1:5, function(k) {
+  cong <- psych::factor.congruence(
+    loading_matrix(x_obl, k), loading_matrix(x_var, k),
+    digits = 3
+  )
+  best <- apply(abs(cong), 1, which.max)
+  data.frame(
+    level = k,
+    oblimin = rownames(cong),
+    varimax = colnames(cong)[best],
+    congruence = abs(cong[cbind(seq_along(best), best)])
+  )
+}))
+stopifnot(!anyDuplicated(matches$varimax)) # one-to-one
+matches
+```
+
+Each oblimin factor matches a different varimax factor, so the match is one
+to one at every level. The smallest congruence is .94, at level 5. The IDs
+agree at levels 1 to 4. At level 5 the two fits number two factors the other
+way round: oblimin's m5f2 is varimax's m5f3, and oblimin's m5f3 is varimax's
+m5f2.
+
+**Primary parents.** The next table translates the oblimin primary edges into
+varimax IDs and joins them to the varimax primary edges. The columns `from`
+and `to` hold varimax IDs. The columns `from_obl` and `to_obl` hold the
+oblimin IDs of the matched factors.
+
+```{r rotation-primary, eval = has_gpa}
+to_var <- setNames(matches$varimax, matches$oblimin)
+p_var <- tidy(x_var, primary_only = TRUE)[, c("from", "to", "r")]
+p_obl <- tidy(x_obl, primary_only = TRUE)[, c("from", "to", "r", "beta")]
+names(p_obl) <- paste0(names(p_obl), "_obl")
+p_obl$from <- unname(to_var[p_obl$from_obl])
+p_obl$to <- unname(to_var[p_obl$to_obl])
+tree <- merge(p_var, p_obl, by = c("from", "to"), all = TRUE)
+print(tree, digits = 2)
+anyNA(tree)
+```
+
+Every varimax primary edge has an oblimin edge between the matched factors,
+and no row is left without a partner. After the match, the two fits draw the
+same primary-parent tree. Under oblimin, `beta` is a regression weight and not
+a correlation, so it can pass 1, as it does for m3f1 → m4f1 (1.02).
+
+**Secondary edges.** A secondary edge is any edge that is not a primary edge.
+The function below lists the secondary edges that reach the display cutoff
+(`above_cut`, set by `cut_show = 0.3`).
+
+```{r rotation-secondary, eval = has_gpa}
+above_cut_secondary <- function(x) {
+  e <- tidy(x)
+  e[e$above_cut & !e$is_primary, c("from", "to", "r", "beta")]
+}
+above_cut_secondary(x_var)
+above_cut_secondary(x_obl)
+```
+
+Varimax has no secondary edge above the cutoff. Oblimin has three, with `r`
+from .30 to .34, and all three `beta` values are positive. For two of them,
+`beta` is close to zero: .016 for m3f1 → m4f3 and .0015 for m4f1 → m5f2.
+Holding the other factors at the `from` level constant leaves almost no weight
+on these two edges. The primary parent of m4f3 is m3f3, which correlates .33
+with m3f1. The primary parent of m5f2 is m4f3, which correlates .30 with m4f1.
+The third edge, m4f3 → m5f4, keeps a `beta` of .16.
+
+**Diagrams.** The two figures draw each fit with `autoplot()`. The oblimin
+diagram shows the three secondary edges, and the varimax diagram shows none.
+The two diagrams also place some factors in a different order within a row.
+
+```{r rotation-plot-varimax, eval = has_gpa && requireNamespace("ggplot2", quietly = TRUE), fig.width = 8, fig.height = 5, warning = FALSE, fig.cap = "EFA with varimax rotation.", fig.alt = "Five-level hierarchy diagram of the varimax EFA fit. Each factor has one arrow from its primary parent, and no other arrow is drawn."}
+autoplot(x_var)
+```
+
+```{r rotation-plot-oblimin, eval = has_gpa && requireNamespace("ggplot2", quietly = TRUE), fig.width = 8, fig.height = 5, warning = FALSE, fig.cap = "EFA with oblimin rotation.", fig.alt = "Five-level hierarchy diagram of the oblimin EFA fit. Its primary arrows form the same tree as the varimax diagram, with m5f2 and m5f3 numbered the other way round, plus thinner arrows for the three secondary edges m3f1 to m4f3, m4f1 to m5f2, and m4f3 to m5f4."}
+autoplot(x_obl)
+```
+
 How to decide: if your question is the hierarchy, meaning what splits into
 what and how strongly, keep varimax. If your question is the structure of a
 single level on its own terms, an oblique fit answers it. Read its edges as
 total correlations, and use `beta` for claims about a factor's unique lineage.
 The primary parents, the sign alignment, and the diagram still use `r` under
 every rotation.
-
-```{r oblique, eval = has_gpa}
-x_obl <- ackwards(sim16, k_max = 3, rotation = "oblimin")
-tidy(x_obl, what = "factor_cor")
-tidy(x_obl)[, c("from", "to", "r", "beta", "is_primary")]
-```
-
-The fit's message says what the edges mean. The `factor_cor` table shows how
-strongly the factors within each level correlate, and the edge table shows
-where `beta` departs from `r`.
 
 ## Missing data
 
