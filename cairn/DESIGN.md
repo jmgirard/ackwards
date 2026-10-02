@@ -316,9 +316,12 @@ Every shipped caller passes `edge_method = "auto"` or `"algebra"` with no data, 
 scoring is linear, so `"auto"` always takes the algebra branch (IP1, D-038). The ordinal ESEM
 path also stays linear: it uses ten Berge or regression weights on the polychoric `R`. EAP
 scoring is out of scope (D-007). An edge is therefore always the model-consistent quantity on the
-fit's `R`, never a sample-realized score correlation. The two differ under missing data, and
-also on complete data under a polychoric or Spearman `R`, which no observed scores reproduce. A
-user-facing option for sample-realized edges is a `[low]` ROADMAP candidate.
+fit's `R`, never a sample-realized score correlation. The two differ under `missing = "pairwise"`
+or `"fiml"` on data with missing values. They also differ on complete data under a polychoric
+`R`, which no observed scores reproduce. Scores from the raw items do not reproduce a Spearman
+`R`, but scores from the column ranks do, because a Spearman `R` is the Pearson matrix of the
+ranks. The tests named in the first "Known limitations" entry check this. A user-facing option
+for sample-realized edges is a `[low]` ROADMAP candidate.
 
 ### 5.4 Built-in cross-check (correctness oracle)
 
@@ -326,8 +329,8 @@ For a linear engine, algebra and materialized scores must agree within tolerance
 route stays inside the internal `compute_edges()` for this purpose, and no exported function
 offers it (IP2). A standing test for every linear engine asserts
 `max(abs(E_algebra - E_scores)) < tol` on a known complete-data dataset. This catches
-weight-convention, standardization, sign, and column-ordering bugs. The polychoric and
-`missing = "fiml"` PCA/EFA paths are outside this check (see "Known limitations").
+weight-convention, standardization, sign, and column-ordering bugs. The first "Known
+limitations" entry lists the settings outside this check and the tests that extend it.
 
 ## 6. Result object (S3) & storage rule
 
@@ -613,15 +616,26 @@ historical `§14.x` citation resolves. Live known limitations moved to the next 
 
 ## Known limitations
 
-- The algebra-vs-scores cross-check (§5.4) does not cover `cor = "polychoric"` paths, nor the
-  `missing = "fiml"` PCA/EFA path (D-020). On those paths the algebra uses the polychoric or
-  `psych::corFiml()` matrix, but the scores route standardizes the raw data, so the two bases
-  differ by design. The oracle tests run only on complete-data linear engines and get no
-  polychoric or FIML object. So they cannot fail falsely, but they do not certify those paths.
-  IP1 and IP2 state how edges are built and where the scores route runs. The partialled
-  columns (M89) `beta` and `r2` build Φ_s from the stored weights and the fit's R, so they
-  follow the algebra route too. (Corrected M91: the entry said that a scores-path object's `beta` approximates the
-  regression weight, but `ackwards()` builds no such object.)
+- The algebra-vs-scores cross-check (§5.4) does not cover these settings:
+  - `cor = "polychoric"` on any engine.
+  - `missing = "fiml"` on PCA or EFA, where `R` is the `psych::corFiml()` matrix (D-020), and on
+    ESEM, where `R` is lavaan's saturated-model matrix.
+  - `missing = "pairwise"` on data with missing values, on any engine.
+  - A correlation matrix as input, which leaves no data to score.
+
+  In each, the stored `R` is not the Pearson matrix of any data the scores route can score, so
+  the two routes differ by design. Tests in `tests/testthat/test-compute_edges.R` cover two more
+  settings on PCA, EFA, and ESEM. Complete-data `cor = "spearman"` fits are scored from the
+  column ranks ("Spearman: algebra agrees with scores from column ranks" and "Spearman with
+  ties: algebra agrees with scores from column ranks"). `missing = "listwise"` fits are scored
+  from the complete rows ("listwise: algebra agrees with scores from the complete rows"). A
+  setting that this entry neither lists nor names as tested is untested. An example is
+  `cor = "spearman"` with `missing = "listwise"` on data with missing values.
+
+  IP1 and IP2 state how edges are built and where the scores route runs. The partialled columns
+  (M89) `beta` and `r2` build Φ_s from the stored weights and the fit's R, so they follow the
+  algebra route too. (Corrected M91: the entry said that a scores-path object's `beta`
+  approximates the regression weight, but `ackwards()` builds no such object.)
 - `cor = "spearman"` + `engine = "esem"` is semantically inconsistent (lavaan fits Pearson ML on
   raw data while edges use Spearman R); a warning is emitted (M10).
 - **ESEM convergence at depth on real ordinal data** is flakier than the calm warn-and-skip
