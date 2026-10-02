@@ -49,7 +49,7 @@ The record of which correlation matrix each edge is exact for, and of which fits
 - [x] T1: Add the AC1 tests to `tests/testthat/test-compute_edges.R`. Plant the missing values with a fixed seed. Suppress the once-per-session ESEM Spearman warning (`R/ackwards.R:663`) and the ordinal advisory. Do not route these condition-wrapped fits through `cached()`. Show each case red once with its planted defect (unranked data for Spearman, the unreduced rows for listwise), and log the measured gap.
 - [x] T2: Rewrite DESIGN's first Known limitations entry, the §5.4 closing sentence, and the §5.3 Spearman sentence (AC2). Name the T1 tests by title.
 - [ ] T3: Edit the opening paragraph of the `ackwards()` roxygen and the `compute_edges()` roxygen (AC3). Derive each ESEM claim from `R/ackwards.R:798` and `R/engine_esem.R:434`, and measure it in R before you write it. Run `devtools::document()` and `Rscript tools/check-prose.R` on both files. Re-read every split sentence against the code (M86 lesson). Add a NEWS entry for the help change.
-- [ ] T4: Run the AC4 search and record each hit with its classification as a ledger in the work log. Name the matrix at each edge claim, IP1 included. Append the D-entry for the IP1 wording, and follow D-031's procedure for an IP change.
+- [x] T4: Run the AC4 search and record each hit with its classification as a ledger in the work log. Name the matrix at each edge claim, IP1 included. Append the D-entry for the IP1 wording, and follow D-031's procedure for an IP change.
 - [ ] T5: Run `Rscript tools/dod-gate.R` and fix what it reports.
 
 ## Work log
@@ -60,6 +60,8 @@ The record of which correlation matrix each edge is exact for, and of which fits
 - 2026-10-01: plan gate absorbed the DESIGN "exact" row (M95 review R9) over keeping it separate, because it states the same fact in the same file.
 - 2026-10-01: T1 done. Three tests (Spearman, tied Spearman, listwise) on PCA, EFA, and ESEM over all 6 level pairs agree to at most 2.4e-15. Red once with planted defects: raw data or unreduced rows failed all 18 pair checks per test, gaps 0.009 to 0.016. Suite 812 tests, 0 failed.
 - 2026-10-01: T2 done. The first Known limitations entry lists the four uncovered settings and names the three T1 tests by title. §5.4 closes with a pointer to it. §5.3 says rank scores reproduce a Spearman `R`, and narrows "under missing data" to pairwise or FIML.
+- 2026-10-01: T3 finding. ESEM ULSMV on continuous items errors at level 1 under `missing = "pairwise"` (lavaan 0.7.2, `available.cases`), so AC3's ULSMV clause cannot be derived. Logged as a `[high]` hotfix candidate row. AC3 amendment pending at a mini gate.
+- 2026-10-01: T4 ledger, AC4 search on DESIGN.md (16 lines). Fixed to name `x$r`: 119 (IP1), 186 (§4), 193 (pca row), 221 (§5 intro, was "the matrix the fit uses", marked corrected), 458 (§9 engine), 459 (§9 rotation, "W'RW identity is exact"), 466 (§9 redundancy_phi, "true correlation" and "algebra-exactness"). Already named: 233 (§5.1, "implied by `R`"). Quoted superseded wording, excluded: 150, 223. Not an edge claim: 65, 146, 529, 547, 580, 664. D-039 appended for the IP1 wording.
 
 ## Decisions
 

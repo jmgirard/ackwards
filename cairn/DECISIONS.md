@@ -277,3 +277,10 @@ _Source: M90 implement gate 2026-09-30 (owner choice "oblimin only"), M90 claim 
 **Decision:** IP1 and IP2 are reworded to describe the code as it is. IP1: every shipped edge comes from the `W'RW` algebra. IP2: the scores route stays inside the internal `compute_edges()` as the second route of the agreement tests, and the standing agreement test for every linear engine is unchanged. The §9 `edge_method` row stays, marked internal. The rewording follows D-031's procedure for changing an IP.
 **Consequences:** D-004's single edge path and its cross-check stand. Its clause "falls back to materialized scores otherwise" no longer describes a shipped path. D-004's `_Source` pointer to the §9 `edge_method` row still resolves. A user need for sample-realized edges (the `[low]` candidate row) reverses this entry and reopens a user-facing scores route.
 _Source: M93 plan gate 2026-10-01; M91 review F5; D-004; D-007; D-031._
+
+### D-039 (2026-10-01; narrows D-038's IP1 wording): IP1 names the matrix each edge is exact for
+
+**Context:** IP1 said that every shipped edge comes from "the exact `W'RW` algebra", and it named no matrix. The algebra is exact for the correlation matrix it is given, and `ackwards()` stores that matrix as `x$r`. Under ESEM with `cor = "spearman"`, or with `cor = "pearson"` and `missing = "pairwise"` on data with missing values, lavaan fits another matrix than `x$r`. The M95 review (R9) found this and other "exact" claims in DESIGN that name no matrix.
+**Decision:** IP1 is reworded to say that the `W'RW` algebra is exact for the stored correlation matrix `x$r`. The rule itself is unchanged: one edge path, and standardization by real score SDs. The rewording follows D-031's procedure for changing an IP.
+**Consequences:** The other "exact" and "true correlation" claims about edges in DESIGN name `x$r` too. The `ackwards()` and `compute_edges()` help name the ESEM settings in which lavaan fits another matrix. D-038 stands except for the IP1 wording it set.
+_Source: M097 plan gate 2026-10-01; M95 review R9; D-031; D-038._
