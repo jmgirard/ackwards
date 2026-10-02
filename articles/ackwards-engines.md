@@ -757,18 +757,19 @@ In brief:
   the correlation matrix, fit, and edges are fully consistent. Valid for
   all engines.
 - **`"fiml"`**: full-information ML, on two routes. For
-  **`engine = "esem"`** (with `estimator = "ML"` or `"MLR"`), lavaan
-  estimates under FIML and the edges derive from its FIML saturated
-  model. For **`engine = "pca"` or `"efa"`** on the Pearson basis, the
-  correlation matrix is estimated by
+  **`engine = "esem"`** (with `estimator = "ML"` or `"MLR"` and
+  `cor = "pearson"`), lavaan estimates under FIML and the edges derive
+  from its FIML saturated model. For **`engine = "pca"` or `"efa"`** on
+  the Pearson basis, the correlation matrix is estimated by
   [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html)
   (full-information ML under multivariate normality, MAR-valid) and fed
   to the usual `W′RW` between-level algebra. The route announces itself
   with a message. `missing = "fiml"` errors for WLSMV/ULSMV
-  (limited-information estimators have no FIML extension) and for a
-  non-Pearson PCA/EFA basis (`corFiml()` estimates a multivariate-normal
-  matrix). FIML improves estimation but does not impute items, so
-  `keep_scores = TRUE` still yields `NA` for incomplete rows.
+  (limited-information estimators have no FIML extension). It also
+  errors for a non-Pearson basis on any engine, because `corFiml()` and
+  lavaan’s FIML each estimate a multivariate-normal matrix. FIML
+  improves estimation but does not impute items, so `keep_scores = TRUE`
+  still yields `NA` for incomplete rows.
 
 ### FIML for continuous PCA/EFA
 

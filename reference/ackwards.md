@@ -134,21 +134,22 @@ ackwards(
     description above). `n_obs` in the result reflects the reduced N.
 
   - `"fiml"` is full information maximum likelihood. For
-    `engine = "esem"` (with `estimator = "ML"`/`"MLR"`), it passes
-    `missing = "fiml"` to
+    `engine = "esem"` (with `estimator = "ML"`/`"MLR"` and
+    `cor = "pearson"`), it passes `missing = "fiml"` to
     [`lavaan::efa()`](https://rdrr.io/pkg/lavaan/man/efa.html) and
     derives edge correlations from lavaan's FIML-estimated saturated
     model. For `engine = "pca"`/`"efa"` (M38), the correlation matrix is
     estimated via
     [`psych::corFiml()`](https://rdrr.io/pkg/psych/man/corFiml.html) and
-    fed to the usual `W'RW` algebra. That route requires
-    `cor = "pearson"`, because corFiml estimates a multivariate-normal
-    matrix, and the route is announced via a cli message. It errors for
-    WLSMV and ULSMV, and for a non-Pearson PCA or EFA basis. FIML
-    improves estimation under missingness but does not impute item
-    responses. So score materialisation (`keep_scores = TRUE`) still
-    produces `NA` rows for incomplete observations. See `n_obs` for the
-    fit-index sample size on the PCA and EFA path.
+    fed to the usual `W'RW` algebra. That route is announced via a cli
+    message. Both routes require `cor = "pearson"`, because corFiml and
+    lavaan's FIML each estimate a multivariate-normal matrix. FIML
+    errors for WLSMV and ULSMV, and for a non-Pearson basis on any
+    engine. FIML improves estimation under missingness but does not
+    impute item responses. So score materialisation
+    (`keep_scores = TRUE`) still produces `NA` rows for incomplete
+    observations. See `n_obs` for the fit-index sample size on the PCA
+    and EFA path.
 
 - n_obs:
 
