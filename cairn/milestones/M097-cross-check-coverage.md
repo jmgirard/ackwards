@@ -1,13 +1,13 @@
 # M097: Cross-check coverage and the matrix behind each edge
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** IP1, IP2
 - **Resolves:** —
 - **Surface tier:** user-facing — it changes the shipped `ackwards()` help and the test suite
-- **Branch/PR:** —
+- **Branch/PR:** m097-cross-check-coverage
 
 ## Goal
 
@@ -46,7 +46,7 @@ The record of which correlation matrix each edge is exact for, and of which fits
 
 ## Tasks
 
-- [ ] T1: Add the AC1 tests to `tests/testthat/test-compute_edges.R`. Plant the missing values with a fixed seed. Suppress the once-per-session ESEM Spearman warning (`R/ackwards.R:663`) and the ordinal advisory. Do not route these condition-wrapped fits through `cached()`. Show each case red once with its planted defect (unranked data for Spearman, the unreduced rows for listwise), and log the measured gap.
+- [x] T1: Add the AC1 tests to `tests/testthat/test-compute_edges.R`. Plant the missing values with a fixed seed. Suppress the once-per-session ESEM Spearman warning (`R/ackwards.R:663`) and the ordinal advisory. Do not route these condition-wrapped fits through `cached()`. Show each case red once with its planted defect (unranked data for Spearman, the unreduced rows for listwise), and log the measured gap.
 - [ ] T2: Rewrite DESIGN's first Known limitations entry, the §5.4 closing sentence, and the §5.3 Spearman sentence (AC2). Name the T1 tests by title.
 - [ ] T3: Edit the opening paragraph of the `ackwards()` roxygen and the `compute_edges()` roxygen (AC3). Derive each ESEM claim from `R/ackwards.R:798` and `R/engine_esem.R:434`, and measure it in R before you write it. Run `devtools::document()` and `Rscript tools/check-prose.R` on both files. Re-read every split sentence against the code (M86 lesson). Add a NEWS entry for the help change.
 - [ ] T4: Run the AC4 search and record each hit with its classification as a ledger in the work log. Name the matrix at each edge claim, IP1 included. Append the D-entry for the IP1 wording, and follow D-031's procedure for an IP change.
@@ -58,6 +58,7 @@ The record of which correlation matrix each edge is exact for, and of which fits
 - 2026-10-01: plan gate chose new rank-score and complete-row tests over listing Spearman and listwise as uncovered. The measured agreement was about 1e-15 on all three engines. Falsified by a Spearman or listwise fit whose algebra and rank or complete-row scores disagree beyond 1e-10.
 - 2026-10-01: plan gate chose the `ackwards()` and `compute_edges()` help over rewording all 15 sites the search finds. The general wording holds except in the ESEM settings AC3 names, and those warn at fit time. Falsified by a user who reads the general wording and misreads an ESEM Spearman or pairwise fit.
 - 2026-10-01: plan gate absorbed the DESIGN "exact" row (M95 review R9) over keeping it separate, because it states the same fact in the same file.
+- 2026-10-01: T1 done. Three tests (Spearman, tied Spearman, listwise) on PCA, EFA, and ESEM over all 6 level pairs agree to at most 2.4e-15. Red once with planted defects: raw data or unreduced rows failed all 18 pair checks per test, gaps 0.009 to 0.016. Suite 812 tests, 0 failed.
 
 ## Decisions
 
