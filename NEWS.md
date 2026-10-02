@@ -1,5 +1,15 @@
 # ackwards (development version)
 
+* **Varimax and oblimin side by side in the engines article.** The section on
+  orthogonal and oblique rotation now fits EFA to the BFI-25 twice, with
+  varimax and with oblimin, in place of the simulated example. It shows the
+  oblimin factor correlations within each level. It matches each oblimin
+  factor to a varimax factor by Tucker's congruence of loadings and shows
+  that the two primary-parent trees are the same after the match. It lists
+  the secondary edges that reach the display cutoff under oblimin, with `r`
+  beside `beta`, and draws both diagrams. No package function or its output
+  changed.
+
 * **Edge wording across the documentation.** More of the documentation now
   says that each between-level edge is implied by the correlation matrix the
   fit uses. That covers the package description, the README, the help pages
