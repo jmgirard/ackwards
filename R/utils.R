@@ -589,8 +589,9 @@ flip_weights <- function(W, sign_vec) {
 # Validate the missing= argument against engine, estimator, and basis.
 # FIML is valid for (a) PCA/EFA on the Pearson basis -- routed through
 # psych::corFiml() (M38) -- and (b) ESEM with a full-information estimator
-# (ML/MLR). It errors for a non-Pearson PCA/EFA basis (corFiml is MVN-only)
-# and for WLSMV/ULSMV (limited-information WLS, no FIML extension).
+# (ML/MLR) on the Pearson basis. It errors for a non-Pearson basis (corFiml and
+# lavaan's FIML are both MVN-only) and for WLSMV/ULSMV (limited-information
+# WLS, no FIML extension).
 .resolve_missing <- function(missing, engine, estimator_eff, cor) {
   if (missing != "fiml") {
     return(invisible(NULL))
@@ -621,6 +622,21 @@ flip_weights <- function(W, sign_vec) {
       "i" = "Use {.code missing = \"fiml\"} with {.code estimator = \"ML\"} \\
              or {.code estimator = \"MLR\"}, or switch to \\
              {.code missing = \"listwise\"}."
+    ))
+  }
+  # ESEM FIML takes x$r from lavaan's saturated model, which is
+  # multivariate-normal (Pearson) whatever `cor` says. A Spearman basis would
+  # store that Pearson matrix under a Spearman label. (A polychoric basis
+  # never reaches here: ML/MLR on it errors earlier, WLSMV/ULSMV just above.)
+  if (cor == "spearman") {
+    cli::cli_abort(c(
+      "!" = "{.code missing = \"fiml\"} with {.code engine = \"esem\"} \\
+             requires {.code cor = \"pearson\"}.",
+      "i" = "lavaan's FIML estimates a multivariate-normal (Pearson) \\
+             correlation matrix; it cannot produce a {.val {cor}} basis.",
+      "i" = "Use {.code cor = \"pearson\"}, or \\
+             {.code missing = \"pairwise\"}/{.code \"listwise\"} to keep a \\
+             {.val {cor}} basis."
     ))
   }
   invisible(NULL)

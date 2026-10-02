@@ -584,11 +584,33 @@ test_that("ESEM warns on improper solution (Heywood case) but still builds", {
 
 test_that("cor = 'spearman' with engine = 'esem' warns about inconsistent bases", {
   skip_if_not_installed("lavaan")
+  withr::local_options(rlib_warning_verbosity = "verbose")
   d <- .make_esem_data()
   expect_warning(
     suppressMessages(ackwards(d, k_max = 2, engine = "esem", cor = "spearman")),
     "inconsistent bases"
   )
+})
+
+test_that("the esem + spearman warning does not call a WLSMV fit Pearson-ML", {
+  skip_if_not_installed("lavaan")
+  # The warning fires once per session; force it so test order cannot hide it.
+  withr::local_options(rlib_warning_verbosity = "verbose")
+  d <- .make_esem_data()
+  w <- NULL
+  withCallingHandlers(
+    suppressMessages(ackwards(d,
+      k_max = 2, engine = "esem", cor = "spearman", estimator = "WLSMV"
+    )),
+    warning = function(cnd) {
+      if (grepl("inconsistent bases", conditionMessage(cnd))) {
+        w <<- conditionMessage(cnd)
+      }
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_match(w, "Pearson covariances of the raw data", fixed = TRUE)
+  expect_no_match(w, "Pearson-ML", fixed = TRUE)
 })
 
 # ── M26: cached sample statistics + parallel dispatch ─────────────────────────

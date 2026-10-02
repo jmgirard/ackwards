@@ -27,6 +27,19 @@ test_that(".resolve_missing() errors for fiml + pca/efa + non-pearson basis", {
   expect_error(.resolve_missing("fiml", "efa", NULL, "polychoric"), "pearson")
 })
 
+test_that(".resolve_missing() errors for fiml + esem + spearman basis", {
+  # lavaan's FIML saturated model is multivariate normal (Pearson); storing it
+  # under cor = "spearman" would mislabel x$r and every edge.
+  expect_error(
+    .resolve_missing("fiml", "esem", "ML", "spearman"),
+    "engine = \"esem\"` requires `cor = \"pearson\"`"
+  )
+  expect_error(
+    .resolve_missing("fiml", "esem", "MLR", "spearman"),
+    "engine = \"esem\"` requires `cor = \"pearson\"`"
+  )
+})
+
 test_that(".resolve_missing() errors for fiml + WLSMV", {
   expect_error(.resolve_missing("fiml", "esem", "WLSMV", "polychoric"), "WLSMV")
 })
@@ -63,6 +76,24 @@ test_that("ackwards() errors for missing = 'fiml' with pca/efa + non-pearson bas
   expect_error(
     ackwards(d, k_max = 2L, missing = "fiml", engine = "efa", cor = "polychoric"),
     "pearson"
+  )
+})
+
+test_that("ackwards() errors for missing = 'fiml' with esem + spearman basis", {
+  skip_if_not_installed("psych")
+  skip_if_not_installed("lavaan")
+  d <- .make_esem_data()
+  d[1:10, 1] <- NA
+  # The FIML check runs before the Spearman inconsistency warning, so the
+  # call fails without first claiming that edges come from a Spearman matrix.
+  expect_no_warning(
+    expect_error(
+      suppressMessages(ackwards(d,
+        k_max = 2L, engine = "esem",
+        cor = "spearman", missing = "fiml"
+      )),
+      "engine = \"esem\"` requires `cor = \"pearson\"`"
+    )
   )
 })
 

@@ -1,5 +1,16 @@
 # ackwards (development version)
 
+* **ESEM with `cor = "spearman"` and `missing = "fiml"` now stops with an
+  error.** Before this fix, the fit ran, but `x$r` held lavaan's Pearson FIML
+  matrix while the object reported `cor = "spearman"`. All edges were Pearson
+  under a Spearman label. FIML estimates a multivariate-normal (Pearson)
+  matrix on every engine, so it now requires `cor = "pearson"` for ESEM, as
+  it already did for PCA and EFA. To keep a Spearman basis, use
+  `missing = "pairwise"` or `"listwise"`. The warning for ESEM with
+  `cor = "spearman"` now says that lavaan fits Pearson covariances of the raw
+  data. Before, it said "Pearson-ML model", which was wrong under WLSMV and
+  ULSMV.
+
 * **ESEM with ULSMV on continuous items now fits under the default
   `missing = "pairwise"`.** Before this fix, `ackwards()` stopped at level 1
   with a lavaan error, complete data included. lavaan 0.7.2 `efa()` fails for
