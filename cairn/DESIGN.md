@@ -222,8 +222,8 @@ The between-level edges are computed through **one shared code path**, the inter
 stored correlation matrix `x$r`, so an edge means the same thing for every engine and no scores
 are materialized. *(Corrected M95: this read "exact `W'RW` algebra" with no matrix named.
 Corrected M097: it named "the correlation matrix `R` the fit uses", but under ESEM with
-`cor = "spearman"`, or with `missing = "pairwise"` on data with missing values, lavaan fits
-another matrix than `x$r`.)* The function also keeps a scores
+`cor = "spearman"` and `missing = "pairwise"` or `"listwise"`, or with `cor = "pearson"` and
+`missing = "pairwise"` on data with missing values, lavaan fits another matrix than `x$r`.)* The function also keeps a scores
 route that materializes linear scores from raw data. Only the algebra-vs-scores agreement tests
 use that route (§5.4, IP2).
 

@@ -280,7 +280,7 @@ _Source: M93 plan gate 2026-10-01; M91 review F5; D-004; D-007; D-031._
 
 ### D-039 (2026-10-01; narrows D-038's IP1 wording): IP1 names the matrix each edge is exact for
 
-**Context:** IP1 said that every shipped edge comes from "the exact `W'RW` algebra", and it named no matrix. The algebra is exact for the correlation matrix it is given, and `ackwards()` stores that matrix as `x$r`. Under ESEM with `cor = "spearman"`, or with `cor = "pearson"` and `missing = "pairwise"` on data with missing values, lavaan fits another matrix than `x$r`. The M95 review (R9) found this and other "exact" claims in DESIGN that name no matrix.
+**Context:** IP1 said that every shipped edge comes from "the exact `W'RW` algebra", and it named no matrix. The algebra is exact for the correlation matrix it is given, and `ackwards()` stores that matrix as `x$r`. Under ESEM with `cor = "spearman"` and `missing = "pairwise"` or `"listwise"`, or with `cor = "pearson"` and `missing = "pairwise"` on data with missing values, lavaan fits another matrix than `x$r`. The M95 review (R9) found this and other "exact" claims in DESIGN that name no matrix.
 **Decision:** IP1 is reworded to say that the `W'RW` algebra is exact for the stored correlation matrix `x$r`. The rule itself is unchanged: one edge path, and standardization by real score SDs. The rewording follows D-031's procedure for changing an IP.
 **Consequences:** The other "exact" and "true correlation" claims about edges in DESIGN name `x$r` too. The `ackwards()` and `compute_edges()` help name the ESEM settings in which lavaan fits another matrix. D-038 stands except for the IP1 wording it set.
 _Source: M097 plan gate 2026-10-01; M95 review R9; D-031; D-038._
