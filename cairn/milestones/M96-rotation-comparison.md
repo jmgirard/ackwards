@@ -102,8 +102,8 @@ Independent review, 2026-10-01. Three fresh reviewers ran: diff-bug (Opus), blam
 - D1 (diff, rank 1): the prose calls the .943 match "the same factor", but the package's own congruence cutoff is 0.95 (`redundancy_phi`).
 - D2 (diff, rank 2): the prose names one `beta` above 1 (m3f1 → m4f1, 1.02). m2f2 → m3f2 is 1.002 and prints as 1.00.
 - D3 (diff, rank 3): "Oblimin rotates from random starts" holds only for psych versions with `n.rotations`. DESCRIPTION has no psych floor. The `?ackwards` `seed` doc says the same thing.
-- D4 (diff, rank 4): the match shows `abs()` congruence, so a reflected factor on other data would match with no visible sign. All matched values here are positive.
-- D5 (diff, rank 5): the one-to-one `stopifnot()` stops with no next step if a reader reuses the chunk and two factors pick the same match.
+- D4 (diff, rank 4): the match shows `abs()` congruence. On other data, a reflected factor then matches with no visible sign. All matched values here are positive.
+- D5 (diff, rank 5): when a reader reuses the chunk and two factors pick the same match, the one-to-one `stopifnot()` stops with no next step.
 - D6 (diff, rank 6): "set by `cut_show = 0.3`" reads as if an argument was passed. 0.3 is the default.
 - D7 (diff, rank 7): the prose explains the two near-zero `beta` values but not why m4f3 → m5f4 keeps .16.
 - D8 (diff, rank 8): test 4 pins `signif(beta, 2) == 0.0015` on a true value 2.1e-5 from a rounding boundary. Seeds moved it by at most 4e-6.
