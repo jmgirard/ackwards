@@ -81,6 +81,7 @@ The implement phase re-derives these facts. The prose is written from that run, 
 - 2026-10-01: claim audit: 50 claims read, 4 corrected — vignettes/ackwards-engines.Rmd.orig, tests/testthat/test-vignette-rotation.R, NEWS.md
 - 2026-10-01: The audit fixes were the varimax alt text (the top factor has no parent), two test comments, and the NEWS phrase "No code or result changed". It also gave an optional "In oblimin IDs" note. Its two test gaps were closed: test 1 now pins the top-three order, and test 4 pins both small `beta` values. The same reader re-read all eight items once and cleared them.
 - 2026-10-01: After the fixes, precompute and the splice ran again. The diff kept 3 hunks and 0 noise lines. The plant still fails all 4 tests. The suite passed 3606 with 0 failures. `tools/dod-gate.R` exited 0 again. Status set to review.
+- 2026-10-01: review gate: maintainer chose to fix eight reviewer findings and reject the rest. Fixes landed in `2fb1298`, and the gate passed again.
 
 ## Decisions
 
@@ -113,3 +114,10 @@ Independent review, 2026-10-01. Three fresh reviewers ran: diff-bug (Opus), blam
 - B3 (history, rank 3): "How to decide" now sits under the `### Varimax and oblimin on the same data` heading, after the figures.
 - B4 (history, rank 4): the vignette no longer shows an oblique PCA fit or the `sim16` ground truth. The plan chose this.
 - B5 (history, rank 5): the `beta` wording is new but agrees with `R/tidy.R`.
+
+Triage at the gate, 2026-10-01. The maintainer chose to fix eight findings and reject the rest.
+
+- Fixed in `2fb1298`: D1 (the prose calls the pair a close match, under the .95 `prune()` default), D2 (names m2f2 → m3f2 at 1.002), D4 (the table keeps the sign, and test 2 asserts every match is positive), D6 (the default `cut_show` of 0.3), D7 (explains the .34 to .16 drop through m4f1), D8 (`expect_lt` with a 1e-4 tolerance), B1 (a paragraph after the fits names the advisory's points), and B3 (a `### How to decide` heading).
+- Rejected: D3, because the wording matches the `?ackwards` `seed` doc and a psych version floor is a separate question. D5, because the stop is meant to fail loudly. B2, because the equal trees are what the data show. B4, because the plan chose EFA on bfi25. B5, because it reports no conflict.
+- Noted: D9. The work log is history, and the AC3 line records the count.
+- Re-verification after the fixes: the test file ran 4 tests and 21 expectations with 0 failures. Test 3 also pins the two primary `beta` values over 1. The prose check and the freshness check passed. Against `HEAD~1`, the rendered diff changed only prose lines, one code line, and the stamp, and no printed output changed. Against master, the noise counts stayed at 0, and all content hunks fall inside the section (new lines 1475 to 1724). `tools/dod-gate.R` exited 0 again, with check at 0 errors, 0 warnings, and 0 notes, and coverage at 100%. The new positive-congruence assertion was not plant-tested, because no plant of a flipped factor was built.
