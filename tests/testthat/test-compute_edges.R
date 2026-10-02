@@ -176,6 +176,76 @@ test_that("algebra and scores agree for all-levels edges (PCA)", {
   }
 })
 
+# --- Cross-check beyond complete-data Pearson -----------------------------------
+# The algebra is exact for the stored x$r, so the scores route agrees with it
+# only when it scores the data that x$r is the Pearson matrix of. For a
+# Spearman R those are the column ranks (Spearman = Pearson on ranks, ties
+# averaged); for listwise deletion they are the complete rows. Raw data or the
+# unreduced rows put the gap near 1e-2, measured 2026-10-01. These fits wrap
+# conditions, so they bypass cached().
+
+.expect_all_pairs_agree <- function(x, score_data, label) {
+  alg <- compute_edges(x$levels, x$r,
+    pairs = "all", edge_method = "algebra",
+    build_tidy = FALSE
+  )$matrices
+  sc <- compute_edges(x$levels, x$r,
+    pairs = "all", edge_method = "scores",
+    data = score_data, build_tidy = FALSE
+  )$matrices
+  expect_identical(names(sc), names(alg))
+  for (key in names(alg)) {
+    expect_lt(
+      max(abs(alg[[key]] - sc[[key]])), 1e-10,
+      label = paste(label, "algebra vs scores for pair", key)
+    )
+  }
+}
+
+.fit_quiet <- function(data, engine, ...) {
+  suppressWarnings(suppressMessages(
+    ackwards(data, k_max = 4, engine = engine, ...)
+  ))
+}
+
+test_that("Spearman: algebra agrees with scores from column ranks", {
+  skip_if_not_installed("lavaan")
+  for (eng in c("pca", "efa", "esem")) {
+    x <- .fit_quiet(sim16, eng, cor = "spearman")
+    expect_length(x$levels, 4L)
+    .expect_all_pairs_agree(x, apply(sim16, 2, rank), paste("spearman", eng))
+  }
+})
+
+test_that("Spearman with ties: algebra agrees with scores from column ranks", {
+  skip_if_not_installed("lavaan")
+  tied <- round(sim16)
+  expect_true(anyDuplicated(tied[[1]]) > 0L)
+  for (eng in c("pca", "efa", "esem")) {
+    x <- .fit_quiet(tied, eng, cor = "spearman")
+    expect_length(x$levels, 4L)
+    .expect_all_pairs_agree(x, apply(tied, 2, rank), paste("tied spearman", eng))
+  }
+})
+
+test_that("listwise: algebra agrees with scores from the complete rows", {
+  skip_if_not_installed("lavaan")
+  set.seed(97)
+  miss <- sim16
+  cells <- cbind(
+    sample(nrow(miss), 150, replace = TRUE),
+    sample(ncol(miss), 150, replace = TRUE)
+  )
+  miss[cells] <- NA
+  complete <- miss[stats::complete.cases(miss), ]
+  expect_lt(nrow(complete), nrow(miss))
+  for (eng in c("pca", "efa", "esem")) {
+    x <- .fit_quiet(miss, eng, missing = "listwise")
+    expect_length(x$levels, 4L)
+    .expect_all_pairs_agree(x, complete, paste("listwise", eng))
+  }
+})
+
 # --- match_parents unit tests ---------------------------------------------------
 # Adjacent levels always have n_b = n_a + 1 (non-square). LSAP (bijection) would
 # require a padding row that can return index > nrow(E) → subscript OOB.

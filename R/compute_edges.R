@@ -12,9 +12,16 @@
 #' be 1). The algebra needs no scores. It is exact for that `R` under the
 #' linear scoring of every engine: component score weights for PCA, and ten
 #' Berge weights (regression weights as the fallback) for EFA and ESEM. For
-#' the edges a fit reports, `R` is the correlation matrix the fit uses, so
-#' those edges are exact for the fit's `R`. The split-half comparability check
-#' passes a pooled `R` instead.
+#' the edges a fit reports, `R` is the matrix that [ackwards()] stores as
+#' `x$r`, so those edges are exact for `x$r`. For ESEM, lavaan fits a
+#' different matrix in two settings. With `cor = "spearman"` and
+#' `missing = "pairwise"` or `"listwise"`, `x$r` is a Spearman matrix, but
+#' lavaan fits Pearson covariances of the raw data. With `cor = "pearson"` and
+#' `missing = "pairwise"` on data with missing values, `x$r` holds pairwise
+#' correlations. There, ML and MLR fit the complete rows, and WLSMV fits the
+#' pairwise covariances. The correlations of those covariances differ slightly
+#' from `x$r`, because each item's variance uses all of its observed rows. The
+#' split-half comparability check passes a pooled `R` in place of `x$r`.
 #'
 #' A pair goes to the scores branch when `edge_method = "scores"`, or when
 #' `edge_method = "auto"` and either level's `scoring$linear` is not `TRUE` or
