@@ -61,9 +61,15 @@ where \code{R} is the correlation matrix passed in and
 be 1). The algebra needs no scores. It is exact for that \code{R} under the
 linear scoring of every engine: component score weights for PCA, and ten
 Berge weights (regression weights as the fallback) for EFA and ESEM. For
-the edges a fit reports, \code{R} is the correlation matrix the fit uses, so
-those edges are exact for the fit's \code{R}. The split-half comparability check
-passes a pooled \code{R} instead.
+the edges a fit reports, \code{R} is the matrix that \code{\link[=ackwards]{ackwards()}} stores as
+\code{x$r}, so those edges are exact for \code{x$r}. For ESEM, lavaan fits a
+different matrix in two settings. With \code{cor = "spearman"} and
+\code{missing = "pairwise"} or \code{"listwise"}, \code{x$r} is a Spearman matrix, but
+lavaan fits Pearson covariances of the raw data. With \code{cor = "pearson"} and
+\code{missing = "pairwise"} on data with missing values, \code{x$r} holds pairwise
+correlations. There, ML and MLR fit the complete rows, and WLSMV fits the
+pairwise covariances. The split-half comparability check passes a pooled
+\code{R} instead.
 
 A pair goes to the scores branch when \code{edge_method = "scores"}, or when
 \code{edge_method = "auto"} and either level's \code{scoring$linear} is not \code{TRUE} or

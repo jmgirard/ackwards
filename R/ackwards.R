@@ -5,9 +5,15 @@
 #' that move together. It then characterises the hierarchy by computing the
 #' correlations between the factor scores of different levels. A factor score
 #' is each person's estimated standing on a factor. Each edge is computed from
-#' the scoring weights and the correlation matrix the fit uses, and it is exact
-#' for that matrix. The "hierarchy" is descriptive: edges are score
-#' correlations, not a fitted higher-order SEM.
+#' the scoring weights and the correlation matrix stored as `x$r`, and it is
+#' exact for that matrix. For `engine = "esem"`, lavaan fits a different matrix
+#' in two settings. With `cor = "spearman"` and `missing = "pairwise"` or
+#' `"listwise"`, `x$r` is a Spearman matrix, but lavaan fits Pearson
+#' covariances of the raw data. With `cor = "pearson"` and
+#' `missing = "pairwise"` on data with missing values, `x$r` holds pairwise
+#' correlations. There, the ML and MLR estimators fit the complete rows, and
+#' WLSMV fits the pairwise covariances. The "hierarchy" is descriptive: edges
+#' are score correlations, not a fitted higher-order SEM.
 #'
 #' @section Defaults and why:
 #' * **`engine = "pca"`** is the original Goldberg (2006) method. PCA
