@@ -33,22 +33,22 @@ The implement phase re-derives these facts. The prose is written from that run, 
 
 ## Acceptance criteria
 
-- [ ] AC1: The section of `vignettes/ackwards-engines.Rmd.orig` fits `ackwards()` twice to `bfi` with `engine = "efa"`, `cor = "polychoric"`, and `k_max = 5`. One fit uses the default rotation, and one uses `rotation = "oblimin"`. A search for `sim16` over the section's lines returns nothing.
-- [ ] AC2: In the same section, the generated `vignettes/ackwards-engines.Rmd` shows five displays from the two fits:
+- [x] AC1: The section of `vignettes/ackwards-engines.Rmd.orig` fits `ackwards()` twice to `bfi` with `engine = "efa"`, `cor = "polychoric"`, and `k_max = 5`. One fit uses the default rotation, and one uses `rotation = "oblimin"`. A search for `sim16` over the section's lines returns nothing.
+- [x] AC2: In the same section, the generated `vignettes/ackwards-engines.Rmd` shows five displays from the two fits:
   - (a) The oblimin fit's within-level factor correlations, from `tidy(x, what = "factor_cor")`.
   - (b) A one-to-one, per-level match of each oblimin factor to a varimax factor by Tucker congruence of loadings, with the congruence values.
   - (c) The primary-parent edges of both fits, with each oblimin ID shown beside its matched varimax ID.
   - (d) For each fit, the secondary edges with `above_cut` TRUE, with `r` and `beta`.
   - (e) One `autoplot()` figure per fit.
-- [ ] AC3: `tests/testthat/test-vignette-rotation.R` checks four findings on the same two fits, and the section's prose states each one:
+- [x] AC3: `tests/testthat/test-vignette-rotation.R` checks four findings on the same two fits, and the section's prose states each one:
   - (1) The largest absolute within-level factor correlation of the oblimin fit.
   - (2) The one-to-one factor match at each level, with its smallest congruence, and the level whose IDs differ between the fits.
   - (3) After the match, the two primary-parent trees are equal.
   - (4) Which secondary edges have `above_cut` TRUE in each fit, with the sign and size of `beta` for each.
   Each check names the factors or edges it asserts. The file passes under `NOT_CRAN=true` with `testthat::test_file()`.
-- [ ] AC4: `Rscript tools/check-vignette-freshness.R` exits 0. With the md5 stamp line removed, every hunk of `git diff master -- vignettes/ackwards-engines.Rmd` falls inside the section. The diff has no cli `[Nms]` timing change, no U+FE0E check mark, and no `div id=` change. `git diff --stat master -- vignettes/` lists only `ackwards-engines.Rmd`, `ackwards-engines.Rmd.orig`, and `vignettes/assets/ackwards-engines-*` figures from the section's chunks.
-- [ ] AC5: `git diff --stat master -- R man manuscript` is empty.
-- [ ] AC6: NEWS.md gains one entry under `# ackwards (development version)` that names the new rotation comparison. `Rscript tools/dod-gate.R` exits 0.
+- [x] AC4: `Rscript tools/check-vignette-freshness.R` exits 0. With the md5 stamp line removed, every hunk of `git diff master -- vignettes/ackwards-engines.Rmd` falls inside the section. The diff has no cli `[Nms]` timing change, no U+FE0E check mark, and no `div id=` change. `git diff --stat master -- vignettes/` lists only `ackwards-engines.Rmd`, `ackwards-engines.Rmd.orig`, and `vignettes/assets/ackwards-engines-*` figures from the section's chunks.
+- [x] AC5: `git diff --stat master -- R man manuscript` is empty.
+- [x] AC6: NEWS.md gains one entry under `# ackwards (development version)` that names the new rotation comparison. `Rscript tools/dod-gate.R` exits 0.
 
 ## Coverage
 
@@ -85,3 +85,13 @@ The implement phase re-derives these facts. The prose is written from that run, 
 ## Decisions
 
 ## Review
+
+Evidence gathered 2026-10-01 on branch head `3a9ccdd`. Master did not move after the branch was cut (`47ac2cf`).
+
+- AC1: The section has 150 lines. It fits `ackwards(bfi, k_max = 5, engine = "efa", cor = "polychoric")` as `x_var`, and the same call with `rotation = "oblimin", seed = 1` as `x_obl`. `grep -c sim16` over the section returns 0. Master's file had 4 hits, and the 3 hits left in the file are outside the section.
+- AC2: A read of the rendered section in `vignettes/ackwards-engines.Rmd` shows all five displays. (a) `tidy(x_obl, what = "factor_cor")` prints 20 rows, sorted by absolute size. (b) The `matches` table prints 15 rows with a `congruence` column, and the `stopifnot()` one-to-one guard runs. (c) The merged `tree` table prints 14 primary edges, with `from_obl` and `to_obl` beside the varimax IDs. `anyNA(tree)` prints FALSE. (d) `above_cut_secondary()` prints 0 rows for varimax and 3 rows with `r` and `beta` for oblimin. (e) Two figures, `rotation-plot-varimax-1.png` and `rotation-plot-oblimin-1.png`, are linked with captions and alt text.
+- AC3: `testthat::test_file("tests/testthat/test-vignette-rotation.R")` under `NOT_CRAN=true` ran 4 tests and 18 expectations, with 0 failures and 0 skips. Test 1 pins the top three pairs `m5f3-m5f4`, `m3f1-m3f3`, `m4f1-m4f3` at .34, .33, .30. Test 2 pins the one-to-one match, the swap of `m5f2` and `m5f3`, and the smallest congruence .94 at level 5. Test 3 pins equal sorted edge keys after the match. Test 4 pins no varimax edge and three oblimin edges, `m3f1->m4f3`, `m4f1->m5f2`, and `m4f3->m5f4`. It pins each `beta` as positive, at .016, .0015, and .16. The prose states each of the four. A fresh plant put `rotation = "varimax"` in place of `"oblimin"`, and all 4 tests went red. Tests 1 to 3 failed, and test 4 errored on the missing edge.
+- AC4: `Rscript tools/check-vignette-freshness.R` exited 0. `git diff -U0 master -- vignettes/ackwards-engines.Rmd` has 5 hunks. One is the stamp line at line 13. The other 4 touch master lines 1501 to 1539 and new lines 1501 to 1708. The section spans master lines 1475 to 1540 and new lines 1475 to 1708, so all 4 hunks are inside it. The diff has 0 `ms]` timing lines, 0 U+FE0E characters, and 0 `div id=` lines. `git diff --name-status master -- vignettes/` lists the `.Rmd`, the `.Rmd.orig`, and two added figures, `ackwards-engines-rotation-plot-varimax-1.png` and `ackwards-engines-rotation-plot-oblimin-1.png`, from the section's two plot chunks.
+- AC5: `git diff --stat master -- R man manuscript` printed 0 lines, and all three directories exist.
+- AC6: `git diff master -- NEWS.md` adds one bullet under `# ackwards (development version)`, titled "Varimax and oblimin side by side in the engines article". It names the BFI-25 comparison and has no milestone number. `Rscript tools/dod-gate.R` exited 0 and printed GATE PASSED. Check had 0 errors, 0 warnings, and 0 notes. Coverage was 100%. Vignette freshness, prose, style, lint, and the pkgdown index were clean. The gate left the tree unchanged.
+- Consistency gate: `cairn_validate.py` exited 0, with 16 work-log format advisories, all in the M84 file. `devtools::document()` produced no diff. The branch touches no DESIGN principle, no README, and no top-level file, so `cairn_impact.py`, `build_readme()`, and the `.Rbuildignore` check do not apply. `pkgdown::check_pkgdown()` and `devtools::check()` passed inside the AC6 gate run.
