@@ -5,9 +5,17 @@ Extracts factor or component solutions at levels 1 through `k`. A factor
 that move together. It then characterises the hierarchy by computing the
 correlations between the factor scores of different levels. A factor
 score is each person's estimated standing on a factor. Each edge is
-computed from the scoring weights and the correlation matrix the fit
-uses, and it is exact for that matrix. The "hierarchy" is descriptive:
-edges are score correlations, not a fitted higher-order SEM.
+computed from the scoring weights and the correlation matrix stored as
+`x$r`, and it is exact for that matrix. For `engine = "esem"`, lavaan
+fits a different matrix in two settings. With `cor = "spearman"` and
+`missing = "pairwise"` or `"listwise"`, `x$r` is a Spearman matrix, but
+lavaan fits Pearson covariances of the raw data. With `cor = "pearson"`
+and `missing = "pairwise"` on data with missing values, `x$r` holds
+pairwise correlations. There, the ML and MLR estimators fit the complete
+rows, and WLSMV fits the pairwise covariances. The correlations of those
+covariances differ slightly from `x$r`, because each item's variance
+uses all of its observed rows. The "hierarchy" is descriptive: edges are
+score correlations, not a fitted higher-order SEM.
 
 ## Usage
 
@@ -120,8 +128,9 @@ ackwards(
   - `"listwise"` uses only complete rows. It reduces the data to
     [`stats::complete.cases()`](https://rdrr.io/r/stats/complete.cases.html)
     before fitting, so the correlation matrix, the engine fit, and the
-    edges are all consistent. `n_obs` in the result reflects the reduced
-    N.
+    edges all use the same rows. Under `engine = "esem"` with
+    `cor = "spearman"`, lavaan still fits a Pearson matrix (see the
+    description above). `n_obs` in the result reflects the reduced N.
 
   - `"fiml"` is full information maximum likelihood. For
     `engine = "esem"` (with `estimator = "ML"`/`"MLR"`), it passes
@@ -301,13 +310,12 @@ for output methods.
   factor. With uncorrelated factors, each between-level edge equals that
   ancestor's unique contribution to the descendant. That is what lets
   the edges be read as a lineage diagram. The closed-form `W'RW` edge
-  algebra is itself exact for the correlation matrix the fit uses under
-  any fixed linear scoring, orthogonal or not. So the choice is
-  interpretive, not a numerical necessity. It matches Goldberg (2006),
-  Kim & Eaton (2015), and Forbush et al. (2024). An oblique rotation is
-  available as a non-default option (see `rotation`). Its edges are
-  total correlations, which also carry overlap through correlated
-  factors at the same level.
+  algebra is itself exact for the stored `x$r` under any fixed linear
+  scoring, orthogonal or not. So the choice is interpretive, not a
+  numerical necessity. It matches Goldberg (2006), Kim & Eaton (2015),
+  and Forbush et al. (2024). An oblique rotation is available as a
+  non-default option (see `rotation`). Its edges are total correlations,
+  which also carry overlap through correlated factors at the same level.
 
 - **`cor = "pearson"`** means no silent basis switching. If your items
   look ordinal (\<= 7 distinct integer values), a cli warning will

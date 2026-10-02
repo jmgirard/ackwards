@@ -4,15 +4,31 @@
 that move together. It then characterises the hierarchy by computing the
 correlations between the factor scores of different levels. A factor score
 is each person's estimated standing on a factor. Each edge is computed from
-the scoring weights and the correlation matrix the fit uses, and it is exact
-for that matrix. The &quot;hierarchy&quot; is descriptive: edges are score
+the scoring weights and the correlation matrix stored as x$r, and it is
+exact for that matrix. For engine = &quot;esem&quot;, lavaan fits a different matrix
+in two settings. With cor = &quot;spearman&quot; and missing = &quot;pairwise&quot; or
+&quot;listwise&quot;, x$r is a Spearman matrix, but lavaan fits Pearson
+covariances of the raw data. With cor = &quot;pearson&quot; and
+missing = &quot;pairwise&quot; on data with missing values, x$r holds pairwise
+correlations. There, the ML and MLR estimators fit the complete rows, and
+WLSMV fits the pairwise covariances. The correlations of those covariances
+differ slightly from x$r, because each item's variance uses all of its
+observed rows. The &quot;hierarchy&quot; is descriptive: edges are score
 correlations, not a fitted higher-order SEM."><meta property="og:description" content="Extracts factor or component solutions at levels 1 through k. A factor
 (or component) is a summary variable that stands in for a group of items
 that move together. It then characterises the hierarchy by computing the
 correlations between the factor scores of different levels. A factor score
 is each person's estimated standing on a factor. Each edge is computed from
-the scoring weights and the correlation matrix the fit uses, and it is exact
-for that matrix. The &quot;hierarchy&quot; is descriptive: edges are score
+the scoring weights and the correlation matrix stored as x$r, and it is
+exact for that matrix. For engine = &quot;esem&quot;, lavaan fits a different matrix
+in two settings. With cor = &quot;spearman&quot; and missing = &quot;pairwise&quot; or
+&quot;listwise&quot;, x$r is a Spearman matrix, but lavaan fits Pearson
+covariances of the raw data. With cor = &quot;pearson&quot; and
+missing = &quot;pairwise&quot; on data with missing values, x$r holds pairwise
+correlations. There, the ML and MLR estimators fit the complete rows, and
+WLSMV fits the pairwise covariances. The correlations of those covariances
+differ slightly from x$r, because each item's variance uses all of its
+observed rows. The &quot;hierarchy&quot; is descriptive: edges are score
 correlations, not a fitted higher-order SEM."><meta property="og:image" content="https://jmgirard.github.io/ackwards/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
@@ -76,8 +92,16 @@ correlations, not a fitted higher-order SEM."><meta property="og:image" content=
 that move together. It then characterises the hierarchy by computing the
 correlations between the factor scores of different levels. A factor score
 is each person's estimated standing on a factor. Each edge is computed from
-the scoring weights and the correlation matrix the fit uses, and it is exact
-for that matrix. The "hierarchy" is descriptive: edges are score
+the scoring weights and the correlation matrix stored as <code>x$r</code>, and it is
+exact for that matrix. For <code>engine = "esem"</code>, lavaan fits a different matrix
+in two settings. With <code>cor = "spearman"</code> and <code>missing = "pairwise"</code> or
+<code>"listwise"</code>, <code>x$r</code> is a Spearman matrix, but lavaan fits Pearson
+covariances of the raw data. With <code>cor = "pearson"</code> and
+<code>missing = "pairwise"</code> on data with missing values, <code>x$r</code> holds pairwise
+correlations. There, the ML and MLR estimators fit the complete rows, and
+WLSMV fits the pairwise covariances. The correlations of those covariances
+differ slightly from <code>x$r</code>, because each item's variance uses all of its
+observed rows. The "hierarchy" is descriptive: edges are score
 correlations, not a fitted higher-order SEM.</p>
     </div>
 
@@ -180,8 +204,10 @@ This small inconsistency is documented in <code>$meta</code>. A warning is emitt
 when incomplete rows are detected.</p></li>
 <li><p><code>"listwise"</code> uses only complete rows. It reduces the data to
 <code><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">stats::complete.cases()</a></code> before fitting, so the correlation matrix,
-the engine fit, and the edges are all consistent. <code>n_obs</code> in the result
-reflects the reduced N.</p></li>
+the engine fit, and the edges all use the same rows. Under
+<code>engine = "esem"</code> with <code>cor = "spearman"</code>, lavaan still fits a Pearson
+matrix (see the description above). <code>n_obs</code> in the result reflects the
+reduced N.</p></li>
 <li><p><code>"fiml"</code> is full information maximum likelihood. For <code>engine = "esem"</code>
 (with <code>estimator = "ML"</code>/<code>"MLR"</code>), it passes <code>missing = "fiml"</code> to
 <code><a href="https://rdrr.io/pkg/lavaan/man/efa.html" class="external-link">lavaan::efa()</a></code> and derives edge correlations from lavaan's
@@ -339,8 +365,8 @@ changing how well they fit, and varimax pushes each item toward one
 factor. With uncorrelated factors, each between-level edge equals that
 ancestor's unique contribution to the descendant. That is what lets the
 edges be read as a lineage diagram. The closed-form
-<code>W'RW</code> edge algebra is itself exact for the correlation matrix the fit
-uses under any fixed linear scoring, orthogonal or not. So the choice is
+<code>W'RW</code> edge algebra is itself exact for the stored <code>x$r</code> under any
+fixed linear scoring, orthogonal or not. So the choice is
 interpretive, not a numerical necessity. It
 matches Goldberg (2006), Kim &amp; Eaton (2015), and Forbush et al. (2024).
 An oblique rotation is available as a non-default option (see

@@ -2,6 +2,20 @@
 
 ## ackwards (development version)
 
+- **Which matrix an edge is exact for, in the
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  help.** The help now says that each edge is exact for the correlation
+  matrix stored as `x$r`. It names the two ESEM settings in which lavaan
+  fits a different matrix. With `cor = "spearman"` and
+  `missing = "pairwise"` or `"listwise"`, lavaan fits Pearson
+  covariances of the raw data. With `cor = "pearson"` and
+  `missing = "pairwise"` on data with missing values, ML and MLR fit the
+  complete rows, and WLSMV fits the pairwise covariances. New tests on
+  all three engines check that the edges equal the correlations of the
+  factor scores in two more settings. The tests score Spearman fits from
+  the column ranks and listwise fits from the complete rows. No code or
+  result changed.
+
 - **Varimax and oblimin side by side in the engines article.** The
   section on orthogonal and oblique rotation now fits EFA to the BFI-25
   twice, with varimax and with oblimin, in place of the simulated
