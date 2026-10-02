@@ -499,6 +499,11 @@ x_obl <- ackwards(bfi,
 )
 ```
 
+The oblimin fit prints a message about what its edges mean. Each edge `r` is
+now a total correlation. A factor's primary parent can be a factor that only
+correlates with its real parent. The display cutoff was calibrated under
+varimax.
+
 **Within-level correlations.** Under varimax, every factor correlation within
 a level is 0. Under oblimin, the factors correlate. The table below lists the
 oblimin correlations in order of absolute size, largest first.
@@ -515,7 +520,9 @@ between m3f1 and m3f3, and .30 between m4f1 and m4f3. We use those two below.
 its level, so the same ID can name different factors in two fits. Before we
 compare the two hierarchies, we match each oblimin factor to the varimax
 factor with the most similar loadings. Tucker's congruence coefficient
-compares two columns of loadings. A value near 1 means the same pattern.
+compares two columns of loadings. A value near 1 means the same pattern. We
+pick the match by absolute size and keep the sign, so a factor that one fit
+flips shows a negative value.
 
 ```{r rotation-match, eval = has_gpa}
 loading_matrix <- function(x, k) {
@@ -532,7 +539,7 @@ matches <- do.call(rbind, lapply(1:5, function(k) {
     level = k,
     oblimin = rownames(cong),
     varimax = colnames(cong)[best],
-    congruence = abs(cong[cbind(seq_along(best), best)])
+    congruence = cong[cbind(seq_along(best), best)]
   )
 }))
 stopifnot(!anyDuplicated(matches$varimax)) # one-to-one
@@ -540,10 +547,13 @@ matches
 ```
 
 Each oblimin factor matches a different varimax factor, so the match is one
-to one at every level. The smallest congruence is .94, at level 5. The IDs
-agree at levels 1 to 4. At level 5 the two fits number two factors the other
-way round: oblimin's m5f2 is varimax's m5f3, and oblimin's m5f3 is varimax's
-m5f2.
+to one at every level. Every congruence is positive, so no factor is flipped.
+The IDs agree at levels 1 to 4. At level 5 the two fits number two factors
+the other way round: oblimin's m5f2 matches varimax's m5f3, and oblimin's m5f3
+matches varimax's m5f2. The smallest congruence is .94, for oblimin's m5f3.
+That is far above the next value in its row (.31). But it is just under .95,
+the value that `prune()` uses by default on EFA fits when it judges two
+factors redundant. So read this pair as a close match, not as one factor.
 
 **Primary parents.** The next table translates the oblimin primary edges into
 varimax IDs and joins them to the varimax primary edges. The columns `from`
@@ -565,11 +575,12 @@ anyNA(tree)
 Every varimax primary edge has an oblimin edge between the matched factors,
 and no row is left without a partner. After the match, the two fits draw the
 same primary-parent tree. Under oblimin, `beta` is a regression weight and not
-a correlation, so it can pass 1, as it does for m3f1 → m4f1 (1.02).
+a correlation, so it can pass 1. It does for m3f1 → m4f1 (1.02), and for
+m2f2 → m3f2 (1.002), which the table rounds to 1.00.
 
 **Secondary edges.** A secondary edge is any edge that is not a primary edge.
 The function below lists the secondary edges that reach the display cutoff
-(`above_cut`, set by `cut_show = 0.3`).
+(`above_cut`, at the default `cut_show` of 0.3).
 
 ```{r rotation-secondary, eval = has_gpa}
 above_cut_secondary <- function(x) {
@@ -587,7 +598,10 @@ Holding the other factors at the `from` level constant leaves almost no weight
 on these two edges. The primary parent of m4f3 is m3f3, which correlates .33
 with m3f1. In oblimin IDs, the primary parent of m5f2 is m4f3, which
 correlates .30 with m4f1.
-The third edge, m4f3 → m5f4, keeps a `beta` of .16.
+The third edge, m4f3 → m5f4, keeps a `beta` of .16. The primary parent of
+m5f4 is m4f1, which correlates .30 with m4f3. Holding m4f1 and the other
+level-4 factors constant cuts this edge from .34 to .16. Part of the edge is
+shared with those factors, and part is not.
 
 **Diagrams.** The two figures draw each fit with `autoplot()`. The oblimin
 diagram shows the three secondary edges, and the varimax diagram shows none.
@@ -601,7 +615,9 @@ autoplot(x_var)
 autoplot(x_obl)
 ```
 
-How to decide: if your question is the hierarchy, meaning what splits into
+### How to decide
+
+If your question is the hierarchy, meaning what splits into
 what and how strongly, keep varimax. If your question is the structure of a
 single level on its own terms, an oblique fit answers it. Read its edges as
 total correlations, and use `beta` for claims about a factor's unique lineage.

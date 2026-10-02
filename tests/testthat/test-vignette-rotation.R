@@ -23,7 +23,8 @@
 }
 
 # Match each oblimin factor to the varimax factor with the largest absolute
-# Tucker congruence of loadings, level by level (the vignette's matches table).
+# Tucker congruence of loadings, level by level, keeping the sign (the
+# vignette's matches table).
 .rot_matches <- function(x_var, x_obl) {
   do.call(rbind, lapply(1:5, function(k) {
     cong <- psych::factor.congruence(
@@ -35,7 +36,7 @@
       level = k,
       oblimin = rownames(cong),
       varimax = colnames(cong)[best],
-      congruence = abs(cong[cbind(seq_along(best), best)])
+      congruence = cong[cbind(seq_along(best), best)]
     )
   }))
 }
@@ -66,6 +67,8 @@ test_that("rotation section (2): one-to-one match, smallest congruence .94, only
   # One-to-one within every level.
   expect_false(anyDuplicated(m$varimax) > 0L)
   expect_identical(nrow(m), 15L)
+  # Every matched congruence is positive: no factor is flipped.
+  expect_true(all(m$congruence > 0))
   # Same IDs everywhere except m5f2 and m5f3, which trade places.
   swapped <- m[m$oblimin != m$varimax, c("oblimin", "varimax")]
   expect_identical(swapped$oblimin, c("m5f2", "m5f3"))
@@ -92,6 +95,14 @@ test_that("rotation section (3): after the match, the primary-parent trees are e
   # The raw oblimin edges differ only where level 5 swaps IDs.
   raw_only <- setdiff(key(p_obl), key(p_var))
   expect_identical(raw_only, c("m4f1->m5f3", "m4f3->m5f2"))
+  # The two oblimin primary edges whose beta passes 1, as the prose states.
+  p_beta <- tidy(fits$obl, primary_only = TRUE)
+  over_one <- p_beta[p_beta$beta > 1, ]
+  expect_identical(
+    paste(over_one$from, over_one$to, sep = "->"),
+    c("m2f2->m3f2", "m3f1->m4f1")
+  )
+  expect_identical(round(over_one$beta, 3), c(1.002, 1.015))
 })
 
 test_that("rotation section (4): above-cut secondary edges, none for varimax, three for oblimin", {
@@ -107,8 +118,9 @@ test_that("rotation section (4): above-cut secondary edges, none for varimax, th
   # Every beta is positive and smaller than its r.
   expect_true(all(s$beta > 0 & s$beta < s$r))
   beta <- stats::setNames(s$beta, paste(s$from, s$to, sep = "->"))
-  # Pinned at the precision the prose states them.
+  # Pinned at the precision the prose states them. The middle value (0.00147)
+  # sits near a rounding boundary, so it is pinned by an absolute tolerance.
   expect_identical(round(beta[["m3f1->m4f3"]], 3), 0.016)
-  expect_identical(signif(beta[["m4f1->m5f2"]], 2), 0.0015)
+  expect_lt(abs(beta[["m4f1->m5f2"]] - 0.0015), 1e-4)
   expect_identical(round(beta[["m4f3->m5f4"]], 2), 0.16)
 })
