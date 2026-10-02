@@ -585,14 +585,15 @@ from .30 to .34, and all three `beta` values are positive. For two of them,
 `beta` is close to zero: .016 for m3f1 → m4f3 and .0015 for m4f1 → m5f2.
 Holding the other factors at the `from` level constant leaves almost no weight
 on these two edges. The primary parent of m4f3 is m3f3, which correlates .33
-with m3f1. The primary parent of m5f2 is m4f3, which correlates .30 with m4f1.
+with m3f1. In oblimin IDs, the primary parent of m5f2 is m4f3, which
+correlates .30 with m4f1.
 The third edge, m4f3 → m5f4, keeps a `beta` of .16.
 
 **Diagrams.** The two figures draw each fit with `autoplot()`. The oblimin
 diagram shows the three secondary edges, and the varimax diagram shows none.
 The two diagrams also place some factors in a different order within a row.
 
-```{r rotation-plot-varimax, eval = has_gpa && requireNamespace("ggplot2", quietly = TRUE), fig.width = 8, fig.height = 5, warning = FALSE, fig.cap = "EFA with varimax rotation.", fig.alt = "Five-level hierarchy diagram of the varimax EFA fit. Each factor has one arrow from its primary parent, and no other arrow is drawn."}
+```{r rotation-plot-varimax, eval = has_gpa && requireNamespace("ggplot2", quietly = TRUE), fig.width = 8, fig.height = 5, warning = FALSE, fig.cap = "EFA with varimax rotation.", fig.alt = "Five-level hierarchy diagram of the varimax EFA fit. Each factor below the top level has one arrow from its primary parent, and no other arrow is drawn."}
 autoplot(x_var)
 ```
 

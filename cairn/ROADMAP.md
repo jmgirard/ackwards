@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M96 | Varimax and oblimin side by side on bfi25 in the engines vignette | in-progress | — | normal | milestones/M96-rotation-comparison.md |
+| M96 | Varimax and oblimin side by side on bfi25 in the engines vignette | review | — | normal | milestones/M96-rotation-comparison.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 | M95 | Edge wording sweep across shipped docs and DESIGN §5 | done | — | normal | milestones/archive/M95-edge-wording-sweep.md |
 | M94 | Manuscript accuracy pass for four older claims | done | M93 | normal | milestones/archive/M94-manuscript-accuracy-pass.md |

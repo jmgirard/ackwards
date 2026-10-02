@@ -1,6 +1,6 @@
 # M96: Varimax and oblimin side by side on bfi25 in the engines vignette
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -78,6 +78,9 @@ The implement phase re-derives these facts. The prose is written from that run, 
 - 2026-10-01: T2 done. The section now has six chunks for AC2 (a) to (e) and moves "How to decide" to the end. The prose was read against the rendered output. Added a note that `beta` can pass 1 (1.02 for m3f1 to m4f1) and a note that the two diagrams order some nodes differently. Both figures have captions and alt text. `check-prose.R` is clean.
 - 2026-10-01: T3 done. Precompute ran clean. Churn in the girard, intro, suggest-k, and visualization vignettes and three assets was reverted. The engines `.Rmd` was rebuilt by a scratch script from master's file with the new stamp line and the freshly knitted section spliced in, because gt tables outside the section changed every element ID. The freshness check passes. The diff has 3 hunks (the stamp and two inside the section) and 0 timing, 0 U+FE0E, and 0 `div id=` lines.
 - 2026-10-01: T4 done. Added the NEWS entry. `tools/dod-gate.R` exited 0: check had 0 errors, 0 warnings, and 0 notes. Coverage was 100%. Style, lint, prose, and the pkgdown index were clean.
+- 2026-10-01: claim audit: 50 claims read, 4 corrected — vignettes/ackwards-engines.Rmd.orig, tests/testthat/test-vignette-rotation.R, NEWS.md
+- 2026-10-01: The audit fixes were the varimax alt text (the top factor has no parent), two test comments, and the NEWS phrase "No code or result changed". It also gave an optional "In oblimin IDs" note. Its two test gaps were closed: test 1 now pins the top-three order, and test 4 pins both small `beta` values. The same reader re-read all eight items once and cleared them.
+- 2026-10-01: After the fixes, precompute and the splice ran again. The diff kept 3 hunks and 0 noise lines. The plant still fails all 4 tests. The suite passed 3606 with 0 failures. `tools/dod-gate.R` exited 0 again. Status set to review.
 
 ## Decisions
 

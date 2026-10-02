@@ -7,7 +7,8 @@
   factor to a varimax factor by Tucker's congruence of loadings and shows
   that the two primary-parent trees are the same after the match. It lists
   the secondary edges that reach the display cutoff under oblimin, with `r`
-  beside `beta`, and draws both diagrams. No code or result changed.
+  beside `beta`, and draws both diagrams. No package function or its output
+  changed.
 
 * **Edge wording across the documentation.** More of the documentation now
   says that each between-level edge is implied by the correlation matrix the

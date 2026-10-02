@@ -1,6 +1,6 @@
 # Guard tests for the "Orthogonal or oblique rotation" section of
 # ackwards-engines.Rmd: EFA with varimax and with oblimin on the polychoric
-# basis of na.omit(bfi25), k_max = 5. Each test pins one finding the section's
+# basis of na.omit(bfi25), k_max = 5. Each test pins findings that the section's
 # prose states. The helpers below repeat the section's chunk code.
 
 .bfi_rot <- na.omit(bfi25)
@@ -49,12 +49,15 @@
 test_that("rotation section (1): the largest oblimin factor correlation is m5f3-m5f4 at .34", {
   fits <- .rot_fits()
   fc <- tidy(fits$obl, what = "factor_cor")
-  top <- fc[which.max(abs(fc$cor)), ]
-  expect_identical(c(top$level, top$factor_a, top$factor_b), c("5", "m5f3", "m5f4"))
-  expect_identical(round(top$cor, 2), 0.34)
-  # Two sibling correlations the prose cites for the secondary edges.
-  expect_identical(round(fc$cor[fc$factor_a == "m3f1" & fc$factor_b == "m3f3"], 2), 0.33)
-  expect_identical(round(fc$cor[fc$factor_a == "m4f1" & fc$factor_b == "m4f3"], 2), 0.30)
+  fc <- fc[order(-abs(fc$cor)), ]
+  # The three largest, in order: the prose names the first and calls the
+  # other two "the next two", citing them for the secondary edges.
+  expect_identical(
+    paste(fc$factor_a, fc$factor_b, sep = "-")[1:3],
+    c("m5f3-m5f4", "m3f1-m3f3", "m4f1-m4f3")
+  )
+  expect_identical(fc$level[1], 5L)
+  expect_identical(round(fc$cor[1:3], 2), c(0.34, 0.33, 0.30))
 })
 
 test_that("rotation section (2): one-to-one match, smallest congruence .94, only level 5 swaps IDs", {
@@ -67,7 +70,8 @@ test_that("rotation section (2): one-to-one match, smallest congruence .94, only
   swapped <- m[m$oblimin != m$varimax, c("oblimin", "varimax")]
   expect_identical(swapped$oblimin, c("m5f2", "m5f3"))
   expect_identical(swapped$varimax, c("m5f3", "m5f2"))
-  # Smallest congruence per level, rounded as the prose states it.
+  # Smallest congruence per level (levels 2 to 5). The prose states the
+  # level-5 value, .94.
   min_by_level <- as.vector(tapply(m$congruence, m$level, min))
   expect_identical(round(min_by_level[2:5], 2), c(0.99, 0.98, 0.98, 0.94))
   expect_true(m$oblimin[which.min(m$congruence)] %in% c("m5f2", "m5f3"))
@@ -103,7 +107,8 @@ test_that("rotation section (4): above-cut secondary edges, none for varimax, th
   # Every beta is positive and smaller than its r.
   expect_true(all(s$beta > 0 & s$beta < s$r))
   beta <- stats::setNames(s$beta, paste(s$from, s$to, sep = "->"))
-  expect_lt(beta[["m3f1->m4f3"]], 0.02)
-  expect_lt(beta[["m4f1->m5f2"]], 0.002)
+  # Pinned at the precision the prose states them.
+  expect_identical(round(beta[["m3f1->m4f3"]], 3), 0.016)
+  expect_identical(signif(beta[["m4f1->m5f2"]], 2), 0.0015)
   expect_identical(round(beta[["m4f3->m5f4"]], 2), 0.16)
 })
