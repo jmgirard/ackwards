@@ -67,8 +67,8 @@ different matrix in two settings. With \code{cor = "spearman"} and
 \code{missing = "pairwise"} or \code{"listwise"}, \code{x$r} is a Spearman matrix, but
 lavaan fits Pearson covariances of the raw data. With \code{cor = "pearson"} and
 \code{missing = "pairwise"} on data with missing values, \code{x$r} holds pairwise
-correlations. There, ML and MLR fit the complete rows, and WLSMV fits the
-pairwise covariances. The correlations of those covariances differ slightly
+correlations. There, ML, MLR, and ULSMV fit the complete rows, and WLSMV
+fits the pairwise covariances. The correlations of those covariances differ slightly
 from \code{x$r}, because each item's variance uses all of its observed rows. The
 split-half comparability check passes a pooled \code{R} in place of \code{x$r}.
 

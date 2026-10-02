@@ -77,13 +77,14 @@ effective value (after auto-selection) is recorded in \code{x$meta$estimator}
 \itemize{
 \item \code{"pairwise"} (the default) uses all available observations pairwise.
 For PCA and EFA this feeds \code{stats::cor(use = "pairwise.complete.obs")}.
-For ESEM with WLSMV or ULSMV (ordinal), lavaan uses \code{available.cases},
-which computes polychoric thresholds and correlations from all rows that
-contribute to each pair. That is valid under MCAR and uses the full N.
-For ESEM with ML or MLR (continuous), lavaan uses listwise deletion
-internally while edges are computed from a pairwise correlation matrix.
-This small inconsistency is documented in \verb{$meta}. A warning is emitted
-when incomplete rows are detected.
+For ESEM with WLSMV, and with ULSMV on \code{cor = "polychoric"}, lavaan
+uses \code{available.cases}, which computes its sample statistics from all
+rows that contribute to each pair. That is valid under MCAR and uses
+the full N. For ESEM with ML, MLR, or ULSMV on a continuous \code{cor},
+lavaan fits the complete rows, while edges are computed from a pairwise
+correlation matrix. The fields \verb{$meta$missing} and \verb{$meta$n_complete}
+record the setting and the number of complete rows. A warning is emitted when
+incomplete rows are detected.
 \item \code{"listwise"} uses only complete rows. It reduces the data to
 \code{stats::complete.cases()} before fitting, so the correlation matrix,
 the engine fit, and the edges all use the same rows. Under
@@ -226,10 +227,10 @@ in two settings. With \code{cor = "spearman"} and \code{missing = "pairwise"} or
 \code{"listwise"}, \code{x$r} is a Spearman matrix, but lavaan fits Pearson
 covariances of the raw data. With \code{cor = "pearson"} and
 \code{missing = "pairwise"} on data with missing values, \code{x$r} holds pairwise
-correlations. There, the ML and MLR estimators fit the complete rows, and
-WLSMV fits the pairwise covariances. The correlations of those covariances
-differ slightly from \code{x$r}, because each item's variance uses all of its
-observed rows. The "hierarchy" is descriptive: edges are score
+correlations. There, the ML, MLR, and ULSMV estimators fit the complete
+rows, and WLSMV fits the pairwise covariances. The correlations of those
+covariances differ slightly from \code{x$r}, because each item's variance uses
+all of its observed rows. The "hierarchy" is descriptive: edges are score
 correlations, not a fitted higher-order SEM.
 }
 \section{Defaults and why}{

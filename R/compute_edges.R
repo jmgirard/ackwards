@@ -18,8 +18,8 @@
 #' `missing = "pairwise"` or `"listwise"`, `x$r` is a Spearman matrix, but
 #' lavaan fits Pearson covariances of the raw data. With `cor = "pearson"` and
 #' `missing = "pairwise"` on data with missing values, `x$r` holds pairwise
-#' correlations. There, ML and MLR fit the complete rows, and WLSMV fits the
-#' pairwise covariances. The correlations of those covariances differ slightly
+#' correlations. There, ML, MLR, and ULSMV fit the complete rows, and WLSMV
+#' fits the pairwise covariances. The correlations of those covariances differ slightly
 #' from `x$r`, because each item's variance uses all of its observed rows. The
 #' split-half comparability check passes a pooled `R` in place of `x$r`.
 #'
