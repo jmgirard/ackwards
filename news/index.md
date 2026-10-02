@@ -2,6 +2,20 @@
 
 ## ackwards (development version)
 
+- **ESEM with ULSMV on continuous items now fits under the default
+  `missing = "pairwise"`.** Before this fix,
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  stopped at level 1 with a lavaan error, complete data included. lavaan
+  0.7.2 `efa()` fails for ULSMV on continuous items when it uses all
+  available cases. That setting now fits the complete rows, as ML and
+  MLR do, and the edges still come from the pairwise correlation matrix.
+  ULSMV on `cor = "polychoric"` and WLSMV are unchanged. The help for
+  `missing` in
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  now says which estimators use all available cases. It no longer calls
+  WLSMV and ULSMV ordinal-only, and it names the `$meta` fields that
+  record the setting.
+
 - **Which matrix an edge is exact for, in the
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
   help.** The help now says that each edge is exact for the correlation

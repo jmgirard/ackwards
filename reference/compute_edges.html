@@ -148,8 +148,8 @@ different matrix in two settings. With <code>cor = "spearman"</code> and
 <code>missing = "pairwise"</code> or <code>"listwise"</code>, <code>x$r</code> is a Spearman matrix, but
 lavaan fits Pearson covariances of the raw data. With <code>cor = "pearson"</code> and
 <code>missing = "pairwise"</code> on data with missing values, <code>x$r</code> holds pairwise
-correlations. There, ML and MLR fit the complete rows, and WLSMV fits the
-pairwise covariances. The correlations of those covariances differ slightly
+correlations. There, ML, MLR, and ULSMV fit the complete rows, and WLSMV
+fits the pairwise covariances. The correlations of those covariances differ slightly
 from <code>x$r</code>, because each item's variance uses all of its observed rows. The
 split-half comparability check passes a pooled <code>R</code> in place of <code>x$r</code>.</p>
 <p>A pair goes to the scores branch when <code>edge_method = "scores"</code>, or when

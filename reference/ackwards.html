@@ -10,10 +10,10 @@ in two settings. With cor = &quot;spearman&quot; and missing = &quot;pairwise&qu
 &quot;listwise&quot;, x$r is a Spearman matrix, but lavaan fits Pearson
 covariances of the raw data. With cor = &quot;pearson&quot; and
 missing = &quot;pairwise&quot; on data with missing values, x$r holds pairwise
-correlations. There, the ML and MLR estimators fit the complete rows, and
-WLSMV fits the pairwise covariances. The correlations of those covariances
-differ slightly from x$r, because each item's variance uses all of its
-observed rows. The &quot;hierarchy&quot; is descriptive: edges are score
+correlations. There, the ML, MLR, and ULSMV estimators fit the complete
+rows, and WLSMV fits the pairwise covariances. The correlations of those
+covariances differ slightly from x$r, because each item's variance uses
+all of its observed rows. The &quot;hierarchy&quot; is descriptive: edges are score
 correlations, not a fitted higher-order SEM."><meta property="og:description" content="Extracts factor or component solutions at levels 1 through k. A factor
 (or component) is a summary variable that stands in for a group of items
 that move together. It then characterises the hierarchy by computing the
@@ -25,10 +25,10 @@ in two settings. With cor = &quot;spearman&quot; and missing = &quot;pairwise&qu
 &quot;listwise&quot;, x$r is a Spearman matrix, but lavaan fits Pearson
 covariances of the raw data. With cor = &quot;pearson&quot; and
 missing = &quot;pairwise&quot; on data with missing values, x$r holds pairwise
-correlations. There, the ML and MLR estimators fit the complete rows, and
-WLSMV fits the pairwise covariances. The correlations of those covariances
-differ slightly from x$r, because each item's variance uses all of its
-observed rows. The &quot;hierarchy&quot; is descriptive: edges are score
+correlations. There, the ML, MLR, and ULSMV estimators fit the complete
+rows, and WLSMV fits the pairwise covariances. The correlations of those
+covariances differ slightly from x$r, because each item's variance uses
+all of its observed rows. The &quot;hierarchy&quot; is descriptive: edges are score
 correlations, not a fitted higher-order SEM."><meta property="og:image" content="https://jmgirard.github.io/ackwards/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
@@ -98,10 +98,10 @@ in two settings. With <code>cor = "spearman"</code> and <code>missing = "pairwis
 <code>"listwise"</code>, <code>x$r</code> is a Spearman matrix, but lavaan fits Pearson
 covariances of the raw data. With <code>cor = "pearson"</code> and
 <code>missing = "pairwise"</code> on data with missing values, <code>x$r</code> holds pairwise
-correlations. There, the ML and MLR estimators fit the complete rows, and
-WLSMV fits the pairwise covariances. The correlations of those covariances
-differ slightly from <code>x$r</code>, because each item's variance uses all of its
-observed rows. The "hierarchy" is descriptive: edges are score
+correlations. There, the ML, MLR, and ULSMV estimators fit the complete
+rows, and WLSMV fits the pairwise covariances. The correlations of those
+covariances differ slightly from <code>x$r</code>, because each item's variance uses
+all of its observed rows. The "hierarchy" is descriptive: edges are score
 correlations, not a fitted higher-order SEM.</p>
     </div>
 
@@ -195,13 +195,14 @@ effective value (after auto-selection) is recorded in <code>x$meta$estimator</co
 <dt id="arg-missing">missing<a class="anchor" aria-label="anchor" href="#arg-missing"></a></dt>
 <dd><p>How to handle missing item responses. One of:</p><ul><li><p><code>"pairwise"</code> (the default) uses all available observations pairwise.
 For PCA and EFA this feeds <code>stats::cor(use = "pairwise.complete.obs")</code>.
-For ESEM with WLSMV or ULSMV (ordinal), lavaan uses <code>available.cases</code>,
-which computes polychoric thresholds and correlations from all rows that
-contribute to each pair. That is valid under MCAR and uses the full N.
-For ESEM with ML or MLR (continuous), lavaan uses listwise deletion
-internally while edges are computed from a pairwise correlation matrix.
-This small inconsistency is documented in <code>$meta</code>. A warning is emitted
-when incomplete rows are detected.</p></li>
+For ESEM with WLSMV, and with ULSMV on <code>cor = "polychoric"</code>, lavaan
+uses <code>available.cases</code>, which computes its sample statistics from all
+rows that contribute to each pair. That is valid under MCAR and uses
+the full N. For ESEM with ML, MLR, or ULSMV on a continuous <code>cor</code>,
+lavaan fits the complete rows, while edges are computed from a pairwise
+correlation matrix. The fields <code>$meta$missing</code> and <code>$meta$n_complete</code>
+record the setting and the number of complete rows. A warning is emitted when
+incomplete rows are detected.</p></li>
 <li><p><code>"listwise"</code> uses only complete rows. It reduces the data to
 <code><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">stats::complete.cases()</a></code> before fitting, so the correlation matrix,
 the engine fit, and the edges all use the same rows. Under
