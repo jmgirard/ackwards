@@ -584,7 +584,7 @@ test_that("ESEM warns on improper solution (Heywood case) but still builds", {
 
 test_that("cor = 'spearman' with engine = 'esem' warns about inconsistent bases", {
   skip_if_not_installed("lavaan")
-  withr::local_options(rlib_warning_verbosity = "verbose")
+  rlang::local_options(rlib_warning_verbosity = "verbose")
   d <- .make_esem_data()
   expect_warning(
     suppressMessages(ackwards(d, k_max = 2, engine = "esem", cor = "spearman")),
@@ -595,7 +595,7 @@ test_that("cor = 'spearman' with engine = 'esem' warns about inconsistent bases"
 test_that("the esem + spearman warning does not call a WLSMV fit Pearson-ML", {
   skip_if_not_installed("lavaan")
   # The warning fires once per session; force it so test order cannot hide it.
-  withr::local_options(rlib_warning_verbosity = "verbose")
+  rlang::local_options(rlib_warning_verbosity = "verbose")
   d <- .make_esem_data()
   w <- NULL
   withCallingHandlers(
