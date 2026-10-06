@@ -70,7 +70,7 @@ hierarchy at a level where every start failed.
       before one where every start failed. A NEWS.md bullet under the development version says
       the same and names varimax as newly covered. DESIGN §4 states the keep and truncate rule
       and that `<N>` is lavaan's `rstarts`.
-- [ ] AC6: `Rscript tools/dod-gate.R` exits 0.
+- [x] AC6: `Rscript tools/dod-gate.R` exits 0.
 
 ## Coverage
 
@@ -133,3 +133,5 @@ hierarchy at a level where every start failed.
 - AC3: fresh run of "a level where every rotation start fails ends the hierarchy": 24 expectations, 0 failed, over varimax, oblimin, and geomin on ML (sim16) and varimax on WLSMV (bfi25, polychoric). Each asserts the estimator, `names(x$levels)` = c("1", "2"), one warning containing "rotation did not converge at k = 3", "<N> of <N> starts did not converge", and "the kept rotation did not converge". The test reads N from the level 2 fit's options because level 3 is dropped. The code reads the warning's N from the level 3 fit (`.esem_rotation_starts(fit)` in `.esem_fit_one()`), with the same options. The M90 test is gone from test-oblique-branches.R. Against master this test failed 20 of 24. PASS.
 - AC4: fresh run of "default varimax fits whose rotation converges raise no rotation warning" (the two named fits): 3 expectations, 0 failed. It asserts no "random starts", "rotation algorithm", or "did not converge" text. test-baseline-m89.R: 5 tests, 0 failed (esem_sim16 21 of 21). `git diff --quiet master -- tests/testthat/fixtures/baseline-m89.rds` reports no change. PASS.
 - AC5: read at HEAD. The `rotation` help (R/ackwards.R, "ESEM counts the failed starts under every lavaan rotation, varimax included") states the keep and truncate rule. The NEWS.md first development bullet states the same rule and says varimax ESEM showed no rotation warning before. The DESIGN §4 "ESEM rotation starts" paragraph states the rule and that N is `rotation.args$rstarts`. PASS.
+- AC6: fresh `Rscript tools/dod-gate.R` at HEAD dc0541e exited 0: vignette freshness clean, check 0 errors, 0 warnings, 0 notes, coverage 100%, styler and lintr clean, pkgdown index complete. PASS.
+- consistency gate: `cairn_validate.py` exit 0 (16 work-log WARNs, all in M84's file). No principle text changed, so `cairn_impact` is skipped. `devtools::document()` (run by the gate) left `man/` and NAMESPACE with no diff. README untouched. pkgdown index complete. NEWS entry present. check clean.
