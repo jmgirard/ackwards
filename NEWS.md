@@ -8,8 +8,8 @@
   warning gives the count of starts that did not converge (for example,
   "3 of 30"), and the level is kept. If no start converged, the kept
   rotation did not converge either, so the hierarchy ends at the level
-  before it with a warning. Fits whose rotation converges give the same
-  output as before.
+  before it with a warning. Fits where at least one start converges keep
+  the same levels and values as before.
 
 * **ESEM with `cor = "spearman"` and `missing = "fiml"` now stops with an
   error.** Before this fix, the fit ran, but `x$r` held lavaan's Pearson FIML

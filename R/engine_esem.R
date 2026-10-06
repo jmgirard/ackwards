@@ -385,9 +385,9 @@
     )
   )
 
-  # Some but not all starts failed (rot_failed > 0, counted above): the kept
-  # start may have converged, so the caller reports the count and keeps the
-  # level.
+  # If some but not all starts failed (0 < rot_failed < rot_starts, counted
+  # above), the kept start may have converged, so the caller reports the count
+  # and keeps the level.
   list(
     status       = "ok",
     k            = k,
@@ -403,8 +403,8 @@
 
 # The number of random starts lavaan rotated one level from: rotation.args$rstarts
 # from the fit's options, and 1 when it is 0 (one start, from the identity). A
-# value that cannot be read also counts as one start, so that a rotation
-# failure there ends the hierarchy rather than being kept unseen.
+# value that cannot be read also counts as one start, so that any failed start
+# there ends the hierarchy.
 .esem_rotation_starts <- function(fit) {
   rstarts <- tryCatch(
     lavaan::lavInspect(fit, "options")$rotation.args$rstarts,
@@ -537,7 +537,7 @@ esem_levels <- function(data, k_max, estimator, cor,
       if (!is.null(res$rot_starts)) {
         cli::cli_warn(c(
           "!" = "lavaan's rotation did not converge at k = {k}: \\
-                 {res$rot_failed} of {res$rot_starts} random starts did not \\
+                 {res$rot_failed} of {res$rot_starts} starts did not \\
                  converge, so the kept rotation did not converge.",
           "i" = "Truncating hierarchy at level {k - 1L}."
         ))

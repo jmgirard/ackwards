@@ -343,4 +343,3 @@ test_that(".esem_rotation_args() turns lavaan's rotation warnings on for every r
     list(rotation = "geomin", rotation.args = list(warn = TRUE))
   )
 })
-

@@ -1,6 +1,6 @@
 # M098: Counted lavaan rotation failures on every ESEM rotation
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
@@ -105,7 +105,7 @@ hierarchy at a level where every start failed.
       paragraph (`R/ackwards.R:161`) and make it agree. Run `devtools::document()`, and add the
       NEWS.md bullet and the DESIGN §4 line. Run `Rscript tools/check-prose.R` on each edited
       doc file.
-- [ ] T6: Run `Rscript tools/dod-gate.R`.
+- [x] T6: Run `Rscript tools/dod-gate.R`.
 
 ## Work log
 
@@ -120,6 +120,9 @@ hierarchy at a level where every start failed.
 - 2026-10-06: T2-T4 done. `.esem_rotation_starts()` reads rstarts and treats 0 or an unreadable value as one start, so an unreadable total truncates loudly rather than hiding a failure. The kept-level warning drops lavaan's raw text for the count and says the kept start can be one that did not converge. The model non-convergence branch keeps its `# nocov`, and the rotation branch beside it is now covered.
 - 2026-10-06: tests for AC2-AC4 live in the new `tests/testthat/test-esem-rotation-starts.R`, and `.warnings_of()` moved to `helper-data.R` so both files share it. Each loop iteration scopes its plant with `local()`, because a second plant in one test otherwise wraps the first mock. Against master's engine the partial and all-fail tests fail 5/12 and 20/24 expectations. Full suite: 820 tests, 0 failed, 2 skipped (pre-existing On Mac skips).
 - 2026-10-06: T5 done. The `rotation` help splits the ESEM rule into its own paragraph and scopes the PCA and EFA sentences to oblique rotation, as before. The `seed` paragraph already says every lavaan rotation starts at random, so it needed no edit. NEWS bullet and DESIGN §4 paragraph added. check-prose clean on R/ackwards.R and NEWS.md.
+- 2026-10-06: claim audit: 28 claims read, 5 corrected — NEWS.md, R/engine_esem.R, tests/testthat/test-esem-rotation-starts.R
+- 2026-10-06: claim-audit fixes: NEWS now says fits where at least one start converges keep the same levels and values; the truncation warning drops "random" so it holds for rstarts = 0; two code comments and one test name made exact; the AC4 test also asserts no "did not converge" warning. The same reader's one re-read found all five hold.
+- 2026-10-06: T6 done. `Rscript tools/dod-gate.R` exit 0: vignette freshness clean, check 0 errors, 0 warnings, 0 notes, coverage 100%, styler and lintr clean, pkgdown index complete. The first gate run failed only on a styler trailing-blank-line fix in test-oblique-branches.R. Status set to review.
 
 ## Decisions
 

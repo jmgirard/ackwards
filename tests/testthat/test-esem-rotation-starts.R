@@ -93,7 +93,7 @@ test_that("esem: a level where every rotation start fails ends the hierarchy", {
       n_starts <- .rstarts_of(x, 2)
       hit <- grep("rotation did not converge at k = 3", w, fixed = TRUE, value = TRUE)
       expect_length(hit, 1L)
-      expect_match(hit, sprintf("%d of %d random starts did not converge", n_starts, n_starts), fixed = TRUE)
+      expect_match(hit, sprintf("%d of %d starts did not converge", n_starts, n_starts), fixed = TRUE)
       expect_match(hit, "the kept rotation did not converge", fixed = TRUE)
       expect_match(hit, "Truncating hierarchy at level 2.", fixed = TRUE)
     })
@@ -108,9 +108,10 @@ test_that("esem: default varimax fits whose rotation converges raise no rotation
   )
   expect_false(any(grepl("random starts", w, fixed = TRUE)))
   expect_false(any(grepl("rotation algorithm", w, fixed = TRUE)))
+  expect_false(any(grepl("did not converge", w, fixed = TRUE)))
 })
 
-test_that(".esem_rotation_starts() reads rstarts and counts one start as at least one", {
+test_that(".esem_rotation_starts() reads rstarts and counts rstarts = 0 as one start", {
   skip_if_not_installed("lavaan")
   local_mocked_bindings(lavInspect = function(object, what) object, .package = "lavaan")
   expect_identical(.esem_rotation_starts(list(rotation.args = list(rstarts = 30L))), 30L)
