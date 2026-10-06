@@ -123,6 +123,8 @@ hierarchy at a level where every start failed.
 - 2026-10-06: claim audit: 28 claims read, 5 corrected — NEWS.md, R/engine_esem.R, tests/testthat/test-esem-rotation-starts.R
 - 2026-10-06: claim-audit fixes: NEWS now says fits where at least one start converges keep the same levels and values; the truncation warning drops "random" so it holds for rstarts = 0; two code comments and one test name made exact; the AC4 test also asserts no "did not converge" warning. The same reader's one re-read found all five hold.
 - 2026-10-06: T6 done. `Rscript tools/dod-gate.R` exit 0: vignette freshness clean, check 0 errors, 0 warnings, 0 notes, coverage 100%, styler and lintr clean, pkgdown index complete. The first gate run failed only on a styler trailing-blank-line fix in test-oblique-branches.R. Status set to review.
+- 2026-10-06: step-7 approval: m098-esem-rotation-start-count approved for merge
+- 2026-10-06: merging on local green under the CLAUDE.md standing CI override for non-release milestones (no CI watch).
 
 ## Decisions
 
