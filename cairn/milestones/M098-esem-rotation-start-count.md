@@ -101,7 +101,7 @@ hierarchy at a level where every start failed.
       the M90 test (`tests/testthat/test-oblique-branches.R:351`), pin `.esem_rotation_args()`
       to the real `lavaan::efa` formals and run `.esem_lapply` as serial `lapply` in every
       plant. The AC3 plants replace the M90 test.
-- [ ] T5: Edit the `rotation` paragraph of `?ackwards` (`R/ackwards.R:208`). Read the `seed`
+- [x] T5: Edit the `rotation` paragraph of `?ackwards` (`R/ackwards.R:208`). Read the `seed`
       paragraph (`R/ackwards.R:161`) and make it agree. Run `devtools::document()`, and add the
       NEWS.md bullet and the DESIGN §4 line. Run `Rscript tools/check-prose.R` on each edited
       doc file.
@@ -119,6 +119,7 @@ hierarchy at a level where every start failed.
 - 2026-10-06: T1 (lavaan 0.7.2, max_iter = 2 at k = 3): varimax, oblimin, and geomin each gave 30 of 30 warnings under ML, MLR, ULSMV (sim16) and WLSMV, ULSMV (bfi25 ordered); lavInspect converged stayed TRUE; rstarts = 0 gave 1. No doubling, so the counting rule stands.
 - 2026-10-06: T2-T4 done. `.esem_rotation_starts()` reads rstarts and treats 0 or an unreadable value as one start, so an unreadable total truncates loudly rather than hiding a failure. The kept-level warning drops lavaan's raw text for the count and says the kept start can be one that did not converge. The model non-convergence branch keeps its `# nocov`, and the rotation branch beside it is now covered.
 - 2026-10-06: tests for AC2-AC4 live in the new `tests/testthat/test-esem-rotation-starts.R`, and `.warnings_of()` moved to `helper-data.R` so both files share it. Each loop iteration scopes its plant with `local()`, because a second plant in one test otherwise wraps the first mock. Against master's engine the partial and all-fail tests fail 5/12 and 20/24 expectations. Full suite: 820 tests, 0 failed, 2 skipped (pre-existing On Mac skips).
+- 2026-10-06: T5 done. The `rotation` help splits the ESEM rule into its own paragraph and scopes the PCA and EFA sentences to oblique rotation, as before. The `seed` paragraph already says every lavaan rotation starts at random, so it needed no edit. NEWS bullet and DESIGN §4 paragraph added. check-prose clean on R/ackwards.R and NEWS.md.
 
 ## Decisions
 

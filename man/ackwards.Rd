@@ -198,16 +198,23 @@ were set for varimax. Two kinds of rotation start at random: psych's
 oblimin for \code{engine = "efa"} and every lavaan rotation. Set \code{seed} to
 reproduce such a fit exactly (see \code{seed}).
 
-An oblique rotation that fails is handled by how many starts it uses.
-PCA rotates once, so a level whose rotation fails to converge, or that
-psych replaces with promax, ends the hierarchy at the level before it
-with a warning. So does a PCA level whose oblique fit raises an error.
-EFA (psych's \code{fa()} defaults to several starts) and ESEM rotate from
-several random starts and keep the best one, so a non-convergence
+A rotation that fails is handled by how many starts it uses. PCA
+rotates once, so a level whose oblique rotation fails to converge, or
+that psych replaces with promax, ends the hierarchy at the level before
+it with a warning. So does a PCA level whose oblique fit raises an
+error. EFA (psych's \code{fa()} defaults to several starts) rotates from
+several random starts and keeps the best one, so an oblique rotation
 warning there can come from a discarded start. It is shown, and the
 level is kept. An EFA level whose final rotation step failed still ends
 the hierarchy, and so does any EFA rotation warning when the installed
-psych's \code{fa()} rotates from one start.}
+psych's \code{fa()} rotates from one start.
+
+ESEM counts the failed starts under every lavaan rotation, varimax
+included. lavaan rotates each level from 30 random starts by default
+and keeps the best one. If some starts did not converge, a warning
+gives the count (for example, "3 of 30"), and the level is kept. If no
+start converged, the kept rotation did not converge either, so the
+hierarchy ends at the level before it with a warning.}
 
 \item{...}{Reserved for future arguments.}
 }

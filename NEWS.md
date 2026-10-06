@@ -1,5 +1,16 @@
 # ackwards (development version)
 
+* **ESEM now counts failed rotation starts under every rotation, varimax
+  included.** lavaan rotates each level from 30 random starts by default
+  and keeps the best one. Before this change, ESEM showed lavaan's rotation
+  warning under `"oblimin"` and `"geomin"` only, and kept the level even
+  when no start converged. Varimax ESEM showed no rotation warning. Now a
+  warning gives the count of starts that did not converge (for example,
+  "3 of 30"), and the level is kept. If no start converged, the kept
+  rotation did not converge either, so the hierarchy ends at the level
+  before it with a warning. Fits whose rotation converges give the same
+  output as before.
+
 * **ESEM with `cor = "spearman"` and `missing = "fiml"` now stops with an
   error.** Before this fix, the fit ran, but `x$r` held lavaan's Pearson FIML
   matrix while the object reported `cor = "spearman"`. All edges were Pearson

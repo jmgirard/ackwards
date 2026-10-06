@@ -215,6 +215,13 @@ level <- list(
 A level that fails to converge is **recorded, warned about, and skipped**, never thrown. The
 hierarchy is built up to the deepest converged level.
 
+**ESEM rotation starts** (M098). lavaan rotates each level from `rotation.args$rstarts` random
+starts (30 by default, and 0 means one start from the identity) and keeps the best one. It does
+not record whether the kept start converged. Under every rotation, varimax included, ESEM counts
+the starts that did not converge. If some failed, a warning gives the count (`<n> of <N>`, with
+`<N>` read from `rstarts`), and the level is kept. If every start failed, the kept rotation did
+not converge, so the hierarchy ends at the level before (IP7).
+
 ## 5. Scoring descriptor + `compute_edges()` (the centerpiece)
 
 The between-level edges are computed through **one shared code path**, the internal
