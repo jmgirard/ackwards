@@ -62,3 +62,8 @@ cached <- function(call) {
   breaks <- c(-Inf, -1, -0.5, 0.5, 1, Inf)
   as.data.frame(lapply(d, function(x) as.integer(cut(x, breaks))))
 }
+
+# Warning messages with cli's styling and line wrapping removed.
+.warnings_of <- function(expr) {
+  gsub("\\s+", " ", cli::ansi_strip(testthat::capture_warnings(expr)))
+}

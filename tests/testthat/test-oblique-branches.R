@@ -3,12 +3,8 @@
 # failed rotation. Each is reached by planting the failure in the step that
 # fails. The fit tests assert which warning fired and what the level became,
 # and the .esem_read_phi() and .esem_rotation_args() tests check the helpers
-# directly.
-
-# Warning messages with cli's styling and line wrapping removed.
-.warnings_of <- function(expr) {
-  gsub("\\s+", " ", cli::ansi_strip(testthat::capture_warnings(expr)))
-}
+# directly. ESEM's counted rotation failures are tested in
+# test-esem-rotation-starts.R.
 
 # ── Regression-weight fallbacks ──────────────────────────────────────────────
 
@@ -324,58 +320,26 @@ test_that("efa: a net-negative one-factor solution is flipped in the loadings an
   expect_equal(unname(lev$scoring$weights), unname(solve(x$r) %*% lev$loadings), tolerance = 1e-8)
 })
 
-test_that(".esem_rotation_args() turns lavaan's rotation warnings on for oblique rotations only", {
-  expect_identical(.esem_rotation_args("none", "rotation_args"), list(rotation = "none"))
-  expect_identical(.esem_rotation_args("varimax", "rotation_args"), list(rotation = "varimax"))
+test_that(".esem_rotation_args() turns lavaan's rotation warnings on for every rotation", {
+  # k = 1 is unrotated and passes the method name alone, in both lavaan forms.
+  expect_identical(.esem_rotation_args("none", c("data", "rotation", "rotation_args")), list(rotation = "none"))
+  expect_identical(.esem_rotation_args("none", c("data", "rotation", "rotation.args")), list(rotation = "none"))
   # lavaan >= 0.7: options inside `rotation`.
+  expect_identical(
+    .esem_rotation_args("varimax", c("data", "rotation", "rotation_args")),
+    list(rotation = list("varimax", warn = TRUE))
+  )
   expect_identical(
     .esem_rotation_args("oblimin", c("data", "rotation", "rotation_args")),
     list(rotation = list("oblimin", warn = TRUE))
   )
   # Earlier lavaan: options in `rotation.args`.
   expect_identical(
+    .esem_rotation_args("varimax", c("data", "rotation", "rotation.args")),
+    list(rotation = "varimax", rotation.args = list(warn = TRUE))
+  )
+  expect_identical(
     .esem_rotation_args("geomin", c("data", "rotation", "rotation.args")),
     list(rotation = "geomin", rotation.args = list(warn = TRUE))
   )
-})
-
-test_that("esem: lavaan's rotation warning is shown under an oblique rotation only", {
-  skip_if_not_installed("lavaan")
-  # Cap the k = 3 rotation at two iterations so real lavaan fails to converge
-  # there. lavaan warns only if the package turned its rotation warnings on.
-  real_efa <- lavaan::efa
-  real_formals <- names(formals(real_efa))
-  list_form <- "rotation_args" %in% real_formals
-  # The version check reads lavaan::efa's formals, so keep it on the real ones
-  # while efa itself is replaced below.
-  real_rot <- .esem_rotation_args
-  local_mocked_bindings(.esem_rotation_args = function(rotation) real_rot(rotation, real_formals))
-  local_mocked_bindings(
-    efa = function(...) {
-      args <- list(...)
-      if (args$nfactors == 3L) {
-        if (list_form) {
-          args$rotation <- c(as.list(args$rotation), max_iter = 2L)
-        } else {
-          args$rotation.args <- c(args$rotation.args, max_iter = 2L)
-        }
-      }
-      do.call(real_efa, args)
-    },
-    .package = "lavaan"
-  )
-  local_mocked_bindings(.esem_lapply = function(X, FUN) lapply(X, FUN))
-  w <- .warnings_of(
-    x <- suppressMessages(ackwards(sim16, k_max = 3, engine = "esem", rotation = "oblimin", seed = 1))
-  )
-  expect_match(w, "lavaan reported a rotation problem at k = 3:", fixed = TRUE, all = FALSE)
-  expect_match(w, "rotation algorithm did not converge", fixed = TRUE, all = FALSE)
-  expect_false(any(grepl("at k = 2:", w, fixed = TRUE)))
-  expect_identical(names(x$levels), c("1", "2", "3"))
-
-  # Control: under varimax lavaan's rotation warnings stay off, as before.
-  w0 <- .warnings_of(x0 <- suppressMessages(ackwards(sim16, k_max = 3, engine = "esem", seed = 1)))
-  expect_false(any(grepl("rotation algorithm did not converge", w0, fixed = TRUE)))
-  expect_false(any(grepl("rotation problem", w0, fixed = TRUE)))
-  expect_identical(names(x0$levels), c("1", "2", "3"))
 })
