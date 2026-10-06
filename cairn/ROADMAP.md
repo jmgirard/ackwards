@@ -10,6 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
+| M098 | Counted lavaan rotation failures on every ESEM rotation | planned | — | normal | milestones/M098-esem-rotation-start-count.md |
 | M097 | Cross-check coverage and the matrix behind each edge | done | — | normal | milestones/archive/M097-cross-check-coverage.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 | M96 | Varimax and oblimin side by side on bfi25 in the engines vignette | done | — | normal | milestones/archive/M96-rotation-comparison.md |
@@ -24,7 +25,6 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 - [low] WLSMV/polychoric `boot_edges()`: costs n_boot × (k_max−1) fits, and a resample can drop a response category (D-023 / M47). Demand-gated: promote when a user asks. — added 2026-07-11, merged 2026-07-16, split 2026-10-01
 - [low] Oblique `boot_edges()` (RR02 Q5 item 12, held out of M90's Scope): it refits with the object's rotation but bootstraps only `r`, so `beta` and `r2` get no intervals. Promote when a user needs intervals on the partialled coefficients. — added 2026-09-30, split 2026-10-01
 - [low] Oblique `comparability()` (RR02 Q5 item 12, held out of M90's Scope): it has no `rotation` argument and always fits varimax. Promote when a user needs split-half replicability of an oblique hierarchy. — added 2026-09-30, split 2026-10-01
-- [low] ESEM varimax hides lavaan's rotation non-convergence, because lavaan's `rotation.args$warn` is off by default. This predates M90 (M90 review). Promote on a report of a silently non-converged varimax ESEM level. — added 2026-09-30, split 2026-10-01
 - [low] `.esem_rotation_args()` detects lavaan's list form through the deprecated `rotation_args` formal, and its pre-0.7 branch is only unit-tested (M90 review). Promote when lavaan drops `rotation_args`. — added 2026-09-30, split 2026-10-01
 - [low] Indefinite R and the near-singular warning (M91 review, F4). With pairwise missing data or a non-PD user matrix, and EFA or ESEM falling back to regression weights, Φ_s can have a negative eigenvalue. `tidy()` then calls it "nearly singular" with a negative value, and `r2` can leave [0, 1] with no warning. Promote on a real fit that shows either. — added 2026-09-30
 - [low] User-facing sample-realized edges: an option to build edges from materialized scores, so that under missing data an edge shows the sample-realized correlation, not the model-implied one. DESIGN §5.3 described it, but no exported function offers it. Demand-gated: promote when a user asks for sample-realized edges. — added 2026-10-01 — M93 plan
