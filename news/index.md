@@ -2,6 +2,17 @@
 
 ## ackwards (development version)
 
+- **ESEM now counts failed rotation starts under every rotation, varimax
+  included.** At each rotated level, lavaan keeps the best of 30 random
+  starts (its default). Before this change, ESEM showed lavaan’s
+  rotation warning under `"oblimin"` and `"geomin"` only, and kept the
+  level even when no start converged. Varimax ESEM showed no rotation
+  warning. Now a warning gives the count of starts that did not converge
+  (for example, “3 of 30”), and the level is kept. If no start
+  converged, the kept rotation did not converge either, so the hierarchy
+  ends at the level before it with a warning. Fits where at least one
+  start converges keep the same levels and values as before.
+
 - **ESEM with `cor = "spearman"` and `missing = "fiml"` now stops with
   an error.** Before this fix, the fit ran, but `x$r` held lavaan’s
   Pearson FIML matrix while the object reported `cor = "spearman"`. All
@@ -112,14 +123,14 @@
   refits each replicate with the object’s rotation, and checks first for
   GPArotation when that rotation needs it. A PCA level whose oblique
   rotation fails, or raises an error, ends the hierarchy at the level
-  before it, because PCA rotates once. EFA and ESEM rotate from several
-  random starts, so their non-convergence warnings are shown and the
-  level is kept. An EFA level whose final rotation step failed still
-  ends the hierarchy. If the installed psych rotates from one start, any
-  EFA rotation warning ends it too. Set `seed` to reproduce an oblique
-  EFA fit or any ESEM fit exactly. A new test checks the oblique results
-  against Forbes’s reference implementation on her three simulation
-  studies.
+  before it, because PCA rotates once. EFA rotates from several random
+  starts, so its non-convergence warnings are shown and the level is
+  kept. ESEM counts its failed starts, as the bullet above describes. An
+  EFA level whose final rotation step failed still ends the hierarchy.
+  If the installed psych rotates from one start, any EFA rotation
+  warning ends it too. Set `seed` to reproduce an oblique EFA fit or any
+  ESEM fit exactly. A new test checks the oblique results against
+  Forbes’s reference implementation on her three simulation studies.
 
 - `tidy(what = "edges")` now warns when the within-level score
   correlation of a level is nearly singular, meaning its smallest
