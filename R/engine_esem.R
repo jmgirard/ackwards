@@ -54,15 +54,16 @@
   }
 }
 
-# lavaan's rotation argument(s) for one level. Varimax and the unrotated k = 1
-# level pass the method name alone, as before. An oblique rotation also turns
-# on lavaan's rotation warnings (rotation.args$warn, FALSE by default). lavaan
-# >= 0.7 takes rotation options inside `rotation`, a list whose first element
-# is the method (its `rotation_args` is deprecated); earlier versions take
-# `rotation.args`. Detected by capability (a `rotation_args` formal of
+# lavaan's rotation argument(s) for one level. The unrotated k = 1 level passes
+# the method name alone. Every rotation, varimax included, also turns on
+# lavaan's rotation warnings (rotation.args$warn, FALSE by default), so that
+# .esem_fit_one() can count the random starts that did not converge (M098).
+# lavaan >= 0.7 takes rotation options inside `rotation`, a list whose first
+# element is the method (its `rotation_args` is deprecated); earlier versions
+# take `rotation.args`. Detected by capability (a `rotation_args` formal of
 # lavaan::efa()), and efa_formals is a parameter so both branches are testable.
 .esem_rotation_args <- function(rotation, efa_formals = names(formals(lavaan::efa))) {
-  if (rotation %in% c("none", "varimax")) {
+  if (rotation == "none") {
     list(rotation = rotation)
   } else if ("rotation_args" %in% efa_formals) {
     list(rotation = list(rotation, warn = TRUE))
@@ -85,9 +86,11 @@
 #               "oblimin" / "geomin"); validated upstream by .check_rotation().
 #
 # Returns one of:
-#   list(status = "ok", k, level, bad_resid, ss, r_lv, fit_raw, rotation_msg)
+#   list(status = "ok", k, level, bad_resid, ss, r_lv, fit_raw,
+#        rot_failed, rot_starts)
 #   list(status = "error",        k, error_msg)
-#   list(status = "nonconverged", k)
+#   list(status = "nonconverged", k)                          -- the model fit
+#   list(status = "nonconverged", k, rot_failed, rot_starts)  -- the rotation
 .esem_fit_one <- function(k, data_df, estimator, cor, ordered_cols, lav_missing,
                           ss_in, r_lv_in, item_names, p, keep_fit,
                           rotation = "varimax") {
@@ -107,15 +110,14 @@
   # lavaan-version-dependent (renamed in 0.7); see .esem_ss_argname().
   if (!is.null(ss_in)) efa_args[[.esem_ss_argname()]] <- ss_in
   # lavaan's rotation warnings are off by default (rotation.args$warn =
-  # FALSE). An oblique rotation turns them on, so that its non-convergence
-  # reaches the caller (M90 Decisions, finding F1).
+  # FALSE). Every rotation turns them on, so that its non-convergence reaches
+  # the caller (M90 Decisions, finding F1; varimax since M098).
   rot_args <- .esem_rotation_args(rotate_k)
   efa_args[names(rot_args)] <- rot_args
 
   # lavaan emits fit-time warnings (e.g. non-PD vcov) that are not actionable
   # here; muffle them around the fit only (matches pre-M26 muffling behaviour).
-  # They are recorded so that an oblique rotation's non-convergence can be
-  # reported by the caller.
+  # They are recorded so that the rotation's failed starts can be counted.
   fit_warnings <- character(0)
   fit_raw <- tryCatch(
     withCallingHandlers(
@@ -145,6 +147,26 @@
   if (!converged) { # nocov start
     return(list(status = "nonconverged", k = k))
   } # nocov end
+
+  # lavaan rotates from rotation.args$rstarts random starts (30 by default) and
+  # keeps the one with the best criterion value, warning once per start that
+  # did not converge. lavaan does not record whether the kept start converged.
+  # When every start failed it cannot have, so the level counts as not
+  # converged (Invariant 7). With rstarts = 0 lavaan rotates once, from the
+  # identity, and that one start is every start. lavInspect(fit, "converged")
+  # describes the model fit and stays TRUE when the rotation fails.
+  rot_failed <- if (rotate_k == "none") {
+    0L
+  } else {
+    sum(grepl("rotation algorithm did not converge", fit_warnings, fixed = TRUE))
+  }
+  rot_starts <- .esem_rotation_starts(fit)
+  if (rot_failed >= rot_starts) {
+    return(list(
+      status = "nonconverged", k = k,
+      rot_failed = rot_failed, rot_starts = rot_starts
+    ))
+  }
 
   # Improper solution / Heywood check: zero or negative residual variances.
   # lavaan clamps theta to 0 when residual variance would go negative (Heywood
@@ -363,16 +385,9 @@
     )
   )
 
-  # lavaan rotates from 30 random starts (rotation.args$rstarts) and keeps the
-  # best one, so its non-convergence warning (turned on above) can come from a
-  # discarded start: the caller reports it and keeps the level. Oblique
-  # rotations only, so the default varimax path is unchanged.
-  rot_warnings <- if (rotate_k %in% c("none", "varimax")) {
-    character(0)
-  } else {
-    grep("rotation algorithm did not converge", fit_warnings, value = TRUE, fixed = TRUE)
-  }
-
+  # Some but not all starts failed (rot_failed > 0, counted above): the kept
+  # start may have converged, so the caller reports the count and keeps the
+  # level.
   list(
     status       = "ok",
     k            = k,
@@ -381,8 +396,24 @@
     ss           = harvested_ss,
     r_lv         = r_lv,
     fit_raw      = if (keep_fit) fit else NULL,
-    rotation_msg = if (length(rot_warnings) > 0L) rot_warnings[[1L]] else NULL
+    rot_failed   = rot_failed,
+    rot_starts   = rot_starts
   )
+}
+
+# The number of random starts lavaan rotated one level from: rotation.args$rstarts
+# from the fit's options, and 1 when it is 0 (one start, from the identity). A
+# value that cannot be read also counts as one start, so that a rotation
+# failure there ends the hierarchy rather than being kept unseen.
+.esem_rotation_starts <- function(fit) {
+  rstarts <- tryCatch(
+    lavaan::lavInspect(fit, "options")$rotation.args$rstarts,
+    error = function(e) NULL
+  )
+  if (!is.numeric(rstarts) || length(rstarts) != 1L || is.na(rstarts)) {
+    return(1L) # nocov
+  }
+  max(as.integer(rstarts), 1L)
 }
 
 # lavaan's within-level factor correlation (cor.lv) for one fit, with rows and
@@ -503,11 +534,20 @@ esem_levels <- function(data, k_max, estimator, cor,
       break
     }
     if (res$status == "nonconverged") {
-      cli::cli_warn(c( # nocov start
-        "!" = "ESEM did not converge at k = {k}.",
-        "i" = "Truncating hierarchy at level {k - 1L}."
-      )) # nocov end
-      break # nocov
+      if (!is.null(res$rot_starts)) {
+        cli::cli_warn(c(
+          "!" = "lavaan's rotation did not converge at k = {k}: \\
+                 {res$rot_failed} of {res$rot_starts} random starts did not \\
+                 converge, so the kept rotation did not converge.",
+          "i" = "Truncating hierarchy at level {k - 1L}."
+        ))
+      } else {
+        cli::cli_warn(c( # nocov start
+          "!" = "ESEM did not converge at k = {k}.",
+          "i" = "Truncating hierarchy at level {k - 1L}."
+        )) # nocov end
+      }
+      break
     }
     # status == "ok"
     if (res$bad_resid > 0L) {
@@ -522,12 +562,13 @@ esem_levels <- function(data, k_max, estimator, cor,
         )
       )
     }
-    if (!is.null(res$rotation_msg)) {
+    if (res$rot_failed > 0L) {
       cli::cli_warn(c(
-        "!" = "lavaan reported a rotation problem at k = {k}: {res$rotation_msg}",
-        "i" = "lavaan rotates from several random starts and keeps the best \\
-               one, so the warning can come from a discarded start. The level \\
-               is kept."
+        "!" = "lavaan reported a rotation problem at k = {k}: \\
+               {res$rot_failed} of {res$rot_starts} random starts did not \\
+               converge.",
+        "i" = "lavaan keeps the start with the best criterion value, which \\
+               can be one that did not converge. The level is kept."
       ))
     }
     if (identical(res$level$scoring$method, "regression")) {

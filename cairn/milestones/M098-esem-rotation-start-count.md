@@ -88,16 +88,16 @@ hierarchy at a level where every start failed.
       warnings at one level under varimax, oblimin, and geomin. A second rotation pass doubles
       the count. Log the figures in the work log. If any estimator doubles the count, stop and
       amend the rule.
-- [ ] T2: In `.esem_rotation_args()`, move varimax to the warnings-on branch. Update the comment
+- [x] T2: In `.esem_rotation_args()`, move varimax to the warnings-on branch. Update the comment
       at `R/engine_esem.R:57` and the unit test (AC1).
-- [ ] T3: In `.esem_fit_one()`, count the non-convergence warnings for every rotation except
+- [x] T3: In `.esem_fit_one()`, count the non-convergence warnings for every rotation except
       `"none"`. Read `rstarts` from `lavaan::lavInspect(fit, "options")`. If
       `n >= max(rstarts, 1)`, return `status = "nonconverged"` with the count, and show the
       total as `max(rstarts, 1)`. Else return `"ok"` with `n` and `N`. In the assembly loop
       (`R/engine_esem.R:505` and `:525`), word both warnings with the count. The all-fail
       warning says that the kept rotation did not converge. Remove the `# nocov` marks on the
       nonconverged branch that the new tests reach. Update the comment at `:366`.
-- [ ] T4: Write AC2's partial plants, AC3's four all-fail plants, and AC4's assertions. As in
+- [x] T4: Write AC2's partial plants, AC3's four all-fail plants, and AC4's assertions. As in
       the M90 test (`tests/testthat/test-oblique-branches.R:351`), pin `.esem_rotation_args()`
       to the real `lavaan::efa` formals and run `.esem_lapply` as serial `lapply` in every
       plant. The AC3 plants replace the M90 test.
@@ -117,6 +117,8 @@ hierarchy at a level where every start failed.
 - 2026-10-06: criteria audit (full mode, fresh Opus reader) returned 10 findings, all accepted: AC1 names the two f forms and keeps the oblique asserts; AC2 uses a deterministic warning plant instead of a seeded max_iter or a second real call; mock pinning and serial lapply moved to T4 as instrument properties; AC2 warning matched by k; AC3 uses k_max = 4, adds geomin, reads N from options, drops the unreachable rstarts = 0 case to T3; AC4 narrowed to the two named fits and states what the baseline test shows; AC5 DESIGN content named; T5 checks the seed paragraph.
 - 2026-10-06: collision sweep — absorbs the [low] candidate "ESEM varimax hides lavaan's rotation non-convergence"; extends M90 (archive); no D-entry rejects it; GitHub inbox has 0 open issues and 0 open PRs.
 - 2026-10-06: T1 (lavaan 0.7.2, max_iter = 2 at k = 3): varimax, oblimin, and geomin each gave 30 of 30 warnings under ML, MLR, ULSMV (sim16) and WLSMV, ULSMV (bfi25 ordered); lavInspect converged stayed TRUE; rstarts = 0 gave 1. No doubling, so the counting rule stands.
+- 2026-10-06: T2-T4 done. `.esem_rotation_starts()` reads rstarts and treats 0 or an unreadable value as one start, so an unreadable total truncates loudly rather than hiding a failure. The kept-level warning drops lavaan's raw text for the count and says the kept start can be one that did not converge. The model non-convergence branch keeps its `# nocov`, and the rotation branch beside it is now covered.
+- 2026-10-06: tests for AC2-AC4 live in the new `tests/testthat/test-esem-rotation-starts.R`, and `.warnings_of()` moved to `helper-data.R` so both files share it. Each loop iteration scopes its plant with `local()`, because a second plant in one test otherwise wraps the first mock. Against master's engine the partial and all-fail tests fail 5/12 and 20/24 expectations. Full suite: 820 tests, 0 failed, 2 skipped (pre-existing On Mac skips).
 
 ## Decisions
 
