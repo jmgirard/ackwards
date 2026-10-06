@@ -137,3 +137,27 @@ hierarchy at a level where every start failed.
 - AC5: read at HEAD. The `rotation` help (R/ackwards.R, "ESEM counts the failed starts under every lavaan rotation, varimax included") states the keep and truncate rule. The NEWS.md first development bullet states the same rule and says varimax ESEM showed no rotation warning before. The DESIGN §4 "ESEM rotation starts" paragraph states the rule and that N is `rotation.args$rstarts`. PASS.
 - AC6: fresh `Rscript tools/dod-gate.R` at HEAD dc0541e exited 0: vignette freshness clean, check 0 errors, 0 warnings, 0 notes, coverage 100%, styler and lintr clean, pkgdown index complete. PASS.
 - consistency gate: `cairn_validate.py` exit 0 (16 work-log WARNs, all in M84's file). No principle text changed, so `cairn_impact` is skipped. `devtools::document()` (run by the gate) left `man/` and NAMESPACE with no diff. README untouched. pkgdown index complete. NEWS entry present. check clean.
+- spawned: diff-bug, blame-history, prior-review
+- diff-bug #1: the start count matches a fixed phrase, so a line break inside lavaan's message would hide a failed start — fix now (whitespace collapsed before matching, planted wrapped warnings in the AC2 test), fixed f1148ca
+- diff-bug #2: one warning per failed start was measured only on lavaan 0.7.2, not on the pre-0.7 `rotation.args` path — follow-up (extended the `.esem_rotation_args()` [low] candidate row)
+- diff-bug #3: a kept level's failed-start count lives only in the warning, not on the object — follow-up (new [low] candidate row "Record a partial ESEM rotation failure on the object")
+- diff-bug #4: the AC3 test reads N from the level 2 fit, not the dropped level 3 fit — reject, false as a defect: every level gets the same lavaan options, and the code reads the warning's N from the level 3 fit (AC3 evidence)
+- diff-bug #5: the partial test plants warnings rather than real failed starts — reject, planned change: the plan audit chose the deterministic plant, and AC3's real-lavaan plants show real failures reach the counter under varimax
+- diff-bug #6: kept varimax fits now store `warn = TRUE` in their options — reject, planned change: the plan turns the warnings on for varimax, and oblique fits stored it since M90
+- diff-bug #7: "1 of 1 starts" and the repeated "did not converge" read awkwardly — reject, style
+- diff-bug #8: "30 random starts by default" implies an `ackwards()` setting, and "each level" includes the unrotated k = 1 — fix now (help and NEWS say each rotated level, lavaan's default, not changed by `ackwards()`), fixed f1148ca
+- diff-bug #9: NEWS does not say partial-failure varimax fits now warn — reject, false: the bullet says varimax showed no rotation warning before and that a warning now gives the count
+- diff-bug #10: precomputed vignettes were not regenerated — reject, false as a defect: the engines vignette's ESEM fit raised 0 rotation warnings in 3 branch runs, and `warn = TRUE` left a seeded fit's `est.std` identical
+- diff-bug #11: the unreadable-rstarts fallback is `# nocov` and untested — fix now (nocov removed, unit test for an empty, non-numeric, and erroring options read), fixed f1148ca
+- diff-bug #12: the AC boxes were unticked at review time — reject, false: each box is ticked against its evidence line above
+- diff-bug #13: the reversal of M90's keep rule has no D-entry — fix now (milestone-local Decisions entry giving the rule, its source, and why D-034 is not superseded), fixed f1148ca
+- blame-history #1: M90's NEWS bullet in the same development section still says ESEM always keeps the level — fix now (bullet now says EFA keeps the level and points ESEM to the new bullet), fixed f1148ca
+- blame-history #2: M90 kept varimax silent so the default path stayed unchanged, and D-034 says no current numerical output changes — fix now (Decisions entry answers both), fixed f1148ca
+- blame-history #3: an oblique level where every start fails now truncates, where M90 kept it — reject, planned change (AC3, the user's plan-gate choice)
+- blame-history #4: new `# nocov` on the reachable fallback — fix now (same fix as diff-bug #11), fixed f1148ca
+- blame-history #5: the removed M90 test checked no warning at k = 2, and the all-fail test does not — fix now (each all-fail plant asserts no "at k = 2" warning), fixed f1148ca
+- blame-history #6: `.warnings_of()` in helper-data.R could shadow a local definition — reject, false: grep finds no other definition
+- blame-history #7: the kept-level warning drops lavaan's raw text — reject, requests nothing: the planned count replaces it and the old prefix stays
+- prior-review #1: `# nocov` on the fallback regresses M90's AC13 finding — fix now (same fix as diff-bug #11), fixed f1148ca
+- prior-review #2: the NEWS claim of unchanged values was not checked — reject, false: `est.std` is identical with `warn = TRUE` and `FALSE` (seeded bfi, 5 factors), and the baseline ESEM test passes
+- prior-review #3: "every lavaan rotation" overstates scope at the unrotated k = 1 — reject, false: k = 1 is not rotated (the help now says each rotated level)
