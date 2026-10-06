@@ -126,6 +126,8 @@ hierarchy at a level where every start failed.
 
 ## Decisions
 
+- 2026-10-06 (review): ESEM rotation failure rule. M90 kept an ESEM level whatever lavaan's rotation warnings said, and kept varimax silent so that the default path did not change. M098 replaces both at the user's plan-gate choice (work log, question set): every lavaan rotation counts its failed starts, and a level where every start failed truncates under IP7, because the start lavaan keeps then did not converge. Default varimax output changes only for a fit where all 30 starts fail, and no measured fit did (bfi25 k = 2 to 8 ML and 2 to 6 WLSMV, the two AC4 fits, the engines vignette fit three times). D-034's "no current numerical output changes" bound the oblique decision, not later convergence handling, so no D-entry supersedes it. Kept milestone-local, as M90 kept its rule.
+
 ## Review
 
 - AC1: fresh run (2026-10-06, HEAD 0b7e7d8) of test-oblique-branches.R: ".esem_rotation_args() turns lavaan's rotation warnings on for every rotation" passes 6 of 6 expect_identical() calls. The four named in AC1 (none and varimax, each with and without `"rotation_args"`) are there, and the oblimin and geomin calls stay. PASS.

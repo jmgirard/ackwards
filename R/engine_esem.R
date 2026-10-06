@@ -154,11 +154,13 @@
   # When every start failed it cannot have, so the level counts as not
   # converged (Invariant 7). With rstarts = 0 lavaan rotates once, from the
   # identity, and that one start is every start. lavInspect(fit, "converged")
-  # describes the model fit and stays TRUE when the rotation fails.
+  # describes the model fit and stays TRUE when the rotation fails. Whitespace
+  # is collapsed before matching, so a line break that lavaan's message
+  # formatting puts inside the phrase does not hide a failed start.
   rot_failed <- if (rotate_k == "none") {
     0L
   } else {
-    sum(grepl("rotation algorithm did not converge", fit_warnings, fixed = TRUE))
+    sum(grepl("rotation algorithm did not converge", gsub("\\s+", " ", fit_warnings), fixed = TRUE))
   }
   rot_starts <- .esem_rotation_starts(fit)
   if (rot_failed >= rot_starts) {
@@ -411,7 +413,7 @@
     error = function(e) NULL
   )
   if (!is.numeric(rstarts) || length(rstarts) != 1L || is.na(rstarts)) {
-    return(1L) # nocov
+    return(1L)
   }
   max(as.integer(rstarts), 1L)
 }

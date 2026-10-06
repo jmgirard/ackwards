@@ -33,8 +33,15 @@
       }
       fit <- do.call(real_efa, args)
       if (planted) {
+        # Every second planted warning carries a line break inside the phrase,
+        # as message formatting can.
         for (i in seq_len(n_warn)) {
-          warning("GP rotation algorithm did not converge after 10000 iterations", call. = FALSE)
+          msg <- if (i %% 2L == 0L) {
+            "GP rotation algorithm did not\n  converge after 10000 iterations"
+          } else {
+            "GP rotation algorithm did not converge after 10000 iterations"
+          }
+          warning(msg, call. = FALSE)
         }
       }
       fit
@@ -92,6 +99,7 @@ test_that("esem: a level where every rotation start fails ends the hierarchy", {
       expect_identical(names(x$levels), c("1", "2"), label = lab)
       n_starts <- .rstarts_of(x, 2)
       hit <- grep("rotation did not converge at k = 3", w, fixed = TRUE, value = TRUE)
+      expect_false(any(grepl("at k = 2", w, fixed = TRUE)), label = lab)
       expect_length(hit, 1L)
       expect_match(hit, sprintf("%d of %d starts did not converge", n_starts, n_starts), fixed = TRUE)
       expect_match(hit, "the kept rotation did not converge", fixed = TRUE)
@@ -111,9 +119,14 @@ test_that("esem: default varimax fits whose rotation converges raise no rotation
   expect_false(any(grepl("did not converge", w, fixed = TRUE)))
 })
 
-test_that(".esem_rotation_starts() reads rstarts and counts rstarts = 0 as one start", {
+test_that(".esem_rotation_starts() reads rstarts and counts rstarts = 0 or an unreadable total as one start", {
   skip_if_not_installed("lavaan")
   local_mocked_bindings(lavInspect = function(object, what) object, .package = "lavaan")
   expect_identical(.esem_rotation_starts(list(rotation.args = list(rstarts = 30L))), 30L)
   expect_identical(.esem_rotation_starts(list(rotation.args = list(rstarts = 0L))), 1L)
+  # A total that cannot be read counts as one start.
+  expect_identical(.esem_rotation_starts(list()), 1L)
+  expect_identical(.esem_rotation_starts(list(rotation.args = list(rstarts = "30"))), 1L)
+  local_mocked_bindings(lavInspect = function(object, what) stop("no options"), .package = "lavaan")
+  expect_identical(.esem_rotation_starts(NULL), 1L)
 })

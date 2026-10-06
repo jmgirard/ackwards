@@ -217,8 +217,8 @@
 #'   psych's `fa()` rotates from one start.
 #'
 #'   ESEM counts the failed starts under every lavaan rotation, varimax
-#'   included. lavaan rotates each level from 30 random starts by default
-#'   and keeps the best one. If some starts did not converge, a warning
+#'   included. At each rotated level, lavaan keeps the best of 30 random
+#'   starts. This is lavaan's default, which `ackwards()` does not change. If some starts did not converge, a warning
 #'   gives the count (for example, "3 of 30"), and the level is kept. If no
 #'   start converged, the kept rotation did not converge either, so the
 #'   hierarchy ends at the level before it with a warning.

@@ -1,8 +1,8 @@
 # ackwards (development version)
 
 * **ESEM now counts failed rotation starts under every rotation, varimax
-  included.** lavaan rotates each level from 30 random starts by default
-  and keeps the best one. Before this change, ESEM showed lavaan's rotation
+  included.** At each rotated level, lavaan keeps the best of 30 random
+  starts (its default). Before this change, ESEM showed lavaan's rotation
   warning under `"oblimin"` and `"geomin"` only, and kept the level even
   when no start converged. Varimax ESEM showed no rotation warning. Now a
   warning gives the count of starts that did not converge (for example,
@@ -100,9 +100,9 @@
   `boot_edges()` refits each replicate with the object's rotation, and checks
   first for GPArotation when that rotation needs it. A PCA level whose
   oblique rotation fails, or raises an error, ends the hierarchy at the level
-  before it, because PCA rotates once. EFA and ESEM rotate from several
-  random starts, so their non-convergence warnings are shown and the level is
-  kept. An EFA level whose final rotation step failed still ends the
+  before it, because PCA rotates once. EFA rotates from several random
+  starts, so its non-convergence warnings are shown and the level is kept.
+  ESEM counts its failed starts, as the bullet above describes. An EFA level whose final rotation step failed still ends the
   hierarchy. If the installed psych rotates from one start, any EFA rotation
   warning ends it too. Set
   `seed` to reproduce an oblique EFA fit or any ESEM fit exactly. A new test
