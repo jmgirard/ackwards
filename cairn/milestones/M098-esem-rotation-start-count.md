@@ -37,13 +37,13 @@ hierarchy at a level where every start failed.
 
 ## Acceptance criteria
 
-- [ ] AC1: If `f` contains `"rotation_args"`, `.esem_rotation_args("varimax", f)` returns
+- [x] AC1: If `f` contains `"rotation_args"`, `.esem_rotation_args("varimax", f)` returns
       `list(rotation = list("varimax", warn = TRUE))`. Else it returns
       `list(rotation = "varimax", rotation.args = list(warn = TRUE))`.
       `.esem_rotation_args("none", f)` returns `list(rotation = "none")` for `f` with and
       without `"rotation_args"`. A unit test in `tests/testthat/test-oblique-branches.R` asserts
       these four results with `expect_identical()`, and its oblimin and geomin assertions stay.
-- [ ] AC2: Some starts fail at a level, but not all. Then `ackwards()` keeps that level, and
+- [x] AC2: Some starts fail at a level, but not all. Then `ackwards()` keeps that level, and
       exactly one of its warnings contains both `k = 3` and `"<n> of <N> random starts"`. Here
       `<n>` is the count of lavaan non-convergence warnings at that level, and `<N>` is
       `rotation.args$rstarts` from the lavaan options of that fit. A test plants this case at
@@ -51,20 +51,20 @@ hierarchy at a level where every start failed.
       The plant forwards the real `lavaan::efa` fit and then raises a fixed count `n` of
       warnings in lavaan's exact text, with `0 < n < N`. The test asserts that level 3 is
       present and that the warning shows the planted `n`.
-- [ ] AC3: Every start fails at level k. Then `ackwards()` returns levels `1..k-1` only. One
+- [x] AC3: Every start fails at level k. Then `ackwards()` returns levels `1..k-1` only. One
       warning contains `k = 3`, contains `"<N> of <N>"` with `<N>` read as in AC2, and says
       that the kept rotation did not converge. A test plants `max_iter = 2` at k = 3 of
       `k_max = 4` in the real lavaan call for four fits: varimax, oblimin, and geomin on ML
       (sim16), and varimax on WLSMV (`bfi25`, `cor = "polychoric"`). For each fit it asserts
       that `names(x$levels)` is `c("1", "2")` and the warning text above. These plants replace
       the M90 test "lavaan's rotation warning is shown under an oblique rotation only".
-- [ ] AC4: Two named default fits raise no rotation warning. A test asserts that no warning
+- [x] AC4: Two named default fits raise no rotation warning. A test asserts that no warning
       that contains `"random starts"` or `"rotation algorithm"` comes from
       `ackwards(sim16, k_max = 4, engine = "esem", seed = 1)` or from
       `ackwards(bfi25, k_max = 4, engine = "esem", cor = "polychoric", seed = 1)`. Separately,
       `tests/testthat/test-baseline-m89.R` passes with its fixture unchanged. That file
       suppresses warnings, so it shows unchanged values and level names only.
-- [ ] AC5: The rule is documented in three places. The `rotation` paragraph of `?ackwards`
+- [x] AC5: The rule is documented in three places. The `rotation` paragraph of `?ackwards`
       says that ESEM reports failed lavaan rotation starts under every rotation, varimax
       included, keeps a level where some starts failed, and ends the hierarchy at the level
       before one where every start failed. A NEWS.md bullet under the development version says
@@ -127,3 +127,9 @@ hierarchy at a level where every start failed.
 ## Decisions
 
 ## Review
+
+- AC1: fresh run (2026-10-06, HEAD 0b7e7d8) of test-oblique-branches.R: ".esem_rotation_args() turns lavaan's rotation warnings on for every rotation" passes 6 of 6 expect_identical() calls. The four named in AC1 (none and varimax, each with and without `"rotation_args"`) are there, and the oblimin and geomin calls stay. PASS.
+- AC2: fresh run of test-esem-rotation-starts.R "a level where some rotation starts fail is kept": 12 expectations, 0 failed. For varimax and oblimin (ML, confirmed `x$meta$estimator` is ML on sim16), k = 3 of k_max = 4, 7 planted warnings: levels 1 to 4 present, exactly one "random starts" warning, and it carries "at k = 3:" and "7 of <N> random starts did not converge" with N read from `x$fits[["3"]]` options and N > 7. Against master's engine this test failed 5 of 12 (implement log). PASS.
+- AC3: fresh run of "a level where every rotation start fails ends the hierarchy": 24 expectations, 0 failed, over varimax, oblimin, and geomin on ML (sim16) and varimax on WLSMV (bfi25, polychoric). Each asserts the estimator, `names(x$levels)` = c("1", "2"), one warning containing "rotation did not converge at k = 3", "<N> of <N> starts did not converge", and "the kept rotation did not converge". The test reads N from the level 2 fit's options because level 3 is dropped. The code reads the warning's N from the level 3 fit (`.esem_rotation_starts(fit)` in `.esem_fit_one()`), with the same options. The M90 test is gone from test-oblique-branches.R. Against master this test failed 20 of 24. PASS.
+- AC4: fresh run of "default varimax fits whose rotation converges raise no rotation warning" (the two named fits): 3 expectations, 0 failed. It asserts no "random starts", "rotation algorithm", or "did not converge" text. test-baseline-m89.R: 5 tests, 0 failed (esem_sim16 21 of 21). `git diff --quiet master -- tests/testthat/fixtures/baseline-m89.rds` reports no change. PASS.
+- AC5: read at HEAD. The `rotation` help (R/ackwards.R, "ESEM counts the failed starts under every lavaan rotation, varimax included") states the keep and truncate rule. The NEWS.md first development bullet states the same rule and says varimax ESEM showed no rotation warning before. The DESIGN §4 "ESEM rotation starts" paragraph states the rule and that N is `rotation.args$rstarts`. PASS.
