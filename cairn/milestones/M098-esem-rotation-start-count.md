@@ -1,13 +1,13 @@
 # M098: Counted lavaan rotation failures on every ESEM rotation
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** normal
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** IP6, IP7
 - **Resolves:** —
 - **Surface tier:** user-facing — it changes the warnings and levels that `ackwards(engine = "esem")` returns
-- **Branch/PR:** —
+- **Branch/PR:** `m098-esem-rotation-start-count`
 
 ## Goal
 
@@ -83,7 +83,7 @@ hierarchy at a level where every start failed.
 
 ## Tasks
 
-- [ ] T1: Measure before coding, on lavaan 0.7.2. For ML, MLR, WLSMV (ordered), and ULSMV,
+- [x] T1: Measure before coding, on lavaan 0.7.2. For ML, MLR, WLSMV (ordered), and ULSMV,
       make sure that a `max_iter = 2` plant gives exactly `rstarts` (30) non-convergence
       warnings at one level under varimax, oblimin, and geomin. A second rotation pass doubles
       the count. Log the figures in the work log. If any estimator doubles the count, stop and
@@ -116,6 +116,7 @@ hierarchy at a level where every start failed.
 - 2026-10-06: measured on lavaan 0.7.2 — default varimax ESEM on bfi25 gave 0 rotation warnings at k = 2 to 8 (ML) and 2 to 6 (WLSMV); a max_iter = 2 plant gave 30 of 30, max_iter = 30 gave 1 of 30; warn = FALSE gave 0.
 - 2026-10-06: criteria audit (full mode, fresh Opus reader) returned 10 findings, all accepted: AC1 names the two f forms and keeps the oblique asserts; AC2 uses a deterministic warning plant instead of a seeded max_iter or a second real call; mock pinning and serial lapply moved to T4 as instrument properties; AC2 warning matched by k; AC3 uses k_max = 4, adds geomin, reads N from options, drops the unreachable rstarts = 0 case to T3; AC4 narrowed to the two named fits and states what the baseline test shows; AC5 DESIGN content named; T5 checks the seed paragraph.
 - 2026-10-06: collision sweep — absorbs the [low] candidate "ESEM varimax hides lavaan's rotation non-convergence"; extends M90 (archive); no D-entry rejects it; GitHub inbox has 0 open issues and 0 open PRs.
+- 2026-10-06: T1 (lavaan 0.7.2, max_iter = 2 at k = 3): varimax, oblimin, and geomin each gave 30 of 30 warnings under ML, MLR, ULSMV (sim16) and WLSMV, ULSMV (bfi25 ordered); lavInspect converged stayed TRUE; rstarts = 0 gave 1. No doubling, so the counting rule stands.
 
 ## Decisions
 

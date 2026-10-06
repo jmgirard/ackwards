@@ -10,7 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M098 | Counted lavaan rotation failures on every ESEM rotation | planned | — | normal | milestones/M098-esem-rotation-start-count.md |
+| M098 | Counted lavaan rotation failures on every ESEM rotation | in-progress | — | normal | milestones/M098-esem-rotation-start-count.md |
 | M097 | Cross-check coverage and the matrix behind each edge | done | — | normal | milestones/archive/M097-cross-check-coverage.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 | M96 | Varimax and oblimin side by side on bfi25 in the engines vignette | done | — | normal | milestones/archive/M96-rotation-comparison.md |
