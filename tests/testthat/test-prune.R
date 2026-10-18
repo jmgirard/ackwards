@@ -502,6 +502,36 @@ test_that("M78: direct chase stops at a mid-chain gap and does NOT skip to a dee
   expect_true("m1f1" %in% sl_f$from_label) # chain reaches the top contiguously
 })
 
+test_that("M099: on AMH, the chase stops at m7f2's level-6 gap and manual = flags it", {
+  # The real-data form of the M78 case: m7f2 is Forbes's g2. Its best direct
+  # |r| to level 6 is below .9, its best direct |r| to level 5 is above .9
+  # again, and the contiguous chase does not restart there. The ?prune help
+  # documents this stop and the manual = route for flagging such a factor.
+  skip_if_not_installed("psych")
+  suppressWarnings(suppressMessages(
+    x <- cached(ackwards(forbes2023, k_max = 10, pairs = "all"))
+  ))
+  best_r <- function(j) max(abs(x$edges$matrices[[paste0(j, ":7")]][, "m7f2"]))
+  expect_lt(best_r(6), 0.9)
+  expect_gte(best_r(5), 0.9)
+
+  xp <- suppressMessages(prune(x, "redundant"))
+  expect_false(xp$prune$nodes$pruned[xp$prune$nodes$id == "m7f2"])
+  ch <- xp$prune$chains
+  expect_gt(NROW(ch), 0L) # chains exist, so the absence check is not vacuous
+  expect_false("m7f2" %in% ch$id)
+  sl <- ackwards:::.strong_links_direct(x, threshold_r = 0.9, threshold_phi = NULL)
+  expect_gt(NROW(sl), 0L)
+  expect_false("m7f2" %in% c(sl$from_label, sl$to_label))
+
+  xm <- suppressMessages(prune(x, "redundant", manual = "m7f2"))
+  node <- xm$prune$nodes[xm$prune$nodes$id == "m7f2", ]
+  expect_true(node$pruned)
+  expect_identical(node$prune_reason, "manual")
+  expect_false("m7f2" %in% xm$prune$chains$id)
+  expect_identical(xm$prune$chains, xp$prune$chains) # manual adds no chain row
+})
+
 # --- B3: internal helper coverage (M23) --------------------------------------
 
 test_that(".tucker_phi() returns NA_real_ when one loading vector is all zeros", {

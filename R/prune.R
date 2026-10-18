@@ -11,10 +11,11 @@
 #     retention rule (keep the bottom node if the chain reaches level k_max, the
 #     most specific/best-defined; else keep the top node, the broadest
 #     manifestation; Forbes 2023, p.3):
-#     * "direct" (DEFAULT, M53): faithful to Forbes's ChaseCorrPaths -- chase up
-#       via the DIRECT (skip-level) correlation to the component at each ancestor
-#       level. This is what the paper does; it reproduces her AMH applied example
-#       exactly (test-forbes-fidelity.R).
+#     * "direct" (DEFAULT, M53): follows Forbes's reference code ChaseCorrPaths --
+#       chase up via the DIRECT (skip-level) correlation to the component at each
+#       ancestor level, stopping at the first failing level. It reproduces her AMH
+#       applied example exactly (test-forbes-fidelity.R). The contiguous stop is
+#       kept on purpose; D-040 records why.
 #     * "adjacent" (pre-M53 behavior, opt-in): trace ADJACENT primary-parent
 #       links only. Because correlation is non-transitive, this both over-reaches
 #       (a clean adjacent chain whose endpoints are < redundancy_r) and
@@ -218,7 +219,8 @@
   sl
 }
 
-# DIRECT criterion (default; M53): faithful to Forbes's (2023) ChaseCorrPaths.
+# DIRECT criterion (default; M53): follows Forbes's (2023) reference code
+# ChaseCorrPaths.
 # For each component, chase upward using the DIRECT (skip-level) correlation to
 # that component at each ancestor level -- at level j take the node with the
 # largest |direct r| and continue while |r| >= threshold_r (and, if set, direct
@@ -659,7 +661,8 @@
 #'   pruning. Options:
 #'   * `"redundant"`: identify chains of factors connected by factor-score
 #'     correlations `|r| >= redundancy_r` (and optionally `phi > redundancy_phi`),
-#'     using `redundancy_criterion` (default `"direct"`, faithful to Forbes).
+#'     using `redundancy_criterion` (default `"direct"`, which follows Forbes's
+#'     reference code).
 #'     A factor score is each person's estimated standing on a factor.
 #'     Applies Forbes's (2023) retention rule: keep the bottom node when the
 #'     chain reaches level `k_max` (most specific), and keep the top node
@@ -686,11 +689,20 @@
 #'   redundancy chains. Default `0.9` (Forbes, 2023).
 #' @param redundancy_criterion How redundancy chains are traced. One of:
 #'   * `"direct"` (default): chase upward via the **direct (skip-level)**
-#'     correlation between a factor and each ancestor level, continuing while
-#'     `|r| >= redundancy_r` contiguously. This is Forbes's (2023) published
-#'     `ChaseCorrPaths` rule and the honest way to operationalize "the same
-#'     construct", because two factor scores share `>= redundancy_r^2` variance
-#'     *directly*. It reproduces her AMH applied example exactly.
+#'     correlation between a factor and each ancestor level. At each level it
+#'     takes the factor with the largest direct `|r|`. It continues while
+#'     `|r| >= redundancy_r`, and while phi is above `redundancy_phi` when
+#'     `redundancy_phi` is set (by you or automatically). The chase stops at
+#'     the first level that fails. A level further up that passes again does
+#'     not restart it. This contiguous stop follows Forbes's (2023) reference
+#'     code, `ChaseCorrPaths`, and the chase reproduces her AMH applied example
+#'     exactly. The direct correlation is the honest way to operationalize
+#'     "the same construct", because two factor scores share
+#'     `>= redundancy_r^2` variance *directly*. To bridge such a gap, judge
+#'     the case yourself, including which factor of the bridged chain to
+#'     drop, and pass that factor to `manual`. A factor that no rule flagged
+#'     then gets `prune_reason = "manual"`, and a factor already flagged as
+#'     redundant keeps that reason. `manual` adds no row to `x$prune$chains`.
 #'   * `"adjacent"`: trace **adjacent primary-parent** links only, so each
 #'     consecutive level must meet `|r| >= redundancy_r`. This was the pre-M53
 #'     default. Because correlation is non-transitive it can both over- and
