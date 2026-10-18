@@ -25,9 +25,9 @@ Context. Since lavaan 0.7.3 (CRAN 2026-10-08), the test "ESEM warns on improper 
 
 - [ ] AC1: The Heywood test is the `test_that()` block in `tests/testthat/test-esem.R` whose `expect_warning()` matches "Heywood". At the branch head, under lavaan 0.7.3 or later, it passes and does not skip in two environments. The first is macOS local. The second is a Linux environment in which the block as it exists at master commit `46bb2f6` fails with the error "failed to build at least 2 converged levels". That environment is a Docker container or a GitHub Actions `ubuntu-latest` job. The evidence for each run is `as.data.frame(testthat::test_file(...))`, run with `NOT_CRAN=true` and filtered to the block, with `failed` 0 and `skipped` FALSE.
 - [ ] AC2: You dispatch `re-oracle.yaml` on the branch with `gh workflow run re-oracle.yaml --ref <branch>`. Take the most recent `re-oracle.yaml` run whose `headSha` has no file outside `cairn/` that differs from the final branch head, so that `git diff --quiet <headSha> HEAD -- . ':!cairn/'` exits 0. That run ends with conclusion `success`, and its "Record upstream versions" step prints a `lavaan=` version of 0.7.3 or later.
-- [ ] AC3: The repaired plant puts the Heywood case at the deepest requested level, and the built depth stays at 2 or more. On macOS local, the block fails under each of three uncommitted edits to `R/engine_esem.R`. First, an edit removes the Heywood warning, and the block fails at its `expect_warning(..., "Heywood")`. Second, an edit changes the residual test from `<= 0` to `< 0`, and the block fails at the same expectation. Third, an edit keeps the warning but drops the Heywood level from the hierarchy. The failures of the block then include its check that the built depth equals the requested depth. For each edit, the evidence shows that expectation among the failures, not an error or a skip.
-- [ ] AC4: One of two states holds. In the first, the branch changes no file under `R/` and leaves `NEWS.md` unchanged, so `git diff --stat master...HEAD -- R/ NEWS.md` prints nothing. In the second, the branch changes at least one file under `R/`. Each behavior-changing hunk under `R/` then comes with a `NEWS.md` bullet under the development version that describes the changed behavior. Each such hunk also comes with a test that fails at the master `R/` and passes at the branch head in the AC1 Linux environment. If the change alters when ESEM ends the hierarchy, a D-entry in `cairn/DECISIONS.md` records it.
-- [ ] AC5: `Rscript tools/dod-gate.R` exits 0 on macOS local at the branch head.
+- [x] AC3: The repaired plant puts the Heywood case at the deepest requested level, and the built depth stays at 2 or more. On macOS local, the block fails under each of three uncommitted edits to `R/engine_esem.R`. First, an edit removes the Heywood warning, and the block fails at its `expect_warning(..., "Heywood")`. Second, an edit changes the residual test from `<= 0` to `< 0`, and the block fails at the same expectation. Third, an edit keeps the warning but drops the Heywood level from the hierarchy. The failures of the block then include its check that the built depth equals the requested depth. For each edit, the evidence shows that expectation among the failures, not an error or a skip.
+- [x] AC4: One of two states holds. In the first, the branch changes no file under `R/` and leaves `NEWS.md` unchanged, so `git diff --stat master...HEAD -- R/ NEWS.md` prints nothing. In the second, the branch changes at least one file under `R/`. Each behavior-changing hunk under `R/` then comes with a `NEWS.md` bullet under the development version that describes the changed behavior. Each such hunk also comes with a test that fails at the master `R/` and passes at the branch head in the AC1 Linux environment. If the change alters when ESEM ends the hierarchy, a D-entry in `cairn/DECISIONS.md` records it.
+- [x] AC5: `Rscript tools/dod-gate.R` exits 0 on macOS local at the branch head.
 
 ## Coverage
 
@@ -77,3 +77,36 @@ Context. Since lavaan 0.7.3 (CRAN 2026-10-08), the test "ESEM warns on improper 
 - 2026-10-18: T5: redispatched `re-oracle.yaml` as run 39170177736 on `177e5f5`: conclusion `success`, `lavaan=0.7.3`, `psych=2.6.9`, check `Status: OK`, tests `[ FAIL 0 | WARN 0 | SKIP 27 | PASS 3610 ]`.
 - 2026-10-18: environment note: an Xcode update mid-session made `/usr/bin/git` refuse to run until its license is accepted (`sudo xcodebuild -license`, the user's step). Git and gh work through `/opt/homebrew/bin/git` 2.56.0 first on `PATH`.
 - 2026-10-18: implement complete; status set to review.
+
+## Decisions
+
+## Review
+
+Review pass 1, 2026-10-18, at `b2977fa`. Master `f910b60` has not moved since the cut. No PR is open, and the Copilot round is off.
+
+- AC2: `gh run list --workflow re-oracle.yaml` lists runs 39170177736 (`177e5f5`, success), 39169715712 (`51817a7`, cancelled), and scheduled master runs. `git diff --quiet 177e5f5 HEAD -- . ':!cairn/'` exits 0, and the same check on `51817a7` exits 1. Master runs carry the old `tests/` tree. The most recent run on a matching tree is 39170177736: conclusion `success`, log `lavaan=0.7.3`, `psych=2.6.9`, `Status: OK`. Pass.
+- AC3: macOS, lavaan 0.7.3, fresh at `b2977fa`, each edit restored by `git checkout` with a clean `git status` after. Probe 1 (`if (FALSE && res$bad_resid > 0L)`): `failed` 1, error FALSE, skipped FALSE, and the failure is `expect_warning()` "to throw a warning". Probe 2 (`diag(theta) < 0`): the same single failure. Probe 3 (`break` after the Heywood warning): the warning expectation passes, and the failure is `expect_equal(x$k_max, 3L)` with actual 2 ("Hierarchy truncated ... built k = 2"), error FALSE, skipped FALSE. The plant's Heywood case is at k = 3, the deepest requested level, and the built depth with the probe is 2. Pass.
+- AC4: `git diff --stat master...HEAD -- R/ NEWS.md` prints nothing. The branch changes `tests/testthat/test-esem.R` and two `cairn/` files. First state. Pass.
+- AC5: `Rscript tools/dod-gate.R` exit 0 at `b2977fa`: vignette freshness clean, check 0 errors | 0 warnings | 0 notes, coverage 100%, styler and lintr clean, pkgdown reference index complete. Pass.
+- Consistency gate at `b2977fa`: `cairn_validate.py` exit 0. `devtools::document()` gives no diff. README, NAMESPACE, `man/`, DESCRIPTION, and `.Rbuildignore` are unchanged. A NEWS entry is not owed because the change is test-only. No principle changed, so `cairn_impact` is skipped. Check and pkgdown are covered by AC5.
+- spawned: diff-bug, blame-history, prior-review
+- diff-bug #1: `expect_warning(..., "Heywood")` matches the warning at any level, so the Heywood case is not pinned to k = 3 — fix now, regex `"k = 3: [^H]*Heywood"`, fixed d7d10d9. A wrong-level probe (`at k = {k - 1L}`) fails the block at `expect_warning()`.
+- diff-bug #2: the precheck skip can hide a failure, as it did under lavaan 0.7.2 on Linux x86_64 — follow-up, candidate row "Heywood test precheck skip".
+- diff-bug #3: the precheck fits a different model than the engine — follow-up, same row.
+- diff-bug #4: `ackwards()` ran with no `seed`, so lavaan's rotation starts depended on the RNG state left by the precheck — fix now, `seed = 42`, fixed d7d10d9.
+- diff-bug #5: the comment's "with OpenBLAS" rests on the Docker image only — fix now, removed, fixed d7d10d9.
+- diff-bug #6: "pushes one residual" has no Linux record — fix now, "pushes a residual", fixed d7d10d9.
+- diff-bug #7: "lavaan clamps negative theta to 0 by default" is unchecked — reject, false: `lavInspect(fit, "options")$bounds` is `pos.var` under lavaan 0.7.3, with 1 theta <= 0 at k = 3.
+- diff-bug #8: AC1 unticked, with evidence older than the final tree — reject, false: the review gathers fresh AC1 evidence on the final head before ticking.
+- diff-bug #9: the plant was validated narrowly (one seed, two platforms, two lavaan versions) — follow-up, same row.
+- blame-history #1: the `skip_if()` precheck turns a failure into a silent skip — follow-up, same row.
+- blame-history #2: the precheck checks only k = 3, through a plain `lavaan::efa()` — follow-up, same row.
+- blame-history #3: eps 0.05 no longer fits "near-zero" — reject, false: the new comment says "small unique variance".
+- blame-history #4: nothing pins the Heywood case to k = 3 — fix now, same fix as diff-bug #1, fixed d7d10d9.
+- prior-review #1: varimax rotation warnings could leak past `expect_warning()` — reject, false: the block shows 0 uncaught warnings on both platforms, and T1 measured 0 failed rotation starts.
+- prior-review #2: the precheck checks only theta at k = 3 — follow-up, same row.
+- prior-review #3: the comment's numbers are unverified — reject, false: the claim audit read 11 claims against the work log and a run, and corrected 2.
+- prior-review #4: the plant is untested on lavaan older than 0.7 — follow-up, same row.
+- Fix-now re-verification on the fixed tree (same content as `d7d10d9`), macOS, lavaan 0.7.3: the block passes (`failed` 0, `skipped` FALSE, 0 warnings), styler and lintr are clean, and AC3's three probes fail as before. Probes 1 and 2 fail at `expect_warning()`, and probe 3 fails at `expect_equal(x$k_max, 3L)` with actual 2. No probe errors or skips. AC2 and AC5 are unticked until fresh evidence on `d7d10d9` lands.
+- AC3 (re-verified at `d7d10d9` content): pass, as in the line above.
+- AC5 (re-verified at `d7d10d9`): `Rscript tools/dod-gate.R` exit 0: vignette freshness clean, check 0 errors | 0 warnings | 0 notes, coverage 100%, styler and lintr clean, pkgdown reference index complete. Pass.
