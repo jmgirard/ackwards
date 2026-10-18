@@ -117,6 +117,7 @@ with the candidate row "Unbroken chase to level a".
 - 2026-10-18: first gate run passed (check 0/0/0, coverage 100%, style, lint, pkgdown). The claim audit then found the `manual` sentence overstated: a factor already flagged keeps "redundant", and a gap-stopped factor can have chain rows from the levels it passed. The help and NEWS now say that a factor no rule flagged gets "manual" and that `manual` adds no chain row. The test now checks that the chains table is unchanged by `manual`. The overlap case is held by the existing test "manual pruning combines with an auto rule". The gate is running again.
 - 2026-10-18: claim audit: 22 claims read, 1 corrected — R/prune.R, man/prune.Rd, NEWS.md. The same reader re-read the corrected claim once and found it correct.
 - 2026-10-18: T5 done. Second gate run on the corrected text passed: `tools/dod-gate.R` exit 0 (prose clean, check 0/0/0, coverage 100%, style and lint clean, pkgdown index complete). Status set to review.
+- 2026-10-18: step-7 approval: m099-chase-gap-supersede approved for merge
 
 ## Decisions
 
