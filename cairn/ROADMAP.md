@@ -10,6 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
+| M100 | Heywood ESEM test green on Linux under lavaan 0.7.3 | planned | — | high | milestones/M100-heywood-test-linux.md |
 | M099 | Chase-gap reason corrected and a manual bridge documented | done | — | high | milestones/archive/M099-chase-gap-supersede.md |
 | M098 | Counted lavaan rotation failures on every ESEM rotation | done | — | normal | milestones/archive/M098-esem-rotation-start-count.md |
 | M097 | Cross-check coverage and the matrix behind each edge | done | — | normal | milestones/archive/M097-cross-check-coverage.md |
