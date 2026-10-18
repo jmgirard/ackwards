@@ -537,11 +537,11 @@ test_that("ESEM warns on improper solution (Heywood case) but still builds", {
   skip_if_not_installed("lavaan")
   # 8 variables with small unique variance (eps = 0.05), 2 true factors.
   # Asking for k = 3 overfactors the data and pushes one residual to the
-  # Heywood boundary at the deepest level only. lavaan clamps negative theta to
-  # 0 by default, and our check fires at <= 0. k = 1 and k = 2 must converge,
-  # or the hierarchy aborts before k = 3. The earlier eps = 0.001 made R nearly
-  # singular (condition number about 5200): on Linux x86_64 with OpenBLAS,
-  # lavaan 0.7.3 stopped at 10000 iterations without converging at k = 2. With
+  # Heywood boundary at k = 3. lavaan clamps negative theta to 0 by default,
+  # and our check fires at <= 0. k = 1 and k = 2 must converge, or the
+  # hierarchy aborts before k = 3. The earlier eps = 0.001 gave R a condition
+  # number of about 5200, and on Linux x86_64 with OpenBLAS, lavaan 0.7.3
+  # stopped at 10000 iterations without converging at k = 2. With
   # eps = 0.05, k = 1 and k = 2 converge in 2 to 3 iterations on macOS arm64 and
   # Linux x86_64, under lavaan 0.7.2 and 0.7.3 (measured 2026-10-18).
   # The skip_if below guards against future lavaan versions that may change this

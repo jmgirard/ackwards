@@ -44,7 +44,7 @@ Context. Since lavaan 0.7.3 (CRAN 2026-10-08), the test "ESEM warns on improper 
 - [x] T3: Run the block at the branch head on macOS local and in the T1 Linux environment, and record the filtered `test_file()` results (AC1).
 - [x] T4: Run the three uncommitted probe edits of AC3 on macOS local, one at a time, and record which expectation fails under each. Restore `R/engine_esem.R` after each.
 - [ ] T5: Push the branch and dispatch `re-oracle.yaml` on it (AC2). If an unrelated upstream break fails the run, stop at the red-CI stop.
-- [ ] T6: Run `Rscript tools/dod-gate.R` on macOS local (AC5).
+- [x] T6: Run `Rscript tools/dod-gate.R` on macOS local (AC5).
 
 ## Work log
 
@@ -71,3 +71,6 @@ Context. Since lavaan 0.7.3 (CRAN 2026-10-08), the test "ESEM warns on improper 
 - 2026-10-18: re-audit: AC2 (full) — one finding: with several runs, "the run" let a lucky success be picked; fixed to "the most recent run" on a matching tree.
 - 2026-10-18: re-audit: AC2 (full) — nothing.
 - 2026-10-18: T3 at `f8a2bdf` (`tests/` unchanged since): the block passes with `failed` 0 and `skipped` FALSE (3 expectations) on macOS arm64 with lavaan 0.7.3 (scratch library) and on Linux x86_64 (`rocker/r-ver:4.6.1`, amd64) with lavaan 0.7.3. The Linux runs used `as.data.frame(testthat::test_file())` filtered to the block, with `NOT_CRAN=true`.
+- 2026-10-18: T5: pushed the branch and dispatched `re-oracle.yaml` as run 39169715712 on `51817a7`.
+- 2026-10-18: T6: `Rscript tools/dod-gate.R` exit 0 on macOS at `51817a7`: prose clean, check 0 err/0 warn/0 note, coverage 100%, style and lint clean, pkgdown index complete.
+- 2026-10-18: claim audit: 11 claims read, 2 corrected — tests/testthat/test-esem.R. "At the deepest level only" became "at k = 3", because no Linux record covers theta at k = 1 and 2. "Nearly singular (condition number about 5200):" became a plain statement of the condition number, because the same matrix converges on macOS. Re-read once by the same reader's evidence: both corrected claims are backed. After the comment change the block passes on macOS with lavaan 0.7.3, the file is styler- and lintr-clean, and run 39169715712 was cancelled as stale.
