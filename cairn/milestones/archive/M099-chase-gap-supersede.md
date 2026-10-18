@@ -1,0 +1,11 @@
+# M099: Chase-gap reason corrected and a manual bridge documented
+
+**Status:** done (2026-10-18, PR #112 https://github.com/jmgirard/ackwards/pull/112)
+
+**Goal:** Replace D-032 with a decision whose reason matches what Forbes says about her chase, and show users how to flag a factor across a chase gap by hand.
+
+**Outcome:** No code or output change. The `"direct"` entry of `redundancy_criterion` in `?prune` now states the stop rule: the chase continues while `|r| >= redundancy_r` and phi is above `redundancy_phi` when that is set, and it stops at the first failing level, with no restart above. It says the stop follows Forbes's reference code `ChaseCorrPaths`, and that the user bridges a gap by passing the factor to drop to `manual`, which records "manual" for an unflagged factor and adds no chain row. The help does not cite her email (plan gate). The `rules` entry and two internal comments dropped "faithful to Forbes". A new `test-prune.R` test fits the AMH example (`k_max = 10`) and checks `m7f2` (her `g2`): best direct `|r|` .8981 to level 6 and .9084 to level 5, no chain, and the manual flag. A planted gap skip failed it. NEWS has one entry. Records: `forbes2023.md` gained the section "Her account of the chase gap", the `source-departures.md` M2 row cites it and stays `match`, and the M78 lesson is corrected in place. The plan gate declined a gap report in `prune("artifact")` and an opt-in bridged chase.
+
+**Decisions:** D-040 (supersedes D-032): the contiguous chase stays because it reproduces her code and her hand step is a judgment step, not because the contiguity is her intent.
+
+**Review:** one pass, all five criteria passed, and one wording amendment to AC3 (the `id` column), re-audited clean. The implement claim audit read 22 claims and corrected one (the `manual` sentence). Three review lenses gave 19 findings. Five were fixed before merge: the non-vacuous chain checks, which factor to pass to `manual`, NEWS wording, and the source-note heading. Fourteen were rejected, including adding a "superseded" note to D-032, which the rulebook forbids. None went to candidate rows. Merged on local green under the repo's standing non-release rule. The candidate row "D-032 premise contradicted by its source" graduated. No lesson was retired or added.
