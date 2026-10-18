@@ -30,14 +30,14 @@ with the candidate row "Unbroken chase to level a".
 
 ## Acceptance criteria
 
-- [ ] AC1: `cairn/DECISIONS.md` gains one entry whose heading says it supersedes D-032. The
+- [x] AC1: `cairn/DECISIONS.md` gains one entry whose heading says it supersedes D-032. The
       entry keeps `redundancy_criterion = "direct"` and its contiguous break unchanged. It
       states that the contiguity matches her reference code `ChaseCorrPaths`, not a rule of
       her method. It gives two reasons. First, the contiguous chase reproduces her AMH chase
       output 54/54 (D-017 from M53) and her `g2--null` gap case (D-032 from M78). Second, she bridges a gap by hand when she reviews
       artifacts. The nearest package step is `prune(manual = )`, which records reason
       `"manual"` and reports no chain.
-- [ ] AC2: In the `?prune` help (roxygen in `R/prune.R`, regenerated into `man/prune.Rd`), the
+- [x] AC2: In the `?prune` help (roxygen in `R/prune.R`, regenerated into `man/prune.Rd`), the
       `"direct"` entry of `redundancy_criterion` says three things. First, the chase stops at
       the first ancestor level that fails the criterion. The criterion is `|r| >=
       redundancy_r`, plus phi above `redundancy_phi` when `redundancy_phi` is non-NULL,
@@ -45,19 +45,19 @@ with the candidate row "Unbroken chase to level a".
       that meets the criterion again does not restart the chase. Second, the contiguity
       follows Forbes's reference code `ChaseCorrPaths`. Third, `manual =` flags such a factor
       by the user's judgment, with reason `"manual"`.
-- [ ] AC3: A test in `tests/testthat/test-prune.R` fits
+- [x] AC3: A test in `tests/testthat/test-prune.R` fits
       `ackwards(forbes2023, k_max = 10, pairs = "all")` and checks `m7f2`. Its largest direct
       `|r|` to a level-6 factor is below .9, and its largest direct `|r|` to a level-5 factor
       is .9 or more. After `prune(x, "redundant")`, `m7f2` has `pruned = FALSE` in
       `x$prune$nodes` and does not appear in the `id` column of `x$prune$chains`. After
       `prune(x, "redundant", manual = "m7f2")`, it has `pruned = TRUE` and
       `prune_reason = "manual"`.
-- [ ] AC4: `cairn/references/forbes2023.md` records her 2026-07-30 statement on the chase. The
+- [x] AC4: `cairn/references/forbes2023.md` records her 2026-07-30 statement on the chase. The
       contiguity is a coding limitation. She bridges a dead intervening level by hand when
       she reviews artifacts, on the redundancy criterion. The M2 row of
       `cairn/references/source-departures.md` cites that record. The M78 line of
       `cairn/LESSONS.md` is corrected in place and marked `corrected M099`.
-- [ ] AC5: The development section of NEWS.md gains one documentation entry that describes
+- [x] AC5: The development section of NEWS.md gains one documentation entry that describes
       the AC2 help text.
 
 ## Coverage
@@ -121,3 +121,11 @@ with the candidate row "Unbroken chase to level a".
 ## Decisions
 
 ## Review
+
+Evidence gathered 2026-10-18 on branch head `0fb18b4`. The branch is level with `origin/master` (`f136a00`), and no merge was needed.
+
+- AC1 evidence: `git show HEAD:cairn/DECISIONS.md` has `### D-040 (2026-10-18; supersedes D-032)` at line 288. The entry keeps the direct criterion and its break unchanged. It says the contiguity "matches her reference code `ChaseCorrPaths`, not a rule of her method" and withdraws D-032's reading. It gives both reasons: the AMH 54/54 output (D-017 from M53) with `g2--null` (D-032 from M78), and her hand bridge with `prune(manual = )` as the nearest step, which records "manual" and reports no chain. `git diff master..HEAD -- cairn/DECISIONS.md` removes 0 lines, so D-032 is untouched.
+- AC2 evidence: `git show HEAD:man/prune.Rd` lines 87-101, the `"direct"` entry, say all three things. First, the chase continues while `|r| >= redundancy_r` and phi is above `redundancy_phi` when it is set "by you or automatically", stops at the first level that fails, and is not restarted by a level further up. Second, the stop "follows Forbes's (2023) reference code, `ChaseCorrPaths`". Third, `manual` flags the factor, which gets "manual" unless a rule already flagged it. The roxygen in `R/prune.R` matches, because the consistency gate's `document()` run is the no-diff check. The Rd has 0 matches for "correspondence", "email", or "personal communication".
+- AC3 evidence: `testthat::test_file()` on `test-prune.R` with the M099 test's description, run fresh: 9 expectations, 9 `expectation_success`. They cover the best direct `|r|` to level 6 (< .9) and level 5 (>= .9), `pruned = FALSE` in `x$prune$nodes`, `m7f2` absent from `x$prune$chains$id`, and, with `manual = "m7f2"`, `pruned = TRUE` and `prune_reason = "manual"`. In implement (T1), a planted gap skip turned 4 of these into assertion failures with no error.
+- AC4 evidence: `git show HEAD:cairn/references/forbes2023.md` line 92 records her 2026-07-30 statement under "Correspondence conventions": the contiguity is a coding limitation, and she bridges a dead intervening level by hand when she reviews artifacts, on the redundancy criterion. The M2 row of `source-departures.md` cites it ("calls that a coding limitation. She bridges such a gap by hand", with `[[forbes2023]]`). `LESSONS.md` line 27 (the M78 lesson) carries the in-place correction marked `corrected M099`.
+- AC5 evidence: `git show HEAD:NEWS.md` line 47 opens the entry "Where the redundancy chase stops, in the `prune()` help" under "# ackwards (development version)". It describes the stop rule, the reference-code attribution, and the `manual` route. NEWS has 0 matches for `M099` or `M99`.
