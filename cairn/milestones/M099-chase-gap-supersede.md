@@ -1,13 +1,13 @@
 # M099: Chase-gap reason corrected and a manual bridge documented
 
-- **Status:** planned
+- **Status:** in-progress
 - **Priority:** high
 - **Depends on:** —
 - **Driving RR:** —
 - **Principles touched:** IP9, GP2
 - **Resolves:** —
 - **Surface tier:** user-facing — it changes the `?prune` help page and NEWS.md
-- **Branch/PR:** —
+- **Branch/PR:** `m099-chase-gap-supersede`
 
 ## Goal
 
@@ -48,8 +48,8 @@ with the candidate row "Unbroken chase to level a".
 - [ ] AC3: A test in `tests/testthat/test-prune.R` fits
       `ackwards(forbes2023, k_max = 10, pairs = "all")` and checks `m7f2`. Its largest direct
       `|r|` to a level-6 factor is below .9, and its largest direct `|r|` to a level-5 factor
-      is .9 or more. After `prune(x, "redundant")`, `m7f2` has `pruned = FALSE` and is absent
-      from both label columns of `x$prune$chains`. After
+      is .9 or more. After `prune(x, "redundant")`, `m7f2` has `pruned = FALSE` in
+      `x$prune$nodes` and does not appear in the `id` column of `x$prune$chains`. After
       `prune(x, "redundant", manual = "m7f2")`, it has `pruned = TRUE` and
       `prune_reason = "manual"`.
 - [ ] AC4: `cairn/references/forbes2023.md` records her 2026-07-30 statement on the chase. The
@@ -70,12 +70,12 @@ with the candidate row "Unbroken chase to level a".
 
 ## Tasks
 
-- [ ] T1: Write the AC3 test first, after the M78 test in `test-prune.R` (~line 422). Reuse
+- [x] T1: Write the AC3 test first, after the M78 test in `test-prune.R` (~line 422). Reuse
       the `cached()` AMH fit. It passes on current behavior. To show that it can fail, plant
       a gap skip in `.strong_links_direct` (`R/prune.R` ~line 232): a `next` in place of the
       `break` at the `|r|` check, plus a direct link from the found ancestor to the leaf
       (stats read from the `j:L` matrix). A bare `next` errors at `E_adj[Pnode, prev]`
-      (~line 263). Confirm the "absent from both label columns" expectation itself fails,
+      (~line 263). Confirm the "not in the `id` column" expectation itself fails,
       not an error, then revert.
 - [ ] T2: Edit the roxygen of `prune()`. The `rules` entry (~line 662) says "faithful to
       Forbes's reference code". The `"direct"` entry (~lines 688-693) gets the AC2 text in
@@ -106,6 +106,10 @@ with the candidate row "Unbroken chase to level a".
 - 2026-10-18: plan gate chose docs plus `manual =` over a gap report in `prune("artifact")` and over an opt-in bridged chase, because her code has no automated bridge and the user chose the smallest change. Falsified by Forbes asking for the bridge in code, or by a user who needs a hand-bridged factor recorded as redundant with its chain values.
 - 2026-10-18: the question set changed AC2 (no citation of her email), so the same reader re-audited the final criteria (full mode) and returned 4 findings, all fixed. T1's bare `next` plant would error, not fail, so it now adds the direct link. AC1's first reason narrowed to the AMH 54/54 output and the `g2` case, because row E6 departs. AC2 "when set" now reads non-NULL, automatic value included. AC4 now covers the LESSONS correction.
 - 2026-10-18: plan gate chose an AMH test over a planted mock because AC3 needs a real gap, and `m7f2` is one in shipped data. Falsified by an AMH refit where `m7f2` no longer has the gap.
+- 2026-10-18: implement started on branch `m099-chase-gap-supersede`, cut from master at `f136a00`.
+- 2026-10-18: T1 done. The AMH `m7f2` test passes on current code. A planted gap skip (`next` plus a cross-gap link in `.strong_links_direct`) made 4 expectations fail as assertions with no error, and the plant was reverted (`git diff R/prune.R` empty). The test also checks the strong-link table.
+- 2026-10-18: substantive amendment: AC3 said "absent from both label columns of `x$prune$chains`", but that table has one label column, `id`. AC3 now reads "has `pruned = FALSE` in `x$prune$nodes` and does not appear in the `id` column of `x$prune$chains`". The deliverable is unchanged, so no stop.
+- 2026-10-18: re-audit: AC3 (full) — nothing. The fresh reader confirmed `id` is the only label column and that the clause still catches a gap-tolerant chase.
 
 ## Decisions
 
