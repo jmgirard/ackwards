@@ -129,3 +129,27 @@ Evidence gathered 2026-10-18 on branch head `0fb18b4`. The branch is level with 
 - AC3 evidence: `testthat::test_file()` on `test-prune.R` with the M099 test's description, run fresh: 9 expectations, 9 `expectation_success`. They cover the best direct `|r|` to level 6 (< .9) and level 5 (>= .9), `pruned = FALSE` in `x$prune$nodes`, `m7f2` absent from `x$prune$chains$id`, and, with `manual = "m7f2"`, `pruned = TRUE` and `prune_reason = "manual"`. In implement (T1), a planted gap skip turned 4 of these into assertion failures with no error.
 - AC4 evidence: `git show HEAD:cairn/references/forbes2023.md` line 92 records her 2026-07-30 statement under "Correspondence conventions": the contiguity is a coding limitation, and she bridges a dead intervening level by hand when she reviews artifacts, on the redundancy criterion. The M2 row of `source-departures.md` cites it ("calls that a coding limitation. She bridges such a gap by hand", with `[[forbes2023]]`). `LESSONS.md` line 27 (the M78 lesson) carries the in-place correction marked `corrected M099`.
 - AC5 evidence: `git show HEAD:NEWS.md` line 47 opens the entry "Where the redundancy chase stops, in the `prune()` help" under "# ackwards (development version)". It describes the stop rule, the reference-code attribution, and the `manual` route. NEWS has 0 matches for `M099` or `M99`.
+
+Consistency gate (head `26242c4`): `cairn_validate.py` exit 0 (16 work-log warnings, all in M84). No principle changed, so `cairn_impact` was skipped. `devtools::document()` gave 0 changed paths. `devtools::check()` gave 0 errors, 0 warnings, and 0 notes. `pkgdown::check_pkgdown()` found no problems. `tools/check-vignette-freshness.R` passed. NEWS has the entry (AC5). No README or new top-level file is touched.
+
+spawned: diff-bug, blame-history, prior-review
+
+- diff-bug #1: D-040 says `manual` "reports no chain for the factor", wider than the narrowed help — reject (false): the clause describes the manual step, which never writes `x$prune$chains` (R/prune.R ~980-985), the same fact the help states as "adds no row".
+- diff-bug #2: the test's `%in%` absence checks pass if `chains` or the strong-link table is NULL — fix now.
+- diff-bug #3: the help says to pass "the factor" whose chase stops, but under the retention rule the factor to drop can be another one — fix now.
+- diff-bug #4: `R/layout.R:150` cites D-032 beside D-017 for non-transitivity — reject (false): D-040 withdraws only D-032's reading of intent, and the cited finding stands.
+- diff-bug #5: the ROADMAP candidate row is still open — reject (planned change): step 9 hygiene graduates it.
+- diff-bug #6: the LESSONS correction mark sits at the line end, not in the date prefix — reject (style).
+- diff-bug #7: the new Forbes bullet sits under "Correspondence conventions", a heading about code correspondence — fix now.
+- diff-bug #8: the M2 row stays `match` beside a recorded difference in method — reject (planned change): T4 set the tag, because the automated chase matches her code.
+- blame-history #1: D-032 carries no "superseded" note, unlike D-002 — reject (false): the rulebook forbids editing a decision entry, and the D-040 heading names D-032, so an id search finds it.
+- blame-history #2: "follows Forbes's reference code" does not mention row E6 — reject (false): the sentence covers the contiguous stop, and E6 is the unbroken-chase case.
+- blame-history #3: the Forbes vignette calls the chase her procedure and says to "stick with it" — reject (false): that advice compares the direct and adjacent criteria, and the plan's Out list left the vignette as it is.
+- blame-history #4: `manual` flags only the named factor, not the node the retention rule would keep — fix now (same as diff-bug #3).
+- blame-history #5: the M78 lesson is edited in place — reject (false): the rulebook requires correcting a lesson in place with a mark.
+- blame-history #6: her email is not in the repo — reject (planned change): the 2026-07-30 ROADMAP row and the source note are the record, and the email stays out by choice.
+- blame-history #7: the ROADMAP D-032 row is still open — reject (planned change): step 9 graduates it.
+- prior-review #1: NEWS says "No code or result changed", but comments and a test changed — fix now.
+- prior-review #2: M87 recorded that `prune()` flags on either signal, but the help says both — reject (false): M87 is about the near-redundant band, and the chase requires both (R/prune.R:253).
+- prior-review #3: the "kept on purpose" comment is outside the prose checker — reject (style).
+- prior-review #4: the new ledger anchors need the ledger-anchors check — reject (false): `tools/dod-gate.R` ran it clean on both runs.
