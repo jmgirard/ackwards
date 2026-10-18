@@ -155,3 +155,5 @@ spawned: diff-bug, blame-history, prior-review
 - prior-review #4: the new ledger anchors need the ledger-anchors check — reject (false): `tools/dod-gate.R` ran it clean on both runs.
 
 Fix-now work in `e03a402`. The test asserts that the chains and strong-link tables have rows. The help and NEWS say to pass the factor to drop from the bridged chain. NEWS says "The behavior and results of `prune()` did not change". The 2026-07-30 statement moved to its own section of `forbes2023.md`, "Her account of the chase gap", so AC4's record now sits there and not at line 92. Verify: prune tests 63 run, 0 failed.
+
+Final gate on `e03a402`: `tools/dod-gate.R` exit 0 (prose clean, ledger-anchors clean, check 0/0/0, coverage 100%, style and lint clean, pkgdown index complete). Diffstat against master: 10 files, 160 insertions, 35 deletions. Findings: 19 (5 fixed now, 14 rejected, 0 follow-up). Amendments: 1 (AC3 wording).
