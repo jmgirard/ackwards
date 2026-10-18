@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-10-18 (M099 review. M099 done and archived, candidate "D-032 premise contradicted by its source" graduated, M96 row pruned by terminal-row retention. No lesson added or retired. Validate green.)_
+_Last hygiene check: 2026-10-18 (M100 review. M100 done and archived, candidate "Heywood test precheck skip" added, M097 row pruned by terminal-row retention. One lesson added, none retired. Validate green.)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
@@ -10,10 +10,9 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
-| M100 | Heywood ESEM test green on Linux under lavaan 0.7.3 | review | — | high | milestones/M100-heywood-test-linux.md |
+| M100 | Heywood ESEM test green on Linux under lavaan 0.7.3 | done | — | high | milestones/archive/M100-heywood-test-linux.md |
 | M099 | Chase-gap reason corrected and a manual bridge documented | done | — | high | milestones/archive/M099-chase-gap-supersede.md |
 | M098 | Counted lavaan rotation failures on every ESEM rotation | done | — | normal | milestones/archive/M098-esem-rotation-start-count.md |
-| M097 | Cross-check coverage and the matrix behind each edge | done | — | normal | milestones/archive/M097-cross-check-coverage.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 <!-- M01–M80 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 3 most recent terminal rows. -->
 

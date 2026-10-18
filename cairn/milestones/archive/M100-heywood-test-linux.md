@@ -1,0 +1,11 @@
+# M100: Heywood ESEM test green on Linux under lavaan 0.7.3
+
+**Status:** done (2026-10-18, PR #113 https://github.com/jmgirard/ackwards/pull/113; resolves #111 closes)
+
+**Goal:** The ESEM Heywood test passes again on the GitHub Ubuntu runners under lavaan 0.7.3, so the master CI and the weekly upstream watch are green.
+
+**Outcome:** Test-only change in `tests/testthat/test-esem.R`. `R/` and NEWS are unchanged. The Heywood block's plant moved from `eps = 0.001` to `eps = 0.05` (seed 42 kept). Its `expect_warning()` now matches `"k = 3: [^H]*Heywood"`, and the `ackwards()` call passes `seed = 42`. The comment says why the plant is built this way. Diagnosis in `rocker/r-ver:4.6.1` under `--platform linux/amd64` (the arm64 image passed): with the old plant (condition number 5207), lavaan's optimizer stopped at 10000 iterations at k = 2 with `converged = FALSE`, and 0 rotation starts failed, so the M098 rule was not involved. Under lavaan 0.7.2 the k = 3 fit did not converge either, so the `theta <= 0` precheck skipped the block on that platform. lavaan 0.7.3 converges at k = 3, so the block began to run and fail. With `eps = 0.05`, k = 1 and k = 2 converge in 2 to 3 iterations on macOS arm64 and Linux x86_64 under both versions. The watch dispatched on the branch passed (run 39172491699).
+
+**Decisions:** milestone-local. A milder real plant was kept over a mocked `lavInspect()` theta, and the precheck skip was kept so that a future lavaan change skips rather than fails CRAN checks. AC2 was amended once: it now compares trees outside `cairn/`, because review's tracking commits made "`headSha` equals the final head" unreachable. Two fresh re-audits were run.
+
+**Review:** one pass, all five criteria passed with fresh evidence. Three lenses reported 17 findings. Four were fixed before merge: the warning pinned to k = 3, a seeded fit, and two comment claims narrowed. A wrong-level probe proved the k = 3 check can fail. Six went to the new candidate row "Heywood test precheck skip" (the precheck can still skip quietly and fits a different model than the engine, and the plant was validated narrowly). Seven were rejected as false. Merged on local green under the repo's standing non-release rule. One LESSONS line was added (amd64 Docker reproduction), and none was retired.
