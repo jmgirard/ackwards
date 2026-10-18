@@ -85,7 +85,7 @@ with the candidate row "Unbroken chase to level a".
       alternatives (gap report, opt-in bridged chase). Name the class of evidence that would
       reopen them: Forbes asks for the bridge in code, or a user needs the hand bridge
       recorded as redundancy.
-- [ ] T4: Add the 2026-07-30 chase statement to the correspondence part of
+- [x] T4: Add the 2026-07-30 chase statement to the correspondence part of
       `cairn/references/forbes2023.md`, and cite it in the M2 row of `source-departures.md`.
       The M2 tag stays `match`, because the automated chase matches her code and the hand
       step is the user's judgment. Correct the M78 line of `cairn/LESSONS.md` in place: the
@@ -112,6 +112,7 @@ with the candidate row "Unbroken chase to level a".
 - 2026-10-18: re-audit: AC3 (full) — nothing. The fresh reader confirmed `id` is the only label column and that the clause still catches a gap-tolerant chase.
 - 2026-10-18: T2 done. The `"direct"` help entry states the stop rule (phi included), the reference-code attribution, and the `manual =` route with reason "manual" and no chain row. The `rules` entry and the comments at the top of `R/prune.R` and above `.strong_links_direct` drop "faithful to Forbes", and the top comment cites D-040. The AMH test gained a check that the manual flag adds no chain row, so that help claim is test-backed. `document()` regenerated `man/prune.Rd`. Prune tests: 63 run, 0 failed.
 - 2026-10-18: T3 done. D-040 supersedes D-032 to the AC1 wording. It cites the 54/54 figure that D-017 records and adds no new measurement. It names the two declined alternatives and their reopening evidence.
+- 2026-10-18: T4 done. `forbes2023.md` gained a bullet under "Correspondence conventions" with her 2026-07-30 chase statement. The `source-departures.md` M2 row cites it and stays `match`. The M78 lesson is corrected in place (`corrected M099`). The simple-english hook flags older text in both reference pages. That text is outside this milestone and was left as it is.
 
 ## Decisions
 

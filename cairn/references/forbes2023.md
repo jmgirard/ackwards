@@ -87,6 +87,13 @@ oblique rotations in her own applied work. See D-034 and `cairn/reviews/archive/
 - Her `ChaseCorrPaths` uses the **direct/skip-level** correlation to each
   ancestor (non-transitive on deep hierarchies) — adopted as
   `prune("redundant")`'s default `redundancy_criterion = "direct"` (M53).
+- Her `ChaseCorrPaths` stops at the first ancestor level below .9. It does not
+  skip to a deeper level that passes again (her `g2--null`, M78). Her
+  2026-07-30 correspondence says that this contiguity is a coding limitation,
+  not a rule of her method. She bridges a dead intervening level by hand when
+  she reviews artifacts, still on the redundancy criterion. The package keeps
+  the contiguous chase and leaves the bridge to `prune(manual = )` (D-040,
+  added M099).
 
 ## Behavior of her code under oblique rotation and EFA (observed M90)
 
