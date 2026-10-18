@@ -41,7 +41,7 @@ Context. Since lavaan 0.7.3 (CRAN 2026-10-08), the test "ESEM warns on improper 
 
 - [x] T1: Reproduce on Linux. Pull `rocker/r-ver:4.6.1`, install lavaan 0.7.3, psych 2.6.9, and the package dependencies, and run the block at `46bb2f6`. If Docker does not reproduce the error, push a temporary branch-scoped GitHub Actions job that runs `testthat::test_file()` on ubuntu-latest (the M66 lesson), and revert it before review. In the reproducing environment, run a diagnostic that names the failing level and its condition: lavaan fit not converged, every rotation start failed, or a fit error. Write the result as a work-log line.
 - [x] T2: Repair from the diagnosis. For a fragile plant, build a plant whose Heywood case is at the deepest requested level and whose lower levels converge on both platforms. For a package-code cause, change `R/engine_esem.R` with a NEWS bullet, a before-and-after test, and a D-entry if the truncation rule changes (AC4). Rewrite the comment above the block so it says why the plant is built as it is.
-- [ ] T3: Run the block at the branch head on macOS local and in the T1 Linux environment, and record the filtered `test_file()` results (AC1).
+- [x] T3: Run the block at the branch head on macOS local and in the T1 Linux environment, and record the filtered `test_file()` results (AC1).
 - [x] T4: Run the three uncommitted probe edits of AC3 on macOS local, one at a time, and record which expectation fails under each. Restore `R/engine_esem.R` after each.
 - [ ] T5: Push the branch and dispatch `re-oracle.yaml` on it (AC2). If an unrelated upstream break fails the run, stop at the red-CI stop.
 - [ ] T6: Run `Rscript tools/dod-gate.R` on macOS local (AC5).
@@ -70,3 +70,4 @@ Context. Since lavaan 0.7.3 (CRAN 2026-10-08), the test "ESEM warns on improper 
 - 2026-10-18: substantive amendment: AC2's "`headSha` equals the final branch head" was unsatisfiable, because review adds tracking-only commits under `cairn/` after the dispatch. AC2 now takes the most recent run whose tree outside `cairn/` equals the final head. The deliverable is unchanged, so there is no stop.
 - 2026-10-18: re-audit: AC2 (full) — one finding: with several runs, "the run" let a lucky success be picked; fixed to "the most recent run" on a matching tree.
 - 2026-10-18: re-audit: AC2 (full) — nothing.
+- 2026-10-18: T3 at `f8a2bdf` (`tests/` unchanged since): the block passes with `failed` 0 and `skipped` FALSE (3 expectations) on macOS arm64 with lavaan 0.7.3 (scratch library) and on Linux x86_64 (`rocker/r-ver:4.6.1`, amd64) with lavaan 0.7.3. The Linux runs used `as.data.frame(testthat::test_file())` filtered to the block, with `NOT_CRAN=true`.
