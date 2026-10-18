@@ -113,6 +113,7 @@ with the candidate row "Unbroken chase to level a".
 - 2026-10-18: T2 done. The `"direct"` help entry states the stop rule (phi included), the reference-code attribution, and the `manual =` route with reason "manual" and no chain row. The `rules` entry and the comments at the top of `R/prune.R` and above `.strong_links_direct` drop "faithful to Forbes", and the top comment cites D-040. The AMH test gained a check that the manual flag adds no chain row, so that help claim is test-backed. `document()` regenerated `man/prune.Rd`. Prune tests: 63 run, 0 failed.
 - 2026-10-18: T3 done. D-040 supersedes D-032 to the AC1 wording. It cites the 54/54 figure that D-017 records and adds no new measurement. It names the two declined alternatives and their reopening evidence.
 - 2026-10-18: T4 done. `forbes2023.md` gained a bullet under "Correspondence conventions" with her 2026-07-30 chase statement. The `source-departures.md` M2 row cites it and stays `match`. The M78 lesson is corrected in place (`corrected M099`). The simple-english hook flags older text in both reference pages. That text is outside this milestone and was left as it is.
+- 2026-10-18: T5 in progress. The NEWS entry is in the development section. `tools/dod-gate.R` is running, and the claim audit reader was started over the added lines outside `cairn/`.
 
 ## Decisions
 
