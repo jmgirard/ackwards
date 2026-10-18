@@ -10,6 +10,7 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 
 | ID | Title | Status | Depends on | Priority | File/Archive |
 |---|---|---|---|---|---|
+| M099 | Chase-gap reason corrected and a manual bridge documented | planned | — | high | milestones/M099-chase-gap-supersede.md |
 | M098 | Counted lavaan rotation failures on every ESEM rotation | done | — | normal | milestones/archive/M098-esem-rotation-start-count.md |
 | M097 | Cross-check coverage and the matrix behind each edge | done | — | normal | milestones/archive/M097-cross-check-coverage.md |
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
@@ -40,7 +41,7 @@ Batch from Forbes's hands-on review of the package website/vignettes. **A, B →
 
 Batch from her reply to the M76–M81 write-up. The cross-branch secondary-edge request → M84 (blocked on her). Her publication-figure and near-redundant-band feedback needed no action. The rotation question went to RB02/RR02 and produced D-034; the rows below are the residue, all gated on the same design session as [H] above.
 
-- [high] D-032 premise contradicted by its source: D-032 rejected gap-tolerant chains partly on reading Forbes's contiguous `ChaseCorrPaths` as deliberate. She confirms the finding and denies the inference: the contiguity is a coding limitation, and she handles a dead intervening level by hand, still on the redundancy criterion. M53's 54/54 reproduction and M78's `g2` test stand. **Gated:** a supersede takes the call. — added 2026-07-30
+- [high] D-032 premise contradicted by its source: D-032 rejected gap-tolerant chains partly on reading Forbes's contiguous `ChaseCorrPaths` as deliberate. She confirms the finding and denies the inference: the contiguity is a coding limitation, and she handles a dead intervening level by hand, still on the redundancy criterion. M53's 54/54 reproduction and M78's `g2` test stand. **Gated:** a supersede takes the call. — added 2026-07-30 — started M099
 - Tucker's φ as the rotation-consistency diagnostic: RR02 rec 5 (consider). RR02 Q3 finds that reading the edges both as structure and as a rotation-robustness check is a role conflict, and gives the robustness role to Tucker's φ, which `prune()` already reports. Docs-only if adopted. **Gated:** design-session agenda item. — added 2026-07-30
 - D-017 retention vs Figure 6B: on the AMH chain `E1-F1-G1-H1-I1-J1`, D-017's retention keeps only `J1`, and her Figure 6B keeps `E1` and `J1` (measured at M84 on her data, her node set supplied by hand). Her 6A colouring does not map 1:1 onto 6B's node set either. The chase still reproduces 54/54 (M53). The divergence is in the retention step, which her code does not specify. **Gated:** ask her retention rule at the design session. — added 2026-07-30
 - Unbroken chase to level a: her `ChaseCorrPaths()` returns "X--null" for a level-3+ component whose chase is unbroken to level a (`which.min()` on a vector with no `FALSE`), and `prune("redundant")` chases it to a1. Found by M90's oblique fixture, `references/source-departures.md` row E6 (corrected M90). **Gated:** confirm her intent at the design session, then record the departure's D-entry (IP9) or change `prune()`. — added 2026-09-30
