@@ -1,6 +1,6 @@
 # M100: Heywood ESEM test green on Linux under lavaan 0.7.3
 
-- **Status:** in-progress
+- **Status:** review
 - **Priority:** high
 - **Depends on:** —
 - **Driving RR:** —
@@ -43,7 +43,7 @@ Context. Since lavaan 0.7.3 (CRAN 2026-10-08), the test "ESEM warns on improper 
 - [x] T2: Repair from the diagnosis. For a fragile plant, build a plant whose Heywood case is at the deepest requested level and whose lower levels converge on both platforms. For a package-code cause, change `R/engine_esem.R` with a NEWS bullet, a before-and-after test, and a D-entry if the truncation rule changes (AC4). Rewrite the comment above the block so it says why the plant is built as it is.
 - [x] T3: Run the block at the branch head on macOS local and in the T1 Linux environment, and record the filtered `test_file()` results (AC1).
 - [x] T4: Run the three uncommitted probe edits of AC3 on macOS local, one at a time, and record which expectation fails under each. Restore `R/engine_esem.R` after each.
-- [ ] T5: Push the branch and dispatch `re-oracle.yaml` on it (AC2). If an unrelated upstream break fails the run, stop at the red-CI stop.
+- [x] T5: Push the branch and dispatch `re-oracle.yaml` on it (AC2). If an unrelated upstream break fails the run, stop at the red-CI stop.
 - [x] T6: Run `Rscript tools/dod-gate.R` on macOS local (AC5).
 
 ## Work log
@@ -74,3 +74,6 @@ Context. Since lavaan 0.7.3 (CRAN 2026-10-08), the test "ESEM warns on improper 
 - 2026-10-18: T5: pushed the branch and dispatched `re-oracle.yaml` as run 39169715712 on `51817a7`.
 - 2026-10-18: T6: `Rscript tools/dod-gate.R` exit 0 on macOS at `51817a7`: prose clean, check 0 err/0 warn/0 note, coverage 100%, style and lint clean, pkgdown index complete.
 - 2026-10-18: claim audit: 11 claims read, 2 corrected — tests/testthat/test-esem.R. "At the deepest level only" became "at k = 3", because no Linux record covers theta at k = 1 and 2. "Nearly singular (condition number about 5200):" became a plain statement of the condition number, because the same matrix converges on macOS. Re-read once by the same reader's evidence: both corrected claims are backed. After the comment change the block passes on macOS with lavaan 0.7.3, the file is styler- and lintr-clean, and run 39169715712 was cancelled as stale.
+- 2026-10-18: T5: redispatched `re-oracle.yaml` as run 39170177736 on `177e5f5`: conclusion `success`, `lavaan=0.7.3`, `psych=2.6.9`, check `Status: OK`, tests `[ FAIL 0 | WARN 0 | SKIP 27 | PASS 3610 ]`.
+- 2026-10-18: environment note: an Xcode update mid-session made `/usr/bin/git` refuse to run until its license is accepted (`sudo xcodebuild -license`, the user's step). Git and gh work through `/opt/homebrew/bin/git` 2.56.0 first on `PATH`.
+- 2026-10-18: implement complete; status set to review.
