@@ -518,8 +518,10 @@ test_that("M099: on AMH, the chase stops at m7f2's level-6 gap and manual = flag
   xp <- suppressMessages(prune(x, "redundant"))
   expect_false(xp$prune$nodes$pruned[xp$prune$nodes$id == "m7f2"])
   ch <- xp$prune$chains
+  expect_gt(NROW(ch), 0L) # chains exist, so the absence check is not vacuous
   expect_false("m7f2" %in% ch$id)
   sl <- ackwards:::.strong_links_direct(x, threshold_r = 0.9, threshold_phi = NULL)
+  expect_gt(NROW(sl), 0L)
   expect_false("m7f2" %in% c(sl$from_label, sl$to_label))
 
   xm <- suppressMessages(prune(x, "redundant", manual = "m7f2"))

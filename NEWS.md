@@ -48,11 +48,12 @@
   default `redundancy_criterion = "direct"`, the chase stops at the first
   ancestor level that fails the criterion. A level further up that passes
   again does not restart it. The help now says so, and says that this stop
-  follows Forbes's (2023) reference code, `ChaseCorrPaths`. To flag such a
-  factor by your own judgment, pass it to `manual`. A factor that no rule
-  flagged then gets `prune_reason = "manual"`, and `manual` adds no row to
+  follows Forbes's (2023) reference code, `ChaseCorrPaths`. To bridge such a
+  gap by your own judgment, pass the factor to drop to `manual`. A
+  factor that no rule flagged then gets `prune_reason = "manual"`, and `manual` adds no row to
   `x$prune$chains`. A new test shows this on component `m7f2` of the
-  `forbes2023` example. No code or result changed.
+  `forbes2023` example. The behavior and results of `prune()` did not
+  change.
 
 * **Varimax and oblimin side by side in the engines article.** The section on
   orthogonal and oblique rotation now fits EFA to the BFI-25 twice, with

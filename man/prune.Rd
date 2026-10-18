@@ -94,11 +94,11 @@ not restart it. This contiguous stop follows Forbes's (2023) reference
 code, \code{ChaseCorrPaths}, and the chase reproduces her AMH applied example
 exactly. The direct correlation is the honest way to operationalize
 "the same construct", because two factor scores share
-\verb{>= redundancy_r^2} variance \emph{directly}. To flag a factor whose chase
-stops at such a gap, judge the case yourself and pass the factor to
-\code{manual}. A factor that no rule flagged then gets
-\code{prune_reason = "manual"}, and a factor already flagged as redundant
-keeps that reason. \code{manual} adds no row to \code{x$prune$chains}.
+\verb{>= redundancy_r^2} variance \emph{directly}. To bridge such a gap, judge
+the case yourself, including which factor of the bridged chain to
+drop, and pass that factor to \code{manual}. A factor that no rule flagged
+then gets \code{prune_reason = "manual"}, and a factor already flagged as
+redundant keeps that reason. \code{manual} adds no row to \code{x$prune$chains}.
 \item \code{"adjacent"}: trace \strong{adjacent primary-parent} links only, so each
 consecutive level must meet \verb{|r| >= redundancy_r}. This was the pre-M53
 default. Because correlation is non-transitive it can both over- and
