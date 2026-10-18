@@ -535,16 +535,22 @@ test_that("ordinal warning is NOT emitted when cor = 'polychoric'", {
 
 test_that("ESEM warns on improper solution (Heywood case) but still builds", {
   skip_if_not_installed("lavaan")
-  # 8 variables with near-zero unique variance (eps=0.001), 2 true factors.
-  # k=3 pushes one residual to the Heywood boundary (theta <= 0 for one variable).
-  # lavaan clamps negative theta to 0 by default; our check fires at <= 0.
+  # 8 variables with small unique variance (eps = 0.05), 2 true factors.
+  # Asking for k = 3 overfactors the data and pushes a residual to the
+  # Heywood boundary at k = 3. lavaan clamps negative theta to 0 by default,
+  # and our check fires at <= 0. k = 1 and k = 2 must converge, or the
+  # hierarchy aborts before k = 3. The earlier eps = 0.001 gave R a condition
+  # number of about 5200, and on Linux x86_64, lavaan 0.7.3 stopped at 10000
+  # iterations without converging at k = 2. With
+  # eps = 0.05, k = 1 and k = 2 converge in 2 to 3 iterations on macOS arm64 and
+  # Linux x86_64, under lavaan 0.7.2 and 0.7.3 (measured 2026-10-18).
   # The skip_if below guards against future lavaan versions that may change this
   # bounding behaviour, which would make the fixture no longer trigger the warning.
   set.seed(42)
   n <- 200
   f1 <- rnorm(n)
   f2 <- rnorm(n)
-  eps <- 0.001
+  eps <- 0.05
   d <- as.data.frame(cbind(
     x1 = sqrt(1 - eps) * f1 + sqrt(eps) * rnorm(n),
     x2 = sqrt(1 - eps) * f1 + sqrt(eps) * rnorm(n),
@@ -571,11 +577,13 @@ test_that("ESEM warns on improper solution (Heywood case) but still builds", {
   )
   skip_if(!theta_ok, "lavaan no longer produces theta <= 0 for this fixture")
 
+  # The warning must name k = 3, the deepest level. `seed` fixes lavaan's
+  # random rotation starts.
   expect_warning(
-    x <- suppressMessages(ackwards(d, k_max = 3, engine = "esem")),
-    "Heywood"
+    x <- suppressMessages(ackwards(d, k_max = 3, engine = "esem", seed = 42)),
+    "k = 3: [^H]*Heywood"
   )
-  # Object still builds to the requested depth (not truncated)
+  # Built depth equals the requested depth (the Heywood level is not truncated)
   expect_s3_class(x, "ackwards")
   expect_equal(x$k_max, 3L)
 })
