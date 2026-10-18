@@ -135,21 +135,23 @@ Consistency gate (head `26242c4`): `cairn_validate.py` exit 0 (16 work-log warni
 spawned: diff-bug, blame-history, prior-review
 
 - diff-bug #1: D-040 says `manual` "reports no chain for the factor", wider than the narrowed help — reject (false): the clause describes the manual step, which never writes `x$prune$chains` (R/prune.R ~980-985), the same fact the help states as "adds no row".
-- diff-bug #2: the test's `%in%` absence checks pass if `chains` or the strong-link table is NULL — fix now.
-- diff-bug #3: the help says to pass "the factor" whose chase stops, but under the retention rule the factor to drop can be another one — fix now.
+- diff-bug #2: the test's `%in%` absence checks pass if `chains` or the strong-link table is NULL — fix now, fixed e03a402.
+- diff-bug #3: the help says to pass "the factor" whose chase stops, but under the retention rule the factor to drop can be another one — fix now, fixed e03a402.
 - diff-bug #4: `R/layout.R:150` cites D-032 beside D-017 for non-transitivity — reject (false): D-040 withdraws only D-032's reading of intent, and the cited finding stands.
 - diff-bug #5: the ROADMAP candidate row is still open — reject (planned change): step 9 hygiene graduates it.
 - diff-bug #6: the LESSONS correction mark sits at the line end, not in the date prefix — reject (style).
-- diff-bug #7: the new Forbes bullet sits under "Correspondence conventions", a heading about code correspondence — fix now.
+- diff-bug #7: the new Forbes bullet sits under "Correspondence conventions", a heading about code correspondence — fix now, fixed e03a402.
 - diff-bug #8: the M2 row stays `match` beside a recorded difference in method — reject (planned change): T4 set the tag, because the automated chase matches her code.
 - blame-history #1: D-032 carries no "superseded" note, unlike D-002 — reject (false): the rulebook forbids editing a decision entry, and the D-040 heading names D-032, so an id search finds it.
 - blame-history #2: "follows Forbes's reference code" does not mention row E6 — reject (false): the sentence covers the contiguous stop, and E6 is the unbroken-chase case.
 - blame-history #3: the Forbes vignette calls the chase her procedure and says to "stick with it" — reject (false): that advice compares the direct and adjacent criteria, and the plan's Out list left the vignette as it is.
-- blame-history #4: `manual` flags only the named factor, not the node the retention rule would keep — fix now (same as diff-bug #3).
+- blame-history #4: `manual` flags only the named factor, not the node the retention rule would keep — fix now (same as diff-bug #3), fixed e03a402.
 - blame-history #5: the M78 lesson is edited in place — reject (false): the rulebook requires correcting a lesson in place with a mark.
 - blame-history #6: her email is not in the repo — reject (planned change): the 2026-07-30 ROADMAP row and the source note are the record, and the email stays out by choice.
 - blame-history #7: the ROADMAP D-032 row is still open — reject (planned change): step 9 graduates it.
-- prior-review #1: NEWS says "No code or result changed", but comments and a test changed — fix now.
+- prior-review #1: NEWS says "No code or result changed", but comments and a test changed — fix now, fixed e03a402.
 - prior-review #2: M87 recorded that `prune()` flags on either signal, but the help says both — reject (false): M87 is about the near-redundant band, and the chase requires both (R/prune.R:253).
 - prior-review #3: the "kept on purpose" comment is outside the prose checker — reject (style).
 - prior-review #4: the new ledger anchors need the ledger-anchors check — reject (false): `tools/dod-gate.R` ran it clean on both runs.
+
+Fix-now work in `e03a402`. The test asserts that the chains and strong-link tables have rows. The help and NEWS say to pass the factor to drop from the bridged chain. NEWS says "The behavior and results of `prune()` did not change". The 2026-07-30 statement moved to its own section of `forbes2023.md`, "Her account of the chase gap", so AC4's record now sits there and not at line 92. Verify: prune tests 63 run, 0 failed.
