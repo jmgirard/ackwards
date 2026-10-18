@@ -81,7 +81,7 @@ with the candidate row "Unbroken chase to level a".
       Forbes's reference code". The `"direct"` entry (~lines 688-693) gets the AC2 text in
       place of "Forbes's (2023) published `ChaseCorrPaths` rule". Make the same change to
       the internal comments at ~line 14 and ~line 221. Run `devtools::document()`.
-- [ ] T3: Write the superseding D-entry (next free id) to the AC1 wording. Name the declined
+- [x] T3: Write the superseding D-entry (next free id) to the AC1 wording. Name the declined
       alternatives (gap report, opt-in bridged chase). Name the class of evidence that would
       reopen them: Forbes asks for the bridge in code, or a user needs the hand bridge
       recorded as redundancy.
@@ -111,6 +111,7 @@ with the candidate row "Unbroken chase to level a".
 - 2026-10-18: substantive amendment: AC3 said "absent from both label columns of `x$prune$chains`", but that table has one label column, `id`. AC3 now reads "has `pruned = FALSE` in `x$prune$nodes` and does not appear in the `id` column of `x$prune$chains`". The deliverable is unchanged, so no stop.
 - 2026-10-18: re-audit: AC3 (full) — nothing. The fresh reader confirmed `id` is the only label column and that the clause still catches a gap-tolerant chase.
 - 2026-10-18: T2 done. The `"direct"` help entry states the stop rule (phi included), the reference-code attribution, and the `manual =` route with reason "manual" and no chain row. The `rules` entry and the comments at the top of `R/prune.R` and above `.strong_links_direct` drop "faithful to Forbes", and the top comment cites D-040. The AMH test gained a check that the manual flag adds no chain row, so that help claim is test-backed. `document()` regenerated `man/prune.Rd`. Prune tests: 63 run, 0 failed.
+- 2026-10-18: T3 done. D-040 supersedes D-032 to the AC1 wording. It cites the 54/54 figure that D-017 records and adds no new measurement. It names the two declined alternatives and their reopening evidence.
 
 ## Decisions
 
