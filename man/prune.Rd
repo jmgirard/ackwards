@@ -32,7 +32,8 @@ pruning. Options:
 \itemize{
 \item \code{"redundant"}: identify chains of factors connected by factor-score
 correlations \verb{|r| >= redundancy_r} (and optionally \code{phi > redundancy_phi}),
-using \code{redundancy_criterion} (default \code{"direct"}, faithful to Forbes).
+using \code{redundancy_criterion} (default \code{"direct"}, which follows Forbes's
+reference code).
 A factor score is each person's estimated standing on a factor.
 Applies Forbes's (2023) retention rule: keep the bottom node when the
 chain reaches level \code{k_max} (most specific), and keep the top node
@@ -84,11 +85,19 @@ value to override on any engine.
 \item{redundancy_criterion}{How redundancy chains are traced. One of:
 \itemize{
 \item \code{"direct"} (default): chase upward via the \strong{direct (skip-level)}
-correlation between a factor and each ancestor level, continuing while
-\verb{|r| >= redundancy_r} contiguously. This is Forbes's (2023) published
-\code{ChaseCorrPaths} rule and the honest way to operationalize "the same
-construct", because two factor scores share \verb{>= redundancy_r^2} variance
-\emph{directly}. It reproduces her AMH applied example exactly.
+correlation between a factor and each ancestor level. At each level it
+takes the factor with the largest direct \verb{|r|}. It continues while
+\verb{|r| >= redundancy_r}, and while phi is above \code{redundancy_phi} when
+\code{redundancy_phi} is set (by you or automatically). The chase stops at
+the first level that fails. A level further up that passes again does
+not restart it. This contiguous stop follows Forbes's (2023) reference
+code, \code{ChaseCorrPaths}, and the chase reproduces her AMH applied example
+exactly. The direct correlation is the honest way to operationalize
+"the same construct", because two factor scores share
+\verb{>= redundancy_r^2} variance \emph{directly}. To flag a factor whose chase
+stops at such a gap, judge the case yourself and pass the factor to
+\code{manual}. It then gets \code{prune_reason = "manual"} and no row in
+\code{x$prune$chains}.
 \item \code{"adjacent"}: trace \strong{adjacent primary-parent} links only, so each
 consecutive level must meet \verb{|r| >= redundancy_r}. This was the pre-M53
 default. Because correlation is non-transitive it can both over- and

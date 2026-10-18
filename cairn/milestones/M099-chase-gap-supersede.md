@@ -77,7 +77,7 @@ with the candidate row "Unbroken chase to level a".
       (stats read from the `j:L` matrix). A bare `next` errors at `E_adj[Pnode, prev]`
       (~line 263). Confirm the "not in the `id` column" expectation itself fails,
       not an error, then revert.
-- [ ] T2: Edit the roxygen of `prune()`. The `rules` entry (~line 662) says "faithful to
+- [x] T2: Edit the roxygen of `prune()`. The `rules` entry (~line 662) says "faithful to
       Forbes's reference code". The `"direct"` entry (~lines 688-693) gets the AC2 text in
       place of "Forbes's (2023) published `ChaseCorrPaths` rule". Make the same change to
       the internal comments at ~line 14 and ~line 221. Run `devtools::document()`.
@@ -110,6 +110,7 @@ with the candidate row "Unbroken chase to level a".
 - 2026-10-18: T1 done. The AMH `m7f2` test passes on current code. A planted gap skip (`next` plus a cross-gap link in `.strong_links_direct`) made 4 expectations fail as assertions with no error, and the plant was reverted (`git diff R/prune.R` empty). The test also checks the strong-link table.
 - 2026-10-18: substantive amendment: AC3 said "absent from both label columns of `x$prune$chains`", but that table has one label column, `id`. AC3 now reads "has `pruned = FALSE` in `x$prune$nodes` and does not appear in the `id` column of `x$prune$chains`". The deliverable is unchanged, so no stop.
 - 2026-10-18: re-audit: AC3 (full) — nothing. The fresh reader confirmed `id` is the only label column and that the clause still catches a gap-tolerant chase.
+- 2026-10-18: T2 done. The `"direct"` help entry states the stop rule (phi included), the reference-code attribution, and the `manual =` route with reason "manual" and no chain row. The `rules` entry and the comments at the top of `R/prune.R` and above `.strong_links_direct` drop "faithful to Forbes", and the top comment cites D-040. The AMH test gained a check that the manual flag adds no chain row, so that help claim is test-backed. `document()` regenerated `man/prune.Rd`. Prune tests: 63 run, 0 failed.
 
 ## Decisions
 

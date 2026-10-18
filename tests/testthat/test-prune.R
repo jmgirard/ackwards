@@ -526,6 +526,7 @@ test_that("M099: on AMH, the chase stops at m7f2's level-6 gap and manual = flag
   node <- xm$prune$nodes[xm$prune$nodes$id == "m7f2", ]
   expect_true(node$pruned)
   expect_identical(node$prune_reason, "manual")
+  expect_false("m7f2" %in% xm$prune$chains$id) # the help says: no chain row
 })
 
 # --- B3: internal helper coverage (M23) --------------------------------------
