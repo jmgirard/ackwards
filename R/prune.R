@@ -700,8 +700,9 @@
 #'     "the same construct", because two factor scores share
 #'     `>= redundancy_r^2` variance *directly*. To flag a factor whose chase
 #'     stops at such a gap, judge the case yourself and pass the factor to
-#'     `manual`. It then gets `prune_reason = "manual"` and no row in
-#'     `x$prune$chains`.
+#'     `manual`. A factor that no rule flagged then gets
+#'     `prune_reason = "manual"`, and a factor already flagged as redundant
+#'     keeps that reason. `manual` adds no row to `x$prune$chains`.
 #'   * `"adjacent"`: trace **adjacent primary-parent** links only, so each
 #'     consecutive level must meet `|r| >= redundancy_r`. This was the pre-M53
 #'     default. Because correlation is non-transitive it can both over- and

@@ -114,6 +114,8 @@ with the candidate row "Unbroken chase to level a".
 - 2026-10-18: T3 done. D-040 supersedes D-032 to the AC1 wording. It cites the 54/54 figure that D-017 records and adds no new measurement. It names the two declined alternatives and their reopening evidence.
 - 2026-10-18: T4 done. `forbes2023.md` gained a bullet under "Correspondence conventions" with her 2026-07-30 chase statement. The `source-departures.md` M2 row cites it and stays `match`. The M78 lesson is corrected in place (`corrected M099`). The simple-english hook flags older text in both reference pages. That text is outside this milestone and was left as it is.
 - 2026-10-18: T5 in progress. The NEWS entry is in the development section. `tools/dod-gate.R` is running, and the claim audit reader was started over the added lines outside `cairn/`.
+- 2026-10-18: first gate run passed (check 0/0/0, coverage 100%, style, lint, pkgdown). The claim audit then found the `manual` sentence overstated: a factor already flagged keeps "redundant", and a gap-stopped factor can have chain rows from the levels it passed. The help and NEWS now say that a factor no rule flagged gets "manual" and that `manual` adds no chain row. The test now checks that the chains table is unchanged by `manual`. The overlap case is held by the existing test "manual pruning combines with an auto rule". The gate is running again.
+- 2026-10-18: claim audit: 22 claims read, 1 corrected — R/prune.R, man/prune.Rd, NEWS.md. The same reader re-read the corrected claim once and found it correct.
 
 ## Decisions
 
