@@ -77,6 +77,7 @@ Context. Since lavaan 0.7.3 (CRAN 2026-10-08), the test "ESEM warns on improper 
 - 2026-10-18: T5: redispatched `re-oracle.yaml` as run 39170177736 on `177e5f5`: conclusion `success`, `lavaan=0.7.3`, `psych=2.6.9`, check `Status: OK`, tests `[ FAIL 0 | WARN 0 | SKIP 27 | PASS 3610 ]`.
 - 2026-10-18: environment note: an Xcode update mid-session made `/usr/bin/git` refuse to run until its license is accepted (`sudo xcodebuild -license`, the user's step). Git and gh work through `/opt/homebrew/bin/git` 2.56.0 first on `PATH`.
 - 2026-10-18: implement complete; status set to review.
+- 2026-10-18: step-7 approval: m100-heywood-test-linux approved for merge
 
 ## Decisions
 
