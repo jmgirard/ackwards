@@ -52,6 +52,20 @@
   the column ranks and listwise fits from the complete rows. No code or
   result changed.
 
+- **Where the redundancy chase stops, in the
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+  help.** Under the default `redundancy_criterion = "direct"`, the chase
+  stops at the first ancestor level that fails the criterion. A level
+  further up that passes again does not restart it. The help now says
+  so, and says that this stop follows Forbes’s (2023) reference code,
+  `ChaseCorrPaths`. To bridge such a gap by your own judgment, pass the
+  factor to drop to `manual`. A factor that no rule flagged then gets
+  `prune_reason = "manual"`, and `manual` adds no row to
+  `x$prune$chains`. A new test shows this on component `m7f2` of the
+  `forbes2023` example. The behavior and results of
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+  did not change.
+
 - **Varimax and oblimin side by side in the engines article.** The
   section on orthogonal and oblique rotation now fits EFA to the BFI-25
   twice, with varimax and with oblimin, in place of the simulated

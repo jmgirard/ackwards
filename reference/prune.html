@@ -138,7 +138,8 @@ packages (e.g. <code><a href="https://rdrr.io/pkg/rpart/man/prune.rpart.html" cl
 manual pruning, or call <code>prune(x)</code> with no arguments to clear any existing
 pruning. Options:</p><ul><li><p><code>"redundant"</code>: identify chains of factors connected by factor-score
 correlations <code>|r| &gt;= redundancy_r</code> (and optionally <code>phi &gt; redundancy_phi</code>),
-using <code>redundancy_criterion</code> (default <code>"direct"</code>, faithful to Forbes).
+using <code>redundancy_criterion</code> (default <code>"direct"</code>, which follows Forbes's
+reference code).
 A factor score is each person's estimated standing on a factor.
 Applies Forbes's (2023) retention rule: keep the bottom node when the
 chain reaches level <code>k_max</code> (most specific), and keep the top node
@@ -194,11 +195,20 @@ value to override on any engine.</p></li>
 
 <dt id="arg-redundancy-criterion">redundancy_criterion<a class="anchor" aria-label="anchor" href="#arg-redundancy-criterion"></a></dt>
 <dd><p>How redundancy chains are traced. One of:</p><ul><li><p><code>"direct"</code> (default): chase upward via the <strong>direct (skip-level)</strong>
-correlation between a factor and each ancestor level, continuing while
-<code>|r| &gt;= redundancy_r</code> contiguously. This is Forbes's (2023) published
-<code>ChaseCorrPaths</code> rule and the honest way to operationalize "the same
-construct", because two factor scores share <code>&gt;= redundancy_r^2</code> variance
-<em>directly</em>. It reproduces her AMH applied example exactly.</p></li>
+correlation between a factor and each ancestor level. At each level it
+takes the factor with the largest direct <code>|r|</code>. It continues while
+<code>|r| &gt;= redundancy_r</code>, and while phi is above <code>redundancy_phi</code> when
+<code>redundancy_phi</code> is set (by you or automatically). The chase stops at
+the first level that fails. A level further up that passes again does
+not restart it. This contiguous stop follows Forbes's (2023) reference
+code, <code>ChaseCorrPaths</code>, and the chase reproduces her AMH applied example
+exactly. The direct correlation is the honest way to operationalize
+"the same construct", because two factor scores share
+<code>&gt;= redundancy_r^2</code> variance <em>directly</em>. To bridge such a gap, judge
+the case yourself, including which factor of the bridged chain to
+drop, and pass that factor to <code>manual</code>. A factor that no rule flagged
+then gets <code>prune_reason = "manual"</code>, and a factor already flagged as
+redundant keeps that reason. <code>manual</code> adds no row to <code>x$prune$chains</code>.</p></li>
 <li><p><code>"adjacent"</code>: trace <strong>adjacent primary-parent</strong> links only, so each
 consecutive level must meet <code>|r| &gt;= redundancy_r</code>. This was the pre-M53
 default. Because correlation is non-transitive it can both over- and
