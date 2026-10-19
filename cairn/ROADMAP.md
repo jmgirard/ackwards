@@ -1,7 +1,7 @@
 # Roadmap
 
 _The only authority on milestone status. Grouped by status, not ID._
-_Last hygiene check: 2026-10-18 (triage pass. 17 candidates read, no Known issues section. Compressed Heywood test precheck skip (dropped detail the M100 archive holds). Re-rated all 17 rows to parked, none of their promotion conditions having held: normal → parked for Further CRAN macOS coverage beyond M82, Untested axis from M83, [H] collaboration, Tucker's φ, D-017 retention vs Figure 6B, Unbroken chase to level a; low → parked for the other 11. The .esem_rotation_args() row kept under the finding-absorbing rule, extended no further. No drops, merges, splits, routes, retitles, or token changes; no decision entry. Validate green.)_
+_Last hygiene check: 2026-10-19 (status audit for release readiness. Validate green, no tracking changes, no open issues or PRs.)_
 
 Pre-migration history: see `cairn/legacy/` (MILESTONES.md, ROADMAP.md, skills)
 and git log. Milestone IDs run through M53; new work continues from M54.
