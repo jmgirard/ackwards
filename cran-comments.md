@@ -18,13 +18,13 @@ read on 2026-10-19).
 | Platform | R version | Errors / Warnings / Notes |
 |---|---|---|
 | macOS 27 arm64 (local, `--as-cran`) | R 4.6.1 | 0 / 0 / 0 |
-| ubuntu-latest (GitHub Actions) | release / devel / oldrel-1 | PENDING |
-| macos-latest (GitHub Actions) | release | PENDING |
-| macos-latest arm64 (GitHub Actions) | oldrel-1 | PENDING |
-| windows-latest (GitHub Actions) | release | PENDING |
+| ubuntu-latest (GitHub Actions) | release / devel / oldrel-1 | 0 / 0 / 0 |
+| macos-latest (GitHub Actions) | release | 0 / 0 / 0 |
+| macos-latest arm64 (GitHub Actions) | oldrel-1 | 0 / 0 / 0 |
+| windows-latest (GitHub Actions) | release | 0 / 0 / 0 |
 | win-builder | R-devel | PENDING |
-| R-hub `atlas` (ATLAS BLAS) | R-devel | PENDING |
-| R-hub `nold` (no long double) | R-devel | PENDING |
+| R-hub `atlas` (ATLAS BLAS) | R-devel | 0 / 0 / 0 |
+| R-hub `nold` (no long double) | R-devel | 0 / 0 / 0 |
 
 The `atlas` and `nold` rows cover the two alternative-numerics flavours that
 an earlier 0.2.0 tarball failed on.
