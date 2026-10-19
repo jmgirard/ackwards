@@ -92,7 +92,7 @@ the same shape. The others are MAP, VSS, and optionally Comparison Data.
 ```{r suggest, message = FALSE, warning = FALSE}
 library(ackwards)
 
-sk <- suggest_k(bfi25)
+sk <- suggest_k(bfi25, seed = 1)
 ```
 
 ```{r suggest-print}
