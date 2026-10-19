@@ -96,7 +96,7 @@ the same shape. The others are MAP, VSS, and optionally Comparison Data.
 
 library(ackwards)
 
-sk <- suggest_k(bfi25)
+sk <- suggest_k(bfi25, seed = 1)
 ```
 
 ``` r
@@ -117,9 +117,9 @@ sk
 #>   3     ✔︎      ✔︎   0.0172   0.5969   0.7288   ✔︎ 
 #>   4     ✔︎      ✔︎   0.0164   0.6198*  0.7781   ✔︎ 
 #>   5     ✔︎      ✔︎   0.0160*  0.5730   0.7912*  ✔︎ 
-#>   6     -      ✔︎   0.0170   0.5592   0.7530   ✔︎ 
-#>   7     -      -   0.0201   0.5698   0.7290   ✔︎ 
-#>   8     -      -   0.0231   0.5615   0.7252   ✔︎*
+#>   6     -      ✔︎   0.0170   0.5592   0.7530   ✔︎*
+#>   7     -      -   0.0201   0.5698   0.7290   - 
+#>   8     -      -   0.0231   0.5615   0.7252   -
 #>   ✔︎ retained   * optimal k   - not retained
 #> 
 #> ── Recommendations ──
@@ -129,8 +129,8 @@ sk
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
-#> • CD: k = 8
-#> Consensus range: k = 4-8
+#> • CD: k = 6
+#> Consensus range: k = 4-6
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.

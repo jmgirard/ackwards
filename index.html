@@ -116,7 +116,7 @@
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://jmgirard.github.io/ackwards/">ackwards</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi25</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">sk</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/suggest_k.html">suggest_k</a></span><span class="op">(</span><span class="va">bfi25</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sk</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -134,9 +134,9 @@
 <span><span class="co">#&gt;   3     ✔︎      ✔︎   0.0172   0.5969   0.7288   ✔︎ </span></span>
 <span><span class="co">#&gt;   4     ✔︎      ✔︎   0.0164   0.6198*  0.7781   ✔︎ </span></span>
 <span><span class="co">#&gt;   5     ✔︎      ✔︎   0.0160*  0.5730   0.7912*  ✔︎ </span></span>
-<span><span class="co">#&gt;   6     -      ✔︎   0.0170   0.5592   0.7530   ✔︎ </span></span>
-<span><span class="co">#&gt;   7     -      -   0.0201   0.5698   0.7290   ✔︎ </span></span>
-<span><span class="co">#&gt;   8     -      -   0.0231   0.5615   0.7252   ✔︎*</span></span>
+<span><span class="co">#&gt;   6     -      ✔︎   0.0170   0.5592   0.7530   ✔︎*</span></span>
+<span><span class="co">#&gt;   7     -      -   0.0201   0.5698   0.7290   - </span></span>
+<span><span class="co">#&gt;   8     -      -   0.0231   0.5615   0.7252   -</span></span>
 <span><span class="co">#&gt;   ✔︎ retained   * optimal k   - not retained</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Recommendations ──</span></span>
@@ -146,8 +146,8 @@
 <span><span class="co">#&gt; • MAP: k = 5</span></span>
 <span><span class="co">#&gt; • VSS-1: k = 4</span></span>
 <span><span class="co">#&gt; • VSS-2: k = 5</span></span>
-<span><span class="co">#&gt; • CD: k = 8</span></span>
-<span><span class="co">#&gt; Consensus range: k = 4-8</span></span>
+<span><span class="co">#&gt; • CD: k = 6</span></span>
+<span><span class="co">#&gt; Consensus range: k = 4-6</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels</span></span>
 <span><span class="co">#&gt; above the consensus to observe factor fragmentation is intentional.</span></span>
