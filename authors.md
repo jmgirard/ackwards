@@ -12,7 +12,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/jmgirard/ackwards/blob/master/inst/CITATION)
+[`inst/CITATION`](https://github.com/jmgirard/ackwards/blob/v0.3.0/inst/CITATION)
 
 Girard J (2026). *ackwards: Bass-Ackwards Hierarchical Structural
 Analysis*. R package version 0.3.0,
