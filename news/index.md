@@ -1,17 +1,13 @@
 # Changelog
 
-## ackwards (development version)
+## ackwards 0.3.0
 
-- **ESEM now counts failed rotation starts under every rotation, varimax
-  included.** At each rotated level, lavaan keeps the best of 30 random
-  starts (its default). Before this change, ESEM showed lavaan’s
-  rotation warning under `"oblimin"` and `"geomin"` only, and kept the
-  level even when no start converged. Varimax ESEM showed no rotation
-  warning. Now a warning gives the count of starts that did not converge
-  (for example, “3 of 30”), and the level is kept. If no start
-  converged, the kept rotation did not converge either, so the hierarchy
-  ends at the level before it with a warning. Fits where at least one
-  start converges keep the same levels and values as before.
+Oblique rotation as an option, with partialled edge coefficients and
+within-level factor correlations in
+[`tidy()`](https://generics.r-lib.org/reference/tidy.html). Also fixes
+to the ESEM engine, and documentation rewritten in plain English.
+
+### Breaking changes
 
 - **ESEM with `cor = "spearman"` and `missing = "fiml"` now stops with
   an error.** Before this fix, the fit ran, but `x$r` held lavaan’s
@@ -24,92 +20,7 @@
   that lavaan fits Pearson covariances of the raw data. Before, it said
   “Pearson-ML model”, which was wrong under WLSMV and ULSMV.
 
-- **ESEM with ULSMV on continuous items now fits under the default
-  `missing = "pairwise"`.** Before this fix,
-  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-  stopped at level 1 with a lavaan error, complete data included. lavaan
-  0.7.2 `efa()` fails for ULSMV on continuous items when it uses all
-  available cases. That setting now fits the complete rows, as ML and
-  MLR do, and the edges still come from the pairwise correlation matrix.
-  ULSMV on `cor = "polychoric"` and WLSMV are unchanged. The help for
-  `missing` in
-  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-  now says which estimators use all available cases. It no longer calls
-  WLSMV and ULSMV ordinal-only, and it names the `$meta` fields that
-  record the setting. The estimator table in the engines article no
-  longer calls them ordinal-only either.
-
-- **Which matrix an edge is exact for, in the
-  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
-  help.** The help now says that each edge is exact for the correlation
-  matrix stored as `x$r`. It names the two ESEM settings in which lavaan
-  fits a different matrix. With `cor = "spearman"` and
-  `missing = "pairwise"` or `"listwise"`, lavaan fits Pearson
-  covariances of the raw data. With `cor = "pearson"` and
-  `missing = "pairwise"` on data with missing values, ML and MLR fit the
-  complete rows, and WLSMV fits the pairwise covariances. New tests on
-  all three engines check that the edges equal the correlations of the
-  factor scores in two more settings. The tests score Spearman fits from
-  the column ranks and listwise fits from the complete rows. No code or
-  result changed.
-
-- **Where the redundancy chase stops, in the
-  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
-  help.** Under the default `redundancy_criterion = "direct"`, the chase
-  stops at the first ancestor level that fails the criterion. A level
-  further up that passes again does not restart it. The help now says
-  so, and says that this stop follows Forbes’s (2023) reference code,
-  `ChaseCorrPaths`. To bridge such a gap by your own judgment, pass the
-  factor to drop to `manual`. A factor that no rule flagged then gets
-  `prune_reason = "manual"`, and `manual` adds no row to
-  `x$prune$chains`. A new test shows this on component `m7f2` of the
-  `forbes2023` example. The behavior and results of
-  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
-  did not change.
-
-- **Varimax and oblimin side by side in the engines article.** The
-  section on orthogonal and oblique rotation now fits EFA to the BFI-25
-  twice, with varimax and with oblimin, in place of the simulated
-  example. It shows the oblimin factor correlations within each level.
-  It matches each oblimin factor to a varimax factor by Tucker’s
-  congruence of loadings and shows that the two primary-parent trees are
-  the same after the match. It lists the secondary edges that reach the
-  display cutoff under oblimin, with `r` beside `beta`, and draws both
-  diagrams. No package function or its output changed.
-
-- **Edge wording across the documentation.** More of the documentation
-  now says that each between-level edge is implied by the correlation
-  matrix the fit uses. That covers the package description, the README,
-  the help pages for
-  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md),
-  [`tidy()`](https://generics.r-lib.org/reference/tidy.html), and
-  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md),
-  and five articles: the introduction, engines, ordinal,
-  recommended-workflow, and Forbes articles. Where they call an edge
-  exact, they say it is exact for that matrix. The package description
-  no longer says that edges can come from materialized scores, because
-  no exported function computes them that way. It credits Waller (2007)
-  with the result for principal components only. The engines article
-  states that result in Waller’s own terms, through the transformation
-  matrices that rotate each level’s components. This extends the next
-  entry, which made the first of these edits in the introduction and
-  engines articles. No code or result changed.
-
-- **Edge wording in the introduction and engines articles.** The two
-  articles called the between-level edges exact without saying exact for
-  what. They now say that each edge is exact for the correlation matrix
-  the fit uses. Scores computed from the observed items do not in
-  general reproduce the edges when that matrix is polychoric or
-  Spearman. The same holds when it is estimated from incomplete data by
-  pairwise deletion, where each correlation uses only the rows that
-  observe both items. It also holds under full-information maximum
-  likelihood (FIML), which uses every partially observed row instead of
-  dropping it. The introduction says that each edge is then the
-  correlation the scores would have if the items correlated exactly as
-  that matrix says. It also credits Waller (2007) with the closed form
-  for principal components only. It explains the general weight-matrix
-  form as the covariance of linear composites. No code or result
-  changed.
+### New features
 
 - **Oblique rotation as an option.**
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
@@ -135,35 +46,18 @@
   [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
   warns that its thresholds were set for varimax.
   [`boot_edges()`](https://jmgirard.github.io/ackwards/reference/boot_edges.md)
-  refits each replicate with the object’s rotation, and checks first for
-  GPArotation when that rotation needs it. A PCA level whose oblique
-  rotation fails, or raises an error, ends the hierarchy at the level
-  before it, because PCA rotates once. EFA rotates from several random
-  starts, so its non-convergence warnings are shown and the level is
-  kept. ESEM counts its failed starts, as the bullet above describes. An
-  EFA level whose final rotation step failed still ends the hierarchy.
-  If the installed psych rotates from one start, any EFA rotation
-  warning ends it too. Set `seed` to reproduce an oblique EFA fit or any
-  ESEM fit exactly. A new test checks the oblique results against
-  Forbes’s reference implementation on her three simulation studies.
-
-- `tidy(what = "edges")` now warns when the within-level score
-  correlation of a level is nearly singular, meaning its smallest
-  eigenvalue is below `1e-2`. The factors at that level are then close
-  to collinear, so the partialled `beta` for edges from that level is
-  unstable. `beta` is still reported, and the warning names the level.
-  The package chose this cutoff as a numerical guard. It is not a
-  published rule. `tidy(what = "variance")` and
-  [`summary()`](https://rdrr.io/r/base/summary.html) do not raise this
-  warning.
-
-- PCA and EFA `factor_cor` matrices now carry the level’s factor labels
-  as row and column names, as the ESEM ones already did.
-
-- The default-output baseline test now uses a platform tolerance (1e-8
-  for PCA and EFA, 1e-5 for ESEM). The frozen fixture was generated on
-  macOS, and the test failed on Linux and Windows at its old 1e-12
-  tolerance because of BLAS differences. No package output changed.
+  refits each replicate with the object’s rotation. If that rotation
+  needs GPArotation, it checks for the package first. A PCA level whose
+  oblique rotation fails, or raises an error, ends the hierarchy at the
+  level before it, because PCA rotates once. EFA rotates from several
+  random starts, so its non-convergence warnings are shown and the level
+  is kept. ESEM counts its failed starts, as the first entry under Bug
+  fixes describes. An EFA level whose final rotation step failed still
+  ends the hierarchy. If the installed psych rotates from one start, any
+  EFA rotation warning ends it too. Set `seed` to reproduce an oblique
+  EFA fit or any ESEM fit exactly. A new test checks the oblique results
+  against Forbes’s reference implementation on her three simulation
+  studies.
 
 - **Within-level factor correlations are carried and shown.** Every
   engine now stores the factor correlation it reports for each level.
@@ -187,36 +81,109 @@
   just above account for together. It is `NA` at level 1. Under varimax
   `beta` equals `r`, and `r2` equals the sum of that factor’s squared
   `r` values from the level above. The two pairs of quantities come
-  apart only when the factors within a level are correlated. Both are
-  `NA`, with a warning, when a level’s within-level score correlation
-  cannot be inverted.
+  apart only when the factors within a level are correlated. If a
+  level’s within-level score correlation cannot be inverted, both are
+  `NA`, with a warning.
+
+- `tidy(what = "edges")` now warns when the within-level score
+  correlation of a level is nearly singular, meaning its smallest
+  eigenvalue is below `1e-2`. The factors at that level are then close
+  to collinear, so the partialled `beta` for edges from that level is
+  unstable. `beta` is still reported, and the warning names the level.
+  The package chose this cutoff as a numerical guard. It is not a
+  published rule. `tidy(what = "variance")` and
+  [`summary()`](https://rdrr.io/r/base/summary.html) do not raise this
+  warning.
+
+- PCA and EFA `factor_cor` matrices now carry the level’s factor labels
+  as row and column names, as the ESEM ones already did.
+
+### Bug fixes
+
+- **ESEM now counts failed rotation starts.** At each rotated level,
+  lavaan keeps the best of 30 random starts (its default). In 0.2.0,
+  ESEM showed no rotation warning, and it kept the level even when no
+  start converged. Now a warning gives the count of starts that did not
+  converge (for example, “3 of 30”), and the level is kept. If no start
+  converged, the kept rotation did not converge either. The hierarchy
+  then ends at the level before it with a warning. This holds under
+  every ESEM rotation, varimax included. Fits where at least one start
+  converges keep the same levels and values as before.
+
+- **ESEM with ULSMV on continuous items now fits under the default
+  `missing = "pairwise"`.** Before this fix,
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  stopped at level 1 with a lavaan error, complete data included. lavaan
+  0.7.2 `efa()` fails for ULSMV on continuous items when it uses all
+  available cases. That setting now fits the complete rows, as ML and
+  MLR do, and the edges still come from the pairwise correlation matrix.
+  ULSMV on `cor = "polychoric"` and WLSMV are unchanged. The help for
+  `missing` in
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  now says which estimators use all available cases. It no longer calls
+  WLSMV and ULSMV ordinal-only, and it names the `$meta` fields that
+  record the setting. The estimator table in the engines article no
+  longer calls them ordinal-only either.
+
+### Documentation
+
+- **Which matrix an edge is exact for.** Each between-level edge is
+  implied by the correlation matrix the fit uses, and it is exact for
+  that matrix. The package description, the README, the help for
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md),
+  [`tidy()`](https://generics.r-lib.org/reference/tidy.html), and
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md),
+  and five articles now say so. The five articles are the introduction,
+  engines, ordinal, recommended-workflow, and Forbes articles. Scores
+  computed from the observed items do not in general reproduce the edges
+  when that matrix is polychoric or Spearman. The same holds when the
+  matrix comes from incomplete data, by pairwise deletion or by
+  full-information maximum likelihood (FIML). The
+  [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
+  help names the two ESEM settings in which lavaan fits a matrix other
+  than the stored `x$r`. With `cor = "spearman"` and
+  `missing = "pairwise"` or `"listwise"`, lavaan fits Pearson
+  covariances of the raw data. With `cor = "pearson"` and
+  `missing = "pairwise"` on data with missing values, ML and MLR fit the
+  complete rows, and WLSMV fits the pairwise covariances. The package
+  description no longer says that edges can come from materialized
+  scores, because no exported function computes them that way. It
+  credits Waller (2007) with the closed-form result for principal
+  components only. No code or result changed.
+
+- **Where the redundancy chase stops, in the
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+  help.** Under the default `redundancy_criterion = "direct"`, the chase
+  stops at the first ancestor level that fails the criterion. A level
+  further up that passes again does not restart it. The help now says
+  so, and says that this stop follows Forbes’s (2023) reference code,
+  `ChaseCorrPaths`. To bridge such a gap by your own judgment, pass the
+  factor to drop to `manual`. A factor that no rule flagged then gets
+  `prune_reason = "manual"`, and `manual` adds no row to
+  `x$prune$chains`. A new test shows this on component `m7f2` of the
+  `forbes2023` example. The behavior and results of
+  [`prune()`](https://jmgirard.github.io/ackwards/reference/prune.md)
+  did not change.
+
+- **Varimax and oblimin side by side in the engines article.** The
+  section on orthogonal and oblique rotation now fits EFA to the BFI-25
+  twice, with varimax and with oblimin, in place of the simulated
+  example. It shows the oblimin factor correlations within each level.
+  It matches each oblimin factor to a varimax factor by Tucker’s
+  congruence of loadings. After the match, the two primary-parent trees
+  are the same. It lists the secondary edges that reach the display
+  cutoff under oblimin, with `r` beside `beta`, and draws both diagrams.
+  No package function or its output changed.
 
 - **Plain-English documentation.** The README, the package description,
-  and the help pages were revised so that a reader outside the field can
-  follow them on one read. In those files sentences are shorter, dashes
-  and semicolons are gone, and each statistical term is explained in
-  plain words where it is first used. The vignettes are covered by the
-  two “Plain-English vignettes” entries below. No function, argument,
-  default, or example changed. A prose check in the development workflow
-  now guards these files, so later documentation keeps the same style.
-
-- **Plain-English vignettes, first batch.** The introduction, the
-  choosing-k article, the engines article, and the diagram-customization
-  article were revised in the same style. Every statistical term is
-  explained in plain words where each article first uses it. The code in
-  those articles and the results they show did not change. The
-  code-unchanged guard in `tools/check-prose.R` now reads every vignette
-  source, so that claim can be checked against any git reference.
-
-- **Plain-English vignettes, second batch.** The recommended-workflow
-  article, the Forbes-extension article, the Forbes (2023) reproduction,
-  the ordinal data article, and the interpreting-and-labeling article
-  were revised in the same style, which completes the set. Every
-  statistical term is explained in plain words where each article first
-  uses it. The code in those articles and the results they show did not
-  change. The settings that reproduce Forbes (2023), the Pearson default
-  with its ordinal-data warning, and the descriptive reading of the
-  hierarchy are stated as before.
+  the help pages, and all nine articles were revised so that a reader
+  outside the field can follow them on one read. Sentences are shorter,
+  and each statistical term is explained in plain words where it is
+  first used. No function, argument, default, or example changed. The
+  code in the articles and the results they show did not change either.
+  The settings that reproduce Forbes (2023), the Pearson default with
+  its ordinal-data warning, and the descriptive reading of the hierarchy
+  are stated as before.
 
 ## ackwards 0.2.0
 
