@@ -32,7 +32,7 @@ an oblique rotation it is the item’s regression weight on the factor.
 | **Engine substrate** | [`psych::principal()`](https://rdrr.io/pkg/psych/man/principal.html) | [`psych::fa()`](https://rdrr.io/pkg/psych/man/fa.html) | `lavaan` |
 | **Communalities** | All 1.0 (by definition) | Estimated from data | Estimated from data |
 | **Correlations** | Pearson or polychoric | Pearson or polychoric | Pearson or polychoric |
-| **Estimators** | Eigen-decomposition | `minres` (OLS), `ml`, or `pa`, via `psych`’s `fm=` | ML or MLR for continuous data (plus FIML for missing data). WLSMV or ULSMV for ordinal data |
+| **Estimators** | Eigen-decomposition | `minres` (OLS), `ml`, or `pa`, via `psych`’s `fm=` | ML or MLR for continuous data (plus FIML for missing data). WLSMV or ULSMV for ordinal data, and also allowed for continuous data |
 | **Fit indices** | Eigenvalues only | χ², RMSEA, TLI, BIC | CFI, TLI, RMSEA, SRMR, χ² |
 | **Loading SEs** | No | No | Yes |
 | **Speed** | Fast | Moderate | Slowest |

@@ -36,7 +36,8 @@
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
   now says which estimators use all available cases. It no longer calls
   WLSMV and ULSMV ordinal-only, and it names the `$meta` fields that
-  record the setting.
+  record the setting. The estimator table in the engines article no
+  longer calls them ordinal-only either.
 
 - **Which matrix an edge is exact for, in the
   [`ackwards()`](https://jmgirard.github.io/ackwards/reference/ackwards.md)
