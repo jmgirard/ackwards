@@ -109,8 +109,8 @@ sk
 #>   4     ✔︎      ✔︎   0.0164   0.6198*  0.7781   ✔︎ 
 #>   5     ✔︎      ✔︎   0.0160*  0.5730   0.7912*  ✔︎ 
 #>   6     -      ✔︎   0.0170   0.5592   0.7530   ✔︎ 
-#>   7     -      -   0.0201   0.5698   0.7290   ✔︎*
-#>   8     -      -   0.0231   0.5615   0.7252   -
+#>   7     -      -   0.0201   0.5698   0.7290   ✔︎ 
+#>   8     -      -   0.0231   0.5615   0.7252   ✔︎*
 #>   ✔︎ retained   * optimal k   - not retained
 #> 
 #> ── Recommendations ──
@@ -120,8 +120,8 @@ sk
 #> • MAP: k = 5
 #> • VSS-1: k = 4
 #> • VSS-2: k = 5
-#> • CD: k = 7
-#> Consensus range: k = 4-7
+#> • CD: k = 8
+#> Consensus range: k = 4-8
 #> ────────────────────────────────────────────────────────────────────────────────
 #> Note: k_max in ackwards() is a maximum depth. Setting k_max one or two levels
 #> above the consensus to observe factor fragmentation is intentional.
@@ -306,7 +306,7 @@ citation("ackwards")
 #> To cite package 'ackwards' in publications use:
 #> 
 #>   Girard J (2026). _ackwards: Bass-Ackwards Hierarchical Structural
-#>   Analysis_. R package version 0.2.0.9000,
+#>   Analysis_. R package version 0.3.0,
 #>   <https://github.com/jmgirard/ackwards>.
 #> 
 #> A BibTeX entry for LaTeX users is
@@ -315,7 +315,7 @@ citation("ackwards")
 #>     title = {ackwards: Bass-Ackwards Hierarchical Structural Analysis},
 #>     author = {Jeffrey M. Girard},
 #>     year = {2026},
-#>     note = {R package version 0.2.0.9000},
+#>     note = {R package version 0.3.0},
 #>     url = {https://github.com/jmgirard/ackwards},
 #>   }
 ```
