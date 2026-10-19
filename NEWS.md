@@ -30,7 +30,9 @@
   from the pairwise correlation matrix. ULSMV on `cor = "polychoric"` and
   WLSMV are unchanged. The help for `missing` in `ackwards()` now says which
   estimators use all available cases. It no longer calls WLSMV and ULSMV
-  ordinal-only, and it names the `$meta` fields that record the setting.
+  ordinal-only, and it names the `$meta` fields that record the setting. The
+  estimator table in the engines article no longer calls them ordinal-only
+  either.
 
 * **Which matrix an edge is exact for, in the `ackwards()` help.** The help
   now says that each edge is exact for the correlation matrix stored as
