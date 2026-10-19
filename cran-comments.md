@@ -22,7 +22,7 @@ read on 2026-10-19).
 | macos-latest (GitHub Actions) | release | 0 / 0 / 0 |
 | macos-latest arm64 (GitHub Actions) | oldrel-1 | 0 / 0 / 0 |
 | windows-latest (GitHub Actions) | release | 0 / 0 / 0 |
-| win-builder | R-devel | PENDING |
+| win-builder | R-devel | 0 / 0 / 0 |
 | R-hub `atlas` (ATLAS BLAS) | R-devel | 0 / 0 / 0 |
 | R-hub `nold` (no long double) | R-devel | 0 / 0 / 0 |
 
