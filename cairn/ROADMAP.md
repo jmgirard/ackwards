@@ -16,6 +16,8 @@ and git log. Milestone IDs run through M53; new work continues from M54.
 | M84 | Cross-branch-only secondary edges in the pruned view | blocked | — | normal | milestones/M84-cross-branch-secondary-edges.md |
 <!-- M01–M80 done/dropped (entombed in cairn/legacy/MILESTONES.md + milestones/archive/); terminal-row retention keeps the 3 most recent terminal rows. -->
 
+Released 0.3.0 2026-10-19 (CRAN, tag `v0.3.0` at `b615aa4`).
+
 ## Candidates
 
 - [low] Engines table Spearman: the "Correlations" row of the engines-article comparison table lists only "Pearson or polychoric" for all three engines, but `cor = "spearman"` is also accepted (`?ackwards`, `cor`). Found at the PR #114 hotfix. — added 2026-10-19
