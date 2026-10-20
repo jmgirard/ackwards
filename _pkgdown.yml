@@ -8,6 +8,12 @@ home:
     href: https://github.com/jmgirard/ackwards/issues
 news:
   releases:
+  - text: "0.3.0"
+    href: https://github.com/jmgirard/ackwards/releases/tag/v0.3.0
+  - text: "0.2.0"
+    href: https://github.com/jmgirard/ackwards/releases/tag/v0.2.0
+  - text: "0.1.1"
+    href: https://github.com/jmgirard/ackwards/releases/tag/v0.1.1
   - text: "0.1.0"
     href: https://github.com/jmgirard/ackwards/releases/tag/v0.1.0
 navbar:
