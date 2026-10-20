@@ -20,7 +20,6 @@ Released 0.3.0 2026-10-19 (CRAN, tag `v0.3.0` at `b615aa4`).
 
 ## Candidates
 
-- [low] Engines table Spearman: the "Correlations" row of the engines-article comparison table lists only "Pearson or polychoric" for all three engines, but `cor = "spearman"` is also accepted (`?ackwards`, `cor`). Found at the PR #114 hotfix. — added 2026-10-19
 - [parked] Further CRAN macOS coverage beyond M82: a standing R-hub macOS run in `PROFILE.md`'s release-walk (M82 declined it as subsumed by its push-to-master job) and a macOS x86_64 CI row. The 0.1.1 failure was arm64-only. Promote either on a CRAN macOS failure M82's job could not have caught. — added 2026-07-27, trimmed 2026-09-07, compressed 2026-10-01
 - [parked] Untested axis from M83: disabling testthat parallelism outright (`Config/testthat/parallel: false` / `TESTTHAT_PARALLEL=false`), not only lowering the worker count. At `TESTTHAT_CPUS=1` the crashes still read `testthat subprocess exited`, so no sweep removed the subprocess. Costs M48's speedup and changes DESCRIPTION, so it needs release re-verification. Promote if a CRAN Windows flavour fails with the -1073741819 signature. — added 2026-07-27
 - [parked] ESEM `comparability()`: split-half per level per factor is feasible but runs 2·n_splits lavaan hierarchies per call and needs per-half convergence handling (D-022 / M46). Demand-gated: promote when a user asks. — added 2026-07-11, merged 2026-07-16, split 2026-10-01
