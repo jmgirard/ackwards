@@ -4,6 +4,8 @@
 
 ## ackwards 0.3.0
 
+CRAN release: 2026-10-19
+
 Oblique rotation as an option, with partialled edge coefficients and
 within-level factor correlations in
 [`tidy()`](https://generics.r-lib.org/reference/tidy.html). Also fixes
